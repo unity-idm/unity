@@ -1,0 +1,95 @@
+/*
+ * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+package pl.edu.icm.unity.server.api;
+
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.EntityParam;
+import pl.edu.icm.unity.types.Group;
+import pl.edu.icm.unity.types.GroupContents;
+
+
+/**
+ * Internal engine API for groups management.
+ * 
+ * @author K. Benedyczak
+ */
+public interface GroupsManagement
+{
+	/**
+	 * Adds a new group
+	 * @param toAdd group to add
+	 * @throws EngineException
+	 */
+	public void addGroup(Group toAdd) throws EngineException;
+
+	/**
+	 * Links the sourcePath group in targetPath group, so the sourcePath group contents becomes 
+	 * contents of the targetPath. 
+	 * @param targetPath
+	 * @param sourcePath
+	 * @throws EngineException
+	 */
+	public void linkGroup(String targetPath, String sourcePath) throws EngineException;
+
+	/**
+	 * Unlinks the sourcePath group from the targetPath group.
+	 * @param targetPath
+	 * @param sourcePath
+	 * @throws EngineException
+	 */
+	public void unlinkGroup(String targetPath, String sourcePath) throws EngineException;
+	
+	/**
+	 * Removes a given group. Doesn't work for '/' path.
+	 * @param path
+	 * @param recursive
+	 * @throws EngineException
+	 */
+	public void removeGroup(String path, boolean recursive) throws EngineException;
+	
+	/**
+	 * Creates a group normally. Then adds the creator to it and assigns him/her the manager role.
+	 * Requires smaller permissions then addGroup.
+	 * @param toAdd
+	 * @throws EngineException
+	 */
+	public void addSelfManagedGroup(Group toAdd) throws EngineException;
+	
+	/**
+	 * Adds a new member to the group. The entity must be a member of a parent group.
+	 * @param path
+	 * @param entity
+	 * @throws EngineException
+	 */
+	public void addMemberFromParent(String path, EntityParam entity) throws EngineException;
+	
+	/**
+	 * Removes from the group and all subgroups if the user is in any. 
+	 * If group == '/' fully deletes the user with all identities.
+	 * @param path
+	 * @param entity
+	 * @throws EngineException
+	 */
+	public void removeMember(String path, EntityParam entity) throws EngineException;
+
+	/**
+	 * Allows to retrieve group's contents and metadata. 
+	 * @param path group to be queried.
+	 * @param filter what should be retrieved. Flags are defined in {@link GroupContents} class.
+	 * Can be OR-ed.
+	 * @return
+	 * @throws EngineException
+	 */
+	public GroupContents getContents(String path, int filter) throws EngineException;
+	
+	/**
+	 * Updates the group.
+	 * @param path
+	 * @param group new group's metadata
+	 * @throws EngineException
+	 */
+	public void updateGroup(String path, Group group) throws EngineException;
+}
+
