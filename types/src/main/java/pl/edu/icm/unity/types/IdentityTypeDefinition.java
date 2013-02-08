@@ -6,7 +6,7 @@ package pl.edu.icm.unity.types;
 
 import java.util.List;
 
-import pl.edu.icm.unity.exceptions.IllegalIdentityValue;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 
 /**
  * Implementations defines identity type. 
@@ -33,9 +33,9 @@ public interface IdentityTypeDefinition
 	/**
 	 * Validates if the value is valid
 	 * @param value
-	 * @throws IllegalIdentityValue
+	 * @throws IllegalIdentityValueException
 	 */
-	public void validate(String value) throws IllegalIdentityValue;
+	public void validate(String value) throws IllegalIdentityValueException;
 	
 	/**
 	 * Comparable value must be guaranteed to be unique for the type, i.e. if two

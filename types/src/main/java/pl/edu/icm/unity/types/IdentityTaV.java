@@ -6,7 +6,7 @@ package pl.edu.icm.unity.types;
 
 import java.util.List;
 
-import pl.edu.icm.unity.exceptions.IllegalIdentityValue;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 
 /**
  * Represents an identity type and value. It offers a lot of functionality, which is implemented
@@ -24,7 +24,7 @@ public class IdentityTaV
 	private String prettyStringNoPfx;
 	private String ordinaryString;
 	
-	public IdentityTaV(IdentityTypeDefinition type, String value) throws IllegalIdentityValue
+	public IdentityTaV(IdentityTypeDefinition type, String value) throws IllegalIdentityValueException
 	{
 		this.type = type;
 		this.value = value;

@@ -6,7 +6,7 @@ package pl.edu.icm.unity.types;
 
 import java.util.List;
 
-import pl.edu.icm.unity.exceptions.IllegalIdentityValue;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 
 /**
  * Represents an identity with full information as returned from the engine.
@@ -20,7 +20,7 @@ public class Identity extends IdentityTaV
 	private IdentityType type;
 	
 	public Identity(IdentityType type, String value, String entityId, boolean enabled) 
-			throws IllegalIdentityValue
+			throws IllegalIdentityValueException
 	{
 		super(type.getIdentityTypeProvider(), value);
 		this.entityId = entityId;

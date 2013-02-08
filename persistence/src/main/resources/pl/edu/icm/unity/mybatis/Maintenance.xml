@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.mybatis.Maintenance">
+	<update id="checkdb">
+		CREATE TABLE UVOS_FLAG(
+			VAL VARCHAR(128)
+		)
+	</update>
+
+	<update id="cleardb-00">
+		DROP TABLE IF EXISTS UVOS_FLAG;
+	</update>
+	<update id="cleardb-01">
+		DROP TABLE IF EXISTS VAR_BIG_OBJECTS;
+	</update>
+	<update id="cleardb-02">
+		DROP TABLE IF EXISTS VAR_OBJECTS;
+	</update>
+	<update id="cleardb-03">
+		DROP TABLE IF EXISTS GROUP_ENTITIES;
+	</update>
+	<update id="cleardb-04">
+		DROP TABLE IF EXISTS GROUP_SUBGROUPS;
+	</update>
+	<update id="cleardb-05">
+		DROP TABLE IF EXISTS ATTRIBUTES;
+	</update>
+	<update id="cleardb-06">
+		DROP TABLE IF EXISTS GROUPS;
+	</update>
+	<update id="cleardb-07">
+		DROP TABLE IF EXISTS IDENTITIES;
+	</update>
+	<update id="cleardb-08">
+		DROP TABLE IF EXISTS ENTITIES;
+	</update>
+	<update id="cleardb-09">
+		DROP TABLE IF EXISTS IDENTITY_TYPES;
+	</update>
+	<update id="cleardb-10">
+		DROP TABLE IF EXISTS ATTRIBUTE_TYPES;
+	</update>
+	
+	<select id="getDBVersion" resultType="String">
+		select VAL from UVOS_FLAG 
+	</select>
+</mapper>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="lazyLoadingEnabled" value="false"/>
+		<!-- <setting name="localCacheScope" value="STATEMENT"/> -->
+	</settings>
+
+	<typeAliases>
+<!-- 
+		<typeAlias alias="" type="" />
+ -->
+	</typeAliases>
+	
+	<environments default="def">
+		<environment id="def">
+			<transactionManager type="JDBC"/>
+			<dataSource type="POOLED">
+				<property name="driver" value="${driver}" />
+				<property name="url" value="${jdbcUrl}" />
+				<property name="username" value="${username}" />
+				<property name="password" value="${password}" />
+				<property name="defaultAutoCommit" value="true" />
+			
+				<property name="defaultTransactionIsolationLevel" value="4" /> 
+				
+				<property name="poolMaximumActiveConnections" value="20" />
+				<property name="poolMaximumIdleConnections" value="10" />
+				<property name="poolMaximumCheckoutTime" value="200000" />
+				<property name="poolTimeToWait" value="500" />
+				<property name="poolPingQuery" value="select 1 from IDENTITY_TYPES" />
+				<property name="poolPingEnabled" value="true" />
+				<property name="poolPingConnectionsNotUsedFor" value="600000" />
+			</dataSource>
+		</environment>
+	</environments>
+
+
+	<mappers>
+		<mapper resource="pl/edu/icm/unity/mybatis/Initdb-${dialect}.xml" />
+		<mapper resource="pl/edu/icm/unity/mybatis/Initdb-common.xml" />
+		<mapper resource="pl/edu/icm/unity/mybatis/Maintenance.xml" />
+	</mappers>
+</configuration>

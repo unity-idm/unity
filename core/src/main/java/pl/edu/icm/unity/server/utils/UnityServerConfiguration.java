@@ -6,19 +6,18 @@
  * Author: K. Benedyczak <golbi@mat.umk.pl>
  */
 
-package pl.edu.icm.unity.server;
+package pl.edu.icm.unity.server.utils;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.CommandLinePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-
-import pl.edu.icm.unity.server.utils.Log;
 
 import eu.unicore.security.canl.AuthnAndTrustProperties;
 import eu.unicore.security.canl.CredentialProperties;
@@ -43,9 +42,11 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final String CONFIGURATION_FILE = "conf/unityServer.conf";
+
+	public static final String BASE_PREFIX = "unityServer.";
 	
 	@DocumentationReferencePrefix
-	public static final String P = "unityServer.core.";
+	public static final String P = BASE_PREFIX + "core.";
 	
 	public static final String MAIL_CONF = "mailConfig";
 
@@ -109,5 +110,10 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public IClientConfiguration getClientConfiguration()
 	{
 		return clientCfg;
+	}
+	
+	public Properties getProperties()
+	{
+		return properties;
 	}
 }

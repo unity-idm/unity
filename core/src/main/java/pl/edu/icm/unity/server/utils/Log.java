@@ -12,4 +12,5 @@ public class Log extends eu.unicore.util.Log
 {
 	public static final String U_SERVER = "unity.server";
 	public static final String U_SERVER_CFG = "unity.server.config";
+	public static final String U_SERVER_DB = "unity.server.db";
 }

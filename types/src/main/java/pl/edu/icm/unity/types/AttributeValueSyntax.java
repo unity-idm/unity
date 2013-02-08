@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.types;
 
-import pl.edu.icm.unity.exceptions.IllegalAttributeValue;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 
 /**
  * Base interface defining attribute value type. It provides handling of the 
@@ -33,7 +33,7 @@ public interface AttributeValueSyntax<T> extends JsonSerializable
 	 * Validates the value
 	 * @param value
 	 */
-	public void validate(T value) throws IllegalAttributeValue;
+	public void validate(T value) throws IllegalAttributeValueException;
 	
 	/**
 	 * @param value

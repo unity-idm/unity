@@ -6,11 +6,12 @@
  * Author: K. Benedyczak <golbi@mat.umk.pl>
  */
 
-package pl.edu.icm.unity.server;
+package pl.edu.icm.unity.server.utils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
 
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;

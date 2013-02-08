@@ -8,16 +8,16 @@ package pl.edu.icm.unity.exceptions;
  * Thrown when attribtue value is invalid.
  * @author K. Benedyczak
  */
-public class IllegalIdentityValue extends RuntimeEngineException
+public class IllegalIdentityValueException extends RuntimeEngineException
 {
 	private static final long serialVersionUID = 1L;
 
-	public IllegalIdentityValue(String msg, Throwable cause)
+	public IllegalIdentityValueException(String msg, Throwable cause)
 	{
 		super(msg, cause);
 	}
 
-	public IllegalIdentityValue(String msg)
+	public IllegalIdentityValueException(String msg)
 	{
 		super(msg);
 	}

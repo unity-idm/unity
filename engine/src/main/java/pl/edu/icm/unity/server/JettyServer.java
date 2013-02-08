@@ -23,6 +23,8 @@ import eu.unicore.util.jetty.JettyServerBase;
 
 import pl.edu.icm.unity.server.provider.WebApplicationProvider;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 
 /**
  * Manages HTTP server. Mostly responsible for creating proper hierarchy of HTTP handlers for injected

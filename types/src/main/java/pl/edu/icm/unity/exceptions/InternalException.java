@@ -5,19 +5,20 @@
 package pl.edu.icm.unity.exceptions;
 
 /**
- * Thrown when attribtue value is invalid.
+ * Thrown when a low level problem occurs, which in principle shouldn't happen. Example
+ * can be database problem.
  * @author K. Benedyczak
  */
-public class IllegalAttributeValue extends RuntimeEngineException
+public class InternalException extends RuntimeEngineException
 {
 	private static final long serialVersionUID = 1L;
 
-	public IllegalAttributeValue(String msg, Throwable cause)
+	public InternalException(String msg, Throwable cause)
 	{
 		super(msg, cause);
 	}
 
-	public IllegalAttributeValue(String msg)
+	public InternalException(String msg)
 	{
 		super(msg);
 	}
