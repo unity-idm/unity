@@ -44,6 +44,7 @@ public class UnityApplication
 		MutablePropertySources propertySources = container.getEnvironment().getPropertySources();
 		SimpleCommandLinePropertySource clps = new SimpleCommandLinePropertySource(args);
 		propertySources.addFirst(clps);
+		container.getEnvironment().setActiveProfiles("production");
 		
 		container.refresh();
 		container.registerShutdownHook();

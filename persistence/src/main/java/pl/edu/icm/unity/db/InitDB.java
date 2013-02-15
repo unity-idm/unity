@@ -18,6 +18,8 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.db.mapper.GroupsMapper;
+import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.utils.Log;
 
@@ -42,7 +44,7 @@ public class InitDB
 	
 	private void initDB(DB db)
 	{
-		log.info("Initializing DB");
+		log.info("Initializing DB schema");
 		performUpdate(db, "initdb");
 		SqlSession session = db.getSqlSession(false);
 		try
@@ -57,6 +59,19 @@ public class InitDB
 	private void initData(DB db) throws InternalException
 	{
 		log.info("Inserting initial data");
+		SqlSession session = db.getSqlSession(true);
+		try
+		{
+			GroupsMapper groups = session.getMapper(GroupsMapper.class);
+			GroupBean root = new GroupBean();
+			root.setName(GroupResolver.ROOT_GROUP_NAME);
+			groups.insertGroup(root);
+		} finally
+		{
+			session.commit();
+			session.close();
+		}
+		log.info("Initial data inserted");
 	}
 	
 	public void initIfNeeded(DB db) throws FileNotFoundException, IOException, InternalException

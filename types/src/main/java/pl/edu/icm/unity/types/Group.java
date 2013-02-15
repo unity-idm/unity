@@ -9,6 +9,7 @@
 package pl.edu.icm.unity.types;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,10 +24,10 @@ public class Group implements Serializable
 	private static final long serialVersionUID = 1L;
 	
 	private String[] path;
-	private String description;
-	private List<AttributeStatement> attributeStatements;
+	private String description = "";
+	private List<AttributeStatement> attributeStatements = new ArrayList<AttributeStatement>(0);
 	
-	public Group(Group parent, String name, String description)
+	public Group(Group parent, String name)
 	{
 		if (name == null || name.equals("") || name.contains("/"))
 			throw new IllegalArgumentException("Group name must be a non empty string without '/' character");
@@ -35,10 +36,9 @@ public class Group implements Serializable
 		for (int i=0; i<parentP.length; i++)
 			path[i] = parentP[i];
 		path[path.length-1] = name;
-		this.description = description;
 	}
 
-	public Group(String path, String description)
+	public Group(String path)
 	{
 		if (path.startsWith("/"))
 			path = path.substring(1);
@@ -47,12 +47,16 @@ public class Group implements Serializable
 		this.path = path.split("/");
 		if (this.path.length == 1 && this.path[0].equals(""))
 			this.path = new String[0];
-		this.description = description;
 	}
 
 	public String getDescription()
 	{
 		return description;
+	}
+	
+	public void setDescription(String description)
+	{
+		this.description = description;
 	}
 	
 	public boolean isChild(Group test)
@@ -82,7 +86,7 @@ public class Group implements Serializable
 	public String getParentPath()
 	{
 		if (path.length < 2)
-			return null;
+			return "/";
 		StringBuilder sb = new StringBuilder(path.length*10);
 		for (int i=0; i<path.length-1; i++)
 			sb.append("/").append(path[i]);

@@ -7,4 +7,9 @@
 	<context:annotation-config/>
 	<bean class="pl.edu.icm.unity.db.DBConfiguration"/>
 	<bean class="pl.edu.icm.unity.db.DB"/>
+	<bean class="pl.edu.icm.unity.db.DBGroups"/>
+	<bean class="pl.edu.icm.unity.db.GroupResolver"/>
+
+	<bean class="pl.edu.icm.unity.db.json.SerializersRegistry"/>
+	<bean class="pl.edu.icm.unity.db.json.GroupsSerializer"/>
 </beans>

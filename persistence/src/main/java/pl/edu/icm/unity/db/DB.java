@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
 
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ExecutorType;
@@ -28,6 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.unicore.util.db.DBPropertiesHelper;
 
+import pl.edu.icm.unity.db.mapper.InitdbMapper;
+import pl.edu.icm.unity.db.model.DBLimits;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.utils.Log;
 
@@ -51,11 +54,12 @@ public class DB
 	public static final String P_PASSWD = "password";
 	public static final String P_DIALECT = "dialect";
 
-	public static final String DEF_MAPCONFIG_LOCATION = "pl/edu/icm/unity/mybatis/mapconfig.xml";
+	public static final String DEF_MAPCONFIG_LOCATION = "pl/edu/icm/unity/db/mapper/mapconfig.xml";
 
 	public static final int SESSION_KEEP_WARN_TIME = 2000;
 	
 	private SqlSessionFactory sqlMapFactory;
+	private DBLimits limits;
 
 	@Autowired
 	public DB(DBConfiguration config) throws InternalException, IOException
@@ -65,6 +69,7 @@ public class DB
 		InitDB initDB = new InitDB();
 		initDB.initIfNeeded(this);
 		verifyDBVersion();
+		limits = establishDBLimits();
 	}
 	
 	@SuppressWarnings("resource") //reader is closed by MyBatis
@@ -91,6 +96,8 @@ public class DB
 		
 		return builder.build(reader, properties);
 	}
+
+	
 	
 	private void verifyDBVersion() throws InternalException
 	{
@@ -131,6 +138,11 @@ public class DB
 	public Configuration getMyBatisConfiguration()
 	{
 		return sqlMapFactory.getConfiguration();
+	}
+	
+	public DBLimits getDBLimits()
+	{
+		return limits;
 	}
 	
 	public SqlSession getSqlSession(boolean transactional)
@@ -212,4 +224,21 @@ public class DB
 			releaseSqlSession(sqlMap);
 		}
 	}
+	
+	private DBLimits establishDBLimits() throws InternalException
+	{
+		SqlSession sqlMap = getSqlSession(false);
+		try
+		{
+			InitdbMapper mapper = sqlMap.getMapper(InitdbMapper.class);
+			return mapper.getDBLimits();
+		} catch (PersistenceException e)
+		{
+			throw new InternalException("Can't establish DB limits", e);
+		} finally
+		{
+			releaseSqlSession(sqlMap);
+		}
+	}
+
 }

@@ -7,4 +7,7 @@
 	<context:annotation-config/>
 	<bean class="pl.edu.icm.unity.server.utils.UnityServerConfiguration"/>
 
+	<beans profile="production">
+		<bean class="pl.edu.icm.unity.server.utils.DefaultConfigurationLocation"/>
+	</beans>
 </beans>

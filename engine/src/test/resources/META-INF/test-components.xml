@@ -4,11 +4,7 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<context:annotation-config/>
-	<bean class="pl.edu.icm.unity.server.JettyServer"/>
-	<bean class="pl.edu.icm.unity.server.UnityApplication$InnerServerLifecycle"/>
-	<bean class="pl.edu.icm.unity.server.UnityApplication$ShutdownFinished"/>
-
-	<bean class="pl.edu.icm.unity.engine.GroupsManagementImpl"/>
-
+	<beans profile="test">
+		<bean class="pl.edu.icm.unity.engine.TestConfig"/>
+	</beans>
 </beans>

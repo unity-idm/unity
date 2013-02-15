@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.db.mapper.GroupsMapper">
+	<resultMap id="groupResult" type="GroupB">
+		<result property="id" column="ID"/>
+		<result property="name" column="NAME"/>
+		<result property="parent" column="PARENT_ID"/>
+		<result property="contents" column="CONTENTS"/>
+	</resultMap>
+
+	<select id="resolveGroup" parameterType="GroupB" resultMap="groupResult">
+		select * from GROUPS 
+		where 
+			NAME = #{name} AND
+			<if test="parent != null"> 
+				PARENT_ID = #{parent} 
+			</if>
+			<if test="parent == null"> 
+				PARENT_ID IS NULL 
+			</if>
+	</select>
+
+	<select id="getGroup" parameterType="int" resultMap="groupResult">
+		select * from GROUPS where ID = #{value} 
+	</select>
+	
+	<select id="getSubgroups" parameterType="int" resultMap="groupResult">
+		select * from GROUPS where PARENT_ID = #{value} 
+	</select>
+	
+	<select id="getLinkedGroups" parameterType="int" resultMap="groupResult">
+		select GROUPS.* from GROUPS, GROUP_LINKS 
+		where GROUP_LINKS.GROUP_ID = #{value} AND GROUP_LINKS.CHILD_ID = GROUPS.ID 
+	</select>
+	
+	<insert id="insertGroup" parameterType="GroupB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO GROUPS(NAME, PARENT_ID, CONTENTS) VALUES (#{name}, #{parent}, #{contents})
+	</insert>
+</mapper>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="pl.edu.icm.unity.mybatis.Initdb">
+<mapper namespace="pl.edu.icm.unity.db.mapper.InitdbMapper">
 
 	<update id="initdb-01">
 		CREATE TABLE IDENTITY_TYPES(
@@ -66,10 +66,9 @@ CREATE TABLE GROUP_ENTITIES(
 	</update>
 
 	<update id="initdb-08">
-CREATE TABLE GROUP_SUBGROUPS(
+CREATE TABLE GROUP_LINKS(
 		CHILD_ID INTEGER NOT NULL,
 		GROUP_ID INTEGER NOT NULL,
-		IS_LINK INTEGER NOT NULL,
 		PRIMARY KEY (CHILD_ID, GROUP_ID),
 		FOREIGN KEY (CHILD_ID) REFERENCES GROUPS(ID) ON DELETE CASCADE,
 		FOREIGN KEY (GROUP_ID) REFERENCES GROUPS(ID) ON DELETE CASCADE

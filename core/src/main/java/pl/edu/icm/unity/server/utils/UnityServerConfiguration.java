@@ -76,23 +76,25 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	private IClientConfiguration clientCfg;
 	
 	@Autowired
-	public UnityServerConfiguration(Environment env) throws ConfigurationException, IOException
+	public UnityServerConfiguration(Environment env, ConfigurationLocationProvider locProvider) throws ConfigurationException, IOException
 	{
-		super(P, getConfigurationFile(env), defaults, log);
+		super(P, getConfigurationFile(env, locProvider), defaults, log);
 		jp = new UnityHttpServerConfiguration(properties);
 		authnTrust = new AuthnAndTrustProperties(properties, 
 				P+TruststoreProperties.DEFAULT_PREFIX, P+CredentialProperties.DEFAULT_PREFIX);
 		clientCfg = new ClientProperties(properties, P+ClientProperties.DEFAULT_PREFIX, authnTrust);
 	}
 	
-	private static String getConfigurationFile(Environment env)
+	private static String getConfigurationFile(Environment env, ConfigurationLocationProvider locProvider)
 	{
-		String configFile = CONFIGURATION_FILE;
+		String configFile;
 		String[] nonOptionArgs = env.getProperty(CommandLinePropertySource.DEFAULT_NON_OPTION_ARGS_PROPERTY_NAME, 
 				String[].class);
-		
 		if (nonOptionArgs != null && nonOptionArgs.length > 0)
 			configFile = nonOptionArgs[0];
+		else 
+			configFile = locProvider.getConfigurationLocation();
+			
 		log.debug("Using configuration file: " + configFile);
 		return configFile;
 	}
