@@ -15,6 +15,16 @@ public class BaseBean
 	private String name;
 	private byte[] contents;
 	
+	public BaseBean()
+	{
+	}
+	
+	public BaseBean(String name, byte[] contents)
+	{
+		this.name = name;
+		this.contents = contents;
+	}
+	
 	public Integer getId()
 	{
 		return id;

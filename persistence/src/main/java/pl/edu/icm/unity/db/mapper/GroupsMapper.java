@@ -29,5 +29,5 @@ public interface GroupsMapper
 	public List<GroupBean> getSubgroups(int parentId);
 	public List<GroupBean> getLinkedGroups(int parentId);
 	
-	public GroupBean getGroup(int parentId);
+	public GroupBean getGroup(int id);
 }

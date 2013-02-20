@@ -5,19 +5,19 @@
 package pl.edu.icm.unity.exceptions;
 
 /**
- * Thrown when a requested group was not found in DB.
+ * Thrown when attribtue type is invalid.
  * @author K. Benedyczak
  */
-public class GroupNotKnownException extends EngineException
+public class IllegalAttributeTypeException extends RuntimeEngineException
 {
 	private static final long serialVersionUID = 1L;
 
-	public GroupNotKnownException(String msg, Throwable cause)
+	public IllegalAttributeTypeException(String msg, Throwable cause)
 	{
 		super(msg, cause);
 	}
 
-	public GroupNotKnownException(String msg)
+	public IllegalAttributeTypeException(String msg)
 	{
 		super(msg);
 	}

@@ -13,6 +13,16 @@ public class GroupBean extends BaseBean
 {
 	private Integer parent;
 	
+	public GroupBean() 
+	{
+	}
+	
+	public GroupBean(int parent, String name) 
+	{
+		this.parent = parent;
+		setName(name);
+	}
+	
 	public Integer getParent()
 	{
 		return parent;

@@ -10,7 +10,7 @@ package pl.edu.icm.unity.types;
  * with pluggable implementation. This class adds universal functionality:
  * descriptions, values cardinality limits and more.
  */
-public class AttributeType<T>
+public class AttributeType
 {
 	/**
 	 * The attribute type can not be created or changed using management API (it is created
@@ -31,14 +31,14 @@ public class AttributeType<T>
 	 */
 	public static final int NO_VALUES_LIMITING_FLAG = 0x04;
 	
-	private String description;
+	private String description = "";
 	private String name;
-	private AttributeValueSyntax<T> valueType;
-	private int minElements;
-	private int maxElements;
-	private boolean selfModificable;
-	private AttributeVisibility visibility;
-	private int flags;
+	private AttributeValueSyntax<?> valueType;
+	private int minElements = 0;
+	private int maxElements = 1;
+	private boolean selfModificable = false;
+	private AttributeVisibility visibility = AttributeVisibility.full;
+	private int flags = 0;
 	
 	
 	
@@ -48,6 +48,8 @@ public class AttributeType<T>
 	}
 	public void setDescription(String description)
 	{
+		if (description == null)
+			throw new IllegalArgumentException("Argument can not be null");
 		this.description = description;
 	}
 	public String getName()
@@ -56,14 +58,18 @@ public class AttributeType<T>
 	}
 	public void setName(String name)
 	{
+		if (name == null)
+			throw new IllegalArgumentException("Argument can not be null");
 		this.name = name;
 	}
-	public AttributeValueSyntax<T> getValueType()
+	public AttributeValueSyntax<?> getValueType()
 	{
 		return valueType;
 	}
-	public void setValueType(AttributeValueSyntax<T> valueType)
+	public void setValueType(AttributeValueSyntax<?> valueType)
 	{
+		if (valueType == null)
+			throw new IllegalArgumentException("Argument can not be null");
 		this.valueType = valueType;
 	}
 	public int getMinElements()
@@ -72,6 +78,8 @@ public class AttributeType<T>
 	}
 	public void setMinElements(int minElements)
 	{
+		if (minElements < 0)
+			throw new IllegalArgumentException("Argument can not be negative");
 		this.minElements = minElements;
 	}
 	public int getMaxElements()
@@ -80,6 +88,8 @@ public class AttributeType<T>
 	}
 	public void setMaxElements(int maxElements)
 	{
+		if (maxElements < 0)
+			throw new IllegalArgumentException("Argument can not be negative");
 		this.maxElements = maxElements;
 	}
 	public boolean isSelfModificable()
@@ -96,6 +106,8 @@ public class AttributeType<T>
 	}
 	public void setVisibility(AttributeVisibility visibility)
 	{
+		if (visibility == null)
+			throw new IllegalArgumentException("Argument can not be null");
 		this.visibility = visibility;
 	}
 	public int getFlags()

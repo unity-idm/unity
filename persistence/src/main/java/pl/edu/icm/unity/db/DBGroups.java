@@ -17,8 +17,6 @@ import pl.edu.icm.unity.db.json.SerializersRegistry;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.model.DBLimits;
 import pl.edu.icm.unity.db.model.GroupBean;
-import pl.edu.icm.unity.exceptions.GroupAlreadyExistsException;
-import pl.edu.icm.unity.exceptions.GroupNotKnownException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.Group;
@@ -53,8 +51,7 @@ public class DBGroups
 	 * @throws ElementAlreadyExistsException
 	 */
 	public void addGroup(Group toAdd, SqlSession sqlMap) 
-		throws InternalException, GroupNotKnownException, 
-		GroupAlreadyExistsException
+		throws InternalException, IllegalGroupValueException
 	{
 		if (toAdd.getName().length() > limits.getNameLimit())
 			throw new IllegalGroupValueException("Group name length must not exceed " + 
@@ -63,24 +60,19 @@ public class DBGroups
 		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
 		GroupBean pb = groupResolver.resolveGroup(toAdd.getParentPath(), mapper);
 
-		GroupBean param = new GroupBean();
-		param.setName(toAdd.getName());
-		param.setParent(pb.getId());
+		GroupBean param = new GroupBean(pb.getId(), toAdd.getName());
+		if (mapper.resolveGroup(param) != null)
+			throw new IllegalGroupValueException("Group already exists");
+		
 		param.setContents(jsonS.toJson(toAdd));
 		if (param.getContents().length > limits.getContentsLimit())
 			throw new IllegalGroupValueException("Group metadata size (description, rules, ...) is too big.");
-		try
-		{
-			mapper.insertGroup(param);
-			sqlMap.clearCache();
-		} catch (PersistenceException e)
-		{
-			throw new GroupAlreadyExistsException(toAdd.toString(), e);  
-		}
+		mapper.insertGroup(param);
+		sqlMap.clearCache();
 	}
 	
 	public void removeGroup(String path, boolean recursive, SqlSession sqlMap) 
-			throws InternalException, GroupNotKnownException, IllegalGroupValueException
+			throws InternalException, IllegalGroupValueException
 	{
 		if (path.equals("/"))
 			throw new IllegalGroupValueException("Can't remove the root group");
@@ -96,7 +88,7 @@ public class DBGroups
 	
 	
 	public GroupContents getContents(String path, int filter, SqlSession sqlMap) 
-			throws InternalException, GroupNotKnownException
+			throws InternalException, IllegalGroupValueException
 	{
 		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
 		GroupBean gb = groupResolver.resolveGroup(path, mapper);

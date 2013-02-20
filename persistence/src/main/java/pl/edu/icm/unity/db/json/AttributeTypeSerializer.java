@@ -21,7 +21,7 @@ import pl.edu.icm.unity.types.AttributeVisibility;
  * @author K. Benedyczak
  */
 @Component
-public class AttributeTypeSerializer implements JsonSerializer<AttributeType<?>>
+public class AttributeTypeSerializer implements JsonSerializer<AttributeType>
 {
 	private final ObjectMapper mapper = new ObjectMapper();
 	private AttributeValueTypesRegistry typesRegistry;
@@ -36,7 +36,7 @@ public class AttributeTypeSerializer implements JsonSerializer<AttributeType<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public byte[] toJson(AttributeType<?> src)
+	public byte[] toJson(AttributeType src)
 	{
 		ObjectNode root = mapper.createObjectNode();
 		root.put("description", src.getDescription());
@@ -58,9 +58,8 @@ public class AttributeTypeSerializer implements JsonSerializer<AttributeType<?>>
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void fromJson(byte[] json, AttributeType<?> target)
+	public void fromJson(byte[] json, AttributeType target)
 	{
 		if (json == null)
 			return;
@@ -79,6 +78,7 @@ public class AttributeTypeSerializer implements JsonSerializer<AttributeType<?>>
 		target.setSelfModificable(main.get("selfModificable").asBoolean());
 		target.setVisibility(AttributeVisibility.valueOf(main.get("visibility").asText()));
 		String syntaxId = main.get("valueType").asText();
+		@SuppressWarnings("rawtypes")
 		AttributeValueSyntax syntax = typesRegistry.getByName(syntaxId);
 		target.setValueType(syntax);
 	}
@@ -86,12 +86,10 @@ public class AttributeTypeSerializer implements JsonSerializer<AttributeType<?>>
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public Class<AttributeType<?>> getSupportedClass()
+	public Class<AttributeType> getSupportedClass()
 	{
-		Class<?> ret = AttributeType.class;
-		return (Class<AttributeType<?>>) ret;
+		return AttributeType.class;
 	}
 
 }

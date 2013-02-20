@@ -42,5 +42,6 @@
 		<mapper resource="pl/edu/icm/unity/db/mapper/Maintenance.xml" />
 		<mapper resource="pl/edu/icm/unity/db/mapper/Groups.xml" />
 		<mapper resource="pl/edu/icm/unity/db/mapper/Identities.xml" />
+		<mapper resource="pl/edu/icm/unity/db/mapper/Attributes.xml" />
 	</mappers>
 </configuration>

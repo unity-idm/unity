@@ -30,7 +30,7 @@ public interface AttributesManagement
 	 * @param at
 	 * @throws EngineException
 	 */
-	public <T> void addAttributeType(AttributeType<T> at) throws EngineException;
+	public void addAttributeType(AttributeType at) throws EngineException;
 
 	/**
 	 * Updates an existing attribute type. Fails if the change break constraints of attributes
@@ -38,7 +38,7 @@ public interface AttributesManagement
 	 * @param at
 	 * @throws EngineException
 	 */
-	public <T> void updateAttributeType(AttributeType<T> at) throws EngineException;
+	public void updateAttributeType(AttributeType at) throws EngineException;
 
 	/**
 	 * Removes attribute type by id.
@@ -53,7 +53,7 @@ public interface AttributesManagement
 	 * @return all attribute types
 	 * @throws EngineException
 	 */
-	public List<AttributeType<?>> getAttributeTypes() throws EngineException;
+	public List<AttributeType> getAttributeTypes() throws EngineException;
 
 	/**
 	 * Defines a new attribute class

@@ -8,10 +8,15 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.AttributeValueTypesRegistry;
+import pl.edu.icm.unity.db.DBAttributes;
+import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.types.Attribute;
 import pl.edu.icm.unity.types.AttributeType;
@@ -27,8 +32,18 @@ import pl.edu.icm.unity.types.EntityParam;
 public class AttributesManagementImpl implements AttributesManagement
 {
 	private AttributeValueTypesRegistry attrValueTypesReg;
+	private DBSessionManager db;
+	private DBAttributes dbAttributes;
 	
-	
+	@Autowired
+	public AttributesManagementImpl(AttributeValueTypesRegistry attrValueTypesReg,
+			DBSessionManager db, DBAttributes dbAttributes)
+	{
+		this.attrValueTypesReg = attrValueTypesReg;
+		this.db = db;
+		this.dbAttributes = dbAttributes;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -47,16 +62,32 @@ public class AttributesManagementImpl implements AttributesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> void addAttributeType(AttributeType<T> at) throws EngineException
+	public void addAttributeType(AttributeType toAdd) throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		if (toAdd.getValueType() == null)
+			throw new IllegalAttributeTypeException("Attribute values type must be set for attribute type");
+		if (toAdd.getMaxElements() < toAdd.getMinElements())
+			throw new IllegalAttributeTypeException("Max elements limit can not be less then min elements limit");
+		if (toAdd.getName() == null || toAdd.getName().trim().equals(""))
+			throw new IllegalAttributeTypeException("Attribute type name must be set");
+		if (toAdd.getFlags() != 0)
+			throw new IllegalAttributeTypeException("Custom attribute types must not have any flags set");
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			dbAttributes.addAttributeType(toAdd, sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> void updateAttributeType(AttributeType<T> at) throws EngineException
+	public void updateAttributeType(AttributeType at) throws EngineException
 	{
 		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
 	}
@@ -74,9 +105,16 @@ public class AttributesManagementImpl implements AttributesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<AttributeType<?>> getAttributeTypes() throws EngineException
+	public List<AttributeType> getAttributeTypes() throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		SqlSession sql = db.getSqlSession(false);
+		try
+		{
+			return dbAttributes.getAttributeTypes(sql);
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
 	}
 
 	/**

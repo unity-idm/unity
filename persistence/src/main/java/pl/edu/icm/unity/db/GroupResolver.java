@@ -12,7 +12,7 @@ import pl.edu.icm.unity.db.json.JsonSerializer;
 import pl.edu.icm.unity.db.json.SerializersRegistry;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.model.GroupBean;
-import pl.edu.icm.unity.exceptions.GroupNotKnownException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.Group;
 
@@ -43,12 +43,10 @@ public class GroupResolver
 	 * @throws GroupNotKnownException
 	 */
 	private GroupBean resolveGroup(String name, Integer parentId, GroupsMapper mapper) 
-			throws InternalException, GroupNotKnownException
+			throws InternalException, IllegalGroupValueException
 	{
 		GroupBean res = null;
-		GroupBean param = new GroupBean();
-		param.setName(name);
-		param.setParent(parentId);
+		GroupBean param = new GroupBean(parentId, name);
 		try
 		{
 			res = mapper.resolveGroup(param);
@@ -59,7 +57,7 @@ public class GroupResolver
 			throw new InternalException(msg, e);  
 		}
 		if (res == null)
-			throw new GroupNotKnownException("Group " + name + " is not known");
+			throw new IllegalGroupValueException("Group " + name + " is not known");
 		return res;
 	}
 
@@ -72,7 +70,7 @@ public class GroupResolver
 	 * @throws GroupNotKnownException
 	 */
 	public GroupBean resolveGroup(String groupPath, GroupsMapper mapper) 
-			throws InternalException, GroupNotKnownException 
+			throws InternalException, IllegalGroupValueException
 	{
 		Group group = new Group(groupPath);
 		String path[] = group.getPath();
