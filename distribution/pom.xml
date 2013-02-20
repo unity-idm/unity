@@ -58,6 +58,11 @@
 			<artifactId>unity-server-web</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-std-extensions</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 	</dependencies>
 </project>

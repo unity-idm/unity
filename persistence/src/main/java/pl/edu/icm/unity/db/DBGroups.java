@@ -79,6 +79,22 @@ public class DBGroups
 		}
 	}
 	
+	public void removeGroup(String path, boolean recursive, SqlSession sqlMap) 
+			throws InternalException, GroupNotKnownException, IllegalGroupValueException
+	{
+		if (path.equals("/"))
+			throw new IllegalGroupValueException("Can't remove the root group");
+		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
+		GroupBean gb = groupResolver.resolveGroup(path, mapper);
+		if (!recursive)
+		{
+			if (mapper.getSubgroups(gb.getId()).size() > 0)
+				throw new IllegalGroupValueException("The group contains subgroups");
+		}
+		mapper.deleteGroup(gb.getId());
+	}
+	
+	
 	public GroupContents getContents(String path, int filter, SqlSession sqlMap) 
 			throws InternalException, GroupNotKnownException
 	{

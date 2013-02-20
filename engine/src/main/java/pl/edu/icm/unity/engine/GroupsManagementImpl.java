@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.db.DB;
 import pl.edu.icm.unity.db.DBGroups;
+import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.types.EntityParam;
@@ -23,11 +23,11 @@ import pl.edu.icm.unity.types.GroupContents;
  */
 public class GroupsManagementImpl implements GroupsManagement
 {
-	private DB db;
+	private DBSessionManager db;
 	private DBGroups dbGroups;
 	
 	@Autowired
-	public GroupsManagementImpl(DB db, DBGroups dbGroups)
+	public GroupsManagementImpl(DBSessionManager db, DBGroups dbGroups)
 	{
 		this.db = db;
 		this.dbGroups = dbGroups;
@@ -40,9 +40,9 @@ public class GroupsManagementImpl implements GroupsManagement
 		try
 		{
 			dbGroups.addGroup(toAdd, sql);
+			sql.commit();
 		} finally
 		{
-			sql.commit();
 			db.releaseSqlSession(sql);
 		}
 	}
@@ -62,7 +62,15 @@ public class GroupsManagementImpl implements GroupsManagement
 	@Override
 	public void removeGroup(String path, boolean recursive) throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			dbGroups.removeGroup(path, recursive, sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
 	}
 
 	@Override
@@ -89,10 +97,11 @@ public class GroupsManagementImpl implements GroupsManagement
 		SqlSession sql = db.getSqlSession(true);
 		try 
 		{
-			return dbGroups.getContents(path, filter, sql);
+			GroupContents ret = dbGroups.getContents(path, filter, sql);
+			sql.commit();
+			return ret;
 		} finally
 		{
-			sql.commit();
 			db.releaseSqlSession(sql);
 		}
 	}

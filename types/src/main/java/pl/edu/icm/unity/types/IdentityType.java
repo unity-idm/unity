@@ -47,5 +47,20 @@ public class IdentityType
 	{
 		return extractedAttributes;
 	}
+
+	public void setDescription(String description)
+	{
+		this.description = description;
+	}
+
+	public void setExtractedAttributes(List<String> extractedAttributes)
+	{
+		this.extractedAttributes = extractedAttributes;
+	}
+	
+	public String toString()
+	{
+		return "[" + getIdentityTypeProvider().toString() + "] " + description;
+	}
 }
 

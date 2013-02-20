@@ -17,21 +17,59 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.db.json.JsonSerializer;
+import pl.edu.icm.unity.db.json.SerializersRegistry;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
+import pl.edu.icm.unity.db.mapper.IdentitiesMapper;
+import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.IdentityType;
+import pl.edu.icm.unity.types.IdentityTypeDefinition;
 
 /**
- * Initializes DB if was not.
+ * Initializes DB schema and inserts the initial data. It is checked if DB was already initialized.
+ * If so no change is commited.
  * @author K. Benedyczak
  */
+@Component
 public class InitDB
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InitDB.class);
+
+	private DBSessionManager db;
+	private IdentityTypesRegistry idTypesReg;
+	private JsonSerializer<IdentityType> idTypeSerializer;
 	
-	private void performUpdate(DB db, String operationPfx)
+	@Autowired
+	public InitDB(DBSessionManager db, IdentityTypesRegistry idTypesReg, SerializersRegistry serializersReg)
+	{
+		super();
+		this.db = db;
+		this.idTypesReg = idTypesReg;
+		this.idTypeSerializer = serializersReg.getSerializer(IdentityType.class);
+	}
+
+	
+	public void initIfNeeded() throws FileNotFoundException, IOException, InternalException
+	{
+		SqlSession session = db.getSqlSession(true);
+		try
+		{
+			session.selectOne("getDBVersion");
+			log.info("Database initialized, skipping creation");
+		} catch (PersistenceException e)
+		{
+			initDB();
+			initData();
+		}
+	}
+	
+	private void performUpdate(String operationPfx)
 	{
 		Collection<String> ops = new TreeSet<String>(db.getMyBatisConfiguration().getMappedStatementNames());
 		SqlSession session = db.getSqlSession(ExecutorType.BATCH, false);
@@ -42,10 +80,10 @@ public class InitDB
 		session.close();		
 	}
 	
-	private void initDB(DB db)
+	private void initDB()
 	{
 		log.info("Initializing DB schema");
-		performUpdate(db, "initdb");
+		performUpdate("initdb");
 		SqlSession session = db.getSqlSession(false);
 		try
 		{
@@ -56,7 +94,7 @@ public class InitDB
 		}
 	}
 
-	private void initData(DB db) throws InternalException
+	private void initData() throws InternalException
 	{
 		log.info("Inserting initial data");
 		SqlSession session = db.getSqlSession(true);
@@ -66,25 +104,31 @@ public class InitDB
 			GroupBean root = new GroupBean();
 			root.setName(GroupResolver.ROOT_GROUP_NAME);
 			groups.insertGroup(root);
+			
+			createIDTypes(session);
+			
+			session.commit();
 		} finally
 		{
-			session.commit();
 			session.close();
 		}
 		log.info("Initial data inserted");
 	}
 	
-	public void initIfNeeded(DB db) throws FileNotFoundException, IOException, InternalException
+	private void createIDTypes(SqlSession session)
 	{
-		SqlSession session = db.getSqlSession(true);
-		try
+		IdentitiesMapper mapper = session.getMapper(IdentitiesMapper.class);
+		Collection<IdentityTypeDefinition> idTypes = idTypesReg.getAll();
+		for (IdentityTypeDefinition idTypeDef: idTypes)
 		{
-			session.selectOne("getDBVersion");
-			log.info("Database initialized, skipping creation");
-		} catch (PersistenceException e)
-		{
-			initDB(db);
-			initData(db);
+			BaseBean toAdd = new BaseBean();
+			IdentityType idType = new IdentityType(idTypeDef);
+			idType.setDescription(idTypeDef.getDefaultDescription());
+			idType.setExtractedAttributes(idTypeDef.getAttributesSupportedForExtraction());
+
+			toAdd.setName(idTypeDef.getId());
+			toAdd.setContents(idTypeSerializer.toJson(idType));
+			mapper.insertIdentityType(toAdd);
 		}
 	}
 }

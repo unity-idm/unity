@@ -5,12 +5,8 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<context:annotation-config/>
-	<bean class="pl.edu.icm.unity.server.JettyServer"/>
-	<bean class="pl.edu.icm.unity.server.UnityApplication$InnerServerLifecycle"/>
-	<bean class="pl.edu.icm.unity.server.UnityApplication$ShutdownFinished"/>
-
-	<bean class="pl.edu.icm.unity.engine.GroupsManagementImpl"/>
-	<bean class="pl.edu.icm.unity.engine.IdentitiesManagementImpl"/>
-	<bean class="pl.edu.icm.unity.engine.AttributesManagementImpl"/>
-
+	<bean class="pl.edu.icm.unity.stdext.identity.X500Identity"/>
+	<bean class="pl.edu.icm.unity.stdext.attr.StringAttributeSyntax"/>
+	
+	
 </beans>

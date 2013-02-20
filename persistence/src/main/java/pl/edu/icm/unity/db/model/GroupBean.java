@@ -9,29 +9,10 @@ package pl.edu.icm.unity.db.model;
  * In DB group representation.
  * @author K. Benedyczak
  */
-public class GroupBean
+public class GroupBean extends BaseBean
 {
-	private Integer id;
-	private String name;
 	private Integer parent;
-	private byte[] contents;
 	
-	public Integer getId()
-	{
-		return id;
-	}
-	public void setId(Integer id)
-	{
-		this.id = id;
-	}
-	public String getName()
-	{
-		return name;
-	}
-	public void setName(String name)
-	{
-		this.name = name;
-	}
 	public Integer getParent()
 	{
 		return parent;
@@ -39,37 +20,5 @@ public class GroupBean
 	public void setParent(Integer parent)
 	{
 		this.parent = parent;
-	}
-	
-	public byte[] getContents()
-	{
-		return contents;
-	}
-	public void setContents(byte[] contents)
-	{
-		this.contents = contents;
-	}
-	
-	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + id;
-		return result;
-	}
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		GroupBean other = (GroupBean) obj;
-		if (id != other.id)
-			return false;
-		return true;
 	}
 }

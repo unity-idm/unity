@@ -28,7 +28,7 @@ public interface AttributeValueSyntax<T> extends JsonSerializable
 	 * @return attribute value syntax ID
 	 */
 	public String getValueSyntaxId();
-	
+
 	/**
 	 * Validates the value
 	 * @param value

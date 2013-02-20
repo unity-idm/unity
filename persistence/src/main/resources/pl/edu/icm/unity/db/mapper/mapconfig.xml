@@ -7,6 +7,7 @@
 	</settings>
 
 	<typeAliases>
+		<typeAlias alias="BaseB" type="pl.edu.icm.unity.db.model.BaseBean" />
 		<typeAlias alias="GroupB" type="pl.edu.icm.unity.db.model.GroupBean" />
 		<typeAlias alias="DBLimits" type="pl.edu.icm.unity.db.model.DBLimits" />
 	</typeAliases>
@@ -40,5 +41,6 @@
 		<mapper resource="pl/edu/icm/unity/db/mapper/Initdb-common.xml" />
 		<mapper resource="pl/edu/icm/unity/db/mapper/Maintenance.xml" />
 		<mapper resource="pl/edu/icm/unity/db/mapper/Groups.xml" />
+		<mapper resource="pl/edu/icm/unity/db/mapper/Identities.xml" />
 	</mappers>
 </configuration>

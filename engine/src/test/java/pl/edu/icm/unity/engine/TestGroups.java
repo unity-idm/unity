@@ -9,8 +9,7 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import static org.junit.Assert.*;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +19,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.types.Group;
 import pl.edu.icm.unity.types.GroupContents;
+import pl.edu.icm.unity.types.IdentityType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml", "classpath:META-INF/test-components.xml"})
@@ -30,11 +31,20 @@ public class TestGroups
 {
 	@Autowired
 	private GroupsManagement groupsMan;
+	@Autowired
+	private IdentitiesManagement idsMan;
 	
-	@Before
-	public void clear() throws IOException
+	@BeforeClass
+	public static void clear() throws IOException
 	{
 		FileUtils.deleteDirectory(new File("target/data"));
+	}
+	
+	@Test
+	public void testIdTypes() throws Exception
+	{
+		for (IdentityType idType: idsMan.getIdentityTypes())
+			System.out.println(idType);
 	}
 	
 	@Test
@@ -65,18 +75,43 @@ public class TestGroups
 		groupsMan.addGroup(abd);
 		
 		GroupContents contentRoot = groupsMan.getContents("/", GroupContents.EVERYTHING);
-		Assert.assertEquals(1, contentRoot.getSubGroups().size());
-		Assert.assertEquals("/A", contentRoot.getSubGroups().get(0).toString());
-		Assert.assertEquals("foo", contentRoot.getSubGroups().get(0).getDescription());
+		assertEquals(1, contentRoot.getSubGroups().size());
+		assertEquals("/A", contentRoot.getSubGroups().get(0).toString());
+		assertEquals("foo", contentRoot.getSubGroups().get(0).getDescription());
 
 		GroupContents contentA = groupsMan.getContents("/A", GroupContents.EVERYTHING);
-		Assert.assertEquals(2, contentA.getSubGroups().size());
-		Assert.assertEquals("/A/B", contentA.getSubGroups().get(0).toString());
-		Assert.assertEquals("/A/C", contentA.getSubGroups().get(1).toString());
-		Assert.assertEquals("goo", contentA.getSubGroups().get(1).getDescription());
+		assertEquals(2, contentA.getSubGroups().size());
+		assertEquals("/A/B", contentA.getSubGroups().get(0).toString());
+		assertEquals("/A/C", contentA.getSubGroups().get(1).toString());
+		assertEquals("goo", contentA.getSubGroups().get(1).getDescription());
 		
 		GroupContents contentAB = groupsMan.getContents("/A/B", GroupContents.EVERYTHING);
-		Assert.assertEquals(1, contentAB.getSubGroups().size());
-		Assert.assertEquals("/A/B/D", contentAB.getSubGroups().get(0).toString());
+		assertEquals(1, contentAB.getSubGroups().size());
+		assertEquals("/A/B/D", contentAB.getSubGroups().get(0).toString());
+		
+		try
+		{
+			groupsMan.removeGroup("/A", false);
+			fail("Removed non empty group, with recursive == false");
+		} catch (IllegalGroupValueException e)
+		{
+			//OK
+		}
+		try
+		{
+			groupsMan.removeGroup("/", true);
+			fail("Removed root group");
+		} catch (IllegalGroupValueException e)
+		{
+			//OK
+		}
+		
+		groupsMan.removeGroup("/A/B/D", false);
+		contentAB = groupsMan.getContents("/A/B", GroupContents.EVERYTHING);
+		assertEquals(0, contentAB.getSubGroups().size());
+		
+		groupsMan.removeGroup("/A", true);
+		contentRoot = groupsMan.getContents("/", GroupContents.EVERYTHING);
+		assertEquals(0, contentRoot.getSubGroups().size());
 	}
 }

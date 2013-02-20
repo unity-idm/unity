@@ -37,4 +37,9 @@
 	<insert id="insertGroup" parameterType="GroupB" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO GROUPS(NAME, PARENT_ID, CONTENTS) VALUES (#{name}, #{parent}, #{contents})
 	</insert>
+	
+	<delete id="deleteGroup" parameterType="int">
+		DELETE FROM GROUPS WHERE ID = #{value}
+	</delete>
+	
 </mapper>
