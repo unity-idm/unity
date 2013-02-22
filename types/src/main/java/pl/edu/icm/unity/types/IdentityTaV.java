@@ -4,31 +4,25 @@
  */
 package pl.edu.icm.unity.types;
 
-import java.util.List;
-
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 
 /**
- * Represents an identity type and value. It offers a lot of functionality, which is implemented
- * by a {@link IdentityTypeDefinition}.
+ * Represents an identity type and value. This class is useful to address existing identity as a parameter.
  * 
  * @author K. Benedyczak
  */
 public class IdentityTaV
 {
-	private IdentityTypeDefinition type;
-	private String value;
+	private String typeId;
+	protected String value;
 	
-	private String comparableValue;
-	private String prettyString;
-	private String prettyStringNoPfx;
-	private String ordinaryString;
-	
-	public IdentityTaV(IdentityTypeDefinition type, String value) throws IllegalIdentityValueException
+	public IdentityTaV()
 	{
-		this.type = type;
+	}
+	
+	public IdentityTaV(String type, String value) 
+	{
+		this.typeId = type;
 		this.value = value;
-		this.type.validate(value);
 	}
 
 	public String getValue()
@@ -36,45 +30,19 @@ public class IdentityTaV
 		return value;
 	}
 	
-	public IdentityTypeDefinition getTypeDefinition()
+	public String getTypeId()
 	{
-		return type;
+		return typeId;
 	}
 
-	
-	public String getComparableValue()
+	public void setTypeId(String type)
 	{
-		if (comparableValue == null)
-			comparableValue = type.getComparableValue(value);
-		return comparableValue;
-	}
-	
-	public List<Attribute<?>> extractAllAttributes()
-	{
-		return type.extractAttributes(value, null);
-	}
-	
-	/**
-	 * Similar to {@link #toString()}, but allows for less verbose
-	 * and more user-friendly output.
-	 * @return
-	 */
-	public String toPrettyString()
-	{
-		if (prettyString == null)
-			prettyString = type.toPrettyString(value);
-		return prettyString;
+		this.typeId = type;
 	}
 
-	/**
-	 * Similar to {@link #toPrettyString()}, but doesn't return id type prefix.
-	 * @return
-	 */
-	public String toPrettyStringNoPrefix()
+	public void setValue(String value)
 	{
-		if (prettyStringNoPfx == null)
-			prettyStringNoPfx = type.toPrettyStringNoPrefix(value);
-		return prettyStringNoPfx;
+		this.value = value;
 	}
 
 	/**
@@ -82,8 +50,6 @@ public class IdentityTaV
 	 */
 	public String toString()
 	{
-		if (ordinaryString == null)
-			ordinaryString = type.toString(value);
-		return ordinaryString;
+		return "[" + typeId + "] " + value;
 	}
 }

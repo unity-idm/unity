@@ -44,7 +44,7 @@ public interface IdentitiesManagement
 	 * @return newly created identity
 	 * @throws EngineException
 	 */
-	public Identity addIdentity(IdentityTaV toAdd, String lacId) throws EngineException;
+	public Identity addIdentity(IdentityParam toAdd, String lacId) throws EngineException;
 	
 	/**
 	 * Adds a new identity under existing entity.
@@ -53,15 +53,24 @@ public interface IdentitiesManagement
 	 * @return newly created identity
 	 * @throws EngineException
 	 */
-	public Identity addIdentity(IdentityTaV toAdd, EntityParam parentEntity) throws EngineException;
+	public Identity addIdentity(IdentityParam toAdd, EntityParam parentEntity) throws EngineException;
 	
 	/**
-	 * Deletes identity.
+	 * Deletes identity. It must not be the last identity of the entity.
+	 * Certain system Identities can not be removed.
 	 * <p>
 	 * @param toRemove
 	 * @throws EngineException
 	 */
-	public void removeIdentity(IdentityParam toRemove) throws EngineException;
+	public void removeIdentity(IdentityTaV toRemove) throws EngineException;
+
+	/**
+	 * Deletes entity.
+	 * <p>
+	 * @param toRemove
+	 * @throws EngineException
+	 */
+	public void removeEntity(EntityParam toRemove) throws EngineException;
 
 	/**
 	 * Enables/disables identity
@@ -69,7 +78,7 @@ public interface IdentitiesManagement
 	 * @param status
 	 * @throws EngineException
 	 */
-	public void setIdentityStatus(IdentityParam toChange, boolean status) 
+	public void setIdentityStatus(IdentityTaV toChange, boolean status) 
 			throws EngineException;
 	
 	/**

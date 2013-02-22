@@ -17,7 +17,7 @@ CREATE TABLE ATTRIBUTE_TYPES(
 
 	<update id="initdb-03">
 CREATE TABLE ENTITIES(
-		<include refid="defaultColsMemU"/>
+		<include refid="defaultColsMem"/>
 		<include refid="tableOpts"/>		
 	</update>
 

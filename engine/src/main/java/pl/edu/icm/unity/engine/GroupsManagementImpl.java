@@ -82,13 +82,29 @@ public class GroupsManagementImpl implements GroupsManagement
 	@Override
 	public void addMemberFromParent(String path, EntityParam entity) throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			dbGroups.addMemberFromParent(path, entity, sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
 	}
 
 	@Override
 	public void removeMember(String path, EntityParam entity) throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			dbGroups.removeMember(path, entity, sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
 	}
 
 	@Override

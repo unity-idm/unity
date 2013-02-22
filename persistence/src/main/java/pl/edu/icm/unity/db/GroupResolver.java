@@ -42,7 +42,7 @@ public class GroupResolver
 	 * @throws InternalException
 	 * @throws GroupNotKnownException
 	 */
-	private GroupBean resolveGroup(String name, Integer parentId, GroupsMapper mapper) 
+	private GroupBean resolveGroup(String name, Long parentId, GroupsMapper mapper) 
 			throws InternalException, IllegalGroupValueException
 	{
 		GroupBean res = null;
@@ -75,7 +75,7 @@ public class GroupResolver
 		Group group = new Group(groupPath);
 		String path[] = group.getPath();
 		GroupBean b = resolveGroup(ROOT_GROUP_NAME, null, mapper);
-		Integer p = b.getId();
+		Long p = b.getId();
 		for (int i=0; i<path.length; i++)
 		{
 			b = resolveGroup(path[i], p, mapper);

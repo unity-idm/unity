@@ -11,23 +11,23 @@ package pl.edu.icm.unity.db.model;
  */
 public class GroupBean extends BaseBean
 {
-	private Integer parent;
+	private Long parent;
 	
 	public GroupBean() 
 	{
 	}
 	
-	public GroupBean(int parent, String name) 
+	public GroupBean(Long parent, String name) 
 	{
 		this.parent = parent;
 		setName(name);
 	}
 	
-	public Integer getParent()
+	public Long getParent()
 	{
 		return parent;
 	}
-	public void setParent(Integer parent)
+	public void setParent(Long parent)
 	{
 		this.parent = parent;
 	}

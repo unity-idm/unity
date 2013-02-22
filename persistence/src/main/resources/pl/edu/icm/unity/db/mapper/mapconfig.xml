@@ -3,12 +3,16 @@
 <configuration>
 	<settings>
 		<setting name="lazyLoadingEnabled" value="false"/>
+		<setting name="aggressiveLazyLoading" value="false"/>
+		
 		<!-- <setting name="localCacheScope" value="STATEMENT"/> -->
 	</settings>
 
 	<typeAliases>
 		<typeAlias alias="BaseB" type="pl.edu.icm.unity.db.model.BaseBean" />
 		<typeAlias alias="GroupB" type="pl.edu.icm.unity.db.model.GroupBean" />
+		<typeAlias alias="IdentityB" type="pl.edu.icm.unity.db.model.IdentityBean" />
+		<typeAlias alias="GroupElementB" type="pl.edu.icm.unity.db.model.GroupElementBean" />
 		<typeAlias alias="DBLimits" type="pl.edu.icm.unity.db.model.DBLimits" />
 	</typeAliases>
 	

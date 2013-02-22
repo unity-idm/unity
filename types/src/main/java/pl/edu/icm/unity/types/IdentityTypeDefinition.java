@@ -25,6 +25,11 @@ public interface IdentityTypeDefinition
 	public String getDefaultDescription();
 	
 	/**
+	 * @return if true then the identity type is special, and can not be neither created or removed manually.
+	 */
+	public boolean isSystem();
+	
+	/**
 	 * 
 	 * @return list of ids of attribute types that can be extracted from the identity of this type.
 	 */

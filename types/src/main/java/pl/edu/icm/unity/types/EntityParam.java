@@ -6,44 +6,34 @@ package pl.edu.icm.unity.types;
 
 /**
  * Allows for flexible addressing of a subject of a method operating on a particular entity:
- * either using entityId or using {@link IdentityValue} (belonging to the entity) 
- * or using identityId (of the entity).
+ * either using entityId or using {@link IdentityValue} (belonging to the entity). 
  * @author K. Benedyczak
  */
-public class EntityParam extends IdentityParam
+public class EntityParam
 {
+	private IdentityTaV identity;
 	private String entityId;
 	
 	/**
-	 * @param id
-	 * @param entityParam allows to select whether the id is of entity (true) or identity (false)
-	 */
-	public EntityParam(String id, boolean entityParam)
-	{
-		super();
-		if (entityParam)
-			entityId = id;
-		else
-			identityId = id;
-			
-	}
-
-	public EntityParam(IdentityTaV identityValue)
-	{
-		super(identityValue);
-	}
-
-	/**
-	 * @param entityId entity id. The same as {@link #EntityParam(String, boolean)} with the second
-	 * argument == true.
+	 * @param entityId
 	 */
 	public EntityParam(String entityId)
 	{
 		this.entityId = entityId;
 	}
 
+	public EntityParam(IdentityTaV identityValue)
+	{
+		this.identity = identityValue;
+	}
+
 	public String getEntityId()
 	{
 		return entityId;
+	}
+
+	public IdentityTaV getIdentity()
+	{
+		return identity;
 	}
 }

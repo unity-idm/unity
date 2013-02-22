@@ -9,6 +9,11 @@
 		<result property="contents" column="CONTENTS"/>
 	</resultMap>
 
+	<resultMap id="groupMember" type="GroupElementB">
+		<result property="groupId" column="GROUP_ID"/>
+		<result property="elementId" column="ENTITY_ID"/>
+	</resultMap>
+
 	<select id="resolveGroup" parameterType="GroupB" resultMap="groupResult">
 		select * from GROUPS 
 		where 
@@ -21,25 +26,43 @@
 			</if>
 	</select>
 
-	<select id="getGroup" parameterType="int" resultMap="groupResult">
+	<select id="getGroup" parameterType="long" resultMap="groupResult">
 		select * from GROUPS where ID = #{value} 
 	</select>
 	
-	<select id="getSubgroups" parameterType="int" resultMap="groupResult">
+	<select id="getSubgroups" parameterType="long" resultMap="groupResult">
 		select * from GROUPS where PARENT_ID = #{value} 
 	</select>
 	
-	<select id="getLinkedGroups" parameterType="int" resultMap="groupResult">
+	<select id="getLinkedGroups" parameterType="long" resultMap="groupResult">
 		select GROUPS.* from GROUPS, GROUP_LINKS 
 		where GROUP_LINKS.GROUP_ID = #{value} AND GROUP_LINKS.CHILD_ID = GROUPS.ID 
+	</select>
+
+	<select id="getMembers" parameterType="long" resultType="BaseB">
+		select ENTITIES.* from ENTITIES, GROUP_ENTITIES 
+		where GROUP_ENTITIES.GROUP_ID = #{value} AND GROUP_ENTITIES.ENTITY_ID = ENTITIES.ID 
 	</select>
 	
 	<insert id="insertGroup" parameterType="GroupB" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO GROUPS(NAME, PARENT_ID, CONTENTS) VALUES (#{name}, #{parent}, #{contents})
 	</insert>
 	
-	<delete id="deleteGroup" parameterType="int">
+	<delete id="deleteGroup" parameterType="long">
 		DELETE FROM GROUPS WHERE ID = #{value}
 	</delete>
+	
+	<select id="isMember" parameterType="GroupElementB" resultMap="groupMember">
+		SELECT * FROM GROUP_ENTITIES WHERE ENTITY_ID = #{elementId} AND GROUP_ID = #{groupId}  
+	</select>
+	
+	<insert id="insertMember" parameterType="GroupElementB">
+		INSERT INTO GROUP_ENTITIES (GROUP_ID, ENTITY_ID) VALUES (#{groupId}, #{elementId})
+	</insert>
+	
+	<delete id="deleteMember" parameterType="GroupElementB">
+		DELETE FROM GROUP_ENTITIES WHERE GROUP_ID=#{groupId} AND ENTITY_ID=#{elementId}
+	</delete>
+	
 	
 </mapper>

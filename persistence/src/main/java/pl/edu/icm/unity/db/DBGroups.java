@@ -15,10 +15,13 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.json.JsonSerializer;
 import pl.edu.icm.unity.db.json.SerializersRegistry;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
+import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.DBLimits;
 import pl.edu.icm.unity.db.model.GroupBean;
+import pl.edu.icm.unity.db.model.GroupElementBean;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.EntityParam;
 import pl.edu.icm.unity.types.Group;
 import pl.edu.icm.unity.types.GroupContents;
 
@@ -31,13 +34,15 @@ import pl.edu.icm.unity.types.GroupContents;
 public class DBGroups
 {
 	private GroupResolver groupResolver;
+	private IdentitiesResolver idResolver;
 	private DBLimits limits;
 	private JsonSerializer<Group> jsonS;
 	
 	@Autowired
-	public DBGroups(GroupResolver groupResolver, SerializersRegistry reg, DB db)
+	public DBGroups(GroupResolver groupResolver, IdentitiesResolver idResolver, SerializersRegistry reg, DB db)
 	{
 		this.groupResolver = groupResolver;
+		this.idResolver = idResolver;
 		this.limits = db.getDBLimits();
 		jsonS = reg.getSerializer(Group.class);
 	}
@@ -74,10 +79,10 @@ public class DBGroups
 	public void removeGroup(String path, boolean recursive, SqlSession sqlMap) 
 			throws InternalException, IllegalGroupValueException
 	{
-		if (path.equals("/"))
-			throw new IllegalGroupValueException("Can't remove the root group");
 		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
 		GroupBean gb = groupResolver.resolveGroup(path, mapper);
+		if (gb.getParent() == null)
+			throw new IllegalGroupValueException("Can't remove the root group");
 		if (!recursive)
 		{
 			if (mapper.getSubgroups(gb.getId()).size() > 0)
@@ -108,11 +113,12 @@ public class DBGroups
 			}
 			if ((filter & GroupContents.MEMBERS) != 0)
 			{
-				//TODO
+				List<BaseBean> membersRaw = mapper.getMembers(gb.getId());
+				ret.setMembers(convertEntities(membersRaw));
 			}
 			if ((filter & GroupContents.METADATA) != 0)
 			{
-				//TODO
+				//TODO retrieval of metadata
 			}
 		} catch (PersistenceException e)
 		{
@@ -121,11 +127,52 @@ public class DBGroups
 		return ret;
 	}
 	
+	public void addMemberFromParent(String path, EntityParam entity, SqlSession sqlMap)
+	{
+		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
+		GroupBean gb = groupResolver.resolveGroup(path, mapper);
+		long entityId = idResolver.getEntityId(entity, sqlMap);
+		if (gb.getParent() != null)
+		{
+			GroupElementBean param = new GroupElementBean(gb.getParent(), entityId);
+			if (mapper.isMember(param) == null)
+				throw new IllegalGroupValueException("Can't add to the group, as the entity is not a member of its parent group");
+		}
+
+		GroupElementBean param = new GroupElementBean(gb.getId(), entityId);
+		if (mapper.isMember(param) != null)
+			throw new IllegalGroupValueException("The entity is already a member a member of this group");
+		mapper.insertMember(param);
+	}
+	
+	public void removeMember(String path, EntityParam entity, SqlSession sqlMap)
+	{
+		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
+		GroupBean gb = groupResolver.resolveGroup(path, mapper);
+		if (gb.getParent() == null)
+			throw new IllegalGroupValueException("The entity can not be removed from the root group");
+		long entityId = idResolver.getEntityId(entity, sqlMap);
+		GroupElementBean param = new GroupElementBean(gb.getId(), entityId);
+		if (mapper.isMember(param) == null)
+			throw new IllegalGroupValueException("The entity is not a member of the group");
+		
+		mapper.deleteMember(param);
+	}
+	
+	
 	private List<Group> convertGroups(List<GroupBean> src, GroupsMapper mapper)
 	{
 		List<Group> ret = new ArrayList<Group>(src.size());
 		for (int i=0; i<src.size(); i++)
 			ret.add(groupResolver.resolveGroupBean(src.get(i), mapper));
+		return ret;
+	}
+	
+	private List<String> convertEntities(List<BaseBean> src)
+	{
+		List<String> ret = new ArrayList<String>(src.size());
+		for (int i=0; i<src.size(); i++)
+			ret.add(src.get(i).getId()+"");
 		return ret;
 	}
 

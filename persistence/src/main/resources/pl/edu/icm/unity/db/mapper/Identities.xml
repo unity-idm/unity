@@ -5,15 +5,58 @@
 
 	<insert id="insertIdentityType" parameterType="BaseB">
 		INSERT INTO IDENTITY_TYPES (NAME, CONTENTS) VALUES (#{name}, #{contents})
-	</insert>	
+	</insert>
 
 	<update id="updateIdentityType" parameterType="BaseB">
 		UPDATE IDENTITY_TYPES SET NAME = #{name}, CONTENTS=#{contents}
-	</update>	
+	</update>
 
 	<select id="getIdentityTypes" resultType="BaseB">
 		select * from IDENTITY_TYPES
-	</select>	
+	</select>
 
+	<select id="getIdentityTypeByName" parameterType="string" resultType="BaseB">
+		select * from IDENTITY_TYPES where NAME = #{value}
+	</select>
+	
+	<select id="getIdentityTypeById" parameterType="long" resultType="BaseB">
+		select * from IDENTITY_TYPES where ID = #{value}
+	</select>
+
+
+
+	<insert id="insertEntity" parameterType="BaseB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO ENTITIES (CONTENTS) VALUES (#{contents})
+	</insert>
+
+	<select id="getEntityById" parameterType="long" resultType="BaseB">
+		select * from ENTITIES where ID = #{value}
+	</select>
+
+
+	<select id="getIdentitiesByEntity" parameterType="long" resultType="IdentityB">
+		select * from IDENTITIES where IDENTITIES.ENTITY_ID = #{value}
+	</select>
+	
+	<insert id="insertIdentity" parameterType="IdentityB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO IDENTITIES (NAME, CONTENTS, TYPE_ID, ENTITY_ID) 
+			VALUES (#{name}, #{contents}, #{typeId}, #{entityId})
+	</insert>
+	
+	<update id="updateIdentity" parameterType="IdentityB">
+		UPDATE IDENTITIES SET (CONTENTS = #{contents}) WHERE ID = #{id}
+	</update>
+	
+	<delete id="deleteIdentity" parameterType="string">
+		DELETE FROM IDENTITIES WHERE NAME = #{value}
+	</delete>
+
+	<delete id="deleteEntity" parameterType="long">
+		DELETE FROM ENTITIES WHERE ID = #{value}
+	</delete>
+	
+	<select id="getIdentityByName" resultType="IdentityB" parameterType="string">
+		select * from IDENTITIES WHERE NAME = #{value}
+	</select>
 	
 </mapper>

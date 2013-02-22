@@ -1,0 +1,72 @@
+/*
+ * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+package pl.edu.icm.unity.db.json;
+
+import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.IdentityParam;
+
+/**
+ * Handles serialization of {@link IdentityParam} metadata.
+ * @author K. Benedyczak
+ */
+@Component
+public class IdentitySerializer implements JsonSerializer<IdentityParam>
+{
+	private ObjectMapper mapper = new ObjectMapper();
+	
+	/**
+	 * @param src
+	 * @return Json as byte[] with the src contents.
+	 */
+	public byte[] toJson(IdentityParam src)
+	{
+		ObjectNode main = mapper.createObjectNode();
+		main.put("enabled", src.isEnabled());
+		main.put("local", src.isLocal());
+		main.put("value", src.getValue());
+		try
+		{
+			return mapper.writeValueAsBytes(main);
+		} catch (JsonProcessingException e)
+		{
+			throw new InternalException("Can't perform JSON serialization", e);
+		}
+	}
+	
+	/**
+	 * Fills target with JSON contents, checking it for correctness
+	 * @param json
+	 * @param target
+	 */
+	public void fromJson(byte[] json, IdentityParam target)
+	{
+		if (json == null)
+			return;
+		ObjectNode main;
+		try
+		{
+			main = mapper.readValue(json, ObjectNode.class);
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't perform JSON deserialization", e);
+		}
+
+		target.setEnabled(main.get("enabled").asBoolean());
+		target.setLocal(main.get("local").asBoolean());
+		target.setValue(main.get("value").asText());
+	}
+
+	@Override
+	public Class<IdentityParam> getSupportedClass()
+	{
+		return IdentityParam.class;
+	}
+}

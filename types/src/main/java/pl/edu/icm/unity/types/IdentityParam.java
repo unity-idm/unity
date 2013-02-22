@@ -4,37 +4,45 @@
  */
 package pl.edu.icm.unity.types;
 
+
 /**
- * Allows for flexible addressing of a subject of a method operating on a particular identity:
- * either using identityId or using {@link IdentityValue}.
+ * This class is useful when creating a new Identity.
+ * 
  * @author K. Benedyczak
  */
-public class IdentityParam
+public class IdentityParam extends IdentityTaV
 {
-	protected String identityId;
-	protected IdentityTaV identityValue;
+	private boolean enabled;
+	private boolean local;
 	
-	public IdentityParam(String identityId)
-	{
-		this.identityId = identityId;
-	}
-
-	public IdentityParam(IdentityTaV identityValue)
-	{
-		this.identityValue = identityValue;
-	}
-
-	protected IdentityParam()
+	public IdentityParam()
 	{
 	}
 	
-	public String getIdentityId()
+	public IdentityParam(String type, String value, boolean enabled, boolean local) 
 	{
-		return identityId;
+		super(type, value);
+		this.enabled = enabled;
+		this.local = local;
 	}
 
-	public IdentityTaV getIdentityValue()
+	public boolean isEnabled()
 	{
-		return identityValue;
+		return enabled;
+	}
+
+	public boolean isLocal()
+	{
+		return local;
+	}
+	
+	public void setEnabled(boolean enabled)
+	{
+		this.enabled = enabled;
+	}
+
+	public void setLocal(boolean local)
+	{
+		this.local = local;
 	}
 }
