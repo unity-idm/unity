@@ -2,14 +2,23 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="pl.edu.icm.unity.db.mapper.IdentitiesMapper">
+	<resultMap id="identityResult" type="IdentityB">
+		<result property="id" column="ID"/>
+		<result property="name" column="NAME"/>
+		<result property="entityId" column="ENTITY_ID"/>
+		<result property="typeId" column="TYPE_ID"/>
+		<result property="contents" column="CONTENTS"/>
+	</resultMap>
 
 	<insert id="insertIdentityType" parameterType="BaseB">
 		INSERT INTO IDENTITY_TYPES (NAME, CONTENTS) VALUES (#{name}, #{contents})
 	</insert>
 
+<!-- FIXME - where is missing
 	<update id="updateIdentityType" parameterType="BaseB">
 		UPDATE IDENTITY_TYPES SET NAME = #{name}, CONTENTS=#{contents}
 	</update>
+ -->
 
 	<select id="getIdentityTypes" resultType="BaseB">
 		select * from IDENTITY_TYPES
@@ -34,7 +43,7 @@
 	</select>
 
 
-	<select id="getIdentitiesByEntity" parameterType="long" resultType="IdentityB">
+	<select id="getIdentitiesByEntity" parameterType="long" resultMap="identityResult">
 		select * from IDENTITIES where IDENTITIES.ENTITY_ID = #{value}
 	</select>
 	
@@ -44,7 +53,7 @@
 	</insert>
 	
 	<update id="updateIdentity" parameterType="IdentityB">
-		UPDATE IDENTITIES SET (CONTENTS = #{contents}) WHERE ID = #{id}
+		UPDATE IDENTITIES SET CONTENTS = #{contents} WHERE ID = #{id}
 	</update>
 	
 	<delete id="deleteIdentity" parameterType="string">
@@ -55,7 +64,7 @@
 		DELETE FROM ENTITIES WHERE ID = #{value}
 	</delete>
 	
-	<select id="getIdentityByName" resultType="IdentityB" parameterType="string">
+	<select id="getIdentityByName" resultMap="identityResult" parameterType="string">
 		select * from IDENTITIES WHERE NAME = #{value}
 	</select>
 	

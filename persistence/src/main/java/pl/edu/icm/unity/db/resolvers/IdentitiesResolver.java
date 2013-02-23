@@ -2,12 +2,13 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.db;
+package pl.edu.icm.unity.db.resolvers;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.db.IdentityTypesRegistry;
 import pl.edu.icm.unity.db.json.JsonSerializer;
 import pl.edu.icm.unity.db.json.SerializersRegistry;
 import pl.edu.icm.unity.db.mapper.IdentitiesMapper;
@@ -73,7 +74,7 @@ public class IdentitiesResolver
 				id = Long.parseLong(entityParam.getEntityId());
 			} catch(NumberFormatException e)
 			{
-				throw new IllegalIdentityValueException("The entity id is invalid");
+				throw new IllegalIdentityValueException("The entity id is invalid", e);
 			}
 			entityB = mapper.getEntityById(id);
 			if (entityB == null)

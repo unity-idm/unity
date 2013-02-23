@@ -2,9 +2,8 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.db;
+package pl.edu.icm.unity.db.resolvers;
 
-import org.apache.ibatis.exceptions.PersistenceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +12,6 @@ import pl.edu.icm.unity.db.json.SerializersRegistry;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.Group;
 
 /**
@@ -39,23 +37,14 @@ public class GroupResolver
 	 * @param parentId can be null
 	 * @param mapper
 	 * @return 
-	 * @throws InternalException
 	 * @throws GroupNotKnownException
 	 */
 	private GroupBean resolveGroup(String name, Long parentId, GroupsMapper mapper) 
-			throws InternalException, IllegalGroupValueException
+			throws IllegalGroupValueException
 	{
 		GroupBean res = null;
 		GroupBean param = new GroupBean(parentId, name);
-		try
-		{
-			res = mapper.resolveGroup(param);
-		} catch (PersistenceException e)
-		{
-			String msg = "DB error: Can't resolve group " + name + 
-					" with parent " + parentId;
-			throw new InternalException(msg, e);  
-		}
+		res = mapper.resolveGroup(param);
 		if (res == null)
 			throw new IllegalGroupValueException("Group " + name + " is not known");
 		return res;
@@ -66,11 +55,10 @@ public class GroupResolver
 	 * @param g
 	 * @param mapper
 	 * @return
-	 * @throws InternalException
 	 * @throws GroupNotKnownException
 	 */
 	public GroupBean resolveGroup(String groupPath, GroupsMapper mapper) 
-			throws InternalException, IllegalGroupValueException
+			throws IllegalGroupValueException
 	{
 		Group group = new Group(groupPath);
 		String path[] = group.getPath();

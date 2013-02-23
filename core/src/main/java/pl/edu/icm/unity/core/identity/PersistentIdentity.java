@@ -15,7 +15,6 @@ import eu.emi.security.authn.x509.impl.X500NameUtils;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.Attribute;
-import pl.edu.icm.unity.types.IdentityTypeDefinition;
 
 /**
  * Identity type definition holding a persistent id. It is associated with each and every entity. 
@@ -23,7 +22,7 @@ import pl.edu.icm.unity.types.IdentityTypeDefinition;
  * @author K. Benedyczak
  */
 @Component
-public class PersistentIdentity implements IdentityTypeDefinition
+public class PersistentIdentity extends AbstractIdentityTypeProvider
 {
 	public static final String ID = "persistent";
 	private static final List<Attribute<?>> empty = Collections.unmodifiableList(new ArrayList<Attribute<?>>(0));
@@ -90,37 +89,9 @@ public class PersistentIdentity implements IdentityTypeDefinition
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toPrettyString(String from)
-	{
-		return "[persistentId] " + toPrettyStringNoPrefix(from);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public String toPrettyStringNoPrefix(String from)
 	{
 		return X500NameUtils.getReadableForm(from);
-	}
-
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toString(String from)
-	{
-		return toPrettyString(from);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toString()
-	{
-		return getId();
 	}
 
 	@Override

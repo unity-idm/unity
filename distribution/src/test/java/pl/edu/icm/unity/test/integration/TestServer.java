@@ -15,7 +15,7 @@ import pl.edu.icm.unity.server.UnityApplication;
 
 public class TestServer
 {
-	@Test
+//	@Test
 	public void test() throws IOException 
 	{
 		FileUtils.deleteDirectory(new File("target/data"));

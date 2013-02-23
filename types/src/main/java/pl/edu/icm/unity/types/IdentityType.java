@@ -62,5 +62,36 @@ public class IdentityType
 	{
 		return "[" + getIdentityTypeProvider().toString() + "] " + description;
 	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime
+				* result
+				+ ((identityTypeProvider == null) ? 0 : identityTypeProvider
+						.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		IdentityType other = (IdentityType) obj;
+		if (identityTypeProvider == null)
+		{
+			if (other.identityTypeProvider != null)
+				return false;
+		} else if (!identityTypeProvider.equals(other.identityTypeProvider))
+			return false;
+		return true;
+	}
 }
 

@@ -12,7 +12,9 @@ import org.junit.Test;
 
 import pl.edu.icm.unity.core.identity.PersistentIdentity;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.types.Entity;
 import pl.edu.icm.unity.types.EntityParam;
 import pl.edu.icm.unity.types.Group;
 import pl.edu.icm.unity.types.GroupContents;
@@ -47,6 +49,17 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertEquals(id.getEntityId(), id2.getEntityId());
 		assertEquals(true, id2.isEnabled());
 		assertEquals(false, id2.isLocal());
+		
+		Entity entity = idsMan.getEntity(new EntityParam(id2));
+		assertEquals(3, entity.getIdentities().length);
+		assertEquals(id, entity.getIdentities()[0]);
+		assertEquals(PersistentIdentity.ID, entity.getIdentities()[1].getTypeId());
+		assertEquals(id2, entity.getIdentities()[2]);
+		assertEquals(id.getEntityId(), entity.getId());
+		
+		idsMan.setIdentityStatus(id2, false);
+		entity = idsMan.getEntity(new EntityParam(id2));
+		assertEquals(false, entity.getIdentities()[2].isEnabled());
 		
 		GroupContents contents = groupsMan.getContents("/", GroupContents.MEMBERS);
 		assertEquals(1, contents.getMembers().size());
@@ -84,5 +97,27 @@ public class TestIdentities extends DBIntegrationTestBase
 		contents = groupsMan.getContents("/test", GroupContents.MEMBERS);
 		assertEquals(0, contents.getMembers().size());
 		
+		idsMan.removeIdentity(id);
+		entity = idsMan.getEntity(new EntityParam(id2));
+		assertEquals(2, entity.getIdentities().length);
+		assertEquals(id2, entity.getIdentities()[1]);
+		assertEquals(id2.getEntityId(), entity.getId());
+		
+		try
+		{
+			idsMan.removeIdentity(entity.getIdentities()[0]);
+			fail("Managed to remove persistent identity");
+		} catch (IllegalIdentityValueException e) {}
+		
+		idsMan.removeEntity(new EntityParam(id2));
+		
+		try
+		{
+			idsMan.getEntity(new EntityParam(id2));
+			fail("Removed entity is still available");
+		} catch (IllegalIdentityValueException e) {}
+		
+		contents = groupsMan.getContents("/", GroupContents.MEMBERS);
+		assertEquals(0, contents.getMembers().size());
 	}
 }

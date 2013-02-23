@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
+import java.nio.charset.Charset;
 import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ import pl.edu.icm.unity.types.AttributeValueSyntax;
 public class StringAttributeSyntax implements AttributeValueSyntax<String>
 {
 	public static final String ID = "string";
+	private static final Charset UTF = Charset.forName("UTF-8");
 	private static final ObjectMapper json = new ObjectMapper();
 	private int minLength = 0;
 	private int maxLength = 10240;
@@ -88,7 +90,7 @@ public class StringAttributeSyntax implements AttributeValueSyntax<String>
 	@Override
 	public boolean areEqual(String value, String another)
 	{
-		return value == null ? value == another : value.equals(another);
+		return value == null ? null == another : value.equals(another);
 	}
 
 	/**
@@ -97,7 +99,7 @@ public class StringAttributeSyntax implements AttributeValueSyntax<String>
 	@Override
 	public byte[] serialize(String value)
 	{
-		return value.getBytes();
+		return value.getBytes(UTF);
 	}
 
 	/**
@@ -106,7 +108,7 @@ public class StringAttributeSyntax implements AttributeValueSyntax<String>
 	@Override
 	public String deserialize(byte[] raw)
 	{
-		return new String(raw);
+		return new String(raw, UTF);
 	}
 
 	/**

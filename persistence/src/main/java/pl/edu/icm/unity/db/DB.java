@@ -42,7 +42,7 @@ public class DB
 		limits = establishDBLimits(sessionMan);
 	}
 	
-	private void verifyDBVersion(DBSessionManager sessionMan) throws InternalException
+	private final void verifyDBVersion(DBSessionManager sessionMan) throws InternalException
 	{
 		String actualDbVersion;
 		try
@@ -77,7 +77,7 @@ public class DB
 		}
 	}
 	
-	private DBLimits establishDBLimits(DBSessionManager sessionMan) throws InternalException
+	private final DBLimits establishDBLimits(DBSessionManager sessionMan) throws InternalException
 	{
 		SqlSession sqlMap = sessionMan.getSqlSession(false);
 		try

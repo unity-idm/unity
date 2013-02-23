@@ -11,16 +11,16 @@ import org.springframework.stereotype.Component;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 
+import pl.edu.icm.unity.core.identity.AbstractIdentityTypeProvider;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.Attribute;
-import pl.edu.icm.unity.types.IdentityTypeDefinition;
 
 /**
  * X.500 identity type definition
  * @author K. Benedyczak
  */
 @Component
-public class X500Identity implements IdentityTypeDefinition
+public class X500Identity extends AbstractIdentityTypeProvider
 {
 	public static final String ID = "x500Name";
 	
@@ -64,7 +64,7 @@ public class X500Identity implements IdentityTypeDefinition
 		} catch (Exception e)
 		{
 			throw new IllegalIdentityValueException("DN is invalid: " + 
-					e.getMessage());
+					e.getMessage(), e);
 		}
 	}
 
@@ -90,37 +90,9 @@ public class X500Identity implements IdentityTypeDefinition
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toPrettyString(String from)
-	{
-		return "[X.500 DN] " + toPrettyStringNoPrefix(from);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public String toPrettyStringNoPrefix(String from)
 	{
 		return X500NameUtils.getReadableForm(from);
-	}
-
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toString(String from)
-	{
-		return toPrettyString(from);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toString()
-	{
-		return getId();
 	}
 
 	@Override

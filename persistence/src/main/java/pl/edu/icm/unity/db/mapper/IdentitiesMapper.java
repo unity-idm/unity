@@ -16,7 +16,7 @@ import pl.edu.icm.unity.db.model.IdentityBean;
 public interface IdentitiesMapper
 {
 	public void insertIdentityType(BaseBean arg);
-	public void updateIdentityType(BaseBean arg);
+	//public void updateIdentityType(BaseBean arg);
 	public List<BaseBean> getIdentityTypes();
 	public BaseBean getIdentityTypeByName(String name);
 	public BaseBean getIdentityTypeById(long id);

@@ -17,6 +17,7 @@ import pl.edu.icm.unity.db.mapper.IdentitiesMapper;
 import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.DBLimits;
 import pl.edu.icm.unity.db.model.IdentityBean;
+import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
@@ -36,7 +37,6 @@ import pl.edu.icm.unity.types.IdentityTypeDefinition;
 public class DBIdentities
 {
 	private DBLimits limits;
-	private JsonSerializer<IdentityType> idTypeSerializer;
 	private JsonSerializer<IdentityParam> idSerializer;
 	private IdentityTypesRegistry idTypesRegistry;
 	private IdentitiesResolver idResolver;
@@ -47,7 +47,6 @@ public class DBIdentities
 			IdentitiesResolver idResolver)
 	{
 		this.limits = db.getDBLimits();
-		this.idTypeSerializer = serializersReg.getSerializer(IdentityType.class);
 		this.idSerializer = serializersReg.getSerializer(IdentityParam.class);
 		this.idTypesRegistry = idTypesRegistry;
 		this.idResolver = idResolver;
@@ -63,22 +62,7 @@ public class DBIdentities
 			ret.add(idResolver.resolveIdentityType(state));
 		}
 		return ret;
-	}
-	
-	public void insertIdentityType(IdentityType toAdd, SqlSession sqlMap)
-	{
-		if (toAdd.getIdentityTypeProvider().getId().length() > limits.getNameLimit())
-			throw new IllegalGroupValueException("Identity type name length must not exceed " + 
-					limits.getNameLimit() + " characters");
-
-		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
-		BaseBean arg = new BaseBean();
-		arg.setContents(idTypeSerializer.toJson(toAdd));
-		
-		arg.setName(toAdd.getIdentityTypeProvider().getId());
-		mapper.insertIdentityType(arg);
-	}
-	
+	}	
 
 	public Identity insertIdentity(IdentityParam toAdd, Long entityId, SqlSession sqlMap)
 	{

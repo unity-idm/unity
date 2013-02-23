@@ -26,6 +26,7 @@ import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.mapper.IdentitiesMapper;
 import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.GroupBean;
+import pl.edu.icm.unity.db.resolvers.GroupResolver;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.IdentityType;

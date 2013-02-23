@@ -14,7 +14,7 @@ import pl.edu.icm.unity.core.identity.PersistentIdentity;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
-import pl.edu.icm.unity.db.IdentitiesResolver;
+import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
