@@ -3,23 +3,67 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="pl.edu.icm.unity.db.mapper.AttributesMapper">
 
-	<insert id="insertAttributeType" parameterType="BaseB">
-		INSERT INTO ATTRIBUTE_TYPES (NAME, CONTENTS) VALUES (#{name}, #{contents})
+	<resultMap id="attributeTypeResult" type="AttributeTypeB">
+		<result property="id" column="ID"/>
+		<result property="name" column="NAME"/>
+		<result property="contents" column="CONTENTS"/>
+		<result property="valueSyntaxId" column="VALUE_SYNTAX_ID"/>
+	</resultMap>
+
+	<resultMap id="attributeResult" type="AttributeB">
+		<result property="id" column="ID"/>
+		<result property="typeId" column="TYPE_ID"/>
+		<result property="entityId" column="ENTITY_ID"/>
+		<result property="groupId" column="GROUP_ID"/>
+		<result property="values" column="VALUES"/>
+		<result property="name" column="NAME"/>
+		<result property="valueSyntaxId" column="VALUE_SYNTAX_ID"/>
+	</resultMap>
+	
+
+	<insert id="insertAttributeType" parameterType="AttributeTypeB">
+		INSERT INTO ATTRIBUTE_TYPES (NAME, VALUE_SYNTAX_ID, CONTENTS) VALUES (#{name}, #{valueSyntaxId}, #{contents})
 	</insert>	
 
-	<select id="getAttributeTypes" resultType="BaseB">
+	<select id="getAttributeTypes" resultMap="attributeTypeResult">
 		select * from ATTRIBUTE_TYPES
 	</select>
 
-	<select id="getAttributeType" parameterType="string" resultType="BaseB">
+	<select id="getAttributeType" parameterType="string" resultMap="attributeTypeResult">
 		select * from ATTRIBUTE_TYPES WHERE NAME = #{value}
 	</select>
 <!-- 
-	<update id="updateIdentityType" parameterType="BaseB">
+	<update id="updateIdentityType" parameterType="AttributeTypeB">
 		UPDATE IDENTITY_TYPES SET NAME = #{name}, CONTENTS=#{contents}
 	</update>	
 
 	
  -->
+
+
+	<select id="getSpecificAttribute" parameterType="AttributeB" resultMap="attributeResult">
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID from ATTRIBUTES A, ATTRIBUTE_TYPES AT
+			WHERE A.ENTITY_ID = #{entityId} AND A.GROUP_ID = #{groupId} AND A.TYPE_ID = AT.ID
+			 AND AT.NAME = #{name}     
+	</select>
+
+	<select id="getInGroupAttributes" parameterType="AttributeB" resultMap="attributeResult">
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID from ATTRIBUTES A, ATTRIBUTE_TYPES AT
+			WHERE A.ENTITY_ID = #{entityId} AND A.GROUP_ID = #{groupId} AND A.TYPE_ID = AT.ID     
+	</select>
 	
+	<insert id="insertAttribute" parameterType="AttributeB">
+		INSERT INTO ATTRIBUTES (TYPE_ID, ENTITY_ID, GROUP_ID, VALUES) 
+			VALUES (#{typeId}, #{entityId}, #{groupId}, #{values}) 
+	</insert>
+
+	<update id="updateAttribute" parameterType="AttributeB">
+		UPDATE ATTRIBUTES SET VALUES = #{values} 
+			WHERE TYPE_ID = #{typeId} AND ENTITY_ID = #{entityId} AND GROUP_ID = #{groupId}
+	</update>
+	
+	<delete id="deleteAttribute" parameterType="AttributeB">
+		DELETE FROM ATTRIBUTES WHERE TYPE_ID = #{typeId} AND ENTITY_ID = #{entityId} 
+			AND GROUP_ID = #{groupId}
+	</delete>
 </mapper>

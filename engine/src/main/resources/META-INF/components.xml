@@ -13,5 +13,6 @@
 	<bean class="pl.edu.icm.unity.engine.IdentitiesManagementImpl"/>
 	<bean class="pl.edu.icm.unity.engine.AttributesManagementImpl"/>
 	<bean class="pl.edu.icm.unity.engine.AuthenticationManagementImpl"/>
+	<bean class="pl.edu.icm.unity.engine.ServerManagementImpl"/>
 
 </beans>

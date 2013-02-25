@@ -75,7 +75,7 @@ public class StringAttributeSyntax implements AttributeValueSyntax<String>
 		if (value.length() < minLength)
 			throw new IllegalAttributeValueException("Value length (" + value.length() 
 					+ ") is too small, must be at least " + minLength);
-		if (value.length() < maxLength)
+		if (value.length() > maxLength)
 			throw new IllegalAttributeValueException("Value length (" + value.length() 
 					+ ") is too big, must be not greater then " + maxLength);
 		if (pattern != null)
@@ -88,9 +88,18 @@ public class StringAttributeSyntax implements AttributeValueSyntax<String>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean areEqual(String value, String another)
+	public boolean areEqual(String value, Object another)
 	{
 		return value == null ? null == another : value.equals(another);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode(Object value)
+	{
+		return value.hashCode();
 	}
 
 	/**

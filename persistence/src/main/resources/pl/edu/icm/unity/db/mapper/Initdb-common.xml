@@ -11,7 +11,8 @@
 
 	<update id="initdb-02">
 CREATE TABLE ATTRIBUTE_TYPES(
-		<include refid="defaultColsMemU"/>
+		<include refid="defaultColsMemU"/>,
+		VALUE_SYNTAX_ID VARCHAR(64),
 		<include refid="tableOpts"/>
 	</update>
 
@@ -46,7 +47,6 @@ CREATE TABLE ATTRIBUTES(
 		TYPE_ID INTEGER NOT NULL,
 		ENTITY_ID INTEGER NOT NULL,
 		GROUP_ID INTEGER NOT NULL,
-		CONTENTS VARBINARY(60000),
 		VALUES MEDIUMBLOB,
 		
 		FOREIGN KEY (ENTITY_ID) REFERENCES ENTITIES(ID) ON DELETE CASCADE,	
@@ -92,8 +92,8 @@ CREATE TABLE VAR_BIG_OBJECTS(
 	
 	<update id="initdb-99">
 CREATE TABLE UVOS_FLAG(
-	VAL VARCHAR(128)
-	);
+		VAL VARCHAR(128)
+		<include refid="tableOpts"/>
 	</update>
 
 	<insert id="initVersion">

@@ -8,13 +8,13 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.IdentityTypesRegistry;
 import pl.edu.icm.unity.db.json.JsonSerializer;
 import pl.edu.icm.unity.db.json.SerializersRegistry;
 import pl.edu.icm.unity.db.mapper.IdentitiesMapper;
 import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.IdentityBean;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.types.EntityParam;
 import pl.edu.icm.unity.types.Identity;
 import pl.edu.icm.unity.types.IdentityParam;

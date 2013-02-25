@@ -4,20 +4,18 @@
  */
 package pl.edu.icm.unity.engine;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.ServerManagement;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml", "classpath:META-INF/test-components.xml"})
@@ -30,11 +28,14 @@ public abstract class DBIntegrationTestBase
 	protected IdentitiesManagement idsMan;
 	@Autowired
 	protected AttributesManagement attrsMan;
+	@Autowired
+	protected ServerManagement serverMan;
 	
-	@BeforeClass
-	public static void clear() throws IOException
+	
+	@Before
+	public void clear() throws EngineException
 	{
-		FileUtils.deleteDirectory(new File("target/data"));
+		serverMan.resetDatabase();
 	}
 	
 }

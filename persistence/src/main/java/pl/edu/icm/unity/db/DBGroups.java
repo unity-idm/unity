@@ -161,8 +161,7 @@ public class DBGroups
 		mapper.deleteMember(param);
 	}
 	
-	
-	private List<Group> convertGroups(List<GroupBean> src, GroupsMapper mapper)
+	public List<Group> convertGroups(List<GroupBean> src, GroupsMapper mapper)
 	{
 		List<Group> ret = new ArrayList<Group>(src.size());
 		for (int i=0; i<src.size(); i++)

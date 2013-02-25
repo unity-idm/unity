@@ -82,6 +82,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	@Override
 	public void addMemberFromParent(String path, EntityParam entity) throws EngineException
 	{
+		entity.validateInitialization();
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -96,6 +97,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	@Override
 	public void removeMember(String path, EntityParam entity) throws EngineException
 	{
+		entity.validateInitialization();
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{

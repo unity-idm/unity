@@ -4,37 +4,44 @@
  */
 package pl.edu.icm.unity.db.json;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.AttributeType;
+import pl.edu.icm.unity.types.Attribute;
+import pl.edu.icm.unity.types.AttributeValueSyntax;
 import pl.edu.icm.unity.types.AttributeVisibility;
 
 /**
  * @author K. Benedyczak
  */
 @Component
-public class AttributeTypeSerializer implements JsonSerializer<AttributeType>
+public class AttributeSerializer<T> implements JsonSerializer<Attribute<T>>
 {
 	private final ObjectMapper mapper = new ObjectMapper();
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public byte[] toJson(AttributeType src)
+	public byte[] toJson(Attribute<T> src)
 	{
 		ObjectNode root = mapper.createObjectNode();
-		root.put("description", src.getDescription());
-		root.put("flags", src.getFlags());
-		root.put("maxElements", src.getMaxElements());
-		root.put("minElements", src.getMinElements());
-		root.put("selfModificable", src.isSelfModificable());
 		root.put("visibility", src.getVisibility().name());
+		ArrayNode values = root.putArray("values");
+		AttributeValueSyntax<T> syntax = src.getAttributeSyntax();
+		for (T value: src.getValues())
+			values.add(syntax.serialize(value));
+
 		try
 		{
 			return mapper.writeValueAsBytes(root);
@@ -48,7 +55,7 @@ public class AttributeTypeSerializer implements JsonSerializer<AttributeType>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void fromJson(byte[] json, AttributeType target)
+	public void fromJson(byte[] json, Attribute<T> target)
 	{
 		if (json == null)
 			return;
@@ -60,21 +67,30 @@ public class AttributeTypeSerializer implements JsonSerializer<AttributeType>
 		{
 			throw new InternalException("Can't perform JSON deserialization", e);
 		}
-		target.setDescription(main.get("description").asText());
-		target.setFlags(main.get("flags").asInt());
-		target.setMaxElements(main.get("maxElements").asInt());
-		target.setMinElements(main.get("minElements").asInt());
-		target.setSelfModificable(main.get("selfModificable").asBoolean());
 		target.setVisibility(AttributeVisibility.valueOf(main.get("visibility").asText()));
+		
+		ArrayNode values = main.withArray("values");
+		List<T> pValues = new ArrayList<T>(values.size());
+		Iterator<JsonNode> it = values.iterator();
+		AttributeValueSyntax<T> syntax = target.getAttributeSyntax();
+		try
+		{
+			while(it.hasNext())
+				pValues.add(syntax.deserialize(it.next().binaryValue()));
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't perform JSON deserialization", e);
+		}
+		target.setValues(pValues);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Class<AttributeType> getSupportedClass()
+	public Class<?> getSupportedClass()
 	{
-		return AttributeType.class;
+		return Attribute.class;
 	}
 
 }

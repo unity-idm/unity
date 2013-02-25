@@ -6,7 +6,8 @@ package pl.edu.icm.unity.db.mapper;
 
 import java.util.List;
 
-import pl.edu.icm.unity.db.model.BaseBean;
+import pl.edu.icm.unity.db.model.AttributeBean;
+import pl.edu.icm.unity.db.model.AttributeTypeBean;
 
 
 
@@ -16,7 +17,13 @@ import pl.edu.icm.unity.db.model.BaseBean;
  */
 public interface AttributesMapper
 {
-	public void insertAttributeType(BaseBean at);
-	public List<BaseBean> getAttributeTypes();
-	public BaseBean getAttributeType(String name);
+	public void insertAttributeType(AttributeTypeBean at);
+	public List<AttributeTypeBean> getAttributeTypes();
+	public AttributeTypeBean getAttributeType(String name);
+	
+	public AttributeBean getSpecificAttribute(AttributeBean a);
+	public List<AttributeBean> getInGroupAttributes(AttributeBean a);
+	public void insertAttribute(AttributeBean a);
+	public void updateAttribute(AttributeBean a);
+	public void deleteAttribute(AttributeBean a);
 }

@@ -12,6 +12,8 @@
 		<typeAlias alias="BaseB" type="pl.edu.icm.unity.db.model.BaseBean" />
 		<typeAlias alias="GroupB" type="pl.edu.icm.unity.db.model.GroupBean" />
 		<typeAlias alias="IdentityB" type="pl.edu.icm.unity.db.model.IdentityBean" />
+		<typeAlias alias="AttributeB" type="pl.edu.icm.unity.db.model.AttributeBean" />
+		<typeAlias alias="AttributeTypeB" type="pl.edu.icm.unity.db.model.AttributeTypeBean" />
 		<typeAlias alias="GroupElementB" type="pl.edu.icm.unity.db.model.GroupElementBean" />
 		<typeAlias alias="DBLimits" type="pl.edu.icm.unity.db.model.DBLimits" />
 	</typeAliases>

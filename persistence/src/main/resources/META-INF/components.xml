@@ -14,16 +14,15 @@
 	<bean class="pl.edu.icm.unity.db.DBIdentities"/>
 	<bean class="pl.edu.icm.unity.db.DBAttributes"/>
 
-	<bean class="pl.edu.icm.unity.db.IdentityTypesRegistry"/>
-	<bean class="pl.edu.icm.unity.db.AttributeValueTypesRegistry"/>
-
 	<bean class="pl.edu.icm.unity.db.resolvers.GroupResolver"/>
 	<bean class="pl.edu.icm.unity.db.resolvers.IdentitiesResolver"/>
+	<bean class="pl.edu.icm.unity.db.resolvers.AttributesResolver"/>
 
 	<bean class="pl.edu.icm.unity.db.json.SerializersRegistry"/>
 	<bean class="pl.edu.icm.unity.db.json.GroupsSerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.IdentityTypeSerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.IdentitySerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.AttributeTypeSerializer"/>
+	<bean class="pl.edu.icm.unity.db.json.AttributeSerializer"/>
 	
 </beans>

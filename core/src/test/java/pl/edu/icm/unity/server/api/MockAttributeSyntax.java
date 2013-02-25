@@ -1,0 +1,59 @@
+/*
+ * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+package pl.edu.icm.unity.server.api;
+
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.types.AttributeValueSyntax;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
+public class MockAttributeSyntax implements AttributeValueSyntax<String> {
+
+	@Override
+	public JsonNode getSerializedConfiguration()
+	{
+		return null;
+	}
+
+	@Override
+	public void setSerializedConfiguration(JsonNode json)
+	{
+	}
+
+	@Override
+	public String getValueSyntaxId()
+	{
+		return "mock";
+	}
+
+	@Override
+	public void validate(String value) throws IllegalAttributeValueException
+	{
+	}
+
+	@Override
+	public boolean areEqual(String value, Object another)
+	{
+		return value == null ? value ==another : value.equals(another);
+	}
+
+	@Override
+	public int hashCode(Object value)
+	{
+		return value.hashCode();
+	}
+
+	@Override
+	public byte[] serialize(String value)
+	{
+		return null;
+	}
+
+	@Override
+	public String deserialize(byte[] raw)
+	{
+		return null;
+	}
+}

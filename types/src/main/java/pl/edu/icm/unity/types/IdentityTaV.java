@@ -4,13 +4,15 @@
  */
 package pl.edu.icm.unity.types;
 
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+
 
 /**
  * Represents an identity type and value. This class is useful to address existing identity as a parameter.
  * 
  * @author K. Benedyczak
  */
-public class IdentityTaV
+public class IdentityTaV implements InitializationValidator
 {
 	private String typeId;
 	protected String value;
@@ -45,6 +47,15 @@ public class IdentityTaV
 		this.value = value;
 	}
 
+	@Override
+	public void validateInitialization()
+	{
+		if (typeId == null)
+			throw new IllegalIdentityValueException("Identity type must be set");
+		if (value == null)
+			throw new IllegalIdentityValueException("Identity value must be set");
+	}
+	
 	/**
 	 * @return full String representation
 	 */

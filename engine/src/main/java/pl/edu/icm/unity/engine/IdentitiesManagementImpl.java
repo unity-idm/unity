@@ -16,7 +16,6 @@ import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.types.AuthenticationSecret;
 import pl.edu.icm.unity.types.Entity;
@@ -84,8 +83,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	@Override
 	public Identity addIdentity(IdentityParam toAdd, String lacId) throws EngineException
 	{
-		if (toAdd.getValue() == null || toAdd.getTypeId() == null)
-			throw new IllegalIdentityValueException("The identity must have type and value defined");
+		toAdd.validateInitialization();
 		
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
@@ -119,8 +117,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	public Identity addIdentity(IdentityParam toAdd, EntityParam parentEntity)
 			throws EngineException
 	{
-		if (toAdd.getValue() == null || toAdd.getTypeId() == null)
-			throw new IllegalIdentityValueException("The identity must have type and value defined");
+		toAdd.validateInitialization();
 		
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
@@ -141,8 +138,8 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	@Override
 	public void removeIdentity(IdentityTaV toRemove) throws EngineException
 	{
-		if (toRemove.getValue() == null || toRemove.getTypeId() == null)
-			throw new IllegalIdentityValueException("The identity must have type and value defined");
+		toRemove.validateInitialization();
+		
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
@@ -160,6 +157,8 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	@Override
 	public void removeEntity(EntityParam toRemove) throws EngineException
 	{
+		toRemove.validateInitialization();
+		
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
@@ -178,8 +177,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	public void setIdentityStatus(IdentityTaV toChange, boolean status)
 			throws EngineException
 	{
-		if (toChange.getValue() == null || toChange.getTypeId() == null)
-			throw new IllegalIdentityValueException("The identity must have type and value defined");
+		toChange.validateInitialization();
 		
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
@@ -198,6 +196,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	@Override
 	public Entity getEntity(EntityParam entity) throws EngineException
 	{
+		entity.validateInitialization();
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{

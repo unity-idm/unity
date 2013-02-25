@@ -40,7 +40,13 @@ public interface AttributeValueSyntax<T> extends JsonSerializable
 	 * @param another
 	 * @return true only if the two values are the same.
 	 */
-	public boolean areEqual(T value, T another);
+	public boolean areEqual(T value, Object another);
+
+	/**
+	 * @param value, must be of T type, otherwise the standard hash should be returned.
+	 * @return java hashcode of the value
+	 */
+	public int hashCode(Object value);
 	
 	/**
 	 * @param domain object

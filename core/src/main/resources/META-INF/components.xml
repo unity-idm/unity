@@ -6,7 +6,10 @@
 
 	<context:annotation-config/>
 	<bean class="pl.edu.icm.unity.server.utils.UnityServerConfiguration"/>
-
+	
+	<bean class="pl.edu.icm.unity.server.registries.IdentityTypesRegistry"/>
+	<bean class="pl.edu.icm.unity.server.registries.AttributeValueTypesRegistry"/>
+	
 	<bean class="pl.edu.icm.unity.core.identity.PersistentIdentity"/>
 
 	<beans profile="production">

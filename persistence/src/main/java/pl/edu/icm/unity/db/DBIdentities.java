@@ -21,6 +21,7 @@ import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.types.Entity;
 import pl.edu.icm.unity.types.EntityParam;
 import pl.edu.icm.unity.types.Identity;

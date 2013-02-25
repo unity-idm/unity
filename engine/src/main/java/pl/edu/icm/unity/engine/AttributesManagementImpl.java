@@ -12,15 +12,19 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.AttributeValueTypesRegistry;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.registries.AttributeValueTypesRegistry;
 import pl.edu.icm.unity.types.Attribute;
 import pl.edu.icm.unity.types.AttributeType;
 import pl.edu.icm.unity.types.AttributeValueSyntax;
+import pl.edu.icm.unity.types.AttributeVisibility;
 import pl.edu.icm.unity.types.AttributesClass;
 import pl.edu.icm.unity.types.EntityParam;
 
@@ -34,14 +38,17 @@ public class AttributesManagementImpl implements AttributesManagement
 	private AttributeValueTypesRegistry attrValueTypesReg;
 	private DBSessionManager db;
 	private DBAttributes dbAttributes;
+	private IdentitiesResolver idResolver;
 	
 	@Autowired
 	public AttributesManagementImpl(AttributeValueTypesRegistry attrValueTypesReg,
-			DBSessionManager db, DBAttributes dbAttributes)
+			DBSessionManager db, IdentitiesResolver idResolver, 
+			DBAttributes dbAttributes)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
 		this.db = db;
 		this.dbAttributes = dbAttributes;
+		this.idResolver = idResolver;
 	}
 
 	/**
@@ -64,12 +71,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	@Override
 	public void addAttributeType(AttributeType toAdd) throws EngineException
 	{
-		if (toAdd.getValueType() == null)
-			throw new IllegalAttributeTypeException("Attribute values type must be set for attribute type");
-		if (toAdd.getMaxElements() < toAdd.getMinElements())
-			throw new IllegalAttributeTypeException("Max elements limit can not be less then min elements limit");
-		if (toAdd.getName() == null || toAdd.getName().trim().equals(""))
-			throw new IllegalAttributeTypeException("Attribute type name must be set");
+		toAdd.validateInitialization();
 		if (toAdd.getFlags() != 0)
 			throw new IllegalAttributeTypeException("Custom attribute types must not have any flags set");
 		SqlSession sql = db.getSqlSession(true);
@@ -152,7 +154,18 @@ public class AttributesManagementImpl implements AttributesManagement
 	public <T> void setAttribute(EntityParam entity, Attribute<T> attribute, boolean update)
 			throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		attribute.validateInitialization();
+		entity.validateInitialization();
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			long entityId = idResolver.getEntityId(entity, sql);
+			dbAttributes.addAttribute(entityId, attribute, update, sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
 	}
 
 	/**
@@ -162,27 +175,73 @@ public class AttributesManagementImpl implements AttributesManagement
 	public void removeAttribute(EntityParam entity, String groupPath, String attributeTypeId)
 			throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		if (groupPath == null)
+			throw new IllegalGroupValueException("Group must not be null");
+		if (attributeTypeId == null)
+			throw new IllegalAttributeValueException("Attribute name must not be null");
+		entity.validateInitialization();
+
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			long entityId = idResolver.getEntityId(entity, sql);
+			dbAttributes.removeAttribute(entityId, groupPath, attributeTypeId, sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> List<Attribute<T>> getAttributes(EntityParam entity, String groupPath,
+	public List<Attribute<?>> getAttributes(EntityParam entity, String groupPath,
 			String attributeTypeId) throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		List<Attribute<?>> ret = getAllAttributesInternal(entity, groupPath, attributeTypeId);
+		filterLocal(ret);
+		return ret;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> List<Attribute<T>> getHiddenAttributes(EntityParam entity, String groupPath,
+	public List<Attribute<?>> getAllAttributes(EntityParam entity, String groupPath,
 			String attributeTypeId) throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		return getAllAttributesInternal(entity, groupPath, attributeTypeId);
 	}
 
+	private void filterLocal(List<Attribute<?>> unfiltered)
+	{
+		Iterator<Attribute<?>> it = unfiltered.iterator();
+		while (it.hasNext())
+		{
+			Attribute<?> attr = it.next();
+			if (attr.getVisibility() == AttributeVisibility.local)
+				it.remove();
+		}
+	}
+	
+	private List<Attribute<?>> getAllAttributesInternal(EntityParam entity, String groupPath,
+			String attributeTypeName) throws EngineException
+	{
+		entity.validateInitialization();
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			long entityId = idResolver.getEntityId(entity, sql);
+			
+			List<Attribute<?>> ret = dbAttributes.getAllAttributes(entityId, groupPath, 
+					attributeTypeName, sql);
+			sql.commit();
+			return ret;
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}	
+	}
 }

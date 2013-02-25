@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine;
 
 import static org.junit.Assert.*;
+
 import org.junit.Test;
 
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;

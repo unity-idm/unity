@@ -7,7 +7,7 @@
 			VAL VARCHAR(128)
 		)
 	</update>
-
+ 
 	<update id="cleardb-00">
 		DROP TABLE IF EXISTS UVOS_FLAG;
 	</update>
@@ -18,10 +18,10 @@
 		DROP TABLE IF EXISTS VAR_OBJECTS;
 	</update>
 	<update id="cleardb-03">
-		DROP TABLE IF EXISTS GROUP_ENTITIES;
+		DROP TABLE IF EXISTS GROUP_LINKS;
 	</update>
 	<update id="cleardb-04">
-		DROP TABLE IF EXISTS GROUP_SUBGROUPS;
+		DROP TABLE IF EXISTS GROUP_ENTITIES;
 	</update>
 	<update id="cleardb-05">
 		DROP TABLE IF EXISTS ATTRIBUTES;

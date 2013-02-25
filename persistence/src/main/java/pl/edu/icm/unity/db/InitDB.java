@@ -28,6 +28,7 @@ import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.db.resolvers.GroupResolver;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.IdentityType;
 import pl.edu.icm.unity.types.IdentityTypeDefinition;
@@ -55,10 +56,21 @@ public class InitDB
 		this.idTypeSerializer = serializersReg.getSerializer(IdentityType.class);
 	}
 
+	/**
+	 * Drops everything(!!) and recreates the initial DB state.
+	 */
+	public void resetDatabase()
+	{
+		log.info("Database will be totally wiped");
+		performUpdate("cleardb-");
+		log.info("The whole contents removed");
+		initDB();
+		initData();
+	}
 	
 	public void initIfNeeded() throws FileNotFoundException, IOException, InternalException
 	{
-		SqlSession session = db.getSqlSession(true);
+		SqlSession session = db.getSqlSession(false);
 		try
 		{
 			session.selectOne("getDBVersion");
@@ -73,12 +85,12 @@ public class InitDB
 	private void performUpdate(String operationPfx)
 	{
 		Collection<String> ops = new TreeSet<String>(db.getMyBatisConfiguration().getMappedStatementNames());
-		SqlSession session = db.getSqlSession(ExecutorType.BATCH, false);
+		SqlSession session = db.getSqlSession(ExecutorType.BATCH, true);
 		for (String name: ops)
 			if (name.startsWith(operationPfx))
 				session.update(name);
 		session.commit();
-		session.close();		
+		db.releaseSqlSession(session);		
 	}
 	
 	private void initDB()
@@ -91,7 +103,7 @@ public class InitDB
 			session.insert("initVersion");
 		} finally
 		{
-			session.close();
+			db.releaseSqlSession(session);		
 		}
 	}
 
@@ -111,7 +123,7 @@ public class InitDB
 			session.commit();
 		} finally
 		{
-			session.close();
+			db.releaseSqlSession(session);		
 		}
 		log.info("Initial data inserted");
 	}

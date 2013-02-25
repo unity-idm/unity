@@ -13,5 +13,5 @@ public interface JsonSerializer<T>
 {
 	public byte[] toJson(T src);
 	public void fromJson(byte[] json, T target);
-	public Class<T> getSupportedClass();
+	public Class<?> getSupportedClass();
 }

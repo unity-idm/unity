@@ -43,6 +43,11 @@
 		select ENTITIES.* from ENTITIES, GROUP_ENTITIES 
 		where GROUP_ENTITIES.GROUP_ID = #{value} AND GROUP_ENTITIES.ENTITY_ID = ENTITIES.ID 
 	</select>
+
+	<select id="getGroups4Entity" parameterType="long" resultMap="groupResult">
+		select GROUPS.* from GROUPS, GROUP_ENTITIES 
+			where GROUP_ENTITIES.ENTITY_ID = #{value} AND GROUP_ENTITIES.GROUP_ID = GROUPS.ID 
+	</select>
 	
 	<insert id="insertGroup" parameterType="GroupB" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO GROUPS(NAME, PARENT_ID, CONTENTS) VALUES (#{name}, #{parent}, #{contents})

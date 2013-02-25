@@ -4,13 +4,15 @@
  */
 package pl.edu.icm.unity.types;
 
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+
 /**
  * Attribute type defines rules for handling attributes. Particular values
  * are subject to constraints defined in {@link AttributeValueSyntax} interface, 
  * with pluggable implementation. This class adds universal functionality:
  * descriptions, values cardinality limits and more.
  */
-public class AttributeType
+public class AttributeType implements InitializationValidator
 {
 	/**
 	 * The attribute type can not be created or changed using management API (it is created
@@ -41,6 +43,15 @@ public class AttributeType
 	private int flags = 0;
 	
 	
+	public AttributeType()
+	{
+	}
+	
+	public AttributeType(String name, AttributeValueSyntax<?> syntax)
+	{
+		this.name = name;
+		this.valueType = syntax;
+	}
 	
 	public String getDescription()
 	{
@@ -117,5 +128,16 @@ public class AttributeType
 	public void setFlags(int flags)
 	{
 		this.flags = flags;
+	}
+
+	@Override
+	public void validateInitialization()
+	{
+		if (valueType == null)
+			throw new IllegalAttributeTypeException("Attribute values type must be set for attribute type");
+		if (maxElements < minElements)
+			throw new IllegalAttributeTypeException("Max elements limit can not be less then min elements limit");
+		if (name == null || name.trim().equals(""))
+			throw new IllegalAttributeTypeException("Attribute type name must be set");
 	}
 }

@@ -105,16 +105,17 @@ public interface AttributesManagement
 	 * @return
 	 * @throws EngineException
 	 */
-	public <T> List<Attribute<T>> getAttributes(EntityParam entity, String groupPath, String attributeTypeId) throws EngineException;
+	public List<Attribute<?>> getAttributes(EntityParam entity, String groupPath, String attributeTypeId) throws EngineException;
 
 	/**
-	 * Returns hidden attributes of an entity. The two last arguments can be null, meaning that there is no restriction.
+	 * Returns attributes of an entity, including hidden ones. The two last arguments can be null, 
+	 * meaning that there is no restriction.
 	 * @param entity
 	 * @param groupPath
 	 * @param attributeTypeId
 	 * @return
 	 * @throws EngineException
 	 */
-	public <T> List<Attribute<T>> getHiddenAttributes(EntityParam entity, String groupPath, String attributeTypeId) throws EngineException;
+	public List<Attribute<?>> getAllAttributes(EntityParam entity, String groupPath, String attributeTypeId) throws EngineException;
 
 }

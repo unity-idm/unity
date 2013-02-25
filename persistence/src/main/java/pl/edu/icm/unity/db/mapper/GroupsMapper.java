@@ -29,6 +29,7 @@ public interface GroupsMapper
 	public void deleteGroup(long id);
 	
 	public List<GroupBean> getSubgroups(long parentId);
+	public List<GroupBean> getGroups4Entity(long entityId);
 	public List<GroupBean> getLinkedGroups(long parentId);
 	public List<BaseBean> getMembers(long groupId);
 	
