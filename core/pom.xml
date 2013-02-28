@@ -67,7 +67,7 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-types</artifactId>
+			<artifactId>unity-types</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

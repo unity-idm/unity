@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.types.AttributeValueSyntax;
+import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 
 /**
  * String attribute value syntax. Can have regular expression

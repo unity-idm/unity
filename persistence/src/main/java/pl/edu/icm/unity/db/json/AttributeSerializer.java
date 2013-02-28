@@ -17,9 +17,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.Attribute;
-import pl.edu.icm.unity.types.AttributeValueSyntax;
-import pl.edu.icm.unity.types.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 /**
  * @author K. Benedyczak

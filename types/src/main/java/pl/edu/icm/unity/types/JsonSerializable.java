@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  * General purpose interface for objects which can have its state serialized into Json and then read back. 
  * We prefer this to the binary Java serialization.
  * 
- * It is assumed that implementations should have a deafult constructor.
+ * It is assumed that implementations should have a default constructor.
  * @author K. Benedyczak
  */
 public interface JsonSerializable

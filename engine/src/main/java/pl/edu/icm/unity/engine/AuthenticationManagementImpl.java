@@ -4,17 +4,18 @@
  */
 package pl.edu.icm.unity.engine;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.types.LocalAccessClass;
-import pl.edu.icm.unity.types.LocalAuthnMethod;
-import pl.edu.icm.unity.types.LocalAuthnMethodConfiguration;
-import pl.edu.icm.unity.types.LocalAuthnState;
-import pl.edu.icm.unity.types.LocalAuthnVerification;
+import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
+import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.types.authn.CredentialType;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
 /**
  * Authentication management implementation.
@@ -24,61 +25,81 @@ import pl.edu.icm.unity.types.LocalAuthnVerification;
 public class AuthenticationManagementImpl implements AuthenticationManagement
 {
 	@Override
-	public List<LocalAuthnMethod> getLAMs()
-	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
-	}
-
-	@Override
-	public void createLocalAuthnVerification(String id, String description,
-			LocalAuthnMethodConfiguration config) throws EngineException
-	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
-	}
-
-	@Override
-	public void updateLocalAuthnVerification(String id, String description,
-			LocalAuthnMethodConfiguration config) throws EngineException
-	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
-	}
-
-	@Override
-	public List<LocalAuthnVerification> getLocalAuthnVerifications() throws EngineException
-	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
-	}
-
-	@Override
-	public void removeLocalAuthnVerification(String id) throws EngineException
-	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
-	}
-
-	@Override
-	public void createLAC(String id, String description, String[] lacmIds)
+	public Collection<AuthenticatorTypeDescription> getAuthenticatorTypes(String bindingId)
 			throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
-	public void updateLAC(String lacId, String description, String[] lacmIds,
-			LocalAuthnState newEntitiesAuthnState) throws EngineException
+	public Collection<AuthenticatorInstance> getAuthenticators(String bindingId)
+			throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
-	public List<LocalAccessClass> getLACs() throws EngineException
+	public AuthenticatorInstance createAuthenticator(String typeId, String jsonConfiguration)
+			throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
-	public void removeLAC(String lacId) throws EngineException
+	public void updateAuthenticator(String id, String jsonConfiguration) throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeAuthenticator(String id) throws EngineException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Collection<CredentialType> getCredentialTypes() throws EngineException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CredentialRequirements addCredentialRequirement(String name,
+			Collection<CredentialDefinition> configuredCredentials)
+			throws EngineException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void updateCredentialRequirement(CredentialRequirements updated,
+			LocalCredentialState desiredAuthnState) throws EngineException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeCredentialRequirement(String toRemove, String replacementId)
+			throws EngineException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Collection<CredentialRequirements> getCredentialSetDefinitions()
+			throws EngineException
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

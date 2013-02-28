@@ -10,17 +10,17 @@ import java.util.List;
 
 import org.junit.Test;
 
-import pl.edu.icm.unity.core.identity.PersistentIdentity;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.impl.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.Entity;
-import pl.edu.icm.unity.types.EntityParam;
-import pl.edu.icm.unity.types.Group;
-import pl.edu.icm.unity.types.GroupContents;
-import pl.edu.icm.unity.types.Identity;
-import pl.edu.icm.unity.types.IdentityParam;
-import pl.edu.icm.unity.types.IdentityType;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.IdentityType;
 
 public class TestIdentities extends DBIntegrationTestBase
 {

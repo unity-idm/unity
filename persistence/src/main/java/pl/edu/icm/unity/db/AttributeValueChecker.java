@@ -8,10 +8,10 @@ import java.util.List;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.types.Attribute;
-import pl.edu.icm.unity.types.AttributeType;
-import pl.edu.icm.unity.types.AttributeValueSyntax;
-import pl.edu.icm.unity.types.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 /**
  * Provides logic to check if {@link Attribute} values are valid wrt {@link AttributeType}

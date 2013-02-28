@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.AttributeType;
-import pl.edu.icm.unity.types.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 /**
  * @author K. Benedyczak

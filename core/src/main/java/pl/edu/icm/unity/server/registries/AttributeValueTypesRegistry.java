@@ -9,11 +9,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.types.AttributeValueSyntax;
+import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 
 /**
  * Maintains a simple registry of available {@link AttributeValueSyntax}es.
- * 
+ * FIXME - change the name.
  * @author K. Benedyczak
  */
 @Component

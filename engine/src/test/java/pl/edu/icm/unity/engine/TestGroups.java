@@ -9,9 +9,9 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.types.Group;
-import pl.edu.icm.unity.types.GroupContents;
-import pl.edu.icm.unity.types.IdentityType;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.IdentityType;
 
 
 public class TestGroups extends DBIntegrationTestBase

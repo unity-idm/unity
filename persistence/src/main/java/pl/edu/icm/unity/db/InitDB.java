@@ -30,8 +30,8 @@ import pl.edu.icm.unity.db.resolvers.GroupResolver;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.types.IdentityType;
-import pl.edu.icm.unity.types.IdentityTypeDefinition;
+import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 
 /**
  * Initializes DB schema and inserts the initial data. It is checked if DB was already initialized.

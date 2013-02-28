@@ -17,9 +17,9 @@ import pl.edu.icm.unity.db.model.AttributeBean;
 import pl.edu.icm.unity.db.model.AttributeTypeBean;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.server.registries.AttributeValueTypesRegistry;
-import pl.edu.icm.unity.types.Attribute;
-import pl.edu.icm.unity.types.AttributeType;
-import pl.edu.icm.unity.types.AttributeValueSyntax;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 
 /**
  * Resolvers of attributes and attribute types.

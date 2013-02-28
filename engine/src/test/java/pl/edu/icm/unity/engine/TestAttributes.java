@@ -18,13 +18,13 @@ import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.Attribute;
-import pl.edu.icm.unity.types.AttributeType;
-import pl.edu.icm.unity.types.AttributeVisibility;
-import pl.edu.icm.unity.types.EntityParam;
-import pl.edu.icm.unity.types.Group;
-import pl.edu.icm.unity.types.Identity;
-import pl.edu.icm.unity.types.IdentityParam;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 
 public class TestAttributes extends DBIntegrationTestBase
 {

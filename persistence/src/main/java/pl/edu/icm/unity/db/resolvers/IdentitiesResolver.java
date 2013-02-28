@@ -15,12 +15,12 @@ import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.IdentityBean;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.types.EntityParam;
-import pl.edu.icm.unity.types.Identity;
-import pl.edu.icm.unity.types.IdentityParam;
-import pl.edu.icm.unity.types.IdentityTaV;
-import pl.edu.icm.unity.types.IdentityType;
-import pl.edu.icm.unity.types.IdentityTypeDefinition;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 
 /**
  * Allows to resolve IdentityTypes, entities and Identities

@@ -1,0 +1,39 @@
+/*
+ * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+package pl.edu.icm.unity.types.basic;
+
+import pl.edu.icm.unity.types.authn.CredentialInfo;
+
+/**
+ * Represents an entity.
+ * @author K. Benedyczak
+ */
+public class Entity
+{
+	private String id;
+	private Identity[] identities;
+	private CredentialInfo credentialInfo;
+	
+	public Entity(String id, Identity[] identities, CredentialInfo credentialInfo)
+	{
+		this.id = id;
+		this.identities = identities;
+		this.credentialInfo = credentialInfo;
+	}
+
+	public String getId()
+	{
+		return id;
+	}
+	public Identity[] getIdentities()
+	{
+		return identities;
+	}
+
+	public CredentialInfo getCredentialInfo()
+	{
+		return credentialInfo;
+	}
+}

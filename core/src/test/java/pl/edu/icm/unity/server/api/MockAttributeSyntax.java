@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.server.api;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.types.AttributeValueSyntax;
+import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 
 import com.fasterxml.jackson.databind.JsonNode;
 

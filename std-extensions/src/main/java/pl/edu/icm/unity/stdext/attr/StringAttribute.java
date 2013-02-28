@@ -7,8 +7,8 @@ package pl.edu.icm.unity.stdext.attr;
 import java.util.Collections;
 import java.util.List;
 
-import pl.edu.icm.unity.types.Attribute;
-import pl.edu.icm.unity.types.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 /**
  * Helper class allowing to create string attributes easily.

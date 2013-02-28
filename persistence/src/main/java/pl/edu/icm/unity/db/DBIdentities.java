@@ -22,13 +22,13 @@ import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.types.Entity;
-import pl.edu.icm.unity.types.EntityParam;
-import pl.edu.icm.unity.types.Identity;
-import pl.edu.icm.unity.types.IdentityParam;
-import pl.edu.icm.unity.types.IdentityTaV;
-import pl.edu.icm.unity.types.IdentityType;
-import pl.edu.icm.unity.types.IdentityTypeDefinition;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 
 /**
  * Identities related DB operations
@@ -110,7 +110,8 @@ public class DBIdentities
 		Identity[] identities = new Identity[rawRet.size()];
 		for (int i=0; i<identities.length; i++)
 			identities[i] = idResolver.resolveIdentityBean(rawRet.get(i), mapper);
-		return new Entity(entityId+"", identities);
+		//FIXME - credential info must be set
+		return new Entity(entityId+"", identities, null);
 	}
 	
 	public void setIdentityStatus(IdentityTaV toChange, boolean status, SqlSession sqlMap)

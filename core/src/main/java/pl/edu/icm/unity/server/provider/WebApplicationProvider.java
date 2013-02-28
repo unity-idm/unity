@@ -7,6 +7,7 @@ package pl.edu.icm.unity.server.provider;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
 /**
+ * TODO - remove this iface and the package - should be replaced with endpoint abstraction
  * Implementations provide information about web applications provided by a component. 
  * We use this, instead of classic war-to-directory deployment to allow for easy testing
  * and to have unified management of all extensions, including web apps. 

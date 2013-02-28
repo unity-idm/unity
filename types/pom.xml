@@ -6,7 +6,7 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>unity-server-types</artifactId>
+	<artifactId>unity-types</artifactId>
 	<packaging>jar</packaging>
 	<name>UNITY Server ${m.name} module</name>
 	<properties>
@@ -39,5 +39,17 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>eu.unicore.security</groupId>
+			<artifactId>securityLibrary</artifactId>
+		</dependency>
+		
+		<!-- We use some spring annotations. However only for spring aware containers,
+		the classes can be used without spring as well. -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<optional>true</optional>
+		</dependency>		
 	</dependencies>
 </project>

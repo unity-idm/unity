@@ -12,7 +12,7 @@ import pl.edu.icm.unity.db.json.SerializersRegistry;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.types.Group;
+import pl.edu.icm.unity.types.basic.Group;
 
 /**
  * Serializes Group to GroupBean and vice-versa

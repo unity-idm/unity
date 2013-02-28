@@ -23,9 +23,9 @@ import pl.edu.icm.unity.db.resolvers.GroupResolver;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.EntityParam;
-import pl.edu.icm.unity.types.Group;
-import pl.edu.icm.unity.types.GroupContents;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupContents;
 
 
 /**

@@ -21,12 +21,12 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.registries.AttributeValueTypesRegistry;
-import pl.edu.icm.unity.types.Attribute;
-import pl.edu.icm.unity.types.AttributeType;
-import pl.edu.icm.unity.types.AttributeValueSyntax;
-import pl.edu.icm.unity.types.AttributeVisibility;
-import pl.edu.icm.unity.types.AttributesClass;
-import pl.edu.icm.unity.types.EntityParam;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
  * Implements attributes operations.

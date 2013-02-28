@@ -10,22 +10,20 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.core.identity.PersistentIdentity;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.impl.identity.PersistentIdentity;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.types.AuthenticationSecret;
-import pl.edu.icm.unity.types.Entity;
-import pl.edu.icm.unity.types.EntityLAC;
-import pl.edu.icm.unity.types.EntityParam;
-import pl.edu.icm.unity.types.Identity;
-import pl.edu.icm.unity.types.IdentityParam;
-import pl.edu.icm.unity.types.IdentityTaV;
-import pl.edu.icm.unity.types.IdentityType;
-import pl.edu.icm.unity.types.LocalAuthnState;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
  * Implementation of identities management. Responsible for top level transaction handling,
@@ -202,6 +200,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
 			Entity ret = dbIdentities.getIdentitiesForEntity(entityId, sqlMap);
+			//TODO set also credential info
 			sqlMap.commit();
 			return ret;
 		} finally
@@ -210,32 +209,19 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void setEntityLAC(EntityParam entity, String lacId, LocalAuthnState desiredAuthnState)
-			throws EngineException
+	public void setEntityCredentialRequirements(EntityParam entity, String requirementId,
+			LocalCredentialState desiredAuthnState) throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		// TODO Auto-generated method stub
+		
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public EntityLAC getEntityLAC(EntityParam entity) throws EngineException
+	public void setEntityCredential(EntityParam entity, String credentialId,
+			String jsonConfiguration) throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setEntityAuthenticationSecrets(EntityParam entity,
-			List<AuthenticationSecret> secrets) throws EngineException
-	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -11,9 +11,9 @@ import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.types.EntityParam;
-import pl.edu.icm.unity.types.Group;
-import pl.edu.icm.unity.types.GroupContents;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupContents;
 
 /**
  * Implementation of groups management. Responsible for top level transaction handling,

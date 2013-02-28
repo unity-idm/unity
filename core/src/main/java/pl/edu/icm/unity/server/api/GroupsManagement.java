@@ -5,9 +5,9 @@
 package pl.edu.icm.unity.server.api;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.EntityParam;
-import pl.edu.icm.unity.types.Group;
-import pl.edu.icm.unity.types.GroupContents;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupContents;
 
 
 /**

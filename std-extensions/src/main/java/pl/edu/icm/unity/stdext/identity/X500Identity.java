@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 
-import pl.edu.icm.unity.core.identity.AbstractIdentityTypeProvider;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.types.Attribute;
+import pl.edu.icm.unity.impl.identity.AbstractIdentityTypeProvider;
+import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
  * X.500 identity type definition

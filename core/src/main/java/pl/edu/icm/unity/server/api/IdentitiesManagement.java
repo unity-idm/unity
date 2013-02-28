@@ -7,16 +7,14 @@ package pl.edu.icm.unity.server.api;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.AuthenticationSecret;
-import pl.edu.icm.unity.types.Entity;
-import pl.edu.icm.unity.types.EntityLAC;
-import pl.edu.icm.unity.types.EntityParam;
-import pl.edu.icm.unity.types.Identity;
-import pl.edu.icm.unity.types.IdentityParam;
-import pl.edu.icm.unity.types.IdentityTaV;
-import pl.edu.icm.unity.types.IdentityType;
-import pl.edu.icm.unity.types.LocalAccessClass;
-import pl.edu.icm.unity.types.LocalAuthnState;
+import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
  * Internal engine API for entities and identities management.
@@ -90,32 +88,25 @@ public interface IdentitiesManagement
 	public Entity getEntity(EntityParam entity) throws EngineException;
 	
 	/**
-	 * Changes {@link LocalAccessClass} (LAC) of an entity
+	 * Changes {@link CredentialRequirements} of an entity
 	 * @param entity to be modified
-	 * @param lacId new LAC id
+	 * @param requirementId to be set
 	 * @param desiredAuthnState controls how to handle the existing authN material. 
-	 * If set to 'correct' then change is applied only if the new LAC is compatible with the previous 
+	 * If set to 'correct' then change is applied only if the new requirements are compatible with the previous 
 	 * data. In other cases the value is set for the identity after update.
 	 * @throws EngineException
 	 */
-	public void setEntityLAC(EntityParam entity, String lacId, LocalAuthnState desiredAuthnState) 
-			throws EngineException;
-	
-	/**
-	 * Returns LAC of an entity
-	 * @param entity
-	 * @return
-	 * @throws EngineException
-	 */
-	public EntityLAC getEntityLAC(EntityParam entity) throws EngineException;
+	public void setEntityCredentialRequirements(EntityParam entity, String requirementId, 
+			LocalCredentialState desiredAuthnState) throws EngineException;
 	
 	/**
 	 * Sets authentication secretes for the entity. 
-	 * @param entity
-	 * @param secrets
+	 * @param entity to be modified
+	 * @param credentialId credential id to be changed. 
+	 * @param jsonConfiguration the credential type specific JSON configuration
 	 * @throws EngineException
 	 */
-	public void setEntityAuthenticationSecrets(EntityParam entity, List<AuthenticationSecret> secrets) 
+	public void setEntityCredential(EntityParam entity, String credentialId, String jsonConfiguration) 
 			throws EngineException;
 	
 }

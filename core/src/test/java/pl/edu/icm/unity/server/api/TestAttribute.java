@@ -11,8 +11,8 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 
-import pl.edu.icm.unity.types.Attribute;
-import pl.edu.icm.unity.types.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 public class TestAttribute
 {

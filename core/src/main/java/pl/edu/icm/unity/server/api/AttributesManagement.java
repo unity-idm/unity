@@ -7,10 +7,10 @@ package pl.edu.icm.unity.server.api;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.Attribute;
-import pl.edu.icm.unity.types.AttributeType;
-import pl.edu.icm.unity.types.AttributesClass;
-import pl.edu.icm.unity.types.EntityParam;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
  * Attributes management API.
