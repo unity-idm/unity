@@ -16,18 +16,11 @@ import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 public class EndpointDescription
 {
 	private String id;
+	private String contextAddress;
 	private String description;
 	private EndpointTypeDescription type;
 	private List<AuthenticatorSet> authenticatorSets;
 
-	public EndpointDescription(String id, String description, EndpointTypeDescription type,
-			List<AuthenticatorSet> authenticatorSets)
-	{
-		this.id = id;
-		this.description = description;
-		this.type = type;
-		this.authenticatorSets = authenticatorSets;
-	}
 	public String getId()
 	{
 		return id;
@@ -43,5 +36,29 @@ public class EndpointDescription
 	public List<AuthenticatorSet> getAuthenticatorSets()
 	{
 		return authenticatorSets;
+	}
+	public void setId(String id)
+	{
+		this.id = id;
+	}
+	public void setDescription(String description)
+	{
+		this.description = description;
+	}
+	public void setType(EndpointTypeDescription type)
+	{
+		this.type = type;
+	}
+	public void setAuthenticatorSets(List<AuthenticatorSet> authenticatorSets)
+	{
+		this.authenticatorSets = authenticatorSets;
+	}
+	public String getContextAddress()
+	{
+		return contextAddress;
+	}
+	public void setContextAddress(String contextAddress)
+	{
+		this.contextAddress = contextAddress;
 	}
 }

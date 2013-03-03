@@ -18,6 +18,7 @@ import eu.unicore.util.LoggerFactory;
 
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityLoggerFactory;
+import pl.edu.icm.unity.utils.LifecycleBase;
 
 
 /**

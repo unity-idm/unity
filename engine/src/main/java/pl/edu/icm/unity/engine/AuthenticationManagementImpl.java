@@ -28,45 +28,40 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	public Collection<AuthenticatorTypeDescription> getAuthenticatorTypes(String bindingId)
 			throws EngineException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
 	}
 
 	@Override
 	public Collection<AuthenticatorInstance> getAuthenticators(String bindingId)
 			throws EngineException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
 	}
 
 	@Override
 	public AuthenticatorInstance createAuthenticator(String typeId, String jsonConfiguration)
 			throws EngineException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
 	}
 
 	@Override
 	public void updateAuthenticator(String id, String jsonConfiguration) throws EngineException
 	{
-		// TODO Auto-generated method stub
-		
+		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
 	}
 
 	@Override
 	public void removeAuthenticator(String id) throws EngineException
 	{
-		// TODO Auto-generated method stub
+		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public Collection<CredentialType> getCredentialTypes() throws EngineException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
 	}
 
 	@Override
@@ -74,32 +69,28 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			Collection<CredentialDefinition> configuredCredentials)
 			throws EngineException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
 	}
 
 	@Override
 	public void updateCredentialRequirement(CredentialRequirements updated,
 			LocalCredentialState desiredAuthnState) throws EngineException
 	{
-		// TODO Auto-generated method stub
-		
+		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
 	}
 
 	@Override
 	public void removeCredentialRequirement(String toRemove, String replacementId)
 			throws EngineException
 	{
-		// TODO Auto-generated method stub
-		
+		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
 	}
 
 	@Override
-	public Collection<CredentialRequirements> getCredentialSetDefinitions()
+	public Collection<CredentialRequirements> getCredentialRequirements()
 			throws EngineException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
 	}
 
 }

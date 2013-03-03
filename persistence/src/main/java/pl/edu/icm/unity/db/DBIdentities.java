@@ -18,7 +18,6 @@ import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.DBLimits;
 import pl.edu.icm.unity.db.model.IdentityBean;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
-import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
@@ -80,9 +79,7 @@ public class DBIdentities
 		String cmpVal = IdentitiesResolver.getComparableIdentityValue(toAdd, idTypeDef);
 		if (mapper.getIdentityByName(cmpVal) != null)
 			throw new IllegalIdentityValueException("The identity with this value is already present");
-		if (cmpVal.length() > limits.getNameLimit())
-			throw new IllegalGroupValueException("Identity comparable value length must not exceed " + 
-					limits.getNameLimit() + " characters");
+		limits.checkNameLimit(cmpVal);
 		
 		if (entityId == null)
 		{

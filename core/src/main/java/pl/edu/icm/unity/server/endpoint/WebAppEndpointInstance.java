@@ -10,11 +10,10 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
  * Servlet endpoint instance
  * @author K. Benedyczak
  */
-public interface ServletEndpointInstance extends EndpointInstance
+public interface WebAppEndpointInstance extends EndpointInstance
 {
 	/**
-	 * TODO - probably the interface should be changed to return a single description of an web app
-	 * @return
+	 * @return web application context
 	 */
-	public ServletContextHandler[] getServletContextHandlers();
+	public ServletContextHandler getServletContextHandler();
 }

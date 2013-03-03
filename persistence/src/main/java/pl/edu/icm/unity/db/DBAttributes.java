@@ -57,9 +57,7 @@ public class DBAttributes
 	
 	public void addAttributeType(AttributeType toAdd, SqlSession sqlMap)
 	{
-		if (toAdd.getName().length() > limits.getNameLimit())
-			throw new IllegalGroupValueException("Attribute type name length must not exceed " + 
-					limits.getNameLimit() + " characters");
+		limits.checkNameLimit(toAdd.getName());
 		AttributesMapper mapper = sqlMap.getMapper(AttributesMapper.class);
 		if (mapper.getAttributeType(toAdd.getName()) != null)
 			throw new IllegalAttributeTypeException("The attribute type with name " + toAdd.getName() + 

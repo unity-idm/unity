@@ -103,7 +103,7 @@ public interface AuthenticationManagement
 	 * @return collection of existing credential requirements
 	 * @throws EngineException
 	 */
-	public Collection<CredentialRequirements> getCredentialSetDefinitions() throws EngineException;
+	public Collection<CredentialRequirements> getCredentialRequirements() throws EngineException;
 }
 
 

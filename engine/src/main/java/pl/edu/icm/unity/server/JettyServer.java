@@ -6,7 +6,9 @@ package pl.edu.icm.unity.server;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -21,6 +23,9 @@ import org.springframework.stereotype.Component;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.jetty.JettyServerBase;
 
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalArgumentException;
+import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.provider.WebApplicationProvider;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration;
@@ -29,26 +34,24 @@ import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 /**
  * Manages HTTP server. Mostly responsible for creating proper hierarchy of HTTP handlers for injected
  * {@link WebApplicationProvider} instances.
+ * <p>
+ * Jetty structure which is used:
+ *  {@link ContextHandlerCollection} is used to manage all deployed contexts (fixed, one instance)
+ *  Endpoints provide a single {@link ServletContextHandler} which describes an endpoint's web application.
+ * 
  * @author K. Benedyczak
  */
 @Component
 public class JettyServer extends JettyServerBase implements Lifecycle
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, UnityApplication.class);
+	private List<WebAppEndpointInstance> deployedEndpoints;
+	private Set<String> usedContextPaths;
 	
-	private WebApplicationProvider[] webapps;
-	
-	@Autowired(required=false)
+	@Autowired
 	public JettyServer(UnityServerConfiguration cfg)
 	{
-		this(cfg, new WebApplicationProvider[0]);
-	}
-	
-	@Autowired(required=false)
-	public JettyServer(UnityServerConfiguration cfg, WebApplicationProvider[] webapps)
-	{
 		super(createURLs(cfg.getJettyProperties()), cfg.getAuthAndTrust(), cfg.getJettyProperties(), null);
-		this.webapps = webapps;
 		initServer();
 	}
 
@@ -98,20 +101,78 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 	@Override
 	protected Handler createRootHandler() throws ConfigurationException
 	{
-		Set<String> usedContextPaths = new HashSet<String>();
+		usedContextPaths = new HashSet<String>();
 		ContextHandlerCollection handlersCollection = new ContextHandlerCollection();
-		for (WebApplicationProvider provider: webapps)
-			for (ServletContextHandler handler: provider.getServletContextHandlers())
-			{
-				if (!usedContextPaths.add(handler.getContextPath()))
-				{
-					throw new ConfigurationException("There are (at least) two web " +
-							"applications configured at the same context path: " + handler.getContextPath());
-				}
-				handlersCollection.addHandler(handler);
-			}
-		if (!usedContextPaths.contains("/"))
-			handlersCollection.addHandler(new DefaultHandler());
+		deployedEndpoints = new ArrayList<WebAppEndpointInstance>(16);
+		//TODO a custom default handler is needed
+		handlersCollection.addHandler(new DefaultHandler());
 		return handlersCollection;
 	}
+	
+	public synchronized void deployEndpoint(WebAppEndpointInstance endpoint) 
+			throws EngineException
+	{
+		ServletContextHandler handler = endpoint.getServletContextHandler(); 
+		String contextPath = handler.getContextPath();
+		if (usedContextPaths.contains(contextPath))
+		{
+			throw new IllegalArgumentException("There are (at least) two web " +
+					"applications configured at the same context path: " + contextPath);
+		}
+		
+		ContextHandlerCollection root = (ContextHandlerCollection) getRootHandler();
+		root.addHandler(handler);
+		try
+		{
+			handler.start();
+		} catch (Exception e)
+		{
+			root.removeHandler(handler);
+			throw new EngineException("Can not start handler", e);
+		}
+		usedContextPaths.add(contextPath);
+		deployedEndpoints.add(endpoint);
+	}
+	
+	public synchronized void undeployEndpoint(String id) throws EngineException
+	{
+		WebAppEndpointInstance endpoint = null;
+		for (WebAppEndpointInstance endp: deployedEndpoints)
+			if (endp.getEndpointDescription().getId().equals(id))
+			{
+				endpoint = endp;
+				break;
+			}
+		if (endpoint == null)
+			throw new IllegalArgumentException("There is no deployed endpoint with id " + id);
+		
+		ServletContextHandler handler = endpoint.getServletContextHandler();
+		try
+		{
+			handler.stop();
+		} catch (Exception e)
+		{
+			throw new EngineException("Can not stop handler", e);
+		}
+		ContextHandlerCollection root = (ContextHandlerCollection) getRootHandler();
+		root.removeHandler(handler);
+		usedContextPaths.remove(handler.getContextPath());
+		deployedEndpoints.remove(endpoint);
+	}
+	
+	public synchronized List<WebAppEndpointInstance> getDeployedEndpoints()
+	{
+		List<WebAppEndpointInstance> ret = new ArrayList<WebAppEndpointInstance>(deployedEndpoints.size());
+		ret.addAll(deployedEndpoints);
+		return ret;
+	}
 }
+
+
+
+
+
+
+
+
+

@@ -49,6 +49,12 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String P = BASE_PREFIX + "core.";
 	
 	public static final String MAIL_CONF = "mailConfig";
+	public static final String RECREATE_ENDPOINTS_ON_STARTUP = "recreateEndpointsOnStartup";
+	public static final String ENDPOINTS = "endpoints.";
+	public static final String ENDPOINT_DESCRIPTION = "description";
+	public static final String ENDPOINT_TYPE = "type";
+	public static final String ENDPOINT_CONFIGURATION = "configurationFile";
+	public static final String ENDPOINT_ADDRESS = "contextPath";
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -60,7 +66,20 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		
 		defaults.put(MAIL_CONF, new PropertyMD("conf/mail.properties").setPath().setCategory(mainCat).
 				setDescription("A configuration file for the mail notification subsystem."));
-
+		defaults.put(RECREATE_ENDPOINTS_ON_STARTUP, new PropertyMD("false").setDescription(
+				"If this options is true then all endpoints are initialized from configuration at each startup. If it is false then the persisted endpoints are loaded and configuration is used only at the initial start of the server."));
+		
+		defaults.put(ENDPOINTS, new PropertyMD().setStructuredList(true).setCategory(mainCat).
+				setDescription("List of initially enabled endpoints"));
+		defaults.put(ENDPOINT_TYPE, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(mainCat).
+				setDescription("Endpoint type"));
+		defaults.put(ENDPOINT_CONFIGURATION, new PropertyMD().setStructuredListEntry(ENDPOINTS).setPath().setCategory(mainCat).
+				setDescription("Path of the file with JSON configuration of the endpoint"));
+		defaults.put(ENDPOINT_DESCRIPTION, new PropertyMD("").setStructuredListEntry(ENDPOINTS).setCategory(mainCat).
+				setDescription("Description of the endpoint"));
+		defaults.put(ENDPOINT_ADDRESS, new PropertyMD().setStructuredListEntry(ENDPOINTS).setCategory(mainCat).
+				setDescription("Context path of the endpoint"));
+		
 		defaults.put(TruststoreProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).
 				setDescription("Properties starting with this prefix are used to configure server's trust settings and certificate validation. See separate documentation for details."));
 		defaults.put(CredentialProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).

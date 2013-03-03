@@ -34,7 +34,7 @@ public class TestGroups extends DBIntegrationTestBase
 		{
 			groupsMan.addGroup(tooBig);
 			fail("Managed to add a too big group");
-		} catch (IllegalGroupValueException e)
+		} catch (pl.edu.icm.unity.exceptions.IllegalArgumentException e)
 		{
 			//OK
 		}

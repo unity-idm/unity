@@ -5,6 +5,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<beans profile="test">
-		<bean class="pl.edu.icm.unity.engine.TestConfig"/>
+		<bean class="pl.edu.icm.unity.engine.mock.TestConfig"/>
+		<bean class="pl.edu.icm.unity.engine.mock.MockEndpointFactory"/>
 	</beans>
 </beans>

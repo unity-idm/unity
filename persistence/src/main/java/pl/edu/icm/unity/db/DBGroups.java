@@ -60,9 +60,7 @@ public class DBGroups
 	public void addGroup(Group toAdd, SqlSession sqlMap) 
 		throws InternalException, IllegalGroupValueException
 	{
-		if (toAdd.getName().length() > limits.getNameLimit())
-			throw new IllegalGroupValueException("Group name length must not exceed " + 
-					limits.getNameLimit() + " characters");
+		limits.checkNameLimit(toAdd.getName());
 			
 		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
 		GroupBean pb = groupResolver.resolveGroup(toAdd.getParentPath(), mapper);

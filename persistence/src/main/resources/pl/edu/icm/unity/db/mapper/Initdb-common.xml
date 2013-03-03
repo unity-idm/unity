@@ -77,7 +77,7 @@ CREATE TABLE GROUP_LINKS(
 
 	<update id="initdb-09">
 CREATE TABLE VAR_OBJECTS(
-		<include refid="defaultColsMemU"/>,
+		<include refid="defaultColsMem"/>
 		TYPE VARCHAR(100)
 		<include refid="tableOpts"/>		
 	</update>
@@ -85,8 +85,7 @@ CREATE TABLE VAR_OBJECTS(
 	<update id="initdb-10">
 CREATE TABLE VAR_BIG_OBJECTS(
 		<include refid="defaultColsBlob"/>
-		TYPE VARCHAR(100),
-		UNIQUE(NAME)
+		TYPE VARCHAR(100)
 		<include refid="tableOpts"/>		
 	</update>
 	

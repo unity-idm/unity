@@ -15,6 +15,7 @@
 		<typeAlias alias="AttributeB" type="pl.edu.icm.unity.db.model.AttributeBean" />
 		<typeAlias alias="AttributeTypeB" type="pl.edu.icm.unity.db.model.AttributeTypeBean" />
 		<typeAlias alias="GroupElementB" type="pl.edu.icm.unity.db.model.GroupElementBean" />
+		<typeAlias alias="GenericObjectB" type="pl.edu.icm.unity.db.model.GenericObjectBean" />
 		<typeAlias alias="DBLimits" type="pl.edu.icm.unity.db.model.DBLimits" />
 	</typeAliases>
 	
@@ -49,5 +50,6 @@
 		<mapper resource="pl/edu/icm/unity/db/mapper/Groups.xml" />
 		<mapper resource="pl/edu/icm/unity/db/mapper/Identities.xml" />
 		<mapper resource="pl/edu/icm/unity/db/mapper/Attributes.xml" />
+		<mapper resource="pl/edu/icm/unity/db/mapper/Generic.xml" />
 	</mappers>
 </configuration>

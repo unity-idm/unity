@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.server;
+package pl.edu.icm.unity.utils;
 
 import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Component;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * @author K. Benedyczak
  */
 @Component		
-abstract class LifecycleBase implements SmartLifecycle
+public abstract class LifecycleBase implements SmartLifecycle
 {
 	protected boolean running;
 	

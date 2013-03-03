@@ -9,6 +9,7 @@
 	
 	<bean class="pl.edu.icm.unity.server.registries.IdentityTypesRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.AttributeValueTypesRegistry"/>
+	<bean class="pl.edu.icm.unity.server.registries.EndpointFactoriesRegistry"/>
 	
 	<beans profile="production">
 		<bean class="pl.edu.icm.unity.server.utils.DefaultConfigurationLocation"/>

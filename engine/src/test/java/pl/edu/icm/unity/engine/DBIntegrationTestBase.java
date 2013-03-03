@@ -12,7 +12,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.ServerManagement;
@@ -30,7 +32,12 @@ public abstract class DBIntegrationTestBase
 	protected AttributesManagement attrsMan;
 	@Autowired
 	protected ServerManagement serverMan;
-	
+	@Autowired
+	protected EndpointManagementImpl endpointMan;
+	@Autowired
+	protected AuthenticationManagement authnMan;
+	@Autowired
+	protected JettyServer httpServer;
 	
 	@Before
 	public void clear() throws EngineException
