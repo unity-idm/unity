@@ -13,9 +13,8 @@ public class AuthenticatorInstance
 {
 	private String id;
 	private AuthenticatorTypeDescription typeDescription;
-	private String verificatorId;
-	private String jsonConfiguration;
-	private String retrievalId;
+	private String retrievalJsonConfiguration;
+	private String verificatorJsonConfiguration;
 	
 	
 	public String getId()
@@ -34,28 +33,20 @@ public class AuthenticatorInstance
 	{
 		this.typeDescription = typeDescription;
 	}
-	public String getVerificatorId()
+	public String getRetrievalJsonConfiguration()
 	{
-		return verificatorId;
+		return retrievalJsonConfiguration;
 	}
-	public void setVerificatorId(String verificatorId)
+	public void setRetrievalJsonConfiguration(String retrievalJsonConfiguration)
 	{
-		this.verificatorId = verificatorId;
+		this.retrievalJsonConfiguration = retrievalJsonConfiguration;
 	}
-	public String getJsonConfiguration()
+	public String getVerificatorJsonConfiguration()
 	{
-		return jsonConfiguration;
+		return verificatorJsonConfiguration;
 	}
-	public void setJsonConfiguration(String jsonConfiguration)
+	public void setVerificatorJsonConfiguration(String verificatorJsonConfiguration)
 	{
-		this.jsonConfiguration = jsonConfiguration;
-	}
-	public String getRetrievalId()
-	{
-		return retrievalId;
-	}
-	public void setRetrievalId(String retrievalId)
-	{
-		this.retrievalId = retrievalId;
+		this.verificatorJsonConfiguration = verificatorJsonConfiguration;
 	}
 }

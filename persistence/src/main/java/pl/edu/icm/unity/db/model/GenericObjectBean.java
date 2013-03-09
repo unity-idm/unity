@@ -7,6 +7,7 @@ package pl.edu.icm.unity.db.model;
 public class GenericObjectBean extends BaseBean
 {
 	private String type;
+	private String subType;
 
 	public GenericObjectBean()
 	{
@@ -26,5 +27,15 @@ public class GenericObjectBean extends BaseBean
 	public void setType(String type)
 	{
 		this.type = type;
+	}
+	
+	public String getSubType()
+	{
+		return subType;
+	}
+	
+	public void setSubType(String subType)
+	{
+		this.subType = subType;
 	}
 }

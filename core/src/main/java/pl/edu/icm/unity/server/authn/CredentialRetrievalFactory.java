@@ -14,6 +14,6 @@ import pl.edu.icm.unity.types.DescribedObject;
 public interface CredentialRetrievalFactory extends DescribedObject
 {
 	public CredentialRetrieval newInstance();
-	public String getSupportedBindingId();
-	public String getSupportedExchangeId(); 
+	public String getSupportedBinding();
+	public boolean isCredentialExchangeSupported(CredentialExchange e);
 }

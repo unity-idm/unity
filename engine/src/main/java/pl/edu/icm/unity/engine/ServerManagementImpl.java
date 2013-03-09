@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.InitDB;
+import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.ServerManagement;
 
@@ -19,11 +20,13 @@ import pl.edu.icm.unity.server.api.ServerManagement;
 public class ServerManagementImpl implements ServerManagement
 {
 	private InitDB initDb;
+	private EngineInitialization engineInit;
 
 	@Autowired
-	public ServerManagementImpl(InitDB initDb)
+	public ServerManagementImpl(InitDB initDb, EngineInitialization engineInit)
 	{
 		this.initDb = initDb;
+		this.engineInit = engineInit;
 	}
 
 
@@ -31,5 +34,6 @@ public class ServerManagementImpl implements ServerManagement
 	public void resetDatabase() throws EngineException
 	{
 		initDb.resetDatabase();
+		engineInit.start();
 	}
 }

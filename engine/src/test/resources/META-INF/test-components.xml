@@ -7,5 +7,8 @@
 	<beans profile="test">
 		<bean class="pl.edu.icm.unity.engine.mock.TestConfig"/>
 		<bean class="pl.edu.icm.unity.engine.mock.MockEndpointFactory"/>
+		<bean class="pl.edu.icm.unity.engine.mock.MockPasswordHandlerFactory"/>
+		<bean class="pl.edu.icm.unity.engine.mock.MockPasswordRetrievalFactory"/>
+		<bean class="pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory"/>
 	</beans>
 </beans>

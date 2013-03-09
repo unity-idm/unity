@@ -38,7 +38,9 @@ public class AttributeValueChecker
 			throw new IllegalAttributeTypeException(
 					"Can not make an attribute of hidden type public. " +
 					"It is only possible to restrict visibility per-attribute");
+		@SuppressWarnings("unchecked")
+		AttributeValueSyntax<T> initializedValueSyntax = (AttributeValueSyntax<T>) at.getValueType(); 
 		for (T val: values)
-			valueSyntax.validate(val);
+			initializedValueSyntax.validate(val);
 	}
 }

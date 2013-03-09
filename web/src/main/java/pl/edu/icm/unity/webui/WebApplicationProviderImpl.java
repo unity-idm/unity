@@ -7,15 +7,13 @@ package pl.edu.icm.unity.webui;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import pl.edu.icm.unity.server.provider.WebApplicationProvider;
-
 /**
  * Provides info about the servlet to the loader module.
+ * TODO remove - temp code.
  * @author K. Benedyczak
  */
-public class WebApplicationProviderImpl implements WebApplicationProvider
+public class WebApplicationProviderImpl
 {
-	@Override
 	public ServletContextHandler[] getServletContextHandlers()
 	{
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);

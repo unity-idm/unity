@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * The main servlet.
- * 
+ *  * TODO remove - temp code.
  * @author K. Benedyczak
  */
 public class WebUIServlet extends HttpServlet

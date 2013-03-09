@@ -4,17 +4,17 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
-import java.nio.charset.Charset;
 import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 
 /**
  * String attribute value syntax. Can have regular expression
@@ -22,11 +22,9 @@ import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
  * @author K. Benedyczak
  */
 @Component
-public class StringAttributeSyntax implements AttributeValueSyntax<String>
+public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 {
 	public static final String ID = "string";
-	private static final Charset UTF = Charset.forName("UTF-8");
-	private static final ObjectMapper json = new ObjectMapper();
 	private int minLength = 0;
 	private int maxLength = 10240;
 	private Pattern pattern = null;
@@ -44,24 +42,38 @@ public class StringAttributeSyntax implements AttributeValueSyntax<String>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public JsonNode getSerializedConfiguration()
+	public String getSerializedConfiguration()
 	{
-		ObjectNode main = json.createObjectNode();
+		ObjectNode main = Constants.MAPPER.createObjectNode();
 		main.put("regexp", getRegexp());
 		main.put("minLength", getMinLength());
 		main.put("maxLength", getMaxLength());
-		return main;
+		try
+		{
+			return Constants.MAPPER.writeValueAsString(main);
+		} catch (JsonProcessingException e)
+		{
+			throw new RuntimeEngineException("Can't serialize StringAttributeSyntax to JSON", e);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setSerializedConfiguration(JsonNode json)
+	public void setSerializedConfiguration(String jsonStr)
 	{
-		setRegexp(json.get("regexp").asText());
-		setMinLength(json.get("minLength").asInt());
-		setMaxLength(json.get("maxLength").asInt());
+		JsonNode jsonN;
+		try
+		{
+			jsonN = Constants.MAPPER.readTree(jsonStr);
+		} catch (Exception e)
+		{
+			throw new RuntimeEngineException("Can't deserialize StringAttributeSyntax from JSON", e);
+		}
+		setRegexp(jsonN.get("regexp").asText());
+		setMinLength(jsonN.get("minLength").asInt());
+		setMaxLength(jsonN.get("maxLength").asInt());
 	}
 
 	/**
@@ -84,41 +96,6 @@ public class StringAttributeSyntax implements AttributeValueSyntax<String>
 						"regualr expression: " + getRegexp());
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean areEqual(String value, Object another)
-	{
-		return value == null ? null == another : value.equals(another);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int hashCode(Object value)
-	{
-		return value.hashCode();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public byte[] serialize(String value)
-	{
-		return value.getBytes(UTF);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String deserialize(byte[] raw)
-	{
-		return new String(raw, UTF);
-	}
 
 	/**
 	 * @return the regexp

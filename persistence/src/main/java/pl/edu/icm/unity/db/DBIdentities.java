@@ -21,7 +21,6 @@ import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -38,6 +37,7 @@ public class DBIdentities
 {
 	private DBLimits limits;
 	private JsonSerializer<IdentityParam> idSerializer;
+	private JsonSerializer<IdentityType> idTypeSerializer;
 	private IdentityTypesRegistry idTypesRegistry;
 	private IdentitiesResolver idResolver;
 	
@@ -48,6 +48,7 @@ public class DBIdentities
 	{
 		this.limits = db.getDBLimits();
 		this.idSerializer = serializersReg.getSerializer(IdentityParam.class);
+		this.idTypeSerializer = serializersReg.getSerializer(IdentityType.class);
 		this.idTypesRegistry = idTypesRegistry;
 		this.idResolver = idResolver;
 	}
@@ -64,6 +65,19 @@ public class DBIdentities
 		return ret;
 	}	
 
+	public void createIdentityType(SqlSession session, IdentityTypeDefinition idTypeDef)
+	{
+		IdentitiesMapper mapper = session.getMapper(IdentitiesMapper.class);
+		BaseBean toAdd = new BaseBean();
+
+		IdentityType idType = new IdentityType(idTypeDef);
+		idType.setDescription(idTypeDef.getDefaultDescription());
+		idType.setExtractedAttributes(idTypeDef.getAttributesSupportedForExtraction());
+		toAdd.setName(idTypeDef.getId());
+		toAdd.setContents(idTypeSerializer.toJson(idType));
+		mapper.insertIdentityType(toAdd);
+	}
+	
 	public Identity insertIdentity(IdentityParam toAdd, Long entityId, SqlSession sqlMap)
 	{
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
@@ -100,15 +114,14 @@ public class DBIdentities
 	}
 
 	
-	public Entity getIdentitiesForEntity(long entityId, SqlSession sqlMap)
+	public Identity[] getIdentitiesForEntity(long entityId, SqlSession sqlMap)
 	{
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
 		List<IdentityBean> rawRet = mapper.getIdentitiesByEntity(entityId);
 		Identity[] identities = new Identity[rawRet.size()];
 		for (int i=0; i<identities.length; i++)
 			identities[i] = idResolver.resolveIdentityBean(rawRet.get(i), mapper);
-		//FIXME - credential info must be set
-		return new Entity(entityId+"", identities, null);
+		return identities;
 	}
 	
 	public void setIdentityStatus(IdentityTaV toChange, boolean status, SqlSession sqlMap)

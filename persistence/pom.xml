@@ -9,6 +9,8 @@
 	<artifactId>unity-server-persistence</artifactId>
 	<packaging>jar</packaging>
 	<name>UNITY Server ${m.name} module</name>
+	<description>Persistence layer</description>
+	
 	<properties>
 		<m.name>persistence</m.name>
 	</properties>

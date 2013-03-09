@@ -8,7 +8,7 @@ import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -38,11 +38,14 @@ public interface IdentitiesManagement
 	/**
 	 * Adds a new entity with an initial identity.
 	 * @param toAdd new identity
-	 * @param lacId Local authentication class id to be set for the entity
+	 * @param credReqId Local {@link CredentialRequirements} id
+	 * @param initialCredentialState initial state of the credential. Only {@link LocalAuthenticationState#disabled}
+	 * and {@link LocalAuthenticationState#outdated} are allowed.
 	 * @return newly created identity
 	 * @throws EngineException
 	 */
-	public Identity addIdentity(IdentityParam toAdd, String lacId) throws EngineException;
+	public Identity addIdentity(IdentityParam toAdd, String credReqIdId, 
+			LocalAuthenticationState initialCredentialState) throws EngineException;
 	
 	/**
 	 * Adds a new identity under existing entity.
@@ -97,16 +100,16 @@ public interface IdentitiesManagement
 	 * @throws EngineException
 	 */
 	public void setEntityCredentialRequirements(EntityParam entity, String requirementId, 
-			LocalCredentialState desiredAuthnState) throws EngineException;
+			LocalAuthenticationState desiredAuthnState) throws EngineException;
 	
 	/**
 	 * Sets authentication secretes for the entity. 
 	 * @param entity to be modified
 	 * @param credentialId credential id to be changed. 
-	 * @param jsonConfiguration the credential type specific JSON configuration
+	 * @param jsonSecrets the credential type specific value of the credential encoded in JSON
 	 * @throws EngineException
 	 */
-	public void setEntityCredential(EntityParam entity, String credentialId, String jsonConfiguration) 
+	public void setEntityCredential(EntityParam entity, String credentialId, String jsonSecrets) 
 			throws EngineException;
 	
 }

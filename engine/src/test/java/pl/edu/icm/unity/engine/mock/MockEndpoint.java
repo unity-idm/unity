@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.mock;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -29,28 +30,28 @@ public class MockEndpoint extends AbstractEndpoint implements WebAppEndpointInst
 	}
 
 	@Override
-	public JsonNode getSerializedConfiguration()
+	public String getSerializedConfiguration()
 	{
 		ObjectNode root = mapper.createObjectNode();
 		try
 		{
 			String val = mapper.writeValueAsString(description);
 			root.put("description", mapper.readTree(val));
+			return mapper.writeValueAsString(root);
 		} catch (Exception e)
 		{
 			e.printStackTrace();
 			throw new RuntimeException("can't serialize", e);
 		}
-		return root;
 	}
 
 	@Override
-	public void setSerializedConfiguration(JsonNode json)
+	public void setSerializedConfiguration(String json)
 	{
-		ObjectNode root = (ObjectNode) json;
-		JsonNode desc = root.get("description");
 		try
 		{
+			JsonNode root = mapper.readTree(json);
+			JsonNode desc = root.get("description");
 			String jsonStr = mapper.writeValueAsString(desc);
 			description = mapper.readValue(jsonStr, EndpointDescription.class);
 		} catch (Exception e)
@@ -61,19 +62,19 @@ public class MockEndpoint extends AbstractEndpoint implements WebAppEndpointInst
 	}
 
 	@Override
-	public void setAuthenticators(List<AuthenticatorSet> authenticatorsInfo,
-			List<BindingAuthn> authenticators)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public ServletContextHandler getServletContextHandler()
 	{
 		ServletContextHandler ret = new ServletContextHandler();
 		ret.setContextPath(description.getContextAddress());
 		ret.addServlet(DefaultServlet.class, "/");
 		return ret;
+	}
+
+	@Override
+	public void setAuthenticators(List<AuthenticatorSet> authenticatorsInfo,
+			List<Map<String, BindingAuthn>> authenticators)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -10,6 +10,9 @@
 	<artifactId>unity-server-core</artifactId>
 	<packaging>jar</packaging>
 	<name>UNITY Server ${m.name} module</name>
+	<description>High level facade to the server internal functionality. Only this module
+	is allowed to be used as a dependency by endpoint modules</description>
+	
 	<properties>
 		<m.name>core</m.name>
 	</properties>

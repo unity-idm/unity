@@ -12,11 +12,13 @@ import pl.edu.icm.unity.types.InitializationValidator;
  * are subject to constraints defined in {@link AttributeValueSyntax} interface, 
  * with pluggable implementation. This class adds universal functionality:
  * descriptions, values cardinality limits and more.
+ * <p>
+ * The class is compared only using the name.
  */
 public class AttributeType implements InitializationValidator
 {
 	/**
-	 * The attribute type can not be created or changed using management API (it is created
+	 * The attribute type can not be changed using management API (it is created
 	 * internally).
 	 */
 	public static final int TYPE_IMMUTABLE_FLAG = 0x01;
@@ -140,5 +142,33 @@ public class AttributeType implements InitializationValidator
 			throw new IllegalAttributeTypeException("Max elements limit can not be less then min elements limit");
 		if (name == null || name.trim().equals(""))
 			throw new IllegalAttributeTypeException("Attribute type name must be set");
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AttributeType other = (AttributeType) obj;
+		if (name == null)
+		{
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		return true;
 	}
 }

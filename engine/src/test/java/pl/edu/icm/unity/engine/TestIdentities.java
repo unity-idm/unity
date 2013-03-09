@@ -14,6 +14,7 @@ import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.impl.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -24,6 +25,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 
 public class TestIdentities extends DBIntegrationTestBase
 {
+	
 	@Test
 	public void testSyntaxes() throws Exception
 	{
@@ -36,8 +38,9 @@ public class TestIdentities extends DBIntegrationTestBase
 	@Test
 	public void testCreate() throws Exception
 	{
+		setupAuthn();
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi", true, true);
-		Identity id = idsMan.addIdentity(idParam, "");
+		Identity id = idsMan.addIdentity(idParam, "crMock", LocalAuthenticationState.disabled);
 		assertNotNull(id.getEntityId());
 		assertEquals("CN=golbi", id.getValue());
 		assertEquals(true, id.isEnabled());

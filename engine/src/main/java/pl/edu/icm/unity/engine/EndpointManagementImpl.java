@@ -5,24 +5,28 @@
 package pl.edu.icm.unity.engine;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
+import pl.edu.icm.unity.engine.authn.AuthenticatorImpl;
+import pl.edu.icm.unity.engine.internal.EngineHelper;
+import pl.edu.icm.unity.engine.internal.InternalEndpointManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.EndpointManagement;
+import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
@@ -39,22 +43,29 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 public class EndpointManagementImpl implements EndpointManagement
 {
 	private static final Logger log = Logger.getLogger(EndpointManagement.class);
-	private static final String ENDPOINT_OBJECT_TYPE = "endpointDefinition";
-	private ObjectMapper mapper = new ObjectMapper();
 	private EndpointFactoriesRegistry endpointFactoriesReg;
 	private DBSessionManager db;
 	private DBGeneric dbGeneric;
 	private JettyServer httpServer;
+	private InternalEndpointManagement internalManagement;
+	private EngineHelper engineHelper;
 	
 	@Autowired
-	public EndpointManagementImpl(EndpointFactoriesRegistry endpointFactoriesReg, DBSessionManager db,
-			DBGeneric dbGeneric, JettyServer httpServer)
+	public EndpointManagementImpl(EndpointFactoriesRegistry endpointFactoriesReg,
+			DBSessionManager db, DBGeneric dbGeneric, JettyServer httpServer,
+			InternalEndpointManagement internalManagement,
+			EngineHelper engineHelper)
 	{
+		super();
 		this.endpointFactoriesReg = endpointFactoriesReg;
 		this.db = db;
 		this.dbGeneric = dbGeneric;
 		this.httpServer = httpServer;
+		this.internalManagement = internalManagement;
+		this.engineHelper = engineHelper;
 	}
+
+
 
 	@Override
 	public List<EndpointTypeDescription> getEndpointTypes()
@@ -73,7 +84,9 @@ public class EndpointManagementImpl implements EndpointManagement
 	 *  transaction is committed
 	 */
 	@Override
-	public synchronized EndpointDescription deploy(String typeId, String address, String jsonConfiguration) throws EngineException	{
+	public synchronized EndpointDescription deploy(String typeId, String endpointName, String address, 
+			String jsonConfiguration) throws EngineException 
+	{
 		EndpointFactory factory = endpointFactoriesReg.getById(typeId);
 		if (factory == null)
 			throw new IllegalArgumentException("Endpoint type " + typeId + " is unknown");
@@ -82,13 +95,14 @@ public class EndpointManagementImpl implements EndpointManagement
 			throw new RuntimeEngineException("Endpoint type " + typeId + " provides endpoint of " + 
 					instance.getClass() + " class, which is unsupported.");
 		instance.configure(address, jsonConfiguration);
+		instance.setId(endpointName);
 		
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			byte[] contents = mapper.writeValueAsBytes(instance.getSerializedConfiguration()); 
-			long endpointId = dbGeneric.addObject(typeId, ENDPOINT_OBJECT_TYPE, contents, sql);
-			instance.setId(""+endpointId);
+			byte[] contents = instance.getSerializedConfiguration().getBytes(Constants.UTF); 
+			dbGeneric.addObject(endpointName, InternalEndpointManagement.ENDPOINT_OBJECT_TYPE, 
+					typeId, contents, sql);
 			httpServer.deployEndpoint((WebAppEndpointInstance) instance);
 			sql.commit();
 		} catch (Exception e)
@@ -115,12 +129,11 @@ public class EndpointManagementImpl implements EndpointManagement
 	@Override
 	public synchronized void undeploy(String id) throws EngineException
 	{
-		long idLong = decodeId(id);
-		
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			GenericObjectBean inDb = dbGeneric.getObjectById(idLong, sql);
+			GenericObjectBean inDb = dbGeneric.getObjectByNameType(id, 
+					InternalEndpointManagement.ENDPOINT_OBJECT_TYPE, sql);
 			if (inDb == null)
 				throw new IllegalArgumentException("There is no endpoint with the provided id");
 			WebAppEndpointInstance endpoint = getDeployedInstance(id);
@@ -140,7 +153,7 @@ public class EndpointManagementImpl implements EndpointManagement
 							"The removal will continue nevertheless.", e);
 				}
 			}
-			dbGeneric.removeObject(idLong, sql);
+			dbGeneric.removeObject(id, InternalEndpointManagement.ENDPOINT_OBJECT_TYPE, sql);
 			sql.commit();
 		} catch (Exception e)
 		{
@@ -155,14 +168,13 @@ public class EndpointManagementImpl implements EndpointManagement
 	public synchronized void updateEndpoint(String id, String description, String jsonConfiguration, 
 			List<AuthenticatorSet> authn) throws EngineException
 	{
-		long idLong = decodeId(id);
-		
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			GenericObjectBean inDb = dbGeneric.getObjectById(idLong, sql);
+			GenericObjectBean inDb = dbGeneric.getObjectByNameType(id, 
+					InternalEndpointManagement.ENDPOINT_OBJECT_TYPE, sql);
 			if (inDb == null)
-				throw new IllegalArgumentException("There is no endpoint with the provided id");
+				throw new IllegalArgumentException("There is no endpoint with the id " + id);
 			WebAppEndpointInstance endpoint = getDeployedInstance(id);
 			//if endpoint is null, it means that we are in a situation where endpoint was added to database
 			//out of bands (typically in effect of synchronization in redundant DB deployment)
@@ -176,18 +188,19 @@ public class EndpointManagementImpl implements EndpointManagement
 							jsonConfiguration);
 				if (authn != null)
 				{
-					//TODO authentication settings
-					//endpoint.setAuthenticators(authn, authenticators);
+					List<Map<String, BindingAuthn>> authenticators = getAuthenticators(authn, sql);
+					endpoint.setAuthenticators(authn, authenticators);
 				}
 				if (description != null)
 					endpoint.setDescription(description);
 			} else
 			{
-				endpoint = (WebAppEndpointInstance) recreateEndpointFromDB(inDb.getId()+"", 
-						inDb.getName(), inDb.getContents());
+				endpoint = (WebAppEndpointInstance) internalManagement.recreateEndpointFromDB(
+						inDb.getId()+"", inDb.getName(), inDb.getContents());
 			}
-			byte[] contents = mapper.writeValueAsBytes(endpoint.getSerializedConfiguration()); 
-			dbGeneric.updateObject(idLong, inDb.getName(), ENDPOINT_OBJECT_TYPE, contents, sql);
+			byte[] contents = endpoint.getSerializedConfiguration().getBytes(Constants.UTF); 
+			dbGeneric.updateObject(inDb.getName(), InternalEndpointManagement.ENDPOINT_OBJECT_TYPE, 
+					contents, sql);
 			
 			sql.commit();
 		} catch (Exception e)
@@ -199,59 +212,21 @@ public class EndpointManagementImpl implements EndpointManagement
 		}
 	}
 
-	/**
-	 * Queries DB for persisted endpoints and loads them.
-	 * Should be run only on startup
-	 * @throws EngineException 
-	 */
-	public synchronized void loadPersistedEndpoints() throws EngineException
+	private List<Map<String, BindingAuthn>> getAuthenticators(List<AuthenticatorSet> authn, SqlSession sql)
 	{
-		SqlSession sql = db.getSqlSession(true);
-		try
+		List<Map<String, BindingAuthn>> ret = new ArrayList<Map<String, BindingAuthn>>(authn.size());
+		for (AuthenticatorSet aSet: authn)
 		{
-			List<GenericObjectBean> fromDb = dbGeneric.getObjectsOfType(ENDPOINT_OBJECT_TYPE, sql);
-			for (GenericObjectBean raw: fromDb)
+			Set<String> authenticators = aSet.getAuthenticators();
+			Map<String, BindingAuthn> aImpls = new HashMap<String, BindingAuthn>();
+			for (String authenticator: authenticators)
 			{
-				EndpointInstance instance = recreateEndpointFromDB(raw.getId()+"", raw.getName(), raw.getContents());
-				httpServer.deployEndpoint((WebAppEndpointInstance) instance);
+				AuthenticatorImpl authImpl = engineHelper.getAuthenticator(authenticator, sql);
+				aImpls.put(authenticator, authImpl.getRetrieval());
 			}
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
+			ret.add(aImpls);
 		}
-	}
-	
-	public synchronized void removeAllPersistedEndpoints()
-	{
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			dbGeneric.removeObjectsByType(ENDPOINT_OBJECT_TYPE, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
-	}
-	
-	private EndpointInstance recreateEndpointFromDB(String id, String typeId, byte[] serializedState)
-	{
-		EndpointFactory factory = endpointFactoriesReg.getById(typeId);
-		if (factory == null)
-			throw new IllegalArgumentException("Endpoint type " + typeId + " is unknown");
-		EndpointInstance instance = factory.newInstance();
-		JsonNode main;
-		try
-		{
-			main = mapper.readTree(serializedState);
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't perform JSON deserialization", e);
-		}
-		instance.setSerializedConfiguration(main);
-		instance.setId(id);
-		return instance;
+		return ret;
 	}
 	
 	private WebAppEndpointInstance getDeployedInstance(String id)
@@ -263,16 +238,5 @@ public class EndpointManagementImpl implements EndpointManagement
 				return deployedApp;
 			}
 		return null;
-	}
-	
-	private long decodeId(String id)
-	{
-		try
-		{
-			return Long.parseLong(id);
-		} catch (NumberFormatException e)
-		{
-			throw new IllegalArgumentException("The provided id is invalid");
-		}
 	}
 }

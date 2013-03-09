@@ -21,9 +21,9 @@ public class EndpointTypeDescription extends DescribedObjectImpl
 	{
 	}
 
-	public EndpointTypeDescription(String id, String name, String description, Set<String> supportedBindings)
+	public EndpointTypeDescription(String name, String description, Set<String> supportedBindings)
 	{
-		super(id, name, description);
+		super(name, description);
 		setSupportedBindings(supportedBindings);
 	}
 

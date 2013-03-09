@@ -4,14 +4,23 @@
  */
 package pl.edu.icm.unity.types.authn;
 
-import pl.edu.icm.unity.types.DescribedObjectImpl;
+import pl.edu.icm.unity.types.DescribedObjectROImpl;
 
 
 /**
  * Describes credential type as username and password or one-time password.
  * @author K. Benedyczak
  */
-public class CredentialType extends DescribedObjectImpl
+public class CredentialType extends DescribedObjectROImpl
 {
+	public CredentialType()
+	{
+		super();
+	}
 
+	public CredentialType(String name, String description)
+	{
+		super(name, description);
+	}
+	
 }

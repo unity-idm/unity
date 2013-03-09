@@ -7,30 +7,31 @@
 		<result property="id" column="ID"/>
 		<result property="name" column="NAME"/>
 		<result property="type" column="TYPE"/>
+		<result property="subType" column="SUB_TYPE"/>
 		<result property="contents" column="CONTENTS"/>
 	</resultMap>
 
 	<insert id="insertObject" parameterType="GenericObjectB" useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO VAR_OBJECTS(NAME, CONTENTS, TYPE) VALUES (#{name}, #{contents}, #{type})
+		INSERT INTO VAR_OBJECTS(NAME, CONTENTS, TYPE, SUB_TYPE) VALUES (#{name}, #{contents}, #{type}, #{subType})
 	</insert>
 	
-	<delete id="deleteObject" parameterType="long">
-		DELETE FROM VAR_OBJECTS WHERE id = #{value}
+	<delete id="deleteObjectByNameType" parameterType="GenericObjectB">
+		DELETE FROM VAR_OBJECTS WHERE NAME = #{name} AND TYPE = #{type}
 	</delete>
 
 	<delete id="deleteObjectsByType" parameterType="string">
 		DELETE FROM VAR_OBJECTS WHERE TYPE = #{value}
 	</delete>
 	
-	<update id="updateById" parameterType="GenericObjectB">
-		UPDATE VAR_OBJECTS SET CONTENTS=#{contents}, NAME=#{name}, TYPE=#{type} WHERE id = #{id}  
+	<update id="updateByNameType" parameterType="GenericObjectB">
+		UPDATE VAR_OBJECTS SET CONTENTS=#{contents} WHERE NAME=#{name} AND TYPE=#{type}  
 	</update>
 	
 	<select id="selectObjectsByType" parameterType="string" resultMap="objectResult">
 		SELECT * FROM VAR_OBJECTS WHERE type = #{value}
 	</select>
 
-	<select id="selectObjectById" parameterType="long" resultMap="objectResult">
-		SELECT * FROM VAR_OBJECTS WHERE id = #{value}
+	<select id="selectObjectByNameType" parameterType="GenericObjectB" resultMap="objectResult">
+		SELECT * FROM VAR_OBJECTS WHERE NAME = #{name} AND TYPE = #{type}
 	</select>
 </mapper>

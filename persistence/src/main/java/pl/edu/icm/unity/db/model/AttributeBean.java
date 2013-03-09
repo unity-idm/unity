@@ -11,36 +11,36 @@ package pl.edu.icm.unity.db.model;
  */
 public class AttributeBean
 {
-	private long id;
-	private long typeId;
-	private long groupId;
-	private long entityId;
+	private Long id;
+	private Long typeId;
+	private Long groupId;
+	private Long entityId;
 	private byte[] values;
 
 	private String name;
 	private String valueSyntaxId;
 	
-	public long getId()
+	public Long getId()
 	{
 		return id;
 	}
-	public void setId(long id)
+	public void setId(Long id)
 	{
 		this.id = id;
 	}
-	public long getGroupId()
+	public Long getGroupId()
 	{
 		return groupId;
 	}
-	public void setGroupId(long groupId)
+	public void setGroupId(Long groupId)
 	{
 		this.groupId = groupId;
 	}
-	public long getEntityId()
+	public Long getEntityId()
 	{
 		return entityId;
 	}
-	public void setEntityId(long entityId)
+	public void setEntityId(Long entityId)
 	{
 		this.entityId = entityId;
 	}
@@ -52,11 +52,11 @@ public class AttributeBean
 	{
 		this.values = values;
 	}
-	public long getTypeId()
+	public Long getTypeId()
 	{
 		return typeId;
 	}
-	public void setTypeId(long typeId)
+	public void setTypeId(Long typeId)
 	{
 		this.typeId = typeId;
 	}

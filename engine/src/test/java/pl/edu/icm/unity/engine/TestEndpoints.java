@@ -23,7 +23,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 		assertEquals(1, endpointTypes.size());
 		EndpointTypeDescription type = endpointTypes.get(0);
 		
-		endpointMan.deploy(type.getId(), "/foo", "");
+		endpointMan.deploy(type.getName(), "endpoint1", "/foo", "");
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 
@@ -38,8 +38,8 @@ public class TestEndpoints extends DBIntegrationTestBase
 		
 		//test initial loading from DB: create, remove from the server, load
 		
-		endpointMan.deploy(type.getId(), "/foo", "");
-		endpointMan.deploy(type.getId(), "/foo2", "");
+		endpointMan.deploy(type.getName(), "endpoint1", "/foo", "");
+		endpointMan.deploy(type.getName(), "endpoint2", "/foo2", "");
 		endpoints = endpointMan.getEndpoints();
 		assertEquals(2, endpoints.size());
 		endpointMan.updateEndpoint(endpoints.get(0).getId(), "endp1", null, null);
@@ -51,7 +51,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 		endpoints = endpointMan.getEndpoints();
 		assertEquals(0, endpoints.size());
 		
-		endpointMan.loadPersistedEndpoints();
+		internalEndpointMan.loadPersistedEndpoints();
 		
 		endpoints = endpointMan.getEndpoints();
 		assertEquals(2, endpoints.size());
@@ -63,8 +63,8 @@ public class TestEndpoints extends DBIntegrationTestBase
 		httpServer.undeployEndpoint(endpoints.get(0).getId());
 		httpServer.undeployEndpoint(endpoints.get(1).getId());
 
-		endpointMan.removeAllPersistedEndpoints();
-		endpointMan.loadPersistedEndpoints();
+		internalEndpointMan.removeAllPersistedEndpoints();
+		internalEndpointMan.loadPersistedEndpoints();
 		endpoints = endpointMan.getEndpoints();
 		assertEquals(0, endpoints.size());
 	}

@@ -9,6 +9,9 @@
 	<artifactId>unity-server-engine</artifactId>
 	<packaging>jar</packaging>
 	<name>UNITY Server ${m.name} module</name>
+	<description>Business logic layer</description>
+	
+	
 	<properties>
 		<m.name>engine</m.name>
 	</properties>
@@ -59,6 +62,11 @@
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-persistence</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-std-extensions</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

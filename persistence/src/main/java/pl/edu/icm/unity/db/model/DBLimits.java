@@ -34,7 +34,7 @@ public class DBLimits
 	
 	public void checkNameLimit(String ofWhat)
 	{
-		if (ofWhat.length() > getNameLimit())
+		if (ofWhat != null && ofWhat.length() > getNameLimit())
 			throw new IllegalArgumentException("Name length must not exceed " + 
 					getNameLimit() + " characters");
 
@@ -42,7 +42,7 @@ public class DBLimits
 	
 	public void checkContentsLimit(byte[] ofWhat)
 	{
-		if (ofWhat.length > getContentsLimit())
+		if (ofWhat != null && ofWhat.length > getContentsLimit())
 			throw new IllegalArgumentException("Contents must not exceed " + 
 					getContentsLimit() + " bytes");
 

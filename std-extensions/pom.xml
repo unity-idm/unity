@@ -9,6 +9,9 @@
 	<artifactId>unity-std-extensions</artifactId>
 	<packaging>jar</packaging>
 	<name>UNITY Server ${m.name} module</name>
+	<description>Standard extensions as attribute syntaxes or identity formats. Those are basically always 
+	available, as some of them are used internally by the server</description>
+	
 	<properties>
 		<m.name>std-extensions</m.name>
 	</properties>

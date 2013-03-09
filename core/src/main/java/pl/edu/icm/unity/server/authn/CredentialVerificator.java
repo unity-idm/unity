@@ -9,13 +9,13 @@ import pl.edu.icm.unity.types.JsonSerializable;
 
 /**
  * Implementations allow for verification of the provided credential. It is assumed that credential is 
- * provided in an asynchronous way, via callback. The actual interaction might be arbitrary complex and
- * is implemented using {@link CredentialExchange}. 
+ * provided via {@link CredentialExchange} interfaces. The actual interaction might be arbitrary complex.
+ * <p>
+ * Implementations must be thread safe. 
  * 
  * @author K. Benedyczak
  */
-public interface CredentialVerificator extends JsonSerializable, DescribedObject
+public interface CredentialVerificator extends CredentialExchange, JsonSerializable, DescribedObject
 {
-	public String getRequiredExchangerId();
-	public void setCredentialExchanger(CredentialExchange e);
+	public void setIdentityResolver(IdentityResolver identityResolver);
 }

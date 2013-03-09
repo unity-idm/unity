@@ -40,6 +40,24 @@
 	
  -->
 
+	<select id="getAttributes" parameterType="AttributeB" resultMap="attributeResult">
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID from ATTRIBUTES A, ATTRIBUTE_TYPES AT
+		<where>
+			<if test="entityId != null">
+				A.ENTITY_ID = #{entityId}
+			</if>
+			<if test="groupId != null">
+				AND A.GROUP_ID = #{groupId}
+			</if>
+			AND A.TYPE_ID = AT.ID
+			<if test="name != null">
+				AND AT.NAME = #{name}
+			</if>
+		</where>
+	</select>
+
+
+
 
 	<select id="getSpecificAttribute" parameterType="AttributeB" resultMap="attributeResult">
 		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID from ATTRIBUTES A, ATTRIBUTE_TYPES AT
@@ -50,6 +68,11 @@
 	<select id="getInGroupAttributes" parameterType="AttributeB" resultMap="attributeResult">
 		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID from ATTRIBUTES A, ATTRIBUTE_TYPES AT
 			WHERE A.ENTITY_ID = #{entityId} AND A.GROUP_ID = #{groupId} AND A.TYPE_ID = AT.ID     
+	</select>
+	
+	<select id="getEntitiesWithAttribute" parameterType="AttributeB" resultMap="attributeResult">
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID from ATTRIBUTES A, ATTRIBUTE_TYPES AT
+			WHERE A.GROUP_ID = #{groupId} AND A.TYPE_ID = AT.ID     
 	</select>
 	
 	<insert id="insertAttribute" parameterType="AttributeB">

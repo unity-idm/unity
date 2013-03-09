@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.mapper.GenericMapper;
 import pl.edu.icm.unity.db.model.DBLimits;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
+import pl.edu.icm.unity.exceptions.IllegalArgumentException;
 
 
 /**
@@ -30,14 +31,17 @@ public class DBGeneric
 		this.limits = db.getDBLimits();
 	}
 
-	public long addObject(String name, String type, byte[] contents, SqlSession sqlMap)
+	public long addObject(String name, String type, String subType, byte[] contents, SqlSession sqlMap)
 	{
 		limits.checkNameLimit(name);
+		limits.checkNameLimit(subType);
 		if (contents == null)
 			contents = new byte[0];
 		limits.checkContentsLimit(contents);
 		GenericObjectBean toAdd = new GenericObjectBean(name, contents, type);
+		toAdd.setSubType(subType);
 		GenericMapper mapper = sqlMap.getMapper(GenericMapper.class);
+		checkExists(toAdd, mapper, false);
 		mapper.insertObject(toAdd);
 		return toAdd.getId();
 	}
@@ -48,16 +52,18 @@ public class DBGeneric
 		return mapper.selectObjectsByType(type);
 	}
 	
-	public GenericObjectBean getObjectById(long id, SqlSession sqlMap)
+	public GenericObjectBean getObjectByNameType(String name, String type, SqlSession sqlMap)
 	{
 		GenericMapper mapper = sqlMap.getMapper(GenericMapper.class);
-		return mapper.selectObjectById(id);
+		return mapper.selectObjectByNameType(new GenericObjectBean(name, null, type));
 	}
 
-	public void removeObject(long id, SqlSession sqlMap)
+	public void removeObject(String name, String type, SqlSession sqlMap)
 	{
 		GenericMapper mapper = sqlMap.getMapper(GenericMapper.class);
-		mapper.deleteObject(id);
+		GenericObjectBean param = new GenericObjectBean(name, null, type);
+		checkExists(param, mapper, true);
+		mapper.deleteObjectByNameType(param);
 	}
 	
 	public void removeObjectsByType(String type, SqlSession sqlMap)
@@ -67,7 +73,7 @@ public class DBGeneric
 	}
 	
 	
-	public void updateObject(long id, String name, String type, byte[] contents, SqlSession sqlMap)
+	public void updateObject(String name, String type, byte[] contents, SqlSession sqlMap)
 	{
 		limits.checkNameLimit(name);
 		if (contents == null)
@@ -75,8 +81,23 @@ public class DBGeneric
 		limits.checkContentsLimit(contents);
 		GenericMapper mapper = sqlMap.getMapper(GenericMapper.class);
 		GenericObjectBean updated = new GenericObjectBean(name, contents, type);
-		updated.setId(id);
-		mapper.updateById(updated);
+		checkExists(updated, mapper, true);
+		mapper.updateByNameType(updated);
+	}
+	
+	private void checkExists(GenericObjectBean param, GenericMapper mapper, boolean shouldExist)
+	{
+		if (mapper.selectObjectByNameType(param) == null)
+		{
+			if (shouldExist)
+				throw new IllegalArgumentException("The object with " + param.getName() 
+					+ " name doesn't exist");
+		} else
+		{
+			if (!shouldExist)
+				throw new IllegalArgumentException("The object with " + param.getName() 
+					+ " name already exists");
+		}
 	}
 }
 

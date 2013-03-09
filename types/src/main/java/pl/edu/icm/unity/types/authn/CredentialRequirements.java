@@ -22,10 +22,10 @@ public class CredentialRequirements extends DescribedObjectImpl
 		super();
 	}
 
-	public CredentialRequirements(String id, String name, String description,
+	public CredentialRequirements(String name, String description,
 			Set<CredentialDefinition> requiredCredentials)
 	{
-		super(id, name, description);
+		super(name, description);
 		this.requiredCredentials = requiredCredentials;
 	}
 

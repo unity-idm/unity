@@ -31,7 +31,7 @@ public class EndpointFactoriesRegistry
 	{
 		for (EndpointFactory factory: endpointFactories)
 		{
-			factoriesById.put(factory.getDescription().getId(), factory);
+			factoriesById.put(factory.getDescription().getName(), factory);
 			factoriesDescriptions.add(factory.getDescription());
 		}
 	}

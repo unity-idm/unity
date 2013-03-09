@@ -30,11 +30,13 @@ public interface EndpointManagement
 	/**
 	 * Deploys a new instance of an endpoint of id type, at address location.
 	 * Address is a path in web app context for the servlet endpoints.  
-	 * @param id
+	 * @param typeId
+	 * @param endpointName name to be given to the endpoint
 	 * @param address
+	 * @param configuration
 	 * @throws EngineException 
 	 */
-	public EndpointDescription deploy(String id, String address, String configuration) throws EngineException;
+	public EndpointDescription deploy(String typeId, String endpointName, String address, String configuration) throws EngineException;
 
 	/**
 	 * Removes a deployed endpoint

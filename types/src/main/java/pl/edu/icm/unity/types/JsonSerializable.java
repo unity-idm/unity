@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.types;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 /**
  * General purpose interface for objects which can have its state serialized into Json and then read back. 
  * We prefer this to the binary Java serialization.
@@ -18,11 +16,11 @@ public interface JsonSerializable
 	/**
 	 * @return JSON serialized representation
 	 */
-	public JsonNode getSerializedConfiguration();
+	public String getSerializedConfiguration();
 	
 	/**
 	 * Initializes object from JSON
 	 * @param json
 	 */
-	public void setSerializedConfiguration(JsonNode json);
+	public void setSerializedConfiguration(String json);
 }

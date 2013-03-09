@@ -7,18 +7,17 @@ package pl.edu.icm.unity.server.api;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 
-import com.fasterxml.jackson.databind.JsonNode;
 
 public class MockAttributeSyntax implements AttributeValueSyntax<String> {
 
 	@Override
-	public JsonNode getSerializedConfiguration()
+	public String getSerializedConfiguration()
 	{
 		return null;
 	}
 
 	@Override
-	public void setSerializedConfiguration(JsonNode json)
+	public void setSerializedConfiguration(String json)
 	{
 	}
 

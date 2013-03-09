@@ -19,5 +19,5 @@ package pl.edu.icm.unity.server.authn;
  */
 public interface CredentialExchange
 {
-	public String getId();
+	public String getExchangeId();
 }

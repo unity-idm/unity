@@ -5,13 +5,16 @@
 package pl.edu.icm.unity.server.authn;
 
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.types.JsonSerializable;
 
 /**
- * Retrieves credential from a particular binding, using a particular method. Cooperates 
- * with verificator via implemented {@link CredentialExchange}.
+ * Retrieves credential, using a some binding specific method. Cooperates 
+ * with {@link CredentialVerificator} via {@link CredentialExchange}.
+ * <p>
+ * Implementations must be thread safe.
  * @author K. Benedyczak
  */
-public interface CredentialRetrieval extends CredentialExchange, BindingAuthn
+public interface CredentialRetrieval extends BindingAuthn, JsonSerializable
 {
-
+	public void setCredentialExchange(CredentialExchange e);
 }

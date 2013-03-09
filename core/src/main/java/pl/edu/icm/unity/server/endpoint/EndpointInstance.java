@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.server.endpoint;
 
 import java.util.List;
+import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.IllegalConfigurationDataException;
 import pl.edu.icm.unity.types.JsonSerializable;
@@ -37,7 +38,12 @@ public interface EndpointInstance extends JsonSerializable
 
 	public EndpointDescription getEndpointDescription();
 	
-	public void setAuthenticators(List<AuthenticatorSet> authenticatorsInfo, List<BindingAuthn> authenticators);
+	/**
+	 * @param authenticatorsInfo generic info about authenticators set with their ids and groupings
+	 * @param authenticators actual authenticators. the list has entries corresponding to the first argument.
+	 * the map holds mappings of each authenticator name to its implementation
+	 */
+	public void setAuthenticators(List<AuthenticatorSet> authenticatorsInfo, List<Map<String, BindingAuthn>> authenticators);
 	
 	public void setDescription(String description);
 	

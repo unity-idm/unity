@@ -22,9 +22,9 @@ public class CredentialDefinition extends DescribedObjectImpl
 		super();
 	}
 
-	public CredentialDefinition(String id, String typeId, String name, String description)
+	public CredentialDefinition(String typeId, String name, String description)
 	{
-		super(id, name, description);
+		super(name, description);
 		this.typeId = typeId;
 	}
 	

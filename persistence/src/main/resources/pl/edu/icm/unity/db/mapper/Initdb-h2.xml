@@ -17,6 +17,9 @@
 		<include refid="defaultColsMem"/>
 		UNIQUE(NAME)
 	</sql>
+	<sql id="subTypeCol">
+		SUB_TYPE VARCHAR(200),
+	</sql>
 	<sql id="tableOpts">
 		);
 	</sql>

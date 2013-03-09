@@ -11,7 +11,19 @@ package pl.edu.icm.unity.types.authn;
  */
 public enum LocalCredentialState
 {
+	/**
+	 * the credential is fine
+	 */
 	correct,
+	
+	/**
+	 * the credential is not defined
+	 */
 	notSet,
+	
+	/**
+	 * the credential is defined but is invalid. E.g. it is not fullfilling the new restrictions or
+	 * is outdated.
+	 */
 	outdated
 }

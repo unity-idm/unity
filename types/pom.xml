@@ -9,6 +9,10 @@
 	<artifactId>unity-types</artifactId>
 	<packaging>jar</packaging>
 	<name>UNITY Server ${m.name} module</name>
+	<description>Module with classes useful for both server and client side, 
+	basically everything should depend on this module.</description>
+	
+	
 	<properties>
 		<m.name>types</m.name>
 	</properties>

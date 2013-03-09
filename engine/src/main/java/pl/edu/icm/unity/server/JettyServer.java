@@ -26,14 +26,13 @@ import eu.unicore.util.jetty.JettyServerBase;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalArgumentException;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
-import pl.edu.icm.unity.server.provider.WebApplicationProvider;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 
 /**
- * Manages HTTP server. Mostly responsible for creating proper hierarchy of HTTP handlers for injected
- * {@link WebApplicationProvider} instances.
+ * Manages HTTP server. Mostly responsible for creating proper hierarchy of HTTP handlers for deployed
+ * {@link WebAppEndpointInstance} instances.
  * <p>
  * Jetty structure which is used:
  *  {@link ContextHandlerCollection} is used to manage all deployed contexts (fixed, one instance)

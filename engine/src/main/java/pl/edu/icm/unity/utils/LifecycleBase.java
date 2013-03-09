@@ -37,7 +37,7 @@ public abstract class LifecycleBase implements SmartLifecycle
 	@Override
 	public boolean isAutoStartup()
 	{
-		return false;
+		return true;
 	}
 
 	@Override

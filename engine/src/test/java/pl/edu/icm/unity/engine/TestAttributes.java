@@ -15,9 +15,11 @@ import org.junit.Test;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -33,16 +35,17 @@ public class TestAttributes extends DBIntegrationTestBase
 	{
 		String[] supportedSyntaxes = attrsMan.getSupportedAttributeValueTypes();
 		Arrays.sort(supportedSyntaxes);
-		assertEquals(1, supportedSyntaxes.length);
-		assertEquals(StringAttributeSyntax.ID, supportedSyntaxes[0]);
-	
+		assertEquals(2, supportedSyntaxes.length);
+		checkArray(supportedSyntaxes, StringAttributeSyntax.ID, EnumAttributeSyntax.ID);
 	}
 
 	@Test
 	public void testCreateAttribute() throws Exception
 	{
+		setupAuthn();
 		groupsMan.addGroup(new Group("/test"));
-		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "cn=golbi", true, true), "");
+		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "cn=golbi", true, true), "crMock", 
+				LocalAuthenticationState.disabled);
 		attrsMan.addAttributeType(new AttributeType("tel", new StringAttributeSyntax()));
 		EntityParam entity = new EntityParam(id.getEntityId());
 
@@ -101,8 +104,8 @@ public class TestAttributes extends DBIntegrationTestBase
 		assertEquals(0, allAts.size());
 		
 		allAts = attrsMan.getAllAttributes(entity, null, null);
-		assertEquals(1, allAts.size());
-		assertEquals("333", allAts.get(0).getValues().get(0));
+		assertEquals(3, allAts.size());
+		assertEquals("333", getAttributeByName(allAts, "tel").getValues().get(0));
 		assertEquals(AttributeVisibility.local, allAts.get(0).getVisibility());
 		
 		
@@ -123,7 +126,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	public void testCreateType() throws Exception
 	{
 		List<AttributeType> ats = attrsMan.getAttributeTypes();
-		assertEquals(0, ats.size());
+		assertEquals(3, ats.size());
 
 		AttributeType at = new AttributeType();
 		at.setValueType(new StringAttributeSyntax());
@@ -137,8 +140,8 @@ public class TestAttributes extends DBIntegrationTestBase
 		attrsMan.addAttributeType(at);
 		
 		ats = attrsMan.getAttributeTypes();
-		assertEquals(1, ats.size());
-		AttributeType at2 = ats.get(0);
+		assertEquals(4, ats.size());
+		AttributeType at2 = getAttributeTypeByName(ats, "some");
 		
 		assertEquals(at.getDescription(), at2.getDescription());
 		assertEquals(at.getFlags(), at2.getFlags());

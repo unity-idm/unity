@@ -55,6 +55,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String ENDPOINT_TYPE = "type";
 	public static final String ENDPOINT_CONFIGURATION = "configurationFile";
 	public static final String ENDPOINT_ADDRESS = "contextPath";
+	public static final String ENDPOINT_NAME = "name";
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -79,6 +80,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("Description of the endpoint"));
 		defaults.put(ENDPOINT_ADDRESS, new PropertyMD().setStructuredListEntry(ENDPOINTS).setCategory(mainCat).
 				setDescription("Context path of the endpoint"));
+		defaults.put(ENDPOINT_NAME, new PropertyMD().setStructuredListEntry(ENDPOINTS).setCategory(mainCat).
+				setDescription("Endpoint name"));
 		
 		defaults.put(TruststoreProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).
 				setDescription("Properties starting with this prefix are used to configure server's trust settings and certificate validation. See separate documentation for details."));

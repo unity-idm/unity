@@ -16,4 +16,10 @@
 	<bean class="pl.edu.icm.unity.engine.ServerManagementImpl"/>
 	<bean class="pl.edu.icm.unity.engine.EndpointManagementImpl"/>
 
+	<bean class="pl.edu.icm.unity.engine.internal.InternalEndpointManagement"/>
+	<bean class="pl.edu.icm.unity.engine.internal.EngineInitialization"/>
+	<bean class="pl.edu.icm.unity.engine.internal.EngineHelper"/>
+	<bean class="pl.edu.icm.unity.engine.internal.IdentityResolverImpl"/>
+
+	<bean class="pl.edu.icm.unity.sysattrs.SystemAttributeTypes"/>
 </beans>

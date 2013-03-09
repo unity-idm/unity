@@ -21,8 +21,7 @@ public interface AttributesMapper
 	public List<AttributeTypeBean> getAttributeTypes();
 	public AttributeTypeBean getAttributeType(String name);
 	
-	public AttributeBean getSpecificAttribute(AttributeBean a);
-	public List<AttributeBean> getInGroupAttributes(AttributeBean a);
+	public List<AttributeBean> getAttributes(AttributeBean a);
 	public void insertAttribute(AttributeBean a);
 	public void updateAttribute(AttributeBean a);
 	public void deleteAttribute(AttributeBean a);

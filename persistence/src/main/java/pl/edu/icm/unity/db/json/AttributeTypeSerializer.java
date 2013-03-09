@@ -35,6 +35,7 @@ public class AttributeTypeSerializer implements JsonSerializer<AttributeType>
 		root.put("minElements", src.getMinElements());
 		root.put("selfModificable", src.isSelfModificable());
 		root.put("visibility", src.getVisibility().name());
+		root.put("syntaxState", src.getValueType().getSerializedConfiguration());
 		try
 		{
 			return mapper.writeValueAsBytes(root);
@@ -66,6 +67,7 @@ public class AttributeTypeSerializer implements JsonSerializer<AttributeType>
 		target.setMinElements(main.get("minElements").asInt());
 		target.setSelfModificable(main.get("selfModificable").asBoolean());
 		target.setVisibility(AttributeVisibility.valueOf(main.get("visibility").asText()));
+		target.getValueType().setSerializedConfiguration(main.get("syntaxState").asText());
 	}
 
 	/**
