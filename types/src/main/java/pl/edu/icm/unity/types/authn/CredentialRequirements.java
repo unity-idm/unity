@@ -15,7 +15,7 @@ import pl.edu.icm.unity.types.DescribedObjectImpl;
  */
 public class CredentialRequirements extends DescribedObjectImpl
 {
-	private Set<CredentialDefinition> requiredCredentials;
+	private Set<String> requiredCredentials;
 
 	public CredentialRequirements()
 	{
@@ -23,18 +23,18 @@ public class CredentialRequirements extends DescribedObjectImpl
 	}
 
 	public CredentialRequirements(String name, String description,
-			Set<CredentialDefinition> requiredCredentials)
+			Set<String> requiredCredentials)
 	{
 		super(name, description);
 		this.requiredCredentials = requiredCredentials;
 	}
 
-	public Set<CredentialDefinition> getRequiredCredentials()
+	public Set<String> getRequiredCredentials()
 	{
 		return requiredCredentials;
 	}
 
-	public void setRequiredCredentials(Set<CredentialDefinition> requiredCredentials)
+	public void setRequiredCredentials(Set<String> requiredCredentials)
 	{
 		this.requiredCredentials = requiredCredentials;
 	}

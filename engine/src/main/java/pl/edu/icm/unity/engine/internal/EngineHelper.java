@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.internal;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,6 +19,7 @@ import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.engine.AuthenticationManagementImpl;
 import pl.edu.icm.unity.engine.authn.AuthenticatorImpl;
+import pl.edu.icm.unity.engine.authn.CredentialHolder;
 import pl.edu.icm.unity.engine.authn.CredentialRequirementsHolder;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
@@ -25,7 +28,9 @@ import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
+import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
@@ -79,9 +84,9 @@ public class EngineHelper
 		dbAttributes.addAttribute(entityId, credReq, true, sqlMap);
 	}
 
-	public Set<Long> getEntitiesByAttribute(String attribute, String value, SqlSession sql)
+	public Set<Long> getEntitiesByAttribute(String attribute, Set<String> values, SqlSession sql)
 	{
-		return dbAttributes.getEntitiesBySimpleAttribute("/", attribute, value, sql);
+		return dbAttributes.getEntitiesBySimpleAttribute("/", attribute, values, sql);
 	}
 
 	public CredentialRequirementsHolder getCredentialRequirements(String requirementName, SqlSession sqlMap)
@@ -91,22 +96,63 @@ public class EngineHelper
 		if (raw == null)
 			throw new RuntimeEngineException("The credential requirement is unknown: " 
 					+ requirementName);
-		return resolveCredentialRequirementsBean(raw, sqlMap);
+		List<CredentialDefinition> credDefs = getCredentialDefinitions(sqlMap);
+		return new CredentialRequirementsHolder(authReg, raw.getContents(), credDefs);
 	}
 	
-	public CredentialRequirementsHolder resolveCredentialRequirementsBean(GenericObjectBean raw, SqlSession sqlMap)
+	public CredentialHolder resolveCredentialBean(GenericObjectBean raw, SqlSession sqlMap)
 	{
-		CredentialRequirementsHolder helper = new CredentialRequirementsHolder(authReg);
+		CredentialHolder helper = new CredentialHolder(authReg);
 		String contents = new String(raw.getContents(), Constants.UTF);
 		helper.setSerializedConfiguration(contents);
 		return helper;
 	}
-	
-	
+
 	/**
-	 * Credential state of the entity is updated to desired state. disabled is simply set.
+	 * Credential state of the entity is updated to desired state. This method should be called after a 
+	 * change of a single credential definition. 
+	 * <p>
+	 * Disabled is simply set.
 	 * valid is set only if all credentials are matching the new definition, otherwise exception is thrown.
 	 * outdated is set if some of the credentials are invalid, otherwise valid is set.
+	 * @param entityId
+	 * @param desiredAuthnState
+	 * @param credentialChanged
+	 * @param sql
+	 */
+	public void updateEntityCredentialState(long entityId, LocalAuthenticationState desiredAuthnState,
+			CredentialHolder credentialChanged, SqlSession sql)
+	{
+		LocalAuthenticationState toSet;
+		if (desiredAuthnState.equals(LocalAuthenticationState.disabled))
+		{
+			toSet = LocalAuthenticationState.disabled;
+		} else
+		{
+			List<Attribute<?>> attributes = dbAttributes.getAllAttributes(entityId, "/", 
+					SystemAttributeTypes.CREDENTIAL_PREFIX+credentialChanged.getCredentialDefinition().getName(), sql);
+			boolean valid = false;
+			if (!attributes.isEmpty())
+			{
+				String credential = (String)attributes.get(0).getValues().get(0);
+				valid = credentialChanged.getHandler().checkCredentialState(credential) 
+						== LocalCredentialState.correct;
+			}
+			
+			if (desiredAuthnState.equals(LocalAuthenticationState.valid) && !valid)
+				throw new IllegalCredentialException("The new credential is not compatible with the previous definition and can not keep the authentication state as valid");
+			toSet = valid ? LocalAuthenticationState.valid : LocalAuthenticationState.outdated;
+		}
+		setEntityAuthenticationState(entityId, toSet, sql);
+	}
+	
+	/**
+	 * Credential state of the entity is updated to desired state. This method should be called after a 
+	 * change of a single credential definition. 
+	 * <p> 
+	 * Disabled is simply set. Valid is set only if all credentials are matching the new definition, 
+	 * otherwise exception is thrown. 
+	 * Outdated is set if some of the credentials are invalid, otherwise valid is set.
 	 * @param entityId
 	 * @param desiredAuthnState
 	 * @param newCredReqs
@@ -145,5 +191,18 @@ public class EngineHelper
 		String contents = new String(raw.getContents(), Constants.UTF);
 		authenticator.setSerializedConfiguration(contents);
 		return authenticator;
+	}
+	
+	public List<CredentialDefinition> getCredentialDefinitions(SqlSession sql)
+	{
+		List<CredentialDefinition> ret = new ArrayList<CredentialDefinition>();
+		List<GenericObjectBean> raw = dbGeneric.getObjectsOfType(
+				AuthenticationManagementImpl.CREDENTIAL_OBJECT_TYPE, sql);
+		for (GenericObjectBean rawA: raw)
+		{
+			CredentialHolder helper = resolveCredentialBean(rawA, sql);
+			ret.add(helper.getCredentialDefinition());
+		}
+		return ret;
 	}
 }

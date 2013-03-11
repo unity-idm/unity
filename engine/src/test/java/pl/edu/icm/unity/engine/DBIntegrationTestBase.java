@@ -25,6 +25,7 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
@@ -93,10 +94,13 @@ public abstract class DBIntegrationTestBase
 	protected void setupAuthn() throws Exception
 	{
 		CredentialDefinition credDef = new CredentialDefinition(
-				MockPasswordHandlerFactory.ID, "credential req1", "cred req desc");
+				MockPasswordHandlerFactory.ID, "credential1", "cred desc");
 		credDef.setJsonConfiguration("8");
+		authnMan.addCredentialDefinition(credDef);
 		
-		authnMan.addCredentialRequirement("crMock", "mock cred req", Collections.singleton(credDef));
+		CredentialRequirements cr = new CredentialRequirements("crMock", "mock cred req", 
+				Collections.singleton(credDef.getName()));
+		authnMan.addCredentialRequirement(cr);
 	}
 
 }

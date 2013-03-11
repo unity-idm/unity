@@ -40,10 +40,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 	public void testAuthentication() throws Exception
 	{
 		//create credential requirement and an identity with it 
-		CredentialDefinition credDef = new CredentialDefinition(
-				MockPasswordHandlerFactory.ID, "credential1", "cred1 desc");
-		credDef.setJsonConfiguration("8");
-		authnMan.addCredentialRequirement("crMock", "mock cred req", Collections.singleton(credDef));
+		super.setupAuthn();
 		
 		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=foo", true, false), 
 				"crMock", LocalAuthenticationState.outdated);
@@ -71,30 +68,28 @@ public class TestAuthentication extends DBIntegrationTestBase
 		//set correct password 
 		idsMan.setEntityCredential(entityP, "credential1", "bar");
 		long entityId = endpoint.authenticate();
-		
+		Entity entity = idsMan.getEntity(entityP);
+		assertEquals(entityId+"", entity.getId());
 	}
 	
 	@Test
 	public void testAuthnManagement() throws Exception
 	{
 		//create credential definition
-		CredentialDefinition credDef = new CredentialDefinition(
-				MockPasswordHandlerFactory.ID, "credential1", "cred1 desc");
-		credDef.setJsonConfiguration("8");
-		authnMan.addCredentialRequirement("crMock", "mock cred req", Collections.singleton(credDef));
+		super.setupAuthn();
 
 		//get authn types
 		Collection<AuthenticatorTypeDescription> authTypes = authnMan.getAuthenticatorTypes("web");
 		assertEquals(1, authTypes.size());
 		authTypes = authnMan.getAuthenticatorTypes(null);
 		assertEquals(1, authTypes.size());
-		
-		//create authenticator
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
 		assertEquals(true, authType.isLocal());
 		assertEquals("mockretrieval", authType.getRetrievalMethod());
 		assertEquals("mockpasswd", authType.getVerificationMethod());
 		assertEquals("web", authType.getSupportedBinding());
+		
+		//create authenticator
 		AuthenticatorInstance authInstance = authnMan.createAuthenticator(
 				"auth1", authType.getId(), "aaa", "bbb", "credential1");
 
@@ -153,17 +148,66 @@ public class TestAuthentication extends DBIntegrationTestBase
 	@Test
 	public void testCredentialsManagement() throws Exception
 	{
-
+		//check if credential types are returned
 		Collection<CredentialType> credTypes = authnMan.getCredentialTypes();
 		assertEquals(1, credTypes.size());
 		CredentialType credType = credTypes.iterator().next();
 		assertEquals(MockPasswordHandlerFactory.ID, credType.getName());
+		
+		//add credential definition
 		CredentialDefinition credDef = new CredentialDefinition(
-				MockPasswordHandlerFactory.ID, "credential1", "cred1 desc");
+				MockPasswordHandlerFactory.ID, "credential1", "cred req desc");
 		credDef.setJsonConfiguration("8");
+		authnMan.addCredentialDefinition(credDef);
 		
-		authnMan.addCredentialRequirement("crMock", "mock cred req", Collections.singleton(credDef));
+		//check if is correctly returned
+		Collection<CredentialDefinition> credDefs = authnMan.getCredentialDefinitions();
+		assertEquals(1, credDefs.size());
+		CredentialDefinition credDefRet = credDefs.iterator().next();
+		assertEquals("credential1", credDefRet.getName());
+		assertEquals("cred req desc", credDefRet.getDescription());
+		assertEquals(MockPasswordHandlerFactory.ID, credDefRet.getTypeId());
+		assertEquals("8", credDefRet.getJsonConfiguration());
 		
+		//update it and check
+		credDefRet.setDescription("d2");
+		credDefRet.setJsonConfiguration("9");
+		authnMan.updateCredentialDefinition(credDefRet, LocalAuthenticationState.valid);
+		credDefs = authnMan.getCredentialDefinitions();
+		assertEquals(1, credDefs.size());
+		credDefRet = credDefs.iterator().next();
+		assertEquals("credential1", credDefRet.getName());
+		assertEquals("d2", credDefRet.getDescription());
+		assertEquals(MockPasswordHandlerFactory.ID, credDefRet.getTypeId());
+		assertEquals("9", credDefRet.getJsonConfiguration());
+		
+		//remove
+		authnMan.removeCredentialDefinition("credential1");
+		credDefs = authnMan.getCredentialDefinitions();
+		assertEquals(0, credDefs.size());
+
+		//add it again
+		authnMan.addCredentialDefinition(credDef);
+
+		//add authenticator with it and try to remove
+		Collection<AuthenticatorTypeDescription> authTypes = authnMan.getAuthenticatorTypes("web");
+		AuthenticatorTypeDescription authType = authTypes.iterator().next();
+		AuthenticatorInstance authInstance = authnMan.createAuthenticator(
+				"auth1", authType.getId(), "aaa", "bbb", "credential1");
+		try
+		{
+			authnMan.removeCredentialDefinition("credential1");
+			fail("Managed to remove credential used by authenticator");
+		} catch (IllegalCredentialException e) {}
+		authnMan.removeAuthenticator(authInstance.getId());
+		
+		
+		//add credential requirements
+		CredentialRequirements cr = new CredentialRequirements("crMock", "mock cred req", 
+				Collections.singleton(credDef.getName()));
+		authnMan.addCredentialRequirement(cr);
+		
+		//check if are correctly returned
 		Collection<CredentialRequirements> credReqs = authnMan.getCredentialRequirements();
 		assertEquals(1, credReqs.size());
 		CredentialRequirements credReq1 = credReqs.iterator().next();
@@ -171,6 +215,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		assertEquals("mock cred req", credReq1.getDescription());
 		assertEquals(1, credReq1.getRequiredCredentials().size());
 		
+		//update credential requirements and check
 		credReq1.setDescription("changed");
 		authnMan.updateCredentialRequirement(credReq1, LocalAuthenticationState.valid);
 		credReqs = authnMan.getCredentialRequirements();
@@ -179,13 +224,35 @@ public class TestAuthentication extends DBIntegrationTestBase
 		assertEquals("crMock", credReq1.getName());
 		assertEquals("changed", credReq1.getDescription());
 		
+		//try to remove credential - now with cred req
+		try
+		{
+			authnMan.removeCredentialDefinition("credential1");
+			fail("Managed to remove credential used by cred req");
+		} catch (IllegalCredentialException e) {}
+		
+		//add identity with cred requirements with outdated state
 		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=test", true, false), 
 				"crMock", LocalAuthenticationState.outdated);
 		EntityParam entityP = new EntityParam(id);
 		Entity entity = idsMan.getEntity(entityP);
 		assertEquals(LocalAuthenticationState.outdated, entity.getCredentialInfo().getAuthenticationState());
 		
+		//set entity credential and check if status outdated was changed to valid
 		idsMan.setEntityCredential(entityP, "credential1", "password");
+		entity = idsMan.getEntity(entityP);
+		assertEquals(LocalAuthenticationState.valid, entity.getCredentialInfo().getAuthenticationState());
+
+		//update credential requirements and check if the entity has its authN status changed
+		credReq1.setDescription("changed2");
+		authnMan.updateCredentialRequirement(credReq1, LocalAuthenticationState.disabled);
+		entity = idsMan.getEntity(entityP);
+		assertEquals(LocalAuthenticationState.disabled, entity.getCredentialInfo().getAuthenticationState());
+
+		//update credential now with identity using it via credential requirements
+		credDefRet.setDescription("d3");
+		credDefRet.setJsonConfiguration("119");
+		authnMan.updateCredentialDefinition(credDefRet, LocalAuthenticationState.valid);
 		entity = idsMan.getEntity(entityP);
 		assertEquals(LocalAuthenticationState.valid, entity.getCredentialInfo().getAuthenticationState());
 		
@@ -198,9 +265,12 @@ public class TestAuthentication extends DBIntegrationTestBase
 		CredentialDefinition credDef2 = new CredentialDefinition(
 				MockPasswordHandlerFactory.ID, "credential2", "cred2 desc");
 		credDef2.setJsonConfiguration("10");
-		Set<CredentialDefinition> set2 = new HashSet<CredentialDefinition>();
-		Collections.addAll(set2, credDef, credDef2);
-		authnMan.addCredentialRequirement("crMock2", "mock cred req2", set2);
+		authnMan.addCredentialDefinition(credDef2);
+		
+		Set<String> set2 = new HashSet<String>();
+		Collections.addAll(set2, credDef.getName(), credDef2.getName());
+		authnMan.addCredentialRequirement(new CredentialRequirements("crMock2", "mock cred req2", 
+				set2));
 		
 		try
 		{

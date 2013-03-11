@@ -100,7 +100,21 @@ public class AttributesManagementImpl implements AttributesManagement
 	@Override
 	public void removeAttributeType(String id, boolean deleteInstances) throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			AttributeType at = dbAttributes.getAttributeType(id, sql);
+			if ((at.getFlags() & (AttributeType.TYPE_IMMUTABLE_FLAG | 
+					AttributeType.INSTANCES_IMMUTABLE_FLAG)) != 0)
+				throw new IllegalAttributeTypeException("The attribute type with name " + id + 
+						" can not be manually removed");
+
+			dbAttributes.removeAttributeType(id, deleteInstances, sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
 	}
 
 	/**

@@ -51,7 +51,7 @@ public class DBSessionManager
 
 	public static final String DEF_MAPCONFIG_LOCATION = "pl/edu/icm/unity/db/mapper/mapconfig.xml";
 
-	public static final int SESSION_KEEP_WARN_TIME = 2000;
+	public static final int SESSION_KEEP_WARN_TIME = 3000;
 	
 	private SqlSessionFactory sqlMapFactory;
 	private Map<SqlSession, Holder> used = new HashMap<SqlSession, Holder>();

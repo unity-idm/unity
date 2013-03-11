@@ -27,7 +27,8 @@ import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
  * Instantiation is quite complex:
  * either a one arg constructor is called, then state initialized with 
  * {@link AuthenticatorImpl#setSerializedConfiguration(String)}.
- * Otherwise a multiarg constructor is called to initialize the object completely.
+ * Otherwise a multiarg constructor is called to initialize the object completely and it may be followed by a 
+ * {@link #setCredentialName(String)} to set a local credential name if the authenticator is local
  * @author K. Benedyczak
  */
 public class AuthenticatorImpl implements JsonSerializable
@@ -127,6 +128,7 @@ public class AuthenticatorImpl implements JsonSerializable
 		
 		createCoworkers(deserialized.getTypeDescription(), deserialized.getRetrievalJsonConfiguration(),
 				deserialized.getVerificatorJsonConfiguration());
+		setCredentialName(deserialized.getLocalCredentialName());
 	}
 
 	public AuthenticatorInstance getAuthenticatorInstance()

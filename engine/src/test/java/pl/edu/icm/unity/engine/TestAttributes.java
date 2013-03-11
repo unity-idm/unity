@@ -176,5 +176,32 @@ public class TestAttributes extends DBIntegrationTestBase
 			fail("Managed to add attr with duplicated name");
 		} catch (IllegalAttributeTypeException e) {/*OK*/}
 		
+		//warning - this adds one more attribute type (with credential)
+		setupAuthn();
+		//remove one without attributes
+		attrsMan.removeAttributeType("some", false);
+		ats = attrsMan.getAttributeTypes();
+		assertEquals(3, ats.size());
+
+		//recreate and add an attribute
+		attrsMan.addAttributeType(at);
+		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "cn=golbi", true, true), "crMock", 
+				LocalAuthenticationState.disabled);
+		EntityParam entity = new EntityParam(id.getEntityId());
+		StringAttribute at1 = new StringAttribute("some", "/", AttributeVisibility.local, "123456");
+		attrsMan.setAttribute(entity, at1, false);
+		
+		//remove one with attributes
+		try
+		{
+			attrsMan.removeAttributeType("some", false);
+			fail("Managed to remove attr type with values");
+		} catch (IllegalAttributeTypeException e) {/*OK*/}
+		
+		attrsMan.removeAttributeType("some", true);
+		ats = attrsMan.getAttributeTypes();
+		assertEquals(3, ats.size());
+
+		
 	}
 }

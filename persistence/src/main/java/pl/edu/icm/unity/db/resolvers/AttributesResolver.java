@@ -62,7 +62,6 @@ public class AttributesResolver
 		return atBean;
 	}
 	
-	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Attribute<?> resolveAttributeBean(AttributeBean raw, String groupPath)
 	{

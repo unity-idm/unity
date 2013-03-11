@@ -4,20 +4,16 @@
  */
 package pl.edu.icm.unity.engine.authn;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.server.authn.LocalCredentialHandler;
 import pl.edu.icm.unity.server.authn.LocalCredentialHandlerFactory;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
-import pl.edu.icm.unity.types.JsonSerializable;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -27,43 +23,74 @@ import pl.edu.icm.unity.types.basic.Attribute;
  * Internal management of {@link CredentialRequirements}
  * @author K. Benedyczak
  */
-public class CredentialRequirementsHolder implements JsonSerializable
+public class CredentialRequirementsHolder
 {
 	private CredentialRequirements requirements;
 	private AuthenticatorsRegistry reg;
-	private Map<String, LocalCredentialHandler> verificators = new HashMap<String, LocalCredentialHandler>();
+	private Map<String, LocalCredentialHandler> handlers = new HashMap<String, LocalCredentialHandler>();
 
-	public CredentialRequirementsHolder(String name, String description,
-			Set<CredentialDefinition> configuredCredentials, AuthenticatorsRegistry reg)
-	{
-		this(reg);
-		checkRequirements(configuredCredentials);
-		requirements = new CredentialRequirements(name, description, configuredCredentials);
-	}
-	
-	public CredentialRequirementsHolder(AuthenticatorsRegistry reg)
+	/**
+	 * Constructs a new instance from scratch
+	 * @param requirements
+	 * @param reg
+	 * @param credDefs
+	 */
+	public CredentialRequirementsHolder(CredentialRequirements requirements, AuthenticatorsRegistry reg, 
+			Collection<CredentialDefinition> credDefs)
 	{
 		this.reg = reg;
+		this.requirements = requirements;
+		initHandlers(requirements.getRequiredCredentials(), credDefs);
 	}
 	
-	private void checkCredentialDefinition(CredentialDefinition def, AuthenticatorsRegistry reg)
+	/**
+	 * Constructs a new instance from serialized DB state
+	 * @param reg
+	 * @param json
+	 * @param credDefs
+	 */
+	public CredentialRequirementsHolder(AuthenticatorsRegistry reg, byte[] json, 
+			Collection<CredentialDefinition> credDefs)
+	{
+		this.reg = reg;
+		this.requirements = CredentialRequirementsSerializer.deserialize(json);
+		initHandlers(requirements.getRequiredCredentials(), credDefs);
+	}
+	
+	private void initHandlers(Set<String> configuredCredentials, Collection<CredentialDefinition> credDefs)
+	{
+		Map<String, CredentialDefinition> crDefsMap = new HashMap<String, CredentialDefinition>();
+		for (CredentialDefinition cr: credDefs)
+			crDefsMap.put(cr.getName(), cr);
+		for (String credDef: configuredCredentials)
+			initHandler(reg, crDefsMap.get(credDef));
+	}
+
+	private void initHandler(AuthenticatorsRegistry reg, CredentialDefinition def)
 	{
 		LocalCredentialHandlerFactory fact = reg.getLocalCredentialFactory(def.getTypeId());
 		if (fact == null)
 			throw new IllegalCredentialException("The credential type " + def.getTypeId() + " is unknown");
 		LocalCredentialHandler validator = fact.newInstance();
 		validator.setSerializedConfiguration(def.getJsonConfiguration());
-		verificators.put(def.getName(), validator);
+		handlers.put(def.getName(), validator);
 	}
 	
+	/**
+	 * @return wrapped credential requirements
+	 */
 	public CredentialRequirements getCredentialRequirements()
 	{
 		return requirements;
 	}
 	
-	public LocalCredentialHandler getVerificator(String credentialName)
+	/**
+	 * @param credentialName
+	 * @return credential handler corresponding to the credential
+	 */
+	public LocalCredentialHandler getCredentialHandler(String credentialName)
 	{
-		return verificators.get(credentialName);
+		return handlers.get(credentialName);
 	}
 	
 	/**
@@ -74,7 +101,7 @@ public class CredentialRequirementsHolder implements JsonSerializable
 	 */
 	public boolean areAllCredentialsValid(Map<String, Attribute<?>> attributes)
 	{
-		for (Map.Entry<String, LocalCredentialHandler> entry: verificators.entrySet())
+		for (Map.Entry<String, LocalCredentialHandler> entry: handlers.entrySet())
 		{
 			Attribute<?> currentCredA = attributes.get(SystemAttributeTypes.CREDENTIAL_PREFIX+entry.getKey());
 			String currentCred = currentCredA == null ? null : (String)currentCredA.getValues().get(0);
@@ -82,36 +109,5 @@ public class CredentialRequirementsHolder implements JsonSerializable
 				return false;
 		}
 		return true;
-	}
-	
-	@Override
-	public String getSerializedConfiguration()
-	{
-		try
-		{
-			return Constants.MAPPER.writeValueAsString(requirements);
-		} catch (JsonProcessingException e)
-		{
-			throw new RuntimeEngineException("Can't serialize credential requiremets to JSON", e);
-		}
-	}
-
-	@Override
-	public void setSerializedConfiguration(String json)
-	{
-		try
-		{
-			requirements = Constants.MAPPER.readValue(json, CredentialRequirements.class);
-		} catch (Exception e)
-		{
-			throw new RuntimeEngineException("Can't deserialize credential requiremets from JSON", e);
-		}
-		checkRequirements(requirements.getRequiredCredentials());
-	}
-	
-	private void checkRequirements(Set<CredentialDefinition> configuredCredentials)
-	{
-		for (CredentialDefinition credDef: configuredCredentials)
-			checkCredentialDefinition(credDef, reg);
 	}
 }

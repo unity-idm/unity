@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +21,9 @@ import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.engine.authn.AuthenticatorImpl;
+import pl.edu.icm.unity.engine.authn.CredentialHolder;
 import pl.edu.icm.unity.engine.authn.CredentialRequirementsHolder;
+import pl.edu.icm.unity.engine.authn.CredentialRequirementsSerializer;
 import pl.edu.icm.unity.engine.internal.EndpointsUpdater;
 import pl.edu.icm.unity.engine.internal.EngineHelper;
 import pl.edu.icm.unity.engine.internal.InternalEndpointManagement;
@@ -52,6 +55,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 {
 	public static final String AUTHENTICATOR_OBJECT_TYPE = "authenticator";
 	public static final String CREDENTIAL_REQ_OBJECT_TYPE = "credentialRequirement";
+	public static final String CREDENTIAL_OBJECT_TYPE = "credential";
 	private AuthenticatorsRegistry authReg;
 	private DBSessionManager db;
 	private DBGeneric dbGeneric;
@@ -99,7 +103,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 		{
 			if (authenticator.getAuthenticatorInstance().getTypeDescription().isLocal())
 			{
-				if (dbGeneric.getObjectByNameType(credentialName, CREDENTIAL_REQ_OBJECT_TYPE, sql) == null)
+				if (dbGeneric.getObjectByNameType(credentialName, CREDENTIAL_OBJECT_TYPE, sql) == null)
 					throw new IllegalCredentialException("There is no credential defined " +
 							"with the name " + credentialName );
 				authenticator.setCredentialName(credentialName);
@@ -192,23 +196,27 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	}
 
 	@Override
-	public CredentialRequirements addCredentialRequirement(String name, String description,
-			Set<CredentialDefinition> configuredCredentials)
-			throws EngineException
+	public void addCredentialRequirement(CredentialRequirements toAdd) throws EngineException
 	{
-		CredentialRequirementsHolder helper = new CredentialRequirementsHolder(name, description, 
-				configuredCredentials, authReg);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			setCredentialRequirements(helper, sql);
-			addMissingAttributeTypes(configuredCredentials, sql);
+			List<GenericObjectBean> existingCredsB = dbGeneric.getObjectsOfType(CREDENTIAL_OBJECT_TYPE, sql);
+			Set<String> existingCreds = new HashSet<String>();
+			for (GenericObjectBean bean: existingCredsB)
+				existingCreds.add(bean.getName());
+			for (String u: toAdd.getRequiredCredentials())
+				if (!existingCreds.contains(u))
+					throw new IllegalCredentialException("The credential " + u + " is unknown");
+			
+			byte[] contents = CredentialRequirementsSerializer.serialize(toAdd);
+			dbGeneric.addObject(toAdd.getName(), CREDENTIAL_REQ_OBJECT_TYPE, null, contents, sql);
+
 			sql.commit();
 		} finally
 		{
 			db.releaseSqlSession(sql);
 		}
-		return helper.getCredentialRequirements();
 	}
 
 	@Override
@@ -222,8 +230,8 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			List<GenericObjectBean> raw = dbGeneric.getObjectsOfType(CREDENTIAL_REQ_OBJECT_TYPE, sql);
 			for (GenericObjectBean rawA: raw)
 			{
-				CredentialRequirementsHolder helper = engineHelper.resolveCredentialRequirementsBean(rawA, sql);
-				ret.add(helper.getCredentialRequirements());
+				CredentialRequirements cr = CredentialRequirementsSerializer.deserialize(rawA.getContents());
+				ret.add(cr);
 			}
 			
 			sql.commit();
@@ -244,17 +252,20 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			GenericObjectBean raw = dbGeneric.getObjectByNameType(updated.getName(), 
 					AuthenticationManagementImpl.CREDENTIAL_REQ_OBJECT_TYPE, sql);
 			if (raw == null)
-				throw new RuntimeEngineException("There is no credential requirement with the name " + updated.getName());
+				throw new RuntimeEngineException("There is no credential requirement with the name " + 
+						updated.getName());
 
-			Set<Long> entities = engineHelper.getEntitiesByAttribute(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS,
-					updated.getName(), sql);
-			CredentialRequirementsHolder newCredReqs = new CredentialRequirementsHolder(updated.getName(),
-					updated.getDescription(), updated.getRequiredCredentials(), authReg);
+			Set<Long> entities = engineHelper.getEntitiesByAttribute(
+					SystemAttributeTypes.CREDENTIAL_REQUIREMENTS,
+					Collections.singleton(updated.getName()), sql);
+			List<CredentialDefinition> credDefs = engineHelper.getCredentialDefinitions(sql);
+			CredentialRequirementsHolder newCredReqs = new CredentialRequirementsHolder(updated, 
+					authReg, credDefs);
 			for (Long entityId: entities)
 			{
 				engineHelper.updateEntityCredentialState(entityId, desiredAuthnState, newCredReqs, sql);
 			}
-			byte[] contents = newCredReqs.getSerializedConfiguration().getBytes(Constants.UTF); 
+			byte[] contents = CredentialRequirementsSerializer.serialize(updated); 
 			dbGeneric.updateObject(newCredReqs.getCredentialRequirements().getName(), 
 					CREDENTIAL_REQ_OBJECT_TYPE, contents, sql);
 			sql.commit();
@@ -266,8 +277,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 
 	@Override
 	public void removeCredentialRequirement(String toRemove, String replacementId,
-			LocalAuthenticationState desiredAuthnState)
-			throws EngineException
+			LocalAuthenticationState desiredAuthnState) throws EngineException
 	{
 		SqlSession sql = db.getSqlSession(true);
 		try
@@ -278,7 +288,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 				throw new IllegalCredentialException("There is no credential requirement with the name " + toRemove);
 
 			Set<Long> entities = engineHelper.getEntitiesByAttribute(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS,
-					toRemove, sql);
+					Collections.singleton(toRemove), sql);
 			if (entities.size() > 0 && replacementId == null)
 				throw new IllegalCredentialException("There are entities with the removed credential requirements set and a replacement was not specified.");
 			if (replacementId != null)
@@ -301,31 +311,129 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 		}
 	}
 
-	
-	
-	private void setCredentialRequirements(CredentialRequirementsHolder newCredReqs, SqlSession sql)
+
+	@Override
+	public void addCredentialDefinition(CredentialDefinition credentialDefinition)
+			throws EngineException
 	{
-		byte[] contents = newCredReqs.getSerializedConfiguration().getBytes(Constants.UTF); 
-		dbGeneric.addObject(newCredReqs.getCredentialRequirements().getName(), 
-				CREDENTIAL_REQ_OBJECT_TYPE, null, contents, sql);
-	}
-	
-	private void addMissingAttributeTypes(Set<CredentialDefinition> configuredCredentials, SqlSession sql)
-	{
-		List<AttributeType> ats = dbAttributes.getAttributeTypes(sql);
-		Set<String> atIds = new HashSet<String>();
-		for (AttributeType at: ats)
-			atIds.add(at.getName());
-		for (CredentialDefinition credDef: configuredCredentials)
+		CredentialHolder helper = new CredentialHolder(credentialDefinition, authReg);
+		SqlSession sql = db.getSqlSession(true);
+		try
 		{
-			if (!atIds.contains(SystemAttributeTypes.CREDENTIAL_PREFIX+credDef.getName()))
-			{
-				AttributeType at = getCredentialAT(credDef.getName());
-				dbAttributes.addAttributeType(at, sql);
-			}
+			byte[] contents = helper.getSerializedConfiguration().getBytes(Constants.UTF); 
+			dbGeneric.addObject(helper.getCredentialDefinition().getName(), 
+					CREDENTIAL_OBJECT_TYPE, null, contents, sql);
+			AttributeType at = getCredentialAT(helper.getCredentialDefinition().getName());
+			dbAttributes.addAttributeType(at, sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
 		}
 	}
+
+
+	@Override
+	public void updateCredentialDefinition(CredentialDefinition updated,
+			LocalAuthenticationState desiredAuthnState) throws EngineException
+	{
+		CredentialHolder helper = new CredentialHolder(updated, authReg);
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			GenericObjectBean raw = dbGeneric.getObjectByNameType(updated.getName(), 
+					AuthenticationManagementImpl.CREDENTIAL_OBJECT_TYPE, sql);
+			if (raw == null)
+				throw new RuntimeEngineException("There is no credential with the name " + updated.getName());
+
+			//get all cred reqs with it
+			List<GenericObjectBean> rawCr = dbGeneric.getObjectsOfType(CREDENTIAL_REQ_OBJECT_TYPE, sql);
+			Set<String> affectedCr = new HashSet<String>();
+			for (GenericObjectBean rawA: rawCr)
+			{
+				CredentialRequirements cr = CredentialRequirementsSerializer.deserialize(rawA.getContents());
+				if (cr.getRequiredCredentials().contains(updated.getName()))
+					affectedCr.add(cr.getName());
+			}
+			
+			//get all entities with any of the affected CRs
+			Set<Long> entities = engineHelper.getEntitiesByAttribute(
+					SystemAttributeTypes.CREDENTIAL_REQUIREMENTS, affectedCr, sql);
+			
+			//update the entities authentication status
+			for (Long entityId: entities)
+			{
+				engineHelper.updateEntityCredentialState(entityId, desiredAuthnState, helper, sql);
+			}
+			
+			byte[] contents = helper.getSerializedConfiguration().getBytes(Constants.UTF);
+			dbGeneric.updateObject(updated.getName(), CREDENTIAL_OBJECT_TYPE, contents, sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
+	}
+
+
+	@Override
+	public void removeCredentialDefinition(String toRemove) throws EngineException
+	{
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			GenericObjectBean raw = dbGeneric.getObjectByNameType(toRemove, 
+					AuthenticationManagementImpl.CREDENTIAL_OBJECT_TYPE, sql);
+			if (raw == null)
+				throw new IllegalCredentialException("There is no credential with the name " + toRemove);
+
+			List<GenericObjectBean> authsRaw = dbGeneric.getObjectsOfType(AUTHENTICATOR_OBJECT_TYPE, sql);
+			for (GenericObjectBean rawA: authsRaw)
+			{
+				AuthenticatorImpl authenticator = engineHelper.getAuthenticatorNoCheck(rawA, sql);
+				if (toRemove.equals(authenticator.getAuthenticatorInstance().getLocalCredentialName()))
+					throw new IllegalCredentialException("The credential is used by an authenticator " 
+							+ authenticator.getAuthenticatorInstance().getId());
+			}
+
+			List<GenericObjectBean> crRaw = dbGeneric.getObjectsOfType(CREDENTIAL_REQ_OBJECT_TYPE, sql);
+			for (GenericObjectBean rawA: crRaw)
+			{
+				CredentialRequirements cr = CredentialRequirementsSerializer.deserialize(rawA.getContents());
+				if (cr.getRequiredCredentials().contains(toRemove))
+					throw new IllegalCredentialException("The credential is used by a credential requirement " 
+							+ cr.getName());
+			}
+
+			dbGeneric.removeObject(toRemove, AuthenticationManagementImpl.CREDENTIAL_OBJECT_TYPE, sql);
+			dbAttributes.removeAttributeType(SystemAttributeTypes.CREDENTIAL_PREFIX+toRemove, true, sql);
+			
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
+	}
+
+
+	@Override
+	public Collection<CredentialDefinition> getCredentialDefinitions() throws EngineException
+	{
+		List<CredentialDefinition> ret;
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			ret = engineHelper.getCredentialDefinitions(sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
+		return ret;
+	}
 	
+	
+
 	private AttributeType getCredentialAT(String name)
 	{
 		AttributeType credentialAt = new AttributeType(SystemAttributeTypes.CREDENTIAL_PREFIX+name, 

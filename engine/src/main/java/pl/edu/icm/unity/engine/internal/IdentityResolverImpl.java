@@ -17,6 +17,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.server.authn.IdentityResolver;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
+import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -53,7 +54,13 @@ public class IdentityResolverImpl implements IdentityResolver
 			EntityWithCredential ret = new EntityWithCredential();
 			List<Attribute<?>> credAttributes = dbAttributes.getAllAttributes(entityId, "/", 
 					SystemAttributeTypes.CREDENTIAL_PREFIX+credentialName, sql);
-			//FIXME disabled authn, outdated, notset credential
+			List<Attribute<?>> authnStateAttribute = dbAttributes.getAllAttributes(entityId, "/", 
+					SystemAttributeTypes.CREDENTIALS_STATE, sql);
+			String authnStateS = (String)authnStateAttribute.get(0).getValues().get(0);
+			LocalAuthenticationState authnState = LocalAuthenticationState.valueOf(authnStateS);
+			if (authnState == LocalAuthenticationState.disabled)
+				throw new IllegalIdentityValueException("Authentication is disabled for this entity");
+			ret.setLocalAuthnState(authnState);
 			if (credAttributes.size() > 0)
 			{
 				Attribute<?> a = credAttributes.get(0);

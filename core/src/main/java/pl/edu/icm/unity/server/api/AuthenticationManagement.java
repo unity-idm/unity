@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.server.api;
 
 import java.util.Collection;
-import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
@@ -77,15 +76,53 @@ public interface AuthenticationManagement
 	public Collection<CredentialType> getCredentialTypes() throws EngineException;
 
 	/**
-	 * Defines a new credential requirements instance
-	 * @param name
-	 * @param configuredCredentials
-	 * @param description
-	 * @return
+	 * Defines a new credential definition, so it can be assigned to entities via credential requirements
+	 * and to local authenticators.
+	 * @param credentialDefinition
 	 * @throws EngineException
 	 */
-	public CredentialRequirements addCredentialRequirement(String name, String description,
-			Set<CredentialDefinition> configuredCredentials) throws EngineException;
+	public void addCredentialDefinition(CredentialDefinition credentialDefinition) 
+			throws EngineException;
+
+	/**
+	 * Updated a definitions of a credential. 
+	 * @param updated updated data. The existing one is matched by name.
+	 * @param desiredAuthnState The desired credential state to be applied to entities which 
+	 * have this credential in their credential requirements currently. If value is 'valid', 
+	 * then the operation will be successful only if there is no entity with this credential 
+	 * or if all entities which have this credential are fulfilling the new rules. 
+	 * If the value is 'outdated' then all identities which have this credential set will have the state changed to 
+	 * 'valid' if their credentials fulfill the rules of the new requirements or to 'outdated' otherwise.
+	 * The 'disabled' value is simply set for all entities which bear this credential.
+	 * @throws EngineException
+	 */
+	public void updateCredentialDefinition(CredentialDefinition updated, 
+			LocalAuthenticationState desiredAuthnState) throws EngineException;
+
+	/**
+	 * Removes the given credential definition. The operation will be successful only if the credential 
+	 * is not used by neither existing authenticators nor existing credential requirements.  
+	 * 
+	 * @param toRemove
+	 * @throws EngineException
+	 */
+	public void removeCredentialDefinition(String toRemove) throws EngineException;
+
+	/**
+	 * @return collection of existing credential definitions
+	 * @throws EngineException
+	 */
+	public Collection<CredentialDefinition> getCredentialDefinitions() throws EngineException;
+
+	
+	/**
+	 * Defines a new credential requirements instance
+	 * @param name
+	 * @param credentials
+	 * @param description
+	 * @throws EngineException
+	 */
+	public void addCredentialRequirement(CredentialRequirements updated) throws EngineException;
 	
 	/**
 	 * Updated a definitions of credential set. 

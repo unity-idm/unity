@@ -71,6 +71,30 @@ public class DBAttributes
 				toAdd.getValueType().getValueSyntaxId());
 		mapper.insertAttributeType(atb);
 	}
+
+	
+	public AttributeType getAttributeType(String id, SqlSession sqlMap)
+	{
+		AttributesMapper mapper = sqlMap.getMapper(AttributesMapper.class);
+		AttributeTypeBean atBean = attrResolver.resolveAttributeType(id, mapper);
+		return attrResolver.resolveAttributeTypeBean(atBean);
+	}
+	
+	public void removeAttributeType(String id, boolean withInstances, SqlSession sqlMap)
+	{
+		AttributesMapper mapper = sqlMap.getMapper(AttributesMapper.class);
+		if (mapper.getAttributeType(id) == null)
+			throw new IllegalAttributeTypeException("The attribute type with name " + id + 
+					" does not exist");
+		if (!withInstances)
+		{
+			AttributeBean ab = new AttributeBean();
+			ab.setName(id);
+			if (mapper.getAttributes(ab).size() > 0)
+				throw new IllegalAttributeTypeException("The attribute type " + id + " has instances");
+		}
+		mapper.deleteAttributeType(id);
+	}
 	
 	public List<AttributeType> getAttributeTypes(SqlSession sqlMap)
 	{
@@ -221,7 +245,8 @@ public class DBAttributes
 	}
 	
 	/**
-	 * It is assumed that the attribute is single-value and mapped to string 
+	 * It is assumed that the attribute is single-value and mapped to string.
+	 * Returned are all entities which has value of the attribute out of the given set. 
 	 * @param groupPath
 	 * @param attributeTypeName
 	 * @param value
@@ -229,7 +254,7 @@ public class DBAttributes
 	 * @return
 	 */
 	public Set<Long> getEntitiesBySimpleAttribute(String groupPath, String attributeTypeName, 
-			String value, SqlSession sql)
+			Set<String> values, SqlSession sql)
 	{
 		GroupsMapper grMapper = sql.getMapper(GroupsMapper.class);
 		AttributesMapper atMapper = sql.getMapper(AttributesMapper.class);
@@ -241,7 +266,7 @@ public class DBAttributes
 		for (AttributeBean ab: allAts)
 		{
 			Attribute<?> attr = attrResolver.resolveAttributeBean(ab, groupPath);
-			if (value.equals((String)attr.getValues().get(0)))
+			if (values.contains((String)attr.getValues().get(0)))
 				ret.add(ab.getEntityId());
 		}
 		return ret;

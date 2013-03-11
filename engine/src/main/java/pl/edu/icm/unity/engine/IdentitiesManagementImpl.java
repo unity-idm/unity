@@ -29,7 +29,6 @@ import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.LocalCredentialHandler;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -70,7 +69,6 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		this.idResolver = idResolver;
 		this.engineHelper = engineHelper;
 	}
-
 
 
 	/**
@@ -283,15 +281,15 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			String credentialRequirements = (String)credReqA.getValues().get(0);
 			CredentialRequirementsHolder credReqs = engineHelper.getCredentialRequirements(
 					credentialRequirements, sqlMap);
-			LocalCredentialHandler verificator = credReqs.getVerificator(credentialId);
-			if (verificator == null)
+			LocalCredentialHandler handler = credReqs.getCredentialHandler(credentialId);
+			if (handler == null)
 				throw new IllegalCredentialException("The credential id is not among the entity's credential requirements: " + credentialId);
 
 			String credentialAttributeName = SystemAttributeTypes.CREDENTIAL_PREFIX+credentialId;
 			Attribute<?> currentCredentialA = attributes.get(credentialAttributeName);
 			String currentCredential = currentCredentialA != null ? 
 					(String)currentCredentialA.getValues().get(0) : null;
-			String newCred = verificator.prepareCredential(rawCredential, currentCredential);
+			String newCred = handler.prepareCredential(rawCredential, currentCredential);
 			StringAttribute newCredentialA = new StringAttribute(credentialAttributeName, 
 					"/", AttributeVisibility.local, Collections.singletonList(newCred));
 			attributes.put(credentialAttributeName, newCredentialA);
@@ -333,14 +331,14 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		
 		CredentialRequirementsHolder credReq = engineHelper.getCredentialRequirements(
 				credentialRequirementId, sqlMap);
-		Set<CredentialDefinition> required = credReq.getCredentialRequirements().getRequiredCredentials();
+		Set<String> required = credReq.getCredentialRequirements().getRequiredCredentials();
 		Map<String, LocalCredentialState> credentialsState = new HashMap<String, LocalCredentialState>();
-		for (CredentialDefinition cd: required)
+		for (String cd: required)
 		{
-			LocalCredentialHandler handler = credReq.getVerificator(cd.getName());
-			Attribute<?> currentCredA = attributes.get(SystemAttributeTypes.CREDENTIAL_PREFIX+cd.getName());
+			LocalCredentialHandler handler = credReq.getCredentialHandler(cd);
+			Attribute<?> currentCredA = attributes.get(SystemAttributeTypes.CREDENTIAL_PREFIX+cd);
 			String currentCred = currentCredA == null ? null : (String)currentCredA.getValues().get(0);
-			credentialsState.put(cd.getName(), handler.checkCredentialState(currentCred));
+			credentialsState.put(cd, handler.checkCredentialState(currentCred));
 		}
 		
 		return new CredentialInfo(credentialRequirementId, 

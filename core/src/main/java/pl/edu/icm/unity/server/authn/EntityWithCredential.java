@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.server.authn;
 
+import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+
 /**
  * Entity and a value of (one of) its credential attribute 
  * @author K. Benedyczak
@@ -13,7 +15,16 @@ public class EntityWithCredential
 	private String credentialName;
 	private String credentialValue;
 	private long entityId;
+	private LocalAuthenticationState localAuthnState;
 	
+	public LocalAuthenticationState getLocalAuthnState()
+	{
+		return localAuthnState;
+	}
+	public void setLocalAuthnState(LocalAuthenticationState localAuthnState)
+	{
+		this.localAuthnState = localAuthnState;
+	}
 	public String getCredentialName()
 	{
 		return credentialName;
