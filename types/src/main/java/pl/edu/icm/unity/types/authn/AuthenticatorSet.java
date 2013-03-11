@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.types.authn;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -15,7 +16,12 @@ import java.util.Set;
 public class AuthenticatorSet
 {
 	private Set<String> authenticators;
-
+	
+	public AuthenticatorSet()
+	{
+		authenticators = Collections.emptySet();
+	}
+	
 	public AuthenticatorSet(Set<String> authenticators)
 	{
 		this.authenticators = authenticators;

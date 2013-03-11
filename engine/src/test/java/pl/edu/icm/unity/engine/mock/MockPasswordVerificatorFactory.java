@@ -6,11 +6,11 @@ package pl.edu.icm.unity.engine.mock;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.authn.CredentialVerificator;
-import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
+import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
+import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
 
 @Component
-public class MockPasswordVerificatorFactory implements CredentialVerificatorFactory
+public class MockPasswordVerificatorFactory implements LocalCredentialVerificatorFactory
 {
 	@Override
 	public String getName()
@@ -25,7 +25,7 @@ public class MockPasswordVerificatorFactory implements CredentialVerificatorFact
 	}
 
 	@Override
-	public CredentialVerificator newInstance()
+	public LocalCredentialVerificator newInstance()
 	{
 		return new MockPasswordVerificator(getName(), getDescription(), MockExchange.ID);
 	}

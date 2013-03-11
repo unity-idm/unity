@@ -18,6 +18,7 @@ import pl.edu.icm.unity.server.authn.CredentialRetrievalFactory;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.server.authn.LocalCredentialHandlerFactory;
+import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.types.authn.CredentialType;
@@ -75,6 +76,7 @@ public class AuthenticatorsRegistry
 				desc.setSupportedBinding(rf.getSupportedBinding());
 				desc.setVerificationMethod(vf.getName());
 				desc.setVerificationMethodDescription(vf.getDescription());
+				desc.setLocal(vf instanceof LocalCredentialVerificatorFactory);
 				Set<AuthenticatorTypeDescription> existing = authenticatorsByBinding.get(
 						rf.getSupportedBinding());
 				if (existing == null)

@@ -7,45 +7,38 @@ package pl.edu.icm.unity.server.endpoint;
 import java.util.List;
 import java.util.Map;
 
-import pl.edu.icm.unity.exceptions.IllegalConfigurationDataException;
 import pl.edu.icm.unity.types.JsonSerializable;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 /**
- * Generic endpoint instance.
+ * Generic endpoint instance. Implementations must persist/load only the custom settings using the {@link JsonSerializable}
+ * interface; authenticators, id, context address and description are always set via initialize method. 
  * 
  * Lifecycle:
  * <ol>
- *  <li>configure or setSerializedConfiguration (once)
- *  <li>setId (once)
+ *  <li>initialize (once)
+ *  <li>setSerializedConfiguration (once)
  *  
- *  <li>operation.... can include setAuthenticators and setDescription 
+ *  <li>operation.... 
  *  
  *  <li>destroy (once)
  * </ol>
- * Destroy might be called also before setId if there was server deployment error.
- * <p>
- * set/get SerializedConfiguration must save/load the whole state of the endpoint, except of the 
- * id, which is always set after initialization.
+ * Destroy might be called also before initialize if there was server deployment error.
+ * 
  * @author K. Benedyczak
  */
 public interface EndpointInstance extends JsonSerializable
 {
-	public void configure(String contextAddress, String jsonConfiguration) throws IllegalConfigurationDataException;
-	
-	public void setId(String id);
-
-	public EndpointDescription getEndpointDescription();
-	
 	/**
 	 * @param authenticatorsInfo generic info about authenticators set with their ids and groupings
 	 * @param authenticators actual authenticators. the list has entries corresponding to the first argument.
 	 * the map holds mappings of each authenticator name to its implementation
 	 */
-	public void setAuthenticators(List<AuthenticatorSet> authenticatorsInfo, List<Map<String, BindingAuthn>> authenticators);
-	
-	public void setDescription(String description);
-	
+	public void initialize(String id, String contextAddress, String description, 
+			List<AuthenticatorSet> authenticatorsInfo, List<Map<String, BindingAuthn>> authenticators);
+
+	public EndpointDescription getEndpointDescription();
+		
 	public void destroy();
 }

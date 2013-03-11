@@ -4,10 +4,13 @@
  */
 package pl.edu.icm.unity.db.model;
 
+import java.util.Date;
+
 public class GenericObjectBean extends BaseBean
 {
 	private String type;
 	private String subType;
+	private Date lastUpdate;
 
 	public GenericObjectBean()
 	{
@@ -37,5 +40,13 @@ public class GenericObjectBean extends BaseBean
 	public void setSubType(String subType)
 	{
 		this.subType = subType;
+	}
+	public Date getLastUpdate()
+	{
+		return lastUpdate;
+	}
+	public void setLastUpdate(Date lastUpdate)
+	{
+		this.lastUpdate = lastUpdate;
 	}
 }

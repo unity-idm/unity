@@ -17,9 +17,18 @@ public class AuthenticatorTypeDescription
 	private String verificationMethodDescription;
 	private String retrievalMethod;
 	private String retrievalMethodDescription;
+	private boolean local;
 	
 	
 	
+	public boolean isLocal()
+	{
+		return local;
+	}
+	public void setLocal(boolean local)
+	{
+		this.local = local;
+	}
 	public String getId()
 	{
 		return id;

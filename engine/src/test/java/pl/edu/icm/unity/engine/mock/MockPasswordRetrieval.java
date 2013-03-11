@@ -47,6 +47,6 @@ public class MockPasswordRetrieval implements CredentialRetrieval, MockBinding
 	@Override
 	public Long authenticate()
 	{
-		return exchange.checkPassword("foo", "bar");
+		return exchange.checkPassword("CN=foo", "PPPbar");
 	}
 }

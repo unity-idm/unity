@@ -53,6 +53,7 @@ public class IdentityResolverImpl implements IdentityResolver
 			EntityWithCredential ret = new EntityWithCredential();
 			List<Attribute<?>> credAttributes = dbAttributes.getAllAttributes(entityId, "/", 
 					SystemAttributeTypes.CREDENTIAL_PREFIX+credentialName, sql);
+			//FIXME disabled authn, outdated, notset credential
 			if (credAttributes.size() > 0)
 			{
 				Attribute<?> a = credAttributes.get(0);
@@ -72,7 +73,7 @@ public class IdentityResolverImpl implements IdentityResolver
 	{
 		for (String identityType: identityTypes)
 		{
-			EntityParam entityParam = new EntityParam(new IdentityTaV(identity, identityType));
+			EntityParam entityParam = new EntityParam(new IdentityTaV(identityType, identity));
 			try
 			{
 				return dbResolver.getEntityId(entityParam, sqlMap);

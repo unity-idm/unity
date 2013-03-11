@@ -74,11 +74,11 @@ public class CredentialRequirementsHolder implements JsonSerializable
 	 */
 	public boolean areAllCredentialsValid(Map<String, Attribute<?>> attributes)
 	{
-		for (LocalCredentialHandler entry: verificators.values())
+		for (Map.Entry<String, LocalCredentialHandler> entry: verificators.entrySet())
 		{
-			Attribute<?> currentCredA = attributes.get(SystemAttributeTypes.CREDENTIAL_PREFIX+entry.getName());
+			Attribute<?> currentCredA = attributes.get(SystemAttributeTypes.CREDENTIAL_PREFIX+entry.getKey());
 			String currentCred = currentCredA == null ? null : (String)currentCredA.getValues().get(0);
-			if (entry.checkCredentialState(currentCred) != LocalCredentialState.correct)
+			if (entry.getValue().checkCredentialState(currentCred) != LocalCredentialState.correct)
 				return false;
 		}
 		return true;

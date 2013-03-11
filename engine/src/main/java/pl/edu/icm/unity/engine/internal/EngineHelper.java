@@ -141,7 +141,7 @@ public class EngineHelper
 
 	public AuthenticatorImpl getAuthenticatorNoCheck(GenericObjectBean raw, SqlSession sql)
 	{
-		AuthenticatorImpl authenticator = new AuthenticatorImpl(identityResolver, authReg);
+		AuthenticatorImpl authenticator = new AuthenticatorImpl(identityResolver, authReg, raw.getName());
 		String contents = new String(raw.getContents(), Constants.UTF);
 		authenticator.setSerializedConfiguration(contents);
 		return authenticator;

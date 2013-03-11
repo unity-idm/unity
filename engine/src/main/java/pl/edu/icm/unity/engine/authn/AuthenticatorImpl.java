@@ -14,6 +14,7 @@ import pl.edu.icm.unity.server.authn.CredentialRetrievalFactory;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.server.authn.IdentityResolver;
+import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.types.JsonSerializable;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
@@ -46,8 +47,7 @@ public class AuthenticatorImpl implements JsonSerializable
 	public AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, 
 			String name, String typeId, String rConfiguration, String vConfiguration)
 	{
-		this(identitiesResolver, reg);
-		instanceDescription.setId(name);
+		this(identitiesResolver, reg, name);
 		AuthenticatorTypeDescription authDesc = authRegistry.getAuthenticatorsById(typeId);
 		if (authDesc == null)
 			throw new IllegalArgumentException("The authenticator type " + typeId + " is not known");
@@ -58,10 +58,11 @@ public class AuthenticatorImpl implements JsonSerializable
 	 * For cases when object state should be initialized from serialized form
 	 * @param reg
 	 */
-	public AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg)
+	public AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, String name)
 	{
 		this.authRegistry = reg;
 		this.instanceDescription = new AuthenticatorInstance();
+		this.instanceDescription.setId(name);
 		this.identitiesResolver = identitiesResolver;
 	}
 	
@@ -72,6 +73,7 @@ public class AuthenticatorImpl implements JsonSerializable
 		CredentialVerificatorFactory verificatorFact = authRegistry.getCredentialVerificatorFactory(
 				authDesc.getVerificationMethod());
 		verificator = verificatorFact.newInstance();
+		verificator.setIdentityResolver(identitiesResolver);
 		verificator.setSerializedConfiguration(vConfiguration);
 		retrieval = retrievalFact.newInstance();
 		retrieval.setSerializedConfiguration(rConfiguration);
@@ -86,9 +88,17 @@ public class AuthenticatorImpl implements JsonSerializable
 	{
 		retrieval.setSerializedConfiguration(rConfiguration);
 		verificator.setSerializedConfiguration(vConfiguration);
-		verificator.setIdentityResolver(identitiesResolver);
 		instanceDescription.setRetrievalJsonConfiguration(rConfiguration);
 		instanceDescription.setVerificatorJsonConfiguration(vConfiguration);
+	}
+	
+	public void setCredentialName(String credential)
+	{
+		if (verificator instanceof LocalCredentialVerificator)
+		{
+			((LocalCredentialVerificator)verificator).setCredentialName(credential);
+			instanceDescription.setLocalCredentialName(credential);
+		}
 	}
 	
 	@Override

@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.session.SqlSession;
@@ -24,6 +25,8 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
+import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -40,39 +43,35 @@ import pl.edu.icm.unity.utils.LifecycleBase;
 @Component
 public class EngineInitialization extends LifecycleBase
 {
-	private static final Logger log = Logger.getLogger(EngineInitialization.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER, EngineInitialization.class);
 	public static final int ENGINE_INITIALIZATION_MOMENT = 0;
-	private InternalEndpointManagement internalEndpointManager;
-	private EndpointManagement endpointManager;
-	private UnityServerConfiguration config;
-	private DBSessionManager db;
-	private DBAttributes dbAttributes;
-	private DBIdentities dbIdentities;
-	private SystemAttributeTypes sysTypes;
-	private IdentityTypesRegistry idTypesReg;
 	
 	@Autowired
-	public EngineInitialization(InternalEndpointManagement internalEndpointManager,
-			EndpointManagement endpointManager, UnityServerConfiguration config,
-			DBSessionManager db, DBAttributes dbAttributes, DBIdentities dbIdentities,
-			SystemAttributeTypes sysTypes, IdentityTypesRegistry idTypesReg)
-	{
-		this.internalEndpointManager = internalEndpointManager;
-		this.endpointManager = endpointManager;
-		this.config = config;
-		this.db = db;
-		this.dbAttributes = dbAttributes;
-		this.dbIdentities = dbIdentities;
-		this.sysTypes = sysTypes;
-		this.idTypesReg = idTypesReg;
-	}
-
+	private InternalEndpointManagement internalEndpointManager;
+	@Autowired
+	private EndpointManagement endpointManager;
+	@Autowired
+	private UnityServerConfiguration config;
+	@Autowired
+	private DBSessionManager db;
+	@Autowired
+	private DBAttributes dbAttributes;
+	@Autowired
+	private DBIdentities dbIdentities;
+	@Autowired
+	private SystemAttributeTypes sysTypes;
+	@Autowired
+	private IdentityTypesRegistry idTypesReg;
+	@Autowired
+	private ExecutorsService executors;
+	@Autowired
+	private EndpointsUpdater updater;
+	
 	@Override
 	public void start()
 	{
-		initializeIdentityTypes();
-		initializeAttributeTypes();
-		initializeEndpoints();
+		initializeDatabaseContents();
+		initializeBackgroundTasks();
 		super.start();
 	}
 	
@@ -82,6 +81,34 @@ public class EngineInitialization extends LifecycleBase
 		return ENGINE_INITIALIZATION_MOMENT;
 	}
 
+	public void initializeBackgroundTasks()
+	{
+		Runnable endpointsUpdater = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					updater.updateEndpoints();
+				} catch (EngineException e)
+				{
+					log.error("Can't synchronize runtime state of endpoints " +
+							"with the persisted endpoints state", e);
+				}
+			}
+		};
+		executors.getService().scheduleWithFixedDelay(endpointsUpdater, 120, 60, TimeUnit.SECONDS);
+	}
+	
+	public void initializeDatabaseContents()
+	{
+		initializeIdentityTypes();
+		initializeAttributeTypes();
+		initializeEndpoints();
+	}
+	
+	
 	private void initializeIdentityTypes()
 	{
 		log.info("Checking of all identity types are defined");
@@ -139,8 +166,15 @@ public class EngineInitialization extends LifecycleBase
 	{
 		if (config.getBooleanValue(UnityServerConfiguration.RECREATE_ENDPOINTS_ON_STARTUP))
 		{
-			log.info("Removing all persisted endpoints");
-			internalEndpointManager.removeAllPersistedEndpoints();
+			try
+			{
+				log.info("Removing all persisted endpoints");
+				internalEndpointManager.removeAllPersistedEndpoints();
+			} catch (EngineException e)
+			{
+				log.fatal("Can't remove endpoints which are stored in database", e);
+				throw new RuntimeEngineException("Can't restore endpoints which are stored in database", e);
+			}
 		}
 		
 		try
@@ -198,9 +232,9 @@ public class EngineInitialization extends LifecycleBase
 			
 			String jsonConfiguration = FileUtils.readFileToString(configFile);
 			
-			EndpointDescription endpoint = endpointManager.deploy(type, name, address, jsonConfiguration);
 			//TODO authn settings
-			endpointManager.updateEndpoint(endpoint.getId(), description, null, null);
+			endpointManager.deploy(type, name, address, description, null, jsonConfiguration);
+			log.info(" - " + name + ": " + type + " " + description);
 		}
 	}
 	

@@ -42,11 +42,13 @@ public interface AuthenticationManagement
 	 * @param typeId authenticator type id
 	 * @param jsonVerificatorConfig configuration of verificator as JSON string
 	 * @param jsonRetrievalConfig configuration of retrieval as JSON string
+	 * @param credentialId name of the local credential, in case when the verificator used
+	 * is validating local credentials. Otherwise ignored, can be null.
 	 * @return the created authenticator
 	 * @throws EngineException
 	 */
 	public AuthenticatorInstance createAuthenticator(String id, String typeId, String jsonVerificatorConfig,
-			String jsonRetrievalConfig) throws EngineException;
+			String jsonRetrievalConfig, String credentialId) throws EngineException;
 	
 	/**
 	 * Updates a configuration of an existing authenticator instance

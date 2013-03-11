@@ -4,22 +4,38 @@
  */
 package pl.edu.icm.unity.engine.internal;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
+import pl.edu.icm.unity.engine.authn.AuthenticatorImpl;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.server.JettyServer;
+import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.registries.EndpointFactoriesRegistry;
+import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 /**
  * Implementation of the internal endpoint management. 
@@ -29,20 +45,24 @@ import pl.edu.icm.unity.server.registries.EndpointFactoriesRegistry;
 @Component
 public class InternalEndpointManagement
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, InternalEndpointManagement.class);
 	public static final String ENDPOINT_OBJECT_TYPE = "endpointDefinition";
 	private EndpointFactoriesRegistry endpointFactoriesReg;
 	private DBSessionManager db;
 	private DBGeneric dbGeneric;
 	private JettyServer httpServer;
+	private EngineHelper engineHelper;
 	
 	@Autowired
-	public InternalEndpointManagement(EndpointFactoriesRegistry endpointFactoriesReg, DBSessionManager db,
-			DBGeneric dbGeneric, JettyServer httpServer)
+	public InternalEndpointManagement(EndpointFactoriesRegistry endpointFactoriesReg,
+			DBSessionManager db, DBGeneric dbGeneric, JettyServer httpServer,
+			EngineHelper engineHelper)
 	{
 		this.endpointFactoriesReg = endpointFactoriesReg;
 		this.db = db;
 		this.dbGeneric = dbGeneric;
 		this.httpServer = httpServer;
+		this.engineHelper = engineHelper;
 	}
 
 	/**
@@ -58,9 +78,12 @@ public class InternalEndpointManagement
 			List<GenericObjectBean> fromDb = dbGeneric.getObjectsOfType(ENDPOINT_OBJECT_TYPE, sql);
 			for (GenericObjectBean raw: fromDb)
 			{
-				EndpointInstance instance = recreateEndpointFromDB(raw.getName(), raw.getSubType(), 
-						raw.getContents());
+				EndpointInstance instance = deserializeEndpoint(raw.getName(), raw.getSubType(), 
+						raw.getContents(), sql);
 				httpServer.deployEndpoint((WebAppEndpointInstance) instance);
+				EndpointDescription endpoint = instance.getEndpointDescription();
+				log.debug(" - " + endpoint.getId() + ": " + endpoint.getType().getName() + 
+						" " + endpoint.getDescription());
 			}
 			sql.commit();
 		} finally
@@ -69,12 +92,13 @@ public class InternalEndpointManagement
 		}
 	}
 	
-	public synchronized void removeAllPersistedEndpoints()
+	public synchronized void removeAllPersistedEndpoints() throws EngineException
 	{
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
 			dbGeneric.removeObjectsByType(ENDPOINT_OBJECT_TYPE, sql);
+			httpServer.undeployAllEndpoints();
 			sql.commit();
 		} finally
 		{
@@ -82,16 +106,66 @@ public class InternalEndpointManagement
 		}
 	}
 	
-	
-	
-	public EndpointInstance recreateEndpointFromDB(String id, String typeId, byte[] serializedState)
+	public byte[] serializeEndpoint(EndpointInstance endpoint)
 	{
-		EndpointFactory factory = endpointFactoriesReg.getById(typeId);
-		if (factory == null)
-			throw new IllegalArgumentException("Endpoint type " + typeId + " is unknown");
-		EndpointInstance instance = factory.newInstance();
-		instance.setSerializedConfiguration(new String(serializedState, Constants.UTF));
-		instance.setId(id);
-		return instance;
+		try
+		{
+			EndpointDescription desc = endpoint.getEndpointDescription();
+			String state = endpoint.getSerializedConfiguration();
+			String jsonDesc = Constants.MAPPER.writeValueAsString(desc);
+			ObjectNode root = Constants.MAPPER.createObjectNode();
+			root.put("description", jsonDesc);
+			root.put("state", state);
+			return Constants.MAPPER.writeValueAsBytes(root);
+		} catch (JsonProcessingException e)
+		{
+			throw new RuntimeEngineException("Can't deserialize JSON endpoint state", e);
+		}
+
+	}
+	
+	public EndpointInstance deserializeEndpoint(String id, String typeId, byte[] serializedState, SqlSession sql)
+	{
+		try
+		{
+			EndpointFactory factory = endpointFactoriesReg.getById(typeId);
+			if (factory == null)
+				throw new IllegalArgumentException("Endpoint type " + typeId + " is unknown");
+			JsonNode root = Constants.MAPPER.readTree(serializedState);
+			String descriptionJson = root.get("description").asText();
+			String state = root.get("state").asText();
+			EndpointDescription description = Constants.MAPPER.readValue(descriptionJson, 
+					EndpointDescription.class);
+
+			EndpointInstance instance = factory.newInstance();
+			List<Map<String, BindingAuthn>> authenticators = getAuthenticators(description.getAuthenticatorSets(), sql);
+			instance.initialize(id, description.getContextAddress(), description.getDescription(), 
+					description.getAuthenticatorSets(), authenticators);
+			instance.setSerializedConfiguration(state);
+			return instance;
+		} catch (JsonProcessingException e)
+		{
+			throw new RuntimeEngineException("Can't deserialize JSON endpoint state", e);
+		} catch (IOException e)
+		{
+			throw new RuntimeEngineException("Can't deserialize JSON endpoint state", e);
+		}
+	}
+	
+	public List<Map<String, BindingAuthn>> getAuthenticators(List<AuthenticatorSet> authn, SqlSession sql)
+	{
+		List<Map<String, BindingAuthn>> ret = new ArrayList<Map<String, BindingAuthn>>(authn.size());
+		for (AuthenticatorSet aSet: authn)
+		{
+			Set<String> authenticators = aSet.getAuthenticators();
+			Map<String, BindingAuthn> aImpls = new HashMap<String, BindingAuthn>();
+			for (String authenticator: authenticators)
+			{
+				AuthenticatorImpl authImpl = engineHelper.getAuthenticator(authenticator, sql);
+				aImpls.put(authenticator, authImpl.getRetrieval());
+			}
+			ret.add(aImpls);
+		}
+		return ret;
 	}
 }

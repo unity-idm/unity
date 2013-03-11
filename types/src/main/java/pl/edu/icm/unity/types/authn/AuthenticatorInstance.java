@@ -15,8 +15,19 @@ public class AuthenticatorInstance
 	private AuthenticatorTypeDescription typeDescription;
 	private String retrievalJsonConfiguration;
 	private String verificatorJsonConfiguration;
+	private String localCredentialName;
 	
-	
+	/**
+	 * @return name of the local credential bound to this authenticator. In case of non local authenticators null is returned
+	 */
+	public String getLocalCredentialName()
+	{
+		return localCredentialName;
+	}
+	public void setLocalCredentialName(String localCredentialName)
+	{
+		this.localCredentialName = localCredentialName;
+	}
 	public String getId()
 	{
 		return id;

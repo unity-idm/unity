@@ -4,7 +4,10 @@
  */
 package pl.edu.icm.unity.server.endpoint;
 
-import pl.edu.icm.unity.exceptions.IllegalConfigurationDataException;
+import java.util.List;
+import java.util.Map;
+
+import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
@@ -15,17 +18,23 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 public abstract class AbstractEndpoint implements EndpointInstance
 {
 	protected EndpointDescription description;
+	protected List<Map<String, BindingAuthn>> authenticators;
 	
 	public AbstractEndpoint(EndpointTypeDescription type)
 	{
 		description = new EndpointDescription();
 		description.setType(type);
 	}
-
+	
 	@Override
-	public void setId(String id)
+	public void initialize(String id, String contextAddress, String description, 
+			List<AuthenticatorSet> authenticatorsInfo, List<Map<String, BindingAuthn>> authenticators)
 	{
-		description.setId(id);
+		this.description.setId(id);
+		this.description.setDescription(description);
+		this.description.setContextAddress(contextAddress);
+		this.description.setAuthenticatorSets(authenticatorsInfo);
+		this.authenticators = authenticators;
 	}
 
 	@Override
@@ -34,22 +43,8 @@ public abstract class AbstractEndpoint implements EndpointInstance
 		return description;
 	}
 
-
-	@Override
-	public void setDescription(String description)
-	{
-		this.description.setDescription(description);
-	}
-
 	@Override
 	public void destroy()
 	{
-	}
-	
-	@Override
-	public void configure(String contextAddress, String jsonConfiguration)
-			throws IllegalConfigurationDataException
-	{
-		description.setContextAddress(contextAddress);
 	}
 }

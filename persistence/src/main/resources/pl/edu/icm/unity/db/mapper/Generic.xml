@@ -9,6 +9,7 @@
 		<result property="type" column="TYPE"/>
 		<result property="subType" column="SUB_TYPE"/>
 		<result property="contents" column="CONTENTS"/>
+		<result property="lastUpdate" column="LAST_UPDATE"/>
 	</resultMap>
 
 	<insert id="insertObject" parameterType="GenericObjectB" useGeneratedKeys="true" keyProperty="id">
@@ -24,7 +25,7 @@
 	</delete>
 	
 	<update id="updateByNameType" parameterType="GenericObjectB">
-		UPDATE VAR_OBJECTS SET CONTENTS=#{contents} WHERE NAME=#{name} AND TYPE=#{type}  
+		UPDATE VAR_OBJECTS SET CONTENTS=#{contents}, LAST_UPDATE=CURRENT_TIMESTAMP() WHERE NAME=#{name} AND TYPE=#{type}  
 	</update>
 	
 	<select id="selectObjectsByType" parameterType="string" resultMap="objectResult">

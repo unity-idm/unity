@@ -126,7 +126,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	public void testCreateType() throws Exception
 	{
 		List<AttributeType> ats = attrsMan.getAttributeTypes();
-		assertEquals(3, ats.size());
+		assertEquals(2, ats.size());
 
 		AttributeType at = new AttributeType();
 		at.setValueType(new StringAttributeSyntax());
@@ -140,7 +140,7 @@ public class TestAttributes extends DBIntegrationTestBase
 		attrsMan.addAttributeType(at);
 		
 		ats = attrsMan.getAttributeTypes();
-		assertEquals(4, ats.size());
+		assertEquals(3, ats.size());
 		AttributeType at2 = getAttributeTypeByName(ats, "some");
 		
 		assertEquals(at.getDescription(), at2.getDescription());

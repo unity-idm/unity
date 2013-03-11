@@ -159,6 +159,17 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 		deployedEndpoints.remove(endpoint);
 	}
 	
+	public synchronized void undeployAllEndpoints() throws EngineException
+	{
+		Set<String> ids = new HashSet<String>();
+		
+		for (WebAppEndpointInstance webapp: deployedEndpoints)
+			ids.add(webapp.getEndpointDescription().getId());
+			
+		for (String id: ids)
+			undeployEndpoint(id);
+	}
+	
 	public synchronized List<WebAppEndpointInstance> getDeployedEndpoints()
 	{
 		List<WebAppEndpointInstance> ret = new ArrayList<WebAppEndpointInstance>(deployedEndpoints.size());

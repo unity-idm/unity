@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -14,11 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.engine.authn.AuthenticatorImpl;
 import pl.edu.icm.unity.engine.authn.CredentialRequirementsHolder;
+import pl.edu.icm.unity.engine.internal.EndpointsUpdater;
 import pl.edu.icm.unity.engine.internal.EngineHelper;
 import pl.edu.icm.unity.engine.internal.InternalEndpointManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -28,6 +31,7 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.authn.IdentityResolver;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
+import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
@@ -36,6 +40,8 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.CredentialType;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 /**
  * Authentication management implementation.
@@ -52,11 +58,14 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	private InternalEndpointManagement internalEndpointManagement;
 	private IdentityResolver identityResolver;
 	private EngineHelper engineHelper;
+	private EndpointsUpdater endpointsUpdater;
+	private DBAttributes dbAttributes;
 	
 	@Autowired
 	public AuthenticationManagementImpl(AuthenticatorsRegistry authReg, DBSessionManager db,
 			DBGeneric dbGeneric, InternalEndpointManagement internalEndpointManagement,
-			IdentityResolver identityResolver, EngineHelper engineHelper)
+			IdentityResolver identityResolver, EngineHelper engineHelper,
+			EndpointsUpdater endpointsUpdater, DBAttributes dbAttributes)
 	{
 		this.authReg = authReg;
 		this.db = db;
@@ -64,6 +73,8 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 		this.internalEndpointManagement = internalEndpointManagement;
 		this.identityResolver = identityResolver;
 		this.engineHelper = engineHelper;
+		this.endpointsUpdater = endpointsUpdater;
+		this.dbAttributes = dbAttributes;
 	}
 
 
@@ -79,13 +90,20 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 
 	@Override
 	public AuthenticatorInstance createAuthenticator(String id, String typeId, String jsonVerificatorConfig,
-			String jsonRetrievalConfig) throws EngineException
+			String jsonRetrievalConfig, String credentialName) throws EngineException
 	{
 		AuthenticatorImpl authenticator = new AuthenticatorImpl(identityResolver, authReg, id, typeId, 
 				jsonRetrievalConfig, jsonVerificatorConfig);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
+			if (authenticator.getAuthenticatorInstance().getTypeDescription().isLocal())
+			{
+				if (dbGeneric.getObjectByNameType(credentialName, CREDENTIAL_REQ_OBJECT_TYPE, sql) == null)
+					throw new IllegalCredentialException("There is no credential defined " +
+							"with the name " + credentialName );
+				authenticator.setCredentialName(credentialName);
+			}
 			byte[] contents = authenticator.getSerializedConfiguration().getBytes(Constants.UTF); 
 			dbGeneric.addObject(id, AUTHENTICATOR_OBJECT_TYPE, typeId, contents, sql);
 			sql.commit();
@@ -135,6 +153,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 		{
 			db.releaseSqlSession(sql);
 		}
+		endpointsUpdater.updateEndpoints();
 	}
 
 	@Override
@@ -147,8 +166,8 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 					InternalEndpointManagement.ENDPOINT_OBJECT_TYPE, sql);
 			for (GenericObjectBean raw: fromDb)
 			{
-				EndpointInstance instance = internalEndpointManagement.recreateEndpointFromDB(
-						raw.getId()+"", raw.getName(), raw.getContents());
+				EndpointInstance instance = internalEndpointManagement.deserializeEndpoint(
+						raw.getName(), raw.getSubType(), raw.getContents(), sql);
 				List<AuthenticatorSet> used = instance.getEndpointDescription().getAuthenticatorSets();
 				for (AuthenticatorSet set: used)
 					if (set.getAuthenticators().contains(id))
@@ -183,6 +202,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 		try
 		{
 			setCredentialRequirements(helper, sql);
+			addMissingAttributeTypes(configuredCredentials, sql);
 			sql.commit();
 		} finally
 		{
@@ -234,7 +254,9 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			{
 				engineHelper.updateEntityCredentialState(entityId, desiredAuthnState, newCredReqs, sql);
 			}
-			setCredentialRequirements(newCredReqs, sql);
+			byte[] contents = newCredReqs.getSerializedConfiguration().getBytes(Constants.UTF); 
+			dbGeneric.updateObject(newCredReqs.getCredentialRequirements().getName(), 
+					CREDENTIAL_REQ_OBJECT_TYPE, contents, sql);
 			sql.commit();
 		} finally
 		{
@@ -253,7 +275,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			GenericObjectBean raw = dbGeneric.getObjectByNameType(toRemove, 
 					AuthenticationManagementImpl.CREDENTIAL_REQ_OBJECT_TYPE, sql);
 			if (raw == null)
-				throw new RuntimeEngineException("There is no credential requirement with the name " + toRemove);
+				throw new IllegalCredentialException("There is no credential requirement with the name " + toRemove);
 
 			Set<Long> entities = engineHelper.getEntitiesByAttribute(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS,
 					toRemove, sql);
@@ -286,5 +308,33 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 		byte[] contents = newCredReqs.getSerializedConfiguration().getBytes(Constants.UTF); 
 		dbGeneric.addObject(newCredReqs.getCredentialRequirements().getName(), 
 				CREDENTIAL_REQ_OBJECT_TYPE, null, contents, sql);
+	}
+	
+	private void addMissingAttributeTypes(Set<CredentialDefinition> configuredCredentials, SqlSession sql)
+	{
+		List<AttributeType> ats = dbAttributes.getAttributeTypes(sql);
+		Set<String> atIds = new HashSet<String>();
+		for (AttributeType at: ats)
+			atIds.add(at.getName());
+		for (CredentialDefinition credDef: configuredCredentials)
+		{
+			if (!atIds.contains(SystemAttributeTypes.CREDENTIAL_PREFIX+credDef.getName()))
+			{
+				AttributeType at = getCredentialAT(credDef.getName());
+				dbAttributes.addAttributeType(at, sql);
+			}
+		}
+	}
+	
+	private AttributeType getCredentialAT(String name)
+	{
+		AttributeType credentialAt = new AttributeType(SystemAttributeTypes.CREDENTIAL_PREFIX+name, 
+				new StringAttributeSyntax());
+		credentialAt.setMaxElements(1);
+		credentialAt.setMinElements(1);
+		credentialAt.setVisibility(AttributeVisibility.local);
+		credentialAt.setDescription("Credential of " + name);
+		credentialAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.INSTANCES_IMMUTABLE_FLAG);
+		return credentialAt;
 	}
 }

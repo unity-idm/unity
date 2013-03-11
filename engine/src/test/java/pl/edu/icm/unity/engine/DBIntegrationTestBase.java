@@ -92,12 +92,6 @@ public abstract class DBIntegrationTestBase
 	
 	protected void setupAuthn() throws Exception
 	{
-/*
-		Collection<AuthenticatorTypeDescription> authTypes = authnMan.getAuthenticatorTypes("web");
-		AuthenticatorInstance authInstance = authnMan.createAuthenticator(
-				"auth1", authTypes.iterator().next().getId(), 
-				"", "");
-*/		
 		CredentialDefinition credDef = new CredentialDefinition(
 				MockPasswordHandlerFactory.ID, "credential req1", "cred req desc");
 		credDef.setJsonConfiguration("8");

@@ -6,12 +6,11 @@ package pl.edu.icm.unity.engine.mock;
 
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.server.authn.AbstractVerificator;
-import pl.edu.icm.unity.server.authn.CredentialVerificator;
+import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 
-public class MockPasswordVerificator extends AbstractVerificator implements CredentialVerificator, MockExchange
+public class MockPasswordVerificator extends AbstractLocalVerificator implements MockExchange
 {
 	private static final String[] ID_TYPES = {X500Identity.ID};
 	
@@ -36,7 +35,7 @@ public class MockPasswordVerificator extends AbstractVerificator implements Cred
 			throws IllegalIdentityValueException, IllegalCredentialException
 	{
 		EntityWithCredential entityWithCred = identityResolver.resolveIdentity(username, 
-				ID_TYPES, getName());
+				ID_TYPES, getCredentialName());
 
 		if (!password.equals(entityWithCred.getCredentialValue()))
 			throw new IllegalCredentialException("Wrong password");

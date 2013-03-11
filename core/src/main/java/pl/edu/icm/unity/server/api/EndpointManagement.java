@@ -36,7 +36,8 @@ public interface EndpointManagement
 	 * @param configuration
 	 * @throws EngineException 
 	 */
-	public EndpointDescription deploy(String typeId, String endpointName, String address, String configuration) throws EngineException;
+	public EndpointDescription deploy(String typeId, String endpointName, String address, String description,
+			List<AuthenticatorSet> authn, String configuration) throws EngineException;
 
 	/**
 	 * Removes a deployed endpoint
@@ -51,6 +52,6 @@ public interface EndpointManagement
 	 * @param configuration new json configuration, can be null to be unchanged.
 	 * @param authn new authentication configuration. Can be null to ignore.
 	 */
-	public void updateEndpoint(String id, String description, String configuration, List<AuthenticatorSet> authn)
+	public void updateEndpoint(String id, String description, List<AuthenticatorSet> authn, String configuration)
 			throws EngineException;
 }

@@ -6,7 +6,6 @@ package pl.edu.icm.unity.sysattrs;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
-import pl.edu.icm.unity.types.authn.CredentialType;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -56,19 +54,6 @@ public class SystemAttributeTypes
 		credentialStateAt.setMaxElements(1);
 		credentialStateAt.setVisibility(AttributeVisibility.local);
 		systemAttributes.add(credentialStateAt);
-		
-		Set<CredentialType> localCreds = authReg.getLocalCredentialTypes();
-		for (CredentialType cred: localCreds)
-		{
-			AttributeType credentialAt = new AttributeType(CREDENTIAL_PREFIX+cred.getName(), 
-					new StringAttributeSyntax());
-			credentialAt.setMaxElements(1);
-			credentialAt.setMinElements(1);
-			credentialAt.setVisibility(AttributeVisibility.local);
-			credentialAt.setDescription("Credential of " + cred.getName());
-			credentialAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.INSTANCES_IMMUTABLE_FLAG);
-			systemAttributes.add(credentialAt);
-		}
 			
 	}
 	

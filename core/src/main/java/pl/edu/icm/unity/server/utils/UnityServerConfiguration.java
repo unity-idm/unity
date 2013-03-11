@@ -49,6 +49,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String P = BASE_PREFIX + "core.";
 	
 	public static final String MAIL_CONF = "mailConfig";
+	public static final String THREAD_POOL_SIZE = "threadPoolSize";
 	public static final String RECREATE_ENDPOINTS_ON_STARTUP = "recreateEndpointsOnStartup";
 	public static final String ENDPOINTS = "endpoints.";
 	public static final String ENDPOINT_DESCRIPTION = "description";
@@ -69,6 +70,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("A configuration file for the mail notification subsystem."));
 		defaults.put(RECREATE_ENDPOINTS_ON_STARTUP, new PropertyMD("false").setDescription(
 				"If this options is true then all endpoints are initialized from configuration at each startup. If it is false then the persisted endpoints are loaded and configuration is used only at the initial start of the server."));
+		defaults.put(THREAD_POOL_SIZE, new PropertyMD("4").setDescription(
+				"Number of threads used by internal processes of the server. HTTP server threads use a separate pool."));
 		
 		defaults.put(ENDPOINTS, new PropertyMD().setStructuredList(true).setCategory(mainCat).
 				setDescription("List of initially enabled endpoints"));

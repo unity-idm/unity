@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.InitDB;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.ServerManagement;
 
 /**
@@ -21,12 +22,15 @@ public class ServerManagementImpl implements ServerManagement
 {
 	private InitDB initDb;
 	private EngineInitialization engineInit;
+	private JettyServer httpServer;
 
 	@Autowired
-	public ServerManagementImpl(InitDB initDb, EngineInitialization engineInit)
+	public ServerManagementImpl(InitDB initDb, EngineInitialization engineInit,
+			JettyServer httpServer)
 	{
 		this.initDb = initDb;
 		this.engineInit = engineInit;
+		this.httpServer = httpServer;
 	}
 
 
@@ -34,6 +38,7 @@ public class ServerManagementImpl implements ServerManagement
 	public void resetDatabase() throws EngineException
 	{
 		initDb.resetDatabase();
-		engineInit.start();
+		httpServer.undeployAllEndpoints();
+		engineInit.initializeDatabaseContents();
 	}
 }
