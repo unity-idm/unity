@@ -9,6 +9,7 @@
 	<artifactId>unity-server-web-common</artifactId>
 	<packaging>jar</packaging>
 	<name>UNITY Server ${m.name} module</name>
+	<description>Base classes for the web endpoints based on Vaadin</description>
 	<properties>
 		<m.name>web-common</m.name>
 	</properties>
