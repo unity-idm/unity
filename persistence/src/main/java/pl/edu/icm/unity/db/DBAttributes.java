@@ -16,8 +16,8 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.json.JsonSerializer;
-import pl.edu.icm.unity.db.json.SerializersRegistry;
+import pl.edu.icm.unity.db.json.AttributeSerializer;
+import pl.edu.icm.unity.db.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.db.mapper.AttributesMapper;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.model.AttributeBean;
@@ -43,18 +43,18 @@ public class DBAttributes
 {
 	private DBLimits limits;
 	private AttributesResolver attrResolver;
-	private JsonSerializer<AttributeType> atSerializer;
-	@SuppressWarnings("rawtypes")
-	private JsonSerializer<Attribute> aSerializer;
+	private AttributeTypeSerializer atSerializer;
+	private AttributeSerializer aSerializer;
 	private GroupResolver groupResolver;
 	
+	
 	@Autowired
-	public DBAttributes(DB db, SerializersRegistry registry, AttributesResolver attrResolver, 
-			GroupResolver groupResolver)
+	public DBAttributes(DB db, AttributesResolver attrResolver, AttributeTypeSerializer atSerializer,
+			AttributeSerializer aSerializer, GroupResolver groupResolver)
 	{
 		this.limits = db.getDBLimits();
-		this.atSerializer = registry.getSerializer(AttributeType.class);
-		this.aSerializer = registry.getSerializer(Attribute.class);
+		this.atSerializer = atSerializer;
+		this.aSerializer = aSerializer;
 		this.groupResolver = groupResolver;
 		this.attrResolver = attrResolver;
 	}

@@ -10,8 +10,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.json.JsonSerializer;
-import pl.edu.icm.unity.db.json.SerializersRegistry;
+import pl.edu.icm.unity.db.json.AttributeSerializer;
+import pl.edu.icm.unity.db.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.db.mapper.AttributesMapper;
 import pl.edu.icm.unity.db.model.AttributeBean;
 import pl.edu.icm.unity.db.model.AttributeTypeBean;
@@ -28,17 +28,18 @@ import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 @Component
 public class AttributesResolver
 {
-	private JsonSerializer<AttributeType> atSerializer;
-	@SuppressWarnings("rawtypes")
-	private JsonSerializer<Attribute> aSerializer;
+	private AttributeTypeSerializer atSerializer;
+	private AttributeSerializer aSerializer;
 	private AttributeValueTypesRegistry typesRegistry;
 	
 	@Autowired
-	public AttributesResolver(SerializersRegistry serializersRegistry,
+	public AttributesResolver(AttributeTypeSerializer atSerializer,
+			AttributeSerializer aSerializer,
 			AttributeValueTypesRegistry typesRegistry)
 	{
-		this.atSerializer = serializersRegistry.getSerializer(AttributeType.class);
-		this.aSerializer = serializersRegistry.getSerializer(Attribute.class);
+		super();
+		this.atSerializer = atSerializer;
+		this.aSerializer = aSerializer;
 		this.typesRegistry = typesRegistry;
 	}
 

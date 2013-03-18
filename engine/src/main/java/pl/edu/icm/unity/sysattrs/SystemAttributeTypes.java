@@ -10,6 +10,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.engine.internal.AuthorizationManager;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -28,11 +29,19 @@ public class SystemAttributeTypes
 	//public static final String ATTRIBUTE_CLASSES = "sys:AttributeClasses"; 
 	public static final String CREDENTIALS_STATE = "sys:CredentialsState";
 	public static final String CREDENTIAL_PREFIX = "sys:Credential:";
+	public static final String AUTHORIZATION_LEVEL = "sys:AuthorizationLevel";
 	
 	private List<AttributeType> systemAttributes = new ArrayList<AttributeType>();
 	
 	@Autowired
 	public SystemAttributeTypes(AuthenticatorsRegistry authReg)
+	{
+		systemAttributes.add(getCredentialRequirementsAT());
+		systemAttributes.add(getCredentialsStateAT());
+		systemAttributes.add(getAuthozationRoleAT());
+	}
+	
+	private AttributeType getCredentialRequirementsAT()
 	{
 		AttributeType credentialRequiremetsAt = new AttributeType(CREDENTIAL_REQUIREMENTS, 
 				new StringAttributeSyntax());
@@ -41,11 +50,12 @@ public class SystemAttributeTypes
 		credentialRequiremetsAt.setVisibility(AttributeVisibility.local);
 		credentialRequiremetsAt.setDescription("Defines which credential requirements are set for the owner");
 		credentialRequiremetsAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.INSTANCES_IMMUTABLE_FLAG);
-		systemAttributes.add(credentialRequiremetsAt);
-		
-		String[] vals = new String[LocalAuthenticationState.values().length];
-		for (int i=0; i<LocalAuthenticationState.values().length; i++)
-			vals[i] = LocalAuthenticationState.values()[i].toString();
+		return credentialRequiremetsAt;
+	}
+	
+	private AttributeType getCredentialsStateAT()
+	{
+		String[] vals = getEnumAsStrings(LocalAuthenticationState.values());
 		AttributeType credentialStateAt = new AttributeType(CREDENTIALS_STATE, 
 				new EnumAttributeSyntax(vals));
 		credentialStateAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.INSTANCES_IMMUTABLE_FLAG);
@@ -53,8 +63,26 @@ public class SystemAttributeTypes
 		credentialStateAt.setMinElements(1);
 		credentialStateAt.setMaxElements(1);
 		credentialStateAt.setVisibility(AttributeVisibility.local);
-		systemAttributes.add(credentialStateAt);
-			
+		return credentialStateAt;
+	}
+
+	private AttributeType getAuthozationRoleAT()
+	{
+		String[] vals = getEnumAsStrings(AuthorizationManager.AuthzLevel.values());
+		AttributeType authorizationAt = new AttributeType(AUTHORIZATION_LEVEL, new EnumAttributeSyntax(vals));
+		authorizationAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.NO_VALUES_LIMITING_FLAG);
+		authorizationAt.setDescription("Defines what operations are allowed for the bearer.");
+		authorizationAt.setMinElements(1);
+		authorizationAt.setVisibility(AttributeVisibility.local);
+		return authorizationAt;
+	}
+	
+	private static String[] getEnumAsStrings(Enum<?>[] en)
+	{
+		String[] vals = new String[en.length];
+		for (int i=0; i<en.length; i++)
+			vals[i] = en[i].toString();
+		return vals;
 	}
 	
 	public List<AttributeType> getSystemAttributes()

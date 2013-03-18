@@ -52,6 +52,10 @@
 	<insert id="insertGroup" parameterType="GroupB" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO GROUPS(NAME, PARENT_ID, CONTENTS) VALUES (#{name}, #{parent}, #{contents})
 	</insert>
+
+	<update id="updateGroup" parameterType="GroupB">
+		UPDATE GROUPS SET NAME = #{name}, CONTENTS = #{contents} WHERE ID = #{id}
+	</update>
 	
 	<delete id="deleteGroup" parameterType="long">
 		DELETE FROM GROUPS WHERE ID = #{value}

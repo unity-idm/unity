@@ -15,5 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class Constants
 {
 	public static final Charset UTF = Charset.forName("UTF-8");
+	
+	//TODO - remove this, use injected instance
 	public static final ObjectMapper MAPPER = new ObjectMapper();
 }

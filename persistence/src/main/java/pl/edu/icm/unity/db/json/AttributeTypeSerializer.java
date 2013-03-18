@@ -18,14 +18,13 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
  * @author K. Benedyczak
  */
 @Component
-public class AttributeTypeSerializer implements JsonSerializer<AttributeType>
+public class AttributeTypeSerializer
 {
 	private final ObjectMapper mapper = new ObjectMapper();
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public byte[] toJson(AttributeType src)
 	{
 		ObjectNode root = mapper.createObjectNode();
@@ -48,7 +47,6 @@ public class AttributeTypeSerializer implements JsonSerializer<AttributeType>
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void fromJson(byte[] json, AttributeType target)
 	{
 		if (json == null)
@@ -69,14 +67,4 @@ public class AttributeTypeSerializer implements JsonSerializer<AttributeType>
 		target.setVisibility(AttributeVisibility.valueOf(main.get("visibility").asText()));
 		target.getValueType().setSerializedConfiguration(main.get("syntaxState").asText());
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Class<AttributeType> getSupportedClass()
-	{
-		return AttributeType.class;
-	}
-
 }

@@ -127,7 +127,14 @@ public class GroupsManagementImpl implements GroupsManagement
 	@Override
 	public void updateGroup(String path, Group group) throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		SqlSession sql = db.getSqlSession(true);
+		try 
+		{
+			dbGroups.updateGroup(path, group, sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
 	}
-	
 }

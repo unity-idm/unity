@@ -21,6 +21,7 @@ public interface AttributesMapper
 	public List<AttributeTypeBean> getAttributeTypes();
 	public void deleteAttributeType(String name);
 	public AttributeTypeBean getAttributeType(String name);
+	public AttributeTypeBean getAttributeTypeById(long id);
 	
 	public List<AttributeBean> getAttributes(AttributeBean a);
 	public void insertAttribute(AttributeBean a);

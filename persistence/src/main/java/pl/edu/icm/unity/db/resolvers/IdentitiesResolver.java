@@ -8,8 +8,8 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.json.JsonSerializer;
-import pl.edu.icm.unity.db.json.SerializersRegistry;
+import pl.edu.icm.unity.db.json.IdentitySerializer;
+import pl.edu.icm.unity.db.json.IdentityTypeSerializer;
 import pl.edu.icm.unity.db.mapper.IdentitiesMapper;
 import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.IdentityBean;
@@ -17,7 +17,6 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
@@ -29,18 +28,20 @@ import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 @Component
 public class IdentitiesResolver
 {
-	private JsonSerializer<IdentityType> idTypeSerializer;
-	private JsonSerializer<IdentityParam> idSerializer;
+	private IdentityTypeSerializer idTypeSerializer;
+	private IdentitySerializer idSerializer;
 	private IdentityTypesRegistry idTypesRegistry;
 	
 	@Autowired
-	public IdentitiesResolver(SerializersRegistry serializersReg,
+	public IdentitiesResolver(IdentityTypeSerializer idTypeSerializer,
+			IdentitySerializer idSerializer,
 			IdentityTypesRegistry idTypesRegistry)
 	{
-		this.idTypeSerializer = serializersReg.getSerializer(IdentityType.class);
-		this.idSerializer = serializersReg.getSerializer(IdentityParam.class);
+		this.idTypeSerializer = idTypeSerializer;
+		this.idSerializer = idSerializer;
 		this.idTypesRegistry = idTypesRegistry;
 	}
+
 
 	public IdentityType resolveIdentityType(BaseBean raw)
 	{

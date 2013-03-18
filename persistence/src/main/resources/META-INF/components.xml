@@ -19,7 +19,6 @@
 	<bean class="pl.edu.icm.unity.db.resolvers.IdentitiesResolver"/>
 	<bean class="pl.edu.icm.unity.db.resolvers.AttributesResolver"/>
 
-	<bean class="pl.edu.icm.unity.db.json.SerializersRegistry"/>
 	<bean class="pl.edu.icm.unity.db.json.GroupsSerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.IdentityTypeSerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.IdentitySerializer"/>

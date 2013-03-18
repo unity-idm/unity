@@ -9,9 +9,16 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.types.basic.AttributeStatement;
+import pl.edu.icm.unity.types.basic.AttributeStatementCondition;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.basic.AttributeStatementCondition.Type;
 
 
 public class TestGroups extends DBIntegrationTestBase
@@ -39,6 +46,9 @@ public class TestGroups extends DBIntegrationTestBase
 			//OK
 		}
 		
+		AttributeType atFoo = new AttributeType("foo", new StringAttributeSyntax());
+		attrsMan.addAttributeType(atFoo);
+		
 		Group a = new Group("/A");
 		a.setDescription("foo");
 		groupsMan.addGroup(a);
@@ -49,21 +59,46 @@ public class TestGroups extends DBIntegrationTestBase
 		groupsMan.addGroup(ac);
 		Group abd = new Group("/A/B/D");
 		groupsMan.addGroup(abd);
+
+		AttributeStatement[] statements = new AttributeStatement[2];
+		AttributeStatementCondition c1 = new AttributeStatementCondition(Type.everybody);
+		statements[0] = new AttributeStatement(new AttributeStatementCondition[]{c1}, 
+				new StringAttribute("foo", null, AttributeVisibility.full, "val1"), 
+				AttributeStatement.ConflictResolution.skip);
+		AttributeStatementCondition c2 = new AttributeStatementCondition(Type.hasSubgroupAttributeValue);
+		c2.setGroup("/A/B");
+		c2.setAttribute(new StringAttribute("foo", "/A/B", AttributeVisibility.full, "ala"));
+		statements[1] = new AttributeStatement(new AttributeStatementCondition[]{c2}, 
+				new StringAttribute("foo", null, AttributeVisibility.full, "val1"), 
+				AttributeStatement.ConflictResolution.skip);
+		a.setAttributeStatements(statements);
+		groupsMan.updateGroup("/A", a);
 		
 		GroupContents contentRoot = groupsMan.getContents("/", GroupContents.EVERYTHING);
 		assertEquals(1, contentRoot.getSubGroups().size());
-		assertEquals("/A", contentRoot.getSubGroups().get(0).toString());
-		assertEquals("foo", contentRoot.getSubGroups().get(0).getDescription());
-
+		assertEquals("/A", contentRoot.getSubGroups().get(0));
+		
 		GroupContents contentA = groupsMan.getContents("/A", GroupContents.EVERYTHING);
+		assertEquals("foo", contentA.getGroup().getDescription());
 		assertEquals(2, contentA.getSubGroups().size());
-		assertEquals("/A/B", contentA.getSubGroups().get(0).toString());
-		assertEquals("/A/C", contentA.getSubGroups().get(1).toString());
-		assertEquals("goo", contentA.getSubGroups().get(1).getDescription());
+		assertEquals("/A/B", contentA.getSubGroups().get(0));
+		assertEquals("/A/C", contentA.getSubGroups().get(1));
+		assertEquals(2, contentA.getGroup().getAttributeStatements().length);
+		assertEquals(AttributeStatement.ConflictResolution.skip,
+				contentA.getGroup().getAttributeStatements()[0].getConflictResolution());
+		assertEquals("foo", contentA.getGroup().getAttributeStatements()[0].getAssignedAttribute().getName());
+		assertEquals("val1", contentA.getGroup().getAttributeStatements()[0].getAssignedAttribute().
+				getValues().get(0).toString());
+		assertEquals(1, contentA.getGroup().getAttributeStatements()[0].getConditions().length);
+		assertEquals(Type.everybody, contentA.getGroup().getAttributeStatements()[0].getConditions()[0].getType());
 		
 		GroupContents contentAB = groupsMan.getContents("/A/B", GroupContents.EVERYTHING);
 		assertEquals(1, contentAB.getSubGroups().size());
-		assertEquals("/A/B/D", contentAB.getSubGroups().get(0).toString());
+		assertEquals("/A/B/D", contentAB.getSubGroups().get(0));
+
+		GroupContents contentAC = groupsMan.getContents("/A/C", GroupContents.EVERYTHING);
+		assertEquals(0, contentAC.getSubGroups().size());
+		assertEquals("goo", contentAC.getGroup().getDescription());
 		
 		try
 		{

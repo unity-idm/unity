@@ -11,8 +11,8 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.json.JsonSerializer;
-import pl.edu.icm.unity.db.json.SerializersRegistry;
+import pl.edu.icm.unity.db.json.IdentitySerializer;
+import pl.edu.icm.unity.db.json.IdentityTypeSerializer;
 import pl.edu.icm.unity.db.mapper.IdentitiesMapper;
 import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.DBLimits;
@@ -36,19 +36,18 @@ import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 public class DBIdentities
 {
 	private DBLimits limits;
-	private JsonSerializer<IdentityParam> idSerializer;
-	private JsonSerializer<IdentityType> idTypeSerializer;
+	private IdentitySerializer idSerializer;
+	private IdentityTypeSerializer idTypeSerializer;
 	private IdentityTypesRegistry idTypesRegistry;
 	private IdentitiesResolver idResolver;
 	
 	@Autowired
-	public DBIdentities(DB db, SerializersRegistry serializersReg, 
-			IdentityTypesRegistry idTypesRegistry,
-			IdentitiesResolver idResolver)
+	public DBIdentities(DB db, IdentityTypesRegistry idTypesRegistry, IdentitySerializer idSerializer,
+			IdentityTypeSerializer idTypeSerializer, IdentitiesResolver idResolver)
 	{
 		this.limits = db.getDBLimits();
-		this.idSerializer = serializersReg.getSerializer(IdentityParam.class);
-		this.idTypeSerializer = serializersReg.getSerializer(IdentityType.class);
+		this.idSerializer = idSerializer;
+		this.idTypeSerializer = idTypeSerializer;
 		this.idTypesRegistry = idTypesRegistry;
 		this.idResolver = idResolver;
 	}

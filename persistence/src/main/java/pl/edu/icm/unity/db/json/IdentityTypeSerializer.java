@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
  * @author K. Benedyczak
  */
 @Component
-public class IdentityTypeSerializer implements JsonSerializer<IdentityType>
+public class IdentityTypeSerializer
 {
 	private ObjectMapper mapper = new ObjectMapper();
 	
@@ -71,11 +71,5 @@ public class IdentityTypeSerializer implements JsonSerializer<IdentityType>
 //			attrs2.add(a.asText());
 //		}
 //		target.setExtractedAttributes(attrs2);
-	}
-
-	@Override
-	public Class<IdentityType> getSupportedClass()
-	{
-		return IdentityType.class;
 	}
 }

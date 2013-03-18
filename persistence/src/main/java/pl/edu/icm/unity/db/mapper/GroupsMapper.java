@@ -26,6 +26,7 @@ public interface GroupsMapper
 	
 	
 	public void insertGroup(GroupBean group);
+	public void updateGroup(GroupBean group);
 	public void deleteGroup(long id);
 	
 	public List<GroupBean> getSubgroups(long parentId);

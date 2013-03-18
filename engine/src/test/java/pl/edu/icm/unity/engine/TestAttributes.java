@@ -125,8 +125,9 @@ public class TestAttributes extends DBIntegrationTestBase
 	@Test
 	public void testCreateType() throws Exception
 	{
+		final int sa = systemAttributeTypes.getSystemAttributes().size();
 		List<AttributeType> ats = attrsMan.getAttributeTypes();
-		assertEquals(2, ats.size());
+		assertEquals(sa, ats.size());
 
 		AttributeType at = new AttributeType();
 		at.setValueType(new StringAttributeSyntax());
@@ -140,7 +141,7 @@ public class TestAttributes extends DBIntegrationTestBase
 		attrsMan.addAttributeType(at);
 		
 		ats = attrsMan.getAttributeTypes();
-		assertEquals(3, ats.size());
+		assertEquals(sa+1, ats.size());
 		AttributeType at2 = getAttributeTypeByName(ats, "some");
 		
 		assertEquals(at.getDescription(), at2.getDescription());
@@ -181,7 +182,7 @@ public class TestAttributes extends DBIntegrationTestBase
 		//remove one without attributes
 		attrsMan.removeAttributeType("some", false);
 		ats = attrsMan.getAttributeTypes();
-		assertEquals(3, ats.size());
+		assertEquals(sa+1, ats.size());
 
 		//recreate and add an attribute
 		attrsMan.addAttributeType(at);
@@ -200,7 +201,7 @@ public class TestAttributes extends DBIntegrationTestBase
 		
 		attrsMan.removeAttributeType("some", true);
 		ats = attrsMan.getAttributeTypes();
-		assertEquals(3, ats.size());
+		assertEquals(sa+1, ats.size());
 
 		
 	}

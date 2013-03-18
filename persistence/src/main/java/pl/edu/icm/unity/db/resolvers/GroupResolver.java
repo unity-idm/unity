@@ -4,11 +4,8 @@
  */
 package pl.edu.icm.unity.db.resolvers;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.json.JsonSerializer;
-import pl.edu.icm.unity.db.json.SerializersRegistry;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
@@ -22,14 +19,7 @@ import pl.edu.icm.unity.types.basic.Group;
 public class GroupResolver
 {
 	public static final String ROOT_GROUP_NAME = "ROOT";
-	private JsonSerializer<Group> jsonS;
-	
-	@Autowired
-	public GroupResolver(SerializersRegistry reg)
-	{
-		jsonS = reg.getSerializer(Group.class);
-	}
-	
+
 	/**
 	 * Low level resolve of a group: finds it in a given parent group by name.
 	 * Note - this method does not perform loading of group JSON contents.
@@ -71,14 +61,16 @@ public class GroupResolver
 		}
 		return b;
 	}
-
-	/**
-	 * Converts {@link GroupBean} into a {@link Group}
-	 * @param gb
-	 * @param mapper
-	 * @return
-	 */
-	public Group resolveGroupBean(GroupBean gb, GroupsMapper mapper)
+	
+	public String resolveGroupPath(long groupId, GroupsMapper mapper)
+	{
+		GroupBean gb = mapper.getGroup(groupId);
+		if (gb == null)
+			throw new IllegalGroupValueException("Group unknown: " + groupId);
+		return resolveGroupPath(gb, mapper);
+	}	
+	
+	public String resolveGroupPath(GroupBean gb, GroupsMapper mapper)
 	{
 		StringBuilder path = new StringBuilder();
 		
@@ -88,9 +80,6 @@ public class GroupResolver
 			path.insert(0, '/' + parent.getName());
 			parent = mapper.getGroup(parent.getParent());
 		}
-		Group group = new Group(path.toString());
-		jsonS.fromJson(gb.getContents(), group);
-		return group;
+		return path.toString();
 	}
-
 }

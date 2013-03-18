@@ -20,15 +20,15 @@ public class GroupContents
 	public static final int EVERYTHING = ALL_GROUPS | MEMBERS | METADATA;
 	
 	private Group group;
-	private List<Group> subGroups;
-	private List<Group> linkedGroups;
+	private List<String> subGroups;
+	private List<String> linkedGroups;
 	private List<String> members;
 	
-	public void setSubGroups(List<Group> subGroups)
+	public void setSubGroups(List<String> subGroups)
 	{
 		this.subGroups = subGroups;
 	}
-	public void setLinkedGroups(List<Group> linkedGroups)
+	public void setLinkedGroups(List<String> linkedGroups)
 	{
 		this.linkedGroups = linkedGroups;
 	}
@@ -36,11 +36,11 @@ public class GroupContents
 	{
 		this.members = members;
 	}
-	public List<Group> getSubGroups()
+	public List<String> getSubGroups()
 	{
 		return subGroups;
 	}
-	public List<Group> getLinkedGroups()
+	public List<String> getLinkedGroups()
 	{
 		return linkedGroups;
 	}

@@ -19,7 +19,6 @@
 		<result property="name" column="NAME"/>
 		<result property="valueSyntaxId" column="VALUE_SYNTAX_ID"/>
 	</resultMap>
-	
 
 	<insert id="insertAttributeType" parameterType="AttributeTypeB">
 		INSERT INTO ATTRIBUTE_TYPES (NAME, VALUE_SYNTAX_ID, CONTENTS) VALUES (#{name}, #{valueSyntaxId}, #{contents})
@@ -31,6 +30,10 @@
 
 	<select id="getAttributeType" parameterType="string" resultMap="attributeTypeResult">
 		select * from ATTRIBUTE_TYPES WHERE NAME = #{value}
+	</select>
+	
+	<select id="getAttributeTypeById" parameterType="long" resultMap="attributeTypeResult">
+		select * from ATTRIBUTE_TYPES WHERE ID = #{value}
 	</select>
 	
 	<delete id="deleteAttributeType" parameterType="string">

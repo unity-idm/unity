@@ -12,8 +12,8 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.json.JsonSerializer;
-import pl.edu.icm.unity.db.json.SerializersRegistry;
+import pl.edu.icm.unity.db.json.GroupsSerializer;
+import pl.edu.icm.unity.db.mapper.AttributesMapper;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.DBLimits;
@@ -38,15 +38,15 @@ public class DBGroups
 	private GroupResolver groupResolver;
 	private IdentitiesResolver idResolver;
 	private DBLimits limits;
-	private JsonSerializer<Group> jsonS;
+	private GroupsSerializer jsonS;
 	
 	@Autowired
-	public DBGroups(GroupResolver groupResolver, IdentitiesResolver idResolver, SerializersRegistry reg, DB db)
+	public DBGroups(GroupResolver groupResolver, IdentitiesResolver idResolver, GroupsSerializer jsonS, DB db)
 	{
 		this.groupResolver = groupResolver;
 		this.idResolver = idResolver;
 		this.limits = db.getDBLimits();
-		jsonS = reg.getSerializer(Group.class);
+		this.jsonS = jsonS;
 	}
 	
 	/**
@@ -63,18 +63,41 @@ public class DBGroups
 		limits.checkNameLimit(toAdd.getName());
 			
 		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
+		AttributesMapper aMapper = sqlMap.getMapper(AttributesMapper.class);
 		GroupBean pb = groupResolver.resolveGroup(toAdd.getParentPath(), mapper);
 
 		GroupBean param = new GroupBean(pb.getId(), toAdd.getName());
 		if (mapper.resolveGroup(param) != null)
 			throw new IllegalGroupValueException("Group already exists");
 		
-		param.setContents(jsonS.toJson(toAdd));
+		param.setContents(jsonS.toJson(toAdd, mapper, aMapper));
 		if (param.getContents().length > limits.getContentsLimit())
 			throw new IllegalGroupValueException("Group metadata size (description, rules, ...) is too big.");
 		mapper.insertGroup(param);
+		
 		sqlMap.clearCache();
 	}
+	
+	public void updateGroup(String toUpdate, Group updated, SqlSession sqlMap) 
+			throws InternalException, IllegalGroupValueException
+	{
+		limits.checkNameLimit(updated.getName());
+		
+		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
+		AttributesMapper aMapper = sqlMap.getMapper(AttributesMapper.class);
+		GroupBean gb = groupResolver.resolveGroup(toUpdate, mapper);
+
+		GroupBean param = new GroupBean(gb.getId(), updated.getName());
+		param.setId(gb.getId());
+		param.setContents(jsonS.toJson(updated, mapper, aMapper));
+		if (param.getContents().length > limits.getContentsLimit())
+			throw new IllegalGroupValueException("Group metadata size (description, rules, ...) is too big.");
+		mapper.updateGroup(param);
+
+		sqlMap.clearCache();
+	}
+
+	
 	
 	public void removeGroup(String path, boolean recursive, SqlSession sqlMap) 
 			throws InternalException, IllegalGroupValueException
@@ -96,6 +119,7 @@ public class DBGroups
 			throws InternalException, IllegalGroupValueException
 	{
 		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
+		AttributesMapper aMapper = sqlMap.getMapper(AttributesMapper.class);
 		GroupBean gb = groupResolver.resolveGroup(path, mapper);
 
 		GroupContents ret = new GroupContents();
@@ -118,7 +142,8 @@ public class DBGroups
 			}
 			if ((filter & GroupContents.METADATA) != 0)
 			{
-				//TODO retrieval of metadata
+				Group fullGroup = resolveGroupBean(gb, mapper, aMapper);
+				ret.setGroup(fullGroup);
 			}
 		} catch (PersistenceException e)
 		{
@@ -159,11 +184,11 @@ public class DBGroups
 		mapper.deleteMember(param);
 	}
 	
-	public List<Group> convertGroups(List<GroupBean> src, GroupsMapper mapper)
+	private List<String> convertGroups(List<GroupBean> src, GroupsMapper mapper)
 	{
-		List<Group> ret = new ArrayList<Group>(src.size());
+		List<String> ret = new ArrayList<String>(src.size());
 		for (int i=0; i<src.size(); i++)
-			ret.add(groupResolver.resolveGroupBean(src.get(i), mapper));
+			ret.add(groupResolver.resolveGroupPath(src.get(i), mapper));
 		return ret;
 	}
 	
@@ -173,6 +198,22 @@ public class DBGroups
 		for (int i=0; i<src.size(); i++)
 			ret.add(src.get(i).getId()+"");
 		return ret;
+	}
+	
+
+	/**
+	 * Converts {@link GroupBean} into a {@link Group}. This is not in {@link GroupResolver} 
+	 * as depends on {@link GroupsSerializer}
+	 * @param gb
+	 * @param mapper
+	 * @return
+	 */
+	private Group resolveGroupBean(GroupBean gb, GroupsMapper mapper, AttributesMapper aMapper)
+	{
+		String path = groupResolver.resolveGroupPath(gb, mapper); 
+		Group group = new Group(path);
+		jsonS.fromJson(gb.getContents(), group, mapper, aMapper);
+		return group;
 	}
 
 }

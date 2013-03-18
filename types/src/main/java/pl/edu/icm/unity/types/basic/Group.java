@@ -9,9 +9,7 @@
 package pl.edu.icm.unity.types.basic;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Group holds set of other elements: other groups and identities. This class only denotes group, 
@@ -25,7 +23,7 @@ public class Group implements Serializable
 	
 	private String[] path;
 	private String description = "";
-	private List<AttributeStatement> attributeStatements = new ArrayList<AttributeStatement>(0);
+	private AttributeStatement[] attributeStatements = new AttributeStatement[0];
 	
 	public Group(Group parent, String name)
 	{
@@ -93,12 +91,12 @@ public class Group implements Serializable
 		return sb.toString();
 	}
 	
-	public List<AttributeStatement> getAttributeStatements()
+	public AttributeStatement[] getAttributeStatements()
 	{
 		return attributeStatements;
 	}
 
-	public void setAttributeStatements(List<AttributeStatement> attributeStatements)
+	public void setAttributeStatements(AttributeStatement[] attributeStatements)
 	{
 		this.attributeStatements = attributeStatements;
 	}

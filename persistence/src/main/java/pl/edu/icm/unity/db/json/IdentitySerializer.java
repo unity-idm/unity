@@ -18,7 +18,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  * @author K. Benedyczak
  */
 @Component
-public class IdentitySerializer implements JsonSerializer<IdentityParam>
+public class IdentitySerializer
 {
 	private ObjectMapper mapper = new ObjectMapper();
 	
@@ -62,11 +62,5 @@ public class IdentitySerializer implements JsonSerializer<IdentityParam>
 		target.setEnabled(main.get("enabled").asBoolean());
 		target.setLocal(main.get("local").asBoolean());
 		target.setValue(main.get("value").asText());
-	}
-
-	@Override
-	public Class<IdentityParam> getSupportedClass()
-	{
-		return IdentityParam.class;
 	}
 }

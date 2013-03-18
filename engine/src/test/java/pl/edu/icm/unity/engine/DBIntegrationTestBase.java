@@ -24,6 +24,7 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.ServerManagement;
+import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -50,6 +51,8 @@ public abstract class DBIntegrationTestBase
 	protected AuthenticationManagement authnMan;
 	@Autowired
 	protected JettyServer httpServer;
+	@Autowired 
+	protected SystemAttributeTypes systemAttributeTypes;
 	
 	@Before
 	public void clear() throws EngineException
