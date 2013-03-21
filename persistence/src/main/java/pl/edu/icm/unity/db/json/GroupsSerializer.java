@@ -85,12 +85,13 @@ public class GroupsSerializer
 	 * @param json
 	 * @param target
 	 */
-	public void fromJson(byte[] json, Group target, GroupsMapper groupMapper, 
+	public int fromJson(byte[] json, Group target, GroupsMapper groupMapper, 
 			AttributesMapper attributeMapper)
 	{
 		if (json == null)
-			return;
+			return 0;
 		ObjectNode main;
+		int outdatedASes = 0;
 		try
 		{
 			main = mapper.readValue(json, ObjectNode.class);
@@ -108,6 +109,7 @@ public class GroupsSerializer
 				} catch (Exception e)
 				{
 					//OK - we are ignoring outdated ASes - will be removed by async cleanup
+					outdatedASes++;
 				}
 			}			
 			target.setAttributeStatements(statements.toArray(new AttributeStatement[statements.size()]));
@@ -115,8 +117,26 @@ public class GroupsSerializer
 		{
 			throw new InternalException("Can't perform JSON deserialization", e);
 		}
+		return outdatedASes;
 	}
 
+	
+
+	/**
+	 * Converts {@link GroupBean} into a {@link Group}. This is not in {@link GroupResolver} 
+	 * as depends on {@link GroupsSerializer}
+	 * @param gb
+	 * @param mapper
+	 * @return
+	 */
+	public Group resolveGroupBean(GroupBean gb, GroupsMapper mapper, AttributesMapper aMapper)
+	{
+		String path = groupResolver.resolveGroupPath(gb, mapper); 
+		Group group = new Group(path);
+		fromJson(gb.getContents(), group, mapper, aMapper);
+		return group;
+	}
+	
 	private JsonNode serializeAS(AttributeStatement as, GroupsMapper groupMapper, 
 			AttributesMapper attributeMapper) throws JsonProcessingException
 	{
@@ -125,11 +145,8 @@ public class GroupsSerializer
 
 		addAttributeToJson(main, as.getAssignedAttribute(), attributeMapper, groupMapper);
 		
-		ArrayNode conditions = main.putArray("conditions");
-		for (AttributeStatementCondition asc: as.getConditions())
-		{
-			conditions.add(serializeASCond(asc, groupMapper, attributeMapper));
-		}
+		JsonNode condition = serializeASCond(as.getCondition(), groupMapper, attributeMapper);
+		main.put("condition", condition);
 		return main;
 	}
 	
@@ -179,12 +196,9 @@ public class GroupsSerializer
 		attr.setGroupPath(group);
 		ret.setAssignedAttribute(attr);
 		
-		JsonNode jsonConditions = as.get("conditions");
-		int conditionsNum = jsonConditions.size();
-		AttributeStatementCondition[] conditions = new AttributeStatementCondition[conditionsNum];
-		for (int i=0; i<conditionsNum; i++)
-			conditions[i] = deserializeASCond(jsonConditions.get(i), groupMapper, attributeMapper);
-		ret.setConditions(conditions);
+		JsonNode jsonCondition = as.get("condition");
+		AttributeStatementCondition condition = deserializeASCond(jsonCondition, groupMapper, attributeMapper);
+		ret.setCondition(condition);
 		return ret;
 	}
 	

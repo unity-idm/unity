@@ -35,6 +35,7 @@ public interface GroupsMapper
 	public List<BaseBean> getMembers(long groupId);
 	
 	public GroupBean getGroup(long id);
+	public List<GroupBean> getAllGroups();
 	
 	public GroupElementBean isMember(GroupElementBean param);
 	public void insertMember(GroupElementBean param);

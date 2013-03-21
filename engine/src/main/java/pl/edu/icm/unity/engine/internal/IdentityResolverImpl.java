@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.internal;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,18 +52,18 @@ public class IdentityResolverImpl implements IdentityResolver
 		{
 			long entityId = getEntity(identity, identityTypes, sql);
 			EntityWithCredential ret = new EntityWithCredential();
-			List<Attribute<?>> credAttributes = dbAttributes.getAllAttributes(entityId, "/", 
+			Collection<Attribute<?>> credAttributes = dbAttributes.getAllAttributes(entityId, "/", 
 					SystemAttributeTypes.CREDENTIAL_PREFIX+credentialName, sql);
-			List<Attribute<?>> authnStateAttribute = dbAttributes.getAllAttributes(entityId, "/", 
+			Collection<Attribute<?>> authnStateAttribute = dbAttributes.getAllAttributes(entityId, "/", 
 					SystemAttributeTypes.CREDENTIALS_STATE, sql);
-			String authnStateS = (String)authnStateAttribute.get(0).getValues().get(0);
+			String authnStateS = (String)authnStateAttribute.iterator().next().getValues().get(0);
 			LocalAuthenticationState authnState = LocalAuthenticationState.valueOf(authnStateS);
 			if (authnState == LocalAuthenticationState.disabled)
 				throw new IllegalIdentityValueException("Authentication is disabled for this entity");
 			ret.setLocalAuthnState(authnState);
 			if (credAttributes.size() > 0)
 			{
-				Attribute<?> a = credAttributes.get(0);
+				Attribute<?> a = credAttributes.iterator().next();
 				ret.setCredentialValue((String)a.getValues().get(0));
 			}
 			ret.setCredentialName(credentialName);

@@ -33,7 +33,7 @@
 		<module>core</module>
 		<module>engine</module>
 		<module>persistence</module>
-		<module>web</module>
+		<module>web-common</module>
 		<module>ws</module>
 		<module>std-extensions</module>
 		<module>distribution</module>

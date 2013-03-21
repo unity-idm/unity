@@ -86,8 +86,11 @@ public class DBGroups
 		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
 		AttributesMapper aMapper = sqlMap.getMapper(AttributesMapper.class);
 		GroupBean gb = groupResolver.resolveGroup(toUpdate, mapper);
+		String newName = updated.getName();
+		if (gb.getParent() == null)
+			newName = GroupResolver.ROOT_GROUP_NAME;
 
-		GroupBean param = new GroupBean(gb.getId(), updated.getName());
+		GroupBean param = new GroupBean(gb.getId(), newName);
 		param.setId(gb.getId());
 		param.setContents(jsonS.toJson(updated, mapper, aMapper));
 		if (param.getContents().length > limits.getContentsLimit())
@@ -142,7 +145,7 @@ public class DBGroups
 			}
 			if ((filter & GroupContents.METADATA) != 0)
 			{
-				Group fullGroup = resolveGroupBean(gb, mapper, aMapper);
+				Group fullGroup = jsonS.resolveGroupBean(gb, mapper, aMapper);
 				ret.setGroup(fullGroup);
 			}
 		} catch (PersistenceException e)
@@ -184,6 +187,34 @@ public class DBGroups
 		mapper.deleteMember(param);
 	}
 	
+	/**
+	 * Loads all groups, deserializes their contents what removes the outdated entries and update it
+	 * if something was changed.
+	 * @param sqlMap
+	 */
+	public int updateAllGroups(SqlSession sqlMap)
+	{
+		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
+		AttributesMapper aMapper = sqlMap.getMapper(AttributesMapper.class);
+		List<GroupBean> allGroups = mapper.getAllGroups();
+		int modified = 0;
+		for (GroupBean gb: allGroups)
+		{
+			String path = groupResolver.resolveGroupPath(gb, mapper); 
+			Group fullGroup = new Group(path);
+			int changed = jsonS.fromJson(gb.getContents(), fullGroup, mapper, aMapper);
+			if (changed > 0)
+			{
+				byte[] updatedJson = jsonS.toJson(fullGroup, mapper, aMapper);
+				GroupBean param = new GroupBean(gb.getId(), gb.getName());
+				param.setContents(updatedJson);
+				mapper.updateGroup(param);
+				modified++;
+			}
+		}
+		return modified;
+	}
+	
 	private List<String> convertGroups(List<GroupBean> src, GroupsMapper mapper)
 	{
 		List<String> ret = new ArrayList<String>(src.size());
@@ -199,21 +230,4 @@ public class DBGroups
 			ret.add(src.get(i).getId()+"");
 		return ret;
 	}
-	
-
-	/**
-	 * Converts {@link GroupBean} into a {@link Group}. This is not in {@link GroupResolver} 
-	 * as depends on {@link GroupsSerializer}
-	 * @param gb
-	 * @param mapper
-	 * @return
-	 */
-	private Group resolveGroupBean(GroupBean gb, GroupsMapper mapper, AttributesMapper aMapper)
-	{
-		String path = groupResolver.resolveGroupPath(gb, mapper); 
-		Group group = new Group(path);
-		jsonS.fromJson(gb.getContents(), group, mapper, aMapper);
-		return group;
-	}
-
 }

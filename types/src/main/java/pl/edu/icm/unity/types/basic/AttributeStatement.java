@@ -34,7 +34,7 @@ public class AttributeStatement
 		merge
 	}
 
-	private AttributeStatementCondition[] conditions;
+	private AttributeStatementCondition condition;
 	private Attribute<?> assignedAttribute;
 	private ConflictResolution conflictResolution;
 
@@ -42,21 +42,21 @@ public class AttributeStatement
 	{
 	}
 
-	public AttributeStatement(AttributeStatementCondition[] conditions,
+	public AttributeStatement(AttributeStatementCondition condition,
 			Attribute<?> assignedAttribute, ConflictResolution conflictResolution)
 	{
-		this.conditions = conditions;
+		this.condition = condition;
 		this.assignedAttribute = assignedAttribute;
 		this.conflictResolution = conflictResolution;
 	}
 	
-	public AttributeStatementCondition[] getConditions()
+	public AttributeStatementCondition getCondition()
 	{
-		return conditions;
+		return condition;
 	}
-	public void setConditions(AttributeStatementCondition[] conditions)
+	public void setCondition(AttributeStatementCondition condition)
 	{
-		this.conditions = conditions;
+		this.condition = condition;
 	}
 	public Attribute<?> getAssignedAttribute()
 	{

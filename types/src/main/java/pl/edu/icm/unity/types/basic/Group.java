@@ -79,7 +79,7 @@ public class Group implements Serializable
 	}
 	public String getName()
 	{
-		return path[path.length - 1];
+		return path.length == 0 ? "/" : path[path.length - 1];
 	}
 	public String getParentPath()
 	{

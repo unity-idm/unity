@@ -83,6 +83,22 @@ public class Attribute<T> implements InitializationValidator
 	}
 
 	@Override
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append(getName()).append(": [");
+		int size = values.size();
+		for (int i=0; i<size; i++)
+		{
+			sb.append(values.get(i).toString());
+			if (i<size-1)
+				sb.append(", ");
+		}
+		sb.append("]");
+		return sb.toString();
+	}
+	
+	@Override
 	public int hashCode()
 	{
 		final int prime = 31;

@@ -250,7 +250,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			{
 				CredentialRequirementsHolder newCredReqs = engineHelper.getCredentialRequirements(
 						requirementId, sqlMap);
-				Map<String, Attribute<?>> attributes = dbAttributes.getAllAttributesAsMap(
+				Map<String, Attribute<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(
 						entityId, "/", null, sqlMap);
 				if (!newCredReqs.areAllCredentialsValid(attributes))
 					throw new IllegalCredentialException("Some of the credentials won't " +
@@ -275,7 +275,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
-			Map<String, Attribute<?>> attributes = dbAttributes.getAllAttributesAsMap(entityId, "/", null, sqlMap);
+			Map<String, Attribute<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(entityId, "/", null, sqlMap);
 			
 			Attribute<?> credReqA = attributes.get(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS);
 			String credentialRequirements = (String)credReqA.getValues().get(0);
@@ -316,7 +316,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	
 	private CredentialInfo getCredentialInfo(long entityId, SqlSession sqlMap)
 	{
-		Map<String, Attribute<?>> attributes = dbAttributes.getAllAttributesAsMap(entityId, "/", null, sqlMap);
+		Map<String, Attribute<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(entityId, "/", null, sqlMap);
 		
 		Attribute<?> credReqA = attributes.get(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS);
 		if (credReqA == null)

@@ -26,6 +26,10 @@
 			</if>
 	</select>
 
+	<select id="getAllGroups" resultMap="groupResult">
+		select * from GROUPS 
+	</select>
+	
 	<select id="getGroup" parameterType="long" resultMap="groupResult">
 		select * from GROUPS where ID = #{value} 
 	</select>

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.internal;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -129,12 +130,12 @@ public class EngineHelper
 			toSet = LocalAuthenticationState.disabled;
 		} else
 		{
-			List<Attribute<?>> attributes = dbAttributes.getAllAttributes(entityId, "/", 
+			Collection<Attribute<?>> attributes = dbAttributes.getAllAttributes(entityId, "/", 
 					SystemAttributeTypes.CREDENTIAL_PREFIX+credentialChanged.getCredentialDefinition().getName(), sql);
 			boolean valid = false;
 			if (!attributes.isEmpty())
 			{
-				String credential = (String)attributes.get(0).getValues().get(0);
+				String credential = (String)attributes.iterator().next().getValues().get(0);
 				valid = credentialChanged.getHandler().checkCredentialState(credential) 
 						== LocalCredentialState.correct;
 			}
@@ -167,7 +168,7 @@ public class EngineHelper
 			toSet = LocalAuthenticationState.disabled;
 		} else
 		{
-			Map<String, Attribute<?>> attributes = dbAttributes.getAllAttributesAsMap(entityId, "/", null, sql);
+			Map<String, Attribute<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(entityId, "/", null, sql);
 			boolean allValid = newCredReqs.areAllCredentialsValid(attributes);
 			if (desiredAuthnState.equals(LocalAuthenticationState.valid) && !allValid)
 				throw new IllegalCredentialException("The new credential requirements are not compatible with the previous definition and can not keep the authentication state as valid");

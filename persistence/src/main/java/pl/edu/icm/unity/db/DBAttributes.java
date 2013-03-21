@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.db;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,19 +47,22 @@ public class DBAttributes
 	private AttributeTypeSerializer atSerializer;
 	private AttributeSerializer aSerializer;
 	private GroupResolver groupResolver;
+	private AttributeStatementProcessor statementsHelper;
 	
 	
 	@Autowired
-	public DBAttributes(DB db, AttributesResolver attrResolver, AttributeTypeSerializer atSerializer,
-			AttributeSerializer aSerializer, GroupResolver groupResolver)
+	public DBAttributes(DB db, AttributesResolver attrResolver,
+			AttributeTypeSerializer atSerializer, AttributeSerializer aSerializer,
+			GroupResolver groupResolver, AttributeStatementProcessor statementsHelper)
 	{
 		this.limits = db.getDBLimits();
+		this.attrResolver = attrResolver;
 		this.atSerializer = atSerializer;
 		this.aSerializer = aSerializer;
 		this.groupResolver = groupResolver;
-		this.attrResolver = attrResolver;
+		this.statementsHelper = statementsHelper;
 	}
-	
+
 	public void addAttributeType(AttributeType toAdd, SqlSession sqlMap)
 	{
 		limits.checkNameLimit(toAdd.getName());
@@ -164,24 +168,17 @@ public class DBAttributes
 		mapper.deleteAttribute(param);
 	}
 	
-	
-	private List<AttributeBean> getDefinedAttributes(Long entityId, Long groupId, String attributeName, 
-			AttributesMapper mapper)
+	private List<String> getGroupsOrGroup(long entityId, String groupPath, GroupsMapper grMapper)
 	{
-		AttributeBean param = new AttributeBean();
-		param.setGroupId(groupId);
-		param.setEntityId(entityId);
-		param.setName(attributeName);
-		return mapper.getAttributes(param);
-	}
-	
-	private List<GroupBean> getGroupsOrGroup(long entityId, String groupPath, SqlSession sql)
-	{
-		GroupsMapper grMapper = sql.getMapper(GroupsMapper.class);
 		if (groupPath == null)
-			return grMapper.getGroups4Entity(entityId);
-		else
-			return Collections.singletonList(groupResolver.resolveGroup(groupPath, grMapper));
+		{
+			List<GroupBean> raw = grMapper.getGroups4Entity(entityId);
+			List<String> ret = new ArrayList<String>();
+			for (GroupBean gb: raw)
+				ret.add(groupResolver.resolveGroupPath(gb, grMapper));
+			return ret;
+		} else
+			return Collections.singletonList(groupPath);
 	}
 	
 	/**
@@ -193,60 +190,63 @@ public class DBAttributes
 	 * @param sql
 	 * @return
 	 */
-	public List<Attribute<?>> getAllAttributes(long entityId, String groupPath,
+	public Collection<Attribute<?>> getAllAttributes(long entityId, String groupPath,
 			String attributeTypeName, SqlSession sql)
 	{
-		List<GroupBean> groups = getGroupsOrGroup(entityId, groupPath, sql);
-		
-		AttributesMapper atMapper = sql.getMapper(AttributesMapper.class);
-		
+		Map<String, Map<String, Attribute<?>>> asMap = getAllAttributesAsMap(entityId, groupPath, attributeTypeName, sql);
 		List<Attribute<?>> ret = new ArrayList<Attribute<?>>();
-		for (GroupBean group: groups)
-		{
-			List<AttributeBean> raw = getDefinedAttributes(entityId, group.getId(), 
-					attributeTypeName, atMapper);
-			
-			//TODO here we will need to insert application of group rule-defined adding additional attributes  
-			
-			ret.addAll(attrResolver.convertAttributes(raw, groupPath));
-		}
+		for (Map<String, Attribute<?>> entry: asMap.values())
+			ret.addAll(entry.values());
 		return ret;
 	}
-
+	
+	public Map<String, Attribute<?>> getAllAttributesAsMapOneGroup(long entityId, String groupPath,
+			String attributeTypeName, SqlSession sql)
+	{
+		if (groupPath == null)
+			throw new IllegalArgumentException("For this method group must be specified");
+		Map<String, Map<String, Attribute<?>>> asMap = getAllAttributesAsMap(entityId, groupPath, 
+				attributeTypeName, sql);
+		return asMap.get(groupPath);
+	}
+	
 	/**
 	 * See {@link #getAllAttributes(long, String, String, SqlSession)}, the only difference is that the result
-	 * is returned in a map indexed with attribute names
+	 * is returned in a map indexed with groups (1st key) and attribute names (submap key).
 	 * @param entityId
 	 * @param groupPath
 	 * @param attributeTypeName
 	 * @param sql
 	 * @return
 	 */
-	public Map<String, Attribute<?>> getAllAttributesAsMap(long entityId, String groupPath,
+	public Map<String, Map<String, Attribute<?>>> getAllAttributesAsMap(long entityId, String groupPath,
 			String attributeTypeName, SqlSession sql)
 	{
-		List<GroupBean> groups = getGroupsOrGroup(entityId, groupPath, sql);
 		AttributesMapper atMapper = sql.getMapper(AttributesMapper.class);
+		GroupsMapper gMapper = sql.getMapper(GroupsMapper.class);
 		
-		Map<String, Attribute<?>> ret = new HashMap<String, Attribute<?>>();
-		for (GroupBean group: groups)
+		List<String> groups = getGroupsOrGroup(entityId, groupPath, gMapper);
+
+		
+		Set<String> allGroups = getAllGroups(entityId, gMapper);
+		Map<String, Map<String, Attribute<?>>> directAttributesByGroup = createAllAttrsMap(entityId, 
+				atMapper, gMapper);
+		Map<String, Map<String, Attribute<?>>> ret = new HashMap<String, Map<String, Attribute<?>>>();
+		for (String group: groups)
 		{
-			List<AttributeBean> raw = getDefinedAttributes(entityId, group.getId(), 
-					attributeTypeName, atMapper);
-			
-			//TODO here we will need to insert application of group rule-defined adding additional attributes
-			//of course reuse the same code as in the method above
-			
-			List<Attribute<?>> attributes = attrResolver.convertAttributes(raw, groupPath);
-			for (Attribute<?> a: attributes)
-				ret.put(a.getName(), a);
+			Map<String, Attribute<?>> inGroup = statementsHelper.getEffectiveAttributes(entityId, 
+					group, attributeTypeName, allGroups, directAttributesByGroup, atMapper, gMapper);
+			ret.put(group, inGroup);
 		}
 		return ret;
 	}
 	
 	/**
 	 * It is assumed that the attribute is single-value and mapped to string.
-	 * Returned are all entities which has value of the attribute out of the given set. 
+	 * Returned are all entities which has value of the attribute out of the given set.
+	 * <p> 
+	 * IMPORTANT! This is not taking into account effective attributes, and so it is usable only for certain system
+	 * attributes.
 	 * @param groupPath
 	 * @param attributeTypeName
 	 * @param value
@@ -270,6 +270,48 @@ public class DBAttributes
 				ret.add(ab.getEntityId());
 		}
 		return ret;
+	}
+	
+	
+	
+	private Set<String> getAllGroups(long entityId, GroupsMapper gMapper)
+	{
+		List<GroupBean> groups = gMapper.getGroups4Entity(entityId);
+		Set<String> ret = new HashSet<String>();
+		for (GroupBean group: groups)
+			ret.add(groupResolver.resolveGroupPath(group, gMapper));
+		return ret;
+	}
+	
+	private Map<String, Map<String, Attribute<?>>> createAllAttrsMap(long entityId, AttributesMapper atMapper,
+			GroupsMapper gMapper)
+	{
+		Map<String, Map<String, Attribute<?>>> ret = new HashMap<String, Map<String, Attribute<?>>>();
+		List<AttributeBean> allAts = getDefinedAttributes(entityId, null, null, atMapper);
+		for (AttributeBean ab: allAts)
+		{
+			String groupPath = groupResolver.resolveGroupPath(ab.getGroupId(), gMapper);
+			Attribute<?> attribute = attrResolver.resolveAttributeBean(ab, groupPath);
+			
+			Map<String, Attribute<?>> attrsInGroup = ret.get(groupPath);
+			if (attrsInGroup == null)
+			{
+				attrsInGroup = new HashMap<String, Attribute<?>>();
+				ret.put(groupPath, attrsInGroup);
+			}
+			attrsInGroup.put(attribute.getName(), attribute);
+		}
+		return ret;
+	}
+	
+	private List<AttributeBean> getDefinedAttributes(Long entityId, Long groupId, String attributeName, 
+			AttributesMapper mapper)
+	{
+		AttributeBean param = new AttributeBean();
+		param.setGroupId(groupId);
+		param.setEntityId(entityId);
+		param.setName(attributeName);
+		return mapper.getAttributes(param);
 	}
 }
 

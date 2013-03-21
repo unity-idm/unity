@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -61,22 +62,22 @@ public class TestAttributes extends DBIntegrationTestBase
 		StringAttribute at2 = new StringAttribute("tel", "/", AttributeVisibility.full, "1234");
 		attrsMan.setAttribute(entity, at2, false);
 		
-		List<Attribute<?>> allAts = attrsMan.getAttributes(entity, null, null);
+		Collection<Attribute<?>> allAts = attrsMan.getAttributes(entity, null, null);
 		assertEquals(2, allAts.size());
-		List<Attribute<?>> gr1Ats = attrsMan.getAttributes(entity, "/", null);
+		Collection<Attribute<?>> gr1Ats = attrsMan.getAttributes(entity, "/", null);
 		assertEquals(1, gr1Ats.size());
-		assertEquals(at2, gr1Ats.get(0));
-		List<Attribute<?>> nameAts = attrsMan.getAttributes(entity, null, "tel");
+		assertEquals(at2, gr1Ats.iterator().next());
+		Collection<Attribute<?>> nameAts = attrsMan.getAttributes(entity, null, "tel");
 		assertEquals(2, nameAts.size());
-		List<Attribute<?>> specificAts = attrsMan.getAttributes(entity, "/test", "tel");
+		Collection<Attribute<?>> specificAts = attrsMan.getAttributes(entity, "/test", "tel");
 		assertEquals(1, specificAts.size());
-		assertEquals(at1, specificAts.get(0));
+		assertEquals(at1, specificAts.iterator().next());
 
 		
 		attrsMan.removeAttribute(entity, "/", "tel");
 		gr1Ats = attrsMan.getAttributes(entity, "/", null);
 		assertEquals(0, gr1Ats.size());
-		List<Attribute<?>> gr2Ats = attrsMan.getAttributes(entity, "/test", null);
+		Collection<Attribute<?>> gr2Ats = attrsMan.getAttributes(entity, "/test", null);
 		assertEquals(1, gr2Ats.size());
 		allAts = attrsMan.getAttributes(entity, null, null);
 		assertEquals(1, allAts.size());
@@ -106,7 +107,7 @@ public class TestAttributes extends DBIntegrationTestBase
 		allAts = attrsMan.getAllAttributes(entity, null, null);
 		assertEquals(3, allAts.size());
 		assertEquals("333", getAttributeByName(allAts, "tel").getValues().get(0));
-		assertEquals(AttributeVisibility.local, allAts.get(0).getVisibility());
+		assertEquals(AttributeVisibility.local, allAts.iterator().next().getVisibility());
 		
 		
 		AttributeType atHidden = new AttributeType("hiddenTel", new StringAttributeSyntax());
@@ -122,6 +123,20 @@ public class TestAttributes extends DBIntegrationTestBase
 		idsMan.removeEntity(entity);
 	}
 	
+	private AttributeType createSimpleAT(String name)
+	{
+		AttributeType at = new AttributeType();
+		at.setValueType(new StringAttributeSyntax());
+		at.setDescription("desc");
+		at.setFlags(0);
+		at.setMaxElements(5);
+		at.setMinElements(1);
+		at.setName(name);
+		at.setSelfModificable(true);
+		at.setVisibility(AttributeVisibility.local);
+		return at;
+	}
+	
 	@Test
 	public void testCreateType() throws Exception
 	{
@@ -129,15 +144,7 @@ public class TestAttributes extends DBIntegrationTestBase
 		List<AttributeType> ats = attrsMan.getAttributeTypes();
 		assertEquals(sa, ats.size());
 
-		AttributeType at = new AttributeType();
-		at.setValueType(new StringAttributeSyntax());
-		at.setDescription("desc");
-		at.setFlags(0);
-		at.setMaxElements(5);
-		at.setMinElements(1);
-		at.setName("some");
-		at.setSelfModificable(true);
-		at.setVisibility(AttributeVisibility.local);
+		AttributeType at = createSimpleAT("some");
 		attrsMan.addAttributeType(at);
 		
 		ats = attrsMan.getAttributeTypes();
@@ -202,7 +209,24 @@ public class TestAttributes extends DBIntegrationTestBase
 		attrsMan.removeAttributeType("some", true);
 		ats = attrsMan.getAttributeTypes();
 		assertEquals(sa+1, ats.size());
-
-		
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

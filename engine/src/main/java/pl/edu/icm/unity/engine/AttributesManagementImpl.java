@@ -211,10 +211,10 @@ public class AttributesManagementImpl implements AttributesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Attribute<?>> getAttributes(EntityParam entity, String groupPath,
+	public Collection<Attribute<?>> getAttributes(EntityParam entity, String groupPath,
 			String attributeTypeId) throws EngineException
 	{
-		List<Attribute<?>> ret = getAllAttributesInternal(entity, groupPath, attributeTypeId);
+		Collection<Attribute<?>> ret = getAllAttributesInternal(entity, groupPath, attributeTypeId);
 		filterLocal(ret);
 		return ret;
 	}
@@ -223,13 +223,13 @@ public class AttributesManagementImpl implements AttributesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Attribute<?>> getAllAttributes(EntityParam entity, String groupPath,
+	public Collection<Attribute<?>> getAllAttributes(EntityParam entity, String groupPath,
 			String attributeTypeId) throws EngineException
 	{
 		return getAllAttributesInternal(entity, groupPath, attributeTypeId);
 	}
 
-	private void filterLocal(List<Attribute<?>> unfiltered)
+	private void filterLocal(Collection<Attribute<?>> unfiltered)
 	{
 		Iterator<Attribute<?>> it = unfiltered.iterator();
 		while (it.hasNext())
@@ -240,7 +240,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		}
 	}
 	
-	private List<Attribute<?>> getAllAttributesInternal(EntityParam entity, String groupPath,
+	private Collection<Attribute<?>> getAllAttributesInternal(EntityParam entity, String groupPath,
 			String attributeTypeName) throws EngineException
 	{
 		entity.validateInitialization();
@@ -249,7 +249,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		{
 			long entityId = idResolver.getEntityId(entity, sql);
 			
-			List<Attribute<?>> ret = dbAttributes.getAllAttributes(entityId, groupPath, 
+			Collection<Attribute<?>> ret = dbAttributes.getAllAttributes(entityId, groupPath, 
 					attributeTypeName, sql);
 			sql.commit();
 			return ret;

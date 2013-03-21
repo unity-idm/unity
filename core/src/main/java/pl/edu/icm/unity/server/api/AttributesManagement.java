@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.server.api;
 
+import java.util.Collection;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -105,7 +106,7 @@ public interface AttributesManagement
 	 * @return
 	 * @throws EngineException
 	 */
-	public List<Attribute<?>> getAttributes(EntityParam entity, String groupPath, String attributeTypeId) throws EngineException;
+	public Collection<Attribute<?>> getAttributes(EntityParam entity, String groupPath, String attributeTypeId) throws EngineException;
 
 	/**
 	 * Returns attributes of an entity, including hidden ones. The two last arguments can be null, 
@@ -116,6 +117,6 @@ public interface AttributesManagement
 	 * @return
 	 * @throws EngineException
 	 */
-	public List<Attribute<?>> getAllAttributes(EntityParam entity, String groupPath, String attributeTypeId) throws EngineException;
+	public Collection<Attribute<?>> getAllAttributes(EntityParam entity, String groupPath, String attributeTypeId) throws EngineException;
 
 }

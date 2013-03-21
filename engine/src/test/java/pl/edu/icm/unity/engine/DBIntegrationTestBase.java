@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import pl.edu.icm.unity.engine.internal.AttributeStatementsCleaner;
 import pl.edu.icm.unity.engine.internal.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.mock.MockPasswordHandlerFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -53,6 +55,8 @@ public abstract class DBIntegrationTestBase
 	protected JettyServer httpServer;
 	@Autowired 
 	protected SystemAttributeTypes systemAttributeTypes;
+	@Autowired
+	protected AttributeStatementsCleaner statementsCleaner;
 	
 	@Before
 	public void clear() throws EngineException
@@ -78,7 +82,7 @@ public abstract class DBIntegrationTestBase
 		}
 	}
 	
-	protected Attribute<?> getAttributeByName(List<Attribute<?>> attrs, String name)
+	protected Attribute<?> getAttributeByName(Collection<Attribute<?>> attrs, String name)
 	{
 		for (Attribute<?> a: attrs)
 			if (a.getName().equals(name))

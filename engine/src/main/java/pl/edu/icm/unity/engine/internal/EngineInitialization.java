@@ -66,6 +66,8 @@ public class EngineInitialization extends LifecycleBase
 	private ExecutorsService executors;
 	@Autowired
 	private EndpointsUpdater updater;
+	@Autowired
+	private AttributeStatementsCleaner attributeStatementsCleaner;
 	
 	@Override
 	public void start()
@@ -99,6 +101,23 @@ public class EngineInitialization extends LifecycleBase
 			}
 		};
 		executors.getService().scheduleWithFixedDelay(endpointsUpdater, 120, 60, TimeUnit.SECONDS);
+
+		Runnable attributeStatementsUpdater = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					attributeStatementsCleaner.updateGroups();
+				} catch (RuntimeEngineException e)
+				{
+					log.error("Can't update groups attribute statements", e);
+				}
+			}
+		};
+		executors.getService().scheduleWithFixedDelay(attributeStatementsUpdater, 
+				120, 600, TimeUnit.SECONDS);
 	}
 	
 	public void initializeDatabaseContents()

@@ -10,7 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.types.basic.AttributeStatement;
+import pl.edu.icm.unity.types.basic.AttributeStatementCondition;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -36,6 +39,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	@Override
 	public void addGroup(Group toAdd) throws EngineException
 	{
+		validateGroupStatements(toAdd);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -127,6 +131,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	@Override
 	public void updateGroup(String path, Group group) throws EngineException
 	{
+		validateGroupStatements(group);
 		SqlSession sql = db.getSqlSession(true);
 		try 
 		{
@@ -136,5 +141,23 @@ public class GroupsManagementImpl implements GroupsManagement
 		{
 			db.releaseSqlSession(sql);
 		}
+	}
+	
+	private void validateGroupStatements(Group group)
+	{
+		AttributeStatement[] statements = group.getAttributeStatements();
+		String path = group.toString();
+		for (AttributeStatement statement: statements)
+			validateGroupStatement(path, statement);
+	}
+
+	private void validateGroupStatement(String group, AttributeStatement statement)
+	{
+		String statementPath = statement.getAssignedAttribute().getGroupPath();
+		if (!group.equals(statementPath))
+			throw new IllegalAttributeValueException("The statement attribute must have " +
+					"the same group scope as its group: " + group);
+		AttributeStatementCondition condition = statement.getCondition();
+		condition.validate(group);
 	}
 }

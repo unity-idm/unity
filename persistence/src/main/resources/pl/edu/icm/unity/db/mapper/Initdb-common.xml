@@ -34,7 +34,7 @@ CREATE TABLE IDENTITIES(
 
 	<update id="initdb-05">
 CREATE TABLE GROUPS(
-		<include refid="defaultColsMem"/>
+		<include refid="defaultColsBlob"/>
 		PARENT_ID INTEGER,
 		FOREIGN KEY (PARENT_ID) REFERENCES GROUPS(ID) ON DELETE CASCADE,
 		UNIQUE(PARENT_ID, NAME)	

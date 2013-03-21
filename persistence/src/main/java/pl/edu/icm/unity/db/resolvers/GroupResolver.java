@@ -72,6 +72,8 @@ public class GroupResolver
 	
 	public String resolveGroupPath(GroupBean gb, GroupsMapper mapper)
 	{
+		if (gb.getParent() == null)
+			return "/";
 		StringBuilder path = new StringBuilder();
 		
 		GroupBean parent = gb;

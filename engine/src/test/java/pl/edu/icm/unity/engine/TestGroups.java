@@ -62,21 +62,26 @@ public class TestGroups extends DBIntegrationTestBase
 
 		AttributeStatement[] statements = new AttributeStatement[2];
 		AttributeStatementCondition c1 = new AttributeStatementCondition(Type.everybody);
-		statements[0] = new AttributeStatement(new AttributeStatementCondition[]{c1}, 
-				new StringAttribute("foo", null, AttributeVisibility.full, "val1"), 
+		statements[0] = new AttributeStatement(c1, 
+				new StringAttribute("foo", "/A", AttributeVisibility.full, "val1"), 
 				AttributeStatement.ConflictResolution.skip);
 		AttributeStatementCondition c2 = new AttributeStatementCondition(Type.hasSubgroupAttributeValue);
 		c2.setGroup("/A/B");
 		c2.setAttribute(new StringAttribute("foo", "/A/B", AttributeVisibility.full, "ala"));
-		statements[1] = new AttributeStatement(new AttributeStatementCondition[]{c2}, 
-				new StringAttribute("foo", null, AttributeVisibility.full, "val1"), 
+		statements[1] = new AttributeStatement(c2, 
+				new StringAttribute("foo", "/A", AttributeVisibility.full, "val1"), 
 				AttributeStatement.ConflictResolution.skip);
 		a.setAttributeStatements(statements);
 		groupsMan.updateGroup("/A", a);
 		
+		Group root = new Group("should be ignored");
+		root.setDescription("root desc");
+		groupsMan.updateGroup("/", root);
+		
 		GroupContents contentRoot = groupsMan.getContents("/", GroupContents.EVERYTHING);
 		assertEquals(1, contentRoot.getSubGroups().size());
 		assertEquals("/A", contentRoot.getSubGroups().get(0));
+		assertEquals("root desc", contentRoot.getGroup().getDescription());
 		
 		GroupContents contentA = groupsMan.getContents("/A", GroupContents.EVERYTHING);
 		assertEquals("foo", contentA.getGroup().getDescription());
@@ -89,8 +94,7 @@ public class TestGroups extends DBIntegrationTestBase
 		assertEquals("foo", contentA.getGroup().getAttributeStatements()[0].getAssignedAttribute().getName());
 		assertEquals("val1", contentA.getGroup().getAttributeStatements()[0].getAssignedAttribute().
 				getValues().get(0).toString());
-		assertEquals(1, contentA.getGroup().getAttributeStatements()[0].getConditions().length);
-		assertEquals(Type.everybody, contentA.getGroup().getAttributeStatements()[0].getConditions()[0].getType());
+		assertEquals(Type.everybody, contentA.getGroup().getAttributeStatements()[0].getCondition().getType());
 		
 		GroupContents contentAB = groupsMan.getContents("/A/B", GroupContents.EVERYTHING);
 		assertEquals(1, contentAB.getSubGroups().size());
