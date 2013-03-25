@@ -9,12 +9,39 @@
 	<bean class="pl.edu.icm.unity.server.UnityApplication$InnerServerLifecycle"/>
 	<bean class="pl.edu.icm.unity.server.UnityApplication$ShutdownFinished"/>
 
-	<bean class="pl.edu.icm.unity.engine.GroupsManagementImpl"/>
-	<bean class="pl.edu.icm.unity.engine.IdentitiesManagementImpl"/>
-	<bean class="pl.edu.icm.unity.engine.AttributesManagementImpl"/>
-	<bean class="pl.edu.icm.unity.engine.AuthenticationManagementImpl"/>
-	<bean class="pl.edu.icm.unity.engine.ServerManagementImpl"/>
-	<bean class="pl.edu.icm.unity.engine.EndpointManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.GroupsManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.IdentitiesManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.AttributesManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.AuthenticationManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.ServerManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.EndpointManagementImpl"/>
+	
+	<!-- Those beans are the same as the 'primary' beans above, but do not perform authorization. 
+	Must be used with qualifier. -->
+	<bean primary="false" class="pl.edu.icm.unity.engine.GroupsManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.IdentitiesManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.AttributesManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.AuthenticationManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.ServerManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>	
+	<bean primary="false" class="pl.edu.icm.unity.engine.EndpointManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
 
 	<bean class="pl.edu.icm.unity.engine.internal.InternalEndpointManagement"/>
 	<bean class="pl.edu.icm.unity.engine.internal.EngineInitialization"/>
@@ -22,6 +49,9 @@
 	<bean class="pl.edu.icm.unity.engine.internal.IdentityResolverImpl"/>
 	<bean class="pl.edu.icm.unity.engine.internal.EndpointsUpdater"/>
 	<bean class="pl.edu.icm.unity.engine.internal.AttributeStatementsCleaner"/>
+	
+	<bean primary="true" class="pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl"/>
+	<bean primary="false" name="noauthz" class="pl.edu.icm.unity.engine.authz.InternalNoAuthzImpl"/>
 
 	<bean class="pl.edu.icm.unity.sysattrs.SystemAttributeTypes"/>
 </beans>

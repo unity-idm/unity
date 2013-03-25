@@ -83,6 +83,8 @@ public class Group implements Serializable
 	}
 	public String getParentPath()
 	{
+		if (path.length == 0)
+			return null;
 		if (path.length < 2)
 			return "/";
 		StringBuilder sb = new StringBuilder(path.length*10);

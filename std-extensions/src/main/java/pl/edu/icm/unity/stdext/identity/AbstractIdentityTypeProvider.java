@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE file for licensing information.
  */
-package pl.edu.icm.unity.impl.identity;
+package pl.edu.icm.unity.stdext.identity;
 
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 

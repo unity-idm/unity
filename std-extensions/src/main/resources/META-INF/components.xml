@@ -5,9 +5,13 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<context:annotation-config/>
+	<bean class="pl.edu.icm.unity.stdext.identity.PersistentIdentity"/>
 	<bean class="pl.edu.icm.unity.stdext.identity.X500Identity"/>
+	<bean class="pl.edu.icm.unity.stdext.identity.UsernameIdentity"/>
+	
 	<bean class="pl.edu.icm.unity.stdext.attr.StringAttributeSyntax"/>
 	<bean class="pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax"/>
 	
+	<bean class="pl.edu.icm.unity.stdext.credential.PasswordHandlerFactory"/>
 	
 </beans>

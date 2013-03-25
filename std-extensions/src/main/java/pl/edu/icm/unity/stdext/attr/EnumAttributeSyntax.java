@@ -39,6 +39,11 @@ public class EnumAttributeSyntax extends AbstractStringAttributeSyntax
 		setAllowed(allowed);
 	}
 	
+	public EnumAttributeSyntax(Set<String> allowed)
+	{
+		setAllowed(allowed);
+	}
+	
 	public Set<String> getAllowed()
 	{
 		return allowed;
@@ -47,6 +52,14 @@ public class EnumAttributeSyntax extends AbstractStringAttributeSyntax
 	public void setAllowed(String... allowed)
 	{
 		this.allowed = new HashSet<String>(allowed.length);
+		for (String allow: allowed)
+			this.allowed.add(allow);
+		this.allowed = Collections.unmodifiableSet(this.allowed);
+	}
+
+	public void setAllowed(Set<String> allowed)
+	{
+		this.allowed = new HashSet<String>(allowed.size());
 		for (String allow: allowed)
 			this.allowed.add(allow);
 		this.allowed = Collections.unmodifiableSet(this.allowed);

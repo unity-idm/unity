@@ -2,35 +2,24 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE file for licensing information.
  */
-package pl.edu.icm.unity.impl.identity;
+package pl.edu.icm.unity.stdext.identity;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.stereotype.Component;
-
-import eu.emi.security.authn.x509.impl.X500NameUtils;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
- * Identity type definition holding a persistent id. It is associated with each and every entity. 
- * Can not be removed, without removing the whole containing entity.
+ * Simple username identity type definition
  * @author K. Benedyczak
  */
 @Component
-public class PersistentIdentity extends AbstractIdentityTypeProvider
+public class UsernameIdentity extends AbstractIdentityTypeProvider
 {
-	public static final String ID = "persistent";
-	private static final List<Attribute<?>> empty = Collections.unmodifiableList(new ArrayList<Attribute<?>>(0));
-	
-	public static String getNewId()
-	{
-		return UUID.randomUUID().toString();
-	}
+	public static final String ID = "userName";
 	
 	/**
 	 * {@inheritDoc}
@@ -47,7 +36,7 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	@Override
 	public String getDefaultDescription()
 	{
-		return "Persistent id";
+		return "Username";
 	}
 
 	/**
@@ -57,6 +46,7 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	public List<String> getAttributesSupportedForExtraction()
 	{
 		return Collections.emptyList();
+		//throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
 	}
 
 	/**
@@ -65,6 +55,10 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	@Override
 	public void validate(String value) throws IllegalIdentityValueException
 	{
+		if (value == null || value.trim().length() == 0)
+		{
+			throw new IllegalIdentityValueException("Username must be non empty");
+		}
 	}
 
 	/**
@@ -82,7 +76,7 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	@Override
 	public List<Attribute<?>> extractAttributes(String from, List<String> toExtract)
 	{
-		return empty; 
+		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
 	}
 
 	/**
@@ -91,12 +85,13 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	@Override
 	public String toPrettyStringNoPrefix(String from)
 	{
-		return X500NameUtils.getReadableForm(from);
+		return from;
 	}
 
 	@Override
 	public boolean isSystem()
 	{
-		return true;
+		return false;
 	}
+
 }

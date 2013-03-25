@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
+import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -39,16 +41,18 @@ public class AttributesManagementImpl implements AttributesManagement
 	private DBSessionManager db;
 	private DBAttributes dbAttributes;
 	private IdentitiesResolver idResolver;
+	private AuthorizationManager authz;
 	
 	@Autowired
 	public AttributesManagementImpl(AttributeValueTypesRegistry attrValueTypesReg,
-			DBSessionManager db, IdentitiesResolver idResolver, 
-			DBAttributes dbAttributes)
+			DBSessionManager db, DBAttributes dbAttributes,
+			IdentitiesResolver idResolver, AuthorizationManager authz)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
 		this.db = db;
 		this.dbAttributes = dbAttributes;
 		this.idResolver = idResolver;
+		this.authz = authz;
 	}
 
 	/**
@@ -57,6 +61,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	@Override
 	public String[] getSupportedAttributeValueTypes() throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
 		Collection<AttributeValueSyntax<?>> all = attrValueTypesReg.getAll();
 		String[] ret = new String[all.size()];
 		Iterator<AttributeValueSyntax<?>> it = all.iterator();
@@ -74,6 +79,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		toAdd.validateInitialization();
 		if (toAdd.getFlags() != 0)
 			throw new IllegalAttributeTypeException("Custom attribute types must not have any flags set");
+		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -100,6 +106,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	@Override
 	public void removeAttributeType(String id, boolean deleteInstances) throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -123,6 +130,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	@Override
 	public List<AttributeType> getAttributeTypes() throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
 		SqlSession sql = db.getSqlSession(false);
 		try
 		{
@@ -174,6 +182,9 @@ public class AttributesManagementImpl implements AttributesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sql);
+			AttributeType at = dbAttributes.getAttributeType(attribute.getName(), sql);
+			authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId), 
+					attribute.getGroupPath(), AuthzCapability.attributeModify);
 			dbAttributes.addAttribute(entityId, attribute, update, sql);
 			sql.commit();
 		} finally
@@ -181,7 +192,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			db.releaseSqlSession(sql);
 		}
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -199,6 +210,9 @@ public class AttributesManagementImpl implements AttributesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sql);
+			AttributeType at = dbAttributes.getAttributeType(attributeTypeId, sql);
+			authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId),
+					groupPath, AuthzCapability.attributeModify);
 			dbAttributes.removeAttribute(entityId, groupPath, attributeTypeId, sql);
 			sql.commit();
 		} finally
@@ -214,7 +228,8 @@ public class AttributesManagementImpl implements AttributesManagement
 	public Collection<Attribute<?>> getAttributes(EntityParam entity, String groupPath,
 			String attributeTypeId) throws EngineException
 	{
-		Collection<Attribute<?>> ret = getAllAttributesInternal(entity, groupPath, attributeTypeId);
+		Collection<Attribute<?>> ret = getAllAttributesInternal(entity, groupPath, attributeTypeId, 
+				AuthzCapability.read);
 		filterLocal(ret);
 		return ret;
 	}
@@ -226,7 +241,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	public Collection<Attribute<?>> getAllAttributes(EntityParam entity, String groupPath,
 			String attributeTypeId) throws EngineException
 	{
-		return getAllAttributesInternal(entity, groupPath, attributeTypeId);
+		return getAllAttributesInternal(entity, groupPath, attributeTypeId, AuthzCapability.attributeModify);
 	}
 
 	private void filterLocal(Collection<Attribute<?>> unfiltered)
@@ -241,14 +256,14 @@ public class AttributesManagementImpl implements AttributesManagement
 	}
 	
 	private Collection<Attribute<?>> getAllAttributesInternal(EntityParam entity, String groupPath,
-			String attributeTypeName) throws EngineException
+			String attributeTypeName, AuthzCapability requiredCapability) throws EngineException
 	{
 		entity.validateInitialization();
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sql);
-			
+			authz.checkAuthorization(authz.isSelf(entityId), groupPath, requiredCapability);
 			Collection<Attribute<?>> ret = dbAttributes.getAllAttributes(entityId, groupPath, 
 					attributeTypeName, sql);
 			sql.commit();

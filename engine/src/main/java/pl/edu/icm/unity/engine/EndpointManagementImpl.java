@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
+import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.internal.EndpointsUpdater;
 import pl.edu.icm.unity.engine.internal.InternalEndpointManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -43,12 +45,13 @@ public class EndpointManagementImpl implements EndpointManagement
 	private JettyServer httpServer;
 	private InternalEndpointManagement internalManagement;
 	private EndpointsUpdater endpointsUpdater;
+	private AuthorizationManager authz;
 	
 	@Autowired
 	public EndpointManagementImpl(EndpointFactoriesRegistry endpointFactoriesReg,
 			DBSessionManager db, DBGeneric dbGeneric, JettyServer httpServer,
-			InternalEndpointManagement internalManagement, 
-			EndpointsUpdater endpointsUpdater)
+			InternalEndpointManagement internalManagement,
+			EndpointsUpdater endpointsUpdater, AuthorizationManager authz)
 	{
 		this.endpointFactoriesReg = endpointFactoriesReg;
 		this.db = db;
@@ -56,6 +59,7 @@ public class EndpointManagementImpl implements EndpointManagement
 		this.httpServer = httpServer;
 		this.internalManagement = internalManagement;
 		this.endpointsUpdater = endpointsUpdater;
+		this.authz = authz;
 	}
 
 
@@ -63,6 +67,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	@Override
 	public List<EndpointTypeDescription> getEndpointTypes()
 	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
 		return endpointFactoriesReg.getDescriptions();
 	}
 
@@ -80,6 +85,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	public EndpointDescription deploy(String typeId, String endpointName, String address, String description,
 			List<AuthenticatorSet> authn, String jsonConfiguration) throws EngineException 
 	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
 		synchronized(internalManagement)
 		{
 			return deployInt(typeId, endpointName, address, description, authn, jsonConfiguration);
@@ -121,6 +127,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	@Override
 	public List<EndpointDescription> getEndpoints()
 	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
 		List<WebAppEndpointInstance> endpoints = httpServer.getDeployedEndpoints();
 		List<EndpointDescription> ret = new ArrayList<EndpointDescription>(endpoints.size());
 		for (WebAppEndpointInstance endpI: endpoints)
@@ -131,6 +138,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	@Override
 	public void undeploy(String id) throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
 		synchronized(internalManagement)
 		{
 			undeployInt(id);
@@ -162,6 +170,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	public void updateEndpoint(String id, String description, List<AuthenticatorSet> authn,
 			String jsonConfiguration) throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
 		synchronized(internalManagement)
 		{
 			updateEndpointInt(id, description, jsonConfiguration, authn);

@@ -24,6 +24,8 @@ import pl.edu.icm.unity.engine.authn.AuthenticatorImpl;
 import pl.edu.icm.unity.engine.authn.CredentialHolder;
 import pl.edu.icm.unity.engine.authn.CredentialRequirementsHolder;
 import pl.edu.icm.unity.engine.authn.CredentialRequirementsSerializer;
+import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.internal.EndpointsUpdater;
 import pl.edu.icm.unity.engine.internal.EngineHelper;
 import pl.edu.icm.unity.engine.internal.InternalEndpointManagement;
@@ -64,12 +66,14 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	private EngineHelper engineHelper;
 	private EndpointsUpdater endpointsUpdater;
 	private DBAttributes dbAttributes;
+	private AuthorizationManager authz;
 	
 	@Autowired
 	public AuthenticationManagementImpl(AuthenticatorsRegistry authReg, DBSessionManager db,
 			DBGeneric dbGeneric, InternalEndpointManagement internalEndpointManagement,
 			IdentityResolver identityResolver, EngineHelper engineHelper,
-			EndpointsUpdater endpointsUpdater, DBAttributes dbAttributes)
+			EndpointsUpdater endpointsUpdater, DBAttributes dbAttributes,
+			AuthorizationManager authz)
 	{
 		this.authReg = authReg;
 		this.db = db;
@@ -79,6 +83,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 		this.engineHelper = engineHelper;
 		this.endpointsUpdater = endpointsUpdater;
 		this.dbAttributes = dbAttributes;
+		this.authz = authz;
 	}
 
 
@@ -87,6 +92,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	public Collection<AuthenticatorTypeDescription> getAuthenticatorTypes(String bindingId)
 			throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
 		if (bindingId == null)
 			return authReg.getAuthenticators();
 		return authReg.getAuthenticatorsByBinding(bindingId);
@@ -96,6 +102,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	public AuthenticatorInstance createAuthenticator(String id, String typeId, String jsonVerificatorConfig,
 			String jsonRetrievalConfig, String credentialName) throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
 		AuthenticatorImpl authenticator = new AuthenticatorImpl(identityResolver, authReg, id, typeId, 
 				jsonRetrievalConfig, jsonVerificatorConfig);
 		SqlSession sql = db.getSqlSession(true);
@@ -122,6 +129,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	public Collection<AuthenticatorInstance> getAuthenticators(String bindingId)
 			throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
 		List<AuthenticatorInstance> ret = new ArrayList<AuthenticatorInstance>();
 		SqlSession sql = db.getSqlSession(true);
 		try
@@ -145,6 +153,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	public void updateAuthenticator(String id, String jsonVerificatorConfig,
 			String jsonRetrievalConfig) throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -163,6 +172,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	@Override
 	public void removeAuthenticator(String id) throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -192,12 +202,14 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	@Override
 	public Collection<CredentialType> getCredentialTypes() throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
 		return authReg.getLocalCredentialTypes();
 	}
 
 	@Override
 	public void addCredentialRequirement(CredentialRequirements toAdd) throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -219,10 +231,12 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 		}
 	}
 
+	
 	@Override
 	public Collection<CredentialRequirements> getCredentialRequirements()
 			throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
 		List<CredentialRequirements> ret = new ArrayList<CredentialRequirements>();
 		SqlSession sql = db.getSqlSession(true);
 		try
@@ -246,6 +260,8 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	public void updateCredentialRequirement(CredentialRequirements updated,
 			LocalAuthenticationState desiredAuthnState) throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -279,6 +295,8 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	public void removeCredentialRequirement(String toRemove, String replacementId,
 			LocalAuthenticationState desiredAuthnState) throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -316,6 +334,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	public void addCredentialDefinition(CredentialDefinition credentialDefinition)
 			throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
 		CredentialHolder helper = new CredentialHolder(credentialDefinition, authReg);
 		SqlSession sql = db.getSqlSession(true);
 		try
@@ -332,11 +351,12 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 		}
 	}
 
-
 	@Override
 	public void updateCredentialDefinition(CredentialDefinition updated,
 			LocalAuthenticationState desiredAuthnState) throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+
 		CredentialHolder helper = new CredentialHolder(updated, authReg);
 		SqlSession sql = db.getSqlSession(true);
 		try
@@ -379,6 +399,8 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	@Override
 	public void removeCredentialDefinition(String toRemove) throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -419,6 +441,8 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	@Override
 	public Collection<CredentialDefinition> getCredentialDefinitions() throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+
 		List<CredentialDefinition> ret;
 		SqlSession sql = db.getSqlSession(true);
 		try

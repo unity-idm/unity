@@ -4,8 +4,10 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
@@ -15,13 +17,20 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
- * X.500 identity type definition
+ * Identity type definition holding a persistent id. It is associated with each and every entity. 
+ * Can not be removed, without removing the whole containing entity.
  * @author K. Benedyczak
  */
 @Component
-public class X500Identity extends AbstractIdentityTypeProvider
+public class PersistentIdentity extends AbstractIdentityTypeProvider
 {
-	public static final String ID = "x500Name";
+	public static final String ID = "persistent";
+	private static final List<Attribute<?>> empty = Collections.unmodifiableList(new ArrayList<Attribute<?>>(0));
+	
+	public static String getNewId()
+	{
+		return UUID.randomUUID().toString();
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -38,7 +47,7 @@ public class X500Identity extends AbstractIdentityTypeProvider
 	@Override
 	public String getDefaultDescription()
 	{
-		return "X.500 Distinguished Name";
+		return "Persistent id";
 	}
 
 	/**
@@ -48,7 +57,6 @@ public class X500Identity extends AbstractIdentityTypeProvider
 	public List<String> getAttributesSupportedForExtraction()
 	{
 		return Collections.emptyList();
-		//throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
 	}
 
 	/**
@@ -57,14 +65,6 @@ public class X500Identity extends AbstractIdentityTypeProvider
 	@Override
 	public void validate(String value) throws IllegalIdentityValueException
 	{
-		try
-		{
-			X500NameUtils.getX500Principal(value);
-		} catch (Exception e)
-		{
-			throw new IllegalIdentityValueException("DN is invalid: " + 
-					e.getMessage(), e);
-		}
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class X500Identity extends AbstractIdentityTypeProvider
 	@Override
 	public String getComparableValue(String from)
 	{
-		return X500NameUtils.getComparableForm(from);
+		return from;
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class X500Identity extends AbstractIdentityTypeProvider
 	@Override
 	public List<Attribute<?>> extractAttributes(String from, List<String> toExtract)
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		return empty; 
 	}
 
 	/**
@@ -97,7 +97,6 @@ public class X500Identity extends AbstractIdentityTypeProvider
 	@Override
 	public boolean isSystem()
 	{
-		return false;
+		return true;
 	}
-
 }

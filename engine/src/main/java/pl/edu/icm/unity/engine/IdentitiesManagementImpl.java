@@ -20,14 +20,16 @@ import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authn.CredentialRequirementsHolder;
+import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.internal.EngineHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
-import pl.edu.icm.unity.impl.identity.PersistentIdentity;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.LocalCredentialHandler;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
@@ -55,19 +57,21 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	private DBAttributes dbAttributes;
 	private IdentitiesResolver idResolver;
 	private EngineHelper engineHelper;
+	private AuthorizationManager authz;
 
 	@Autowired
 	public IdentitiesManagementImpl(DBSessionManager db, DBIdentities dbIdentities,
-			DBGroups dbGroups, DBAttributes dbAttributes, 
-			IdentitiesResolver idResolver, EngineHelper engineHelper)
+			DBGroups dbGroups, DBAttributes dbAttributes,
+			IdentitiesResolver idResolver, EngineHelper engineHelper,
+			AuthorizationManager authz)
 	{
-		super();
 		this.db = db;
 		this.dbIdentities = dbIdentities;
 		this.dbGroups = dbGroups;
 		this.dbAttributes = dbAttributes;
 		this.idResolver = idResolver;
 		this.engineHelper = engineHelper;
+		this.authz = authz;
 	}
 
 
@@ -77,6 +81,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	@Override
 	public List<IdentityType> getIdentityTypes() throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
@@ -109,6 +114,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		if (initialCredentialState == LocalAuthenticationState.valid)
 			throw new IllegalArgumentException("Can not set 'valid' credential state for a new identity," +
 					"without any credential defined");
+		authz.checkAuthorization(AuthzCapability.identityModify);
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
@@ -134,7 +140,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			db.releaseSqlSession(sqlMap);
 		}
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -148,6 +154,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(parentEntity, sqlMap);
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
 			Identity ret = dbIdentities.insertIdentity(toAdd, entityId, sqlMap);
 			sqlMap.commit();
 			return ret;
@@ -164,10 +171,11 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	public void removeIdentity(IdentityTaV toRemove) throws EngineException
 	{
 		toRemove.validateInitialization();
-		
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
+			long entityId = idResolver.getEntityId(new EntityParam(toRemove), sqlMap);
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
 			dbIdentities.removeIdentity(toRemove, sqlMap);
 			sqlMap.commit();
 		} finally
@@ -187,7 +195,9 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
-			dbIdentities.removeEntity(toRemove, sqlMap);
+			long entityId = idResolver.getEntityId(toRemove, sqlMap);
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
+			dbIdentities.removeEntity(entityId, sqlMap);
 			sqlMap.commit();
 		} finally
 		{
@@ -207,6 +217,8 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
+			long entityId = idResolver.getEntityId(new EntityParam(toChange), sqlMap);
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
 			dbIdentities.setIdentityStatus(toChange, status, sqlMap);
 			sqlMap.commit();
 		} finally
@@ -226,6 +238,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
 			Identity[] identities = dbIdentities.getIdentitiesForEntity(entityId, sqlMap);
 			CredentialInfo credInfo = getCredentialInfo(entityId, sqlMap);
 			Entity ret = new Entity(entityId+"", identities, credInfo);
@@ -246,6 +259,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
 			if (desiredAuthnState == LocalAuthenticationState.valid)
 			{
 				CredentialRequirementsHolder newCredReqs = engineHelper.getCredentialRequirements(
@@ -275,7 +289,9 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
-			Map<String, Attribute<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(entityId, "/", null, sqlMap);
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.credentialModify);
+			Map<String, Attribute<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(
+					entityId, "/", null, sqlMap);
 			
 			Attribute<?> credReqA = attributes.get(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS);
 			String credentialRequirements = (String)credReqA.getValues().get(0);

@@ -43,7 +43,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	@Test
 	public void testCreateAttribute() throws Exception
 	{
-		setupAuthn();
+		setupMockAuthn();
 		groupsMan.addGroup(new Group("/test"));
 		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "cn=golbi", true, true), "crMock", 
 				LocalAuthenticationState.disabled);
@@ -140,7 +140,8 @@ public class TestAttributes extends DBIntegrationTestBase
 	@Test
 	public void testCreateType() throws Exception
 	{
-		final int sa = systemAttributeTypes.getSystemAttributes().size();
+		int automaticAttributes = 1;
+		final int sa = systemAttributeTypes.getSystemAttributes().size()+automaticAttributes;
 		List<AttributeType> ats = attrsMan.getAttributeTypes();
 		assertEquals(sa, ats.size());
 
@@ -185,7 +186,7 @@ public class TestAttributes extends DBIntegrationTestBase
 		} catch (IllegalAttributeTypeException e) {/*OK*/}
 		
 		//warning - this adds one more attribute type (with credential)
-		setupAuthn();
+		setupMockAuthn();
 		//remove one without attributes
 		attrsMan.removeAttributeType("some", false);
 		ats = attrsMan.getAttributeTypes();

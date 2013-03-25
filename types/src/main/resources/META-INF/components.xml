@@ -6,6 +6,5 @@
 
 	<context:annotation-config/>
 	
-	<bean class="pl.edu.icm.unity.impl.identity.PersistentIdentity"/>
 	<bean class="com.fasterxml.jackson.databind.ObjectMapper"/>
 </beans>

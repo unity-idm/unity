@@ -10,8 +10,8 @@ package pl.edu.icm.unity.db.model;
  */
 public class GroupElementBean
 {
-	long groupId;
-	long elementId;
+	private long groupId;
+	private long elementId;
 
 	public GroupElementBean()
 	{

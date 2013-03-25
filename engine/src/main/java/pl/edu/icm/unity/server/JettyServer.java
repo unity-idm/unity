@@ -98,7 +98,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 	}
 
 	@Override
-	protected Handler createRootHandler() throws ConfigurationException
+	protected synchronized Handler createRootHandler() throws ConfigurationException
 	{
 		usedContextPaths = new HashSet<String>();
 		ContextHandlerCollection handlersCollection = new ContextHandlerCollection();

@@ -38,8 +38,6 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	private Group groupAZ;
 	private Group groupABC;
 	
-	
-	
 	@Test
 	public void testSimple() throws Exception
 	{
@@ -507,7 +505,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	
 	private void setupStateForConditions() throws Exception
 	{
-		setupAuthn();
+		setupMockAuthn();
 		
 		AttributeType at = createSimpleAT("a1");
 		attrsMan.addAttributeType(at);

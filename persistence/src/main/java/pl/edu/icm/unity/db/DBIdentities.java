@@ -21,7 +21,6 @@ import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -77,6 +76,13 @@ public class DBIdentities
 		mapper.insertIdentityType(toAdd);
 	}
 	
+	/**
+	 * 
+	 * @param toAdd
+	 * @param entityId can be null if a new entity should be created
+	 * @param sqlMap
+	 * @return
+	 */
 	public Identity insertIdentity(IdentityParam toAdd, Long entityId, SqlSession sqlMap)
 	{
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
@@ -158,9 +164,8 @@ public class DBIdentities
 		mapper.deleteIdentity(cmpVal);
 	}
 	
-	public void removeEntity(EntityParam toRemove, SqlSession sqlMap)
+	public void removeEntity(long entityId, SqlSession sqlMap)
 	{
-		long entityId = idResolver.getEntityId(toRemove, sqlMap);
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
 		mapper.deleteEntity(entityId);
 	}

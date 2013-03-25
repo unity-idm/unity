@@ -40,7 +40,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 	public void testAuthentication() throws Exception
 	{
 		//create credential requirement and an identity with it 
-		super.setupAuthn();
+		super.setupMockAuthn();
 		
 		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=foo", true, false), 
 				"crMock", LocalAuthenticationState.outdated);
@@ -76,7 +76,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 	public void testAuthnManagement() throws Exception
 	{
 		//create credential definition
-		super.setupAuthn();
+		super.setupMockAuthn();
 
 		//get authn types
 		Collection<AuthenticatorTypeDescription> authTypes = authnMan.getAuthenticatorTypes("web");
@@ -148,10 +148,13 @@ public class TestAuthentication extends DBIntegrationTestBase
 	@Test
 	public void testCredentialsManagement() throws Exception
 	{
+		int automaticCredTypes = 1;
+		int automaticCreds = 1;
+		int automaticCredReqs = 1;
 		//check if credential types are returned
 		Collection<CredentialType> credTypes = authnMan.getCredentialTypes();
-		assertEquals(1, credTypes.size());
-		CredentialType credType = credTypes.iterator().next();
+		assertEquals(1+automaticCredTypes, credTypes.size());
+		CredentialType credType = getDescObjectByName(credTypes, MockPasswordHandlerFactory.ID);
 		assertEquals(MockPasswordHandlerFactory.ID, credType.getName());
 		
 		//add credential definition
@@ -162,8 +165,8 @@ public class TestAuthentication extends DBIntegrationTestBase
 		
 		//check if is correctly returned
 		Collection<CredentialDefinition> credDefs = authnMan.getCredentialDefinitions();
-		assertEquals(1, credDefs.size());
-		CredentialDefinition credDefRet = credDefs.iterator().next();
+		assertEquals(1+automaticCreds, credDefs.size());
+		CredentialDefinition credDefRet = getDescObjectByName(credDefs, "credential1");
 		assertEquals("credential1", credDefRet.getName());
 		assertEquals("cred req desc", credDefRet.getDescription());
 		assertEquals(MockPasswordHandlerFactory.ID, credDefRet.getTypeId());
@@ -174,8 +177,8 @@ public class TestAuthentication extends DBIntegrationTestBase
 		credDefRet.setJsonConfiguration("9");
 		authnMan.updateCredentialDefinition(credDefRet, LocalAuthenticationState.valid);
 		credDefs = authnMan.getCredentialDefinitions();
-		assertEquals(1, credDefs.size());
-		credDefRet = credDefs.iterator().next();
+		assertEquals(1+automaticCreds, credDefs.size());
+		credDefRet = getDescObjectByName(credDefs, "credential1");
 		assertEquals("credential1", credDefRet.getName());
 		assertEquals("d2", credDefRet.getDescription());
 		assertEquals(MockPasswordHandlerFactory.ID, credDefRet.getTypeId());
@@ -184,7 +187,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		//remove
 		authnMan.removeCredentialDefinition("credential1");
 		credDefs = authnMan.getCredentialDefinitions();
-		assertEquals(0, credDefs.size());
+		assertEquals(automaticCreds, credDefs.size());
 
 		//add it again
 		authnMan.addCredentialDefinition(credDef);
@@ -209,8 +212,8 @@ public class TestAuthentication extends DBIntegrationTestBase
 		
 		//check if are correctly returned
 		Collection<CredentialRequirements> credReqs = authnMan.getCredentialRequirements();
-		assertEquals(1, credReqs.size());
-		CredentialRequirements credReq1 = credReqs.iterator().next();
+		assertEquals(1+automaticCredReqs, credReqs.size());
+		CredentialRequirements credReq1 = getDescObjectByName(credReqs, "crMock");
 		assertEquals("crMock", credReq1.getName());
 		assertEquals("mock cred req", credReq1.getDescription());
 		assertEquals(1, credReq1.getRequiredCredentials().size());
@@ -219,8 +222,8 @@ public class TestAuthentication extends DBIntegrationTestBase
 		credReq1.setDescription("changed");
 		authnMan.updateCredentialRequirement(credReq1, LocalAuthenticationState.valid);
 		credReqs = authnMan.getCredentialRequirements();
-		assertEquals(1, credReqs.size());
-		credReq1 = credReqs.iterator().next();
+		assertEquals(1+automaticCredReqs, credReqs.size());
+		credReq1 = getDescObjectByName(credReqs, "crMock");
 		assertEquals("crMock", credReq1.getName());
 		assertEquals("changed", credReq1.getDescription());
 		
@@ -291,7 +294,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		
 		authnMan.removeCredentialRequirement("crMock2", "crMock", LocalAuthenticationState.disabled);
 		credReqs = authnMan.getCredentialRequirements();
-		assertEquals(1, credReqs.size());
+		assertEquals(1+automaticCredReqs, credReqs.size());
 		entity = idsMan.getEntity(entityP);
 		assertEquals(LocalAuthenticationState.disabled, entity.getCredentialInfo().getAuthenticationState());
 

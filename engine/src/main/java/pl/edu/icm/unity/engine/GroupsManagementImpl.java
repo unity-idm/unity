@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
+import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -28,18 +31,24 @@ public class GroupsManagementImpl implements GroupsManagement
 {
 	private DBSessionManager db;
 	private DBGroups dbGroups;
+	private AuthorizationManager authz;
+	private IdentitiesResolver idResolver;
 	
 	@Autowired
-	public GroupsManagementImpl(DBSessionManager db, DBGroups dbGroups)
+	public GroupsManagementImpl(DBSessionManager db, DBGroups dbGroups,
+			AuthorizationManager authz, IdentitiesResolver idResolver)
 	{
 		this.db = db;
 		this.dbGroups = dbGroups;
+		this.authz = authz;
+		this.idResolver = idResolver;
 	}
 
 	@Override
 	public void addGroup(Group toAdd) throws EngineException
 	{
 		validateGroupStatements(toAdd);
+		authz.checkAuthorization(toAdd.getParentPath(), AuthzCapability.groupModify);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -66,6 +75,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	@Override
 	public void removeGroup(String path, boolean recursive) throws EngineException
 	{
+		authz.checkAuthorization(path, AuthzCapability.groupModify);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -90,6 +100,8 @@ public class GroupsManagementImpl implements GroupsManagement
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
+			long entityId = idResolver.getEntityId(entity, sql);
+			authz.checkAuthorization(authz.isSelf(entityId), path, AuthzCapability.groupModify);
 			dbGroups.addMemberFromParent(path, entity, sql);
 			sql.commit();
 		} finally
@@ -105,6 +117,8 @@ public class GroupsManagementImpl implements GroupsManagement
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
+			long entityId = idResolver.getEntityId(entity, sql);
+			authz.checkAuthorization(authz.isSelf(entityId), path, AuthzCapability.groupModify);
 			dbGroups.removeMember(path, entity, sql);
 			sql.commit();
 		} finally
@@ -116,6 +130,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	@Override
 	public GroupContents getContents(String path, int filter) throws EngineException
 	{
+		authz.checkAuthorization(path, AuthzCapability.read);
 		SqlSession sql = db.getSqlSession(true);
 		try 
 		{
@@ -132,6 +147,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	public void updateGroup(String path, Group group) throws EngineException
 	{
 		validateGroupStatements(group);
+		authz.checkAuthorization(path, AuthzCapability.groupModify);
 		SqlSession sql = db.getSqlSession(true);
 		try 
 		{

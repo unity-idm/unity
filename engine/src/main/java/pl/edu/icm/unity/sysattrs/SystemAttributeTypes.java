@@ -6,11 +6,12 @@ package pl.edu.icm.unity.sysattrs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.internal.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -31,11 +32,14 @@ public class SystemAttributeTypes
 	public static final String CREDENTIAL_PREFIX = "sys:Credential:";
 	public static final String AUTHORIZATION_LEVEL = "sys:AuthorizationLevel";
 	
+	private AuthorizationManager authz;
+	
 	private List<AttributeType> systemAttributes = new ArrayList<AttributeType>();
 	
 	@Autowired
-	public SystemAttributeTypes(AuthenticatorsRegistry authReg)
+	public SystemAttributeTypes(AuthenticatorsRegistry authReg, AuthorizationManager authz)
 	{
+		this.authz = authz;
 		systemAttributes.add(getCredentialRequirementsAT());
 		systemAttributes.add(getCredentialsStateAT());
 		systemAttributes.add(getAuthozationRoleAT());
@@ -68,7 +72,7 @@ public class SystemAttributeTypes
 
 	private AttributeType getAuthozationRoleAT()
 	{
-		String[] vals = getEnumAsStrings(AuthorizationManager.AuthzLevel.values());
+		Set<String> vals = authz.getRoleNames();
 		AttributeType authorizationAt = new AttributeType(AUTHORIZATION_LEVEL, new EnumAttributeSyntax(vals));
 		authorizationAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.NO_VALUES_LIMITING_FLAG);
 		authorizationAt.setDescription("Defines what operations are allowed for the bearer.");

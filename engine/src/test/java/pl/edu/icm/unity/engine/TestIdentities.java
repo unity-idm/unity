@@ -12,7 +12,8 @@ import org.junit.Test;
 
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.impl.identity.PersistentIdentity;
+import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -30,15 +31,16 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void testSyntaxes() throws Exception
 	{
 		List<IdentityType> idTypes = idsMan.getIdentityTypes();
-		assertEquals(2, idTypes.size());
-		assertEquals(PersistentIdentity.ID, idTypes.get(0).getIdentityTypeProvider().getId());
-		assertEquals(X500Identity.ID, idTypes.get(1).getIdentityTypeProvider().getId());
+		assertEquals(3, idTypes.size());
+		assertNotNull(getIdentityTypeByName(idTypes, PersistentIdentity.ID));
+		assertNotNull(getIdentityTypeByName(idTypes, X500Identity.ID));
+		assertNotNull(getIdentityTypeByName(idTypes, UsernameIdentity.ID));
 	}
 
 	@Test
 	public void testCreate() throws Exception
 	{
-		setupAuthn();
+		setupMockAuthn();
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi", true, true);
 		Identity id = idsMan.addIdentity(idParam, "crMock", LocalAuthenticationState.disabled);
 		assertNotNull(id.getEntityId());
@@ -65,9 +67,9 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertEquals(false, entity.getIdentities()[2].isEnabled());
 		
 		GroupContents contents = groupsMan.getContents("/", GroupContents.MEMBERS);
-		assertEquals(1, contents.getMembers().size());
-		assertEquals(id.getEntityId(), contents.getMembers().get(0));
-		
+		assertEquals(2, contents.getMembers().size());
+		assertTrue(contents.getMembers().contains(id.getEntityId()));
+
 		groupsMan.addGroup(new Group("/test"));
 		groupsMan.addMemberFromParent("/test", new EntityParam(id.getEntityId()));
 		contents = groupsMan.getContents("/test", GroupContents.MEMBERS);
@@ -121,6 +123,6 @@ public class TestIdentities extends DBIntegrationTestBase
 		} catch (IllegalIdentityValueException e) {}
 		
 		contents = groupsMan.getContents("/", GroupContents.MEMBERS);
-		assertEquals(0, contents.getMembers().size());
+		assertEquals(1, contents.getMembers().size());
 	}
 }

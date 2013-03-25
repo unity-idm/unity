@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.internal;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,20 +17,37 @@ import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBAttributes;
+import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import pl.edu.icm.unity.stdext.attr.EnumAttribute;
+import pl.edu.icm.unity.stdext.credential.PasswordHandlerFactory;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
+import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
@@ -45,10 +63,13 @@ public class EngineInitialization extends LifecycleBase
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, EngineInitialization.class);
 	public static final int ENGINE_INITIALIZATION_MOMENT = 0;
+	public static final String DEFAULT_CREDENTIAL = "Password credential";
+	public static final String DEFAULT_CREDENTIAL_REQUIREMENT = "Password requirement";
 	
 	@Autowired
 	private InternalEndpointManagement internalEndpointManager;
 	@Autowired
+	@Qualifier("insecure")
 	private EndpointManagement endpointManager;
 	@Autowired
 	private UnityServerConfiguration config;
@@ -58,6 +79,17 @@ public class EngineInitialization extends LifecycleBase
 	private DBAttributes dbAttributes;
 	@Autowired
 	private DBIdentities dbIdentities;
+	@Autowired
+	private DBGroups dbGroups;
+	@Autowired
+	@Qualifier("insecure")
+	private IdentitiesManagement idManagement;
+	@Autowired
+	@Qualifier("insecure")
+	private AuthenticationManagement authnManagement;
+	@Autowired
+	@Qualifier("insecure")
+	private AttributesManagement attrManagement;
 	@Autowired
 	private SystemAttributeTypes sysTypes;
 	@Autowired
@@ -124,6 +156,7 @@ public class EngineInitialization extends LifecycleBase
 	{
 		initializeIdentityTypes();
 		initializeAttributeTypes();
+		initializeAdminUser();
 		initializeEndpoints();
 	}
 	
@@ -179,6 +212,51 @@ public class EngineInitialization extends LifecycleBase
 			db.releaseSqlSession(sql);
 		}
 
+	}
+	
+	private void initializeAdminUser()
+	{
+		SqlSession sql = db.getSqlSession(true);
+		GroupContents contents;
+		try
+		{
+			contents = dbGroups.getContents("/", GroupContents.MEMBERS, sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
+		
+		try
+		{
+			if (contents.getMembers().size() == 0)
+			{
+				log.info("Database contains no users, adding the admin user and the " +
+						"default credential settings");
+				CredentialDefinition credDef = new CredentialDefinition(PasswordHandlerFactory.ID, 
+						DEFAULT_CREDENTIAL, "Default password credential with typical security settings.");
+				authnManagement.addCredentialDefinition(credDef);
+				
+				CredentialRequirements crDef = new CredentialRequirements(DEFAULT_CREDENTIAL_REQUIREMENT, 
+						"Default password credential requirement", 
+						Collections.singleton(credDef.getName()));
+				authnManagement.addCredentialRequirement(crDef);
+
+				IdentityParam admin = new IdentityParam(UsernameIdentity.ID, "admin", true, true);
+				Identity adminId = idManagement.addIdentity(admin, crDef.getName(), 
+						LocalAuthenticationState.outdated);
+				
+				EntityParam adminEntity = new EntityParam(adminId.getEntityId());
+				idManagement.setEntityCredential(adminEntity, credDef.getName(), "admin");
+				EnumAttribute roleAt = new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_LEVEL,
+						"/", AttributeVisibility.local, 
+						AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE);
+				attrManagement.setAttribute(adminEntity, roleAt, false);
+			}
+		} catch (EngineException e)
+		{
+			throw new RuntimeEngineException("Initialization problem when creating admin user", e);
+		}
 	}
 	
 	private void initializeEndpoints()

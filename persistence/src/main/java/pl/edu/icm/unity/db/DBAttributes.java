@@ -272,8 +272,6 @@ public class DBAttributes
 		return ret;
 	}
 	
-	
-	
 	private Set<String> getAllGroups(long entityId, GroupsMapper gMapper)
 	{
 		List<GroupBean> groups = gMapper.getGroups4Entity(entityId);
