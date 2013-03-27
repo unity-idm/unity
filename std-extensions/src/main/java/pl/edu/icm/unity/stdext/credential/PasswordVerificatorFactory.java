@@ -27,14 +27,13 @@ public class PasswordVerificatorFactory implements LocalCredentialVerificatorFac
 	@Override
 	public String getDescription()
 	{
-		return "Varifies passwords";
+		return "Verifies passwords";
 	}
 
 	@Override
 	public LocalCredentialVerificator newInstance()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return new PasswordVerificator(getName(), getDescription());
 	}
 
 }

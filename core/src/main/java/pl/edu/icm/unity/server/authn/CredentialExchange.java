@@ -10,7 +10,7 @@ package pl.edu.icm.unity.server.authn;
  * The actual exchange process might be complicated and require several interactions. E.g.
  * challenge based verificator might first give a challenge to the retrieval and then retrieval
  * return the challenge response. Typical implementation will define a method setting a callback.
- * The method will be invoked by verificator, and callback activated by retriever.
+ * The method will be implemented by verificator, and used by retriever.
  * <p>
  * Example credentials: SAML (IdP name/address), OpenID (IdP name/address), Username and password,
  * XX challenge, SMS

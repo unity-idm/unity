@@ -110,9 +110,17 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 		{
 			if (authenticator.getAuthenticatorInstance().getTypeDescription().isLocal())
 			{
-				if (dbGeneric.getObjectByNameType(credentialName, CREDENTIAL_OBJECT_TYPE, sql) == null)
+				GenericObjectBean raw = dbGeneric.getObjectByNameType(credentialName, CREDENTIAL_OBJECT_TYPE, sql);
+				if (raw == null)
 					throw new IllegalCredentialException("There is no credential defined " +
 							"with the name " + credentialName );
+				CredentialHolder credential = engineHelper.resolveCredentialBean(raw, sql);
+				String verificationMethod = authenticator.getAuthenticatorInstance().
+						getTypeDescription().getVerificationMethod();
+				if (!credential.getCredentialDefinition().getTypeId().equals(verificationMethod))
+					throw new IllegalCredentialException("The local credential " + credentialName + 
+							"is of different type then the credential suported by the " +
+							"authenticator, which is " + verificationMethod);
 				authenticator.setCredentialName(credentialName);
 			}
 			byte[] contents = authenticator.getSerializedConfiguration().getBytes(Constants.UTF); 

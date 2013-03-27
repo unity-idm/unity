@@ -37,7 +37,7 @@ import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
-import pl.edu.icm.unity.stdext.credential.PasswordHandlerFactory;
+import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
@@ -235,7 +235,7 @@ public class EngineInitialization extends LifecycleBase
 			{
 				log.info("Database contains no users, adding the admin user and the " +
 						"default credential settings");
-				CredentialDefinition credDef = new CredentialDefinition(PasswordHandlerFactory.ID, 
+				CredentialDefinition credDef = new CredentialDefinition(PasswordVerificatorFactory.NAME,
 						DEFAULT_CREDENTIAL, "Default password credential with typical security settings.");
 				authnManagement.addCredentialDefinition(credDef);
 				

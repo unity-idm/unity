@@ -12,10 +12,11 @@ import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
 @Component
 public class MockPasswordVerificatorFactory implements LocalCredentialVerificatorFactory
 {
+	public static final String ID = "mockpassword";
 	@Override
 	public String getName()
 	{
-		return "mockpasswd";
+		return ID;
 	}
 
 	@Override

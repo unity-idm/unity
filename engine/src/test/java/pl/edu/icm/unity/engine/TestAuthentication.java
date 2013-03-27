@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
 
 import pl.edu.icm.unity.engine.mock.MockEndpoint;
 import pl.edu.icm.unity.engine.mock.MockEndpointFactory;
-import pl.edu.icm.unity.engine.mock.MockPasswordHandlerFactory;
+import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
@@ -48,7 +48,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		//create authenticator and an endpoint with it
 		Collection<AuthenticatorTypeDescription> authTypes = authnMan.getAuthenticatorTypes("web");
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
-		authnMan.createAuthenticator("auth1", authType.getId(), "aaa", "bbb", "credential1");
+		authnMan.createAuthenticator("auth1", authType.getId(), "6", "bbb", "credential1");
 		
 		AuthenticatorSet authSet = new AuthenticatorSet(Collections.singleton("auth1"));
 		endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "/foo", "desc", 
@@ -86,12 +86,12 @@ public class TestAuthentication extends DBIntegrationTestBase
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
 		assertEquals(true, authType.isLocal());
 		assertEquals("mockretrieval", authType.getRetrievalMethod());
-		assertEquals("mockpasswd", authType.getVerificationMethod());
+		assertEquals(MockPasswordVerificatorFactory.ID, authType.getVerificationMethod());
 		assertEquals("web", authType.getSupportedBinding());
 		
 		//create authenticator
 		AuthenticatorInstance authInstance = authnMan.createAuthenticator(
-				"auth1", authType.getId(), "aaa", "bbb", "credential1");
+				"auth1", authType.getId(), "6", "bbb", "credential1");
 
 		//get authenticators
 		Collection<AuthenticatorInstance> auths = authnMan.getAuthenticators("web");
@@ -99,17 +99,17 @@ public class TestAuthentication extends DBIntegrationTestBase
 		AuthenticatorInstance authInstanceR = auths.iterator().next();
 		assertEquals("auth1", authInstanceR.getId());
 		assertEquals("bbb", authInstanceR.getRetrievalJsonConfiguration());
-		assertEquals("aaa", authInstanceR.getVerificatorJsonConfiguration());
+		assertEquals("6", authInstanceR.getVerificatorJsonConfiguration());
 		
 		//update authenticator
-		authnMan.updateAuthenticator("auth1", "a", "b");
+		authnMan.updateAuthenticator("auth1", "8", "b");
 
 		auths = authnMan.getAuthenticators("web");
 		assertEquals(1, auths.size());
 		authInstanceR = auths.iterator().next();
 		assertEquals("auth1", authInstanceR.getId());
 		assertEquals("b", authInstanceR.getRetrievalJsonConfiguration());
-		assertEquals("a", authInstanceR.getVerificatorJsonConfiguration());
+		assertEquals("8", authInstanceR.getVerificatorJsonConfiguration());
 		
 		//create endpoint
 		List<EndpointTypeDescription> endpointTypes = endpointMan.getEndpointTypes();
@@ -154,12 +154,12 @@ public class TestAuthentication extends DBIntegrationTestBase
 		//check if credential types are returned
 		Collection<CredentialType> credTypes = authnMan.getCredentialTypes();
 		assertEquals(1+automaticCredTypes, credTypes.size());
-		CredentialType credType = getDescObjectByName(credTypes, MockPasswordHandlerFactory.ID);
-		assertEquals(MockPasswordHandlerFactory.ID, credType.getName());
+		CredentialType credType = getDescObjectByName(credTypes, MockPasswordVerificatorFactory.ID);
+		assertEquals(MockPasswordVerificatorFactory.ID, credType.getName());
 		
 		//add credential definition
 		CredentialDefinition credDef = new CredentialDefinition(
-				MockPasswordHandlerFactory.ID, "credential1", "cred req desc");
+				MockPasswordVerificatorFactory.ID, "credential1", "cred req desc");
 		credDef.setJsonConfiguration("8");
 		authnMan.addCredentialDefinition(credDef);
 		
@@ -169,7 +169,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		CredentialDefinition credDefRet = getDescObjectByName(credDefs, "credential1");
 		assertEquals("credential1", credDefRet.getName());
 		assertEquals("cred req desc", credDefRet.getDescription());
-		assertEquals(MockPasswordHandlerFactory.ID, credDefRet.getTypeId());
+		assertEquals(MockPasswordVerificatorFactory.ID, credDefRet.getTypeId());
 		assertEquals("8", credDefRet.getJsonConfiguration());
 		
 		//update it and check
@@ -181,7 +181,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		credDefRet = getDescObjectByName(credDefs, "credential1");
 		assertEquals("credential1", credDefRet.getName());
 		assertEquals("d2", credDefRet.getDescription());
-		assertEquals(MockPasswordHandlerFactory.ID, credDefRet.getTypeId());
+		assertEquals(MockPasswordVerificatorFactory.ID, credDefRet.getTypeId());
 		assertEquals("9", credDefRet.getJsonConfiguration());
 		
 		//remove
@@ -196,7 +196,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		Collection<AuthenticatorTypeDescription> authTypes = authnMan.getAuthenticatorTypes("web");
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
 		AuthenticatorInstance authInstance = authnMan.createAuthenticator(
-				"auth1", authType.getId(), "aaa", "bbb", "credential1");
+				"auth1", authType.getId(), "6", "bbb", "credential1");
 		try
 		{
 			authnMan.removeCredentialDefinition("credential1");
@@ -266,7 +266,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		} catch (IllegalCredentialException e) {}
 
 		CredentialDefinition credDef2 = new CredentialDefinition(
-				MockPasswordHandlerFactory.ID, "credential2", "cred2 desc");
+				MockPasswordVerificatorFactory.ID, "credential2", "cred2 desc");
 		credDef2.setJsonConfiguration("10");
 		authnMan.addCredentialDefinition(credDef2);
 		

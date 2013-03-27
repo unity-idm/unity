@@ -13,9 +13,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
-import pl.edu.icm.unity.server.authn.AbstractLocalCredentialHandler;
-import pl.edu.icm.unity.types.authn.CredentialType;
+import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
 /**
@@ -25,13 +25,13 @@ import pl.edu.icm.unity.types.authn.LocalCredentialState;
  * TODO - currently this is only a stub. No options are implemented.
  * @author K. Benedyczak
  */
-public class PasswordHandler extends AbstractLocalCredentialHandler
+public class PasswordVerificator extends AbstractLocalVerificator implements PasswordExchange
 { 	
 	private Random random = new Random();
 	
-	protected PasswordHandler(CredentialType credType)
+	public PasswordVerificator(String name, String description)
 	{
-		super(credType);
+		super(name, description, PasswordExchange.ID);
 	}
 
 	@Override
@@ -83,5 +83,13 @@ public class PasswordHandler extends AbstractLocalCredentialHandler
 		byte[] hashed = new byte[size];
 		digest.doFinal(hashed, 0);
 		return hashed;
+	}
+
+	@Override
+	public long checkPassword(String username, String password)
+			throws IllegalIdentityValueException, IllegalCredentialException
+	{
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

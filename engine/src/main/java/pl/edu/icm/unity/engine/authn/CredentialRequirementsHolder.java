@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.server.authn.LocalCredentialHandler;
-import pl.edu.icm.unity.server.authn.LocalCredentialHandlerFactory;
+import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
+import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -27,7 +27,7 @@ public class CredentialRequirementsHolder
 {
 	private CredentialRequirements requirements;
 	private AuthenticatorsRegistry reg;
-	private Map<String, LocalCredentialHandler> handlers = new HashMap<String, LocalCredentialHandler>();
+	private Map<String, LocalCredentialVerificator> handlers = new HashMap<String, LocalCredentialVerificator>();
 
 	/**
 	 * Constructs a new instance from scratch
@@ -68,10 +68,10 @@ public class CredentialRequirementsHolder
 
 	private void initHandler(AuthenticatorsRegistry reg, CredentialDefinition def)
 	{
-		LocalCredentialHandlerFactory fact = reg.getLocalCredentialFactory(def.getTypeId());
+		LocalCredentialVerificatorFactory fact = reg.getLocalCredentialFactory(def.getTypeId());
 		if (fact == null)
 			throw new IllegalCredentialException("The credential type " + def.getTypeId() + " is unknown");
-		LocalCredentialHandler validator = fact.newInstance();
+		LocalCredentialVerificator validator = fact.newInstance();
 		validator.setSerializedConfiguration(def.getJsonConfiguration());
 		handlers.put(def.getName(), validator);
 	}
@@ -88,7 +88,7 @@ public class CredentialRequirementsHolder
 	 * @param credentialName
 	 * @return credential handler corresponding to the credential
 	 */
-	public LocalCredentialHandler getCredentialHandler(String credentialName)
+	public LocalCredentialVerificator getCredentialHandler(String credentialName)
 	{
 		return handlers.get(credentialName);
 	}
@@ -101,7 +101,7 @@ public class CredentialRequirementsHolder
 	 */
 	public boolean areAllCredentialsValid(Map<String, Attribute<?>> attributes)
 	{
-		for (Map.Entry<String, LocalCredentialHandler> entry: handlers.entrySet())
+		for (Map.Entry<String, LocalCredentialVerificator> entry: handlers.entrySet())
 		{
 			Attribute<?> currentCredA = attributes.get(SystemAttributeTypes.CREDENTIAL_PREFIX+entry.getKey());
 			String currentCred = currentCredA == null ? null : (String)currentCredA.getValues().get(0);

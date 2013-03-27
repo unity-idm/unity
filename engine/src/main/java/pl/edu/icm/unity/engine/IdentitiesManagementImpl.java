@@ -27,7 +27,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.authn.LocalCredentialHandler;
+import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
@@ -297,7 +297,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			String credentialRequirements = (String)credReqA.getValues().get(0);
 			CredentialRequirementsHolder credReqs = engineHelper.getCredentialRequirements(
 					credentialRequirements, sqlMap);
-			LocalCredentialHandler handler = credReqs.getCredentialHandler(credentialId);
+			LocalCredentialVerificator handler = credReqs.getCredentialHandler(credentialId);
 			if (handler == null)
 				throw new IllegalCredentialException("The credential id is not among the entity's credential requirements: " + credentialId);
 
@@ -351,7 +351,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		Map<String, LocalCredentialState> credentialsState = new HashMap<String, LocalCredentialState>();
 		for (String cd: required)
 		{
-			LocalCredentialHandler handler = credReq.getCredentialHandler(cd);
+			LocalCredentialVerificator handler = credReq.getCredentialHandler(cd);
 			Attribute<?> currentCredA = attributes.get(SystemAttributeTypes.CREDENTIAL_PREFIX+cd);
 			String currentCred = currentCredA == null ? null : (String)currentCredA.getValues().get(0);
 			credentialsState.put(cd, handler.checkCredentialState(currentCred));

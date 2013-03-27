@@ -9,8 +9,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
-import pl.edu.icm.unity.server.authn.LocalCredentialHandler;
-import pl.edu.icm.unity.server.authn.LocalCredentialHandlerFactory;
+import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
+import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.types.JsonSerializable;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -23,7 +23,7 @@ public class CredentialHolder implements JsonSerializable
 {
 	private CredentialDefinition credential;
 	private AuthenticatorsRegistry reg;
-	private LocalCredentialHandler handler;
+	private LocalCredentialVerificator handler;
 
 	public CredentialHolder(CredentialDefinition credDef, AuthenticatorsRegistry reg)
 	{
@@ -39,10 +39,10 @@ public class CredentialHolder implements JsonSerializable
 	
 	private void checkCredentialDefinition(CredentialDefinition def, AuthenticatorsRegistry reg)
 	{
-		LocalCredentialHandlerFactory fact = reg.getLocalCredentialFactory(def.getTypeId());
+		LocalCredentialVerificatorFactory fact = reg.getLocalCredentialFactory(def.getTypeId());
 		if (fact == null)
 			throw new IllegalCredentialException("The credential type " + def.getTypeId() + " is unknown");
-		LocalCredentialHandler handler = fact.newInstance();
+		LocalCredentialVerificator handler = fact.newInstance();
 		handler.setSerializedConfiguration(def.getJsonConfiguration());
 		this.handler = handler;
 	}
@@ -52,7 +52,7 @@ public class CredentialHolder implements JsonSerializable
 		return credential;
 	}
 	
-	public LocalCredentialHandler getHandler()
+	public LocalCredentialVerificator getHandler()
 	{
 		return handler;
 	}

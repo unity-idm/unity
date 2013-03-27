@@ -19,7 +19,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.engine.internal.AttributeStatementsCleaner;
 import pl.edu.icm.unity.engine.internal.InternalEndpointManagement;
-import pl.edu.icm.unity.engine.mock.MockPasswordHandlerFactory;
+import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.AttributesManagement;
@@ -128,7 +128,7 @@ public abstract class SecuredDBIntegrationTestBase
 	protected void setupMockAuthn() throws Exception
 	{
 		CredentialDefinition credDef = new CredentialDefinition(
-				MockPasswordHandlerFactory.ID, "credential1", "cred desc");
+				MockPasswordVerificatorFactory.ID, "credential1", "cred desc");
 		credDef.setJsonConfiguration("8");
 		authnMan.addCredentialDefinition(credDef);
 		
