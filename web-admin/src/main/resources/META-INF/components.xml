@@ -5,12 +5,8 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<context:annotation-config/>
-
-	<bean class="pl.edu.icm.unity.webui.authn.PasswordRetrievalFactory"/>
-
+	<bean class="pl.edu.icm.unity.webadmin.WebAdminEndpointFactory"/>
 	
-	<!-- Vaadin components - must have the prototype scope. The UI objects must also have the id set to the 
-	 simple name of its class -->
+	<bean scope="prototype" id="WebAdminUI" class="pl.edu.icm.unity.webadmin.WebAdminUI"/>
 
-	<bean scope="prototype" id="AuthenticationUI" class="pl.edu.icm.unity.webui.authn.AuthenticationUI"/>
 </beans>

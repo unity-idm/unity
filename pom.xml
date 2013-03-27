@@ -15,6 +15,7 @@
 		<jetty.version>8.1.4.v20120524</jetty.version>
 		<slf4j.version>1.6.1</slf4j.version>
 		<spring.version>3.2.0.RELEASE</spring.version>
+		<vaadin.version>7.0.3</vaadin.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -34,6 +35,7 @@
 		<module>engine</module>
 		<module>persistence</module>
 		<module>web-common</module>
+		<module>web-admin</module>
 		<module>ws</module>
 		<module>std-extensions</module>
 		<module>distribution</module>
@@ -138,6 +140,21 @@
 				<groupId>org.mybatis</groupId>
 				<artifactId>mybatis</artifactId>
 				<version>3.1.1</version>
+			</dependency>
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-server</artifactId>
+				<version>${vaadin.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-themes</artifactId>
+				<version>${vaadin.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-client-compiled</artifactId>
+				<version>${vaadin.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -62,9 +62,11 @@ public class InitDB
 		try
 		{
 			session.selectOne("getDBVersion");
+			db.releaseSqlSession(session);
 			log.info("Database initialized, skipping creation");
 		} catch (PersistenceException e)
 		{
+			db.releaseSqlSession(session);
 			initDB();
 		}
 	}

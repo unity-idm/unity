@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.internal;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordHandlerFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
+import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
@@ -306,7 +308,8 @@ public class EngineInitialization extends LifecycleBase
 			for (EndpointDescription endpoint: endpoints)
 			{
 				log.info(" - " + endpoint.getId() + ": " + endpoint.getType().getName() + 
-						" " + endpoint.getDescription());
+						" " + endpoint.getDescription() + " at " + 
+						endpoint.getContextAddress());
 			}
 		} catch (Exception e)
 		{
@@ -330,7 +333,8 @@ public class EngineInitialization extends LifecycleBase
 			String jsonConfiguration = FileUtils.readFileToString(configFile);
 			
 			//TODO authn settings
-			endpointManager.deploy(type, name, address, description, null, jsonConfiguration);
+			List<AuthenticatorSet> todo = new ArrayList<AuthenticatorSet>();
+			endpointManager.deploy(type, name, address, description, todo, jsonConfiguration);
 			log.info(" - " + name + ": " + type + " " + description);
 		}
 	}

@@ -55,7 +55,7 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-web</artifactId>
+			<artifactId>unity-server-web-admin</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -65,27 +65,4 @@
 		</dependency>
 
 	</dependencies>
-	
-		<build>
-    <plugins>
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <configuration>
-        <!-- The destination file for the code coverage report has to be set to the same value
-in the parent pom and in each module pom. Then JaCoCo will add up information in
-the same report, so that, it will give the cross-module code coverage. -->
-          <destFile>${project.basedir}/../target/jacoco-it.exec</destFile>
-        </configuration>
-        <executions>
-          <execution>
-            <id>post-test</id>
-            <configuration>
-              <skip>true</skip>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-	</build>
 </project>
