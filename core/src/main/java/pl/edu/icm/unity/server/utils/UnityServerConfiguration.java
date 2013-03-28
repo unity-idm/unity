@@ -52,11 +52,27 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String THREAD_POOL_SIZE = "threadPoolSize";
 	public static final String RECREATE_ENDPOINTS_ON_STARTUP = "recreateEndpointsOnStartup";
 	public static final String ENDPOINTS = "endpoints.";
-	public static final String ENDPOINT_DESCRIPTION = "description";
-	public static final String ENDPOINT_TYPE = "type";
-	public static final String ENDPOINT_CONFIGURATION = "configurationFile";
+	public static final String ENDPOINT_DESCRIPTION = "endpointDescription";
+	public static final String ENDPOINT_TYPE = "endpointType";
+	public static final String ENDPOINT_CONFIGURATION = "endpointConfigurationFile";
 	public static final String ENDPOINT_ADDRESS = "contextPath";
-	public static final String ENDPOINT_NAME = "name";
+	public static final String ENDPOINT_NAME = "endpointName";	
+	public static final String ENDPOINT_AUTHENTICATORS = "endpointAuthenticators";
+
+	public static final String AUTHENTICATORS = "authenticators.";
+	public static final String AUTHENTICATOR_NAME = "authenticatorName";
+	public static final String AUTHENTICATOR_TYPE = "authenticatorType";
+	public static final String AUTHENTICATOR_CREDENTIAL = "localCredential";
+	public static final String AUTHENTICATOR_VERIFICATOR_CONFIG = "verificatorConfigurationFile";
+	public static final String AUTHENTICATOR_RETRIEVAL_CONFIG = "retrievalConfigurationFile";
+	
+	public static final String CREDENTIALS = "credentials.";
+	public static final String CREDENTIAL_NAME = "credentialName";
+	public static final String CREDENTIAL_TYPE = "credentialType";
+	public static final String CREDENTIAL_DESCRIPTION = "credentialDescription";
+	public static final String CREDENTIAL_CONFIGURATION = "credentialConfigurationFile";
+	
+	
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -77,14 +93,41 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("List of initially enabled endpoints"));
 		defaults.put(ENDPOINT_TYPE, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(mainCat).
 				setDescription("Endpoint type"));
-		defaults.put(ENDPOINT_CONFIGURATION, new PropertyMD().setStructuredListEntry(ENDPOINTS).setPath().setCategory(mainCat).
+		defaults.put(ENDPOINT_CONFIGURATION, new PropertyMD().setStructuredListEntry(ENDPOINTS).setPath().setMandatory().setCategory(mainCat).
 				setDescription("Path of the file with JSON configuration of the endpoint"));
 		defaults.put(ENDPOINT_DESCRIPTION, new PropertyMD("").setStructuredListEntry(ENDPOINTS).setCategory(mainCat).
 				setDescription("Description of the endpoint"));
-		defaults.put(ENDPOINT_ADDRESS, new PropertyMD().setStructuredListEntry(ENDPOINTS).setCategory(mainCat).
+		defaults.put(ENDPOINT_ADDRESS, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(mainCat).
 				setDescription("Context path of the endpoint"));
-		defaults.put(ENDPOINT_NAME, new PropertyMD().setStructuredListEntry(ENDPOINTS).setCategory(mainCat).
+		defaults.put(ENDPOINT_NAME, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(mainCat).
 				setDescription("Endpoint name"));
+		defaults.put(ENDPOINT_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(mainCat).
+				setDescription("Endpoint authenticator names: each set is separated with ';' and particular authenticators in each set with ','."));
+
+		defaults.put(AUTHENTICATORS, new PropertyMD().setStructuredList(true).setCategory(mainCat).
+				setDescription("List of initially enabled authenticators"));
+		defaults.put(AUTHENTICATOR_NAME, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setMandatory().setCategory(mainCat).
+				setDescription("Authenticator name"));
+		defaults.put(AUTHENTICATOR_TYPE, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setMandatory().setCategory(mainCat).
+				setDescription("Authenticator type"));
+		defaults.put(AUTHENTICATOR_CREDENTIAL, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setCategory(mainCat).
+				setDescription("For local authenticator the name of the local credential associated with it."));
+		defaults.put(AUTHENTICATOR_VERIFICATOR_CONFIG, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setCategory(mainCat).
+				setDescription("Authenticator configuration file of the verificator"));
+		defaults.put(AUTHENTICATOR_RETRIEVAL_CONFIG, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setMandatory().setCategory(mainCat).
+				setDescription("Authenticator configuration file of the retrieval"));
+
+		defaults.put(CREDENTIALS, new PropertyMD().setStructuredList(true).setCategory(mainCat).
+				setDescription("List of initially defined credentials"));
+		defaults.put(CREDENTIAL_NAME, new PropertyMD().setStructuredListEntry(CREDENTIALS).setMandatory().setCategory(mainCat).
+				setDescription("Credential name"));
+		defaults.put(CREDENTIAL_TYPE, new PropertyMD().setStructuredListEntry(CREDENTIALS).setMandatory().setCategory(mainCat).
+				setDescription("Credential type"));
+		defaults.put(CREDENTIAL_DESCRIPTION, new PropertyMD("").setStructuredListEntry(CREDENTIALS).setCategory(mainCat).
+				setDescription("Credential description"));
+		defaults.put(CREDENTIAL_CONFIGURATION, new PropertyMD().setStructuredListEntry(CREDENTIALS).setMandatory().setCategory(mainCat).
+				setDescription("Credential configuration file"));
+
 		
 		defaults.put(TruststoreProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).
 				setDescription("Properties starting with this prefix are used to configure server's trust settings and certificate validation. See separate documentation for details."));

@@ -19,12 +19,6 @@ public class MockPasswordRetrieval implements CredentialRetrieval, MockBinding
 	}
 
 	@Override
-	public String getBindingDescription()
-	{
-		return "web binding";
-	}
-
-	@Override
 	public void setCredentialExchange(CredentialExchange e)
 	{
 		if (!(e instanceof MockExchange))

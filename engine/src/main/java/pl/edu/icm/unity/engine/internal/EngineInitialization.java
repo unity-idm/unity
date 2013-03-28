@@ -9,8 +9,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -40,6 +42,7 @@ import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
+import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -159,6 +162,8 @@ public class EngineInitialization extends LifecycleBase
 		initializeIdentityTypes();
 		initializeAttributeTypes();
 		initializeAdminUser();
+		initializeCredentials();
+		initializeAuthenticators();
 		initializeEndpoints();
 	}
 	
@@ -237,6 +242,11 @@ public class EngineInitialization extends LifecycleBase
 						"default credential settings");
 				CredentialDefinition credDef = new CredentialDefinition(PasswordVerificatorFactory.NAME,
 						DEFAULT_CREDENTIAL, "Default password credential with typical security settings.");
+				credDef.setJsonConfiguration("{\"minLength\": 4," +
+						"\"historySize\": 1," +
+						"\"minClassesNum\": 1," +
+						"\"denySequences\": false," +
+						"\"maxAge\": 3075840000}");
 				authnManagement.addCredentialDefinition(credDef);
 				
 				CredentialRequirements crDef = new CredentialRequirements(DEFAULT_CREDENTIAL_REQUIREMENT, 
@@ -291,7 +301,6 @@ public class EngineInitialization extends LifecycleBase
 		{
 			if (endpointManager.getEndpoints().size() == 0)
 			{
-				log.info("Loading all configured endpoints");
 				loadEndpointsFromConfiguration();
 			}
 		} catch (Exception e)
@@ -318,9 +327,9 @@ public class EngineInitialization extends LifecycleBase
 		}
 	}
 	
-	
 	private void loadEndpointsFromConfiguration() throws IOException, EngineException
 	{
+		log.info("Loading all configured endpoints");
 		Set<String> endpointsList = config.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
 		for (String endpointKey: endpointsList)
 		{
@@ -329,16 +338,109 @@ public class EngineInitialization extends LifecycleBase
 			File configFile = config.getFileValue(endpointKey+UnityServerConfiguration.ENDPOINT_CONFIGURATION, false);
 			String address = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_ADDRESS);
 			String name = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_NAME);
+			String authenticatorsSpec = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
+			
+			String[] authenticatorSets = authenticatorsSpec.split(";");
+			List<AuthenticatorSet> endpointAuthn = new ArrayList<AuthenticatorSet>();
+			for (String authenticatorSet: authenticatorSets)
+			{
+				Set<String> endpointAuthnSet = new HashSet<String>();
+				String[] authenticators = authenticatorSet.split(",");
+				for (String a: authenticators)
+					endpointAuthnSet.add(a.trim());
+				endpointAuthn.add(new AuthenticatorSet(endpointAuthnSet));
+			}
 			
 			String jsonConfiguration = FileUtils.readFileToString(configFile);
-			
-			//TODO authn settings
-			List<AuthenticatorSet> todo = new ArrayList<AuthenticatorSet>();
-			endpointManager.deploy(type, name, address, description, todo, jsonConfiguration);
+
+			endpointManager.deploy(type, name, address, description, endpointAuthn, jsonConfiguration);
 			log.info(" - " + name + ": " + type + " " + description);
 		}
 	}
+
+	private void initializeAuthenticators()
+	{
+		try
+		{
+			loadAuthenticatorsFromConfiguration();
+		} catch(Exception e)
+		{
+			log.fatal("Can't load authenticators which are configured", e);
+			throw new RuntimeEngineException("Can't load authenticators which are configured", e);
+		}
+	}
 	
+	private void loadAuthenticatorsFromConfiguration() throws IOException, EngineException
+	{
+		log.info("Loading all configured authenticators");
+		Collection<AuthenticatorInstance> authenticators = authnManagement.getAuthenticators(null);
+		Map<String, AuthenticatorInstance> existing = new HashMap<String, AuthenticatorInstance>();
+		for (AuthenticatorInstance ai: authenticators)
+			existing.put(ai.getId(), ai);
+		
+		Set<String> authenticatorsList = config.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
+		for (String authenticatorKey: authenticatorsList)
+		{
+			String name = config.getValue(authenticatorKey+UnityServerConfiguration.AUTHENTICATOR_NAME);
+			String type = config.getValue(authenticatorKey+UnityServerConfiguration.AUTHENTICATOR_TYPE);
+			File vConfigFile = config.getFileValue(authenticatorKey+
+					UnityServerConfiguration.AUTHENTICATOR_VERIFICATOR_CONFIG, false);
+			File rConfigFile = config.getFileValue(authenticatorKey+
+					UnityServerConfiguration.AUTHENTICATOR_RETRIEVAL_CONFIG, false);
+			String credential = config.getValue(authenticatorKey+UnityServerConfiguration.AUTHENTICATOR_CREDENTIAL);
+
+			
+			String vJsonConfiguration = vConfigFile == null ? null : FileUtils.readFileToString(vConfigFile);
+			String rJsonConfiguration = FileUtils.readFileToString(rConfigFile);
+			
+			if (!existing.containsKey(name))
+			{
+				authnManagement.createAuthenticator(name, type, vJsonConfiguration, 
+						rJsonConfiguration, credential);
+				log.info(" - " + name + " [" + type + "]");
+			}
+		}
+	}
+
+	private void initializeCredentials()
+	{
+		try
+		{
+			loadCredentialsFromConfiguration();
+		} catch(Exception e)
+		{
+			log.fatal("Can't load credentials which are configured", e);
+			throw new RuntimeEngineException("Can't load credentials which are configured", e);
+		}
+	}
+	
+	private void loadCredentialsFromConfiguration() throws IOException, EngineException
+	{
+		log.info("Loading all configured credentials");
+		Collection<CredentialDefinition> definitions = authnManagement.getCredentialDefinitions();
+		Map<String, CredentialDefinition> existing = new HashMap<String, CredentialDefinition>();
+		for (CredentialDefinition cd: definitions)
+			existing.put(cd.getName(), cd);
+		
+		Set<String> credentialsList = config.getStructuredListKeys(UnityServerConfiguration.CREDENTIALS);
+		for (String credentialKey: credentialsList)
+		{
+			String name = config.getValue(credentialKey+UnityServerConfiguration.CREDENTIAL_NAME);
+			String typeId = config.getValue(credentialKey+UnityServerConfiguration.CREDENTIAL_TYPE);
+			String description = config.getValue(credentialKey+UnityServerConfiguration.CREDENTIAL_DESCRIPTION);
+			File configFile = config.getFileValue(credentialKey+UnityServerConfiguration.CREDENTIAL_CONFIGURATION, false);
+
+			String jsonConfiguration = FileUtils.readFileToString(configFile);
+			CredentialDefinition credentialDefinition = new CredentialDefinition(typeId, name, description);
+			credentialDefinition.setJsonConfiguration(jsonConfiguration);
+			
+			if (!existing.containsKey(name))
+			{
+				authnManagement.addCredentialDefinition(credentialDefinition);
+				log.info(" - " + name + " [" + typeId + "]");
+			}
+		}
+	}
 }
 
 

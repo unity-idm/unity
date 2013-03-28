@@ -40,7 +40,7 @@ public class AuthenticatorImpl implements JsonSerializable
 	private IdentityResolver identitiesResolver;
 	
 	/**
-	 * For initial object creation
+	 * For initial object creation. Verificator configuration is only required for remote verificators.
 	 * @param reg
 	 * @param typeId
 	 * @param configuration
@@ -75,7 +75,8 @@ public class AuthenticatorImpl implements JsonSerializable
 				authDesc.getVerificationMethod());
 		verificator = verificatorFact.newInstance();
 		verificator.setIdentityResolver(identitiesResolver);
-		verificator.setSerializedConfiguration(vConfiguration);
+		if (vConfiguration != null)
+			verificator.setSerializedConfiguration(vConfiguration);
 		retrieval = retrievalFact.newInstance();
 		retrieval.setSerializedConfiguration(rConfiguration);
 		retrieval.setCredentialExchange(verificator);
@@ -88,9 +89,8 @@ public class AuthenticatorImpl implements JsonSerializable
 	public void setConfiguration(String rConfiguration, String vConfiguration)
 	{
 		retrieval.setSerializedConfiguration(rConfiguration);
-		verificator.setSerializedConfiguration(vConfiguration);
 		instanceDescription.setRetrievalJsonConfiguration(rConfiguration);
-		instanceDescription.setVerificatorJsonConfiguration(vConfiguration);
+		setVerificatorConfiguration(vConfiguration);
 	}
 	
 	public void setCredentialName(String credential)
@@ -101,6 +101,18 @@ public class AuthenticatorImpl implements JsonSerializable
 			instanceDescription.setLocalCredentialName(credential);
 		}
 	}
+	
+	/**
+	 * Local verificators has configuration provided by a credential definition, the 
+	 * configuration for the authenticator is ignored. It must be set via this method
+	 * @param configuration
+	 */
+	public void setVerificatorConfiguration(String vConfiguration)
+	{
+		verificator.setSerializedConfiguration(vConfiguration);
+		instanceDescription.setVerificatorJsonConfiguration(vConfiguration);
+	}
+	
 	
 	@Override
 	public String getSerializedConfiguration()

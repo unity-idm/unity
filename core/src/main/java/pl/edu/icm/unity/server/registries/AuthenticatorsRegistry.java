@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,7 @@ import pl.edu.icm.unity.server.authn.CredentialRetrievalFactory;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.types.authn.CredentialType;
@@ -30,6 +32,8 @@ import pl.edu.icm.unity.types.authn.CredentialType;
 @Component
 public class AuthenticatorsRegistry
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, AuthenticatorsRegistry.class);
+	
 	private Map<String, CredentialRetrievalFactory> credentialRetrievalFactories;
 	private Map<String, CredentialVerificatorFactory> credentialVerificatorFactories;
 	
@@ -59,7 +63,7 @@ public class AuthenticatorsRegistry
 		}
 			
 		
-		
+		log.debug("The following authenticator types are available:");
 		for (int j=0; j<verificatorFactories.size(); j++)
 		{
 			CredentialVerificatorFactory vf = verificatorFactories.get(j);
@@ -85,6 +89,7 @@ public class AuthenticatorsRegistry
 					authenticatorsByBinding.put(rf.getSupportedBinding(), existing);
 				}
 				existing.add(desc);
+				log.debug(" - " + desc);
 				authenticatorsById.put(desc.getId(), desc);
 			}
 		}

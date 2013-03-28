@@ -13,5 +13,4 @@ package pl.edu.icm.unity.server.endpoint;
 public interface BindingAuthn
 {
 	public String getBindingName();
-	public String getBindingDescription();
 }

@@ -77,4 +77,15 @@ public class AuthenticatorTypeDescription
 	{
 		this.retrievalMethodDescription = retrievalMethodDescription;
 	}
+	@Override
+	public String toString()
+	{
+		return "id=" + id + ", supportedBinding="
+				+ supportedBinding + ", verificationMethod=" + verificationMethod
+				+ ", verificationMethodDescription="
+				+ verificationMethodDescription + ", retrievalMethod="
+				+ retrievalMethod + ", retrievalMethodDescription="
+				+ retrievalMethodDescription + ", local=" + local;
+	}
+	
 }

@@ -183,7 +183,8 @@ public class EngineHelper
 				AuthenticationManagementImpl.AUTHENTICATOR_OBJECT_TYPE, sql);
 		if (raw == null)
 			throw new pl.edu.icm.unity.exceptions.IllegalArgumentException("The authenticator " + id + " is not known");
-		return getAuthenticatorNoCheck(raw, sql);
+		AuthenticatorImpl ret = getAuthenticatorNoCheck(raw, sql);
+		return ret;
 	}
 
 	public AuthenticatorImpl getAuthenticatorNoCheck(GenericObjectBean raw, SqlSession sql)
@@ -191,6 +192,19 @@ public class EngineHelper
 		AuthenticatorImpl authenticator = new AuthenticatorImpl(identityResolver, authReg, raw.getName());
 		String contents = new String(raw.getContents(), Constants.UTF);
 		authenticator.setSerializedConfiguration(contents);
+		String localCredential = authenticator.getAuthenticatorInstance().getLocalCredentialName(); 
+		if (localCredential != null)
+		{
+			GenericObjectBean rawC = dbGeneric.getObjectByNameType(localCredential, 
+					AuthenticationManagementImpl.CREDENTIAL_OBJECT_TYPE, sql);
+			if (rawC == null)
+				throw new pl.edu.icm.unity.exceptions.IllegalArgumentException("The authenticator's " + 
+						authenticator.getAuthenticatorInstance().getId() + 
+						" credential is not known: " + localCredential);
+			CredentialHolder credential = resolveCredentialBean(rawC, sql);
+			authenticator.setVerificatorConfiguration(credential.getCredentialDefinition().
+					getJsonConfiguration());
+		}
 		return authenticator;
 	}
 	

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.CredentialRetrievalFactory;
+import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
 /**
@@ -35,8 +36,7 @@ public class PasswordRetrievalFactory implements CredentialRetrievalFactory
 	@Override
 	public CredentialRetrieval newInstance()
 	{
-		//TODO
-		return null;
+		return new PasswordRetrieval();
 	}
 
 	@Override
@@ -48,8 +48,7 @@ public class PasswordRetrievalFactory implements CredentialRetrievalFactory
 	@Override
 	public boolean isCredentialExchangeSupported(CredentialExchange e)
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return e instanceof PasswordExchange;
 	}
 
 }
