@@ -13,6 +13,8 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 public interface IdentityResolver
 {
 	/**
+	 * Resolves an identity for performing authentication. It is guaranteed that the returned 
+	 * entity has not the disabled authentication state.
 	 * @param identity raw identity value
 	 * @param identityTypes what are the types of the identity, in the preference order
 	 * @param credentialName what credential should be provided in the returned object

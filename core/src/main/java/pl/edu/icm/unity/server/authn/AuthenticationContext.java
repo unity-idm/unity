@@ -16,12 +16,11 @@ public class AuthenticationContext
 {
 	private static ThreadLocal<AuthenticationContext> threadLocal = new ThreadLocal<AuthenticationContext>();
 
-	private long entityId;
+	private AuthenticatedEntity euthenticatedEntity;
 	
-	public AuthenticationContext(long entityId)
+	public AuthenticationContext(AuthenticatedEntity entityId)
 	{
-		super();
-		this.entityId = entityId;
+		this.euthenticatedEntity = entityId;
 	}
 
 	public static void setCurrent(AuthenticationContext context)
@@ -37,8 +36,8 @@ public class AuthenticationContext
 		return ret;
 	}
 
-	public long getEntityId()
+	public AuthenticatedEntity getAuthenticatedEntity()
 	{
-		return entityId;
+		return euthenticatedEntity;
 	}
 }

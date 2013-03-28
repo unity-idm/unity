@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-import pl.edu.icm.unity.webui.VaadinAuthentication;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
 /**
  * Factory creating endpoints exposing {@link WebAdminUI}.

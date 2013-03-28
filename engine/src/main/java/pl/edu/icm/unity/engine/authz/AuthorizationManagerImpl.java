@@ -147,7 +147,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	{
 		Group group = groupPath == null ? new Group("/") : new Group(groupPath);
 		AuthenticationContext authnCtx = AuthenticationContext.getCurrent();
-		Set<AuthzRole> roles = establishRoles(authnCtx.getEntityId(), group);
+		Set<AuthzRole> roles = establishRoles(authnCtx.getAuthenticatedEntity().getEntityId(), group);
 		Set<AuthzCapability> capabilities = getRoleCapabilities(roles, selfAccess);
 		
 		for (AuthzCapability requiredCapability: requiredCapabilities)
@@ -160,7 +160,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	public boolean isSelf(long subject)
 	{
 		AuthenticationContext authnCtx = AuthenticationContext.getCurrent();
-		return authnCtx.getEntityId() == subject;
+		return authnCtx.getAuthenticatedEntity().getEntityId() == subject;
 	}
 	
 	

@@ -9,6 +9,7 @@ import org.junit.Before;
 
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationContext;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -36,7 +37,8 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	{
 		EntityWithCredential entity = identityResolver.resolveIdentity(user, new String[] {UsernameIdentity.ID}, 
 				EngineInitialization.DEFAULT_CREDENTIAL);
-		AuthenticationContext virtualAdmin = new AuthenticationContext(entity.getEntityId());
+		AuthenticationContext virtualAdmin = new AuthenticationContext(
+				new AuthenticatedEntity(entity.getEntityId()));
 		AuthenticationContext.setCurrent(virtualAdmin);
 	}
 }
