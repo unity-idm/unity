@@ -4,11 +4,18 @@
  */
 package pl.edu.icm.unity.webui;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.springframework.context.ApplicationContext;
 
+import pl.edu.icm.unity.server.authn.AuthenticationContext;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
@@ -41,8 +48,33 @@ public class UnityVaadinServlet extends VaadinServlet
 		this.description = description;
 		this.authenticators = authenticators;
 	}
+	
+	@Override
+	protected void service(HttpServletRequest request, HttpServletResponse response) 
+			throws ServletException, IOException 
+	{
+		setAuthenticationcontext(request);
+		try
+		{
+			super.service(request, response);
+		} finally 
+		{
+			AuthenticationContext.setCurrent(null);
+		}
+	}
 
-
+	private void setAuthenticationcontext(HttpServletRequest request)
+	{
+		HttpSession session = request.getSession(false);
+		if (session != null)
+		{
+			AuthenticationContext authnContext = (AuthenticationContext) session.getAttribute(
+					WebSession.USER_SESSION_KEY);
+			if (authnContext != null)
+				AuthenticationContext.setCurrent(authnContext);
+		}
+	}
+	
 	@Override
 	protected VaadinServletService createServletService(DeploymentConfiguration deploymentConfiguration)
 	{

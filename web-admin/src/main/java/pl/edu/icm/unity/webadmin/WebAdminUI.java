@@ -12,9 +12,11 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.UnityWebUI;
 
 import com.vaadin.server.VaadinRequest;
@@ -32,7 +34,7 @@ public class WebAdminUI extends UI implements UnityWebUI
 	private static final long serialVersionUID = 1L;
 
 	@Autowired
-	private GroupsManagement test;
+	private EndpointManagement test;
 	
 	@Override
 	public void configure(EndpointDescription description,
@@ -45,7 +47,14 @@ public class WebAdminUI extends UI implements UnityWebUI
 	@Override
 	protected void init(VaadinRequest request)
 	{
-		setContent(new Label("Web UI. Has injected object: " + test));
+		try
+		{
+			List<EndpointTypeDescription> enpT = test.getEndpointTypes();
+			setContent(new Label("Web UI. Endpoint types: " + enpT.toString()));
+		} catch (EngineException e)
+		{
+			setContent(new Label("Web UI. Got error: " + e));
+		}
 	}
 
 }

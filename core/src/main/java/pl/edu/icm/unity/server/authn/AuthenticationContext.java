@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.server.authn;
 
+import java.io.Serializable;
+
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 
 /**
@@ -12,8 +14,10 @@ import pl.edu.icm.unity.exceptions.RuntimeEngineException;
  * The thread-local variable should be set up by the binding authentication code. 
  * @author K. Benedyczak
  */
-public class AuthenticationContext
+public class AuthenticationContext implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	private static ThreadLocal<AuthenticationContext> threadLocal = new ThreadLocal<AuthenticationContext>();
 
 	private AuthenticatedEntity euthenticatedEntity;
