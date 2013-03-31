@@ -20,7 +20,7 @@ import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
-import pl.edu.icm.unity.server.authn.AuthenticationContext;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Group;
@@ -146,7 +146,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	public void checkAuthorization(boolean selfAccess, String groupPath, AuthzCapability... requiredCapabilities)
 	{
 		Group group = groupPath == null ? new Group("/") : new Group(groupPath);
-		AuthenticationContext authnCtx = AuthenticationContext.getCurrent();
+		InvocationContext authnCtx = InvocationContext.getCurrent();
 		Set<AuthzRole> roles = establishRoles(authnCtx.getAuthenticatedEntity().getEntityId(), group);
 		Set<AuthzCapability> capabilities = getRoleCapabilities(roles, selfAccess);
 		
@@ -159,7 +159,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	@Override
 	public boolean isSelf(long subject)
 	{
-		AuthenticationContext authnCtx = AuthenticationContext.getCurrent();
+		InvocationContext authnCtx = InvocationContext.getCurrent();
 		return authnCtx.getAuthenticatedEntity().getEntityId() == subject;
 	}
 	

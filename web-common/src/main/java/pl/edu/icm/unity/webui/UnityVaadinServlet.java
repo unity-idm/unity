@@ -6,17 +6,21 @@ package pl.edu.icm.unity.webui;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.context.ApplicationContext;
 
-import pl.edu.icm.unity.server.authn.AuthenticationContext;
+import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 import com.vaadin.server.DeploymentConfiguration;
@@ -26,6 +30,7 @@ import com.vaadin.server.SessionInitListener;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.VaadinServletService;
 
+
 /**
  * Customization of the ordinary {@link VaadinServlet} using {@link VaadinUIProvider}
  * @author K. Benedyczak
@@ -33,7 +38,9 @@ import com.vaadin.server.VaadinServletService;
 @SuppressWarnings("serial")
 public class UnityVaadinServlet extends VaadinServlet
 {
+	public static final String LANGUAGE_COOKIE = "language";
 	private transient ApplicationContext applicationContext;
+	private transient UnityServerConfiguration config;
 	private transient String uiBeanName;
 	private transient EndpointDescription description;
 	private transient List<Map<String, BindingAuthn>> authenticators;
@@ -47,32 +54,66 @@ public class UnityVaadinServlet extends VaadinServlet
 		this.uiBeanName = uiBeanName;
 		this.description = description;
 		this.authenticators = authenticators;
+		this.config = applicationContext.getBean(UnityServerConfiguration.class);
 	}
 	
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response) 
 			throws ServletException, IOException 
 	{
-		setAuthenticationcontext(request);
+		InvocationContext ctx = setEmptyInvocationContext();
+		setAuthenticationContext(request, ctx);
+		setLocale(request, ctx);
 		try
 		{
 			super.service(request, response);
 		} finally 
 		{
-			AuthenticationContext.setCurrent(null);
+			InvocationContext.setCurrent(null);
 		}
 	}
-
-	private void setAuthenticationcontext(HttpServletRequest request)
+	
+	private InvocationContext setEmptyInvocationContext()
+	{
+		InvocationContext context = new InvocationContext();
+		InvocationContext.setCurrent(context);
+		return context;
+	}
+	
+	private void setAuthenticationContext(HttpServletRequest request, InvocationContext ctx)
 	{
 		HttpSession session = request.getSession(false);
 		if (session != null)
 		{
-			AuthenticationContext authnContext = (AuthenticationContext) session.getAttribute(
+			AuthenticatedEntity ae = (AuthenticatedEntity) session.getAttribute(
 					WebSession.USER_SESSION_KEY);
-			if (authnContext != null)
-				AuthenticationContext.setCurrent(authnContext);
+			if (ae != null)
+				ctx.setAuthenticatedEntity(ae);
 		}
+	}
+	
+	/**
+	 * Sets locale in invocation context. If there is cookie with selected and still supported
+	 * locale then it is used. Otherwise a default locale is set.
+	 * @param request
+	 */
+	private void setLocale(HttpServletRequest request, InvocationContext context)
+	{
+		Cookie[] cookies = request.getCookies();
+		for (Cookie cookie: cookies)
+		{
+			if (LANGUAGE_COOKIE.equals(cookie.getName()))
+			{
+				String value = cookie.getValue();
+				Locale locale = UnityServerConfiguration.safeLocaleDecode(value);
+				if (config.isLocaleSupported(locale))
+					context.setLocale(locale);
+				else
+					context.setLocale(config.getDefaultLocale());
+				return;
+			}
+		}
+		context.setLocale(config.getDefaultLocale());
 	}
 	
 	@Override

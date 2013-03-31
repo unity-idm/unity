@@ -7,11 +7,13 @@
 	<context:annotation-config/>
 	<bean class="pl.edu.icm.unity.server.utils.UnityServerConfiguration"/>
 	<bean class="pl.edu.icm.unity.server.utils.ExecutorsService"/>
+	<bean class="pl.edu.icm.unity.server.utils.UnityMessageSource"/>
 	
 	<bean class="pl.edu.icm.unity.server.registries.IdentityTypesRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.AttributeValueTypesRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.EndpointFactoriesRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.AuthenticatorsRegistry"/>
+	
 	
 	<beans profile="production">
 		<bean class="pl.edu.icm.unity.server.utils.DefaultConfigurationLocation"/>

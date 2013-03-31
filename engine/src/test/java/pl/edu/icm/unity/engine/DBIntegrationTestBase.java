@@ -4,13 +4,15 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.util.Locale;
+
 import org.junit.After;
 import org.junit.Before;
 
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.server.authn.AuthenticationContext;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 
@@ -30,15 +32,16 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	@After
 	public void clearAuthnCtx() throws EngineException
 	{
-		AuthenticationContext.setCurrent(null);
+		InvocationContext.setCurrent(null);
 	}	
 	
 	protected void setupUserContext(String user) throws Exception
 	{
 		EntityWithCredential entity = identityResolver.resolveIdentity(user, new String[] {UsernameIdentity.ID}, 
 				EngineInitialization.DEFAULT_CREDENTIAL);
-		AuthenticationContext virtualAdmin = new AuthenticationContext(
-				new AuthenticatedEntity(entity.getEntityId()));
-		AuthenticationContext.setCurrent(virtualAdmin);
+		InvocationContext virtualAdmin = new InvocationContext();
+		virtualAdmin.setAuthenticatedEntity(new AuthenticatedEntity(entity.getEntityId()));
+		virtualAdmin.setLocale(Locale.ENGLISH);
+		InvocationContext.setCurrent(virtualAdmin);
 	}
 }

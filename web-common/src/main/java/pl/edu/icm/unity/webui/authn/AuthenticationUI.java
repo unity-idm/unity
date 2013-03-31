@@ -9,12 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
 import pl.edu.icm.unity.exceptions.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.UnityWebUI;
@@ -46,7 +48,17 @@ public class AuthenticationUI extends UI implements UnityWebUI
 
 	private EndpointDescription description;
 	private List<Map<String, VaadinAuthentication>> authenticators;
+	private LocaleChoiceComponent localeChoice;
+	private UnityMessageSource msg;
 	
+	@Autowired
+	public AuthenticationUI(LocaleChoiceComponent localeChoice, UnityMessageSource msg)
+	{
+		super();
+		this.localeChoice = localeChoice;
+		this.msg = msg;
+	}
+
 	@Override
 	public void configure(EndpointDescription description,
 			List<Map<String, BindingAuthn>> authenticators)
@@ -71,7 +83,12 @@ public class AuthenticationUI extends UI implements UnityWebUI
 			components[i] = buildAuthenticatorSetUI(authenticators.get(i), 
 					description.getAuthenticatorSets().get(i));
 		Component all = buildAllSetsUI(components);
-		setContent(all);
+		
+		VerticalLayout main = new VerticalLayout();
+		main.addComponent(localeChoice);
+		main.addComponent(all);
+		
+		setContent(main);
 	}
 	
 	private Component buildAllSetsUI(Component... setComponents)
@@ -80,7 +97,8 @@ public class AuthenticationUI extends UI implements UnityWebUI
 			return setComponents[0];
 		TabSheet sheet = new TabSheet();
 		for (int i=0; i<setComponents.length; i++)
-			sheet.addTab(setComponents[i], "Authentication option " + (i+1));
+			sheet.addTab(setComponents[i], msg.getMessage(
+					"AuthenticationUI.authnSet", i+1));
 		return sheet;
 	}
 	
@@ -102,7 +120,7 @@ public class AuthenticationUI extends UI implements UnityWebUI
 			authenticatorsContainer.addComponent(vaadinAuth.getComponent());
 		}
 		
-		Button authenticateButton = new Button("Authenticate");
+		Button authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
 		authenticateButton.addClickListener(new LoginButtonListener(authenticators, set, status));
 		
 		mainContainer.addComponent(status);
@@ -158,7 +176,7 @@ public class AuthenticationUI extends UI implements UnityWebUI
 				AuthenticationProcessor.processResults(results);
 			} catch (AuthenticationException e)
 			{
-				status.setValue(e.getMessage());
+				status.setValue(msg.getMessage(e.getMessage()));
 			}
 		}
 	}
@@ -170,7 +188,7 @@ public class AuthenticationUI extends UI implements UnityWebUI
 		
 		public UsernameComponent()
 		{
-			addComponent(new Label("Username:"));
+			addComponent(new Label(msg.getMessage("AuthenticationUI.username")));
 			username = new TextField();
 			addComponent(username);
 		}

@@ -15,6 +15,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
@@ -28,6 +29,12 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 	private UsernameProvider usernameProvider;
 	private PasswordExchange credentialExchange;
 	private PasswordField passwordField;
+	private UnityMessageSource msg;
+	
+	public PasswordRetrieval(UnityMessageSource msg)
+	{
+		this.msg = msg;
+	}
 	
 	@Override
 	public String getBindingName()
@@ -62,7 +69,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 	public Component getComponent()
 	{
 		HorizontalLayout container = new HorizontalLayout();
-		container.addComponent(new Label("Password: "));
+		container.addComponent(new Label(msg.getMessage("PasswordRetrieval.password")));
 		passwordField = new PasswordField();
 		container.addComponent(passwordField);
 		return container;
@@ -81,7 +88,8 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		String password = passwordField.getValue();
 		if (username.equals("") && password.equals(""))
 		{
-			passwordField.setComponentError(new UserError("No value"));
+			passwordField.setComponentError(new UserError(
+					msg.getMessage("PasswordRetrieval.noPassword")));
 			return new AuthenticationResult(Status.notApplicable, null);
 		}
 		try
@@ -90,7 +98,8 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 			return new AuthenticationResult(Status.success, authenticatedEntity);
 		} catch (Exception e)
 		{
-			passwordField.setComponentError(new UserError("Wrong username or password"));
+			passwordField.setComponentError(new UserError(
+					msg.getMessage("PasswordRetrieval.wrongPassword")));
 			return new AuthenticationResult(Status.deny, null);
 		}
 	}

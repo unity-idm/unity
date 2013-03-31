@@ -8,7 +8,6 @@ import java.util.List;
 
 import pl.edu.icm.unity.exceptions.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.server.authn.AuthenticationContext;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.webui.WebSession;
@@ -33,14 +32,14 @@ public class AuthenticationProcessor
 		for (AuthenticationResult result: results)
 		{
 			if (result.getStatus() != Status.success)
-				throw new AuthenticationException("Authentication failed");
+				throw new AuthenticationException("AuthenticationProcessor.authnFailed");
 			long curId = result.getAuthenticatedEntity().getEntityId();
 			if (entityId == null)
 				entityId = curId;
 			else
 				if (entityId != curId)
 				{
-					throw new AuthenticationException("Two different users were authenticated");
+					throw new AuthenticationException("AuthenticationProcessor.authnWrongUsers");
 				}
 		}
 		logged(results.get(0).getAuthenticatedEntity());
@@ -53,16 +52,21 @@ public class AuthenticationProcessor
 		if (vss == null)
 			throw new RuntimeException("BUG Can't get VaadinSession to store authenticated user's data.");
 		WrappedSession session = vss.getSession();
-		AuthenticationContext authnContext = new AuthenticationContext(authenticatedEntity);
-		session.setAttribute(WebSession.USER_SESSION_KEY, authnContext);
-		
+		session.setAttribute(WebSession.USER_SESSION_KEY, authenticatedEntity);
 		UI ui = UI.getCurrent();
 		if (ui == null)
 			throw new RuntimeException("BUG Can't get UI to redirect the authenticated user.");
+		String origURL = getOriginalURL(session);
+		
+		ui.getPage().open(origURL, "");
+	}
+	
+	public static String getOriginalURL(WrappedSession session)
+	{
 		String origURL = (String) session.getAttribute(AuthenticationFilter.ORIGINAL_ADDRESS);
 		//String origFragment = (String) session.getAttribute(AuthenticationApp.ORIGINAL_FRAGMENT);
 		if (origURL == null)
-			return;
+			throw new RuntimeException("No original address - this is not implemented yet.");
 			//origURL = DEFAULT_PORTAL_PATH;
 		//if (origFragment == null)
 		//	origFragment = "";
@@ -70,6 +74,6 @@ public class AuthenticationProcessor
 		//	origFragment = "#" + origFragment;
 		
 		//origURL = origURL+origFragment;
-		ui.getPage().open(origURL, "");
+		return origURL;
 	}
 }

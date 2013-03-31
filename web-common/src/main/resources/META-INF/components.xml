@@ -8,9 +8,13 @@
 
 	<bean class="pl.edu.icm.unity.webui.authn.extensions.PasswordRetrievalFactory"/>
 
+	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
+		<property name="bundle" value="pl/edu/icm/unity/webui/messages/messages"/>
+	</bean>
 	
 	<!-- Vaadin components - must have the prototype scope. The UI objects must also have the id set to the 
 	 simple name of its class -->
 
 	<bean scope="prototype" id="AuthenticationUI" class="pl.edu.icm.unity.webui.authn.AuthenticationUI"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webui.authn.LocaleChoiceComponent"/>
 </beans>

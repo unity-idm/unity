@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui;
 
+import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+
 /**
  * Holds information stored in the HTTP session.
  * @author K. Benedyczak
@@ -11,11 +13,8 @@ package pl.edu.icm.unity.webui;
 public class WebSession
 {
 	/**
-	 * Under this key this object is stored in the HTTP session
-	 */
-	public static final String SESSION_KEY = WebSession.class.getName();
-	/**
-	 * Under this key, the object with authenticated user is stored in the session
+	 * Under this key, the object {@link AuthenticatedEntity} 
+	 * with authenticated user is stored in the session.
 	 */
 	public static final String USER_SESSION_KEY = WebSession.class.getName();
 }

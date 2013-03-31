@@ -9,7 +9,11 @@
 package pl.edu.icm.unity.server.utils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -48,6 +52,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	@DocumentationReferencePrefix
 	public static final String P = BASE_PREFIX + "core.";
 	
+	public static final String ENABLED_LOCALES = "enabledLocales.";
+	public static final String DEFAULT_LOCALE = "defaultLocale";
 	public static final String MAIL_CONF = "mailConfig";
 	public static final String THREAD_POOL_SIZE = "threadPoolSize";
 	public static final String RECREATE_ENDPOINTS_ON_STARTUP = "recreateEndpointsOnStartup";
@@ -82,6 +88,12 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		DocumentationCategory mainCat = new DocumentationCategory("General settings", "1");
 		DocumentationCategory otherCat = new DocumentationCategory("Other", "8");
 		
+		defaults.put(ENABLED_LOCALES, new PropertyMD().setList(true).setCategory(mainCat).
+				setDescription("List of enabled locales. " +
+				"Each entry must have a language code as 'en' or 'pl' first, " +
+				"and then, after a space an optional, short name which will be presented in the UI. By default the 'en' locale is installed."));
+		defaults.put(DEFAULT_LOCALE, new PropertyMD("en").setCategory(mainCat).
+				setDescription("The default locale to be used. Must be one of the enabled locales."));
 		defaults.put(MAIL_CONF, new PropertyMD("conf/mail.properties").setPath().setCategory(mainCat).
 				setDescription("A configuration file for the mail notification subsystem."));
 		defaults.put(RECREATE_ENDPOINTS_ON_STARTUP, new PropertyMD("false").setDescription(
@@ -142,6 +154,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	private UnityHttpServerConfiguration jp;
 	private IAuthnAndTrustConfiguration authnTrust;
 	private IClientConfiguration clientCfg;
+	private Map<String, Locale> enabledLocales;
+	private Locale defaultLocale;
 	
 	@Autowired
 	public UnityServerConfiguration(Environment env, ConfigurationLocationProvider locProvider) throws ConfigurationException, IOException
@@ -151,6 +165,10 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		authnTrust = new AuthnAndTrustProperties(properties, 
 				P+TruststoreProperties.DEFAULT_PREFIX, P+CredentialProperties.DEFAULT_PREFIX);
 		clientCfg = new ClientProperties(properties, P+ClientProperties.DEFAULT_PREFIX, authnTrust);
+		enabledLocales = loadEnabledLocales();
+		defaultLocale = safeLocaleDecode(getValue(DEFAULT_LOCALE));
+		if (!isLocaleSupported(defaultLocale))
+			throw new ConfigurationException("The default locale is not amoung enabled ones.");
 	}
 	
 	private static String getConfigurationFile(Environment env, ConfigurationLocationProvider locProvider)
@@ -167,6 +185,57 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		return configFile;
 	}
 	
+	/**
+	 * @return map with enabled locales. Key is the user-friendly label. 
+	 */
+	private Map<String, Locale> loadEnabledLocales()
+	{
+		List<String> locales = getListOfValues(ENABLED_LOCALES);
+		if (locales.isEmpty())
+		{
+			locales = new ArrayList<String>();
+			locales.add("en English");
+		}
+		Map<String, Locale> ret = new LinkedHashMap<String, Locale>();
+		for (String locale: locales)
+		{
+			locale = locale.trim() + " ";
+			int split = locale.indexOf(' ');
+			String code = locale.substring(0, split);
+			String name = locale.substring(split).trim();
+			if (name.equals(""))
+				name = code;
+			Locale l = safeLocaleDecode(code);
+			ret.put(name, l);
+		}
+		return ret;
+	}
+	
+	public boolean isLocaleSupported(Locale toSearch)
+	{
+		for (Locale l: enabledLocales.values())
+			if (l.equals(toSearch))
+				return true;
+		return false;
+	}
+	
+	public static Locale safeLocaleDecode(String inputRaw)
+	{
+		if (inputRaw == null)
+			return Locale.ENGLISH;
+		Locale l;
+		String input = inputRaw.trim();
+		if (input.contains("_"))
+		{
+			String[] sp = input.split("_");
+			l = new Locale(sp[0], sp[1]);
+		} else
+		{
+			l = new Locale(input);
+		}
+		return l;
+	}
+
 	public UnityHttpServerConfiguration getJettyProperties()
 	{
 		return jp;
@@ -180,6 +249,16 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public IClientConfiguration getClientConfiguration()
 	{
 		return clientCfg;
+	}
+	
+	public Locale getDefaultLocale()
+	{
+		return defaultLocale;
+	}
+
+	public Map<String, Locale> getEnabledLocales()
+	{
+		return enabledLocales;
 	}
 	
 	public Properties getProperties()

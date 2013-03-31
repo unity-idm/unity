@@ -4,11 +4,13 @@
  */
 package pl.edu.icm.unity.webui.authn.extensions;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.CredentialRetrievalFactory;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
@@ -20,6 +22,8 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 public class PasswordRetrievalFactory implements CredentialRetrievalFactory
 {
 	public static final String NAME = "web-password";
+	@Autowired
+	private UnityMessageSource msg;
 	
 	@Override
 	public String getName()
@@ -30,13 +34,13 @@ public class PasswordRetrievalFactory implements CredentialRetrievalFactory
 	@Override
 	public String getDescription()
 	{
-		return "Allows for retrieving password typed in a web widget";
+		return "PasswordRetrievalFactory.desc";
 	}
 
 	@Override
 	public CredentialRetrieval newInstance()
 	{
-		return new PasswordRetrieval();
+		return new PasswordRetrieval(msg);
 	}
 
 	@Override
