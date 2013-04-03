@@ -4,12 +4,18 @@
  */
 package pl.edu.icm.unity.webui.authn.extensions;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.PasswordField;
 
+import eu.unicore.util.configuration.ConfigurationException;
+
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
@@ -30,6 +36,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 	private PasswordExchange credentialExchange;
 	private PasswordField passwordField;
 	private UnityMessageSource msg;
+	private String name;
 	
 	public PasswordRetrieval(UnityMessageSource msg)
 	{
@@ -45,12 +52,29 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 	@Override
 	public String getSerializedConfiguration()
 	{
-		return "";
+		ObjectNode root = Constants.MAPPER.createObjectNode();
+		root.put("name", name);
+		try
+		{
+			return Constants.MAPPER.writeValueAsString(root);
+		} catch (JsonProcessingException e)
+		{
+			throw new RuntimeEngineException("Can't serialize web-based password retrieval configuration to JSON", e);
+		}
 	}
 
 	@Override
 	public void setSerializedConfiguration(String json)
 	{
+		try
+		{
+			JsonNode root = Constants.MAPPER.readTree(json);
+			name = root.get("name").asText();
+		} catch (Exception e)
+		{
+			throw new ConfigurationException("The configuration of the web-" +
+					"based password retrieval can not be parsed", e);
+		}
 	}
 
 	@Override
@@ -68,11 +92,9 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 	@Override
 	public Component getComponent()
 	{
-		HorizontalLayout container = new HorizontalLayout();
-		container.addComponent(new Label(msg.getMessage("PasswordRetrieval.password")));
-		passwordField = new PasswordField();
-		container.addComponent(passwordField);
-		return container;
+		String label = name.trim().equals("") ? msg.getMessage("PasswordRetrieval.password") : name;
+		passwordField = new PasswordField(name);
+		return passwordField;
 	}
 
 	@Override
@@ -100,8 +122,27 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		{
 			passwordField.setComponentError(new UserError(
 					msg.getMessage("PasswordRetrieval.wrongPassword")));
+			passwordField.setValue("");
 			return new AuthenticationResult(Status.deny, null);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getLabel()
+	{
+		return name;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Resource getImage()
+	{
+		return null;
 	}
 }
 

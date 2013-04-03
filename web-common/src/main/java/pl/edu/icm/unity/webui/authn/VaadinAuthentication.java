@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
+import com.vaadin.server.Resource;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
@@ -44,7 +45,16 @@ public interface VaadinAuthentication extends BindingAuthn
 	 */
 	public AuthenticationResult getAuthenticationResult();
 	
+	/**
+	 * @return label for presentation in the user interface.
+	 * returns non null value.
+	 */
+	public String getLabel();
 	
+	/**
+	 * @return image for the presentation in the user interface. Can be null.
+	 */
+	public Resource getImage();
 	
 	/**
 	 * Can be used by retriever to get the username which is actually entered.

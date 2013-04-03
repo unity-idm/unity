@@ -13,26 +13,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
-import pl.edu.icm.unity.exceptions.AuthenticationException;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.UnityWebUI;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.TextField;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
+
 
 
 /**
@@ -80,123 +74,75 @@ public class AuthenticationUI extends UI implements UnityWebUI
 	{
 		Component[] components = new Component[authenticators.size()];
 		for (int i=0; i<components.length; i++)
-			components[i] = buildAuthenticatorSetUI(authenticators.get(i), 
-					description.getAuthenticatorSets().get(i));
+			components[i] = new AuthenticatorSetComponent(authenticators.get(i), 
+					description.getAuthenticatorSets().get(i), msg);
 		Component all = buildAllSetsUI(components);
 		
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(localeChoice);
-		main.addComponent(all);
+		main.setComponentAlignment(localeChoice, Alignment.TOP_LEFT);
 		
-		setContent(main);
+		VerticalLayout authenticationPanel = new VerticalLayout();
+		authenticationPanel.addComponent(all);
+		
+		main.addComponent(authenticationPanel);
+		main.setComponentAlignment(authenticationPanel, Alignment.MIDDLE_CENTER);
+		
+		VerticalLayout spacer = new VerticalLayout();
+		spacer.setHeight("100px");
+		main.addComponent(spacer);
+		
+		main.setSpacing(true);
+		main.setSizeFull();
+
+		VerticalLayout centered = new VerticalLayout();
+		centered.addComponent(main);
+		centered.setComponentAlignment(main, Alignment.MIDDLE_CENTER);
+		centered.setSizeFull();
+		centered.setMargin(true);
+		setSizeFull();
+		setContent(centered);
 	}
 	
-	private Component buildAllSetsUI(Component... setComponents)
+	private Component buildAllSetsUI(final Component... setComponents)
 	{
 		if (setComponents.length == 1)
+		{
+			if (setComponents[0] instanceof ActivationListener)
+				((ActivationListener)setComponents[0]).stateChanged(true);
 			return setComponents[0];
-		TabSheet sheet = new TabSheet();
-		for (int i=0; i<setComponents.length; i++)
-			sheet.addTab(setComponents[i], msg.getMessage(
-					"AuthenticationUI.authnSet", i+1));
-		return sheet;
-	}
-	
-	private Component buildAuthenticatorSetUI(Map<String, VaadinAuthentication> authenticators,
-			AuthenticatorSet set)
-	{
-		boolean needCommonUsername = false;
-		VerticalLayout mainContainer = new VerticalLayout();
-		
-		Label status = new Label("");
-		
-		HorizontalLayout authenticatorsContainer = new HorizontalLayout();		
-		authenticatorsContainer.setSpacing(true);
-		for (String authenticator: set.getAuthenticators())
-		{
-			VaadinAuthentication vaadinAuth = authenticators.get(authenticator); 
-			if (vaadinAuth.needsCommonUsernameComponent())
-				needCommonUsername = true;
-			authenticatorsContainer.addComponent(vaadinAuth.getComponent());
 		}
-		
-		Button authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
-		authenticateButton.addClickListener(new LoginButtonListener(authenticators, set, status));
-		
-		mainContainer.addComponent(status);
-		
-		if (!needCommonUsername)
+		HorizontalLayout all = new HorizontalLayout();
+		final Panel currentAuthnSet = new Panel();
+		AuthenticatorSetChangedListener setChangeListener = new AuthenticatorSetChangedListener()
 		{
-			mainContainer.addComponent(authenticatorsContainer);
-			mainContainer.addComponent(authenticateButton);
-			return mainContainer;
-		}
-
-		UsernameComponent usernameComponent = new UsernameComponent();
-		mainContainer.addComponent(usernameComponent);
-		mainContainer.addComponent(authenticatorsContainer);
-		for (String authenticator: set.getAuthenticators())
-		{
-			VaadinAuthentication vaadinAuth = authenticators.get(authenticator); 
-			if (vaadinAuth.needsCommonUsernameComponent())
-				vaadinAuth.setUsernameCallback(usernameComponent);
-		}		
-		mainContainer.addComponent(authenticateButton);
-		
-		return mainContainer;
-	}
-	
-	private class LoginButtonListener implements ClickListener
-	{
-		private static final long serialVersionUID = 1L;
-		private Map<String, VaadinAuthentication> authenticators;
-		private AuthenticatorSet set;
-		private Label status;
-		
-		public LoginButtonListener(Map<String, VaadinAuthentication> authenticators,
-				AuthenticatorSet set, Label status)
-		{
-			this.authenticators = authenticators;
-			this.set = set;
-			this.status = status;
-		}
-
-		@Override
-		public void buttonClick(ClickEvent event)
-		{
-			List<AuthenticationResult> results = new ArrayList<AuthenticationResult>();
-			for (String authenticator: set.getAuthenticators())
-			{
-				VaadinAuthentication vaadinAuth = authenticators.get(authenticator);
-				results.add(vaadinAuth.getAuthenticationResult());
-			}
+			private ActivationListener last = null;
 			
-			try
+			@Override
+			public void setWasChanged(int i)
 			{
-				AuthenticationProcessor.processResults(results);
-			} catch (AuthenticationException e)
-			{
-				status.setValue(msg.getMessage(e.getMessage()));
+				Component c = setComponents[i];
+				currentAuthnSet.setContent(c);
+				if (last != null)
+					last.stateChanged(false);
+				if (c instanceof ActivationListener)
+				{
+					last = (ActivationListener)c;
+					last.stateChanged(true);
+				}
 			}
-		}
-	}
-	
-	private class UsernameComponent extends HorizontalLayout implements UsernameProvider
-	{
-		private static final long serialVersionUID = 1L;
-		private TextField username;
-		
-		public UsernameComponent()
-		{
-			addComponent(new Label(msg.getMessage("AuthenticationUI.username")));
-			username = new TextField();
-			addComponent(username);
-		}
+		};
+		AuthenticatorSetSelectComponent setSelection = new AuthenticatorSetSelectComponent(msg, 
+				setChangeListener, description, authenticators);
 
-		@Override
-		public String getUsername()
-		{
-			return username.getValue();
-		}
+		currentAuthnSet.setContent(setComponents[0]);
+		
+		all.addComponent(setSelection);
+		all.setComponentAlignment(setSelection, Alignment.MIDDLE_CENTER);
+		all.addComponent(currentAuthnSet);
+		all.setComponentAlignment(currentAuthnSet, Alignment.MIDDLE_CENTER);
+		all.setSpacing(true);
+		all.setSizeFull();
+		return all;
 	}
 }

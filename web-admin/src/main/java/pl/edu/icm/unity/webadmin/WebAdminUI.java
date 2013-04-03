@@ -19,9 +19,16 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.UnityWebUI;
 
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinSession;
+import com.vaadin.server.WrappedSession;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component.Event;
 
 /**
  * The main entry point of the web administration UI 
@@ -50,10 +57,33 @@ public class WebAdminUI extends UI implements UnityWebUI
 		try
 		{
 			List<EndpointTypeDescription> enpT = test.getEndpointTypes();
-			setContent(new Label("Web UI. Endpoint types: " + enpT.toString()));
+			VerticalLayout contents = new VerticalLayout();
+			contents.addComponent(new Label("Web UI. Endpoint types: " + enpT.toString()));
+			Button logout = new Button("logout");
+			logout.addClickListener(new Button.ClickListener()
+			{
+				@Override
+				public void buttonClick(ClickEvent event)
+				{
+					System.out.println("Session destroyed111");
+					/*
+					VaadinSession vs = VaadinSession.getCurrent();
+					System.out.println("Session destroyed111");
+					WrappedSession s = vs.getSession();
+					System.out.println("Session destroyed222");
+					Page p = Page.getCurrent();
+					System.out.println("Session destroyed333");
+					s.invalidate();
+					System.out.println("Session destroyed");
+					p.setLocation("/admin");
+					*/
+				}
+			});
+			contents.addComponent(logout);
+			setContent(contents);
 		} catch (EngineException e)
 		{
-			setContent(new Label("Web UI. Got error: " + e));
+			e.printStackTrace();
 		}
 	}
 
