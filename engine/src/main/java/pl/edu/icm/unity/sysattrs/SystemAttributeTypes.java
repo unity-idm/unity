@@ -30,7 +30,7 @@ public class SystemAttributeTypes
 	//public static final String ATTRIBUTE_CLASSES = "sys:AttributeClasses"; 
 	public static final String CREDENTIALS_STATE = "sys:CredentialsState";
 	public static final String CREDENTIAL_PREFIX = "sys:Credential:";
-	public static final String AUTHORIZATION_LEVEL = "sys:AuthorizationLevel";
+	public static final String AUTHORIZATION_ROLE = "sys:AuthorizationRole";
 	
 	private AuthorizationManager authz;
 	
@@ -73,7 +73,7 @@ public class SystemAttributeTypes
 	private AttributeType getAuthozationRoleAT()
 	{
 		Set<String> vals = authz.getRoleNames();
-		AttributeType authorizationAt = new AttributeType(AUTHORIZATION_LEVEL, new EnumAttributeSyntax(vals));
+		AttributeType authorizationAt = new AttributeType(AUTHORIZATION_ROLE, new EnumAttributeSyntax(vals));
 		authorizationAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.NO_VALUES_LIMITING_FLAG);
 		authorizationAt.setDescription("Defines what operations are allowed for the bearer.");
 		authorizationAt.setMinElements(1);

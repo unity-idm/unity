@@ -260,7 +260,7 @@ public class EngineInitialization extends LifecycleBase
 				
 				EntityParam adminEntity = new EntityParam(adminId.getEntityId());
 				idManagement.setEntityCredential(adminEntity, credDef.getName(), "admin");
-				EnumAttribute roleAt = new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_LEVEL,
+				EnumAttribute roleAt = new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE,
 						"/", AttributeVisibility.local, 
 						AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE);
 				attrManagement.setAttribute(adminEntity, roleAt, false);

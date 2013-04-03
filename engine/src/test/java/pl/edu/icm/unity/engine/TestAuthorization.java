@@ -26,7 +26,7 @@ public class TestAuthorization extends DBIntegrationTestBase
 {
 	private void setAdminsRole(String role) throws Exception
 	{
-		EnumAttribute roleAt = new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_LEVEL,
+		EnumAttribute roleAt = new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE,
 				"/", AttributeVisibility.local, role);
 		EntityParam adminEntity = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "admin"));
 		insecureAttrsMan.setAttribute(adminEntity, roleAt, true);
@@ -47,9 +47,9 @@ public class TestAuthorization extends DBIntegrationTestBase
 		Identity added = idsMan.addIdentity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				LocalAuthenticationState.outdated);
 		EntityParam entity = new EntityParam(added.getEntityId());
-		attrsMan.setAttribute(entity, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_LEVEL,
+		attrsMan.setAttribute(entity, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE,
 				"/", AttributeVisibility.local, AuthorizationManagerImpl.USER_ROLE), false);
-		setupUserContext("user1");
+		setupUserContext("user1", LocalAuthenticationState.valid);
 		try
 		{
 			//tests standard deny
@@ -66,14 +66,14 @@ public class TestAuthorization extends DBIntegrationTestBase
 		//tests self access
 		attrsMan.getAttributes(entity, "/", null);
 		
-		setupUserContext("admin");
+		setupUserContext("admin", LocalAuthenticationState.valid);
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addMemberFromParent("/A", entity);
-		attrsMan.removeAttribute(entity, "/", SystemAttributeTypes.AUTHORIZATION_LEVEL);
+		attrsMan.removeAttribute(entity, "/", SystemAttributeTypes.AUTHORIZATION_ROLE);
 		
-		attrsMan.setAttribute(entity, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_LEVEL,
+		attrsMan.setAttribute(entity, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE,
 				"/A", AttributeVisibility.local, AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE), false);
-		setupUserContext("user1");
+		setupUserContext("user1", LocalAuthenticationState.valid);
 		try
 		{
 			//tests standard deny
@@ -91,5 +91,19 @@ public class TestAuthorization extends DBIntegrationTestBase
 			groupsMan.addGroup(new Group("/B"));
 			fail("addGrp possible for no-role");
 		} catch(AuthorizationException e) {}
+		
+		//tests outdated credential
+		setupUserContext("admin", LocalAuthenticationState.valid);
+		attrsMan.setAttribute(entity, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE,
+				"/", AttributeVisibility.local, AuthorizationManagerImpl.USER_ROLE), false);
+		setupUserContext("user1", LocalAuthenticationState.outdated);
+		try
+		{
+			attrsMan.getAttributes(entity, "/", null);
+			fail("got attributes with outdated credential");
+		} catch(AuthorizationException e) {}
+		
+		idsMan.setEntityCredential(entity, EngineInitialization.DEFAULT_CREDENTIAL, "foo12!~");
+		idsMan.getIdentityTypes();
 	}
 }

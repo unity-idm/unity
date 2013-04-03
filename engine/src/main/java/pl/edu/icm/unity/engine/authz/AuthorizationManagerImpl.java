@@ -20,8 +20,10 @@ import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
+import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Group;
 
@@ -127,33 +129,52 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	@Override
 	public void checkAuthorization(AuthzCapability... requiredCapabilities)
 	{
-		checkAuthorization(false, null, requiredCapabilities);
+		checkAuthorizationInternal(getCallerMethodName(2), false, null, requiredCapabilities);
 	}
 
 	@Override
 	public void checkAuthorization(boolean selfAccess, AuthzCapability... requiredCapabilities)
 	{
-		checkAuthorization(selfAccess, null, requiredCapabilities);
+		checkAuthorizationInternal(getCallerMethodName(2), selfAccess, null, requiredCapabilities);
 	}
 	
 	@Override
 	public void checkAuthorization(String group, AuthzCapability... requiredCapabilities)
 	{
-		checkAuthorization(false, group, requiredCapabilities);
+		checkAuthorizationInternal(getCallerMethodName(2), false, group, requiredCapabilities);
 	}
 
 	@Override
 	public void checkAuthorization(boolean selfAccess, String groupPath, AuthzCapability... requiredCapabilities)
 	{
+		checkAuthorizationInternal(getCallerMethodName(2), selfAccess, groupPath, requiredCapabilities);
+	}
+	
+	private void checkAuthorizationInternal(String callerMethod, boolean selfAccess, String groupPath, 
+			AuthzCapability... requiredCapabilities)
+	{
 		Group group = groupPath == null ? new Group("/") : new Group(groupPath);
 		InvocationContext authnCtx = InvocationContext.getCurrent();
-		Set<AuthzRole> roles = establishRoles(authnCtx.getAuthenticatedEntity().getEntityId(), group);
+		AuthenticatedEntity client = authnCtx.getAuthenticatedEntity();
+
+		//special case: if the credential is outdated, the only allowed operation is to update it
+		//or the minimal read
+		if (client.getAuthnState() == LocalAuthenticationState.outdated)
+		{
+			if (requiredCapabilities.length > 1 || 
+					(requiredCapabilities[0] != AuthzCapability.credentialModify &&
+					requiredCapabilities[0] != AuthzCapability.readInfo))
+				throw new AuthorizationException("Access is denied. The client's credential " +
+						"is outdated and the only allowed operation is the credential update");
+		}
+		
+		Set<AuthzRole> roles = establishRoles(client.getEntityId(), group);
 		Set<AuthzCapability> capabilities = getRoleCapabilities(roles, selfAccess);
 		
 		for (AuthzCapability requiredCapability: requiredCapabilities)
 			if (!capabilities.contains(requiredCapability))
 				throw new AuthorizationException("Access is denied. The operation " + 
-						getCallerMethodName() +	" requires " + requiredCapability);
+						callerMethod + " requires " + requiredCapability);
 	}
 	
 	@Override
@@ -195,7 +216,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 
 	private boolean addRolesFromAttribute(boolean found, Map<String, Attribute<?>> inCurrent, Set<AuthzRole> ret)
 	{
-		Attribute<?> role = found ? null : inCurrent.get(SystemAttributeTypes.AUTHORIZATION_LEVEL);
+		Attribute<?> role = found ? null : inCurrent.get(SystemAttributeTypes.AUTHORIZATION_ROLE);
 		if (role != null)
 		{
 			List<?> roles = role.getValues();
@@ -227,11 +248,11 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		}
 	}
 	
-	private String getCallerMethodName()
+	private String getCallerMethodName(int backwards)
 	{
 		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-		if (stackTrace.length < 2)
+		if (stackTrace.length < backwards+2)
 			return "UNKNOWN";
-		return stackTrace[1].getMethodName();
+		return stackTrace[backwards+1].getMethodName();
 	}
 }
