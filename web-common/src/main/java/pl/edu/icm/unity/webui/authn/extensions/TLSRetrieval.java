@@ -4,14 +4,22 @@
  */
 package pl.edu.icm.unity.webui.authn.extensions;
 
+import java.security.cert.X509Certificate;
+
+import javax.servlet.http.HttpServletRequest;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
+import com.vaadin.server.VaadinServletService;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.PasswordField;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
+import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.util.configuration.ConfigurationException;
 
 import pl.edu.icm.unity.Constants;
@@ -22,23 +30,23 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.stdext.credential.PasswordExchange;
+import pl.edu.icm.unity.stdext.credential.CertificateExchange;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
 /**
- * Retrieves passwords using a Vaadin widget.
+ * Retrieves the authenticated user from the TLS. The login happens on the HTTP connection level 
+ * and so the component is not interactive.
  * 
  * @author K. Benedyczak
  */
-public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthentication
+public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 {
-	private UsernameProvider usernameProvider;
-	private PasswordExchange credentialExchange;
-	private PasswordField passwordField;
+	private CertificateExchange credentialExchange;
 	private UnityMessageSource msg;
 	private String name;
+	private TLSAuthnComponent component;
 	
-	public PasswordRetrieval(UnityMessageSource msg)
+	public TLSRetrieval(UnityMessageSource msg)
 	{
 		this.msg = msg;
 	}
@@ -59,7 +67,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 			return Constants.MAPPER.writeValueAsString(root);
 		} catch (JsonProcessingException e)
 		{
-			throw new RuntimeEngineException("Can't serialize web-based password retrieval configuration to JSON", e);
+			throw new RuntimeEngineException("Can't serialize web-based TLS retrieval configuration to JSON", e);
 		}
 	}
 
@@ -73,57 +81,51 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("The configuration of the web-" +
-					"based password retrieval can not be parsed", e);
+					"based TLS retrieval can not be parsed", e);
 		}
 	}
 
 	@Override
 	public void setCredentialExchange(CredentialExchange e)
 	{
-		this.credentialExchange = (PasswordExchange) e;
+		this.credentialExchange = (CertificateExchange) e;
 	}
 
 	@Override
 	public boolean needsCommonUsernameComponent()
 	{
-		return true;
+		return false;
 	}
 
 	@Override
 	public Component getComponent()
 	{
-		String label = name.trim().equals("") ? msg.getMessage("PasswordRetrieval.password") : name;
-		passwordField = new PasswordField(label);
-		return passwordField;
+		component = new TLSAuthnComponent();
+		return component;
 	}
 
 	@Override
 	public void setUsernameCallback(UsernameProvider usernameCallback)
 	{
-		this.usernameProvider = usernameCallback;
 	}
 
 	@Override
 	public AuthenticationResult getAuthenticationResult()
 	{
-		String username = usernameProvider.getUsername();
-		String password = passwordField.getValue();
-		if (username.equals("") && password.equals(""))
+		X509Certificate[] clientCert = getTLSCertificate();
+
+		if (clientCert == null)
 		{
-			passwordField.setComponentError(new UserError(
-					msg.getMessage("PasswordRetrieval.noPassword")));
 			return new AuthenticationResult(Status.notApplicable, null);
 		}
 		try
 		{
-			AuthenticatedEntity authenticatedEntity = credentialExchange.checkPassword(username, password);
-			passwordField.setComponentError(null);
+			AuthenticatedEntity authenticatedEntity = credentialExchange.checkCertificate(clientCert);
+			component.setError(false);
 			return new AuthenticationResult(Status.success, authenticatedEntity);
 		} catch (Exception e)
 		{
-			passwordField.setComponentError(new UserError(
-					msg.getMessage("PasswordRetrieval.wrongPassword")));
-			passwordField.setValue("");
+			component.setError(true);
 			return new AuthenticationResult(Status.deny, null);
 		}
 	}
@@ -145,14 +147,47 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 	{
 		return null;
 	}
+	
+	
+	private static X509Certificate[] getTLSCertificate()
+	{
+		HttpServletRequest request = VaadinServletService.getCurrentServletRequest();
+		if (request == null)
+			return null;
+		return (X509Certificate[]) request.getAttribute(
+				"javax.servlet.request.X509Certificate");
+	}
+	
+	@SuppressWarnings("serial")
+	private class TLSAuthnComponent extends VerticalLayout
+	{
+		private Label info;
+		
+		public TLSAuthnComponent()
+		{
+			String label = name.trim().equals("") ? msg.getMessage("TLSRetrieval.title") : name;
+			Label title = new Label(label);
+			title.addStyleName(Reindeer.LABEL_H2);
+			addComponent(title);
+			info = new Label();
+			addComponent(info);
+			X509Certificate[] clientCert = getTLSCertificate();
+			if (clientCert == null)
+			{
+				info.setValue(msg.getMessage("TLSRetrieval.noCert"));
+			} else
+			{
+				info.setValue(msg.getMessage("TLSRetrieval.certInfo", 
+						X500NameUtils.getReadableForm(clientCert[0].getSubjectX500Principal())));
+			}
+		}
+		
+		public void setError(boolean how)
+		{
+			info.setComponentError(how ? new UserError(
+					msg.getMessage("TLSRetrieval.unknownUser")) : null);
+		}
+	}
 }
-
-
-
-
-
-
-
-
 
 

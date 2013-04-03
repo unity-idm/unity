@@ -13,5 +13,6 @@
 	<bean class="pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax"/>
 	
 	<bean class="pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory"/>
 	
 </beans>

@@ -7,6 +7,7 @@
 	<context:annotation-config/>
 
 	<bean class="pl.edu.icm.unity.webui.authn.extensions.PasswordRetrievalFactory"/>
+	<bean class="pl.edu.icm.unity.webui.authn.extensions.TLSRetrievalFactory"/>
 
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
 		<property name="bundle" value="pl/edu/icm/unity/webui/messages/messages"/>

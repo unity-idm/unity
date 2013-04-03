@@ -18,9 +18,11 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Page;
 import com.vaadin.server.UserError;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -49,12 +51,14 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		setSizeUndefined();
 		VerticalLayout authenticatorsContainer = new VerticalLayout();		
 		authenticatorsContainer.setSpacing(true);
+		authenticatorsContainer.addComponent(new Label("<hr>", ContentMode.HTML));
 		for (String authenticator: set.getAuthenticators())
 		{
 			VaadinAuthentication vaadinAuth = authenticators.get(authenticator); 
 			if (vaadinAuth.needsCommonUsernameComponent())
 				needCommonUsername = true;
 			authenticatorsContainer.addComponent(vaadinAuth.getComponent());
+			authenticatorsContainer.addComponent(new Label("<hr>", ContentMode.HTML));
 		}
 		
 		authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
@@ -152,7 +156,8 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		if (enabled)
 		{
 			authenticateButton.setClickShortcut(KeyCode.ENTER);
-			usernameComponent.setFocus();
+			if (usernameComponent != null)
+				usernameComponent.setFocus();
 		} else
 		{
 			authenticateButton.removeClickShortcut();
