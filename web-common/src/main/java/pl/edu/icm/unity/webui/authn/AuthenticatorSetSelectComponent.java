@@ -18,7 +18,6 @@ import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Displays and allows to select authenticator set.
@@ -35,7 +34,7 @@ public class AuthenticatorSetSelectComponent extends VerticalLayout
 		this.msg = msg;
 		
 		OptionGroup buttons = new OptionGroup(msg.getMessage("AuthenticationUI.selectMethod"));
-		buttons.addStyleName(Reindeer.LABEL_H2);
+		buttons.addStyleName("authnSetSelect");
 		addComponent(buttons);
 		setSizeUndefined();
 		

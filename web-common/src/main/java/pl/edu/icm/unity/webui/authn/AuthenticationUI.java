@@ -19,6 +19,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.UnityWebUI;
 
+import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
@@ -36,6 +37,7 @@ import com.vaadin.ui.VerticalLayout;
  */
 @org.springframework.stereotype.Component("AuthenticationUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@Theme("unityTheme")
 public class AuthenticationUI extends UI implements UnityWebUI
 {
 	private static final long serialVersionUID = 1L;
@@ -138,9 +140,9 @@ public class AuthenticationUI extends UI implements UnityWebUI
 		currentAuthnSet.setContent(setComponents[0]);
 		
 		all.addComponent(setSelection);
-		all.setComponentAlignment(setSelection, Alignment.MIDDLE_CENTER);
+		all.setComponentAlignment(setSelection, Alignment.TOP_CENTER);
 		all.addComponent(currentAuthnSet);
-		all.setComponentAlignment(currentAuthnSet, Alignment.MIDDLE_CENTER);
+		all.setComponentAlignment(currentAuthnSet, Alignment.TOP_CENTER);
 		all.setSpacing(true);
 		all.setSizeFull();
 		return all;
