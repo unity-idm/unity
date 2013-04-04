@@ -85,6 +85,14 @@ public class TestAuthorization extends DBIntegrationTestBase
 		//tests searching of the role attribute in the parent group
 		groupsMan.removeGroup("/A/B", true);
 		
+		//test if limited role in subgroup won't be effective (should get roles from the parent)
+		groupsMan.addGroup(new Group("/A/G"));
+		groupsMan.addMemberFromParent("/A/G", entity);
+		attrsMan.setAttribute(entity, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE,
+				"/A/G", AttributeVisibility.local, AuthorizationManagerImpl.ANONYMOUS_ROLE), false);
+		groupsMan.addGroup(new Group("/A/G/Z"));
+		
+		
 		try
 		{
 			//tests standard deny

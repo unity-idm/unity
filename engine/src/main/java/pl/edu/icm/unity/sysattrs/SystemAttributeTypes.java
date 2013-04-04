@@ -74,7 +74,7 @@ public class SystemAttributeTypes
 	{
 		Set<String> vals = authz.getRoleNames();
 		AttributeType authorizationAt = new AttributeType(AUTHORIZATION_ROLE, new EnumAttributeSyntax(vals));
-		authorizationAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.NO_VALUES_LIMITING_FLAG);
+		authorizationAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
 		authorizationAt.setDescription("Defines what operations are allowed for the bearer.");
 		authorizationAt.setMinElements(1);
 		authorizationAt.setVisibility(AttributeVisibility.local);

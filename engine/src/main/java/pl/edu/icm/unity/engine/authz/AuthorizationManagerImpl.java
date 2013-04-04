@@ -198,25 +198,21 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	{
 		Map<String, Map<String, Attribute<?>>> allAttributes = getAllAttributes(entityId);
 		Group current = group;
-		boolean foundRole = false;
 		Set<AuthzRole> ret = new HashSet<AuthzRole>();
 		do
 		{
 			Map<String, Attribute<?>> inCurrent = allAttributes.get(current.toString());
 			if (inCurrent != null)
-			{
-				if (addRolesFromAttribute(foundRole, inCurrent, ret))
-					break;
-			}
+				addRolesFromAttribute(inCurrent, ret);
 			String parent = current.getParentPath();
 			current = parent == null ? null : new Group(parent);
 		} while (current != null);
 		return ret;
 	}
 
-	private boolean addRolesFromAttribute(boolean found, Map<String, Attribute<?>> inCurrent, Set<AuthzRole> ret)
+	private void addRolesFromAttribute(Map<String, Attribute<?>> inCurrent, Set<AuthzRole> ret)
 	{
-		Attribute<?> role = found ? null : inCurrent.get(SystemAttributeTypes.AUTHORIZATION_ROLE);
+		Attribute<?> role = inCurrent.get(SystemAttributeTypes.AUTHORIZATION_ROLE);
 		if (role != null)
 		{
 			List<?> roles = role.getValues();
@@ -228,9 +224,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 							"unsupported role value: " + r);
 				ret.add(rr);
 			}
-			return true;
 		}
-		return false;
 	}
 	
 	private Map<String, Map<String, Attribute<?>>> getAllAttributes(long entityId)

@@ -25,16 +25,10 @@ public class AttributeType implements InitializationValidator
 	
 	/**
 	 * The attribute type instances can not be created, updated or removed using management API
-	 * (there are specialized methods to manipulate such attributes).  
+	 * (there are specialized methods to manipulate such attributes). This flag rather makes sense only
+	 * in combination with TYPE_IMMUTABLE_FLAG.
 	 */
 	public static final int INSTANCES_IMMUTABLE_FLAG = 0x02;
-	
-	/**
-	 * The attribute instance defined in a group must contain all values that are defined for the
-	 * bearer in the closest parent group. Especially useful for authZ attributes, to forbid
-	 * limiting of permissions in subgroups. 
-	 */
-	public static final int NO_VALUES_LIMITING_FLAG = 0x04;
 	
 	private String description = "";
 	private String name;
