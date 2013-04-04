@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.IllegalArgumentException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 
@@ -127,6 +128,8 @@ public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 	 */
 	public void setMinLength(int minLength)
 	{
+		if (minLength > maxLength)
+			throw new IllegalArgumentException("Minimal string length must not be less then the maximal");
 		this.minLength = minLength;
 	}
 
@@ -143,6 +146,8 @@ public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 	 */
 	public void setMaxLength(int maxLength)
 	{
+		if (maxLength < minLength)
+			throw new IllegalArgumentException("Maxmal string length must not be less then the minimal");
 		this.maxLength = maxLength;
 	}
 }

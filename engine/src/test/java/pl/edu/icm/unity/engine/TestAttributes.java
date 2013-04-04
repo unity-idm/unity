@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -210,6 +211,124 @@ public class TestAttributes extends DBIntegrationTestBase
 		attrsMan.removeAttributeType("some", true);
 		ats = attrsMan.getAttributeTypes();
 		assertEquals(sa+1, ats.size());
+		
+		//add and update
+		at = createSimpleAT("some");
+		attrsMan.addAttributeType(at);
+		at.setDescription("updated");
+		at.setMaxElements(100);
+		attrsMan.updateAttributeType(at);
+		
+		ats = attrsMan.getAttributeTypes();
+		assertEquals(ats.toString(), sa+2, ats.size());
+		at2 = getAttributeTypeByName(ats, "some");
+		assertEquals(at.getDescription(), at2.getDescription());
+		assertEquals(at.getFlags(), at2.getFlags());
+		assertEquals(at.getMaxElements(), at2.getMaxElements());
+		assertEquals(at.getMinElements(), at2.getMinElements());
+		assertEquals(at.getName(), at2.getName());
+		assertEquals(at.getValueType().getValueSyntaxId(), at2.getValueType().getValueSyntaxId());
+		assertEquals(at.getVisibility(), at2.getVisibility());
+		
+		//try to set wrong settings via update
+		try
+		{
+			at.setMaxElements(100);
+			at.setMinElements(200);
+			attrsMan.updateAttributeType(at);
+			fail("Managed to update attr setting wrong min/max");
+		} catch (IllegalAttributeTypeException e) {/*OK*/}
+		
+		//check if update works with instances, when the change is not conflicting
+		List<String> vals = new ArrayList<String>();
+		Collections.addAll(vals, "1", "2", "3");
+		at1 = new StringAttribute("some", "/", AttributeVisibility.local, vals);
+		attrsMan.setAttribute(entity, at1, false);
+		at.setMinElements(1);
+		at.setMaxElements(3);
+		attrsMan.updateAttributeType(at);
+		
+		//and the same when the update of the type is conflicting
+		try
+		{
+			at.setMaxElements(2);
+			attrsMan.updateAttributeType(at);
+			fail("Managed to update attr setting restrictions incompatible with instances");
+		} catch (IllegalAttributeTypeException e) {/*OK*/}
+	}
+	
+	/**
+	 * Tests {@link StringAttributeSyntax}, at the same time checking if the generic, wrapping infrastructure is
+	 * working correctly.
+	 */
+	@Test
+	public void testStringAT() throws Exception
+	{
+		setupMockAuthn();
+		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "cn=golbi", true, true), "crMock", 
+				LocalAuthenticationState.disabled);
+		EntityParam entity = new EntityParam(id.getEntityId());
+		
+		AttributeType at = createSimpleAT("some");
+		at.setMinElements(1);
+		at.setMaxElements(2);
+		StringAttributeSyntax stringSyntax = new StringAttributeSyntax();
+		stringSyntax.setMaxLength(8);
+		stringSyntax.setMinLength(5);
+		stringSyntax.setRegexp("MA.*g");
+		at.setValueType(stringSyntax);
+		attrsMan.addAttributeType(at);
+		
+		List<String> vals = new ArrayList<String>();
+		Collections.addAll(vals, "MA__g", "MA_ _ _g");
+		StringAttribute atOK = new StringAttribute("some", "/", AttributeVisibility.local, vals);
+		attrsMan.setAttribute(entity, atOK, false);
+		
+		//now try to break restrictions:
+		// - values limit
+		vals.add("_MA_g");
+		try
+		{
+			attrsMan.setAttribute(entity, atOK, true);
+			fail("Managed to add attribute with too many values");
+		} catch (IllegalAttributeValueException e) {/*OK*/}
+		
+		// - min len limit
+		vals.clear();
+		Collections.addAll(vals, "MA_g");
+		try
+		{
+			attrsMan.setAttribute(entity, atOK, true);
+			fail("Managed to add attribute with too short value");
+		} catch (IllegalAttributeValueException e) {/*OK*/}
+		
+		// - max len limit
+		vals.clear();
+		Collections.addAll(vals, "MA__________g");
+		try
+		{
+			attrsMan.setAttribute(entity, atOK, true);
+			fail("Managed to add attribute with too long value");
+		} catch (IllegalAttributeValueException e) {/*OK*/}
+		
+		// - regexp 
+
+		vals.clear();
+		Collections.addAll(vals, "M____g");
+		try
+		{
+			attrsMan.setAttribute(entity, atOK, true);
+			fail("Managed to add attribute with not matching value");
+		} catch (IllegalAttributeValueException e) {/*OK*/}
+		
+		//try to update the type so that syntax won't match instances
+		stringSyntax.setRegexp("MA..g");
+		at.setValueType(stringSyntax);
+		try
+		{
+			attrsMan.updateAttributeType(at);
+			fail("Managed to update attribute type to confliction with instances");
+		} catch (IllegalAttributeTypeException e) {/*OK*/}
 	}
 }
 

@@ -148,12 +148,12 @@ public class TestAuthentication extends DBIntegrationTestBase
 	@Test
 	public void testCredentialsManagement() throws Exception
 	{
-		int automaticCredTypes = 1;
+		int automaticCredTypes = 2;
 		int automaticCreds = 1;
 		int automaticCredReqs = 1;
 		//check if credential types are returned
 		Collection<CredentialType> credTypes = authnMan.getCredentialTypes();
-		assertEquals(1+automaticCredTypes, credTypes.size());
+		assertEquals(credTypes.toString(), 1+automaticCredTypes, credTypes.size());
 		CredentialType credType = getDescObjectByName(credTypes, MockPasswordVerificatorFactory.ID);
 		assertEquals(MockPasswordVerificatorFactory.ID, credType.getName());
 		

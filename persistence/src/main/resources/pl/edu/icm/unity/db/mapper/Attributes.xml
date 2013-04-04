@@ -24,6 +24,11 @@
 		INSERT INTO ATTRIBUTE_TYPES (NAME, VALUE_SYNTAX_ID, CONTENTS) VALUES (#{name}, #{valueSyntaxId}, #{contents})
 	</insert>	
 
+	<update id="updateAttributeType" parameterType="AttributeTypeB">
+		UPDATE ATTRIBUTE_TYPES SET VALUE_SYNTAX_ID=#{valueSyntaxId}, CONTENTS=#{contents}
+			WHERE NAME=#{name} 
+	</update>	
+
 	<select id="getAttributeTypes" resultMap="attributeTypeResult">
 		select * from ATTRIBUTE_TYPES
 	</select>

@@ -99,6 +99,33 @@ public class DBAttributes
 		}
 		mapper.deleteAttributeType(id);
 	}
+
+	public void updateAttributeType(AttributeType toUpdate, SqlSession sqlMap)
+	{
+		limits.checkNameLimit(toUpdate.getName());
+		AttributesMapper mapper = sqlMap.getMapper(AttributesMapper.class);
+		GroupsMapper gMapper = sqlMap.getMapper(GroupsMapper.class);
+		AttributeBean atb = new AttributeBean();
+		atb.setName(toUpdate.getName());
+		List<AttributeBean> allAttributesOfType = mapper.getAttributes(atb);
+		for (AttributeBean ab: allAttributesOfType)
+		{
+			String groupPath = groupResolver.resolveGroupPath(ab.getGroupId(), gMapper);
+			Attribute<?> attribute = attrResolver.resolveAttributeBean(ab, groupPath);
+			try
+			{
+				AttributeValueChecker.validate(attribute, toUpdate);
+			} catch (Exception e)
+			{
+				throw new IllegalAttributeTypeException("Can't update the attribute type as at least " +
+						"one attribute instance will be in conflict with the new type. " +
+						"The conflicting attribute which was found: " + attribute, e);
+			}
+		}
+		AttributeTypeBean updatedB = new AttributeTypeBean(toUpdate.getName(), atSerializer.toJson(toUpdate), 
+				toUpdate.getValueType().getValueSyntaxId());
+		mapper.updateAttributeType(updatedB);
+	}
 	
 	public List<AttributeType> getAttributeTypes(SqlSession sqlMap)
 	{

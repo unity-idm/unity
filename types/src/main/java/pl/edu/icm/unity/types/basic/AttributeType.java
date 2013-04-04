@@ -171,4 +171,14 @@ public class AttributeType implements InitializationValidator
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "AttributeType [name=" + name + ", description=" + description
+				+ ", valueType=" + valueType + ", minElements=" + minElements
+				+ ", maxElements=" + maxElements + ", selfModificable="
+				+ selfModificable + ", visibility=" + visibility + ", flags="
+				+ flags + "]";
+	}
 }

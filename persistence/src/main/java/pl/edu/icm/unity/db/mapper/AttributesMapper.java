@@ -18,6 +18,7 @@ import pl.edu.icm.unity.db.model.AttributeTypeBean;
 public interface AttributesMapper
 {
 	public void insertAttributeType(AttributeTypeBean at);
+	public void updateAttributeType(AttributeTypeBean at);
 	public List<AttributeTypeBean> getAttributeTypes();
 	public void deleteAttributeType(String name);
 	public AttributeTypeBean getAttributeType(String name);

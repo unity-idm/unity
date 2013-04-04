@@ -97,7 +97,24 @@ public class AttributesManagementImpl implements AttributesManagement
 	@Override
 	public void updateAttributeType(AttributeType at) throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		at.validateInitialization();
+		if (at.getFlags() != 0)
+			throw new IllegalAttributeTypeException("Custom attribute types must not have any flags set");
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			AttributeType atExisting = dbAttributes.getAttributeType(at.getName(), sql);
+			if ((atExisting.getFlags() & AttributeType.TYPE_IMMUTABLE_FLAG) != 0)
+				throw new IllegalAttributeTypeException("The attribute type with name " + at.getName() + 
+						" can not be manually updated");
+			
+			dbAttributes.updateAttributeType(at, sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
 	}
 
 	/**

@@ -34,4 +34,12 @@ public class DescribedObjectROImpl implements DescribedObject
 	{
 		return description;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "DescribedObject [name=" + name + ", description=" + description + "]";
+	}
+	
+	
 }
