@@ -12,5 +12,8 @@
 	</bean>
 		
 	<bean scope="prototype" id="WebAdminUI" class="pl.edu.icm.unity.webadmin.WebAdminUI"/>
+	
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.groupbrowser.GroupBrowserComponent"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.groupbrowser.GroupsTree"/>
 
 </beans>

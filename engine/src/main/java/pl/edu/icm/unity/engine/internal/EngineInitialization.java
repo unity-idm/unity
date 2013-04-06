@@ -242,7 +242,7 @@ public class EngineInitialization extends LifecycleBase
 						"default credential settings");
 				CredentialDefinition credDef = new CredentialDefinition(PasswordVerificatorFactory.NAME,
 						DEFAULT_CREDENTIAL, "Default password credential with typical security settings.");
-				credDef.setJsonConfiguration("{\"minLength\": 4," +
+				credDef.setJsonConfiguration("{\"minLength\": 1," +
 						"\"historySize\": 1," +
 						"\"minClassesNum\": 1," +
 						"\"denySequences\": false," +
@@ -254,16 +254,21 @@ public class EngineInitialization extends LifecycleBase
 						Collections.singleton(credDef.getName()));
 				authnManagement.addCredentialRequirement(crDef);
 
-				IdentityParam admin = new IdentityParam(UsernameIdentity.ID, "admin", true, true);
+				String adminU = config.getValue(UnityServerConfiguration.INITIAL_ADMIN_USER);
+				String adminP = config.getValue(UnityServerConfiguration.INITIAL_ADMIN_PASSWORD);
+				IdentityParam admin = new IdentityParam(UsernameIdentity.ID, adminU, true, true);
 				Identity adminId = idManagement.addIdentity(admin, crDef.getName(), 
 						LocalAuthenticationState.outdated);
 				
 				EntityParam adminEntity = new EntityParam(adminId.getEntityId());
-				idManagement.setEntityCredential(adminEntity, credDef.getName(), "admin");
+				idManagement.setEntityCredential(adminEntity, credDef.getName(), adminP);
 				EnumAttribute roleAt = new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE,
 						"/", AttributeVisibility.local, 
 						AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE);
 				attrManagement.setAttribute(adminEntity, roleAt, false);
+				log.warn("IMPORTANT: database was initialized with a default admin user and password." +
+						" Log in and change the admin's password immediatelly! U: " + 
+						adminU + " P: " + adminP);
 			}
 		} catch (EngineException e)
 		{

@@ -12,11 +12,11 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.EndpointManagement;
+import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.webadmin.groupbrowser.GroupBrowserComponent;
 import pl.edu.icm.unity.webui.UnityWebUI;
 
 import com.vaadin.server.Page;
@@ -24,14 +24,14 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Component.Event;
 
 /**
- * The main entry point of the web administration UI 
+ * The main entry point of the web administration UI.
+ * 
+ * TODO - currently only a mess
  * @author K. Benedyczak
  */
 @Component("WebAdminUI")
@@ -41,7 +41,10 @@ public class WebAdminUI extends UI implements UnityWebUI
 	private static final long serialVersionUID = 1L;
 
 	@Autowired
-	private EndpointManagement test;
+	private GroupsManagement test;
+	
+	@Autowired
+	private GroupBrowserComponent groupBrowser;
 	
 	@Override
 	public void configure(EndpointDescription description,
@@ -56,35 +59,38 @@ public class WebAdminUI extends UI implements UnityWebUI
 	{
 		try
 		{
-			List<EndpointTypeDescription> enpT = test.getEndpointTypes();
-			VerticalLayout contents = new VerticalLayout();
-			contents.addComponent(new Label("Web UI. Endpoint types: " + enpT.toString()));
-			Button logout = new Button("logout");
-			logout.addClickListener(new Button.ClickListener()
-			{
-				@Override
-				public void buttonClick(ClickEvent event)
-				{
-					System.out.println("Session destroyed111");
-					/*
-					VaadinSession vs = VaadinSession.getCurrent();
-					System.out.println("Session destroyed111");
-					WrappedSession s = vs.getSession();
-					System.out.println("Session destroyed222");
-					Page p = Page.getCurrent();
-					System.out.println("Session destroyed333");
-					s.invalidate();
-					System.out.println("Session destroyed");
-					p.setLocation("/admin");
-					*/
-				}
-			});
-			contents.addComponent(logout);
-			setContent(contents);
-		} catch (EngineException e)
+			test.addGroup(new Group("/A"));
+			test.addGroup(new Group("/A/B"));
+			test.addGroup(new Group("/A/B/C"));
+			test.addGroup(new Group("/D"));
+			test.addGroup(new Group("/D/E"));
+			test.addGroup(new Group("/D/G"));
+			test.addGroup(new Group("/D/F"));
+		} catch (Exception e)
 		{
 			e.printStackTrace();
 		}
+		groupBrowser.refresh();
+		VerticalLayout contents = new VerticalLayout();
+		contents.addComponent(groupBrowser);
+
+
+		Button logout = new Button("logout");
+		logout.addClickListener(new Button.ClickListener()
+		{
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				VaadinSession vs = VaadinSession.getCurrent();
+				WrappedSession s = vs.getSession();
+				Page p = Page.getCurrent();
+				s.invalidate();
+				//TODO
+				p.setLocation("/admin/admin");
+			}
+		});
+		contents.addComponent(logout);
+		setContent(contents);
 	}
 
 }

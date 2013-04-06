@@ -78,6 +78,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String CREDENTIAL_DESCRIPTION = "credentialDescription";
 	public static final String CREDENTIAL_CONFIGURATION = "credentialConfigurationFile";
 	
+	public static final String INITIAL_ADMIN_USER = "initialAdminUsername";
+	public static final String INITIAL_ADMIN_PASSWORD = "initialAdminPassword";
 	
 
 	@DocumentationReferenceMeta
@@ -140,6 +142,10 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		defaults.put(CREDENTIAL_CONFIGURATION, new PropertyMD().setStructuredListEntry(CREDENTIALS).setMandatory().setCategory(mainCat).
 				setDescription("Credential configuration file"));
 
+		defaults.put(INITIAL_ADMIN_USER, new PropertyMD("admin").setCategory(mainCat).
+				setDescription("Username of the administrator to be installed to the empty database."));
+		defaults.put(INITIAL_ADMIN_PASSWORD, new PropertyMD("admin").setCategory(mainCat).
+				setDescription("Password of the administrator to be installed to the empty database."));
 		
 		defaults.put(TruststoreProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).
 				setDescription("Properties starting with this prefix are used to configure server's trust settings and certificate validation. See separate documentation for details."));

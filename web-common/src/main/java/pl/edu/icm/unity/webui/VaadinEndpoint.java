@@ -73,7 +73,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		
 		UnityVaadinServlet theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
 				description, authenticators);
-		context.addServlet(new ServletHolder(theServlet), servletPath);
+		context.addServlet(new ServletHolder(theServlet), servletPath + "/*");
 		
 		return context;
 	}
