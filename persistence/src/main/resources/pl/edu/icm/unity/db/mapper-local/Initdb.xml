@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.db.mapper.local.InitdbMapper">
+	<update id="initdb-01">
+		CREATE TABLE EVENTS_QUEUE(
+			ID 				INTEGER PRIMARY KEY AUTO_INCREMENT,
+			LISTENER_ID 	VARCHAR(256),
+			NEXT_PROCESSING DATETIME,
+			FAILURES		INT,
+			EVENT			VARCHAR(64535)
+		)
+	</update>
+	<update id="initdb-02">
+		CREATE INDEX EVENTS_DATES_IDX ON EVENTS_QUEUE(NEXT_PROCESSING)
+	</update>
+
+	<update id="cleardb-01">
+		DROP TABLE IF EXISTS EVENTS_QUEUE;
+	</update>
+	
+	<update id="cleardb-02">
+		DROP INDEX IF EXISTS EVENTS_DATES_IDX;
+	</update>
+
+	<select id="getDBLimits" resultType="DBLimits">
+		select 256 AS nameLimit, 64535 AS contentsLimit
+	</select>
+	
+	<update id="shutdown">
+		SHUTDOWN;
+	</update>
+</mapper>

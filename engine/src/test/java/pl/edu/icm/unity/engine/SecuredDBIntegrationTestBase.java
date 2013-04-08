@@ -24,6 +24,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.ServerManagement;
@@ -56,7 +57,7 @@ public abstract class SecuredDBIntegrationTestBase
 	@Qualifier("insecure")
 	protected ServerManagement insecureServerMan;
 	@Autowired
-	protected EndpointManagementImpl endpointMan;
+	protected EndpointManagement endpointMan;
 	@Autowired
 	protected InternalEndpointManagement internalEndpointMan;
 	@Autowired

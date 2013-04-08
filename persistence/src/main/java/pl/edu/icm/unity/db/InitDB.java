@@ -28,7 +28,7 @@ import pl.edu.icm.unity.server.utils.Log;
 
 /**
  * Initializes DB schema and inserts the initial data. It is checked if DB was already initialized.
- * If so no change is commited.
+ * If so no change is committed. It is responsible for initialization of both the main and the local database.
  * @author K. Benedyczak
  */
 @Component
@@ -37,12 +37,13 @@ public class InitDB
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InitDB.class);
 
 	private DBSessionManager db;
+	private LocalDBSessionManager localDb;
 
 	@Autowired
-	public InitDB(DBSessionManager db)
+	public InitDB(DBSessionManager db, LocalDBSessionManager localDb)
 	{
-		super();
 		this.db = db;
+		this.localDb = localDb;
 	}
 
 	/**
@@ -51,7 +52,8 @@ public class InitDB
 	public void resetDatabase()
 	{
 		log.info("Database will be totally wiped");
-		performUpdate("cleardb-");
+		performUpdate(db, "cleardb-");
+		performUpdate(localDb, "cleardb-");
 		log.info("The whole contents removed");
 		initDB();
 	}
@@ -71,7 +73,7 @@ public class InitDB
 		}
 	}
 	
-	private void performUpdate(String operationPfx)
+	private void performUpdate(SessionManager db, String operationPfx)
 	{
 		Collection<String> ops = new TreeSet<String>(db.getMyBatisConfiguration().getMappedStatementNames());
 		SqlSession session = db.getSqlSession(ExecutorType.BATCH, true);
@@ -85,7 +87,8 @@ public class InitDB
 	private void initDB()
 	{
 		log.info("Initializing DB schema");
-		performUpdate("initdb");
+		performUpdate(db, "initdb");
+		performUpdate(localDb, "initdb");
 		SqlSession session = db.getSqlSession(false);
 		try
 		{

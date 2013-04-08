@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="lazyLoadingEnabled" value="false"/>
+		<setting name="aggressiveLazyLoading" value="false"/>
+	</settings>
+
+	<typeAliases>
+		<typeAlias alias="EventB" type="pl.edu.icm.unity.db.model.EventBean" />
+		<typeAlias alias="DBLimits" type="pl.edu.icm.unity.db.model.DBLimits" />
+	</typeAliases>
+	
+	<environments default="def">
+		<environment id="def">
+			<transactionManager type="JDBC"/>
+			<dataSource type="POOLED">
+				<property name="driver" value="org.h2.Driver" />
+				<property name="url" value="${jdbcUrl}" />
+				<property name="username" value="sa" />
+				<property name="password" value="" />
+				<property name="defaultAutoCommit" value="true" />
+			
+				<property name="poolMaximumActiveConnections" value="10" />
+				<property name="poolMaximumIdleConnections" value="5" />
+				<property name="poolMaximumCheckoutTime" value="200000" />
+				<property name="poolTimeToWait" value="500" />
+				<property name="poolPingQuery" value="select 1 from EVENTS_QUEUE" />
+				<property name="poolPingEnabled" value="true" />
+				<property name="poolPingConnectionsNotUsedFor" value="600000" />
+			</dataSource>
+		</environment>
+	</environments>
+
+
+	<mappers>
+		<mapper resource="pl/edu/icm/unity/db/mapper-local/Initdb.xml" />
+		<mapper resource="pl/edu/icm/unity/db/mapper-local/Events.xml" />
+	</mappers>
+</configuration>

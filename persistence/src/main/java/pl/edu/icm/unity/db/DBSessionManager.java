@@ -25,6 +25,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import eu.unicore.util.db.DBPropertiesHelper;
 
@@ -37,17 +38,10 @@ import pl.edu.icm.unity.server.utils.Log;
  * 
  * @author K. Benedyczak
  */
-public class DBSessionManager
+@Component
+public class DBSessionManager implements SessionManager
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, DBSessionManager.class);
-
-	//all properties from the datamap.properties file 
-	//(defined in the main configuration file)
-	public static final String P_URL = "url";
-	public static final String P_DRIVER = "driver";
-	public static final String P_USERNAME = "username";
-	public static final String P_PASSWD = "password";
-	public static final String P_DIALECT = "dialect";
 
 	public static final String DEF_MAPCONFIG_LOCATION = "pl/edu/icm/unity/db/mapper/mapconfig.xml";
 
@@ -104,16 +98,19 @@ public class DBSessionManager
 		}
 	}
 	
+	@Override
 	public Configuration getMyBatisConfiguration()
 	{
 		return sqlMapFactory.getConfiguration();
 	}
 	
+	@Override
 	public SqlSession getSqlSession(boolean transactional)
 	{
 		return getSqlSession(ExecutorType.SIMPLE, transactional);
 	}
 
+	@Override
 	public SqlSession getSqlSession(ExecutorType executor, boolean transactional)
 	{
 		runSessionWatchdog();
@@ -162,6 +159,7 @@ public class DBSessionManager
 		return sb.toString();
 	}
 	
+	@Override
 	public void releaseSqlSession(SqlSession session)
 	{
 		synchronized(this)

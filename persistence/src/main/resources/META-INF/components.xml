@@ -8,6 +8,7 @@
 	<bean class="pl.edu.icm.unity.db.DBConfiguration"/>
 	<bean class="pl.edu.icm.unity.db.DB"/>
 	<bean class="pl.edu.icm.unity.db.DBSessionManager"/>
+	<bean class="pl.edu.icm.unity.db.LocalDBSessionManager"/>
 	<bean class="pl.edu.icm.unity.db.InitDB"/>
 
 	<bean class="pl.edu.icm.unity.db.DBGroups"/>
@@ -15,6 +16,7 @@
 	<bean class="pl.edu.icm.unity.db.DBAttributes"/>
 	<bean class="pl.edu.icm.unity.db.AttributeStatementProcessor"/>
 	<bean class="pl.edu.icm.unity.db.DBGeneric"/>
+	<bean class="pl.edu.icm.unity.db.DBEvents"/>
 
 	<bean class="pl.edu.icm.unity.db.resolvers.GroupResolver"/>
 	<bean class="pl.edu.icm.unity.db.resolvers.IdentitiesResolver"/>
@@ -25,5 +27,6 @@
 	<bean class="pl.edu.icm.unity.db.json.IdentitySerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.AttributeTypeSerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.AttributeSerializer"/>
+	<bean class="pl.edu.icm.unity.db.json.EventSerializer"/>
 	
 </beans>

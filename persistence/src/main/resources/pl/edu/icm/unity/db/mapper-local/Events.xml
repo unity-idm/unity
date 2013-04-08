@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.db.mapper.local.EventsMapper">
+
+	<resultMap id="eventResult" type="EventB">
+		<result property="id" column="ID"/>
+		<result property="nextProcessing" column="NEXT_PROCESSING"/>
+		<result property="listenerId" column="LISTENER_ID"/>
+		<result property="event" column="EVENT"/>
+		<result property="failures" column="FAILURES"/>
+	</resultMap>
+
+	<insert id="insertEvent" parameterType="EventB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO EVENTS_QUEUE(NEXT_PROCESSING, LISTENER_ID, EVENT, FAILURES) 
+			VALUES (#{nextProcessing}, #{listenerId}, #{event}, #{failures})
+	</insert>
+	
+	<delete id="deleteEvent" parameterType="long">
+		DELETE FROM EVENTS_QUEUE WHERE ID = #{value}
+	</delete>
+
+	<update id="updateEvent" parameterType="EventB">
+		UPDATE EVENTS_QUEUE SET NEXT_PROCESSING=#{nextProcessing}, FAILURES=#{failures} WHERE ID=#{id}  
+	</update>
+
+	<select id="selectEventsForProcessing" parameterType="java.util.Date" resultMap="eventResult">
+		SELECT * FROM EVENTS_QUEUE WHERE NEXT_PROCESSING &lt; #{value}
+	</select>
+</mapper>

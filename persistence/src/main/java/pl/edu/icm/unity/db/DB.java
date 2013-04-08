@@ -33,13 +33,16 @@ public class DB
 	public static final String DB_VERSION = "2_0_0";
 	
 	private DBLimits limits;
+	private DBLimits localLimits;
 
 	@Autowired
-	public DB(DBSessionManager sessionMan, InitDB initDB) throws InternalException, IOException
+	public DB(DBSessionManager sessionMan, LocalDBSessionManager localSessionMan, InitDB initDB) 
+			throws InternalException, IOException
 	{
 		initDB.initIfNeeded();
 		verifyDBVersion(sessionMan);
-		limits = establishDBLimits(sessionMan);
+		limits = establishDBLimits(sessionMan, InitdbMapper.class);
+		localLimits = establishDBLimits(localSessionMan, pl.edu.icm.unity.db.mapper.local.InitdbMapper.class);
 	}
 	
 	private final void verifyDBVersion(DBSessionManager sessionMan) throws InternalException
@@ -64,8 +67,13 @@ public class DB
 	{
 		return limits;
 	}
+
+	public DBLimits getLocalDBLimits()
+	{
+		return localLimits;
+	}
 	
-	public String checkCurrentVersion(DBSessionManager sessionMan) throws Exception
+	public String checkCurrentVersion(SessionManager sessionMan) throws Exception
 	{
 		SqlSession sqlMap = sessionMan.getSqlSession(false);
 		try
@@ -77,12 +85,12 @@ public class DB
 		}
 	}
 	
-	private final DBLimits establishDBLimits(DBSessionManager sessionMan) throws InternalException
+	private final DBLimits establishDBLimits(SessionManager sessionMan, Class<? extends InitdbMapper> mapperClass) throws InternalException
 	{
 		SqlSession sqlMap = sessionMan.getSqlSession(false);
 		try
 		{
-			InitdbMapper mapper = sqlMap.getMapper(InitdbMapper.class);
+			InitdbMapper mapper = sqlMap.getMapper(mapperClass);
 			return mapper.getDBLimits();
 		} catch (PersistenceException e)
 		{

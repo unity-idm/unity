@@ -33,6 +33,7 @@ public class DBConfiguration extends PropertiesHelper
 	public static final String PREFIX = UnityServerConfiguration.BASE_PREFIX+DBPropertiesHelper.PREFIX;
 	
 	public static final String DBCONFIG_FILE = "mapconfigFile";
+	public static final String LOCAL_DB_URL = "localDBUrl";
 	
 	public static final Map<String, PropertyMD> META;
 	static 
@@ -41,6 +42,9 @@ public class DBConfiguration extends PropertiesHelper
 				Dialect.h2, "");
 		META.put(DBCONFIG_FILE, new PropertyMD().setPath().setHidden().
 				setDescription("Path of the low level database file with mappings configuration."));
+		META.put(LOCAL_DB_URL, new PropertyMD("jdbc:h2:file:data/unity-localdb.bin").
+				setDescription("Location of the local H2 database can be " +
+				"controlled with this connection URL."));
 	}
 	
 	@Autowired

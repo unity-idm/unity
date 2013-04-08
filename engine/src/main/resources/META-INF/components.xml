@@ -9,12 +9,38 @@
 	<bean class="pl.edu.icm.unity.server.UnityApplication$InnerServerLifecycle"/>
 	<bean class="pl.edu.icm.unity.server.UnityApplication$ShutdownFinished"/>
 
-	<bean primary="true" class="pl.edu.icm.unity.engine.GroupsManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.IdentitiesManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.AttributesManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.AuthenticationManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.ServerManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.EndpointManagementImpl"/>
+	<bean id="proxyBuilder" class="pl.edu.icm.unity.engine.events.EventProxyBuilder"/>
+	<bean class="pl.edu.icm.unity.engine.events.EventProcessor"/>
+	
+	<!-- Proxied beans which are the ultimate implementation of the core interface. Proxies
+			binds with the events mechanism. -->
+	<bean primary="true" factory-bean="proxyBuilder" factory-method="getAttributeManagementInstance"/>
+	<bean primary="true" factory-bean="proxyBuilder" factory-method="getGroupsManagementInstance"/>
+	<bean primary="true" factory-bean="proxyBuilder" factory-method="getIdentitiesManagementInstance"/>
+	<bean primary="true" factory-bean="proxyBuilder" factory-method="getServerManagementInstance"/>
+	<bean primary="true" factory-bean="proxyBuilder" factory-method="getEndpointsManagementInstance"/>
+	<bean primary="true" factory-bean="proxyBuilder" factory-method="getAuthenticationManagementInstance"/>
+
+	<!-- The real implementation, with a real authorization module injected. However those beans are plain,
+	are not generating any events. -->	
+	<bean primary="false" class="pl.edu.icm.unity.engine.GroupsManagementImpl">
+		<qualifier value="plain"/>
+	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.IdentitiesManagementImpl">
+		<qualifier value="plain"/>
+	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.AttributesManagementImpl">
+		<qualifier value="plain"/>
+	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.AuthenticationManagementImpl">
+		<qualifier value="plain"/>
+	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.ServerManagementImpl">
+		<qualifier value="plain"/>
+	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.EndpointManagementImpl">
+		<qualifier value="plain"/>
+	</bean>
 	
 	<!-- Those beans are the same as the 'primary' beans above, but do not perform authorization. 
 	Must be used with qualifier. -->
