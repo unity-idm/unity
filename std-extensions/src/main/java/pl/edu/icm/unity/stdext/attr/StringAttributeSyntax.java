@@ -90,7 +90,7 @@ public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 					+ ") is too small, must be at least " + minLength);
 		if (value.length() > maxLength)
 			throw new IllegalAttributeValueException("Value length (" + value.length() 
-					+ ") is too big, must be not greater then " + maxLength);
+					+ ") is too big, must be not greater than " + maxLength);
 		if (pattern != null)
 			if (!pattern.matcher(value).matches())
 				throw new IllegalAttributeValueException("Value must match the " +
@@ -147,7 +147,7 @@ public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 	public void setMaxLength(int maxLength)
 	{
 		if (maxLength < minLength)
-			throw new IllegalArgumentException("Maxmal string length must not be less then the minimal");
+			throw new IllegalArgumentException("Maximal string length must not be less then the minimal");
 		this.maxLength = maxLength;
 	}
 }
