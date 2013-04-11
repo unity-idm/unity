@@ -6,8 +6,6 @@ package pl.edu.icm.unity.stdext.attr;
 
 import java.nio.ByteBuffer;
 
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -23,7 +21,6 @@ import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
  * Integer attribute value syntax. Allows for specifying upper and lower bounds.
  * @author K. Benedyczak
  */
-@Component
 public class IntegerAttributeSyntax implements AttributeValueSyntax<Long>
 {
 	public static final String ID = "integer";

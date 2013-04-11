@@ -22,10 +22,10 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.server.registries.AttributeValueTypesRegistry;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -62,11 +62,11 @@ public class AttributesManagementImpl implements AttributesManagement
 	public String[] getSupportedAttributeValueTypes() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
-		Collection<AttributeValueSyntax<?>> all = attrValueTypesReg.getAll();
+		Collection<AttributeValueSyntaxFactory<?>> all = attrValueTypesReg.getAll();
 		String[] ret = new String[all.size()];
-		Iterator<AttributeValueSyntax<?>> it = all.iterator();
+		Iterator<AttributeValueSyntaxFactory<?>> it = all.iterator();
 		for (int i=0; it.hasNext(); i++)
-			ret[i] = it.next().getValueSyntaxId();
+			ret[i] = it.next().getId();
 		return ret;
 	}
 

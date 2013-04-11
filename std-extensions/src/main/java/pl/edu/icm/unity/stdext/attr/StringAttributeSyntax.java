@@ -6,8 +6,6 @@ package pl.edu.icm.unity.stdext.attr;
 
 import java.util.regex.Pattern;
 
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -22,7 +20,6 @@ import pl.edu.icm.unity.exceptions.RuntimeEngineException;
  * defined to limit contents. Also can have min and max length defined.
  * @author K. Benedyczak
  */
-@Component
 public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 {
 	public static final String ID = "string";

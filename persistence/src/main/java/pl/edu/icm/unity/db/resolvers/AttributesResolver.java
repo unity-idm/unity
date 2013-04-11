@@ -16,6 +16,7 @@ import pl.edu.icm.unity.db.mapper.AttributesMapper;
 import pl.edu.icm.unity.db.model.AttributeBean;
 import pl.edu.icm.unity.db.model.AttributeTypeBean;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.server.registries.AttributeValueTypesRegistry;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -47,8 +48,9 @@ public class AttributesResolver
 	{
 		AttributeType at = new AttributeType();
 		at.setName(raw.getName());
+		AttributeValueSyntaxFactory<?> syntaxFactory = typesRegistry.getByName(raw.getValueSyntaxId());
 		@SuppressWarnings("rawtypes")
-		AttributeValueSyntax syntax = typesRegistry.getByName(raw.getValueSyntaxId());
+		AttributeValueSyntax syntax = syntaxFactory.createInstance();
 		at.setValueType(syntax);
 		atSerializer.fromJson(raw.getContents(), at);
 		return at;
@@ -69,7 +71,8 @@ public class AttributesResolver
 		Attribute attr = new Attribute();
 		attr.setName(raw.getName());
 		attr.setGroupPath(groupPath);
-		AttributeValueSyntax attributeSyntax = typesRegistry.getByName(raw.getValueSyntaxId());
+		AttributeValueSyntaxFactory<?> syntaxFactory = typesRegistry.getByName(raw.getValueSyntaxId());
+		AttributeValueSyntax attributeSyntax = syntaxFactory.createInstance();
 		attr.setAttributeSyntax(attributeSyntax);
 		aSerializer.fromJson(raw.getValues(), attr);
 		return attr;

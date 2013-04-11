@@ -8,8 +8,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -24,7 +22,6 @@ import pl.edu.icm.unity.exceptions.RuntimeEngineException;
  * Case sensitive.
  * @author K. Benedyczak
  */
-@Component
 public class EnumAttributeSyntax extends AbstractStringAttributeSyntax
 {
 	public static final String ID = "enumeration";

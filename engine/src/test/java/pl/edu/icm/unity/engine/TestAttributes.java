@@ -37,7 +37,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	{
 		String[] supportedSyntaxes = attrsMan.getSupportedAttributeValueTypes();
 		Arrays.sort(supportedSyntaxes);
-		assertEquals(2, supportedSyntaxes.length);
+		assertEquals(5, supportedSyntaxes.length);
 		checkArray(supportedSyntaxes, StringAttributeSyntax.ID, EnumAttributeSyntax.ID);
 	}
 
@@ -329,6 +329,24 @@ public class TestAttributes extends DBIntegrationTestBase
 			attrsMan.updateAttributeType(at);
 			fail("Managed to update attribute type to confliction with instances");
 		} catch (IllegalAttributeTypeException e) {/*OK*/}
+	}
+	
+	@Test
+	public void testMultipleInstancesSameSyntax() throws Exception
+	{
+		AttributeType at1 = new AttributeType("at1", new StringAttributeSyntax());
+		((StringAttributeSyntax)at1.getValueType()).setMaxLength(6);
+		attrsMan.addAttributeType(at1);
+
+		AttributeType at2 = new AttributeType("at2", new StringAttributeSyntax());
+		((StringAttributeSyntax)at2.getValueType()).setMaxLength(600);
+		attrsMan.addAttributeType(at2);
+		
+		List<AttributeType> ats = attrsMan.getAttributeTypes();
+		AttributeType at1B = getAttributeTypeByName(ats, "at1");
+		AttributeType at2B = getAttributeTypeByName(ats, "at2");
+		assertEquals(6, ((StringAttributeSyntax)at1B.getValueType()).getMaxLength());
+		assertEquals(600, ((StringAttributeSyntax)at2B.getValueType()).getMaxLength());
 	}
 }
 

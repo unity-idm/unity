@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 
 /**
@@ -17,17 +18,17 @@ import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
  * @author K. Benedyczak
  */
 @Component
-public class AttributeValueTypesRegistry extends TypesRegistryBase<AttributeValueSyntax<?>>
+public class AttributeValueTypesRegistry extends TypesRegistryBase<AttributeValueSyntaxFactory<?>>
 {
 	@Autowired
-	public AttributeValueTypesRegistry(List<AttributeValueSyntax<?>> typeElements)
+	public AttributeValueTypesRegistry(List<AttributeValueSyntaxFactory<?>> typeElements)
 	{
 		super(typeElements);
 	}
 
 	@Override
-	protected String getId(AttributeValueSyntax<?> from)
+	protected String getId(AttributeValueSyntaxFactory<?> from)
 	{
-		return from.getValueSyntaxId();
+		return from.getId();
 	}
 }

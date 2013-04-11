@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -16,6 +17,12 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
  */
 public class StringAttribute extends Attribute<String>
 {
+	public StringAttribute(String name, String groupPath, AttributeVisibility visibility,
+			String... values)
+	{
+		super(name, new StringAttributeSyntax(), groupPath, visibility, asList(values));
+	}
+
 	public StringAttribute(String name, String groupPath, AttributeVisibility visibility,
 			List<String> values)
 	{
@@ -30,5 +37,12 @@ public class StringAttribute extends Attribute<String>
 	
 	public StringAttribute()
 	{
+	}
+	
+	private static List<String> asList(String[] vals)
+	{
+		List<String> ret = new ArrayList<String>(vals.length);
+		Collections.addAll(ret, vals);
+		return ret;
 	}
 }
