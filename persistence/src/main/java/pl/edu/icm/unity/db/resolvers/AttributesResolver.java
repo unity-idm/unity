@@ -17,7 +17,7 @@ import pl.edu.icm.unity.db.model.AttributeBean;
 import pl.edu.icm.unity.db.model.AttributeTypeBean;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
-import pl.edu.icm.unity.server.registries.AttributeValueTypesRegistry;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
@@ -31,12 +31,12 @@ public class AttributesResolver
 {
 	private AttributeTypeSerializer atSerializer;
 	private AttributeSerializer aSerializer;
-	private AttributeValueTypesRegistry typesRegistry;
+	private AttributeSyntaxFactoriesRegistry typesRegistry;
 	
 	@Autowired
 	public AttributesResolver(AttributeTypeSerializer atSerializer,
 			AttributeSerializer aSerializer,
-			AttributeValueTypesRegistry typesRegistry)
+			AttributeSyntaxFactoriesRegistry typesRegistry)
 	{
 		super();
 		this.atSerializer = atSerializer;

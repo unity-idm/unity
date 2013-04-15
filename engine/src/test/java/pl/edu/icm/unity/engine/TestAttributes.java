@@ -272,6 +272,7 @@ public class TestAttributes extends DBIntegrationTestBase
 		AttributeType at = createSimpleAT("some");
 		at.setMinElements(1);
 		at.setMaxElements(2);
+		at.setUniqueValues(true);
 		StringAttributeSyntax stringSyntax = new StringAttributeSyntax();
 		stringSyntax.setMaxLength(8);
 		stringSyntax.setMinLength(5);
@@ -285,6 +286,15 @@ public class TestAttributes extends DBIntegrationTestBase
 		attrsMan.setAttribute(entity, atOK, false);
 		
 		//now try to break restrictions:
+		// - unique
+		vals.clear();
+		Collections.addAll(vals, "MA__g", "MA__g");
+		try
+		{
+			attrsMan.setAttribute(entity, atOK, true);
+			fail("Managed to add attribute with duplicated values");
+		} catch (IllegalAttributeValueException e) {/*OK*/}
+
 		// - values limit
 		vals.add("_MA_g");
 		try

@@ -19,8 +19,8 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.webadmin.ErrorPopup;
 import pl.edu.icm.unity.webadmin.Images;
+import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 import com.vaadin.ui.Tree;
@@ -29,7 +29,6 @@ import com.vaadin.ui.Tree;
  * Tree with groups obtained dynamically from the engine.
  * @author K. Benedyczak
  */
-@SuppressWarnings("serial")
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class GroupsTree extends Tree

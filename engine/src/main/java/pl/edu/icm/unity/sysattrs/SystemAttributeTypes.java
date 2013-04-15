@@ -77,6 +77,8 @@ public class SystemAttributeTypes
 		authorizationAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
 		authorizationAt.setDescription("Defines what operations are allowed for the bearer.");
 		authorizationAt.setMinElements(1);
+		authorizationAt.setMaxElements(10);
+		authorizationAt.setUniqueValues(true);
 		authorizationAt.setVisibility(AttributeVisibility.local);
 		return authorizationAt;
 	}

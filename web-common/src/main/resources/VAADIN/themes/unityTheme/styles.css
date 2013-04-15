@@ -17,3 +17,7 @@
 	letter-spacing: -0.02em;
 	text-shadow: #fff 0 -1px 1px;
 }
+
+.u-error {
+	color: red;
+}

@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin;
+package pl.edu.icm.unity.webui.common;
 
 import com.vaadin.server.ClassResource;
 import com.vaadin.server.Resource;
@@ -13,13 +13,7 @@ import com.vaadin.server.Resource;
  */
 public enum Images
 {
-	add		(I.P + "add.png"),
-	delete		(I.P + "delete.png"),
-	edit		(I.P + "edit.png"),
-	refresh		(I.P + "refresh.png"),
-	noAuthzGrp	(I.P + "noauthzGrp.gif"),
-	collapse	(I.P + "collapse.gif"),
-	folder		(I.P + "folder.gif");
+	unknown		(I.P + "unknown.gif");
 	
 	
 	private final String classpath;
@@ -40,6 +34,6 @@ public enum Images
 	 */
 	private static interface I
 	{
-		public static final String P = "/pl/edu/icm/unity/webadmin/img/"; 
+		public static final String P = "/pl/edu/icm/unity/webui/img/"; 
 	}
 }

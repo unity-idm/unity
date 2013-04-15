@@ -42,5 +42,16 @@ public class AttributeValueChecker
 		AttributeValueSyntax<T> initializedValueSyntax = (AttributeValueSyntax<T>) at.getValueType(); 
 		for (T val: values)
 			initializedValueSyntax.validate(val);
+		if (at.isUniqueValues())
+		{
+			for (int i=0; i<values.size(); i++)
+				for (int j=i+1; j<values.size(); j++)
+				{
+					if (initializedValueSyntax.areEqual(values.get(i), values.get(j)))
+						throw new IllegalAttributeValueException(
+								"Duplicated values detected: " + (i+1) + " and " 
+										+ (j+1));
+				}
+		}
 	}
 }

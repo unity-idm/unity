@@ -10,18 +10,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 
 /**
- * Maintains a simple registry of available {@link AttributeValueSyntax}es.
- * FIXME - change the name.
+ * Maintains a simple registry of available {@link AttributeValueSyntaxFactory}ies.
  * @author K. Benedyczak
  */
 @Component
-public class AttributeValueTypesRegistry extends TypesRegistryBase<AttributeValueSyntaxFactory<?>>
+public class AttributeSyntaxFactoriesRegistry extends TypesRegistryBase<AttributeValueSyntaxFactory<?>>
 {
 	@Autowired
-	public AttributeValueTypesRegistry(List<AttributeValueSyntaxFactory<?>> typeElements)
+	public AttributeSyntaxFactoriesRegistry(List<AttributeValueSyntaxFactory<?>> typeElements)
 	{
 		super(typeElements);
 	}

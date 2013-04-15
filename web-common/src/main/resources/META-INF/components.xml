@@ -9,6 +9,14 @@
 	<bean class="pl.edu.icm.unity.webui.authn.extensions.PasswordRetrievalFactory"/>
 	<bean class="pl.edu.icm.unity.webui.authn.extensions.TLSRetrievalFactory"/>
 
+	<bean class="pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry"/>
+	<bean class="pl.edu.icm.unity.webui.common.attributes.ext.EnumAttributeHandler"/>
+	<bean class="pl.edu.icm.unity.webui.common.attributes.ext.StringAttributeHandler"/>
+	<bean class="pl.edu.icm.unity.webui.common.attributes.ext.IntegerAttributeHandler"/>
+	<bean class="pl.edu.icm.unity.webui.common.attributes.ext.FloatingPointAttributeHandler"/>
+	<bean class="pl.edu.icm.unity.webui.common.attributes.ext.JpegImageAttributeHandler"/>
+
+
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
 		<property name="bundle" value="pl/edu/icm/unity/webui/messages/messages"/>
 	</bean>

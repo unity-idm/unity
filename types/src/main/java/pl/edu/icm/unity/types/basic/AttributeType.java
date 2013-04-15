@@ -35,6 +35,7 @@ public class AttributeType implements InitializationValidator
 	private AttributeValueSyntax<?> valueType;
 	private int minElements = 0;
 	private int maxElements = 1;
+	private boolean uniqueValues = false;
 	private boolean selfModificable = false;
 	private AttributeVisibility visibility = AttributeVisibility.full;
 	private int flags = 0;
@@ -118,6 +119,16 @@ public class AttributeType implements InitializationValidator
 			throw new IllegalArgumentException("Argument can not be null");
 		this.visibility = visibility;
 	}
+	public boolean isUniqueValues()
+	{
+		return uniqueValues;
+	}
+
+	public void setUniqueValues(boolean uniqueValues)
+	{
+		this.uniqueValues = uniqueValues;
+	}
+
 	public int getFlags()
 	{
 		return flags;
@@ -169,10 +180,11 @@ public class AttributeType implements InitializationValidator
 	@Override
 	public String toString()
 	{
-		return "AttributeType [name=" + name + ", description=" + description
+		return "AttributeType [description=" + description + ", name=" + name
 				+ ", valueType=" + valueType + ", minElements=" + minElements
-				+ ", maxElements=" + maxElements + ", selfModificable="
-				+ selfModificable + ", visibility=" + visibility + ", flags="
-				+ flags + "]";
+				+ ", maxElements=" + maxElements + ", uniqueValues=" + uniqueValues
+				+ ", selfModificable=" + selfModificable + ", visibility="
+				+ visibility + ", flags=" + flags + "]";
 	}
+
 }

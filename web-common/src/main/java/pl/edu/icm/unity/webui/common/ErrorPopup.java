@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin;
+package pl.edu.icm.unity.webui.common;
 
 import com.vaadin.server.Page;
 import com.vaadin.ui.Notification;
@@ -15,12 +15,17 @@ import com.vaadin.ui.Notification.Type;
  */
 public class ErrorPopup
 {
+	public static void showError(String caption, String description)
+	{
+		Notification n = new Notification(caption, description, Type.ERROR_MESSAGE);
+		n.setDelayMsec(-1);
+		n.show(Page.getCurrent());
+	}
+
 	public static void showError(String message, Exception e)
 	{
 		String description = getHumanMessage(e);
-		Notification n = new Notification(message, description, Type.ERROR_MESSAGE);
-		n.setDelayMsec(-1);
-		n.show(Page.getCurrent());
+		showError(message, description);
 	}
 	
 	public static String getHumanMessage(Throwable e)

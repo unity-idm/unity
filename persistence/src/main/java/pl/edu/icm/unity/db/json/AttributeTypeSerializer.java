@@ -33,6 +33,7 @@ public class AttributeTypeSerializer
 		root.put("maxElements", src.getMaxElements());
 		root.put("minElements", src.getMinElements());
 		root.put("selfModificable", src.isSelfModificable());
+		root.put("uniqueValues", src.isUniqueValues());
 		root.put("visibility", src.getVisibility().name());
 		root.put("syntaxState", src.getValueType().getSerializedConfiguration());
 		try
@@ -64,6 +65,7 @@ public class AttributeTypeSerializer
 		target.setMaxElements(main.get("maxElements").asInt());
 		target.setMinElements(main.get("minElements").asInt());
 		target.setSelfModificable(main.get("selfModificable").asBoolean());
+		target.setUniqueValues(main.get("uniqueValues").asBoolean());
 		target.setVisibility(AttributeVisibility.valueOf(main.get("visibility").asText()));
 		target.getValueType().setSerializedConfiguration(main.get("syntaxState").asText());
 	}

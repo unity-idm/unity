@@ -18,17 +18,31 @@ import com.vaadin.server.Resource;
 @SuppressWarnings("serial")
 public abstract class SingleActionHandler implements Handler
 {		
+	private static final Action[] EMPTY = new Action[0];
 	private Action[] action;
-
+	private boolean needsTarget = true;
+	
 	public SingleActionHandler(String caption, Resource icon)
 	{
 		Action a = new Action(caption, icon);
 		action = new Action[] {a};
 	}
 
+	public boolean isNeedsTarget()
+	{
+		return needsTarget;
+	}
+
+	public void setNeedsTarget(boolean needsTarget)
+	{
+		this.needsTarget = needsTarget;
+	}
+
 	@Override
 	public Action[] getActions(Object target, Object sender)
 	{
+		if (needsTarget && target == null)
+			return EMPTY;
 		return action;
 	}
 

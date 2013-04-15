@@ -11,6 +11,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
@@ -71,9 +72,19 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		vl.setSpacing(true);
 		vl.setMargin(true);
 		
+		Panel contentsPanel = new Panel();
+		VerticalLayout internal = new VerticalLayout();
 		contentsComponent = getContents();
-		vl.addComponent(contentsComponent);
-
+		internal.addComponent(contentsComponent);
+		internal.setComponentAlignment(contentsComponent, Alignment.MIDDLE_CENTER);
+		internal.setSizeFull();
+		internal.setExpandRatio(contentsComponent, 1.0f);
+		internal.setMargin(true);
+		
+		contentsPanel.setContent(internal);
+		contentsPanel.setSizeFull();
+		vl.addComponent(contentsPanel);
+		
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.setSpacing(true);
 		hl.setMargin(true);
@@ -81,6 +92,9 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		hl.addComponent(cancel);
 		vl.addComponent(hl);
 		vl.setComponentAlignment(hl, Alignment.BOTTOM_RIGHT);
+		
+		vl.setExpandRatio(contentsPanel, 4.0f);
+		vl.setSizeFull();
 		setContent(vl);
 	}
 	

@@ -12,12 +12,27 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.webadmin.attribute.AttributesPanel;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupBrowserComponent;
 import pl.edu.icm.unity.webui.UnityWebUI;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
@@ -42,9 +57,24 @@ public class WebAdminUI extends UI implements UnityWebUI
 
 	@Autowired
 	private GroupsManagement test;
+
+	@Autowired
+	private IdentitiesManagement testIdMan;
+	
+	@Autowired
+	private AttributesManagement testAttrMan;
 	
 	@Autowired
 	private GroupBrowserComponent groupBrowser;
+	
+	@Autowired
+	private UnityMessageSource msg;
+	
+	@Autowired
+	private AttributeHandlerRegistry attrRegistry;
+	
+	@Autowired
+	private AttributesPanel viewer;
 	
 	@Override
 	public void configure(EndpointDescription description,
@@ -73,8 +103,53 @@ public class WebAdminUI extends UI implements UnityWebUI
 		groupBrowser.refresh();
 		VerticalLayout contents = new VerticalLayout();
 		contents.addComponent(groupBrowser);
+		
+		List<AttributeType> attributeTypes;
+		AttributeType height;
+		final EntityParam entity;
+		try
+		{
+			
+			AttributeType userPicture = new AttributeType("picture", new JpegImageAttributeSyntax());
+			((JpegImageAttributeSyntax)userPicture.getValueType()).setMaxSize(1400000);
+			((JpegImageAttributeSyntax)userPicture.getValueType()).setMaxWidth(900);
+			((JpegImageAttributeSyntax)userPicture.getValueType()).setMaxHeight(900);
+			userPicture.setMaxElements(1);
+			userPicture.setDescription("Picture of the user");
+			testAttrMan.addAttributeType(userPicture);
+			
+			AttributeType postalcode = new AttributeType("postalcode", new StringAttributeSyntax());
+			postalcode.setMaxElements(Integer.MAX_VALUE);
+			postalcode.setDescription("Postal code");
+			((StringAttributeSyntax)postalcode.getValueType()).setRegexp("[0-9][0-9]-[0-9][0-9][0-9]");
+			((StringAttributeSyntax)postalcode.getValueType()).setMaxLength(6);
+			testAttrMan.addAttributeType(postalcode);
 
+			height = new AttributeType("height", new FloatingPointAttributeSyntax());
+			height.setMinElements(1);
+			height.setDescription("He\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjh");
+			testAttrMan.addAttributeType(height);
+			
+			attributeTypes = testAttrMan.getAttributeTypes();
+			
+			
+			IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "foo", true, true);
+			Identity added = testIdMan.addIdentity(toAdd, "Password requirement", LocalAuthenticationState.outdated);
+			entity = new EntityParam(added);
+		} catch (EngineException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
+		} 
+		
+		contents.addComponent(viewer);
+		viewer.setWidth(400, Unit.PIXELS);
+		viewer.setHeight(300, Unit.PIXELS);
+		
+		viewer.setInput(entity, "/", attributeTypes);
 
+		
 		Button logout = new Button("logout");
 		logout.addClickListener(new Button.ClickListener()
 		{

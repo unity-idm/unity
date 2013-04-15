@@ -23,7 +23,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
-import pl.edu.icm.unity.server.registries.AttributeValueTypesRegistry;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -37,14 +37,14 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @Component
 public class AttributesManagementImpl implements AttributesManagement
 {
-	private AttributeValueTypesRegistry attrValueTypesReg;
+	private AttributeSyntaxFactoriesRegistry attrValueTypesReg;
 	private DBSessionManager db;
 	private DBAttributes dbAttributes;
 	private IdentitiesResolver idResolver;
 	private AuthorizationManager authz;
 	
 	@Autowired
-	public AttributesManagementImpl(AttributeValueTypesRegistry attrValueTypesReg,
+	public AttributesManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
 			DBSessionManager db, DBAttributes dbAttributes,
 			IdentitiesResolver idResolver, AuthorizationManager authz)
 	{
