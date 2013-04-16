@@ -10,7 +10,9 @@ package pl.edu.icm.unity.webui.common;
  */
 public enum Styles
 {
-	error("u-error");
+	error("u-error"),
+	header("u-header");
+	
 	
 	private String value;
 	

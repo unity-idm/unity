@@ -42,7 +42,11 @@ public class AuthenticationProcessor
 					throw new AuthenticationException("AuthenticationProcessor.authnWrongUsers");
 				}
 		}
-		logged(results.get(0).getAuthenticatedEntity());
+		AuthenticatedEntity logInfo = results.get(0).getAuthenticatedEntity();
+		for (int i=1; i<results.size(); i++)
+			logInfo.getAuthenticatedWith().addAll(
+					results.get(i).getAuthenticatedEntity().getAuthenticatedWith());
+		logged(logInfo);
 	}
 	
 	

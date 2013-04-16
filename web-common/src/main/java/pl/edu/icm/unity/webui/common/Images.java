@@ -13,7 +13,8 @@ import com.vaadin.server.Resource;
  */
 public enum Images
 {
-	unknown		(I.P + "unknown.gif");
+	unknown		(I.P + "unknown.gif"),
+	logout		(I.P + "logout.png");
 	
 	
 	private final String classpath;

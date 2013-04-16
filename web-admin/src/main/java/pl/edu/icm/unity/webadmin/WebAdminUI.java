@@ -24,24 +24,21 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-import pl.edu.icm.unity.webadmin.attribute.AttributesPanel;
-import pl.edu.icm.unity.webadmin.groupbrowser.GroupBrowserComponent;
+import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
 import pl.edu.icm.unity.webui.UnityWebUI;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.bus.RefreshEvent;
+import pl.edu.icm.unity.webui.common.MainHeader;
 
-import com.vaadin.server.Page;
+import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
-import com.vaadin.ui.Button;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 
 /**
  * The main entry point of the web administration UI.
@@ -51,6 +48,7 @@ import com.vaadin.ui.Button.ClickEvent;
  */
 @Component("WebAdminUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@Theme("unityTheme")
 public class WebAdminUI extends UI implements UnityWebUI
 {
 	private static final long serialVersionUID = 1L;
@@ -65,27 +63,56 @@ public class WebAdminUI extends UI implements UnityWebUI
 	private AttributesManagement testAttrMan;
 	
 	@Autowired
-	private GroupBrowserComponent groupBrowser;
-	
-	@Autowired
 	private UnityMessageSource msg;
 	
 	@Autowired
-	private AttributeHandlerRegistry attrRegistry;
+	private ContentsManagementTab contentsManagement;
 	
-	@Autowired
-	private AttributesPanel viewer;
+	private EndpointDescription endpointDescription;
 	
 	@Override
 	public void configure(EndpointDescription description,
 			List<Map<String, BindingAuthn>> authenticators)
 	{
-		// TODO Auto-generated method stub
-		
+		this.endpointDescription = description;
 	}
-
+	
 	@Override
 	protected void init(VaadinRequest request)
+	{
+		tmpInitContents();
+
+		VerticalLayout contents = new VerticalLayout();
+		MainHeader header = new MainHeader(endpointDescription.getId(), msg);
+		contents.addComponent(header);
+
+		
+		MainTabPanel tabPanel = new MainTabPanel();
+		contents.addComponent(tabPanel);
+		
+		tabPanel.addTab(contentsManagement);
+		tabPanel.setSizeFull();
+		contents.setComponentAlignment(tabPanel, Alignment.TOP_LEFT);
+		contents.setExpandRatio(tabPanel, 1.0f);
+		
+		contents.setSizeFull();
+		setContent(contents);
+		
+
+		try
+		{
+			List<AttributeType> atList = testAttrMan.getAttributeTypes();
+			EventsBus bus = WebSession.getCurrent().getEventBus();
+			bus.fireEvent(new AttributeTypesUpdatedEvent(atList));
+			bus.fireEvent(new RefreshEvent());
+		} catch (EngineException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void tmpInitContents()
 	{
 		try
 		{
@@ -96,19 +123,6 @@ public class WebAdminUI extends UI implements UnityWebUI
 			test.addGroup(new Group("/D/E"));
 			test.addGroup(new Group("/D/G"));
 			test.addGroup(new Group("/D/F"));
-		} catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		groupBrowser.refresh();
-		VerticalLayout contents = new VerticalLayout();
-		contents.addComponent(groupBrowser);
-		
-		List<AttributeType> attributeTypes;
-		AttributeType height;
-		final EntityParam entity;
-		try
-		{
 			
 			AttributeType userPicture = new AttributeType("picture", new JpegImageAttributeSyntax());
 			((JpegImageAttributeSyntax)userPicture.getValueType()).setMaxSize(1400000);
@@ -125,47 +139,19 @@ public class WebAdminUI extends UI implements UnityWebUI
 			((StringAttributeSyntax)postalcode.getValueType()).setMaxLength(6);
 			testAttrMan.addAttributeType(postalcode);
 
-			height = new AttributeType("height", new FloatingPointAttributeSyntax());
+			AttributeType height = new AttributeType("height", new FloatingPointAttributeSyntax());
 			height.setMinElements(1);
 			height.setDescription("He\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjh");
 			testAttrMan.addAttributeType(height);
 			
-			attributeTypes = testAttrMan.getAttributeTypes();
-			
-			
 			IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "foo", true, true);
-			Identity added = testIdMan.addIdentity(toAdd, "Password requirement", LocalAuthenticationState.outdated);
-			entity = new EntityParam(added);
-		} catch (EngineException e)
+			testIdMan.addIdentity(toAdd, "Password requirement", LocalAuthenticationState.outdated);
+		} catch (Exception e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return;
 		} 
-		
-		contents.addComponent(viewer);
-		viewer.setWidth(400, Unit.PIXELS);
-		viewer.setHeight(300, Unit.PIXELS);
-		
-		viewer.setInput(entity, "/", attributeTypes);
-
-		
-		Button logout = new Button("logout");
-		logout.addClickListener(new Button.ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				VaadinSession vs = VaadinSession.getCurrent();
-				WrappedSession s = vs.getSession();
-				Page p = Page.getCurrent();
-				s.invalidate();
-				//TODO
-				p.setLocation("/admin/admin");
-			}
-		});
-		contents.addComponent(logout);
-		setContent(contents);
 	}
-
+	
 }

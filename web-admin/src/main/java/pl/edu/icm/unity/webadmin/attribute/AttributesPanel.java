@@ -23,6 +23,11 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webadmin.Images;
+import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
+import pl.edu.icm.unity.webadmin.identities.EntityChangedEvent;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventListener;
+import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
@@ -38,6 +43,7 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Displays attributes and their values. 
@@ -67,7 +73,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		this.msg = msg;
 		this.registry = registry;
 		this.attributesManagement = attributesManagement;
-		
+		setStyleName(Reindeer.SPLITPANEL_SMALL);
 		attributesTable = new Table();
 		attributesTable.setNullSelectionAllowed(false);
 		attributesTable.setImmediate(true);
@@ -104,34 +110,71 @@ public class AttributesPanel extends HorizontalSplitPanel
 		setFirstComponent(left);
 		setSecondComponent(attributeValues);
 		setSplitPosition(40, Unit.PERCENTAGE);
+		
+		EventsBus bus = WebSession.getCurrent().getEventBus();
+		bus.addListener(new EventListener<EntityChangedEvent>()
+		{
+			@Override
+			public void handleEvent(EntityChangedEvent event)
+			{
+				setInput(event.getEntity() == null ? null :
+					new EntityParam(event.getEntity().getId()), event.getGroup());
+			}
+		}, EntityChangedEvent.class);
+		
+		bus.addListener(new EventListener<AttributeTypesUpdatedEvent>()
+		{
+			@Override
+			public void handleEvent(AttributeTypesUpdatedEvent event)
+			{
+				setAttributeTypes(event.getAttributeTypes());
+			}
+		}, AttributeTypesUpdatedEvent.class);
+		
+		setInput(null, "/");
 	}
 	
-	public void setInput(EntityParam owner, String groupPath, List<AttributeType> atList)
+	private void setAttributeTypes(List<AttributeType> atList)
+	{
+		attributeTypes = new HashMap<String, AttributeType>();
+		for (AttributeType at: atList)
+			attributeTypes.put(at.getName(), at);	
+	}
+	
+	private void setInput(EntityParam owner, String groupPath)
 	{
 		this.owner = owner;
 		
+		if (owner == null)
+		{
+			showLabel(msg.getMessage("Attribute.noEntitySelected"));
+			return;
+		}
+		
 		try
 		{
-			Collection<Attribute<?>> attributesCol = attributesManagement.getAttributes(
+			Collection<Attribute<?>> attributesCol = attributesManagement.getAllAttributes(
 					owner, groupPath, null);
 			this.attributes = new ArrayList<Attribute<?>>(attributesCol.size());
 			this.attributes.addAll(attributesCol);
 			this.groupPath = groupPath;
-			attributeTypes = new HashMap<String, AttributeType>();
-			for (AttributeType at: atList)
-				attributeTypes.put(at.getName(), at);
 			updateAttributes();
 			left.removeAllComponents();
 			left.addComponent(attributesTable);
 		} catch (EngineException e)
 		{
-			Label noAuthz = new Label(msg.getMessage("Attribute.noReadAuthz", groupPath));
-			attributesTable.removeAllItems();
-			attributeValues.removeValues();
-			left.removeAllComponents();
-			left.addComponent(noAuthz);
+			showLabel(msg.getMessage("Attribute.noReadAuthz", groupPath));
 		}
 		
+	}
+	
+	private void showLabel(String value)
+	{
+		Label info = new Label(value);
+		attributesTable.removeAllItems();
+		attributeValues.removeValues();
+		left.removeAllComponents();
+		left.addComponent(info);
 	}
 	
 	private void updateAttributes()

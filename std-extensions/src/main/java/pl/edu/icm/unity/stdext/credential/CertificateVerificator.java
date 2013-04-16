@@ -6,6 +6,8 @@ package pl.edu.icm.unity.stdext.credential;
 
 import java.security.cert.X509Certificate;
 
+import eu.emi.security.authn.x509.impl.X500NameUtils;
+
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
@@ -63,7 +65,8 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 		String identity = chain[0].getSubjectX500Principal().getName();
 		EntityWithCredential resolved = identityResolver.resolveIdentity(identity, 
 				IDENTITY_TYPES, credentialName);
-		return new AuthenticatedEntity(resolved.getEntityId(), resolved.getLocalAuthnState());
+		return new AuthenticatedEntity(resolved.getEntityId(), resolved.getLocalAuthnState(),
+				X500NameUtils.getReadableForm(identity));
 	}
 }
 

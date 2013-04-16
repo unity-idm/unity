@@ -20,6 +20,8 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webadmin.Images;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
@@ -35,6 +37,7 @@ public class GroupsTree extends Tree
 {
 	private GroupsManagement groupsMan;
 	private UnityMessageSource msg;
+	private EventsBus bus;
 
 	@Autowired
 	public GroupsTree(GroupsManagement groupsMan, UnityMessageSource msg)
@@ -45,6 +48,7 @@ public class GroupsTree extends Tree
 		addItem(parent);
 		setItemIcon(parent, Images.folder.getResource());
 		addExpandListener(new GroupExpandListener());
+		addValueChangeListener(new ValueChangeListenerImpl());
 		addActionHandler(new AddGroupActionHandler());
 		addActionHandler(new RefreshActionHandler());
 		addActionHandler(new DeleteActionHandler());
@@ -52,6 +56,7 @@ public class GroupsTree extends Tree
 		addActionHandler(new CollapseAllActionHandler());
 		setImmediate(true);
 		expandItem(new TreeNode("/"));
+		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
 	public void refresh()
@@ -182,7 +187,6 @@ public class GroupsTree extends Tree
 		}
 	}
 
-	
 	private class GroupExpandListener implements ExpandListener
 	{
 		@Override
@@ -237,6 +241,16 @@ public class GroupsTree extends Tree
 					removeItem(child);
 				}
 			}
+		}
+	}
+	
+	private class ValueChangeListenerImpl implements ValueChangeListener
+	{
+		@Override
+		public void valueChange(com.vaadin.data.Property.ValueChangeEvent event)
+		{
+			final TreeNode node = (TreeNode) getValue();
+			bus.fireEvent(new GroupChangedEvent(node == null ? null : node.getPath()));
 		}
 	}
 }

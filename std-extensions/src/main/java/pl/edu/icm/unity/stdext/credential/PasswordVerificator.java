@@ -194,7 +194,8 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		byte[] testedHash = hash(password, current.getSalt());
 		if (!Arrays.areEqual(testedHash, current.getHash()))
 			throw new IllegalCredentialException("The password is incorrect");
-		return new AuthenticatedEntity(resolved.getEntityId(), resolved.getLocalAuthnState());
+		return new AuthenticatedEntity(resolved.getEntityId(), resolved.getLocalAuthnState(),
+				username);
 	}
 
 	private void verifyNewPassword(String password, Deque<PasswordInfo> currentCredentials)

@@ -22,6 +22,7 @@ import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.webui.bus.EventsBus;
 
 import com.vaadin.server.DeploymentConfiguration;
 import com.vaadin.server.ServiceException;
@@ -64,6 +65,7 @@ public class UnityVaadinServlet extends VaadinServlet
 		InvocationContext ctx = setEmptyInvocationContext();
 		setAuthenticationContext(request, ctx);
 		setLocale(request, ctx);
+		getService().addSessionInitListener(new VaadinSessionInit());
 		try
 		{
 			super.service(request, response);
@@ -133,5 +135,18 @@ public class UnityVaadinServlet extends VaadinServlet
 		});
 
 		return service;
+	}
+	
+	private static class VaadinSessionInit implements SessionInitListener
+	{
+		@Override
+		public void sessionInit(SessionInitEvent event) throws ServiceException
+		{
+			if (WebSession.getCurrent() == null)
+			{
+				WebSession webSession = new WebSession(new EventsBus());
+				WebSession.setCurrent(webSession);
+			}			
+		}
 	}
 }

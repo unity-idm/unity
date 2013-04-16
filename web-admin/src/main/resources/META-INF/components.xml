@@ -12,9 +12,13 @@
 	</bean>
 		
 	<bean scope="prototype" id="WebAdminUI" class="pl.edu.icm.unity.webadmin.WebAdminUI"/>
+
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.ContentsManagementTab"/>
 	
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.attribute.AttributesPanel"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.groupbrowser.GroupBrowserComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.groupbrowser.GroupsTree"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.identities.IdentitiesTable"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.identities.IdentitiesComponent"/>
 
 </beans>

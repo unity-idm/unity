@@ -11,8 +11,6 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
-import eu.emi.security.authn.x509.impl.X500NameUtils;
-
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 
@@ -91,7 +89,7 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	@Override
 	public String toPrettyStringNoPrefix(String from)
 	{
-		return X500NameUtils.getReadableForm(from);
+		return from;
 	}
 
 	@Override

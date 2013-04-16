@@ -10,8 +10,13 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventListener;
+import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.bus.RefreshEvent;
 
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Component showing a groups browser.
@@ -21,28 +26,35 @@ import com.vaadin.ui.VerticalLayout;
 @SuppressWarnings("serial")
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class GroupBrowserComponent extends VerticalLayout
+public class GroupBrowserComponent extends Panel
 {
-	private UnityMessageSource msg;
 	private GroupsTree groupsTree;
+	private UnityMessageSource msg;
 	
 	@Autowired
-	public GroupBrowserComponent(UnityMessageSource msg, GroupsTree groupsTree)
+	public GroupBrowserComponent(GroupsTree groupsTree, UnityMessageSource msg)
 	{
-		this.msg = msg;
 		this.groupsTree = groupsTree;
+		this.msg = msg;
 		init();
 	}
 
 
 	private void init()
 	{
-		addComponent(groupsTree);
-	}
-	
-	public void refresh()
-	{
-		groupsTree.refresh();
+		setCaption(msg.getMessage("GroupBrowser.caption"));
+		setContent(groupsTree);
+		setStyleName(Reindeer.PANEL_LIGHT);
+		setSizeFull();
+		EventsBus bus = WebSession.getCurrent().getEventBus();
+		bus.addListener(new EventListener<RefreshEvent>()
+		{
+			@Override
+			public void handleEvent(RefreshEvent event)
+			{
+				groupsTree.refresh();
+			}
+		}, RefreshEvent.class);
 	}
 }
 
