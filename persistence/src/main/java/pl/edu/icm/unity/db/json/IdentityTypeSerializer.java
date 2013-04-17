@@ -4,10 +4,15 @@
  */
 package pl.edu.icm.unity.db.json;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -31,10 +36,9 @@ public class IdentityTypeSerializer
 	{
 		ObjectNode main = mapper.createObjectNode();
 		main.put("description", src.getDescription());
-		//ArrayNode extractedA = main.putArray("extractedAttributes");
-		//TODO - store ids of attributes
-//		for (String a: src.getExtractedAttributes())
-//			extractedA.add(a);
+		ArrayNode extractedA = main.putArray("extractedAttributes");
+		for (String a: src.getExtractedAttributes())
+			extractedA.add(a);
 		try
 		{
 			return mapper.writeValueAsBytes(main);
@@ -63,13 +67,15 @@ public class IdentityTypeSerializer
 		}
 
 		target.setDescription(main.get("description").asText());
-//		ArrayNode attrs = main.withArray("extractedAttributes");
-//		List<String> attrs2 = new ArrayList<String>();
-		//TODO checking if attribtues exist
-//		for (JsonNode a: attrs)
-//		{
-//			attrs2.add(a.asText());
-//		}
-//		target.setExtractedAttributes(attrs2);
+		ArrayNode attrs = main.withArray("extractedAttributes");
+		List<String> attrs2 = new ArrayList<String>();
+		for (JsonNode a: attrs)
+		{
+			attrs2.add(a.asText());
+		}
+		target.setExtractedAttributes(attrs2);
 	}
 }
+
+
+

@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -90,6 +92,7 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 		DiscardOutputStream dos = new DiscardOutputStream();
 		try
 		{
+			value = convertType(value);
 			ImageIO.write(value, "jpg", dos);
 		} catch (IOException e)
 		{
@@ -101,6 +104,29 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 					+ ") is too big, must be not greater than " + maxSize);
 	}
 
+	/**
+	 * OpenJDK doesn't allow to JPEG encode Buffered images of certain types. For those 
+	 * types this methods rewrites the source image into BufferedImage.TYPE_INT_RGB which is supported.
+	 * For other cases the original image is returned.
+	 * @param src
+	 * @return
+	 */
+	private BufferedImage convertType(BufferedImage src)
+	{
+		int srcType = src.getType();
+		if (srcType != BufferedImage.TYPE_INT_ARGB 
+				&& srcType != BufferedImage.TYPE_INT_ARGB_PRE
+				&& srcType != BufferedImage.TYPE_4BYTE_ABGR 
+				&& srcType != BufferedImage.TYPE_4BYTE_ABGR_PRE)
+			return src;
+		
+		BufferedImage bi2 = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_RGB);
+		Graphics g = bi2.getGraphics();
+		g.drawImage(src, 0, 0, Color.WHITE, null);
+		g.dispose();
+		return bi2;
+	}
+	
 	@Override
 	public boolean areEqual(BufferedImage value, Object anotherO)
 	{
@@ -119,6 +145,7 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(maxSize);
 		try
 		{
+			value = convertType(value);
 			ImageIO.write(value, "jpg", bos);
 		} catch (IOException e)
 		{

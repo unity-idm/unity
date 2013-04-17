@@ -57,7 +57,7 @@ public class TestPassword
 		String c5 = verificator.prepareCredential("1asdz", c4);
 		
 		assertEquals(LocalCredentialState.correct, verificator.checkCredentialState(c5));
-		Thread.sleep(100);
+		Thread.sleep(500);
 		assertEquals(LocalCredentialState.outdated, verificator.checkCredentialState(c5));
 	}
 }

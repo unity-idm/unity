@@ -4,7 +4,9 @@
  */
 package pl.edu.icm.unity.types.basic;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 
@@ -31,9 +33,9 @@ public interface IdentityTypeDefinition
 	
 	/**
 	 * 
-	 * @return list of ids of attribute types that can be extracted from the identity of this type.
+	 * @return set of ids of attribute types that can be extracted from the identity of this type.
 	 */
-	public List<String> getAttributesSupportedForExtraction();
+	public Set<String> getAttributesSupportedForExtraction();
 	
 	/**
 	 * Validates if the value is valid
@@ -54,7 +56,7 @@ public interface IdentityTypeDefinition
 	 * Extract provided attributes or all if null is given as argument
 	 * @return
 	 */
-	public List<Attribute<?>> extractAttributes(String from, List<String> toExtract);
+	public List<Attribute<?>> extractAttributes(String from, Collection<String> toExtract);
 	
 	/**
 	 * Similar to {@link #toString()}, but allows for less verbose

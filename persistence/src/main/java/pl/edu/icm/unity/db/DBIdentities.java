@@ -6,6 +6,7 @@ package pl.edu.icm.unity.db;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,27 @@ public class DBIdentities
 		toAdd.setName(idTypeDef.getId());
 		toAdd.setContents(idTypeSerializer.toJson(idType));
 		mapper.insertIdentityType(toAdd);
+	}
+
+	public void updateIdentityType(SqlSession session, IdentityType idType)
+	{
+		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(idType.getIdentityTypeProvider().getId());
+		if (idTypeDef == null)
+			throw new IllegalIdentityValueException("The identity type is unknown");
+		Set<String> newExtracted = idType.getExtractedAttributes();
+		Set<String> supportedForExtraction = idTypeDef.getAttributesSupportedForExtraction();
+		for (String attr: newExtracted)
+			if (!supportedForExtraction.contains(attr))
+				throw new IllegalIdentityValueException("The attribute " + attr + 
+						" can not be extracted by identity type " + idTypeDef.getId());
+		
+		IdentitiesMapper mapper = session.getMapper(IdentitiesMapper.class);
+		BaseBean toUpdate = new BaseBean();
+
+		toUpdate.setName(idType.getIdentityTypeProvider().getId());
+		toUpdate.setContents(idTypeSerializer.toJson(idType));
+		
+		mapper.updateIdentityType(toUpdate);
 	}
 	
 	/**

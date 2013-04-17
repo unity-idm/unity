@@ -14,11 +14,9 @@
 		INSERT INTO IDENTITY_TYPES (NAME, CONTENTS) VALUES (#{name}, #{contents})
 	</insert>
 
-<!-- FIXME - where is missing
 	<update id="updateIdentityType" parameterType="BaseB">
-		UPDATE IDENTITY_TYPES SET NAME = #{name}, CONTENTS=#{contents}
+		UPDATE IDENTITY_TYPES SET CONTENTS=#{contents} WHERE NAME = #{name}
 	</update>
- -->
 
 	<select id="getIdentityTypes" resultType="BaseB">
 		select * from IDENTITY_TYPES

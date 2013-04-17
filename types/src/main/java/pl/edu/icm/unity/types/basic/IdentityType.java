@@ -4,7 +4,9 @@
  */
 package pl.edu.icm.unity.types.basic;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Type of identity. This class uses {@link IdentityTypeDefinition} implementation and there is always 
@@ -16,21 +18,21 @@ public class IdentityType
 {
 	private IdentityTypeDefinition identityTypeProvider;
 	private String description;
-	private List<String> extractedAttributes;
+	private Set<String> extractedAttributes;
 
 	public IdentityType(IdentityTypeDefinition identityTypeProvider)
 	{
 		this.identityTypeProvider = identityTypeProvider;
 		this.description = identityTypeProvider.getDefaultDescription();
-		this.extractedAttributes = identityTypeProvider.getAttributesSupportedForExtraction();
+		setExtractedAttributes(identityTypeProvider.getAttributesSupportedForExtraction());
 	}
 	
 	public IdentityType(IdentityTypeDefinition identityTypeProvider, String description,
-			List<String> extractedAttributes)
+			Set<String> extractedAttributes)
 	{
 		this.identityTypeProvider = identityTypeProvider;
 		this.description = description;
-		this.extractedAttributes = extractedAttributes;
+		setExtractedAttributes(extractedAttributes);
 	}
 
 	public IdentityTypeDefinition getIdentityTypeProvider()
@@ -43,7 +45,7 @@ public class IdentityType
 		return description;
 	}
 
-	public List<String> getExtractedAttributes()
+	public Set<String> getExtractedAttributes()
 	{
 		return extractedAttributes;
 	}
@@ -53,9 +55,10 @@ public class IdentityType
 		this.description = description;
 	}
 
-	public void setExtractedAttributes(List<String> extractedAttributes)
+	public void setExtractedAttributes(Collection<String> extractedAttributes)
 	{
-		this.extractedAttributes = extractedAttributes;
+		this.extractedAttributes = new HashSet<String>();
+		this.extractedAttributes.addAll(extractedAttributes);
 	}
 	
 	public String toString()

@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine;
 
 import static org.junit.Assert.*;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
@@ -35,6 +36,25 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertNotNull(getIdentityTypeByName(idTypes, PersistentIdentity.ID));
 		assertNotNull(getIdentityTypeByName(idTypes, X500Identity.ID));
 		assertNotNull(getIdentityTypeByName(idTypes, UsernameIdentity.ID));
+		
+		IdentityType toUpdate = getIdentityTypeByName(idTypes, X500Identity.ID);
+		toUpdate.setDescription("fiu fiu");
+		toUpdate.setExtractedAttributes(Collections.singleton("cn"));
+		idsMan.updateIdentityType(toUpdate);
+		
+		idTypes = idsMan.getIdentityTypes();
+		IdentityType updated = getIdentityTypeByName(idTypes, X500Identity.ID);
+		assertEquals("fiu fiu", updated.getDescription());
+		assertEquals(1, updated.getExtractedAttributes().size());
+		assertEquals("cn", updated.getExtractedAttributes().iterator().next());
+		
+		try
+		{
+			toUpdate.setExtractedAttributes(Collections.singleton("--not existing--"));
+			idsMan.updateIdentityType(toUpdate);
+			fail("Managed to update identity type with unsupported attr extraction");
+		} catch (IllegalIdentityValueException e){}
+		
 	}
 
 	@Test

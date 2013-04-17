@@ -4,8 +4,10 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
@@ -45,9 +47,10 @@ public class X500Identity extends AbstractIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<String> getAttributesSupportedForExtraction()
+	public Set<String> getAttributesSupportedForExtraction()
 	{
-		return Collections.emptyList();
+		//TODO - real implementation is required
+		return Collections.singleton("cn");
 		//throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
 	}
 
@@ -80,7 +83,7 @@ public class X500Identity extends AbstractIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Attribute<?>> extractAttributes(String from, List<String> toExtract)
+	public List<Attribute<?>> extractAttributes(String from, Collection<String> toExtract)
 	{
 		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
 	}

@@ -100,7 +100,16 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	@Override
 	public void updateIdentityType(IdentityType toUpdate) throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		SqlSession sqlMap = db.getSqlSession(true);
+		try
+		{
+			dbIdentities.updateIdentityType(sqlMap, toUpdate);
+			sqlMap.commit();
+		} finally
+		{
+			db.releaseSqlSession(sqlMap);
+		}
 	}
 
 	/**
