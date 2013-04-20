@@ -15,7 +15,8 @@
 	<bean class="pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntaxFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntaxFactory"/>
 	
+	<bean class="pl.edu.icm.unity.stdext.attr.StandardLDAPConverter"/>
+	
 	<bean class="pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory"/>
-	
 </beans>

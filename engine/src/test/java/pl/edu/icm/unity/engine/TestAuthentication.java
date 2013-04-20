@@ -43,7 +43,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		super.setupMockAuthn();
 		
 		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=foo", true, false), 
-				"crMock", LocalAuthenticationState.outdated);
+				"crMock", LocalAuthenticationState.outdated, false);
 
 		//create authenticator and an endpoint with it
 		Collection<AuthenticatorTypeDescription> authTypes = authnMan.getAuthenticatorTypes("web");
@@ -236,7 +236,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		
 		//add identity with cred requirements with outdated state
 		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=test", true, false), 
-				"crMock", LocalAuthenticationState.outdated);
+				"crMock", LocalAuthenticationState.outdated, false);
 		EntityParam entityP = new EntityParam(id);
 		Entity entity = idsMan.getEntity(entityP);
 		assertEquals(LocalAuthenticationState.outdated, entity.getCredentialInfo().getAuthenticationState());

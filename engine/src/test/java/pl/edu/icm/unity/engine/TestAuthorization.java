@@ -45,7 +45,7 @@ public class TestAuthorization extends DBIntegrationTestBase
 		
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "user1", true, true);
 		Identity added = idsMan.addIdentity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				LocalAuthenticationState.outdated);
+				LocalAuthenticationState.outdated, false);
 		EntityParam entity = new EntityParam(added.getEntityId());
 		attrsMan.setAttribute(entity, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE,
 				"/", AttributeVisibility.local, AuthorizationManagerImpl.USER_ROLE), false);

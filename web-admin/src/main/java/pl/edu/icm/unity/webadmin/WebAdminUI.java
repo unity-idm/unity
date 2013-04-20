@@ -145,7 +145,7 @@ public class WebAdminUI extends UI implements UnityWebUI
 			testAttrMan.addAttributeType(height);
 			
 			IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "foo", true, true);
-			testIdMan.addIdentity(toAdd, "Password requirement", LocalAuthenticationState.outdated);
+			testIdMan.addIdentity(toAdd, "Password requirement", LocalAuthenticationState.outdated, false);
 		} catch (Exception e)
 		{
 			// TODO Auto-generated catch block

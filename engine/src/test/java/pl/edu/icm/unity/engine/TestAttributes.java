@@ -47,7 +47,7 @@ public class TestAttributes extends DBIntegrationTestBase
 		setupMockAuthn();
 		groupsMan.addGroup(new Group("/test"));
 		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "cn=golbi", true, true), "crMock", 
-				LocalAuthenticationState.disabled);
+				LocalAuthenticationState.disabled, false);
 		attrsMan.addAttributeType(new AttributeType("tel", new StringAttributeSyntax()));
 		EntityParam entity = new EntityParam(id.getEntityId());
 
@@ -196,7 +196,7 @@ public class TestAttributes extends DBIntegrationTestBase
 		//recreate and add an attribute
 		attrsMan.addAttributeType(at);
 		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "cn=golbi", true, true), "crMock", 
-				LocalAuthenticationState.disabled);
+				LocalAuthenticationState.disabled, false);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		StringAttribute at1 = new StringAttribute("some", "/", AttributeVisibility.local, "123456");
 		attrsMan.setAttribute(entity, at1, false);
@@ -266,7 +266,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	{
 		setupMockAuthn();
 		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "cn=golbi", true, true), "crMock", 
-				LocalAuthenticationState.disabled);
+				LocalAuthenticationState.disabled, false);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		
 		AttributeType at = createSimpleAT("some");

@@ -51,6 +51,13 @@ public class AttributeType implements InitializationValidator
 		this.valueType = syntax;
 	}
 	
+	public AttributeType(String name, AttributeValueSyntax<?> syntax, String description)
+	{
+		this.name = name;
+		this.valueType = syntax;
+		this.description = description;
+	}
+	
 	public String getDescription()
 	{
 		return description;

@@ -529,7 +529,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		groupsMan.addGroup(groupABC);
 		
 		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "cn=golbi", true, true), "crMock", 
-				LocalAuthenticationState.disabled);
+				LocalAuthenticationState.disabled, false);
 		entity = new EntityParam(id);
 		groupsMan.addMemberFromParent("/A", entity);
 		groupsMan.addMemberFromParent("/A/B", entity);

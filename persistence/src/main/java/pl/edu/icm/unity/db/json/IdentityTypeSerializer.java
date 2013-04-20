@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.db.json;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
@@ -37,8 +37,13 @@ public class IdentityTypeSerializer
 		ObjectNode main = mapper.createObjectNode();
 		main.put("description", src.getDescription());
 		ArrayNode extractedA = main.putArray("extractedAttributes");
-		for (String a: src.getExtractedAttributes())
-			extractedA.add(a);
+		for (Map.Entry<String, String> a: src.getExtractedAttributes().entrySet())
+		{
+			ObjectNode entry = mapper.createObjectNode();
+			entry.put("key", a.getKey());
+			entry.put("value", a.getValue());
+			extractedA.add(entry);
+		}
 		try
 		{
 			return mapper.writeValueAsBytes(main);
@@ -68,10 +73,10 @@ public class IdentityTypeSerializer
 
 		target.setDescription(main.get("description").asText());
 		ArrayNode attrs = main.withArray("extractedAttributes");
-		List<String> attrs2 = new ArrayList<String>();
+		Map<String, String> attrs2 = new HashMap<String, String>();
 		for (JsonNode a: attrs)
 		{
-			attrs2.add(a.asText());
+			attrs2.put(a.get("key").asText(), a.get("value").asText());
 		}
 		target.setExtractedAttributes(attrs2);
 	}

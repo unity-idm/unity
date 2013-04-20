@@ -4,9 +4,8 @@
  */
 package pl.edu.icm.unity.types.basic;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Type of identity. This class uses {@link IdentityTypeDefinition} implementation and there is always 
@@ -18,17 +17,17 @@ public class IdentityType
 {
 	private IdentityTypeDefinition identityTypeProvider;
 	private String description;
-	private Set<String> extractedAttributes;
+	private Map<String, String> extractedAttributes;
 
 	public IdentityType(IdentityTypeDefinition identityTypeProvider)
 	{
 		this.identityTypeProvider = identityTypeProvider;
 		this.description = identityTypeProvider.getDefaultDescription();
-		setExtractedAttributes(identityTypeProvider.getAttributesSupportedForExtraction());
+		setExtractedAttributes(new HashMap<String, String>());
 	}
 	
 	public IdentityType(IdentityTypeDefinition identityTypeProvider, String description,
-			Set<String> extractedAttributes)
+			Map<String, String> extractedAttributes)
 	{
 		this.identityTypeProvider = identityTypeProvider;
 		this.description = description;
@@ -45,7 +44,7 @@ public class IdentityType
 		return description;
 	}
 
-	public Set<String> getExtractedAttributes()
+	public Map<String, String> getExtractedAttributes()
 	{
 		return extractedAttributes;
 	}
@@ -55,10 +54,10 @@ public class IdentityType
 		this.description = description;
 	}
 
-	public void setExtractedAttributes(Collection<String> extractedAttributes)
+	public void setExtractedAttributes(Map<String, String> extractedAttributes)
 	{
-		this.extractedAttributes = new HashSet<String>();
-		this.extractedAttributes.addAll(extractedAttributes);
+		this.extractedAttributes = new HashMap<String, String>();
+		this.extractedAttributes.putAll(extractedAttributes);
 	}
 	
 	public String toString()

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,10 +25,14 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.internal.EngineHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
+import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
@@ -35,6 +40,7 @@ import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -42,6 +48,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 
 /**
  * Implementation of identities management. Responsible for top level transaction handling,
@@ -51,6 +58,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 @Component
 public class IdentitiesManagementImpl implements IdentitiesManagement
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, IdentitiesManagementImpl.class);
 	private DBSessionManager db;
 	private DBIdentities dbIdentities;
 	private DBGroups dbGroups;
@@ -58,12 +66,13 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	private IdentitiesResolver idResolver;
 	private EngineHelper engineHelper;
 	private AuthorizationManager authz;
+	private IdentityTypesRegistry idTypesRegistry;
 
 	@Autowired
 	public IdentitiesManagementImpl(DBSessionManager db, DBIdentities dbIdentities,
 			DBGroups dbGroups, DBAttributes dbAttributes,
 			IdentitiesResolver idResolver, EngineHelper engineHelper,
-			AuthorizationManager authz)
+			AuthorizationManager authz, IdentityTypesRegistry idTypesRegistry)
 	{
 		this.db = db;
 		this.dbIdentities = dbIdentities;
@@ -72,6 +81,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		this.idResolver = idResolver;
 		this.engineHelper = engineHelper;
 		this.authz = authz;
+		this.idTypesRegistry = idTypesRegistry;
 	}
 
 
@@ -101,9 +111,35 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	public void updateIdentityType(IdentityType toUpdate) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(toUpdate.getIdentityTypeProvider().getId());
+		if (idTypeDef == null)
+			throw new IllegalIdentityValueException("The identity type is unknown");
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
+			List<AttributeType> ats = dbAttributes.getAttributeTypes(sqlMap);
+			Map<String, AttributeType> atsMap = new HashMap<String, AttributeType>();
+			for (AttributeType at: ats)
+				atsMap.put(at.getName(), at);
+			Map<String, String> extractedAts = toUpdate.getExtractedAttributes();
+			Set<AttributeType> supportedForExtraction = idTypeDef.getAttributesSupportedForExtraction();
+			Map<String, AttributeType> supportedForExtractionMap = new HashMap<String, AttributeType>();
+			for (AttributeType at: supportedForExtraction)
+				supportedForExtractionMap.put(at.getName(), at);
+			
+			for (Map.Entry<String, String> extracted: extractedAts.entrySet())
+			{
+				AttributeType type = atsMap.get(extracted.getValue());
+				if (type == null)
+					throw new IllegalAttributeTypeException("Can not extract attribute " + 
+							extracted.getKey() + " as " + extracted.getValue() + 
+							" because the latter is not defined in the system");
+				AttributeType supportedType = supportedForExtractionMap.get(extracted.getKey());
+				if (supportedType == null)
+					throw new IllegalAttributeTypeException("Can not extract attribute " + 
+							extracted.getKey() + " as " + extracted.getValue() + 
+							" because the former is not supported by the identity provider");
+			}
 			dbIdentities.updateIdentityType(sqlMap, toUpdate);
 			sqlMap.commit();
 		} finally
@@ -117,7 +153,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	 */
 	@Override
 	public Identity addIdentity(IdentityParam toAdd, String credReqId, 
-			LocalAuthenticationState initialCredentialState) throws EngineException
+			LocalAuthenticationState initialCredentialState, boolean extractAttributes) throws EngineException
 	{
 		toAdd.validateInitialization();
 		if (initialCredentialState == LocalAuthenticationState.valid)
@@ -141,6 +177,9 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 
 			engineHelper.setEntityCredentialRequirements(entityId, credReqId, sqlMap);
 			engineHelper.setEntityAuthenticationState(entityId, initialCredentialState, sqlMap);
+
+			if (extractAttributes)
+				extractAttributes(ret, sqlMap);
 			
 			sqlMap.commit();
 			return ret;
@@ -154,7 +193,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Identity addIdentity(IdentityParam toAdd, EntityParam parentEntity)
+	public Identity addIdentity(IdentityParam toAdd, EntityParam parentEntity, boolean extractAttributes)
 			throws EngineException
 	{
 		toAdd.validateInitialization();
@@ -165,6 +204,8 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			long entityId = idResolver.getEntityId(parentEntity, sqlMap);
 			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
 			Identity ret = dbIdentities.insertIdentity(toAdd, entityId, sqlMap);
+			if (extractAttributes)
+				extractAttributes(ret, sqlMap);
 			sqlMap.commit();
 			return ret;
 		} finally
@@ -173,6 +214,27 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		}
 	}
 
+	private void extractAttributes(Identity from, SqlSession sql)
+	{
+		IdentityType idType = from.getType();
+		IdentityTypeDefinition typeProvider = idType.getIdentityTypeProvider();
+		Map<String, String> toExtract = idType.getExtractedAttributes();
+		List<Attribute<?>> extractedList = typeProvider.extractAttributes(from.getValue(), toExtract);
+		long entityId = Long.parseLong(from.getEntityId());
+		for (Attribute<?> extracted: extractedList)
+		{
+			extracted.setGroupPath("/");
+			try
+			{
+				dbAttributes.addAttribute(entityId, extracted, false, sql);
+			} catch (RuntimeEngineException e)
+			{
+				log.info("Can not add extracted attribute " + extracted.getName() 
+						+ " for entity " + entityId + ": " + e.toString());
+			}
+		}
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

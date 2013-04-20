@@ -6,17 +6,24 @@ package pl.edu.icm.unity.engine;
 
 import static org.junit.Assert.*;
 
-import java.util.Collections;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -39,22 +46,59 @@ public class TestIdentities extends DBIntegrationTestBase
 		
 		IdentityType toUpdate = getIdentityTypeByName(idTypes, X500Identity.ID);
 		toUpdate.setDescription("fiu fiu");
-		toUpdate.setExtractedAttributes(Collections.singleton("cn"));
+		Map<String, String> extracted = new HashMap<String, String>();
+		extracted.put("cn", "cn");
+		toUpdate.setExtractedAttributes(extracted);
+		try
+		{
+			idsMan.updateIdentityType(toUpdate);
+			fail("managed to set attributes extraction with undefined attribute t");
+		} catch(IllegalAttributeTypeException e) {}
+		attrsMan.addAttributeType(new AttributeType("cn", new StringAttributeSyntax()));
+		extracted.put("unknown", "cn");
+		toUpdate.setExtractedAttributes(extracted);
+		try
+		{
+			idsMan.updateIdentityType(toUpdate);
+			fail("managed to set attributes extraction with unsupported attribute t");
+		} catch(IllegalAttributeTypeException e) {}
+		extracted.remove("unknown");
+		
+		AttributeType at = new AttributeType("country", new StringAttributeSyntax());
+		at.setMaxElements(0);
+		attrsMan.addAttributeType(at);
+		extracted.put("c", "country");
+		toUpdate.setExtractedAttributes(extracted);
 		idsMan.updateIdentityType(toUpdate);
+		
 		
 		idTypes = idsMan.getIdentityTypes();
 		IdentityType updated = getIdentityTypeByName(idTypes, X500Identity.ID);
 		assertEquals("fiu fiu", updated.getDescription());
+		assertEquals(2, updated.getExtractedAttributes().size());
+		assertEquals("cn", updated.getExtractedAttributes().keySet().iterator().next());
+		assertEquals("cn", updated.getExtractedAttributes().values().iterator().next());
+		
+		setupMockAuthn();
+		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi, dc=ddd, ou=org unit,C=pl", true, true);
+		Identity added = idsMan.addIdentity(idParam, "crMock", LocalAuthenticationState.outdated, true);
+		
+		Collection<Attribute<?>> attributes = attrsMan.getAttributes(new EntityParam(added), "/", null);
+		assertEquals(1, attributes.size());
+		Attribute<?> cnAttr = getAttributeByName(attributes, "cn");
+		assertEquals(cnAttr.getValues().get(0), "golbi");
+		
+		attrsMan.removeAttributeType("cn", true);
+		idTypes = idsMan.getIdentityTypes();
+		updated = getIdentityTypeByName(idTypes, X500Identity.ID);
 		assertEquals(1, updated.getExtractedAttributes().size());
-		assertEquals("cn", updated.getExtractedAttributes().iterator().next());
+		assertEquals("c", updated.getExtractedAttributes().keySet().iterator().next());
+		assertEquals("country", updated.getExtractedAttributes().values().iterator().next());
 		
-		try
-		{
-			toUpdate.setExtractedAttributes(Collections.singleton("--not existing--"));
-			idsMan.updateIdentityType(toUpdate);
-			fail("Managed to update identity type with unsupported attr extraction");
-		} catch (IllegalIdentityValueException e){}
-		
+		attrsMan.updateAttributeType(new AttributeType("country", new IntegerAttributeSyntax()));
+		idTypes = idsMan.getIdentityTypes();
+		updated = getIdentityTypeByName(idTypes, X500Identity.ID);
+		assertEquals(0, updated.getExtractedAttributes().size());
 	}
 
 	@Test
@@ -62,14 +106,14 @@ public class TestIdentities extends DBIntegrationTestBase
 	{
 		setupMockAuthn();
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi", true, true);
-		Identity id = idsMan.addIdentity(idParam, "crMock", LocalAuthenticationState.disabled);
+		Identity id = idsMan.addIdentity(idParam, "crMock", LocalAuthenticationState.disabled, false);
 		assertNotNull(id.getEntityId());
 		assertEquals("CN=golbi", id.getValue());
 		assertEquals(true, id.isEnabled());
 		assertEquals(true, id.isLocal());
 		
 		IdentityParam idParam2 = new IdentityParam(X500Identity.ID, "CN=golbi2", true, false);
-		Identity id2 = idsMan.addIdentity(idParam2, new EntityParam(id.getEntityId()));
+		Identity id2 = idsMan.addIdentity(idParam2, new EntityParam(id.getEntityId()), false);
 		assertEquals("CN=golbi2", id2.getValue());
 		assertEquals(id.getEntityId(), id2.getEntityId());
 		assertEquals(true, id2.isEnabled());

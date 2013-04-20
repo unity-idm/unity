@@ -4,15 +4,21 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 /**
  * Simple username identity type definition
@@ -22,6 +28,15 @@ import pl.edu.icm.unity.types.basic.Attribute;
 public class UsernameIdentity extends AbstractIdentityTypeProvider
 {
 	public static final String ID = "userName";
+	private static Set<AttributeType> EXTRACTED;
+	private static final String EXTRACTED_NAME = "uid";
+	
+	static 
+	{
+		EXTRACTED = new HashSet<AttributeType>(1);
+		EXTRACTED.add(new AttributeType(EXTRACTED_NAME, new StringAttributeSyntax(), "User identifier"));
+		EXTRACTED = Collections.unmodifiableSet(EXTRACTED);
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -45,10 +60,9 @@ public class UsernameIdentity extends AbstractIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Set<String> getAttributesSupportedForExtraction()
+	public Set<AttributeType> getAttributesSupportedForExtraction()
 	{
-		return Collections.emptySet();
-		//throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		return EXTRACTED;
 	}
 
 	/**
@@ -76,9 +90,15 @@ public class UsernameIdentity extends AbstractIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Attribute<?>> extractAttributes(String from, Collection<String> toExtract)
+	public List<Attribute<?>> extractAttributes(String from, Map<String, String> toExtract)
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		String desiredName = toExtract.get(EXTRACTED_NAME);
+		if (desiredName == null)
+			return Collections.emptyList();
+		Attribute<?> ret = new StringAttribute(desiredName, "/", AttributeVisibility.full, from);
+		List<Attribute<?>> retL = new ArrayList<Attribute<?>>();
+		retL.add(ret);
+		return retL;
 	}
 
 	/**

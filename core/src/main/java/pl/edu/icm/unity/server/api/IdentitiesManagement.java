@@ -41,20 +41,22 @@ public interface IdentitiesManagement
 	 * @param credReqId Local {@link CredentialRequirements} id
 	 * @param initialCredentialState initial state of the credential. Only {@link LocalAuthenticationState#disabled}
 	 * and {@link LocalAuthenticationState#outdated} are allowed.
+	 * @param extractAttributes whether automatic attributes extraction should be performed
 	 * @return newly created identity
 	 * @throws EngineException
 	 */
 	public Identity addIdentity(IdentityParam toAdd, String credReqIdId, 
-			LocalAuthenticationState initialCredentialState) throws EngineException;
+			LocalAuthenticationState initialCredentialState, boolean extractAttributes) throws EngineException;
 	
 	/**
 	 * Adds a new identity under existing entity.
 	 * @param toAdd
 	 * @param equivalentIdentity
+	 * @param extractAttributes whether automatic attributes extraction should be performed
 	 * @return newly created identity
 	 * @throws EngineException
 	 */
-	public Identity addIdentity(IdentityParam toAdd, EntityParam parentEntity) throws EngineException;
+	public Identity addIdentity(IdentityParam toAdd, EntityParam parentEntity, boolean extractAttributes) throws EngineException;
 	
 	/**
 	 * Deletes identity. It must not be the last identity of the entity.

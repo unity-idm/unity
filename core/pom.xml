@@ -73,6 +73,10 @@
 			<artifactId>unity-types</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>antlr</groupId>
+			<artifactId>antlr</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -85,6 +89,20 @@
 					<execution>
 						<goals>
 							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>antlr-maven-plugin</artifactId>
+				<configuration>
+					<grammars>*.g</grammars>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
 						</goals>
 					</execution>
 				</executions>

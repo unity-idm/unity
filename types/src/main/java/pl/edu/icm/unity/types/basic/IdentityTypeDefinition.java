@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.types.basic;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -33,9 +33,11 @@ public interface IdentityTypeDefinition
 	
 	/**
 	 * 
-	 * @return set of ids of attribute types that can be extracted from the identity of this type.
+	 * @return set of attribute types that can be extracted from the identity of this type.
+	 * It can be assumed that at least name, description and syntax are set. The attribute types from this 
+	 * set need not be defined in the system.
 	 */
-	public Set<String> getAttributesSupportedForExtraction();
+	public Set<AttributeType> getAttributesSupportedForExtraction();
 	
 	/**
 	 * Validates if the value is valid
@@ -53,10 +55,13 @@ public interface IdentityTypeDefinition
 	public String getComparableValue(String from);
 	
 	/**
-	 * Extract provided attributes or all if null is given as argument
+	 * Extract provided attributes.
+	 * @param toExtract map: the keys are attribute names as returned by the 
+	 * {@link #getAttributesSupportedForExtraction()}. Values are actual names of attribute names to be used
+	 * for each extracted.
 	 * @return
 	 */
-	public List<Attribute<?>> extractAttributes(String from, Collection<String> toExtract);
+	public List<Attribute<?>> extractAttributes(String from, Map<String, String> toExtract);
 	
 	/**
 	 * Similar to {@link #toString()}, but allows for less verbose

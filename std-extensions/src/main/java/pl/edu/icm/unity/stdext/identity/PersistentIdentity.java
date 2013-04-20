@@ -5,9 +5,9 @@
 package pl.edu.icm.unity.stdext.identity;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
  * Identity type definition holding a persistent id. It is associated with each and every entity. 
@@ -54,7 +55,7 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Set<String> getAttributesSupportedForExtraction()
+	public Set<AttributeType> getAttributesSupportedForExtraction()
 	{
 		return Collections.emptySet();
 	}
@@ -80,7 +81,7 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Attribute<?>> extractAttributes(String from, Collection<String> toExtract)
+	public List<Attribute<?>> extractAttributes(String from, Map<String, String> toExtract)
 	{
 		return empty; 
 	}

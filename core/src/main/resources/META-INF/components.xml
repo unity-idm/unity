@@ -11,6 +11,7 @@
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
 		<property name="bundle" value="pl/edu/icm/unity/webui/messages/messages"/>
 	</bean>
+	<bean class="pl.edu.icm.unity.ldaputils.LDAPAttributeTypesConverter"/>
 	
 	<bean class="pl.edu.icm.unity.server.registries.IdentityTypesRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry"/>

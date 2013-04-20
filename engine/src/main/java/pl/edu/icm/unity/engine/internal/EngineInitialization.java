@@ -258,7 +258,7 @@ public class EngineInitialization extends LifecycleBase
 				String adminP = config.getValue(UnityServerConfiguration.INITIAL_ADMIN_PASSWORD);
 				IdentityParam admin = new IdentityParam(UsernameIdentity.ID, adminU, true, true);
 				Identity adminId = idManagement.addIdentity(admin, crDef.getName(), 
-						LocalAuthenticationState.outdated);
+						LocalAuthenticationState.outdated, false);
 				
 				EntityParam adminEntity = new EntityParam(adminId.getEntityId());
 				idManagement.setEntityCredential(adminEntity, credDef.getName(), adminP);

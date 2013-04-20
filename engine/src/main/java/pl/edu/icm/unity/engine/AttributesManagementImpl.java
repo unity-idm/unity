@@ -7,12 +7,14 @@ package pl.edu.icm.unity.engine;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBAttributes;
+import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
@@ -29,6 +31,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
  * Implements attributes operations.
@@ -40,17 +43,19 @@ public class AttributesManagementImpl implements AttributesManagement
 	private AttributeSyntaxFactoriesRegistry attrValueTypesReg;
 	private DBSessionManager db;
 	private DBAttributes dbAttributes;
+	private DBIdentities dbIdentities;
 	private IdentitiesResolver idResolver;
 	private AuthorizationManager authz;
 	
 	@Autowired
 	public AttributesManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
-			DBSessionManager db, DBAttributes dbAttributes,
+			DBSessionManager db, DBAttributes dbAttributes, DBIdentities dbIdentities,
 			IdentitiesResolver idResolver, AuthorizationManager authz)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
 		this.db = db;
 		this.dbAttributes = dbAttributes;
+		this.dbIdentities = dbIdentities;
 		this.idResolver = idResolver;
 		this.authz = authz;
 	}
@@ -110,6 +115,8 @@ public class AttributesManagementImpl implements AttributesManagement
 						" can not be manually updated");
 			
 			dbAttributes.updateAttributeType(at, sql);
+			if (!at.getValueType().getValueSyntaxId().equals(atExisting.getValueType().getValueSyntaxId()))
+				clearAttributeExtractionFromIdentities(at.getName(), sql);
 			sql.commit();
 		} finally
 		{
@@ -134,6 +141,7 @@ public class AttributesManagementImpl implements AttributesManagement
 						" can not be manually removed");
 
 			dbAttributes.removeAttributeType(id, deleteInstances, sql);
+			clearAttributeExtractionFromIdentities(id, sql);
 			sql.commit();
 		} finally
 		{
@@ -141,6 +149,30 @@ public class AttributesManagementImpl implements AttributesManagement
 		}
 	}
 
+	private void clearAttributeExtractionFromIdentities(String id, SqlSession sql)
+	{
+		List<IdentityType> identityTypes = dbIdentities.getIdentityTypes(sql);
+		for (IdentityType idType: identityTypes)
+		{
+			Map<String, String> extractedMap = idType.getExtractedAttributes();
+			Iterator<Map.Entry<String, String>> entries = extractedMap.entrySet().iterator();
+			boolean updateIdType = false;
+			while (entries.hasNext())
+			{
+				Map.Entry<String, String> extracted = entries.next();
+				if (extracted.getValue().equals(id))
+				{
+					entries.remove();
+					updateIdType = true;
+				}
+			}
+			if (updateIdType)
+			{
+				dbIdentities.updateIdentityType(sql, idType);
+			}
+		}
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
