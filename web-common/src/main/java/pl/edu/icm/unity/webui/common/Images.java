@@ -14,7 +14,14 @@ import com.vaadin.server.Resource;
 public enum Images
 {
 	unknown		(I.P + "unknown.gif"),
-	logout		(I.P + "logout.png");
+	logout		(I.P + "logout.png"),
+	add		(I.P + "add.png"),
+	delete		(I.P + "delete.png"),
+	edit		(I.P + "edit.png"),
+	refresh		(I.P + "refresh.png"),
+	noAuthzGrp	(I.P + "noauthzGrp.gif"),
+	collapse	(I.P + "collapse.gif"),
+	folder		(I.P + "folder.gif");
 	
 	
 	private final String classpath;

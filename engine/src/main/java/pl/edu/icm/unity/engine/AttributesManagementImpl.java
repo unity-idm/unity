@@ -232,6 +232,9 @@ public class AttributesManagementImpl implements AttributesManagement
 		{
 			long entityId = idResolver.getEntityId(entity, sql);
 			AttributeType at = dbAttributes.getAttributeType(attribute.getName(), sql);
+			if (at.isInstanceImmutable())
+				throw new IllegalAttributeTypeException("The attribute with name " + at.getName() + 
+						" can not be manually modified");
 			authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId), 
 					attribute.getGroupPath(), AuthzCapability.attributeModify);
 			dbAttributes.addAttribute(entityId, attribute, update, sql);
@@ -260,6 +263,9 @@ public class AttributesManagementImpl implements AttributesManagement
 		{
 			long entityId = idResolver.getEntityId(entity, sql);
 			AttributeType at = dbAttributes.getAttributeType(attributeTypeId, sql);
+			if (at.isInstanceImmutable())
+				throw new IllegalAttributeTypeException("The attribute with name " + at.getName() + 
+						" can not be manually modified");
 			authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId),
 					groupPath, AuthzCapability.attributeModify);
 			dbAttributes.removeAttribute(entityId, groupPath, attributeTypeId, sql);

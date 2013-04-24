@@ -6,12 +6,13 @@ package pl.edu.icm.unity.webadmin.attribute;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.MapComboBox;
 
@@ -63,13 +64,14 @@ public class AttributeMetaEditorPanel extends FormLayout
 	private void initCommon(AttributeType attributeType, String groupPath, AttributeVisibility attrVisibility)
 	{
 		valueType = new Label(attributeType.getValueType().getValueSyntaxId());
-		valueType.setCaption(msg.getMessage("Attribute.type"));
+		valueType.setCaption(msg.getMessage("AttributeType.type"));
 		addComponent(valueType);
 
-		typeDescription = new TextArea(msg.getMessage("Attribute.description"), 
+		typeDescription = new TextArea(msg.getMessage("AttributeType.description"), 
 				attributeType.getDescription());
 		typeDescription.setReadOnly(true);
-		typeDescription.setSizeFull();
+		typeDescription.setSizeUndefined();
+		typeDescription.setWidth(100, Unit.PERCENTAGE);
 		addComponent(typeDescription);
 		
 		Label group = new Label(groupPath);
@@ -77,18 +79,20 @@ public class AttributeMetaEditorPanel extends FormLayout
 		addComponent(group);
 		
 		cardinality = new Label();
-		cardinality.setCaption(msg.getMessage("Attribute.cardinality"));
+		cardinality.setCaption(msg.getMessage("AttributeType.cardinality"));
 		addComponent(cardinality);
-		setCardinality(attributeType);
+		cardinality.setValue(AttributeTypeUtils.getBoundsDesc(msg, attributeType.getMinElements(), 
+				attributeType.getMaxElements()));
 		
 		unique = new Label();
-		unique.setCaption(msg.getMessage("Attribute.uniqueValues"));
+		unique.setCaption(msg.getMessage("AttributeType.uniqueValues"));
 		addComponent(unique);
-		setUnique(attributeType);
+		unique.setValue(AttributeTypeUtils.getBooleanDesc(msg, attributeType.isUniqueValues()));
 
-		visibility = new EnumComboBox<AttributeVisibility>(msg.getMessage("Attribute.visibility"), 
-				msg, "AttributeVisibility.", 
+		visibility = new EnumComboBox<AttributeVisibility>(msg.getMessage("AttributeType.visibility"), 
+				msg, "AttributeType.visibility.", 
 				AttributeVisibility.class, attrVisibility);
+		visibility.setSizeUndefined();
 		visibility.setWidth(10, Unit.EM);
 		addComponent(visibility);
 		setSizeFull();
@@ -97,18 +101,24 @@ public class AttributeMetaEditorPanel extends FormLayout
 	private void createAttributeWidget(String attributeName)
 	{
 		Label name = new Label(attributeName);
-		name.setCaption(msg.getMessage("Attribute.name"));
+		name.setCaption(msg.getMessage("AttributeType.name"));
 		addComponent(name);
 	}
 	
 	private void createAttributeSelectionWidget(Collection<AttributeType> attributeTypes)
 	{
-		Map<String, AttributeType> typesByName = new HashMap<String, AttributeType>(attributeTypes.size());
+		SortedMap<String, AttributeType> typesByName = new TreeMap<String, AttributeType>();
 		for (AttributeType at: attributeTypes)
-			typesByName.put(at.getName(), at);
-		this.attributeTypes = new MapComboBox<AttributeType>(msg.getMessage("Attribute.name"), typesByName, 
-				typesByName.keySet().iterator().next());
+		{
+			if (!at.isInstanceImmutable())
+				typesByName.put(at.getName(), at);
+		}
+		String chosen = typesByName.size() > 0 ? typesByName.keySet().iterator().next() : null;
+		this.attributeTypes = new MapComboBox<AttributeType>(msg.getMessage("AttributeType.name"), typesByName, 
+				chosen);
 		this.attributeTypes.setImmediate(true);
+		this.attributeTypes.setSizeUndefined();
+		this.attributeTypes.setWidth(100, Unit.PERCENTAGE);
 		
 		if (attributeTypes.size() == 1)
 		{
@@ -138,22 +148,6 @@ public class AttributeMetaEditorPanel extends FormLayout
 		this.callback = callback;
 	}
 
-	private void setCardinality(AttributeType type)
-	{
-		String from = type.getMinElements()+"";
-		String to = type.getMaxElements() == Integer.MAX_VALUE ? 
-				msg.getMessage("Attribute.cardinalityNoLimit") : 
-				type.getMaxElements()+"";
-		String cardVal = "[" + from + ", " + to + "]";
-		cardinality.setValue(cardVal);
-	}
-	
-	private void setUnique(AttributeType type)
-	{
-		String val = type.isUniqueValues() ? msg.getMessage("yes") : msg.getMessage("no");
-		unique.setValue(val);
-	}
-	
 	private void changeAttribute()
 	{
 		AttributeType type = attributeTypes.getSelectedValue();
@@ -164,8 +158,9 @@ public class AttributeMetaEditorPanel extends FormLayout
 		typeDescription.setReadOnly(true);
 		
 		visibility.setEnumValue(type.getVisibility());
-		setCardinality(type);
-		setUnique(type);
+		cardinality.setValue(AttributeTypeUtils.getBoundsDesc(msg, type.getMinElements(), 
+				type.getMaxElements()));
+		unique.setValue(AttributeTypeUtils.getBooleanDesc(msg, type.isUniqueValues()));
 		if (callback != null)
 			callback.attributeTypeChanged(type);
 	}

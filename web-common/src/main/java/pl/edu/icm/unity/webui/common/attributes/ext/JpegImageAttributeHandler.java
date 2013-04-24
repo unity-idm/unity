@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -24,7 +25,9 @@ import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.IntegerBoundEditor;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
@@ -33,6 +36,7 @@ import com.vaadin.server.Resource;
 import com.vaadin.server.StreamResource;
 import com.vaadin.server.StreamResource.StreamSource;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -174,12 +178,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			upload.setReceiver(uploader);
 			upload.addSucceededListener(uploader);
 			vl.addComponent(upload);
-			
-			Label maxSize = new Label(msg.getMessage("JpegAttributeHandler.maxSize", syntax.getMaxSize()));
-			vl.addComponent(maxSize);
-			Label maxDim = new Label(msg.getMessage("JpegAttributeHandler.maxDim", syntax.getMaxWidth(),
-					syntax.getMaxHeight()));
-			vl.addComponent(maxDim);
+			setHints(vl, syntax);
 			return vl;
 		}
 
@@ -245,6 +244,15 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		};		
 	}
 	
+	private void setHints(VerticalLayout vl, JpegImageAttributeSyntax syntax)
+	{
+		Label maxSize = new Label(msg.getMessage("JpegAttributeHandler.maxSize", syntax.getMaxSize()));
+		vl.addComponent(maxSize);
+		Label maxDim = new Label(msg.getMessage("JpegAttributeHandler.maxDim", syntax.getMaxWidth(),
+				syntax.getMaxHeight()));
+		vl.addComponent(maxDim);
+	}
+	
 	public class SimpleImageSource implements StreamSource
 	{
 		private static final long serialVersionUID = 1L;
@@ -271,5 +279,75 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 	public WebAttributeHandler<?> createInstance()
 	{
 		return new JpegImageAttributeHandler(msg);
+	}
+
+	@Override
+	public Component getSyntaxViewer(AttributeValueSyntax<BufferedImage> syntax)
+	{
+		VerticalLayout vl = new VerticalLayout();
+		setHints(vl, (JpegImageAttributeSyntax) syntax);
+		return vl;
+	}
+
+	@Override
+	public AttributeSyntaxEditor<BufferedImage> getSyntaxEditorComponent(
+			AttributeValueSyntax<BufferedImage> initialValue)
+	{
+		return new JpegSyntaxEditor((JpegImageAttributeSyntax) initialValue);
+	}
+	
+	private class JpegSyntaxEditor implements AttributeSyntaxEditor<BufferedImage>
+	{
+		private JpegImageAttributeSyntax initial;
+		private IntegerBoundEditor maxHeight, maxWidth, maxSize;
+		
+		
+		public JpegSyntaxEditor(JpegImageAttributeSyntax initial)
+		{
+			this.initial = initial;
+		}
+
+		@Override
+		public Component getEditor()
+		{
+			FormLayout fl = new FormLayout();
+			maxWidth = new IntegerBoundEditor(msg, msg.getMessage("JpegAttributeHandler.maxWidthUnlimited"), 
+					msg.getMessage("JpegAttributeHandler.maxWidthE"), Integer.MAX_VALUE);
+			maxWidth.setMin(1);
+			maxHeight = new IntegerBoundEditor(msg, msg.getMessage("JpegAttributeHandler.maxHeightUnlimited"), 
+					msg.getMessage("JpegAttributeHandler.maxHeightE"), Integer.MAX_VALUE);
+			maxHeight.setMin(1);
+			maxSize = new IntegerBoundEditor(msg, msg.getMessage("JpegAttributeHandler.maxSizeUnlimited"), 
+					msg.getMessage("JpegAttributeHandler.maxSizeE"), Integer.MAX_VALUE);
+			maxSize.setMin(100);
+			maxWidth.addToLayout(fl);
+			maxHeight.addToLayout(fl);
+			maxSize.addToLayout(fl);
+			if (initial != null)
+			{
+				maxWidth.setValue(initial.getMaxWidth());
+				maxHeight.setValue(initial.getMaxHeight());
+				maxSize.setValue(initial.getMaxSize());
+			}
+			return fl;
+		}
+
+		@Override
+		public AttributeValueSyntax<BufferedImage> getCurrentValue()
+				throws IllegalAttributeTypeException
+		{
+			try
+			{
+				JpegImageAttributeSyntax ret = new JpegImageAttributeSyntax();
+				ret.setMaxHeight((int)(long)maxHeight.getValue());
+				ret.setMaxWidth((int)(long)maxWidth.getValue());
+				ret.setMaxSize((int)(long)maxSize.getValue());
+				return ret;
+			} catch (IllegalStateException e)
+			{
+				throw new IllegalAttributeTypeException(e.getMessage(), e);
+			}
+		}
+		
 	}
 }

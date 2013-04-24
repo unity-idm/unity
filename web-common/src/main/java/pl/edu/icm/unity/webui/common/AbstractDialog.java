@@ -33,6 +33,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	private Button cancel;
 	protected Component contentsComponent;
 	protected UnityMessageSource msg;
+	protected boolean defaultSizeUndfined = false;
 
 	public AbstractDialog(UnityMessageSource msg, String caption, String confirmM, String cancelM) 
 	{
@@ -63,7 +64,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		close();
 	}
 	
-	private void initGUI()
+	private void initGUI(boolean sizeUndefined)
 	{
 		setModal(true);
 		setClosable(false);
@@ -77,12 +78,14 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		contentsComponent = getContents();
 		internal.addComponent(contentsComponent);
 		internal.setComponentAlignment(contentsComponent, Alignment.MIDDLE_CENTER);
-		internal.setSizeFull();
+		if (!sizeUndefined)
+			internal.setSizeFull();
 		internal.setExpandRatio(contentsComponent, 1.0f);
 		internal.setMargin(true);
 		
 		contentsPanel.setContent(internal);
-		contentsPanel.setSizeFull();
+		if (!sizeUndefined)
+			contentsPanel.setSizeFull();
 		vl.addComponent(contentsPanel);
 		
 		HorizontalLayout hl = new HorizontalLayout();
@@ -94,16 +97,22 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		vl.setComponentAlignment(hl, Alignment.BOTTOM_RIGHT);
 		
 		vl.setExpandRatio(contentsPanel, 4.0f);
-		vl.setSizeFull();
+		if (!sizeUndefined)
+			vl.setSizeFull();
 		setContent(vl);
+	}
+	
+	public void show(boolean sizeUndefined)
+	{
+		initGUI(sizeUndefined);
+		UI.getCurrent().addWindow(this);
 	}
 	
 	public void show()
 	{
-		initGUI();
-		UI.getCurrent().addWindow(this);
+		show(defaultSizeUndfined);
 	}
-
+	
 	public void close()
 	{
 		if (getParent() != null)

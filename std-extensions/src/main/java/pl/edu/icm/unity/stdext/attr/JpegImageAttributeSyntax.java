@@ -172,7 +172,7 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 		return maxWidth;
 	}
 
-	public long getMaxHeight()
+	public int getMaxHeight()
 	{
 		return maxHeight;
 	}

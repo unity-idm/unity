@@ -22,7 +22,6 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webadmin.Images;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
 import pl.edu.icm.unity.webadmin.identities.EntityChangedEvent;
 import pl.edu.icm.unity.webui.WebSession;
@@ -31,6 +30,7 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
@@ -38,6 +38,7 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.event.Action;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
@@ -153,6 +154,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		
 		try
 		{
+			//FIXME - getAll attributes / get attributes / authz
 			Collection<Attribute<?>> attributesCol = attributesManagement.getAllAttributes(
 					owner, groupPath, null);
 			this.attributes = new ArrayList<Attribute<?>>(attributesCol.size());
@@ -280,7 +282,19 @@ public class AttributesPanel extends HorizontalSplitPanel
 			super(msg.getMessage("Attribute.removeAttribute"), 
 					Images.delete.getResource());
 		}
-
+		
+		@Override
+		public Action[] getActions(Object target, Object sender)
+		{
+			if (target == null || !(target instanceof AttributeItem))
+				return EMPTY;
+			Attribute<?> attribute = ((AttributeItem) target).getAttribute();
+			AttributeType attributeType = attributeTypes.get(attribute.getName());
+			if (attributeType.isInstanceImmutable())
+				return EMPTY;
+			return super.getActions(target, sender);
+		}
+		
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
@@ -333,7 +347,19 @@ public class AttributesPanel extends HorizontalSplitPanel
 			super(msg.getMessage("Attribute.editAttribute"), 
 					Images.edit.getResource());
 		}
-
+		
+		@Override
+		public Action[] getActions(Object target, Object sender)
+		{
+			if (target == null || !(target instanceof AttributeItem))
+				return EMPTY;
+			Attribute<?> attribute = ((AttributeItem) target).getAttribute();
+			AttributeType attributeType = attributeTypes.get(attribute.getName());
+			if (attributeType.isInstanceImmutable())
+				return EMPTY;
+			return super.getActions(target, sender);
+		}
+		
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{

@@ -21,9 +21,7 @@ public class ConfirmDialog extends AbstractDialog
 
 	public ConfirmDialog(UnityMessageSource msg, String question, Callback callback) 
 	{
-		super(msg, msg.getMessage("ConfirmDialog.confirm"));
-		this.question = question;
-		this.callback = callback;
+		this(msg, msg.getMessage("ConfirmDialog.confirm"), question, callback);
 	}
 	
 	public ConfirmDialog(UnityMessageSource msg, String caption, String question, 
@@ -32,6 +30,7 @@ public class ConfirmDialog extends AbstractDialog
 		super(msg, caption);
 		this.question = question;
 		this.callback = callback;
+		this.defaultSizeUndfined = true;
 	}
 
 	public interface Callback 

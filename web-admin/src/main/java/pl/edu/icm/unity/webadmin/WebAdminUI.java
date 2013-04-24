@@ -68,6 +68,9 @@ public class WebAdminUI extends UI implements UnityWebUI
 	@Autowired
 	private ContentsManagementTab contentsManagement;
 	
+	@Autowired
+	private SchemaManagementTab schemaManagement;
+	
 	private EndpointDescription endpointDescription;
 	
 	@Override
@@ -91,6 +94,7 @@ public class WebAdminUI extends UI implements UnityWebUI
 		contents.addComponent(tabPanel);
 		
 		tabPanel.addTab(contentsManagement);
+		tabPanel.addTab(schemaManagement);
 		tabPanel.setSizeFull();
 		contents.setComponentAlignment(tabPanel, Alignment.TOP_LEFT);
 		contents.setExpandRatio(tabPanel, 1.0f);

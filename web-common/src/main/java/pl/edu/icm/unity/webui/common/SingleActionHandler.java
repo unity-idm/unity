@@ -18,7 +18,7 @@ import com.vaadin.server.Resource;
 @SuppressWarnings("serial")
 public abstract class SingleActionHandler implements Handler
 {		
-	private static final Action[] EMPTY = new Action[0];
+	protected static final Action[] EMPTY = new Action[0];
 	private Action[] action;
 	private boolean needsTarget = true;
 	

@@ -21,6 +21,7 @@ import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -48,8 +49,23 @@ public class TestAttributes extends DBIntegrationTestBase
 		groupsMan.addGroup(new Group("/test"));
 		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "cn=golbi", true, true), "crMock", 
 				LocalAuthenticationState.disabled, false);
-		attrsMan.addAttributeType(new AttributeType("tel", new StringAttributeSyntax()));
 		EntityParam entity = new EntityParam(id.getEntityId());
+		
+		StringAttribute systemA = new StringAttribute(SystemAttributeTypes.CREDENTIALS_STATE, "/", 
+				AttributeVisibility.full, "asdsadsa"); 
+		try
+		{
+			attrsMan.setAttribute(entity, systemA, true);
+			fail("Updated immutable attribute");
+		} catch (IllegalAttributeTypeException e) {}
+		try
+		{
+			attrsMan.removeAttribute(entity, "/", systemA.getName());
+			fail("Removed immutable attribute");
+		} catch (IllegalAttributeTypeException e) {}
+		
+		
+		attrsMan.addAttributeType(new AttributeType("tel", new StringAttributeSyntax()));
 
 		StringAttribute at1 = new StringAttribute("tel", "/test", AttributeVisibility.full, "123456");
 		try

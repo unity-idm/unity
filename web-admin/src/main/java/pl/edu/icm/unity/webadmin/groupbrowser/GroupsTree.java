@@ -19,10 +19,11 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.webadmin.Images;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 import com.vaadin.ui.Tree;
@@ -146,10 +147,12 @@ public class GroupsTree extends Tree
 		public void handleAction(Object sender, Object target)
 		{
 			final TreeNode node = (TreeNode) target;
-			new GroupRemovalDialog(msg, node.getPath(), new GroupRemovalDialog.Callback()
+			new ConfirmWithOptionDialog(msg, msg.getMessage("GroupRemovalDialog.confirmDelete", node.getPath()),
+					msg.getMessage("GroupRemovalDialog.recursive"),
+					new ConfirmWithOptionDialog.Callback()
 			{
 				@Override
-				public void onGroupRemove(boolean recursive)
+				public void onConfirm(boolean recursive)
 				{
 					removeGroup(node.getParentNode(), node.getPath(), recursive);
 				}

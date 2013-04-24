@@ -47,14 +47,16 @@ public class MapComboBox<T> extends ComboBox
 			HolderBean bean = new HolderBean(constant.getKey(), constant.getValue()); 
 			container.addItem(constant.getKey(), bean);
 		}
-		setValue(initialValue);
+		if (initialValue != null)
+			setValue(initialValue);
 		setNullSelectionAllowed(false);
-		setSizeFull();
 	}
 	
 	public T getSelectedValue()
 	{
 		Object itemId = getValue();
+		if (itemId == null)
+			return null;
 		@SuppressWarnings("unchecked")
 		BeanItem<HolderBean> bean = ((BeanContainer<String, HolderBean>)getContainerDataSource()).getItem(itemId);
 		return bean.getBean().getWrapped();

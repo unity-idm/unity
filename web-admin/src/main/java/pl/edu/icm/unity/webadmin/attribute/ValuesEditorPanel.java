@@ -8,8 +8,8 @@ import java.util.List;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.webadmin.Images;
 import pl.edu.icm.unity.webadmin.attribute.ValueEditDialog.Callback;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;

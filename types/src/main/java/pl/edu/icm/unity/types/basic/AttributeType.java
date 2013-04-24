@@ -58,6 +58,17 @@ public class AttributeType implements InitializationValidator
 		this.description = description;
 	}
 	
+	public boolean isTypeImmutable()
+	{
+		return (flags & TYPE_IMMUTABLE_FLAG) != 0;
+	}
+	
+	public boolean isInstanceImmutable()
+	{
+		return (flags & INSTANCES_IMMUTABLE_FLAG) != 0;
+	}
+	
+	
 	public String getDescription()
 	{
 		return description;

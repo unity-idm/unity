@@ -48,4 +48,16 @@ public interface WebAttributeHandler<T>
 	 * @return
 	 */
 	public AttributeValueEditor<T> getEditorComponent(T initialValue, AttributeValueSyntax<T> syntaxDesc);
+	
+	/**
+	 * @param syntax
+	 * @return read-only component showing the syntax settings
+	 */
+	public Component getSyntaxViewer(AttributeValueSyntax<T> syntax);
+	
+	/**
+	 * @param initialValue value to be edited or null if value is to be created from scratch
+	 * @return
+	 */
+	public AttributeSyntaxEditor<T> getSyntaxEditorComponent(AttributeValueSyntax<T> initialValue);
 }

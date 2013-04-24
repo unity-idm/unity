@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.common.attributes;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,5 +35,10 @@ public class AttributeHandlerRegistry
 		if (factory == null)
 			throw new IllegalArgumentException("SyntaxId " + syntaxId + " has no handler factory registered");
 		return factory.createInstance();
+	}
+	
+	public Set<String> getSupportedSyntaxes()
+	{
+		return factoriesByType.keySet();
 	}
 }

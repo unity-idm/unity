@@ -129,4 +129,16 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 	protected abstract T convertFromString(String value);
 	
 	protected abstract List<String> getHints(AttributeValueSyntax<T> syntax);
+	
+	@Override
+	public Component getSyntaxViewer(AttributeValueSyntax<T> syntaxR)
+	{
+		VerticalLayout ret = new VerticalLayout();
+		for (String hint: getHints(syntaxR))
+		{
+			Label info = new Label(hint);
+			ret.addComponent(info);
+		}
+		return ret;
+	}
 }
