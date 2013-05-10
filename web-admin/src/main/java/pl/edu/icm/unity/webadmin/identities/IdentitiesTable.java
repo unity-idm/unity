@@ -29,6 +29,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.webadmin.credentials.CredentialChangeDialog;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webadmin.identities.CredentialRequirementDialog.Callback;
 import pl.edu.icm.unity.webui.WebSession;
@@ -39,6 +40,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
 import com.vaadin.data.Container;
@@ -65,6 +67,7 @@ public class IdentitiesTable extends TreeTable
 	private AttributesManagement attrMan;
 	private IdentityEditorRegistry identityEditorReg;
 	private AttributeHandlerRegistry attrHandlerRegistry;
+	private CredentialEditorRegistry credEditorsRegistry;
 	private EventsBus bus;
 	private String group;
 	private Map<Entity, IdentitiesAndAttributes> data = new HashMap<Entity, IdentitiesTable.IdentitiesAndAttributes>();
@@ -75,7 +78,7 @@ public class IdentitiesTable extends TreeTable
 	@Autowired
 	public IdentitiesTable(IdentitiesManagement identitiesMan, GroupsManagement groupsMan, 
 			AuthenticationManagement authnMan, AttributesManagement attrMan,
-			IdentityEditorRegistry identityEditorReg, 
+			IdentityEditorRegistry identityEditorReg, CredentialEditorRegistry credEditorsRegistry,
 			AttributeHandlerRegistry attrHandlerReg, UnityMessageSource msg)
 	{
 		this.identitiesMan = identitiesMan;
@@ -87,6 +90,7 @@ public class IdentitiesTable extends TreeTable
 		this.attrMan = attrMan;
 		this.bus = WebSession.getCurrent().getEventBus();
 		this.containerFilters = new ArrayList<Container.Filter>();
+		this.credEditorsRegistry = credEditorsRegistry;
 		
 		addContainerProperty("entity", String.class, "");
 		addContainerProperty("type", String.class, "");
@@ -126,6 +130,7 @@ public class IdentitiesTable extends TreeTable
 		addActionHandler(new DeleteIdentityHandler());
 		addActionHandler(new DisableIdentityHandler());
 		addActionHandler(new EnableIdentityHandler());
+		addActionHandler(new ChangeCredentialHandler());
 		addActionHandler(new ChangeCredentialRequirementHandler());
 		setDragMode(TableDragMode.ROW);
 		
@@ -252,10 +257,10 @@ public class IdentitiesTable extends TreeTable
 		{
 			IdentitiesAndAttributes resolved = entry.getValue();
 			Entity entity = entry.getKey();
-			Object parentKey = addIdentityLine(null, entity, resolved.getAttributes());
+			Object parentKey = addRow(null, entity, resolved.getAttributes());
 			for (Identity id: resolved.getIdentities())
 			{
-				Object key = addIdentityLine(id, entity, resolved.attributes);
+				Object key = addRow(id, entity, resolved.attributes);
 				setParent(key, parentKey);
 				setChildrenAllowed(key, false);
 			}
@@ -271,14 +276,14 @@ public class IdentitiesTable extends TreeTable
 			IdentitiesAndAttributes resolved = entry.getValue();
 			for (Identity id: resolved.getIdentities())
 			{
-				Object itemId = addIdentityLine(id, entry.getKey(), resolved.attributes);
+				Object itemId = addRow(id, entry.getKey(), resolved.attributes);
 				setChildrenAllowed(itemId, false);
 			}
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
-	private Object addIdentityLine(Identity id, Entity ent, Map<String, Attribute<?>> attributes)
+	private Object addRow(Identity id, Entity ent, Map<String, Attribute<?>> attributes)
 	{
 		Object itemId = id == null ? ent : new IdentityWithEntity(id, ent);
 		setColumnWidth("entity", 60);
@@ -628,6 +633,32 @@ public class IdentitiesTable extends TreeTable
 					refresh();
 				}
 			}).show();
+		}
+	}
+
+	private class ChangeCredentialHandler extends SingleActionHandler
+	{
+		public ChangeCredentialHandler()
+		{
+			super(msg.getMessage("Identities.changeCredentialAction"), 
+					Images.edit.getResource());
+		}
+
+		@Override
+		public void handleAction(Object sender, Object target)
+		{
+			Entity entity = target instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) target).getEntity() : (Entity)target;
+			new CredentialChangeDialog(msg, entity, authnMan, identitiesMan,
+					credEditorsRegistry, new CredentialChangeDialog.Callback()
+					{
+						@Override
+						public void onClose(boolean changed)
+						{
+							if (changed)
+								refresh();
+						}
+					}).show();
 		}
 	}
 

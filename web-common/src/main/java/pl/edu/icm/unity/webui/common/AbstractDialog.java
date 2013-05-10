@@ -35,12 +35,24 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	protected UnityMessageSource msg;
 	protected boolean defaultSizeUndfined = false;
 
+	/**
+	 * With only one, confirm button, which usually should be labelled as 'close'. 
+	 * @param msg
+	 * @param caption
+	 * @param confirmM
+	 */
+	public AbstractDialog(UnityMessageSource msg, String caption, String confirmM) 
+	{
+		this(msg, caption, confirmM, null);
+	}
+
 	public AbstractDialog(UnityMessageSource msg, String caption, String confirmM, String cancelM) 
 	{
 		super(caption);
 		this.msg = msg;
 		confirm = new Button(confirmM, this);
-		cancel = new Button(cancelM, this);		
+		if (cancelM != null)
+			cancel = new Button(cancelM, this);		
 	}
 	
 	/**
@@ -92,7 +104,8 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		hl.setSpacing(true);
 		hl.setMargin(true);
 		hl.addComponent(confirm);
-		hl.addComponent(cancel);
+		if (cancel != null)
+			hl.addComponent(cancel);
 		vl.addComponent(hl);
 		vl.setComponentAlignment(hl, Alignment.BOTTOM_RIGHT);
 		

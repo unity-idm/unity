@@ -24,7 +24,9 @@ public enum Images
 	noAuthzGrp	(I.P + "noauthzGrp.gif"),
 	collapse	(I.P + "collapse.gif"),
 	addSearch	(I.P + "magnifier.png"),
-	removeSearch	(I.P + "searchExit.png"),
+	ok		(I.P + "ok.gif"),
+	warn		(I.P + "warn.gif"),
+	error		(I.P + "error.gif"),
 	addColumn	(I.P + "addColumn.png"),
 	removeColumn	(I.P + "removeColumn.png"),
 	folder		(I.P + "folder.gif");
