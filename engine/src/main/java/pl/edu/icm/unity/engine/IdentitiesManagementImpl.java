@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,8 @@ import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.db.DBShared;
+import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authn.CredentialRequirementsHolder;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
@@ -63,6 +66,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	private DBIdentities dbIdentities;
 	private DBGroups dbGroups;
 	private DBAttributes dbAttributes;
+	private DBShared dbShared;
 	private IdentitiesResolver idResolver;
 	private EngineHelper engineHelper;
 	private AuthorizationManager authz;
@@ -70,7 +74,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 
 	@Autowired
 	public IdentitiesManagementImpl(DBSessionManager db, DBIdentities dbIdentities,
-			DBGroups dbGroups, DBAttributes dbAttributes,
+			DBGroups dbGroups, DBAttributes dbAttributes, DBShared dbShared,
 			IdentitiesResolver idResolver, EngineHelper engineHelper,
 			AuthorizationManager authz, IdentityTypesRegistry idTypesRegistry)
 	{
@@ -78,12 +82,12 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		this.dbIdentities = dbIdentities;
 		this.dbGroups = dbGroups;
 		this.dbAttributes = dbAttributes;
+		this.dbShared = dbShared;
 		this.idResolver = idResolver;
 		this.engineHelper = engineHelper;
 		this.authz = authz;
 		this.idTypesRegistry = idTypesRegistry;
 	}
-
 
 	/**
 	 * {@inheritDoc}
@@ -321,6 +325,28 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Collection<String> getGroups(EntityParam entity) throws EngineException
+	{
+		entity.validateInitialization();
+		SqlSession sqlMap = db.getSqlSession(true);
+		try
+		{
+			long entityId = idResolver.getEntityId(entity, sqlMap);
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
+			GroupsMapper gMapper = sqlMap.getMapper(GroupsMapper.class);
+			Set<String> allGroups = dbShared.getAllGroups(entityId, gMapper);
+			sqlMap.commit();
+			return allGroups;
+		} finally
+		{
+			db.releaseSqlSession(sqlMap);
+		}
+	}
+	
 	@Override
 	public void setEntityCredentialRequirements(EntityParam entity, String requirementId,
 			LocalAuthenticationState desiredAuthnState) throws EngineException

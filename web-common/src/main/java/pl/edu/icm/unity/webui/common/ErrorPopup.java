@@ -15,6 +15,13 @@ import com.vaadin.ui.Notification.Type;
  */
 public class ErrorPopup
 {
+	public static void showNotice(String caption, String description)
+	{
+		Notification n = new Notification(caption, description, Type.HUMANIZED_MESSAGE);
+		n.setDelayMsec(-1);
+		n.show(Page.getCurrent());
+	}
+
 	public static void showError(String caption, String description)
 	{
 		Notification n = new Notification(caption, description, Type.ERROR_MESSAGE);

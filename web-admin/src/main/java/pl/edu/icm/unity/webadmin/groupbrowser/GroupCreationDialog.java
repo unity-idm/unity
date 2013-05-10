@@ -33,6 +33,7 @@ public class GroupCreationDialog extends AbstractDialog
 				msg.getMessage("cancel"));
 		this.parent = parent;
 		this.callback = callback;
+		this.defaultSizeUndfined = true;
 	}
 
 	@Override

@@ -26,6 +26,7 @@ import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.IntegerBoundEditor;
+import pl.edu.icm.unity.webui.common.LimitedByteArrayOuputStream;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
@@ -154,7 +155,6 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			
 			error = new Label();
 			vl.addComponent(error);
-			//FIXME - rather not working. 
 			error.setStyleName(Styles.error.toString());
 			
 			field = new Image();

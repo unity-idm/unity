@@ -18,9 +18,15 @@ public enum Images
 	add		(I.P + "add.png"),
 	delete		(I.P + "delete.png"),
 	edit		(I.P + "edit.png"),
+	checked		(I.P + "checked.png"),
+	unchecked	(I.P + "unchecked.png"),
 	refresh		(I.P + "refresh.png"),
 	noAuthzGrp	(I.P + "noauthzGrp.gif"),
 	collapse	(I.P + "collapse.gif"),
+	addSearch	(I.P + "magnifier.png"),
+	removeSearch	(I.P + "searchExit.png"),
+	addColumn	(I.P + "addColumn.png"),
+	removeColumn	(I.P + "removeColumn.png"),
 	folder		(I.P + "folder.gif");
 	
 	

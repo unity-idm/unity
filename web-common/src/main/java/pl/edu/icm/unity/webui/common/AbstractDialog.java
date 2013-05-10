@@ -56,7 +56,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		cancel = new Button(msg.getMessage("cancel"), this);
 	}	
 	
-	protected abstract Component getContents();
+	protected abstract Component getContents() throws Exception;
 	protected abstract void onConfirm();
 	
 	protected void onCancel()
@@ -64,7 +64,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		close();
 	}
 	
-	private void initGUI(boolean sizeUndefined)
+	private void initGUI(boolean sizeUndefined) throws Exception
 	{
 		setModal(true);
 		setClosable(false);
@@ -104,7 +104,13 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	
 	public void show(boolean sizeUndefined)
 	{
-		initGUI(sizeUndefined);
+		try
+		{
+			initGUI(sizeUndefined);
+		} catch (Exception e)
+		{
+			return;
+		}
 		UI.getCurrent().addWindow(this);
 	}
 	

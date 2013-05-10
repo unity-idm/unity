@@ -6,6 +6,7 @@ package pl.edu.icm.unity.db;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.SqlSession;
@@ -35,18 +36,21 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 @Component
 public class DBGroups
 {
+	private DBShared dbShared;
 	private GroupResolver groupResolver;
 	private IdentitiesResolver idResolver;
 	private DBLimits limits;
 	private GroupsSerializer jsonS;
 	
 	@Autowired
-	public DBGroups(GroupResolver groupResolver, IdentitiesResolver idResolver, GroupsSerializer jsonS, DB db)
+	public DBGroups(DBShared dbShared, GroupResolver groupResolver, IdentitiesResolver idResolver, 
+			GroupsSerializer jsonS, DB db)
 	{
 		this.groupResolver = groupResolver;
 		this.idResolver = idResolver;
 		this.limits = db.getDBLimits();
 		this.jsonS = jsonS;
+		this.dbShared = dbShared;
 	}
 	
 	/**
@@ -180,11 +184,20 @@ public class DBGroups
 		if (gb.getParent() == null)
 			throw new IllegalGroupValueException("The entity can not be removed from the root group");
 		long entityId = idResolver.getEntityId(entity, sqlMap);
-		GroupElementBean param = new GroupElementBean(gb.getId(), entityId);
-		if (mapper.isMember(param) == null)
+		
+		Set<String> groups = dbShared.getAllGroups(entityId, mapper);
+		if (!groups.contains(path))
 			throw new IllegalGroupValueException("The entity is not a member of the group");
 		
-		mapper.deleteMember(param);
+		for (String group: groups)
+		{
+			if (group.startsWith(path))
+			{
+				GroupBean gb2 = groupResolver.resolveGroup(group, mapper);
+				GroupElementBean param = new GroupElementBean(gb2.getId(), entityId);
+				mapper.deleteMember(param);
+			}
+		}
 	}
 	
 	/**

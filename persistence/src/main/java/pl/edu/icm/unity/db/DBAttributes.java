@@ -47,11 +47,12 @@ public class DBAttributes
 	private AttributeTypeSerializer atSerializer;
 	private AttributeSerializer aSerializer;
 	private GroupResolver groupResolver;
+	private DBShared dbShared;
 	private AttributeStatementProcessor statementsHelper;
 	
 	
 	@Autowired
-	public DBAttributes(DB db, AttributesResolver attrResolver,
+	public DBAttributes(DB db, AttributesResolver attrResolver, DBShared dbShared,
 			AttributeTypeSerializer atSerializer, AttributeSerializer aSerializer,
 			GroupResolver groupResolver, AttributeStatementProcessor statementsHelper)
 	{
@@ -61,6 +62,7 @@ public class DBAttributes
 		this.aSerializer = aSerializer;
 		this.groupResolver = groupResolver;
 		this.statementsHelper = statementsHelper;
+		this.dbShared = dbShared;
 	}
 
 	public void addAttributeType(AttributeType toAdd, SqlSession sqlMap)
@@ -255,7 +257,7 @@ public class DBAttributes
 		List<String> groups = getGroupsOrGroup(entityId, groupPath, gMapper);
 
 		
-		Set<String> allGroups = getAllGroups(entityId, gMapper);
+		Set<String> allGroups = dbShared.getAllGroups(entityId, gMapper);
 		Map<String, Map<String, Attribute<?>>> directAttributesByGroup = createAllAttrsMap(entityId, 
 				atMapper, gMapper);
 		Map<String, Map<String, Attribute<?>>> ret = new HashMap<String, Map<String, Attribute<?>>>();
@@ -296,15 +298,6 @@ public class DBAttributes
 			if (values.contains((String)attr.getValues().get(0)))
 				ret.add(ab.getEntityId());
 		}
-		return ret;
-	}
-	
-	private Set<String> getAllGroups(long entityId, GroupsMapper gMapper)
-	{
-		List<GroupBean> groups = gMapper.getGroups4Entity(entityId);
-		Set<String> ret = new HashSet<String>();
-		for (GroupBean group: groups)
-			ret.add(groupResolver.resolveGroupPath(group, gMapper));
 		return ret;
 	}
 	

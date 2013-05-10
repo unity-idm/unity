@@ -47,6 +47,8 @@ public class EventsBus
 	public synchronized void fireEvent(Event event)
 	{
 		List<EventListener<?>> typeListeners = listeners.get(event.getClass());
+		if (typeListeners == null)
+			return;
 		for (EventListener listener: typeListeners)
 		{
 			try

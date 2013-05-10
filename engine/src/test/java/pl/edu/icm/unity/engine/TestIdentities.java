@@ -162,6 +162,12 @@ public class TestIdentities extends DBIntegrationTestBase
 			fail("removed non member");
 		} catch(IllegalGroupValueException e) {}
 
+		groupsMan.addMemberFromParent("/test2", new EntityParam(id.getEntityId()));
+		groupsMan.addMemberFromParent("/test2/test", new EntityParam(id.getEntityId()));
+		groupsMan.removeMember("/test2", new EntityParam(id.getEntityId()));
+		GroupContents t2Contents = groupsMan.getContents("/test2/test", GroupContents.MEMBERS);
+		assertEquals(0, t2Contents.getMembers().size());
+		
 		groupsMan.removeMember("/test", new EntityParam(id.getEntityId()));
 		contents = groupsMan.getContents("/test", GroupContents.MEMBERS);
 		assertEquals(0, contents.getMembers().size());

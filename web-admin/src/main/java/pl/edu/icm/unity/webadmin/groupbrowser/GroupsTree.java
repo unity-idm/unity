@@ -6,7 +6,9 @@ package pl.edu.icm.unity.webadmin.groupbrowser;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -15,18 +17,34 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.webadmin.identities.EntityCreationDialog;
+import pl.edu.icm.unity.webadmin.identities.IdentitiesTable.IdentityWithEntity;
+import pl.edu.icm.unity.webadmin.utils.GroupManagementUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
+import com.vaadin.event.Transferable;
+import com.vaadin.event.dd.DragAndDropEvent;
+import com.vaadin.event.dd.DropHandler;
+import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.Table.TableTransferable;
 
 /**
  * Tree with groups obtained dynamically from the engine.
@@ -37,14 +55,22 @@ import com.vaadin.ui.Tree;
 public class GroupsTree extends Tree
 {
 	private GroupsManagement groupsMan;
+	private IdentitiesManagement identitiesMan;
 	private UnityMessageSource msg;
+	private AuthenticationManagement authnMan;
+	private IdentityEditorRegistry identityEditorReg;
 	private EventsBus bus;
 
 	@Autowired
-	public GroupsTree(GroupsManagement groupsMan, UnityMessageSource msg)
+	public GroupsTree(GroupsManagement groupsMan, IdentitiesManagement identitiesMan, 
+			AuthenticationManagement authnMan, IdentityEditorRegistry identityEditorReg,
+			UnityMessageSource msg)
 	{
 		this.groupsMan = groupsMan;
+		this.identitiesMan = identitiesMan;
 		this.msg = msg;
+		this.authnMan = authnMan;
+		this.identityEditorReg = identityEditorReg;
 		TreeNode parent = new TreeNode("/");
 		addItem(parent);
 		setItemIcon(parent, Images.folder.getResource());
@@ -55,6 +81,8 @@ public class GroupsTree extends Tree
 		addActionHandler(new DeleteActionHandler());
 		addActionHandler(new ExpandAllActionHandler());
 		addActionHandler(new CollapseAllActionHandler());
+		addActionHandler(new AddEntityActionHandler());
+		setDropHandler(new GroupDropHandler());
 		setImmediate(true);
 		expandItem(new TreeNode("/"));
 		this.bus = WebSession.getCurrent().getEventBus();
@@ -95,6 +123,87 @@ public class GroupsTree extends Tree
 			ErrorPopup.showError(msg.getMessage("GroupsTree.addGroupError"), e);
 		}
 	}
+
+	private void addToGroupVerification(String finalGroup, final String entityId)
+	{
+		final EntityParam entityParam = new EntityParam(entityId);
+		Collection<String> existingGroups;
+		try
+		{
+			existingGroups = identitiesMan.getGroups(entityParam);
+		} catch (EngineException e1)
+		{
+			ErrorPopup.showError(msg.getMessage("GroupsTree.getMembershipError", entityId), e1);
+			return;
+		}
+		final Deque<String> notMember = GroupManagementUtils.getMissingGroups(finalGroup, existingGroups);
+		
+		if (notMember.size() == 0)
+		{
+			ErrorPopup.showNotice(msg.getMessage("GroupsTree.alreadyMember", entityId, 
+					finalGroup), "");
+			return;
+		}
+		
+		ConfirmDialog confirm = new ConfirmDialog(msg, 
+				msg.getMessage("GroupsTree.confirmAddToGroup", entityId,
+						groups2String(notMember)), 
+				new Callback()
+				{
+					@Override
+					public void onConfirm()
+					{
+						GroupManagementUtils.addToGroup(notMember, entityId, msg, groupsMan);
+					}
+				});
+		confirm.show();
+		
+	}
+	
+	private String groups2String(Deque<String> groups)
+	{
+		StringBuilder ret = new StringBuilder(64);
+		Iterator<String> it = groups.descendingIterator(); 
+		while(it.hasNext())
+			ret.append(it.next()).append("  ");
+		return ret.toString();
+	}
+	
+	private class GroupDropHandler implements DropHandler
+	{
+
+		@Override
+		public void drop(DragAndDropEvent event)
+		{
+			Transferable rawTransferable = event.getTransferable();
+			if (rawTransferable instanceof TableTransferable)
+			{
+				TableTransferable transferable = (TableTransferable) rawTransferable;
+				Object draggedRaw = transferable.getItemId();
+				String entityId = null;
+				if (draggedRaw instanceof IdentityWithEntity)
+				{
+					IdentityWithEntity dragged = (IdentityWithEntity) draggedRaw;
+					entityId = dragged.getEntity().getId();
+				} else if (draggedRaw instanceof Entity)
+				{
+					entityId = ((Entity)draggedRaw).getId();
+				}
+				if (entityId != null)
+				{
+					AbstractSelectTargetDetails target = (AbstractSelectTargetDetails) event.getTargetDetails();
+					final TreeNode node = (TreeNode) target.getItemIdOver();
+					addToGroupVerification(node.getPath(), entityId);
+				}
+			}
+		}
+
+		@Override
+		public AcceptCriterion getAcceptCriterion()
+		{
+			return VerticalLocationIs.MIDDLE;
+		}
+	}
 	
 	private class AddGroupActionHandler extends SingleActionHandler
 	{
@@ -120,6 +229,31 @@ public class GroupsTree extends Tree
 		}
 	}
 
+	private class AddEntityActionHandler extends SingleActionHandler
+	{
+		public AddEntityActionHandler()
+		{
+			super(msg.getMessage("GroupsTree.addEntityAction"), Images.add.getResource());
+		}
+
+		@Override
+		public void handleAction(Object sender, Object target)
+		{
+			final TreeNode node = (TreeNode) target;
+			
+			new EntityCreationDialog(msg, node.getPath(), identitiesMan, groupsMan, 
+					authnMan, identityEditorReg, new EntityCreationDialog.Callback()
+					{
+						@Override
+						public void onCreated()
+						{
+							if (getValue().equals(node))
+								bus.fireEvent(new GroupChangedEvent(node.getPath()));
+						}
+					}).show();
+		}
+	}
+	
 	private class RefreshActionHandler extends SingleActionHandler
 	{
 		public RefreshActionHandler()

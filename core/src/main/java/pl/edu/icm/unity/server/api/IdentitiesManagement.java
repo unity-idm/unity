@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.server.api;
 
+import java.util.Collection;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -113,6 +114,14 @@ public interface IdentitiesManagement
 	 */
 	public void setEntityCredential(EntityParam entity, String credentialId, String jsonSecrets) 
 			throws EngineException;
+	
+	/**
+	 * Returns a collection with all groups where the entity is a member.
+	 * @param entity
+	 * @return
+	 * @throws EngineException
+	 */
+	public Collection<String> getGroups(EntityParam entity) throws EngineException;
 	
 }
 

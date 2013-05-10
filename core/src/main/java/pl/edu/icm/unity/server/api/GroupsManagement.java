@@ -67,7 +67,7 @@ public interface GroupsManagement
 	
 	/**
 	 * Removes from the group and all subgroups if the user is in any. 
-	 * If group == '/' fully deletes the user with all identities.
+	 * Entity can not be removed from the group == '/' 
 	 * @param path
 	 * @param entity
 	 * @throws EngineException
