@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webadmin.groupbrowser.GroupComboBox;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
-import pl.edu.icm.unity.webui.common.FormLayoutDoubleComponent;
+import pl.edu.icm.unity.webui.common.FlexibleFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -79,10 +79,11 @@ public class AttributeStatementEditDialog extends AbstractDialog
 		this.statement = attributeStatement;
 		this.groupsMan = groupsMan;
 		this.attrsMan = attrsMan;
-		this.defaultSizeUndfined = true;
 		this.attrHandlerRegistry = attrHandlerRegistry;
 		this.group = group;
 		this.callback = callback;
+		this.defaultSizeUndfined = true;
+		setWidth(50, Unit.PERCENTAGE);
 	}
 
 	@Override
@@ -112,10 +113,6 @@ public class AttributeStatementEditDialog extends AbstractDialog
 				editAssignedAttribute();
 			}
 		});
-		FormLayoutDoubleComponent assignedAttributePanel = new FormLayoutDoubleComponent(assignedAttributeTF, 
-				editAssignedAttribute);
-		assignedAttributePanel.setWidth(100, Unit.PERCENTAGE);
-		
 		condition = new EnumComboBox<Type>(msg.getMessage("AttributeStatementEditDialog.condition"), 
 				msg, "AttributeStatements.condType.", 
 				Type.class, Type.everybody);
@@ -130,17 +127,23 @@ public class AttributeStatementEditDialog extends AbstractDialog
 		});
 		
 		conditionArgs = new Panel();
+		conditionArgs.setWidth(100, Unit.PERCENTAGE);
 		
 		conflictResolution = new EnumComboBox<AttributeStatement.ConflictResolution>(
 				msg.getMessage("AttributeStatementEditDialog.conflictResolution"), msg, 
 				"AttributeStatement.conflictResolution.", AttributeStatement.ConflictResolution.class, 
 				AttributeStatement.ConflictResolution.skip);
 				
-		FormLayout ret = new FormLayout(assignedAttributePanel, condition, conditionArgs, conflictResolution);
+		FlexibleFormLayout ret = new FlexibleFormLayout();
+		ret.addLine(assignedAttributeTF, editAssignedAttribute);
+		ret.addLine(condition);
+		ret.addLine(conditionArgs);
+		ret.addLine(conflictResolution);
 		
 		initConditionGUI();
 		if (statement != null)
 			setInitialData(statement);
+		ret.setWidth(100, Unit.PERCENTAGE);
 		return ret;
 	}
 
@@ -375,7 +378,7 @@ public class AttributeStatementEditDialog extends AbstractDialog
 	{
 		protected TextField conditionAttributeTF;
 		protected Attribute<?> condAttr;
-		protected FormLayout main;
+		protected FlexibleFormLayout main;
 		
 		public ParentAttrWithValueCondPanel()
 		{
@@ -403,11 +406,10 @@ public class AttributeStatementEditDialog extends AbstractDialog
 					});
 				}
 			});
-			FormLayoutDoubleComponent condAttrWithValuePanel = new FormLayoutDoubleComponent(
-					conditionAttributeTF, condAttrEditButton);
-			condAttrWithValuePanel.setWidth(100, Unit.PERCENTAGE);
-			main = new FormLayout(condAttrWithValuePanel);
+			main = new FlexibleFormLayout();
+			main.addLine(conditionAttributeTF, condAttrEditButton);
 			main.setMargin(true);
+			main.setWidth(100, Unit.PERCENTAGE);
 		}
 
 		@Override

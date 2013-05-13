@@ -12,12 +12,12 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.webui.common.FlexibleFormLayout;
 import pl.edu.icm.unity.webui.common.LongBoundEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
@@ -98,7 +98,7 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler<Long> impl
 		@Override
 		public Component getEditor()
 		{
-			FormLayout fl = new FormLayout();
+			FlexibleFormLayout fl = new FlexibleFormLayout();
 			min = new LongBoundEditor(msg, msg.getMessage("NumericAttributeHandler.minUndef"), 
 					msg.getMessage("NumericAttributeHandler.minE"), Long.MIN_VALUE);
 			max = new LongBoundEditor(msg, msg.getMessage("NumericAttributeHandler.maxUndef"), 

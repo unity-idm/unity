@@ -14,7 +14,6 @@ import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -26,6 +25,7 @@ import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.FlexibleFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.FormValidator;
 import pl.edu.icm.unity.webui.common.IntegerBoundEditor;
@@ -39,7 +39,7 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
  * 
  * @author K. Benedyczak
  */
-public class AttributeTypeEditor extends FormLayout
+public class AttributeTypeEditor extends FlexibleFormLayout
 {
 	private UnityMessageSource msg;
 	private AttributeHandlerRegistry registry;
@@ -72,6 +72,8 @@ public class AttributeTypeEditor extends FormLayout
 	
 	private void initUI(AttributeType toEdit)
 	{
+		setWidth(100, Unit.PERCENTAGE);
+
 		name = new TextField();
 		if (toEdit != null)
 		{

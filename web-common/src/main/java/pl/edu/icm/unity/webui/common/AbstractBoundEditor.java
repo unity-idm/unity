@@ -9,10 +9,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.converter.Converter;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 
 /**
@@ -21,7 +18,6 @@ import com.vaadin.ui.TextField;
  */
 public abstract class AbstractBoundEditor<T extends Number>
 {
-	protected HorizontalLayout contents;
 	protected UnityMessageSource msg;
 	protected CheckBox unlimited;
 	protected TextField limit;
@@ -42,6 +38,7 @@ public abstract class AbstractBoundEditor<T extends Number>
 		limit.setConverter(converter);
 		limit.setRequired(true);
 		limit.setRequiredError(msg.getMessage("fieldRequired"));
+		limit.setCaption(labelLimit);
 		unlimited.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
@@ -51,17 +48,12 @@ public abstract class AbstractBoundEditor<T extends Number>
 				limit.setEnabled(limited);
 			}
 		});
-		contents = new HorizontalLayout();
-		contents.setSpacing(true);
-		contents.addComponents(limit, unlimited);
-		contents.setComponentAlignment(unlimited, Alignment.BOTTOM_LEFT);
-		contents.setCaption(labelLimit);
 		updateValidators();
 	}
 	
-	public void addToLayout(FormLayout layout)
+	public void addToLayout(FlexibleFormLayout layout)
 	{
-		layout.addComponent(contents);
+		layout.addLine(limit, unlimited);
 	}
 	
 	public AbstractBoundEditor<T> setMin(T min)

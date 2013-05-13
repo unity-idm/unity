@@ -39,7 +39,7 @@ public class UnityApplication
 	{
 		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.LONG);
 		System.out.println(df.format(new Date()) + ": Starting UVOS Web Server");
-		log.info("\n**************************\nStarting UVOS Web Server\n**************************");
+		log.info("\n**************************\nStarting UNITY Web Server\n**************************");
 		
 		container = new ClassPathXmlApplicationContext(new String[] {"classpath*:META-INF/components.xml"}, false);
 		MutablePropertySources propertySources = container.getEnvironment().getPropertySources();

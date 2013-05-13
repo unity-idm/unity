@@ -10,13 +10,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.DoubleBoundEditor;
+import pl.edu.icm.unity.webui.common.FlexibleFormLayout;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
@@ -95,7 +95,7 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler<Doub
 		@Override
 		public Component getEditor()
 		{
-			FormLayout fl = new FormLayout();
+			FlexibleFormLayout fl = new FlexibleFormLayout();
 			min = new DoubleBoundEditor(msg, msg.getMessage("NumericAttributeHandler.minUndef"), 
 					msg.getMessage("NumericAttributeHandler.minE"), Double.MIN_VALUE);
 			max = new DoubleBoundEditor(msg, msg.getMessage("NumericAttributeHandler.maxUndef"), 
