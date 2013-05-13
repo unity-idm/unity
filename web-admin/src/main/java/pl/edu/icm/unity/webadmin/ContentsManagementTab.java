@@ -12,10 +12,10 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.attribute.AttributesPanel;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupBrowserComponent;
+import pl.edu.icm.unity.webadmin.groupdetails.GroupDetailsComponent;
 import pl.edu.icm.unity.webadmin.identities.IdentitiesComponent;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 
-import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -31,16 +31,19 @@ public class ContentsManagementTab extends VerticalLayout
 	private GroupBrowserComponent groupBrowser;
 	private AttributesPanel attributesPanel;
 	private IdentitiesComponent identitiesTable;
+	private GroupDetailsComponent groupDetails;
 	
 	@Autowired
 	public ContentsManagementTab(UnityMessageSource msg, GroupBrowserComponent groupBrowser,
-			AttributesPanel attributesPanel, IdentitiesComponent identitiesTable)
+			AttributesPanel attributesPanel, IdentitiesComponent identitiesTable, 
+			GroupDetailsComponent groupDetails)
 	{
 		super();
 		this.msg = msg;
 		this.groupBrowser = groupBrowser;
 		this.attributesPanel = attributesPanel;
 		this.identitiesTable = identitiesTable;
+		this.groupDetails = groupDetails;
 		initUI();
 	}
 
@@ -51,7 +54,7 @@ public class ContentsManagementTab extends VerticalLayout
 		CompositeSplitPanel rightPanel = new CompositeSplitPanel(true, false, 
 				identitiesTable, attributesPanel, 60);
 		CompositeSplitPanel leftPanel = new CompositeSplitPanel(true, false, 
-				groupBrowser, new Label("TODO"), 60);
+				groupBrowser, groupDetails, 60);
 
 		CompositeSplitPanel main = new CompositeSplitPanel(false, true, leftPanel, rightPanel, 30);
 

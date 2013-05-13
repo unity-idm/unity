@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import org.apache.log4j.Logger;
+
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 import com.vaadin.ui.Alignment;
@@ -15,6 +18,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+
 
 /**
  * Base for the dialog windows. Provides boilerplate code. In particular the overal layout is created
@@ -28,6 +32,7 @@ import com.vaadin.ui.Window;
  */
 public abstract class AbstractDialog extends Window implements Button.ClickListener 
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AbstractDialog.class);
 	private static final long serialVersionUID = 1L;
 	private Button confirm;
 	private Button cancel;
@@ -122,6 +127,8 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 			initGUI(sizeUndefined);
 		} catch (Exception e)
 		{
+			if (e instanceof RuntimeException)
+				log.warn("Got runtime exception during dialog initialization", e);
 			return;
 		}
 		UI.getCurrent().addWindow(this);

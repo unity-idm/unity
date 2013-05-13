@@ -24,6 +24,7 @@ import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.MapComboBox;
@@ -39,7 +40,6 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.VerticalLayout;
@@ -64,7 +64,7 @@ public class CredentialChangeDialog extends AbstractDialog
 	private MapComboBox<CredentialDefinition> credential;
 	private TextField type;
 	private TextField status;
-	private TextArea description;
+	private DescriptionTextArea description;
 	private Panel editor;
 	private Button update;
 	private CredentialEditor credEditor;
@@ -102,10 +102,7 @@ public class CredentialChangeDialog extends AbstractDialog
 			}
 		});
 		type = new TextField(msg.getMessage("CredentialChangeDialog.credType"));
-		description = new TextArea(msg.getMessage("CredentialChangeDialog.description"));
-		description.setSizeFull();
-		description.setHeight(3, Unit.EM);
-		description.setWordwrap(true);
+		description = new DescriptionTextArea(msg.getMessage("CredentialChangeDialog.description"), true, "");
 		status = new TextField(msg.getMessage("CredentialChangeDialog.status"));
 		editor = new Panel(msg.getMessage("CredentialChangeDialog.value"));
 		update = new Button(msg.getMessage("CredentialChangeDialog.update"));
@@ -140,9 +137,7 @@ public class CredentialChangeDialog extends AbstractDialog
 	private void updateSelectedCredential()
 	{
 		CredentialDefinition chosen = credential.getSelectedValue();
-		description.setReadOnly(false);
 		description.setValue(chosen.getDescription());
-		description.setReadOnly(true);
 		type.setReadOnly(false);
 		type.setValue(chosen.getTypeId());
 		type.setReadOnly(true);

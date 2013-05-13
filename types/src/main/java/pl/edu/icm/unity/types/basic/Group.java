@@ -24,7 +24,7 @@ public class Group implements Serializable
 	private String[] path;
 	private String description = "";
 	private AttributeStatement[] attributeStatements = new AttributeStatement[0];
-	
+
 	public Group(Group parent, String name)
 	{
 		if (name == null || name.equals("") || name.contains("/"))
@@ -38,6 +38,11 @@ public class Group implements Serializable
 
 	public Group(String path)
 	{
+		if (path.equals("/"))
+		{
+			this.path = new String[0];
+			return;
+		}
 		if (path.startsWith("/"))
 			path = path.substring(1);
 		if (path.endsWith("/"))

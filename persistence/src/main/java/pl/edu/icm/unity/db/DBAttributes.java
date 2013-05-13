@@ -31,6 +31,7 @@ import pl.edu.icm.unity.db.resolvers.GroupResolver;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 

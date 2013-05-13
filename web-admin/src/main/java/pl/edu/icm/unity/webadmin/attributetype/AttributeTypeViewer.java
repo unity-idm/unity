@@ -7,13 +7,13 @@ package pl.edu.icm.unity.webadmin.attributetype;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
+import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 
 /**
@@ -25,7 +25,7 @@ public class AttributeTypeViewer extends FormLayout
 	private UnityMessageSource msg;
 	
 	private Label name;
-	private TextArea typeDescription;
+	private DescriptionTextArea typeDescription;
 	private Label cardinality;
 	private Label uniqueVals;
 	private Label selfModificable;
@@ -48,11 +48,7 @@ public class AttributeTypeViewer extends FormLayout
 		name.setCaption(msg.getMessage("AttributeType.name"));
 		addComponent(name);
 		
-		typeDescription = new TextArea(msg.getMessage("AttributeType.description"));
-		typeDescription.setReadOnly(true);
-		typeDescription.setSizeFull();
-		typeDescription.setWordwrap(true);
-		typeDescription.setHeight(3, Unit.EM);
+		typeDescription = new DescriptionTextArea(msg.getMessage("AttributeType.description"), true, "");
 		addComponent(typeDescription);
 		
 		cardinality = new Label();
@@ -89,7 +85,7 @@ public class AttributeTypeViewer extends FormLayout
 	private void setEmpty()
 	{
 		name.setValue(msg.getMessage("AttributeType.notSelected"));
-		setDesc("");
+		typeDescription.setValue("");
 		cardinality.setValue("");
 		uniqueVals.setValue("");
 		selfModificable.setValue("");
@@ -109,7 +105,7 @@ public class AttributeTypeViewer extends FormLayout
 		}
 		
 		name.setValue(aType.getName());
-		setDesc(aType.getDescription());
+		typeDescription.setValue(aType.getDescription());
 		cardinality.setValue(AttributeTypeUtils.getBoundsDesc(msg, aType.getMinElements(), aType.getMaxElements()));
 		uniqueVals.setValue(AttributeTypeUtils.getBooleanDesc(msg, aType.isUniqueValues()));
 		selfModificable.setValue(AttributeTypeUtils.getBooleanDesc(msg, aType.isSelfModificable()));
@@ -119,12 +115,4 @@ public class AttributeTypeViewer extends FormLayout
 		syntax.setValue(syntaxId);
 		syntaxPanel.setContent(handler.getSyntaxViewer(aType.getValueType()));
 	}
-	
-	private void setDesc(String val)
-	{
-		typeDescription.setReadOnly(false);
-		typeDescription.setValue(val);
-		typeDescription.setReadOnly(true);
-	}
-
 }

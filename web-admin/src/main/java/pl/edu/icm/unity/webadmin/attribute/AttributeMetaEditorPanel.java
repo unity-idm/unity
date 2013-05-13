@@ -6,13 +6,12 @@ package pl.edu.icm.unity.webadmin.attribute;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
+import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.MapComboBox;
 
@@ -20,7 +19,6 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.TextArea;
 
 /**
  * Panel providing editing features of the attribute metadata. The panel
@@ -35,7 +33,7 @@ public class AttributeMetaEditorPanel extends FormLayout
 	private UnityMessageSource msg;
 	
 	private Label valueType;
-	private TextArea typeDescription;
+	private DescriptionTextArea typeDescription;
 	
 	private String attributeName;
 	private EnumComboBox<AttributeVisibility> visibility;
@@ -49,7 +47,6 @@ public class AttributeMetaEditorPanel extends FormLayout
 	{
 		this(Collections.singletonList(attributeType), groupPath, msg);
 		this.visibility.setEnumValue(visibility);
-		typeDescription.setSizeUndefined();
 		setSizeUndefined();
 	}
 	
@@ -67,11 +64,8 @@ public class AttributeMetaEditorPanel extends FormLayout
 		valueType.setCaption(msg.getMessage("AttributeType.type"));
 		addComponent(valueType);
 
-		typeDescription = new TextArea(msg.getMessage("AttributeType.description"), 
+		typeDescription = new DescriptionTextArea(msg.getMessage("AttributeType.description"), true, 
 				attributeType.getDescription());
-		typeDescription.setReadOnly(true);
-		typeDescription.setSizeUndefined();
-		typeDescription.setWidth(100, Unit.PERCENTAGE);
 		addComponent(typeDescription);
 		
 		Label group = new Label(groupPath);
@@ -107,25 +101,15 @@ public class AttributeMetaEditorPanel extends FormLayout
 	
 	private void createAttributeSelectionWidget(Collection<AttributeType> attributeTypes)
 	{
-		SortedMap<String, AttributeType> typesByName = new TreeMap<String, AttributeType>();
-		for (AttributeType at: attributeTypes)
-		{
-			if (!at.isInstanceImmutable())
-				typesByName.put(at.getName(), at);
-		}
-		String chosen = typesByName.size() > 0 ? typesByName.keySet().iterator().next() : null;
-		this.attributeTypes = new MapComboBox<AttributeType>(msg.getMessage("AttributeType.name"), typesByName, 
-				chosen);
+		this.attributeTypes = new AttributeSelectionComboBox(msg.getMessage("AttributeType.name"), 
+				attributeTypes); 
 		this.attributeTypes.setImmediate(true);
-		this.attributeTypes.setSizeUndefined();
-		this.attributeTypes.setWidth(100, Unit.PERCENTAGE);
 		
 		if (attributeTypes.size() == 1)
 		{
 			createAttributeWidget(attributeTypes.iterator().next().getName());
 		} else
 		{
-		
 			addComponent(this.attributeTypes);
 			this.attributeTypes.addValueChangeListener(new ValueChangeListener()
 			{
@@ -151,18 +135,26 @@ public class AttributeMetaEditorPanel extends FormLayout
 	private void changeAttribute()
 	{
 		AttributeType type = attributeTypes.getSelectedValue();
+		setAttributeType(type);
+		if (callback != null)
+			callback.attributeTypeChanged(type);
+	}
+
+	public void setAttributeType(String name)
+	{
+		attributeTypes.select(name);
+	}
+	
+	private void setAttributeType(AttributeType type)
+	{
 		valueType.setValue(type.getValueType().getValueSyntaxId());
 		
-		typeDescription.setReadOnly(false);
 		typeDescription.setValue(type.getDescription());
-		typeDescription.setReadOnly(true);
 		
 		visibility.setEnumValue(type.getVisibility());
 		cardinality.setValue(AttributeTypeUtils.getBoundsDesc(msg, type.getMinElements(), 
 				type.getMaxElements()));
 		unique.setValue(AttributeTypeUtils.getBooleanDesc(msg, type.isUniqueValues()));
-		if (callback != null)
-			callback.attributeTypeChanged(type);
 	}
 	
 	public String getAttributeName()

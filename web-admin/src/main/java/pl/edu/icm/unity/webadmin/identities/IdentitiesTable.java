@@ -39,7 +39,6 @@ import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
@@ -325,18 +324,7 @@ public class IdentitiesTable extends TreeTable
 			if (attribute == null)
 				val = msg.getMessage("Identities.attributeUndefined");
 			else
-			{
-				List<?> values = attribute.getValues();
-				if (values.isEmpty())
-					val = "";
-				else
-				{
-					@SuppressWarnings("rawtypes")
-					WebAttributeHandler handler = attrHandlerRegistry.getHandler(
-							attribute.getAttributeSyntax().getValueSyntaxId());
-					val = handler.getValueAsString(values.get(0), attribute.getAttributeSyntax(), 60);
-				}
-			}
+				val = attrHandlerRegistry.getSimplifiedAttributeValuesRepresentation(attribute);
 				
 			newItem.getItemProperty(propId).setValue(val);
 		}

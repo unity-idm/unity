@@ -26,7 +26,7 @@ import com.vaadin.ui.HorizontalLayout;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AttributeEditor extends HorizontalLayout
 {
-	private ValuesEditorPanel<?> valuesPanel;
+	private ValuesEditorPanel valuesPanel;
 	private AttributeMetaEditorPanel attrTypePanel;
 	private String groupPath;
 	
@@ -54,7 +54,16 @@ public class AttributeEditor extends HorizontalLayout
 			}
 		});
 		initCommon();
-		
+	}
+	
+	/**
+	 * Useful in the full edit mode (when choice of attributes is allowed). Sets the initial attribute.
+	 * @param attribute
+	 */
+	public void setInitialAttribute(Attribute<?> attribute)
+	{
+		attrTypePanel.setAttributeType(attribute.getName());
+		valuesPanel.setValues(attribute.getValues());
 	}
 
 	public AttributeEditor(UnityMessageSource msg, AttributeType attributeType, Attribute<?> attribute, 

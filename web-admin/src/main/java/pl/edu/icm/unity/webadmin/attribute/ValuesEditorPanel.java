@@ -65,6 +65,11 @@ public class ValuesEditorPanel<T> extends VerticalLayout
 		return valuesTable.getValues();
 	}
 	
+	public void setValues(List<T> values)
+	{
+		valuesTable.setValues(values, syntax, handler);
+	}
+	
 	private class DropHandlerImpl implements DropHandler
 	{
 		@Override

@@ -16,7 +16,6 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -25,6 +24,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.FormValidator;
@@ -45,7 +45,7 @@ public class AttributeTypeEditor extends FormLayout
 	private AttributeHandlerRegistry registry;
 	
 	private AbstractTextField name;
-	private TextArea typeDescription;
+	private DescriptionTextArea typeDescription;
 	private TextField min;
 	private IntegerBoundEditor max;
 	private CheckBox uniqueVals;
@@ -83,10 +83,7 @@ public class AttributeTypeEditor extends FormLayout
 		name.setRequiredError(msg.getMessage("fieldRequired"));
 		addComponent(name);
 		
-		typeDescription = new TextArea(msg.getMessage("AttributeType.description"));
-		typeDescription.setSizeFull();
-		typeDescription.setWordwrap(true);
-		typeDescription.setHeight(3, Unit.EM);
+		typeDescription = new DescriptionTextArea(msg.getMessage("AttributeType.description"));
 		addComponent(typeDescription);
 		
 		min = new TextField();

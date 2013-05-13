@@ -77,6 +77,7 @@ public class GroupsTree extends Tree
 		addExpandListener(new GroupExpandListener());
 		addValueChangeListener(new ValueChangeListenerImpl());
 		addActionHandler(new AddGroupActionHandler());
+		addActionHandler(new EditGroupActionHandler());
 		addActionHandler(new RefreshActionHandler());
 		addActionHandler(new DeleteActionHandler());
 		addActionHandler(new ExpandAllActionHandler());
@@ -95,6 +96,8 @@ public class GroupsTree extends Tree
 	
 	private void refreshNode(TreeNode node)
 	{
+		if (node == null)
+			node = new TreeNode("/");
 		node.setContentsFetched(false);
 		setChildrenAllowed(node, true);
 		collapseItem(node);
@@ -121,6 +124,17 @@ public class GroupsTree extends Tree
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg.getMessage("GroupsTree.addGroupError"), e);
+		}
+	}
+
+	private void updateGroup(String path, Group group)
+	{
+		try
+		{
+			groupsMan.updateGroup(path, group);
+		} catch (Exception e)
+		{
+			ErrorPopup.showError(msg.getMessage("GroupsTree.updateGroupError"), e);
 		}
 	}
 
@@ -217,10 +231,10 @@ public class GroupsTree extends Tree
 		{
 			final TreeNode node = (TreeNode) target;
 			
-			new GroupCreationDialog(msg, new Group(node.getPath()),	new GroupCreationDialog.Callback()
+			new GroupEditDialog(msg, new Group(node.getPath()),	false, new GroupEditDialog.Callback()
 			{
 				@Override
-				public void onGroupCreate(Group toBeCreated)
+				public void onConfirm(Group toBeCreated)
 				{
 					createGroup(toBeCreated);
 					refreshNode(node);
@@ -229,6 +243,41 @@ public class GroupsTree extends Tree
 		}
 	}
 
+	private class EditGroupActionHandler extends SingleActionHandler
+	{
+		public EditGroupActionHandler()
+		{
+			super(msg.getMessage("GroupsTree.editGroupAction"), Images.edit.getResource());
+		}
+
+		@Override
+		public void handleAction(Object sender, Object target)
+		{
+			final TreeNode node = (TreeNode) target;
+			Group group;
+			try
+			{
+				group = groupsMan.getContents(node.getPath(), GroupContents.METADATA).getGroup();
+			} catch (Exception e)
+			{
+				ErrorPopup.showError(msg.getMessage("GroupsTree.resolveGroupError"), e);
+				return;
+			}
+			
+			new GroupEditDialog(msg, group, true, new GroupEditDialog.Callback()
+			{
+				@Override
+				public void onConfirm(Group updated)
+				{
+					updateGroup(node.getPath(), updated);
+					refreshNode(node.getParentNode());
+					if (node.equals(getValue()))
+						bus.fireEvent(new GroupChangedEvent(node.getPath()));				
+				}
+			}).show();
+		}
+	}
+	
 	private class AddEntityActionHandler extends SingleActionHandler
 	{
 		public AddEntityActionHandler()
@@ -247,7 +296,7 @@ public class GroupsTree extends Tree
 						@Override
 						public void onCreated()
 						{
-							if (getValue().equals(node))
+							if (node.equals(getValue()))
 								bus.fireEvent(new GroupChangedEvent(node.getPath()));
 						}
 					}).show();
