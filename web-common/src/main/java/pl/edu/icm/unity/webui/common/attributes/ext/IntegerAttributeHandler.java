@@ -123,7 +123,7 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler<Long> impl
 				ret.setMax(max.getValue());
 				ret.setMin(min.getValue());
 				return ret;
-			} catch (IllegalStateException e)
+			} catch (Exception e)
 			{
 				throw new IllegalAttributeTypeException(e.getMessage(), e);
 			}

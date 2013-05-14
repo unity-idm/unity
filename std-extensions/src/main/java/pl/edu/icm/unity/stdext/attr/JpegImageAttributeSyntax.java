@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.IllegalArgumentException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
@@ -179,6 +180,8 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 
 	public void setMaxSize(int max)
 	{
+		if (max <= 0)
+			throw new IllegalArgumentException("Maximum size must be positive number");
 		this.maxSize = max;
 	}
 
@@ -189,11 +192,15 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 
 	public void setMaxWidth(int maxWidth)
 	{
+		if (maxWidth <= 0)
+			throw new IllegalArgumentException("Maximum width must be positive number");
 		this.maxWidth = maxWidth;
 	}
 
 	public void setMaxHeight(int maxHeight)
 	{
+		if (maxHeight <= 0)
+			throw new IllegalArgumentException("Maximum height must be positive number");
 		this.maxHeight = maxHeight;
 	}
 	

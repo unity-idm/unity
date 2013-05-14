@@ -343,7 +343,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 				ret.setMaxWidth((int)(long)maxWidth.getValue());
 				ret.setMaxSize((int)(long)maxSize.getValue());
 				return ret;
-			} catch (IllegalStateException e)
+			} catch (Exception e)
 			{
 				throw new IllegalAttributeTypeException(e.getMessage(), e);
 			}

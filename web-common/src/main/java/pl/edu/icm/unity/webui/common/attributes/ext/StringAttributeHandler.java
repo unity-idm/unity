@@ -134,7 +134,7 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler<String> imp
 				ret.setMinLength((Integer)min.getConvertedValue());
 				ret.setRegexp(regexp.getValue());
 				return ret;
-			} catch (IllegalStateException e)
+			} catch (Exception e)
 			{
 				throw new IllegalAttributeTypeException(e.getMessage(), e);
 			}

@@ -92,7 +92,9 @@ public class AttributeTypeEditor extends FlexibleFormLayout
 		min.setCaption(msg.getMessage("AttributeType.min"));
 		min.setConverter(new StringToIntegerConverter());
 		min.setRequired(true);
+		min.setNullRepresentation("");
 		min.setRequiredError(msg.getMessage("fieldRequired"));
+		min.setValidationVisible(true);
 		min.addValidator(new IntegerRangeValidator(msg.getMessage("AttributeType.invalidNumber"), 
 				0, Integer.MAX_VALUE));
 		addComponent(min);

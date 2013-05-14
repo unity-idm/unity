@@ -47,7 +47,7 @@ public class UnityMessageSource extends ResourceBundleMessageSource
 	}
 	
 	
-	private Locale getLocale()
+	public Locale getLocale()
 	{
 		InvocationContext ctx = InvocationContext.getCurrent();
 		if (ctx == null)

@@ -26,19 +26,21 @@ public abstract class AbstractBoundEditor<T extends Number>
 	protected T max;
 	
 	public AbstractBoundEditor(UnityMessageSource msg, String labelUnlimited, String labelLimit, T bound, 
-			T min, T max, Converter<String, ?> converter)
+			Converter<String, ?> converter)
 	{
 		this.bound = bound;
 		this.msg = msg;
-		this.min = min;
-		this.max = max;
+		this.min = null;
+		this.max = null;
 		unlimited = new CheckBox();
 		unlimited.setCaption(labelUnlimited);
 		limit = new TextField();
 		limit.setConverter(converter);
+		limit.setLocale(msg.getLocale());
 		limit.setRequired(true);
 		limit.setRequiredError(msg.getMessage("fieldRequired"));
 		limit.setCaption(labelLimit);
+		limit.setNullRepresentation("");
 		unlimited.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
@@ -49,6 +51,11 @@ public abstract class AbstractBoundEditor<T extends Number>
 			}
 		});
 		updateValidators();
+	}
+	
+	public TextField getLimitComponent()
+	{
+		return limit;
 	}
 	
 	public void addToLayout(FlexibleFormLayout layout)
@@ -76,7 +83,7 @@ public abstract class AbstractBoundEditor<T extends Number>
 	{
 		if (!value.equals(bound))
 		{
-			limit.setValue(encodeValue(value));
+			limit.setConvertedValue(value);
 			unlimited.setValue(false);
 			limit.setEnabled(true);
 		} else
@@ -94,15 +101,13 @@ public abstract class AbstractBoundEditor<T extends Number>
 		return this;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public T getValue() throws IllegalStateException
 	{
 		if (unlimited.getValue())
 			return bound;
-		String val = limit.getValue();
-		return parseValue(val);
+		return (T)limit.getConvertedValue();
 	}
 	
-	protected abstract T parseValue(String value);
-	protected abstract String encodeValue(T value);
 	protected abstract void updateValidators();
 }

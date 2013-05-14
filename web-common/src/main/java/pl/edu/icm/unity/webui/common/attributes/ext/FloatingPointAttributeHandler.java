@@ -120,7 +120,7 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler<Doub
 				ret.setMax(max.getValue());
 				ret.setMin(min.getValue());
 				return ret;
-			} catch (IllegalStateException e)
+			} catch (Exception e)
 			{
 				throw new IllegalAttributeTypeException(e.getMessage(), e);
 			}

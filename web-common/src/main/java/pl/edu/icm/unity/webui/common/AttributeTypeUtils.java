@@ -13,24 +13,24 @@ import pl.edu.icm.unity.types.basic.AttributeType;
  */
 public class AttributeTypeUtils
 {
-	public static String getBoundsDesc(UnityMessageSource msg, int min, int max)
+	public static String getBoundsDesc(UnityMessageSource msg, Integer min, Integer max)
 	{
-		String from = min == Integer.MIN_VALUE ? msg.getMessage("AttributeType.noLimit") : min+"";
-		String to = max == Integer.MAX_VALUE ? msg.getMessage("AttributeType.noLimit") : max+""; 
+		String from = (min == null || min == Integer.MIN_VALUE) ? msg.getMessage("AttributeType.noLimit") : min+"";
+		String to = (max == null || max == Integer.MAX_VALUE) ? msg.getMessage("AttributeType.noLimit") : max+""; 
 		return "[" + from + ", " + to + "]";
 	}
 
-	public static String getBoundsDesc(UnityMessageSource msg, long min, long max)
+	public static String getBoundsDesc(UnityMessageSource msg, Long min, Long max)
 	{
-		String from = min == Long.MIN_VALUE ? msg.getMessage("AttributeType.noLimit") : min+"";
-		String to = max == Long.MAX_VALUE ? msg.getMessage("AttributeType.noLimit") : max+""; 
+		String from = (min == null || min == Long.MIN_VALUE) ? msg.getMessage("AttributeType.noLimit") : min+"";
+		String to = (max == null || max == Long.MAX_VALUE) ? msg.getMessage("AttributeType.noLimit") : max+""; 
 		return "[" + from + ", " + to + "]";
 	}
 	
-	public static String getBoundsDesc(UnityMessageSource msg, double min, double max)
+	public static String getBoundsDesc(UnityMessageSource msg, Double min, Double max)
 	{
-		String from = min == Double.MIN_VALUE ? msg.getMessage("AttributeType.noLimit") : min+"";
-		String to = max == Double.MAX_VALUE ? msg.getMessage("AttributeType.noLimit") : max+""; 
+		String from = (min == null || min == Double.MIN_VALUE) ? msg.getMessage("AttributeType.noLimit") : min+"";
+		String to = (max == null || max == Double.MAX_VALUE) ? msg.getMessage("AttributeType.noLimit") : max+""; 
 		return "[" + from + ", " + to + "]";
 	}
 	

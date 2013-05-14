@@ -18,20 +18,7 @@ public class IntegerBoundEditor extends AbstractBoundEditor<Integer>
 	public IntegerBoundEditor(UnityMessageSource msg, String labelUnlimited, String labelLimit,
 			Integer bound)
 	{
-		super(msg, labelUnlimited, labelLimit, bound, Integer.MIN_VALUE, Integer.MAX_VALUE,
-				new StringToIntegerConverter());
-	}
-
-	@Override
-	protected Integer parseValue(String value)
-	{
-		return Integer.parseInt(value);
-	}
-	
-	@Override
-	protected String encodeValue(Integer value)
-	{
-		return Integer.toString(value);
+		super(msg, labelUnlimited, labelLimit, bound, new StringToIntegerConverter());
 	}
 
 	@Override

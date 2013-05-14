@@ -18,22 +18,9 @@ public class DoubleBoundEditor extends AbstractBoundEditor<Double>
 	public DoubleBoundEditor(UnityMessageSource msg, String labelUnlimited, String labelLimit,
 			Double bound)
 	{
-		super(msg, labelUnlimited, labelLimit, bound, Double.MIN_VALUE, Double.MAX_VALUE,
-				new StringToDoubleConverter());
+		super(msg, labelUnlimited, labelLimit, bound, new StringToDoubleConverter());
 	}
 
-	@Override
-	protected Double parseValue(String value)
-	{
-		return Double.parseDouble(value);
-	}
-	
-	@Override
-	protected String encodeValue(Double value)
-	{
-		return Double.toString(value);
-	}
-	
 	@Override
 	protected void updateValidators()
 	{

@@ -15,20 +15,7 @@ public class LongBoundEditor extends AbstractBoundEditor<Long>
 	public LongBoundEditor(UnityMessageSource msg, String labelUnlimited, String labelLimit,
 			Long bound)
 	{
-		super(msg, labelUnlimited, labelLimit, bound,  Long.MIN_VALUE, Long.MAX_VALUE,
-				new StringToLongConverter());
-	}
-
-	@Override
-	protected Long parseValue(String value)
-	{
-		return Long.parseLong(value);
-	}
-	
-	@Override
-	protected String encodeValue(Long value)
-	{
-		return Long.toString(value);
+		super(msg, labelUnlimited, labelLimit, bound, new StringToLongConverter());
 	}
 	
 	@Override
