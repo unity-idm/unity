@@ -27,6 +27,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.AttributesClass;
@@ -280,10 +281,10 @@ public class AttributesManagementImpl implements AttributesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Collection<Attribute<?>> getAttributes(EntityParam entity, String groupPath,
+	public Collection<AttributeExt<?>> getAttributes(EntityParam entity, String groupPath,
 			String attributeTypeId) throws EngineException
 	{
-		Collection<Attribute<?>> ret = getAllAttributesInternal(entity, groupPath, attributeTypeId, 
+		Collection<AttributeExt<?>> ret = getAllAttributesInternal(entity, true, groupPath, attributeTypeId, 
 				AuthzCapability.read);
 		filterLocal(ret);
 		return ret;
@@ -293,24 +294,24 @@ public class AttributesManagementImpl implements AttributesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Collection<Attribute<?>> getAllAttributes(EntityParam entity, String groupPath,
+	public Collection<AttributeExt<?>> getAllAttributes(EntityParam entity, boolean effective, String groupPath,
 			String attributeTypeId) throws EngineException
 	{
-		return getAllAttributesInternal(entity, groupPath, attributeTypeId, AuthzCapability.attributeModify);
+		return getAllAttributesInternal(entity, effective, groupPath, attributeTypeId, AuthzCapability.attributeModify);
 	}
 
-	private void filterLocal(Collection<Attribute<?>> unfiltered)
+	private void filterLocal(Collection<AttributeExt<?>> unfiltered)
 	{
-		Iterator<Attribute<?>> it = unfiltered.iterator();
+		Iterator<AttributeExt<?>> it = unfiltered.iterator();
 		while (it.hasNext())
 		{
-			Attribute<?> attr = it.next();
+			AttributeExt<?> attr = it.next();
 			if (attr.getVisibility() == AttributeVisibility.local)
 				it.remove();
 		}
 	}
 	
-	private Collection<Attribute<?>> getAllAttributesInternal(EntityParam entity, String groupPath,
+	private Collection<AttributeExt<?>> getAllAttributesInternal(EntityParam entity, boolean effective, String groupPath,
 			String attributeTypeName, AuthzCapability requiredCapability) throws EngineException
 	{
 		entity.validateInitialization();
@@ -319,7 +320,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		{
 			long entityId = idResolver.getEntityId(entity, sql);
 			authz.checkAuthorization(authz.isSelf(entityId), groupPath, requiredCapability);
-			Collection<Attribute<?>> ret = dbAttributes.getAllAttributes(entityId, groupPath, 
+			Collection<AttributeExt<?>> ret = dbAttributes.getAllAttributes(entityId, groupPath, effective,
 					attributeTypeName, sql);
 			sql.commit();
 			return ret;

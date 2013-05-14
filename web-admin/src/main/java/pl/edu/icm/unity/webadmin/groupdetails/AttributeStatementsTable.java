@@ -17,7 +17,10 @@ import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatementCondition;
 import pl.edu.icm.unity.types.basic.AttributeStatementCondition.Type;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webadmin.groupdetails.AttributeStatementEditDialog.Callback;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
@@ -25,7 +28,6 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 import com.vaadin.data.Container;
-import com.vaadin.data.Item;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
@@ -44,7 +46,8 @@ public class AttributeStatementsTable extends Table
 	private GroupsManagement groupsMan;
 	private AttributesManagement attrsMan;
 	private AttributeHandlerRegistry handlersReg;
-	private Group group; 
+	private Group group;
+	private EventsBus bus;
 	
 	
 	public AttributeStatementsTable(UnityMessageSource msg, GroupsManagement groupsMan,
@@ -54,6 +57,7 @@ public class AttributeStatementsTable extends Table
 		this.groupsMan = groupsMan;
 		this.handlersReg = handlersReg;
 		this.attrsMan = attrsMan;
+		this.bus = WebSession.getCurrent().getEventBus();
 		
 		addContainerProperty(MAIN_COL, String.class, null);
 		setColumnHeader(MAIN_COL, msg.getMessage("AttributeStatements.tableHdr"));
@@ -120,7 +124,7 @@ public class AttributeStatementsTable extends Table
 		return sb.toString();
 	}
 	
-	private boolean updateGroup(AttributeStatement[] attributeStatements)
+	private void updateGroup(AttributeStatement[] attributeStatements)
 	{
 		Group updated = new Group(group.toString());
 		updated.setDescription(group.getDescription());
@@ -128,11 +132,10 @@ public class AttributeStatementsTable extends Table
 		try
 		{
 			groupsMan.updateGroup(updated.toString(), updated);
-			return true;
+			bus.fireEvent(new GroupChangedEvent(group.toString()));
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg.getMessage("AttributeStatements.cantUpdateGroup"), e);
-			return false;
 		}
 	}
 	
@@ -149,8 +152,7 @@ public class AttributeStatementsTable extends Table
 			else
 				i--;
 		}
-		if (updateGroup(attributeStatements))
-			removeItem(removedStatement);
+		updateGroup(attributeStatements);
 	}
 
 	private void addStatement(AttributeStatement newStatement)
@@ -165,11 +167,9 @@ public class AttributeStatementsTable extends Table
 		}
 		attributeStatements[items.size()] = newStatement;
 		
-		if (updateGroup(attributeStatements))
-			addItem(new Object[] {toLocalizedString(newStatement)}, newStatement);
+		updateGroup(attributeStatements);
 	}
 
-	@SuppressWarnings("unchecked")
 	private void updateStatement(AttributeStatement oldStatement, AttributeStatement newStatement)
 	{
 		Collection<?> items = getItemIds();
@@ -184,15 +184,9 @@ public class AttributeStatementsTable extends Table
 				attributeStatements[i] = newStatement;
 		}
 		
-		if (updateGroup(attributeStatements))
-		{
-			Item added = addItemAfter(oldStatement, newStatement);
-			added.getItemProperty(MAIN_COL).setValue(toLocalizedString(newStatement));
-			removeItem(oldStatement);
-		}
+		updateGroup(attributeStatements);
 	}
 
-	@SuppressWarnings("unchecked")
 	private void moveItemAfter(AttributeStatement toMoveItemId, AttributeStatement moveAfterItemId)
 	{
 		Collection<?> items = getItemIds();
@@ -216,12 +210,7 @@ public class AttributeStatementsTable extends Table
 		}
 		AttributeStatement[] aStmtsA = attributeStatements.toArray(
 				new AttributeStatement[attributeStatements.size()]);
-		if (updateGroup(aStmtsA))
-		{
-			removeItem(toMoveItemId);
-			Item moved = addItemAfter(moveAfterItemId, toMoveItemId);
-			moved.getItemProperty(MAIN_COL).setValue(toLocalizedString(toMoveItemId));
-		}
+		updateGroup(aStmtsA);
 	}
 	
 	

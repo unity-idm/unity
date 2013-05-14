@@ -15,7 +15,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeStatementCondition;
@@ -368,7 +368,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 				ConflictResolution.skip);
 		groupAB.setAttributeStatements(new AttributeStatement[] {statement1});
 		groupsMan.updateGroup("/A/B", groupAB);
-		Collection<Attribute<?>> aRet = attrsMan.getAllAttributes(entity, "/A/B", "a1");
+		Collection<AttributeExt<?>> aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a1");
 		assertEquals(1, aRet.size());
 		assertEquals(1, aRet.iterator().next().getValues().size());
 		assertEquals("va1", aRet.iterator().next().getValues().get(0));
@@ -381,7 +381,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		groupAB.setAttributeStatements(new AttributeStatement[] {statement1, statement2});
 		groupsMan.updateGroup("/A/B", groupAB);
 		
-		aRet = attrsMan.getAllAttributes(entity, "/A/B", "a1");
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a1");
 		assertEquals(1, aRet.size());
 		assertEquals(1, aRet.iterator().next().getValues().size());
 		assertEquals("updated2", aRet.iterator().next().getValues().get(0));
@@ -394,7 +394,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		groupAB.setAttributeStatements(new AttributeStatement[] {statement1, statement2, statement3});
 		groupsMan.updateGroup("/A/B", groupAB);
 		
-		aRet = attrsMan.getAllAttributes(entity, "/A/B", "a1");
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a1");
 		assertEquals(1, aRet.size());
 		assertEquals(1, aRet.iterator().next().getValues().size());
 		assertEquals("updated2", aRet.iterator().next().getValues().get(0));
@@ -413,7 +413,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 				statement4, statement5});
 		groupsMan.updateGroup("/A/B", groupAB);
 
-		aRet = attrsMan.getAllAttributes(entity, "/A/B", "a2");
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a2");
 		assertEquals(1, aRet.size());
 		assertEquals(2, aRet.iterator().next().getValues().size());
 		assertEquals("merge1", aRet.iterator().next().getValues().get(0));
@@ -557,56 +557,56 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	private void testCorrectness(int a1InRoot, int a1InA, int a1InAB, int a1InABC, int a1InAD, int a1InAZ,
 			int a2InRoot, int a2InA, int a2InAB, int a2InABC, int a2InAD, int a2InAZ) throws Exception
 	{
-		Collection<Attribute<?>> aRet = attrsMan.getAllAttributes(entity, "/", "a1");
+		Collection<AttributeExt<?>> aRet = attrsMan.getAllAttributes(entity, true, "/", "a1");
 		assertEquals(aRet.toString(), a1InRoot, aRet.size());
-		aRet = attrsMan.getAllAttributes(entity, "/", "a2");
+		aRet = attrsMan.getAllAttributes(entity, true, "/", "a2");
 		assertEquals(aRet.toString(), a2InRoot, aRet.size());
-		aRet = attrsMan.getAllAttributes(entity, "/", null);
+		aRet = attrsMan.getAllAttributes(entity, true, "/", null);
 		assertEquals(aRet.toString(), a2InRoot+a1InRoot+systemAttributes, aRet.size());
 		
-		aRet = attrsMan.getAllAttributes(entity, "/A", "a1");
+		aRet = attrsMan.getAllAttributes(entity, true, "/A", "a1");
 		assertEquals(aRet.toString(), a1InA, aRet.size());
-		aRet = attrsMan.getAllAttributes(entity, "/A", "a2");
+		aRet = attrsMan.getAllAttributes(entity, true, "/A", "a2");
 		assertEquals(aRet.toString(), a2InA, aRet.size());
-		aRet = attrsMan.getAllAttributes(entity, "/A", null);
+		aRet = attrsMan.getAllAttributes(entity, true, "/A", null);
 		assertEquals(aRet.toString(), a1InA+a2InA, aRet.size());
 		
-		aRet = attrsMan.getAllAttributes(entity, "/A/B", "a1");
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a1");
 		assertEquals(aRet.toString(), a1InAB, aRet.size());
-		aRet = attrsMan.getAllAttributes(entity, "/A/B", "a2");
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a2");
 		assertEquals(aRet.toString(), a2InAB, aRet.size());
-		aRet = attrsMan.getAllAttributes(entity, "/A/B", null);
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", null);
 		assertEquals(aRet.toString(), a1InAB+a2InAB, aRet.size());
 
-		aRet = attrsMan.getAllAttributes(entity, "/A/B/C", "a1");
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/B/C", "a1");
 		assertEquals(aRet.toString(), a1InABC, aRet.size());
-		aRet = attrsMan.getAllAttributes(entity, "/A/B/C", "a2");
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/B/C", "a2");
 		assertEquals(aRet.toString(), a2InABC, aRet.size());
-		aRet = attrsMan.getAllAttributes(entity, "/A/B/C", null);
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/B/C", null);
 		assertEquals(aRet.toString(), a1InABC+a2InABC, aRet.size());
 
-		aRet = attrsMan.getAllAttributes(entity, "/A/D", "a1");
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/D", "a1");
 		assertEquals(aRet.toString(), a1InAD, aRet.size());
-		aRet = attrsMan.getAllAttributes(entity, "/A/D", "a2");
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/D", "a2");
 		assertEquals(aRet.toString(), a2InAD, aRet.size());
-		aRet = attrsMan.getAllAttributes(entity, "/A/D", null);
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/D", null);
 		assertEquals(aRet.toString(), a1InAD+a2InAD, aRet.size());
 		
-		aRet = attrsMan.getAllAttributes(entity, "/A/Z", "a1");
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/Z", "a1");
 		assertEquals(aRet.toString(), a1InAZ, aRet.size());
-		aRet = attrsMan.getAllAttributes(entity, "/A/Z", "a2");
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/Z", "a2");
 		assertEquals(aRet.toString(), a2InAZ, aRet.size());
-		aRet = attrsMan.getAllAttributes(entity, "/A/Z", null);
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/Z", null);
 		assertEquals(aRet.toString(), a1InAZ+a2InAZ, aRet.size());
 		
-		aRet = attrsMan.getAllAttributes(entity, null, null);
+		aRet = attrsMan.getAllAttributes(entity, true, null, null);
 		assertEquals(aRet.toString(), a1InRoot+a1InA+a1InAB+a1InABC+a1InAD+a1InAZ+
 				a2InRoot+a2InA+a2InAB+a2InABC+a2InAD+a2InAZ+systemAttributes, aRet.size());
 
-		aRet = attrsMan.getAllAttributes(entity, null, "a2");
+		aRet = attrsMan.getAllAttributes(entity, true, null, "a2");
 		assertEquals(aRet.toString(), a2InRoot+a2InA+a2InAB+a2InABC+a2InAD+a2InAZ, aRet.size());
 		
-		aRet = attrsMan.getAllAttributes(entity, null, "a1");
+		aRet = attrsMan.getAllAttributes(entity, true, null, "a1");
 		assertEquals(aRet.toString(), a1InRoot+a1InA+a1InAB+a1InABC+a1InAD+a1InAZ, aRet.size());
 	}
 }

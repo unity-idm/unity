@@ -9,6 +9,7 @@ import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -106,17 +107,21 @@ public interface AttributesManagement
 	 * @return
 	 * @throws EngineException
 	 */
-	public Collection<Attribute<?>> getAttributes(EntityParam entity, String groupPath, String attributeTypeId) throws EngineException;
+	public Collection<AttributeExt<?>> getAttributes(EntityParam entity,  
+			String groupPath, String attributeTypeId) throws EngineException;
 
 	/**
 	 * Returns attributes of an entity, including hidden ones. The two last arguments can be null, 
 	 * meaning that there is no restriction.
 	 * @param entity
+	 * @param effective if false then attributes which are added by groups' attribute statements are
+	 * not included. Useful only for attribute management interfaces.
 	 * @param groupPath
 	 * @param attributeTypeId
 	 * @return
 	 * @throws EngineException
 	 */
-	public Collection<Attribute<?>> getAllAttributes(EntityParam entity, String groupPath, String attributeTypeId) throws EngineException;
+	public Collection<AttributeExt<?>> getAllAttributes(EntityParam entity, boolean effective, 
+			String groupPath, String attributeTypeId) throws EngineException;
 
 }

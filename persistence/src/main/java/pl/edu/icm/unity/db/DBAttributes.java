@@ -33,6 +33,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
 
@@ -220,22 +221,23 @@ public class DBAttributes
 	 * @param sql
 	 * @return
 	 */
-	public Collection<Attribute<?>> getAllAttributes(long entityId, String groupPath,
+	public Collection<AttributeExt<?>> getAllAttributes(long entityId, String groupPath, boolean effective, 
 			String attributeTypeName, SqlSession sql)
 	{
-		Map<String, Map<String, Attribute<?>>> asMap = getAllAttributesAsMap(entityId, groupPath, attributeTypeName, sql);
-		List<Attribute<?>> ret = new ArrayList<Attribute<?>>();
-		for (Map<String, Attribute<?>> entry: asMap.values())
+		Map<String, Map<String, AttributeExt<?>>> asMap = getAllAttributesAsMap(entityId, groupPath, effective, 
+				attributeTypeName, sql);
+		List<AttributeExt<?>> ret = new ArrayList<AttributeExt<?>>();
+		for (Map<String, AttributeExt<?>> entry: asMap.values())
 			ret.addAll(entry.values());
 		return ret;
 	}
 	
-	public Map<String, Attribute<?>> getAllAttributesAsMapOneGroup(long entityId, String groupPath,
+	public Map<String, AttributeExt<?>> getAllAttributesAsMapOneGroup(long entityId, String groupPath,
 			String attributeTypeName, SqlSession sql)
 	{
 		if (groupPath == null)
 			throw new IllegalArgumentException("For this method group must be specified");
-		Map<String, Map<String, Attribute<?>>> asMap = getAllAttributesAsMap(entityId, groupPath, 
+		Map<String, Map<String, AttributeExt<?>>> asMap = getAllAttributesAsMap(entityId, groupPath, true,  
 				attributeTypeName, sql);
 		return asMap.get(groupPath);
 	}
@@ -249,8 +251,8 @@ public class DBAttributes
 	 * @param sql
 	 * @return
 	 */
-	public Map<String, Map<String, Attribute<?>>> getAllAttributesAsMap(long entityId, String groupPath,
-			String attributeTypeName, SqlSession sql)
+	public Map<String, Map<String, AttributeExt<?>>> getAllAttributesAsMap(long entityId, String groupPath, 
+			boolean effective, String attributeTypeName, SqlSession sql)
 	{
 		AttributesMapper atMapper = sql.getMapper(AttributesMapper.class);
 		GroupsMapper gMapper = sql.getMapper(GroupsMapper.class);
@@ -259,12 +261,15 @@ public class DBAttributes
 
 		
 		Set<String> allGroups = dbShared.getAllGroups(entityId, gMapper);
-		Map<String, Map<String, Attribute<?>>> directAttributesByGroup = createAllAttrsMap(entityId, 
+		Map<String, Map<String, AttributeExt<?>>> directAttributesByGroup = createAllAttrsMap(entityId, 
 				atMapper, gMapper);
-		Map<String, Map<String, Attribute<?>>> ret = new HashMap<String, Map<String, Attribute<?>>>();
+		if (!effective)
+			return directAttributesByGroup;
+
+		Map<String, Map<String, AttributeExt<?>>> ret = new HashMap<String, Map<String, AttributeExt<?>>>();
 		for (String group: groups)
 		{
-			Map<String, Attribute<?>> inGroup = statementsHelper.getEffectiveAttributes(entityId, 
+			Map<String, AttributeExt<?>> inGroup = statementsHelper.getEffectiveAttributes(entityId, 
 					group, attributeTypeName, allGroups, directAttributesByGroup, atMapper, gMapper);
 			ret.put(group, inGroup);
 		}
@@ -302,20 +307,22 @@ public class DBAttributes
 		return ret;
 	}
 	
-	private Map<String, Map<String, Attribute<?>>> createAllAttrsMap(long entityId, AttributesMapper atMapper,
+	private Map<String, Map<String, AttributeExt<?>>> createAllAttrsMap(long entityId, AttributesMapper atMapper,
 			GroupsMapper gMapper)
 	{
-		Map<String, Map<String, Attribute<?>>> ret = new HashMap<String, Map<String, Attribute<?>>>();
+		Map<String, Map<String, AttributeExt<?>>> ret = new HashMap<String, Map<String, AttributeExt<?>>>();
 		List<AttributeBean> allAts = getDefinedAttributes(entityId, null, null, atMapper);
 		for (AttributeBean ab: allAts)
 		{
 			String groupPath = groupResolver.resolveGroupPath(ab.getGroupId(), gMapper);
-			Attribute<?> attribute = attrResolver.resolveAttributeBean(ab, groupPath);
+			Attribute<?> attributeT = attrResolver.resolveAttributeBean(ab, groupPath);
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			AttributeExt<?> attribute = new AttributeExt(attributeT, true);
 			
-			Map<String, Attribute<?>> attrsInGroup = ret.get(groupPath);
+			Map<String, AttributeExt<?>> attrsInGroup = ret.get(groupPath);
 			if (attrsInGroup == null)
 			{
-				attrsInGroup = new HashMap<String, Attribute<?>>();
+				attrsInGroup = new HashMap<String, AttributeExt<?>>();
 				ret.put(groupPath, attrsInGroup);
 			}
 			attrsInGroup.put(attribute.getName(), attribute);

@@ -19,6 +19,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -35,11 +36,16 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 
+import com.vaadin.data.Container;
+import com.vaadin.data.Container.Filterable;
+import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
@@ -60,7 +66,12 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private AttributesManagement attributesManagement;
 	
 	private VerticalLayout left;
-	private List<Attribute<?>> attributes;
+	private CheckBox showEffective;
+	private CheckBox showInternal;
+	private InternalAttributesFilter internalAttrsFilter;
+	private EffectiveAttributesFilter effectiveAttrsFilter;
+	private HorizontalLayout filtersBar;
+	private List<AttributeExt<?>> attributes;
 	private ValuesRendererPanel attributeValues;
 	private Table attributesTable;
 	private EntityParam owner;
@@ -101,12 +112,41 @@ public class AttributesPanel extends HorizontalSplitPanel
 			}
 		});
 
+		internalAttrsFilter = new InternalAttributesFilter();
+		effectiveAttrsFilter = new EffectiveAttributesFilter();
+		showEffective = new CheckBox(msg.getMessage("Attribute.showEffective"), true);
+		showEffective.setImmediate(true);
+		showEffective.setStyleName("u-italic");
+		showEffective.addValueChangeListener(new ValueChangeListener()
+		{
+			@Override
+			public void valueChange(ValueChangeEvent event)
+			{
+				updateAttributesFilter(!showEffective.getValue(), effectiveAttrsFilter);
+			}
+		});
+		showInternal = new CheckBox(msg.getMessage("Attribute.showInternal"), false);
+		showInternal.setImmediate(true);
+		showInternal.setStyleName("u-gray");
+		showInternal.addValueChangeListener(new ValueChangeListener()
+		{
+			@Override
+			public void valueChange(ValueChangeEvent event)
+			{
+				updateAttributesFilter(!showInternal.getValue(), internalAttrsFilter);
+			}
+		});
+		filtersBar = new HorizontalLayout(showEffective, showInternal);
+		filtersBar.setSpacing(true);
+		filtersBar.setSizeUndefined();
+		
 		attributeValues = new ValuesRendererPanel(msg);
 		attributeValues.setSizeFull();
 
 		left = new VerticalLayout();
 		left.setMargin(new MarginInfo(false, true, false, false));
 		left.setSizeFull();
+		left.setSpacing(true);
 		
 		setFirstComponent(left);
 		setSecondComponent(attributeValues);
@@ -133,6 +173,8 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}, AttributeTypesUpdatedEvent.class);
 		
 		setInput(null, "/");
+		updateAttributesFilter(!showEffective.getValue(), effectiveAttrsFilter);
+		updateAttributesFilter(!showInternal.getValue(), internalAttrsFilter);
 	}
 	
 	private void setAttributeTypes(List<AttributeType> atList)
@@ -154,15 +196,15 @@ public class AttributesPanel extends HorizontalSplitPanel
 		
 		try
 		{
-			//FIXME - getAll attributes / get attributes / authz
-			Collection<Attribute<?>> attributesCol = attributesManagement.getAllAttributes(
-					owner, groupPath, null);
-			this.attributes = new ArrayList<Attribute<?>>(attributesCol.size());
+			Collection<AttributeExt<?>> attributesCol = attributesManagement.getAllAttributes(
+					owner, true, groupPath, null);
+			this.attributes = new ArrayList<AttributeExt<?>>(attributesCol.size());
 			this.attributes.addAll(attributesCol);
 			this.groupPath = groupPath;
 			updateAttributes();
 			left.removeAllComponents();
-			left.addComponent(attributesTable);
+			left.addComponents(filtersBar, attributesTable);
+			left.setExpandRatio(attributesTable, 1.0f);
 		} catch (EngineException e)
 		{
 			showLabel(msg.getMessage("Attribute.noReadAuthz", groupPath));
@@ -185,7 +227,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		attributeValues.removeValues();
 		if (attributes.size() == 0)
 			return;
-		for (Attribute<?> attribute: attributes)
+		for (AttributeExt<?> attribute: attributes)
 			attributesTable.addItem(new AttributeItem(attribute));
 
 		attributesTable.select(attributes.get(0));
@@ -203,21 +245,40 @@ public class AttributesPanel extends HorizontalSplitPanel
 		attributeValues.setValues(handler, syntax, attribute.getValues());
 	}
 	
+	private void updateAttributesFilter(boolean add, Container.Filter filter)
+	{
+		Container.Filterable filterable = (Filterable) attributesTable.getContainerDataSource();
+		if (!add)
+			filterable.removeContainerFilter(filter);
+		else
+			filterable.addContainerFilter(filter);
+	}
+	
 	public class AttributeItem
 	{
-		private Attribute<?> attribute;
+		private AttributeExt<?> attribute;
 
-		public AttributeItem(Attribute<?> value)
+		public AttributeItem(AttributeExt<?> value)
 		{
 			this.attribute = value;
 		}
 		
-		public String getName()
+		public Label getName()
 		{
-			return attribute.getName(); 
+			Label l = new Label(attribute.getName());
+			AttributeType attributeType = attributeTypes.get(attribute.getName());
+			StringBuilder style = new StringBuilder();
+			if (!attribute.isDirect())
+				style.append("u-italic");
+			if (attributeType.isInstanceImmutable())
+				style.append(" u-gray");
+			String styleS = style.toString().trim(); 
+			if (styleS.length() > 0)
+				l.setStyleName(styleS);
+			return l;
 		}
 		
-		private Attribute<?> getAttribute()
+		private AttributeExt<?> getAttribute()
 		{
 			return attribute;
 		}
@@ -237,12 +298,13 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private boolean addAttribute(Attribute<?> attribute)
 	{
 		try
 		{
 			attributesManagement.setAttribute(owner, attribute, false);
-			attributes.add(attribute);
+			attributes.add(new AttributeExt(attribute, true));
 			updateAttributes();
 			return true;
 		} catch (Exception e)
@@ -251,7 +313,8 @@ public class AttributesPanel extends HorizontalSplitPanel
 			return false;
 		}
 	}
-
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private boolean updateAttribute(Attribute<?> attribute)
 	{
 		try
@@ -261,7 +324,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			{
 				if (attributes.get(i).getName().equals(attribute.getName()))
 				{
-					attributes.set(i, attribute);
+					attributes.set(i, new AttributeExt(attribute, true));
 					System.out.println("Update at " + i);
 				}
 					
@@ -288,9 +351,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 		{
 			if (target == null || !(target instanceof AttributeItem))
 				return EMPTY;
-			Attribute<?> attribute = ((AttributeItem) target).getAttribute();
+			AttributeExt<?> attribute = ((AttributeItem) target).getAttribute();
 			AttributeType attributeType = attributeTypes.get(attribute.getName());
-			if (attributeType.isInstanceImmutable())
+			if (attributeType.isInstanceImmutable() || !attribute.isDirect())
 				return EMPTY;
 			return super.getActions(target, sender);
 		}
@@ -353,9 +416,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 		{
 			if (target == null || !(target instanceof AttributeItem))
 				return EMPTY;
-			Attribute<?> attribute = ((AttributeItem) target).getAttribute();
+			AttributeExt<?> attribute = ((AttributeItem) target).getAttribute();
 			AttributeType attributeType = attributeTypes.get(attribute.getName());
-			if (attributeType.isInstanceImmutable())
+			if (attributeType.isInstanceImmutable() || !attribute.isDirect())
 				return EMPTY;
 			return super.getActions(target, sender);
 		}
@@ -381,4 +444,38 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 	}
 
+	private static class EffectiveAttributesFilter implements Container.Filter
+	{
+		@Override
+		public boolean passesFilter(Object itemId, Item item)
+				throws UnsupportedOperationException
+		{
+			AttributeItem ai = (AttributeItem) itemId;
+			return ai.getAttribute().isDirect();
+		}
+
+		@Override
+		public boolean appliesToProperty(Object propertyId)
+		{
+			return true;
+		}
+	}
+
+	private class InternalAttributesFilter implements Container.Filter
+	{
+		@Override
+		public boolean passesFilter(Object itemId, Item item)
+				throws UnsupportedOperationException
+		{
+			AttributeItem ai = (AttributeItem) itemId;
+			AttributeType attributeType = attributeTypes.get(ai.getAttribute().getName());
+			return !attributeType.isInstanceImmutable();
+		}
+
+		@Override
+		public boolean appliesToProperty(Object propertyId)
+		{
+			return true;
+		}
+	}
 }

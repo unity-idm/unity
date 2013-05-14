@@ -99,7 +99,7 @@ public class CredentialRequirementsHolder
 	 * @param attributes
 	 * @return
 	 */
-	public boolean areAllCredentialsValid(Map<String, Attribute<?>> attributes)
+	public boolean areAllCredentialsValid(Map<String, ? extends Attribute<?>> attributes)
 	{
 		for (Map.Entry<String, LocalCredentialVerificator> entry: handlers.entrySet())
 		{

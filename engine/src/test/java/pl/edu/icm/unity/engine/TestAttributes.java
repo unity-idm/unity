@@ -23,7 +23,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -79,14 +79,14 @@ public class TestAttributes extends DBIntegrationTestBase
 		StringAttribute at2 = new StringAttribute("tel", "/", AttributeVisibility.full, "1234");
 		attrsMan.setAttribute(entity, at2, false);
 		
-		Collection<Attribute<?>> allAts = attrsMan.getAttributes(entity, null, null);
+		Collection<AttributeExt<?>> allAts = attrsMan.getAttributes(entity, null, null);
 		assertEquals(2, allAts.size());
-		Collection<Attribute<?>> gr1Ats = attrsMan.getAttributes(entity, "/", null);
+		Collection<AttributeExt<?>> gr1Ats = attrsMan.getAttributes(entity, "/", null);
 		assertEquals(1, gr1Ats.size());
 		assertEquals(at2, gr1Ats.iterator().next());
-		Collection<Attribute<?>> nameAts = attrsMan.getAttributes(entity, null, "tel");
+		Collection<AttributeExt<?>> nameAts = attrsMan.getAttributes(entity, null, "tel");
 		assertEquals(2, nameAts.size());
-		Collection<Attribute<?>> specificAts = attrsMan.getAttributes(entity, "/test", "tel");
+		Collection<AttributeExt<?>> specificAts = attrsMan.getAttributes(entity, "/test", "tel");
 		assertEquals(1, specificAts.size());
 		assertEquals(at1, specificAts.iterator().next());
 
@@ -94,7 +94,7 @@ public class TestAttributes extends DBIntegrationTestBase
 		attrsMan.removeAttribute(entity, "/", "tel");
 		gr1Ats = attrsMan.getAttributes(entity, "/", null);
 		assertEquals(0, gr1Ats.size());
-		Collection<Attribute<?>> gr2Ats = attrsMan.getAttributes(entity, "/test", null);
+		Collection<AttributeExt<?>> gr2Ats = attrsMan.getAttributes(entity, "/test", null);
 		assertEquals(1, gr2Ats.size());
 		allAts = attrsMan.getAttributes(entity, null, null);
 		assertEquals(1, allAts.size());
@@ -121,7 +121,7 @@ public class TestAttributes extends DBIntegrationTestBase
 		allAts = attrsMan.getAttributes(entity, null, null);
 		assertEquals(0, allAts.size());
 		
-		allAts = attrsMan.getAllAttributes(entity, null, null);
+		allAts = attrsMan.getAllAttributes(entity, true, null, null);
 		assertEquals(3, allAts.size());
 		assertEquals("333", getAttributeByName(allAts, "tel").getValues().get(0));
 		assertEquals(AttributeVisibility.local, allAts.iterator().next().getVisibility());

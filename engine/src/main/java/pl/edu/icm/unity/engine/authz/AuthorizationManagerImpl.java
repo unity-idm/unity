@@ -25,6 +25,7 @@ import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Group;
 
 
@@ -196,12 +197,12 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	
 	private Set<AuthzRole> establishRoles(long entityId, Group group)
 	{
-		Map<String, Map<String, Attribute<?>>> allAttributes = getAllAttributes(entityId);
+		Map<String, Map<String, AttributeExt<?>>> allAttributes = getAllAttributes(entityId);
 		Group current = group;
 		Set<AuthzRole> ret = new HashSet<AuthzRole>();
 		do
 		{
-			Map<String, Attribute<?>> inCurrent = allAttributes.get(current.toString());
+			Map<String, AttributeExt<?>> inCurrent = allAttributes.get(current.toString());
 			if (inCurrent != null)
 				addRolesFromAttribute(inCurrent, ret);
 			String parent = current.getParentPath();
@@ -210,7 +211,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		return ret;
 	}
 
-	private void addRolesFromAttribute(Map<String, Attribute<?>> inCurrent, Set<AuthzRole> ret)
+	private void addRolesFromAttribute(Map<String, AttributeExt<?>> inCurrent, Set<AuthzRole> ret)
 	{
 		Attribute<?> role = inCurrent.get(SystemAttributeTypes.AUTHORIZATION_ROLE);
 		if (role != null)
@@ -227,13 +228,13 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		}
 	}
 	
-	private Map<String, Map<String, Attribute<?>>> getAllAttributes(long entityId)
+	private Map<String, Map<String, AttributeExt<?>>> getAllAttributes(long entityId)
 	{
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			Map<String, Map<String, Attribute<?>>> allAttributes = 
-					dbAttributes.getAllAttributesAsMap(entityId, null, null, sql);
+			Map<String, Map<String, AttributeExt<?>>> allAttributes = 
+					dbAttributes.getAllAttributesAsMap(entityId, null, true, null, sql);
 			sql.commit();
 			return allAttributes;
 		} finally

@@ -32,7 +32,7 @@ import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 /**
@@ -130,7 +130,7 @@ public class EngineHelper
 			toSet = LocalAuthenticationState.disabled;
 		} else
 		{
-			Collection<Attribute<?>> attributes = dbAttributes.getAllAttributes(entityId, "/", 
+			Collection<AttributeExt<?>> attributes = dbAttributes.getAllAttributes(entityId, "/", false,
 					SystemAttributeTypes.CREDENTIAL_PREFIX+credentialChanged.getCredentialDefinition().getName(), sql);
 			boolean valid = false;
 			if (!attributes.isEmpty())
@@ -168,7 +168,7 @@ public class EngineHelper
 			toSet = LocalAuthenticationState.disabled;
 		} else
 		{
-			Map<String, Attribute<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(entityId, "/", null, sql);
+			Map<String, AttributeExt<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(entityId, "/", null, sql);
 			boolean allValid = newCredReqs.areAllCredentialsValid(attributes);
 			if (desiredAuthnState.equals(LocalAuthenticationState.valid) && !allValid)
 				throw new IllegalCredentialException("The new credential requirements are not compatible with the previous definition and can not keep the authentication state as valid");

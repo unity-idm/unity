@@ -19,6 +19,7 @@ import pl.edu.icm.unity.server.authn.IdentityResolver;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
@@ -52,9 +53,9 @@ public class IdentityResolverImpl implements IdentityResolver
 		{
 			long entityId = getEntity(identity, identityTypes, sql);
 			EntityWithCredential ret = new EntityWithCredential();
-			Collection<Attribute<?>> credAttributes = dbAttributes.getAllAttributes(entityId, "/", 
+			Collection<AttributeExt<?>> credAttributes = dbAttributes.getAllAttributes(entityId, "/", true,
 					SystemAttributeTypes.CREDENTIAL_PREFIX+credentialName, sql);
-			Collection<Attribute<?>> authnStateAttribute = dbAttributes.getAllAttributes(entityId, "/", 
+			Collection<AttributeExt<?>> authnStateAttribute = dbAttributes.getAllAttributes(entityId, "/", true,
 					SystemAttributeTypes.CREDENTIALS_STATE, sql);
 			String authnStateS = (String)authnStateAttribute.iterator().next().getValues().get(0);
 			LocalAuthenticationState authnState = LocalAuthenticationState.valueOf(authnStateS);

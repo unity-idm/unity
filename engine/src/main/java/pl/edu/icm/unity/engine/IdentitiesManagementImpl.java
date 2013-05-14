@@ -43,6 +43,7 @@ import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -361,7 +362,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			{
 				CredentialRequirementsHolder newCredReqs = engineHelper.getCredentialRequirements(
 						requirementId, sqlMap);
-				Map<String, Attribute<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(
+				Map<String, AttributeExt<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(
 						entityId, "/", null, sqlMap);
 				if (!newCredReqs.areAllCredentialsValid(attributes))
 					throw new IllegalCredentialException("Some of the credentials won't " +
@@ -377,6 +378,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void setEntityCredential(EntityParam entity, String credentialId,
 			String rawCredential) throws EngineException
@@ -387,7 +389,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
 			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.credentialModify);
-			Map<String, Attribute<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(
+			Map<String, AttributeExt<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(
 					entityId, "/", null, sqlMap);
 			
 			Attribute<?> credReqA = attributes.get(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS);
@@ -405,7 +407,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			String newCred = handler.prepareCredential(rawCredential, currentCredential);
 			StringAttribute newCredentialA = new StringAttribute(credentialAttributeName, 
 					"/", AttributeVisibility.local, Collections.singletonList(newCred));
-			attributes.put(credentialAttributeName, newCredentialA);
+			attributes.put(credentialAttributeName, new AttributeExt(newCredentialA, true));
 			
 			dbAttributes.addAttribute(entityId, newCredentialA, true, sqlMap);
 
@@ -429,7 +431,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	
 	private CredentialInfo getCredentialInfo(long entityId, SqlSession sqlMap)
 	{
-		Map<String, Attribute<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(entityId, "/", null, sqlMap);
+		Map<String, AttributeExt<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(entityId, "/", null, sqlMap);
 		
 		Attribute<?> credReqA = attributes.get(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS);
 		if (credReqA == null)

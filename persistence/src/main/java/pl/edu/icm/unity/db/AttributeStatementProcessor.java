@@ -22,6 +22,7 @@ import pl.edu.icm.unity.db.resolvers.AttributesResolver;
 import pl.edu.icm.unity.db.resolvers.GroupResolver;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatementCondition;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -75,15 +76,15 @@ public class AttributeStatementProcessor
 	 * @param gMapper
 	 * @return collected attributes in a map form. Map keys are attribute names.
 	 */
-	public Map<String, Attribute<?>> getEffectiveAttributes(long entityId, String group, String attribute, 
-			Set<String> allGroups, Map<String, Map<String, Attribute<?>>> directAttributesByGroup,
+	public Map<String, AttributeExt<?>> getEffectiveAttributes(long entityId, String group, String attribute, 
+			Set<String> allGroups, Map<String, Map<String, AttributeExt<?>>> directAttributesByGroup,
 			AttributesMapper atMapper, GroupsMapper gMapper)
 	{
-		Map<String, Map<String, Attribute<?>>> downwardsAttributes = new HashMap<String, Map<String,Attribute<?>>>();
+		Map<String, Map<String, AttributeExt<?>>> downwardsAttributes = new HashMap<String, Map<String,AttributeExt<?>>>();
 		collectUpOrDownAttributes(CollectionMode.downwards, group, attribute, downwardsAttributes, 
 				directAttributesByGroup, allGroups, atMapper, gMapper);
 
-		Map<String, Map<String, Attribute<?>>> upwardsAttributes = new HashMap<String, Map<String,Attribute<?>>>();
+		Map<String, Map<String, AttributeExt<?>>> upwardsAttributes = new HashMap<String, Map<String,AttributeExt<?>>>();
 		collectUpOrDownAttributes(CollectionMode.upwards, group, attribute, upwardsAttributes, 
 				directAttributesByGroup, allGroups, atMapper, gMapper);
 
@@ -128,8 +129,8 @@ public class AttributeStatementProcessor
 	 * @param gMapper
 	 */
 	private void collectUpOrDownAttributes(CollectionMode mode, String groupPath, String attribute,
-			Map<String, Map<String, Attribute<?>>> upOrDownAttributes, 
-			Map<String, Map<String, Attribute<?>>> allAttributesByGroup,
+			Map<String, Map<String, AttributeExt<?>>> upOrDownAttributes, 
+			Map<String, Map<String, AttributeExt<?>>> allAttributesByGroup,
 			Set<String> allGroups, AttributesMapper mapper, GroupsMapper gMapper)
 	{
 		AttributeStatement[] statements = getGroupStatements(groupPath, mapper, gMapper);
@@ -150,7 +151,7 @@ public class AttributeStatementProcessor
 					allGroups, mapper, gMapper);
 		}
 		
-		Map<String, Attribute<?>> ret = (mode == CollectionMode.downwards) ? 
+		Map<String, AttributeExt<?>> ret = (mode == CollectionMode.downwards) ? 
 				processAttributeStatements(mode, allAttributesByGroup, null, upOrDownAttributes, 
 						groupPath, null, statements, allGroups, mapper) 
 				:
@@ -179,23 +180,23 @@ public class AttributeStatementProcessor
 		return false;
 	}
 	
-	private Map<String, Attribute<?>> processAttributeStatements(
+	private Map<String, AttributeExt<?>> processAttributeStatements(
 			CollectionMode mode,
-			Map<String, Map<String, Attribute<?>>> allAttributesByGroup,
-			Map<String, Map<String, Attribute<?>>> upwardsAttributesByGroup,
-			Map<String, Map<String, Attribute<?>>> downwardsAttributesByGroup,
+			Map<String, Map<String, AttributeExt<?>>> allAttributesByGroup,
+			Map<String, Map<String, AttributeExt<?>>> upwardsAttributesByGroup,
+			Map<String, Map<String, AttributeExt<?>>> downwardsAttributesByGroup,
 			String group, String attribute, AttributeStatement[] statements, 
 			Set<String> allGroups, AttributesMapper mapper)
 	{
-		Map<String, Attribute<?>> collectedAttributes = new HashMap<String, Attribute<?>>();
-		Map<String, Attribute<?>> attributesInGroup = allAttributesByGroup.get(group);
+		Map<String, AttributeExt<?>> collectedAttributes = new HashMap<String, AttributeExt<?>>();
+		Map<String, AttributeExt<?>> attributesInGroup = allAttributesByGroup.get(group);
 		if (attributesInGroup != null)
 		{
 			if (attribute == null)
 				collectedAttributes.putAll(attributesInGroup);
 			else
 			{
-				Attribute<?> at = attributesInGroup.get(attribute);
+				AttributeExt<?> at = attributesInGroup.get(attribute);
 				if (at != null)
 					collectedAttributes.put(attribute, at);
 			}
@@ -220,9 +221,9 @@ public class AttributeStatementProcessor
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void processAttributeStatement(CollectionMode mode, AttributeStatement statement, String attribute, 
-			Map<String, Attribute<?>> collectedAttributes, 
-			Map<String, Map<String, Attribute<?>>> upwardsAttributesByGroup,
-			Map<String, Map<String, Attribute<?>>> downwardsAttributesByGroup,
+			Map<String, AttributeExt<?>> collectedAttributes, 
+			Map<String, Map<String, AttributeExt<?>>> upwardsAttributesByGroup,
+			Map<String, Map<String, AttributeExt<?>>> downwardsAttributesByGroup,
 			Set<String> allGroups, AttributesMapper mapper)
 	{
 		if (!isForInterestingAttribute(attribute, statement))
@@ -241,28 +242,28 @@ public class AttributeStatementProcessor
 			case skip:
 				return;
 			case overwrite:
-				collectedAttributes.put(ret.getName(), ret);
+				collectedAttributes.put(ret.getName(), new AttributeExt(ret, false));
 				return;
 			case merge:
 				AttributeTypeBean atb = attrResolver.resolveAttributeType(ret.getName(), mapper);
 				AttributeType at = attrResolver.resolveAttributeTypeBean(atb);
 				if (at.getMaxElements() == Integer.MAX_VALUE)
 				{
-					Attribute<?> existing = collectedAttributes.get(ret.getName());
+					AttributeExt<?> existing = collectedAttributes.get(ret.getName());
 					((List)existing.getValues()).addAll(ret.getValues());
 				}
 				return;
 			}
 		} else
 		{
-			collectedAttributes.put(ret.getName(), ret);
+			collectedAttributes.put(ret.getName(), new AttributeExt(ret, false));
 		}
 	}
 	
 	
 	private boolean evaluateCondition(CollectionMode mode, AttributeStatementCondition condition, 
-			Map<String, Map<String, Attribute<?>>> upwardsAttributesByGroup,
-			Map<String, Map<String, Attribute<?>>> downwardsAttributesByGroup,
+			Map<String, Map<String, AttributeExt<?>>> upwardsAttributesByGroup,
+			Map<String, Map<String, AttributeExt<?>>> downwardsAttributesByGroup,
 			Set<String> allGroups)
 	{
 		Type type = condition.getType();
@@ -300,19 +301,19 @@ public class AttributeStatementProcessor
 	}
 	
 	private boolean hasAttributeInGroup(String group, String attribute, 
-			Map<String, Map<String, Attribute<?>>> allAttributesByGroup)
+			Map<String, Map<String, AttributeExt<?>>> allAttributesByGroup)
 	{
-		Map<String, Attribute<?>> attributesInGroup = allAttributesByGroup.get(group);
+		Map<String, AttributeExt<?>> attributesInGroup = allAttributesByGroup.get(group);
 		return attributesInGroup != null && attributesInGroup.containsKey(attribute);
 	}
 
 	private boolean hasAttributeAndValInGroup(Attribute<?> attributeToSearch, 
-			Map<String, Map<String, Attribute<?>>> allAttributesByGroup)
+			Map<String, Map<String, AttributeExt<?>>> allAttributesByGroup)
 	{
-		Map<String, Attribute<?>> attributesInGroup = allAttributesByGroup.get(attributeToSearch.getGroupPath());
+		Map<String, AttributeExt<?>> attributesInGroup = allAttributesByGroup.get(attributeToSearch.getGroupPath());
 		if (attributesInGroup == null)
 			return false;
-		Attribute<?> attribute = attributesInGroup.get(attributeToSearch.getName());
+		AttributeExt<?> attribute = attributesInGroup.get(attributeToSearch.getName());
 		if (attribute == null)
 			return false;
 		@SuppressWarnings("unchecked")

@@ -4,8 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.TreeMap;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
@@ -38,8 +37,9 @@ public class EnumComboBox<T extends Enum<?>> extends MapComboBox<T>
 	{
 		this.msg = msg;
 		this.msgPrefix = msgPrefix;
-		Map<String, T> values = new HashMap<String, T>();
+		TreeMap<String, T> values = new TreeMap<String, T>();
 		T[] consts = enumClass.getEnumConstants();
+		
 		for (T constant: consts)
 			values.put(msg.getMessage(msgPrefix+constant.toString()), constant);
 		super.init(values, msg.getMessage(msgPrefix+initialValue.toString()));

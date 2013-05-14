@@ -18,6 +18,14 @@
 	text-shadow: #fff 0 -1px 1px;
 }
 
+.u-italic {
+	font-style: italic;
+}
+
+.u-gray {
+	color: gray;
+}
+
 .u-error {
 	color: red;
 }

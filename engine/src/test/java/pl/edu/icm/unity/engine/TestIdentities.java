@@ -23,6 +23,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -83,7 +84,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi, dc=ddd, ou=org unit,C=pl", true, true);
 		Identity added = idsMan.addIdentity(idParam, "crMock", LocalAuthenticationState.outdated, true);
 		
-		Collection<Attribute<?>> attributes = attrsMan.getAttributes(new EntityParam(added), "/", null);
+		Collection<AttributeExt<?>> attributes = attrsMan.getAttributes(new EntityParam(added), "/", null);
 		assertEquals(1, attributes.size());
 		Attribute<?> cnAttr = getAttributeByName(attributes, "cn");
 		assertEquals(cnAttr.getValues().get(0), "golbi");

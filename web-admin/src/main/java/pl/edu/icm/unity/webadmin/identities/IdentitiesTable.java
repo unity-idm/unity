@@ -26,6 +26,7 @@ import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -334,7 +335,7 @@ public class IdentitiesTable extends TreeTable
 	private void resolveEntity(String entity) throws EngineException
 	{
 		Entity resolvedEntity = identitiesMan.getEntity(new EntityParam(entity));
-		Collection<Attribute<?>> rawAttrs = attrMan.getAllAttributes(new EntityParam(entity), "/", null);
+		Collection<AttributeExt<?>> rawAttrs = attrMan.getAllAttributes(new EntityParam(entity), true, "/", null);
 		Map<String, Attribute<?>> attrs = new HashMap<String, Attribute<?>>(rawAttrs.size());
 		for (Attribute<?> a: rawAttrs)
 			attrs.put(a.getName(), a);
