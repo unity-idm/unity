@@ -34,10 +34,11 @@
 		<module>core</module>
 		<module>engine</module>
 		<module>persistence</module>
+		<module>std-extensions</module>
 		<module>web-common</module>
 		<module>web-admin</module>
 		<module>ws</module>
-		<module>std-extensions</module>
+		<module>saml-idp</module>
 		<module>distribution</module>
 	</modules>
 
