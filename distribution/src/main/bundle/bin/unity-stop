@@ -1,0 +1,32 @@
+#!/bin/bash
+
+
+#
+# stops UNITY server
+#
+
+source "`dirname $0`"/_setenv.sh
+
+if [ -e LAST_PID ]
+then
+	kill -15 `cat LAST_PID`
+else
+	echo "No LAST_PID file. It seems that server is not running."
+	exit
+fi
+
+P=`cat LAST_PID`
+echo "Waiting for server to stop..."
+stopped="no"
+until [ "$stopped" = "" ]; do
+  stopped=$(ps -p $P | grep $P)
+  if [ $? != 0 ]
+  then
+    stopped=""
+  fi
+  sleep 1
+done
+
+echo "Server stopped."
+
+rm -f LAST_PID

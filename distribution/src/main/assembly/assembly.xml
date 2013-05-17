@@ -1,0 +1,41 @@
+<assembly>
+	<id>dist</id>
+	<formats>
+		<format>tar.gz</format>
+	</formats>
+
+	<fileSets>
+		<fileSet>
+			<includes>
+				<include>README*</include>
+				<include>LICENSE*</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/bundle/conf</directory>
+			<outputDirectory>/conf</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/bundle/data</directory>
+			<outputDirectory>/data</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/bundle/logs</directory>
+			<outputDirectory>/logs</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/bundle/bin</directory>
+			<outputDirectory>/bin</outputDirectory>
+			<fileMode>0744</fileMode>
+			<directoryMode>0755</directoryMode>
+		</fileSet>
+	</fileSets>
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>lib</outputDirectory>
+			<directoryMode>0755</directoryMode>
+			<unpack>false</unpack>
+			<scope>runtime</scope>
+		</dependencySet>
+	</dependencySets>
+</assembly>

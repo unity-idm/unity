@@ -173,7 +173,7 @@ public class EngineInitialization extends LifecycleBase
 	
 	private void initializeIdentityTypes()
 	{
-		log.info("Checking of all identity types are defined");
+		log.info("Checking if all identity types are defined");
 		Collection<IdentityTypeDefinition> idTypes = idTypesReg.getAll();
 		SqlSession sql = db.getSqlSession(true);
 		try

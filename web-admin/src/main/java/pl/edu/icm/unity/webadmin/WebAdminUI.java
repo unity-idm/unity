@@ -43,7 +43,6 @@ import com.vaadin.ui.VerticalLayout;
 /**
  * The main entry point of the web administration UI.
  * 
- * TODO - currently only a mess
  * @author K. Benedyczak
  */
 @Component("WebAdminUI")
@@ -102,20 +101,11 @@ public class WebAdminUI extends UI implements UnityWebUI
 		contents.setSizeFull();
 		setContent(contents);
 		
-
-		try
-		{
-			List<AttributeType> atList = testAttrMan.getAttributeTypes();
-			EventsBus bus = WebSession.getCurrent().getEventBus();
-			bus.fireEvent(new AttributeTypesUpdatedEvent(atList));
-			bus.fireEvent(new RefreshEvent());
-		} catch (EngineException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		tmpRefreshTypes();
 	}
 
+	
+	//TODO remove below this line
 	private void tmpInitContents()
 	{
 		try
@@ -152,10 +142,21 @@ public class WebAdminUI extends UI implements UnityWebUI
 			testIdMan.addIdentity(toAdd, "Password requirement", LocalAuthenticationState.outdated, false);
 		} catch (Exception e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 			return;
 		} 
 	}
 	
+	private void tmpRefreshTypes()
+	{
+		try
+		{
+			List<AttributeType> atList = testAttrMan.getAttributeTypes();
+			EventsBus bus = WebSession.getCurrent().getEventBus();
+			bus.fireEvent(new AttributeTypesUpdatedEvent(atList));
+			bus.fireEvent(new RefreshEvent());
+		} catch (EngineException e)
+		{
+			e.printStackTrace();
+		}
+	}
 }

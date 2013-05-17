@@ -85,7 +85,6 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	@Override
 	public ServletContextHandler getServletContextHandler()
 	{
-Thread.dumpStack();		
 	 	ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath(description.getContextAddress());
 		
