@@ -139,9 +139,9 @@ public class InternalEndpointManagement
 
 			EndpointInstance instance = factory.newInstance();
 			List<Map<String, BindingAuthn>> authenticators = getAuthenticators(description.getAuthenticatorSets(), sql);
-			instance.initialize(id, description.getContextAddress(), description.getDescription(), 
-					description.getAuthenticatorSets(), authenticators);
-			instance.setSerializedConfiguration(state);
+			instance.initialize(id, httpServer.getUrls()[0],
+					description.getContextAddress(), description.getDescription(), 
+					description.getAuthenticatorSets(), authenticators, state);
 			return instance;
 		} catch (JsonProcessingException e)
 		{

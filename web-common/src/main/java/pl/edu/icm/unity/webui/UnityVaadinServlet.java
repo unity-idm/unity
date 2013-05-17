@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -131,6 +132,11 @@ public class UnityVaadinServlet extends VaadinServlet
 				VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, uiBeanName,
 						description, authenticators);
 				event.getSession().addUIProvider(uiProv);
+				DeploymentConfiguration depCfg = event.getService().getDeploymentConfiguration();
+				Properties properties = depCfg.getInitParameters();
+				String timeout = properties.getProperty(VaadinEndpoint.SESSION_TIMEOUT_PARAM);
+				if (timeout != null)
+					event.getSession().getSession().setMaxInactiveInterval(Integer.parseInt(timeout));
 			}
 		});
 

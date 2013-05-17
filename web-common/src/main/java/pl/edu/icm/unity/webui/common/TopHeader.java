@@ -24,19 +24,11 @@ import com.vaadin.ui.themes.Reindeer;
  * Top bar with header. Allows to logout.
  * @author K. Benedyczak
  */
-public class MainHeader extends HorizontalLayout
+public class TopHeader extends TopHeaderLight
 {
-	public MainHeader(String title, UnityMessageSource msg)
+	public TopHeader(String title, UnityMessageSource msg)
 	{
-		setStyleName(Styles.header.toString());
-		setMargin(true);
-		setWidth(100, Unit.PERCENTAGE);
-		setHeight(80, Unit.PIXELS);
-		
-		Label titleL = new Label(title);
-		titleL.setStyleName(Reindeer.LABEL_H1);
-		addComponent(titleL);
-		setComponentAlignment(titleL, Alignment.TOP_LEFT);
+		super(title, msg);
 		
 		HorizontalLayout loggedPanel = new HorizontalLayout();
 		loggedPanel.setSizeUndefined();

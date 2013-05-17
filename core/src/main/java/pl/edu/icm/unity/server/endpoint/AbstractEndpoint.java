@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.server.endpoint;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ public abstract class AbstractEndpoint implements EndpointInstance
 {
 	protected EndpointDescription description;
 	protected List<Map<String, BindingAuthn>> authenticators;
+	protected URL baseUrl;
 	
 	public AbstractEndpoint(EndpointTypeDescription type)
 	{
@@ -27,16 +29,21 @@ public abstract class AbstractEndpoint implements EndpointInstance
 	}
 	
 	@Override
-	public void initialize(String id, String contextAddress, String description, 
-			List<AuthenticatorSet> authenticatorsInfo, List<Map<String, BindingAuthn>> authenticators)
+	public void initialize(String id, URL baseUrl, String contextAddress, String description, 
+			List<AuthenticatorSet> authenticatorsInfo, List<Map<String, BindingAuthn>> authenticators,
+			String serializedConfiguration)
 	{
 		this.description.setId(id);
 		this.description.setDescription(description);
 		this.description.setContextAddress(contextAddress);
 		this.description.setAuthenticatorSets(authenticatorsInfo);
 		this.authenticators = authenticators;
+		this.baseUrl = baseUrl;
+		setSerializedConfiguration(serializedConfiguration);
 	}
 
+	protected abstract void setSerializedConfiguration(String serializedState);
+	
 	@Override
 	public EndpointDescription getEndpointDescription()
 	{
@@ -46,5 +53,13 @@ public abstract class AbstractEndpoint implements EndpointInstance
 	@Override
 	public void destroy()
 	{
+	}
+	
+	/**
+	 * @return the URL where the server listens to. It has no path element.
+	 */
+	public URL getBaseUrl()
+	{
+		return baseUrl;
 	}
 }

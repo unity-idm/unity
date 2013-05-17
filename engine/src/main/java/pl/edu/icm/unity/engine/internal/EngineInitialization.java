@@ -106,6 +106,8 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private AttributeStatementsCleaner attributeStatementsCleaner;
 	
+	private long endpointsLoadTime;
+	
 	@Override
 	public void start()
 	{
@@ -137,6 +139,7 @@ public class EngineInitialization extends LifecycleBase
 				}
 			}
 		};
+		updater.setLastUpdate(endpointsLoadTime);
 		executors.getService().scheduleWithFixedDelay(endpointsUpdater, 120, 60, TimeUnit.SECONDS);
 
 		Runnable attributeStatementsUpdater = new Runnable()
@@ -330,6 +333,7 @@ public class EngineInitialization extends LifecycleBase
 			log.fatal("Can't list loaded endpoints", e);
 			throw new RuntimeEngineException("Can't list loaded endpoints", e);
 		}
+		endpointsLoadTime = System.currentTimeMillis();
 	}
 	
 	private void loadEndpointsFromConfiguration() throws IOException, EngineException

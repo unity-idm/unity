@@ -174,7 +174,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		enabledLocales = loadEnabledLocales();
 		defaultLocale = safeLocaleDecode(getValue(DEFAULT_LOCALE));
 		if (!isLocaleSupported(defaultLocale))
-			throw new ConfigurationException("The default locale is not amoung enabled ones.");
+			throw new ConfigurationException("The default locale is not among enabled ones.");
 	}
 	
 	private static String getConfigurationFile(Environment env, ConfigurationLocationProvider locProvider)

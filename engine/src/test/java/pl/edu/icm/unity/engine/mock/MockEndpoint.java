@@ -24,7 +24,7 @@ public class MockEndpoint extends AbstractEndpoint implements WebAppEndpointInst
 	}
 
 	@Override
-	public void setSerializedConfiguration(String json)
+	protected void setSerializedConfiguration(String json)
 	{
 	}
 

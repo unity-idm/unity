@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.server.endpoint;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,6 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
  * Lifecycle:
  * <ol>
  *  <li>initialize (once)
- *  <li>setSerializedConfiguration (once)
  *  
  *  <li>operation.... 
  *  
@@ -28,17 +28,23 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
  * 
  * @author K. Benedyczak
  */
-public interface EndpointInstance extends JsonSerializable
+public interface EndpointInstance
 {
 	/**
 	 * @param authenticatorsInfo generic info about authenticators set with their ids and groupings
 	 * @param authenticators actual authenticators. the list has entries corresponding to the first argument.
 	 * the map holds mappings of each authenticator name to its implementation
 	 */
-	public void initialize(String id, String contextAddress, String description, 
-			List<AuthenticatorSet> authenticatorsInfo, List<Map<String, BindingAuthn>> authenticators);
+	public void initialize(String id, URL baseAddress, String contextAddress, String description, 
+			List<AuthenticatorSet> authenticatorsInfo, List<Map<String, BindingAuthn>> authenticators,
+			String serializedConfiguration);
 
 	public EndpointDescription getEndpointDescription();
 		
+	/**
+	 * @return serialized representation of the endpoint configuration/state
+	 */
+	public String getSerializedConfiguration();
+
 	public void destroy();
 }

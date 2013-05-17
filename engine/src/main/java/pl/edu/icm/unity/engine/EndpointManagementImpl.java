@@ -106,7 +106,8 @@ public class EndpointManagementImpl implements EndpointManagement
 		try
 		{
 			List<Map<String, BindingAuthn>> authenticators = internalManagement.getAuthenticators(authenticatorsInfo, sql);
-			instance.initialize(endpointName, address, description, authenticatorsInfo, authenticators);
+			instance.initialize(endpointName, httpServer.getUrls()[0], 
+					address, description, authenticatorsInfo, authenticators, jsonConfiguration);
 
 			byte[] contents = internalManagement.serializeEndpoint(instance); 
 			dbGeneric.addObject(endpointName, InternalEndpointManagement.ENDPOINT_OBJECT_TYPE, 
@@ -222,9 +223,9 @@ public class EndpointManagementImpl implements EndpointManagement
 				authenticators = internalManagement.getAuthenticators(newAuthn, sql);
 			}
 
-			newInstance.initialize(id, instance.getEndpointDescription().getContextAddress(), 
-					newDesc, newAuthn, authenticators);
-			newInstance.setSerializedConfiguration(jsonConf);
+			newInstance.initialize(id, httpServer.getUrls()[0], 
+					instance.getEndpointDescription().getContextAddress(), 
+					newDesc, newAuthn, authenticators, jsonConf);
 			
 			byte[] contents = internalManagement.serializeEndpoint(newInstance);
 			dbGeneric.updateObject(inDb.getName(), InternalEndpointManagement.ENDPOINT_OBJECT_TYPE, 

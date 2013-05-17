@@ -32,7 +32,7 @@ import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.bus.RefreshEvent;
-import pl.edu.icm.unity.webui.common.MainHeader;
+import pl.edu.icm.unity.webui.common.TopHeader;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
@@ -86,7 +86,7 @@ public class WebAdminUI extends UI implements UnityWebUI
 		tmpInitContents();
 
 		VerticalLayout contents = new VerticalLayout();
-		MainHeader header = new MainHeader(endpointDescription.getId(), msg);
+		TopHeader header = new TopHeader(endpointDescription.getId(), msg);
 		contents.addComponent(header);
 
 		

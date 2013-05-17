@@ -4,7 +4,11 @@
  */
 package pl.edu.icm.unity.webui;
 
+import java.io.ByteArrayInputStream;
+import java.io.CharArrayWriter;
+import java.io.IOException;
 import java.util.EnumSet;
+import java.util.Properties;
 
 import javax.servlet.DispatcherType;
 
@@ -12,6 +16,10 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
+
+import com.vaadin.server.VaadinServlet;
+
+import eu.unicore.util.configuration.ConfigurationException;
 
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
@@ -30,9 +38,12 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 {
 	public static final String AUTHENTICATION_PATH = "/authentication";
 	public static final String VAADIN_RESOURCES = "/VAADIN/*";
-	private ApplicationContext applicationContext;
-	private String uiBeanName;
-	private String servletPath;
+	public static final String SESSION_TIMEOUT_PARAM = "session-timeout";
+	protected ApplicationContext applicationContext;
+	protected String uiBeanName;
+	protected String servletPath;
+	protected Properties properties;
+	protected VaadinEndpointProperties genericEndpointProperties;
 
 	public VaadinEndpoint(EndpointTypeDescription type, ApplicationContext applicationContext,
 			String uiBeanName, String servletPath)
@@ -46,35 +57,63 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	@Override
 	public String getSerializedConfiguration()
 	{
-		return "";
+		CharArrayWriter writer = new CharArrayWriter();
+		try
+		{
+			properties.store(writer, "");
+		} catch (IOException e)
+		{
+			throw new IllegalStateException("Can not serialize endpoint's configuration", e);
+		}
+		return writer.toString();
 	}
 
 	@Override
-	public void setSerializedConfiguration(String json)
+	public void setSerializedConfiguration(String cfg)
 	{
+		properties = new Properties();
+		try
+		{
+			properties.load(new ByteArrayInputStream(cfg.getBytes()));
+			genericEndpointProperties = new VaadinEndpointProperties(properties);
+		} catch (Exception e)
+		{
+			throw new ConfigurationException("Can't initialize the the generic IdP endpoint's configuration", e);
+		}
 	}
 
 	@Override
 	public ServletContextHandler getServletContextHandler()
 	{
-		
+Thread.dumpStack();		
 	 	ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath(description.getContextAddress());
 		
 		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
 				description.getContextAddress()+AUTHENTICATION_PATH);
 		context.addFilter(new FilterHolder(authnFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
-		
+
 		UnityVaadinServlet authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticators);
-		ServletHolder authnServletHolder = new ServletHolder(authenticationServlet); 
+		ServletHolder authnServletHolder = createServletHolder(authenticationServlet);
+		authnServletHolder.setInitParameter("closeIdleSessions", "true");
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
 		UnityVaadinServlet theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
 				description, authenticators);
-		context.addServlet(new ServletHolder(theServlet), servletPath + "/*");
-		
+		context.addServlet(createServletHolder(theServlet), servletPath + "/*");
+
 		return context;
+	}
+	
+	protected ServletHolder createServletHolder(VaadinServlet servlet)
+	{
+		ServletHolder holder = new ServletHolder(servlet);
+		holder.setInitParameter("closeIdleSessions", "true");
+		int sessionTimeout = genericEndpointProperties.getIntValue(VaadinEndpointProperties.SESSION_TIMEOUT);
+		holder.setInitParameter("heartbeatInterval", String.valueOf(sessionTimeout/4));
+		holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(sessionTimeout));
+		return holder;
 	}
 }

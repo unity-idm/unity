@@ -18,12 +18,14 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.UnityWebUI;
+import pl.edu.icm.unity.webui.common.TopHeaderLight;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -81,29 +83,31 @@ public class AuthenticationUI extends UI implements UnityWebUI
 		Component all = buildAllSetsUI(components);
 		
 		VerticalLayout main = new VerticalLayout();
+		
 		main.addComponent(localeChoice);
 		main.setComponentAlignment(localeChoice, Alignment.TOP_LEFT);
+
+		Label vSpacer = new Label("");
+		//vSpacer.setHeight(10, Unit.PERCENTAGE);
+		main.addComponent(vSpacer);
+		main.setExpandRatio(vSpacer, 1.0f);
 		
-		VerticalLayout authenticationPanel = new VerticalLayout();
-		authenticationPanel.addComponent(all);
-		
-		main.addComponent(authenticationPanel);
-		main.setComponentAlignment(authenticationPanel, Alignment.MIDDLE_CENTER);
-		
-		VerticalLayout spacer = new VerticalLayout();
-		spacer.setHeight("100px");
-		main.addComponent(spacer);
-		
+		main.addComponent(all);
+		main.setComponentAlignment(all, Alignment.TOP_CENTER);
+		main.setExpandRatio(all, 5.0f);
 		main.setSpacing(true);
+		main.setMargin(true);
 		main.setSizeFull();
 
-		VerticalLayout centered = new VerticalLayout();
-		centered.addComponent(main);
-		centered.setComponentAlignment(main, Alignment.MIDDLE_CENTER);
-		centered.setSizeFull();
-		centered.setMargin(true);
+		VerticalLayout topLevel = new VerticalLayout();
+		TopHeaderLight header = new TopHeaderLight(msg.getMessage("AuthenticationUI.login",
+				description.getId()), msg);
+		topLevel.addComponents(header, main);
+		topLevel.setSizeFull();
+		topLevel.setExpandRatio(main, 1.0f);
+		
+		setContent(topLevel);
 		setSizeFull();
-		setContent(centered);
 	}
 	
 	private Component buildAllSetsUI(final Component... setComponents)

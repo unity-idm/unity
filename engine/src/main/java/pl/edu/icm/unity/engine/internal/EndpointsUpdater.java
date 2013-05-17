@@ -56,6 +56,11 @@ public class EndpointsUpdater
 		}
 	}
 
+	public void setLastUpdate(long lastUpdate)
+	{
+		this.lastUpdate = lastUpdate;
+	}
+
 	private void updateEndpointsInt() throws EngineException
 	{
 		List<WebAppEndpointInstance> deployedEndpoints = httpServer.getDeployedEndpoints();
