@@ -48,7 +48,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String CONFIGURATION_FILE = "conf/unityServer.conf";
 
 	public static final String BASE_PREFIX = "unityServer.";
-	
+
 	@DocumentationReferencePrefix
 	public static final String P = BASE_PREFIX + "core.";
 	
@@ -77,6 +77,11 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String CREDENTIAL_TYPE = "credentialType";
 	public static final String CREDENTIAL_DESCRIPTION = "credentialDescription";
 	public static final String CREDENTIAL_CONFIGURATION = "credentialConfigurationFile";
+
+	public static final String CREDENTIAL_REQS = "credentialRequirements.";
+	public static final String CREDENTIAL_REQ_NAME = "credentialReqName";
+	public static final String CREDENTIAL_REQ_DESCRIPTION = "credentialReqDescription";
+	public static final String CREDENTIAL_REQ_CONTENTS = "credentialReqContents";
 	
 	public static final String INITIAL_ADMIN_USER = "initialAdminUsername";
 	public static final String INITIAL_ADMIN_PASSWORD = "initialAdminPassword";
@@ -141,6 +146,15 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("Credential description"));
 		defaults.put(CREDENTIAL_CONFIGURATION, new PropertyMD().setStructuredListEntry(CREDENTIALS).setMandatory().setCategory(mainCat).
 				setDescription("Credential configuration file"));
+
+		defaults.put(CREDENTIAL_REQS, new PropertyMD().setStructuredList(true).setCategory(mainCat).
+				setDescription("List of initially defined credential requirements"));
+		defaults.put(CREDENTIAL_REQ_NAME, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setMandatory().setCategory(mainCat).
+				setDescription("Credential requirement name"));
+		defaults.put(CREDENTIAL_REQ_DESCRIPTION, new PropertyMD("").setStructuredListEntry(CREDENTIAL_REQS).setCategory(mainCat).
+				setDescription("Credential requirement description"));
+		defaults.put(CREDENTIAL_REQ_CONTENTS, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setList(false).setMandatory().setCategory(mainCat).
+				setDescription("Credential requirement contents, i.e. credentials that belongs to it"));
 
 		defaults.put(INITIAL_ADMIN_USER, new PropertyMD("admin").setCategory(mainCat).
 				setDescription("Username of the administrator to be installed to the empty database."));

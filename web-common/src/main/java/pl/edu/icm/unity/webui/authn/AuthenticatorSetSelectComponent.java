@@ -85,7 +85,7 @@ public class AuthenticatorSetSelectComponent extends VerticalLayout
 		{
 			String label = authenticators.get(setIterator.next()).getLabel();
 			sb.append(label);
-			sb.append(" ").append(msg.getMessage("and"));
+			sb.append(" ").append(msg.getMessage("and")).append(" ");
 		}
 		sb.append(authenticators.get(setIterator.next()).getLabel());
 		return sb.toString();

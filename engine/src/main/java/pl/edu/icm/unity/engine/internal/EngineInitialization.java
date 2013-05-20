@@ -166,6 +166,7 @@ public class EngineInitialization extends LifecycleBase
 		initializeAttributeTypes();
 		initializeAdminUser();
 		initializeCredentials();
+		initializeCredentialReqirements();
 		initializeAuthenticators();
 		initializeEndpoints();
 	}
@@ -450,6 +451,46 @@ public class EngineInitialization extends LifecycleBase
 			}
 		}
 	}
+
+	private void initializeCredentialReqirements()
+	{
+		try
+		{
+			loadCredentialRequirementsFromConfiguration();
+		} catch(Exception e)
+		{
+			log.fatal("Can't load configured credential requirements", e);
+			throw new RuntimeEngineException("Can't load configured credential requirements", e);
+		}
+	}
+
+	private void loadCredentialRequirementsFromConfiguration() throws IOException, EngineException
+	{
+		log.info("Loading all configured credential requirements");
+		Collection<CredentialRequirements> definitions = authnManagement.getCredentialRequirements();
+		Map<String, CredentialRequirements> existing = new HashMap<String, CredentialRequirements>();
+		for (CredentialRequirements cd: definitions)
+			existing.put(cd.getName(), cd);
+		
+		Set<String> credreqsList = config.getStructuredListKeys(UnityServerConfiguration.CREDENTIAL_REQS);
+		for (String credentialKey: credreqsList)
+		{
+			String name = config.getValue(credentialKey+UnityServerConfiguration.CREDENTIAL_REQ_NAME);
+			String description = config.getValue(credentialKey+UnityServerConfiguration.CREDENTIAL_REQ_DESCRIPTION);
+			List<String> elements = config.getListOfValues(credentialKey+UnityServerConfiguration.CREDENTIAL_REQ_CONTENTS);
+			Set<String> requiredCredentials = new HashSet<String>();
+			requiredCredentials.addAll(elements);
+			
+			CredentialRequirements cr = new CredentialRequirements(name, description, requiredCredentials);
+			
+			if (!existing.containsKey(name))
+			{
+				authnManagement.addCredentialRequirement(cr);
+				log.info(" - " + name + " " + elements.toString());
+			}
+		}
+	}
+
 }
 
 
