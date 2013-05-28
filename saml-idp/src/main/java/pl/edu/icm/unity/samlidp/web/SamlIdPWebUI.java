@@ -161,7 +161,8 @@ public class SamlIdPWebUI extends UI implements UnityWebUI
 			validIdentities = samlProcessor.getCompatibleIdentities(authenticatedEntity);
 		} catch (Exception e)
 		{
-			handleException(e);
+			//we kill the session as the user may want to log as different user if has access to several entities.
+			handleException(e, true);
 			return;
 		}
 		
@@ -219,7 +220,7 @@ public class SamlIdPWebUI extends UI implements UnityWebUI
 			public void buttonClick(ClickEvent event)
 			{
 				AuthenticationException ea = new AuthenticationException("Authentication was declined");
-				handleException(ea);
+				handleException(ea, false);
 			}
 		});
 		buttons.addComponents(confirmB, declineB);
@@ -240,21 +241,23 @@ public class SamlIdPWebUI extends UI implements UnityWebUI
 			respDoc = samlProcessor.processAuthnRequest(selectedIdentity);
 		} catch (Exception e)
 		{
-			handleException(e);
+			handleException(e, false);
 			return;
 		}
 		returnSamlResponse(respDoc);
 	}
 	
-	private void handleException(Exception e)
+	private void handleException(Exception e, boolean destroySession)
 	{
 		SAMLServerException convertedException = samlProcessor.convert2SAMLError(e, null, true);
 		ResponseDocument respDoc = samlProcessor.getErrorResponse(convertedException);
-		returnSamlErrorResponse(respDoc, convertedException);
+		returnSamlErrorResponse(respDoc, convertedException, destroySession);
 	}
 	
-	private void returnSamlErrorResponse(ResponseDocument respDoc, SAMLServerException error)
+	private void returnSamlErrorResponse(ResponseDocument respDoc, SAMLServerException error, boolean destroySession)
 	{
+		VaadinSession.getCurrent().setAttribute(SessionDisposal.class, 
+				new SessionDisposal(error, destroySession));
 		VaadinSession.getCurrent().setAttribute(SAMLServerException.class, error);
 		returnSamlResponse(respDoc);
 	}
@@ -275,28 +278,16 @@ public class SamlIdPWebUI extends UI implements UnityWebUI
 	 */
 	private class SendResponseRequestHandler implements RequestHandler
 	{
-		private ResponseDocument getResponse()
-		{
-			VaadinSession session = VaadinSession.getCurrent();
-			return session.getAttribute(ResponseDocument.class);
-		}
-
-		private SAMLServerException getError()
-		{
-			VaadinSession session = VaadinSession.getCurrent();
-			return session.getAttribute(SAMLServerException.class);
-		}
-
 		@Override
 		public boolean handleRequest(VaadinSession session, VaadinRequest request, VaadinResponse response)
 						throws IOException
 		{
-			ResponseDocument samlResponse = getResponse();
+			ResponseDocument samlResponse = session.getAttribute(ResponseDocument.class);
 			if (samlResponse == null)
 				return false;
 			String assertion = samlResponse.xmlText();
 			String encodedAssertion = Base64.encode(assertion.getBytes());
-			SAMLServerException error = getError();
+			SessionDisposal error = session.getAttribute(SessionDisposal.class);
 			
 			SAMLAuthnContext samlCtx = getContext();
 			String serviceUrl = samlCtx.getRequestDocument().getAuthnRequest().getAssertionConsumerServiceURL();
@@ -304,14 +295,38 @@ public class SamlIdPWebUI extends UI implements UnityWebUI
 			data.put("SAMLResponse", encodedAssertion);
 			data.put("samlService", serviceUrl);
 			if (error != null)
-				data.put("error", error.getMessage());
+				data.put("error", error.getE().getMessage());
 			if (samlCtx.getRelayState() != null)
 				data.put("RelayState", samlCtx.getRelayState());
 			
 			cleanContext();
+			if (error!= null && error.isDestroySession())
+				session.getSession().invalidate();
 			PrintWriter writer = response.getWriter();
 			freemarkerHandler.process("finishSaml.ftl", data, writer);
 			return true;
+		}
+	}
+	
+	private static class SessionDisposal
+	{
+		private SAMLServerException e;
+		private boolean destroySession;
+		
+		public SessionDisposal(SAMLServerException e, boolean destroySession)
+		{
+			this.e = e;
+			this.destroySession = destroySession;
+		}
+
+		protected SAMLServerException getE()
+		{
+			return e;
+		}
+
+		protected boolean isDestroySession()
+		{
+			return destroySession;
 		}
 	}
 }
