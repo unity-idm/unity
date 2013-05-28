@@ -6,10 +6,13 @@ package pl.edu.icm.unity.webui.authn;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import pl.edu.icm.unity.exceptions.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.webui.WebSession;
 
 import com.vaadin.server.VaadinSession;
@@ -20,12 +23,14 @@ import com.vaadin.ui.UI;
  * Handles results of authentication and if it is all right, redirects to the source application.
  * 
  * TODO - this is far from being complete: needs to support remote unresolved entities and
- * support no original URI and fragments.
+ * support fragments.
  * 
  * @author K. Benedyczak
  */
 public class AuthenticationProcessor
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationProcessor.class);
+	
 	public static void processResults(List<AuthenticationResult> results) throws AuthenticationException
 	{
 		Long entityId = null;
@@ -50,28 +55,33 @@ public class AuthenticationProcessor
 	}
 	
 	
-	private static void logged(AuthenticatedEntity authenticatedEntity)
+	private static void logged(AuthenticatedEntity authenticatedEntity) throws AuthenticationException
 	{
 		VaadinSession vss = VaadinSession.getCurrent();
 		if (vss == null)
-			throw new RuntimeException("BUG Can't get VaadinSession to store authenticated user's data.");
+		{
+			log.error("BUG: Can't get VaadinSession to store authenticated user's data.");
+			throw new AuthenticationException("AuthenticationProcessor.authnInternalError");
+		}
 		WrappedSession session = vss.getSession();
 		session.setAttribute(WebSession.USER_SESSION_KEY, authenticatedEntity);
 		UI ui = UI.getCurrent();
 		if (ui == null)
-			throw new RuntimeException("BUG Can't get UI to redirect the authenticated user.");
+		{
+			log.error("BUG Can't get UI to redirect the authenticated user.");
+			throw new AuthenticationException("AuthenticationProcessor.authnInternalError");
+		}
 		String origURL = getOriginalURL(session);
 		
 		ui.getPage().open(origURL, "");
 	}
 	
-	public static String getOriginalURL(WrappedSession session)
+	public static String getOriginalURL(WrappedSession session) throws AuthenticationException
 	{
 		String origURL = (String) session.getAttribute(AuthenticationFilter.ORIGINAL_ADDRESS);
 		//String origFragment = (String) session.getAttribute(AuthenticationApp.ORIGINAL_FRAGMENT);
 		if (origURL == null)
-			throw new RuntimeException("No original address - this is not implemented yet.");
-			//origURL = DEFAULT_PORTAL_PATH;
+			throw new AuthenticationException("AuthenticationProcessor.noOriginatingAddress");
 		//if (origFragment == null)
 		//	origFragment = "";
 		//else

@@ -18,10 +18,13 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.UnityWebUI;
+import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinSession;
+import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
@@ -108,6 +111,16 @@ public class AuthenticationUI extends UI implements UnityWebUI
 		
 		setContent(topLevel);
 		setSizeFull();
+
+		verifyIfOriginAvailable();
+	}
+	
+	private void verifyIfOriginAvailable()
+	{
+		WrappedSession session = VaadinSession.getCurrent().getSession();
+		String origURL = (String) session.getAttribute(AuthenticationFilter.ORIGINAL_ADDRESS);
+		if (origURL == null)
+			ErrorPopup.showError(msg.getMessage("AuthenticationProcessor.noOriginatingAddress"), "");
 	}
 	
 	private Component buildAllSetsUI(final Component... setComponents)

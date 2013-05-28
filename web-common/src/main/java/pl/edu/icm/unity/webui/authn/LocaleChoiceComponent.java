@@ -9,12 +9,15 @@ import java.util.Map;
 
 import javax.servlet.http.Cookie;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.exceptions.AuthenticationException;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.UnityVaadinServlet;
@@ -39,6 +42,7 @@ import com.vaadin.ui.FormLayout;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class LocaleChoiceComponent extends FormLayout
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, LocaleChoiceComponent.class);
 	private ComboBox chooser;
 	private Map<String, Locale> selectableLocales;
 	
@@ -80,7 +84,15 @@ public class LocaleChoiceComponent extends FormLayout
 					((VaadinServletResponse)VaadinService.getCurrentResponse()).addCookie(languageCookie);
 					
 					VaadinSession vSession = VaadinSession.getCurrent();
-					String originalURL = AuthenticationProcessor.getOriginalURL(vSession.getSession());
+					String originalURL;
+					try
+					{
+						originalURL = AuthenticationProcessor.getOriginalURL(vSession.getSession());
+					} catch (AuthenticationException e)
+					{
+						log.error("No original URL in language switch?", e);
+						return;
+					}
 					VaadinService.getCurrent().closeSession(vSession);
 					Page.getCurrent().setLocation(originalURL);
 				}

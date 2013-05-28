@@ -14,21 +14,19 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
+import pl.edu.icm.unity.webui.common.ErrorPopup;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.server.Page;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Notification.Type;
 
 /**
  * Displays authenticators set.
@@ -115,9 +113,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 				String error = msg.getMessage(e.getMessage());
 				if (usernameComp != null)
 					usernameComp.setError(error);
-				Notification loginError = new Notification(error, Type.ERROR_MESSAGE);
-				loginError.setDelayMsec(3000);
-				loginError.show(Page.getCurrent());
+				ErrorPopup.showError(error, "");
 			}
 		}
 	}
