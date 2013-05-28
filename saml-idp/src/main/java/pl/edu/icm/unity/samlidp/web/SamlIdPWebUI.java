@@ -6,6 +6,7 @@ package pl.edu.icm.unity.samlidp.web;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.UnityWebUI;
+import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
@@ -223,7 +225,20 @@ public class SamlIdPWebUI extends UI implements UnityWebUI
 				handleException(ea, false);
 			}
 		});
-		buttons.addComponents(confirmB, declineB);
+		Button reloginB = new Button(msg.getMessage("SamlIdPWebUI.logAsAnother"));
+		reloginB.addClickListener(new ClickListener()
+		{
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				WrappedSession ws = VaadinSession.getCurrent().getSession();
+				ws.removeAttribute(WebSession.USER_SESSION_KEY);
+				Page page = Page.getCurrent();
+				URI myUri = page.getLocation();
+				page.open(myUri.toASCIIString(), null);
+			}
+		});
+		buttons.addComponents(confirmB, declineB, reloginB);
 		buttons.setSpacing(true);
 		buttons.setMargin(true);
 		buttons.setSizeUndefined();
