@@ -16,6 +16,8 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypeEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesTable.AttributeTypeItem;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
@@ -45,7 +47,7 @@ public class AttributeTypesComponent extends Panel
 	private AttributeTypesTable table;
 	private AttributeTypeViewer viewer;
 	private com.vaadin.ui.Component main;
-	
+	private EventsBus bus;
 	
 	
 	@Autowired
@@ -55,7 +57,7 @@ public class AttributeTypesComponent extends Panel
 		this.msg = msg;
 		this.attrManagement = attrManagement;
 		this.attrHandlerRegistry = attrHandlerRegistry;
-		
+		this.bus = WebSession.getCurrent().getEventBus();
 		HorizontalLayout hl = new HorizontalLayout();
 		
 		setCaption(msg.getMessage("AttributeTypes.caption"));
@@ -98,6 +100,7 @@ public class AttributeTypesComponent extends Panel
 			List<AttributeType> types = attrManagement.getAttributeTypes();
 			table.setInput(types);
 			setContent(main);
+			bus.fireEvent(new AttributeTypesUpdatedEvent(types));
 		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent(e);

@@ -39,7 +39,7 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 	public static final String ID = "jpegImage";
 	private int maxWidth = Integer.MAX_VALUE;
 	private int maxHeight = Integer.MAX_VALUE;
-	private int maxSize = Integer.MAX_VALUE;
+	private int maxSize = 1024*1024;
 	
 	@Override
 	public String getSerializedConfiguration() throws InternalException
@@ -143,7 +143,7 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 	@Override
 	public byte[] serialize(BufferedImage value) throws InternalException
 	{
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(maxSize);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream(100000);
 		try
 		{
 			value = convertType(value);

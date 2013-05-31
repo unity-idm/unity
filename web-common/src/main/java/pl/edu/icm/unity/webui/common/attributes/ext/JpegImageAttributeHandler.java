@@ -36,13 +36,19 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 
 import com.vaadin.server.Resource;
 import com.vaadin.server.StreamResource;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.StreamResource.StreamSource;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Upload;
+import com.vaadin.ui.Upload.ProgressListener;
 import com.vaadin.ui.Upload.Receiver;
+import com.vaadin.ui.Upload.StartedEvent;
+import com.vaadin.ui.Upload.StartedListener;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.Upload.SucceededListener;
 import com.vaadin.ui.VerticalLayout;
@@ -85,7 +91,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		try
 		{
 			BufferedImage scaled = scaleIfNeeded(value, maxWidth, maxHeight);
-			SimpleImageSource source = new SimpleImageSource(scaled, syntax);
+			SimpleImageSource source = new SimpleImageSource(scaled, syntax, "jpg");
 			return source.getResource();
 		} catch (Exception e)
 		{
@@ -139,6 +145,8 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		private JpegImageAttributeSyntax syntax;
 		private Image field;
 		private Upload upload;
+		private ProgressIndicator progressIndicator;
+		private CheckBox scale;
 		private Label error;
 		
 		public JpegImageValueEditor(BufferedImage value, JpegImageAttributeSyntax syntax)
@@ -163,7 +171,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 				field = new Image();
 				try
 				{
-					SimpleImageSource source = new SimpleImageSource(value, syntax);
+					SimpleImageSource source = new SimpleImageSource(value, syntax, "jpg");
 					field.setSource(source.getResource());
 				} catch (Exception e)
 				{
@@ -177,7 +185,17 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			ImageUploader uploader = new ImageUploader(field, syntax); 
 			upload.setReceiver(uploader);
 			upload.addSucceededListener(uploader);
+			upload.addStartedListener(uploader);
+			upload.addProgressListener(uploader);
+			upload.setWidth(100, Unit.PERCENTAGE);
 			vl.addComponent(upload);
+			progressIndicator = new ProgressIndicator(0);
+			progressIndicator.setVisible(false);
+			progressIndicator.setPollingInterval(2000);
+			vl.addComponent(progressIndicator);
+			scale = new CheckBox(msg.getMessage("JpegAttributeHandler.scaleIfNeeded"));
+			scale.setValue(true);
+			vl.addComponent(scale);
 			setHints(vl, syntax);
 			return vl;
 		}
@@ -196,6 +214,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			} catch (IllegalAttributeValueException e)
 			{
 				error.setValue(e.getMessage());
+				field.setVisible(false);
 				throw e;
 			}
 			
@@ -203,7 +222,9 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			return value;
 		}
 		
-		private class ImageUploader implements Receiver, SucceededListener {
+		private class ImageUploader implements Receiver, SucceededListener, StartedListener,
+			ProgressListener
+		{
 			private Image image;
 			private LimitedByteArrayOuputStream fos;
 			private JpegImageAttributeSyntax syntax;
@@ -222,6 +243,9 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 
 			public void uploadSucceeded(SucceededEvent event) 
 			{
+				progressIndicator.setVisible(false);
+				upload.setEnabled(true);
+				
 				if (fos.isOverflow())
 				{
 					ErrorPopup.showError(msg.getMessage("JpegAttributeHandler.uploadFailed"),
@@ -233,12 +257,42 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 				{
 					image.setVisible(true);
 					value = syntax.deserialize(fos.toByteArray());
-					image.setSource(new SimpleImageSource(value, syntax).getResource());
+					if (scale.getValue())
+						value = scaleIfNeeded(value, syntax.getMaxWidth(), syntax.getMaxHeight());
+					image.setSource(new SimpleImageSource(value, syntax, "jpg").getResource());
 				} catch (Exception e)
 				{
 					ErrorPopup.showError(msg.getMessage("JpegAttributeHandler.uploadInvalid"),
 							"");
 					fos = null;
+				}
+			}
+
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public void uploadStarted(StartedEvent event)
+			{
+				upload.setEnabled(false);
+				image.setVisible(false);
+				long length = event.getContentLength();
+				if (length <= 0)
+					progressIndicator.setIndeterminate(true);
+				else
+					progressIndicator.setIndeterminate(false);
+				progressIndicator.setVisible(true);
+			}
+
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public void updateProgress(long readBytes, long contentLength)
+			{
+				if (contentLength > 0 && !progressIndicator.isIndeterminate())
+				{
+					progressIndicator.setValue((float)readBytes/contentLength);
 				}
 			}
 		};		
@@ -256,12 +310,14 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 	public class SimpleImageSource implements StreamSource
 	{
 		private static final long serialVersionUID = 1L;
-		private InputStream is;
+		private final InputStream is;
+		private final String extension;
 		
 		public SimpleImageSource(BufferedImage value, 
-				AttributeValueSyntax<BufferedImage> syntax)
+				AttributeValueSyntax<BufferedImage> syntax, String extension)
 		{
 			this.is = new ByteArrayInputStream(syntax.serialize(value));
+			this.extension = extension;
 		}
 		
 		public InputStream getStream()
@@ -271,7 +327,8 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		
 		public Resource getResource()
 		{
-			return new StreamResource(this, "imgattribute-"+r.nextLong()+r.nextLong());
+			return new StreamResource(this, "imgattribute-"+r.nextLong()+r.nextLong()
+					+"." + extension);
 		}
 	}
 	

@@ -22,7 +22,7 @@ public class LimitedByteArrayOuputStream extends OutputStream
 	public LimitedByteArrayOuputStream(int length)
 	{
 		this.length = length;
-		bos = new ByteArrayOutputStream(length);
+		bos = new ByteArrayOutputStream(length > 102400 ? 102400 : length);
 	}
 
 	@Override
