@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types;
 
+import pl.edu.icm.unity.exceptions.EngineException;
+
 /**
  * Several classes in the API must have default constructors.
  * Those classes implement this interface to offer a simple way to check if the 
@@ -14,7 +16,7 @@ package pl.edu.icm.unity.types;
 public interface InitializationValidator
 {
 	/**
-	 * Thorws unchecked exception if some of the fields are null or incomplete.
+	 * Throws exception if some of the fields are null or incomplete.
 	 */
-	public void validateInitialization();
+	public void validateInitialization() throws EngineException;
 }

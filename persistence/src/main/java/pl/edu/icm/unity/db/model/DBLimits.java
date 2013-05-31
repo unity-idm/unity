@@ -4,7 +4,8 @@
  */
 package pl.edu.icm.unity.db.model;
 
-import pl.edu.icm.unity.exceptions.IllegalArgumentException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+
 
 /**
  * DB has certain size limits on different objects. Those are available from this class.
@@ -32,15 +33,15 @@ public class DBLimits
 		this.contentsLimit = contentsLimit;
 	}
 	
-	public void checkNameLimit(String ofWhat)
+	public void checkNameLimit(String ofWhat) throws WrongArgumentException
 	{
 		if (ofWhat != null && ofWhat.length() > getNameLimit())
-			throw new IllegalArgumentException("Name length must not exceed " + 
+			throw new WrongArgumentException("Name length must not exceed " + 
 					getNameLimit() + " characters");
 
 	}
 	
-	public void checkContentsLimit(byte[] ofWhat)
+	public void checkContentsLimit(byte[] ofWhat) throws IllegalArgumentException
 	{
 		if (ofWhat != null && ofWhat.length > getContentsLimit())
 			throw new IllegalArgumentException("Contents must not exceed " + 

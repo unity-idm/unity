@@ -26,7 +26,8 @@ import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.engine.authn.AuthenticatorImpl;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
@@ -119,7 +120,7 @@ public class InternalEndpointManagement
 			return Constants.MAPPER.writeValueAsBytes(root);
 		} catch (JsonProcessingException e)
 		{
-			throw new RuntimeEngineException("Can't deserialize JSON endpoint state", e);
+			throw new InternalException("Can't deserialize JSON endpoint state", e);
 		}
 
 	}
@@ -145,14 +146,19 @@ public class InternalEndpointManagement
 			return instance;
 		} catch (JsonProcessingException e)
 		{
-			throw new RuntimeEngineException("Can't deserialize JSON endpoint state", e);
+			throw new InternalException("Can't deserialize JSON endpoint state", e);
 		} catch (IOException e)
 		{
-			throw new RuntimeEngineException("Can't deserialize JSON endpoint state", e);
+			throw new InternalException("Can't deserialize JSON endpoint state", e);
+		} catch (WrongArgumentException e)
+		{
+			throw new InternalException("Can't deserialize JSON endpoint state - some authenticator(s) " +
+					"used in the endpoint are not available", e);
 		}
 	}
 	
-	public List<Map<String, BindingAuthn>> getAuthenticators(List<AuthenticatorSet> authn, SqlSession sql)
+	public List<Map<String, BindingAuthn>> getAuthenticators(List<AuthenticatorSet> authn, SqlSession sql) 
+			throws WrongArgumentException
 	{
 		List<Map<String, BindingAuthn>> ret = new ArrayList<Map<String, BindingAuthn>>(authn.size());
 		for (AuthenticatorSet aSet: authn)

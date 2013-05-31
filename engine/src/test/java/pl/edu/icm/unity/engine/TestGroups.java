@@ -9,6 +9,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
@@ -41,7 +42,7 @@ public class TestGroups extends DBIntegrationTestBase
 		{
 			groupsMan.addGroup(tooBig);
 			fail("Managed to add a too big group");
-		} catch (pl.edu.icm.unity.exceptions.IllegalArgumentException e)
+		} catch (WrongArgumentException e)
 		{
 			//OK
 		}

@@ -4,7 +4,8 @@
  */
 package pl.edu.icm.unity.engine.mock;
 
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 
@@ -22,7 +23,7 @@ public class MockPasswordRetrieval implements CredentialRetrieval, MockBinding
 	public void setCredentialExchange(CredentialExchange e)
 	{
 		if (!(e instanceof MockExchange))
-			throw new RuntimeEngineException("Got unsupported exchange: " + 
+			throw new InternalException("Got unsupported exchange: " + 
 					e.getClass() + " while only MockExchange is supported");
 		this.exchange = (MockExchange) e;
 	}
@@ -39,7 +40,7 @@ public class MockPasswordRetrieval implements CredentialRetrieval, MockBinding
 	}
 
 	@Override
-	public Long authenticate()
+	public Long authenticate() throws EngineException
 	{
 		return exchange.checkPassword("CN=foo", "PPPbar");
 	}

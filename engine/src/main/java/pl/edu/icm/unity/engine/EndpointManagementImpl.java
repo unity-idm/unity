@@ -19,8 +19,9 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.internal.EndpointsUpdater;
 import pl.edu.icm.unity.engine.internal.InternalEndpointManagement;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
@@ -65,7 +66,7 @@ public class EndpointManagementImpl implements EndpointManagement
 
 
 	@Override
-	public List<EndpointTypeDescription> getEndpointTypes()
+	public List<EndpointTypeDescription> getEndpointTypes() throws AuthorizationException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
 		return endpointFactoriesReg.getDescriptions();
@@ -100,7 +101,7 @@ public class EndpointManagementImpl implements EndpointManagement
 			throw new IllegalArgumentException("Endpoint type " + typeId + " is unknown");
 		EndpointInstance instance = factory.newInstance();
 		if (!(instance instanceof WebAppEndpointInstance))
-			throw new RuntimeEngineException("Endpoint type " + typeId + " provides endpoint of " + 
+			throw new InternalException("Endpoint type " + typeId + " provides endpoint of " + 
 					instance.getClass() + " class, which is unsupported.");
 		SqlSession sql = db.getSqlSession(true);
 		try
@@ -126,7 +127,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	}
 	
 	@Override
-	public List<EndpointDescription> getEndpoints()
+	public List<EndpointDescription> getEndpoints() throws AuthorizationException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
 		List<WebAppEndpointInstance> endpoints = httpServer.getDeployedEndpoints();

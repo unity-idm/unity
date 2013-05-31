@@ -19,7 +19,9 @@ import pl.edu.icm.unity.db.model.DBLimits;
 import pl.edu.icm.unity.db.model.IdentityBean;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -58,7 +60,14 @@ public class DBIdentities
 		List<IdentityType> ret = new ArrayList<IdentityType>(identityTypeState.size());
 		for (BaseBean state: identityTypeState)
 		{
-			ret.add(idResolver.resolveIdentityType(state));
+			try
+			{
+				ret.add(idResolver.resolveIdentityType(state));
+			} catch (IllegalTypeException e)
+			{
+				throw new InternalException("Can't find implementation of the identity type " + 
+						state.getName(), e);
+			}
 		}
 		return ret;
 	}	
@@ -92,8 +101,12 @@ public class DBIdentities
 	 * @param entityId can be null if a new entity should be created
 	 * @param sqlMap
 	 * @return
+	 * @throws IllegalIdentityValueException 
+	 * @throws IllegalTypeException 
+	 * @throws IllegalArgumentException 
 	 */
-	public Identity insertIdentity(IdentityParam toAdd, Long entityId, SqlSession sqlMap)
+	public Identity insertIdentity(IdentityParam toAdd, Long entityId, SqlSession sqlMap) 
+			throws IllegalIdentityValueException, IllegalTypeException, WrongArgumentException
 	{
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
 		
@@ -102,7 +115,7 @@ public class DBIdentities
 			throw new IllegalIdentityValueException("The identity type is unknown");
 		BaseBean identityTypeB = mapper.getIdentityTypeByName(idTypeDef.getId());
 		if (identityTypeB == null)
-			throw new RuntimeEngineException("The identity type id is not stored in the database: " + 
+			throw new InternalException("The identity type id is not stored in the database: " + 
 					idTypeDef.getId());
 		idTypeDef.validate(toAdd.getValue());
 		String cmpVal = IdentitiesResolver.getComparableIdentityValue(toAdd, idTypeDef);
@@ -129,7 +142,8 @@ public class DBIdentities
 	}
 
 	
-	public Identity[] getIdentitiesForEntity(long entityId, SqlSession sqlMap)
+	public Identity[] getIdentitiesForEntity(long entityId, SqlSession sqlMap) 
+			throws IllegalTypeException
 	{
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
 		List<IdentityBean> rawRet = mapper.getIdentitiesByEntity(entityId);
@@ -139,7 +153,8 @@ public class DBIdentities
 		return identities;
 	}
 	
-	public void setIdentityStatus(IdentityTaV toChange, boolean status, SqlSession sqlMap)
+	public void setIdentityStatus(IdentityTaV toChange, boolean status, SqlSession sqlMap) 
+			throws IllegalIdentityValueException, IllegalTypeException
 	{
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
 		String cmpVal = idResolver.getComparableIdentityValue(toChange);
@@ -157,7 +172,7 @@ public class DBIdentities
 		mapper.updateIdentity(idBeanUpdated);
 	}
 	
-	public void removeIdentity(IdentityTaV toRemove, SqlSession sqlMap)
+	public void removeIdentity(IdentityTaV toRemove, SqlSession sqlMap) throws IllegalIdentityValueException, IllegalTypeException
 	{
 		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(toRemove.getTypeId());
 		if (idTypeDef == null)

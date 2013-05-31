@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.mock;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 
@@ -37,7 +38,7 @@ public class MockEndpoint extends AbstractEndpoint implements WebAppEndpointInst
 		return ret;
 	}
 	
-	public Long authenticate()
+	public Long authenticate() throws EngineException
 	{
 		MockBinding authenticator = (MockBinding)authenticators.get(0).values().iterator().next();
 		return authenticator.authenticate();

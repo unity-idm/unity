@@ -17,6 +17,7 @@ import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.ActivationListener;
+import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
@@ -30,7 +31,6 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 
@@ -43,21 +43,19 @@ import com.vaadin.ui.VerticalLayout;
 @org.springframework.stereotype.Component("AuthenticationUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityTheme")
-public class AuthenticationUI extends UI implements UnityWebUI
+public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 {
 	private static final long serialVersionUID = 1L;
 
 	private EndpointDescription description;
 	private List<Map<String, VaadinAuthentication>> authenticators;
 	private LocaleChoiceComponent localeChoice;
-	private UnityMessageSource msg;
 	
 	@Autowired
 	public AuthenticationUI(LocaleChoiceComponent localeChoice, UnityMessageSource msg)
 	{
-		super();
+		super(msg);
 		this.localeChoice = localeChoice;
-		this.msg = msg;
 	}
 
 	@Override
@@ -77,7 +75,7 @@ public class AuthenticationUI extends UI implements UnityWebUI
 	}
 	
 	@Override
-	protected void init(final VaadinRequest request)
+	protected void appInit(final VaadinRequest request)
 	{
 		Component[] components = new Component[authenticators.size()];
 		for (int i=0; i<components.length; i++)

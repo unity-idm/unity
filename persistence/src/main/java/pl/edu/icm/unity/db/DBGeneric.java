@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.mapper.GenericMapper;
 import pl.edu.icm.unity.db.model.DBLimits;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
-import pl.edu.icm.unity.exceptions.IllegalArgumentException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 
 
 /**
@@ -31,7 +31,8 @@ public class DBGeneric
 		this.limits = db.getDBLimits();
 	}
 
-	public long addObject(String name, String type, String subType, byte[] contents, SqlSession sqlMap)
+	public long addObject(String name, String type, String subType, byte[] contents, SqlSession sqlMap) 
+			throws WrongArgumentException
 	{
 		limits.checkNameLimit(name);
 		limits.checkNameLimit(subType);
@@ -59,6 +60,7 @@ public class DBGeneric
 	}
 
 	public void removeObject(String name, String type, SqlSession sqlMap)
+			throws IllegalArgumentException
 	{
 		GenericMapper mapper = sqlMap.getMapper(GenericMapper.class);
 		GenericObjectBean param = new GenericObjectBean(name, null, type);
@@ -73,7 +75,8 @@ public class DBGeneric
 	}
 	
 	
-	public void updateObject(String name, String type, byte[] contents, SqlSession sqlMap)
+	public void updateObject(String name, String type, byte[] contents, SqlSession sqlMap) 
+			throws WrongArgumentException
 	{
 		limits.checkNameLimit(name);
 		if (contents == null)
@@ -85,7 +88,8 @@ public class DBGeneric
 		mapper.updateByNameType(updated);
 	}
 	
-	private void checkExists(GenericObjectBean param, GenericMapper mapper, boolean shouldExist)
+	private void checkExists(GenericObjectBean param, GenericMapper mapper, boolean shouldExist) 
+			throws IllegalArgumentException
 	{
 		if (mapper.selectObjectByNameType(param) == null)
 		{

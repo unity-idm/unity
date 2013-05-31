@@ -33,6 +33,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
@@ -57,7 +58,6 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.samly2.exceptions.SAMLServerException;
@@ -72,7 +72,7 @@ import eu.unicore.samly2.exceptions.SAMLServerException;
 @Component("SamlIdPWebUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityTheme")
-public class SamlIdPWebUI extends UI implements UnityWebUI
+public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 {
 	private UnityMessageSource msg;
 	private EndpointDescription endpointDescription;
@@ -87,6 +87,7 @@ public class SamlIdPWebUI extends UI implements UnityWebUI
 	public SamlIdPWebUI(UnityMessageSource msg, IdentitiesManagement identitiesMan,
 			FreemarkerHandler freemarkerHandler)
 	{
+		super(msg);
 		this.msg = msg;
 		this.identitiesMan = identitiesMan;
 		this.freemarkerHandler = freemarkerHandler;
@@ -123,7 +124,7 @@ public class SamlIdPWebUI extends UI implements UnityWebUI
 	}
 	
 	@Override
-	protected void init(VaadinRequest request)
+	protected void appInit(VaadinRequest request)
 	{
 		SAMLAuthnContext samlCtx = getContext();
 		samlProcessor = new AuthnResponseProcessor(samlCtx, Calendar.getInstance());

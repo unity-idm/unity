@@ -16,6 +16,7 @@ import pl.edu.icm.unity.db.mapper.AttributesMapper;
 import pl.edu.icm.unity.db.model.AttributeBean;
 import pl.edu.icm.unity.db.model.AttributeTypeBean;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -44,7 +45,7 @@ public class AttributesResolver
 		this.typesRegistry = typesRegistry;
 	}
 
-	public AttributeType resolveAttributeTypeBean(AttributeTypeBean raw)
+	public AttributeType resolveAttributeTypeBean(AttributeTypeBean raw) throws IllegalTypeException
 	{
 		AttributeType at = new AttributeType();
 		at.setName(raw.getName());
@@ -56,7 +57,8 @@ public class AttributesResolver
 		return at;
 	}
 
-	public AttributeTypeBean resolveAttributeType(String attributeName, AttributesMapper mapper)
+	public AttributeTypeBean resolveAttributeType(String attributeName, AttributesMapper mapper) 
+			throws IllegalAttributeTypeException
 	{
 		AttributeTypeBean atBean = mapper.getAttributeType(attributeName);
 		if (atBean == null)
@@ -66,7 +68,7 @@ public class AttributesResolver
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Attribute<?> resolveAttributeBean(AttributeBean raw, String groupPath)
+	public Attribute<?> resolveAttributeBean(AttributeBean raw, String groupPath) throws IllegalTypeException
 	{
 		Attribute attr = new Attribute();
 		attr.setName(raw.getName());
@@ -78,7 +80,7 @@ public class AttributesResolver
 		return attr;
 	}
 	
-	public List<Attribute<?>> convertAttributes(List<AttributeBean> raw, String groupPath)
+	public List<Attribute<?>> convertAttributes(List<AttributeBean> raw, String groupPath) throws IllegalTypeException
 	{
 		List<Attribute<?>> ret = new ArrayList<Attribute<?>>(raw.size());
 		for (AttributeBean ab: raw)

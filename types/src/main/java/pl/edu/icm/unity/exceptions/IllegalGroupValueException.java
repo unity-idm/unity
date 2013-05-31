@@ -8,7 +8,7 @@ package pl.edu.icm.unity.exceptions;
  * Thrown when group value is invalid.
  * @author K. Benedyczak
  */
-public class IllegalGroupValueException extends RuntimeEngineException
+public class IllegalGroupValueException extends EngineException
 {
 	private static final long serialVersionUID = 1L;
 

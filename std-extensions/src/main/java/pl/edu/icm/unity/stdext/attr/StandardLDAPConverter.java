@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.ldaputils.LDAPAttributeType;
 import pl.edu.icm.unity.ldaputils.LDAPAttributeTypeConverter;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -71,8 +72,14 @@ public class StandardLDAPConverter implements LDAPAttributeTypeConverter
 		if (oid.equals("1.3.6.1.4.1.1466.115.121.1.11")) // country string
 		{
 			StringAttributeSyntax ret = new StringAttributeSyntax();
-			ret.setMaxLength(2);
-			ret.setMinLength(2);
+			try
+			{
+				ret.setMaxLength(2);
+				ret.setMinLength(2);
+			} catch (WrongArgumentException e) 
+			{
+				throw new java.lang.IllegalArgumentException(e);
+			}
 			return ret;
 		}
 		
@@ -83,7 +90,13 @@ public class StandardLDAPConverter implements LDAPAttributeTypeConverter
 		{
 			StringAttributeSyntax ret = new StringAttributeSyntax();
 			if (size != -1)
-				ret.setMaxLength(size);
+				try
+				{
+					ret.setMaxLength(size);
+				} catch (WrongArgumentException e)
+				{
+					throw new java.lang.IllegalArgumentException(e);
+				}
 			return ret;
 		}
 		

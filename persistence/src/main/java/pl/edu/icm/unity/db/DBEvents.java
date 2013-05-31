@@ -17,7 +17,7 @@ import pl.edu.icm.unity.db.mapper.local.EventsMapper;
 import pl.edu.icm.unity.db.model.DBLimits;
 import pl.edu.icm.unity.db.model.EventBean;
 import pl.edu.icm.unity.db.model.ResolvedEventBean;
-import pl.edu.icm.unity.exceptions.IllegalArgumentException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.events.Event;
 
 /**
@@ -39,7 +39,7 @@ public class DBEvents
 		this.serializer = serializer;
 	}
 	
-	public void addEvent(Event event, String listenerId)
+	public void addEvent(Event event, String listenerId) throws WrongArgumentException
 	{
 		String eventStr = serializer.toJson(event);
 		EventBean bean = new EventBean(new Date(0), eventStr, listenerId);
@@ -109,13 +109,13 @@ public class DBEvents
 		return ret;
 	}
 	
-	private void checkLimits(EventBean event)
+	private void checkLimits(EventBean event) throws WrongArgumentException
 	{
 		if (event.getListenerId().length() > limits.getNameLimit())
-			throw new IllegalArgumentException("Event listener id is too long, " +
+			throw new WrongArgumentException("Event listener id is too long, " +
 					"max is " + limits.getNameLimit() + " name is " + event.getListenerId());
 		if (event.getEvent().length() > limits.getContentsLimit())
-			throw new IllegalArgumentException("Event contents is too long, " +
+			throw new WrongArgumentException("Event contents is too long, " +
 					"max is " + limits.getContentsLimit() + " size is " + event.getEvent().length());
 	}
 }

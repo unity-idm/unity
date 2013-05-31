@@ -62,7 +62,7 @@ public class GroupResolver
 		return b;
 	}
 	
-	public String resolveGroupPath(long groupId, GroupsMapper mapper)
+	public String resolveGroupPath(long groupId, GroupsMapper mapper) throws IllegalGroupValueException
 	{
 		GroupBean gb = mapper.getGroup(groupId);
 		if (gb == null)

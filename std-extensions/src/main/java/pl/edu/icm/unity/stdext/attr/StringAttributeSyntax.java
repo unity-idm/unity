@@ -11,9 +11,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.IllegalArgumentException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 
 /**
  * String attribute value syntax. Can have regular expression
@@ -38,9 +38,10 @@ public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 
 	/**
 	 * {@inheritDoc}
+	 * @throws InternalException 
 	 */
 	@Override
-	public String getSerializedConfiguration()
+	public String getSerializedConfiguration() throws InternalException
 	{
 		ObjectNode main = Constants.MAPPER.createObjectNode();
 		main.put("regexp", getRegexp());
@@ -51,15 +52,16 @@ public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 			return Constants.MAPPER.writeValueAsString(main);
 		} catch (JsonProcessingException e)
 		{
-			throw new RuntimeEngineException("Can't serialize StringAttributeSyntax to JSON", e);
+			throw new InternalException("Can't serialize StringAttributeSyntax to JSON", e);
 		}
 	}
 
 	/**
 	 * {@inheritDoc}
+	 * @throws InternalException 
 	 */
 	@Override
-	public void setSerializedConfiguration(String jsonStr)
+	public void setSerializedConfiguration(String jsonStr) throws InternalException
 	{
 		JsonNode jsonN;
 		try
@@ -67,11 +69,11 @@ public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 			jsonN = Constants.MAPPER.readTree(jsonStr);
 		} catch (Exception e)
 		{
-			throw new RuntimeEngineException("Can't deserialize StringAttributeSyntax from JSON", e);
+			throw new InternalException("Can't deserialize StringAttributeSyntax from JSON", e);
 		}
 		setRegexp(jsonN.get("regexp").asText());
-		setMinLength(jsonN.get("minLength").asInt());
-		setMaxLength(jsonN.get("maxLength").asInt());
+		minLength = jsonN.get("minLength").asInt();
+		maxLength = jsonN.get("maxLength").asInt();
 	}
 
 	/**
@@ -122,11 +124,12 @@ public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 
 	/**
 	 * @param minLength the minLength to set
+	 * @throws IllegalArgumentException 
 	 */
-	public void setMinLength(int minLength)
+	public void setMinLength(int minLength) throws WrongArgumentException
 	{
 		if (minLength > maxLength)
-			throw new IllegalArgumentException("Minimal string length must not be less then the maximal");
+			throw new WrongArgumentException("Minimal string length must not be less then the maximal");
 		this.minLength = minLength;
 	}
 
@@ -140,11 +143,12 @@ public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 
 	/**
 	 * @param maxLength the maxLength to set
+	 * @throws IllegalArgumentException 
 	 */
-	public void setMaxLength(int maxLength)
+	public void setMaxLength(int maxLength) throws WrongArgumentException
 	{
 		if (maxLength < minLength)
-			throw new IllegalArgumentException("Maximal string length must not be less then the minimal");
+			throw new WrongArgumentException("Maximal string length must not be less then the minimal");
 		this.maxLength = maxLength;
 	}
 }

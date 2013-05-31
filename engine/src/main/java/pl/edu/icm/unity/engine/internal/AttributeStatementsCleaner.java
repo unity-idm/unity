@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 
 /**
  * Invoked periodically to scan group attribute statements, and remove the invalid ones.
@@ -31,7 +33,7 @@ public class AttributeStatementsCleaner
 	}
 
 
-	public int updateGroups()
+	public int updateGroups() throws IllegalGroupValueException, IllegalAttributeTypeException
 	{
 		SqlSession sql = db.getSqlSession(true);
 		try

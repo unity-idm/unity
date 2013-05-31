@@ -24,7 +24,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.jetty.JettyServerBase;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalArgumentException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration;
@@ -115,7 +115,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 		String contextPath = handler.getContextPath();
 		if (usedContextPaths.contains(contextPath))
 		{
-			throw new IllegalArgumentException("There are (at least) two web " +
+			throw new WrongArgumentException("There are (at least) two web " +
 					"applications configured at the same context path: " + contextPath);
 		}
 		
@@ -143,7 +143,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 				break;
 			}
 		if (endpoint == null)
-			throw new IllegalArgumentException("There is no deployed endpoint with id " + id);
+			throw new WrongArgumentException("There is no deployed endpoint with id " + id);
 		
 		ServletContextHandler handler = endpoint.getServletContextHandler();
 		try

@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.engine.events;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -51,7 +51,7 @@ public class InvocationEventContents
 			return mapper.writeValueAsString(root);
 		} catch (JsonProcessingException e)
 		{
-			throw new RuntimeEngineException("Can't serialize InvocationEventContents to Json", e);
+			throw new InternalException("Can't serialize InvocationEventContents to Json", e);
 		}
 	}
 	
@@ -63,7 +63,7 @@ public class InvocationEventContents
 			root = mapper.readTree(json);
 		} catch (Exception e)
 		{
-			throw new RuntimeEngineException("Can't deserialize InvocationEventContents from Json", e);
+			throw new InternalException("Can't deserialize InvocationEventContents from Json", e);
 		}
 		method = root.get("method").asText();
 		interfaceName = root.get("interfaceName").asText();

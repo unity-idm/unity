@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.authz;
 
 import java.util.Set;
 
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.types.basic.Group;
 
 
@@ -22,23 +23,26 @@ public interface AuthorizationManager
 	 * false and the second being the root group.
 	 * @param group
 	 * @param requiredCapabilities
+	 * @throws AuthorizationException 
 	 */
-	public void checkAuthorization(AuthzCapability... requiredCapabilities);
+	public void checkAuthorization(AuthzCapability... requiredCapabilities) throws AuthorizationException;
 
 	/**
 	 * As {@link #checkAuthorization(boolean, Group, AuthzCapability...)} with the second argument being the root group
 	 * @param selfAccess
 	 * @param requiredCapabilities
+	 * @throws AuthorizationException 
 	 */
-	public void checkAuthorization(boolean selfAccess, AuthzCapability... requiredCapabilities);
+	public void checkAuthorization(boolean selfAccess, AuthzCapability... requiredCapabilities) throws AuthorizationException;
 	
 	/**
 	 * As {@link #checkAuthorization(boolean, Group, AuthzCapability...)} with the first argument
 	 * false.
 	 * @param group
 	 * @param requiredCapabilities
+	 * @throws AuthorizationException 
 	 */
-	public void checkAuthorization(String group, AuthzCapability... requiredCapabilities);
+	public void checkAuthorization(String group, AuthzCapability... requiredCapabilities) throws AuthorizationException;
 
 	/**
 	 * Checks the authorization in a specified group. It is checked if the current caller has all the 
@@ -46,8 +50,9 @@ public interface AuthorizationManager
 	 * @param selfAccess if this operation is invoked on the the caller itself
 	 * @param group
 	 * @param requiredCapabilities
+	 * @throws AuthorizationException 
 	 */
-	public void checkAuthorization(boolean selfAccess, String group, AuthzCapability... requiredCapabilities);
+	public void checkAuthorization(boolean selfAccess, String group, AuthzCapability... requiredCapabilities) throws AuthorizationException;
 	
 	/**
 	 * Returns true only if the argument is the same entity as the current caller.

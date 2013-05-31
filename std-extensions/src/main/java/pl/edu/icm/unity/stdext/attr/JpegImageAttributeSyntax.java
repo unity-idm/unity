@@ -19,9 +19,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.IllegalArgumentException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 
 
@@ -42,7 +42,7 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 	private int maxSize = Integer.MAX_VALUE;
 	
 	@Override
-	public String getSerializedConfiguration()
+	public String getSerializedConfiguration() throws InternalException
 	{
 		ObjectNode main = Constants.MAPPER.createObjectNode();
 		main.put("maxWidth", getMaxWidth());
@@ -53,12 +53,12 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 			return Constants.MAPPER.writeValueAsString(main);
 		} catch (JsonProcessingException e)
 		{
-			throw new RuntimeEngineException("Can't serialize JpegImageAttributeSyntax to JSON", e);
+			throw new InternalException("Can't serialize JpegImageAttributeSyntax to JSON", e);
 		}
 	}
 
 	@Override
-	public void setSerializedConfiguration(String json)
+	public void setSerializedConfiguration(String json) throws InternalException
 	{
 		JsonNode jsonN;
 		try
@@ -66,11 +66,11 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 			jsonN = Constants.MAPPER.readTree(json);
 		} catch (Exception e)
 		{
-			throw new RuntimeEngineException("Can't deserialize JpegImageAttributeSyntax from JSON", e);
+			throw new InternalException("Can't deserialize JpegImageAttributeSyntax from JSON", e);
 		}
-		setMaxWidth(jsonN.get("maxWidth").asInt());
-		setMaxHeight(jsonN.get("maxHeight").asInt());		
-		setMaxSize(jsonN.get("maxSize").asInt());		
+		maxWidth = jsonN.get("maxWidth").asInt();
+		maxHeight = jsonN.get("maxHeight").asInt();		
+		maxSize = jsonN.get("maxSize").asInt();		
 	}
 
 	@Override
@@ -141,7 +141,7 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 	}
 
 	@Override
-	public byte[] serialize(BufferedImage value)
+	public byte[] serialize(BufferedImage value) throws InternalException
 	{
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(maxSize);
 		try
@@ -150,13 +150,13 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 			ImageIO.write(value, "jpg", bos);
 		} catch (IOException e)
 		{
-			throw new RuntimeEngineException("Image can not be encoded as JPEG", e);
+			throw new InternalException("Image can not be encoded as JPEG", e);
 		}
 	        return bos.toByteArray(); 
 	}
 
 	@Override
-	public BufferedImage deserialize(byte[] raw)
+	public BufferedImage deserialize(byte[] raw) throws InternalException
 	{
 		ByteArrayInputStream bis = new ByteArrayInputStream(raw);
 		try
@@ -164,7 +164,7 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 			return ImageIO.read(bis);
 		} catch (IOException e)
 		{
-			throw new RuntimeEngineException("Image can not be decoded", e);
+			throw new InternalException("Image can not be decoded", e);
 		}
 	}
 
@@ -178,10 +178,10 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 		return maxHeight;
 	}
 
-	public void setMaxSize(int max)
+	public void setMaxSize(int max) throws WrongArgumentException
 	{
 		if (max <= 0)
-			throw new IllegalArgumentException("Maximum size must be positive number");
+			throw new WrongArgumentException("Maximum size must be positive number");
 		this.maxSize = max;
 	}
 
@@ -190,17 +190,17 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 		return maxSize;
 	}
 
-	public void setMaxWidth(int maxWidth)
+	public void setMaxWidth(int maxWidth) throws WrongArgumentException
 	{
 		if (maxWidth <= 0)
-			throw new IllegalArgumentException("Maximum width must be positive number");
+			throw new WrongArgumentException("Maximum width must be positive number");
 		this.maxWidth = maxWidth;
 	}
 
-	public void setMaxHeight(int maxHeight)
+	public void setMaxHeight(int maxHeight) throws WrongArgumentException
 	{
 		if (maxHeight <= 0)
-			throw new IllegalArgumentException("Maximum height must be positive number");
+			throw new WrongArgumentException("Maximum height must be positive number");
 		this.maxHeight = maxHeight;
 	}
 	

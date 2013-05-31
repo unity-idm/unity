@@ -5,10 +5,10 @@
 package pl.edu.icm.unity.exceptions;
 
 /**
- * Thrown when attribtue value is invalid.
+ * Thrown when identity value is invalid.
  * @author K. Benedyczak
  */
-public class IllegalIdentityValueException extends RuntimeEngineException
+public class IllegalIdentityValueException extends EngineException
 {
 	private static final long serialVersionUID = 1L;
 

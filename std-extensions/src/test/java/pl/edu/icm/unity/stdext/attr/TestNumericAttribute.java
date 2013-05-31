@@ -16,7 +16,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 public class TestNumericAttribute
 {
 	@Test
-	public void testInteger()
+	public void testInteger() throws Exception
 	{
 		IntegerAttributeSyntax ias = new IntegerAttributeSyntax();
 		ias.setMax(12);
@@ -54,7 +54,7 @@ public class TestNumericAttribute
 	}
 
 	@Test
-	public void testFloating()
+	public void testFloating() throws Exception
 	{
 		FloatingPointAttributeSyntax ias = new FloatingPointAttributeSyntax();
 		ias.setMax(12.5);

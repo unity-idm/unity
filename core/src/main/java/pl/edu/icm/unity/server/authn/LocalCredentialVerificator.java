@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.server.authn;
 
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.authn.CredentialType;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
@@ -46,13 +47,15 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * @param currentCredential the existing credential, encoded in the database specific way
 	 * @return string which will be persisted in the database and will be used for verification
 	 * @throws IllegalCredentialException if the new credential is not valid
+	 * @throws InternalException 
 	 */
-	public String prepareCredential(String rawCredential, String currentCredential) throws IllegalCredentialException;
+	public String prepareCredential(String rawCredential, String currentCredential) throws IllegalCredentialException, InternalException;
 	
 	/**
 	 * @param currentCredential current credential as recorded in database
 	 * @return the current state of the credential, wrt the configuration of the verificator
+	 * @throws InternalException 
 	 */
-	public LocalCredentialState checkCredentialState(String currentCredential);
+	public LocalCredentialState checkCredentialState(String currentCredential) throws InternalException;
 
 }

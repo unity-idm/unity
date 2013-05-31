@@ -28,6 +28,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
+import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -37,7 +38,6 @@ import pl.edu.icm.unity.webui.common.TopHeader;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -48,29 +48,35 @@ import com.vaadin.ui.VerticalLayout;
 @Component("WebAdminUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityTheme")
-public class WebAdminUI extends UI implements UnityWebUI
+public class WebAdminUI extends UnityUIBase implements UnityWebUI
 {
 	private static final long serialVersionUID = 1L;
 
-	@Autowired
 	private GroupsManagement test;
 
-	@Autowired
 	private IdentitiesManagement testIdMan;
 	
-	@Autowired
 	private AttributesManagement testAttrMan;
 	
-	@Autowired
-	private UnityMessageSource msg;
-	
-	@Autowired
 	private ContentsManagementTab contentsManagement;
 	
-	@Autowired
 	private SchemaManagementTab schemaManagement;
 	
 	private EndpointDescription endpointDescription;
+	
+	@Autowired
+	public WebAdminUI(UnityMessageSource msg, GroupsManagement test,
+			IdentitiesManagement testIdMan, AttributesManagement testAttrMan,
+			ContentsManagementTab contentsManagement,
+			SchemaManagementTab schemaManagement)
+	{
+		super(msg);
+		this.test = test;
+		this.testIdMan = testIdMan;
+		this.testAttrMan = testAttrMan;
+		this.contentsManagement = contentsManagement;
+		this.schemaManagement = schemaManagement;
+	}
 	
 	@Override
 	public void configure(EndpointDescription description,
@@ -80,7 +86,7 @@ public class WebAdminUI extends UI implements UnityWebUI
 	}
 	
 	@Override
-	protected void init(VaadinRequest request)
+	protected void appInit(VaadinRequest request)
 	{
 		tmpInitContents();
 

@@ -22,8 +22,12 @@ import pl.edu.icm.unity.engine.AuthenticationManagementImpl;
 import pl.edu.icm.unity.engine.authn.AuthenticatorImpl;
 import pl.edu.icm.unity.engine.authn.CredentialHolder;
 import pl.edu.icm.unity.engine.authn.CredentialRequirementsHolder;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.authn.IdentityResolver;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
@@ -61,6 +65,7 @@ public class EngineHelper
 	
 	
 	public void setEntityAuthenticationState(long entityId, LocalAuthenticationState authnState, SqlSession sqlMap)
+			throws IllegalAttributeValueException, IllegalTypeException, IllegalAttributeTypeException, IllegalGroupValueException
 	{
 		EnumAttribute authnStateA = new EnumAttribute(SystemAttributeTypes.CREDENTIALS_STATE,
 				"/", AttributeVisibility.local, authnState.toString());
@@ -69,7 +74,8 @@ public class EngineHelper
 
 
 
-	public void setEntityCredentialRequirements(long entityId, String credReqId, SqlSession sqlMap)
+	public void setEntityCredentialRequirements(long entityId, String credReqId, SqlSession sqlMap) 
+			throws IllegalAttributeValueException, IllegalTypeException, IllegalAttributeTypeException, IllegalGroupValueException
 	{
 		GenericObjectBean raw = dbGeneric.getObjectByNameType(credReqId, 
 				AuthenticationManagementImpl.CREDENTIAL_REQ_OBJECT_TYPE, sqlMap);
@@ -78,24 +84,27 @@ public class EngineHelper
 		setEntityCredentialRequirementsNoCheck(entityId, credReqId, sqlMap);
 	}
 
-	public void setEntityCredentialRequirementsNoCheck(long entityId, String credReqId, SqlSession sqlMap)
+	public void setEntityCredentialRequirementsNoCheck(long entityId, String credReqId, SqlSession sqlMap) 
+			throws IllegalAttributeValueException, IllegalTypeException, IllegalAttributeTypeException, IllegalGroupValueException
 	{
 		StringAttribute credReq = new StringAttribute(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS,
 				"/", AttributeVisibility.local, credReqId);
 		dbAttributes.addAttribute(entityId, credReq, true, sqlMap);
 	}
 
-	public Set<Long> getEntitiesByAttribute(String attribute, Set<String> values, SqlSession sql)
+	public Set<Long> getEntitiesByAttribute(String attribute, Set<String> values, SqlSession sql) 
+			throws IllegalTypeException, IllegalGroupValueException
 	{
 		return dbAttributes.getEntitiesBySimpleAttribute("/", attribute, values, sql);
 	}
 
-	public CredentialRequirementsHolder getCredentialRequirements(String requirementName, SqlSession sqlMap)
+	public CredentialRequirementsHolder getCredentialRequirements(String requirementName, SqlSession sqlMap) 
+			throws IllegalCredentialException
 	{
 		GenericObjectBean raw = dbGeneric.getObjectByNameType(requirementName, 
 				AuthenticationManagementImpl.CREDENTIAL_REQ_OBJECT_TYPE, sqlMap);
 		if (raw == null)
-			throw new RuntimeEngineException("The credential requirement is unknown: " 
+			throw new IllegalCredentialException("The credential requirement is unknown: " 
 					+ requirementName);
 		List<CredentialDefinition> credDefs = getCredentialDefinitions(sqlMap);
 		return new CredentialRequirementsHolder(authReg, raw.getContents(), credDefs);
@@ -120,9 +129,16 @@ public class EngineHelper
 	 * @param desiredAuthnState
 	 * @param credentialChanged
 	 * @param sql
+	 * @throws IllegalCredentialException 
+	 * @throws IllegalGroupValueException 
+	 * @throws IllegalTypeException 
+	 * @throws IllegalAttributeTypeException 
+	 * @throws IllegalAttributeValueException 
 	 */
 	public void updateEntityCredentialState(long entityId, LocalAuthenticationState desiredAuthnState,
-			CredentialHolder credentialChanged, SqlSession sql)
+			CredentialHolder credentialChanged, SqlSession sql) 
+			throws IllegalCredentialException, IllegalTypeException, IllegalGroupValueException,
+			IllegalAttributeValueException, IllegalAttributeTypeException
 	{
 		LocalAuthenticationState toSet;
 		if (desiredAuthnState.equals(LocalAuthenticationState.disabled))
@@ -158,9 +174,16 @@ public class EngineHelper
 	 * @param desiredAuthnState
 	 * @param newCredReqs
 	 * @param sql
+	 * @throws IllegalGroupValueException 
+	 * @throws IllegalTypeException 
+	 * @throws IllegalCredentialException 
+	 * @throws IllegalAttributeTypeException 
+	 * @throws IllegalAttributeValueException 
 	 */
 	public void updateEntityCredentialState(long entityId, LocalAuthenticationState desiredAuthnState, 
-			CredentialRequirementsHolder newCredReqs, SqlSession sql)
+			CredentialRequirementsHolder newCredReqs, SqlSession sql) 
+			throws IllegalTypeException, IllegalGroupValueException, IllegalCredentialException,
+			IllegalAttributeValueException, IllegalAttributeTypeException
 	{
 		LocalAuthenticationState toSet;
 		if (desiredAuthnState.equals(LocalAuthenticationState.disabled))
@@ -177,17 +200,19 @@ public class EngineHelper
 		setEntityAuthenticationState(entityId, toSet, sql);
 	}
 	
-	public AuthenticatorImpl getAuthenticator(String id, SqlSession sql)
+	public AuthenticatorImpl getAuthenticator(String id, SqlSession sql) 
+			throws WrongArgumentException
 	{
 		GenericObjectBean raw = dbGeneric.getObjectByNameType(id, 
 				AuthenticationManagementImpl.AUTHENTICATOR_OBJECT_TYPE, sql);
 		if (raw == null)
-			throw new pl.edu.icm.unity.exceptions.IllegalArgumentException("The authenticator " + id + " is not known");
+			throw new WrongArgumentException("The authenticator " + id + " is not known");
 		AuthenticatorImpl ret = getAuthenticatorNoCheck(raw, sql);
 		return ret;
 	}
 
-	public AuthenticatorImpl getAuthenticatorNoCheck(GenericObjectBean raw, SqlSession sql)
+	public AuthenticatorImpl getAuthenticatorNoCheck(GenericObjectBean raw, SqlSession sql) 
+			throws WrongArgumentException
 	{
 		AuthenticatorImpl authenticator = new AuthenticatorImpl(identityResolver, authReg, raw.getName());
 		String contents = new String(raw.getContents(), Constants.UTF);
@@ -198,7 +223,7 @@ public class EngineHelper
 			GenericObjectBean rawC = dbGeneric.getObjectByNameType(localCredential, 
 					AuthenticationManagementImpl.CREDENTIAL_OBJECT_TYPE, sql);
 			if (rawC == null)
-				throw new pl.edu.icm.unity.exceptions.IllegalArgumentException("The authenticator's " + 
+				throw new WrongArgumentException("The authenticator's " + 
 						authenticator.getAuthenticatorInstance().getId() + 
 						" credential is not known: " + localCredential);
 			CredentialHolder credential = resolveCredentialBean(rawC, sql);

@@ -173,7 +173,7 @@ public class AttributeTypeEditor extends FlexibleFormLayout
 		syntaxPanel.addComponent(editor.getEditor());
 	}
 	
-	public AttributeType getAttributeType()
+	public AttributeType getAttributeType() throws IllegalAttributeTypeException
 	{
 		try
 		{

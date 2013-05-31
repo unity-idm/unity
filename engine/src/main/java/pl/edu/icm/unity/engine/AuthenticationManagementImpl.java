@@ -31,7 +31,6 @@ import pl.edu.icm.unity.engine.internal.EngineHelper;
 import pl.edu.icm.unity.engine.internal.InternalEndpointManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.authn.IdentityResolver;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
@@ -276,7 +275,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			GenericObjectBean raw = dbGeneric.getObjectByNameType(updated.getName(), 
 					AuthenticationManagementImpl.CREDENTIAL_REQ_OBJECT_TYPE, sql);
 			if (raw == null)
-				throw new RuntimeEngineException("There is no credential requirement with the name " + 
+				throw new IllegalCredentialException("There is no credential requirement with the name " + 
 						updated.getName());
 
 			Set<Long> entities = engineHelper.getEntitiesByAttribute(
@@ -372,7 +371,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			GenericObjectBean raw = dbGeneric.getObjectByNameType(updated.getName(), 
 					AuthenticationManagementImpl.CREDENTIAL_OBJECT_TYPE, sql);
 			if (raw == null)
-				throw new RuntimeEngineException("There is no credential with the name " + updated.getName());
+				throw new IllegalCredentialException("There is no credential with the name " + updated.getName());
 
 			//get all cred reqs with it
 			List<GenericObjectBean> rawCr = dbGeneric.getObjectsOfType(CREDENTIAL_REQ_OBJECT_TYPE, sql);

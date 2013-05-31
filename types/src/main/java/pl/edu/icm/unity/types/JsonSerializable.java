@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types;
 
+import pl.edu.icm.unity.exceptions.InternalException;
+
 /**
  * General purpose interface for objects which can have its state serialized into Json and then read back. 
  * We prefer this to the binary Java serialization.
@@ -15,12 +17,14 @@ public interface JsonSerializable
 {
 	/**
 	 * @return JSON serialized representation
+	 * @throws InternalException 
 	 */
-	public String getSerializedConfiguration();
+	public String getSerializedConfiguration() throws InternalException;
 	
 	/**
 	 * Initializes object from JSON
 	 * @param json
+	 * @throws InternalException 
 	 */
-	public void setSerializedConfiguration(String json);
+	public void setSerializedConfiguration(String json) throws InternalException;
 }

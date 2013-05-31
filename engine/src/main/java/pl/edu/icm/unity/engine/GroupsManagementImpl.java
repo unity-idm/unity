@@ -159,7 +159,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		}
 	}
 	
-	private void validateGroupStatements(Group group)
+	private void validateGroupStatements(Group group) throws IllegalAttributeValueException
 	{
 		AttributeStatement[] statements = group.getAttributeStatements();
 		String path = group.toString();
@@ -167,7 +167,8 @@ public class GroupsManagementImpl implements GroupsManagement
 			validateGroupStatement(path, statement);
 	}
 
-	private void validateGroupStatement(String group, AttributeStatement statement)
+	private void validateGroupStatement(String group, AttributeStatement statement) 
+			throws IllegalAttributeValueException
 	{
 		String statementPath = statement.getAssignedAttribute().getGroupPath();
 		if (!group.equals(statementPath))

@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 
 /**
  * Enumeration attribute syntax. Accepts strings which are from a defined set.
@@ -63,7 +63,7 @@ public class EnumAttributeSyntax extends AbstractStringAttributeSyntax
 	}
 
 	@Override
-	public String getSerializedConfiguration()
+	public String getSerializedConfiguration() throws InternalException
 	{
 		ObjectNode main = Constants.MAPPER.createObjectNode();
 		ArrayNode allow = main.putArray("allowed");
@@ -74,12 +74,12 @@ public class EnumAttributeSyntax extends AbstractStringAttributeSyntax
 			return Constants.MAPPER.writeValueAsString(main);
 		} catch (JsonProcessingException e)
 		{
-			throw new RuntimeEngineException("Can't serialize EnumAttributeSyntax to JSON", e);
+			throw new InternalException("Can't serialize EnumAttributeSyntax to JSON", e);
 		}
 	}
 
 	@Override
-	public void setSerializedConfiguration(String json)
+	public void setSerializedConfiguration(String json) throws InternalException
 	{
 		JsonNode jsonN;
 		try
@@ -87,7 +87,7 @@ public class EnumAttributeSyntax extends AbstractStringAttributeSyntax
 			jsonN = Constants.MAPPER.readTree(json);
 		} catch (Exception e)
 		{
-			throw new RuntimeEngineException("Can't deserialize StringAttributeSyntax from JSON", e);
+			throw new InternalException("Can't deserialize StringAttributeSyntax from JSON", e);
 		}
 		ArrayNode allow = (ArrayNode) jsonN.get("allowed");
 		this.allowed = new HashSet<String>(allow.size());

@@ -11,9 +11,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.IllegalArgumentException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 
 
@@ -28,7 +28,7 @@ public class FloatingPointAttributeSyntax implements AttributeValueSyntax<Double
 	private double max = Double.MAX_VALUE;
 	
 	@Override
-	public String getSerializedConfiguration()
+	public String getSerializedConfiguration() throws InternalException
 	{
 		ObjectNode main = Constants.MAPPER.createObjectNode();
 		main.put("min", getMin());
@@ -38,12 +38,12 @@ public class FloatingPointAttributeSyntax implements AttributeValueSyntax<Double
 			return Constants.MAPPER.writeValueAsString(main);
 		} catch (JsonProcessingException e)
 		{
-			throw new RuntimeEngineException("Can't serialize FloatingPointAttributeSyntax to JSON", e);
+			throw new InternalException("Can't serialize FloatingPointAttributeSyntax to JSON", e);
 		}
 	}
 
 	@Override
-	public void setSerializedConfiguration(String json)
+	public void setSerializedConfiguration(String json) throws InternalException
 	{
 		JsonNode jsonN;
 		try
@@ -51,10 +51,11 @@ public class FloatingPointAttributeSyntax implements AttributeValueSyntax<Double
 			jsonN = Constants.MAPPER.readTree(json);
 		} catch (Exception e)
 		{
-			throw new RuntimeEngineException("Can't deserialize FloatingPointAttributeSyntax from JSON", e);
+			throw new InternalException("Can't deserialize FloatingPointAttributeSyntax from JSON", e);
 		}
-		setMin(jsonN.get("min").asDouble());
-		setMax(jsonN.get("max").asDouble());		
+		
+		min = jsonN.get("min").asDouble();
+		max = jsonN.get("max").asDouble();		
 	}
 
 	@Override
@@ -107,10 +108,10 @@ public class FloatingPointAttributeSyntax implements AttributeValueSyntax<Double
 		return min;
 	}
 
-	public void setMin(double min)
+	public void setMin(double min) throws WrongArgumentException
 	{
 		if (min > max)
-			throw new IllegalArgumentException("Minimum must not be less then the maximum");
+			throw new WrongArgumentException("Minimum must not be less then the maximum");
 		this.min = min;
 	}
 
@@ -119,10 +120,10 @@ public class FloatingPointAttributeSyntax implements AttributeValueSyntax<Double
 		return max;
 	}
 
-	public void setMax(double max)
+	public void setMax(double max) throws WrongArgumentException
 	{
 		if (max < min)
-			throw new IllegalArgumentException("Maximum must not be less then the minimum");
+			throw new WrongArgumentException("Maximum must not be less then the minimum");
 		this.max = max;
 	}
 }

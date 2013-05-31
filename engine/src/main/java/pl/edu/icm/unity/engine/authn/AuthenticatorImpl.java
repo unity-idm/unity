@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.authn;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.IllegalArgumentException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.CredentialRetrievalFactory;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
@@ -44,14 +44,16 @@ public class AuthenticatorImpl implements JsonSerializable
 	 * @param reg
 	 * @param typeId
 	 * @param configuration
+	 * @throws WrongArgumentException 
 	 */
 	public AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, 
 			String name, String typeId, String rConfiguration, String vConfiguration)
+					throws WrongArgumentException
 	{
 		this(identitiesResolver, reg, name);
 		AuthenticatorTypeDescription authDesc = authRegistry.getAuthenticatorsById(typeId);
 		if (authDesc == null)
-			throw new IllegalArgumentException("The authenticator type " + typeId + " is not known");
+			throw new WrongArgumentException("The authenticator type " + typeId + " is not known");
 		createCoworkers(authDesc, rConfiguration, vConfiguration);
 	}
 	
@@ -122,7 +124,7 @@ public class AuthenticatorImpl implements JsonSerializable
 			return Constants.MAPPER.writeValueAsString(instanceDescription);
 		} catch (JsonProcessingException e)
 		{
-			throw new RuntimeEngineException("Can't serialize authenticator state to JSON", e);
+			throw new InternalException("Can't serialize authenticator state to JSON", e);
 		}
 	}
 
@@ -135,7 +137,7 @@ public class AuthenticatorImpl implements JsonSerializable
 			deserialized = Constants.MAPPER.readValue(json, AuthenticatorInstance.class);
 		} catch (Exception e)
 		{
-			throw new RuntimeEngineException("Can't deserialize authenticator state from JSON", e);
+			throw new InternalException("Can't deserialize authenticator state from JSON", e);
 		}
 		
 		createCoworkers(deserialized.getTypeDescription(), deserialized.getRetrievalJsonConfiguration(),

@@ -9,7 +9,9 @@ import java.security.cert.X509Certificate;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
@@ -60,7 +62,7 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 
 	@Override
 	public AuthenticatedEntity checkCertificate(X509Certificate[] chain)
-			throws IllegalIdentityValueException
+			throws IllegalIdentityValueException, IllegalTypeException, IllegalGroupValueException
 	{
 		String identity = chain[0].getSubjectX500Principal().getName();
 		EntityWithCredential resolved = identityResolver.resolveIdentity(identity, 

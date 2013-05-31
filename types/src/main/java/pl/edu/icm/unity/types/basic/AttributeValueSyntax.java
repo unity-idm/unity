@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.types.basic;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.JsonSerializable;
 
 /**
@@ -52,12 +53,14 @@ public interface AttributeValueSyntax<T> extends JsonSerializable
 	/**
 	 * @param domain object
 	 * @return value in the byte array form
+	 * @throws InternalException 
 	 */
-	public byte[] serialize(T value);
+	public byte[] serialize(T value) throws InternalException;
 	
 	/**
 	 * @param raw data
 	 * @return domain object
+	 * @throws InternalException 
 	 */
-	public T deserialize(byte []raw);
+	public T deserialize(byte []raw) throws InternalException;
 }

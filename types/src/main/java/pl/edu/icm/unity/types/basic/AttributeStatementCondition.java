@@ -91,7 +91,7 @@ public class AttributeStatementCondition
 		this.attribute = attribute;
 	}
 	
-	public void validate(String owningGroup)
+	public void validate(String owningGroup) throws IllegalAttributeValueException
 	{
 		Group group = new Group(owningGroup);
 		if (type == null)

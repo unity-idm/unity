@@ -7,7 +7,7 @@ package pl.edu.icm.unity.engine.authn;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 
 /**
@@ -23,7 +23,7 @@ public class CredentialRequirementsSerializer
 			return Constants.MAPPER.writeValueAsBytes(requirements);
 		} catch (JsonProcessingException e)
 		{
-			throw new RuntimeEngineException("Can't serialize credential requiremets to JSON", e);
+			throw new InternalException("Can't serialize credential requiremets to JSON", e);
 		}
 	}
 
@@ -34,7 +34,7 @@ public class CredentialRequirementsSerializer
 			return Constants.MAPPER.readValue(json, CredentialRequirements.class);
 		} catch (Exception e)
 		{
-			throw new RuntimeEngineException("Can't deserialize credential requiremets from JSON", e);
+			throw new InternalException("Can't deserialize credential requiremets from JSON", e);
 		}
 	}
 }

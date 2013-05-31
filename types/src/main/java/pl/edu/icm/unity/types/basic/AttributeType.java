@@ -157,7 +157,7 @@ public class AttributeType implements InitializationValidator
 	}
 
 	@Override
-	public void validateInitialization()
+	public void validateInitialization() throws IllegalAttributeTypeException
 	{
 		if (valueType == null)
 			throw new IllegalAttributeTypeException("Attribute values type must be set for attribute type");

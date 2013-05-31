@@ -19,7 +19,9 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
@@ -128,31 +130,31 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	}
 
 	@Override
-	public void checkAuthorization(AuthzCapability... requiredCapabilities)
+	public void checkAuthorization(AuthzCapability... requiredCapabilities) throws AuthorizationException
 	{
 		checkAuthorizationInternal(getCallerMethodName(2), false, null, requiredCapabilities);
 	}
 
 	@Override
-	public void checkAuthorization(boolean selfAccess, AuthzCapability... requiredCapabilities)
+	public void checkAuthorization(boolean selfAccess, AuthzCapability... requiredCapabilities) throws AuthorizationException
 	{
 		checkAuthorizationInternal(getCallerMethodName(2), selfAccess, null, requiredCapabilities);
 	}
 	
 	@Override
-	public void checkAuthorization(String group, AuthzCapability... requiredCapabilities)
+	public void checkAuthorization(String group, AuthzCapability... requiredCapabilities) throws AuthorizationException
 	{
 		checkAuthorizationInternal(getCallerMethodName(2), false, group, requiredCapabilities);
 	}
 
 	@Override
-	public void checkAuthorization(boolean selfAccess, String groupPath, AuthzCapability... requiredCapabilities)
+	public void checkAuthorization(boolean selfAccess, String groupPath, AuthzCapability... requiredCapabilities) throws AuthorizationException
 	{
 		checkAuthorizationInternal(getCallerMethodName(2), selfAccess, groupPath, requiredCapabilities);
 	}
 	
 	private void checkAuthorizationInternal(String callerMethod, boolean selfAccess, String groupPath, 
-			AuthzCapability... requiredCapabilities)
+			AuthzCapability... requiredCapabilities) throws AuthorizationException
 	{
 		Group group = groupPath == null ? new Group("/") : new Group(groupPath);
 		InvocationContext authnCtx = InvocationContext.getCurrent();
@@ -221,14 +223,14 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 			{
 				AuthzRole rr = this.roles.get(r.toString());
 				if (rr == null)
-					throw new RuntimeEngineException("Authorization attribute has " +
+					throw new InternalException("Authorization attribute has " +
 							"unsupported role value: " + r);
 				ret.add(rr);
 			}
 		}
 	}
 	
-	private Map<String, Map<String, AttributeExt<?>>> getAllAttributes(long entityId)
+	private Map<String, Map<String, AttributeExt<?>>> getAllAttributes(long entityId) 
 	{
 		SqlSession sql = db.getSqlSession(true);
 		try
@@ -237,6 +239,12 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 					dbAttributes.getAllAttributesAsMap(entityId, null, true, null, sql);
 			sql.commit();
 			return allAttributes;
+		} catch (IllegalTypeException e)
+		{
+			throw new InternalException("Can't establish attributes for authorization pipeline", e);
+		} catch (IllegalGroupValueException e)
+		{
+			throw new InternalException("Can't establish attributes for authorization pipeline - group problem", e);
 		} finally
 		{
 			db.releaseSqlSession(sql);

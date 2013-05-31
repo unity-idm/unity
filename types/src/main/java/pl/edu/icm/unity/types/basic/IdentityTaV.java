@@ -49,7 +49,7 @@ public class IdentityTaV implements InitializationValidator
 	}
 
 	@Override
-	public void validateInitialization()
+	public void validateInitialization() throws IllegalIdentityValueException
 	{
 		if (typeId == null)
 			throw new IllegalIdentityValueException("Identity type must be set");

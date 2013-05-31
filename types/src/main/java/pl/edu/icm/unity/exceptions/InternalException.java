@@ -6,10 +6,10 @@ package pl.edu.icm.unity.exceptions;
 
 /**
  * Thrown when a low level problem occurs, which in principle shouldn't happen. Example
- * can be database problem.
+ * can be database problem. Unchecked.
  * @author K. Benedyczak
  */
-public class InternalException extends RuntimeEngineException
+public class InternalException extends RuntimeException
 {
 	private static final long serialVersionUID = 1L;
 

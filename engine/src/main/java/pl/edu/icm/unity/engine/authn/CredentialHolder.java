@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
@@ -25,7 +25,8 @@ public class CredentialHolder implements JsonSerializable
 	private AuthenticatorsRegistry reg;
 	private LocalCredentialVerificator handler;
 
-	public CredentialHolder(CredentialDefinition credDef, AuthenticatorsRegistry reg)
+	public CredentialHolder(CredentialDefinition credDef, AuthenticatorsRegistry reg) 
+			throws IllegalCredentialException
 	{
 		this(reg);
 		checkCredentialDefinition(credDef, reg);
@@ -37,7 +38,8 @@ public class CredentialHolder implements JsonSerializable
 		this.reg = reg;
 	}
 	
-	private void checkCredentialDefinition(CredentialDefinition def, AuthenticatorsRegistry reg)
+	private void checkCredentialDefinition(CredentialDefinition def, AuthenticatorsRegistry reg) 
+			throws IllegalCredentialException
 	{
 		LocalCredentialVerificatorFactory fact = reg.getLocalCredentialFactory(def.getTypeId());
 		if (fact == null)
@@ -65,7 +67,7 @@ public class CredentialHolder implements JsonSerializable
 			return Constants.MAPPER.writeValueAsString(credential);
 		} catch (JsonProcessingException e)
 		{
-			throw new RuntimeEngineException("Can't serialize credential to JSON", e);
+			throw new InternalException("Can't serialize credential to JSON", e);
 		}
 	}
 
@@ -77,8 +79,15 @@ public class CredentialHolder implements JsonSerializable
 			credential = Constants.MAPPER.readValue(json, CredentialDefinition.class);
 		} catch (Exception e)
 		{
-			throw new RuntimeEngineException("Can't deserialize credential from JSON", e);
+			throw new InternalException("Can't deserialize credential from JSON", e);
 		}
-		checkCredentialDefinition(credential, reg);
+		try
+		{
+			checkCredentialDefinition(credential, reg);
+		} catch (IllegalCredentialException e)
+		{
+			throw new InternalException("The credential definition loaded from " +
+					"DB uses an unsupported implementation", e);
+		}
 	}
 }

@@ -19,7 +19,8 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
  */
 public class AttributeValueChecker
 {
-	public static <T> void validate(Attribute<T> attribute, AttributeType at)
+	public static <T> void validate(Attribute<T> attribute, AttributeType at) 
+			throws IllegalAttributeValueException, IllegalAttributeTypeException
 	{
 		List<T> values = attribute.getValues();
 		if (at.getMinElements() > values.size())

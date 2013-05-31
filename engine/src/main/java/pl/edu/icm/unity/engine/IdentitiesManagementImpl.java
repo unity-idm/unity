@@ -30,8 +30,10 @@ import pl.edu.icm.unity.engine.internal.EngineHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
@@ -232,7 +234,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			try
 			{
 				dbAttributes.addAttribute(entityId, extracted, false, sql);
-			} catch (RuntimeEngineException e)
+			} catch (EngineException e)
 			{
 				log.info("Can not add extracted attribute " + extracted.getName() 
 						+ " for entity " + entityId + ": " + e.toString());
@@ -429,18 +431,19 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	}
 
 	
-	private CredentialInfo getCredentialInfo(long entityId, SqlSession sqlMap)
+	private CredentialInfo getCredentialInfo(long entityId, SqlSession sqlMap) 
+			throws IllegalTypeException, IllegalGroupValueException, IllegalCredentialException
 	{
 		Map<String, AttributeExt<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(entityId, "/", null, sqlMap);
 		
 		Attribute<?> credReqA = attributes.get(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS);
 		if (credReqA == null)
-			throw new RuntimeEngineException("No credential requirement set for an entity"); 
+			throw new InternalException("No credential requirement set for an entity"); 
 		String credentialRequirementId = (String)credReqA.getValues().get(0);
 		
 		Attribute<?> authnStateA = attributes.get(SystemAttributeTypes.CREDENTIALS_STATE);
 		if (authnStateA == null)
-			throw new RuntimeEngineException("No authentication state set for an entity");
+			throw new InternalException("No authentication state set for an entity");
 		LocalAuthenticationState authenticationState = LocalAuthenticationState.valueOf(
 				(String)authnStateA.getValues().get(0));
 		

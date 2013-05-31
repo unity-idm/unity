@@ -7,7 +7,8 @@ package pl.edu.icm.unity.server.authn;
 import java.io.Serializable;
 import java.util.Locale;
 
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
+
 
 /**
  * Stores thread-local information about the current request metadata in thread local variable.
@@ -30,11 +31,11 @@ public class InvocationContext implements Serializable
 		threadLocal.set(context);
 	}
 	
-	public static InvocationContext getCurrent()
+	public static InvocationContext getCurrent() throws InternalException
 	{
 		InvocationContext ret = threadLocal.get();
 		if (ret == null)
-			throw new RuntimeEngineException("The current call has no invocation context set");
+			throw new InternalException("The current call has no invocation context set");
 		return ret;
 	}
 

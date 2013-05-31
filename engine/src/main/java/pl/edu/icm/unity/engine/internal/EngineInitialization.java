@@ -29,7 +29,7 @@ import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
@@ -150,7 +150,7 @@ public class EngineInitialization extends LifecycleBase
 				try
 				{
 					attributeStatementsCleaner.updateGroups();
-				} catch (RuntimeEngineException e)
+				} catch (Exception e)
 				{
 					log.error("Can't update groups attribute statements", e);
 				}
@@ -200,7 +200,7 @@ public class EngineInitialization extends LifecycleBase
 	}
 
 	
-	private void initializeAttributeTypes()
+	private void initializeAttributeTypes() 
 	{
 		log.info("Checking if all system attribute types are defined");
 		SqlSession sql = db.getSqlSession(true);
@@ -218,6 +218,9 @@ public class EngineInitialization extends LifecycleBase
 				}
 			}
 			sql.commit();
+		} catch (EngineException e)
+		{
+			throw new InternalException("Initialization problem when creating attribute types", e);
 		} finally
 		{
 			db.releaseSqlSession(sql);
@@ -231,15 +234,15 @@ public class EngineInitialization extends LifecycleBase
 		GroupContents contents;
 		try
 		{
-			contents = dbGroups.getContents("/", GroupContents.MEMBERS, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
-		
-		try
-		{
+			try
+			{
+				contents = dbGroups.getContents("/", GroupContents.MEMBERS, sql);
+				sql.commit();
+			} finally
+			{
+				db.releaseSqlSession(sql);
+			}
+			
 			if (contents.getMembers().size() == 0)
 			{
 				log.info("Database contains no users, adding the admin user and the " +
@@ -276,7 +279,7 @@ public class EngineInitialization extends LifecycleBase
 			}
 		} catch (EngineException e)
 		{
-			throw new RuntimeEngineException("Initialization problem when creating admin user", e);
+			throw new InternalException("Initialization problem when creating admin user", e);
 		}
 	}
 	
@@ -291,7 +294,7 @@ public class EngineInitialization extends LifecycleBase
 			} catch (EngineException e)
 			{
 				log.fatal("Can't remove endpoints which are stored in database", e);
-				throw new RuntimeEngineException("Can't restore endpoints which are stored in database", e);
+				throw new InternalException("Can't restore endpoints which are stored in database", e);
 			}
 		}
 		
@@ -302,7 +305,7 @@ public class EngineInitialization extends LifecycleBase
 		} catch (EngineException e)
 		{
 			log.fatal("Can't restore endpoints which are stored in database", e);
-			throw new RuntimeEngineException("Can't restore endpoints which are stored in database", e);
+			throw new InternalException("Can't restore endpoints which are stored in database", e);
 		}
 		
 		//check for cold start - if so, we should load endpoints from configuration
@@ -315,7 +318,7 @@ public class EngineInitialization extends LifecycleBase
 		} catch (Exception e)
 		{
 			log.fatal("Can't load endpoints which are configured", e);
-			throw new RuntimeEngineException("Can't load endpoints which are configured", e);
+			throw new InternalException("Can't load endpoints which are configured", e);
 		}
 		
 
@@ -332,7 +335,7 @@ public class EngineInitialization extends LifecycleBase
 		} catch (Exception e)
 		{
 			log.fatal("Can't list loaded endpoints", e);
-			throw new RuntimeEngineException("Can't list loaded endpoints", e);
+			throw new InternalException("Can't list loaded endpoints", e);
 		}
 		endpointsLoadTime = System.currentTimeMillis();
 	}
@@ -376,7 +379,7 @@ public class EngineInitialization extends LifecycleBase
 		} catch(Exception e)
 		{
 			log.fatal("Can't load authenticators which are configured", e);
-			throw new RuntimeEngineException("Can't load authenticators which are configured", e);
+			throw new InternalException("Can't load authenticators which are configured", e);
 		}
 	}
 	
@@ -420,7 +423,7 @@ public class EngineInitialization extends LifecycleBase
 		} catch(Exception e)
 		{
 			log.fatal("Can't load credentials which are configured", e);
-			throw new RuntimeEngineException("Can't load credentials which are configured", e);
+			throw new InternalException("Can't load credentials which are configured", e);
 		}
 	}
 	
@@ -460,7 +463,7 @@ public class EngineInitialization extends LifecycleBase
 		} catch(Exception e)
 		{
 			log.fatal("Can't load configured credential requirements", e);
-			throw new RuntimeEngineException("Can't load configured credential requirements", e);
+			throw new InternalException("Can't load configured credential requirements", e);
 		}
 	}
 

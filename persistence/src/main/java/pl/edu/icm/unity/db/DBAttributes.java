@@ -31,6 +31,9 @@ import pl.edu.icm.unity.db.resolvers.GroupResolver;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -67,7 +70,8 @@ public class DBAttributes
 		this.dbShared = dbShared;
 	}
 
-	public void addAttributeType(AttributeType toAdd, SqlSession sqlMap)
+	public void addAttributeType(AttributeType toAdd, SqlSession sqlMap) 
+			throws WrongArgumentException, IllegalAttributeTypeException
 	{
 		limits.checkNameLimit(toAdd.getName());
 		AttributesMapper mapper = sqlMap.getMapper(AttributesMapper.class);
@@ -81,7 +85,8 @@ public class DBAttributes
 	}
 
 	
-	public AttributeType getAttributeType(String id, SqlSession sqlMap)
+	public AttributeType getAttributeType(String id, SqlSession sqlMap) 
+			throws IllegalAttributeTypeException, IllegalTypeException
 	{
 		AttributesMapper mapper = sqlMap.getMapper(AttributesMapper.class);
 		AttributeTypeBean atBean = attrResolver.resolveAttributeType(id, mapper);
@@ -89,6 +94,7 @@ public class DBAttributes
 	}
 	
 	public void removeAttributeType(String id, boolean withInstances, SqlSession sqlMap)
+			throws IllegalAttributeTypeException
 	{
 		AttributesMapper mapper = sqlMap.getMapper(AttributesMapper.class);
 		if (mapper.getAttributeType(id) == null)
@@ -104,7 +110,9 @@ public class DBAttributes
 		mapper.deleteAttributeType(id);
 	}
 
-	public void updateAttributeType(AttributeType toUpdate, SqlSession sqlMap)
+	public void updateAttributeType(AttributeType toUpdate, SqlSession sqlMap) 
+			throws WrongArgumentException, 
+			IllegalGroupValueException, IllegalTypeException, IllegalAttributeTypeException
 	{
 		limits.checkNameLimit(toUpdate.getName());
 		AttributesMapper mapper = sqlMap.getMapper(AttributesMapper.class);
@@ -139,14 +147,21 @@ public class DBAttributes
 		for (int i=0; i<raw.size(); i++)
 		{
 			AttributeTypeBean r = raw.get(i);
-			ret.add(attrResolver.resolveAttributeTypeBean(r));
+			try
+			{
+				ret.add(attrResolver.resolveAttributeTypeBean(r));
+			} catch (IllegalTypeException e)
+			{
+				throw new InternalException("Can not find implementation for attribtue type returned " +
+						"by the getAttributeTypes() " + r.getName(), e);
+			}
 		}
 		return ret;
 	}
 	
 	
 	private AttributeBean prepareAttributeParam(long entityId, long typeId, String attributeTypeName, String group, 
-			AttributesMapper mapper, GroupsMapper groupsMapper)
+			AttributesMapper mapper, GroupsMapper groupsMapper) throws IllegalGroupValueException
 	{
 		GroupBean gr = groupResolver.resolveGroup(group, groupsMapper);
 		AttributeBean param = new AttributeBean();
@@ -157,7 +172,9 @@ public class DBAttributes
 		return param;
 	}
 	
-	public void addAttribute(long entityId, Attribute<?> attribute, boolean update, SqlSession sqlMap)
+	public void addAttribute(long entityId, Attribute<?> attribute, boolean update, SqlSession sqlMap) 
+			throws IllegalAttributeValueException, IllegalTypeException, 
+			IllegalAttributeTypeException, IllegalGroupValueException
 	{
 		AttributesMapper mapper = sqlMap.getMapper(AttributesMapper.class);
 		GroupsMapper grMapper = sqlMap.getMapper(GroupsMapper.class);
@@ -184,7 +201,8 @@ public class DBAttributes
 		}
 	}
 	
-	public void removeAttribute(long entityId, String groupPath, String attributeTypeName, SqlSession sqlMap)
+	public void removeAttribute(long entityId, String groupPath, String attributeTypeName, SqlSession sqlMap) 
+			throws IllegalAttributeValueException, IllegalAttributeTypeException, IllegalGroupValueException
 	{
 		AttributesMapper mapper = sqlMap.getMapper(AttributesMapper.class);
 		GroupsMapper grMapper = sqlMap.getMapper(GroupsMapper.class);
@@ -220,9 +238,12 @@ public class DBAttributes
 	 * @param attributeTypeName
 	 * @param sql
 	 * @return
+	 * @throws IllegalGroupValueException 
+	 * @throws IllegalTypeException 
 	 */
 	public Collection<AttributeExt<?>> getAllAttributes(long entityId, String groupPath, boolean effective, 
-			String attributeTypeName, SqlSession sql)
+			String attributeTypeName, SqlSession sql) 
+			throws IllegalTypeException, IllegalGroupValueException
 	{
 		Map<String, Map<String, AttributeExt<?>>> asMap = getAllAttributesAsMap(entityId, groupPath, effective, 
 				attributeTypeName, sql);
@@ -233,7 +254,8 @@ public class DBAttributes
 	}
 	
 	public Map<String, AttributeExt<?>> getAllAttributesAsMapOneGroup(long entityId, String groupPath,
-			String attributeTypeName, SqlSession sql)
+			String attributeTypeName, SqlSession sql) 
+			throws IllegalTypeException, IllegalGroupValueException
 	{
 		if (groupPath == null)
 			throw new IllegalArgumentException("For this method group must be specified");
@@ -250,9 +272,12 @@ public class DBAttributes
 	 * @param attributeTypeName
 	 * @param sql
 	 * @return
+	 * @throws IllegalGroupValueException 
+	 * @throws IllegalTypeException 
 	 */
 	public Map<String, Map<String, AttributeExt<?>>> getAllAttributesAsMap(long entityId, String groupPath, 
-			boolean effective, String attributeTypeName, SqlSession sql)
+			boolean effective, String attributeTypeName, SqlSession sql) 
+			throws IllegalTypeException, IllegalGroupValueException
 	{
 		AttributesMapper atMapper = sql.getMapper(AttributesMapper.class);
 		GroupsMapper gMapper = sql.getMapper(GroupsMapper.class);
@@ -287,9 +312,12 @@ public class DBAttributes
 	 * @param value
 	 * @param sql
 	 * @return
+	 * @throws IllegalTypeException 
+	 * @throws IllegalGroupValueException 
 	 */
 	public Set<Long> getEntitiesBySimpleAttribute(String groupPath, String attributeTypeName, 
-			Set<String> values, SqlSession sql)
+			Set<String> values, SqlSession sql) 
+			throws IllegalTypeException, IllegalGroupValueException
 	{
 		GroupsMapper grMapper = sql.getMapper(GroupsMapper.class);
 		AttributesMapper atMapper = sql.getMapper(AttributesMapper.class);
@@ -308,7 +336,7 @@ public class DBAttributes
 	}
 	
 	private Map<String, Map<String, AttributeExt<?>>> createAllAttrsMap(long entityId, AttributesMapper atMapper,
-			GroupsMapper gMapper)
+			GroupsMapper gMapper) throws IllegalTypeException, IllegalGroupValueException
 	{
 		Map<String, Map<String, AttributeExt<?>>> ret = new HashMap<String, Map<String, AttributeExt<?>>>();
 		List<AttributeBean> allAts = getDefinedAttributes(entityId, null, null, atMapper);

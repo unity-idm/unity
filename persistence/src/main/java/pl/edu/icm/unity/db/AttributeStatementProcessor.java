@@ -20,7 +20,11 @@ import pl.edu.icm.unity.db.model.AttributeTypeBean;
 import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.db.resolvers.AttributesResolver;
 import pl.edu.icm.unity.db.resolvers.GroupResolver;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
@@ -75,10 +79,11 @@ public class AttributeStatementProcessor
 	 * @param atMapper
 	 * @param gMapper
 	 * @return collected attributes in a map form. Map keys are attribute names.
+	 * @throws IllegalGroupValueException 
 	 */
 	public Map<String, AttributeExt<?>> getEffectiveAttributes(long entityId, String group, String attribute, 
 			Set<String> allGroups, Map<String, Map<String, AttributeExt<?>>> directAttributesByGroup,
-			AttributesMapper atMapper, GroupsMapper gMapper)
+			AttributesMapper atMapper, GroupsMapper gMapper) throws IllegalGroupValueException
 	{
 		Map<String, Map<String, AttributeExt<?>>> downwardsAttributes = new HashMap<String, Map<String,AttributeExt<?>>>();
 		collectUpOrDownAttributes(CollectionMode.downwards, group, attribute, downwardsAttributes, 
@@ -101,9 +106,10 @@ public class AttributeStatementProcessor
 	 * @param mapper
 	 * @param gMapper
 	 * @return 
+	 * @throws IllegalGroupValueException 
 	 */
 	private AttributeStatement[] getGroupStatements(String groupPath, AttributesMapper mapper, 
-			GroupsMapper gMapper)
+			GroupsMapper gMapper) throws IllegalGroupValueException
 	{
 		GroupBean groupBean = groupResolver.resolveGroup(groupPath, gMapper);
 		Group group = jsonS.resolveGroupBean(groupBean, gMapper, mapper);
@@ -127,11 +133,15 @@ public class AttributeStatementProcessor
 	 * @param allGroups
 	 * @param mapper
 	 * @param gMapper
+	 * @throws IllegalGroupValueException 
+	 * @throws IllegalAttributeTypeException 
+	 * @throws IllegalTypeException 
 	 */
 	private void collectUpOrDownAttributes(CollectionMode mode, String groupPath, String attribute,
 			Map<String, Map<String, AttributeExt<?>>> upOrDownAttributes, 
 			Map<String, Map<String, AttributeExt<?>>> allAttributesByGroup,
-			Set<String> allGroups, AttributesMapper mapper, GroupsMapper gMapper)
+			Set<String> allGroups, AttributesMapper mapper, GroupsMapper gMapper) 
+			throws IllegalGroupValueException
 	{
 		AttributeStatement[] statements = getGroupStatements(groupPath, mapper, gMapper);
 		
@@ -186,7 +196,7 @@ public class AttributeStatementProcessor
 			Map<String, Map<String, AttributeExt<?>>> upwardsAttributesByGroup,
 			Map<String, Map<String, AttributeExt<?>>> downwardsAttributesByGroup,
 			String group, String attribute, AttributeStatement[] statements, 
-			Set<String> allGroups, AttributesMapper mapper)
+			Set<String> allGroups, AttributesMapper mapper) 
 	{
 		Map<String, AttributeExt<?>> collectedAttributes = new HashMap<String, AttributeExt<?>>();
 		Map<String, AttributeExt<?>> attributesInGroup = allAttributesByGroup.get(group);
@@ -218,13 +228,15 @@ public class AttributeStatementProcessor
 	 * @param collectedAttributes
 	 * @param statement
 	 * @param mapper
+	 * @throws IllegalTypeException 
+	 * @throws IllegalAttributeTypeException 
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void processAttributeStatement(CollectionMode mode, AttributeStatement statement, String attribute, 
 			Map<String, AttributeExt<?>> collectedAttributes, 
 			Map<String, Map<String, AttributeExt<?>>> upwardsAttributesByGroup,
 			Map<String, Map<String, AttributeExt<?>>> downwardsAttributesByGroup,
-			Set<String> allGroups, AttributesMapper mapper)
+			Set<String> allGroups, AttributesMapper mapper) 
 	{
 		if (!isForInterestingAttribute(attribute, statement))
 			return;
@@ -245,12 +257,18 @@ public class AttributeStatementProcessor
 				collectedAttributes.put(ret.getName(), new AttributeExt(ret, false));
 				return;
 			case merge:
-				AttributeTypeBean atb = attrResolver.resolveAttributeType(ret.getName(), mapper);
-				AttributeType at = attrResolver.resolveAttributeTypeBean(atb);
-				if (at.getMaxElements() == Integer.MAX_VALUE)
+				try
 				{
-					AttributeExt<?> existing = collectedAttributes.get(ret.getName());
-					((List)existing.getValues()).addAll(ret.getValues());
+					AttributeTypeBean atb = attrResolver.resolveAttributeType(ret.getName(), mapper);
+					AttributeType at = attrResolver.resolveAttributeTypeBean(atb);
+					if (at.getMaxElements() == Integer.MAX_VALUE)
+					{
+						AttributeExt<?> existing = collectedAttributes.get(ret.getName());
+						((List)existing.getValues()).addAll(ret.getValues());
+					}
+				} catch (EngineException e)
+				{
+					//OK, shouldn't happen, anyway ignore.
 				}
 				return;
 			}
@@ -296,7 +314,7 @@ public class AttributeStatementProcessor
 		case memberOf:
 			return allGroups.contains(condition.getGroup());
 		default:
-			throw new RuntimeEngineException("Unsupported condition: " + type);
+			throw new InternalException("Unsupported condition: " + type);
 		}
 	}
 	

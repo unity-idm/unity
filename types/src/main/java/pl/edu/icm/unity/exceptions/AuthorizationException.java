@@ -8,7 +8,7 @@ package pl.edu.icm.unity.exceptions;
  * Thrown when there is authorization problem
  * @author K. Benedyczak
  */
-public class AuthorizationException extends RuntimeEngineException
+public class AuthorizationException extends EngineException
 {
 	private static final long serialVersionUID = 1L;
 

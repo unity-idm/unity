@@ -6,7 +6,6 @@ package pl.edu.icm.unity.webadmin.attribute;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -40,15 +39,9 @@ public class AttributeEditDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		try
-		{
-			Attribute<?> attribute = editor.getAttribute();
-			if (callback.newAttribute(attribute))
-				close();
-		} catch (IllegalAttributeValueException e) 
-		{
-			return;
-		}
+		Attribute<?> attribute = editor.getAttribute();
+		if (callback.newAttribute(attribute))
+			close();
 	}
 	
 	public interface Callback

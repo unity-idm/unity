@@ -14,6 +14,7 @@ import pl.edu.icm.unity.db.mapper.IdentitiesMapper;
 import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.IdentityBean;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -43,7 +44,7 @@ public class IdentitiesResolver
 	}
 
 
-	public IdentityType resolveIdentityType(BaseBean raw)
+	public IdentityType resolveIdentityType(BaseBean raw) throws IllegalTypeException
 	{
 		IdentityType it = new IdentityType(idTypesRegistry.getByName(raw.getName()));
 		idTypeSerializer.fromJson(raw.getContents(), it);
@@ -55,7 +56,8 @@ public class IdentitiesResolver
 		return idType.getId() + "::" + idType.getComparableValue(id.getValue());
 	}
 
-	public String getComparableIdentityValue(IdentityTaV id)
+	public String getComparableIdentityValue(IdentityTaV id) 
+			throws IllegalIdentityValueException, IllegalTypeException
 	{
 		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(id.getTypeId());
 		if (idTypeDef == null)
@@ -63,7 +65,8 @@ public class IdentitiesResolver
 		return getComparableIdentityValue(id, idTypeDef);
 	}
 	
-	public long getEntityId(EntityParam entityParam, SqlSession sqlMap)
+	public long getEntityId(EntityParam entityParam, SqlSession sqlMap) 
+			throws IllegalIdentityValueException, IllegalTypeException
 	{
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
 		BaseBean entityB;
@@ -91,7 +94,7 @@ public class IdentitiesResolver
 		}
 	}
 	
-	public Identity resolveIdentityBean(IdentityBean idB, IdentitiesMapper mapper)
+	public Identity resolveIdentityBean(IdentityBean idB, IdentitiesMapper mapper) throws IllegalTypeException
 	{
 		BaseBean identityTypeB = mapper.getIdentityTypeById(idB.getTypeId());
 		IdentityType idType = resolveIdentityType(identityTypeB);

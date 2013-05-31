@@ -25,6 +25,8 @@ import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.db.resolvers.AttributesResolver;
 import pl.edu.icm.unity.db.resolvers.GroupResolver;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
@@ -59,9 +61,12 @@ public class GroupsSerializer
 	/**
 	 * @param src
 	 * @return Json as byte[] with the src contents.
+	 * @throws IllegalAttributeTypeException 
+	 * @throws IllegalGroupValueException 
 	 */
 	public byte[] toJson(Group src, GroupsMapper groupMapper, 
-			AttributesMapper attributeMapper)
+			AttributesMapper attributeMapper) 
+			throws IllegalGroupValueException, IllegalAttributeTypeException
 	{
 		try
 		{
@@ -138,7 +143,8 @@ public class GroupsSerializer
 	}
 	
 	private JsonNode serializeAS(AttributeStatement as, GroupsMapper groupMapper, 
-			AttributesMapper attributeMapper) throws JsonProcessingException
+			AttributesMapper attributeMapper) 
+			throws JsonProcessingException, IllegalGroupValueException, IllegalAttributeTypeException
 	{
 		ObjectNode main = mapper.createObjectNode();
 		main.put("resolution", as.getConflictResolution().name());
@@ -151,7 +157,7 @@ public class GroupsSerializer
 	}
 	
 	private JsonNode serializeASCond(AttributeStatementCondition asc, GroupsMapper groupMapper, 
-			AttributesMapper attributeMapper)
+			AttributesMapper attributeMapper) throws IllegalGroupValueException, IllegalAttributeTypeException
 	{
 		ObjectNode main = mapper.createObjectNode();
 
@@ -171,7 +177,7 @@ public class GroupsSerializer
 	}
 	
 	private void addAttributeToJson(ObjectNode main, Attribute<?> attribute, AttributesMapper attributeMapper,
-			GroupsMapper groupMapper)
+			GroupsMapper groupMapper) throws IllegalAttributeTypeException, IllegalGroupValueException
 	{
 		AttributeTypeBean atb = attributeResolver.resolveAttributeType(attribute.getName(), 
 				attributeMapper);
@@ -186,7 +192,8 @@ public class GroupsSerializer
 	}
 	
 	private AttributeStatement deserializeAS(JsonNode as, String group, GroupsMapper groupMapper, 
-			AttributesMapper attributeMapper) throws IOException
+			AttributesMapper attributeMapper) throws IOException, IllegalGroupValueException, 
+			IllegalTypeException, IllegalAttributeTypeException
 	{
 		AttributeStatement ret = new AttributeStatement();
 		String resolution = as.get("resolution").asText();
@@ -203,7 +210,8 @@ public class GroupsSerializer
 	}
 	
 	private AttributeStatementCondition deserializeASCond(JsonNode asc, GroupsMapper groupMapper, 
-			AttributesMapper attributeMapper) throws IOException
+			AttributesMapper attributeMapper) 
+			throws IOException, IllegalGroupValueException, IllegalTypeException, IllegalAttributeTypeException
 	{
 		AttributeStatementCondition ret = new AttributeStatementCondition();
 		String type = asc.get("type").asText();
@@ -226,7 +234,8 @@ public class GroupsSerializer
 	}
 
 	private Attribute<?> getAttributeFromJson(JsonNode as, AttributesMapper attributeMapper, 
-			GroupsMapper groupMapper) throws IOException
+			GroupsMapper groupMapper) throws IOException, IllegalTypeException, 
+			IllegalAttributeTypeException, IllegalGroupValueException
 	{
 		long attributeId = as.get("attributeId").asLong();
 		AttributeTypeBean atb = attributeMapper.getAttributeTypeById(attributeId);

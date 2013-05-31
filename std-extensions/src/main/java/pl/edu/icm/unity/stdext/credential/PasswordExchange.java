@@ -4,8 +4,7 @@
  */
 package pl.edu.icm.unity.stdext.credential;
 
-import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 
@@ -17,6 +16,6 @@ public interface PasswordExchange extends CredentialExchange
 {
 	public static final String ID = "password exchange";
 	
-	public AuthenticatedEntity checkPassword(String username, String password) throws IllegalIdentityValueException,
-		IllegalCredentialException;
+	public AuthenticatedEntity checkPassword(String username, String password) 
+			throws EngineException;
 }

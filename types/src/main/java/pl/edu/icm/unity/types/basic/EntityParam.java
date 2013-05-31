@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.types.basic;
 
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.InitializationValidator;
 
 
@@ -36,7 +37,7 @@ public class EntityParam implements InitializationValidator
 	}
 
 	@Override
-	public void validateInitialization()
+	public void validateInitialization() throws IllegalIdentityValueException
 	{
 		if (entityId != null)
 			return;

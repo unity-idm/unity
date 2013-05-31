@@ -34,9 +34,10 @@ public class CredentialRequirementsHolder
 	 * @param requirements
 	 * @param reg
 	 * @param credDefs
+	 * @throws IllegalCredentialException 
 	 */
 	public CredentialRequirementsHolder(CredentialRequirements requirements, AuthenticatorsRegistry reg, 
-			Collection<CredentialDefinition> credDefs)
+			Collection<CredentialDefinition> credDefs) throws IllegalCredentialException
 	{
 		this.reg = reg;
 		this.requirements = requirements;
@@ -48,16 +49,18 @@ public class CredentialRequirementsHolder
 	 * @param reg
 	 * @param json
 	 * @param credDefs
+	 * @throws IllegalCredentialException 
 	 */
 	public CredentialRequirementsHolder(AuthenticatorsRegistry reg, byte[] json, 
-			Collection<CredentialDefinition> credDefs)
+			Collection<CredentialDefinition> credDefs) throws IllegalCredentialException
 	{
 		this.reg = reg;
 		this.requirements = CredentialRequirementsSerializer.deserialize(json);
 		initHandlers(requirements.getRequiredCredentials(), credDefs);
 	}
 	
-	private void initHandlers(Set<String> configuredCredentials, Collection<CredentialDefinition> credDefs)
+	private void initHandlers(Set<String> configuredCredentials, Collection<CredentialDefinition> credDefs) 
+			throws IllegalCredentialException
 	{
 		Map<String, CredentialDefinition> crDefsMap = new HashMap<String, CredentialDefinition>();
 		for (CredentialDefinition cr: credDefs)
@@ -66,7 +69,7 @@ public class CredentialRequirementsHolder
 			initHandler(reg, crDefsMap.get(credDef));
 	}
 
-	private void initHandler(AuthenticatorsRegistry reg, CredentialDefinition def)
+	private void initHandler(AuthenticatorsRegistry reg, CredentialDefinition def) throws IllegalCredentialException
 	{
 		LocalCredentialVerificatorFactory fact = reg.getLocalCredentialFactory(def.getTypeId());
 		if (fact == null)

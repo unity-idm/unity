@@ -11,9 +11,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.IllegalArgumentException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 
 
@@ -28,7 +28,7 @@ public class IntegerAttributeSyntax implements AttributeValueSyntax<Long>
 	private long max = Long.MAX_VALUE;
 	
 	@Override
-	public String getSerializedConfiguration()
+	public String getSerializedConfiguration() throws InternalException
 	{
 		ObjectNode main = Constants.MAPPER.createObjectNode();
 		main.put("min", getMin());
@@ -38,12 +38,12 @@ public class IntegerAttributeSyntax implements AttributeValueSyntax<Long>
 			return Constants.MAPPER.writeValueAsString(main);
 		} catch (JsonProcessingException e)
 		{
-			throw new RuntimeEngineException("Can't serialize IntegerAttributeSyntax to JSON", e);
+			throw new InternalException("Can't serialize IntegerAttributeSyntax to JSON", e);
 		}
 	}
 
 	@Override
-	public void setSerializedConfiguration(String json)
+	public void setSerializedConfiguration(String json) throws InternalException
 	{
 		JsonNode jsonN;
 		try
@@ -51,10 +51,10 @@ public class IntegerAttributeSyntax implements AttributeValueSyntax<Long>
 			jsonN = Constants.MAPPER.readTree(json);
 		} catch (Exception e)
 		{
-			throw new RuntimeEngineException("Can't deserialize IntegerAttributeSyntax from JSON", e);
+			throw new InternalException("Can't deserialize IntegerAttributeSyntax from JSON", e);
 		}
-		setMin(jsonN.get("min").asLong());
-		setMax(jsonN.get("max").asLong());		
+		min = jsonN.get("min").asLong();
+		max = jsonN.get("max").asLong();		
 	}
 
 	@Override
@@ -107,10 +107,10 @@ public class IntegerAttributeSyntax implements AttributeValueSyntax<Long>
 		return min;
 	}
 
-	public void setMin(long min)
+	public void setMin(long min) throws WrongArgumentException
 	{
 		if (min > max)
-			throw new IllegalArgumentException("Minimum must not be less then the maximum");
+			throw new WrongArgumentException("Minimum must not be less then the maximum");
 		this.min = min;
 	}
 
@@ -119,10 +119,10 @@ public class IntegerAttributeSyntax implements AttributeValueSyntax<Long>
 		return max;
 	}
 
-	public void setMax(long max)
+	public void setMax(long max) throws WrongArgumentException
 	{
 		if (max < min)
-			throw new IllegalArgumentException("Maximum must not be less then the minimum");
+			throw new WrongArgumentException("Maximum must not be less then the minimum");
 		this.max = max;
 	}
 }

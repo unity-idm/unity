@@ -15,7 +15,7 @@ import com.vaadin.ui.PasswordField;
 import eu.unicore.util.configuration.ConfigurationException;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
@@ -59,7 +59,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 			return Constants.MAPPER.writeValueAsString(root);
 		} catch (JsonProcessingException e)
 		{
-			throw new RuntimeEngineException("Can't serialize web-based password retrieval configuration to JSON", e);
+			throw new InternalException("Can't serialize web-based password retrieval configuration to JSON", e);
 		}
 	}
 

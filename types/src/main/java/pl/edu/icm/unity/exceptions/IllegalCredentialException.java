@@ -5,10 +5,10 @@
 package pl.edu.icm.unity.exceptions;
 
 /**
- * Thrown when attribtue type is invalid.
+ * Thrown when credential definition is invalid.
  * @author K. Benedyczak
  */
-public class IllegalCredentialException extends RuntimeEngineException
+public class IllegalCredentialException extends EngineException
 {
 	private static final long serialVersionUID = 1L;
 

@@ -23,7 +23,7 @@ import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.util.configuration.ConfigurationException;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
@@ -67,7 +67,7 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 			return Constants.MAPPER.writeValueAsString(root);
 		} catch (JsonProcessingException e)
 		{
-			throw new RuntimeEngineException("Can't serialize web-based TLS retrieval configuration to JSON", e);
+			throw new InternalException("Can't serialize web-based TLS retrieval configuration to JSON", e);
 		}
 	}
 

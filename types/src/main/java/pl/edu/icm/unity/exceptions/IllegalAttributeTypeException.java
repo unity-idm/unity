@@ -8,7 +8,7 @@ package pl.edu.icm.unity.exceptions;
  * Thrown when attribtue type is invalid.
  * @author K. Benedyczak
  */
-public class IllegalAttributeTypeException extends RuntimeEngineException
+public class IllegalAttributeTypeException extends EngineException
 {
 	private static final long serialVersionUID = 1L;
 

@@ -22,8 +22,12 @@ import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.db.model.GroupElementBean;
 import pl.edu.icm.unity.db.resolvers.GroupResolver;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -58,11 +62,14 @@ public class DBGroups
 	 * @param parent
 	 * @param name
 	 * @throws InternalException
+	 * @throws IllegalArgumentException 
+	 * @throws IllegalAttributeTypeException 
 	 * @throws GroupNotKnownException
 	 * @throws ElementAlreadyExistsException
 	 */
 	public void addGroup(Group toAdd, SqlSession sqlMap) 
-		throws InternalException, IllegalGroupValueException
+		throws InternalException, IllegalGroupValueException, WrongArgumentException, 
+		IllegalAttributeTypeException
 	{
 		limits.checkNameLimit(toAdd.getName());
 			
@@ -83,7 +90,8 @@ public class DBGroups
 	}
 	
 	public void updateGroup(String toUpdate, Group updated, SqlSession sqlMap) 
-			throws InternalException, IllegalGroupValueException
+			throws InternalException, IllegalGroupValueException, 
+			IllegalAttributeTypeException, WrongArgumentException
 	{
 		limits.checkNameLimit(updated.getName());
 		
@@ -159,7 +167,9 @@ public class DBGroups
 		return ret;
 	}
 	
-	public void addMemberFromParent(String path, EntityParam entity, SqlSession sqlMap)
+	public void addMemberFromParent(String path, EntityParam entity, SqlSession sqlMap) 
+			throws IllegalGroupValueException, IllegalIdentityValueException, 
+			IllegalTypeException
 	{
 		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
 		GroupBean gb = groupResolver.resolveGroup(path, mapper);
@@ -177,7 +187,9 @@ public class DBGroups
 		mapper.insertMember(param);
 	}
 	
-	public void removeMember(String path, EntityParam entity, SqlSession sqlMap)
+	public void removeMember(String path, EntityParam entity, SqlSession sqlMap) 
+			throws IllegalGroupValueException, IllegalIdentityValueException, 
+			IllegalTypeException
 	{
 		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
 		GroupBean gb = groupResolver.resolveGroup(path, mapper);
@@ -204,8 +216,11 @@ public class DBGroups
 	 * Loads all groups, deserializes their contents what removes the outdated entries and update it
 	 * if something was changed.
 	 * @param sqlMap
+	 * @throws IllegalAttributeTypeException 
+	 * @throws IllegalGroupValueException 
 	 */
-	public int updateAllGroups(SqlSession sqlMap)
+	public int updateAllGroups(SqlSession sqlMap) 
+			throws IllegalGroupValueException, IllegalAttributeTypeException
 	{
 		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
 		AttributesMapper aMapper = sqlMap.getMapper(AttributesMapper.class);

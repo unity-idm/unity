@@ -37,8 +37,10 @@ import edu.vt.middleware.password.UppercaseCharacterRule;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
@@ -70,7 +72,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	}
 
 	@Override
-	public String getSerializedConfiguration()
+	public String getSerializedConfiguration() throws InternalException
 	{
 		ObjectNode root = Constants.MAPPER.createObjectNode();
 		root.put("minLength", minLength);
@@ -83,12 +85,12 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			return Constants.MAPPER.writeValueAsString(root);
 		} catch (JsonProcessingException e)
 		{
-			throw new RuntimeEngineException("Can't serialize password credential configuration to JSON", e);
+			throw new InternalException("Can't serialize password credential configuration to JSON", e);
 		}
 	}
 
 	@Override
-	public void setSerializedConfiguration(String json)
+	public void setSerializedConfiguration(String json) throws InternalException
 	{
 		JsonNode root;
 		try
@@ -96,7 +98,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			root = Constants.MAPPER.readTree(json);
 		} catch (Exception e)
 		{
-			throw new RuntimeEngineException("Can't deserialize password credential configuration " +
+			throw new InternalException("Can't deserialize password credential configuration " +
 					"from JSON", e);
 		}
 		minLength = root.get("minLength").asInt();
@@ -109,7 +111,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 
 	@Override
 	public String prepareCredential(String rawCredential, String currentCredential)
-			throws IllegalCredentialException
+			throws IllegalCredentialException, InternalException
 	{
 		Deque<PasswordInfo> currentPasswords = parseDbCredential(currentCredential);
 		verifyNewPassword(rawCredential, currentPasswords);
@@ -136,11 +138,11 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			return Constants.MAPPER.writeValueAsString(root);
 		} catch (JsonProcessingException e)
 		{
-			throw new RuntimeEngineException("Can't serialize password credential to JSON", e);
+			throw new InternalException("Can't serialize password credential to JSON", e);
 		}
 	}
 
-	private Deque<PasswordInfo> parseDbCredential(String raw)
+	private Deque<PasswordInfo> parseDbCredential(String raw) throws InternalException
 	{
 		if (raw == null || raw.length() == 0)
 			return new LinkedList<PasswordInfo>();
@@ -161,14 +163,14 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			return ret;
 		} catch (Exception e)
 		{
-			throw new RuntimeEngineException("Can't deserialize password credential from JSON", e);
+			throw new InternalException("Can't deserialize password credential from JSON", e);
 		}
 
 	}
 
 
 	@Override
-	public LocalCredentialState checkCredentialState(String currentCredential)
+	public LocalCredentialState checkCredentialState(String currentCredential) throws InternalException
 	{
 		Deque<PasswordInfo> currentPasswords = parseDbCredential(currentCredential);
 		if (currentPasswords.isEmpty())
@@ -182,7 +184,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 
 	@Override
 	public AuthenticatedEntity checkPassword(String username, String password)
-			throws IllegalIdentityValueException, IllegalCredentialException
+			throws IllegalIdentityValueException, IllegalCredentialException, InternalException, IllegalTypeException, IllegalGroupValueException
 	{
 		EntityWithCredential resolved = identityResolver.resolveIdentity(username, 
 				IDENTITY_TYPES, credentialName);
@@ -198,7 +200,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 				username);
 	}
 
-	private void verifyNewPassword(String password, Deque<PasswordInfo> currentCredentials)
+	private void verifyNewPassword(String password, Deque<PasswordInfo> currentCredentials) throws IllegalCredentialException
 	{
 		PasswordValidator validator = getPasswordValidator();
 		

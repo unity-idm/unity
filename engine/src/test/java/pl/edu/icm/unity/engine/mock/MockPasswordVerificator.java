@@ -5,7 +5,9 @@
 package pl.edu.icm.unity.engine.mock;
 
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -69,7 +71,7 @@ public class MockPasswordVerificator extends AbstractLocalVerificator implements
 
 	@Override
 	public long checkPassword(String username, String password)
-			throws IllegalIdentityValueException, IllegalCredentialException
+			throws IllegalIdentityValueException, IllegalCredentialException, IllegalTypeException, IllegalGroupValueException
 	{
 		EntityWithCredential entityWithCred = identityResolver.resolveIdentity(username, 
 				ID_TYPES, getCredentialName());
