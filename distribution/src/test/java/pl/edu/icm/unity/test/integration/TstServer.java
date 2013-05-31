@@ -12,7 +12,7 @@ import org.apache.commons.io.FileUtils;
 import pl.edu.icm.unity.server.UnityApplication;
 
 
-public class TestServer
+public class TstServer
 {
 	public static void main(String... args) throws IOException 
 	{
