@@ -80,18 +80,29 @@ public class SamlParseFilter implements Filter
 		HttpServletResponse response = (HttpServletResponse) responseBare;
 		HttpSession session = request.getSession();
 		SAMLAuthnContext context = (SAMLAuthnContext) session.getAttribute(SESSION_SAML_CONTEXT); 
+		//is there processing in progress?
 		if (context != null)
 		{
 			String samlRequest = request.getParameter(SAMLConstants.REQ_SAML_REQUEST);
+			//do we have a new request?
+			if (samlRequest == null)
+			{
+				chain.doFilter(request, response);
+				return;
+			}
+			
+			//ok, we do have a new request. 
+			//We can have the old session expired or order to forcefully close it.
 			String force = request.getParameter(REQ_FORCE);
-			if (samlRequest != null && (force == null || force.equals("false")) && !context.isExpired())
+			if ((force == null || force.equals("false")) && !context.isExpired())
 			{
 				errorHandler.showHoldOnPage(samlRequest, 
 						request.getParameter(SAMLConstants.RELAY_STATE), response);
 				return;
+			} else
+			{
+				session.removeAttribute(SESSION_SAML_CONTEXT);
 			}
-			chain.doFilter(request, response);
-			return;
 		}
 		
 		try
