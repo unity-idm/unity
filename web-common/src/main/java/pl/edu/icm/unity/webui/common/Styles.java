@@ -10,6 +10,10 @@ package pl.edu.icm.unity.webui.common;
  */
 public enum Styles
 {
+	authnSetSelect("authnSetSelect"),
+	italic("u-italic"),
+	bold("u-bold"),
+	gray("u-gray"),
 	error("u-error"),
 	header("u-header");
 	

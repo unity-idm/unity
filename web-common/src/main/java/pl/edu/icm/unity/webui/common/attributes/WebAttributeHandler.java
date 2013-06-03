@@ -17,12 +17,13 @@ import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 public interface WebAttributeHandler<T>
 {
 	public String getSupportedSyntaxId();
+	public final static int MIN_VALUE_TEXT_LEN = 16;
 	
 	/**
 	 * @param value
 	 * @param syntax
 	 * @param limited if more then zero, then the string representation should be no longer then
-	 * the limit. It may be assumed that the limited won't be between 0 and 15. 
+	 * the limit. It may be assumed that the limited won't be between 0 and MIN_VALUE_TEXT_LEN. 
 	 * @return string representation, never null. For values which have no string representation some
 	 * type based description should be returned as 'Jpeg image'
 	 */

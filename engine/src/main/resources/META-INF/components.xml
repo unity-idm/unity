@@ -20,6 +20,7 @@
 	<bean primary="true" factory-bean="proxyBuilder" factory-method="getServerManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder" factory-method="getEndpointsManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder" factory-method="getAuthenticationManagementInstance"/>
+	<bean primary="true" factory-bean="proxyBuilder" factory-method="getPreferencesManagementInstance"/>
 
 	<!-- The real implementation, with a real authorization module injected. However those beans are plain,
 	are not generating any events. -->	
@@ -39,6 +40,9 @@
 		<qualifier value="plain"/>
 	</bean>
 	<bean primary="false" class="pl.edu.icm.unity.engine.EndpointManagementImpl">
+		<qualifier value="plain"/>
+	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.PreferencesManagementImpl">
 		<qualifier value="plain"/>
 	</bean>
 	
@@ -65,6 +69,10 @@
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>	
 	<bean primary="false" class="pl.edu.icm.unity.engine.EndpointManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.PreferencesManagementImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>

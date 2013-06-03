@@ -27,7 +27,7 @@ import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 
 /**
- * Takes events from producets and dispatches them to all registered {@link EventListener}s.
+ * Takes events from producers and dispatches them to all registered {@link EventListener}s.
  * This class is thread safe.
  * @author K. Benedyczak
  */

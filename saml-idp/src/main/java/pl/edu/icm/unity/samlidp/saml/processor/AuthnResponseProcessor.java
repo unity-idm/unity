@@ -6,20 +6,20 @@ package pl.edu.icm.unity.samlidp.saml.processor;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 
-import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.Assertion;
 import eu.unicore.samly2.elements.Subject;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.proto.AssertionResponse;
-import eu.unicore.security.dsig.DSigException;
 import pl.edu.icm.unity.samlidp.SamlProperties;
 import pl.edu.icm.unity.samlidp.saml.SAMLProcessingException;
 import pl.edu.icm.unity.samlidp.saml.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import xmlbeans.org.oasis.saml2.assertion.AuthnContextType;
@@ -72,8 +72,13 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 	public ResponseDocument processAuthnRequest(Identity authenticatedIdentity) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
+		return processAuthnRequest(authenticatedIdentity, null);
+	}
+	
+	public ResponseDocument processAuthnRequest(Identity authenticatedIdentity, Collection<Attribute<?>> attributes) 
+			throws SAMLRequesterException, SAMLProcessingException
+	{
 		SamlProperties samlConfiguration = context.getSamlConfiguration();
-		AuthnContextType authContext = setupAuthnContext();
 
 		String format = getRequestedFormat();
 		Subject authenticatedOne = convertIdentity(authenticatedIdentity, format);
@@ -90,6 +95,15 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 				new SubjectConfirmationType[] {subConf});
 				
 		AssertionResponse resp = getOKResponseDocument();
+		resp.addAssertion(createAuthenticationAssertion(authenticatedOne));
+		if (attributes != null)
+			resp.addAssertion(createAttributeAssertion(authenticatedOne, attributes));
+		return resp.getXMLBeanDoc();
+	}
+
+	private Assertion createAuthenticationAssertion(Subject authenticatedOne) throws SAMLProcessingException
+	{
+		AuthnContextType authContext = setupAuthnContext();
 		Assertion assertion = new Assertion();
 		assertion.setIssuer(samlConfiguration.getValue(SamlProperties.ISSUER_URI), 
 				SAMLConstants.NFORMAT_ENTITY);
@@ -97,19 +111,10 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		assertion.addAuthStatement(authnTime, authContext);
 		assertion.setAudienceRestriction(new String[] {context.getRequest().getIssuer().getStringValue()});
 
-		try
-		{
-			X509Credential credential = samlConfiguration.getSamlIssuerCredential();
-			assertion.sign(credential.getKey(), credential.getCertificateChain());
-		} catch (DSigException e)
-		{
-			throw new SAMLProcessingException("Signing response problem", e);
-		}
-
-		resp.addAssertion(assertion);
-		return resp.getXMLBeanDoc();
+		signAssertion(assertion);
+		return assertion;
 	}
-
+	
 	/**
 	 * Only unspecified - it's too much work to implement it fully
 	 * with minimal effect.

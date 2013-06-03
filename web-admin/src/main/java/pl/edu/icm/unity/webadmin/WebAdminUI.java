@@ -18,13 +18,18 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
@@ -145,7 +150,17 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 			testAttrMan.addAttributeType(height);
 			
 			IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "foo", true, true);
-			testIdMan.addIdentity(toAdd, "Password requirement", LocalAuthenticationState.outdated, false);
+			Identity base = testIdMan.addIdentity(toAdd, "Password requirement", LocalAuthenticationState.outdated, false);
+
+			IdentityParam toAddDn = new IdentityParam(X500Identity.ID, "CN=test foo", true, true);
+			testIdMan.addIdentity(toAddDn, new EntityParam(base.getEntityId()), true);
+			
+			test.addMemberFromParent("/A", new EntityParam(base.getEntityId()));
+			
+			EnumAttribute a = new EnumAttribute("sys:AuthorizationRole", "/", AttributeVisibility.local, "Regular User");
+			testAttrMan.setAttribute(new EntityParam(base.getEntityId()), a, false);
+
+			testIdMan.setEntityCredential(new EntityParam(base.getEntityId()), "Password credential", "a");
 		} catch (Exception e)
 		{
 			return;

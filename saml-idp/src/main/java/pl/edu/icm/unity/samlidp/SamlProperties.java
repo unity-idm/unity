@@ -55,6 +55,7 @@ public class SamlProperties extends PropertiesHelper
 	private static final Logger log = Log.getLogger(SamlProperties.LOG_PFX, SamlProperties.class);
 	public enum RequestAcceptancePolicy {all, validSigner, strict};
 	public enum ResponseSigningPolicy {always, never, asRequest};
+	public enum GroupsSelection {none, all, single, subgroups};
 	
 	public static final String LOG_PFX = Log.U_SERVER_CFG;
 	
@@ -74,14 +75,18 @@ public class SamlProperties extends PropertiesHelper
 	public static final String ALLOWED_URI_SP = "acceptedUriSP.";
 	public static final String ALLOWED_DN_SP = "acceptedDNSP.";
 	
-	//attribute filter properties
-	/*
-	public static final String ATTRIBUTE_FILTER_FILE = "saml.attributeFiltersConfig";
-	public static final String ATTRIBUTE_FILTER_EXPOSED_ATTRIBUTES = "exposedAttribute";
-	public static final String ATTRIBUTE_FILTER_EXCLUDED_ATTRIBUTES = "excludedAttribute";
-	public static final String ATTRIBUTE_FILTER_ALLOWED_SCOPE_INFIX=".scope.";
-	public static final String ATTRIBUTE_FILTER_IGNORED_SCOPE_INFIX=".scope.not.";
-	*/
+	public static final String GROUP_PFX = "groupMapping.";
+	public static final String GROUP_TARGET = "serviceProvider";
+	public static final String GROUP = "mappingGroup";
+	public static final String DEFAULT_GROUP = "defaultGroup";
+	
+	public static final String GROUP_ATTRIBUTE = "groupAttribute";
+	public static final String GROUP_SELECTION = "groupSelection";
+	
+	public static final String ATTRIBUTE_FILTER = "attributeFilter.";
+	public static final String ATTRIBUTE_FILTER_TARGET = "filteredRequester.";
+	public static final String ATTRIBUTE_FILTER_INCLUDE = "included.";
+	public static final String ATTRIBUTE_FILTER_EXCLUDE = "excluded.";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -89,9 +94,29 @@ public class SamlProperties extends PropertiesHelper
 	static
 	{
 		DocumentationCategory samlCat = new DocumentationCategory("SAML subsystem settings", "5");
+
+		defaults.put(GROUP_PFX, new PropertyMD().setStructuredList(false).setCategory(samlCat).
+				setDescription("Prefix used to mark requester to group mappings."));
+		defaults.put(GROUP_TARGET, new PropertyMD().setStructuredListEntry(GROUP_PFX).setMandatory().setCategory(samlCat).
+				setDescription("Requester for which this entry applies."));
+		defaults.put(GROUP, new PropertyMD().setStructuredListEntry(GROUP_PFX).setMandatory().setCategory(samlCat).
+				setDescription("Group for the requester."));
+		defaults.put(DEFAULT_GROUP, new PropertyMD().setMandatory().setCategory(samlCat).
+				setDescription("Default group to be used for all requesers without an explicite mapping."));
+
+		defaults.put(GROUP_ATTRIBUTE, new PropertyMD("memberOf").setCategory(samlCat).
+				setDescription("Name of the SAML attribute which is used to carry the Unity group membership information."));
+		defaults.put(GROUP_SELECTION, new PropertyMD(GroupsSelection.subgroups).setCategory(samlCat).
+				setDescription("Which Unity groups should be inserted to the SAML group attribute. None disables the group reporting, single reports only the group configured for the requester. It can be also chosen to use all groups or subgroups of the group configured for the requester."));
 		
-//		defaults.put(ATTRIBUTE_FILTER_FILE, new PropertyMD("conf/attributeFilters.properties").setPath().setCategory(samlCat).
-//				setDescription("Specifies what file is used to provide filters defining which attributes are exposed by the SAML attribute query interface."));
+		defaults.put(ATTRIBUTE_FILTER, new PropertyMD().setStructuredList(false).setCategory(samlCat).
+				setDescription("Prefix used to mark attribute filters."));
+		defaults.put(ATTRIBUTE_FILTER_TARGET, new PropertyMD().setStructuredListEntry(ATTRIBUTE_FILTER).setList(false).setCategory(samlCat).
+				setDescription("Target of the filter. Leave undefined to create a default filter, otherwise add SAML requestor names for which the filter should be used. The first specific filter is used, if there is no spcific filter then the default is used."));
+		defaults.put(ATTRIBUTE_FILTER_INCLUDE, new PropertyMD().setStructuredListEntry(ATTRIBUTE_FILTER).setList(false).setCategory(samlCat).
+				setDescription("List of attributes which should be included in the SAML response. If this list is empty then all are included. Otherwise only those attributes matching any of the expressions are included."));
+		defaults.put(ATTRIBUTE_FILTER_EXCLUDE, new PropertyMD().setStructuredListEntry(ATTRIBUTE_FILTER).setList(false).setCategory(samlCat).
+				setDescription("List of attributes which should not be included in the SAML response. If this list is empty then no one is excluded. Otherwise all attributes matching any of the expressions are excluded. Those rules are used after inclusion rules."));
 		
 		defaults.put(SAML_REQUEST_VALIDITY, new PropertyMD("600").setPositive().setCategory(samlCat).
 				setDescription("Defines maximum validity period (in seconds) of a SAML request. Requests older than this value are denied. It also controls the validity of an authentication assertion."));
@@ -129,11 +154,13 @@ public class SamlProperties extends PropertiesHelper
 	private boolean signRespNever;
 	private boolean signRespAlways;
 	private ReplayAttackChecker replayChecker;
-	//private SamlTrustChecker trustChecker;
 	private SamlTrustChecker authnTrustChecker;
 	private long requestValidity;
 	private TrustedIssuersProperties trustedProperties;
 	private CredentialProperties issuerCredentialProperties;
+	private GroupChooser groupChooser;
+	private AttributeFilters attributeFilter;
+	private SamlAttributeMapper attributesMapper;
 	
 	
 	public SamlProperties(Properties src) throws ConfigurationException, IOException
@@ -206,6 +233,10 @@ public class SamlProperties extends PropertiesHelper
 		}
 		replayChecker = new ReplayAttackChecker();
 		requestValidity = getLongValue(SamlProperties.SAML_REQUEST_VALIDITY)*1000;
+		
+		groupChooser = new GroupChooser(this);
+		attributeFilter = new AttributeFilters(this);
+		attributesMapper = new DefaultSamlAttributesMapper();
 	}
 
 	private void initPki()
@@ -238,11 +269,6 @@ public class SamlProperties extends PropertiesHelper
 		return requestValidity;
 	}
 	
-//	public SamlTrustChecker getGenericSamlTrustChecker()
-//	{
-//		return trustChecker;
-//	}
-
 	public SamlTrustChecker getAuthnTrustChecker()
 	{
 		return authnTrustChecker;
@@ -271,5 +297,20 @@ public class SamlProperties extends PropertiesHelper
 	public Properties getProperties()
 	{
 		return properties;
+	}
+
+	public GroupChooser getGroupChooser()
+	{
+		return groupChooser;
+	}
+
+	public AttributeFilters getAttributeFilter()
+	{
+		return attributeFilter;
+	}
+	
+	public SamlAttributeMapper getAttributesMapper()
+	{
+		return attributesMapper;
 	}
 }

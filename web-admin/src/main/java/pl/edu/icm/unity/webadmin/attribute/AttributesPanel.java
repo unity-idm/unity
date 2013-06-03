@@ -30,6 +30,7 @@ import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
@@ -116,7 +117,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		effectiveAttrsFilter = new EffectiveAttributesFilter();
 		showEffective = new CheckBox(msg.getMessage("Attribute.showEffective"), true);
 		showEffective.setImmediate(true);
-		showEffective.setStyleName("u-italic");
+		showEffective.setStyleName(Styles.italic.toString());
 		showEffective.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
@@ -127,7 +128,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		});
 		showInternal = new CheckBox(msg.getMessage("Attribute.showInternal"), false);
 		showInternal.setImmediate(true);
-		showInternal.setStyleName("u-gray");
+		showInternal.setStyleName(Styles.gray.toString());
 		showInternal.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override

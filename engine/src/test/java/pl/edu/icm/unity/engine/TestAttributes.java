@@ -125,6 +125,11 @@ public class TestAttributes extends DBIntegrationTestBase
 		assertEquals(3, allAts.size());
 		assertEquals("333", getAttributeByName(allAts, "tel").getValues().get(0));
 		assertEquals(AttributeVisibility.local, allAts.iterator().next().getVisibility());
+
+		allAts = attrsMan.getAllAttributes(entity, false, "/", "tel");
+		assertEquals(1, allAts.size());
+		assertEquals("333", getAttributeByName(allAts, "tel").getValues().get(0));
+		assertEquals(AttributeVisibility.local, allAts.iterator().next().getVisibility());
 		
 		
 		AttributeType atHidden = new AttributeType("hiddenTel", new StringAttributeSyntax());

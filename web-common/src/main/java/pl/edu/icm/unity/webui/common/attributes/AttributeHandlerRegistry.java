@@ -26,6 +26,7 @@ import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 public class AttributeHandlerRegistry
 {
 	private Map<String, WebAttributeHandlerFactory> factoriesByType = new HashMap<String, WebAttributeHandlerFactory>();
+	public static final int DEFAULT_MAX_LEN = 16;
 	
 	@Autowired
 	public AttributeHandlerRegistry(List<WebAttributeHandlerFactory> factories)
@@ -46,15 +47,15 @@ public class AttributeHandlerRegistry
 	{
 		return factoriesByType.keySet();
 	}
-	
+
 	/**
 	 * Returns a string representing the attribute. The returned format contains the attribute name
-	 * and the first value (if present). If more values are present this is only marked. The first value 
-	 * is shortened if is long.
+	 * and the values. If the values can not be put in the remaining text len, then are shortened.
 	 * @param attribute
+	 * @param maxValuesLen max values length, not less then 16
 	 * @return
 	 */
-	public String getSimplifiedAttributeRepresentation(Attribute<?> attribute)
+	public String getSimplifiedAttributeRepresentation(Attribute<?> attribute, int maxValuesLen)
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append(attribute.getName());
@@ -62,31 +63,48 @@ public class AttributeHandlerRegistry
 		if (values.size() > 0)
 		{
 			sb.append("=");
-			sb.append(getSimplifiedAttributeValuesRepresentation(attribute));
+			sb.append(getSimplifiedAttributeValuesRepresentation(attribute, maxValuesLen));
 		}
 		return sb.toString();
 	}
 	
 	/**
-	 * Returns a string representing the attributes values. Only the first value is output (if present). 
-	 * If more values are present this is only marked.
+	 * Returns a string representing the attributes values. The length of the values
+	 * string is limited by the argument. When some of the values can not be displayed, then 
+	 * ... is appended.
 	 * @param attribute
 	 * @return
 	 */
-	public String getSimplifiedAttributeValuesRepresentation(Attribute<?> attribute)
+	public String getSimplifiedAttributeValuesRepresentation(Attribute<?> attribute, int maxValuesLen)
 	{
+		if (maxValuesLen < 16)
+			throw new IllegalArgumentException("The max length must be lager then 16");
 		StringBuilder sb = new StringBuilder();
 		List<?> values = attribute.getValues();
-		if (values.size() > 0)
+		AttributeValueSyntax<?> syntax = attribute.getAttributeSyntax();
+		@SuppressWarnings("rawtypes")
+		WebAttributeHandler handler = getHandler(syntax.getValueSyntaxId());
+		int remainingLen = maxValuesLen;
+		final String MORE_VALS = ", ...";
+		final int moreValsLen = MORE_VALS.length();
+		
+		for (int i=0; i<values.size(); i++)
 		{
-			AttributeValueSyntax<?> syntax = attribute.getAttributeSyntax();
-			@SuppressWarnings("rawtypes")
-			WebAttributeHandler handler = getHandler(syntax.getValueSyntaxId());
-			@SuppressWarnings("unchecked")
-			String firstVal = handler.getValueAsString(values.get(0), syntax, 16);
-			sb.append(firstVal);
-			if (values.size() > 1)
+			int allowedLen = i == (values.size()-1) ? remainingLen : remainingLen-moreValsLen;
+			if (allowedLen < WebAttributeHandler.MIN_VALUE_TEXT_LEN)
+			{
 				sb.append(", ...");
+				break;
+			}
+			@SuppressWarnings("unchecked")
+			String val = handler.getValueAsString(values.get(i), syntax, allowedLen);
+			remainingLen -= val.length(); 
+			if (i > 0)
+			{
+				sb.append(", ");
+				remainingLen -= 2;
+			}
+			sb.append(val);
 		}
 		return sb.toString();
 	}

@@ -14,6 +14,7 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.ServerManagement;
 
 /**
@@ -36,6 +37,8 @@ public class EventProxyBuilder
 	private EndpointManagement endpointMan;
 	@Autowired @Qualifier("plain")
 	private AuthenticationManagement authnMan;
+	@Autowired @Qualifier("plain")
+	private PreferencesManagement prefMan;
 	
 	@Autowired
 	private EventProcessor eventProcessor;
@@ -87,5 +90,13 @@ public class EventProxyBuilder
 				new Class[] {AuthenticationManagement.class}, 
 				new EventDecoratingHandler(authnMan, eventProcessor, 
 						AuthenticationManagement.class.getSimpleName()));
+	}
+
+	public PreferencesManagement getPreferencesManagementInstance()
+	{
+		return (PreferencesManagement) Proxy.newProxyInstance(classLoader, 
+				new Class[] {PreferencesManagement.class}, 
+				new EventDecoratingHandler(prefMan, eventProcessor, 
+						PreferencesManagement.class.getSimpleName()));
 	}
 }

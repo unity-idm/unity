@@ -176,7 +176,8 @@ public class AttributeStatementEditDialog extends AbstractDialog
 	
 	private void setAttributeField(TextField tf, Attribute<?> assignedAttribute)
 	{
-		String attrRep = attrHandlerRegistry.getSimplifiedAttributeRepresentation(assignedAttribute);
+		String attrRep = attrHandlerRegistry.getSimplifiedAttributeRepresentation(assignedAttribute,
+				AttributeHandlerRegistry.DEFAULT_MAX_LEN);
 		tf.setReadOnly(false);
 		tf.setValue(attrRep);
 		tf.setReadOnly(true);

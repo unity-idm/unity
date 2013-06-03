@@ -86,7 +86,8 @@ public class AttributeStatementsTable extends Table
 		StringBuilder sb = new StringBuilder(256);
 		Attribute<?> assigned = as.getAssignedAttribute();
 		sb.append(msg.getMessage("AttributeStatements.assign")).append(" ");
-		sb.append(handlersReg.getSimplifiedAttributeRepresentation(assigned));
+		sb.append(handlersReg.getSimplifiedAttributeRepresentation(assigned,
+				AttributeHandlerRegistry.DEFAULT_MAX_LEN));
 		sb.append(" ").append(msg.getMessage("AttributeStatements.to")).append(" ");
 		
 		AttributeStatementCondition condition = as.getCondition();
@@ -105,7 +106,8 @@ public class AttributeStatementsTable extends Table
 			sb.append(" ").append(msg.getMessage("AttributeStatements.inParentGroup"));
 			break;
 		case hasParentgroupAttributeValue:
-			String condAttrStr = handlersReg.getSimplifiedAttributeRepresentation(condition.getAttribute());
+			String condAttrStr = handlersReg.getSimplifiedAttributeRepresentation(condition.getAttribute(),
+					AttributeHandlerRegistry.DEFAULT_MAX_LEN);
 			sb.append(operand).append(" ").append(condAttrStr);
 			sb.append(" ").append(msg.getMessage("AttributeStatements.inParentGroup"));
 			break;
@@ -115,7 +117,8 @@ public class AttributeStatementsTable extends Table
 			sb.append(condition.getAttribute().getGroupPath());
 			break;
 		case hasSubgroupAttributeValue:
-			String condAttrStr2 = handlersReg.getSimplifiedAttributeRepresentation(condition.getAttribute());
+			String condAttrStr2 = handlersReg.getSimplifiedAttributeRepresentation(condition.getAttribute(),
+					AttributeHandlerRegistry.DEFAULT_MAX_LEN);
 			sb.append(operand).append(" ").append(condAttrStr2);
 			sb.append(" ").append(msg.getMessage("AttributeStatements.inGroup")).append(" ");
 			sb.append(condition.getAttribute().getGroupPath());

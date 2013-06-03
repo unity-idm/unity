@@ -12,6 +12,7 @@ import java.util.Set;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -34,7 +35,7 @@ public class AuthenticatorSetSelectComponent extends VerticalLayout
 		this.msg = msg;
 		
 		OptionGroup buttons = new OptionGroup(msg.getMessage("AuthenticationUI.selectMethod"));
-		buttons.addStyleName("authnSetSelect");
+		buttons.addStyleName(Styles.authnSetSelect.toString());
 		addComponent(buttons);
 		setSizeUndefined();
 		

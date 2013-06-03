@@ -282,15 +282,15 @@ public class DBAttributes
 		AttributesMapper atMapper = sql.getMapper(AttributesMapper.class);
 		GroupsMapper gMapper = sql.getMapper(GroupsMapper.class);
 		
-		List<String> groups = getGroupsOrGroup(entityId, groupPath, gMapper);
-
-		
-		Set<String> allGroups = dbShared.getAllGroups(entityId, gMapper);
 		Map<String, Map<String, AttributeExt<?>>> directAttributesByGroup = createAllAttrsMap(entityId, 
 				atMapper, gMapper);
 		if (!effective)
+		{
+			filterMap(directAttributesByGroup, groupPath, attributeTypeName);
 			return directAttributesByGroup;
-
+		}
+		List<String> groups = getGroupsOrGroup(entityId, groupPath, gMapper);
+		Set<String> allGroups = dbShared.getAllGroups(entityId, gMapper);
 		Map<String, Map<String, AttributeExt<?>>> ret = new HashMap<String, Map<String, AttributeExt<?>>>();
 		for (String group: groups)
 		{
@@ -299,6 +299,29 @@ public class DBAttributes
 			ret.put(group, inGroup);
 		}
 		return ret;
+	}
+	
+	private void filterMap(Map<String, Map<String, AttributeExt<?>>> directAttributesByGroup,
+			String groupPath, String attributeTypeName)
+	{
+		if (groupPath != null)
+		{
+			Map<String, AttributeExt<?>> v = directAttributesByGroup.get(groupPath); 
+			directAttributesByGroup.clear();
+			if (v != null)
+				directAttributesByGroup.put(groupPath, v);
+		}
+		
+		if (attributeTypeName != null)
+		{
+			for (Map<String, AttributeExt<?>> e: directAttributesByGroup.values())
+			{
+				AttributeExt<?> at = e.get(attributeTypeName);
+				e.clear();
+				if (at != null)
+					e.put(attributeTypeName, at);
+			}
+		}
 	}
 	
 	/**

@@ -27,6 +27,7 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.authn.IdentityResolver;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
@@ -56,6 +57,8 @@ public abstract class SecuredDBIntegrationTestBase
 	@Autowired
 	@Qualifier("insecure")
 	protected ServerManagement insecureServerMan;
+	@Autowired
+	protected PreferencesManagement preferencesMan;
 	@Autowired
 	protected EndpointManagement endpointMan;
 	@Autowired

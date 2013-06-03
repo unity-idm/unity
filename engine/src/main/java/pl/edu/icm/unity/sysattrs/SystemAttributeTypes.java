@@ -31,6 +31,7 @@ public class SystemAttributeTypes
 	public static final String CREDENTIALS_STATE = "sys:CredentialsState";
 	public static final String CREDENTIAL_PREFIX = "sys:Credential:";
 	public static final String AUTHORIZATION_ROLE = "sys:AuthorizationRole";
+	public static final String PREFERENCES = "sys:Preferences";
 	
 	private AuthorizationManager authz;
 	
@@ -43,6 +44,7 @@ public class SystemAttributeTypes
 		systemAttributes.add(getCredentialRequirementsAT());
 		systemAttributes.add(getCredentialsStateAT());
 		systemAttributes.add(getAuthozationRoleAT());
+		systemAttributes.add(getPreferenceAT());
 	}
 	
 	private AttributeType getCredentialRequirementsAT()
@@ -81,6 +83,18 @@ public class SystemAttributeTypes
 		authorizationAt.setUniqueValues(true);
 		authorizationAt.setVisibility(AttributeVisibility.local);
 		return authorizationAt;
+	}
+	
+	private AttributeType getPreferenceAT()
+	{
+		AttributeType preferenceAt = new AttributeType(PREFERENCES, new StringAttributeSyntax());
+		preferenceAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.INSTANCES_IMMUTABLE_FLAG);
+		preferenceAt.setDescription("Preferences of the user.");
+		preferenceAt.setMinElements(1);
+		preferenceAt.setMaxElements(1);
+		preferenceAt.setUniqueValues(false);
+		preferenceAt.setVisibility(AttributeVisibility.local);
+		return preferenceAt;
 	}
 	
 	private static String[] getEnumAsStrings(Enum<?>[] en)
