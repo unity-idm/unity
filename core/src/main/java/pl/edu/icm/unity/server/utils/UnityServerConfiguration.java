@@ -81,7 +81,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String CREDENTIAL_REQS = "credentialRequirements.";
 	public static final String CREDENTIAL_REQ_NAME = "credentialReqName";
 	public static final String CREDENTIAL_REQ_DESCRIPTION = "credentialReqDescription";
-	public static final String CREDENTIAL_REQ_CONTENTS = "credentialReqContents";
+	public static final String CREDENTIAL_REQ_CONTENTS = "credentialReqContents.";
 	
 	public static final String INITIAL_ADMIN_USER = "initialAdminUsername";
 	public static final String INITIAL_ADMIN_PASSWORD = "initialAdminPassword";

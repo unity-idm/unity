@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.regex.Pattern;
 
-import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
  * Filters given attributes set using a configured filter.
@@ -50,27 +50,27 @@ public class AttributeFilters
 					new ArrayList<String>(0));
 	}
 	
-	public void filter(Collection<AttributeExt<?>> attributes, String requester)
+	public void filter(Collection<? extends Attribute<?>> attributes, String requester)
 	{
 		AttributeFilter filter = findFilter(requester);
 
 		Set<String> included = filter.getIncluded();
 		if (!included.isEmpty())
 		{
-			Iterator<AttributeExt<?>> it = attributes.iterator();
+			Iterator<? extends Attribute<?>> it = attributes.iterator();
 			while(it.hasNext())
 			{
-				AttributeExt<?> a = it.next();
+				Attribute<?> a = it.next();
 				if (!included.contains(a.getName()))
 					it.remove();
 			}
 		}
 			
 		Set<String> excluded = filter.getExcluded();
-		Iterator<AttributeExt<?>> it = attributes.iterator();
+		Iterator<? extends Attribute<?>> it = attributes.iterator();
 		while(it.hasNext())
 		{
-			AttributeExt<?> a = it.next();
+			Attribute<?> a = it.next();
 			if (excluded.contains(a.getName()))
 				it.remove();
 		}

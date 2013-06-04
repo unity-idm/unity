@@ -111,7 +111,7 @@ public class SamlProperties extends PropertiesHelper
 		
 		defaults.put(ATTRIBUTE_FILTER, new PropertyMD().setStructuredList(false).setCategory(samlCat).
 				setDescription("Prefix used to mark attribute filters."));
-		defaults.put(ATTRIBUTE_FILTER_TARGET, new PropertyMD().setStructuredListEntry(ATTRIBUTE_FILTER).setList(false).setCategory(samlCat).
+		defaults.put(ATTRIBUTE_FILTER_TARGET, new PropertyMD().setStructuredListEntry(ATTRIBUTE_FILTER).setCategory(samlCat).
 				setDescription("Target of the filter. Leave undefined to create a default filter, otherwise add SAML requestor names for which the filter should be used. The first specific filter is used, if there is no spcific filter then the default is used."));
 		defaults.put(ATTRIBUTE_FILTER_INCLUDE, new PropertyMD().setStructuredListEntry(ATTRIBUTE_FILTER).setList(false).setCategory(samlCat).
 				setDescription("List of attributes which should be included in the SAML response. If this list is empty then all are included. Otherwise only those attributes matching any of the expressions are included."));
