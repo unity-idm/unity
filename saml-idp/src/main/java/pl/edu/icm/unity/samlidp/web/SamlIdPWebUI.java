@@ -26,11 +26,14 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.AuthenticationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.samlidp.FreemarkerHandler;
+import pl.edu.icm.unity.samlidp.SamlPreferences;
+import pl.edu.icm.unity.samlidp.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.samlidp.saml.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.samlidp.saml.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.samlidp.web.filter.SamlParseFilter;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
@@ -96,17 +99,19 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	private AttributesManagement attributesMan;
 	private FreemarkerHandler freemarkerHandler;
 	private AttributeHandlerRegistry handlersRegistry;
+	private PreferencesManagement preferencesMan;
 	
 	private AuthnResponseProcessor samlProcessor;
 	private List<Identity> validIdentities;
 	private Identity selectedIdentity;
 	private Map<String, Attribute<?>> attributes;
 	private List<CheckBox> hide;
+	private CheckBox rememberCB;
 
 	@Autowired
 	public SamlIdPWebUI(UnityMessageSource msg, IdentitiesManagement identitiesMan,
 			AttributesManagement attributesMan, FreemarkerHandler freemarkerHandler,
-			AttributeHandlerRegistry handlersRegistry)
+			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan)
 	{
 		super(msg);
 		this.msg = msg;
@@ -114,6 +119,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		this.freemarkerHandler = freemarkerHandler;
 		this.attributesMan = attributesMan;
 		this.handlersRegistry = handlersRegistry;
+		this.preferencesMan = preferencesMan;
 	}
 
 	@Override
@@ -156,6 +162,24 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 				entity, processor.getChosenGroup(), null);
 		return processor.prepareReleasedAttributes(allAttribtues, allGroups);
 	}
+	
+	private SamlPreferences getPreferences() throws EngineException
+	{
+		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
+		EntityParam entity = new EntityParam(String.valueOf(ae.getEntityId()));
+		String raw = preferencesMan.getPreference(entity, SamlPreferences.ID);
+		SamlPreferences ret = new SamlPreferences();
+		ret.setSerializedConfiguration(raw);
+		return ret;
+	}
+	
+	private void savePreferences(SamlPreferences preferences) throws EngineException
+	{
+		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
+		EntityParam entity = new EntityParam(String.valueOf(ae.getEntityId()));
+		preferencesMan.setPreference(entity, SamlPreferences.ID, preferences.getSerializedConfiguration());
+	}
+	
 	
 	private Collection<Attribute<?>> getUserFilteredAttributes()
 	{
@@ -231,8 +255,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			return;
 		}
 		
-		CheckBox rememberCB = new CheckBox("Remember the settings for this service and do not show this dialog again");
-		rememberCB.setEnabled(false);
+		rememberCB = new CheckBox("Remember the settings for this service and do not show this dialog again");
 		contents.addComponent(rememberCB);
 		
 		HorizontalLayout buttons = new HorizontalLayout();
@@ -252,8 +275,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				AuthenticationException ea = new AuthenticationException("Authentication was declined");
-				handleException(ea, false);
+				decline();
 			}
 		});
 		Button reloginB = new Button(msg.getMessage("SamlIdPWebUI.logAsAnother"));
@@ -277,6 +299,17 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		contents.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 		
 		setContent(vmain);
+
+		try
+		{
+			loadPreferences(samlCtx);
+		} catch (Exception e)
+		{
+			log.error("Engine problem when processing stored preferences", e);
+			//we kill the session as the user may want to log as different user if has access to several entities.
+			handleException(e, true);
+			return;
+		}
 	}
 
 	private void createIdentityPart(VerticalLayout contents) throws EngineException, SAMLRequesterException
@@ -356,8 +389,77 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		contents.addComponent(gl);
 	}
 	
+	private void loadPreferences(SAMLAuthnContext samlCtx) throws EngineException
+	{
+		SamlPreferences preferences = getPreferences();
+		String samlRequester = samlCtx.getRequest().getIssuer().getStringValue();
+		SPSettings settings = preferences.getSPSettings(samlRequester);
+		if (settings == null)
+			return;
+		Set<String> hidden = settings.getHiddenAttribtues();
+		for (CheckBox cb: hide)
+		{
+			String a = (String) cb.getData();
+			if (hidden.contains(a))
+				cb.setValue(true);
+		}
+		if (settings.isDoNotAsk())
+		{
+			if (settings.isDefaultAccept())
+				confirm();
+			else
+				decline();
+		}
+	}
+	
+	private void storePreferences(SAMLAuthnContext samlCtx, boolean defaultAccept) throws EngineException
+	{
+		if (!rememberCB.getValue())
+			return;
+		SamlPreferences preferences = getPreferences();
+		String samlRequester = samlCtx.getRequest().getIssuer().getStringValue();
+		SPSettings settings = preferences.getSPSettings(samlRequester);
+		if (settings == null)
+		{
+			settings = new SPSettings();
+			preferences.setSPSettings(samlRequester, settings);
+		}
+		settings.setDefaultAccept(defaultAccept);
+		settings.setDoNotAsk(true);
+		Set<String> hidden = new HashSet<String>();
+		for (CheckBox h: hide)
+		{
+			if (!h.getValue())
+				continue;
+			String a = (String) h.getData();
+			hidden.add(a);
+		}
+		settings.setHiddenAttribtues(hidden);
+		savePreferences(preferences);
+	}
+	
+	private void storePreferencesSafe(boolean defaultAccept)
+	{
+		try
+		{
+			SAMLAuthnContext samlCtx = getContext();
+			storePreferences(samlCtx, defaultAccept);
+		} catch (EngineException e)
+		{
+			log.error("Unable to store user's preferences", e);
+		}
+	}
+
+	private void decline()
+	{
+		storePreferencesSafe(false);
+		AuthenticationException ea = new AuthenticationException("Authentication was declined");
+		handleException(ea, false);
+	}
+	
 	private void confirm()
 	{
+		storePreferencesSafe(true);
 		ResponseDocument respDoc;
 		try
 		{

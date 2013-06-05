@@ -21,6 +21,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -144,6 +145,21 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 			((StringAttributeSyntax)postalcode.getValueType()).setMaxLength(6);
 			testAttrMan.addAttributeType(postalcode);
 
+			AttributeType cn = new AttributeType("cn", new StringAttributeSyntax());
+			cn.setDescription("Common name");
+			((StringAttributeSyntax)cn.getValueType()).setMaxLength(100);
+			testAttrMan.addAttributeType(cn);
+			
+			AttributeType org = new AttributeType("o", new StringAttributeSyntax());
+			org.setDescription("Organization");
+			((StringAttributeSyntax)org.getValueType()).setMaxLength(33);
+			testAttrMan.addAttributeType(org);
+
+			AttributeType email = new AttributeType("email", new StringAttributeSyntax());
+			email.setDescription("E-main");
+			((StringAttributeSyntax)email.getValueType()).setMaxLength(33);
+			testAttrMan.addAttributeType(email);
+
 			AttributeType height = new AttributeType("height", new FloatingPointAttributeSyntax());
 			height.setMinElements(1);
 			height.setDescription("He\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjh");
@@ -159,6 +175,15 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 			
 			EnumAttribute a = new EnumAttribute("sys:AuthorizationRole", "/", AttributeVisibility.local, "Regular User");
 			testAttrMan.setAttribute(new EntityParam(base.getEntityId()), a, false);
+
+			StringAttribute orgA = new StringAttribute("o", "/A", AttributeVisibility.full, "Example organization");
+			testAttrMan.setAttribute(new EntityParam(base.getEntityId()), orgA, false);
+
+			StringAttribute emailA = new StringAttribute("email", "/A", AttributeVisibility.full, "some@email.com");
+			testAttrMan.setAttribute(new EntityParam(base.getEntityId()), emailA, false);
+
+			StringAttribute cnA = new StringAttribute("cn", "/A", AttributeVisibility.full, "Hiper user");
+			testAttrMan.setAttribute(new EntityParam(base.getEntityId()), cnA, false);
 
 			testIdMan.setEntityCredential(new EntityParam(base.getEntityId()), "Password credential", "a");
 		} catch (Exception e)
