@@ -4,10 +4,12 @@
  */
 package pl.edu.icm.unity.samlidp;
 
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.xmlbeans.XmlBase64Binary;
 import org.apache.xmlbeans.XmlDouble;
 import org.apache.xmlbeans.XmlLong;
 import org.apache.xmlbeans.XmlObject;
@@ -16,6 +18,7 @@ import org.apache.xmlbeans.XmlString;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
@@ -36,7 +39,8 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 		ValueToSamlConverter[] converters = new ValueToSamlConverter[] {
 				new StringValueToSamlConverter(),
 				new IntegerValueToSamlConverter(),
-				new FloatingValueToSamlConverter()
+				new FloatingValueToSamlConverter(),
+				new JpegValueToSamlConverter()
 		};
 
 		for (ValueToSamlConverter conv: converters)
@@ -67,6 +71,7 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 		XmlObject[] xmlValues = new XmlObject[unityValues.size()];
 		for (int i=0; i<xmlValues.length; i++)
 			xmlValues[i] = converter.convertValueToSaml(unityValues.get(i));
+		ret.setAttributeValueArray(xmlValues);
 		return ret;
 	}
 
@@ -125,6 +130,24 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 		public String[] getSupportedSyntaxes()
 		{
 			return new String[] {FloatingPointAttributeSyntax.ID};
+		}
+	}
+
+	private static class JpegValueToSamlConverter implements ValueToSamlConverter
+	{
+		@Override
+		public XmlObject convertValueToSaml(Object value)
+		{
+			byte[] octets = new JpegImageAttributeSyntax().serialize((BufferedImage) value);
+			XmlBase64Binary v = XmlBase64Binary.Factory.newInstance();
+			v.setByteArrayValue(octets);
+			return v;
+		}
+
+		@Override
+		public String[] getSupportedSyntaxes()
+		{
+			return new String[] {JpegImageAttributeSyntax.ID};
 		}
 	}
 }

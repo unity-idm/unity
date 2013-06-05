@@ -326,7 +326,6 @@ public class AttributesPanel extends HorizontalSplitPanel
 				if (attributes.get(i).getName().equals(attribute.getName()))
 				{
 					attributes.set(i, new AttributeExt(attribute, true));
-					System.out.println("Update at " + i);
 				}
 					
 			}
