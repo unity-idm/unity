@@ -7,6 +7,7 @@ package pl.edu.icm.unity.samlidp.web;
 import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.Filter;
 
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -32,15 +33,13 @@ import pl.edu.icm.unity.webui.authn.AuthenticationUI;
  */
 public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 {
-	public static final String SERVLET_PATH = "/saml2idp-web";
-	
-	private SamlProperties samlProperties;
-	private FreemarkerHandler freemarkerHandler;
+	protected SamlProperties samlProperties;
+	protected FreemarkerHandler freemarkerHandler;
 	
 	public SamlAuthVaadinEndpoint(EndpointTypeDescription type, ApplicationContext applicationContext,
-			FreemarkerHandler freemarkerHandler)
+			FreemarkerHandler freemarkerHandler, Class<?> uiClass, String servletPath)
 	{
-		super(type, applicationContext, SamlIdPWebUI.class.getSimpleName(), SERVLET_PATH);
+		super(type, applicationContext, uiClass.getSimpleName(), servletPath);
 		this.freemarkerHandler = freemarkerHandler;
 	}
 	
@@ -65,9 +64,8 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 
 		String endpointURL = getBaseUrl().toExternalForm() +
 				getEndpointDescription().getContextAddress() + 
-				SERVLET_PATH;
-		SamlParseFilter samlFilter = new SamlParseFilter(samlProperties, freemarkerHandler, 
-				endpointURL);
+				servletPath;
+		Filter samlFilter = getSamlParseFilter(endpointURL); 
 		context.addFilter(new FilterHolder(samlFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
 		
 		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
@@ -86,5 +84,9 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		
 		return context;
 	}
-
+	
+	protected Filter getSamlParseFilter(String endpointURL)
+	{
+		return new SamlParseFilter(samlProperties, freemarkerHandler, endpointURL);
+	}
 }

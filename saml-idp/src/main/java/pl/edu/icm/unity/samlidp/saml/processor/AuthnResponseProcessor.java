@@ -78,8 +78,21 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 	public ResponseDocument processAuthnRequest(Identity authenticatedIdentity, Collection<Attribute<?>> attributes) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
-		SamlProperties samlConfiguration = context.getSamlConfiguration();
+		Subject authenticatedOne = establishSubject(authenticatedIdentity);
 
+		AssertionResponse resp = getOKResponseDocument();
+		resp.addAssertion(createAuthenticationAssertion(authenticatedOne));
+		if (attributes != null)
+		{
+			Assertion assertion = createAttributeAssertion(authenticatedOne, attributes);
+			if (assertion != null)
+				resp.addAssertion(assertion);
+		}
+		return resp.getXMLBeanDoc();
+	}
+
+	protected Subject establishSubject(Identity authenticatedIdentity)
+	{
 		String format = getRequestedFormat();
 		Subject authenticatedOne = convertIdentity(authenticatedIdentity, format);
 		
@@ -93,19 +106,10 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		confData.setNotOnOrAfter(validity);
 		authenticatedOne.setSubjectConfirmation(
 				new SubjectConfirmationType[] {subConf});
-				
-		AssertionResponse resp = getOKResponseDocument();
-		resp.addAssertion(createAuthenticationAssertion(authenticatedOne));
-		if (attributes != null)
-		{
-			Assertion assertion = createAttributeAssertion(authenticatedOne, attributes);
-			if (assertion != null)
-				resp.addAssertion(assertion);
-		}
-		return resp.getXMLBeanDoc();
+		return authenticatedOne;
 	}
-
-	private Assertion createAuthenticationAssertion(Subject authenticatedOne) throws SAMLProcessingException
+	
+	protected Assertion createAuthenticationAssertion(Subject authenticatedOne) throws SAMLProcessingException
 	{
 		AuthnContextType authContext = setupAuthnContext();
 		Assertion assertion = new Assertion();
@@ -124,14 +128,14 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 	 * with minimal effect.
 	 * @return
 	 */
-	private AuthnContextType setupAuthnContext()
+	protected AuthnContextType setupAuthnContext()
 	{
 		AuthnContextType ret = AuthnContextType.Factory.newInstance();
 		ret.setAuthnContextClassRef(SAMLConstants.SAML_AC_UNSPEC);
 		return ret;
 	}
 		
-	private Subject convertIdentity(Identity unityIdentity, String requestedSamlFormat)
+	protected Subject convertIdentity(Identity unityIdentity, String requestedSamlFormat)
 	{
 		if (requestedSamlFormat.equals(SAMLConstants.NFORMAT_UNSPEC))
 			requestedSamlFormat = SAMLConstants.NFORMAT_PERSISTENT;
@@ -149,7 +153,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		return requestedFormat;
 	}
 	
-	private String getUnityIdentityFormat(String samlIdFormat) throws SAMLRequesterException
+	protected String getUnityIdentityFormat(String samlIdFormat) throws SAMLRequesterException
 	{
 		if (samlIdFormat.equals(SAMLConstants.NFORMAT_PERSISTENT) || 
 				samlIdFormat.equals(SAMLConstants.NFORMAT_UNSPEC))

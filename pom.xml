@@ -39,6 +39,7 @@
 		<module>web-admin</module>
 		<module>ws</module>
 		<module>saml-idp</module>
+		<module>unicore</module>
 		<module>distribution</module>
 	</modules>
 

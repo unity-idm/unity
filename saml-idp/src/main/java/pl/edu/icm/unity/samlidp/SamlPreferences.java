@@ -27,7 +27,7 @@ import pl.edu.icm.unity.types.JsonSerializable;
 public class SamlPreferences implements JsonSerializable
 {
 	public static final String ID = SamlPreferences.class.getName();
-	private ObjectMapper mapper = Constants.MAPPER;
+	protected final ObjectMapper mapper = Constants.MAPPER;
 
 	private Map<String, SPSettings> spSettings = new HashMap<String, SamlPreferences.SPSettings>();
 	
@@ -35,9 +35,7 @@ public class SamlPreferences implements JsonSerializable
 	public String getSerializedConfiguration() throws InternalException
 	{
 		ObjectNode main = mapper.createObjectNode();
-		ObjectNode settingsN = main.with("spSettings");
-		for (Map.Entry<String, SPSettings> entry: spSettings.entrySet())
-			settingsN.put(entry.getKey(), serializeSingle(entry.getValue()));
+		serializeAll(main);
 		try
 		{
 			return mapper.writeValueAsString(main);
@@ -47,7 +45,14 @@ public class SamlPreferences implements JsonSerializable
 		}
 	}
 
-	private ObjectNode serializeSingle(SPSettings what)
+	protected void serializeAll(ObjectNode main)
+	{
+		ObjectNode settingsN = main.with("spSettings");
+		for (Map.Entry<String, SPSettings> entry: spSettings.entrySet())
+			settingsN.put(entry.getKey(), serializeSingle(entry.getValue()));
+	}
+	
+	protected ObjectNode serializeSingle(SPSettings what)
 	{
 		ObjectNode main = mapper.createObjectNode();
 		main.put("doNotAsk", what.doNotAsk);
@@ -66,24 +71,28 @@ public class SamlPreferences implements JsonSerializable
 			spSettings = new HashMap<String, SamlPreferences.SPSettings>();
 			return;
 		}
-		ObjectNode main;
 		try
 		{
-			main = mapper.readValue(json, ObjectNode.class);
-			ObjectNode spSettingsNode = main.with("spSettings");
-			Iterator<String> keys = spSettingsNode.fieldNames();
-			for (String key; keys.hasNext();)
-			{
-				key=keys.next();
-				spSettings.put(key, deserializeSingle(spSettingsNode.with(key)));
-			}
+			ObjectNode main = mapper.readValue(json, ObjectNode.class);
+			deserializeAll(main);
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't perform JSON deserialization", e);
 		}
 	}
 
-	private SPSettings deserializeSingle(ObjectNode from)
+	protected void deserializeAll(ObjectNode main)
+	{
+		ObjectNode spSettingsNode = main.with("spSettings");
+		Iterator<String> keys = spSettingsNode.fieldNames();
+		for (String key; keys.hasNext();)
+		{
+			key=keys.next();
+			spSettings.put(key, deserializeSingle(spSettingsNode.with(key)));
+		}
+	}
+	
+	protected SPSettings deserializeSingle(ObjectNode from)
 	{
 		SPSettings ret = new SPSettings();
 		ret.setDefaultAccept(from.get("defaultAccept").asBoolean());

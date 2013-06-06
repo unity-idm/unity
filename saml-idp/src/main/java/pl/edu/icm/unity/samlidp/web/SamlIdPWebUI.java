@@ -93,20 +93,20 @@ import eu.unicore.samly2.exceptions.SAMLServerException;
 public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 {
 	private static Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebUI.class);
-	private UnityMessageSource msg;
-	private EndpointDescription endpointDescription;
-	private IdentitiesManagement identitiesMan;
-	private AttributesManagement attributesMan;
-	private FreemarkerHandler freemarkerHandler;
-	private AttributeHandlerRegistry handlersRegistry;
-	private PreferencesManagement preferencesMan;
+	protected UnityMessageSource msg;
+	protected EndpointDescription endpointDescription;
+	protected IdentitiesManagement identitiesMan;
+	protected AttributesManagement attributesMan;
+	protected FreemarkerHandler freemarkerHandler;
+	protected AttributeHandlerRegistry handlersRegistry;
+	protected PreferencesManagement preferencesMan;
 	
-	private AuthnResponseProcessor samlProcessor;
-	private List<Identity> validIdentities;
-	private Identity selectedIdentity;
-	private Map<String, Attribute<?>> attributes;
-	private List<CheckBox> hide;
-	private CheckBox rememberCB;
+	protected AuthnResponseProcessor samlProcessor;
+	protected List<Identity> validIdentities;
+	protected Identity selectedIdentity;
+	protected Map<String, Attribute<?>> attributes;
+	protected List<CheckBox> hide;
+	protected CheckBox rememberCB;
 
 	@Autowired
 	public SamlIdPWebUI(UnityMessageSource msg, IdentitiesManagement identitiesMan,
@@ -129,7 +129,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		this.endpointDescription = description;
 	}
 	
-	private static SAMLAuthnContext getContext()
+	protected static SAMLAuthnContext getContext()
 	{
 		WrappedSession httpSession = VaadinSession.getCurrent().getSession();
 		SAMLAuthnContext ret = (SAMLAuthnContext) httpSession.getAttribute(SamlParseFilter.SESSION_SAML_CONTEXT);
@@ -138,7 +138,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		return ret;
 	}
 	
-	private static void cleanContext()
+	protected static void cleanContext()
 	{
 		VaadinSession vSession = VaadinSession.getCurrent();
 		vSession.setAttribute(ResponseDocument.class, null);
@@ -146,13 +146,13 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		httpSession.removeAttribute(SamlParseFilter.SESSION_SAML_CONTEXT);
 	}
 	
-	private Entity getAuthenticatedEntity() throws EngineException
+	protected Entity getAuthenticatedEntity() throws EngineException
 	{
 		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
 		return identitiesMan.getEntity(new EntityParam(String.valueOf(ae.getEntityId())));
 	}
 	
-	private Map<String, Attribute<?>> getAttributes(AuthnResponseProcessor processor) 
+	protected Map<String, Attribute<?>> getAttributes(AuthnResponseProcessor processor) 
 			throws EngineException
 	{
 		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
@@ -163,7 +163,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		return processor.prepareReleasedAttributes(allAttribtues, allGroups);
 	}
 	
-	private SamlPreferences getPreferences() throws EngineException
+	protected SamlPreferences getPreferences() throws EngineException
 	{
 		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
 		EntityParam entity = new EntityParam(String.valueOf(ae.getEntityId()));
@@ -173,7 +173,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		return ret;
 	}
 	
-	private void savePreferences(SamlPreferences preferences) throws EngineException
+	protected void savePreferences(SamlPreferences preferences) throws EngineException
 	{
 		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
 		EntityParam entity = new EntityParam(String.valueOf(ae.getEntityId()));
@@ -181,7 +181,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	}
 	
 	
-	private Collection<Attribute<?>> getUserFilteredAttributes()
+	protected Collection<Attribute<?>> getUserFilteredAttributes()
 	{
 		Set<String> hidden = new HashSet<String>();
 		for (CheckBox cb: hide)
@@ -214,6 +214,19 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		vmain.addComponent(contents);
 		vmain.setComponentAlignment(contents, Alignment.TOP_CENTER);
 		
+		createInfoPart(samlCtx, contents);
+		
+		createExposedDataPart(contents);
+		
+		createButtonsPart(contents);
+		
+		setContent(vmain);
+
+		loadPreferences(samlCtx);
+	}
+
+	protected void createInfoPart(SAMLAuthnContext samlCtx, VerticalLayout contents)
+	{
 		String samlRequester = samlCtx.getRequest().getIssuer().getStringValue();
 		String returnAddress = samlCtx.getRequest().getAssertionConsumerServiceURL();
 		
@@ -229,7 +242,10 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		info3.setStyleName(Reindeer.LABEL_SMALL);
 		
 		contents.addComponents(info1, info1Id, info1Addr, spc1, info2, info3);
-		
+	}
+
+	protected void createExposedDataPart(VerticalLayout contents)
+	{
 		Panel exposedInfoPanel = new Panel();
 		contents.addComponent(exposedInfoPanel);
 		VerticalLayout eiLayout = new VerticalLayout();
@@ -257,7 +273,87 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		
 		rememberCB = new CheckBox("Remember the settings for this service and do not show this dialog again");
 		contents.addComponent(rememberCB);
+	}
+	
+	protected void createIdentityPart(VerticalLayout contents) throws EngineException, SAMLRequesterException
+	{
+		Entity authenticatedEntity = getAuthenticatedEntity();
+		validIdentities = samlProcessor.getCompatibleIdentities(authenticatedEntity);
+		selectedIdentity = validIdentities.get(0);
+		if (validIdentities.size() == 1)
+		{
+			Label identityL = new Label(msg.getMessage("SamlIdPWebUI.identity"));
+			identityL.setStyleName(Styles.bold.toString());
+			TextField identityTF = new TextField();
+			identityTF.setValue(selectedIdentity.toPrettyString());
+			identityTF.setReadOnly(true);
+			identityTF.setWidth(100, Unit.PERCENTAGE);
+			contents.addComponents(identityL, identityTF);
+		} else
+		{
+			Label identitiesL = new Label(msg.getMessage("SamlIdPWebUI.identities")); 
+			identitiesL.setStyleName(Styles.bold.toString());
+			Label infoManyIds = new Label(msg.getMessage("SamlIdPWebUI.infoManyIds"));
+			infoManyIds.setStyleName(Reindeer.LABEL_SMALL);
+			final ComboBox identitiesCB = new ComboBox();
+			for (Identity id: validIdentities)
+				identitiesCB.addItem(id);
+			identitiesCB.setImmediate(true);
+			identitiesCB.select(selectedIdentity);
+			identitiesCB.setNullSelectionAllowed(false);
+			identitiesCB.addValueChangeListener(new ValueChangeListener()
+			{
+				@Override
+				public void valueChange(ValueChangeEvent event)
+				{
+					selectedIdentity = (Identity) identitiesCB.getValue();
+				}
+			});
+			contents.addComponents(identitiesL, infoManyIds, identitiesCB);
+		}
+	}
+	
+	protected void createAttributesPart(VerticalLayout contents) throws EngineException
+	{
+		attributes = getAttributes(samlProcessor);
+		Label attributesL = new Label(msg.getMessage("SamlIdPWebUI.attributes"));
+		attributesL.setStyleName(Styles.bold.toString());
+		Label attributesInfo = new Label(msg.getMessage("SamlIdPWebUI.attributesInfo"));
+		attributesInfo.setStyleName(Reindeer.LABEL_SMALL);
+		attributesInfo.setContentMode(ContentMode.HTML);
+		Label hideL = new Label(msg.getMessage("SamlIdPWebUI.hide"));
 		
+		contents.addComponent(attributesL);
+		contents.addComponent(attributesInfo);
+		GridLayout gl = new GridLayout(2, attributes.size()+1);
+		gl.setSpacing(true);
+		gl.setWidth(100, Unit.PERCENTAGE);
+		gl.addComponent(hideL, 1, 0);
+		gl.setColumnExpandRatio(0, 10);
+		gl.setColumnExpandRatio(1, 1);
+		int row=1;
+		hide = new ArrayList<CheckBox>(attributes.size());
+		for (Attribute<?> at: attributes.values())
+		{
+			Label attrInfo = new Label();
+			String representation = handlersRegistry.getSimplifiedAttributeRepresentation(at, 80);
+			attrInfo.setValue(representation);
+			gl.addComponent(attrInfo, 0, row);
+
+			CheckBox cb = new CheckBox();
+			cb.setData(at.getName());
+			cb.setImmediate(true);
+			cb.addValueChangeListener(new AttributeHideHandler(attrInfo));
+			gl.addComponent(cb, 1, row);
+			hide.add(cb);
+			row++;
+		}
+		
+		contents.addComponent(gl);
+	}
+	
+	protected void createButtonsPart(VerticalLayout contents)
+	{
 		HorizontalLayout buttons = new HorizontalLayout();
 		
 		Button confirmB = new Button(msg.getMessage("SamlIdPWebUI.confirm"));
@@ -297,12 +393,17 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		buttons.setSizeUndefined();
 		contents.addComponent(buttons);
 		contents.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
-		
-		setContent(vmain);
-
+	}
+	
+	
+	protected void loadPreferences(SAMLAuthnContext samlCtx)
+	{
 		try
 		{
-			loadPreferences(samlCtx);
+			SamlPreferences preferences = getPreferences();
+			String samlRequester = samlCtx.getRequest().getIssuer().getStringValue();
+			SPSettings settings = preferences.getSPSettings(samlRequester);
+			updateUIFromPreferences(settings, samlCtx);
 		} catch (Exception e)
 		{
 			log.error("Engine problem when processing stored preferences", e);
@@ -311,89 +412,9 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			return;
 		}
 	}
-
-	private void createIdentityPart(VerticalLayout contents) throws EngineException, SAMLRequesterException
-	{
-		Entity authenticatedEntity = getAuthenticatedEntity();
-		validIdentities = samlProcessor.getCompatibleIdentities(authenticatedEntity);
-		selectedIdentity = validIdentities.get(0);
-		if (validIdentities.size() == 1)
-		{
-			Label identityL = new Label(msg.getMessage("SamlIdPWebUI.identity"));
-			identityL.setStyleName(Styles.bold.toString());
-			TextField identityTF = new TextField();
-			identityTF.setValue(selectedIdentity.toPrettyString());
-			identityTF.setReadOnly(true);
-			identityTF.setWidth(100, Unit.PERCENTAGE);
-			contents.addComponents(identityL, identityTF);
-		} else
-		{
-			Label identitiesL = new Label(msg.getMessage("SamlIdPWebUI.identities")); 
-			identitiesL.setStyleName(Styles.bold.toString());
-			Label infoManyIds = new Label(msg.getMessage("SamlIdPWebUI.infoManyIds"));
-			infoManyIds.setStyleName(Reindeer.LABEL_SMALL);
-			final ComboBox identitiesCB = new ComboBox();
-			for (Identity id: validIdentities)
-				identitiesCB.addItem(id);
-			identitiesCB.setImmediate(true);
-			identitiesCB.select(selectedIdentity);
-			identitiesCB.setNullSelectionAllowed(false);
-			identitiesCB.addValueChangeListener(new ValueChangeListener()
-			{
-				@Override
-				public void valueChange(ValueChangeEvent event)
-				{
-					selectedIdentity = (Identity) identitiesCB.getValue();
-				}
-			});
-			contents.addComponents(identitiesL, infoManyIds, identitiesCB);
-		}
-	}
 	
-	private void createAttributesPart(VerticalLayout contents) throws EngineException
+	protected void updateUIFromPreferences(SPSettings settings, SAMLAuthnContext samlCtx) throws EngineException
 	{
-		attributes = getAttributes(samlProcessor);
-		Label attributesL = new Label(msg.getMessage("SamlIdPWebUI.attributes"));
-		attributesL.setStyleName(Styles.bold.toString());
-		Label attributesInfo = new Label(msg.getMessage("SamlIdPWebUI.attributesInfo"));
-		attributesInfo.setStyleName(Reindeer.LABEL_SMALL);
-		attributesInfo.setContentMode(ContentMode.HTML);
-		Label hideL = new Label(msg.getMessage("SamlIdPWebUI.hide"));
-		
-		contents.addComponent(attributesL);
-		contents.addComponent(attributesInfo);
-		GridLayout gl = new GridLayout(2, attributes.size()+1);
-		gl.setSpacing(true);
-		gl.setWidth(100, Unit.PERCENTAGE);
-		gl.addComponent(hideL, 1, 0);
-		gl.setColumnExpandRatio(0, 10);
-		gl.setColumnExpandRatio(1, 1);
-		int row=1;
-		hide = new ArrayList<CheckBox>(attributes.size());
-		for (Attribute<?> at: attributes.values())
-		{
-			Label attrInfo = new Label();
-			String representation = handlersRegistry.getSimplifiedAttributeRepresentation(at, 80);
-			attrInfo.setValue(representation);
-			gl.addComponent(attrInfo, 0, row);
-
-			CheckBox cb = new CheckBox();
-			cb.setData(at.getName());
-			cb.setImmediate(true);
-			cb.addValueChangeListener(new AttributeHideHandler(attrInfo));
-			gl.addComponent(cb, 1, row);
-			hide.add(cb);
-			row++;
-		}
-		
-		contents.addComponent(gl);
-	}
-	
-	private void loadPreferences(SAMLAuthnContext samlCtx) throws EngineException
-	{
-		SamlPreferences preferences = getPreferences();
-		String samlRequester = samlCtx.getRequest().getIssuer().getStringValue();
-		SPSettings settings = preferences.getSPSettings(samlRequester);
 		if (settings == null)
 			return;
 		Set<String> hidden = settings.getHiddenAttribtues();
@@ -412,11 +433,18 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		}
 	}
 	
-	private void storePreferences(SAMLAuthnContext samlCtx, boolean defaultAccept) throws EngineException
+	/**
+	 * Applies UI selected values to the given preferences object
+	 * @param preferences
+	 * @param samlCtx
+	 * @param defaultAccept
+	 * @throws EngineException
+	 */
+	protected void updatePreferencesFromUI(SamlPreferences preferences, SAMLAuthnContext samlCtx, boolean defaultAccept) 
+			throws EngineException
 	{
 		if (!rememberCB.getValue())
 			return;
-		SamlPreferences preferences = getPreferences();
 		String samlRequester = samlCtx.getRequest().getIssuer().getStringValue();
 		SPSettings settings = preferences.getSPSettings(samlRequester);
 		if (settings == null)
@@ -435,31 +463,32 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			hidden.add(a);
 		}
 		settings.setHiddenAttribtues(hidden);
-		savePreferences(preferences);
 	}
 	
-	private void storePreferencesSafe(boolean defaultAccept)
+	protected void storePreferences(boolean defaultAccept)
 	{
 		try
 		{
 			SAMLAuthnContext samlCtx = getContext();
-			storePreferences(samlCtx, defaultAccept);
+			SamlPreferences preferences = getPreferences();
+			updatePreferencesFromUI(preferences, samlCtx, defaultAccept);
+			savePreferences(preferences);
 		} catch (EngineException e)
 		{
 			log.error("Unable to store user's preferences", e);
 		}
 	}
 
-	private void decline()
+	protected void decline()
 	{
-		storePreferencesSafe(false);
+		storePreferences(false);
 		AuthenticationException ea = new AuthenticationException("Authentication was declined");
 		handleException(ea, false);
 	}
 	
-	private void confirm()
+	protected void confirm()
 	{
-		storePreferencesSafe(true);
+		storePreferences(true);
 		ResponseDocument respDoc;
 		try
 		{
@@ -473,14 +502,14 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		returnSamlResponse(respDoc);
 	}
 	
-	private void handleException(Exception e, boolean destroySession)
+	protected void handleException(Exception e, boolean destroySession)
 	{
 		SAMLServerException convertedException = samlProcessor.convert2SAMLError(e, null, true);
 		ResponseDocument respDoc = samlProcessor.getErrorResponse(convertedException);
 		returnSamlErrorResponse(respDoc, convertedException, destroySession);
 	}
 	
-	private void returnSamlErrorResponse(ResponseDocument respDoc, SAMLServerException error, boolean destroySession)
+	protected void returnSamlErrorResponse(ResponseDocument respDoc, SAMLServerException error, boolean destroySession)
 	{
 		VaadinSession.getCurrent().setAttribute(SessionDisposal.class, 
 				new SessionDisposal(error, destroySession));
@@ -488,10 +517,10 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		returnSamlResponse(respDoc);
 	}
 	
-	private void returnSamlResponse(ResponseDocument respDoc)
+	protected void returnSamlResponse(ResponseDocument respDoc)
 	{
 		VaadinSession.getCurrent().setAttribute(ResponseDocument.class, respDoc);
-		String thisAddress = endpointDescription.getContextAddress() + SamlAuthVaadinEndpoint.SERVLET_PATH;
+		String thisAddress = endpointDescription.getContextAddress() + SamlIdPWebEndpointFactory.SERVLET_PATH;
 		VaadinSession.getCurrent().addRequestHandler(new SendResponseRequestHandler());
 		Page.getCurrent().open(thisAddress, null);		
 	}
@@ -502,7 +531,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	 * back to the requesting SP.
 	 * @author K. Benedyczak
 	 */
-	private class SendResponseRequestHandler implements RequestHandler
+	public class SendResponseRequestHandler implements RequestHandler
 	{
 		@Override
 		public boolean handleRequest(VaadinSession session, VaadinRequest request, VaadinResponse response)

@@ -59,9 +59,9 @@ public class SamlParseFilter implements Filter
 	 * when an existing auth is in progress. 
 	 */
 	public static final String REQ_FORCE = "force";
-	private SamlProperties samlConfig;
-	private String endpointAddress;
-	private ErrorHandler errorHandler;
+	protected SamlProperties samlConfig;
+	protected String endpointAddress;
+	protected ErrorHandler errorHandler;
 	
 	public SamlParseFilter(SamlProperties samlConfig, FreemarkerHandler freemarker, String endpointAddress)
 	{
@@ -120,7 +120,7 @@ public class SamlParseFilter implements Filter
 		chain.doFilter(request, response);
 	}
 
-	private SAMLAuthnContext createSamlContext(HttpServletRequest request, AuthnRequestDocument samlRequest)
+	protected SAMLAuthnContext createSamlContext(HttpServletRequest request, AuthnRequestDocument samlRequest)
 	{
 		SAMLAuthnContext ret = new SAMLAuthnContext(samlRequest, samlConfig);
 		String rs = request.getParameter(SAMLConstants.RELAY_STATE);
@@ -129,7 +129,7 @@ public class SamlParseFilter implements Filter
 		return ret;
 	}
 	
-	private AuthnRequestDocument parse(HttpServletRequest req) throws SAMLProcessingException
+	protected AuthnRequestDocument parse(HttpServletRequest req) throws SAMLProcessingException
 	{
 		String samlRequest = req.getParameter(SAMLConstants.REQ_SAML_REQUEST);
 		if (samlRequest == null)
@@ -163,7 +163,7 @@ public class SamlParseFilter implements Filter
 		return reqDoc;
 	}
 
-	private void validate(SAMLAuthnContext context, HttpServletResponse servletResponse) 
+	protected void validate(SAMLAuthnContext context, HttpServletResponse servletResponse) 
 			throws SAMLProcessingException, IOException
 	{
 		WebAuthRequestValidator validator = new WebAuthRequestValidator(endpointAddress, 
@@ -179,7 +179,7 @@ public class SamlParseFilter implements Filter
 		}
 	}
 	
-	private String inflateSAMLRequest(String samlRequest) throws Exception
+	protected String inflateSAMLRequest(String samlRequest) throws Exception
 	{
 		byte[] third = Base64.decode(samlRequest);
 		Inflater decompressor = new Inflater(true);

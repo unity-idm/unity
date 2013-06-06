@@ -65,6 +65,11 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-unicore</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-std-extensions</artifactId>
 			<version>${project.version}</version>
 		</dependency>
