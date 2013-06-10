@@ -13,13 +13,13 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatementCondition;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.IdentityType;
-import pl.edu.icm.unity.types.basic.AttributeStatementCondition.Type;
+import pl.edu.icm.unity.types.basic.attrstmnt.EverybodyStatement;
+import pl.edu.icm.unity.types.basic.attrstmnt.HasSubgroupAttributeStatement;
 
 
 public class TestGroups extends DBIntegrationTestBase
@@ -62,15 +62,12 @@ public class TestGroups extends DBIntegrationTestBase
 		groupsMan.addGroup(abd);
 
 		AttributeStatement[] statements = new AttributeStatement[2];
-		AttributeStatementCondition c1 = new AttributeStatementCondition(Type.everybody);
-		statements[0] = new AttributeStatement(c1, 
+		statements[0] = new EverybodyStatement(
 				new StringAttribute("foo", "/A", AttributeVisibility.full, "val1"), 
 				AttributeStatement.ConflictResolution.skip);
-		AttributeStatementCondition c2 = new AttributeStatementCondition(Type.hasSubgroupAttributeValue);
-		c2.setGroup("/A/B");
-		c2.setAttribute(new StringAttribute("foo", "/A/B", AttributeVisibility.full, "ala"));
-		statements[1] = new AttributeStatement(c2, 
+		statements[1] = new HasSubgroupAttributeStatement(
 				new StringAttribute("foo", "/A", AttributeVisibility.full, "val1"), 
+				new StringAttribute("foo", "/A/B", AttributeVisibility.full, "ala"),
 				AttributeStatement.ConflictResolution.skip);
 		a.setAttributeStatements(statements);
 		groupsMan.updateGroup("/A", a);
@@ -95,7 +92,7 @@ public class TestGroups extends DBIntegrationTestBase
 		assertEquals("foo", contentA.getGroup().getAttributeStatements()[0].getAssignedAttribute().getName());
 		assertEquals("val1", contentA.getGroup().getAttributeStatements()[0].getAssignedAttribute().
 				getValues().get(0).toString());
-		assertEquals(Type.everybody, contentA.getGroup().getAttributeStatements()[0].getCondition().getType());
+		assertEquals(EverybodyStatement.NAME, contentA.getGroup().getAttributeStatements()[0].getName());
 		
 		GroupContents contentAB = groupsMan.getContents("/A/B", GroupContents.EVERYTHING);
 		assertEquals(1, contentAB.getSubGroups().size());

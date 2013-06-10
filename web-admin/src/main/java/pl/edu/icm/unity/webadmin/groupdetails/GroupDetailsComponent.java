@@ -16,6 +16,7 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.webadmin.attrstmt.StatementHandlersRegistry;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
@@ -50,7 +51,8 @@ public class GroupDetailsComponent extends Panel
 	
 	@Autowired
 	public GroupDetailsComponent(UnityMessageSource msg, GroupsManagement groupsManagement, 
-			AttributeHandlerRegistry attributeHandlersReg, AttributesManagement attrsMan)
+			AttributeHandlerRegistry attributeHandlersReg, AttributesManagement attrsMan,
+			StatementHandlersRegistry statementHandlersReg)
 	{
 		this.msg = msg;
 		this.groupsManagement = groupsManagement;
@@ -66,8 +68,8 @@ public class GroupDetailsComponent extends Panel
 
 		description = new DescriptionTextArea(msg.getMessage("GroupDetails.description"), true, "");
 
-		attrStatements = new AttributeStatementsTable(msg, groupsManagement, attributeHandlersReg,
-				attrsMan);
+		attrStatements = new AttributeStatementsTable(msg, groupsManagement, 
+				attrsMan, statementHandlersReg);
 		
 		main.addComponents(info, description, attrStatements);
 		main.setExpandRatio(info, 1.0f);

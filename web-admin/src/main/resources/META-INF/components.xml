@@ -23,5 +23,13 @@
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.identities.IdentitiesTable"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.identities.IdentitiesComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.attributetype.AttributeTypesComponent"/>
+	
+	<bean class="pl.edu.icm.unity.webadmin.attrstmt.StatementHandlersRegistry"/>
+	<bean class="pl.edu.icm.unity.webadmin.attrstmt.EverybodyStatementHandler"/>
+	<bean class="pl.edu.icm.unity.webadmin.attrstmt.MemberOfStatementHandler"/>
+	<bean class="pl.edu.icm.unity.webadmin.attrstmt.CopyParentAttributeStatementHandler"/>
+	<bean class="pl.edu.icm.unity.webadmin.attrstmt.CopySubgroupAttributeStatementHandler"/>
+	<bean class="pl.edu.icm.unity.webadmin.attrstmt.ParentAttributeStatementHandler"/>
+	<bean class="pl.edu.icm.unity.webadmin.attrstmt.SubgroupAttributeStatementHandler"/>
 
 </beans>

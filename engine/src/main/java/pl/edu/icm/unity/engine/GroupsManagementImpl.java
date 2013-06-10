@@ -7,16 +7,22 @@ package pl.edu.icm.unity.engine;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatementCondition;
+import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -31,27 +37,29 @@ public class GroupsManagementImpl implements GroupsManagement
 {
 	private DBSessionManager db;
 	private DBGroups dbGroups;
+	private DBAttributes dbAttributes;
 	private AuthorizationManager authz;
 	private IdentitiesResolver idResolver;
 	
 	@Autowired
 	public GroupsManagementImpl(DBSessionManager db, DBGroups dbGroups,
-			AuthorizationManager authz, IdentitiesResolver idResolver)
+			AuthorizationManager authz, DBAttributes dbAttributes, IdentitiesResolver idResolver)
 	{
 		this.db = db;
 		this.dbGroups = dbGroups;
 		this.authz = authz;
 		this.idResolver = idResolver;
+		this.dbAttributes = dbAttributes;
 	}
 
 	@Override
 	public void addGroup(Group toAdd) throws EngineException
 	{
-		validateGroupStatements(toAdd);
 		authz.checkAuthorization(toAdd.getParentPath(), AuthzCapability.groupModify);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
+			validateGroupStatements(toAdd, sql);
 			dbGroups.addGroup(toAdd, sql);
 			sql.commit();
 		} finally
@@ -146,11 +154,11 @@ public class GroupsManagementImpl implements GroupsManagement
 	@Override
 	public void updateGroup(String path, Group group) throws EngineException
 	{
-		validateGroupStatements(group);
 		authz.checkAuthorization(path, AuthzCapability.groupModify);
 		SqlSession sql = db.getSqlSession(true);
 		try 
 		{
+			validateGroupStatements(group, sql);
 			dbGroups.updateGroup(path, group, sql);
 			sql.commit();
 		} finally
@@ -159,22 +167,29 @@ public class GroupsManagementImpl implements GroupsManagement
 		}
 	}
 	
-	private void validateGroupStatements(Group group) throws IllegalAttributeValueException
+	private void validateGroupStatements(Group group, SqlSession sql) throws IllegalAttributeValueException, 
+		IllegalAttributeTypeException, IllegalTypeException
 	{
 		AttributeStatement[] statements = group.getAttributeStatements();
 		String path = group.toString();
 		for (AttributeStatement statement: statements)
-			validateGroupStatement(path, statement);
+			validateGroupStatement(path, statement, sql);
 	}
 
-	private void validateGroupStatement(String group, AttributeStatement statement) 
-			throws IllegalAttributeValueException
+	private void validateGroupStatement(String group, AttributeStatement statement, SqlSession sql) 
+			throws IllegalAttributeValueException, IllegalAttributeTypeException, IllegalTypeException
 	{
-		String statementPath = statement.getAssignedAttribute().getGroupPath();
-		if (!group.equals(statementPath))
-			throw new IllegalAttributeValueException("The statement attribute must have " +
-					"the same group scope as its group: " + group);
-		AttributeStatementCondition condition = statement.getCondition();
-		condition.validate(group);
+		statement.validate(group);
+		Attribute<?> attribute = statement.getAssignedAttribute();
+		if (statement.getConflictResolution() != ConflictResolution.merge && attribute != null)
+		{
+			AttributeType at = dbAttributes.getAttributeType(attribute.getName(), sql);
+			AttributeValueChecker.validate(attribute, at);
+		}
+		Attribute<?> conditionAttr = statement.getConditionAttribute();
+		if (conditionAttr != null)
+		{
+			dbAttributes.getAttributeType(conditionAttr.getName(), sql);
+		}
 	}
 }

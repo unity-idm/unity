@@ -12,11 +12,10 @@ import java.util.List;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatementCondition;
-import pl.edu.icm.unity.types.basic.AttributeStatementCondition.Type;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.webadmin.attrstmt.AttributeStatementWebHandlerFactory;
+import pl.edu.icm.unity.webadmin.attrstmt.StatementHandlersRegistry;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webadmin.groupdetails.AttributeStatementEditDialog.Callback;
 import pl.edu.icm.unity.webui.WebSession;
@@ -25,7 +24,6 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 import com.vaadin.data.Container;
 import com.vaadin.event.dd.DragAndDropEvent;
@@ -45,18 +43,19 @@ public class AttributeStatementsTable extends Table
 	private UnityMessageSource msg;
 	private GroupsManagement groupsMan;
 	private AttributesManagement attrsMan;
-	private AttributeHandlerRegistry handlersReg;
+	private StatementHandlersRegistry statementHandlersReg;
 	private Group group;
 	private EventsBus bus;
 	
 	
 	public AttributeStatementsTable(UnityMessageSource msg, GroupsManagement groupsMan,
-			AttributeHandlerRegistry handlersReg, AttributesManagement attrsMan)
+			AttributesManagement attrsMan, 
+			StatementHandlersRegistry statementHandlersRegistry)
 	{
 		this.msg = msg;
 		this.groupsMan = groupsMan;
-		this.handlersReg = handlersReg;
 		this.attrsMan = attrsMan;
+		this.statementHandlersReg = statementHandlersRegistry;
 		this.bus = WebSession.getCurrent().getEventBus();
 		
 		addContainerProperty(MAIN_COL, String.class, null);
@@ -77,55 +76,10 @@ public class AttributeStatementsTable extends Table
 		AttributeStatement[] ases = group.getAttributeStatements();
 		for (AttributeStatement as: ases)
 		{
-			addItem(new Object[] {toLocalizedString(as)}, as);
+			AttributeStatementWebHandlerFactory handler = statementHandlersReg.getHandler(as.getName());
+			addItem(new Object[] {handler.getTextRepresentation(as)}, as);
 		}
-	}
-	
-	private String toLocalizedString(AttributeStatement as)
-	{
-		StringBuilder sb = new StringBuilder(256);
-		Attribute<?> assigned = as.getAssignedAttribute();
-		sb.append(msg.getMessage("AttributeStatements.assign")).append(" ");
-		sb.append(handlersReg.getSimplifiedAttributeRepresentation(assigned,
-				AttributeHandlerRegistry.DEFAULT_MAX_LEN));
-		sb.append(" ").append(msg.getMessage("AttributeStatements.to")).append(" ");
-		
-		AttributeStatementCondition condition = as.getCondition();
-		Type condType = condition.getType();
-		String operand = msg.getMessage("AttributeStatements.condType." + condType.toString());
-		switch (condType)
-		{
-		case everybody:
-			sb.append(operand);
-			break;
-		case memberOf:
-			sb.append(operand).append(" ").append(condition.getGroup());
-			break;
-		case hasParentgroupAttribute:
-			sb.append(operand).append(" ").append(condition.getAttribute().getName());
-			sb.append(" ").append(msg.getMessage("AttributeStatements.inParentGroup"));
-			break;
-		case hasParentgroupAttributeValue:
-			String condAttrStr = handlersReg.getSimplifiedAttributeRepresentation(condition.getAttribute(),
-					AttributeHandlerRegistry.DEFAULT_MAX_LEN);
-			sb.append(operand).append(" ").append(condAttrStr);
-			sb.append(" ").append(msg.getMessage("AttributeStatements.inParentGroup"));
-			break;
-		case hasSubgroupAttribute:
-			sb.append(operand).append(" ").append(condition.getAttribute().getName());
-			sb.append(" ").append(msg.getMessage("AttributeStatements.inGroup")).append(" ");
-			sb.append(condition.getAttribute().getGroupPath());
-			break;
-		case hasSubgroupAttributeValue:
-			String condAttrStr2 = handlersReg.getSimplifiedAttributeRepresentation(condition.getAttribute(),
-					AttributeHandlerRegistry.DEFAULT_MAX_LEN);
-			sb.append(operand).append(" ").append(condAttrStr2);
-			sb.append(" ").append(msg.getMessage("AttributeStatements.inGroup")).append(" ");
-			sb.append(condition.getAttribute().getGroupPath());
-			break;
-		}
-		return sb.toString();
-	}
+	}	
 	
 	private void updateGroup(AttributeStatement[] attributeStatements)
 	{
@@ -290,8 +244,8 @@ public class AttributeStatementsTable extends Table
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			new AttributeStatementEditDialog(msg, group.toString(), null, groupsMan, 
-					handlersReg, attrsMan, new Callback()
+			new AttributeStatementEditDialog(msg, null, attrsMan, statementHandlersReg, group.toString(),
+					new Callback()
 					{
 						@Override
 						public void onConfirm(AttributeStatement newStatement)
@@ -314,8 +268,8 @@ public class AttributeStatementsTable extends Table
 		public void handleAction(Object sender, final Object target)
 		{
 			
-			new AttributeStatementEditDialog(msg, group.toString(), (AttributeStatement)target, groupsMan, 
-					handlersReg, attrsMan, new Callback()
+			new AttributeStatementEditDialog(msg, (AttributeStatement)target, 
+					attrsMan, statementHandlersReg, group.toString(), new Callback()
 					{
 						@Override
 						public void onConfirm(AttributeStatement newStatement)

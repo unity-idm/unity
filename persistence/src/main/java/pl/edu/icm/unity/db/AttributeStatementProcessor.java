@@ -24,15 +24,12 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatementCondition;
+import pl.edu.icm.unity.types.basic.AttributeStatement.Direction;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
-import pl.edu.icm.unity.types.basic.AttributeStatementCondition.Type;
 import pl.edu.icm.unity.types.basic.Group;
 
 /**
@@ -42,7 +39,6 @@ import pl.edu.icm.unity.types.basic.Group;
 @Component
 public class AttributeStatementProcessor
 {
-	private enum CollectionMode {all, downwards, upwards}
 	private GroupResolver groupResolver;
 	private AttributesResolver attrResolver;
 	private GroupsSerializer jsonS;
@@ -86,16 +82,16 @@ public class AttributeStatementProcessor
 			AttributesMapper atMapper, GroupsMapper gMapper) throws IllegalGroupValueException
 	{
 		Map<String, Map<String, AttributeExt<?>>> downwardsAttributes = new HashMap<String, Map<String,AttributeExt<?>>>();
-		collectUpOrDownAttributes(CollectionMode.downwards, group, attribute, downwardsAttributes, 
+		collectUpOrDownAttributes(Direction.downwards, group, attribute, downwardsAttributes, 
 				directAttributesByGroup, allGroups, atMapper, gMapper);
 
 		Map<String, Map<String, AttributeExt<?>>> upwardsAttributes = new HashMap<String, Map<String,AttributeExt<?>>>();
-		collectUpOrDownAttributes(CollectionMode.upwards, group, attribute, upwardsAttributes, 
+		collectUpOrDownAttributes(Direction.upwards, group, attribute, upwardsAttributes, 
 				directAttributesByGroup, allGroups, atMapper, gMapper);
 
 		AttributeStatement[] statements = getGroupStatements(group, atMapper, gMapper);
 		
-		return processAttributeStatements(CollectionMode.all, directAttributesByGroup, 
+		return processAttributeStatements(Direction.undirected, directAttributesByGroup, 
 				upwardsAttributes, downwardsAttributes, group, 
 				attribute, statements, allGroups, atMapper);
 	}
@@ -137,7 +133,7 @@ public class AttributeStatementProcessor
 	 * @throws IllegalAttributeTypeException 
 	 * @throws IllegalTypeException 
 	 */
-	private void collectUpOrDownAttributes(CollectionMode mode, String groupPath, String attribute,
+	private void collectUpOrDownAttributes(Direction mode, String groupPath, String attribute,
 			Map<String, Map<String, AttributeExt<?>>> upOrDownAttributes, 
 			Map<String, Map<String, AttributeExt<?>>> allAttributesByGroup,
 			Set<String> allGroups, AttributesMapper mapper, GroupsMapper gMapper) 
@@ -148,10 +144,9 @@ public class AttributeStatementProcessor
 		Set<String> interestingGroups = new HashSet<String>();
 		for (AttributeStatement as: statements)
 		{
-			Type type = as.getCondition().getType();
-			if (isUpOrDownStatement(mode, type) && isForInterestingAttribute(attribute, as))
+			if (mode == as.getDirection() && isForInterestingAttribute(attribute, as))
 			{
-				String groupPath2 = as.getCondition().getAttribute().getGroupPath();
+				String groupPath2 = as.getConditionAttribute().getGroupPath();
 				interestingGroups.add(groupPath2);
 			}
 		}
@@ -161,12 +156,11 @@ public class AttributeStatementProcessor
 					allGroups, mapper, gMapper);
 		}
 		
-		Map<String, AttributeExt<?>> ret = (mode == CollectionMode.downwards) ? 
+		Map<String, AttributeExt<?>> ret = (mode == Direction.upwards) ? 
+				processAttributeStatements(mode, allAttributesByGroup, upOrDownAttributes, null,
+						groupPath, null, statements, allGroups, mapper):
 				processAttributeStatements(mode, allAttributesByGroup, null, upOrDownAttributes, 
-						groupPath, null, statements, allGroups, mapper) 
-				:
-				processAttributeStatements(mode, allAttributesByGroup, upOrDownAttributes, null, 
-						groupPath, null, statements, allGroups, mapper) ;
+						groupPath, null, statements, allGroups, mapper);
 		upOrDownAttributes.put(groupPath, ret);
 	}
 	
@@ -174,24 +168,13 @@ public class AttributeStatementProcessor
 	{
 		if (attribute == null)
 			return true;
-		if (as.getAssignedAttribute().getName().equals(attribute))
+		String assigned = as.getAssignedAttributeName();
+		if (assigned == null || assigned.equals(attribute))
 			return true;
 		return false;
 	}
 	
-	private boolean isUpOrDownStatement(CollectionMode mode, Type type)
-	{
-		if (mode == CollectionMode.downwards && 
-				(type == Type.hasSubgroupAttribute || type == Type.hasSubgroupAttributeValue))
-			return true;
-		if (mode == CollectionMode.upwards && 
-				(type == Type.hasParentgroupAttribute || type == Type.hasParentgroupAttributeValue))
-			return true;
-		return false;
-	}
-	
-	private Map<String, AttributeExt<?>> processAttributeStatements(
-			CollectionMode mode,
+	private Map<String, AttributeExt<?>> processAttributeStatements(Direction direction,
 			Map<String, Map<String, AttributeExt<?>>> allAttributesByGroup,
 			Map<String, Map<String, AttributeExt<?>>> upwardsAttributesByGroup,
 			Map<String, Map<String, AttributeExt<?>>> downwardsAttributesByGroup,
@@ -214,8 +197,13 @@ public class AttributeStatementProcessor
 		
 		for (AttributeStatement as: statements)
 		{
-			processAttributeStatement(mode, as, attribute, collectedAttributes, upwardsAttributesByGroup,
-					downwardsAttributesByGroup, allGroups, mapper);
+			Map<String, Map<String, AttributeExt<?>>> directedAttributesByGroup = null;
+			if (as.getDirection() == Direction.downwards)
+				directedAttributesByGroup = downwardsAttributesByGroup;
+			if (as.getDirection() == Direction.upwards)
+				directedAttributesByGroup = upwardsAttributesByGroup;
+			processAttributeStatement(direction, as, attribute, collectedAttributes, 
+					directedAttributesByGroup, allGroups, mapper);
 		}
 		return collectedAttributes;
 	}
@@ -232,20 +220,24 @@ public class AttributeStatementProcessor
 	 * @throws IllegalAttributeTypeException 
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void processAttributeStatement(CollectionMode mode, AttributeStatement statement, String attribute, 
+	private void processAttributeStatement(Direction direction, AttributeStatement statement, String attribute, 
 			Map<String, AttributeExt<?>> collectedAttributes, 
-			Map<String, Map<String, AttributeExt<?>>> upwardsAttributesByGroup,
-			Map<String, Map<String, AttributeExt<?>>> downwardsAttributesByGroup,
+			Map<String, Map<String, AttributeExt<?>>> directedAttributesByGroup,
 			Set<String> allGroups, AttributesMapper mapper) 
 	{
+		//we are in the recursive process of establishing downwards or upwards attributes and the
+		// statement is oppositely directed. 
+		if (direction != Direction.undirected && statement.getDirection() != Direction.undirected &&
+				direction != statement.getDirection())
+			return;
 		if (!isForInterestingAttribute(attribute, statement))
 			return;
-		AttributeStatementCondition condition = statement.getCondition();
-		if (!evaluateCondition(mode, condition, upwardsAttributesByGroup, 
-					downwardsAttributesByGroup, allGroups))
-				return;
 		
-		Attribute<?> ret = statement.getAssignedAttribute();
+		Attribute<?> ret = statement.evaluateCondition(directedAttributesByGroup, allGroups);
+		
+		if (ret == null)
+			return;
+		
 		if (collectedAttributes.containsKey(ret.getName()))
 		{
 			ConflictResolution resolution = statement.getConflictResolution();
@@ -276,80 +268,5 @@ public class AttributeStatementProcessor
 		{
 			collectedAttributes.put(ret.getName(), new AttributeExt(ret, false));
 		}
-	}
-	
-	
-	private boolean evaluateCondition(CollectionMode mode, AttributeStatementCondition condition, 
-			Map<String, Map<String, AttributeExt<?>>> upwardsAttributesByGroup,
-			Map<String, Map<String, AttributeExt<?>>> downwardsAttributesByGroup,
-			Set<String> allGroups)
-	{
-		Type type = condition.getType();
-		switch(type)
-		{
-		case everybody:
-			return true;
-		case hasParentgroupAttribute:
-			if (mode == CollectionMode.downwards)
-				return false;
-			Attribute<?> pConditionAttr = condition.getAttribute();
-			return hasAttributeInGroup(pConditionAttr.getGroupPath(), pConditionAttr.getName(), 
-					upwardsAttributesByGroup);
-		case hasSubgroupAttribute:
-			if (mode == CollectionMode.upwards)
-				return false;
-			Attribute<?> sConditionAttr = condition.getAttribute();
-			return hasAttributeInGroup(sConditionAttr.getGroupPath(), sConditionAttr.getName(), 
-					downwardsAttributesByGroup);
-		case hasParentgroupAttributeValue:
-			if (mode == CollectionMode.downwards)
-				return false;
-			Attribute<?> pConditionAttr1 = condition.getAttribute();
-			return hasAttributeAndValInGroup(pConditionAttr1, upwardsAttributesByGroup);
-		case hasSubgroupAttributeValue:
-			if (mode == CollectionMode.upwards)
-				return false;
-			Attribute<?> conditionAttr1 = condition.getAttribute();
-			return hasAttributeAndValInGroup(conditionAttr1, downwardsAttributesByGroup);
-		case memberOf:
-			return allGroups.contains(condition.getGroup());
-		default:
-			throw new InternalException("Unsupported condition: " + type);
-		}
-	}
-	
-	private boolean hasAttributeInGroup(String group, String attribute, 
-			Map<String, Map<String, AttributeExt<?>>> allAttributesByGroup)
-	{
-		Map<String, AttributeExt<?>> attributesInGroup = allAttributesByGroup.get(group);
-		return attributesInGroup != null && attributesInGroup.containsKey(attribute);
-	}
-
-	private boolean hasAttributeAndValInGroup(Attribute<?> attributeToSearch, 
-			Map<String, Map<String, AttributeExt<?>>> allAttributesByGroup)
-	{
-		Map<String, AttributeExt<?>> attributesInGroup = allAttributesByGroup.get(attributeToSearch.getGroupPath());
-		if (attributesInGroup == null)
-			return false;
-		AttributeExt<?> attribute = attributesInGroup.get(attributeToSearch.getName());
-		if (attribute == null)
-			return false;
-		@SuppressWarnings("unchecked")
-		AttributeValueSyntax<Object> syntax = (AttributeValueSyntax<Object>) attribute.getAttributeSyntax();
-		for (Object val: attributeToSearch.getValues())
-		{
-			boolean found = false;
-			for (Object val2: attribute.getValues())
-			{
-				if (syntax.areEqual(val, val2))
-				{
-					found = true;
-					break;
-				}
-			}
-			if (!found)
-				return false;
-		}
-		return true;
 	}
 }

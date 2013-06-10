@@ -18,8 +18,6 @@ import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
-import pl.edu.icm.unity.types.basic.AttributeStatementCondition;
-import pl.edu.icm.unity.types.basic.AttributeStatementCondition.Type;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -27,6 +25,12 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.attrstmnt.CopyParentAttributeStatement;
+import pl.edu.icm.unity.types.basic.attrstmnt.CopySubgroupAttributeStatement;
+import pl.edu.icm.unity.types.basic.attrstmnt.EverybodyStatement;
+import pl.edu.icm.unity.types.basic.attrstmnt.HasParentAttributeStatement;
+import pl.edu.icm.unity.types.basic.attrstmnt.HasSubgroupAttributeStatement;
+import pl.edu.icm.unity.types.basic.attrstmnt.MemberOfStatement;
 
 public class TestAttributeStatements extends DBIntegrationTestBase
 {
@@ -56,8 +60,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		setupStateForConditions();
 		
 		// test with one statement added to /A for everybody
-		groupA.setAttributeStatements(new AttributeStatement[] {new AttributeStatement(
-				new AttributeStatementCondition(Type.everybody), 
+		groupA.setAttributeStatements(new AttributeStatement[] {new EverybodyStatement(
 				new StringAttribute("a2", "/A", AttributeVisibility.local, "va1"), 
 				ConflictResolution.skip)});
 		groupsMan.updateGroup("/A", groupA);
@@ -73,11 +76,9 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	{
 		setupStateForConditions();
 		// statement at /A/B for all members of /A/B/C (entity is member)
-		AttributeStatementCondition condition = new AttributeStatementCondition(Type.memberOf);
-		condition.setGroup("/A/B/C");
-		groupAB.setAttributeStatements(new AttributeStatement[] {new AttributeStatement(
-				condition, 
+		groupAB.setAttributeStatements(new AttributeStatement[] {new MemberOfStatement(
 				new StringAttribute("a2", "/A/B", AttributeVisibility.local, "va1"), 
+				"/A/B/C", 
 				ConflictResolution.skip)});
 		groupsMan.updateGroup("/A/B", groupAB);
 
@@ -86,11 +87,9 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 				0, 0, 1, 0,  0, 0); //a2
 
 		// condition added to /A/B/C for all members of /A/Z (entity is not a member, should be no change)		
-		AttributeStatementCondition condition2 = new AttributeStatementCondition(Type.memberOf);
-		condition2.setGroup("/A/Z");
-		groupABC.setAttributeStatements(new AttributeStatement[] {new AttributeStatement(
-				condition2, 
+		groupABC.setAttributeStatements(new AttributeStatement[] {new MemberOfStatement(
 				new StringAttribute("a2", "/A/B/C", AttributeVisibility.local, "va1"), 
+				"/A/Z",
 				ConflictResolution.skip)});
 		groupsMan.updateGroup("/A/B/C", groupABC);
 
@@ -98,6 +97,25 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		testCorrectness(0, 1, 1, 0,  0, 0,  //a1
 				0, 0, 1, 0,  0, 0); //a2
 	}
+
+	@Test
+	public void testCopyParentAttr() throws Exception
+	{
+		setupStateForConditions();
+	
+		// added to /A/B/C for all having an "a1" attribute in parent. 
+		// Entity has this attribute as regular attribute there.
+		AttributeStatement statement1 = new CopyParentAttributeStatement(
+				new StringAttribute("a1", "/A/B", AttributeVisibility.local), 
+				ConflictResolution.skip);
+		groupABC.setAttributeStatements(new AttributeStatement[] {statement1});
+		groupsMan.updateGroup("/A/B/C", groupABC);
+
+		//              /  A  AB ABC AD AZ
+		testCorrectness(0, 1, 1, 1,  0, 0,  //a1
+				0, 0, 0, 0,  0, 0); //a2
+	}
+
 	
 	@Test
 	public void testParentAttr() throws Exception
@@ -106,11 +124,9 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	
 		// added to /A/B for all having an "a1" attribute in parent. 
 		// Entity has this attribute as regular attribute there.
-		AttributeStatementCondition condition = new AttributeStatementCondition(Type.hasParentgroupAttribute);
-		condition.setAttribute(new StringAttribute("a1", "/A", AttributeVisibility.local, "va"));
-		AttributeStatement statement1 = new AttributeStatement(
-				condition, 
+		AttributeStatement statement1 = new HasParentAttributeStatement(
 				new StringAttribute("a2", "/A/B", AttributeVisibility.local, "va1"), 
+				new StringAttribute("a1", "/A", AttributeVisibility.local), 
 				ConflictResolution.skip);
 		groupAB.setAttributeStatements(new AttributeStatement[] {statement1});
 		groupsMan.updateGroup("/A/B", groupAB);
@@ -127,11 +143,9 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	
 		// added to /A/B for all having an "a2" attribute in parent. 
 		// Entity doesn't have this attribute there
-		AttributeStatementCondition condition = new AttributeStatementCondition(Type.hasParentgroupAttribute);
-		condition.setAttribute(new StringAttribute("a2", "/A", AttributeVisibility.local, "va"));
-		AttributeStatement statement1 = new AttributeStatement(
-				condition, 
+		AttributeStatement statement1 = new HasParentAttributeStatement(
 				new StringAttribute("a2", "/A/B", AttributeVisibility.local, "va1"), 
+				new StringAttribute("a2", "/A", AttributeVisibility.local), 
 				ConflictResolution.skip);
 		groupAB.setAttributeStatements(new AttributeStatement[] {statement1});
 		groupsMan.updateGroup("/A/B", groupAB);
@@ -141,8 +155,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 				0, 0, 0, 0,  0, 0); //a2
 
 		// now a2 is added in /A using a statement
-		groupA.setAttributeStatements(new AttributeStatement[] {new AttributeStatement(
-				new AttributeStatementCondition(Type.everybody), 
+		groupA.setAttributeStatements(new AttributeStatement[] {new EverybodyStatement(
 				new StringAttribute("a2", "/A", AttributeVisibility.local, "va1"), 
 				ConflictResolution.skip)});
 		groupsMan.updateGroup("/A", groupA);
@@ -158,29 +171,24 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		setupStateForConditions();
 	
 		// added to /A/B for all having an "a2" attribute in parent. 
-		AttributeStatementCondition condition = new AttributeStatementCondition(Type.hasParentgroupAttribute);
-		condition.setAttribute(new StringAttribute("a2", "/A", AttributeVisibility.local, "va"));
-		AttributeStatement statement1 = new AttributeStatement(
-				condition, 
+		AttributeStatement statement1 = new HasParentAttributeStatement(
 				new StringAttribute("a2", "/A/B", AttributeVisibility.local, "va1"), 
+				new StringAttribute("a2", "/A", AttributeVisibility.local), 
 				ConflictResolution.skip);
 		groupAB.setAttributeStatements(new AttributeStatement[] {statement1});
 		groupsMan.updateGroup("/A/B", groupAB);
 
 		// added to /A for all having an "a2" attribute in parent. 
-		AttributeStatementCondition condition2 = new AttributeStatementCondition(Type.hasParentgroupAttribute);
-		condition2.setAttribute(new StringAttribute("a2", "/", AttributeVisibility.local, "va"));
-		AttributeStatement statement2 = new AttributeStatement(
-				condition2, 
+		AttributeStatement statement2 = new HasParentAttributeStatement(
 				new StringAttribute("a2", "/A", AttributeVisibility.local, "va1"), 
+				new StringAttribute("a2", "/", AttributeVisibility.local), 
 				ConflictResolution.skip);
 		groupA.setAttributeStatements(new AttributeStatement[] {statement2});
 		groupsMan.updateGroup("/A", groupA);
 		
 		// added to / for everybody
 		Group root = new Group("/");
-		AttributeStatement statement3 = new AttributeStatement(
-				new AttributeStatementCondition(Type.everybody), 
+		AttributeStatement statement3 = new EverybodyStatement(
 				new StringAttribute("a2", "/", AttributeVisibility.local, "va1"), 
 				ConflictResolution.skip);
 		root.setAttributeStatements(new AttributeStatement[] {statement3});
@@ -192,6 +200,24 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 				1, 1, 1, 0,  0, 0); //a2
 	}	
 	
+	@Test
+	public void testCopySubgroupAttr() throws Exception
+	{
+		setupStateForConditions();
+
+		// added to / for all having an "a1" attribute in /A. 
+		// Entity has this attribute as regular attribute there.
+		AttributeStatement statement1 = new CopySubgroupAttributeStatement(
+				new StringAttribute("a1", "/A", AttributeVisibility.local), 
+				ConflictResolution.skip);
+		Group groupR = groupsMan.getContents("/", GroupContents.METADATA).getGroup();
+		groupR.setAttributeStatements(new AttributeStatement[] {statement1});
+		groupsMan.updateGroup("/", groupR);
+
+		//              /  A  AB ABC AD AZ
+		testCorrectness(1, 1, 1, 0,  0, 0,  //a1
+				0, 0, 0, 0,  0, 0); //a2
+	}
 	
 	@Test
 	public void testSubgroupAttr() throws Exception
@@ -200,11 +226,9 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	
 		// added to /A for all having an "a1" attribute in /A/B. 
 		// Entity has this attribute as regular attribute there.
-		AttributeStatementCondition condition = new AttributeStatementCondition(Type.hasSubgroupAttribute);
-		condition.setAttribute(new StringAttribute("a1", "/A/B", AttributeVisibility.local, "va"));
-		AttributeStatement statement1 = new AttributeStatement(
-				condition, 
+		AttributeStatement statement1 = new HasSubgroupAttributeStatement(
 				new StringAttribute("a2", "/A", AttributeVisibility.local, "va1"), 
+				new StringAttribute("a1", "/A/B", AttributeVisibility.local), 
 				ConflictResolution.skip);
 		groupA.setAttributeStatements(new AttributeStatement[] {statement1});
 		groupsMan.updateGroup("/A", groupA);
@@ -221,11 +245,9 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	
 		// added to /A for all having an "a2" attribute in /A/B. 
 		// Entity doesn't have this attribute there
-		AttributeStatementCondition condition = new AttributeStatementCondition(Type.hasSubgroupAttribute);
-		condition.setAttribute(new StringAttribute("a2", "/A/B", AttributeVisibility.local, "va"));
-		AttributeStatement statement1 = new AttributeStatement(
-				condition, 
+		AttributeStatement statement1 = new HasSubgroupAttributeStatement(
 				new StringAttribute("a2", "/A", AttributeVisibility.local, "va1"), 
+				new StringAttribute("a2", "/A/B", AttributeVisibility.local), 
 				ConflictResolution.skip);
 		groupA.setAttributeStatements(new AttributeStatement[] {statement1});
 		groupsMan.updateGroup("/A", groupA);
@@ -235,8 +257,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 				0, 0, 0, 0,  0, 0); //a2
 
 		// now a2 is added in /A/B using a statement
-		groupAB.setAttributeStatements(new AttributeStatement[] {new AttributeStatement(
-				new AttributeStatementCondition(Type.everybody), 
+		groupAB.setAttributeStatements(new AttributeStatement[] {new EverybodyStatement(
 				new StringAttribute("a2", "/A/B", AttributeVisibility.local, "va1"), 
 				ConflictResolution.skip)});
 		groupsMan.updateGroup("/A/B", groupAB);
@@ -252,28 +273,23 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		setupStateForConditions();
 	
 		// added to /A for all having an "a2" attribute in /A/B. 
-		AttributeStatementCondition condition = new AttributeStatementCondition(Type.hasSubgroupAttribute);
-		condition.setAttribute(new StringAttribute("a2", "/A/B", AttributeVisibility.local, "va"));
-		AttributeStatement statement1 = new AttributeStatement(
-				condition, 
+		AttributeStatement statement1 = new HasSubgroupAttributeStatement(
 				new StringAttribute("a2", "/A", AttributeVisibility.local, "va1"), 
+				new StringAttribute("a2", "/A/B", AttributeVisibility.local), 
 				ConflictResolution.skip);
 		groupA.setAttributeStatements(new AttributeStatement[] {statement1});
 		groupsMan.updateGroup("/A", groupA);
 
 		// added to /A/B for all having an "a2" attribute in /A/B/C. 
-		AttributeStatementCondition condition2 = new AttributeStatementCondition(Type.hasSubgroupAttribute);
-		condition2.setAttribute(new StringAttribute("a2", "/A/B/C", AttributeVisibility.local, "va"));
-		AttributeStatement statement2 = new AttributeStatement(
-				condition2, 
+		AttributeStatement statement2 = new HasSubgroupAttributeStatement(
 				new StringAttribute("a2", "/A/B", AttributeVisibility.local, "va1"), 
+				new StringAttribute("a2", "/A/B/C", AttributeVisibility.local), 
 				ConflictResolution.skip);
 		groupAB.setAttributeStatements(new AttributeStatement[] {statement2});
 		groupsMan.updateGroup("/A/B", groupAB);
 		
 		// added to /A/B/B for everybody
-		AttributeStatement statement3 = new AttributeStatement(
-				new AttributeStatementCondition(Type.everybody), 
+		AttributeStatement statement3 = new EverybodyStatement(
 				new StringAttribute("a2", "/A/B/C", AttributeVisibility.local, "va1"), 
 				ConflictResolution.skip);
 		groupABC.setAttributeStatements(new AttributeStatement[] {statement3});
@@ -293,11 +309,9 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	
 		// added to /A for all having an "a1" with value "foo" attribute in /A/B. 
 		// Entity has this attribute as regular attribute there but with other value.
-		AttributeStatementCondition condition = new AttributeStatementCondition(Type.hasSubgroupAttributeValue);
-		condition.setAttribute(new StringAttribute("a1", "/A/B", AttributeVisibility.local, "foo"));
-		AttributeStatement statement1 = new AttributeStatement(
-				condition, 
+		AttributeStatement statement1 = new HasSubgroupAttributeStatement(
 				new StringAttribute("a2", "/A", AttributeVisibility.local, "va1"), 
+				new StringAttribute("a1", "/A/B", AttributeVisibility.local, "foo"), 
 				ConflictResolution.skip);
 		groupA.setAttributeStatements(new AttributeStatement[] {statement1});
 		groupsMan.updateGroup("/A", groupA);
@@ -307,11 +321,9 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 				0, 0, 0, 0,  0, 0); //a2
 
 		//again using the existing value
-		AttributeStatementCondition condition1 = new AttributeStatementCondition(Type.hasSubgroupAttributeValue);
-		condition1.setAttribute(new StringAttribute("a1", "/A/B", AttributeVisibility.local, "va1"));
-		AttributeStatement statement2 = new AttributeStatement(
-				condition1, 
+		AttributeStatement statement2 = new HasSubgroupAttributeStatement(
 				new StringAttribute("a2", "/A", AttributeVisibility.local, "va1"), 
+				new StringAttribute("a1", "/A/B", AttributeVisibility.local, "va1"), 
 				ConflictResolution.skip);
 		groupA.setAttributeStatements(new AttributeStatement[] {statement2});
 		groupsMan.updateGroup("/A", groupA);
@@ -328,11 +340,9 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	
 		// added to /A/B for all having an "a1" with value "foo" attribute in /A. 
 		// Entity has this attribute as regular attribute there but with other value.
-		AttributeStatementCondition condition = new AttributeStatementCondition(Type.hasParentgroupAttributeValue);
-		condition.setAttribute(new StringAttribute("a1", "/A", AttributeVisibility.local, "foo"));
-		AttributeStatement statement1 = new AttributeStatement(
-				condition, 
+		AttributeStatement statement1 = new HasParentAttributeStatement(
 				new StringAttribute("a2", "/A/B", AttributeVisibility.local, "va1"), 
+				new StringAttribute("a1", "/A", AttributeVisibility.local, "foo"), 
 				ConflictResolution.skip);
 		groupAB.setAttributeStatements(new AttributeStatement[] {statement1});
 		groupsMan.updateGroup("/A/B", groupAB);
@@ -342,11 +352,9 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 				0, 0, 0, 0,  0, 0); //a2
 
 		//again using the existing value
-		AttributeStatementCondition condition1 = new AttributeStatementCondition(Type.hasParentgroupAttributeValue);
-		condition1.setAttribute(new StringAttribute("a1", "/A", AttributeVisibility.local, "va1"));
-		AttributeStatement statement2 = new AttributeStatement(
-				condition1, 
+		AttributeStatement statement2 = new HasParentAttributeStatement(
 				new StringAttribute("a2", "/A/B", AttributeVisibility.local, "va1"), 
+				new StringAttribute("a1", "/A", AttributeVisibility.local, "va1"), 
 				ConflictResolution.skip);
 		groupAB.setAttributeStatements(new AttributeStatement[] {statement2});
 		groupsMan.updateGroup("/A/B", groupAB);
@@ -362,8 +370,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		setupStateForConditions();
 	
 		// skip
-		AttributeStatement statement1 = new AttributeStatement(
-				new AttributeStatementCondition(Type.everybody), 
+		AttributeStatement statement1 = new EverybodyStatement(
 				new StringAttribute("a1", "/A/B", AttributeVisibility.local, "updated"), 
 				ConflictResolution.skip);
 		groupAB.setAttributeStatements(new AttributeStatement[] {statement1});
@@ -374,8 +381,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		assertEquals("va1", aRet.iterator().next().getValues().get(0));
 
 		// skip and then overwrite
-		AttributeStatement statement2 = new AttributeStatement(
-				new AttributeStatementCondition(Type.everybody), 
+		AttributeStatement statement2 = new EverybodyStatement(
 				new StringAttribute("a1", "/A/B", AttributeVisibility.local, "updated2"), 
 				ConflictResolution.overwrite);
 		groupAB.setAttributeStatements(new AttributeStatement[] {statement1, statement2});
@@ -387,8 +393,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		assertEquals("updated2", aRet.iterator().next().getValues().get(0));
 		
 		// skip, overwrite, merge which should skip
-		AttributeStatement statement3 = new AttributeStatement(
-				new AttributeStatementCondition(Type.everybody), 
+		AttributeStatement statement3 = new EverybodyStatement(
 				new StringAttribute("a1", "/A/B", AttributeVisibility.local, "merge"), 
 				ConflictResolution.merge);
 		groupAB.setAttributeStatements(new AttributeStatement[] {statement1, statement2, statement3});
@@ -401,12 +406,10 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 
 
 		//add two rules to test merge working
-		AttributeStatement statement4 = new AttributeStatement(
-				new AttributeStatementCondition(Type.everybody), 
+		AttributeStatement statement4 = new EverybodyStatement(
 				new StringAttribute("a2", "/A/B", AttributeVisibility.local, "merge1"), 
 				ConflictResolution.skip);
-		AttributeStatement statement5 = new AttributeStatement(
-				new AttributeStatementCondition(Type.everybody), 
+		AttributeStatement statement5 = new EverybodyStatement(
 				new StringAttribute("a2", "/A/B", AttributeVisibility.local, "merge2"), 
 				ConflictResolution.merge);
 		groupAB.setAttributeStatements(new AttributeStatement[] {statement1, statement2, statement3,
@@ -425,15 +428,12 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	{
 		setupStateForConditions();
 		
-		AttributeStatement statement1 = new AttributeStatement(
-				new AttributeStatementCondition(Type.everybody), 
+		AttributeStatement statement1 = new EverybodyStatement(
 				new StringAttribute("a1", "/A", AttributeVisibility.local, "updated"), 
 				ConflictResolution.overwrite);
-		AttributeStatementCondition condition2 = new AttributeStatementCondition(Type.hasSubgroupAttribute);
-		condition2.setAttribute(new StringAttribute("a2", "/A/B", AttributeVisibility.local, "foo"));
-		AttributeStatement statement3 = new AttributeStatement(
-				condition2, 
+		AttributeStatement statement3 = new HasSubgroupAttributeStatement(
 				new StringAttribute("a2", "/A", AttributeVisibility.local, "va1"), 
+				new StringAttribute("a2", "/A/B", AttributeVisibility.local, "foo"), 
 				ConflictResolution.skip);
 		groupA.setAttributeStatements(new AttributeStatement[] {statement1, statement3});
 		groupsMan.updateGroup("/A", groupA);
@@ -464,8 +464,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	{
 		setupStateForConditions();
 	
-		AttributeStatement statement1 = new AttributeStatement(
-				new AttributeStatementCondition(Type.everybody), 
+		AttributeStatement statement1 = new EverybodyStatement(
 				new StringAttribute("a1", "/A/D", AttributeVisibility.local, "updated"), 
 				ConflictResolution.skip);
 		groupA.setAttributeStatements(new AttributeStatement[] {statement1});
@@ -475,11 +474,9 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 			fail("Managed to update group with wrong attribute");
 		} catch (IllegalAttributeValueException e) {}
 		
-		AttributeStatementCondition condition = new AttributeStatementCondition(Type.hasParentgroupAttributeValue);
-		condition.setAttribute(new StringAttribute("a1", "/A/D", AttributeVisibility.local, "foo"));
-		AttributeStatement statement2 = new AttributeStatement(
-				condition, 
+		AttributeStatement statement2 = new HasParentAttributeStatement(
 				new StringAttribute("a2", "/A", AttributeVisibility.local, "va1"), 
+				new StringAttribute("a1", "/A/D", AttributeVisibility.local, "foo"), 
 				ConflictResolution.skip);
 		groupA.setAttributeStatements(new AttributeStatement[] {statement2});
 		try
@@ -488,11 +485,9 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 			fail("Managed to update group with wrong attribute statement 1");
 		} catch (IllegalAttributeValueException e) {}
 		
-		AttributeStatementCondition condition2 = new AttributeStatementCondition(Type.hasSubgroupAttribute);
-		condition2.setAttribute(new StringAttribute("a1", "/A", AttributeVisibility.local, "foo"));
-		AttributeStatement statement3 = new AttributeStatement(
-				condition2, 
+		AttributeStatement statement3 = new HasSubgroupAttributeStatement(
 				new StringAttribute("a2", "/A", AttributeVisibility.local, "va1"), 
+				new StringAttribute("a1", "/A", AttributeVisibility.local, "foo"), 
 				ConflictResolution.skip);
 		groupA.setAttributeStatements(new AttributeStatement[] {statement3});
 		try

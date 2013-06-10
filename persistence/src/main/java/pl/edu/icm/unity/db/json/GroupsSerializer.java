@@ -25,14 +25,17 @@ import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.db.resolvers.AttributesResolver;
 import pl.edu.icm.unity.db.resolvers.GroupResolver;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
+import pl.edu.icm.unity.server.registries.AttributeStatementsRegistry;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatementCondition.Type;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
-import pl.edu.icm.unity.types.basic.AttributeStatementCondition;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Group;
 
 /**
@@ -104,12 +107,11 @@ public class GroupsSerializer
 			JsonNode jsonStatements = main.get("attributeStatements");
 			int asLen = jsonStatements.size();
 			List<AttributeStatement> statements = new ArrayList<AttributeStatement>(asLen);
-			String path = target.toString();
 			for (int i=0; i<asLen; i++)
 			{
 				try
 				{
-					statements.add(deserializeAS(jsonStatements.get(i), path, 
+					statements.add(deserializeAS(jsonStatements.get(i), 
 							groupMapper, attributeMapper));
 				} catch (Exception e)
 				{
@@ -149,108 +151,88 @@ public class GroupsSerializer
 		ObjectNode main = mapper.createObjectNode();
 		main.put("resolution", as.getConflictResolution().name());
 
-		addAttributeToJson(main, as.getAssignedAttribute(), attributeMapper, groupMapper);
-		
-		JsonNode condition = serializeASCond(as.getCondition(), groupMapper, attributeMapper);
-		main.put("condition", condition);
+		addAttributeToJson(main, "assigned-", as.getAssignedAttribute(), attributeMapper, groupMapper);
+		addAttributeToJson(main, "condition-", as.getConditionAttribute(), attributeMapper, groupMapper);
+		if (as.getConditionGroup() != null)
+		{
+			GroupBean gb = groupResolver.resolveGroup(as.getConditionGroup(), groupMapper);
+			main.put("conditionGroup", gb.getId());
+		}
+		main.put("type", as.getName());
 		return main;
 	}
 	
-	private JsonNode serializeASCond(AttributeStatementCondition asc, GroupsMapper groupMapper, 
-			AttributesMapper attributeMapper) throws IllegalGroupValueException, IllegalAttributeTypeException
-	{
-		ObjectNode main = mapper.createObjectNode();
-
-		if (asc.getGroup() != null)
-		{
-			GroupBean gb = groupResolver.resolveGroup(asc.getGroup(), groupMapper);
-			main.put("group", gb.getId());
-		}
-	
-		if (asc.getAttribute() != null)
-		{
-			addAttributeToJson(main, asc.getAttribute(), attributeMapper, groupMapper);
-		}
-		
-		main.put("type", asc.getType().name());
-		return main;
-	}
-	
-	private void addAttributeToJson(ObjectNode main, Attribute<?> attribute, AttributesMapper attributeMapper,
+	private void addAttributeToJson(ObjectNode main, String pfx, Attribute<?> attribute, AttributesMapper attributeMapper,
 			GroupsMapper groupMapper) throws IllegalAttributeTypeException, IllegalGroupValueException
 	{
+		if (attribute == null)
+			return;
 		AttributeTypeBean atb = attributeResolver.resolveAttributeType(attribute.getName(), 
 				attributeMapper);
-		main.put("attributeId", atb.getId());
+		main.put(pfx+"attributeId", atb.getId());
 		if (attribute.getGroupPath() != null)
 		{
 			GroupBean gb = groupResolver.resolveGroup(attribute.getGroupPath(), groupMapper);
-			main.put("attributeGroupId", gb.getId());
+			main.put(pfx+"attributeGroupId", gb.getId());
 		}
 		byte[] attrValues = attributeSerializer.toJson(attribute);
-		main.put("attributeValues", attrValues);
+		main.put(pfx+"attributeValues", attrValues);
 	}
 	
-	private AttributeStatement deserializeAS(JsonNode as, String group, GroupsMapper groupMapper, 
+	private AttributeStatement deserializeAS(JsonNode as, GroupsMapper groupMapper, 
 			AttributesMapper attributeMapper) throws IOException, IllegalGroupValueException, 
-			IllegalTypeException, IllegalAttributeTypeException
+			IllegalTypeException, IllegalAttributeTypeException, WrongArgumentException, 
+			IllegalAttributeValueException
 	{
-		AttributeStatement ret = new AttributeStatement();
+		String type = as.get("type").asText();
+		AttributeStatement ret = AttributeStatementsRegistry.getInstance(type);
 		String resolution = as.get("resolution").asText();
 		ret.setConflictResolution(ConflictResolution.valueOf(resolution));
 		
-		Attribute<?> attr = getAttributeFromJson(as, attributeMapper, groupMapper);
-		attr.setGroupPath(group);
-		ret.setAssignedAttribute(attr);
+		Attribute<?> attr = getAttributeFromJson(as, "assigned-", attributeMapper, groupMapper);
+		if (attr != null)
+		{
+			AttributeTypeBean atBean = attributeResolver.resolveAttributeType(attr.getName(), 
+					attributeMapper);
+			AttributeType at = attributeResolver.resolveAttributeTypeBean(atBean);
+			AttributeValueChecker.validate(attr, at);
+			ret.setAssignedAttribute(attr);
+		}
 		
-		JsonNode jsonCondition = as.get("condition");
-		AttributeStatementCondition condition = deserializeASCond(jsonCondition, groupMapper, attributeMapper);
-		ret.setCondition(condition);
+		Attribute<?> condAttr = getAttributeFromJson(as, "condition-", attributeMapper, groupMapper);
+		ret.setConditionAttribute(condAttr);
+
+		if (as.has("conditionGroup"))
+		{
+			long group = as.get("conditionGroup").asLong();
+			String groupPath = groupResolver.resolveGroupPath(group, groupMapper);
+			ret.setConditionGroup(groupPath);
+		}
 		return ret;
 	}
 	
-	private AttributeStatementCondition deserializeASCond(JsonNode asc, GroupsMapper groupMapper, 
-			AttributesMapper attributeMapper) 
-			throws IOException, IllegalGroupValueException, IllegalTypeException, IllegalAttributeTypeException
-	{
-		AttributeStatementCondition ret = new AttributeStatementCondition();
-		String type = asc.get("type").asText();
-		ret.setType(Type.valueOf(type));
-		
-		if (asc.has("group"))
-		{
-			long group = asc.get("group").asLong();
-			String groupPath = groupResolver.resolveGroupPath(group, groupMapper);
-			ret.setGroup(groupPath);
-		}
-		
-		if (asc.has("attributeId"))
-		{
-			Attribute<?> attribute = getAttributeFromJson(asc, attributeMapper, groupMapper); 
-			ret.setAttribute(attribute);
-		}
-		
-		return ret;
-	}
-
-	private Attribute<?> getAttributeFromJson(JsonNode as, AttributesMapper attributeMapper, 
+	private Attribute<?> getAttributeFromJson(JsonNode as, String pfx, AttributesMapper attributeMapper, 
 			GroupsMapper groupMapper) throws IOException, IllegalTypeException, 
-			IllegalAttributeTypeException, IllegalGroupValueException
+			IllegalAttributeTypeException, IllegalGroupValueException, IllegalAttributeValueException
 	{
-		long attributeId = as.get("attributeId").asLong();
+		if (!as.has(pfx+"attributeId"))
+			return null;
+		long attributeId = as.get(pfx+"attributeId").asLong();
 		AttributeTypeBean atb = attributeMapper.getAttributeTypeById(attributeId);
 		if (atb == null)
 			throw new IllegalAttributeTypeException("The attribute type is not known " + attributeId);
 		AttributeBean ab = new AttributeBean();
 		ab.setName(atb.getName());
 		ab.setValueSyntaxId(atb.getValueSyntaxId());
-		ab.setValues(as.get("attributeValues").binaryValue());
+		ab.setValues(as.get(pfx+"attributeValues").binaryValue());
 		String group = null;
-		if (as.has("attributeGroupId"))
+		if (as.has(pfx+"attributeGroupId"))
 		{
-			long groupId = as.get("attributeGroupId").asLong();
+			long groupId = as.get(pfx+"attributeGroupId").asLong();
 			group = groupResolver.resolveGroupPath(groupId, groupMapper);
 		}
-		return attributeResolver.resolveAttributeBean(ab, group);
+		Attribute<?> attribute = attributeResolver.resolveAttributeBean(ab, group);
+
+		return attribute;
 	}
 }
