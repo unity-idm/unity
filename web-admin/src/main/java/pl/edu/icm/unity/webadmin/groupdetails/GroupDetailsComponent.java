@@ -22,10 +22,11 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.ErrorComponent;
+import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
@@ -45,7 +46,7 @@ public class GroupDetailsComponent extends Panel
 	private UnityMessageSource msg;
 	private GroupsManagement groupsManagement;
 	
-	private Label info;
+	private VerticalLayout main;
 	private DescriptionTextArea description;
 	private AttributeStatementsTable attrStatements;
 	
@@ -57,22 +58,17 @@ public class GroupDetailsComponent extends Panel
 		this.msg = msg;
 		this.groupsManagement = groupsManagement;
 
-		VerticalLayout main = new VerticalLayout();
+		main = new VerticalLayout();
 		main.setSpacing(true);
 		main.setSizeFull();
 		main.setMargin(new MarginInfo(true, false, false, false));
 	
-		info = new Label();
-		info.setVisible(false);
-		info.setHeight(100, Unit.PERCENTAGE);
-
 		description = new DescriptionTextArea(msg.getMessage("GroupDetails.description"), true, "");
-
+		
 		attrStatements = new AttributeStatementsTable(msg, groupsManagement, 
 				attrsMan, statementHandlersReg);
 		
-		main.addComponents(info, description, attrStatements);
-		main.setExpandRatio(info, 1.0f);
+		main.addComponents(description, attrStatements);
 		main.setExpandRatio(attrStatements, 1.0f);
 		
 		setSizeFull();
@@ -96,34 +92,31 @@ public class GroupDetailsComponent extends Panel
 		if (group == null)
 		{
 			setCaption(msg.getMessage("GroupDetails.captionNoGroup"));
-			setProblem(msg.getMessage("GroupDetails.noGroup"));
+			setProblem(msg.getMessage("GroupDetails.noGroup"), Level.warning);
 			return;
 		}
 		setCaption(msg.getMessage("GroupDetails.caption", group));
-		description.setVisible(true);
-		attrStatements.setVisible(true);
-		info.setVisible(false);
 		
 		try
 		{
 			GroupContents contents = groupsManagement.getContents(group, GroupContents.METADATA);
 			description.setValue(contents.getGroup().getDescription());
 			attrStatements.setInput(contents.getGroup());
+			setContent(main);
 		} catch (AuthorizationException e)
 		{
-			setProblem(msg.getMessage("GroupDetails.noReadAuthz", group));
+			setProblem(msg.getMessage("GroupDetails.noReadAuthz", group), Level.error);
 		} catch (Exception e)
 		{
 			log.fatal("Problem retrieving group contents of " + group, e);
-			setProblem(msg.getMessage("GroupDetails.internalError", e.toString()));
+			setProblem(msg.getMessage("GroupDetails.internalError", e.toString()), Level.error);
 		}
 	}
 	
-	private void setProblem(String message)
+	private void setProblem(String message, Level level)
 	{
-		info.setValue(message);
-		info.setVisible(true);
-		description.setVisible(false);
-		attrStatements.setVisible(false);
+		ErrorComponent errorC = new ErrorComponent();
+		errorC.setMessage(message, level);
+		setContent(errorC);
 	}
 }

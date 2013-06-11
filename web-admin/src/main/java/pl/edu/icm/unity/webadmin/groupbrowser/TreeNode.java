@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.groupbrowser;
 
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 
 /**
@@ -12,22 +13,36 @@ import pl.edu.icm.unity.types.basic.Group;
  */
 public class TreeNode
 {
+	private UnityMessageSource msg;
 	private String name;
 	private String path;
 	private String parentPath;
 	private boolean contentsFetched = false;
 	
-	public TreeNode(String path)
+	public TreeNode(UnityMessageSource msg, String path)
 	{
+		this(msg, path, false);
+	}
+	
+	public TreeNode(UnityMessageSource msg, String path, boolean forceRoot)
+	{
+		this.msg = msg;
 		this.path = path;
-		Group tmp = new Group(path);
-		this.name = tmp.isTopLevel() ? "ROOT" : tmp.getName();
-		this.parentPath = tmp.getParentPath(); 
+		if (!forceRoot)
+		{
+			Group tmp = new Group(path);
+			this.name = tmp.isTopLevel() ? msg.getMessage("GroupBrowser.root") : tmp.getName();
+			this.parentPath = tmp.getParentPath();
+		} else
+		{
+			this.name = path;
+			this.parentPath = null;
+		}
 	}
 	
 	public TreeNode getParentNode()
 	{
-		return parentPath == null ? null : new TreeNode(parentPath);
+		return parentPath == null ? null : new TreeNode(msg, parentPath);
 	}
 	
 	public boolean isContentsFetched()

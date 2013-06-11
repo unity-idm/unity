@@ -336,7 +336,8 @@ public class IdentitiesTable extends TreeTable
 	private void resolveEntity(String entity) throws EngineException
 	{
 		Entity resolvedEntity = identitiesMan.getEntity(new EntityParam(entity));
-		Collection<AttributeExt<?>> rawAttrs = attrMan.getAllAttributes(new EntityParam(entity), true, "/", null);
+		Collection<AttributeExt<?>> rawAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
+				true, "/", null, true);
 		Map<String, Attribute<?>> attrs = new HashMap<String, Attribute<?>>(rawAttrs.size());
 		for (Attribute<?> a: rawAttrs)
 			attrs.put(a.getName(), a);

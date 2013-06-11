@@ -177,7 +177,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		for (AuthzCapability requiredCapability: requiredCapabilities)
 			if (!capabilities.contains(requiredCapability))
 				throw new AuthorizationException("Access is denied. The operation " + 
-						callerMethod + " requires " + requiredCapability);
+						callerMethod + " requires '" + requiredCapability + "' capability");
 	}
 	
 	@Override

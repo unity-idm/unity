@@ -15,7 +15,6 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -23,11 +22,6 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
-import pl.edu.icm.unity.webadmin.identities.EntityChangedEvent;
-import pl.edu.icm.unity.webui.WebSession;
-import pl.edu.icm.unity.webui.bus.EventListener;
-import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -148,78 +142,31 @@ public class AttributesPanel extends HorizontalSplitPanel
 		left.setMargin(new MarginInfo(false, true, false, false));
 		left.setSizeFull();
 		left.setSpacing(true);
+		left.addComponents(filtersBar, attributesTable);
+		left.setExpandRatio(attributesTable, 1.0f);
 		
 		setFirstComponent(left);
 		setSecondComponent(attributeValues);
 		setSplitPosition(40, Unit.PERCENTAGE);
 		
-		EventsBus bus = WebSession.getCurrent().getEventBus();
-		bus.addListener(new EventListener<EntityChangedEvent>()
-		{
-			@Override
-			public void handleEvent(EntityChangedEvent event)
-			{
-				setInput(event.getEntity() == null ? null :
-					new EntityParam(event.getEntity().getId()), event.getGroup());
-			}
-		}, EntityChangedEvent.class);
-		
-		bus.addListener(new EventListener<AttributeTypesUpdatedEvent>()
-		{
-			@Override
-			public void handleEvent(AttributeTypesUpdatedEvent event)
-			{
-				setAttributeTypes(event.getAttributeTypes());
-			}
-		}, AttributeTypesUpdatedEvent.class);
-		
-		setInput(null, "/");
 		updateAttributesFilter(!showEffective.getValue(), effectiveAttrsFilter);
 		updateAttributesFilter(!showInternal.getValue(), internalAttrsFilter);
 	}
 	
-	private void setAttributeTypes(List<AttributeType> atList)
+	public void setAttributeTypes(List<AttributeType> atList)
 	{
 		attributeTypes = new HashMap<String, AttributeType>();
 		for (AttributeType at: atList)
 			attributeTypes.put(at.getName(), at);	
 	}
 	
-	private void setInput(EntityParam owner, String groupPath)
+	public void setInput(EntityParam owner, String groupPath, Collection<AttributeExt<?>> attributesCol)
 	{
 		this.owner = owner;
-		
-		if (owner == null)
-		{
-			showLabel(msg.getMessage("Attribute.noEntitySelected"));
-			return;
-		}
-		
-		try
-		{
-			Collection<AttributeExt<?>> attributesCol = attributesManagement.getAllAttributes(
-					owner, true, groupPath, null);
-			this.attributes = new ArrayList<AttributeExt<?>>(attributesCol.size());
-			this.attributes.addAll(attributesCol);
-			this.groupPath = groupPath;
-			updateAttributes();
-			left.removeAllComponents();
-			left.addComponents(filtersBar, attributesTable);
-			left.setExpandRatio(attributesTable, 1.0f);
-		} catch (EngineException e)
-		{
-			showLabel(msg.getMessage("Attribute.noReadAuthz", groupPath));
-		}
-		
-	}
-	
-	private void showLabel(String value)
-	{
-		Label info = new Label(value);
-		attributesTable.removeAllItems();
-		attributeValues.removeValues();
-		left.removeAllComponents();
-		left.addComponent(info);
+		this.attributes = new ArrayList<AttributeExt<?>>(attributesCol.size());
+		this.attributes.addAll(attributesCol);
+		this.groupPath = groupPath;
+		updateAttributes();
 	}
 	
 	private void updateAttributes()

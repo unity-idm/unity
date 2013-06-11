@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import pl.edu.icm.unity.exceptions.AuthorizationException;
+
 import com.vaadin.server.Page;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
@@ -38,6 +40,8 @@ public class ErrorPopup
 	public static String getHumanMessage(Throwable e)
 	{
 		StringBuilder sb = new StringBuilder();
+		if (e instanceof AuthorizationException)
+			return e.getMessage();
 		if (e.getMessage() != null)
 			sb.append(e.getMessage());
 		while (e.getCause() != null)

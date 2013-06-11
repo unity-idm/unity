@@ -47,7 +47,7 @@ public class AttributeMetaEditorPanel extends FormLayout
 	{
 		this(Collections.singletonList(attributeType), groupPath, msg);
 		this.visibility.setEnumValue(visibility);
-		setSizeUndefined();
+		setSizeFull();
 	}
 	
 	public AttributeMetaEditorPanel(Collection<AttributeType> attributeTypes, String groupPath, UnityMessageSource msg)

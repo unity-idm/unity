@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.groupbrowser;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -17,10 +18,13 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -71,9 +75,7 @@ public class GroupsTree extends Tree
 		this.msg = msg;
 		this.authnMan = authnMan;
 		this.identityEditorReg = identityEditorReg;
-		TreeNode parent = new TreeNode("/");
-		addItem(parent);
-		setItemIcon(parent, Images.folder.getResource());
+
 		addExpandListener(new GroupExpandListener());
 		addValueChangeListener(new ValueChangeListenerImpl());
 		addActionHandler(new AddGroupActionHandler());
@@ -85,19 +87,89 @@ public class GroupsTree extends Tree
 		addActionHandler(new AddEntityActionHandler());
 		setDropHandler(new GroupDropHandler());
 		setImmediate(true);
-		expandItem(new TreeNode("/"));
 		this.bus = WebSession.getCurrent().getEventBus();
+		
+		try
+		{
+			setupRoot();
+		} catch (EngineException e)
+		{
+			//this will show error node
+			TreeNode parent = new TreeNode(msg, "/");
+			addItem(parent);
+			expandItem(new TreeNode(msg, "/"));
+		}
 	}
 
+	/**
+	 * We can have two cases: either we can read '/' or not. In the latter case we take groups where the
+	 * logged user is the member, and we put all of them as root groups.
+	 * @throws EngineException 
+	 */
+	private void setupRoot() throws EngineException
+	{
+		try
+		{
+			groupsMan.getContents("/", GroupContents.GROUPS|GroupContents.LINKED_GROUPS);
+			TreeNode parent = new TreeNode(msg, "/");
+			addItem(parent);
+			setItemIcon(parent, Images.folder.getResource());
+			expandItem(new TreeNode(msg, "/"));
+		} catch (AuthorizationException e)
+		{
+			setupAccessibleRoots();
+		}
+	}
+
+	private void setupAccessibleRoots() throws EngineException
+	{
+		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
+		Collection<String> groups = identitiesMan.getGroups(
+				new EntityParam(String.valueOf(ae.getEntityId())));
+		List<String> accessibleGroups = new ArrayList<String>(groups.size());
+		for (String group: groups)
+		{
+			try
+			{
+				groupsMan.getContents(group, GroupContents.GROUPS|GroupContents.LINKED_GROUPS);
+			} catch (AuthorizationException e2)
+			{
+				continue;
+			}
+			accessibleGroups.add(group);
+		}
+		for (int i=0; i<accessibleGroups.size(); i++)
+		{
+			Group groupG = new Group(accessibleGroups.get(i));
+			boolean parentFound = false;
+			for (int j=0; j<accessibleGroups.size(); j++)
+			{
+				if (i == j)
+					continue;
+				if (groupG.isChild(new Group(accessibleGroups.get(j))))
+				{
+					parentFound = true;
+					break;
+				}
+			}
+			if (!parentFound)
+			{
+				TreeNode parent = new TreeNode(msg, accessibleGroups.get(i), true);
+				addItem(parent);
+				setItemIcon(parent, Images.folder.getResource());
+			}
+		}
+	}
+	
 	public void refresh()
 	{
-		refreshNode(new TreeNode("/"));
+		refreshNode(new TreeNode(msg, "/"));
 	}
 	
 	private void refreshNode(TreeNode node)
 	{
 		if (node == null)
-			node = new TreeNode("/");
+			node = new TreeNode(msg, "/");
 		node.setContentsFetched(false);
 		setChildrenAllowed(node, true);
 		collapseItem(node);
@@ -403,7 +475,7 @@ public class GroupsTree extends Tree
 			Collections.sort(subgroups);
 			for (String subgroup: subgroups)
 			{
-				TreeNode node = new TreeNode(subgroup);
+				TreeNode node = new TreeNode(msg, subgroup);
 				addItem(node);
 				setItemIcon(node, Images.folder.getResource());
 				setParent(node, node.getParentNode());

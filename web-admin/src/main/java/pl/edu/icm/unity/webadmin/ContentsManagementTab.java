@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webadmin.attribute.AttributesPanel;
+import pl.edu.icm.unity.webadmin.attribute.AttributesComponent;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupBrowserComponent;
 import pl.edu.icm.unity.webadmin.groupdetails.GroupDetailsComponent;
 import pl.edu.icm.unity.webadmin.identities.IdentitiesComponent;
@@ -29,19 +29,19 @@ public class ContentsManagementTab extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private GroupBrowserComponent groupBrowser;
-	private AttributesPanel attributesPanel;
+	private AttributesComponent attributesComponent;
 	private IdentitiesComponent identitiesTable;
 	private GroupDetailsComponent groupDetails;
 	
 	@Autowired
 	public ContentsManagementTab(UnityMessageSource msg, GroupBrowserComponent groupBrowser,
-			AttributesPanel attributesPanel, IdentitiesComponent identitiesTable, 
+			AttributesComponent attributesComponent, IdentitiesComponent identitiesTable, 
 			GroupDetailsComponent groupDetails)
 	{
 		super();
 		this.msg = msg;
 		this.groupBrowser = groupBrowser;
-		this.attributesPanel = attributesPanel;
+		this.attributesComponent = attributesComponent;
 		this.identitiesTable = identitiesTable;
 		this.groupDetails = groupDetails;
 		initUI();
@@ -52,7 +52,7 @@ public class ContentsManagementTab extends VerticalLayout
 		setCaption(msg.getMessage("ContentsManagementTab.caption"));
 		
 		CompositeSplitPanel rightPanel = new CompositeSplitPanel(true, false, 
-				identitiesTable, attributesPanel, 60);
+				identitiesTable, attributesComponent, 60);
 		CompositeSplitPanel leftPanel = new CompositeSplitPanel(true, false, 
 				groupBrowser, groupDetails, 60);
 

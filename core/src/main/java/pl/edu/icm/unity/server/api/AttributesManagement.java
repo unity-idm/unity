@@ -118,10 +118,13 @@ public interface AttributesManagement
 	 * not included. Useful only for attribute management interfaces.
 	 * @param groupPath
 	 * @param attributeTypeId
+	 * @param allowDegrade if true then in case that the caller has no permission to read hidden attributes,
+	 * the method will degrade itself and will try to return only the visible attributes, what requires 
+	 * smaller permissions. Note that still it may cause authz error.
 	 * @return
 	 * @throws EngineException
 	 */
 	public Collection<AttributeExt<?>> getAllAttributes(EntityParam entity, boolean effective, 
-			String groupPath, String attributeTypeId) throws EngineException;
+			String groupPath, String attributeTypeId, boolean allowDegrade) throws EngineException;
 
 }

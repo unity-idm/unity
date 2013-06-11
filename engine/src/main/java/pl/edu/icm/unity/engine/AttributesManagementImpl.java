@@ -19,6 +19,7 @@ import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -295,9 +296,23 @@ public class AttributesManagementImpl implements AttributesManagement
 	 */
 	@Override
 	public Collection<AttributeExt<?>> getAllAttributes(EntityParam entity, boolean effective, String groupPath,
-			String attributeTypeId) throws EngineException
+			String attributeTypeId, boolean allowDegrade) throws EngineException
 	{
-		return getAllAttributesInternal(entity, effective, groupPath, attributeTypeId, AuthzCapability.attributeModify);
+		try
+		{
+			return getAllAttributesInternal(entity, effective, groupPath, attributeTypeId, 
+					AuthzCapability.attributeModify);
+		} catch (AuthorizationException e)
+		{
+			if (allowDegrade)
+			{
+				Collection<AttributeExt<?>> ret = getAllAttributesInternal(entity, effective, 
+						groupPath, attributeTypeId, AuthzCapability.read);
+				filterLocal(ret);
+				return ret;
+			} else
+				throw e;
+		}
 	}
 
 	private void filterLocal(Collection<AttributeExt<?>> unfiltered)

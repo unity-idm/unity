@@ -103,7 +103,8 @@ public class AttributeTypesComponent extends Panel
 			bus.fireEvent(new AttributeTypesUpdatedEvent(types));
 		} catch (Exception e)
 		{
-			ErrorComponent error = new ErrorComponent(e);
+			ErrorComponent error = new ErrorComponent();
+			error.setError(msg.getMessage("AttributeTypes.errorGetTypes"), e);
 			setContent(error);
 		}
 		

@@ -121,12 +121,12 @@ public class TestAttributes extends DBIntegrationTestBase
 		allAts = attrsMan.getAttributes(entity, null, null);
 		assertEquals(0, allAts.size());
 		
-		allAts = attrsMan.getAllAttributes(entity, true, null, null);
+		allAts = attrsMan.getAllAttributes(entity, true, null, null, false);
 		assertEquals(3, allAts.size());
 		assertEquals("333", getAttributeByName(allAts, "tel").getValues().get(0));
 		assertEquals(AttributeVisibility.local, allAts.iterator().next().getVisibility());
 
-		allAts = attrsMan.getAllAttributes(entity, false, "/", "tel");
+		allAts = attrsMan.getAllAttributes(entity, false, "/", "tel", false);
 		assertEquals(1, allAts.size());
 		assertEquals("333", getAttributeByName(allAts, "tel").getValues().get(0));
 		assertEquals(AttributeVisibility.local, allAts.iterator().next().getVisibility());

@@ -32,7 +32,6 @@ public class DescriptionTextArea extends TextArea
 		super(caption);
 		setWordwrap(false);
 		setWidth(100, Unit.PERCENTAGE);
-		setRows(3);
 		setValue(initialValue);
 		setReadOnly(readOnly);
 	}
@@ -44,6 +43,15 @@ public class DescriptionTextArea extends TextArea
 		if (ro)
 			setReadOnly(false);
 		super.setValue(value);
+		int len = value.length();
+		if (len < 40)
+			setRows(1);
+		else if (len < 80)
+			setRows(2);
+		else if (len < 300)
+			setRows(3);
+		else
+			setRows(4);
 		if (ro)
 			setReadOnly(true);
 	}

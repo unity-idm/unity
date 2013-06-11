@@ -27,6 +27,8 @@ import pl.edu.icm.unity.webadmin.identities.AddAttributeColumnDialog.Callback;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.ErrorComponent;
+import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 import pl.edu.icm.unity.webui.common.Images;
 
 import com.vaadin.data.Container.Filter;
@@ -56,9 +58,9 @@ public class IdentitiesComponent extends Panel
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesComponent.class);
 	private static final List<String> EMPTY_LIST = new ArrayList<String>(0);
 	private UnityMessageSource msg;
+	private VerticalLayout main;
 	private GroupsManagement groupsManagement;
 	private IdentitiesTable identitiesTable;
-	private Label info;
 	private HorizontalLayout filtersBar;
 	
 	@Autowired
@@ -69,7 +71,7 @@ public class IdentitiesComponent extends Panel
 		this.groupsManagement = groupsManagement;
 		this.identitiesTable = identitiesTable;
 
-		VerticalLayout main = new VerticalLayout();
+		main = new VerticalLayout();
 		
 		HorizontalLayout topBar = new HorizontalLayout();
 		topBar.setSpacing(true);
@@ -163,13 +165,8 @@ public class IdentitiesComponent extends Panel
 		});
 
 		
-		info = new Label();
-		info.setVisible(false);
-
-		main.addComponents(topBar, filtersBar, identitiesTable, info);
+		main.addComponents(topBar, filtersBar, identitiesTable);
 		main.setExpandRatio(identitiesTable, 1.0f);
-		main.setExpandRatio(info, 1.0f);
-		info.setHeight(100, Unit.PERCENTAGE);
 		main.setSpacing(true);
 		main.setSizeFull();
 		
@@ -208,7 +205,7 @@ public class IdentitiesComponent extends Panel
 			{
 				//ignored, shouldn't happen anyway
 			}
-			setProblem(msg.getMessage("Identities.noGroupSelected"));
+			setProblem(msg.getMessage("Identities.noGroupSelected"), Level.warning);
 			return;
 		}
 		try
@@ -216,24 +213,24 @@ public class IdentitiesComponent extends Panel
 			GroupContents contents = groupsManagement.getContents(group, GroupContents.MEMBERS);
 			identitiesTable.setInput(group, contents.getMembers());
 			identitiesTable.setVisible(true);
-			info.setVisible(false);
 			setCaption(msg.getMessage("Identities.caption", group));
+			setContent(main);
 		} catch (AuthorizationException e)
 		{
-			setProblem(msg.getMessage("Identities.noReadAuthz", group));
+			setProblem(msg.getMessage("Identities.noReadAuthz", group), Level.error);
 		} catch (Exception e)
 		{
 			log.error("Problem retrieving group contents of " + group, e);
-			setProblem(msg.getMessage("Identities.internalError", e.toString()));
+			setProblem(msg.getMessage("Identities.internalError", e.toString()), Level.error);
 		}
 	}
 	
-	private void setProblem(String message)
+	private void setProblem(String message, Level level)
 	{
+		ErrorComponent errorC = new ErrorComponent();
+		errorC.setMessage(message, level);
 		setCaption(msg.getMessage("Identities.captionNoGroup"));
-		identitiesTable.setVisible(false);
-		info.setValue(message);
-		info.setVisible(true);
+		setContent(errorC);
 	}
 	
 	private class FilterInfo extends HorizontalLayout

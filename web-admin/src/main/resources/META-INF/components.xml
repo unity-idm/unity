@@ -16,6 +16,7 @@
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.ContentsManagementTab"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.SchemaManagementTab"/>
 	
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.attribute.AttributesComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.attribute.AttributesPanel"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.groupbrowser.GroupBrowserComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.groupbrowser.GroupsTree"/>
