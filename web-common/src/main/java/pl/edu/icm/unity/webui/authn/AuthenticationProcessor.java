@@ -10,8 +10,8 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessorUtil;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.webui.WebSession;
 
@@ -33,27 +33,9 @@ public class AuthenticationProcessor
 	
 	public static void processResults(List<AuthenticationResult> results) throws AuthenticationException
 	{
-		Long entityId = null;
-		for (AuthenticationResult result: results)
-		{
-			if (result.getStatus() != Status.success)
-				throw new AuthenticationException("AuthenticationProcessor.authnFailed");
-			long curId = result.getAuthenticatedEntity().getEntityId();
-			if (entityId == null)
-				entityId = curId;
-			else
-				if (entityId != curId)
-				{
-					throw new AuthenticationException("AuthenticationProcessor.authnWrongUsers");
-				}
-		}
-		AuthenticatedEntity logInfo = results.get(0).getAuthenticatedEntity();
-		for (int i=1; i<results.size(); i++)
-			logInfo.getAuthenticatedWith().addAll(
-					results.get(i).getAuthenticatedEntity().getAuthenticatedWith());
+		AuthenticatedEntity logInfo = AuthenticationProcessorUtil.processResults(results);
 		logged(logInfo);
 	}
-	
 	
 	private static void logged(AuthenticatedEntity authenticatedEntity) throws AuthenticationException
 	{

@@ -39,7 +39,8 @@ public interface AuthenticationManagement
 	/**
 	 * Creates a new authenticator instance
 	 * @param typeId authenticator type id
-	 * @param jsonVerificatorConfig configuration of verificator as JSON string
+	 * @param jsonVerificatorConfig configuration of verificator as JSON string. Should be given only for remote
+	 * verificators. Otherwise should be null and the credentialId must be set.
 	 * @param jsonRetrievalConfig configuration of retrieval as JSON string
 	 * @param credentialId name of the local credential, in case when the verificator used
 	 * is validating local credentials. Otherwise ignored, can be null.

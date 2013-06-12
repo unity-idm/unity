@@ -92,7 +92,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 	@Override
 	public Component getComponent()
 	{
-		String label = name.trim().equals("") ? msg.getMessage("PasswordRetrieval.password") : name;
+		String label = name.trim().equals("") ? msg.getMessage("WebPasswordRetrieval.password") : name;
 		passwordField = new PasswordField(label);
 		return passwordField;
 	}
@@ -111,7 +111,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		if (username.equals("") && password.equals(""))
 		{
 			passwordField.setComponentError(new UserError(
-					msg.getMessage("PasswordRetrieval.noPassword")));
+					msg.getMessage("WebPasswordRetrieval.noPassword")));
 			return new AuthenticationResult(Status.notApplicable, null);
 		}
 		try
@@ -122,7 +122,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		} catch (Exception e)
 		{
 			passwordField.setComponentError(new UserError(
-					msg.getMessage("PasswordRetrieval.wrongPassword")));
+					msg.getMessage("WebPasswordRetrieval.wrongPassword")));
 			passwordField.setValue("");
 			return new AuthenticationResult(Status.deny, null);
 		}

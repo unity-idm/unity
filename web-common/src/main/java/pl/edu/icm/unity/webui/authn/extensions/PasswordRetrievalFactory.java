@@ -22,6 +22,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 public class PasswordRetrievalFactory implements CredentialRetrievalFactory
 {
 	public static final String NAME = "web-password";
+	
 	@Autowired
 	private UnityMessageSource msg;
 	
@@ -34,7 +35,7 @@ public class PasswordRetrievalFactory implements CredentialRetrievalFactory
 	@Override
 	public String getDescription()
 	{
-		return "PasswordRetrievalFactory.desc";
+		return "WebPasswordRetrievalFactory.desc";
 	}
 
 	@Override

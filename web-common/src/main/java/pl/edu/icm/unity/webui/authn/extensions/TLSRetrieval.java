@@ -165,7 +165,7 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 		
 		public TLSAuthnComponent()
 		{
-			String label = name.trim().equals("") ? msg.getMessage("TLSRetrieval.title") : name;
+			String label = name.trim().equals("") ? msg.getMessage("WebTLSRetrieval.title") : name;
 			Label title = new Label(label);
 			title.addStyleName(Reindeer.LABEL_H2);
 			addComponent(title);
@@ -174,10 +174,10 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 			X509Certificate[] clientCert = getTLSCertificate();
 			if (clientCert == null)
 			{
-				info.setValue(msg.getMessage("TLSRetrieval.noCert"));
+				info.setValue(msg.getMessage("WebTLSRetrieval.noCert"));
 			} else
 			{
-				info.setValue(msg.getMessage("TLSRetrieval.certInfo", 
+				info.setValue(msg.getMessage("WebTLSRetrieval.certInfo", 
 						X500NameUtils.getReadableForm(clientCert[0].getSubjectX500Principal())));
 			}
 		}
@@ -185,7 +185,7 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 		public void setError(boolean how)
 		{
 			info.setComponentError(how ? new UserError(
-					msg.getMessage("TLSRetrieval.unknownUser")) : null);
+					msg.getMessage("WebTLSRetrieval.unknownUser")) : null);
 		}
 	}
 }
