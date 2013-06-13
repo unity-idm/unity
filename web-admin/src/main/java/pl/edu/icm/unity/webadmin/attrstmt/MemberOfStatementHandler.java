@@ -72,7 +72,7 @@ public class MemberOfStatementHandler implements AttributeStatementWebHandlerFac
 			conditionAnyGroup = new GroupComboBox(msg.getMessage("AttributeStatementEditDialog.group"), 
 					groupsMan);
 			conditionAnyGroup.setInput("/", true);
-			main.addLine(conditionAnyGroup);
+			main.addComponent(conditionAnyGroup);
 		}
 
 		@Override

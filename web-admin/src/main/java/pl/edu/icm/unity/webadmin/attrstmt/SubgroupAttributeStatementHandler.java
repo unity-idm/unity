@@ -80,7 +80,7 @@ public class SubgroupAttributeStatementHandler implements AttributeStatementWebH
 			conditionGroup = new GroupComboBox(msg.getMessage("AttributeStatementEditDialog.inGroup"), 
 					groupsMan);
 			conditionGroup.setInput(group, false);
-			main.addLine(conditionGroup);
+			main.addComponent(conditionGroup);
 		}
 
 		@Override

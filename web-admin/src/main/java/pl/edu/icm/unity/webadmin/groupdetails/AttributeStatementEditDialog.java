@@ -9,6 +9,7 @@ import java.util.List;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Panel;
 
 import pl.edu.icm.unity.server.api.AttributesManagement;
@@ -21,7 +22,6 @@ import pl.edu.icm.unity.webadmin.attrstmt.AttributeStatementWebHandlerFactory.At
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
-import pl.edu.icm.unity.webui.common.FlexibleFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.MapComboBox;
 
@@ -93,10 +93,8 @@ public class AttributeStatementEditDialog extends AbstractDialog
 				"AttributeStatement.conflictResolution.", AttributeStatement.ConflictResolution.class, 
 				AttributeStatement.ConflictResolution.skip);
 				
-		FlexibleFormLayout ret = new FlexibleFormLayout();
-		ret.addLine(statementComponents);
-		ret.addLine(statementPanel);
-		ret.addLine(conflictResolution);
+		FormLayout ret = new FormLayout();
+		ret.addComponents(statementComponents, statementPanel, conflictResolution);
 		
 		statementChanged();
 		if (statement != null)

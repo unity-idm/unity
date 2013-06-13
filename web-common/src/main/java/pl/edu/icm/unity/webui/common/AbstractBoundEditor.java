@@ -6,17 +6,18 @@ package pl.edu.icm.unity.webui.common;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.converter.Converter;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomField;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 
 /**
  * Shows a checkbox and a textfield to query for a limit number with optional unlimited setting.
  * @author K. Benedyczak
  */
-public abstract class AbstractBoundEditor<T extends Number>
+public abstract class AbstractBoundEditor<T extends Number> extends CustomField<T>
 {
 	protected UnityMessageSource msg;
 	protected CheckBox unlimited;
@@ -32,35 +33,41 @@ public abstract class AbstractBoundEditor<T extends Number>
 		this.msg = msg;
 		this.min = null;
 		this.max = null;
+		
+		setRequired(true);
+		setCaption(labelLimit);
+
 		unlimited = new CheckBox();
 		unlimited.setCaption(labelUnlimited);
 		limit = new TextField();
 		limit.setConverter(converter);
 		limit.setLocale(msg.getLocale());
-		limit.setRequired(true);
 		limit.setRequiredError(msg.getMessage("fieldRequired"));
-		limit.setCaption(labelLimit);
 		limit.setNullRepresentation("");
 		unlimited.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
-			public void valueChange(ValueChangeEvent event)
+			public void valueChange(com.vaadin.data.Property.ValueChangeEvent event)
 			{
 				boolean limited = !unlimited.getValue();
-				limit.setEnabled(limited);
+				limit.setEnabled(limited);				
 			}
 		});
 		updateValidators();
 	}
 	
+	@Override
+	protected Component initContent()
+	{
+		HorizontalLayout hl = new HorizontalLayout();
+		hl.addComponents(limit, unlimited);
+		return hl;
+	}
+
+	
 	public TextField getLimitComponent()
 	{
 		return limit;
-	}
-	
-	public void addToLayout(FlexibleFormLayout layout)
-	{
-		layout.addLine(limit, unlimited);
 	}
 	
 	public AbstractBoundEditor<T> setMin(T min)
@@ -69,8 +76,6 @@ public abstract class AbstractBoundEditor<T extends Number>
 		updateValidators();
 		return this;
 	}
-
-	
 	
 	public AbstractBoundEditor<T> setMax(T max)
 	{
@@ -79,7 +84,7 @@ public abstract class AbstractBoundEditor<T extends Number>
 		return this;
 	}
 	
-	public AbstractBoundEditor<T> setValue(T value)
+	public AbstractBoundEditor<T> setValueC(T value)
 	{
 		if (!value.equals(bound))
 		{

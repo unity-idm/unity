@@ -11,13 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.webui.common.FlexibleFormLayout;
 import pl.edu.icm.unity.webui.common.IntegerBoundEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
@@ -99,7 +99,7 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler<String> imp
 		@Override
 		public Component getEditor()
 		{
-			FlexibleFormLayout fl = new FlexibleFormLayout();
+			FormLayout fl = new FormLayout();
 			min = new TextField();
 			min.setCaption(msg.getMessage("StringAttributeHandler.minLenE"));
 			min.addValidator(new IntegerRangeValidator(msg.getMessage("StringAttributeHandler.wrongMin"), 
@@ -111,7 +111,7 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler<String> imp
 			max = new IntegerBoundEditor(msg, msg.getMessage("StringAttributeHandler.maxLenUndef"), 
 					msg.getMessage("NumericAttributeHandler.maxE"), Integer.MAX_VALUE);
 			max.setMax(Integer.MAX_VALUE).setMin(1);
-			max.addToLayout(fl);
+			fl.addComponent(max);
 			regexp = new TextField(msg.getMessage("StringAttributeHandler.regexpE"));
 			fl.addComponent(regexp);
 			if (initial != null)

@@ -26,4 +26,10 @@ public class LongBoundEditor extends AbstractBoundEditor<Long>
 		limit.addValidator(new LongRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError", range), 
 				min, max));		
 	}
+
+	@Override
+	public Class<? extends Long> getType()
+	{
+		return Long.class;
+	}
 }

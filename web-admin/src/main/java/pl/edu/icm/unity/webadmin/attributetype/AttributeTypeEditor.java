@@ -14,6 +14,7 @@ import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -25,7 +26,6 @@ import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
-import pl.edu.icm.unity.webui.common.FlexibleFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.FormValidator;
 import pl.edu.icm.unity.webui.common.IntegerBoundEditor;
@@ -39,7 +39,7 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
  * 
  * @author K. Benedyczak
  */
-public class AttributeTypeEditor extends FlexibleFormLayout
+public class AttributeTypeEditor extends FormLayout
 {
 	private UnityMessageSource msg;
 	private AttributeHandlerRegistry registry;
@@ -102,7 +102,7 @@ public class AttributeTypeEditor extends FlexibleFormLayout
 		max = new IntegerBoundEditor(msg, msg.getMessage("AttributeType.maxUnlimited"), 
 				msg.getMessage("AttributeType.max"), Integer.MAX_VALUE);
 		max.setMin(0);
-		max.addToLayout(this);
+		addComponent(max);
 		
 		uniqueVals = new CheckBox(msg.getMessage("AttributeType.uniqueValuesCheck"));
 		addComponent(uniqueVals);

@@ -24,7 +24,6 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
-import pl.edu.icm.unity.webui.common.FlexibleFormLayout;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.IntegerBoundEditor;
 import pl.edu.icm.unity.webui.common.LimitedByteArrayOuputStream;
@@ -40,6 +39,7 @@ import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.StreamResource.StreamSource;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -367,7 +367,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		@Override
 		public Component getEditor()
 		{
-			FlexibleFormLayout fl = new FlexibleFormLayout();
+			FormLayout fl = new FormLayout();
 			maxWidth = new IntegerBoundEditor(msg, msg.getMessage("JpegAttributeHandler.maxWidthUnlimited"), 
 					msg.getMessage("JpegAttributeHandler.maxWidthE"), Integer.MAX_VALUE);
 			maxWidth.setMin(1);
@@ -377,9 +377,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			maxSize = new IntegerBoundEditor(msg, msg.getMessage("JpegAttributeHandler.maxSizeUnlimited"), 
 					msg.getMessage("JpegAttributeHandler.maxSizeE"), Integer.MAX_VALUE);
 			maxSize.setMin(100);
-			maxWidth.addToLayout(fl);
-			maxHeight.addToLayout(fl);
-			maxSize.addToLayout(fl);
+			fl.addComponents(maxWidth, maxHeight, maxSize);
 			if (initial != null)
 			{
 				maxWidth.setValue(initial.getMaxWidth());

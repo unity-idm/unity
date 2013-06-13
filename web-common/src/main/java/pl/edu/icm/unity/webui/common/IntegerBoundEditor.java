@@ -29,4 +29,10 @@ public class IntegerBoundEditor extends AbstractBoundEditor<Integer>
 		limit.addValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError", range), 
 				min, max));		
 	}
+
+	@Override
+	public Class<? extends Integer> getType()
+	{
+		return Integer.class;
+	}
 }

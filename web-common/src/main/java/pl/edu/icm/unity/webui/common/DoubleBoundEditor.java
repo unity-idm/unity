@@ -29,4 +29,10 @@ public class DoubleBoundEditor extends AbstractBoundEditor<Double>
 		limit.addValidator(new DoubleRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError", range), 
 				min, max));		
 	}
+
+	@Override
+	public Class<? extends Double> getType()
+	{
+		return Double.class;
+	}
 }
