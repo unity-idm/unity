@@ -7,7 +7,6 @@ package pl.edu.icm.unity.ws.mock;
 import javax.jws.WebService;
 
 import xmlbeans.org.oasis.saml2.assertion.NameIDDocument;
-import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
 @WebService
 public interface MockWSSEI

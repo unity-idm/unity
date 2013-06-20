@@ -25,6 +25,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 import xmlbeans.org.oasis.saml2.assertion.AuthnContextType;
 import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationDataType;
 import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationType;
+import xmlbeans.org.oasis.saml2.assertion.SubjectType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 import xmlbeans.org.oasis.saml2.protocol.NameIDPolicyType;
@@ -37,17 +38,14 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
  */
 public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDocument, AuthnRequestType>
 {
-	private Calendar authnTime;
-
 	public AuthnResponseProcessor(SAMLAuthnContext context)
 	{
-		this(context, null);
+		this(context, Calendar.getInstance());
 	}
 	
 	public AuthnResponseProcessor(SAMLAuthnContext context, Calendar authnTime)
 	{
-		super(context);
-		this.authnTime = authnTime;
+		super(context, authnTime);
 	}
 
 	public List<Identity> getCompatibleIdentities(Entity authenticatedEntity) 
@@ -78,45 +76,53 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 	public ResponseDocument processAuthnRequest(Identity authenticatedIdentity, Collection<Attribute<?>> attributes) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
-		Subject authenticatedOne = establishSubject(authenticatedIdentity);
+		SubjectType authenticatedOne = establishSubject(authenticatedIdentity);
 
 		AssertionResponse resp = getOKResponseDocument();
 		resp.addAssertion(createAuthenticationAssertion(authenticatedOne));
 		if (attributes != null)
 		{
-			Assertion assertion = createAttributeAssertion(authenticatedOne, attributes);
+			SubjectType attributeAssertionSubject = cloneSubject(authenticatedOne);
+			setSenderVouchesSubjectConfirmation(attributeAssertionSubject);
+			Assertion assertion = createAttributeAssertion(attributeAssertionSubject, attributes);
 			if (assertion != null)
 				resp.addAssertion(assertion);
 		}
 		return resp.getXMLBeanDoc();
 	}
 
-	protected Subject establishSubject(Identity authenticatedIdentity)
+	protected SubjectType establishSubject(Identity authenticatedIdentity)
 	{
 		String format = getRequestedFormat();
 		Subject authenticatedOne = convertIdentity(authenticatedIdentity, format);
 		
+		SubjectType ret = authenticatedOne.getXBean();
+		setBearerSubjectConfirmation(ret);
+		return ret;
+	}
+
+	protected void setBearerSubjectConfirmation(SubjectType requested)
+	{
 		SubjectConfirmationType subConf = SubjectConfirmationType.Factory.newInstance();
 		subConf.setMethod(SAMLConstants.CONFIRMATION_BEARER);
 		SubjectConfirmationDataType confData = subConf.addNewSubjectConfirmationData();
 		confData.setInResponseTo(context.getRequest().getID());
-		confData.setRecipient(context.getRequest().getAssertionConsumerServiceURL());
 		Calendar validity = Calendar.getInstance();
-		validity.setTimeInMillis(authnTime.getTimeInMillis()+samlConfiguration.getRequestValidity());
+		validity.setTimeInMillis(getAuthnTime().getTimeInMillis()+samlConfiguration.getRequestValidity());
 		confData.setNotOnOrAfter(validity);
-		authenticatedOne.setSubjectConfirmation(
-				new SubjectConfirmationType[] {subConf});
-		return authenticatedOne;
+		String consumerServiceURL = context.getRequest().getAssertionConsumerServiceURL();
+		confData.setRecipient(consumerServiceURL);
+		requested.setSubjectConfirmationArray(new SubjectConfirmationType[] {subConf});
 	}
-	
-	protected Assertion createAuthenticationAssertion(Subject authenticatedOne) throws SAMLProcessingException
+
+	protected Assertion createAuthenticationAssertion(SubjectType authenticatedOne) throws SAMLProcessingException
 	{
 		AuthnContextType authContext = setupAuthnContext();
 		Assertion assertion = new Assertion();
 		assertion.setIssuer(samlConfiguration.getValue(SamlProperties.ISSUER_URI), 
 				SAMLConstants.NFORMAT_ENTITY);
-		assertion.setSubject(authenticatedOne.getXBean());
-		assertion.addAuthStatement(authnTime, authContext);
+		assertion.setSubject(authenticatedOne);
+		assertion.addAuthStatement(getAuthnTime(), authContext);
 		assertion.setAudienceRestriction(new String[] {context.getRequest().getIssuer().getStringValue()});
 
 		signAssertion(assertion);

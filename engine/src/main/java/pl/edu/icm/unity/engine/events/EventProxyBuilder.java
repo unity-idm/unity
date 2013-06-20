@@ -10,15 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.ServerManagement;
 
 /**
- * Java dynamic proxy builder, decorating wrapped objects with event generation.
+ * Java dynamic proxy builder, decorating wrapped objects with event generation. 
+ * See also {@link EventProxyBuilderSystem} which does the same task for the rest of engine classes.
  * @author K. Benedyczak
  */
 public class EventProxyBuilder
@@ -31,12 +29,6 @@ public class EventProxyBuilder
 	private GroupsManagement groupsMan;
 	@Autowired @Qualifier("plain")
 	private IdentitiesManagement idsMan;
-	@Autowired @Qualifier("plain")
-	private ServerManagement serverMan;
-	@Autowired @Qualifier("plain")
-	private EndpointManagement endpointMan;
-	@Autowired @Qualifier("plain")
-	private AuthenticationManagement authnMan;
 	@Autowired @Qualifier("plain")
 	private PreferencesManagement prefMan;
 	
@@ -66,30 +58,6 @@ public class EventProxyBuilder
 				new Class[] {IdentitiesManagement.class}, 
 				new EventDecoratingHandler(idsMan, eventProcessor, 
 						IdentitiesManagement.class.getSimpleName()));
-	}
-
-	public ServerManagement getServerManagementInstance()
-	{
-		return (ServerManagement) Proxy.newProxyInstance(classLoader, 
-				new Class[] {ServerManagement.class}, 
-				new EventDecoratingHandler(serverMan, eventProcessor, 
-						ServerManagement.class.getSimpleName()));
-	}
-
-	public EndpointManagement getEndpointsManagementInstance()
-	{
-		return (EndpointManagement) Proxy.newProxyInstance(classLoader, 
-				new Class[] {EndpointManagement.class}, 
-				new EventDecoratingHandler(endpointMan, eventProcessor, 
-						EndpointManagement.class.getSimpleName()));
-	}
-
-	public AuthenticationManagement getAuthenticationManagementInstance()
-	{
-		return (AuthenticationManagement) Proxy.newProxyInstance(classLoader, 
-				new Class[] {AuthenticationManagement.class}, 
-				new EventDecoratingHandler(authnMan, eventProcessor, 
-						AuthenticationManagement.class.getSimpleName()));
 	}
 
 	public PreferencesManagement getPreferencesManagementInstance()

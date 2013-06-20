@@ -11,7 +11,6 @@ import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.Assertion;
-import eu.unicore.samly2.elements.Subject;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.proto.AssertionResponse;
 import eu.unicore.security.dsig.DSigException;
@@ -26,6 +25,7 @@ import pl.edu.icm.unity.samlidp.saml.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Identity;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+import xmlbeans.org.oasis.saml2.assertion.SubjectType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 /**
@@ -51,31 +51,34 @@ public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 			DelegationRestrictions restrictions) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
-		Subject authenticatedOne = establishSubject(authenticatedIdentity);
+		SubjectType authenticatedOne = establishSubject(authenticatedIdentity);
 
 		AssertionResponse resp = getOKResponseDocument();
 		resp.addAssertion(createAuthenticationAssertion(authenticatedOne));
+
 		if (attributes != null)
 		{
-			Assertion assertion = createAttributeAssertion(authenticatedOne, attributes);
+			SubjectType attributeAssertionSubject = cloneSubject(authenticatedOne);
+			setSenderVouchesSubjectConfirmation(attributeAssertionSubject);
+			Assertion assertion = createAttributeAssertion(attributeAssertionSubject, attributes);
 			if (assertion != null)
 				resp.addAssertion(assertion);
 		}
 		if (restrictions != null)
 		{
-			Assertion assertion = generateTD(authenticatedIdentity, restrictions);
+			Assertion assertion = generateTD(authenticatedOne.getNameID().getStringValue(), restrictions);
 			resp.addAssertion(assertion);
 		}
 		return resp.getXMLBeanDoc();
 	}
 	
-	protected TrustDelegation generateTD(Identity custodian, DelegationRestrictions restrictions) 
+	protected TrustDelegation generateTD(String custodian, DelegationRestrictions restrictions) 
 			throws SAMLProcessingException
 	{
 		ETDApi etdEngine = new ETDImpl();
 		X509Credential issuerCredential = samlConfiguration.getSamlIssuerCredential(); 
 		String issuerName = samlConfiguration.getValue(SamlProperties.ISSUER_URI); 
-		String custodianDN = X500NameUtils.getPortableRFC2253Form(custodian.getValue());
+		String custodianDN = X500NameUtils.getPortableRFC2253Form(custodian);
 		NameIDType receiver = context.getRequest().getIssuer();
 		String receiverDN = X500NameUtils.getPortableRFC2253Form(receiver.getStringValue());
 		try

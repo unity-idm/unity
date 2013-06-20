@@ -62,9 +62,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	 	ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath(description.getContextAddress());
 
-		String endpointURL = getBaseUrl().toExternalForm() +
-				getEndpointDescription().getContextAddress() + 
-				servletPath;
+		String endpointURL = getServletUrl(servletPath);
 		Filter samlFilter = getSamlParseFilter(endpointURL); 
 		context.addFilter(new FilterHolder(samlFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
 		

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.samlidp.saml.processor;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +16,6 @@ import org.apache.xmlbeans.XmlObject;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.Assertion;
-import eu.unicore.samly2.elements.Subject;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.proto.AssertionResponse;
 import eu.unicore.security.dsig.DSigException;
@@ -34,6 +34,9 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Group;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationDataType;
+import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationType;
+import xmlbeans.org.oasis.saml2.assertion.SubjectType;
 import xmlbeans.org.oasis.saml2.protocol.RequestAbstractType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
@@ -48,12 +51,14 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	extends StatusResponseProcessor<T, C>
 {
 	private String chosenGroup;
+	private Calendar authnTime;
 	
-	public BaseResponseProcessor(SAMLAssertionResponseContext<T, C> context)
+	public BaseResponseProcessor(SAMLAssertionResponseContext<T, C> context, Calendar authnTime)
 	{
 		super(context);
 		GroupChooser chooser = samlConfiguration.getGroupChooser();
 		chosenGroup = chooser.chooseGroup(getRequestIssuer());
+		this.authnTime = authnTime;
 	}
 
 	public AssertionResponse getOKResponseDocument()
@@ -153,6 +158,11 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		return chosenGroup;
 	}
 	
+	public Calendar getAuthnTime()
+	{
+		return authnTime;
+	}
+	
 	/**
 	 * Creates attribute assertion. Returns null when the attributes list is empty
 	 * as SAML spec doesn't permit empty attribute assertions. 
@@ -161,7 +171,7 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	 * @return
 	 * @throws SAMLProcessingException
 	 */
-	protected Assertion createAttributeAssertion(Subject authenticatedOne, Collection<Attribute<?>> attributes) 
+	protected Assertion createAttributeAssertion(SubjectType authenticatedOne, Collection<Attribute<?>> attributes) 
 			throws SAMLProcessingException
 	{
 		if (attributes.size() == 0)
@@ -169,8 +179,7 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		Assertion assertion = new Assertion();
 		assertion.setIssuer(samlConfiguration.getValue(SamlProperties.ISSUER_URI), 
 				SAMLConstants.NFORMAT_ENTITY);
-		assertion.setSubject(authenticatedOne.getXBean());
-		assertion.setAudienceRestriction(new String[] {context.getRequest().getIssuer().getStringValue()});
+		assertion.setSubject(authenticatedOne);
 		
 		SamlAttributeMapper mapper = samlConfiguration.getAttributesMapper();
 		for (Attribute<?> attribute: attributes)
@@ -194,5 +203,23 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 			throw new SAMLProcessingException("Signing response problem", e);
 		}
 	}
+	
+	protected SubjectType cloneSubject(SubjectType src)
+	{
+		SubjectType ret = SubjectType.Factory.newInstance();
+		ret.set(src.copy());
+		return ret;
+	}
 
+	protected SubjectType setSenderVouchesSubjectConfirmation(SubjectType requested)
+	{
+		SubjectConfirmationType subConf = SubjectConfirmationType.Factory.newInstance();
+		subConf.setMethod(SAMLConstants.CONFIRMATION_SENDER_VOUCHES);
+		SubjectConfirmationDataType confData = subConf.addNewSubjectConfirmationData();
+		Calendar validity = Calendar.getInstance();
+		validity.setTimeInMillis(authnTime.getTimeInMillis()+samlConfiguration.getRequestValidity());
+		confData.setNotOnOrAfter(validity);
+		requested.setSubjectConfirmationArray(new SubjectConfirmationType[] {subConf});
+		return requested;
+	}
 }

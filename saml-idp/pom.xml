@@ -32,12 +32,41 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-engine</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-engine</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+			<classifier>tests</classifier>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.saml</groupId>
+			<artifactId>samlClient-cxf</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
 		
 		<!-- compile -->
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-web-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-ws</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

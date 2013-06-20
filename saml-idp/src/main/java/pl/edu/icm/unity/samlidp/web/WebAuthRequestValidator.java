@@ -26,6 +26,7 @@ public class WebAuthRequestValidator extends UnityAuthnRequestValidator
 		super(consumerEndpointUri, trustChecker, requestValidity, replayChecker);
 	}
 
+	@Override
 	public void validate(AuthnRequestDocument authenticationRequestDoc) throws SAMLServerException
 	{
 		AuthnRequestType aReq = authenticationRequestDoc.getAuthnRequest();

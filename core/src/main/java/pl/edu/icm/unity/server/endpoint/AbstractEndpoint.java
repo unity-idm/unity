@@ -62,4 +62,18 @@ public abstract class AbstractEndpoint implements EndpointInstance
 	{
 		return baseUrl;
 	}
+	
+	/**
+	 * This method makes sense only for the {@link WebAppEndpointInstance}s.
+	 * 
+	 * @param servletPath path of the servlet exposing the endpoint, Only the servlet's path, without context prefix.
+	 * @return URL in string form, including the servers address, context address and 
+	 * the servlet's address. 
+	 */
+	public String getServletUrl(String servletPath)
+	{
+		return getBaseUrl().toExternalForm() +
+				getEndpointDescription().getContextAddress() + 
+				servletPath;
+	}
 }

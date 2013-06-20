@@ -107,6 +107,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	protected Map<String, Attribute<?>> attributes;
 	protected List<CheckBox> hide;
 	protected CheckBox rememberCB;
+	protected ComboBox identitiesCB;
 
 	@Autowired
 	public SamlIdPWebUI(UnityMessageSource msg, IdentitiesManagement identitiesMan,
@@ -161,23 +162,6 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		Collection<AttributeExt<?>> allAttribtues = attributesMan.getAttributes(
 				entity, processor.getChosenGroup(), null);
 		return processor.prepareReleasedAttributes(allAttribtues, allGroups);
-	}
-	
-	protected SamlPreferences getPreferences() throws EngineException
-	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
-		EntityParam entity = new EntityParam(String.valueOf(ae.getEntityId()));
-		String raw = preferencesMan.getPreference(entity, SamlPreferences.ID);
-		SamlPreferences ret = new SamlPreferences();
-		ret.setSerializedConfiguration(raw);
-		return ret;
-	}
-	
-	protected void savePreferences(SamlPreferences preferences) throws EngineException
-	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
-		EntityParam entity = new EntityParam(String.valueOf(ae.getEntityId()));
-		preferencesMan.setPreference(entity, SamlPreferences.ID, preferences.getSerializedConfiguration());
 	}
 	
 	
@@ -295,7 +279,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			identitiesL.setStyleName(Styles.bold.toString());
 			Label infoManyIds = new Label(msg.getMessage("SamlIdPWebUI.infoManyIds"));
 			infoManyIds.setStyleName(Reindeer.LABEL_SMALL);
-			final ComboBox identitiesCB = new ComboBox();
+			identitiesCB = new ComboBox();
 			for (Identity id: validIdentities)
 				identitiesCB.addItem(id);
 			identitiesCB.setImmediate(true);
@@ -400,7 +384,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	{
 		try
 		{
-			SamlPreferences preferences = getPreferences();
+			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan);
 			String samlRequester = samlCtx.getRequest().getIssuer().getStringValue();
 			SPSettings settings = preferences.getSPSettings(samlRequester);
 			updateUIFromPreferences(settings, samlCtx);
@@ -430,6 +414,18 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 				confirm();
 			else
 				decline();
+		}
+		if (validIdentities.size() > 0)
+		{
+			for (Identity id: validIdentities)
+			{
+				if (id.getComparableValue().equals(settings.getSelectedIdentity()))
+				{
+					identitiesCB.select(id);
+					selectedIdentity = id;
+					break;
+				}
+			}
 		}
 	}
 	
@@ -463,6 +459,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			hidden.add(a);
 		}
 		settings.setHiddenAttribtues(hidden);
+		settings.setSelectedIdentity(selectedIdentity.getComparableValue());
 	}
 	
 	protected void storePreferences(boolean defaultAccept)
@@ -470,9 +467,9 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		try
 		{
 			SAMLAuthnContext samlCtx = getContext();
-			SamlPreferences preferences = getPreferences();
+			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan);
 			updatePreferencesFromUI(preferences, samlCtx, defaultAccept);
-			savePreferences(preferences);
+			SamlPreferences.savePreferences(preferencesMan, preferences);
 		} catch (EngineException e)
 		{
 			log.error("Unable to store user's preferences", e);

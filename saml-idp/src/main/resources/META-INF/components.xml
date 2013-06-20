@@ -5,14 +5,14 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<context:annotation-config/>
-	
-	<bean class="pl.edu.icm.unity.samlidp.FreemarkerHandler"/>
-	
-	<bean class="pl.edu.icm.unity.samlidp.web.SamlIdPWebEndpointFactory"/>
-	
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
 		<property name="bundle" value="pl/edu/icm/unity/samlidp/messages/messages"/>
-	</bean>
-		
+	</bean>		
+
+	<bean class="pl.edu.icm.unity.samlidp.ws.SamlIdPSoapEndpointFactory"/>
+	
+	<bean class="pl.edu.icm.unity.samlidp.FreemarkerHandler"/>	
+	<bean class="pl.edu.icm.unity.samlidp.web.SamlIdPWebEndpointFactory"/>
+	
 	<bean scope="prototype" id="SamlIdPWebUI" class="pl.edu.icm.unity.samlidp.web.SamlIdPWebUI"/>
 </beans>

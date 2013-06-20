@@ -10,6 +10,7 @@
 	<bean class="pl.edu.icm.unity.server.UnityApplication$ShutdownFinished"/>
 
 	<bean id="proxyBuilder" class="pl.edu.icm.unity.engine.events.EventProxyBuilder"/>
+	<bean id="proxyBuilder2" class="pl.edu.icm.unity.engine.events.EventProxyBuilderSystem"/>
 	<bean class="pl.edu.icm.unity.engine.events.EventProcessor"/>
 	
 	<!-- Proxied beans which are the ultimate implementation of the core interface. Proxies
@@ -17,10 +18,10 @@
 	<bean primary="true" factory-bean="proxyBuilder" factory-method="getAttributeManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder" factory-method="getGroupsManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder" factory-method="getIdentitiesManagementInstance"/>
-	<bean primary="true" factory-bean="proxyBuilder" factory-method="getServerManagementInstance"/>
-	<bean primary="true" factory-bean="proxyBuilder" factory-method="getEndpointsManagementInstance"/>
-	<bean primary="true" factory-bean="proxyBuilder" factory-method="getAuthenticationManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder" factory-method="getPreferencesManagementInstance"/>
+	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getServerManagementInstance"/>
+	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getEndpointsManagementInstance"/>
+	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getAuthenticationManagementInstance"/>
 
 	<!-- The real implementation, with a real authorization module injected. However those beans are plain,
 	are not generating any events. -->	

@@ -155,6 +155,7 @@ public class SamlProperties extends PropertiesHelper
 	private boolean signRespAlways;
 	private ReplayAttackChecker replayChecker;
 	private SamlTrustChecker authnTrustChecker;
+	private SamlTrustChecker soapTrustChecker;
 	private long requestValidity;
 	private TrustedIssuersProperties trustedProperties;
 	private CredentialProperties issuerCredentialProperties;
@@ -231,6 +232,10 @@ public class SamlProperties extends PropertiesHelper
 				log.debug("SP authorized to submit authentication requests: " + X500NameUtils.getReadableForm(allowed));
 			}
 		}
+		if (trustedProperties != null)
+			soapTrustChecker = new PKISamlTrustChecker(trustedProperties.getValidator(), true);
+		else
+			soapTrustChecker = new AcceptingSamlTrustChecker();
 		replayChecker = new ReplayAttackChecker();
 		requestValidity = getLongValue(SamlProperties.SAML_REQUEST_VALIDITY)*1000;
 		
@@ -272,6 +277,11 @@ public class SamlProperties extends PropertiesHelper
 	public SamlTrustChecker getAuthnTrustChecker()
 	{
 		return authnTrustChecker;
+	}
+
+	public SamlTrustChecker getSoapTrustChecker()
+	{
+		return soapTrustChecker;
 	}
 
 	public X509Credential getSamlIssuerCredential()

@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.saml;
 
+import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
@@ -37,12 +38,8 @@ public class WebAuthWithETDRequestValidator extends WebAuthRequestValidator
 		AuthnRequestType aReq = authenticationRequestDoc.getAuthnRequest();
 		super.validate(authenticationRequestDoc, aReq);
 		
-		NameIDType issuer = aReq.getIssuer();
 		String requestedFormat = getRequestedFormat(aReq);
 		
-		String issuerFormat = issuer.getFormat();
-		if (issuerFormat == null)
-			issuerFormat = SAMLConstants.NFORMAT_ENTITY;
 		if (requestedFormat == null)
 			requestedFormat = SAMLConstants.NFORMAT_ENTITY;
 		if (!requestedFormat.equals(SAMLConstants.NFORMAT_DN))
@@ -51,12 +48,27 @@ public class WebAuthWithETDRequestValidator extends WebAuthRequestValidator
 					SAMLConstants.SubStatus.STATUS2_REQUEST_UNSUPP,
 					"Requested identity type must be set to X.500 for ETD creation query");
 		}
-		
-		if (!issuerFormat.equals(SAMLConstants.NFORMAT_DN))
-		{
+	}
+	
+	@Override
+	protected void validateIssuer(AuthnRequestType authnRequest) throws SAMLServerException
+	{
+		NameIDType issuer = authnRequest.getIssuer();
+		if (issuer == null)
+			throw new SAMLRequesterException("Issuer of SAML request must be present in SSO AuthN");
+		if (issuer.getFormat() == null && !issuer.getFormat().equals(SAMLConstants.NFORMAT_DN))
 			throw new SAMLRequesterException(
 					SAMLConstants.SubStatus.STATUS2_REQUEST_UNSUPP,
 					"Query identity type must be set to X.500 for ETD creation query");
+		if (issuer.getStringValue() == null)
+			throw new SAMLRequesterException("Issuer value of SAML request must be present in SSO AuthN");
+		try
+		{
+			X500NameUtils.getX500Principal(issuer.getStringValue());
+		} catch (Exception e)
+		{
+			throw new SAMLRequesterException("Issuer value of SAML request is not a valid X.500 name: " 
+					+ e.getMessage());
 		}
 	}
 	
