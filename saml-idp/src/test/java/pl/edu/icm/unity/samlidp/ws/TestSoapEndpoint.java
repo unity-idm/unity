@@ -26,8 +26,12 @@ import eu.unicore.samlclient.SAMLAttributeQueryClient;
 import eu.unicore.samlclient.SAMLAuthnClient;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.Assertion;
+import eu.unicore.samly2.assertion.AttributeAssertionParser;
+import eu.unicore.samly2.attrprofile.ParsedAttribute;
 import eu.unicore.samly2.elements.NameID;
+import eu.unicore.samly2.elements.SAMLAttribute;
 import eu.unicore.samly2.exceptions.SAMLServerException;
+import eu.unicore.samly2.exceptions.SAMLValidationException;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
@@ -120,19 +124,62 @@ public class TestSoapEndpoint extends DBIntegrationTestBase
 		AuthnResponseAssertions resp = client.authenticate(SAMLConstants.NFORMAT_PERSISTENT, 
 				localIssuer, "http://somehost/consumer");
 		
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 3);
+		
+		clientCfg.setHttpPassword("wrong");
+		client = new SAMLAuthnClient(attrWSUrl, clientCfg);
+		try
+		{
+			client.authenticate(SAMLConstants.NFORMAT_PERSISTENT, localIssuer, "http://somehost/consumer");
+			fail("authenticated with wrong password");
+		} catch (SAMLServerException e) {
+			//expected
+		}
+
+		clientCfg.setHttpAuthn(false);
+		client = new SAMLAuthnClient(attrWSUrl, clientCfg);
+		try
+		{
+			client.authenticate(SAMLConstants.NFORMAT_PERSISTENT, localIssuer, "http://somehost/consumer");
+			fail("authenticated without credential");
+		} catch (SAMLServerException e) {
+			//expected
+		}
+		
+		//only TLS
+		clientCfg.setSslAuthn(true);
+		client = new SAMLAuthnClient(attrWSUrl, clientCfg);
+		resp = client.authenticate(SAMLConstants.NFORMAT_DN, localIssuer, "http://somehost/consumer");
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_DN, 4);
+		
+		//both, both ok, the first configured, i.e. the password should be used.
+		clientCfg.setSslAuthn(true);
+		clientCfg.setHttpAuthn(true);
+		clientCfg.setHttpPassword("mockPassword1");
+		client = new SAMLAuthnClient(attrWSUrl, clientCfg);
+		resp = client.authenticate(localIssuer, "http://somehost/consumer");
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 3);
+		
+		//both but password wrong so TLS should be used.
+		clientCfg.setSslAuthn(true);
+		clientCfg.setHttpAuthn(true);
+		clientCfg.setHttpPassword("wrong");
+		client = new SAMLAuthnClient(attrWSUrl, clientCfg);
+		resp = client.authenticate(localIssuer, "http://somehost/consumer");
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 4);
+	}
+
+	
+	private void checkAuthnResponse(AuthnResponseAssertions resp, String expectedFormat,
+			int expectedAttrs) throws SAMLValidationException
+	{
 		assertEquals(1, resp.getAuthNAssertions().size());
 		assertEquals(1, resp.getAttributeAssertions().size());
 		assertEquals(0, resp.getOtherAssertions().size());
 		assertNotNull(resp.getAuthNAssertions().get(0).getSubjectName());
-		assertEquals(SAMLConstants.NFORMAT_PERSISTENT, resp.getAuthNAssertions().get(0).getSubjectNameFormat());
-		assertEquals(3, resp.getAttributeAssertions().get(0).getAttributes().size());
-		System.out.println(resp.getAuthNAssertions().get(0).getXMLBeanDoc().xmlText(
-				new XmlOptions().setSavePrettyPrint()));
-
-		System.out.println("\n\n\n" +resp.getAttributeAssertions().get(0).getXMLBeanDoc().xmlText(
-				new XmlOptions().setSavePrettyPrint()));
+		assertEquals(expectedFormat, resp.getAuthNAssertions().get(0).getSubjectNameFormat());
+		assertEquals(expectedAttrs, resp.getAttributeAssertions().get(0).getAttributes().size());
 	}
-
 	
 	@Test
 	public void testAttributes() throws Exception
@@ -145,12 +192,48 @@ public class TestSoapEndpoint extends DBIntegrationTestBase
 		clientCfg.setHttpPassword("mockPassword1");
 		clientCfg.setSslAuthn(false);
 		clientCfg.setHttpAuthn(true);
+		NameID localIssuer = null;
 		
 		SAMLAttributeQueryClient client = new SAMLAttributeQueryClient(attrWSUrl, clientCfg);
-		Assertion a = client.getAssertion(new NameID("CN=Test UVOS,O=UNICORE,C=EU", SAMLConstants.NFORMAT_DN),
-				new NameID("unicore receiver", SAMLConstants.NFORMAT_ENTITY));
-		//TODO
-		System.out.println(a.getXMLBeanDoc().xmlText(new XmlOptions().setSavePrettyPrint()));
+		AttributeAssertionParser a = client.getAssertion(new NameID("CN=Test UVOS,O=UNICORE,C=EU", SAMLConstants.NFORMAT_DN),
+				localIssuer);
+		assertEquals(4, a.getAttributes().size());
+		ParsedAttribute a1 = a.getAttribute("stringA");
+		assertNotNull(a1);
+		assertEquals(0, a1.getStringValues().size());
+		ParsedAttribute a2 = a.getAttribute("intA");
+		assertNotNull(a2);
+		assertEquals(1, a2.getStringValues().size());
+		assertEquals("1", a2.getStringValues().get(0));
+		ParsedAttribute a3 = a.getAttribute("floatA");
+		assertNotNull(a3);
+		assertEquals(2, a3.getStringValues().size());
+		assertEquals("123.1", a3.getStringValues().get(0));
+		assertEquals("124.1", a3.getStringValues().get(1));
+		ParsedAttribute a4 = a.getAttribute("groups");
+		assertNotNull(a4);
+		assertEquals(1, a4.getStringValues().size());
+		assertEquals("/", a4.getStringValues().get(0));
+		
+		a = client.getAssertion(new NameID("CN=Test UVOS,O=UNICORE,C=EU", SAMLConstants.NFORMAT_DN), 
+				localIssuer, new SAMLAttribute("floatA", null));
+		assertEquals(1, a.getAttributes().size());
+		a3 = a.getAttribute("floatA");
+		assertNotNull(a3);
+		assertEquals(2, a3.getStringValues().size());
+		assertEquals("123.1", a3.getStringValues().get(0));
+		assertEquals("124.1", a3.getStringValues().get(1));
+
+
+		SAMLAttribute queried = new SAMLAttribute("floatA", null);
+		queried.addStringAttributeValue("124.1");
+		a = client.getAssertion(new NameID("CN=Test UVOS,O=UNICORE,C=EU", SAMLConstants.NFORMAT_DN), 
+				localIssuer, queried);
+		assertEquals(1, a.getAttributes().size());
+		a3 = a.getAttribute("floatA");
+		assertNotNull(a3);
+		assertEquals(1, a3.getStringValues().size());
+		assertEquals("124.1", a3.getStringValues().get(0));
 	}
 	
 
@@ -195,7 +278,7 @@ public class TestSoapEndpoint extends DBIntegrationTestBase
 
 		attrsMan.setAttribute(e2, new StringAttribute("stringA", "/", AttributeVisibility.full), false);
 		attrsMan.setAttribute(e2, new IntegerAttribute("intA", "/", AttributeVisibility.full, 1), false);
-		attrsMan.setAttribute(e2, new FloatingPointAttribute("floatA", "/", AttributeVisibility.full, 2.2), false);
+		attrsMan.setAttribute(e2, new FloatingPointAttribute("floatA", "/", AttributeVisibility.full, vals), false);
 		
 		attrsMan.setAttribute(e1, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE, 
 				"/", AttributeVisibility.local, "Inspector"), false);
