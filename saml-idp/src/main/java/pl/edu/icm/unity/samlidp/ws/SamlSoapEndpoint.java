@@ -9,8 +9,6 @@ import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.eclipse.jetty.servlet.ServletContextHandler;
-
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
 import eu.unicore.util.configuration.ConfigurationException;
@@ -75,7 +73,8 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		return writer.toString();
 	}
 
-	public ServletContextHandler getServletContextHandler()
+	@Override
+	protected void configureServices()
 	{
 		String endpointURL = getServletUrl(servletPath);
 		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(samlProperties, 
@@ -83,8 +82,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
 		SAMLAuthnImpl authnImpl = new SAMLAuthnImpl(samlProperties, endpointURL, 
 				identitiesMan, attributesMan, preferencesMan);
-		addWebservice(SAMLAuthnInterface.class, authnImpl);
-		return super.getServletContextHandler();
+		addWebservice(SAMLAuthnInterface.class, authnImpl);		
 	}
 }
 

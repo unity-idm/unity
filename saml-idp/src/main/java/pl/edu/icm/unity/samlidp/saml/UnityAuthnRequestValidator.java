@@ -12,6 +12,7 @@ import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.samly2.validators.SSOAuthnRequestValidator;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
+import xmlbeans.org.oasis.saml2.protocol.NameIDPolicyType;
 
 /**
  * Validates SAML Authentication Request. Extends {@link SSOAuthnRequestValidator}
@@ -37,10 +38,11 @@ public class UnityAuthnRequestValidator extends SSOAuthnRequestValidator
 		super(consumerEndpointUri, trustChecker, requestValidity, replayChecker);
 	}
 
+	@Override
 	public void validate(AuthnRequestDocument authenticationRequestDoc) throws SAMLServerException
 	{
 		AuthnRequestType req = authenticationRequestDoc.getAuthnRequest();
-		super.validate(authenticationRequestDoc, req);
+		super.validate(authenticationRequestDoc);
 		
 		//1 - presence of Subject element in request
 		//WARNING - if this is implemented then filtering of inactive identities
@@ -69,5 +71,24 @@ public class UnityAuthnRequestValidator extends SSOAuthnRequestValidator
 			throw new SAMLResponderException(SAMLConstants.SubStatus.STATUS2_REQUEST_UNSUPP,
 					"This implementation doesn't support authn " +
 					"requests without AttributeConsumingServiceURL.");
+	}
+	
+
+	/**
+	 * Useful for subclasses
+	 * @param aReq
+	 * @return
+	 */
+	protected String getRequestedFormat(AuthnRequestType aReq)
+	{
+		String requestedFormat = null;
+		NameIDPolicyType nameIDPolicy = aReq.getNameIDPolicy();
+		if (nameIDPolicy != null)
+			requestedFormat = nameIDPolicy.getFormat();
+		if (requestedFormat == null)
+			return SAMLConstants.NFORMAT_UNSPEC;
+		if (requestedFormat.equals(SAMLConstants.NFORMAT_UNSPEC))
+			requestedFormat = SAMLConstants.NFORMAT_ENTITY;
+		return requestedFormat;
 	}
 }

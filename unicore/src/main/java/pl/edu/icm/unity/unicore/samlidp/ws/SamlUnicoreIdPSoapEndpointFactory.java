@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.samlidp.ws;
+package pl.edu.icm.unity.unicore.samlidp.ws;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,14 +20,14 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.ws.authn.CXFAuthentication;
 
 /**
- * Factory creating {@link SamlSoapEndpoint} instances.
+ * Factory creating {@link SamlUnicoreSoapEndpoint} instances.
  * @author K. Benedyczak
  */
 @Component
-public class SamlIdPSoapEndpointFactory implements EndpointFactory
+public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 {
-	public static final String SERVLET_PATH = "/saml2idp-soap";
-	public static final String NAME = "SAMLSoapIdP";
+	public static final String SERVLET_PATH = "/saml2unicoreidp-soap";
+	public static final String NAME = "SAMLUnicoreSoapIdP";
 	
 	private EndpointTypeDescription description;
 	private UnityMessageSource msg;
@@ -37,7 +37,7 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 	
 	
 	@Autowired
-	public SamlIdPSoapEndpointFactory(UnityMessageSource msg, IdentitiesManagement identitiesMan,
+	public SamlUnicoreIdPSoapEndpointFactory(UnityMessageSource msg, IdentitiesManagement identitiesMan,
 			AttributesManagement attributesMan, PreferencesManagement preferencesMan)
 	{
 		super();
@@ -49,7 +49,7 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(CXFAuthentication.NAME);
 		description = new EndpointTypeDescription(NAME, 
-				"SAML 2 identity provider web endpoint", supportedAuthn);
+				"SAML 2 UNICORE identity provider web endpoint", supportedAuthn);
 	}
 
 	@Override
@@ -61,8 +61,7 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new SamlSoapEndpoint(msg, getDescription(), SERVLET_PATH, identitiesMan, 
+		return new SamlUnicoreSoapEndpoint(msg, getDescription(), SERVLET_PATH, identitiesMan, 
 				attributesMan, preferencesMan);
 	}
-
 }

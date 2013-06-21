@@ -37,8 +37,13 @@ public class MockWSEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		CXFEndpoint endpoint = new CXFEndpoint(msg, getDescription(), SERVLET_PATH);
-		endpoint.addWebservice(MockWSSEI.class, new MockWSImpl());
-		return endpoint;
+		return new CXFEndpoint(msg, getDescription(), SERVLET_PATH)
+		{
+			@Override
+			protected void configureServices()
+			{
+				addWebservice(MockWSSEI.class, new MockWSImpl());				
+			}
+		};
 	}
 }

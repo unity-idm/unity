@@ -36,7 +36,7 @@ import pl.edu.icm.unity.ws.authn.CXFAuthentication;
  * Web service endpoint based on CXF
  * @author K. Benedyczak
  */
-public class CXFEndpoint extends AbstractEndpoint implements WebAppEndpointInstance
+public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndpointInstance
 {
 	protected UnityMessageSource msg;
 	protected String servletPath;
@@ -61,7 +61,7 @@ public class CXFEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 	{
 	}
 
-	public void addWebservice(Class<?> iface, Object impl)
+	protected void addWebservice(Class<?> iface, Object impl)
 	{
 		services.put(iface, impl);
 	}
@@ -88,9 +88,13 @@ public class CXFEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 		installAuthnInterceptors(inInterceptors);
 	}
 	
+	protected abstract void configureServices();
+	
 	@Override
 	public ServletContextHandler getServletContextHandler()
 	{
+		configureServices();
+		
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath(description.getContextAddress());
 		CXFNonSpringServlet cxfServlet = new CXFNonSpringServlet();

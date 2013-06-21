@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import pl.edu.icm.unity.engine.internal.InternalEndpointManagement;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
@@ -98,7 +100,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	{
 		EndpointFactory factory = endpointFactoriesReg.getById(typeId);
 		if (factory == null)
-			throw new IllegalArgumentException("Endpoint type " + typeId + " is unknown");
+			throw new WrongArgumentException("Endpoint type " + typeId + " is unknown");
 		EndpointInstance instance = factory.newInstance();
 		if (!(instance instanceof WebAppEndpointInstance))
 			throw new InternalException("Endpoint type " + typeId + " provides endpoint of " + 
@@ -107,6 +109,7 @@ public class EndpointManagementImpl implements EndpointManagement
 		try
 		{
 			List<Map<String, BindingAuthn>> authenticators = internalManagement.getAuthenticators(authenticatorsInfo, sql);
+			verifyAuthenticators(authenticators, factory.getDescription().getSupportedBindings());
 			instance.initialize(endpointName, httpServer.getUrls()[0], 
 					address, description, authenticatorsInfo, authenticators, jsonConfiguration);
 
@@ -124,6 +127,19 @@ public class EndpointManagementImpl implements EndpointManagement
 			db.releaseSqlSession(sql);
 		}
 		return instance.getEndpointDescription();
+	}
+	
+	private void verifyAuthenticators(List<Map<String, BindingAuthn>> authenticators, 
+			Set<String> supported) throws WrongArgumentException
+	{
+		for (Map<String, BindingAuthn> auths: authenticators)
+		{
+			for (BindingAuthn bindingAuthn: auths.values())
+				if (!supported.contains(bindingAuthn.getBindingName()))
+					throw new WrongArgumentException("The authenticator of type " + 
+							bindingAuthn.getBindingName() + " is not supported by the binding. " +
+									"Supported are: " + supported); 
+		}
 	}
 	
 	@Override

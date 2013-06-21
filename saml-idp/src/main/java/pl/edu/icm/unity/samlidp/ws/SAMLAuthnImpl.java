@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.cxf.interceptor.Fault;
+import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.samlidp.SamlPreferences;
@@ -23,6 +24,7 @@ import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -41,6 +43,7 @@ import eu.unicore.samly2.webservice.SAMLAuthnInterface;
  */
 public class SAMLAuthnImpl implements SAMLAuthnInterface
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLAuthnImpl.class);
 	protected SamlProperties samlProperties;
 	protected String endpointAddress;
 	protected IdentitiesManagement identitiesMan;
@@ -68,6 +71,7 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 			validate(context);
 		} catch (SAMLServerException e1)
 		{
+			log.debug("Throwing SAML fault, caused by validation exception", e1);
 			throw new Fault(e1);
 		}
 		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(context);
@@ -84,6 +88,7 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes);
 		} catch (Exception e)
 		{
+			log.debug("Throwing SAML fault, caused by processing exception", e);
 			SAMLServerException convertedException = samlProcessor.convert2SAMLError(e, null, true);
 			respDoc = samlProcessor.getErrorResponse(convertedException);
 		}

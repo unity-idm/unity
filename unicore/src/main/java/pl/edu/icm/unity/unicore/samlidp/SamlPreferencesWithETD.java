@@ -10,7 +10,9 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.samlidp.SamlPreferences;
+import pl.edu.icm.unity.server.api.PreferencesManagement;
 
 
 /**
@@ -65,7 +67,10 @@ public class SamlPreferencesWithETD extends SamlPreferences
 
 	public SPETDSettings getSPETDSettings(String sp)
 	{
-		return spEtdSettings.get(sp);
+		SPETDSettings ret = spEtdSettings.get(sp); 
+		if (ret == null)
+			ret = new SPETDSettings();
+		return ret;
 	}
 	
 	public void setSPETDSettings(String sp, SPETDSettings settings)
@@ -73,6 +78,18 @@ public class SamlPreferencesWithETD extends SamlPreferences
 		spEtdSettings.put(sp, settings);
 	}
 
+	public static SamlPreferencesWithETD getPreferences(PreferencesManagement preferencesMan) throws EngineException
+	{
+		SamlPreferencesWithETD ret = new SamlPreferencesWithETD();
+		initPreferencesGeneric(preferencesMan, ret, SamlPreferencesWithETD.ID);
+		return ret;
+	}
+	
+	public static void savePreferences(PreferencesManagement preferencesMan, SamlPreferencesWithETD preferences) 
+			throws EngineException
+	{
+		savePreferencesGeneric(preferencesMan, preferences, SamlPreferencesWithETD.ID);
+	}
 	
 	public static class SPETDSettings
 	{

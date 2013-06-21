@@ -113,22 +113,33 @@ public class SamlPreferences implements JsonSerializable
 		return ret;
 	}
 
-	public static SamlPreferences getPreferences(PreferencesManagement preferencesMan) throws EngineException
+	public static void initPreferencesGeneric(PreferencesManagement preferencesMan, JsonSerializable toInit, String id) throws EngineException
 	{
 		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
 		EntityParam entity = new EntityParam(String.valueOf(ae.getEntityId()));
-		String raw = preferencesMan.getPreference(entity, SamlPreferences.ID);
+		String raw = preferencesMan.getPreference(entity, id);
+		toInit.setSerializedConfiguration(raw);
+	}
+	
+	public static void savePreferencesGeneric(PreferencesManagement preferencesMan, JsonSerializable preferences, String id) 
+			throws EngineException
+	{
+		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
+		EntityParam entity = new EntityParam(String.valueOf(ae.getEntityId()));
+		preferencesMan.setPreference(entity, id, preferences.getSerializedConfiguration());
+	}
+
+	public static SamlPreferences getPreferences(PreferencesManagement preferencesMan) throws EngineException
+	{
 		SamlPreferences ret = new SamlPreferences();
-		ret.setSerializedConfiguration(raw);
+		initPreferencesGeneric(preferencesMan, ret, SamlPreferences.ID);
 		return ret;
 	}
 	
 	public static void savePreferences(PreferencesManagement preferencesMan, SamlPreferences preferences) 
 			throws EngineException
 	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
-		EntityParam entity = new EntityParam(String.valueOf(ae.getEntityId()));
-		preferencesMan.setPreference(entity, SamlPreferences.ID, preferences.getSerializedConfiguration());
+		savePreferencesGeneric(preferencesMan, preferences, SamlPreferences.ID);
 	}
 	
 	/**
