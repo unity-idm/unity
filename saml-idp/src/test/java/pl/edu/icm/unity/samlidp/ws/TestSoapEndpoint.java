@@ -14,8 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
-import org.apache.xmlbeans.XmlOptions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,7 +23,6 @@ import eu.unicore.samlclient.AuthnResponseAssertions;
 import eu.unicore.samlclient.SAMLAttributeQueryClient;
 import eu.unicore.samlclient.SAMLAuthnClient;
 import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.assertion.Assertion;
 import eu.unicore.samly2.assertion.AttributeAssertionParser;
 import eu.unicore.samly2.attrprofile.ParsedAttribute;
 import eu.unicore.samly2.elements.NameID;
@@ -207,9 +204,10 @@ public class TestSoapEndpoint extends DBIntegrationTestBase
 		assertEquals("1", a2.getStringValues().get(0));
 		ParsedAttribute a3 = a.getAttribute("floatA");
 		assertNotNull(a3);
-		assertEquals(2, a3.getStringValues().size());
+		assertEquals(3, a3.getStringValues().size());
 		assertEquals("123.1", a3.getStringValues().get(0));
 		assertEquals("124.1", a3.getStringValues().get(1));
+		assertEquals("14.2", a3.getStringValues().get(2));
 		ParsedAttribute a4 = a.getAttribute("groups");
 		assertNotNull(a4);
 		assertEquals(1, a4.getStringValues().size());
@@ -220,9 +218,10 @@ public class TestSoapEndpoint extends DBIntegrationTestBase
 		assertEquals(1, a.getAttributes().size());
 		a3 = a.getAttribute("floatA");
 		assertNotNull(a3);
-		assertEquals(2, a3.getStringValues().size());
+		assertEquals(3, a3.getStringValues().size());
 		assertEquals("123.1", a3.getStringValues().get(0));
 		assertEquals("124.1", a3.getStringValues().get(1));
+		assertEquals("14.2", a3.getStringValues().get(2));
 
 
 		SAMLAttribute queried = new SAMLAttribute("floatA", null);
@@ -274,6 +273,7 @@ public class TestSoapEndpoint extends DBIntegrationTestBase
 		List<Double> vals = new ArrayList<Double>();
 		vals.add(123.1);
 		vals.add(124.1);
+		vals.add(14.2);
 		attrsMan.setAttribute(e1, new FloatingPointAttribute("floatA", "/", AttributeVisibility.full, vals), false);
 
 		attrsMan.setAttribute(e2, new StringAttribute("stringA", "/", AttributeVisibility.full), false);

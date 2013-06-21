@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.cxf.interceptor.Fault;
+import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.samlidp.SamlPreferences;
@@ -20,6 +21,7 @@ import pl.edu.icm.unity.samlidp.saml.processor.AttributeQueryResponseProcessor;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -40,6 +42,7 @@ import eu.unicore.samly2.webservice.SAMLQueryInterface;
  */
 public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLAssertionQueryImpl.class);
 	protected SamlProperties samlProperties;
 	protected String endpointAddress;
 	protected AttributesManagement attributesMan;
@@ -67,6 +70,7 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 			validate(context);
 		} catch (SAMLServerException e1)
 		{
+			log.debug("Throwing SAML fault, caused by validation exception", e1);
 			throw new Fault(e1);
 		}
 		AttributeQueryResponseProcessor processor = new AttributeQueryResponseProcessor(context);
@@ -80,6 +84,7 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 			respDoc = processor.processAtributeRequest(attributes);
 		} catch (Exception e)
 		{
+			log.debug("Throwing SAML fault, caused by processing exception", e);
 			SAMLServerException convertedException = processor.convert2SAMLError(e, null, true);
 			respDoc = processor.getErrorResponse(convertedException);
 		}

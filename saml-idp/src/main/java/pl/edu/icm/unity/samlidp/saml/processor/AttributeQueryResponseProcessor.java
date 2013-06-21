@@ -4,8 +4,15 @@
  */
 package pl.edu.icm.unity.samlidp.saml.processor;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.xmlbeans.XmlAnySimpleType;
+import org.apache.xmlbeans.XmlObject;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.Assertion;
@@ -17,6 +24,7 @@ import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
+import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.assertion.SubjectType;
 import xmlbeans.org.oasis.saml2.protocol.AttributeQueryDocument;
@@ -70,5 +78,70 @@ public class AttributeQueryResponseProcessor extends BaseResponseProcessor<Attri
 				resp.addAssertion(assertion);
 		}
 		return resp.getXMLBeanDoc();
+	}
+	
+	/**
+	 * Filters attributes, so only the requested attributes are left.
+	 * @param converted
+	 */
+	@Override
+	protected void filterRequested(List<AttributeType> converted)
+	{
+		AttributeQueryType query = context.getRequest();
+		AttributeType[] requested = query.getAttributeArray();
+		//nothing requested - return all
+		if (requested == null || requested.length == 0)
+			return;
+		Map<String, AttributeType> requestedMap = new HashMap<String, AttributeType>(requested.length);
+		for (AttributeType r: requested)
+			requestedMap.put(r.getName(), r);
+		
+		for (int i=0; i<converted.size(); i++)
+		{
+			AttributeType a = converted.get(i);
+			AttributeType reqa = requestedMap.get(a.getName());
+			//not among requested attributes - skip it
+			if (reqa == null)
+			{
+				converted.remove(i--);
+				continue;
+			}
+			
+			//among requested without a value - leave it with all values
+			if (reqa.sizeOfAttributeValueArray() == 0)
+				continue;
+			
+			//among requested with given values - filter them
+			XmlObject[] aVals = a.getAttributeValueArray();
+			if (aVals == null || aVals.length == 0) //no values - no problem
+				continue;
+			XmlObject[] reqVals = reqa.getAttributeValueArray();
+			List<Integer> toBeRemoved = new ArrayList<Integer>();
+			for (int j=aVals.length-1; j>=0; j--)
+			{
+				XmlObject aVal = aVals[j];
+				if (!isAmongValues(aVal, reqVals))
+					toBeRemoved.add(j);
+			}
+			for (int remove: toBeRemoved)
+				a.removeAttributeValue(remove);
+		}
+	}
+	
+	//FIXME - this is not supporting any profile-defined attribute equality
+	protected boolean isAmongValues(XmlObject tested, XmlObject[] permitted)
+	{
+		String testedVal;
+		if (tested instanceof XmlAnySimpleType)
+			testedVal = ((XmlAnySimpleType)tested).getStringValue();
+		else
+			return false; //unsupported...
+		for (XmlObject p: permitted)
+		{
+			if (p instanceof XmlAnySimpleType)
+				if (testedVal.equals(((XmlAnySimpleType) p).getStringValue()))
+					return true;
+		}
+		return false;
 	}
 }

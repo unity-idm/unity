@@ -96,7 +96,7 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	/**
 	 * Returns a collection of attributes including only those attributes for which there is SAML 
 	 * representation and which are allowed by attribute filters. The 
-	 * 'memberOf' attribute is also added if configured so. 
+	 * 'memberOf' attribute is also added if configured so.
 	 * @param allAttribtues, which should be collected in the scope of the chosenGroup. Note that the input list is modified. 
 	 * @param allGroups
 	 * @return
@@ -119,8 +119,6 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		return ret;
 	}
 
-	
-	
 	private Attribute<String> createGroupAttribute(Collection<String> allGroups)
 	{
 		GroupsSelection mode = samlConfiguration.getEnumValue(SamlProperties.GROUP_SELECTION, 
@@ -165,7 +163,8 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	
 	/**
 	 * Creates attribute assertion. Returns null when the attributes list is empty
-	 * as SAML spec doesn't permit empty attribute assertions. 
+	 * as SAML spec doesn't permit empty attribute assertions. The attributes are filtered using {@link #filterRequested(List)},
+	 * which by default does nothing.
 	 * @param authenticatedOne
 	 * @param attributes
 	 * @return
@@ -182,14 +181,28 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		assertion.setSubject(authenticatedOne);
 		
 		SamlAttributeMapper mapper = samlConfiguration.getAttributesMapper();
+		List<AttributeType> converted = new ArrayList<AttributeType>(attributes.size());
 		for (Attribute<?> attribute: attributes)
 		{
 			AttributeType samlA = mapper.convertToSaml(attribute);
-			assertion.addAttribute(samlA);
+			converted.add(samlA);
 		}
-		
+		filterRequested(converted);
+		if (converted.size() == 0)
+			return null;
+		for (AttributeType a: converted)
+			assertion.addAttribute(a);
 		signAssertion(assertion);
 		return assertion;
+	}
+
+	/**
+	 * Does nothing. Supclasses which require attribtues filtering should overwrite (as in the case of attribute query protocol).
+	 * 
+	 * @param converted
+	 */
+	protected void filterRequested(List<AttributeType> converted)
+	{
 	}
 	
 	protected void signAssertion(Assertion assertion) throws SAMLProcessingException
