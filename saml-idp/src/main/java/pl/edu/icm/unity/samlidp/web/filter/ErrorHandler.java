@@ -78,12 +78,14 @@ public class ErrorHandler
 		if (samlCtx.getRelayState() != null)
 			data.put("RelayState", samlCtx.getRelayState());
 		
+		response.setContentType("application/xhtml+xml; charset=utf-8");
 		PrintWriter w = response.getWriter();
 		freemarker.process("finishSaml.ftl", data, w);
 	}
 	
 	public void showErrorPage(SAMLProcessingException reason, HttpServletResponse response) throws IOException
 	{
+		response.setContentType("application/xhtml+xml; charset=utf-8");
 		PrintWriter w = response.getWriter();
 		Map<String, String> data = new HashMap<String, String>();
 		data.put("error", reason.getMessage());
@@ -94,6 +96,7 @@ public class ErrorHandler
 
 	public void showHoldOnPage(String request, String relayState, HttpServletResponse response) throws IOException
 	{
+		response.setContentType("application/xhtml+xml; charset=utf-8");
 		PrintWriter w = response.getWriter();
 		Map<String, String> data = new HashMap<String, String>();
 		data.put("originalRequest", request);

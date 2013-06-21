@@ -554,6 +554,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			cleanContext();
 			if (error!= null && error.isDestroySession())
 				session.getSession().invalidate();
+			response.setContentType("application/xhtml+xml; charset=utf-8");
 			PrintWriter writer = response.getWriter();
 			freemarkerHandler.process("finishSaml.ftl", data, writer);
 			return true;
