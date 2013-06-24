@@ -36,13 +36,12 @@ public abstract class AbstractBoundEditor<T extends Number> extends CustomField<
 		
 		setRequired(true);
 		setCaption(labelLimit);
-
 		unlimited = new CheckBox();
 		unlimited.setCaption(labelUnlimited);
 		limit = new TextField();
 		limit.setConverter(converter);
 		limit.setLocale(msg.getLocale());
-		limit.setRequiredError(msg.getMessage("fieldRequired"));
+		setRequiredError(msg.getMessage("fieldRequired"));
 		limit.setNullRepresentation("");
 		unlimited.addValueChangeListener(new ValueChangeListener()
 		{
@@ -53,9 +52,16 @@ public abstract class AbstractBoundEditor<T extends Number> extends CustomField<
 				limit.setEnabled(limited);				
 			}
 		});
+		isEmpty();
 		updateValidators();
 	}
-	
+
+	@Override
+	public boolean isEmpty()
+	{
+		return limit.getValue() == null || limit.getValue().equals("");
+	}
+
 	@Override
 	protected Component initContent()
 	{
