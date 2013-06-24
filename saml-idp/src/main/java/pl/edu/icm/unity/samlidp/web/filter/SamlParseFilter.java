@@ -29,8 +29,8 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.samlidp.FreemarkerHandler;
 import pl.edu.icm.unity.samlidp.SamlProperties;
 import pl.edu.icm.unity.samlidp.saml.SAMLProcessingException;
+import pl.edu.icm.unity.samlidp.saml.WebAuthRequestValidator;
 import pl.edu.icm.unity.samlidp.saml.ctx.SAMLAuthnContext;
-import pl.edu.icm.unity.samlidp.web.WebAuthRequestValidator;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 
 /**

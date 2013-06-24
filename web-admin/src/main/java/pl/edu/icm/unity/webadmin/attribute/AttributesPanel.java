@@ -38,6 +38,7 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
+import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
@@ -285,12 +286,17 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 	}
 	
-	private class RemoveAttributeActionHandler extends SingleActionHandler
+
+	/**
+	 * Extends {@link SingleActionHandler}. Returns action only for selections on an attribute. 
+	 * @author K. Benedyczak
+	 */
+	private abstract class AbstractAttributeActionHandler extends SingleActionHandler
 	{
-		public RemoveAttributeActionHandler()
+
+		public AbstractAttributeActionHandler(String caption, Resource icon)
 		{
-			super(msg.getMessage("Attribute.removeAttribute"), 
-					Images.delete.getResource());
+			super(caption, icon);
 		}
 		
 		@Override
@@ -303,6 +309,16 @@ public class AttributesPanel extends HorizontalSplitPanel
 			if (attributeType.isInstanceImmutable() || !attribute.isDirect())
 				return EMPTY;
 			return super.getActions(target, sender);
+		}
+	}
+	
+	
+	private class RemoveAttributeActionHandler extends AbstractAttributeActionHandler
+	{
+		public RemoveAttributeActionHandler()
+		{
+			super(msg.getMessage("Attribute.removeAttribute"), 
+					Images.delete.getResource());
 		}
 		
 		@Override
@@ -350,24 +366,12 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 	}
 
-	private class EditAttributeActionHandler extends SingleActionHandler
+	private class EditAttributeActionHandler extends AbstractAttributeActionHandler
 	{
 		public EditAttributeActionHandler()
 		{
 			super(msg.getMessage("Attribute.editAttribute"), 
 					Images.edit.getResource());
-		}
-		
-		@Override
-		public Action[] getActions(Object target, Object sender)
-		{
-			if (target == null || !(target instanceof AttributeItem))
-				return EMPTY;
-			AttributeExt<?> attribute = ((AttributeItem) target).getAttribute();
-			AttributeType attributeType = attributeTypes.get(attribute.getName());
-			if (attributeType.isInstanceImmutable() || !attribute.isDirect())
-				return EMPTY;
-			return super.getActions(target, sender);
 		}
 		
 		@Override

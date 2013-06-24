@@ -2,9 +2,8 @@
  * Copyright (c) 2012 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.samlidp.web;
+package pl.edu.icm.unity.samlidp.saml;
 
-import pl.edu.icm.unity.samlidp.saml.UnityAuthnRequestValidator;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 import eu.unicore.samly2.exceptions.SAMLResponderException;

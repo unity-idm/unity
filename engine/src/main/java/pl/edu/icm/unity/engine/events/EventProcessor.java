@@ -165,7 +165,7 @@ public class EventProcessor
 				if (!listener.handleEvent(event))
 					log.warn("Ligthweight event listener " + listener.getId() + 
 						" failed when processing an event " + event);
-			} catch (Throwable t)
+			} catch (Exception t)
 			{
 				log.warn("Ligthweight event listener " + listener.getId() + 
 						" creshed when processing an event " + event, t);

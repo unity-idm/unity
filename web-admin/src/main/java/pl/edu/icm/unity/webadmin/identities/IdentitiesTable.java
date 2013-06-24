@@ -145,8 +145,6 @@ public class IdentitiesTable extends TreeTable
 				Object selected = getValue();
 				if (selected == null)
 				{
-					if (selected == IdentitiesTable.this.selected)
-						return;
 					IdentitiesTable.this.selected = null;
 					bus.fireEvent(new EntityChangedEvent(null, group));
 				} else if (selected instanceof Entity)

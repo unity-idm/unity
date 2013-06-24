@@ -32,7 +32,6 @@ import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
@@ -59,33 +58,6 @@ public class PreferencesManagementImpl implements PreferencesManagement
 		this.idResolver = idResolver;
 		this.authz = authz;
 		this.mapper = mapper;
-	}
-
-	public void removeAttribute(EntityParam entity, String groupPath, String attributeTypeId)
-			throws EngineException
-	{
-		if (groupPath == null)
-			throw new IllegalGroupValueException("Group must not be null");
-		if (attributeTypeId == null)
-			throw new IllegalAttributeValueException("Attribute name must not be null");
-		entity.validateInitialization();
-
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(entity, sql);
-			AttributeType at = dbAttributes.getAttributeType(attributeTypeId, sql);
-			if (at.isInstanceImmutable())
-				throw new IllegalAttributeTypeException("The attribute with name " + at.getName() + 
-						" can not be manually modified");
-			authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId),
-					groupPath, AuthzCapability.attributeModify);
-			dbAttributes.removeAttribute(entityId, groupPath, attributeTypeId, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
 	}
 
 	/**

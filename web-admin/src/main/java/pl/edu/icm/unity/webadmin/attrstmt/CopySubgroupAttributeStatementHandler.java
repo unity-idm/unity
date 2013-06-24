@@ -51,7 +51,7 @@ public class CopySubgroupAttributeStatementHandler implements AttributeStatement
 		StringBuilder sb = new StringBuilder();
 		Attribute<?> a = as.getConditionAttribute();
 		String condAttrStr = handlersReg.getSimplifiedAttributeRepresentation(a,
-				EverybodyStatementHandler.ATTR_LEN);
+				StatementHandlerUtils.ATTR_LEN);
 		sb.append(msg.getMessage("AttributeStatements.copySubgroupAttribute")).append(" ");
 		sb.append(condAttrStr);
 		sb.append(" ").append(msg.getMessage("AttributeStatements.fromGroup")).append(" ");

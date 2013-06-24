@@ -45,15 +45,8 @@ public class ParentAttributeStatementHandler implements AttributeStatementWebHan
 	@Override
 	public String getTextRepresentation(AttributeStatement as)
 	{
-		StringBuilder sb = EverybodyStatementHandler.getAssignedAttributeText(msg, handlersReg, as);
-
-		Attribute<?> a = as.getConditionAttribute();
-		String condAttrStr = handlersReg.getSimplifiedAttributeRepresentation(a,
-				EverybodyStatementHandler.ATTR_LEN);
-		sb.append(msg.getMessage("AttributeStatements.hasParentgroupAttribute")).append(" ").append(condAttrStr);
-		sb.append(" ").append(msg.getMessage("AttributeStatements.inGroup")).append(" ");
-		sb.append(a.getGroupPath());
-		return sb.toString();
+		return StatementHandlerUtils.getTextRepresentation(msg, handlersReg, as, 
+				"AttributeStatements.hasParentgroupAttribute");
 	}
 
 	@Override

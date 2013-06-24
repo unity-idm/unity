@@ -62,7 +62,7 @@ public class SoapAuthWithETDRequestValidator extends UnityAuthnRequestValidator
 	{
 		if (issuer == null)
 			throw new SAMLRequesterException("Issuer of SAML request must be present in SSO AuthN");
-		if (issuer.getFormat() == null && !issuer.getFormat().equals(SAMLConstants.NFORMAT_DN))
+		if (issuer.getFormat() == null || !issuer.getFormat().equals(SAMLConstants.NFORMAT_DN))
 			throw new SAMLRequesterException(
 					SAMLConstants.SubStatus.STATUS2_REQUEST_UNSUPP,
 					"Query identity type must be set to X.500 for ETD creation query");

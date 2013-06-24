@@ -47,7 +47,7 @@ public class MemberOfStatementHandler implements AttributeStatementWebHandlerFac
 	@Override
 	public String getTextRepresentation(AttributeStatement as)
 	{
-		StringBuilder sb = EverybodyStatementHandler.getAssignedAttributeText(msg, handlersReg, as);
+		StringBuilder sb = StatementHandlerUtils.getAssignedAttributeText(msg, handlersReg, as);
 		sb.append(msg.getMessage("AttributeStatements.memberOf")).append(" ").append(as.getConditionGroup());
 		return sb.toString();
 	}

@@ -222,11 +222,6 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 			return;
 		String samlRequester = samlCtx.getRequest().getIssuer().getStringValue();
 		SPETDSettings settings = preferences.getSPETDSettings(samlRequester);
-		if (settings == null)
-		{
-			settings = new SPETDSettings();
-			preferences.setSPETDSettings(samlRequester, settings);
-		}
 		settings.setGenerateETD(generateETD.getValue());
 		long validity = (long)validityDays.getValue().doubleValue();
 		settings.setEtdValidity(validity*MS_IN_DAY);

@@ -50,8 +50,6 @@ public class UnityMessageSource extends ResourceBundleMessageSource
 	public Locale getLocale()
 	{
 		InvocationContext ctx = InvocationContext.getCurrent();
-		if (ctx == null)
-			return config.getDefaultLocale();
 		Locale ret = ctx.getLocale();
 		if (ret == null)
 			return config.getDefaultLocale();

@@ -310,19 +310,20 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 	public class SimpleImageSource implements StreamSource
 	{
 		private static final long serialVersionUID = 1L;
-		private final InputStream is;
+		private final byte[] isData;
 		private final String extension;
 		
 		public SimpleImageSource(BufferedImage value, 
 				AttributeValueSyntax<BufferedImage> syntax, String extension)
 		{
-			this.is = new ByteArrayInputStream(syntax.serialize(value));
+			this.isData = syntax.serialize(value);
 			this.extension = extension;
 		}
 		
+		@Override
 		public InputStream getStream()
 		{
-			return is;
+			return new ByteArrayInputStream(isData);
 		}
 		
 		public Resource getResource()

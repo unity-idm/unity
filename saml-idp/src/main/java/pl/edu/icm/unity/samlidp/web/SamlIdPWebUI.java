@@ -443,11 +443,6 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			return;
 		String samlRequester = samlCtx.getRequest().getIssuer().getStringValue();
 		SPSettings settings = preferences.getSPSettings(samlRequester);
-		if (settings == null)
-		{
-			settings = new SPSettings();
-			preferences.setSPSettings(samlRequester, settings);
-		}
 		settings.setDefaultAccept(defaultAccept);
 		settings.setDoNotAsk(true);
 		Set<String> hidden = new HashSet<String>();

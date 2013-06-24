@@ -74,7 +74,7 @@ public class EventsProcessingThread extends Thread
 			result = listener.handleEvent(event.getEvent());
 			if (!result)
 				log.info("Event processing failed by " + listener.getId());
-		} catch (Throwable t)
+		} catch (Exception t)
 		{
 			log.warn("Event for " + event.getListenerId() + " thrown an exception", t);
 			result = false;

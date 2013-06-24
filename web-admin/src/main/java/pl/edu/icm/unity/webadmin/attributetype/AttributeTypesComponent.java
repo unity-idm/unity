@@ -29,6 +29,7 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.event.Action;
+import com.vaadin.server.Resource;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Panel;
 
@@ -192,13 +193,18 @@ public class AttributeTypesComponent extends Panel
 		}
 	}
 	
-	private class EditActionHandler extends SingleActionHandler
+	/**
+	 * Extends {@link SingleActionHandler}. Returns action only for selections on an attribute type item. 
+	 * @author K. Benedyczak
+	 */
+	private abstract class AbstractAttributeTypeActionHandler extends SingleActionHandler
 	{
-		public EditActionHandler()
-		{
-			super(msg.getMessage("AttributeTypes.editAction"), Images.edit.getResource());
-		}
 
+		public AbstractAttributeTypeActionHandler(String caption, Resource icon)
+		{
+			super(caption, icon);
+		}
+		
 		@Override
 		public Action[] getActions(Object target, Object sender)
 		{
@@ -209,6 +215,15 @@ public class AttributeTypesComponent extends Panel
 			if (at.isTypeImmutable())
 				return EMPTY;
 			return super.getActions(target, sender);
+		}
+	}
+
+	
+	private class EditActionHandler extends AbstractAttributeTypeActionHandler
+	{
+		public EditActionHandler()
+		{
+			super(msg.getMessage("AttributeTypes.editAction"), Images.edit.getResource());
 		}
 
 		@Override
@@ -230,24 +245,12 @@ public class AttributeTypesComponent extends Panel
 		}
 	}
 	
-	private class DeleteActionHandler extends SingleActionHandler
+	private class DeleteActionHandler extends AbstractAttributeTypeActionHandler
 	{
 		public DeleteActionHandler()
 		{
 			super(msg.getMessage("AttributeTypes.deleteAction"), 
 					Images.delete.getResource());
-		}
-		
-		@Override
-		public Action[] getActions(Object target, Object sender)
-		{
-			if (target == null || !(target instanceof AttributeTypeItem))
-				return EMPTY;
-			AttributeTypeItem item = (AttributeTypeItem)target;
-			final AttributeType at = item.getAttributeType();
-			if (at.isTypeImmutable())
-				return EMPTY;
-			return super.getActions(target, sender);
 		}
 		
 		@Override

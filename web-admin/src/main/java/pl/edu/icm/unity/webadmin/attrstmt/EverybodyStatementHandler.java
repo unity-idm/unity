@@ -9,7 +9,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.attrstmnt.EverybodyStatement;
@@ -25,7 +24,7 @@ public class EverybodyStatementHandler implements AttributeStatementWebHandlerFa
 {
 	private UnityMessageSource msg;
 	private AttributeHandlerRegistry handlersReg;
-	public static final int ATTR_LEN = 50;
+
 	
 	@Autowired
 	public EverybodyStatementHandler(UnityMessageSource msg, AttributeHandlerRegistry handlersReg)
@@ -39,22 +38,11 @@ public class EverybodyStatementHandler implements AttributeStatementWebHandlerFa
 	{
 		return new EverybodyStatementComponent(msg, handlersReg, attributeTypes, group);
 	}
-
-	static StringBuilder getAssignedAttributeText(UnityMessageSource msg, AttributeHandlerRegistry handlersReg,
-			AttributeStatement as)
-	{
-		StringBuilder sb = new StringBuilder(256);
-		Attribute<?> assigned = as.getAssignedAttribute();
-		sb.append(msg.getMessage("AttributeStatements.assign")).append(" ");
-		sb.append(handlersReg.getSimplifiedAttributeRepresentation(assigned, ATTR_LEN));
-		sb.append(" ").append(msg.getMessage("AttributeStatements.to")).append(" ");
-		return sb;
-	}
 	
 	@Override
 	public String getTextRepresentation(AttributeStatement as)
 	{
-		StringBuilder sb = getAssignedAttributeText(msg, handlersReg, as);
+		StringBuilder sb = StatementHandlerUtils.getAssignedAttributeText(msg, handlersReg, as);
 		sb.append(msg.getMessage("AttributeStatements.everybody"));
 		return sb.toString();
 	}

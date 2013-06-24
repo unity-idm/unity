@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -199,7 +200,8 @@ public class SamlProperties extends PropertiesHelper
 			{
 				String[] parsed = allowedSpec.split("\\s+", 3);
 				if (parsed.length != 2)
-					throw new ConfigurationException("Invalid specification of allowed Service Provider, must have three elements: " + parsed);
+					throw new ConfigurationException("Invalid specification of allowed Service " +
+							"Provider, must have three elements: " + Arrays.toString(parsed));
 				try
 				{
 					InputStream is = new BufferedInputStream(new FileInputStream(parsed[1]));

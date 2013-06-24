@@ -48,7 +48,7 @@ public class CopyParentAttributeStatementHandler implements AttributeStatementWe
 		StringBuilder sb = new StringBuilder();
 		Attribute<?> a = as.getConditionAttribute();
 		String condAttrStr = handlersReg.getSimplifiedAttributeRepresentation(a,
-				EverybodyStatementHandler.ATTR_LEN);
+				StatementHandlerUtils.ATTR_LEN);
 		sb.append(msg.getMessage("AttributeStatements.copyParentAttribute")).append(" ").append(condAttrStr);
 		return sb.toString();
 	}

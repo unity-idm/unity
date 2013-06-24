@@ -23,6 +23,7 @@
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
 		<sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
 		<sonar.language>java</sonar.language>
+		<sonar.exclusions>**/*generated*</sonar.exclusions>
 	</properties>
 
 	<scm>
