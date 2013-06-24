@@ -1,6 +1,6 @@
 <#include "headerTop.ftl">
 
-
+<body>
 <H1>ERROR</H1>
 
 <p>SAML Identity Provider got an invalid request.</p>
