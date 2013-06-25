@@ -90,7 +90,8 @@ public abstract class AbstractBoundEditor<T extends Number> extends CustomField<
 		return this;
 	}
 	
-	public AbstractBoundEditor<T> setValueC(T value)
+	@Override
+	public void setValue(T value)
 	{
 		if (!value.equals(bound))
 		{
@@ -102,7 +103,6 @@ public abstract class AbstractBoundEditor<T extends Number> extends CustomField<
 			unlimited.setValue(true);	
 			limit.setEnabled(false);
 		}
-		return this;
 	}
 	
 	public AbstractBoundEditor<T> setReadOnly()

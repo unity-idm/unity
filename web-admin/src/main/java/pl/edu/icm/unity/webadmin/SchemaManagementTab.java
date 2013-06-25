@@ -11,8 +11,10 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesComponent;
+import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementsComponent;
 
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Tab containing management views for the data schema definition as attribute types, attribute classes
@@ -25,21 +27,27 @@ import com.vaadin.ui.VerticalLayout;
 public class SchemaManagementTab  extends VerticalLayout
 {
 	private UnityMessageSource msg;
-	private AttributeTypesComponent attributeTypes;
+	private MainTabPanel tabs;
 
 	@Autowired
-	public SchemaManagementTab(UnityMessageSource msg, AttributeTypesComponent attributeTypes)
+	public SchemaManagementTab(UnityMessageSource msg, AttributeTypesComponent attributeTypes,
+			CredentialRequirementsComponent crComponent)
 	{
 		super();
 		this.msg = msg;
-		this.attributeTypes = attributeTypes;
+		this.tabs = new MainTabPanel(attributeTypes, crComponent);
+		this.tabs.setStyleName(Reindeer.TABSHEET_MINIMAL);
 		initUI();
 	}
 
 	private void initUI()
 	{
 		setCaption(msg.getMessage("SchemaManagementTab.caption"));
-		addComponent(attributeTypes);
+		VerticalLayout wrapper = new VerticalLayout();
+		wrapper.setMargin(true);
+		wrapper.addComponent(tabs);
+		wrapper.setSizeFull();
+		addComponent(wrapper);
 		setSizeFull();
 	}
 

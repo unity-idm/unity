@@ -1,0 +1,61 @@
+/*
+ * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+package pl.edu.icm.unity.webadmin.credreq;
+
+import com.vaadin.ui.Component;
+
+import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.ErrorPopup;
+
+/**
+ * Dialog allowing to edit a credential requirement. It takes an editor component 
+ * as argument, so can be easily used to display edit dialog for an existing CR or CR creation dialog.
+ * @author K. Benedyczak
+ */
+public class CredentialRequirementEditDialog extends AbstractDialog
+{
+	private CredentialRequirementEditor editor;
+	private Callback callback;
+	
+	public CredentialRequirementEditDialog(UnityMessageSource msg, String caption, 
+			CredentialRequirementEditor attributeEditor, Callback callback)
+	{
+		super(msg, caption);
+		this.editor = attributeEditor;
+		this.callback = callback;
+		this.defaultSizeUndfined = true;
+	}
+
+	@Override
+	protected Component getContents()
+	{
+		return editor;
+	}
+
+	@Override
+	protected void onConfirm()
+	{
+		try
+		{
+			CredentialRequirements cr = editor.getCredentialRequirements();
+			if (callback.newCredentialRequirement(cr, editor.getLocalAuthnState()))
+				close();
+		} catch (IllegalCredentialException e) 
+		{
+			ErrorPopup.showError(msg.getMessage("Generic.formError"), 
+						msg.getMessage("Generic.formErrorHint"));
+			return;
+		}
+	}
+	
+	public interface Callback
+	{
+		public boolean newCredentialRequirement(CredentialRequirements cr, LocalAuthenticationState newState);
+	}
+}

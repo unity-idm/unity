@@ -176,6 +176,11 @@ public class IdentitiesTable extends TreeTable
 		bus.fireEvent(new GroupChangedEvent(group));
 	}
 	
+	public String getGroup()
+	{
+		return group;
+	}
+	
 	public void setInput(String group, List<String> entities) throws EngineException
 	{
 		this.group = group;

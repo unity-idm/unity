@@ -15,7 +15,8 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypeEditDialog.Callback;
-import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesTable.AttributeTypeItem;
+import pl.edu.icm.unity.webadmin.generic.GenericElementsTable;
+import pl.edu.icm.unity.webadmin.generic.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
@@ -30,8 +31,9 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.event.Action;
 import com.vaadin.server.Resource;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Responsible for attribute types management.
@@ -39,13 +41,13 @@ import com.vaadin.ui.Panel;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class AttributeTypesComponent extends Panel
+public class AttributeTypesComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private AttributesManagement attrManagement;
 	private AttributeHandlerRegistry attrHandlerRegistry;
 	
-	private AttributeTypesTable table;
+	private GenericElementsTable<AttributeType> table;
 	private AttributeTypeViewer viewer;
 	private com.vaadin.ui.Component main;
 	private EventsBus bus;
@@ -62,7 +64,16 @@ public class AttributeTypesComponent extends Panel
 		HorizontalLayout hl = new HorizontalLayout();
 		
 		setCaption(msg.getMessage("AttributeTypes.caption"));
-		table = new AttributeTypesTable(msg, attrManagement);
+		table = new GenericElementsTable<AttributeType>(msg.getMessage("AttributeTypes.types"), 
+				AttributeType.class, new GenericElementsTable.NameProvider<AttributeType>()
+				{
+					@Override
+					public String toString(AttributeType element)
+					{
+						return element.getName();
+					}
+				});
+		table.setWidth(90, Unit.PERCENTAGE);
 		hl.addComponent(table);
 		viewer = new AttributeTypeViewer(msg);
 		hl.addComponent(viewer);
@@ -71,10 +82,11 @@ public class AttributeTypesComponent extends Panel
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				AttributeTypeItem item = (AttributeTypeItem)table.getValue();
+				@SuppressWarnings("unchecked")
+				GenericItem<AttributeType> item = (GenericItem<AttributeType>)table.getValue();
 				if (item != null)
 				{
-					AttributeType at = item.getAttributeType();
+					AttributeType at = item.getElement();
 					WebAttributeHandler<?> handler = AttributeTypesComponent.this.attrHandlerRegistry.getHandler(
 							at.getValueType().getValueSyntaxId());
 					viewer.setInput(at, handler);
@@ -89,7 +101,7 @@ public class AttributeTypesComponent extends Panel
 		hl.setSizeFull();
 		hl.setMargin(true);
 		hl.setSpacing(true);
-		setContent(hl);
+		hl.setMargin(new MarginInfo(true, false, true, false));
 		main = hl;
 		refresh();
 	}
@@ -100,13 +112,15 @@ public class AttributeTypesComponent extends Panel
 		{
 			List<AttributeType> types = attrManagement.getAttributeTypes();
 			table.setInput(types);
-			setContent(main);
+			removeAllComponents();
+			addComponent(main);
 			bus.fireEvent(new AttributeTypesUpdatedEvent(types));
 		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent();
 			error.setError(msg.getMessage("AttributeTypes.errorGetTypes"), e);
-			setContent(error);
+			removeAllComponents();
+			addComponent(error);
 		}
 		
 	}
@@ -194,7 +208,7 @@ public class AttributeTypesComponent extends Panel
 	}
 	
 	/**
-	 * Extends {@link SingleActionHandler}. Returns action only for selections on an attribute type item. 
+	 * Extends {@link SingleActionHandler}. Returns action only for selections on mutable attribute type items. 
 	 * @author K. Benedyczak
 	 */
 	private abstract class AbstractAttributeTypeActionHandler extends SingleActionHandler
@@ -208,10 +222,11 @@ public class AttributeTypesComponent extends Panel
 		@Override
 		public Action[] getActions(Object target, Object sender)
 		{
-			if (target == null || !(target instanceof AttributeTypeItem))
+			if (target == null || !(target instanceof GenericItem))
 				return EMPTY;
-			AttributeTypeItem item = (AttributeTypeItem)target;
-			final AttributeType at = item.getAttributeType();
+			@SuppressWarnings("unchecked")
+			GenericItem<AttributeType> item = (GenericItem<AttributeType>)target;
+			final AttributeType at = item.getElement();
 			if (at.isTypeImmutable())
 				return EMPTY;
 			return super.getActions(target, sender);
@@ -229,8 +244,9 @@ public class AttributeTypesComponent extends Panel
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			AttributeTypeItem item = (AttributeTypeItem)target;
-			AttributeType at = item.getAttributeType();
+			@SuppressWarnings("unchecked")
+			GenericItem<AttributeType> item = (GenericItem<AttributeType>)target;
+			AttributeType at = item.getElement();
 			AttributeTypeEditor editor = new AttributeTypeEditor(msg, attrHandlerRegistry, at);
 			AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
 					msg.getMessage("AttributeTypes.editAction"), new Callback()
@@ -256,8 +272,9 @@ public class AttributeTypesComponent extends Panel
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			AttributeTypeItem item = (AttributeTypeItem)target;
-			final AttributeType at = item.getAttributeType();
+			@SuppressWarnings("unchecked")
+			GenericItem<AttributeType> item = (GenericItem<AttributeType>)target;
+			final AttributeType at = item.getElement();
 			new ConfirmWithOptionDialog(msg, msg.getMessage("AttributeTypes.confirmDelete", at.getName()),
 					msg.getMessage("AttributeTypes.withInstances"),
 					new ConfirmWithOptionDialog.Callback()

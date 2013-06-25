@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 
 /**
- * Allows to chnage credential requirement for an entity
+ * Allows to change credential requirement for an entity
  * @author K. Benedyczak
  */
 public class CredentialRequirementDialog extends AbstractDialog

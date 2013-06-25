@@ -204,7 +204,7 @@ public class CredentialChangeDialog extends AbstractDialog
 		
 		contents.addComponent(new Label("<hr/>", ContentMode.HTML));
 		
-		String overalStatus = msg.getMessage("CredentialRequirementDialog.credReqLabel."
+		String overalStatus = msg.getMessage("CredentialState."
 				+ entity.getCredentialInfo().getAuthenticationState().toString());
 		contents.addComponent(new Label(msg.getMessage("CredentialChangeDialog.overallStatus", overalStatus)));
 		
