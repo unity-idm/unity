@@ -27,13 +27,19 @@ public class CredentialEditorRegistry
 		for (CredentialEditorFactory factory: factories)
 			factoriesByType.put(factory.getSupportedCredentialType(), factory);
 	}
-	
-	public CredentialEditor getEditor(String type)
+
+	public CredentialEditorFactory getFactory(String type)
 	{
 		CredentialEditorFactory factory = factoriesByType.get(type);
 		if (factory == null)
-			throw new IllegalArgumentException("Credential type " + type + " has no editor factory registered");
-		return factory.createInstance();
+			throw new IllegalArgumentException("Credential type " + type + 
+					" has no editor factory registered");
+		return factory;
+	}
+	
+	public CredentialEditor getEditor(String type)
+	{
+		return getFactory(type).createCredentialEditor();
 	}
 	
 	public Set<String> getSupportedTypes()

@@ -13,6 +13,9 @@ public interface CredentialEditorFactory
 {
 	public String getSupportedCredentialType();
 	
-	public CredentialEditor createInstance();
-
+	public CredentialEditor createCredentialEditor();
+	
+	public CredentialDefinitionEditor creteCredentialDefinitionEditor();
+	
+	public CredentialDefinitionViewer creteCredentialDefinitionViewer();	
 }

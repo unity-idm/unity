@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory;
+import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
+import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 
@@ -30,9 +32,20 @@ public class CertificateCredentialEditorFactory implements CredentialEditorFacto
 	}
 
 	@Override
-	public CredentialEditor createInstance()
+	public CredentialEditor createCredentialEditor()
 	{
 		return new CertificateCredentialEditor(msg);
 	}
 
+	@Override
+	public CredentialDefinitionEditor creteCredentialDefinitionEditor()
+	{
+		return new CertificateCredentialDefinitionEditor(msg);
+	}
+
+	@Override
+	public CredentialDefinitionViewer creteCredentialDefinitionViewer()
+	{
+		return new CertificateCredentialDefinitionEditor(msg);
+	}
 }

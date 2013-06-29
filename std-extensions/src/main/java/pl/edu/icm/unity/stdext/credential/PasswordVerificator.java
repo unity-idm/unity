@@ -57,13 +57,13 @@ import pl.edu.icm.unity.types.authn.LocalCredentialState;
 public class PasswordVerificator extends AbstractLocalVerificator implements PasswordExchange
 { 	
 	private static final String[] IDENTITY_TYPES = {UsernameIdentity.ID};
-
+	
 	private Random random = new Random();
-	private int minLength;
-	private int historySize;
-	private int minClassesNum;
-	private boolean denySequences;
-	private long maxAge;
+	private int minLength = 8;
+	private int historySize = 0;
+	private int minClassesNum = 3;
+	private boolean denySequences = true;
+	private long maxAge = Long.MAX_VALUE;
 
 
 	public PasswordVerificator(String name, String description)
@@ -102,9 +102,17 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 					"from JSON", e);
 		}
 		minLength = root.get("minLength").asInt();
+		if (minLength <= 0 || minLength > 100)
+			throw new InternalException("Minimal password length must be in range [1-100]");
 		historySize = root.get("historySize").asInt();
+		if (historySize < 0 || historySize > 1000)
+			throw new InternalException("History size must be in range [0-1000]");
 		minClassesNum = root.get("minClassesNum").asInt();
+		if (minClassesNum <= 0 || minClassesNum > 4)
+			throw new InternalException("Minimum classes number must be in range [1-4]");
 		maxAge = root.get("maxAge").asLong();
+		if (maxAge <= 0)
+			throw new InternalException("Maximum age must be positive");
 		denySequences = root.get("denySequences").asBoolean();
 	}
 
@@ -249,7 +257,57 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		return hashed;
 	}
 
-	
+	public int getMinLength()
+	{
+		return minLength;
+	}
+
+	public void setMinLength(int minLength)
+	{
+		this.minLength = minLength;
+	}
+
+	public int getHistorySize()
+	{
+		return historySize;
+	}
+
+	public void setHistorySize(int historySize)
+	{
+		this.historySize = historySize;
+	}
+
+	public int getMinClassesNum()
+	{
+		return minClassesNum;
+	}
+
+	public void setMinClassesNum(int minClassesNum)
+	{
+		this.minClassesNum = minClassesNum;
+	}
+
+	public boolean isDenySequences()
+	{
+		return denySequences;
+	}
+
+	public void setDenySequences(boolean denySequences)
+	{
+		this.denySequences = denySequences;
+	}
+
+	public long getMaxAge()
+	{
+		return maxAge;
+	}
+
+	public void setMaxAge(long maxAge)
+	{
+		this.maxAge = maxAge;
+	}
+
+
 	/**
 	 * In DB representation of the credential state is a list of objects as the one described in this class.
 	 * @author K. Benedyczak

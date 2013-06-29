@@ -253,7 +253,7 @@ public class EngineInitialization extends LifecycleBase
 						"\"historySize\": 1," +
 						"\"minClassesNum\": 1," +
 						"\"denySequences\": false," +
-						"\"maxAge\": 3075840000}");
+						"\"maxAge\": 30758400000}");
 				authnManagement.addCredentialDefinition(credDef);
 				
 				CredentialRequirements crDef = new CredentialRequirements(DEFAULT_CREDENTIAL_REQUIREMENT, 
