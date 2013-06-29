@@ -12,5 +12,23 @@ import pl.edu.icm.unity.webui.bus.Event;
  */
 public class CredentialDefinitionChangedEvent implements Event
 {
-	
+	private boolean updatedExisting;
+	private String name;
+
+	public CredentialDefinitionChangedEvent(boolean updatedExisting, String name)
+	{
+		super();
+		this.updatedExisting = updatedExisting;
+		this.name = name;
+	}
+
+	public boolean isUpdatedExisting()
+	{
+		return updatedExisting;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
 }

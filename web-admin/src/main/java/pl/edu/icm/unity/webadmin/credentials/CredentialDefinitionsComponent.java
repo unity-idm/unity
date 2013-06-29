@@ -133,7 +133,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		{
 			authenticationMan.updateCredentialDefinition(cd, desiredAuthnState);
 			refresh();
-			bus.fireEvent(new CredentialDefinitionChangedEvent());
+			bus.fireEvent(new CredentialDefinitionChangedEvent(true, cd.getName()));
 			return true;
 		} catch (Exception e)
 		{
@@ -148,7 +148,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		{
 			authenticationMan.addCredentialDefinition(cd);
 			refresh();
-			bus.fireEvent(new CredentialDefinitionChangedEvent());
+			bus.fireEvent(new CredentialDefinitionChangedEvent(false, cd.getName()));
 			return true;
 		} catch (Exception e)
 		{
@@ -163,7 +163,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		{
 			authenticationMan.removeCredentialDefinition(toRemove);
 			refresh();
-			bus.fireEvent(new CredentialDefinitionChangedEvent());
+			bus.fireEvent(new CredentialDefinitionChangedEvent(false, toRemove));
 			return true;
 		} catch (Exception e)
 		{
