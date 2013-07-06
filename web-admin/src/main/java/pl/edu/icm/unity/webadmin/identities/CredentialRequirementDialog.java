@@ -75,7 +75,7 @@ public class CredentialRequirementDialog extends AbstractDialog
 		
 		credentialState = new EnumComboBox<LocalAuthenticationState>(
 				msg.getMessage("CredentialRequirementDialog.credState"), msg, 
-				"CredentialRequirementDialog.credReqLabel.", 
+				"AuthenticationState.", 
 				LocalAuthenticationState.class, LocalAuthenticationState.outdated);
 		
 		FormLayout main = new FormLayout();

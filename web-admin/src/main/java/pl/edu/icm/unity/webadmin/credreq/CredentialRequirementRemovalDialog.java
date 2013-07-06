@@ -79,7 +79,7 @@ public class CredentialRequirementRemovalDialog extends AbstractDialog
 		
 		updatedState = new EnumComboBox<LocalAuthenticationState>(
 				msg.getMessage("CredentialRequirements.replacementState"), msg,
-				"CredentialState.", LocalAuthenticationState.class, 
+				"AuthenticationState.", LocalAuthenticationState.class, 
 				LocalAuthenticationState.outdated);
 		vl.addComponent(updatedState);
 		return vl;

@@ -85,7 +85,7 @@ public class CredentialRequirementEditor extends FormLayout
 		{
 			newAuthnState = new EnumComboBox<LocalAuthenticationState>(
 					msg.getMessage("CredentialRequirements.replacementState"), msg, 
-					"CredentialState.", 
+					"AuthenticationState.", 
 					LocalAuthenticationState.class, LocalAuthenticationState.outdated);
 			addComponent(newAuthnState);
 		}

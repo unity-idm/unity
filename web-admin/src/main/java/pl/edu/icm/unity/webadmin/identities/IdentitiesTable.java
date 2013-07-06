@@ -329,7 +329,7 @@ public class IdentitiesTable extends TreeTable
 				val = msg.getMessage("Identities.attributeUndefined");
 			else
 				val = attrHandlerRegistry.getSimplifiedAttributeValuesRepresentation(attribute,
-						AttributeHandlerRegistry.DEFAULT_MAX_LEN);
+						AttributeHandlerRegistry.DEFAULT_MAX_LEN*3);
 				
 			newItem.getItemProperty(propId).setValue(val);
 		}

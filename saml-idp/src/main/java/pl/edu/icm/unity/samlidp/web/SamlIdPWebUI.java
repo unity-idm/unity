@@ -198,15 +198,21 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		vmain.addComponent(contents);
 		vmain.setComponentAlignment(contents, Alignment.TOP_CENTER);
 		
-		createInfoPart(samlCtx, contents);
-		
-		createExposedDataPart(contents);
-		
-		createButtonsPart(contents);
-		
-		setContent(vmain);
+		try
+		{
+			createInfoPart(samlCtx, contents);
 
-		loadPreferences(samlCtx);
+			createExposedDataPart(contents);
+
+			createButtonsPart(contents);
+
+			setContent(vmain);
+
+			loadPreferences(samlCtx);
+		} catch (EopException e)
+		{
+			//OK
+		}
 	}
 
 	protected void createInfoPart(SAMLAuthnContext samlCtx, VerticalLayout contents)
@@ -228,7 +234,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		contents.addComponents(info1, info1Id, info1Addr, spc1, info2, info3);
 	}
 
-	protected void createExposedDataPart(VerticalLayout contents)
+	protected void createExposedDataPart(VerticalLayout contents) throws EopException
 	{
 		Panel exposedInfoPanel = new Panel();
 		contents.addComponent(exposedInfoPanel);
@@ -346,7 +352,13 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				confirm();
+				try
+				{
+					confirm();
+				} catch (EopException e)
+				{
+					//OK
+				}
 			}
 		});
 		Button declineB = new Button(msg.getMessage("SamlIdPWebUI.decline"));
@@ -355,7 +367,13 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				decline();
+				try
+				{
+					decline();
+				} catch (EopException e)
+				{
+					//OK
+				}
 			}
 		});
 		Button reloginB = new Button(msg.getMessage("SamlIdPWebUI.logAsAnother"));
@@ -380,7 +398,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	}
 	
 	
-	protected void loadPreferences(SAMLAuthnContext samlCtx)
+	protected void loadPreferences(SAMLAuthnContext samlCtx) throws EopException
 	{
 		try
 		{
@@ -397,7 +415,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		}
 	}
 	
-	protected void updateUIFromPreferences(SPSettings settings, SAMLAuthnContext samlCtx) throws EngineException
+	protected void updateUIFromPreferences(SPSettings settings, SAMLAuthnContext samlCtx) throws EngineException, EopException
 	{
 		if (settings == null)
 			return;
@@ -471,14 +489,14 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		}
 	}
 
-	protected void decline()
+	protected void decline() throws EopException
 	{
 		storePreferences(false);
 		AuthenticationException ea = new AuthenticationException("Authentication was declined");
 		handleException(ea, false);
 	}
 	
-	protected void confirm()
+	protected void confirm() throws EopException
 	{
 		storePreferences(true);
 		ResponseDocument respDoc;
@@ -494,11 +512,12 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		returnSamlResponse(respDoc);
 	}
 	
-	protected void handleException(Exception e, boolean destroySession)
+	protected void handleException(Exception e, boolean destroySession) throws EopException
 	{
 		SAMLServerException convertedException = samlProcessor.convert2SAMLError(e, null, true);
 		ResponseDocument respDoc = samlProcessor.getErrorResponse(convertedException);
 		returnSamlErrorResponse(respDoc, convertedException, destroySession);
+		throw new EopException();
 	}
 	
 	protected void returnSamlErrorResponse(ResponseDocument respDoc, SAMLServerException error, boolean destroySession)

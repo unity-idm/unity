@@ -18,6 +18,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.samlidp.FreemarkerHandler;
 import pl.edu.icm.unity.samlidp.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.samlidp.saml.ctx.SAMLAuthnContext;
+import pl.edu.icm.unity.samlidp.web.EopException;
 import pl.edu.icm.unity.samlidp.web.SamlIdPWebUI;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -105,7 +106,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	}	
 	
 	@Override
-	protected void createExposedDataPart(VerticalLayout contents)
+	protected void createExposedDataPart(VerticalLayout contents) throws EopException
 	{
 		Panel exposedInfoPanel = new Panel();
 		contents.addComponent(exposedInfoPanel);
@@ -178,7 +179,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	
 	
 	@Override
-	protected void loadPreferences(SAMLAuthnContext samlCtx)
+	protected void loadPreferences(SAMLAuthnContext samlCtx) throws EopException
 	{
 		try
 		{
@@ -266,7 +267,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 
 	
 	@Override
-	protected void confirm()
+	protected void confirm() throws EopException
 	{
 		storePreferences(true);
 		ResponseDocument respDoc;
