@@ -27,10 +27,10 @@ public class Identity extends IdentityParam
 	{
 	}
 	
-	public Identity(IdentityType type, String value, String entityId, boolean enabled, boolean local) 
+	public Identity(IdentityType type, String value, String entityId, boolean local) 
 			throws IllegalIdentityValueException
 	{
-		super(type.getIdentityTypeProvider().getId(), value, enabled, local);
+		super(type.getIdentityTypeProvider().getId(), value, local);
 		this.entityId = entityId;
 		this.type = type;
 		this.type.getIdentityTypeProvider().validate(value);

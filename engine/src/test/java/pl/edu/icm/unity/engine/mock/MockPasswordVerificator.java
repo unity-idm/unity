@@ -20,7 +20,7 @@ public class MockPasswordVerificator extends AbstractLocalVerificator implements
 	
 	public MockPasswordVerificator(String name, String description, String exchangeId)
 	{
-		super(name, description, exchangeId);
+		super(name, description, exchangeId, false);
 	}
 
 	public int getMinLen()
@@ -79,6 +79,12 @@ public class MockPasswordVerificator extends AbstractLocalVerificator implements
 		if (!password.equals(entityWithCred.getCredentialValue()))
 			throw new IllegalCredentialException("Wrong password");
 		return entityWithCred.getEntityId();
+	}
+
+	@Override
+	public String invalidate(String currentCredential)
+	{
+		throw new RuntimeException("Shouldn't be called");
 	}
 
 }

@@ -131,7 +131,8 @@ public class AuthenticatorsRegistry
 		
 		for (LocalCredentialVerificatorFactory fact: localCredentialVerificatorFactories.values())
 		{
-			CredentialType credentialType = new CredentialType(fact.getName(), fact.getDescription());
+			CredentialType credentialType = new CredentialType(fact.getName(), fact.getDescription(),
+					fact.isSupportingInvalidation());
 			ret.add(credentialType);
 		}
 		return ret;

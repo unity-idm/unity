@@ -25,7 +25,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -165,10 +165,10 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 			height.setDescription("He\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjh");
 			testAttrMan.addAttributeType(height);
 			
-			IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "foo", true, true);
-			Identity base = testIdMan.addIdentity(toAdd, "Password requirement", LocalAuthenticationState.outdated, false);
+			IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "foo", true);
+			Identity base = testIdMan.addEntity(toAdd, "Password requirement", EntityState.valid, false);
 
-			IdentityParam toAddDn = new IdentityParam(X500Identity.ID, "CN=test foo", true, true);
+			IdentityParam toAddDn = new IdentityParam(X500Identity.ID, "CN=test foo", true);
 			testIdMan.addIdentity(toAddDn, new EntityParam(base.getEntityId()), true);
 			
 			test.addMemberFromParent("/A", new EntityParam(base.getEntityId()));

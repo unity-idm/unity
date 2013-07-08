@@ -17,11 +17,12 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webadmin.utils.GroupManagementUtils;
+import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
@@ -39,7 +40,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 	
 	private CheckBox addToGroup;
 	private ComboBox credentialRequirement;
-	private ComboBox credentialState;
+	private EnumComboBox<EntityState> entityState;
 	
 	public EntityCreationDialog(UnityMessageSource msg, String initialGroup, IdentitiesManagement identitiesMan,
 			GroupsManagement groupsMan, AuthenticationManagement authnMan, 
@@ -87,13 +88,10 @@ public class EntityCreationDialog extends IdentityCreationDialog
 
 		credentialRequirement.setNullSelectionAllowed(false);
 		
-		credentialState = new ComboBox(msg.getMessage("EntityCreation.credState"));
-		credentialState.addItem(LocalAuthenticationState.outdated);
-		credentialState.addItem(LocalAuthenticationState.disabled);
-		credentialState.select(LocalAuthenticationState.outdated);
-		credentialState.setNullSelectionAllowed(false);
+		entityState = new EnumComboBox<EntityState>(msg.getMessage("EntityCreation.initialState"), msg, 
+				"EntityState.", EntityState.class, EntityState.valid);
 		
-		main.addComponents(addToGroup, credentialRequirement, credentialState);
+		main.addComponents(addToGroup, credentialRequirement, entityState);
 		main.setSizeFull();
 		return main;
 	}
@@ -110,12 +108,12 @@ public class EntityCreationDialog extends IdentityCreationDialog
 			return;
 		}
 		String type = (String) identityType.getValue();
-		IdentityParam toAdd = new IdentityParam(type, value, !disable.getValue(), true);
+		IdentityParam toAdd = new IdentityParam(type, value, true);
 		Identity created;
 		try
 		{
-			created = identitiesMan.addIdentity(toAdd, (String)credentialRequirement.getValue(), 
-					(LocalAuthenticationState) credentialState.getValue(), extractAttributes.getValue());
+			created = identitiesMan.addEntity(toAdd, (String)credentialRequirement.getValue(), 
+					entityState.getSelectedValue(), extractAttributes.getValue());
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg.getMessage("EntityCreation.entityCreateError"), e);

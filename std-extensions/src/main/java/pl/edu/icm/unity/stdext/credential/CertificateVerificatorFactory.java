@@ -36,4 +36,9 @@ public class CertificateVerificatorFactory implements LocalCredentialVerificator
 		return new CertificateVerificator(getName(), getDescription());
 	}
 
+	@Override
+	public boolean isSupportingInvalidation()
+	{
+		return false;
+	}
 }

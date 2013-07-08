@@ -11,6 +11,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.db.json.EntitySerializer;
 import pl.edu.icm.unity.db.json.IdentitySerializer;
 import pl.edu.icm.unity.db.json.IdentityTypeSerializer;
 import pl.edu.icm.unity.db.mapper.IdentitiesMapper;
@@ -23,6 +24,7 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -38,19 +40,22 @@ public class DBIdentities
 {
 	private DBLimits limits;
 	private IdentitySerializer idSerializer;
+	private EntitySerializer entitySerializer;
 	private IdentityTypeSerializer idTypeSerializer;
 	private IdentityTypesRegistry idTypesRegistry;
 	private IdentitiesResolver idResolver;
 	
 	@Autowired
 	public DBIdentities(DB db, IdentityTypesRegistry idTypesRegistry, IdentitySerializer idSerializer,
-			IdentityTypeSerializer idTypeSerializer, IdentitiesResolver idResolver)
+			IdentityTypeSerializer idTypeSerializer, IdentitiesResolver idResolver, 
+			EntitySerializer entitySerializer)
 	{
 		this.limits = db.getDBLimits();
 		this.idSerializer = idSerializer;
 		this.idTypeSerializer = idTypeSerializer;
 		this.idTypesRegistry = idTypesRegistry;
 		this.idResolver = idResolver;
+		this.entitySerializer = entitySerializer;
 	}
 
 	public List<IdentityType> getIdentityTypes(SqlSession sqlMap)
@@ -138,7 +143,7 @@ public class DBIdentities
 		mapper.insertIdentity(idB);
 		
 		IdentityType idType = idResolver.resolveIdentityType(identityTypeB);
-		return new Identity(idType, toAdd.getValue(), entityId+"", toAdd.isEnabled(), toAdd.isLocal());
+		return new Identity(idType, toAdd.getValue(), entityId+"", toAdd.isLocal());
 	}
 
 	
@@ -152,24 +157,25 @@ public class DBIdentities
 			identities[i] = idResolver.resolveIdentityBean(rawRet.get(i), mapper);
 		return identities;
 	}
+
 	
-	public void setIdentityStatus(IdentityTaV toChange, boolean status, SqlSession sqlMap) 
+	public EntityState getEntityStatus(long entityId, SqlSession sqlMap) 
 			throws IllegalIdentityValueException, IllegalTypeException
 	{
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
-		String cmpVal = idResolver.getComparableIdentityValue(toChange);
-		IdentityBean idBean = mapper.getIdentityByName(cmpVal); 
-		if (idBean == null)
-			throw new IllegalIdentityValueException("The identity does not exist");
-
-		Identity tmp = new Identity();
-		idSerializer.fromJson(idBean.getContents(), tmp);
-		tmp.setEnabled(status);
+		BaseBean bean = mapper.getEntityById(entityId);
+		return entitySerializer.fromJson(bean.getContents());
+	}
+	
+	public void setEntityStatus(long entityId, EntityState status, SqlSession sqlMap) 
+			throws IllegalIdentityValueException, IllegalTypeException
+	{
+		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
+		byte[] statusJson = entitySerializer.toJson(status);
 		
-		IdentityBean idBeanUpdated = new IdentityBean();
-		idBeanUpdated.setContents(idSerializer.toJson(tmp));
-		idBeanUpdated.setId(idBean.getId());
-		mapper.updateIdentity(idBeanUpdated);
+		BaseBean bean = mapper.getEntityById(entityId);
+		bean.setContents(statusJson);
+		mapper.updateEntity(bean);
 	}
 	
 	public void removeIdentity(IdentityTaV toRemove, SqlSession sqlMap) throws IllegalIdentityValueException, IllegalTypeException

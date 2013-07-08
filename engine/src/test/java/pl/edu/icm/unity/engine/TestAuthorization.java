@@ -13,7 +13,7 @@ import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -43,13 +43,13 @@ public class TestAuthorization extends DBIntegrationTestBase
 			fail("reset db possible for contents man");
 		} catch(AuthorizationException e) {}
 		
-		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "user1", true, true);
-		Identity added = idsMan.addIdentity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				LocalAuthenticationState.outdated, false);
+		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "user1", true);
+		Identity added = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				EntityState.valid, false);
 		EntityParam entity = new EntityParam(added.getEntityId());
 		attrsMan.setAttribute(entity, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE,
 				"/", AttributeVisibility.local, AuthorizationManagerImpl.USER_ROLE), false);
-		setupUserContext("user1", LocalAuthenticationState.valid);
+		setupUserContext("user1", false);
 		try
 		{
 			//tests standard deny
@@ -66,14 +66,14 @@ public class TestAuthorization extends DBIntegrationTestBase
 		//tests self access
 		attrsMan.getAttributes(entity, "/", null);
 		
-		setupUserContext("admin", LocalAuthenticationState.valid);
+		setupUserContext("admin", false);
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addMemberFromParent("/A", entity);
 		attrsMan.removeAttribute(entity, "/", SystemAttributeTypes.AUTHORIZATION_ROLE);
 		
 		attrsMan.setAttribute(entity, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE,
 				"/A", AttributeVisibility.local, AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE), false);
-		setupUserContext("user1", LocalAuthenticationState.valid);
+		setupUserContext("user1", false);
 		try
 		{
 			//tests standard deny
@@ -101,10 +101,10 @@ public class TestAuthorization extends DBIntegrationTestBase
 		} catch(AuthorizationException e) {}
 		
 		//tests outdated credential
-		setupUserContext("admin", LocalAuthenticationState.valid);
+		setupUserContext("admin", false);
 		attrsMan.setAttribute(entity, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE,
 				"/", AttributeVisibility.local, AuthorizationManagerImpl.USER_ROLE), false);
-		setupUserContext("user1", LocalAuthenticationState.outdated);
+		setupUserContext("user1", true);
 		try
 		{
 			attrsMan.getAttributes(entity, "/", null);

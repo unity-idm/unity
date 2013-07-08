@@ -25,12 +25,12 @@ import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.webadmin.credentials.CredentialChangeDialog;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webadmin.identities.CredentialRequirementDialog.Callback;
 import pl.edu.icm.unity.webui.WebSession;
@@ -40,6 +40,7 @@ import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.credentials.CredentialChangeDialog;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
@@ -70,7 +71,7 @@ public class IdentitiesTable extends TreeTable
 	private CredentialEditorRegistry credEditorsRegistry;
 	private EventsBus bus;
 	private String group;
-	private Map<Entity, IdentitiesAndAttributes> data = new HashMap<Entity, IdentitiesTable.IdentitiesAndAttributes>();
+	private Map<String, IdentitiesAndAttributes> data = new HashMap<String, IdentitiesAndAttributes>();
 	private boolean groupByEntity;
 	private Entity selected;
 	private List<Filter> containerFilters;
@@ -97,14 +98,12 @@ public class IdentitiesTable extends TreeTable
 		addContainerProperty("identity", String.class, "");
 		addContainerProperty("enabled", String.class, "");
 		addContainerProperty("local", String.class, "");
-		addContainerProperty("localAuthnState", String.class, "");
 		addContainerProperty("credReq", String.class, "");
 		setColumnHeader("entity", msg.getMessage("Identities.entity"));
 		setColumnHeader("type", msg.getMessage("Identities.type"));
 		setColumnHeader("identity", msg.getMessage("Identities.identity"));
-		setColumnHeader("enabled", msg.getMessage("Identities.enabled"));
+		setColumnHeader("enabled", msg.getMessage("Identities.status"));
 		setColumnHeader("local", msg.getMessage("Identities.local"));
-		setColumnHeader("localAuthnState", msg.getMessage("Identities.localAuthnState"));
 		setColumnHeader("credReq", msg.getMessage("Identities.credReq"));
 		
 		setSelectable(true);
@@ -112,14 +111,12 @@ public class IdentitiesTable extends TreeTable
 		setColumnCollapsingAllowed(true);
 		setColumnCollapsible("entity", false);
 		setColumnCollapsed("local", true);
-		setColumnCollapsed("localAuthnState", true);
 		setColumnCollapsed("credReq", true);
 		
 		setColumnWidth("entity", 60);
 		setColumnWidth("type", 100);
 		setColumnWidth("enabled", 100);
 		setColumnWidth("local", 100);
-		setColumnWidth("localAuthnState", 140);
 		setColumnWidth("credReq", 180);
 		
 		addActionHandler(new RefreshHandler());
@@ -128,8 +125,7 @@ public class IdentitiesTable extends TreeTable
 		addActionHandler(new AddIdentityActionHandler());
 		addActionHandler(new DeleteEntityHandler());
 		addActionHandler(new DeleteIdentityHandler());
-		addActionHandler(new DisableIdentityHandler());
-		addActionHandler(new EnableIdentityHandler());
+		addActionHandler(new ChangeEntityStatusHandler());
 		addActionHandler(new ChangeCredentialHandler());
 		addActionHandler(new ChangeCredentialRequirementHandler());
 		setDragMode(TableDragMode.ROW);
@@ -256,14 +252,13 @@ public class IdentitiesTable extends TreeTable
 	{
 		Container.Filterable filterable = (Filterable) getContainerDataSource();
 		filterable.removeAllContainerFilters();
-		for (Map.Entry<Entity, IdentitiesAndAttributes> entry: data.entrySet())
+		for (IdentitiesAndAttributes entry: data.values())
 		{
-			IdentitiesAndAttributes resolved = entry.getValue();
-			Entity entity = entry.getKey();
-			Object parentKey = addRow(null, entity, resolved.getAttributes());
-			for (Identity id: resolved.getIdentities())
+			Entity entity = entry.getEntity();
+			Object parentKey = addRow(null, entity, entry.getAttributes());
+			for (Identity id: entry.getIdentities())
 			{
-				Object key = addRow(id, entity, resolved.attributes);
+				Object key = addRow(id, entity, entry.getAttributes());
 				setParent(key, parentKey);
 				setChildrenAllowed(key, false);
 			}
@@ -274,12 +269,11 @@ public class IdentitiesTable extends TreeTable
 
 	private void setFlatContents()
 	{
-		for (Map.Entry<Entity, IdentitiesAndAttributes> entry: data.entrySet())
+		for (IdentitiesAndAttributes entry: data.values())
 		{
-			IdentitiesAndAttributes resolved = entry.getValue();
-			for (Identity id: resolved.getIdentities())
+			for (Identity id: entry.getIdentities())
 			{
-				Object itemId = addRow(id, entry.getKey(), resolved.attributes);
+				Object itemId = addRow(id, entry.getEntity(), entry.getAttributes());
 				setChildrenAllowed(itemId, false);
 			}
 		}
@@ -293,24 +287,21 @@ public class IdentitiesTable extends TreeTable
 		setColumnWidth("type", 100);
 		setColumnWidth("enabled", 100);
 		setColumnWidth("local", 100);
-		setColumnWidth("localAuthnState", 140);
 		setColumnWidth("credReq", 180);
 		
 		Item newItem = addItem(itemId);
 		newItem.getItemProperty("entity").setValue(ent.getId());
-		newItem.getItemProperty("localAuthnState").setValue(ent.getCredentialInfo().getAuthenticationState().toString());
 		newItem.getItemProperty("credReq").setValue(ent.getCredentialInfo().getCredentialRequirementId());
+		newItem.getItemProperty("enabled").setValue(msg.getMessage("EntityState."+ent.getState().name()));
 		if (id != null)
 		{
 			newItem.getItemProperty("type").setValue(id.getTypeId());
 			newItem.getItemProperty("identity").setValue(id.toPrettyStringNoPrefix());
-			newItem.getItemProperty("enabled").setValue(new Boolean(id.isEnabled()).toString());
 			newItem.getItemProperty("local").setValue(new Boolean(id.isLocal()).toString());
 		} else
 		{
 			newItem.getItemProperty("type").setValue("");
 			newItem.getItemProperty("identity").setValue("");
-			newItem.getItemProperty("enabled").setValue("");
 			newItem.getItemProperty("local").setValue("");
 		}
 		
@@ -344,9 +335,9 @@ public class IdentitiesTable extends TreeTable
 		Map<String, Attribute<?>> attrs = new HashMap<String, Attribute<?>>(rawAttrs.size());
 		for (Attribute<?> a: rawAttrs)
 			attrs.put(a.getName(), a);
-		IdentitiesAndAttributes resolved = new IdentitiesAndAttributes(resolvedEntity.getIdentities(),
-				attrs);
-		data.put(resolvedEntity, resolved);
+		IdentitiesAndAttributes resolved = new IdentitiesAndAttributes(resolvedEntity, 
+				resolvedEntity.getIdentities(),	attrs);
+		data.put(resolvedEntity.getId(), resolved);
 	}
 	
 	private void removeEntity(String entityId)
@@ -380,15 +371,17 @@ public class IdentitiesTable extends TreeTable
 		}
 	}
 
-	private void disableEnableIdentity(Identity identity, boolean how)
+	private boolean setEntityStatus(String entityId, EntityState newState)
 	{
 		try
 		{
-			identitiesMan.setIdentityStatus(identity, how);
+			identitiesMan.setEntityStatus(new EntityParam(entityId), newState);
 			refresh();
+			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("Identities.disableIdentityError"), e);
+			ErrorPopup.showError(msg.getMessage("Identities.changeEntityStatusError"), e);
+			return false;
 		}
 	}
 	
@@ -534,73 +527,26 @@ public class IdentitiesTable extends TreeTable
 		}
 	}
 
-	private class DisableIdentityHandler extends SingleActionHandler
+	private class ChangeEntityStatusHandler extends SingleActionHandler
 	{
-		public DisableIdentityHandler()
+		public ChangeEntityStatusHandler()
 		{
-			super(msg.getMessage("Identities.disableIdentityAction"), 
-					Images.unchecked.getResource());
-		}
-		
-		@Override
-		public Action[] getActions(Object target, Object sender)
-		{
-			if (target == null)
-				return EMPTY;
-			if (!(target instanceof IdentityWithEntity))
-				return EMPTY;
-			if (!((IdentityWithEntity)target).identity.isEnabled())
-				return EMPTY;
-			return super.getActions(target, sender);
+			super(msg.getMessage("Identities.changeEntityStatusAction"), 
+					Images.edit.getResource());
 		}
 		
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final IdentityWithEntity node = (IdentityWithEntity) target;
-			new ConfirmDialog(msg, msg.getMessage("Identities.confirmIdentityDisable", node.identity),
-					new ConfirmDialog.Callback()
+			final String entityId = target instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) target).getEntity().getId() : target.toString();
+			EntityState currentState = data.get(entityId).getEntity().getState();
+			new ChangeEntityStateDialog(msg, entityId, currentState, new ChangeEntityStateDialog.Callback()
 			{
 				@Override
-				public void onConfirm()
+				public boolean onChanged(EntityState newState)
 				{
-					disableEnableIdentity(node.identity, false);
-				}
-			}).show();
-		}
-	}
-
-	private class EnableIdentityHandler extends SingleActionHandler
-	{
-		public EnableIdentityHandler()
-		{
-			super(msg.getMessage("Identities.enableIdentityAction"), 
-					Images.checked.getResource());
-		}
-		
-		@Override
-		public Action[] getActions(Object target, Object sender)
-		{
-			if (target == null)
-				return EMPTY;
-			if (!(target instanceof IdentityWithEntity))
-				return EMPTY;
-			if (((IdentityWithEntity)target).identity.isEnabled())
-				return EMPTY;
-			return super.getActions(target, sender);
-		}
-		
-		@Override
-		public void handleAction(Object sender, Object target)
-		{
-			final IdentityWithEntity node = (IdentityWithEntity) target;
-			new ConfirmDialog(msg, msg.getMessage("Identities.confirmIdentityEnable", node.identity),
-					new ConfirmDialog.Callback()
-			{
-				@Override
-				public void onConfirm()
-				{
-					disableEnableIdentity(node.identity, true);
+					return setEntityStatus(entityId, newState);
 				}
 			}).show();
 		}
@@ -619,7 +565,10 @@ public class IdentitiesTable extends TreeTable
 		{
 			final String entityId = target instanceof IdentityWithEntity ? 
 					((IdentityWithEntity) target).getEntity().getId() : target.toString();
-			new CredentialRequirementDialog(msg, entityId, identitiesMan, authnMan, new Callback()
+			IdentitiesAndAttributes info = data.get(entityId);
+			String currentCredId = info.getEntity().getCredentialInfo().getCredentialRequirementId();
+			new CredentialRequirementDialog(msg, entityId, currentCredId,
+					identitiesMan, authnMan, new Callback()
 			{
 				@Override
 				public void onChanged()
@@ -643,7 +592,7 @@ public class IdentitiesTable extends TreeTable
 		{
 			Entity entity = target instanceof IdentityWithEntity ? 
 					((IdentityWithEntity) target).getEntity() : (Entity)target;
-			new CredentialChangeDialog(msg, entity, authnMan, identitiesMan,
+			new CredentialChangeDialog(msg, entity.getId(), authnMan, identitiesMan,
 					credEditorsRegistry, new CredentialChangeDialog.Callback()
 					{
 						@Override
@@ -677,13 +626,15 @@ public class IdentitiesTable extends TreeTable
 	 */
 	private static class IdentitiesAndAttributes
 	{
+		private Entity entity;
 		private Identity[] identities;
 		private Map<String, Attribute<?>> attributes;
 
-		public IdentitiesAndAttributes(Identity[] identities, Map<String, Attribute<?>> attributes)
+		public IdentitiesAndAttributes(Entity entity, Identity[] identities, Map<String, Attribute<?>> attributes)
 		{
 			this.identities = identities;
 			this.attributes = attributes;
+			this.entity = entity;
 		}
 		public Identity[] getIdentities()
 		{
@@ -692,6 +643,10 @@ public class IdentitiesTable extends TreeTable
 		public Map<String, Attribute<?>> getAttributes()
 		{
 			return attributes;
+		}
+		public Entity getEntity()
+		{
+			return entity;
 		}
 	}
 	

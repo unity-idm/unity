@@ -12,23 +12,16 @@ package pl.edu.icm.unity.types.basic;
  */
 public class IdentityParam extends IdentityTaV
 {
-	private boolean enabled;
 	private boolean local;
 	
 	public IdentityParam()
 	{
 	}
 	
-	public IdentityParam(String type, String value, boolean enabled, boolean local) 
+	public IdentityParam(String type, String value, boolean local) 
 	{
 		super(type, value);
-		this.enabled = enabled;
 		this.local = local;
-	}
-
-	public boolean isEnabled()
-	{
-		return enabled;
 	}
 
 	public boolean isLocal()
@@ -36,11 +29,6 @@ public class IdentityParam extends IdentityTaV
 		return local;
 	}
 	
-	public void setEnabled(boolean enabled)
-	{
-		this.enabled = enabled;
-	}
-
 	public void setLocal(boolean local)
 	{
 		this.local = local;

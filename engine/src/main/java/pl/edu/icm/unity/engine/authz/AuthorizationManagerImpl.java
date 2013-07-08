@@ -25,7 +25,6 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Group;
@@ -161,12 +160,13 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		AuthenticatedEntity client = authnCtx.getAuthenticatedEntity();
 
 		//special case: if the credential is outdated, the only allowed operation is to update it
-		//or the minimal read
-		if (client.getAuthnState() == LocalAuthenticationState.outdated)
+		//or read. Read is needed as to show credential update options it is needed to know the current state.
+		if (client.isUsedOutdatedCredential())
 		{
 			if (requiredCapabilities.length > 1 || 
 					(requiredCapabilities[0] != AuthzCapability.credentialModify &&
-					requiredCapabilities[0] != AuthzCapability.readInfo))
+					requiredCapabilities[0] != AuthzCapability.readInfo && 
+					requiredCapabilities[0] != AuthzCapability.read))
 				throw new AuthorizationException("Access is denied. The client's credential " +
 						"is outdated and the only allowed operation is the credential update");
 		}

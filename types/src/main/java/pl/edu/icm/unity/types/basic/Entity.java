@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.types.basic;
 
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 
 /**
@@ -13,14 +14,16 @@ import pl.edu.icm.unity.types.authn.CredentialInfo;
 public class Entity
 {
 	private String id;
+	private EntityState state;
 	private Identity[] identities;
 	private CredentialInfo credentialInfo;
 	
-	public Entity(String id, Identity[] identities, CredentialInfo credentialInfo)
+	public Entity(String id, Identity[] identities, EntityState state, CredentialInfo credentialInfo)
 	{
 		this.id = id;
 		this.identities = identities;
 		this.credentialInfo = credentialInfo;
+		this.state = state;
 	}
 
 	public String getId()
@@ -35,6 +38,11 @@ public class Entity
 	public CredentialInfo getCredentialInfo()
 	{
 		return credentialInfo;
+	}
+
+	public EntityState getState()
+	{
+		return state;
 	}
 
 	@Override

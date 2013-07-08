@@ -59,5 +59,13 @@ public class TestPassword
 		assertEquals(LocalCredentialState.correct, verificator.checkCredentialState(c5));
 		Thread.sleep(500);
 		assertEquals(LocalCredentialState.outdated, verificator.checkCredentialState(c5));
+		
+		assertTrue(verificator.isSupportingInvalidation());
+		String c6 = verificator.prepareCredential("1qaZ2wsX", c5);
+		assertEquals(LocalCredentialState.correct, verificator.checkCredentialState(c6));
+		String c7 = verificator.invalidate(c6);
+		assertEquals(LocalCredentialState.outdated, verificator.checkCredentialState(c7));
+		String c8 = verificator.prepareCredential("1qaZ2wsX2", c7);
+		assertEquals(LocalCredentialState.correct, verificator.checkCredentialState(c8));
 	}
 }

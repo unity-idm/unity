@@ -15,7 +15,6 @@ import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 
 /**
  * Same as {@link SecuredDBIntegrationTestBase} but additionally puts admin user in authentication context
@@ -27,7 +26,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	@Before
 	public void setupAdmin() throws Exception
 	{
-		setupUserContext("admin", LocalAuthenticationState.valid);
+		setupUserContext("admin", false);
 	}
 	
 	@After
@@ -36,12 +35,12 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 		InvocationContext.setCurrent(null);
 	}	
 	
-	protected void setupUserContext(String user, LocalAuthenticationState state) throws Exception
+	protected void setupUserContext(String user, boolean outdated) throws Exception
 	{
 		EntityWithCredential entity = identityResolver.resolveIdentity(user, new String[] {UsernameIdentity.ID}, 
 				EngineInitialization.DEFAULT_CREDENTIAL);
 		InvocationContext virtualAdmin = new InvocationContext();
-		virtualAdmin.setAuthenticatedEntity(new AuthenticatedEntity(entity.getEntityId(), state, user));
+		virtualAdmin.setAuthenticatedEntity(new AuthenticatedEntity(entity.getEntityId(), user, outdated));
 		virtualAdmin.setLocale(Locale.ENGLISH);
 		InvocationContext.setCurrent(virtualAdmin);
 	}

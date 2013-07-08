@@ -33,7 +33,7 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 
 	public CertificateVerificator(String name, String description)
 	{
-		super(name, description, PasswordExchange.ID);
+		super(name, description, PasswordExchange.ID, false);
 	}
 
 	@Override
@@ -67,8 +67,13 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 		String identity = chain[0].getSubjectX500Principal().getName();
 		EntityWithCredential resolved = identityResolver.resolveIdentity(identity, 
 				IDENTITY_TYPES, credentialName);
-		return new AuthenticatedEntity(resolved.getEntityId(), resolved.getLocalAuthnState(),
-				X500NameUtils.getReadableForm(identity));
+		return new AuthenticatedEntity(resolved.getEntityId(), X500NameUtils.getReadableForm(identity), false);
+	}
+
+	@Override
+	public String invalidate(String currentCredential)
+	{
+		throw new IllegalStateException("This credential doesn't support invalidation");
 	}
 }
 

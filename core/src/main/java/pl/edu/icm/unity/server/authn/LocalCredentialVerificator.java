@@ -49,7 +49,8 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * @throws IllegalCredentialException if the new credential is not valid
 	 * @throws InternalException 
 	 */
-	public String prepareCredential(String rawCredential, String currentCredential) throws IllegalCredentialException, InternalException;
+	public String prepareCredential(String rawCredential, String currentCredential) 
+			throws IllegalCredentialException, InternalException;
 	
 	/**
 	 * @param currentCredential current credential as recorded in database
@@ -58,4 +59,15 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 */
 	public LocalCredentialState checkCredentialState(String currentCredential) throws InternalException;
 
+	/**
+	 * @return If the instances can be put into the {@link LocalCredentialState#outdated} state.
+	 */
+	public boolean isSupportingInvalidation();
+	
+	/**
+	 * This method is called only for credentials supporting invalidation.
+	 * @param currentCredential the current credential value as stored in DB.
+	 * @return the invalidated credential value, to be stored in database.
+	 */
+	public String invalidate(String currentCredential);
 }

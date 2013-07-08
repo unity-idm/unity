@@ -17,10 +17,8 @@ import com.vaadin.ui.Label;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
-import pl.edu.icm.unity.webui.common.EnumComboBox;
 
 /**
  * Confirmation dialog for credential requirement removal. User must also set the replacement credential requirement
@@ -33,7 +31,6 @@ public class CredentialRequirementRemovalDialog extends AbstractDialog
 	private static final long serialVersionUID = 1L;
 	private Callback callback;
 	private ComboBox replacementCR;
-	private EnumComboBox<LocalAuthenticationState> updatedState;
 	private Collection<CredentialRequirements> allCRs;
 	private String removedCr;
 
@@ -49,7 +46,7 @@ public class CredentialRequirementRemovalDialog extends AbstractDialog
 
 	public interface Callback 
 	{
-		public void onConfirm(String replacementCR, LocalAuthenticationState replacementState);
+		public void onConfirm(String replacementCR);
 	}
 
 	@Override
@@ -76,12 +73,6 @@ public class CredentialRequirementRemovalDialog extends AbstractDialog
 		replacementCR.select(crs.get(0));
 		replacementCR.setNullSelectionAllowed(false);
 		vl.addComponent(replacementCR);
-		
-		updatedState = new EnumComboBox<LocalAuthenticationState>(
-				msg.getMessage("CredentialRequirements.replacementState"), msg,
-				"AuthenticationState.", LocalAuthenticationState.class, 
-				LocalAuthenticationState.outdated);
-		vl.addComponent(updatedState);
 		return vl;
 	}
 
@@ -89,6 +80,6 @@ public class CredentialRequirementRemovalDialog extends AbstractDialog
 	protected void onConfirm()
 	{
 		close();
-		callback.onConfirm((String)replacementCR.getValue(), updatedState.getSelectedValue());
+		callback.onConfirm((String)replacementCR.getValue());
 	}
 }

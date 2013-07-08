@@ -36,4 +36,9 @@ public class PasswordVerificatorFactory implements LocalCredentialVerificatorFac
 		return new PasswordVerificator(getName(), getDescription());
 	}
 
+	@Override
+	public boolean isSupportingInvalidation()
+	{
+		return true;
+	}
 }

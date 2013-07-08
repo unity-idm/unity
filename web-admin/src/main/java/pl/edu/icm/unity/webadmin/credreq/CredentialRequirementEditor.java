@@ -11,9 +11,7 @@ import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
-import pl.edu.icm.unity.webui.common.EnumComboBox;
 
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
@@ -36,7 +34,6 @@ public class CredentialRequirementEditor extends FormLayout
 	private AbstractTextField name;
 	private DescriptionTextArea description;
 	private TwinColSelect requiredCredentials;
-	private EnumComboBox<LocalAuthenticationState> newAuthnState; 
 	
 	private FieldGroup binder;
 	private BeanItem<CredentialRequirements> formItem;
@@ -81,14 +78,6 @@ public class CredentialRequirementEditor extends FormLayout
 			requiredCredentials.setValue(initial.getRequiredCredentials());
 		addComponent(requiredCredentials);
 		
-		if (initial != null)
-		{
-			newAuthnState = new EnumComboBox<LocalAuthenticationState>(
-					msg.getMessage("CredentialRequirements.replacementState"), msg, 
-					"AuthenticationState.", 
-					LocalAuthenticationState.class, LocalAuthenticationState.outdated);
-			addComponent(newAuthnState);
-		}
 		CredentialRequirements cr = initial == null ? new CredentialRequirements(
 				"", "", new HashSet<String>()) : initial;
 		formItem = new BeanItem<CredentialRequirements>(cr);
@@ -111,10 +100,5 @@ public class CredentialRequirementEditor extends FormLayout
 			throw new IllegalCredentialException("");
 		}
 		return formItem.getBean();
-	}
-	
-	public LocalAuthenticationState getLocalAuthnState()
-	{
-		return newAuthnState == null ? null : newAuthnState.getSelectedValue();
 	}
 }

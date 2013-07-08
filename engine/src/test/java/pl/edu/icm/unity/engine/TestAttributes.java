@@ -22,7 +22,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -47,11 +47,11 @@ public class TestAttributes extends DBIntegrationTestBase
 	{
 		setupMockAuthn();
 		groupsMan.addGroup(new Group("/test"));
-		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "cn=golbi", true, true), "crMock", 
-				LocalAuthenticationState.disabled, false);
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi", true), "crMock", 
+				EntityState.disabled, false);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		
-		StringAttribute systemA = new StringAttribute(SystemAttributeTypes.CREDENTIALS_STATE, "/", 
+		StringAttribute systemA = new StringAttribute(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS, "/", 
 				AttributeVisibility.full, "asdsadsa"); 
 		try
 		{
@@ -122,7 +122,7 @@ public class TestAttributes extends DBIntegrationTestBase
 		assertEquals(0, allAts.size());
 		
 		allAts = attrsMan.getAllAttributes(entity, true, null, null, false);
-		assertEquals(3, allAts.size());
+		assertEquals(2, allAts.size());
 		assertEquals("333", getAttributeByName(allAts, "tel").getValues().get(0));
 		assertEquals(AttributeVisibility.local, allAts.iterator().next().getVisibility());
 
@@ -216,8 +216,8 @@ public class TestAttributes extends DBIntegrationTestBase
 
 		//recreate and add an attribute
 		attrsMan.addAttributeType(at);
-		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "cn=golbi", true, true), "crMock", 
-				LocalAuthenticationState.disabled, false);
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi", true), "crMock", 
+				EntityState.disabled, false);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		StringAttribute at1 = new StringAttribute("some", "/", AttributeVisibility.local, "123456");
 		attrsMan.setAttribute(entity, at1, false);
@@ -286,8 +286,8 @@ public class TestAttributes extends DBIntegrationTestBase
 	public void testStringAT() throws Exception
 	{
 		setupMockAuthn();
-		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "cn=golbi", true, true), "crMock", 
-				LocalAuthenticationState.disabled, false);
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi", true), "crMock", 
+				EntityState.disabled, false);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		
 		AttributeType at = createSimpleAT("some");

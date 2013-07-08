@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBAttributes;
+import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -20,7 +21,7 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.server.authn.IdentityResolver;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -35,16 +36,18 @@ public class IdentityResolverImpl implements IdentityResolver
 {
 	private DBSessionManager db;
 	private DBAttributes dbAttributes;
+	private DBIdentities dbIdentities;
 	private IdentitiesResolver dbResolver;
 	
 	@Autowired
 	public IdentityResolverImpl(DBSessionManager db, DBAttributes dbAttributes,
-			IdentitiesResolver dbResolver)
+			IdentitiesResolver dbResolver, DBIdentities dbIdentities)
 	{
 		super();
 		this.db = db;
 		this.dbAttributes = dbAttributes;
 		this.dbResolver = dbResolver;
+		this.dbIdentities = dbIdentities;
 	}
 
 	@Override
@@ -56,16 +59,12 @@ public class IdentityResolverImpl implements IdentityResolver
 		try
 		{
 			long entityId = getEntity(identity, identityTypes, sql);
+			EntityState entityState = dbIdentities.getEntityStatus(entityId, sql);
+			if (entityState == EntityState.authenticationDisabled || entityState == EntityState.disabled)
+				throw new IllegalIdentityValueException("Authentication is disabled for this entity");
 			EntityWithCredential ret = new EntityWithCredential();
 			Collection<AttributeExt<?>> credAttributes = dbAttributes.getAllAttributes(entityId, "/", true,
 					SystemAttributeTypes.CREDENTIAL_PREFIX+credentialName, sql);
-			Collection<AttributeExt<?>> authnStateAttribute = dbAttributes.getAllAttributes(entityId, "/", true,
-					SystemAttributeTypes.CREDENTIALS_STATE, sql);
-			String authnStateS = (String)authnStateAttribute.iterator().next().getValues().get(0);
-			LocalAuthenticationState authnState = LocalAuthenticationState.valueOf(authnStateS);
-			if (authnState == LocalAuthenticationState.disabled)
-				throw new IllegalIdentityValueException("Authentication is disabled for this entity");
-			ret.setLocalAuthnState(authnState);
 			if (credAttributes.size() > 0)
 			{
 				Attribute<?> a = credAttributes.iterator().next();

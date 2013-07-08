@@ -11,14 +11,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.basic.Entity;
 
 /**
- * Handles serialization of {@link IdentityParam} metadata.
+ * Handles serialization of {@link Entity}. Currently only the state is stored.
  * @author K. Benedyczak
  */
 @Component
-public class IdentitySerializer
+public class EntitySerializer
 {
 	private ObjectMapper mapper = new ObjectMapper();
 	
@@ -26,11 +27,10 @@ public class IdentitySerializer
 	 * @param src
 	 * @return Json as byte[] with the src contents.
 	 */
-	public byte[] toJson(IdentityParam src)
+	public byte[] toJson(EntityState src)
 	{
 		ObjectNode main = mapper.createObjectNode();
-		main.put("local", src.isLocal());
-		main.put("value", src.getValue());
+		main.put("state", src.name());
 		try
 		{
 			return mapper.writeValueAsBytes(main);
@@ -45,10 +45,10 @@ public class IdentitySerializer
 	 * @param json
 	 * @param target
 	 */
-	public void fromJson(byte[] json, IdentityParam target)
+	public EntityState fromJson(byte[] json)
 	{
 		if (json == null)
-			return;
+			return EntityState.valid;
 		ObjectNode main;
 		try
 		{
@@ -58,7 +58,7 @@ public class IdentitySerializer
 			throw new InternalException("Can't perform JSON deserialization", e);
 		}
 
-		target.setLocal(main.get("local").asBoolean());
-		target.setValue(main.get("value").asText());
+		String stateStr = main.get("state").asText();
+		return EntityState.valueOf(stateStr);
 	}
 }

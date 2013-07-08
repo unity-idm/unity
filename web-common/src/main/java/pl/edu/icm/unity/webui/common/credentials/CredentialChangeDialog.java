@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.credentials;
+package pl.edu.icm.unity.webui.common.credentials;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,8 +28,6 @@ import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.MapComboBox;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -54,9 +52,10 @@ public class CredentialChangeDialog extends AbstractDialog
 	private AuthenticationManagement authnMan;
 	private IdentitiesManagement idsMan;
 	private CredentialEditorRegistry credEditorReg;
-	private Entity entity;
 	private Callback callback;
 	private boolean changed = false;
+	private Entity entity;
+	private final String entityId;
 	
 	private Map<String, CredentialDefinition> credentials;
 	
@@ -69,14 +68,14 @@ public class CredentialChangeDialog extends AbstractDialog
 	private Button update;
 	private CredentialEditor credEditor;
 	
-	public CredentialChangeDialog(UnityMessageSource msg, Entity entity, AuthenticationManagement authnMan, 
+	public CredentialChangeDialog(UnityMessageSource msg, String entityId, AuthenticationManagement authnMan, 
 			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg, Callback callback)
 	{
 		super(msg, msg.getMessage("CredentialChangeDialog.caption"), msg.getMessage("close"));
 		this.defaultSizeUndfined = true;
 		this.authnMan = authnMan;
 		this.idsMan = idsMan;
-		this.entity = entity;
+		this.entityId = entityId;
 		this.credEditorReg = credEditorReg;
 		this.callback = callback;
 	}
@@ -170,6 +169,12 @@ public class CredentialChangeDialog extends AbstractDialog
 			return;
 		}
 		changed = true;
+		loadEntity(entityP);
+		updateStatus();
+	}
+	
+	private void loadEntity(EntityParam entityP)
+	{
 		try
 		{
 			entity = idsMan.getEntity(entityP);
@@ -177,10 +182,7 @@ public class CredentialChangeDialog extends AbstractDialog
 		{
 			ErrorPopup.showError(msg.getMessage("CredentialChangeDialog.entityRefreshError"), e);
 		}
-		
-		updateStatus();
 	}
-	
 	
 	private void updateStatus()
 	{
@@ -204,16 +206,21 @@ public class CredentialChangeDialog extends AbstractDialog
 		
 		contents.addComponent(new Label("<hr/>", ContentMode.HTML));
 		
-		String overalStatus = msg.getMessage("AuthenticationState."
-				+ entity.getCredentialInfo().getAuthenticationState().toString());
-		contents.addComponent(new Label(msg.getMessage("CredentialChangeDialog.overallStatus", overalStatus)));
-		
 		statuses.setContent(contents);
 		updateSelectedCredential();
 	}
 	
 	private void loadCredentials() throws Exception
 	{
+		try
+		{
+			entity = idsMan.getEntity(new EntityParam(entityId));
+		} catch (Exception e)
+		{
+			ErrorPopup.showError(msg.getMessage("CredentialChangeDialog.getEntityError"), e);
+			throw e;
+		}
+		
 		CredentialInfo ci = entity.getCredentialInfo();
 		String credReqId = ci.getCredentialRequirementId();
 		CredentialRequirements credReq = null;

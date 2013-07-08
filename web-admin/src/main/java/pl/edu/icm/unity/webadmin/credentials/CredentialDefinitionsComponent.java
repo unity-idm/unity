@@ -20,7 +20,7 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.generic.GenericElementsTable;
 import pl.edu.icm.unity.webadmin.generic.GenericElementsTable.GenericItem;
@@ -127,11 +127,11 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		
 	}
 
-	private boolean updateCD(CredentialDefinition cd, LocalAuthenticationState desiredAuthnState)
+	private boolean updateCD(CredentialDefinition cd, LocalCredentialState desiredCredState)
 	{
 		try
 		{
-			authenticationMan.updateCredentialDefinition(cd, desiredAuthnState);
+			authenticationMan.updateCredentialDefinition(cd, desiredCredState);
 			refresh();
 			bus.fireEvent(new CredentialDefinitionChangedEvent(true, cd.getName()));
 			return true;
@@ -205,7 +205,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 					{
 						@Override
 						public boolean newCredentialDefinition(CredentialDefinition cd,
-								LocalAuthenticationState desiredAuthnState)
+								LocalCredentialState desiredCredState)
 						{
 							return addCD(cd);
 						}
@@ -241,9 +241,9 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 					{
 						@Override
 						public boolean newCredentialDefinition(CredentialDefinition cd,
-								LocalAuthenticationState desiredAuthnState)
+								LocalCredentialState desiredCredState)
 						{
-							return updateCD(cd, desiredAuthnState);
+							return updateCD(cd, desiredCredState);
 						}
 					});
 			dialog.show();

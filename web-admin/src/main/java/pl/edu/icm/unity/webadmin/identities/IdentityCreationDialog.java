@@ -38,7 +38,6 @@ public class IdentityCreationDialog extends AbstractDialog
 	protected Panel identityPanel;
 	protected IdentityEditor identityEditor;
 	protected CheckBox extractAttributes;
-	protected CheckBox disable;
 	
 	public IdentityCreationDialog(UnityMessageSource msg, String entityId, IdentitiesManagement identitiesMan,
 			IdentityEditorRegistry identityEditorReg, Callback callback)
@@ -85,11 +84,8 @@ public class IdentityCreationDialog extends AbstractDialog
 
 		extractAttributes = new CheckBox(msg.getMessage("IdentityCreation.extractAttrs"), true);
 
-		disable = new CheckBox(msg.getMessage("IdentityCreation.disable"));
-		
-		
 		FormLayout main = new FormLayout();
-		main.addComponents(identityType, identityPanel, extractAttributes, disable);
+		main.addComponents(identityType, identityPanel, extractAttributes);
 		main.setSizeFull();
 		return main;
 	}
@@ -106,7 +102,7 @@ public class IdentityCreationDialog extends AbstractDialog
 			return;
 		}
 		String type = (String) identityType.getValue();
-		IdentityParam toAdd = new IdentityParam(type, value, !disable.getValue(), true);
+		IdentityParam toAdd = new IdentityParam(type, value, true);
 		try
 		{
 			identitiesMan.addIdentity(toAdd, new EntityParam(entityId), 

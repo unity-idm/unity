@@ -23,11 +23,12 @@ public interface IdentitiesMapper
 	
 	public void insertEntity(BaseBean arg);
 	public BaseBean getEntityById(long id);
+	public void updateEntity(BaseBean arg);
+	public void deleteEntity(long id);
 	
 	public void insertIdentity(IdentityBean arg);
 	public void updateIdentity(IdentityBean arg);
 	public void deleteIdentity(String cmpVal);
-	public void deleteEntity(long id);
 	public IdentityBean getIdentityByName(String name);
 	public List<IdentityBean> getIdentitiesByEntity(long entityId);
 }

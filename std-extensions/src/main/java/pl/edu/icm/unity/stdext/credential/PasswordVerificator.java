@@ -68,7 +68,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 
 	public PasswordVerificator(String name, String description)
 	{
-		super(name, description, PasswordExchange.ID);
+		super(name, description, PasswordExchange.ID, true);
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	public String prepareCredential(String rawCredential, String currentCredential)
 			throws IllegalCredentialException, InternalException
 	{
-		Deque<PasswordInfo> currentPasswords = parseDbCredential(currentCredential);
+		Deque<PasswordInfo> currentPasswords = parseDbCredential(currentCredential).getPasswords();
 		verifyNewPassword(rawCredential, currentPasswords);
 
 		String salt = random.nextInt() + "";
@@ -141,6 +141,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			entry.put("salt", pi.getSalt());
 			entry.put("time", pi.getTime().getTime());
 		}
+		root.put("outdated", false);
 		try
 		{
 			return Constants.MAPPER.writeValueAsString(root);
@@ -150,10 +151,26 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		}
 	}
 
-	private Deque<PasswordInfo> parseDbCredential(String raw) throws InternalException
+
+	@Override
+	public String invalidate(String currentCredential)
+	{
+		ObjectNode root;
+		try
+		{
+			root = (ObjectNode) Constants.MAPPER.readTree(currentCredential);
+			root.put("outdated", true);
+			return Constants.MAPPER.writeValueAsString(root);
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't deserialize password credential from JSON", e);
+		}
+	}
+	
+	private CredentialDBState parseDbCredential(String raw) throws InternalException
 	{
 		if (raw == null || raw.length() == 0)
-			return new LinkedList<PasswordInfo>();
+			return new CredentialDBState(new LinkedList<PasswordInfo>(), false);
 		JsonNode root;
 		try
 		{
@@ -168,7 +185,8 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 						rawPasswd.get("salt").asText(),
 						rawPasswd.get("time").asLong()));
 			}
-			return ret;
+			boolean outdated = root.get("outdated").asBoolean();
+			return new CredentialDBState(ret, outdated);
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize password credential from JSON", e);
@@ -180,9 +198,12 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	@Override
 	public LocalCredentialState checkCredentialState(String currentCredential) throws InternalException
 	{
-		Deque<PasswordInfo> currentPasswords = parseDbCredential(currentCredential);
+		CredentialDBState parsedCred = parseDbCredential(currentCredential);
+		Deque<PasswordInfo> currentPasswords = parsedCred.getPasswords();
 		if (currentPasswords.isEmpty())
 			return LocalCredentialState.notSet;
+		if (parsedCred.isOutdated())
+			return LocalCredentialState.outdated;
 		PasswordInfo currentPassword = currentPasswords.getFirst();
 		Date validityEnd = new Date(currentPassword.getTime().getTime() + maxAge);
 		if (new Date().after(validityEnd))
@@ -197,15 +218,15 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		EntityWithCredential resolved = identityResolver.resolveIdentity(username, 
 				IDENTITY_TYPES, credentialName);
 		String dbCredential = resolved.getCredentialValue();
-		Deque<PasswordInfo> credentials = parseDbCredential(dbCredential);
+		CredentialDBState credState = parseDbCredential(dbCredential);
+		Deque<PasswordInfo> credentials = credState.getPasswords();
 		if (credentials.isEmpty())
 			throw new IllegalCredentialException("The entity has no password set");
 		PasswordInfo current = credentials.getFirst();
 		byte[] testedHash = hash(password, current.getSalt());
 		if (!Arrays.areEqual(testedHash, current.getHash()))
 			throw new IllegalCredentialException("The password is incorrect");
-		return new AuthenticatedEntity(resolved.getEntityId(), resolved.getLocalAuthnState(),
-				username);
+		return new AuthenticatedEntity(resolved.getEntityId(), username, credState.isOutdated());
 	}
 
 	private void verifyNewPassword(String password, Deque<PasswordInfo> currentCredentials) throws IllegalCredentialException
@@ -308,6 +329,31 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	}
 
 
+	/**
+	 * In DB representation of the credential state.
+	 * @author K. Benedyczak
+	 */
+	private static class CredentialDBState
+	{
+		private Deque<PasswordInfo> passwords;
+		private boolean outdated;
+
+		public CredentialDBState(Deque<PasswordInfo> passwords, boolean outdated)
+		{
+			super();
+			this.passwords = passwords;
+			this.outdated = outdated;
+		}
+		public Deque<PasswordInfo> getPasswords()
+		{
+			return passwords;
+		}
+		public boolean isOutdated()
+		{
+			return outdated;
+		}
+	}
+	
 	/**
 	 * In DB representation of the credential state is a list of objects as the one described in this class.
 	 * @author K. Benedyczak

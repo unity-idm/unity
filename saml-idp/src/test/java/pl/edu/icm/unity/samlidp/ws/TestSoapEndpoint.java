@@ -44,10 +44,10 @@ import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -250,15 +250,15 @@ public class TestSoapEndpoint extends DBIntegrationTestBase
 	
 	protected void createUsers() throws Exception
 	{
-		Identity added1 = idsMan.addIdentity(new IdentityParam(UsernameIdentity.ID, "user1", true, true), 
-				"cr-pass", LocalAuthenticationState.outdated, false);
+		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user1", true), 
+				"cr-pass", EntityState.valid, false);
 		EntityParam e1 = new EntityParam(added1);
 		idsMan.setEntityCredential(e1, "credential1", "mockPassword1");
 		
-		Identity added2 = idsMan.addIdentity(new IdentityParam(UsernameIdentity.ID, "user2", true, true), 
-				"cr-certpass", LocalAuthenticationState.outdated, false);
+		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user2", true), 
+				"cr-certpass", EntityState.valid, false);
 		EntityParam e2 = new EntityParam(added2);
-		idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=Test UVOS,O=UNICORE,C=EU", true, true), 
+		idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=Test UVOS,O=UNICORE,C=EU", true), 
 				e2, false);
 		idsMan.setEntityCredential(new EntityParam(added2), "credential1", "mockPassword2");
 		

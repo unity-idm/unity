@@ -30,4 +30,10 @@ public class MockPasswordVerificatorFactory implements LocalCredentialVerificato
 	{
 		return new MockPasswordVerificator(getName(), getDescription(), MockExchange.ID);
 	}
+
+	@Override
+	public boolean isSupportingInvalidation()
+	{
+		return false;
+	}
 }

@@ -21,7 +21,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -81,8 +81,8 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertEquals("cn", updated.getExtractedAttributes().values().iterator().next());
 		
 		setupMockAuthn();
-		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi, dc=ddd, ou=org unit,C=pl", true, true);
-		Identity added = idsMan.addIdentity(idParam, "crMock", LocalAuthenticationState.outdated, true);
+		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi, dc=ddd, ou=org unit,C=pl", true);
+		Identity added = idsMan.addEntity(idParam, "crMock", EntityState.valid, true);
 		
 		Collection<AttributeExt<?>> attributes = attrsMan.getAttributes(new EntityParam(added), "/", null);
 		assertEquals(1, attributes.size());
@@ -106,18 +106,16 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void testCreate() throws Exception
 	{
 		setupMockAuthn();
-		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi", true, true);
-		Identity id = idsMan.addIdentity(idParam, "crMock", LocalAuthenticationState.disabled, false);
+		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi", true);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
 		assertNotNull(id.getEntityId());
 		assertEquals("CN=golbi", id.getValue());
-		assertEquals(true, id.isEnabled());
 		assertEquals(true, id.isLocal());
 		
-		IdentityParam idParam2 = new IdentityParam(X500Identity.ID, "CN=golbi2", true, false);
+		IdentityParam idParam2 = new IdentityParam(X500Identity.ID, "CN=golbi2", false);
 		Identity id2 = idsMan.addIdentity(idParam2, new EntityParam(id.getEntityId()), false);
 		assertEquals("CN=golbi2", id2.getValue());
 		assertEquals(id.getEntityId(), id2.getEntityId());
-		assertEquals(true, id2.isEnabled());
 		assertEquals(false, id2.isLocal());
 		
 		Entity entity = idsMan.getEntity(new EntityParam(id2));
@@ -127,9 +125,9 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertEquals(id2, entity.getIdentities()[2]);
 		assertEquals(id.getEntityId(), entity.getId());
 		
-		idsMan.setIdentityStatus(id2, false);
+		idsMan.setEntityStatus(new EntityParam(entity.getId()), EntityState.disabled);
 		entity = idsMan.getEntity(new EntityParam(id2));
-		assertEquals(false, entity.getIdentities()[2].isEnabled());
+		assertEquals(EntityState.disabled, entity.getState());
 		
 		GroupContents contents = groupsMan.getContents("/", GroupContents.MEMBERS);
 		assertEquals(2, contents.getMembers().size());

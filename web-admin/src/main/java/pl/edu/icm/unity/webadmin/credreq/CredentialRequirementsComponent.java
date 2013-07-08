@@ -22,7 +22,6 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.generic.GenericElementsTable;
 import pl.edu.icm.unity.webadmin.generic.GenericElementsTable.GenericItem;
@@ -148,11 +147,11 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		
 	}
 
-	private boolean updateCR(CredentialRequirements cr, LocalAuthenticationState desiredAuthnState)
+	private boolean updateCR(CredentialRequirements cr)
 	{
 		try
 		{
-			authenticationMan.updateCredentialRequirement(cr, desiredAuthnState);
+			authenticationMan.updateCredentialRequirement(cr);
 			refresh();
 			bus.fireEvent(new CredentialRequirementChangedEvent());
 			return true;
@@ -178,11 +177,11 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		}
 	}
 
-	private boolean removeCR(String toRemove, String replacementId, LocalAuthenticationState replacementAuthnState)
+	private boolean removeCR(String toRemove, String replacementId)
 	{
 		try
 		{
-			authenticationMan.removeCredentialRequirement(toRemove, replacementId, replacementAuthnState);
+			authenticationMan.removeCredentialRequirement(toRemove, replacementId);
 			refresh();
 			bus.fireEvent(new CredentialRequirementChangedEvent());
 			return true;
@@ -228,8 +227,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 					new Callback()
 					{
 						@Override
-						public boolean newCredentialRequirement(CredentialRequirements cr,
-								LocalAuthenticationState desiredAuthnState)
+						public boolean newCredentialRequirement(CredentialRequirements cr)
 						{
 							return addCR(cr);
 						}
@@ -264,10 +262,9 @@ public class CredentialRequirementsComponent extends VerticalLayout
 					new Callback()
 					{
 						@Override
-						public boolean newCredentialRequirement(CredentialRequirements cr,
-								LocalAuthenticationState desiredAuthnState)
+						public boolean newCredentialRequirement(CredentialRequirements cr)
 						{
-							return updateCR(cr, desiredAuthnState);
+							return updateCR(cr);
 						}
 					});
 			dialog.show();
@@ -293,9 +290,9 @@ public class CredentialRequirementsComponent extends VerticalLayout
 					new CredentialRequirementRemovalDialog.Callback()
 			{
 				@Override
-				public void onConfirm(String replacementCR, LocalAuthenticationState replacementState)
+				public void onConfirm(String replacementCR)
 				{
-					removeCR(at.getName(), replacementCR, replacementState);
+					removeCR(at.getName(), replacementCR);
 				}
 			}).show();
 		}

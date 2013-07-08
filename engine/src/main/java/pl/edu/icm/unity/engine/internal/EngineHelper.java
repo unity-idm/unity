@@ -7,7 +7,6 @@ package pl.edu.icm.unity.engine.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
@@ -30,11 +29,9 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.authn.IdentityResolver;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
-import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -64,16 +61,6 @@ public class EngineHelper
 	}
 	
 	
-	public void setEntityAuthenticationState(long entityId, LocalAuthenticationState authnState, SqlSession sqlMap)
-			throws IllegalAttributeValueException, IllegalTypeException, IllegalAttributeTypeException, IllegalGroupValueException
-	{
-		EnumAttribute authnStateA = new EnumAttribute(SystemAttributeTypes.CREDENTIALS_STATE,
-				"/", AttributeVisibility.local, authnState.toString());
-		dbAttributes.addAttribute(entityId, authnStateA, true, sqlMap);
-	}
-
-
-
 	public void setEntityCredentialRequirements(long entityId, String credReqId, SqlSession sqlMap) 
 			throws IllegalAttributeValueException, IllegalTypeException, IllegalAttributeTypeException, IllegalGroupValueException
 	{
@@ -119,85 +106,41 @@ public class EngineHelper
 	}
 
 	/**
-	 * Credential state of the entity is updated to desired state. This method should be called after a 
-	 * change of a single credential definition. 
-	 * <p>
-	 * Disabled is simply set.
-	 * valid is set only if all credentials are matching the new definition, otherwise exception is thrown.
-	 * outdated is set if some of the credentials are invalid, otherwise valid is set.
+	 * @param desiredCredState If value is 'correct', then method checks if there is an existing credential and 
+	 * if it is correct with the given CredentialHolder. If it is set and incorrect, an exception is thrown. 
+	 * If the value is 'outdated' then nothing is done.
+	 * If the value is 'notSet' then the credential is removed if the entity has it set. 
 	 * @param entityId
-	 * @param desiredAuthnState
 	 * @param credentialChanged
 	 * @param sql
-	 * @throws IllegalCredentialException 
-	 * @throws IllegalGroupValueException 
-	 * @throws IllegalTypeException 
-	 * @throws IllegalAttributeTypeException 
-	 * @throws IllegalAttributeValueException 
+	 * @throws IllegalCredentialException
+	 * @throws IllegalTypeException
+	 * @throws IllegalGroupValueException
+	 * @throws IllegalAttributeValueException
+	 * @throws IllegalAttributeTypeException
 	 */
-	public void updateEntityCredentialState(long entityId, LocalAuthenticationState desiredAuthnState,
+	public void checkEntityCredentialState(long entityId, LocalCredentialState desiredCredState,
 			CredentialHolder credentialChanged, SqlSession sql) 
 			throws IllegalCredentialException, IllegalTypeException, IllegalGroupValueException,
 			IllegalAttributeValueException, IllegalAttributeTypeException
 	{
-		LocalAuthenticationState toSet;
-		if (desiredAuthnState.equals(LocalAuthenticationState.disabled))
+		if (desiredCredState == LocalCredentialState.notSet)
+			return;
+		String credAttribute = SystemAttributeTypes.CREDENTIAL_PREFIX+
+				credentialChanged.getCredentialDefinition().getName(); 
+		Collection<AttributeExt<?>> attributes = dbAttributes.getAllAttributes(entityId, "/", false,
+				credAttribute, sql);
+		if (attributes.isEmpty())
+			return;
+		if (desiredCredState == LocalCredentialState.notSet)
 		{
-			toSet = LocalAuthenticationState.disabled;
-		} else
-		{
-			Collection<AttributeExt<?>> attributes = dbAttributes.getAllAttributes(entityId, "/", false,
-					SystemAttributeTypes.CREDENTIAL_PREFIX+credentialChanged.getCredentialDefinition().getName(), sql);
-			boolean valid = false;
-			if (!attributes.isEmpty())
-			{
-				String credential = (String)attributes.iterator().next().getValues().get(0);
-				valid = credentialChanged.getHandler().checkCredentialState(credential) 
-						== LocalCredentialState.correct;
-			}
-			
-			if (desiredAuthnState.equals(LocalAuthenticationState.valid) && !valid)
-				throw new IllegalCredentialException("The new credential is not compatible with the previous definition and can not keep the authentication state as valid");
-			toSet = valid ? LocalAuthenticationState.valid : LocalAuthenticationState.outdated;
+			dbAttributes.removeAttribute(entityId, "/", credAttribute, sql);
+			return;
 		}
-		setEntityAuthenticationState(entityId, toSet, sql);
-	}
-	
-	/**
-	 * Credential state of the entity is updated to desired state. This method should be called after a 
-	 * change of a single credential definition. 
-	 * <p> 
-	 * Disabled is simply set. Valid is set only if all credentials are matching the new definition, 
-	 * otherwise exception is thrown. 
-	 * Outdated is set if some of the credentials are invalid, otherwise valid is set.
-	 * @param entityId
-	 * @param desiredAuthnState
-	 * @param newCredReqs
-	 * @param sql
-	 * @throws IllegalGroupValueException 
-	 * @throws IllegalTypeException 
-	 * @throws IllegalCredentialException 
-	 * @throws IllegalAttributeTypeException 
-	 * @throws IllegalAttributeValueException 
-	 */
-	public void updateEntityCredentialState(long entityId, LocalAuthenticationState desiredAuthnState, 
-			CredentialRequirementsHolder newCredReqs, SqlSession sql) 
-			throws IllegalTypeException, IllegalGroupValueException, IllegalCredentialException,
-			IllegalAttributeValueException, IllegalAttributeTypeException
-	{
-		LocalAuthenticationState toSet;
-		if (desiredAuthnState.equals(LocalAuthenticationState.disabled))
-		{
-			toSet = LocalAuthenticationState.disabled;
-		} else
-		{
-			Map<String, AttributeExt<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(entityId, "/", null, sql);
-			boolean allValid = newCredReqs.areAllCredentialsValid(attributes);
-			if (desiredAuthnState.equals(LocalAuthenticationState.valid) && !allValid)
-				throw new IllegalCredentialException("The new credential requirements are not compatible with the previous definition and can not keep the authentication state as valid");
-			toSet = allValid ? LocalAuthenticationState.valid : LocalAuthenticationState.outdated;
-		}
-		setEntityAuthenticationState(entityId, toSet, sql);
+		String credential = (String)attributes.iterator().next().getValues().get(0);
+		LocalCredentialState currentState = credentialChanged.getHandler().checkCredentialState(credential);
+		if (currentState != LocalCredentialState.correct && desiredCredState == LocalCredentialState.correct)
+			throw new IllegalCredentialException("The new credential is not compatible with the previous definition and can not keep the credential state as correct");
 	}
 	
 	public AuthenticatorImpl getAuthenticator(String id, SqlSession sql) 

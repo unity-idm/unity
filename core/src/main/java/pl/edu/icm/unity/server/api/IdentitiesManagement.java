@@ -8,8 +8,9 @@ import java.util.Collection;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -40,14 +41,13 @@ public interface IdentitiesManagement
 	 * Adds a new entity with an initial identity.
 	 * @param toAdd new identity
 	 * @param credReqId Local {@link CredentialRequirements} id
-	 * @param initialCredentialState initial state of the credential. Only {@link LocalAuthenticationState#disabled}
-	 * and {@link LocalAuthenticationState#outdated} are allowed.
+	 * @param initialState the initial state of the newly created entity
 	 * @param extractAttributes whether automatic attributes extraction should be performed
 	 * @return newly created identity
 	 * @throws EngineException
 	 */
-	public Identity addIdentity(IdentityParam toAdd, String credReqIdId, 
-			LocalAuthenticationState initialCredentialState, boolean extractAttributes) throws EngineException;
+	public Identity addEntity(IdentityParam toAdd, String credReqIdId, EntityState initialState,
+			boolean extractAttributes) throws EngineException;
 	
 	/**
 	 * Adds a new identity under existing entity.
@@ -57,7 +57,8 @@ public interface IdentitiesManagement
 	 * @return newly created identity
 	 * @throws EngineException
 	 */
-	public Identity addIdentity(IdentityParam toAdd, EntityParam parentEntity, boolean extractAttributes) throws EngineException;
+	public Identity addIdentity(IdentityParam toAdd, EntityParam parentEntity, boolean extractAttributes) 
+			throws EngineException;
 	
 	/**
 	 * Deletes identity. It must not be the last identity of the entity.
@@ -77,12 +78,12 @@ public interface IdentitiesManagement
 	public void removeEntity(EntityParam toRemove) throws EngineException;
 
 	/**
-	 * Enables/disables identity
+	 * Sets entity status
 	 * @param toChange
-	 * @param status
+	 * @param state
 	 * @throws EngineException
 	 */
-	public void setIdentityStatus(IdentityTaV toChange, boolean status) 
+	public void setEntityStatus(EntityParam toChange, EntityState state) 
 			throws EngineException;
 	
 	/**
@@ -94,26 +95,36 @@ public interface IdentitiesManagement
 	public Entity getEntity(EntityParam entity) throws EngineException;
 	
 	/**
-	 * Changes {@link CredentialRequirements} of an entity
+	 * Changes {@link CredentialRequirements} of an entity. 
 	 * @param entity to be modified
 	 * @param requirementId to be set
-	 * @param desiredAuthnState controls how to handle the existing authN material. 
-	 * If set to 'correct' then change is applied only if the new requirements are compatible with the previous 
-	 * data. In other cases the value is set for the identity after update.
 	 * @throws EngineException
 	 */
-	public void setEntityCredentialRequirements(EntityParam entity, String requirementId, 
-			LocalAuthenticationState desiredAuthnState) throws EngineException;
+	public void setEntityCredentialRequirements(EntityParam entity, String requirementId) throws EngineException;
 	
 	/**
-	 * Sets authentication secretes for the entity. 
+	 * Sets authentication secretes for the entity. After the change, the credential will be in correct state.  
 	 * @param entity to be modified
 	 * @param credentialId credential id to be changed. 
-	 * @param jsonSecrets the credential type specific value of the credential encoded in JSON
+	 * @param secrets the credential type specific value of the credential. Can be null,
+	 * in which case the existing secrets are retained and only {@link LocalAuthenticationState} is being modified.
 	 * @throws EngineException
 	 */
-	public void setEntityCredential(EntityParam entity, String credentialId, String jsonSecrets) 
-			throws EngineException;
+	public void setEntityCredential(EntityParam entity, String credentialId, String secrets) throws EngineException;
+
+	/**
+	 * Sets local credential state. 
+	 * @param entity to be modified
+	 * @param credentialId credential id to be changed. 
+	 * @param desiredCredentialState desired credential state. If 'notSet' then the current credential 
+	 * is removed. The status can be set to 'outdated' only if the credential
+	 * supports invalidation and currently there is a (correct or outdated) credential set. The 'correct'
+	 * value is not allowed, and will cause an exception. Credential can be put into correct state with 
+	 * {@link #setEntityCredential(EntityParam, String, String)}.  
+	 * @throws EngineException
+	 */
+	public void setEntityCredentialStatus(EntityParam entity, String credentialId,  
+			LocalCredentialState desiredCredentialState) throws EngineException;
 	
 	/**
 	 * Returns a collection with all groups where the entity is a member.
@@ -122,6 +133,5 @@ public interface IdentitiesManagement
 	 * @throws EngineException
 	 */
 	public Collection<String> getGroups(EntityParam entity) throws EngineException;
-	
 }
 

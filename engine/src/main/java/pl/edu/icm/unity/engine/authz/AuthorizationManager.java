@@ -16,6 +16,9 @@ import pl.edu.icm.unity.types.basic.Group;
  */
 public interface AuthorizationManager
 {
+	/**
+	 * @return Set of roles supported by the engine
+	 */
 	public Set<String> getRoleNames();
 
 	/**

@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -20,8 +20,8 @@ public class TestPreferences extends DBIntegrationTestBase
 	public void testPreferences() throws Exception
 	{
 		setupMockAuthn();
-		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "cn=golbi", true, true), "crMock", 
-				LocalAuthenticationState.disabled, false);
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi", true), 
+				"crMock", EntityState.valid, false);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		assertNull(preferencesMan.getPreference(entity, "foo"));
 		assertNull(preferencesMan.getPreference(entity, "foo"));

@@ -14,7 +14,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
@@ -34,7 +34,7 @@ import pl.edu.icm.unity.types.basic.attrstmnt.MemberOfStatement;
 
 public class TestAttributeStatements extends DBIntegrationTestBase
 {
-	private final int systemAttributes = 2;
+	private final int systemAttributes = 1;
 	private EntityParam entity;
 	private Group groupA;
 	private Group groupAB;
@@ -523,8 +523,8 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		groupABC = new Group("/A/B/C");
 		groupsMan.addGroup(groupABC);
 		
-		Identity id = idsMan.addIdentity(new IdentityParam(X500Identity.ID, "cn=golbi", true, true), "crMock", 
-				LocalAuthenticationState.disabled, false);
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi", true), "crMock", 
+				EntityState.disabled, false);
 		entity = new EntityParam(id);
 		groupsMan.addMemberFromParent("/A", entity);
 		groupsMan.addMemberFromParent("/A/B", entity);

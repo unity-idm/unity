@@ -15,7 +15,6 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
@@ -28,7 +27,6 @@ public class SystemAttributeTypes
 {
 	public static final String CREDENTIAL_REQUIREMENTS = "sys:CredentialRequirements"; 
 	//public static final String ATTRIBUTE_CLASSES = "sys:AttributeClasses"; 
-	public static final String CREDENTIALS_STATE = "sys:CredentialsState";
 	public static final String CREDENTIAL_PREFIX = "sys:Credential:";
 	public static final String AUTHORIZATION_ROLE = "sys:AuthorizationRole";
 	public static final String PREFERENCES = "sys:Preferences";
@@ -42,7 +40,6 @@ public class SystemAttributeTypes
 	{
 		this.authz = authz;
 		systemAttributes.add(getCredentialRequirementsAT());
-		systemAttributes.add(getCredentialsStateAT());
 		systemAttributes.add(getAuthozationRoleAT());
 		systemAttributes.add(getPreferenceAT());
 	}
@@ -59,19 +56,6 @@ public class SystemAttributeTypes
 		return credentialRequiremetsAt;
 	}
 	
-	private AttributeType getCredentialsStateAT()
-	{
-		String[] vals = getEnumAsStrings(LocalAuthenticationState.values());
-		AttributeType credentialStateAt = new AttributeType(CREDENTIALS_STATE, 
-				new EnumAttributeSyntax(vals));
-		credentialStateAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.INSTANCES_IMMUTABLE_FLAG);
-		credentialStateAt.setDescription("Holds information about the actual state of the owner's credential");
-		credentialStateAt.setMinElements(1);
-		credentialStateAt.setMaxElements(1);
-		credentialStateAt.setVisibility(AttributeVisibility.local);
-		return credentialStateAt;
-	}
-
 	private AttributeType getAuthozationRoleAT()
 	{
 		Set<String> vals = authz.getRoleNames();
@@ -95,14 +79,6 @@ public class SystemAttributeTypes
 		preferenceAt.setUniqueValues(false);
 		preferenceAt.setVisibility(AttributeVisibility.local);
 		return preferenceAt;
-	}
-	
-	private static String[] getEnumAsStrings(Enum<?>[] en)
-	{
-		String[] vals = new String[en.length];
-		for (int i=0; i<en.length; i++)
-			vals[i] = en[i].toString();
-		return vals;
 	}
 	
 	public List<AttributeType> getSystemAttributes()

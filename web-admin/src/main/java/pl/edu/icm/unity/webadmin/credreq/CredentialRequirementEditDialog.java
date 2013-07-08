@@ -9,7 +9,6 @@ import com.vaadin.ui.Component;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 
@@ -44,7 +43,7 @@ public class CredentialRequirementEditDialog extends AbstractDialog
 		try
 		{
 			CredentialRequirements cr = editor.getCredentialRequirements();
-			if (callback.newCredentialRequirement(cr, editor.getLocalAuthnState()))
+			if (callback.newCredentialRequirement(cr))
 				close();
 		} catch (IllegalCredentialException e) 
 		{
@@ -56,6 +55,6 @@ public class CredentialRequirementEditDialog extends AbstractDialog
 	
 	public interface Callback
 	{
-		public boolean newCredentialRequirement(CredentialRequirements cr, LocalAuthenticationState newState);
+		public boolean newCredentialRequirement(CredentialRequirements cr);
 	}
 }

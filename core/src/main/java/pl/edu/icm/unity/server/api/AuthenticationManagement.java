@@ -12,7 +12,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.CredentialType;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
 /**
  * Internal engine API for authentication management.
@@ -88,17 +88,17 @@ public interface AuthenticationManagement
 	/**
 	 * Updated a definitions of a credential. 
 	 * @param updated updated data. The existing one is matched by name.
-	 * @param desiredAuthnState The desired credential state to be applied to entities which 
-	 * have this credential in their credential requirements currently. If value is 'valid', 
-	 * then the operation will be successful only if there is no entity with this credential 
-	 * or if all entities which have this credential are fulfilling the new rules. 
-	 * If the value is 'outdated' then all identities which have this credential set will have the state changed to 
-	 * 'valid' if their credentials fulfill the rules of the new requirements or to 'outdated' otherwise.
-	 * The 'disabled' value is simply set for all entities which bear this credential.
+	 * @param desiredCredState The desired credential state to be applied to entities which 
+	 * have this credential currently set. If value is 'correct', 
+	 * then the operation will be successful only if all entities which have this credential 
+	 * are fulfilling the new rules. If the value is 'outdated' then all identities which have 
+	 * this credential set will have the state changed to 'valid' if their credentials fulfill 
+	 * the rules of the new requirements or to 'outdated' otherwise. 
+	 * The 'notSet' value means that the current credentials should have their values cleared.
 	 * @throws EngineException
 	 */
 	public void updateCredentialDefinition(CredentialDefinition updated, 
-			LocalAuthenticationState desiredAuthnState) throws EngineException;
+			LocalCredentialState desiredCredState) throws EngineException;
 
 	/**
 	 * Removes the given credential definition. The operation will be successful only if the credential 
@@ -128,16 +128,9 @@ public interface AuthenticationManagement
 	/**
 	 * Updated a definitions of credential set. 
 	 * @param updated updated data. The existing one is matched by id.
-	 * @param desiredAuthnState The desired credential state to be applied to entities which 
-	 * have this requirement currently set. If value is 'valid', then the operation will be successful only 
-	 * if there is no entity with this set or if all entities have credentials fulfilling new rules.
-	 * If the value is 'outdated' then all identities which have this requirement set will have the state changed to 
-	 * 'valid' if their credentials fulfill the rules of the new requirements or to 'outdated' otherwise.
-	 * The 'disabled' value is always set.
 	 * @throws EngineException
 	 */
-	public void updateCredentialRequirement(CredentialRequirements updated, 
-			LocalAuthenticationState desiredAuthnState) throws EngineException;
+	public void updateCredentialRequirement(CredentialRequirements updated) throws EngineException;
 
 	/**
 	 * Removes the given credential set definition. The second argument is used to get another existing 
@@ -149,12 +142,12 @@ public interface AuthenticationManagement
 	 * - the semantics is the same here.
 	 * 
 	 * 
-	 * @param toRemove
-	 * @param replacementId
+	 * @param toRemove credential requirement to remove
+	 * @param replacementId credential requirement to be applied to entities that used the removed requirement.
+	 * Can be null, but then the operation will be successful only if there was no entity with the requirement. 
 	 * @throws EngineException
 	 */
-	public void removeCredentialRequirement(String toRemove, String replacementId, 
-			LocalAuthenticationState replacementAuthnState) throws EngineException;
+	public void removeCredentialRequirement(String toRemove, String replacementId) throws EngineException;
 	
 	/**
 	 * @return collection of existing credential requirements
@@ -162,18 +155,3 @@ public interface AuthenticationManagement
 	 */
 	public Collection<CredentialRequirements> getCredentialRequirements() throws EngineException;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

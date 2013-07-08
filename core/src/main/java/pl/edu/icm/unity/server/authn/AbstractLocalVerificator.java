@@ -11,10 +11,13 @@ package pl.edu.icm.unity.server.authn;
 public abstract class AbstractLocalVerificator extends AbstractVerificator implements LocalCredentialVerificator
 {
 	protected String credentialName;
+	private boolean supportingInvalidation;
+
 	
-	public AbstractLocalVerificator(String name, String description, String exchangeId)
+	public AbstractLocalVerificator(String name, String description, String exchangeId, boolean supportingInvalidation)
 	{
 		super(name, description, exchangeId);
+		this.supportingInvalidation = supportingInvalidation;
 	}
 
 	public String getCredentialName()
@@ -25,5 +28,15 @@ public abstract class AbstractLocalVerificator extends AbstractVerificator imple
 	public void setCredentialName(String credentialName)
 	{
 		this.credentialName = credentialName;
+	}
+	
+	public boolean isSupportingInvalidation()
+	{
+		return supportingInvalidation;
+	}
+
+	public void setSupportingInvalidation(boolean supportingInvalidation)
+	{
+		this.supportingInvalidation = supportingInvalidation;
 	}
 }

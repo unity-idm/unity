@@ -14,10 +14,8 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 
 /**
@@ -28,20 +26,21 @@ public class CredentialRequirementDialog extends AbstractDialog
 {
 	private IdentitiesManagement identitiesMan;
 	private AuthenticationManagement authnMan;
-	private String entityId;
+	private final String entityId;
+	private final String initialCR;
 	protected Callback callback;
 	
 	private ComboBox credentialRequirement;
-	private EnumComboBox<LocalAuthenticationState> credentialState;
 	
-	public CredentialRequirementDialog(UnityMessageSource msg, String entityId, IdentitiesManagement identitiesMan,
-			AuthenticationManagement authnMan, Callback callback)
+	public CredentialRequirementDialog(UnityMessageSource msg, String entityId, String initialCR,
+			IdentitiesManagement identitiesMan, AuthenticationManagement authnMan, Callback callback)
 	{
 		super(msg, msg.getMessage("CredentialRequirementDialog.caption"));
 		this.identitiesMan = identitiesMan;
 		this.entityId = entityId;
 		this.authnMan = authnMan;
 		this.callback = callback;
+		this.initialCR = initialCR;
 		this.defaultSizeUndfined = true;
 	}
 
@@ -70,16 +69,11 @@ public class CredentialRequirementDialog extends AbstractDialog
 		{
 			credentialRequirement.addItem(cr.getName());
 		}
-		credentialRequirement.select(credReqs.iterator().next().getName());
+		credentialRequirement.select(initialCR);
 		credentialRequirement.setNullSelectionAllowed(false);
 		
-		credentialState = new EnumComboBox<LocalAuthenticationState>(
-				msg.getMessage("CredentialRequirementDialog.credState"), msg, 
-				"AuthenticationState.", 
-				LocalAuthenticationState.class, LocalAuthenticationState.outdated);
-		
 		FormLayout main = new FormLayout();
-		main.addComponents(info, credentialRequirement, credentialState);
+		main.addComponents(info, credentialRequirement);
 		main.setSizeFull();
 		return main;
 	}
@@ -91,8 +85,7 @@ public class CredentialRequirementDialog extends AbstractDialog
 		try
 		{
 			identitiesMan.setEntityCredentialRequirements(entity, 
-					(String)credentialRequirement.getValue(), 
-					credentialState.getSelectedValue());
+					(String)credentialRequirement.getValue());
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg.getMessage("CredentialRequirementDialog.changeError"), e);

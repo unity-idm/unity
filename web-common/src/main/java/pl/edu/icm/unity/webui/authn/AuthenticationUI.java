@@ -50,11 +50,14 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private EndpointDescription description;
 	private List<Map<String, VaadinAuthentication>> authenticators;
 	private LocaleChoiceComponent localeChoice;
+	private AuthenticationProcessor authnProcessor;
 	
 	@Autowired
-	public AuthenticationUI(LocaleChoiceComponent localeChoice, UnityMessageSource msg)
+	public AuthenticationUI(LocaleChoiceComponent localeChoice, UnityMessageSource msg, 
+			AuthenticationProcessor authnProcessor)
 	{
 		super(msg);
+		this.authnProcessor = authnProcessor;
 		this.localeChoice = localeChoice;
 	}
 
@@ -80,7 +83,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		Component[] components = new Component[authenticators.size()];
 		for (int i=0; i<components.length; i++)
 			components[i] = new AuthenticatorSetComponent(authenticators.get(i), 
-					description.getAuthenticatorSets().get(i), msg);
+					description.getAuthenticatorSets().get(i), msg, authnProcessor);
 		Component all = buildAllSetsUI(components);
 		
 		VerticalLayout main = new VerticalLayout();

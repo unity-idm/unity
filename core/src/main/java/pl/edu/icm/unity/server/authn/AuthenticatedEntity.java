@@ -7,8 +7,6 @@ package pl.edu.icm.unity.server.authn;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
-
 /**
  * Stores information about authenticated entity.
  * @author K. Benedyczak
@@ -16,15 +14,15 @@ import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
 public class AuthenticatedEntity
 {
 	private long entityId;
+	private boolean usedOutdatedCredential;
 	private List<String> authenticatedWith;
-	private LocalAuthenticationState authnState;
 
-	public AuthenticatedEntity(long entityId, LocalAuthenticationState authnState, String info)
+	public AuthenticatedEntity(long entityId, String info, boolean useOutdatedCredential)
 	{
 		this.entityId = entityId;
-		this.authnState = authnState;
 		this.authenticatedWith = new ArrayList<String>(4);
 		authenticatedWith.add(info);
+		this.usedOutdatedCredential = useOutdatedCredential;
 	}
 
 	public long getEntityId()
@@ -37,16 +35,6 @@ public class AuthenticatedEntity
 		this.entityId = entityId;
 	}
 
-	public LocalAuthenticationState getAuthnState()
-	{
-		return authnState;
-	}
-
-	public void setAuthnState(LocalAuthenticationState authnState)
-	{
-		this.authnState = authnState;
-	}
-
 	public List<String> getAuthenticatedWith()
 	{
 		return authenticatedWith;
@@ -55,5 +43,15 @@ public class AuthenticatedEntity
 	public void setAuthenticatedWith(List<String> authenticatedWith)
 	{
 		this.authenticatedWith = authenticatedWith;
+	}
+
+	public boolean isUsedOutdatedCredential()
+	{
+		return usedOutdatedCredential;
+	}
+
+	public void setUsedOutdatedCredential(boolean usedOutdatedCredential)
+	{
+		this.usedOutdatedCredential = usedOutdatedCredential;
 	}
 }

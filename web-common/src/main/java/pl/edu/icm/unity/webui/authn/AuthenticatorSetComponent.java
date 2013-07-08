@@ -36,13 +36,15 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 {
 	private static final long serialVersionUID = 1L;
 	private UnityMessageSource msg;
+	private AuthenticationProcessor authnProcessor;
 	private Button authenticateButton;
 	private UsernameComponent usernameComponent;
 	
 	public AuthenticatorSetComponent(Map<String, VaadinAuthentication> authenticators,
-			AuthenticatorSet set, UnityMessageSource msg)
+			AuthenticatorSet set, UnityMessageSource msg, AuthenticationProcessor authnProcessor)
 	{
 		this.msg = msg;
+		this.authnProcessor = authnProcessor;
 		boolean needCommonUsername = false;
 		setSpacing(true);
 		setMargin(true);
@@ -107,7 +109,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 			
 			try
 			{
-				AuthenticationProcessor.processResults(results);
+				authnProcessor.processResults(results);
 			} catch (AuthenticationException e)
 			{
 				String error = msg.getMessage(e.getMessage());

@@ -26,6 +26,7 @@
 	<bean class="pl.edu.icm.unity.db.json.GroupsSerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.IdentityTypeSerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.IdentitySerializer"/>
+	<bean class="pl.edu.icm.unity.db.json.EntitySerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.AttributeTypeSerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.AttributeSerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.EventSerializer"/>

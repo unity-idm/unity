@@ -35,6 +35,10 @@
 	<insert id="insertEntity" parameterType="BaseB" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO ENTITIES (CONTENTS) VALUES (#{contents})
 	</insert>
+	
+	<update id="updateEntity" parameterType="BaseB">
+		UPDATE ENTITIES SET CONTENTS = #{contents} WHERE ID = #{id}
+	</update>	
 
 	<select id="getEntityById" parameterType="long" resultType="BaseB">
 		select * from ENTITIES where ID = #{value}

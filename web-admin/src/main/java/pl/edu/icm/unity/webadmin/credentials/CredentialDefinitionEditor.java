@@ -9,7 +9,7 @@ import java.util.Set;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
@@ -38,7 +38,7 @@ public class CredentialDefinitionEditor extends FormLayout
 	private CredentialEditorRegistry credentialEditorReg;
 	private AbstractTextField name;
 	private DescriptionTextArea description;
-	private EnumComboBox<LocalAuthenticationState> newAuthnState; 
+	private EnumComboBox<LocalCredentialState> newCredState; 
 	private ComboBox credentialType;
 	private Panel credentialEditorPanel;
 	private pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor cdEd;
@@ -76,11 +76,11 @@ public class CredentialDefinitionEditor extends FormLayout
 		
 		if (initial != null)
 		{
-			newAuthnState = new EnumComboBox<LocalAuthenticationState>(
+			newCredState = new EnumComboBox<LocalCredentialState>(
 					msg.getMessage("CredentialDefinition.replacementState"), msg, 
-					"AuthenticationState.", 
-					LocalAuthenticationState.class, LocalAuthenticationState.outdated);
-			addComponent(newAuthnState);
+					"DesiredCredentialStatus.", 
+					LocalCredentialState.class, LocalCredentialState.outdated);
+			addComponent(newCredState);
 		}
 		
 		credentialType = new ComboBox(msg.getMessage("CredentialDefinition.type"));
@@ -145,8 +145,8 @@ public class CredentialDefinitionEditor extends FormLayout
 		return ret;
 	}
 	
-	public LocalAuthenticationState getLocalAuthnState()
+	public LocalCredentialState getLocalCredState()
 	{
-		return newAuthnState == null ? null : newAuthnState.getSelectedValue();
+		return newCredState == null ? null : newCredState.getSelectedValue();
 	}
 }

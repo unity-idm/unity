@@ -4,15 +4,11 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import java.net.URI;
-
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
 
-import com.vaadin.server.Page;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
@@ -49,12 +45,7 @@ public class TopHeader extends TopHeaderLight
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				VaadinSession vs = VaadinSession.getCurrent();
-				WrappedSession s = vs.getSession();
-				Page p = Page.getCurrent();
-				URI currentLocation = p.getLocation();
-				s.invalidate();
-				p.setLocation(currentLocation);
+				AuthenticationProcessor.logout();
 			}
 		});
 		loggedPanel.addComponent(logout);

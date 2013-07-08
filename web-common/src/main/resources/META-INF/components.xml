@@ -31,6 +31,7 @@
 	<!-- Vaadin components - must have the prototype scope. The UI objects must also have the id set to the 
 	 simple name of its class -->
 
+	<bean scope="prototype" class="pl.edu.icm.unity.webui.authn.AuthenticationProcessor"/>
 	<bean scope="prototype" id="AuthenticationUI" class="pl.edu.icm.unity.webui.authn.AuthenticationUI"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webui.authn.LocaleChoiceComponent"/>
 </beans>

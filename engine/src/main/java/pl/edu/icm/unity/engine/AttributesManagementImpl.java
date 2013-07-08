@@ -24,9 +24,11 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -286,7 +288,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			String attributeTypeId) throws EngineException
 	{
 		Collection<AttributeExt<?>> ret = getAllAttributesInternal(entity, true, groupPath, attributeTypeId, 
-				AuthzCapability.read);
+				AuthzCapability.read, false);
 		filterLocal(ret);
 		return ret;
 	}
@@ -301,13 +303,13 @@ public class AttributesManagementImpl implements AttributesManagement
 		try
 		{
 			return getAllAttributesInternal(entity, effective, groupPath, attributeTypeId, 
-					AuthzCapability.attributeModify);
+					AuthzCapability.attributeModify, true);
 		} catch (AuthorizationException e)
 		{
 			if (allowDegrade)
 			{
 				Collection<AttributeExt<?>> ret = getAllAttributesInternal(entity, effective, 
-						groupPath, attributeTypeId, AuthzCapability.read);
+						groupPath, attributeTypeId, AuthzCapability.read, false);
 				filterLocal(ret);
 				return ret;
 			} else
@@ -327,13 +329,19 @@ public class AttributesManagementImpl implements AttributesManagement
 	}
 	
 	private Collection<AttributeExt<?>> getAllAttributesInternal(EntityParam entity, boolean effective, String groupPath,
-			String attributeTypeName, AuthzCapability requiredCapability) throws EngineException
+			String attributeTypeName, AuthzCapability requiredCapability, boolean allowDisabled) throws EngineException
 	{
 		entity.validateInitialization();
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sql);
+			if (!allowDisabled)
+			{
+				EntityState state = dbIdentities.getEntityStatus(entityId, sql);
+				if (state == EntityState.disabled)
+					throw new IllegalIdentityValueException("The entity is disabled");
+			}
 			authz.checkAuthorization(authz.isSelf(entityId), groupPath, requiredCapability);
 			Collection<AttributeExt<?>> ret = dbAttributes.getAllAttributes(entityId, groupPath, effective,
 					attributeTypeName, sql);

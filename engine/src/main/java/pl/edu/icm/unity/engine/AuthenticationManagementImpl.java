@@ -43,7 +43,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.CredentialType;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
@@ -264,8 +264,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	}
 	
 	@Override
-	public void updateCredentialRequirement(CredentialRequirements updated,
-			LocalAuthenticationState desiredAuthnState) throws EngineException
+	public void updateCredentialRequirement(CredentialRequirements updated) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 
@@ -278,16 +277,9 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 				throw new IllegalCredentialException("There is no credential requirement with the name " + 
 						updated.getName());
 
-			Set<Long> entities = engineHelper.getEntitiesByAttribute(
-					SystemAttributeTypes.CREDENTIAL_REQUIREMENTS,
-					Collections.singleton(updated.getName()), sql);
 			List<CredentialDefinition> credDefs = engineHelper.getCredentialDefinitions(sql);
 			CredentialRequirementsHolder newCredReqs = new CredentialRequirementsHolder(updated, 
 					authReg, credDefs);
-			for (Long entityId: entities)
-			{
-				engineHelper.updateEntityCredentialState(entityId, desiredAuthnState, newCredReqs, sql);
-			}
 			byte[] contents = CredentialRequirementsSerializer.serialize(updated); 
 			dbGeneric.updateObject(newCredReqs.getCredentialRequirements().getName(), 
 					CREDENTIAL_REQ_OBJECT_TYPE, contents, sql);
@@ -299,8 +291,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	}
 
 	@Override
-	public void removeCredentialRequirement(String toRemove, String replacementId,
-			LocalAuthenticationState desiredAuthnState) throws EngineException
+	public void removeCredentialRequirement(String toRemove, String replacementId) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 
@@ -310,7 +301,8 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			GenericObjectBean raw = dbGeneric.getObjectByNameType(toRemove, 
 					AuthenticationManagementImpl.CREDENTIAL_REQ_OBJECT_TYPE, sql);
 			if (raw == null)
-				throw new IllegalCredentialException("There is no credential requirement with the name " + toRemove);
+				throw new IllegalCredentialException("There is no credential requirement with the name " 
+						+ toRemove);
 
 			Set<Long> entities = engineHelper.getEntitiesByAttribute(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS,
 					Collections.singleton(toRemove), sql);
@@ -318,15 +310,9 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 				throw new IllegalCredentialException("There are entities with the removed credential requirements set and a replacement was not specified.");
 			if (replacementId != null)
 			{
-				CredentialRequirementsHolder newCredReqs = engineHelper.getCredentialRequirements(replacementId, sql);
-				
 				for (Long entityId: entities)
-				{
-					engineHelper.updateEntityCredentialState(entityId, desiredAuthnState, newCredReqs, sql);
 					engineHelper.setEntityCredentialRequirementsNoCheck(entityId, replacementId, sql);
-				}
 			}
-			
 			dbGeneric.removeObject(toRemove, AuthenticationManagementImpl.CREDENTIAL_REQ_OBJECT_TYPE, sql);
 			
 			sql.commit();
@@ -360,7 +346,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 
 	@Override
 	public void updateCredentialDefinition(CredentialDefinition updated,
-			LocalAuthenticationState desiredAuthnState) throws EngineException
+			LocalCredentialState desiredAuthnState) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 
@@ -387,10 +373,10 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			Set<Long> entities = engineHelper.getEntitiesByAttribute(
 					SystemAttributeTypes.CREDENTIAL_REQUIREMENTS, affectedCr, sql);
 			
-			//update the entities authentication status
+			//check if the entities credential status will be fine
 			for (Long entityId: entities)
 			{
-				engineHelper.updateEntityCredentialState(entityId, desiredAuthnState, helper, sql);
+				engineHelper.checkEntityCredentialState(entityId, desiredAuthnState, helper, sql);
 			}
 			
 			byte[] contents = helper.getSerializedConfiguration().getBytes(Constants.UTF);

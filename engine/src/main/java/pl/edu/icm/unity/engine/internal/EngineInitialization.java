@@ -42,11 +42,12 @@ import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.authn.LocalAuthenticationState;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -263,12 +264,13 @@ public class EngineInitialization extends LifecycleBase
 
 				String adminU = config.getValue(UnityServerConfiguration.INITIAL_ADMIN_USER);
 				String adminP = config.getValue(UnityServerConfiguration.INITIAL_ADMIN_PASSWORD);
-				IdentityParam admin = new IdentityParam(UsernameIdentity.ID, adminU, true, true);
-				Identity adminId = idManagement.addIdentity(admin, crDef.getName(), 
-						LocalAuthenticationState.outdated, false);
+				IdentityParam admin = new IdentityParam(UsernameIdentity.ID, adminU, true);
+				Identity adminId = idManagement.addEntity(admin, crDef.getName(), EntityState.valid, false);
 				
 				EntityParam adminEntity = new EntityParam(adminId.getEntityId());
 				idManagement.setEntityCredential(adminEntity, credDef.getName(), adminP);
+				idManagement.setEntityCredentialStatus(adminEntity, credDef.getName(), 
+						LocalCredentialState.outdated);
 				EnumAttribute roleAt = new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE,
 						"/", AttributeVisibility.local, 
 						AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE);

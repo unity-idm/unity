@@ -4,17 +4,25 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
+import java.net.URI;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.AuthenticationException;
+import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessorUtil;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.UI;
@@ -27,17 +35,47 @@ import com.vaadin.ui.UI;
  * 
  * @author K. Benedyczak
  */
+@Component
 public class AuthenticationProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationProcessor.class);
 	
-	public static void processResults(List<AuthenticationResult> results) throws AuthenticationException
+	private UnityMessageSource msg;
+	private AuthenticationManagement authnMan;
+	private IdentitiesManagement idsMan;
+	private CredentialEditorRegistry credEditorReg;
+	
+	@Autowired
+	public AuthenticationProcessor(UnityMessageSource msg, AuthenticationManagement authnMan,
+			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg)
+	{
+		super();
+		this.msg = msg;
+		this.authnMan = authnMan;
+		this.idsMan = idsMan;
+		this.credEditorReg = credEditorReg;
+	}
+
+	public void processResults(List<AuthenticationResult> results) throws AuthenticationException
 	{
 		AuthenticatedEntity logInfo = AuthenticationProcessorUtil.processResults(results);
-		logged(logInfo);
+		WrappedSession session = logged(logInfo);
+
+		if (logInfo.isUsedOutdatedCredential())
+		{
+			showCredentialUpdate();
+			return;
+		}
+		redirectToOrigin(session);
 	}
 	
-	private static void logged(AuthenticatedEntity authenticatedEntity) throws AuthenticationException
+	private void showCredentialUpdate()
+	{
+		OutdatedCredentialDialog dialog = new OutdatedCredentialDialog(msg, authnMan, idsMan, credEditorReg);
+		dialog.show();
+	}
+	
+	private static WrappedSession logged(AuthenticatedEntity authenticatedEntity) throws AuthenticationException
 	{
 		VaadinSession vss = VaadinSession.getCurrent();
 		if (vss == null)
@@ -47,6 +85,11 @@ public class AuthenticationProcessor
 		}
 		WrappedSession session = vss.getSession();
 		session.setAttribute(WebSession.USER_SESSION_KEY, authenticatedEntity);
+		return session;
+	}
+	
+	private static void redirectToOrigin(WrappedSession session) throws AuthenticationException
+	{
 		UI ui = UI.getCurrent();
 		if (ui == null)
 		{
@@ -71,5 +114,28 @@ public class AuthenticationProcessor
 		
 		//origURL = origURL+origFragment;
 		return origURL;
+	}
+	
+	public static void logout()
+	{
+		VaadinSession vs = VaadinSession.getCurrent();
+		WrappedSession s = vs.getSession();
+		Page p = Page.getCurrent();
+		URI currentLocation = p.getLocation();
+		s.invalidate();
+		p.setLocation(currentLocation);
+	}
+	
+	/**
+	 * Doesn't destroy the session, instead only clears information about logged user, so authN screen should be shown.
+	 */
+	public static void softLogout()
+	{
+		VaadinSession vs = VaadinSession.getCurrent();
+		WrappedSession s = vs.getSession();
+		s.removeAttribute(WebSession.USER_SESSION_KEY);
+		Page p = Page.getCurrent();
+		URI currentLocation = p.getLocation();
+		p.setLocation(currentLocation);
 	}
 }
