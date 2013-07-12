@@ -108,6 +108,7 @@ public class IdentitiesTable extends TreeTable
 		
 		setSelectable(true);
 		setMultiSelect(false);
+		setColumnReorderingAllowed(true);
 		setColumnCollapsingAllowed(true);
 		setColumnCollapsible("entity", false);
 		setColumnCollapsed("local", true);

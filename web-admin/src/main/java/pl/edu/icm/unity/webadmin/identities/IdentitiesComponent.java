@@ -22,6 +22,7 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.webadmin.attribute.AttributeChangedEvent;
 import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionChangedEvent;
 import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementChangedEvent;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
@@ -204,6 +205,17 @@ public class IdentitiesComponent extends Panel
 					setGroup(IdentitiesComponent.this.identitiesTable.getGroup());
 			}
 		}, CredentialDefinitionChangedEvent.class);
+		bus.addListener(new EventListener<AttributeChangedEvent>()
+		{
+			@Override
+			public void handleEvent(AttributeChangedEvent event)
+			{
+				Set<String> interesting = IdentitiesComponent.this.identitiesTable.getAttributeColumns();
+				String curGroup = IdentitiesComponent.this.identitiesTable.getGroup();
+				if (interesting.contains(event.getAttributeName()) && curGroup.equals(event.getGroup()))
+					setGroup(curGroup);
+			}
+		}, AttributeChangedEvent.class);
 		setGroup(null);
 	}
 	

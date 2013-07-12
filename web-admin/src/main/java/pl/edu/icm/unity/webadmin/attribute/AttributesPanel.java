@@ -22,6 +22,8 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -73,6 +75,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private EntityParam owner;
 	private String groupPath;
 	private Map<String, AttributeType> attributeTypes;
+	private EventsBus bus;
 	
 	@Autowired
 	public AttributesPanel(UnityMessageSource msg, AttributeHandlerRegistry registry, 
@@ -81,6 +84,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		this.msg = msg;
 		this.registry = registry;
 		this.attributesManagement = attributesManagement;
+		this.bus = WebSession.getCurrent().getEventBus();
 		setStyleName(Reindeer.SPLITPANEL_SMALL);
 		attributesTable = new Table();
 		attributesTable.setNullSelectionAllowed(false);
@@ -241,6 +245,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			attributesManagement.removeAttribute(owner, toRemove.getGroupPath(), toRemove.getName());
 			attributes.remove(toRemove);
 			updateAttributes();
+			bus.fireEvent(new AttributeChangedEvent(toRemove.getGroupPath(), toRemove.getName()));
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg.getMessage("Attribute.removeAttributeError", toRemove.getName()), e);
@@ -255,6 +260,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			attributesManagement.setAttribute(owner, attribute, false);
 			attributes.add(new AttributeExt(attribute, true));
 			updateAttributes();
+			bus.fireEvent(new AttributeChangedEvent(attribute.getGroupPath(), attribute.getName()));
 			return true;
 		} catch (Exception e)
 		{
@@ -277,6 +283,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 				}
 					
 			}
+			bus.fireEvent(new AttributeChangedEvent(attribute.getGroupPath(), attribute.getName()));
 			updateAttributes();
 			return true;
 		} catch (Exception e)
