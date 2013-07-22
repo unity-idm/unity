@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.samlidp.FreemarkerHandler;
-import pl.edu.icm.unity.samlidp.SamlPreferences.SPSettings;
+import pl.edu.icm.unity.samlidp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.samlidp.saml.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.samlidp.web.EopException;
 import pl.edu.icm.unity.samlidp.web.SamlIdPWebUI;
@@ -91,7 +91,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	private SamlPreferencesWithETD getPreferencesWithETD() throws EngineException
 	{
 		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
-		EntityParam entity = new EntityParam(String.valueOf(ae.getEntityId()));
+		EntityParam entity = new EntityParam(ae.getEntityId());
 		String raw = preferencesMan.getPreference(entity, SamlPreferencesWithETD.ID);
 		SamlPreferencesWithETD ret = new SamlPreferencesWithETD();
 		ret.setSerializedConfiguration(raw);
@@ -101,7 +101,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	private void savePreferencesWithETD(SamlPreferencesWithETD preferences) throws EngineException
 	{
 		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
-		EntityParam entity = new EntityParam(String.valueOf(ae.getEntityId()));
+		EntityParam entity = new EntityParam(ae.getEntityId());
 		preferencesMan.setPreference(entity, SamlPreferencesWithETD.ID, preferences.getSerializedConfiguration());
 	}	
 	

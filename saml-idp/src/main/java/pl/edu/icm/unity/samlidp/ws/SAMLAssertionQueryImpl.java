@@ -12,9 +12,9 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.samlidp.SamlPreferences;
 import pl.edu.icm.unity.samlidp.SamlProperties;
-import pl.edu.icm.unity.samlidp.SamlPreferences.SPSettings;
+import pl.edu.icm.unity.samlidp.preferences.SamlPreferences;
+import pl.edu.icm.unity.samlidp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.samlidp.saml.UnityAttributeQueryValidator;
 import pl.edu.icm.unity.samlidp.saml.ctx.SAMLAttributeQueryContext;
 import pl.edu.icm.unity.samlidp.saml.processor.AttributeQueryResponseProcessor;

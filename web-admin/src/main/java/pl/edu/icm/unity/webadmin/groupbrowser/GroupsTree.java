@@ -125,7 +125,7 @@ public class GroupsTree extends Tree
 	{
 		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
 		Collection<String> groups = identitiesMan.getGroups(
-				new EntityParam(String.valueOf(ae.getEntityId())));
+				new EntityParam(ae.getEntityId()));
 		List<String> accessibleGroups = new ArrayList<String>(groups.size());
 		for (String group: groups)
 		{
@@ -210,7 +210,7 @@ public class GroupsTree extends Tree
 		}
 	}
 
-	private void addToGroupVerification(String finalGroup, final String entityId)
+	private void addToGroupVerification(String finalGroup, final Long entityId)
 	{
 		final EntityParam entityParam = new EntityParam(entityId);
 		Collection<String> existingGroups;
@@ -266,7 +266,7 @@ public class GroupsTree extends Tree
 			{
 				TableTransferable transferable = (TableTransferable) rawTransferable;
 				Object draggedRaw = transferable.getItemId();
-				String entityId = null;
+				Long entityId = null;
 				if (draggedRaw instanceof IdentityWithEntity)
 				{
 					IdentityWithEntity dragged = (IdentityWithEntity) draggedRaw;

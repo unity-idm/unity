@@ -17,15 +17,13 @@ import pl.edu.icm.unity.types.InitializationValidator;
 public class EntityParam implements InitializationValidator
 {
 	private IdentityTaV identity;
-	private String entityId;
+	private Long entityId;
 	
 	/**
 	 * @param entityId
 	 */
-	public EntityParam(String entityId)
+	public EntityParam(Long entityId)
 	{
-		if (entityId == null)
-			throw new IllegalArgumentException("Entity id can not be null");
 		this.entityId = entityId;
 	}
 
@@ -39,12 +37,13 @@ public class EntityParam implements InitializationValidator
 	@Override
 	public void validateInitialization() throws IllegalIdentityValueException
 	{
-		if (entityId != null)
-			return;
-		identity.validateInitialization();
+		if (identity != null)
+			identity.validateInitialization();
+		else if (entityId == null)
+			throw new IllegalIdentityValueException("Either identityTaV or entityId must be set in entityParam");
 	}
 
-	public String getEntityId()
+	public Long getEntityId()
 	{
 		return entityId;
 	}

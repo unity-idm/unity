@@ -37,3 +37,26 @@
 .u-header {
 	background: url("../unityTheme/img/top-bar-bg.jpg");
 }
+
+.u-bigTab {
+/*	
+    background: url("../unityTheme/img/bg-dark.jpg");
+    color: #cccccc;
+*/
+	/*background-color: gray;*/
+}
+
+.u-bigTab:hover {
+    background: url("../unityTheme/img/bigTab-bg2-gray.jpg");
+    box-shadow: 6px 6px 3px #888;
+}
+
+.u-bigTabSelected {
+	background: url("../unityTheme/img/bigTab-bg2-blue.jpg");
+	color: black;
+	box-shadow: 6px 6px 3px #888;
+}
+
+.u-textCenter {
+	text-align: center;
+} 

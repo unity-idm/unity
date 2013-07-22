@@ -59,7 +59,7 @@ import com.vaadin.ui.themes.Reindeer;
 public class IdentitiesComponent extends Panel
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesComponent.class);
-	private static final List<String> EMPTY_LIST = new ArrayList<String>(0);
+	private static final List<Long> EMPTY_LIST = new ArrayList<Long>(0);
 	private UnityMessageSource msg;
 	private VerticalLayout main;
 	private GroupsManagement groupsManagement;

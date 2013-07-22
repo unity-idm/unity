@@ -26,13 +26,13 @@ public class CredentialRequirementDialog extends AbstractDialog
 {
 	private IdentitiesManagement identitiesMan;
 	private AuthenticationManagement authnMan;
-	private final String entityId;
+	private final long entityId;
 	private final String initialCR;
 	protected Callback callback;
 	
 	private ComboBox credentialRequirement;
 	
-	public CredentialRequirementDialog(UnityMessageSource msg, String entityId, String initialCR,
+	public CredentialRequirementDialog(UnityMessageSource msg, long entityId, String initialCR,
 			IdentitiesManagement identitiesMan, AuthenticationManagement authnMan, Callback callback)
 	{
 		super(msg, msg.getMessage("CredentialRequirementDialog.caption"));

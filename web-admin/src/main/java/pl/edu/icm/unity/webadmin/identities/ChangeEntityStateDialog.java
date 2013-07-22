@@ -18,13 +18,13 @@ import pl.edu.icm.unity.webui.common.EnumComboBox;
  */
 public class ChangeEntityStateDialog extends AbstractDialog
 {
-	private String entityId;
+	private long entityId;
 	protected Callback callback;
 	
 	private EnumComboBox<EntityState> entityState;
 	private final EntityState initialState;
 	
-	public ChangeEntityStateDialog(UnityMessageSource msg, String entityId, EntityState currentState, Callback callback)
+	public ChangeEntityStateDialog(UnityMessageSource msg, long entityId, EntityState currentState, Callback callback)
 	{
 		super(msg, msg.getMessage("ChangeEntityStateDialog.caption"));
 		this.entityId = entityId;

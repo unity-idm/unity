@@ -104,11 +104,12 @@ public class TestAuthorization extends DBIntegrationTestBase
 		setupUserContext("admin", false);
 		attrsMan.setAttribute(entity, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE,
 				"/", AttributeVisibility.local, AuthorizationManagerImpl.USER_ROLE), false);
-		setupUserContext("user1", true);
+		setupUserContext("admin", true);
 		try
 		{
-			attrsMan.getAttributes(entity, "/", null);
-			fail("got attributes with outdated credential");
+			attrsMan.setAttribute(entity, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE,
+					"/", AttributeVisibility.local, AuthorizationManagerImpl.INSPECTOR_ROLE), true);
+			fail("set attributes with outdated credential");
 		} catch(AuthorizationException e) {}
 		
 		idsMan.setEntityCredential(entity, EngineInitialization.DEFAULT_CREDENTIAL, "foo12!~");

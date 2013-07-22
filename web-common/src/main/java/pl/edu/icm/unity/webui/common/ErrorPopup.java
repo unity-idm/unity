@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.common;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 import com.vaadin.server.Page;
 import com.vaadin.ui.Notification;
@@ -27,6 +28,14 @@ public class ErrorPopup
 	public static void showError(String caption, String description)
 	{
 		Notification n = new Notification(caption, description, Type.ERROR_MESSAGE);
+		n.setDelayMsec(-1);
+		n.show(Page.getCurrent());
+	}
+
+	public static void showFormError(UnityMessageSource msg)
+	{
+		Notification n = new Notification(msg.getMessage("Generic.formError"), 
+				msg.getMessage("Generic.formErrorHint"), Type.ERROR_MESSAGE);
 		n.setDelayMsec(-1);
 		n.show(Page.getCurrent());
 	}

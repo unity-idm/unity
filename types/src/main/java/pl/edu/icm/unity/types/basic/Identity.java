@@ -15,7 +15,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
  */
 public class Identity extends IdentityParam
 {
-	private String entityId;
+	private Long entityId;
 	private IdentityType type;
 
 	private String comparableValue;
@@ -27,7 +27,7 @@ public class Identity extends IdentityParam
 	{
 	}
 	
-	public Identity(IdentityType type, String value, String entityId, boolean local) 
+	public Identity(IdentityType type, String value, Long entityId, boolean local) 
 			throws IllegalIdentityValueException
 	{
 		super(type.getIdentityTypeProvider().getId(), value, local);
@@ -36,7 +36,7 @@ public class Identity extends IdentityParam
 		this.type.getIdentityTypeProvider().validate(value);
 	}
 
-	public String getEntityId()
+	public Long getEntityId()
 	{
 		return entityId;
 	}
@@ -46,7 +46,7 @@ public class Identity extends IdentityParam
 		return type;
 	}
 	
-	public void setEntityId(String entityId)
+	public void setEntityId(Long entityId)
 	{
 		this.entityId = entityId;
 	}

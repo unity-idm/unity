@@ -72,15 +72,7 @@ public class IdentitiesResolver
 		BaseBean entityB;
 		if (entityParam.getEntityId() != null)
 		{
-			long id;
-			try
-			{
-				id = Long.parseLong(entityParam.getEntityId());
-			} catch(NumberFormatException e)
-			{
-				throw new IllegalIdentityValueException("The entity id is invalid", e);
-			}
-			entityB = mapper.getEntityById(id);
+			entityB = mapper.getEntityById(entityParam.getEntityId());
 			if (entityB == null)
 				throw new IllegalIdentityValueException("The entity id is invalid");
 			return entityB.getId();
@@ -101,7 +93,7 @@ public class IdentitiesResolver
 		Identity ret = new Identity();
 		ret.setType(idType);
 		ret.setTypeId(idType.getIdentityTypeProvider().getId());
-		ret.setEntityId(idB.getEntityId()+"");
+		ret.setEntityId(idB.getEntityId());
 		idSerializer.fromJson(idB.getContents(), ret);
 		return ret;
 	}

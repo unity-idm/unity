@@ -26,8 +26,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.AuthenticationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.samlidp.FreemarkerHandler;
-import pl.edu.icm.unity.samlidp.SamlPreferences;
-import pl.edu.icm.unity.samlidp.SamlPreferences.SPSettings;
+import pl.edu.icm.unity.samlidp.preferences.SamlPreferences;
+import pl.edu.icm.unity.samlidp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.samlidp.saml.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.samlidp.saml.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.samlidp.web.filter.SamlParseFilter;
@@ -150,14 +150,14 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	protected Entity getAuthenticatedEntity() throws EngineException
 	{
 		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
-		return identitiesMan.getEntity(new EntityParam(String.valueOf(ae.getEntityId())));
+		return identitiesMan.getEntity(new EntityParam(ae.getEntityId()));
 	}
 	
 	protected Map<String, Attribute<?>> getAttributes(AuthnResponseProcessor processor) 
 			throws EngineException
 	{
 		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
-		EntityParam entity = new EntityParam(String.valueOf(ae.getEntityId()));
+		EntityParam entity = new EntityParam(ae.getEntityId());
 		Collection<String> allGroups = identitiesMan.getGroups(entity);
 		Collection<AttributeExt<?>> allAttribtues = attributesMan.getAttributes(
 				entity, processor.getChosenGroup(), null);

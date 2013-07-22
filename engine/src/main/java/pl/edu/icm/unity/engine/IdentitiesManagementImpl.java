@@ -169,7 +169,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			Identity ret = dbIdentities.insertIdentity(toAdd, null, sqlMap);
-			long entityId = Long.parseLong(ret.getEntityId());
+			long entityId = ret.getEntityId();
 			if (!PersistentIdentity.ID.equals(toAdd.getTypeId()))
 			{
 				IdentityParam persistent = new IdentityParam(PersistentIdentity.ID, 
@@ -223,7 +223,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		IdentityTypeDefinition typeProvider = idType.getIdentityTypeProvider();
 		Map<String, String> toExtract = idType.getExtractedAttributes();
 		List<Attribute<?>> extractedList = typeProvider.extractAttributes(from.getValue(), toExtract);
-		long entityId = Long.parseLong(from.getEntityId());
+		long entityId = from.getEntityId();
 		for (Attribute<?> extracted: extractedList)
 		{
 			extracted.setGroupPath("/");
@@ -316,7 +316,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			Identity[] identities = dbIdentities.getIdentitiesForEntity(entityId, sqlMap);
 			CredentialInfo credInfo = getCredentialInfo(entityId, sqlMap);
 			EntityState theState = dbIdentities.getEntityStatus(entityId, sqlMap);
-			Entity ret = new Entity(entityId+"", identities, theState, credInfo);
+			Entity ret = new Entity(entityId, identities, theState, credInfo);
 			sqlMap.commit();
 			return ret;
 		} finally

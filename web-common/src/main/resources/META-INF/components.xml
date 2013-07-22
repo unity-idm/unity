@@ -24,6 +24,8 @@
 	<bean class="pl.edu.icm.unity.webui.common.credentials.ext.CertificateCredentialEditorFactory"/>
 	<bean class="pl.edu.icm.unity.webui.common.credentials.ext.PasswordCredentialEditorFactory"/>
 
+	<bean class="pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry"/>
+
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
 		<property name="bundle" value="pl/edu/icm/unity/webui/messages/messages"/>
 	</bean>

@@ -23,7 +23,6 @@ import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
@@ -34,7 +33,6 @@ import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -46,16 +44,16 @@ import com.vaadin.ui.VerticalLayout;
  * Allows to change a credential.
  * @author K. Benedyczak
  */
-public class CredentialChangeDialog extends AbstractDialog
+public class CredentialsPanel extends VerticalLayout
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, CredentialChangeDialog.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, CredentialsPanel.class);
 	private AuthenticationManagement authnMan;
 	private IdentitiesManagement idsMan;
 	private CredentialEditorRegistry credEditorReg;
-	private Callback callback;
+	private UnityMessageSource msg;
 	private boolean changed = false;
 	private Entity entity;
-	private final String entityId;
+	private final long entityId;
 	
 	private Map<String, CredentialDefinition> credentials;
 	
@@ -68,26 +66,24 @@ public class CredentialChangeDialog extends AbstractDialog
 	private Button update;
 	private CredentialEditor credEditor;
 	
-	public CredentialChangeDialog(UnityMessageSource msg, String entityId, AuthenticationManagement authnMan, 
-			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg, Callback callback)
+	public CredentialsPanel(UnityMessageSource msg, long entityId, AuthenticationManagement authnMan, 
+			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg) throws Exception
 	{
-		super(msg, msg.getMessage("CredentialChangeDialog.caption"), msg.getMessage("close"));
-		this.defaultSizeUndfined = true;
+		this.msg = msg;
 		this.authnMan = authnMan;
 		this.idsMan = idsMan;
 		this.entityId = entityId;
 		this.credEditorReg = credEditorReg;
-		this.callback = callback;
+		init();
 	}
 
-	@Override
-	protected Component getContents() throws Exception
+	private void init() throws Exception
 	{
 		loadCredentials();
 		
 		statuses = new Panel(msg.getMessage("CredentialChangeDialog.statusAll"));
 		
-		Panel credentialPanel = new Panel(msg.getMessage("CredentialChangeDialog.credentialPanel"));
+		Panel credentialPanel = new Panel();
 		
 		credential = new MapComboBox<CredentialDefinition>(msg.getMessage("CredentialChangeDialog.credential"),
 				credentials, credentials.keySet().iterator().next());
@@ -119,18 +115,22 @@ public class CredentialChangeDialog extends AbstractDialog
 		
 		Label spacer = new Label();
 		spacer.setHeight(2, Unit.EM);
-		VerticalLayout ret = new VerticalLayout(statuses, spacer, credential, credentialPanel);
-		ret.setSpacing(true);
+		addComponents(statuses, spacer);
+		if (credentials.size() > 1)
+			addComponent(credential);
+		else
+			addComponent(new Label(msg.getMessage("CredentialChangeDialog.credentialSingle", 
+					credentials.values().iterator().next().getName())));
+		
+		addComponent(credentialPanel);
+		setSpacing(true);
 		updateStatus();
 		updateSelectedCredential();
-		return ret;
 	}
 
-	@Override
-	protected void onConfirm()
+	public boolean isChanged()
 	{
-		callback.onClose(changed);
-		close();
+		return changed;
 	}
 	
 	private void updateSelectedCredential()
@@ -261,10 +261,10 @@ public class CredentialChangeDialog extends AbstractDialog
 			if (required.contains(credential.getName()))
 				credentials.put(credential.getName(), credential);
 		}
-	}
-	
-	public interface Callback
-	{
-		public void onClose(boolean changed);
+		if (credentials.size() == 0)
+		{
+			ErrorPopup.showError(msg.getMessage("error"), msg.getMessage("CredentialChangeDialog.noCredentials"));
+			throw new IllegalStateException();
+		}
 	}
 }

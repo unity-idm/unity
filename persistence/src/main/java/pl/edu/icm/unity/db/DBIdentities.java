@@ -143,7 +143,7 @@ public class DBIdentities
 		mapper.insertIdentity(idB);
 		
 		IdentityType idType = idResolver.resolveIdentityType(identityTypeB);
-		return new Identity(idType, toAdd.getValue(), entityId+"", toAdd.isLocal());
+		return new Identity(idType, toAdd.getValue(), entityId, toAdd.isLocal());
 	}
 
 	

@@ -15,12 +15,12 @@ import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.credentials.CredentialChangeDialog;
-import pl.edu.icm.unity.webui.common.credentials.CredentialChangeDialog.Callback;
+import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
+import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog.Callback;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 /**
- * Simple dialog wrapping {@link CredentialChangeDialog}. It is invoked for users logged with outdated
+ * Simple dialog wrapping {@link CredentialsChangeDialog}. It is invoked for users logged with outdated
  * credential. User is informed about invalidated credential and can choose to change it or logout. 
  * After changing the credential user can only logout.  
  * @author K. Benedyczak
@@ -54,8 +54,8 @@ public class OutdatedCredentialDialog extends AbstractDialog
 	{
 		WrappedSession vss = VaadinSession.getCurrent().getSession();
 		AuthenticatedEntity ae = (AuthenticatedEntity) vss.getAttribute(WebSession.USER_SESSION_KEY);
-		CredentialChangeDialog dialog = new CredentialChangeDialog(msg, 
-				String.valueOf(ae.getEntityId()), 
+		CredentialsChangeDialog dialog = new CredentialsChangeDialog(msg, 
+				ae.getEntityId(), 
 				authnMan, 
 				idsMan, 
 				credEditorReg, 

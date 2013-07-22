@@ -69,7 +69,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		idsMan.setEntityCredential(entityP, "credential1", "bar");
 		long entityId = endpoint.authenticate();
 		Entity entity = idsMan.getEntity(entityP);
-		assertEquals(entityId+"", entity.getId());
+		assertEquals(entityId, entity.getId().longValue());
 	}
 	
 	@Test

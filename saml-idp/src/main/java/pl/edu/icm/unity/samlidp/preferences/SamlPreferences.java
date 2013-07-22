@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.samlidp;
+package pl.edu.icm.unity.samlidp.preferences;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -116,7 +116,7 @@ public class SamlPreferences implements JsonSerializable
 	public static void initPreferencesGeneric(PreferencesManagement preferencesMan, JsonSerializable toInit, String id) throws EngineException
 	{
 		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
-		EntityParam entity = new EntityParam(String.valueOf(ae.getEntityId()));
+		EntityParam entity = new EntityParam(ae.getEntityId());
 		String raw = preferencesMan.getPreference(entity, id);
 		toInit.setSerializedConfiguration(raw);
 	}
@@ -125,7 +125,7 @@ public class SamlPreferences implements JsonSerializable
 			throws EngineException
 	{
 		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
-		EntityParam entity = new EntityParam(String.valueOf(ae.getEntityId()));
+		EntityParam entity = new EntityParam(ae.getEntityId());
 		preferencesMan.setPreference(entity, id, preferences.getSerializedConfiguration());
 	}
 
@@ -153,6 +153,11 @@ public class SamlPreferences implements JsonSerializable
 		if (ret == null)
 			ret = new SPSettings();
 		return ret;
+	}
+	
+	public Set<String> getKeys()
+	{
+		return spSettings.keySet();
 	}
 	
 	public void setSPSettings(String sp, SPSettings settings)

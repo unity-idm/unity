@@ -10,8 +10,8 @@ import java.util.Date;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.samlidp.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.samlidp.SamlProperties;
+import pl.edu.icm.unity.samlidp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.samlidp.saml.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.samlidp.ws.SAMLAuthnImpl;
 import pl.edu.icm.unity.server.api.AttributesManagement;

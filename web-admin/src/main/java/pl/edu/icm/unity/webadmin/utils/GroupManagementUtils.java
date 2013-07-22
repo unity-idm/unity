@@ -23,7 +23,7 @@ public class GroupManagementUtils
 	 * @param msg
 	 * @param groupsMan
 	 */
-	public static void addToGroup(Deque<String> notMember, String entityId, UnityMessageSource msg,
+	public static void addToGroup(Deque<String> notMember, long entityId, UnityMessageSource msg,
 			GroupsManagement groupsMan)
 	{
 		EntityParam entityParam = new EntityParam(entityId);

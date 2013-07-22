@@ -11,6 +11,10 @@ package pl.edu.icm.unity.webui.common;
 public enum Styles
 {
 	authnSetSelect("authnSetSelect"),
+	bigTabs("u-bigTabs"),
+	bigTab("u-bigTab"),
+	bigTabSelected("u-bigTabSelected"),
+	textCenter("u-textCenter"),
 	italic("u-italic"),
 	bold("u-bold"),
 	gray("u-gray"),

@@ -40,7 +40,7 @@ import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.credentials.CredentialChangeDialog;
+import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
@@ -71,7 +71,7 @@ public class IdentitiesTable extends TreeTable
 	private CredentialEditorRegistry credEditorsRegistry;
 	private EventsBus bus;
 	private String group;
-	private Map<String, IdentitiesAndAttributes> data = new HashMap<String, IdentitiesAndAttributes>();
+	private Map<Long, IdentitiesAndAttributes> data = new HashMap<Long, IdentitiesAndAttributes>();
 	private boolean groupByEntity;
 	private Entity selected;
 	private List<Filter> containerFilters;
@@ -93,7 +93,7 @@ public class IdentitiesTable extends TreeTable
 		this.containerFilters = new ArrayList<Container.Filter>();
 		this.credEditorsRegistry = credEditorsRegistry;
 		
-		addContainerProperty("entity", String.class, "");
+		addContainerProperty("entity", Long.class, null);
 		addContainerProperty("type", String.class, "");
 		addContainerProperty("identity", String.class, "");
 		addContainerProperty("enabled", String.class, "");
@@ -178,11 +178,11 @@ public class IdentitiesTable extends TreeTable
 		return group;
 	}
 	
-	public void setInput(String group, List<String> entities) throws EngineException
+	public void setInput(String group, List<Long> entities) throws EngineException
 	{
 		this.group = group;
 		data.clear();
-		for (String entity: entities)
+		for (Long entity: entities)
 			resolveEntity(entity); 
 		updateContents();
 	}
@@ -328,7 +328,7 @@ public class IdentitiesTable extends TreeTable
 		return itemId;
 	}
 	
-	private void resolveEntity(String entity) throws EngineException
+	private void resolveEntity(long entity) throws EngineException
 	{
 		Entity resolvedEntity = identitiesMan.getEntity(new EntityParam(entity));
 		Collection<AttributeExt<?>> rawAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
@@ -341,7 +341,7 @@ public class IdentitiesTable extends TreeTable
 		data.put(resolvedEntity.getId(), resolved);
 	}
 	
-	private void removeEntity(String entityId)
+	private void removeEntity(long entityId)
 	{
 		AuthenticatedEntity entity = InvocationContext.getCurrent().getAuthenticatedEntity();
 		
@@ -372,7 +372,7 @@ public class IdentitiesTable extends TreeTable
 		}
 	}
 
-	private boolean setEntityStatus(String entityId, EntityState newState)
+	private boolean setEntityStatus(long entityId, EntityState newState)
 	{
 		try
 		{
@@ -386,7 +386,7 @@ public class IdentitiesTable extends TreeTable
 		}
 	}
 	
-	private void removeFromGroup(String entityId)
+	private void removeFromGroup(long entityId)
 	{
 		try
 		{
@@ -409,8 +409,8 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final String entityId = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntity().getId() : target.toString();
+			final long entityId = target instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) target).getEntity().getId() : ((Entity)target).getId();
 			new ConfirmDialog(msg, msg.getMessage("Identities.confirmRemoveFromGroup", entityId, group),
 					new ConfirmDialog.Callback()
 			{
@@ -456,8 +456,8 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final String entityId = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntity().getId() : target.toString();
+			final long entityId = target instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) target).getEntity().getId() : ((Entity)target).getId();
 			new IdentityCreationDialog(msg, entityId, identitiesMan,  
 					identityEditorReg, new IdentityCreationDialog.Callback()
 					{
@@ -481,8 +481,8 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final String entityId = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntity().getId() : target.toString();
+			final long entityId = target instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) target).getEntity().getId() : ((Entity)target).getId();
 			new ConfirmDialog(msg, msg.getMessage("Identities.confirmEntityDelete", entityId),
 					new ConfirmDialog.Callback()
 			{
@@ -539,8 +539,8 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final String entityId = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntity().getId() : target.toString();
+			final long entityId = target instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) target).getEntity().getId() : ((Entity)target).getId();
 			EntityState currentState = data.get(entityId).getEntity().getState();
 			new ChangeEntityStateDialog(msg, entityId, currentState, new ChangeEntityStateDialog.Callback()
 			{
@@ -564,8 +564,8 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final String entityId = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntity().getId() : target.toString();
+			final long entityId = target instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) target).getEntity().getId() : ((Entity)target).getId();
 			IdentitiesAndAttributes info = data.get(entityId);
 			String currentCredId = info.getEntity().getCredentialInfo().getCredentialRequirementId();
 			new CredentialRequirementDialog(msg, entityId, currentCredId,
@@ -593,8 +593,8 @@ public class IdentitiesTable extends TreeTable
 		{
 			Entity entity = target instanceof IdentityWithEntity ? 
 					((IdentityWithEntity) target).getEntity() : (Entity)target;
-			new CredentialChangeDialog(msg, entity.getId(), authnMan, identitiesMan,
-					credEditorsRegistry, new CredentialChangeDialog.Callback()
+			new CredentialsChangeDialog(msg, entity.getId(), authnMan, identitiesMan,
+					credEditorsRegistry, new CredentialsChangeDialog.Callback()
 					{
 						@Override
 						public void onClose(boolean changed)

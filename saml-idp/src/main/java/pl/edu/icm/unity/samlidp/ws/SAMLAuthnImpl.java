@@ -13,9 +13,9 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.samlidp.SamlPreferences;
-import pl.edu.icm.unity.samlidp.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.samlidp.SamlProperties;
+import pl.edu.icm.unity.samlidp.preferences.SamlPreferences;
+import pl.edu.icm.unity.samlidp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.samlidp.saml.UnityAuthnRequestValidator;
 import pl.edu.icm.unity.samlidp.saml.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.samlidp.saml.processor.AuthnResponseProcessor;
@@ -100,7 +100,7 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 	{
 		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
 		Entity authenticatedEntity = identitiesMan.getEntity(
-				new EntityParam(String.valueOf(ae.getEntityId())));
+				new EntityParam(ae.getEntityId()));
 		List<Identity> validIdentities = samlProcessor.getCompatibleIdentities(authenticatedEntity);
 		if (validIdentities.size() > 0)
 		{
@@ -119,7 +119,7 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 			throws EngineException
 	{
 		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
-		EntityParam entity = new EntityParam(String.valueOf(ae.getEntityId()));
+		EntityParam entity = new EntityParam(ae.getEntityId());
 		Collection<String> allGroups = identitiesMan.getGroups(entity);
 		Collection<AttributeExt<?>> allAttribtues = attributesMan.getAttributes(
 				entity, processor.getChosenGroup(), null);

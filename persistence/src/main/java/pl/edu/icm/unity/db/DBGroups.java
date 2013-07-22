@@ -251,11 +251,11 @@ public class DBGroups
 		return ret;
 	}
 	
-	private List<String> convertEntities(List<BaseBean> src)
+	private List<Long> convertEntities(List<BaseBean> src)
 	{
-		List<String> ret = new ArrayList<String>(src.size());
+		List<Long> ret = new ArrayList<Long>(src.size());
 		for (int i=0; i<src.size(); i++)
-			ret.add(src.get(i).getId()+"");
+			ret.add(src.get(i).getId());
 		return ret;
 	}
 }

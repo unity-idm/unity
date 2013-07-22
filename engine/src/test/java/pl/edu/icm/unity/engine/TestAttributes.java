@@ -48,7 +48,7 @@ public class TestAttributes extends DBIntegrationTestBase
 		setupMockAuthn();
 		groupsMan.addGroup(new Group("/test"));
 		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi", true), "crMock", 
-				EntityState.disabled, false);
+				EntityState.valid, false);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		
 		StringAttribute systemA = new StringAttribute(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS, "/", 

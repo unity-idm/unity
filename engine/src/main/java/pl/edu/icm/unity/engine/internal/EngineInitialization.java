@@ -269,8 +269,9 @@ public class EngineInitialization extends LifecycleBase
 				
 				EntityParam adminEntity = new EntityParam(adminId.getEntityId());
 				idManagement.setEntityCredential(adminEntity, credDef.getName(), adminP);
-				idManagement.setEntityCredentialStatus(adminEntity, credDef.getName(), 
-						LocalCredentialState.outdated);
+//FIXME!! change initial cred state to outdated
+//				idManagement.setEntityCredentialStatus(adminEntity, credDef.getName(), 
+//						LocalCredentialState.outdated);
 				EnumAttribute roleAt = new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE,
 						"/", AttributeVisibility.local, 
 						AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE);

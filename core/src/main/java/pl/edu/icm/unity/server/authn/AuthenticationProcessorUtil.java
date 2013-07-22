@@ -30,11 +30,11 @@ public class AuthenticationProcessorUtil
 		{
 			if (result.getStatus() != Status.success)
 				throw new AuthenticationException("AuthenticationProcessorUtil.authnFailed");
-			long curId = result.getAuthenticatedEntity().getEntityId();
+			Long curId = result.getAuthenticatedEntity().getEntityId();
 			if (entityId == null)
 				entityId = curId;
 			else
-				if (entityId != curId)
+				if (!entityId.equals(curId))
 				{
 					throw new AuthenticationException("AuthenticationProcessorUtil.authnWrongUsers");
 				}

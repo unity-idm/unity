@@ -13,11 +13,11 @@ import java.util.List;
  */
 public class AuthenticatedEntity
 {
-	private long entityId;
+	private Long entityId;
 	private boolean usedOutdatedCredential;
 	private List<String> authenticatedWith;
 
-	public AuthenticatedEntity(long entityId, String info, boolean useOutdatedCredential)
+	public AuthenticatedEntity(Long entityId, String info, boolean useOutdatedCredential)
 	{
 		this.entityId = entityId;
 		this.authenticatedWith = new ArrayList<String>(4);
@@ -25,7 +25,7 @@ public class AuthenticatedEntity
 		this.usedOutdatedCredential = useOutdatedCredential;
 	}
 
-	public long getEntityId()
+	public Long getEntityId()
 	{
 		return entityId;
 	}

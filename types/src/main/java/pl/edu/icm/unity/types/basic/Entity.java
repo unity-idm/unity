@@ -13,12 +13,12 @@ import pl.edu.icm.unity.types.authn.CredentialInfo;
  */
 public class Entity
 {
-	private String id;
+	private Long id;
 	private EntityState state;
 	private Identity[] identities;
 	private CredentialInfo credentialInfo;
 	
-	public Entity(String id, Identity[] identities, EntityState state, CredentialInfo credentialInfo)
+	public Entity(Long id, Identity[] identities, EntityState state, CredentialInfo credentialInfo)
 	{
 		this.id = id;
 		this.identities = identities;
@@ -26,7 +26,7 @@ public class Entity
 		this.state = state;
 	}
 
-	public String getId()
+	public Long getId()
 	{
 		return id;
 	}
@@ -73,6 +73,6 @@ public class Entity
 	@Override
 	public String toString()
 	{
-		return id;
+		return String.valueOf(id);
 	}
 }

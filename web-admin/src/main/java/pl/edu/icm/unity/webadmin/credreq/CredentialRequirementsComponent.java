@@ -23,14 +23,14 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementEditDialog.Callback;
-import pl.edu.icm.unity.webadmin.generic.GenericElementsTable;
-import pl.edu.icm.unity.webadmin.generic.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 
 /**
  * Provides {@link CredentialRequirements} management UI

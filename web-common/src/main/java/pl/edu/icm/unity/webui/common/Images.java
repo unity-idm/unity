@@ -13,6 +13,12 @@ import com.vaadin.server.Resource;
  */
 public enum Images
 {
+	hInfo		(I.PH + "bullet_info64.png"),
+	hKey		(I.PH + "key64.png"),
+	hSettings	(I.PH + "settings64.png"),
+	hAccept		(I.PH + "bullet_accept16.png"),
+	hRemove		(I.PH + "bullet_deny16.png"),
+	
 	unknown		(I.P + "unknown.gif"),
 	logout		(I.P + "logout.png"),
 	add		(I.P + "add.png"),
@@ -50,6 +56,7 @@ public enum Images
 	 */
 	private static interface I
 	{
-		public static final String P = "/pl/edu/icm/unity/webui/img/"; 
+		public static final String P = "/pl/edu/icm/unity/webui/img/";
+		public static final String PH = "/pl/edu/icm/unity/webui/img/hand/";
 	}
 }

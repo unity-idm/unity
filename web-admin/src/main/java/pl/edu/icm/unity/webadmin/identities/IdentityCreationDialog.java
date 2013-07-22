@@ -29,7 +29,7 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
  */
 public class IdentityCreationDialog extends AbstractDialog
 {
-	private String entityId;
+	private long entityId;
 	protected IdentitiesManagement identitiesMan;
 	protected IdentityEditorRegistry identityEditorReg;
 	protected Callback callback;
@@ -39,7 +39,7 @@ public class IdentityCreationDialog extends AbstractDialog
 	protected IdentityEditor identityEditor;
 	protected CheckBox extractAttributes;
 	
-	public IdentityCreationDialog(UnityMessageSource msg, String entityId, IdentitiesManagement identitiesMan,
+	public IdentityCreationDialog(UnityMessageSource msg, long entityId, IdentitiesManagement identitiesMan,
 			IdentityEditorRegistry identityEditorReg, Callback callback)
 	{
 		this(msg.getMessage("IdentityCreation.caption"), msg, identitiesMan, identityEditorReg, callback);
