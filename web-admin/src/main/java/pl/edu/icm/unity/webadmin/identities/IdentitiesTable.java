@@ -18,6 +18,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.home.iddetails.EntityDetailsDialog;
+import pl.edu.icm.unity.home.iddetails.EntityDetailsPanel;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -121,6 +123,7 @@ public class IdentitiesTable extends TreeTable
 		setColumnWidth("credReq", 180);
 		
 		addActionHandler(new RefreshHandler());
+		addActionHandler(new ShowEntityDetailsHandler());
 		addActionHandler(new RemoveFromGroupHandler());
 		addActionHandler(new AddEntityActionHandler());
 		addActionHandler(new AddIdentityActionHandler());
@@ -620,6 +623,40 @@ public class IdentitiesTable extends TreeTable
 			refresh();
 		}
 	}
+
+	private void showEntityDetails(Entity entity)
+	{
+		final EntityDetailsPanel identityDetailsPanel = new EntityDetailsPanel(msg);
+		Collection<String> groups;
+		try
+		{
+			groups = identitiesMan.getGroups(new EntityParam(entity.getId()));
+		} catch (EngineException e)
+		{
+			ErrorPopup.showError(msg.getMessage("error"), e);
+			return;
+		}
+		identityDetailsPanel.setInput(entity, groups);
+		new EntityDetailsDialog(msg, identityDetailsPanel).show();
+	}
+	
+	private class ShowEntityDetailsHandler extends SingleActionHandler
+	{
+		public ShowEntityDetailsHandler()
+		{
+			super(msg.getMessage("Identities.showEntityDetails"), 
+					Images.hUserMagnifier.getResource());
+		}
+
+		@Override
+		public void handleAction(Object sender, Object target)
+		{
+			final Entity entity = target instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) target).getEntity() : ((Entity)target);
+			showEntityDetails(entity);
+		}
+	}
+
 	
 	/**
 	 * Complete info about entity: its identities and relevant attributes.

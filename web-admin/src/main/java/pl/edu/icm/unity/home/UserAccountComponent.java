@@ -4,11 +4,16 @@
  */
 package pl.edu.icm.unity.home;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.home.iddetails.EntityDetailsPanel;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
@@ -16,6 +21,8 @@ import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webadmin.preferences.PreferencesComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
@@ -35,6 +42,7 @@ import com.vaadin.ui.VerticalLayout;
 public class UserAccountComponent extends VerticalLayout
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UserAccountComponent.class);
+	private UnityMessageSource msg;
 	
 	@Autowired
 	public UserAccountComponent(AuthenticationManagement authnMan, IdentitiesManagement idsMan,
@@ -42,6 +50,8 @@ public class UserAccountComponent extends VerticalLayout
 			PreferencesHandlerRegistry registry, PreferencesManagement prefMan, 
 			UnityMessageSource msg)
 	{
+		this.msg = msg;
+		
 		Label spacer = new Label();
 		spacer.setHeight(20, Unit.PIXELS);
 		addComponent(spacer);
@@ -49,12 +59,24 @@ public class UserAccountComponent extends VerticalLayout
 		tabPanel.setSizeFull();
 		addComponent(tabPanel);
 		setExpandRatio(tabPanel, 1.0f);
-		
-		Label tmp1 = new Label("INFO panel");
-		tabPanel.addTab("UserHomeUI.accountInfoLabel", "UserHomeUI.accountInfoDesc", 
-				Images.hInfo.getResource(), tmp1);
-		
+
 		AuthenticatedEntity theUser = InvocationContext.getCurrent().getAuthenticatedEntity();
+
+		
+		try
+		{
+			com.vaadin.ui.Component userInfo = getUserInfoComponent(theUser.getEntityId(), idsMan);
+			tabPanel.addTab("UserHomeUI.accountInfoLabel", "UserHomeUI.accountInfoDesc", 
+					Images.hInfo.getResource(), userInfo);
+		} catch (AuthorizationException e)
+		{
+			//OK - rather shouldn't happen but the user is not authorized to even see the entity details.
+		} catch (Exception e)
+		{
+			log.error("Error when creating user information view", e);
+			ErrorPopup.showError(msg.getMessage("error"), e);
+		}
+		
 		try
 		{
 			CredentialsPanel credentialsPanel = new CredentialsPanel(msg, theUser.getEntityId(), 
@@ -75,5 +97,24 @@ public class UserAccountComponent extends VerticalLayout
 				Images.hSettings.getResource(), preferencesComponent);
 		
 		tabPanel.select(0);
+	}
+	
+	private com.vaadin.ui.Component getUserInfoComponent(long entityId, IdentitiesManagement idsMan) 
+			throws EngineException
+	{
+		EntityDetailsPanel ret = new EntityDetailsPanel(msg);
+		EntityParam param = new EntityParam(entityId);
+		Collection<String> groups;
+		try
+		{
+			groups = idsMan.getGroups(param);
+		} catch (AuthorizationException e)
+		{
+			groups = new HashSet<String>();
+			groups.add(msg.getMessage("UserHomeUI.unauthzGroups"));
+		}
+		Entity entity = idsMan.getEntity(param);
+		ret.setInput(entity, groups);
+		return ret;
 	}
 }

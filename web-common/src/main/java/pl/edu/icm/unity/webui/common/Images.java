@@ -21,6 +21,7 @@ public enum Images
 	hExit		(I.PH + "arrow_right_red32.png"),
 	hToAdmin	(I.PH + "user_starred32.png"),
 	hToProfile	(I.PH + "user_unstarred32.png"),
+	hUserMagnifier	(I.PH + "user_search16.png"),
 	
 	unknown		(I.P + "unknown.gif"),
 	logout		(I.P + "logout.png"),
