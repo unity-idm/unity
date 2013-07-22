@@ -22,22 +22,43 @@ import com.vaadin.ui.themes.Reindeer;
  */
 public class TopHeader extends TopHeaderLight
 {
+	protected UnityMessageSource msg;
+	
 	public TopHeader(String title, UnityMessageSource msg)
 	{
 		super(title, msg);
+		this.msg = msg;
 		
 		HorizontalLayout loggedPanel = new HorizontalLayout();
 		loggedPanel.setSizeUndefined();
 		loggedPanel.setSpacing(true);
+		addComponent(loggedPanel);
+		setComponentAlignment(loggedPanel, Alignment.BOTTOM_RIGHT);
+		
+		addLoggedInfo(loggedPanel);
+		addButtons(loggedPanel);
+	}
+	
+	protected void addLoggedInfo(HorizontalLayout loggedPanel)
+	{
 		AuthenticatedEntity entity = InvocationContext.getCurrent().getAuthenticatedEntity();
 		Label loggedEntity = new Label(msg.getMessage("MainHeader.loggedAs", entity.getAuthenticatedWith().get(0),
 				entity.getEntityId()));
 		loggedEntity.setStyleName(Reindeer.LABEL_H2);
 		loggedPanel.addComponent(loggedEntity);
 		loggedPanel.setComponentAlignment(loggedEntity, Alignment.MIDDLE_RIGHT);
-		
+	}
+	
+	protected void addButtons(HorizontalLayout loggedPanel)
+	{
+		Button logout = createLogoutButton();
+		loggedPanel.addComponent(logout);
+	}
+	
+	protected Button createLogoutButton()
+	{
 		Button logout = new Button();
-		logout.setIcon(Images.logout.getResource());
+		logout.setIcon(Images.hExit.getResource());
 		logout.setDescription(msg.getMessage("MainHeader.logout"));
 		logout.setStyleName(Reindeer.BUTTON_LINK);
 		logout.addClickListener(new Button.ClickListener()
@@ -48,9 +69,6 @@ public class TopHeader extends TopHeaderLight
 				AuthenticationProcessor.logout();
 			}
 		});
-		loggedPanel.addComponent(logout);
-		
-		addComponent(loggedPanel);
-		setComponentAlignment(loggedPanel, Alignment.BOTTOM_RIGHT);
+		return logout;
 	}
 }

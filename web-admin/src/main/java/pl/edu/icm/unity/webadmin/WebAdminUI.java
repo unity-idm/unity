@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.home.UserAccountComponent;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -33,13 +34,13 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.webadmin.AdminTopHeader.ViewSwitchCallback;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.bus.RefreshEvent;
-import pl.edu.icm.unity.webui.common.TopHeader;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
@@ -68,13 +69,18 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 	
 	private SchemaManagementTab schemaManagement;
 	
+	private UserAccountComponent userAccount;
+	
+	private MainTabPanel tabPanel;
+	
 	private EndpointDescription endpointDescription;
 	
 	@Autowired
 	public WebAdminUI(UnityMessageSource msg, GroupsManagement test,
 			IdentitiesManagement testIdMan, AttributesManagement testAttrMan,
 			ContentsManagementTab contentsManagement,
-			SchemaManagementTab schemaManagement)
+			SchemaManagementTab schemaManagement,
+			UserAccountComponent userAccount)
 	{
 		super(msg);
 		this.test = test;
@@ -82,6 +88,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 		this.testAttrMan = testAttrMan;
 		this.contentsManagement = contentsManagement;
 		this.schemaManagement = schemaManagement;
+		this.userAccount = userAccount;
 	}
 	
 	@Override
@@ -97,25 +104,53 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 		tmpInitContents();
 
 		VerticalLayout contents = new VerticalLayout();
-		TopHeader header = new TopHeader(endpointDescription.getId(), msg);
-		contents.addComponent(header);
+
+		final VerticalLayout mainWrapper = new VerticalLayout();
+		mainWrapper.setSizeFull();
+
+		AdminTopHeader header = new AdminTopHeader(endpointDescription.getId(), msg, 
+				new ViewSwitchCallback()
+				{
+					@Override
+					public void showView(boolean admin)
+					{
+						switchView(mainWrapper, admin ? tabPanel : userAccount);
+					}
+				});
 
 		
-		MainTabPanel tabPanel = new MainTabPanel();
-		contents.addComponent(tabPanel);
-		
-		tabPanel.addTab(contentsManagement);
-		tabPanel.addTab(schemaManagement);
-		tabPanel.setSizeFull();
-		contents.setComponentAlignment(tabPanel, Alignment.TOP_LEFT);
-		contents.setExpandRatio(tabPanel, 1.0f);
-		
+		createMainTabPanel();
+		userAccount.setWidth(80, Unit.PERCENTAGE);
+
+		contents.addComponent(header);
+		contents.addComponent(mainWrapper);		
+		contents.setExpandRatio(mainWrapper, 1.0f);		
+		contents.setComponentAlignment(mainWrapper, Alignment.TOP_LEFT);
 		contents.setSizeFull();
+		
 		setContent(contents);
+	
+		switchView(mainWrapper, tabPanel);
 		
 		tmpRefreshTypes();
 	}
 
+	private void createMainTabPanel()
+	{
+		tabPanel = new MainTabPanel();		
+		tabPanel.addTab(contentsManagement);
+		tabPanel.addTab(schemaManagement);
+		tabPanel.setSizeFull();
+	}
+	
+	private void switchView(VerticalLayout contents, com.vaadin.ui.Component component)
+	{
+		contents.removeAllComponents();
+		contents.addComponent(component);
+		contents.setComponentAlignment(component, Alignment.TOP_CENTER);
+		contents.setExpandRatio(component, 1.0f);		
+	}
+	
 	
 	//TODO remove below this line
 	private void tmpInitContents()

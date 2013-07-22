@@ -18,6 +18,9 @@ public enum Images
 	hSettings	(I.PH + "settings64.png"),
 	hAccept		(I.PH + "bullet_accept16.png"),
 	hRemove		(I.PH + "bullet_deny16.png"),
+	hExit		(I.PH + "arrow_right_red32.png"),
+	hToAdmin	(I.PH + "user_starred32.png"),
+	hToProfile	(I.PH + "user_unstarred32.png"),
 	
 	unknown		(I.P + "unknown.gif"),
 	logout		(I.P + "logout.png"),
