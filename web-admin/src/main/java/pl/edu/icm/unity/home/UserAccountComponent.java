@@ -71,7 +71,7 @@ public class UserAccountComponent extends VerticalLayout
 		{
 			com.vaadin.ui.Component userInfo = getUserInfoComponent(theUser.getEntityId(), idsMan);
 			tabPanel.addTab("UserHomeUI.accountInfoLabel", "UserHomeUI.accountInfoDesc", 
-					Images.hInfo.getResource(), userInfo);
+					Images.info64.getResource(), userInfo);
 		} catch (AuthorizationException e)
 		{
 			//OK - rather shouldn't happen but the user is not authorized to even see the entity details.
@@ -86,7 +86,7 @@ public class UserAccountComponent extends VerticalLayout
 			CredentialsPanel credentialsPanel = new CredentialsPanel(msg, theUser.getEntityId(), 
 					authnMan, idsMan, credEditorReg);
 			tabPanel.addTab("UserHomeUI.credentialsLabel", "UserHomeUI.credentialsDesc", 
-					Images.hKey.getResource(), credentialsPanel);
+					Images.key64.getResource(), credentialsPanel);
 		} catch (AuthorizationException e)
 		{
 			//OK - rather shouldn't happen but the user is not authorized to even see the credentials.
@@ -98,7 +98,7 @@ public class UserAccountComponent extends VerticalLayout
 
 		PreferencesComponent preferencesComponent = new PreferencesComponent(msg, registry, prefMan, endpMan);
 		tabPanel.addTab("UserHomeUI.preferencesLabel", "UserHomeUI.preferencesDesc", 
-				Images.hSettings.getResource(), preferencesComponent);
+				Images.settings64.getResource(), preferencesComponent);
 		
 		tabPanel.select(0);
 	}

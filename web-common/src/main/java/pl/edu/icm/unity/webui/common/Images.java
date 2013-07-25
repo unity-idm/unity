@@ -13,33 +13,43 @@ import com.vaadin.server.Resource;
  */
 public enum Images
 {
-	hInfo		(I.PH + "bullet_info64.png"),
-	hKey		(I.PH + "key64.png"),
-	hSettings	(I.PH + "settings64.png"),
-	hAccept		(I.PH + "bullet_accept16.png"),
-	hRemove		(I.PH + "bullet_deny16.png"),
-	hExit		(I.PH + "arrow_right_red32.png"),
-	hToAdmin	(I.PH + "user_starred32.png"),
-	hToProfile	(I.PH + "user_unstarred32.png"),
-	hUserMagnifier	(I.PH + "user_search16.png"),
+	info64		(I.PH + "64/bullet_info.png"),
+	key64		(I.PH + "64/key.png"),
+	settings64	(I.PH + "64/settings.png"),
 	
-	unknown		(I.P + "unknown.gif"),
-	logout		(I.P + "logout.png"),
-	add		(I.P + "add.png"),
-	delete		(I.P + "delete.png"),
-	edit		(I.P + "edit.png"),
-	checked		(I.P + "checked.png"),
-	unchecked	(I.P + "unchecked.png"),
-	refresh		(I.P + "refresh.png"),
-	noAuthzGrp	(I.P + "noauthzGrp.gif"),
-	collapse	(I.P + "collapse.gif"),
-	addSearch	(I.P + "magnifier.png"),
-	ok		(I.P + "ok.gif"),
-	warn		(I.P + "warn.gif"),
-	error		(I.P + "error.gif"),
-	addColumn	(I.P + "addColumn.png"),
-	removeColumn	(I.P + "removeColumn.png"),
-	folder		(I.P + "folder.gif");
+	exit32		(I.P + "32/exit.png"),
+	error32		(I.P + "32/error"),
+	warn32		(I.P + "32/warn.png"),
+	toAdmin32	(I.P + "32/manager.png"),
+	toProfile32	(I.P + "32/personal.png"),
+
+	
+	refresh		(I.P + "16/reload.png"),
+	userMagnifier	(I.P + "16/search.png"),
+	folder		(I.P + "16/folder.png"),
+	add		(I.P + "16/add.png"),
+	addIdentity	(I.P + "16/identity_add.png"),
+	addEntity	(I.P + "16/entity_add.png"),
+	addFolder	(I.P + "16/folder_add.png"),
+	delete		(I.P + "16/remove.png"),
+	deleteFolder	(I.P + "16/folder_delete.png"),
+	deleteEntity	(I.P + "16/entity_delete.png"),
+	deleteIdentity	(I.P + "16/identity_delete.png"),
+	edit		(I.P + "16/edit.png"),
+	editUser	(I.P + "16/user_edit.png"),
+	editFolder	(I.P + "16/folder_edit.png"),
+	ok		(I.P + "16/ok.png"),
+	save		(I.P + "16/save.png"),
+	trashBin	(I.P + "16/trash.png"),
+	addFilter	(I.P + "16/search.png"),
+	noAuthzGrp	(I.P + "16/folder_locked.png"),
+	collapse	(I.P + "16/collapse.png"),
+	expand		(I.P + "16/expand.png"),
+	addColumn	(I.P + "16/column_add.png"),
+	removeColumn	(I.P + "16/column_delete.png"),
+	key		(I.P + "16/key.png"),
+	warn		(I.P + "16/warn.png"),
+	error		(I.P + "16/error.png");
 	
 	
 	private final String classpath;
@@ -60,7 +70,7 @@ public enum Images
 	 */
 	private static interface I
 	{
-		public static final String P = "/pl/edu/icm/unity/webui/img/";
+		public static final String P = "/pl/edu/icm/unity/webui/img/standard/";
 		public static final String PH = "/pl/edu/icm/unity/webui/img/hand/";
 	}
 }

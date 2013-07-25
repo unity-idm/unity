@@ -58,7 +58,7 @@ public class TopHeader extends TopHeaderLight
 	protected Button createLogoutButton()
 	{
 		Button logout = new Button();
-		logout.setIcon(Images.hExit.getResource());
+		logout.setIcon(Images.exit32.getResource());
 		logout.setDescription(msg.getMessage("MainHeader.logout"));
 		logout.setStyleName(Reindeer.BUTTON_LINK);
 		logout.addClickListener(new Button.ClickListener()

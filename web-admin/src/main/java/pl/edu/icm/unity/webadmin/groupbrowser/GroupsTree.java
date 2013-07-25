@@ -78,12 +78,12 @@ public class GroupsTree extends Tree
 
 		addExpandListener(new GroupExpandListener());
 		addValueChangeListener(new ValueChangeListenerImpl());
-		addActionHandler(new AddGroupActionHandler());
-		addActionHandler(new EditGroupActionHandler());
 		addActionHandler(new RefreshActionHandler());
-		addActionHandler(new DeleteActionHandler());
 		addActionHandler(new ExpandAllActionHandler());
 		addActionHandler(new CollapseAllActionHandler());
+		addActionHandler(new AddGroupActionHandler());
+		addActionHandler(new EditGroupActionHandler());
+		addActionHandler(new DeleteActionHandler());
 		addActionHandler(new AddEntityActionHandler());
 		setDropHandler(new GroupDropHandler());
 		setImmediate(true);
@@ -295,7 +295,7 @@ public class GroupsTree extends Tree
 	{
 		public AddGroupActionHandler()
 		{
-			super(msg.getMessage("GroupsTree.addGroupAction"), Images.add.getResource());
+			super(msg.getMessage("GroupsTree.addGroupAction"), Images.addFolder.getResource());
 		}
 
 		@Override
@@ -319,7 +319,7 @@ public class GroupsTree extends Tree
 	{
 		public EditGroupActionHandler()
 		{
-			super(msg.getMessage("GroupsTree.editGroupAction"), Images.edit.getResource());
+			super(msg.getMessage("GroupsTree.editGroupAction"), Images.editFolder.getResource());
 		}
 
 		@Override
@@ -354,7 +354,7 @@ public class GroupsTree extends Tree
 	{
 		public AddEntityActionHandler()
 		{
-			super(msg.getMessage("GroupsTree.addEntityAction"), Images.add.getResource());
+			super(msg.getMessage("GroupsTree.addEntityAction"), Images.addEntity.getResource());
 		}
 
 		@Override
@@ -395,7 +395,7 @@ public class GroupsTree extends Tree
 		public DeleteActionHandler()
 		{
 			super(msg.getMessage("GroupsTree.deleteGroupAction"), 
-					Images.delete.getResource());
+					Images.deleteFolder.getResource());
 		}
 
 		@Override
@@ -420,7 +420,7 @@ public class GroupsTree extends Tree
 		public ExpandAllActionHandler()
 		{
 			super(msg.getMessage("GroupsTree.expandGroupsAction"), 
-					Images.folder.getResource());
+					Images.expand.getResource());
 		}
 
 		@Override

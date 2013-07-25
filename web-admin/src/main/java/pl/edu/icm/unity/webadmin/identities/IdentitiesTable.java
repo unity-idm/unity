@@ -98,13 +98,13 @@ public class IdentitiesTable extends TreeTable
 		addContainerProperty("entity", Long.class, null);
 		addContainerProperty("type", String.class, "");
 		addContainerProperty("identity", String.class, "");
-		addContainerProperty("enabled", String.class, "");
+		addContainerProperty("status", String.class, "");
 		addContainerProperty("local", String.class, "");
 		addContainerProperty("credReq", String.class, "");
 		setColumnHeader("entity", msg.getMessage("Identities.entity"));
 		setColumnHeader("type", msg.getMessage("Identities.type"));
 		setColumnHeader("identity", msg.getMessage("Identities.identity"));
-		setColumnHeader("enabled", msg.getMessage("Identities.status"));
+		setColumnHeader("status", msg.getMessage("Identities.status"));
 		setColumnHeader("local", msg.getMessage("Identities.local"));
 		setColumnHeader("credReq", msg.getMessage("Identities.credReq"));
 		
@@ -118,7 +118,7 @@ public class IdentitiesTable extends TreeTable
 		
 		setColumnWidth("entity", 60);
 		setColumnWidth("type", 100);
-		setColumnWidth("enabled", 100);
+		setColumnWidth("status", 100);
 		setColumnWidth("local", 100);
 		setColumnWidth("credReq", 180);
 		
@@ -289,14 +289,14 @@ public class IdentitiesTable extends TreeTable
 		Object itemId = id == null ? ent : new IdentityWithEntity(id, ent);
 		setColumnWidth("entity", 60);
 		setColumnWidth("type", 100);
-		setColumnWidth("enabled", 100);
+		setColumnWidth("status", 100);
 		setColumnWidth("local", 100);
 		setColumnWidth("credReq", 180);
 		
 		Item newItem = addItem(itemId);
 		newItem.getItemProperty("entity").setValue(ent.getId());
 		newItem.getItemProperty("credReq").setValue(ent.getCredentialInfo().getCredentialRequirementId());
-		newItem.getItemProperty("enabled").setValue(msg.getMessage("EntityState."+ent.getState().name()));
+		newItem.getItemProperty("status").setValue(msg.getMessage("EntityState."+ent.getState().name()));
 		if (id != null)
 		{
 			newItem.getItemProperty("type").setValue(id.getTypeId());
@@ -430,7 +430,7 @@ public class IdentitiesTable extends TreeTable
 	{
 		public AddEntityActionHandler()
 		{
-			super(msg.getMessage("Identities.addEntityAction"), Images.add.getResource());
+			super(msg.getMessage("Identities.addEntityAction"), Images.addEntity.getResource());
 			setNeedsTarget(false);
 		}
 
@@ -453,7 +453,7 @@ public class IdentitiesTable extends TreeTable
 	{
 		public AddIdentityActionHandler()
 		{
-			super(msg.getMessage("Identities.addIdentityAction"), Images.add.getResource());
+			super(msg.getMessage("Identities.addIdentityAction"), Images.addIdentity.getResource());
 		}
 
 		@Override
@@ -478,7 +478,7 @@ public class IdentitiesTable extends TreeTable
 		public DeleteEntityHandler()
 		{
 			super(msg.getMessage("Identities.deleteEntityAction"), 
-					Images.delete.getResource());
+					Images.deleteEntity.getResource());
 		}
 
 		@Override
@@ -504,7 +504,7 @@ public class IdentitiesTable extends TreeTable
 		public DeleteIdentityHandler()
 		{
 			super(msg.getMessage("Identities.deleteIdentityAction"), 
-					Images.delete.getResource());
+					Images.deleteIdentity.getResource());
 		}
 		
 		@Override
@@ -536,7 +536,7 @@ public class IdentitiesTable extends TreeTable
 		public ChangeEntityStatusHandler()
 		{
 			super(msg.getMessage("Identities.changeEntityStatusAction"), 
-					Images.edit.getResource());
+					Images.editUser.getResource());
 		}
 		
 		@Override
@@ -561,7 +561,7 @@ public class IdentitiesTable extends TreeTable
 		public ChangeCredentialRequirementHandler()
 		{
 			super(msg.getMessage("Identities.changeCredentialRequirementAction"), 
-					Images.edit.getResource());
+					Images.key.getResource());
 		}
 
 		@Override
@@ -588,7 +588,7 @@ public class IdentitiesTable extends TreeTable
 		public ChangeCredentialHandler()
 		{
 			super(msg.getMessage("Identities.changeCredentialAction"), 
-					Images.edit.getResource());
+					Images.key.getResource());
 		}
 
 		@Override
@@ -645,7 +645,7 @@ public class IdentitiesTable extends TreeTable
 		public ShowEntityDetailsHandler()
 		{
 			super(msg.getMessage("Identities.showEntityDetails"), 
-					Images.hUserMagnifier.getResource());
+					Images.userMagnifier.getResource());
 		}
 
 		@Override

@@ -96,7 +96,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		} catch (Exception e)
 		{
 			log.warn("Problem getting value's image as resource: " + e, e);
-			return Images.unknown.getResource();
+			return Images.error32.getResource();
 		}
 	}
 
@@ -176,7 +176,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 				} catch (Exception e)
 				{
 					log.warn("Problem getting value's image as resource for editing: " + e, e);
-					field.setSource(Images.unknown.getResource());
+					field.setSource(Images.error32.getResource());
 				}
 			}
 			vl.addComponent(field);

@@ -61,12 +61,12 @@ public class AdminTopHeader extends TopHeader
 	{
 		if (adminView)
 		{
-			switchView.setIcon(Images.hToAdmin.getResource());
+			switchView.setIcon(Images.toAdmin32.getResource());
 			switchView.setDescription(msg.getMessage("AdminTopHeader.toAdmin"));
 			adminView = false;
 		} else
 		{
-			switchView.setIcon(Images.hToProfile.getResource());
+			switchView.setIcon(Images.toProfile32.getResource());
 			switchView.setDescription(msg.getMessage("AdminTopHeader.toProfile"));
 			adminView = true;
 		}

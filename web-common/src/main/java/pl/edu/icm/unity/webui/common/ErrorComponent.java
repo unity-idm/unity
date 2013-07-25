@@ -28,7 +28,7 @@ public class ErrorComponent extends FormLayout
 	{
 		Label errorL = new Label();
 		errorL.setStyleName(Styles.error.toString());
-		errorL.setIcon(Images.error.getResource());
+		errorL.setIcon(Images.error32.getResource());
 		errorL.setValue(description + ": " + ErrorPopup.getHumanMessage(error));
 		errorL.setContentMode(ContentMode.HTML);
 		addCommon(errorL);
@@ -46,7 +46,7 @@ public class ErrorComponent extends FormLayout
 	{
 		Label errorL = new Label();
 		errorL.setStyleName(Styles.error.toString());
-		errorL.setIcon(Images.error.getResource());
+		errorL.setIcon(Images.error32.getResource());
 		errorL.setValue(error);
 		addCommon(errorL);
 	}
@@ -55,7 +55,7 @@ public class ErrorComponent extends FormLayout
 	{
 		Label errorL = new Label();
 		errorL.setStyleName(Styles.italic.toString());
-		errorL.setIcon(Images.warn.getResource());
+		errorL.setIcon(Images.warn32.getResource());
 		
 		errorL.setValue(warning);
 		addCommon(errorL);

@@ -134,7 +134,7 @@ public class IdentitiesComponent extends Panel
 		Button addFilter = new Button();
 		addFilter.setStyleName(Reindeer.BUTTON_SMALL);
 		addFilter.setDescription(msg.getMessage("Identities.addFilter"));
-		addFilter.setIcon(Images.addSearch.getResource());
+		addFilter.setIcon(Images.addFilter.getResource());
 		addFilter.addClickListener(new ClickListener()
 		{
 			@Override

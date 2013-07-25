@@ -126,7 +126,7 @@ public class PreferenceViewTab extends VerticalLayout
 		HorizontalLayout toolbar = new HorizontalLayout();
 		toolbar.setSpacing(true);
 		save = new Button(msg.getMessage("Preferences.save"));
-		save.setIcon(Images.hAccept.getResource());
+		save.setIcon(Images.save.getResource());
 		save.addClickListener(new ClickListener()
 		{
 			@Override
@@ -136,7 +136,7 @@ public class PreferenceViewTab extends VerticalLayout
 			}
 		});
 		Button reset = new Button(msg.getMessage("Preferences.reset"));
-		reset.setIcon(Images.hRemove.getResource());
+		reset.setIcon(Images.trashBin.getResource());
 
 		reset.addClickListener(new ClickListener()
 		{
