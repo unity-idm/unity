@@ -51,6 +51,7 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 import com.vaadin.annotations.Theme;
@@ -403,9 +404,11 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		try
 		{
 			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan);
-			String samlRequester = samlCtx.getRequest().getIssuer().getStringValue();
-			SPSettings settings = preferences.getSPSettings(samlRequester);
+			SPSettings settings = preferences.getSPSettings(samlCtx.getRequest().getIssuer());
 			updateUIFromPreferences(settings, samlCtx);
+		} catch (EopException e)
+		{
+			throw e;
 		} catch (Exception e)
 		{
 			log.error("Engine problem when processing stored preferences", e);
@@ -420,10 +423,13 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		if (settings == null)
 			return;
 		Set<String> hidden = settings.getHiddenAttribtues();
+		String groupAttribtue = samlProcessor.getConfiguredGroupAttribute();
 		for (CheckBox cb: hide)
 		{
 			String a = (String) cb.getData();
 			if (hidden.contains(a))
+				cb.setValue(true);
+			if (a.equals(groupAttribtue) && hidden.contains(SamlPreferences.SYMBOLIC_GROUP_ATTR))
 				cb.setValue(true);
 		}
 		if (settings.isDoNotAsk())
@@ -433,13 +439,15 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			else
 				decline();
 		}
-		if (validIdentities.size() > 0)
+		String selId = settings.getSelectedIdentity();
+		if (validIdentities.size() > 0 && selId != null)
 		{
 			for (Identity id: validIdentities)
 			{
-				if (id.getComparableValue().equals(settings.getSelectedIdentity()))
+				if (id.getComparableValue().equals(selId))
 				{
-					identitiesCB.select(id);
+					if (identitiesCB != null)
+						identitiesCB.select(id);
 					selectedIdentity = id;
 					break;
 				}
@@ -459,20 +467,25 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	{
 		if (!rememberCB.getValue())
 			return;
-		String samlRequester = samlCtx.getRequest().getIssuer().getStringValue();
-		SPSettings settings = preferences.getSPSettings(samlRequester);
+		NameIDType reqIssuer = samlCtx.getRequest().getIssuer();
+		SPSettings settings = preferences.getSPSettings(reqIssuer);
 		settings.setDefaultAccept(defaultAccept);
 		settings.setDoNotAsk(true);
 		Set<String> hidden = new HashSet<String>();
+		String groupAttribtue = samlProcessor.getConfiguredGroupAttribute();
 		for (CheckBox h: hide)
 		{
 			if (!h.getValue())
 				continue;
 			String a = (String) h.getData();
-			hidden.add(a);
+			if (!a.equals(groupAttribtue))
+				hidden.add(a);
+			else
+				hidden.add(SamlPreferences.SYMBOLIC_GROUP_ATTR);
 		}
 		settings.setHiddenAttribtues(hidden);
 		settings.setSelectedIdentity(selectedIdentity.getComparableValue());
+		preferences.setSPSettings(reqIssuer, settings);
 	}
 	
 	protected void storePreferences(boolean defaultAccept)

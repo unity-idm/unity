@@ -15,6 +15,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import eu.emi.security.authn.x509.impl.X500NameUtils;
+import eu.unicore.samly2.SAMLConstants;
+
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -23,6 +26,7 @@ import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.types.JsonSerializable;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
 
 /**
@@ -32,7 +36,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 public class SamlPreferences implements JsonSerializable
 {
 	public static final String ID = SamlPreferences.class.getName();
-	public static final String DEFAULT = "DEFAULT SOAP/WEB SERVICE PREFERENCES";
+	public static final String SYMBOLIC_GROUP_ATTR = "groupAttribtueKey---MAGIC_MAGIC_MAGIC";
 	protected final ObjectMapper mapper = Constants.MAPPER;
 
 	private Map<String, SPSettings> spSettings = new HashMap<String, SamlPreferences.SPSettings>();
@@ -147,6 +151,12 @@ public class SamlPreferences implements JsonSerializable
 	 * @return settings for the given Service provider. Never null - if there are no preferences, then 
 	 * the default settings are returned.
 	 */
+	public SPSettings getSPSettings(NameIDType spName)
+	{
+		String sp = getSPKey(spName);
+		return getSPSettings(sp);
+	}
+
 	public SPSettings getSPSettings(String sp)
 	{
 		SPSettings ret = spSettings.get(sp);
@@ -155,14 +165,35 @@ public class SamlPreferences implements JsonSerializable
 		return ret;
 	}
 	
+	protected String getSPKey(NameIDType spName)
+	{
+		return SAMLConstants.NFORMAT_DN.equals(spName.getFormat()) ? 
+				X500NameUtils.getComparableForm(spName.getStringValue()) : spName.getStringValue();
+	}
+	
 	public Set<String> getKeys()
 	{
 		return spSettings.keySet();
 	}
 	
+	public void setSPSettings(NameIDType spName, SPSettings settings)
+	{
+		setSPSettings(getSPKey(spName), settings);
+	}
+	
 	public void setSPSettings(String sp, SPSettings settings)
 	{
 		spSettings.put(sp, settings);
+	}
+	
+	public void removeSPSettings(NameIDType spName)
+	{
+		spSettings.remove(getSPKey(spName));
+	}
+
+	public void removeSPSettings(String sp)
+	{
+		spSettings.remove(sp);
 	}
 	
 	public static class SPSettings

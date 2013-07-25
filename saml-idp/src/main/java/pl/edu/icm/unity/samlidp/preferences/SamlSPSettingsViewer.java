@@ -4,11 +4,13 @@
  */
 package pl.edu.icm.unity.samlidp.preferences;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import pl.edu.icm.unity.samlidp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
@@ -20,10 +22,10 @@ import com.vaadin.ui.ListSelect;
  */
 public class SamlSPSettingsViewer extends FormLayout
 {
-	private UnityMessageSource msg;
-	private Label autoConfirm;
-	private ListSelect hiddenAttributes;
-	private Label defaultIdentity;
+	protected UnityMessageSource msg;
+	protected Label autoConfirm;
+	protected ListSelect hiddenAttributes;
+	protected Label defaultIdentity;
 	
 	
 	public SamlSPSettingsViewer(UnityMessageSource msg)
@@ -37,6 +39,9 @@ public class SamlSPSettingsViewer extends FormLayout
 		defaultIdentity = new Label();
 		defaultIdentity.setCaption(msg.getMessage("SAMLPreferences.defaultIdentity"));
 		hiddenAttributes = new ListSelect(msg.getMessage("SAMLPreferences.hiddenAttributes"));
+		hiddenAttributes.setWidth(90, Unit.PERCENTAGE);
+		hiddenAttributes.setRows(6);
+		hiddenAttributes.setNullSelectionAllowed(false);
 		
 		addComponents(autoConfirm, defaultIdentity, hiddenAttributes);
 	}
@@ -45,10 +50,10 @@ public class SamlSPSettingsViewer extends FormLayout
 	{
 		if (spSettings == null)
 		{
-			setVisible(false);
+			setVisibleRec(false);
 			return;
 		}
-		setVisible(true);
+		setVisibleRec(true);
 		
 		if (spSettings.isDoNotAsk())
 		{
@@ -60,11 +65,17 @@ public class SamlSPSettingsViewer extends FormLayout
 			autoConfirm.setValue(msg.getMessage("no"));
 		
 		hiddenAttributes.setReadOnly(false);
+		hiddenAttributes.removeAllItems();
 		Set<String> hidden = spSettings.getHiddenAttribtues();
 		if (hidden.size() > 0)
 		{
 			for (String h: hidden)
-				hiddenAttributes.addItem(h);
+			{
+				if (h.equals(SamlPreferences.SYMBOLIC_GROUP_ATTR))
+					hiddenAttributes.addItem(msg.getMessage("SAMLPreferences.groupMembershipAttribute"));
+				else
+					hiddenAttributes.addItem(h);
+			}
 			hiddenAttributes.setVisible(true);
 		} else
 		{
@@ -79,5 +90,15 @@ public class SamlSPSettingsViewer extends FormLayout
 			defaultIdentity.setVisible(true);
 		} else
 			defaultIdentity.setVisible(false);
+	}
+	
+	private void setVisibleRec(boolean how)
+	{
+		Iterator<Component> children = iterator();
+		while (children.hasNext())
+		{
+			Component c = children.next();
+			c.setVisible(how);
+		}
 	}
 }

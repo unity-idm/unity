@@ -9,12 +9,15 @@ import java.util.HashSet;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsPanel;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
@@ -39,6 +42,7 @@ import com.vaadin.ui.VerticalLayout;
  * @author K. Benedyczak
  */
 @Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class UserAccountComponent extends VerticalLayout
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UserAccountComponent.class);
@@ -48,7 +52,7 @@ public class UserAccountComponent extends VerticalLayout
 	public UserAccountComponent(AuthenticationManagement authnMan, IdentitiesManagement idsMan,
 			CredentialEditorRegistry credEditorReg,
 			PreferencesHandlerRegistry registry, PreferencesManagement prefMan, 
-			UnityMessageSource msg)
+			UnityMessageSource msg, EndpointManagement endpMan)
 	{
 		this.msg = msg;
 		
@@ -92,7 +96,7 @@ public class UserAccountComponent extends VerticalLayout
 			ErrorPopup.showError(msg.getMessage("error"), e);
 		}
 
-		PreferencesComponent preferencesComponent = new PreferencesComponent(msg, registry, prefMan);
+		PreferencesComponent preferencesComponent = new PreferencesComponent(msg, registry, prefMan, endpMan);
 		tabPanel.addTab("UserHomeUI.preferencesLabel", "UserHomeUI.preferencesDesc", 
 				Images.hSettings.getResource(), preferencesComponent);
 		

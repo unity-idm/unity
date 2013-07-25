@@ -151,6 +151,11 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		return new StringAttribute(attributeName, "/", AttributeVisibility.full, values);
 	}
 
+	public String getConfiguredGroupAttribute()
+	{
+		return samlConfiguration.getValue(SamlProperties.GROUP_ATTRIBUTE); 
+	}
+	
 	public String getChosenGroup()
 	{
 		return chosenGroup;

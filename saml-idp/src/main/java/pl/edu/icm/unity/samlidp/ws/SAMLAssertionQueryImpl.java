@@ -26,6 +26,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AssertionIDRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AttributeQueryDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnQueryDocument;
@@ -79,7 +80,8 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 		try
 		{
 			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan);
-			SPSettings spPreferences = preferences.getSPSettings(SamlPreferences.DEFAULT);
+			NameIDType reqIssuer = query.getAttributeQuery().getIssuer();
+			SPSettings spPreferences = preferences.getSPSettings(reqIssuer);
 			Collection<Attribute<?>> attributes = getAttributes(subjectId, processor, spPreferences);
 			respDoc = processor.processAtributeRequest(attributes);
 		} catch (Exception e)

@@ -24,4 +24,15 @@ public interface PreferencesEditor
 	 * @throws FormValidationException if the form state is invalid.
 	 */
 	public String getValue() throws FormValidationException;
+	
+	/**
+	 * Registers a listener, which is used to notify owner that preferences were updated in the editor.
+	 * @param listener
+	 */
+	public void setChangeListener(ModificationListener listener);
+	
+	public interface ModificationListener
+	{
+		public void preferencesModified();
+	}
 }

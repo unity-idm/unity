@@ -29,17 +29,16 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.unicore.samlidp.SamlPreferencesWithETD;
-import pl.edu.icm.unity.unicore.samlidp.SamlPreferencesWithETD.SPETDSettings;
+import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
+import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
 import pl.edu.icm.unity.unicore.samlidp.saml.AuthnWithETDResponseProcessor;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 import com.vaadin.annotations.Theme;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
@@ -47,7 +46,6 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.Slider;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
@@ -67,10 +65,8 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 {
 	private static Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlUnicoreIdPWebUI.class);
 
-	private static final long MS_IN_DAY = 24*3600*1000;
 	private AuthnWithETDResponseProcessor samlWithEtdProcessor;
-	protected CheckBox generateETD;
-	protected Slider validityDays;
+	private ETDSettingsEditor etdEditor;
 
 	@Autowired
 	public SamlUnicoreIdPWebUI(UnityMessageSource msg, IdentitiesManagement identitiesMan,
@@ -97,13 +93,6 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		ret.setSerializedConfiguration(raw);
 		return ret;
 	}
-	
-	private void savePreferencesWithETD(SamlPreferencesWithETD preferences) throws EngineException
-	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
-		EntityParam entity = new EntityParam(ae.getEntityId());
-		preferencesMan.setPreference(entity, SamlPreferencesWithETD.ID, preferences.getSerializedConfiguration());
-	}	
 	
 	@Override
 	protected void createExposedDataPart(VerticalLayout contents) throws EopException
@@ -143,38 +132,8 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	{
 		Label titleL = new Label(msg.getMessage("SamlUnicoreIdPWebUI.gridSettings"));
 		titleL.setStyleName(Styles.bold.toString());
-		
-		final Label infoVal = new Label();
-		generateETD = new CheckBox(msg.getMessage("SamlUnicoreIdPWebUI.generateETD"));
-		generateETD.setImmediate(true);
-		generateETD.setValue(true);
-		generateETD.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				boolean how = generateETD.getValue();
-				validityDays.setEnabled(how);
-				infoVal.setEnabled(how);
-			}
-		});
-		validityDays = new Slider(1, 90);
-		validityDays.setValue(14d);
-		validityDays.setSizeFull();
-		validityDays.setImmediate(true);
-		validityDays.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				int days = validityDays.getValue().intValue();
-				infoVal.setValue(msg.getMessage("SamlUnicoreIdPWebUI.etdValidity", days));
-			}
-		});
-		infoVal.setValue(msg.getMessage("SamlUnicoreIdPWebUI.etdValidity", 
-				String.valueOf(validityDays.getValue().intValue())));
-		
-		eiLayout.addComponents(titleL, generateETD, infoVal, validityDays);
+		eiLayout.addComponents(titleL);
+		etdEditor = new ETDSettingsEditor(msg, eiLayout);
 	}
 	
 	
@@ -184,11 +143,14 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		try
 		{
 			SamlPreferencesWithETD preferences = getPreferencesWithETD();
-			String samlRequester = samlCtx.getRequest().getIssuer().getStringValue();
+			NameIDType samlRequester = samlCtx.getRequest().getIssuer();
 			SPSettings baseSettings = preferences.getSPSettings(samlRequester);
 			SPETDSettings settings = preferences.getSPETDSettings(samlRequester);
 			updateETDUIFromPreferences(settings, samlCtx);
 			super.updateUIFromPreferences(baseSettings, samlCtx);
+		} catch (EopException e)
+		{
+			throw e;
 		} catch (Exception e)
 		{
 			log.error("Engine problem when processing stored preferences", e);
@@ -202,10 +164,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	{
 		if (settings == null)
 			return;
-		generateETD.setValue(settings.isGenerateETD());
-		long validity = settings.getEtdValidity();
-		validity /= MS_IN_DAY;
-		validityDays.setValue((double)validity);
+		etdEditor.setValues(settings);
 	}
 	
 	/**
@@ -221,11 +180,8 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		super.updatePreferencesFromUI(preferences, samlCtx, defaultAccept);
 		if (!rememberCB.getValue())
 			return;
-		String samlRequester = samlCtx.getRequest().getIssuer().getStringValue();
-		SPETDSettings settings = preferences.getSPETDSettings(samlRequester);
-		settings.setGenerateETD(generateETD.getValue());
-		long validity = (long)validityDays.getValue().doubleValue();
-		settings.setEtdValidity(validity*MS_IN_DAY);
+		SPETDSettings settings = etdEditor.getSPETDSettings();
+		preferences.setSPETDSettings(samlCtx.getRequest().getIssuer(), settings);
 	}
 	
 	@Override
@@ -236,7 +192,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 			SAMLAuthnContext samlCtx = getContext();
 			SamlPreferencesWithETD preferences = getPreferencesWithETD();
 			updatePreferencesFromUI(preferences, samlCtx, defaultAccept);
-			savePreferencesWithETD(preferences);
+			SamlPreferencesWithETD.savePreferences(preferencesMan, preferences);
 		} catch (EngineException e)
 		{
 			log.error("Unable to store user's preferences", e);
@@ -245,11 +201,11 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	
 	protected DelegationRestrictions getRestrictions()
 	{
-		if (!generateETD.getValue())
+		SPETDSettings settings = etdEditor.getSPETDSettings();
+		if (!settings.isGenerateETD())
 			return null;
 		
-		double value = validityDays.getValue();
-		long ms = ((long)value)*MS_IN_DAY;
+		long ms = settings.getEtdValidity();
 		Date start = new Date();
 		Date end = new Date(start.getTime() + ms);
 		return new DelegationRestrictions(start, end, -1);

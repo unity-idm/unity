@@ -50,6 +50,12 @@ public class GenericElementsTable<T> extends Table
 		sort();
 	}
 	
+	public void addElement(T el)
+	{
+		addItem(new GenericItem<T>(el, nameProvider));
+		sort();
+	}
+	
 	public interface NameProvider<T>
 	{
 		public String toString(T element);

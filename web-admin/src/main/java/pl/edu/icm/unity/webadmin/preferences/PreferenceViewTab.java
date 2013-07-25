@@ -16,12 +16,15 @@ import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor;
+import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor.ModificationListener;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandler;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 
@@ -36,6 +39,8 @@ public class PreferenceViewTab extends VerticalLayout
 	private UnityMessageSource msg;
 	private EntityParam entityParam;
 	
+	private Label saveInfo;
+	private Button save;
 	private VerticalLayout viewerPanel;
 	private PreferencesEditor editor;
 	private String currentValue;
@@ -57,6 +62,7 @@ public class PreferenceViewTab extends VerticalLayout
 		try
 		{
 			prefMan.removePreference(entityParam, preferenceHandler.getPreferenceId());
+			setSaveEnabled(false);
 			refresh();
 		} catch (EngineException e)
 		{
@@ -91,17 +97,37 @@ public class PreferenceViewTab extends VerticalLayout
 		editor = preferenceHandler.getPreferencesEditor(currentValue);
 		viewerPanel.removeAllComponents();
 		viewerPanel.addComponent(editor.getComponent());
+		setSaveEnabled(false);
+		editor.setChangeListener(new ModificationListener()
+		{
+			
+			@Override
+			public void preferencesModified()
+			{
+				setSaveEnabled(true);
+			}
+		});
+	}
+	
+	private void setSaveEnabled(boolean how)
+	{
+		save.setEnabled(how);
+		saveInfo.setVisible(how);
 	}
 	
 	private void init()
 	{
-		
+		VerticalLayout topBar = new VerticalLayout();
+		topBar.setSpacing(true);
+		topBar.setMargin(true);
+		saveInfo = new Label(msg.getMessage("Preferences.saveNeeded"));
+		saveInfo.setVisible(false);
+		saveInfo.addStyleName(Styles.error.toString());
 		HorizontalLayout toolbar = new HorizontalLayout();
-		toolbar.setMargin(true);
 		toolbar.setSpacing(true);
-		Button edit = new Button(msg.getMessage("Preferences.save"));
-		edit.setIcon(Images.hAccept.getResource());
-		edit.addClickListener(new ClickListener()
+		save = new Button(msg.getMessage("Preferences.save"));
+		save.setIcon(Images.hAccept.getResource());
+		save.addClickListener(new ClickListener()
 		{
 			@Override
 			public void buttonClick(ClickEvent event)
@@ -129,7 +155,27 @@ public class PreferenceViewTab extends VerticalLayout
 						}).show();
 			}
 		});
-		toolbar.addComponents(edit, reset);
+		Button refresh = new Button(msg.getMessage("Preferences.refresh"));
+		refresh.setIcon(Images.refresh.getResource());
+		refresh.addClickListener(new ClickListener()
+		{
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				try
+				{
+					refresh();
+				} catch (EngineException e)
+				{
+					ErrorPopup.showError(msg.getMessage("Preferences.errorRefresh"), e);
+				}
+			}
+		});
+		
+		
+		toolbar.addComponents(save, reset, refresh);
+		topBar.addComponents(saveInfo, toolbar);
+		
 		viewerPanel = new VerticalLayout();
 		viewerPanel.setMargin(true);
 		viewerPanel.setSizeFull();
@@ -138,7 +184,7 @@ public class PreferenceViewTab extends VerticalLayout
 		try
 		{
 			refresh();
-			addComponents(toolbar, viewerPanel);
+			addComponents(topBar, viewerPanel);
 		} catch (EngineException e)
 		{
 			ErrorComponent ec = new ErrorComponent();

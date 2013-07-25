@@ -4,7 +4,9 @@
  */
 package pl.edu.icm.unity.webui.common.preferences;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +42,21 @@ public class PreferencesHandlerRegistry
 	public Set<String> getSupportedPreferenceTypes()
 	{
 		return handlersByType.keySet();
+	}
+	
+	public Set<String> getSupportedPreferenceTypes(Set<String> deployedEndpointTypes)
+	{
+		if (deployedEndpointTypes == null)
+			return getSupportedPreferenceTypes();
+		Set<String> ret = new HashSet<String>();
+		for (Map.Entry<String, PreferencesHandler> e: handlersByType.entrySet())
+		{
+			Set<String> supported = e.getValue().getSupportedEndpoints();
+			if (supported == null || supported.size() == 0 || 
+					!Collections.disjoint(deployedEndpointTypes, supported))
+				ret.add(e.getKey());
+		}
+		return ret;
 	}
 }
 

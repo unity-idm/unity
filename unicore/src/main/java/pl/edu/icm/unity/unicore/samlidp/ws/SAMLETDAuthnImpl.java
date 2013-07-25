@@ -20,10 +20,11 @@ import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.unicore.samlidp.SamlPreferencesWithETD;
-import pl.edu.icm.unity.unicore.samlidp.SamlPreferencesWithETD.SPETDSettings;
+import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
+import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
 import pl.edu.icm.unity.unicore.samlidp.saml.AuthnWithETDResponseProcessor;
 import pl.edu.icm.unity.unicore.samlidp.saml.SoapAuthWithETDRequestValidator;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 import eu.unicore.samly2.exceptions.SAMLServerException;
@@ -61,7 +62,7 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 			throw new Fault(e1);
 		}
 		AuthnWithETDResponseProcessor samlProcessor = new AuthnWithETDResponseProcessor(context);
-		String samlRequester = context.getRequest().getIssuer().getStringValue();
+		NameIDType samlRequester = context.getRequest().getIssuer();
 		
 		ResponseDocument respDoc;
 		try

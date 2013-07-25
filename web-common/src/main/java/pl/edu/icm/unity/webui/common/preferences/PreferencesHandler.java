@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.preferences;
 
+import java.util.Set;
+
 /**
  * Provides UI for managing preferences of a specific type as SAML preferences.
  * 
@@ -28,5 +30,13 @@ public interface PreferencesHandler
 	 * @return a component allowing to show and edit the preference
 	 */
 	public PreferencesEditor getPreferencesEditor(String value);
+	
+	/**
+	 * @return set of endpoint identifiers. The preferences are assumed to be relevant for 
+	 * all of the returned endpoints. The core code may decide not to expose this preferences handler,
+	 * if none of the supported endpoints is deployed. If the method returns null or empty set,
+	 * then it is assumed that the preferences are relevant regardless of the deployed endpoints.
+	 */
+	public Set<String> getSupportedEndpoints();
 	
 }

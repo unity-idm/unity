@@ -8,6 +8,7 @@
 
 	<bean class="pl.edu.icm.unity.unicore.samlidp.ws.SamlUnicoreIdPSoapEndpointFactory"/>
 
+	<bean class="pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETDHandler"/>
 	
 	<bean class="pl.edu.icm.unity.unicore.samlidp.web.SamlUnicoreIdPWebEndpointFactory"/>
 	

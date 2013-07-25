@@ -30,6 +30,7 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
@@ -75,7 +76,7 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 			throw new Fault(e1);
 		}
 		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(context);
-		String samlRequester = context.getRequest().getIssuer().getStringValue();
+		NameIDType samlRequester = context.getRequest().getIssuer();
 		
 		ResponseDocument respDoc;
 		try
