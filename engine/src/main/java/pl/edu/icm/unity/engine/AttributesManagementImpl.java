@@ -4,18 +4,25 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.db.AttributeClassHelper;
 import pl.edu.icm.unity.db.DBAttributes;
+import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.db.json.AttributeClassSerializer;
+import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
@@ -25,9 +32,12 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -46,6 +56,7 @@ public class AttributesManagementImpl implements AttributesManagement
 {
 	private AttributeSyntaxFactoriesRegistry attrValueTypesReg;
 	private DBSessionManager db;
+	private DBGeneric dbGeneric;
 	private DBAttributes dbAttributes;
 	private DBIdentities dbIdentities;
 	private IdentitiesResolver idResolver;
@@ -53,11 +64,13 @@ public class AttributesManagementImpl implements AttributesManagement
 	
 	@Autowired
 	public AttributesManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
-			DBSessionManager db, DBAttributes dbAttributes, DBIdentities dbIdentities,
-			IdentitiesResolver idResolver, AuthorizationManager authz)
+			DBSessionManager db, DBGeneric dbGeneric, DBAttributes dbAttributes,
+			DBIdentities dbIdentities, IdentitiesResolver idResolver,
+			AuthorizationManager authz)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
 		this.db = db;
+		this.dbGeneric = dbGeneric;
 		this.dbAttributes = dbAttributes;
 		this.dbIdentities = dbIdentities;
 		this.idResolver = idResolver;
@@ -200,7 +213,35 @@ public class AttributesManagementImpl implements AttributesManagement
 	@Override
 	public void addAttributeClass(AttributesClass clazz) throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		String addedName = clazz.getName();
+		String addedParentName = clazz.getParentClassName();
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			List<GenericObjectBean> existingRaw = dbGeneric.getObjectsOfType(
+					AttributeClassHelper.ATTRIBUTE_CLASS_OBJECT_TYPE, sql);
+			boolean parentFound = clazz.getParentClassName() == null;
+			for (GenericObjectBean existing: existingRaw)
+			{
+				String c = existing.getName();
+				if (addedName.equals(c))
+					throw new WrongArgumentException("The attribute class " + addedName + " already exists");
+				if (addedParentName != null && addedParentName.equals(c))
+					parentFound = true;
+			}
+			if (!parentFound)
+				throw new WrongArgumentException("The attribute class parent " + addedParentName + 
+						" does not exist");
+
+			byte[] contents = AttributeClassSerializer.serialize(clazz).getBytes(Constants.UTF); 
+			dbGeneric.addObject(clazz.getName(), AttributeClassHelper.ATTRIBUTE_CLASS_OBJECT_TYPE, 
+					null, contents, sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
 	}
 
 	/**
@@ -209,19 +250,134 @@ public class AttributesManagementImpl implements AttributesManagement
 	@Override
 	public void removeAttributeClass(String id) throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			Map<String, AttributesClass> allClasses = resolveAttributeClasses(sql);
+			for (AttributesClass ac: allClasses.values())
+			{
+				if (id.equals(ac.getParentClassName()))
+					throw new WrongArgumentException("Can not remove attribute class " + id + 
+							" as it is a parent of the attribute class " + ac.getName());
+			}
+			if (!allClasses.containsKey(id))
+				throw new WrongArgumentException("The attribute class " + id + " does not exist");
+			
+			Set<Long> entities = dbAttributes.getEntitiesWithStringAttribute(SystemAttributeTypes.ATTRIBUTE_CLASSES, id, sql);
+			if (entities.size() > 0)
+			{
+				String info = String.valueOf(entities.iterator().next());
+				if (entities.size() > 1)
+					info += " and " + (entities.size()-1) + " more";
+				throw new WrongArgumentException("The attribute class " + id + 
+						" can not be removed as there are entities with this class set. " +
+						"Ids of entities: " + info);
+			}
+			//TODO when group-level AC can be assigned, check them too
+			
+			dbGeneric.removeObject(id, AttributeClassHelper.ATTRIBUTE_CLASS_OBJECT_TYPE, sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void assignAttributeClasses(EntityParam entity, String[] classes)
-			throws EngineException
+	public void updateAttributeClass(AttributesClass updated) throws EngineException
 	{
 		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
 	}
 
+	@Override
+	public Collection<AttributesClass> getAttributeClasses() throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			Map<String, AttributesClass> allClasses = resolveAttributeClasses(sql);
+			sql.commit();
+			return allClasses.values();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
+	}
+
+	@Override
+	public void assignAttributeClasses(EntityParam entity, String group, Collection<String> classes)
+			throws EngineException
+	{
+		entity.validateInitialization();
+		authz.checkAuthorization(group, AuthzCapability.attributeModify);
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			Map<String, AttributesClass> allClasses = resolveAttributeClasses(sql);
+			AttributeClassHelper acHelper = new AttributeClassHelper(allClasses, classes);
+			
+			long entityId = idResolver.getEntityId(entity, sql);
+			Collection<AttributeExt<?>> allAttributes = dbAttributes.getAllAttributes(
+					entityId, group, false, null, sql);
+			List<AttributeType> allTypes = dbAttributes.getAttributeTypes(sql);
+			acHelper.checkAttribtues(allAttributes, allTypes);
+
+			StringAttribute classAttr = new StringAttribute(SystemAttributeTypes.ATTRIBUTE_CLASSES, 
+					group, AttributeVisibility.local, new ArrayList<>(classes));
+			dbAttributes.addAttribute(entityId, classAttr, true, sql);
+			
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
+	}
+	
+	private Map<String, AttributesClass> resolveAttributeClasses(SqlSession sql)
+	{
+		return AttributeClassHelper.resolveAttributeClasses(dbGeneric, sql);
+	}
+
+	private AttributeClassHelper getACHelper(long entityId, String groupPath, SqlSession sql)
+			throws EngineException
+	{
+		return AttributeClassHelper.getACHelper(entityId, groupPath, dbAttributes, dbGeneric, sql);
+	}
+	
+	/**
+	 * Verifies if the attribute is allowed wrt attribute classes defined for the entity in the respective group.
+	 * @param entityId
+	 * @param attribute
+	 * @param sql
+	 * @throws EngineException
+	 */
+	private void checkIfAllowed(long entityId, String groupPath, String attributeTypeId, SqlSession sql) 
+			throws EngineException
+	{
+		AttributeClassHelper acHelper = getACHelper(entityId, groupPath, sql);
+		if (!acHelper.isAllowed(attributeTypeId))
+			throw new IllegalAttributeTypeException("The attribute with name " + attributeTypeId + 
+					" is not allowed by the entity's attribute classes in the group " + groupPath);
+	}
+
+	/**
+	 * Verifies if the attribute is allowed wrt attribute classes defined for the entity in the respective group.
+	 * @param entityId
+	 * @param attribute
+	 * @param sql
+	 * @throws EngineException
+	 */
+	private void checkIfMandatory(long entityId, String groupPath, String attributeTypeId, SqlSession sql) 
+			throws EngineException
+	{
+		AttributeClassHelper acHelper = getACHelper(entityId, groupPath, sql);
+		if (acHelper.isMandatory(attributeTypeId))
+			throw new IllegalAttributeTypeException("The attribute with name " + attributeTypeId + 
+					" is required by the entity's attribute classes in the group " + groupPath);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -239,8 +395,12 @@ public class AttributesManagementImpl implements AttributesManagement
 			if (at.isInstanceImmutable())
 				throw new IllegalAttributeTypeException("The attribute with name " + at.getName() + 
 						" can not be manually modified");
+			
 			authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId), 
 					attribute.getGroupPath(), AuthzCapability.attributeModify);
+
+			checkIfAllowed(entityId, attribute.getGroupPath(), attribute.getName(), sql);
+			
 			dbAttributes.addAttribute(entityId, attribute, update, sql);
 			sql.commit();
 		} finally
@@ -272,6 +432,9 @@ public class AttributesManagementImpl implements AttributesManagement
 						" can not be manually modified");
 			authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId),
 					groupPath, AuthzCapability.attributeModify);
+			
+			checkIfMandatory(entityId, groupPath, attributeTypeId, sql);
+			
 			dbAttributes.removeAttribute(entityId, groupPath, attributeTypeId, sql);
 			sql.commit();
 		} finally

@@ -181,9 +181,12 @@ public class GroupsManagementImpl implements GroupsManagement
 	{
 		statement.validate(group);
 		Attribute<?> attribute = statement.getAssignedAttribute();
+		AttributeType at = dbAttributes.getAttributeType(attribute.getName(), sql);
+		if (at.isInstanceImmutable())
+			throw new IllegalAttributeTypeException("Can not assign attribute " + at.getName() +
+					" in attribute statement as the attribute type is an internal, system attribute.");
 		if (statement.getConflictResolution() != ConflictResolution.merge && attribute != null)
 		{
-			AttributeType at = dbAttributes.getAttributeType(attribute.getName(), sql);
 			AttributeValueChecker.validate(attribute, at);
 		}
 		Attribute<?> conditionAttr = statement.getConditionAttribute();

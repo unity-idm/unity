@@ -20,10 +20,12 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.json.AttributeSerializer;
 import pl.edu.icm.unity.db.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.db.mapper.AttributesMapper;
+import pl.edu.icm.unity.db.mapper.GenericMapper;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.model.AttributeBean;
 import pl.edu.icm.unity.db.model.AttributeTypeBean;
 import pl.edu.icm.unity.db.model.DBLimits;
+import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.db.model.GroupElementBean;
 import pl.edu.icm.unity.db.resolvers.AttributesResolver;
@@ -38,6 +40,7 @@ import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributesClass;
 
 
 /**
@@ -240,6 +243,7 @@ public class DBAttributes
 	 * @return
 	 * @throws IllegalGroupValueException 
 	 * @throws IllegalTypeException 
+	 * @throws WrongArgumentException 
 	 */
 	public Collection<AttributeExt<?>> getAllAttributes(long entityId, String groupPath, boolean effective, 
 			String attributeTypeName, SqlSession sql) 
@@ -274,6 +278,7 @@ public class DBAttributes
 	 * @return
 	 * @throws IllegalGroupValueException 
 	 * @throws IllegalTypeException 
+	 * @throws WrongArgumentException 
 	 */
 	public Map<String, Map<String, AttributeExt<?>>> getAllAttributesAsMap(long entityId, String groupPath, 
 			boolean effective, String attributeTypeName, SqlSession sql) 
@@ -292,10 +297,17 @@ public class DBAttributes
 		List<String> groups = getGroupsOrGroup(entityId, groupPath, gMapper);
 		Set<String> allGroups = dbShared.getAllGroups(entityId, gMapper);
 		Map<String, Map<String, AttributeExt<?>>> ret = new HashMap<String, Map<String, AttributeExt<?>>>();
+		
+		GenericMapper genMapper = sql.getMapper(GenericMapper.class);
+		List<GenericObjectBean> rawAClasses = genMapper.selectObjectsByType(
+				AttributeClassHelper.ATTRIBUTE_CLASS_OBJECT_TYPE);
+		Map<String, AttributesClass> allClasses = AttributeClassHelper.resolveAttributeClasses(rawAClasses);
+		
 		for (String group: groups)
 		{
 			Map<String, AttributeExt<?>> inGroup = statementsHelper.getEffectiveAttributes(entityId, 
-					group, attributeTypeName, allGroups, directAttributesByGroup, atMapper, gMapper);
+					group, attributeTypeName, allGroups, directAttributesByGroup, atMapper, 
+					gMapper, allClasses);
 			ret.put(group, inGroup);
 		}
 		return ret;
@@ -326,7 +338,7 @@ public class DBAttributes
 	
 	/**
 	 * It is assumed that the attribute is single-value and mapped to string.
-	 * Returned are all entities which has value of the attribute out of the given set.
+	 * Returned are all entities which have value of the attribute out of the given set.
 	 * <p> 
 	 * IMPORTANT! This is not taking into account effective attributes, and so it is usable only for certain system
 	 * attributes.
@@ -357,6 +369,36 @@ public class DBAttributes
 		}
 		return ret;
 	}
+	
+	
+	/**
+	 * It is assumed that the attribute is mapped to string.
+	 * Returned are all entities which have value of the attribute among values of the given attribute
+	 * in any group.
+	 * @param attributeTypeName
+	 * @param values
+	 * @param sql
+	 * @return
+	 * @throws IllegalTypeException
+	 * @throws IllegalGroupValueException
+	 */
+	public Set<Long> getEntitiesWithStringAttribute(String attributeTypeName, String value, SqlSession sql) 
+			throws IllegalTypeException, IllegalGroupValueException
+	{
+		AttributesMapper atMapper = sql.getMapper(AttributesMapper.class);
+		List<AttributeBean> allAts = getDefinedAttributes(null, null, attributeTypeName, atMapper);
+		
+		Set<Long> ret = new HashSet<Long>();
+		for (AttributeBean ab: allAts)
+		{
+			Attribute<?> attr = attrResolver.resolveAttributeBean(ab, "/");
+			for (Object av: attr.getValues())
+				if (value.equals(av))
+					ret.add(ab.getEntityId());
+		}
+		return ret;
+	}
+	
 	
 	private Map<String, Map<String, AttributeExt<?>>> createAllAttrsMap(long entityId, AttributesMapper atMapper,
 			GroupsMapper gMapper) throws IllegalTypeException, IllegalGroupValueException

@@ -72,13 +72,28 @@ public interface AttributesManagement
 	public void removeAttributeClass(String id) throws EngineException;
 
 	/**
-	 * Updates the set of entity attribute classes. The entity must have all the requires attributes
-	 * set, otherwise the operation will fail.
+	 * Updates an attribute class. The update operation will be successful only if all entities with this class
+	 * fulfill the updated class rules.
+	 * @param updated the updated class. Existing class to be updated is matched by name.
+	 * @throws EngineException
+	 */
+	public void updateAttributeClass(AttributesClass updated) throws EngineException;
+
+	/**
+	 * @return all currently defined {@link AttributesClass}es.
+	 * @throws EngineException
+	 */
+	public Collection<AttributesClass> getAttributeClasses() throws EngineException;
+	
+	/**
+	 * Updates the set of entity's attribute classes in a given group. 
+	 * The entity must have all the requires attributes set and must not have any disallowed attributes,
+	 * otherwise the operation will fail.
 	 * @param entity
 	 * @param classes
 	 * @throws EngineException
 	 */
-	public void assignAttributeClasses(EntityParam entity, String[] classes) throws EngineException;
+	public void assignAttributeClasses(EntityParam entity, String group, Collection<String> classes) throws EngineException;
 	
 
 	/**

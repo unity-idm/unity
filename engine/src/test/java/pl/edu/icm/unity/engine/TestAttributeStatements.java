@@ -7,19 +7,24 @@ package pl.edu.icm.unity.engine;
 import static org.junit.Assert.*;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 
 import org.junit.Test;
 
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -458,6 +463,55 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		c = groupsMan.getContents("/A", GroupContents.METADATA);
 		assertEquals(0, c.getGroup().getAttributeStatements().length);
 	}
+
+	/**
+	 * in child group an attribute is assigned by the statement. This attribute is disallowed by ac. 
+	 * At the same time it is a condition attribute for the attribute in a parent group. 
+	 * Both attributes should not be assigned.
+	 * @throws Exception
+	 */
+	@Test
+	public void testWithAC() throws Exception
+	{
+		setupStateForConditions();
+		
+		AttributeStatement statement1 = new EverybodyStatement(
+				new StringAttribute("a1", "/A/D", AttributeVisibility.local, "any"), 
+				ConflictResolution.skip);
+		groupAD.setAttributeStatements(new AttributeStatement[] {statement1});
+		groupsMan.updateGroup("/A/D", groupAD);
+		
+		AttributeStatement statement2 = new HasSubgroupAttributeStatement(
+				new StringAttribute("a2", "/A", AttributeVisibility.local, "any"),
+				new StringAttribute("a1", "/A/D", AttributeVisibility.local), 
+				ConflictResolution.skip);
+		groupA.setAttributeStatements(new AttributeStatement[] {statement2});
+		groupsMan.updateGroup("/A", groupA);
+		
+		
+		AttributesClass ac = new AttributesClass("ac1", "", Collections.singleton("a2"), 
+				new HashSet<String>(), false, null);
+		attrsMan.addAttributeClass(ac);
+		attrsMan.assignAttributeClasses(entity, "/A/D", Collections.singleton(ac.getName()));
+		
+		//              /  A  AB ABC AD AZ
+//		testCorrectness(0, 1, 1, 0,  0, 0,  //a1
+//				0, 0, 0, 0,  0, 0); //a2
+		
+		Collection<AttributeExt<?>> aRet = attrsMan.getAllAttributes(entity, true, "/A", "a1", false);
+		assertEquals(aRet.toString(), 1, aRet.size());
+		aRet = attrsMan.getAllAttributes(entity, true, "/A", "a2", false);
+		assertEquals(aRet.toString(), 0, aRet.size());
+		aRet = attrsMan.getAllAttributes(entity, true, "/A", null, false);
+		assertEquals(aRet.toString(), 1, aRet.size());
+		
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/D", "a1", false);
+		assertEquals(aRet.toString(), 0, aRet.size());
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/D", "a2", false);
+		assertEquals(aRet.toString(), 0, aRet.size());
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/D", null, false);
+		assertEquals(aRet.toString(), 1, aRet.size());
+	}
 	
 	@Test
 	public void testInvalidArgs() throws Exception
@@ -495,8 +549,19 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 			groupsMan.updateGroup("/A", groupA);
 			fail("Managed to update group with wrong attribute statement 2");
 		} catch (IllegalAttributeValueException e) {}
+		
+		AttributeStatement statement4 = new EverybodyStatement(
+				new StringAttribute(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS, 
+						"/A", AttributeVisibility.local, "foo"), 
+				ConflictResolution.skip);
+		groupA.setAttributeStatements(new AttributeStatement[] {statement4});
+		try
+		{
+			groupsMan.updateGroup("/A", groupA);
+			fail("Managed to update group with assignment of immutable attribute");
+		} catch (IllegalAttributeTypeException e) {}
+
 	}	
-	
 	
 	private void setupStateForConditions() throws Exception
 	{

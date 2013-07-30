@@ -11,6 +11,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.db.AttributeClassHelper;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
@@ -26,7 +27,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 public class SystemAttributeTypes
 {
 	public static final String CREDENTIAL_REQUIREMENTS = "sys:CredentialRequirements"; 
-	//public static final String ATTRIBUTE_CLASSES = "sys:AttributeClasses"; 
+	public static final String ATTRIBUTE_CLASSES = AttributeClassHelper.ATTRIBUTE_CLASSES_ATTRIBUTE; 
 	public static final String CREDENTIAL_PREFIX = "sys:Credential:";
 	public static final String AUTHORIZATION_ROLE = "sys:AuthorizationRole";
 	public static final String PREFERENCES = "sys:Preferences";
@@ -42,6 +43,7 @@ public class SystemAttributeTypes
 		systemAttributes.add(getCredentialRequirementsAT());
 		systemAttributes.add(getAuthozationRoleAT());
 		systemAttributes.add(getPreferenceAT());
+		systemAttributes.add(getAttributeClassesAT());
 	}
 	
 	private AttributeType getCredentialRequirementsAT()
@@ -77,6 +79,18 @@ public class SystemAttributeTypes
 		preferenceAt.setMinElements(1);
 		preferenceAt.setMaxElements(1);
 		preferenceAt.setUniqueValues(false);
+		preferenceAt.setVisibility(AttributeVisibility.local);
+		return preferenceAt;
+	}
+
+	private AttributeType getAttributeClassesAT()
+	{
+		AttributeType preferenceAt = new AttributeType(ATTRIBUTE_CLASSES, new StringAttributeSyntax());
+		preferenceAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.INSTANCES_IMMUTABLE_FLAG);
+		preferenceAt.setDescription("Attribute classes of the user.");
+		preferenceAt.setMinElements(0);
+		preferenceAt.setMaxElements(AttributeClassHelper.MAX_CLASSES_PER_ENTITY);
+		preferenceAt.setUniqueValues(true);
 		preferenceAt.setVisibility(AttributeVisibility.local);
 		return preferenceAt;
 	}
