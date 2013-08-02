@@ -234,6 +234,27 @@ public class DBAttributes
 	}
 	
 	/**
+	 * 
+	 * @param entityId
+	 * @param groupPath
+	 * @param sql
+	 * @return set of attribute names of the given entity in a group
+	 * @throws IllegalGroupValueException 
+	 */
+	public Collection<String> getEntityInGroupAttributeNames(long entityId, String groupPath, 
+			SqlSession sql) throws IllegalGroupValueException
+	{
+		AttributesMapper atMapper = sql.getMapper(AttributesMapper.class);
+		GroupsMapper gMapper = sql.getMapper(GroupsMapper.class);
+		GroupBean grBean = groupResolver.resolveGroup(groupPath, gMapper);
+		List<AttributeBean> allAts = getDefinedAttributes(entityId, grBean.getId(), null, atMapper);
+		Set<String> ret = new HashSet<>();
+		for (AttributeBean ab: allAts)
+			ret.add(ab.getName());
+		return ret;
+	}
+	
+	/**
 	 * Returns all attributes. Attribute name can be given or not.
 	 * If the group is null, then attributes in all group scopes are returned.
 	 * @param entityId

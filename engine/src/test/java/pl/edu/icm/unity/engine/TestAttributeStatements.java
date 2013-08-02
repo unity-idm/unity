@@ -492,7 +492,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		AttributesClass ac = new AttributesClass("ac1", "", Collections.singleton("a2"), 
 				new HashSet<String>(), false, null);
 		attrsMan.addAttributeClass(ac);
-		attrsMan.assignAttributeClasses(entity, "/A/D", Collections.singleton(ac.getName()));
+		attrsMan.setEntityAttributeClasses(entity, "/A/D", Collections.singleton(ac.getName()));
 		
 		//              /  A  AB ABC AD AZ
 //		testCorrectness(0, 1, 1, 0,  0, 0,  //a1

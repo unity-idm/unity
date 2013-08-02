@@ -11,6 +11,8 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -43,8 +45,17 @@ public interface IdentitiesManagement
 	 * @param credReqId Local {@link CredentialRequirements} id
 	 * @param initialState the initial state of the newly created entity
 	 * @param extractAttributes whether automatic attributes extraction should be performed
+	 * @param attributes initial attributes to be added for the entity. This is especially useful 
+	 * when the root group (to which the entity is automatically added) has some {@link AttributesClass}es assigned
+	 * with mandatory attributes. 
 	 * @return newly created identity
 	 * @throws EngineException
+	 */
+	public Identity addEntity(IdentityParam toAdd, String credReqIdId, EntityState initialState,
+			boolean extractAttributes, List<Attribute<?>> attributes) throws EngineException;
+
+	/**
+	 * As {@link #addEntity(IdentityParam, String, EntityState, boolean, List)} with the empty list of attribute classes.
 	 */
 	public Identity addEntity(IdentityParam toAdd, String credReqIdId, EntityState initialState,
 			boolean extractAttributes) throws EngineException;

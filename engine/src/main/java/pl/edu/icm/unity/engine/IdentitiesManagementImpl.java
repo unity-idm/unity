@@ -156,18 +156,27 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Identity addEntity(IdentityParam toAdd, String credReqId, EntityState initialState,
 			boolean extractAttributes) throws EngineException
 	{
+		return addEntity(toAdd, credReqId, initialState, extractAttributes, null);
+	}
+
+	@Override
+	public Identity addEntity(IdentityParam toAdd, String credReqId,
+			EntityState initialState, boolean extractAttributes,
+			List<Attribute<?>> attributes) throws EngineException
+	{
 		toAdd.validateInitialization();
 		authz.checkAuthorization(AuthzCapability.identityModify);
+		if (attributes == null)
+			attributes = Collections.emptyList();
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
+			engineHelper.checkGroupAttributeClassesConsistency(attributes, "/", sqlMap);
+			
 			Identity ret = dbIdentities.insertIdentity(toAdd, null, sqlMap);
 			long entityId = ret.getEntityId();
 			if (!PersistentIdentity.ID.equals(toAdd.getTypeId()))
@@ -180,6 +189,8 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			dbIdentities.setEntityStatus(entityId, initialState, sqlMap);
 			dbGroups.addMemberFromParent("/", new EntityParam(ret.getEntityId()), sqlMap);
 			engineHelper.setEntityCredentialRequirements(entityId, credReqId, sqlMap);
+			
+			engineHelper.addAttributesList(attributes, entityId, sqlMap);
 			
 			if (extractAttributes)
 				extractAttributes(ret, sqlMap);

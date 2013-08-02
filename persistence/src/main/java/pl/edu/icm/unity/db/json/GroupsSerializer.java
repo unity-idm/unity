@@ -6,7 +6,9 @@ package pl.edu.icm.unity.db.json;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -80,6 +82,11 @@ public class GroupsSerializer
 			{
 				ases.add(serializeAS(as, groupMapper, attributeMapper));
 			}
+			ArrayNode aces = main.putArray("attributesClasses");
+			for (String ac: src.getAttributesClasses())
+			{
+				aces.add(ac);
+			}
 			
 			return mapper.writeValueAsBytes(main);
 		} catch (JsonProcessingException e)
@@ -89,7 +96,9 @@ public class GroupsSerializer
 	}
 	
 	/**
-	 * Fills target with JSON contents, checking it for correctness
+	 * Fills target with JSON contents, checking it for correctness.
+	 * If mappers are not provided (null) then the costly operation of group 
+	 * attribute statements resolving is not performed.
 	 * @param json
 	 * @param target
 	 */
@@ -104,22 +113,35 @@ public class GroupsSerializer
 		{
 			main = mapper.readValue(json, ObjectNode.class);
 			target.setDescription(main.get("description").asText());
-			JsonNode jsonStatements = main.get("attributeStatements");
-			int asLen = jsonStatements.size();
-			List<AttributeStatement> statements = new ArrayList<AttributeStatement>(asLen);
-			for (int i=0; i<asLen; i++)
+			
+			if (attributeMapper != null && groupMapper != null)
 			{
-				try
+				JsonNode jsonStatements = main.get("attributeStatements");
+				int asLen = jsonStatements.size();
+				List<AttributeStatement> statements = new ArrayList<AttributeStatement>(asLen);
+				for (int i=0; i<asLen; i++)
 				{
-					statements.add(deserializeAS(jsonStatements.get(i), 
-							groupMapper, attributeMapper));
-				} catch (Exception e)
-				{
-					//OK - we are ignoring outdated ASes - will be removed by async cleanup
-					outdatedASes++;
-				}
-			}			
-			target.setAttributeStatements(statements.toArray(new AttributeStatement[statements.size()]));
+					try
+					{
+						statements.add(deserializeAS(jsonStatements.get(i), 
+								groupMapper, attributeMapper));
+					} catch (Exception e)
+					{
+						//OK - we are ignoring outdated ASes - will be removed by async cleanup
+						outdatedASes++;
+					}
+				}			
+				target.setAttributeStatements(statements.toArray(new AttributeStatement[statements.size()]));
+			}
+			
+			JsonNode jsonAcs = main.get("attributesClasses");
+			int acLen = jsonAcs != null ? jsonAcs.size() : 0;
+			Set<String> acs = new HashSet<>();
+			for (int i=0; i<acLen; i++)
+			{
+				acs.add(jsonAcs.get(i).asText());
+			}
+			target.setAttributesClasses(acs);
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't perform JSON deserialization", e);

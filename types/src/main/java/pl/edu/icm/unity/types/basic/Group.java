@@ -10,10 +10,18 @@ package pl.edu.icm.unity.types.basic;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Group holds set of other elements: other groups and identities. This class only denotes group, 
  * it doesn't hold group's content.
+ * <p>
+ * Each group can have a list of {@link AttributeStatement}s assigned. Group member can automatically get attributes
+ * from a statement if she fulfills the statement's condition.
+ * <p>
+ * Each group can have a set of {@link AttributesClass}es assigned. Members of the group have those classes 
+ * automatically assigned.
  * 
  * @author K. Benedyczak
  */
@@ -24,6 +32,7 @@ public class Group implements Serializable
 	private String[] path;
 	private String description = "";
 	private AttributeStatement[] attributeStatements = new AttributeStatement[0];
+	private Set<String> attributesClasses = new HashSet<String>();
 
 	public Group(Group parent, String name)
 	{
@@ -106,6 +115,16 @@ public class Group implements Serializable
 	public void setAttributeStatements(AttributeStatement[] attributeStatements)
 	{
 		this.attributeStatements = attributeStatements;
+	}
+
+	public Set<String> getAttributesClasses()
+	{
+		return attributesClasses;
+	}
+
+	public void setAttributesClasses(Set<String> attributesClasses)
+	{
+		this.attributesClasses = attributesClasses;
 	}
 
 	public String toString()

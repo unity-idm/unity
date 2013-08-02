@@ -4,15 +4,22 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.db.AttributeClassHelper;
 import pl.edu.icm.unity.db.DBAttributes;
+import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.internal.EngineHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -38,18 +45,24 @@ public class GroupsManagementImpl implements GroupsManagement
 	private DBSessionManager db;
 	private DBGroups dbGroups;
 	private DBAttributes dbAttributes;
+	private DBGeneric dbGeneric;
 	private AuthorizationManager authz;
+	private EngineHelper engineHelper;
 	private IdentitiesResolver idResolver;
+	
 	
 	@Autowired
 	public GroupsManagementImpl(DBSessionManager db, DBGroups dbGroups,
-			AuthorizationManager authz, DBAttributes dbAttributes, IdentitiesResolver idResolver)
+			DBAttributes dbAttributes, DBGeneric dbGeneric, AuthorizationManager authz,
+			EngineHelper engineHelper, IdentitiesResolver idResolver)
 	{
 		this.db = db;
 		this.dbGroups = dbGroups;
-		this.authz = authz;
-		this.idResolver = idResolver;
 		this.dbAttributes = dbAttributes;
+		this.dbGeneric = dbGeneric;
+		this.authz = authz;
+		this.engineHelper = engineHelper;
+		this.idResolver = idResolver;
 	}
 
 	@Override
@@ -60,6 +73,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		try
 		{
 			validateGroupStatements(toAdd, sql);
+			AttributeClassHelper.validateAttributeClasses(toAdd.getAttributesClasses(), dbGeneric, sql);
 			dbGroups.addGroup(toAdd, sql);
 			sql.commit();
 		} finally
@@ -104,13 +118,28 @@ public class GroupsManagementImpl implements GroupsManagement
 	@Override
 	public void addMemberFromParent(String path, EntityParam entity) throws EngineException
 	{
+		addMemberFromParent(path, entity, null);
+	}
+	
+
+	@Override
+	public void addMemberFromParent(String path, EntityParam entity,
+			List<Attribute<?>> attributes) throws EngineException
+	{
 		entity.validateInitialization();
+		if (attributes == null)
+			attributes = Collections.emptyList();
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sql);
 			authz.checkAuthorization(authz.isSelf(entityId), path, AuthzCapability.groupModify);
+			
+			engineHelper.checkGroupAttributeClassesConsistency(attributes, path, sql);
+			
 			dbGroups.addMemberFromParent(path, entity, sql);
+
+			engineHelper.addAttributesList(attributes, entityId, sql);
 			sql.commit();
 		} finally
 		{
@@ -159,6 +188,17 @@ public class GroupsManagementImpl implements GroupsManagement
 		try 
 		{
 			validateGroupStatements(group, sql);
+			AttributeClassHelper.validateAttributeClasses(group.getAttributesClasses(), dbGeneric, sql);
+			GroupContents gc = dbGroups.getContents(path, GroupContents.MEMBERS, sql);
+			List<AttributeType> allTypes = dbAttributes.getAttributeTypes(sql);
+			for (Long entity: gc.getMembers())
+			{
+				AttributeClassHelper helper = AttributeClassHelper.getACHelper(entity, path, 
+						dbAttributes, dbGeneric, group.getAttributesClasses(), sql);
+				Collection<String> attributes = dbAttributes.getEntityInGroupAttributeNames(
+						entity, path, sql);
+				helper.checkAttribtues(attributes, allTypes);
+			}
 			dbGroups.updateGroup(path, group, sql);
 			sql.commit();
 		} finally
@@ -181,7 +221,8 @@ public class GroupsManagementImpl implements GroupsManagement
 	{
 		statement.validate(group);
 		Attribute<?> attribute = statement.getAssignedAttribute();
-		AttributeType at = dbAttributes.getAttributeType(attribute.getName(), sql);
+		String attributeName = statement.getAssignedAttributeName();
+		AttributeType at = dbAttributes.getAttributeType(attributeName, sql);
 		if (at.isInstanceImmutable())
 			throw new IllegalAttributeTypeException("Can not assign attribute " + at.getName() +
 					" in attribute statement as the attribute type is an internal, system attribute.");

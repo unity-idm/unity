@@ -17,6 +17,7 @@ import org.junit.Test;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -57,12 +58,12 @@ public class TestAttributes extends DBIntegrationTestBase
 		{
 			attrsMan.setAttribute(entity, systemA, true);
 			fail("Updated immutable attribute");
-		} catch (IllegalAttributeTypeException e) {}
+		} catch (SchemaConsistencyException e) {}
 		try
 		{
 			attrsMan.removeAttribute(entity, "/", systemA.getName());
 			fail("Removed immutable attribute");
-		} catch (IllegalAttributeTypeException e) {}
+		} catch (SchemaConsistencyException e) {}
 		
 		
 		attrsMan.addAttributeType(new AttributeType("tel", new StringAttributeSyntax()));

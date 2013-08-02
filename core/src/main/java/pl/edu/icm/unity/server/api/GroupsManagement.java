@@ -4,7 +4,11 @@
  */
 package pl.edu.icm.unity.server.api;
 
+import java.util.List;
+
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -61,7 +65,16 @@ public interface GroupsManagement
 	 * Adds a new member to the group. The entity must be a member of a parent group.
 	 * @param path
 	 * @param entity
+	 * @param attributes an optional list of attributes to be assigned to the member in this group scope.
+	 * It is especially useful in the case when group's {@link AttributesClass}es require some attributes
+	 * from all members.  
 	 * @throws EngineException
+	 */
+	public void addMemberFromParent(String path, EntityParam entity, 
+			List<Attribute<?>> attributes) throws EngineException;
+
+	/**
+	 * As {@link #addMemberFromParent(String, EntityParam, List)} with an empty list of attribute classes.
 	 */
 	public void addMemberFromParent(String path, EntityParam entity) throws EngineException;
 	

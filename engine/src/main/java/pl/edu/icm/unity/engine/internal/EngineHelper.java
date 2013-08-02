@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -14,13 +15,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.db.AttributeClassHelper;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGeneric;
+import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.engine.AuthenticationManagementImpl;
 import pl.edu.icm.unity.engine.authn.AuthenticatorImpl;
 import pl.edu.icm.unity.engine.authn.CredentialHolder;
 import pl.edu.icm.unity.engine.authn.CredentialRequirementsHolder;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -33,7 +37,9 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 /**
@@ -46,21 +52,22 @@ public class EngineHelper
 {
 	private DBAttributes dbAttributes;
 	private DBGeneric dbGeneric;
+	private DBGroups dbGroups;
 	private AuthenticatorsRegistry authReg;
 	private IdentityResolver identityResolver;
 	
 	@Autowired
-	public EngineHelper(DBAttributes dbAttributes, DBGeneric dbGeneric,
+	public EngineHelper(DBAttributes dbAttributes, DBGeneric dbGeneric, DBGroups dbGroups,
 			AuthenticatorsRegistry authReg, IdentityResolver identityResolver)
 	{
 		super();
 		this.dbAttributes = dbAttributes;
 		this.dbGeneric = dbGeneric;
+		this.dbGroups = dbGroups;
 		this.authReg = authReg;
 		this.identityResolver = identityResolver;
 	}
-	
-	
+
 	public void setEntityCredentialRequirements(long entityId, String credReqId, SqlSession sqlMap) 
 			throws IllegalAttributeValueException, IllegalTypeException, IllegalAttributeTypeException, IllegalGroupValueException
 	{
@@ -187,5 +194,33 @@ public class EngineHelper
 			ret.add(helper.getCredentialDefinition());
 		}
 		return ret;
+	}
+	
+	/**
+	 * Checks if the given set of attributes fulfills rules of ACs of a specified group 
+	 * @throws EngineException 
+	 */
+	public void checkGroupAttributeClassesConsistency(List<Attribute<?>> attributes, String path, SqlSession sql) 
+			throws EngineException
+	{
+		AttributeClassHelper helper = AttributeClassHelper.getACHelper(path, 
+				new ArrayList<String>(0), dbGeneric, dbGroups, sql);
+		Set<String> attributeNames = new HashSet<>(attributes.size());
+		for (Attribute<?> a: attributes)
+			attributeNames.add(a.getName());
+		helper.checkAttribtues(attributeNames, null);
+	}
+	
+	public void addAttributesList(List<Attribute<?>> attributes, long entityId, SqlSession sqlMap) 
+			throws EngineException
+	{
+		for (Attribute<?> a: attributes)
+		{
+			AttributeType at = dbAttributes.getAttributeType(a.getName(), sqlMap);
+			if (at.isInstanceImmutable())
+				throw new IllegalAttributeTypeException("The attribute with name " + at.getName() + 
+						" can not be manually added");
+			dbAttributes.addAttribute(entityId, a, false, sqlMap);
+		}
 	}
 }

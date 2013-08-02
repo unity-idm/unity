@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.db;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -28,6 +29,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -241,6 +243,25 @@ public class DBGroups
 			}
 		}
 		return modified;
+	}
+	
+	/**
+	 * @param sqlMap
+	 * @return set of all groups which use the given {@link AttributesClass}
+	 */
+	public Set<String> getGroupsUsingAc(String acName, SqlSession sqlMap)
+	{
+		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
+		List<GroupBean> allGroups = mapper.getAllGroups();
+		Set<String> ret = new HashSet<>();
+		for (GroupBean gb: allGroups)
+		{
+			Group fullGroup = new Group("/dummy");
+			jsonS.fromJson(gb.getContents(), fullGroup, null, null);
+			if (fullGroup.getAttributesClasses().contains(acName))
+				ret.add(groupResolver.resolveGroupPath(gb, mapper));
+		}
+		return ret;
 	}
 	
 	private List<String> convertGroups(List<GroupBean> src, GroupsMapper mapper)

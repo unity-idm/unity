@@ -93,7 +93,18 @@ public interface AttributesManagement
 	 * @param classes
 	 * @throws EngineException
 	 */
-	public void assignAttributeClasses(EntityParam entity, String group, Collection<String> classes) throws EngineException;
+	public void setEntityAttributeClasses(EntityParam entity, String group, Collection<String> classes) 
+			throws EngineException;
+	
+	/**
+	 * Attribute classes of a given entity in a group
+	 * @param entity
+	 * @param group
+	 * @return
+	 * @throws EngineException
+	 */
+	public Collection<AttributesClass> getEntityAttributeClasses(EntityParam entity, String group) 
+			throws EngineException;
 	
 
 	/**

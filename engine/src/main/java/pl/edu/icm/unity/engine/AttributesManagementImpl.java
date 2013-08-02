@@ -6,6 +6,8 @@ package pl.edu.icm.unity.engine;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +21,7 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.db.AttributeClassHelper;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGeneric;
+import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.json.AttributeClassSerializer;
@@ -32,6 +35,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
@@ -59,20 +63,22 @@ public class AttributesManagementImpl implements AttributesManagement
 	private DBGeneric dbGeneric;
 	private DBAttributes dbAttributes;
 	private DBIdentities dbIdentities;
+	private DBGroups dbGroups;
 	private IdentitiesResolver idResolver;
 	private AuthorizationManager authz;
 	
 	@Autowired
 	public AttributesManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
 			DBSessionManager db, DBGeneric dbGeneric, DBAttributes dbAttributes,
-			DBIdentities dbIdentities, IdentitiesResolver idResolver,
-			AuthorizationManager authz)
+			DBIdentities dbIdentities, DBGroups dbGroups,
+			IdentitiesResolver idResolver, AuthorizationManager authz)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
 		this.db = db;
 		this.dbGeneric = dbGeneric;
 		this.dbAttributes = dbAttributes;
 		this.dbIdentities = dbIdentities;
+		this.dbGroups = dbGroups;
 		this.idResolver = idResolver;
 		this.authz = authz;
 	}
@@ -258,7 +264,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			for (AttributesClass ac: allClasses.values())
 			{
 				if (id.equals(ac.getParentClassName()))
-					throw new WrongArgumentException("Can not remove attribute class " + id + 
+					throw new SchemaConsistencyException("Can not remove attribute class " + id + 
 							" as it is a parent of the attribute class " + ac.getName());
 			}
 			if (!allClasses.containsKey(id))
@@ -270,11 +276,16 @@ public class AttributesManagementImpl implements AttributesManagement
 				String info = String.valueOf(entities.iterator().next());
 				if (entities.size() > 1)
 					info += " and " + (entities.size()-1) + " more";
-				throw new WrongArgumentException("The attribute class " + id + 
+				throw new SchemaConsistencyException("The attribute class " + id + 
 						" can not be removed as there are entities with this class set. " +
 						"Ids of entities: " + info);
 			}
-			//TODO when group-level AC can be assigned, check them too
+			
+			Set<String> groupsUsing = dbGroups.getGroupsUsingAc(id, sql);
+			if (groupsUsing.size() > 0)
+				throw new SchemaConsistencyException("The attribute class " + id + 
+						" can not be removed as there are groups with have this class set: " +
+						groupsUsing.toString());
 			
 			dbGeneric.removeObject(id, AttributeClassHelper.ATTRIBUTE_CLASS_OBJECT_TYPE, sql);
 			sql.commit();
@@ -307,7 +318,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	}
 
 	@Override
-	public void assignAttributeClasses(EntityParam entity, String group, Collection<String> classes)
+	public void setEntityAttributeClasses(EntityParam entity, String group, Collection<String> classes)
 			throws EngineException
 	{
 		entity.validateInitialization();
@@ -315,12 +326,12 @@ public class AttributesManagementImpl implements AttributesManagement
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			Map<String, AttributesClass> allClasses = resolveAttributeClasses(sql);
-			AttributeClassHelper acHelper = new AttributeClassHelper(allClasses, classes);
+			AttributeClassHelper acHelper = AttributeClassHelper.getACHelper(group, classes, 
+					dbGeneric, dbGroups, sql);
 			
 			long entityId = idResolver.getEntityId(entity, sql);
-			Collection<AttributeExt<?>> allAttributes = dbAttributes.getAllAttributes(
-					entityId, group, false, null, sql);
+			Collection<String> allAttributes = dbAttributes.getEntityInGroupAttributeNames(entityId, 
+					group, sql);
 			List<AttributeType> allTypes = dbAttributes.getAttributeTypes(sql);
 			acHelper.checkAttribtues(allAttributes, allTypes);
 
@@ -335,17 +346,46 @@ public class AttributesManagementImpl implements AttributesManagement
 		}
 	}
 	
+
+	@Override
+	public Collection<AttributesClass> getEntityAttributeClasses(EntityParam entity,
+			String group) throws EngineException
+	{
+		entity.validateInitialization();
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			long entityId = idResolver.getEntityId(entity, sql);
+			authz.checkAuthorization(group, AuthzCapability.read);
+			Collection<AttributeExt<?>> attrs = dbAttributes.getAllAttributes(entityId, group, false, 
+					SystemAttributeTypes.ATTRIBUTE_CLASSES, sql);
+			if (attrs.size() == 0)
+				return Collections.emptySet();
+			AttributeExt<?> attr = attrs.iterator().next();
+			@SuppressWarnings("unchecked")
+			List<String> classes = (List<String>) attr.getValues();
+			
+			Map<String, AttributesClass> allClasses = resolveAttributeClasses(sql);
+			Set<AttributesClass> ret = new HashSet<>(classes.size());
+			for (String clazz: classes)
+			{
+				AttributesClass ac = allClasses.get(clazz);
+				if (ac != null)
+					ret.add(ac);
+			}
+			sql.commit();
+			return ret;
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
+	}
+	
 	private Map<String, AttributesClass> resolveAttributeClasses(SqlSession sql)
 	{
 		return AttributeClassHelper.resolveAttributeClasses(dbGeneric, sql);
 	}
 
-	private AttributeClassHelper getACHelper(long entityId, String groupPath, SqlSession sql)
-			throws EngineException
-	{
-		return AttributeClassHelper.getACHelper(entityId, groupPath, dbAttributes, dbGeneric, sql);
-	}
-	
 	/**
 	 * Verifies if the attribute is allowed wrt attribute classes defined for the entity in the respective group.
 	 * @param entityId
@@ -356,9 +396,10 @@ public class AttributesManagementImpl implements AttributesManagement
 	private void checkIfAllowed(long entityId, String groupPath, String attributeTypeId, SqlSession sql) 
 			throws EngineException
 	{
-		AttributeClassHelper acHelper = getACHelper(entityId, groupPath, sql);
+		AttributeClassHelper acHelper = AttributeClassHelper.getACHelper(entityId, groupPath, 
+				dbAttributes, dbGeneric, dbGroups, sql);
 		if (!acHelper.isAllowed(attributeTypeId))
-			throw new IllegalAttributeTypeException("The attribute with name " + attributeTypeId + 
+			throw new SchemaConsistencyException("The attribute with name " + attributeTypeId + 
 					" is not allowed by the entity's attribute classes in the group " + groupPath);
 	}
 
@@ -372,9 +413,10 @@ public class AttributesManagementImpl implements AttributesManagement
 	private void checkIfMandatory(long entityId, String groupPath, String attributeTypeId, SqlSession sql) 
 			throws EngineException
 	{
-		AttributeClassHelper acHelper = getACHelper(entityId, groupPath, sql);
+		AttributeClassHelper acHelper = AttributeClassHelper.getACHelper(entityId, groupPath, 
+				dbAttributes, dbGeneric, dbGroups, sql);
 		if (acHelper.isMandatory(attributeTypeId))
-			throw new IllegalAttributeTypeException("The attribute with name " + attributeTypeId + 
+			throw new SchemaConsistencyException("The attribute with name " + attributeTypeId + 
 					" is required by the entity's attribute classes in the group " + groupPath);
 	}
 	
@@ -390,10 +432,12 @@ public class AttributesManagementImpl implements AttributesManagement
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
+			//Important - attributes can be also set as a result of addMember and addEntity.
+			//  when changing this method, verify if those needs an update too.
 			long entityId = idResolver.getEntityId(entity, sql);
 			AttributeType at = dbAttributes.getAttributeType(attribute.getName(), sql);
 			if (at.isInstanceImmutable())
-				throw new IllegalAttributeTypeException("The attribute with name " + at.getName() + 
+				throw new SchemaConsistencyException("The attribute with name " + at.getName() + 
 						" can not be manually modified");
 			
 			authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId), 
@@ -428,7 +472,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			long entityId = idResolver.getEntityId(entity, sql);
 			AttributeType at = dbAttributes.getAttributeType(attributeTypeId, sql);
 			if (at.isInstanceImmutable())
-				throw new IllegalAttributeTypeException("The attribute with name " + at.getName() + 
+				throw new SchemaConsistencyException("The attribute with name " + at.getName() + 
 						" can not be manually modified");
 			authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId),
 					groupPath, AuthzCapability.attributeModify);
