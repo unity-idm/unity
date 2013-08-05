@@ -14,9 +14,9 @@ import pl.edu.icm.unity.types.DescribedObjectImpl;
  * defines which attributes are mandatory for an entity having the class 
  * and allowed - which are allowed. It is possible to set that all attributes are allowed.
  * <p>
- * Attribute class can have a parent. Then all mandatory and allowed attribute types of the parent are
+ * Attribute class can have a parents. Then all mandatory and allowed attribute types of the parent are
  * added to those defined locally. Allowance of arbitrary attributes set in the child class always overwrite
- * whatever is set in the parent.
+ * whatever is set in any of the parents, i.e. this setting is not inherited.
  * <p>
  * Attribute class inheritance can be multilevel.
  * <p>
@@ -34,22 +34,30 @@ public class AttributesClass extends DescribedObjectImpl
 	private Set<String> allowed;
 	private Set<String> mandatory;
 	private boolean allowArbitrary;
-	private String parentClassName;
+	private Set<String> parentClasses;
 	
 	
 	public AttributesClass(String name, String description, Set<String> allowed, Set<String> mandatory, 
-			boolean allowArbitrary, String parentClassId)
+			boolean allowArbitrary, Set<String> parentClasses)
 	{
 		super(name, description);
-		this.parentClassName = parentClassId;
-		this.allowed = new HashSet<String>(allowed);
-		this.mandatory = new HashSet<String>(mandatory);
+		setParentClassName(parentClasses);
+		setMandatory(mandatory);
+		setAllowed(allowed);
 		this.allowed.addAll(mandatory);
 		this.allowArbitrary = allowArbitrary;
 	}
 	
+	/**
+	 * Creates an empty, anonymous AC: nothing is required nor allowed
+	 */
 	public AttributesClass()
 	{
+		this.name = "";
+		this.description = "";
+		mandatory = new HashSet<>();
+		allowed = new HashSet<>();
+		allowArbitrary = false;
 	}
 	
 	public boolean isAllowedDirectly(String type)
@@ -69,7 +77,7 @@ public class AttributesClass extends DescribedObjectImpl
 
 	public void setAllowed(Set<String> allowed)
 	{
-		this.allowed = allowed;
+		this.allowed = new HashSet<String>(allowed);
 	}
 
 	public Set<String> getMandatory()
@@ -79,7 +87,7 @@ public class AttributesClass extends DescribedObjectImpl
 
 	public void setMandatory(Set<String> mandatory)
 	{
-		this.mandatory = mandatory;
+		this.mandatory = new HashSet<String>(mandatory);
 	}
 
 	public boolean isAllowArbitrary()
@@ -92,13 +100,13 @@ public class AttributesClass extends DescribedObjectImpl
 		this.allowArbitrary = allowArbitrary;
 	}
 
-	public String getParentClassName()
+	public Set<String> getParentClasses()
 	{
-		return parentClassName;
+		return parentClasses;
 	}
 
-	public void setParentClassName(String parentClassName)
+	public void setParentClassName(Set<String> parentClasses)
 	{
-		this.parentClassName = parentClassName;
+		this.parentClasses = new HashSet<String>(parentClasses);
 	}
 }

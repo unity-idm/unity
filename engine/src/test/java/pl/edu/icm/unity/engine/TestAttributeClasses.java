@@ -68,9 +68,9 @@ public class TestAttributeClasses extends DBIntegrationTestBase
 
 		
 		AttributesClass ac = new AttributesClass("ac1", "desc", Collections.singleton("a2"), 
-				 new HashSet<String>(), false, null);
+				 new HashSet<String>(), false, new HashSet<String>(0));
 		AttributesClass ac2 = new AttributesClass("ac2", "desc2", new HashSet<String>(), 
-				 new HashSet<String>(), true, ac.getName());
+				 new HashSet<String>(), true, Collections.singleton(ac.getName()));
 		attrsMan.addAttributeClass(ac);
 		Collection<AttributesClass> acs = attrsMan.getAttributeClasses();
 		assertEquals(1, acs.size());
@@ -150,7 +150,7 @@ public class TestAttributeClasses extends DBIntegrationTestBase
 		} catch (IllegalTypeException e) {}
 
 		AttributesClass ac = new AttributesClass("ac1", "desc", Collections.singleton("a2"), 
-				Collections.singleton("a1"), false, null);
+				Collections.singleton("a1"), false, new HashSet<String>(0));
 		attrsMan.addAttributeClass(ac);
 		
 		groupA.setAttributesClasses(Collections.singleton("ac1"));
@@ -196,7 +196,7 @@ public class TestAttributeClasses extends DBIntegrationTestBase
 		} catch (SchemaConsistencyException e) {}
 		
 		AttributesClass ac2 = new AttributesClass("ac2", "desc2", Collections.singleton("a3"), 
-				new HashSet<String>(), false, null);
+				new HashSet<String>(), false, new HashSet<String>(0));
 		attrsMan.addAttributeClass(ac2);
 		
 		attrsMan.setEntityAttributeClasses(entity, "/A", Collections.singleton(ac2.getName()));
@@ -223,10 +223,10 @@ public class TestAttributeClasses extends DBIntegrationTestBase
 		groupsMan.addMemberFromParent("/A", entity);
 		
 		AttributesClass ac1 = new AttributesClass("ac1", "desc", Collections.singleton("a1"), 
-				new HashSet<String>(), false, null);
+				new HashSet<String>(), false, new HashSet<String>(0));
 		attrsMan.addAttributeClass(ac1);
 		AttributesClass ac2 = new AttributesClass("ac2", "desc2", Collections.singleton("a2"), 
-				new HashSet<String>(), false, null);
+				new HashSet<String>(), false, new HashSet<String>(0));
 		attrsMan.addAttributeClass(ac2);
 		
 		Set<String> acs = new HashSet<>();
@@ -332,7 +332,7 @@ public class TestAttributeClasses extends DBIntegrationTestBase
 		assertEquals(ac.isAllowArbitrary(), returnedAc.isAllowArbitrary());
 		assertEquals(ac.getMandatory(), returnedAc.getMandatory());
 		assertEquals(ac.getAllowed(), returnedAc.getAllowed());
-		assertEquals(ac.getParentClassName(), returnedAc.getParentClassName());
+		assertEquals(ac.getParentClasses(), returnedAc.getParentClasses());
 	}
 	
 	private void setupStateForConditions() throws Exception

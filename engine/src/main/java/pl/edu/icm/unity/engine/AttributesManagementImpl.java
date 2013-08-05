@@ -221,24 +221,22 @@ public class AttributesManagementImpl implements AttributesManagement
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		String addedName = clazz.getName();
-		String addedParentName = clazz.getParentClassName();
+		Set<String> missingParents = new HashSet<>(clazz.getParentClasses());
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
 			List<GenericObjectBean> existingRaw = dbGeneric.getObjectsOfType(
 					AttributeClassHelper.ATTRIBUTE_CLASS_OBJECT_TYPE, sql);
-			boolean parentFound = clazz.getParentClassName() == null;
 			for (GenericObjectBean existing: existingRaw)
 			{
 				String c = existing.getName();
 				if (addedName.equals(c))
 					throw new WrongArgumentException("The attribute class " + addedName + " already exists");
-				if (addedParentName != null && addedParentName.equals(c))
-					parentFound = true;
+				missingParents.remove(c);
 			}
-			if (!parentFound)
-				throw new WrongArgumentException("The attribute class parent " + addedParentName + 
-						" does not exist");
+			if (!missingParents.isEmpty())
+				throw new WrongArgumentException("The attribute class parent(s): " + missingParents + 
+						" do(es) not exist");
 
 			byte[] contents = AttributeClassSerializer.serialize(clazz).getBytes(Constants.UTF); 
 			dbGeneric.addObject(clazz.getName(), AttributeClassHelper.ATTRIBUTE_CLASS_OBJECT_TYPE, 
@@ -263,7 +261,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			Map<String, AttributesClass> allClasses = resolveAttributeClasses(sql);
 			for (AttributesClass ac: allClasses.values())
 			{
-				if (id.equals(ac.getParentClassName()))
+				if (ac.getParentClasses().contains(id))
 					throw new SchemaConsistencyException("Can not remove attribute class " + id + 
 							" as it is a parent of the attribute class " + ac.getName());
 			}

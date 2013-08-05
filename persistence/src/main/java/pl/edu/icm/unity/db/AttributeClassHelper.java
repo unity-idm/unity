@@ -45,7 +45,7 @@ public class AttributeClassHelper
 	public AttributeClassHelper()
 	{
 		effectiveClass = new AttributesClass("", "", new HashSet<String>(0), 
-				new HashSet<String>(0), true, null);
+				new HashSet<String>(0), true, new HashSet<String>(0));
 	}
 	
 	public AttributeClassHelper(Map<String, AttributesClass> knownClasses, Collection<String> assignedClasses) 
@@ -55,20 +55,18 @@ public class AttributeClassHelper
 			throw new IllegalTypeException("Maximum number of attribute classes assigned" +
 					" to entity is " + MAX_CLASSES_PER_ENTITY);
 		allClasses = knownClasses;
-		Set<String> allowed = new HashSet<>(50); 
-		Set<String> mandatory = new HashSet<>(10); 
-		boolean allAllowed = false;
+		effectiveClass = new AttributesClass();
 		for (String assignedClass: assignedClasses)
 		{
 			AttributesClass existing = allClasses.get(assignedClass);
 			if (existing == null)
 				throw new IllegalTypeException("The attribute class " + assignedClass + 
 						" is not defined");
-			allAllowed |= addAllFromClass(existing, allowed, mandatory) == null;
+			addAllFromClass(existing, effectiveClass);
 		}
+		//special case - no ACs = no restrictions
 		if (assignedClasses.isEmpty())
-			allAllowed = true;
-		effectiveClass = new AttributesClass("", "", allowed, mandatory, allAllowed, null);
+			effectiveClass.setAllowArbitrary(true);
 	}
 
 	public static void validateAttributeClasses(Collection<String> toCheck, DBGeneric dbGeneric, SqlSession sql) 
@@ -192,17 +190,15 @@ public class AttributeClassHelper
 	 * @param mandatory current mandatory attributes
 	 * @return allowed
 	 */
-	private Set<String> addAllFromClass(AttributesClass clazz, Set<String> allowed, Set<String> mandatory)
+	private void addAllFromClass(AttributesClass clazz, AttributesClass effective)
 	{
-		mandatory.addAll(clazz.getMandatory());
-		if (allowed != null)
-			allowed.addAll(clazz.getAllowed());
-		String parent = clazz.getParentClassName();
-		if (parent != null)
-			addAllFromClass(allClasses.get(parent), allowed, mandatory);
+		effective.getMandatory().addAll(clazz.getMandatory());
+		effective.getAllowed().addAll(clazz.getAllowed());
 		if (clazz.isAllowArbitrary())
-			allowed = null;
-		return allowed;
+			effective.setAllowArbitrary(true);
+		Set<String> parents = clazz.getParentClasses();
+		for (String parent: parents)
+			addAllFromClass(allClasses.get(parent), effective);
 	}
 	
 	/**
