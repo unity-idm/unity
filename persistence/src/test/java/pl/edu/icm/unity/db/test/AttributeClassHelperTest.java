@@ -14,8 +14,8 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import pl.edu.icm.unity.db.AttributeClassHelper;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 
 

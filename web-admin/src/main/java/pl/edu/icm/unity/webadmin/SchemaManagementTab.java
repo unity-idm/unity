@@ -10,6 +10,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webadmin.attributeclass.AttributesClassesComponent;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesComponent;
 import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionsComponent;
 import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementsComponent;
@@ -32,11 +33,12 @@ public class SchemaManagementTab  extends VerticalLayout
 
 	@Autowired
 	public SchemaManagementTab(UnityMessageSource msg, AttributeTypesComponent attributeTypes,
-			CredentialDefinitionsComponent cdComponent, CredentialRequirementsComponent crComponent)
+			CredentialDefinitionsComponent cdComponent, CredentialRequirementsComponent crComponent,
+			AttributesClassesComponent acComponent)
 	{
 		super();
 		this.msg = msg;
-		this.tabs = new MainTabPanel(attributeTypes, cdComponent, crComponent);
+		this.tabs = new MainTabPanel(attributeTypes, acComponent, cdComponent, crComponent);
 		this.tabs.setStyleName(Reindeer.TABSHEET_MINIMAL);
 		initUI();
 	}

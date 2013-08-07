@@ -30,6 +30,7 @@
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.attributetype.AttributeTypesComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.credreq.CredentialRequirementsComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionsComponent"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.attributeclass.AttributesClassesComponent"/>
 	
 	<bean class="pl.edu.icm.unity.webadmin.attrstmt.StatementHandlersRegistry"/>
 	<bean class="pl.edu.icm.unity.webadmin.attrstmt.EverybodyStatementHandler"/>

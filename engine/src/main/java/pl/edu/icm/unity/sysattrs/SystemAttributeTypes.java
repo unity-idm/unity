@@ -11,8 +11,9 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.AttributeClassHelper;
+import pl.edu.icm.unity.db.AttributeClassUtil;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -27,7 +28,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 public class SystemAttributeTypes
 {
 	public static final String CREDENTIAL_REQUIREMENTS = "sys:CredentialRequirements"; 
-	public static final String ATTRIBUTE_CLASSES = AttributeClassHelper.ATTRIBUTE_CLASSES_ATTRIBUTE; 
+	public static final String ATTRIBUTE_CLASSES = AttributeClassUtil.ATTRIBUTE_CLASSES_ATTRIBUTE; 
 	public static final String CREDENTIAL_PREFIX = "sys:Credential:";
 	public static final String AUTHORIZATION_ROLE = "sys:AuthorizationRole";
 	public static final String PREFERENCES = "sys:Preferences";

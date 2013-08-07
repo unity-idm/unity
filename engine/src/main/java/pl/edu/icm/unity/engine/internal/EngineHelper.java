@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.db.AttributeClassHelper;
+import pl.edu.icm.unity.db.AttributeClassUtil;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.DBGroups;
@@ -31,6 +31,7 @@ import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.authn.IdentityResolver;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
@@ -203,7 +204,7 @@ public class EngineHelper
 	public void checkGroupAttributeClassesConsistency(List<Attribute<?>> attributes, String path, SqlSession sql) 
 			throws EngineException
 	{
-		AttributeClassHelper helper = AttributeClassHelper.getACHelper(path, 
+		AttributeClassHelper helper = AttributeClassUtil.getACHelper(path, 
 				new ArrayList<String>(0), dbGeneric, dbGroups, sql);
 		Set<String> attributeNames = new HashSet<>(attributes.size());
 		for (Attribute<?> a: attributes)

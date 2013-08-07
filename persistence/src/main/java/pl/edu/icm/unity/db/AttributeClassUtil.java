@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.db;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,57 +17,23 @@ import pl.edu.icm.unity.db.json.AttributeClassSerializer;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
+import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 
 /**
- * Helper for handling {@link AttributesClass}es of an entity. A single virtual 'class' is created
- * from the classes provided as arguments. With it checking of attributes is fast.
+ * Allows for creating {@link AttributesClassHelper}es easily.
  * 
  * @author K. Benedyczak
  */
-public class AttributeClassHelper
+public abstract class AttributeClassUtil
 {
 	private static final AttributeClassHelper EMPTY_AC_HELPER = new AttributeClassHelper();
 	public static final String ATTRIBUTE_CLASS_OBJECT_TYPE = "attributeClass";
 	public static final String ATTRIBUTE_CLASSES_ATTRIBUTE = "sys:AttributeClasses"; 
 	
-	public static final int MAX_CLASSES_PER_ENTITY = 20;
-	
-	private Map<String, AttributesClass> allClasses;
-	private AttributesClass effectiveClass;
-
-	public AttributeClassHelper()
-	{
-		effectiveClass = new AttributesClass("", "", new HashSet<String>(0), 
-				new HashSet<String>(0), true, new HashSet<String>(0));
-	}
-	
-	public AttributeClassHelper(Map<String, AttributesClass> knownClasses, Collection<String> assignedClasses) 
-			throws IllegalTypeException
-	{
-		if (assignedClasses.size() > MAX_CLASSES_PER_ENTITY)
-			throw new IllegalTypeException("Maximum number of attribute classes assigned" +
-					" to entity is " + MAX_CLASSES_PER_ENTITY);
-		allClasses = knownClasses;
-		effectiveClass = new AttributesClass();
-		for (String assignedClass: assignedClasses)
-		{
-			AttributesClass existing = allClasses.get(assignedClass);
-			if (existing == null)
-				throw new IllegalTypeException("The attribute class " + assignedClass + 
-						" is not defined");
-			addAllFromClass(existing, effectiveClass);
-		}
-		//special case - no ACs = no restrictions
-		if (assignedClasses.isEmpty())
-			effectiveClass.setAllowArbitrary(true);
-	}
-
 	public static void validateAttributeClasses(Collection<String> toCheck, DBGeneric dbGeneric, SqlSession sql) 
 			throws IllegalTypeException
 	{
@@ -183,68 +148,4 @@ public class AttributeClassHelper
 		}
 		return EMPTY_AC_HELPER;
 	} 
-	
-	/**
-	 * @param clazz class to process
-	 * @param allowed current allowed attributes. null if all are allowed.
-	 * @param mandatory current mandatory attributes
-	 * @return allowed
-	 */
-	private void addAllFromClass(AttributesClass clazz, AttributesClass effective)
-	{
-		effective.getMandatory().addAll(clazz.getMandatory());
-		effective.getAllowed().addAll(clazz.getAllowed());
-		if (clazz.isAllowArbitrary())
-			effective.setAllowArbitrary(true);
-		Set<String> parents = clazz.getParentClasses();
-		for (String parent: parents)
-			addAllFromClass(allClasses.get(parent), effective);
-	}
-	
-	/**
-	 * Verifies if the given attribute set is consistent with the effective AC
-	 * @param attributes
-	 * @param allTypes if not null, then it is used skip checking of attribute allowance in case of system attributes
-	 * (i.e. those with instances immutable flag).
-	 * @throws SchemaConsistencyException 
-	 */
-	public void checkAttribtues(Collection<String> attributes, List<AttributeType> allTypes) 
-			throws SchemaConsistencyException 
-	{
-		Set<String> mandatory = new HashSet<>(effectiveClass.getMandatory());
-		Map<String, AttributeType> typesMap;
-		
-		if (allTypes != null)
-		{
-			typesMap = new HashMap<>(allTypes.size());
-			for (AttributeType at: allTypes)
-				typesMap.put(at.getName(), at);
-		} else
-			typesMap = Collections.emptyMap();
-		
-		for (String name: attributes)
-		{
-			AttributeType at = typesMap.get(name);
-			boolean system = at == null ? false : at.isInstanceImmutable();
-			if (!system && !effectiveClass.isAllowedDirectly(name))
-				throw new SchemaConsistencyException("The entity has " + name + " attribute," +
-						" which is not allowed by the attribute classes being assinged");
-			mandatory.remove(name);
-		}
-		if (mandatory.size() > 0)
-			throw new SchemaConsistencyException("The entity does not have the following attributes" +
-					" which are mandatory with respect to the attribute classes being assinged: " 
-					+ mandatory.toString());
-	}
-	
-
-	public boolean isAllowed(String attribute)
-	{
-		return effectiveClass.isAllowedDirectly(attribute);
-	}
-
-	public boolean isMandatory(String attribute)
-	{
-		return effectiveClass.isMandatoryDirectly(attribute);
-	}
 }

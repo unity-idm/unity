@@ -11,7 +11,7 @@ import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.db.AttributeClassHelper;
+import pl.edu.icm.unity.db.AttributeClassUtil;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.DBGroups;
@@ -25,6 +25,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
@@ -73,7 +74,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		try
 		{
 			validateGroupStatements(toAdd, sql);
-			AttributeClassHelper.validateAttributeClasses(toAdd.getAttributesClasses(), dbGeneric, sql);
+			AttributeClassUtil.validateAttributeClasses(toAdd.getAttributesClasses(), dbGeneric, sql);
 			dbGroups.addGroup(toAdd, sql);
 			sql.commit();
 		} finally
@@ -188,12 +189,12 @@ public class GroupsManagementImpl implements GroupsManagement
 		try 
 		{
 			validateGroupStatements(group, sql);
-			AttributeClassHelper.validateAttributeClasses(group.getAttributesClasses(), dbGeneric, sql);
+			AttributeClassUtil.validateAttributeClasses(group.getAttributesClasses(), dbGeneric, sql);
 			GroupContents gc = dbGroups.getContents(path, GroupContents.MEMBERS, sql);
 			List<AttributeType> allTypes = dbAttributes.getAttributeTypes(sql);
 			for (Long entity: gc.getMembers())
 			{
-				AttributeClassHelper helper = AttributeClassHelper.getACHelper(entity, path, 
+				AttributeClassHelper helper = AttributeClassUtil.getACHelper(entity, path, 
 						dbAttributes, dbGeneric, group.getAttributesClasses(), sql);
 				Collection<String> attributes = dbAttributes.getEntityInGroupAttributeNames(
 						entity, path, sql);

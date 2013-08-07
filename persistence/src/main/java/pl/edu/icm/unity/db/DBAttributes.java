@@ -321,8 +321,8 @@ public class DBAttributes
 		
 		GenericMapper genMapper = sql.getMapper(GenericMapper.class);
 		List<GenericObjectBean> rawAClasses = genMapper.selectObjectsByType(
-				AttributeClassHelper.ATTRIBUTE_CLASS_OBJECT_TYPE);
-		Map<String, AttributesClass> allClasses = AttributeClassHelper.resolveAttributeClasses(rawAClasses);
+				AttributeClassUtil.ATTRIBUTE_CLASS_OBJECT_TYPE);
+		Map<String, AttributesClass> allClasses = AttributeClassUtil.resolveAttributeClasses(rawAClasses);
 		
 		for (String group: groups)
 		{

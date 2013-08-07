@@ -25,6 +25,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
@@ -203,7 +204,7 @@ public class AttributeStatementProcessor
 					collectedAttributes.put(attribute, at);
 			}
 			acAttribute = (AttributeExt<String>) attributesInGroup.get(
-					AttributeClassHelper.ATTRIBUTE_CLASSES_ATTRIBUTE);
+					AttributeClassUtil.ATTRIBUTE_CLASSES_ATTRIBUTE);
 		}
 
 		AttributeClassHelper acHelper = acAttribute == null ? new AttributeClassHelper() :
