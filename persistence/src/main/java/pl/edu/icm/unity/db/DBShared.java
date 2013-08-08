@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +31,12 @@ public class DBShared
 		this.groupResolver = groupResolver;
 	}
 
+	public Set<String> getAllGroups(long entityId, SqlSession sqlMap)
+	{
+		GroupsMapper gMapper = sqlMap.getMapper(GroupsMapper.class);
+		return getAllGroups(entityId, gMapper);
+	}
+	
 	public Set<String> getAllGroups(long entityId, GroupsMapper gMapper)
 	{
 		List<GroupBean> groups = gMapper.getGroups4Entity(entityId);

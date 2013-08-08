@@ -48,6 +48,7 @@ public enum Images
 	addColumn	(I.P + "16/column_add.png"),
 	removeColumn	(I.P + "16/column_delete.png"),
 	key		(I.P + "16/key.png"),
+	attributes	(I.P + "16/three_tags.png"),
 	warn		(I.P + "16/warn.png"),
 	error		(I.P + "16/error.png");
 	

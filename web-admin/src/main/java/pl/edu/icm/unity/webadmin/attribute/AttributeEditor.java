@@ -29,7 +29,15 @@ public class AttributeEditor extends HorizontalLayout
 	private ValuesEditorPanel valuesPanel;
 	private AttributeMetaEditorPanel attrTypePanel;
 	private String groupPath;
+	private boolean typeFixed = false;
 	
+	/**
+	 * For creating a new attribute of arbitrary type.
+	 * @param msg
+	 * @param attributeTypes
+	 * @param groupPath
+	 * @param handlerRegistry
+	 */
 	public AttributeEditor(final UnityMessageSource msg, Collection<AttributeType> attributeTypes, String groupPath,
 			final AttributeHandlerRegistry handlerRegistry)
 	{
@@ -62,10 +70,18 @@ public class AttributeEditor extends HorizontalLayout
 	 */
 	public void setInitialAttribute(Attribute<?> attribute)
 	{
-		attrTypePanel.setAttributeType(attribute.getName());
+		if (!typeFixed)
+			attrTypePanel.setAttributeType(attribute.getName());
 		valuesPanel.setValues(attribute.getValues());
 	}
 
+	/**
+	 * For editing an existing attribute - the type is fixed.
+	 * @param msg
+	 * @param attributeType
+	 * @param attribute
+	 * @param handlerRegistry
+	 */
 	public AttributeEditor(UnityMessageSource msg, AttributeType attributeType, Attribute<?> attribute, 
 			AttributeHandlerRegistry handlerRegistry)
 	{
@@ -74,6 +90,25 @@ public class AttributeEditor extends HorizontalLayout
 		AttributeValueSyntax<?> syntax = attributeType.getValueType();
 		WebAttributeHandler<?> handler = handlerRegistry.getHandler(syntax.getValueSyntaxId());
 		valuesPanel = new ValuesEditorPanel(msg, attribute.getValues(), syntax, handler);
+		initCommon();
+	}
+
+	/**
+	 * For creating a new attribute but with a fixed type.
+	 * @param msg
+	 * @param attributeType
+	 * @param attribute
+	 * @param handlerRegistry
+	 */
+	public AttributeEditor(UnityMessageSource msg, AttributeType attributeType, String groupPath, 
+			AttributeHandlerRegistry handlerRegistry)
+	{
+		this.groupPath = groupPath;
+		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg, attributeType.getVisibility());
+		AttributeValueSyntax<?> syntax = attributeType.getValueType();
+		WebAttributeHandler<?> handler = handlerRegistry.getHandler(syntax.getValueSyntaxId());
+		valuesPanel = new ValuesEditorPanel(msg, Collections.emptyList(), attributeType.getValueType(), handler);
+		typeFixed = true;
 		initCommon();
 	}
 	

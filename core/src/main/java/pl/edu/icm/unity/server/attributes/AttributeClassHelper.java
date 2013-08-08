@@ -165,13 +165,13 @@ public class AttributeClassHelper
 			AttributeType at = typesMap.get(name);
 			boolean system = at == null ? false : at.isInstanceImmutable();
 			if (!system && !effectiveClass.isAllowedDirectly(name))
-				throw new SchemaConsistencyException("The entity has " + name + " attribute," +
-						" which is not allowed by the attribute classes being assinged");
+				throw new SchemaConsistencyException("The assigned attribute " + name + 
+						" is not allowed by the attribute classes being assinged");
 			mandatory.remove(name);
 		}
 		if (mandatory.size() > 0)
-			throw new SchemaConsistencyException("The entity does not have the following attributes" +
-					" which are mandatory with respect to the attribute classes being assinged: " 
+			throw new SchemaConsistencyException("The following attributes" +
+					" which are mandatory with respect to the attribute classes being assinged are not assigned: " 
 					+ mandatory.toString());
 	}
 	

@@ -132,6 +132,7 @@ public class IdentitiesTable extends TreeTable
 		addActionHandler(new ChangeEntityStatusHandler());
 		addActionHandler(new ChangeCredentialHandler());
 		addActionHandler(new ChangeCredentialRequirementHandler());
+		addActionHandler(new EntityAttributesClassesHandler());
 		setDragMode(TableDragMode.ROW);
 		
 		setImmediate(true);
@@ -438,7 +439,9 @@ public class IdentitiesTable extends TreeTable
 		public void handleAction(Object sender, Object target)
 		{
 			new EntityCreationDialog(msg, group, identitiesMan, groupsMan, 
-					authnMan, identityEditorReg, new EntityCreationDialog.Callback()
+					authnMan, attrHandlerRegistry,
+					attrMan, identityEditorReg, 
+					new EntityCreationDialog.Callback()
 					{
 						@Override
 						public void onCreated()
@@ -654,6 +657,32 @@ public class IdentitiesTable extends TreeTable
 			final Entity entity = target instanceof IdentityWithEntity ? 
 					((IdentityWithEntity) target).getEntity() : ((Entity)target);
 			showEntityDetails(entity);
+		}
+	}
+
+	private class EntityAttributesClassesHandler extends SingleActionHandler
+	{
+		public EntityAttributesClassesHandler()
+		{
+			super(msg.getMessage("Identities.editEntityACs"), 
+					Images.attributes.getResource());
+		}
+
+		@Override
+		public void handleAction(Object sender, Object target)
+		{
+			Entity entity = target instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) target).getEntity() : ((Entity)target);
+			EntityAttributesClassesDialog dialog = new EntityAttributesClassesDialog(msg, group, 
+					entity.getId(), attrMan, groupsMan, new EntityAttributesClassesDialog.Callback()
+					{
+						@Override
+						public void onChange()
+						{
+							refresh();
+						}
+					});
+			dialog.show();
 		}
 	}
 

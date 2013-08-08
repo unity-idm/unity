@@ -21,7 +21,6 @@ import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.DBShared;
-import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authn.CredentialRequirementsHolder;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
@@ -348,8 +347,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
 			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
-			GroupsMapper gMapper = sqlMap.getMapper(GroupsMapper.class);
-			Set<String> allGroups = dbShared.getAllGroups(entityId, gMapper);
+			Set<String> allGroups = dbShared.getAllGroups(entityId, sqlMap);
 			sqlMap.commit();
 			return allGroups;
 		} finally

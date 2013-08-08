@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -30,9 +31,10 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.webadmin.groupdetails.GroupAttributesClassesDialog;
 import pl.edu.icm.unity.webadmin.identities.EntityCreationDialog;
 import pl.edu.icm.unity.webadmin.identities.IdentitiesTable.IdentityWithEntity;
-import pl.edu.icm.unity.webadmin.utils.GroupManagementUtils;
+import pl.edu.icm.unity.webadmin.utils.GroupManagementHelper;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -41,6 +43,7 @@ import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
 import com.vaadin.event.Transferable;
@@ -63,11 +66,13 @@ public class GroupsTree extends Tree
 	private UnityMessageSource msg;
 	private AuthenticationManagement authnMan;
 	private IdentityEditorRegistry identityEditorReg;
+	private GroupManagementHelper groupManagementHelper;
 	private EventsBus bus;
 
 	@Autowired
 	public GroupsTree(GroupsManagement groupsMan, IdentitiesManagement identitiesMan, 
 			AuthenticationManagement authnMan, IdentityEditorRegistry identityEditorReg,
+			AttributeHandlerRegistry attrHandlerRegistry, AttributesManagement attrMan,
 			UnityMessageSource msg)
 	{
 		this.groupsMan = groupsMan;
@@ -75,6 +80,8 @@ public class GroupsTree extends Tree
 		this.msg = msg;
 		this.authnMan = authnMan;
 		this.identityEditorReg = identityEditorReg;
+		this.groupManagementHelper = new GroupManagementHelper(msg, groupsMan, 
+				attrMan, attrHandlerRegistry);
 
 		addExpandListener(new GroupExpandListener());
 		addValueChangeListener(new ValueChangeListenerImpl());
@@ -83,6 +90,7 @@ public class GroupsTree extends Tree
 		addActionHandler(new CollapseAllActionHandler());
 		addActionHandler(new AddGroupActionHandler());
 		addActionHandler(new EditGroupActionHandler());
+		addActionHandler(new EditGroupACsHandler());
 		addActionHandler(new DeleteActionHandler());
 		addActionHandler(new AddEntityActionHandler());
 		setDropHandler(new GroupDropHandler());
@@ -222,7 +230,7 @@ public class GroupsTree extends Tree
 			ErrorPopup.showError(msg.getMessage("GroupsTree.getMembershipError", entityId), e1);
 			return;
 		}
-		final Deque<String> notMember = GroupManagementUtils.getMissingGroups(finalGroup, existingGroups);
+		final Deque<String> notMember = GroupManagementHelper.getMissingGroups(finalGroup, existingGroups);
 		
 		if (notMember.size() == 0)
 		{
@@ -239,7 +247,7 @@ public class GroupsTree extends Tree
 					@Override
 					public void onConfirm()
 					{
-						GroupManagementUtils.addToGroup(notMember, entityId, msg, groupsMan);
+						groupManagementHelper.addToGroup(notMember, entityId);
 					}
 				});
 		confirm.show();
@@ -303,7 +311,7 @@ public class GroupsTree extends Tree
 		{
 			final TreeNode node = (TreeNode) target;
 			
-			new GroupEditDialog(msg, new Group(node.getPath()),	false, new GroupEditDialog.Callback()
+			new GroupEditDialog(msg, new Group(node.getPath()), false, new GroupEditDialog.Callback()
 			{
 				@Override
 				public void onConfirm(Group toBeCreated)
@@ -315,6 +323,33 @@ public class GroupsTree extends Tree
 		}
 	}
 
+	private class EditGroupACsHandler extends SingleActionHandler
+	{
+		public EditGroupACsHandler()
+		{
+			super(msg.getMessage("GroupDetails.editACAction"), 
+					Images.attributes.getResource());
+		}
+
+		@Override
+		public void handleAction(Object sender, Object target)
+		{
+			final TreeNode node = (TreeNode) target;
+			GroupAttributesClassesDialog dialog = new GroupAttributesClassesDialog(msg, 
+					node.getPath(), groupManagementHelper.getAttrMan(), groupsMan, 
+					new GroupAttributesClassesDialog.Callback()
+					{
+						@Override
+						public void onUpdate(Group updated)
+						{
+							bus.fireEvent(new GroupChangedEvent(node.getPath()));
+						}
+					});
+			dialog.show();
+		}
+	}
+
+	
 	private class EditGroupActionHandler extends SingleActionHandler
 	{
 		public EditGroupActionHandler()
@@ -363,7 +398,9 @@ public class GroupsTree extends Tree
 			final TreeNode node = (TreeNode) target;
 			
 			new EntityCreationDialog(msg, node.getPath(), identitiesMan, groupsMan, 
-					authnMan, identityEditorReg, new EntityCreationDialog.Callback()
+					authnMan, groupManagementHelper.getAttrHandlerRegistry(),
+					groupManagementHelper.getAttrMan(),
+					identityEditorReg, new EntityCreationDialog.Callback()
 					{
 						@Override
 						public void onCreated()

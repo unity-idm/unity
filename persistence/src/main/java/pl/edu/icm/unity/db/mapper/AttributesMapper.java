@@ -28,4 +28,5 @@ public interface AttributesMapper
 	public void insertAttribute(AttributeBean a);
 	public void updateAttribute(AttributeBean a);
 	public void deleteAttribute(AttributeBean a);
+	public void deleteAttributesInGroup(AttributeBean a);
 }

@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.attributeclass;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -39,7 +38,7 @@ public class EffectiveAttrClassViewer extends HorizontalSplitPanel
 	
 	public EffectiveAttrClassViewer(UnityMessageSource msg)
 	{
-		parents = new Tree(msg.getMessage("AttributesClass.parents"));
+		parents = new Tree(msg.getMessage("AttributesClass.parentsInEffective"));
 		parents.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
@@ -58,12 +57,12 @@ public class EffectiveAttrClassViewer extends HorizontalSplitPanel
 		
 		allowed = new Table();
 		allowed.setWidth(90, Unit.PERCENTAGE);
-		allowed.setHeight(10, Unit.EM);
+		allowed.setHeight(9, Unit.EM);
 		allowed.addContainerProperty(msg.getMessage("AttributesClass.allowed"), 
 				String.class, null);
 		mandatory = new Table();
 		mandatory.setWidth(90, Unit.PERCENTAGE);
-		mandatory.setHeight(10, Unit.EM);
+		mandatory.setHeight(9, Unit.EM);
 		mandatory.addContainerProperty(msg.getMessage("AttributesClass.mandatory"), 
 				String.class, null);
 		
@@ -82,25 +81,23 @@ public class EffectiveAttrClassViewer extends HorizontalSplitPanel
 		setFirstComponent(left);
 		setSecondComponent(right);
 		setSplitPosition(30, Unit.PERCENTAGE);
-		setHeight(28, Unit.EM);
+		setHeight(27, Unit.EM);
 		setStyleName(Reindeer.SPLITPANEL_SMALL);
 	}
 	
-	public void setInput(Collection<String> rootClasses, Map<String, AttributesClass> allClasses)
+	public void setInput(String rootClass, Map<String, AttributesClass> allClasses)
 	{
 		this.allClasses = allClasses;
 		parents.removeAllItems();
 		setEmptyEffective();
-		if (rootClasses == null || rootClasses.isEmpty())
+		if (rootClass == null)
 		{
 			setVisible(false);
 			return;
 		}
 		setVisible(true);
-		for (String root: rootClasses)
-			addRecursive(root, null);
-		String toSelect = rootClasses.iterator().next();
-		parents.select(new Node(toSelect, "/"+toSelect+"/"));
+		addRecursive(rootClass, null);
+		parents.select(new Node(rootClass, "/"+rootClass+"/"));
 	}
 	
 	private void addRecursive(String root, Node parent)

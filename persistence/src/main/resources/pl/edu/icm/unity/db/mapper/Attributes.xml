@@ -82,4 +82,8 @@
 		DELETE FROM ATTRIBUTES WHERE TYPE_ID = #{typeId} AND ENTITY_ID = #{entityId} 
 			AND GROUP_ID = #{groupId}
 	</delete>
+	
+	<delete id="deleteAttributesInGroup" parameterType="AttributeB">
+		DELETE FROM ATTRIBUTES WHERE ENTITY_ID = #{entityId} AND GROUP_ID = #{groupId}
+	</delete>
 </mapper>

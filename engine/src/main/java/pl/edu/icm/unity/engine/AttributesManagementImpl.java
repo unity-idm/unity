@@ -24,6 +24,7 @@ import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.db.DBShared;
 import pl.edu.icm.unity.db.json.AttributeClassSerializer;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
@@ -61,6 +62,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	private AttributeSyntaxFactoriesRegistry attrValueTypesReg;
 	private DBSessionManager db;
 	private DBGeneric dbGeneric;
+	private DBShared dbShared;
 	private DBAttributes dbAttributes;
 	private DBIdentities dbIdentities;
 	private DBGroups dbGroups;
@@ -70,12 +72,13 @@ public class AttributesManagementImpl implements AttributesManagement
 	@Autowired
 	public AttributesManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
 			DBSessionManager db, DBGeneric dbGeneric, DBAttributes dbAttributes,
-			DBIdentities dbIdentities, DBGroups dbGroups,
+			DBIdentities dbIdentities, DBGroups dbGroups, DBShared dbShared,
 			IdentitiesResolver idResolver, AuthorizationManager authz)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
 		this.db = db;
 		this.dbGeneric = dbGeneric;
+		this.dbShared = dbShared;
 		this.dbAttributes = dbAttributes;
 		this.dbIdentities = dbIdentities;
 		this.dbGroups = dbGroups;
@@ -548,6 +551,12 @@ public class AttributesManagementImpl implements AttributesManagement
 					throw new IllegalIdentityValueException("The entity is disabled");
 			}
 			authz.checkAuthorization(authz.isSelf(entityId), groupPath, requiredCapability);
+			if (groupPath != null)
+			{
+				Set<String> allGroups = dbShared.getAllGroups(entityId, sql);
+				if (!allGroups.contains(groupPath))
+					throw new IllegalGroupValueException("The entity is not a member of the group " + groupPath);
+			}
 			Collection<AttributeExt<?>> ret = dbAttributes.getAllAttributes(entityId, groupPath, effective,
 					attributeTypeName, sql);
 			sql.commit();

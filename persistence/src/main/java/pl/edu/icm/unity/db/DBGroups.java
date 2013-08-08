@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.json.GroupsSerializer;
 import pl.edu.icm.unity.db.mapper.AttributesMapper;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
+import pl.edu.icm.unity.db.model.AttributeBean;
 import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.DBLimits;
 import pl.edu.icm.unity.db.model.GroupBean;
@@ -194,6 +195,7 @@ public class DBGroups
 			IllegalTypeException
 	{
 		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
+		AttributesMapper aMapper = sqlMap.getMapper(AttributesMapper.class);
 		GroupBean gb = groupResolver.resolveGroup(path, mapper);
 		if (gb.getParent() == null)
 			throw new IllegalGroupValueException("The entity can not be removed from the root group");
@@ -210,6 +212,10 @@ public class DBGroups
 				GroupBean gb2 = groupResolver.resolveGroup(group, mapper);
 				GroupElementBean param = new GroupElementBean(gb2.getId(), entityId);
 				mapper.deleteMember(param);
+				AttributeBean ab = new AttributeBean();
+				ab.setEntityId(entityId);
+				ab.setGroupId(gb2.getId());
+				aMapper.deleteAttributesInGroup(ab);
 			}
 		}
 	}

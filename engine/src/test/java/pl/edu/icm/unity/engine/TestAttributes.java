@@ -100,10 +100,24 @@ public class TestAttributes extends DBIntegrationTestBase
 		allAts = attrsMan.getAttributes(entity, null, null);
 		assertEquals(1, allAts.size());
 
+		groupsMan.removeMember("/test", entity);
+		try
+		{
+			attrsMan.getAttributes(entity, "/test", null);
+			fail("no error when asking for attributes in group where the user is not a member");
+		} catch (IllegalGroupValueException e) {}
+		groupsMan.addMemberFromParent("/test", entity);
+		
+		gr2Ats = attrsMan.getAttributes(entity, "/test", null);
+		assertEquals(0, gr2Ats.size());
+		allAts = attrsMan.getAttributes(entity, null, null);
+		assertEquals(0, allAts.size());
+		
+		attrsMan.setAttribute(entity, at1, false);
 		groupsMan.removeGroup("/test", true);
 		
 		allAts = attrsMan.getAttributes(entity, null, null);
-		assertEquals(0, allAts.size());
+		assertEquals(allAts.toString(), 0, allAts.size());
 
 	
 		attrsMan.setAttribute(entity, at2, false);

@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.attributeclass;
 
-import java.util.Collections;
 import java.util.Map;
 
 import com.vaadin.ui.FormLayout;
@@ -76,7 +75,7 @@ public class AttributesClassViewer extends FormLayout
 			return;
 		}
 		
-		effectiveViewer.setInput(Collections.singleton(rootClass), allClasses);
+		effectiveViewer.setInput(rootClass, allClasses);
 		setContentsVisible(true);
 		AttributesClass ac = allClasses.get(rootClass);
 		name.setValue(ac.getName());

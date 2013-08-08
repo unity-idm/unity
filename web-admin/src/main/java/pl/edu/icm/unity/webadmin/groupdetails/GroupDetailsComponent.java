@@ -15,6 +15,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webadmin.attrstmt.StatementHandlersRegistry;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
@@ -48,6 +49,7 @@ public class GroupDetailsComponent extends Panel
 	
 	private VerticalLayout main;
 	private DescriptionTextArea description;
+	private GroupAttributesClassesPanel acPanel;
 	private AttributeStatementsTable attrStatements;
 	
 	@Autowired
@@ -65,10 +67,11 @@ public class GroupDetailsComponent extends Panel
 	
 		description = new DescriptionTextArea(msg.getMessage("GroupDetails.description"), true, "");
 		
+		acPanel = new GroupAttributesClassesPanel(msg, groupsManagement, attrsMan);
 		attrStatements = new AttributeStatementsTable(msg, groupsManagement, 
 				attrsMan, statementHandlersReg);
 		
-		main.addComponents(description, attrStatements);
+		main.addComponents(description, acPanel, attrStatements);
 		main.setExpandRatio(attrStatements, 1.0f);
 		
 		setSizeFull();
@@ -100,8 +103,10 @@ public class GroupDetailsComponent extends Panel
 		try
 		{
 			GroupContents contents = groupsManagement.getContents(group, GroupContents.METADATA);
-			description.setValue(contents.getGroup().getDescription());
-			attrStatements.setInput(contents.getGroup());
+			Group rGroup = contents.getGroup();
+			description.setValue(rGroup.getDescription());
+			attrStatements.setInput(rGroup);
+			acPanel.setInput(rGroup);
 			setContent(main);
 		} catch (AuthorizationException e)
 		{

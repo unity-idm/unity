@@ -39,6 +39,7 @@ public class AttributeFieldWithEdit extends CustomField<String>
 	private HorizontalLayout hl;
 	
 	private Attribute<?> attribute;
+	private AttributeType fixedAttributeType;
 	
 	public AttributeFieldWithEdit(UnityMessageSource msg, String caption, 
 			AttributeHandlerRegistry attrHandlerRegistry,
@@ -80,7 +81,9 @@ public class AttributeFieldWithEdit extends CustomField<String>
 
 	private void editAttribute()
 	{
-		AttributeEditor theEditor = new AttributeEditor(msg, attributeTypes, group, attrHandlerRegistry);
+		AttributeEditor theEditor = fixedAttributeType == null ? 
+				new AttributeEditor(msg, attributeTypes, group, attrHandlerRegistry) :
+				new AttributeEditor(msg, fixedAttributeType, group, attrHandlerRegistry);
 		if (attribute != null)
 			theEditor.setInitialAttribute(attribute);
 		AttributeEditDialog dialog = new AttributeEditDialog(msg, 
@@ -113,6 +116,10 @@ public class AttributeFieldWithEdit extends CustomField<String>
 		return attribute;
 	}
 	
+	/**
+	 * Sets an attribute to be edited
+	 * @param attribute
+	 */
 	public void setAttribute(Attribute<?> attribute)
 	{
 		this.attribute = attribute;
@@ -122,6 +129,15 @@ public class AttributeFieldWithEdit extends CustomField<String>
 		attributeTF.setValue(attrRep);
 		attributeTF.setReadOnly(true);
 		attributeTF.setComponentError(null);
+	}
+	
+	/**
+	 * After call the class will allow to edit only the selected attribute type
+	 * @param attributeType
+	 */
+	public void setFixedType(AttributeType attributeType)
+	{
+		this.fixedAttributeType = attributeType;
 	}
 	
 	public void setError(ErrorMessage message)

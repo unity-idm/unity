@@ -54,7 +54,7 @@ public class ContentsManagementTab extends VerticalLayout
 		CompositeSplitPanel rightPanel = new CompositeSplitPanel(true, false, 
 				identitiesTable, attributesComponent, 60);
 		CompositeSplitPanel leftPanel = new CompositeSplitPanel(true, false, 
-				groupBrowser, groupDetails, 60);
+				groupBrowser, groupDetails, 50);
 
 		CompositeSplitPanel main = new CompositeSplitPanel(false, true, leftPanel, rightPanel, 30);
 

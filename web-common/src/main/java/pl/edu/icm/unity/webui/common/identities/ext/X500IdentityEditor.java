@@ -49,6 +49,7 @@ public class X500IdentityEditor implements IdentityEditor
 		field = new TextField(msg.getMessage("X500IdentityEditor.dn"));
 		field.setWidth(100, Unit.PERCENTAGE);
 		Upload upload = new Upload();
+		upload.setCaption(msg.getMessage("X500IdentityEditor.certUploadCaption"));
 		CertUploader uploader = new CertUploader(); 
 		upload.setReceiver(uploader);
 		upload.addSucceededListener(uploader);

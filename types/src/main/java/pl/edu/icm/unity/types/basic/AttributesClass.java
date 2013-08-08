@@ -13,10 +13,10 @@ import pl.edu.icm.unity.types.DescribedObjectImpl;
  * Represents attribute class, i.e. a structure with two sets of attribute types. The mandatory set
  * defines which attributes are mandatory for an entity having the class 
  * and allowed - which are allowed. It is possible to set that all attributes are allowed.
+ * All mandatory attributes are always allowed.
  * <p>
  * Attribute class can have a parents. Then all mandatory and allowed attribute types of the parent are
- * added to those defined locally. Allowance of arbitrary attributes set in the child class always overwrite
- * whatever is set in any of the parents, i.e. this setting is not inherited.
+ * added to those defined locally.
  * <p>
  * Attribute class inheritance can be multilevel.
  * <p>
@@ -42,8 +42,8 @@ public class AttributesClass extends DescribedObjectImpl
 	{
 		super(name, description);
 		setParentClassName(parentClasses);
-		setMandatory(mandatory);
 		setAllowed(allowed);
+		setMandatory(mandatory);
 		this.allowed.addAll(mandatory);
 		this.allowArbitrary = allowArbitrary;
 	}
@@ -88,6 +88,7 @@ public class AttributesClass extends DescribedObjectImpl
 	public void setMandatory(Set<String> mandatory)
 	{
 		this.mandatory = new HashSet<String>(mandatory);
+		this.allowed.addAll(mandatory);
 	}
 
 	public boolean isAllowArbitrary()

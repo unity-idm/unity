@@ -7,21 +7,29 @@ package pl.edu.icm.unity.webadmin.attribute;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -42,6 +50,7 @@ import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
 import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
@@ -62,6 +71,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private UnityMessageSource msg;
 	private AttributeHandlerRegistry registry;
 	private AttributesManagement attributesManagement;
+	private GroupsManagement groupsManagement;
 	
 	private VerticalLayout left;
 	private CheckBox showEffective;
@@ -74,16 +84,18 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private Table attributesTable;
 	private EntityParam owner;
 	private String groupPath;
+	private AttributeClassHelper acHelper;
 	private Map<String, AttributeType> attributeTypes;
 	private EventsBus bus;
 	
 	@Autowired
 	public AttributesPanel(UnityMessageSource msg, AttributeHandlerRegistry registry, 
-			AttributesManagement attributesManagement)
+			AttributesManagement attributesManagement, GroupsManagement groupsManagement)
 	{
 		this.msg = msg;
 		this.registry = registry;
 		this.attributesManagement = attributesManagement;
+		this.groupsManagement = groupsManagement;
 		this.bus = WebSession.getCurrent().getEventBus();
 		setStyleName(Reindeer.SPLITPANEL_SMALL);
 		attributesTable = new Table();
@@ -136,7 +148,10 @@ public class AttributesPanel extends HorizontalSplitPanel
 				updateAttributesFilter(!showInternal.getValue(), internalAttrsFilter);
 			}
 		});
-		filtersBar = new HorizontalLayout(showEffective, showInternal);
+		Label required = new Label(msg.getMessage("Attribute.requiredBold"));
+		required.setStyleName(Styles.bold.toString());
+		filtersBar = new HorizontalLayout(showEffective, showInternal, required);
+		filtersBar.setComponentAlignment(required, Alignment.MIDDLE_RIGHT);
 		filtersBar.setSpacing(true);
 		filtersBar.setSizeUndefined();
 		
@@ -165,13 +180,31 @@ public class AttributesPanel extends HorizontalSplitPanel
 			attributeTypes.put(at.getName(), at);	
 	}
 	
-	public void setInput(EntityParam owner, String groupPath, Collection<AttributeExt<?>> attributesCol)
+	public void setInput(EntityParam owner, String groupPath, Collection<AttributeExt<?>> attributesCol) 
+			throws EngineException
 	{
 		this.owner = owner;
 		this.attributes = new ArrayList<AttributeExt<?>>(attributesCol.size());
 		this.attributes.addAll(attributesCol);
 		this.groupPath = groupPath;
+		updateACHelper(owner, groupPath);
 		updateAttributes();
+	}
+	
+	private void updateACHelper(EntityParam owner, String groupPath) throws EngineException
+	{
+		Group group = groupsManagement.getContents(groupPath, GroupContents.METADATA).getGroup();
+		Collection<AttributesClass> acs = attributesManagement.getEntityAttributeClasses(owner, groupPath);
+		Collection<AttributesClass> allAcs = attributesManagement.getAttributeClasses();
+		Set<String> assignedClasses = new HashSet<String>(acs.size());
+		for (AttributesClass ac: acs)
+			assignedClasses.add(ac.getName());
+		assignedClasses.addAll(group.getAttributesClasses());
+		Map<String, AttributesClass> knownClasses = new HashMap<>(allAcs.size());
+		for (AttributesClass ac: acs)
+			knownClasses.put(ac.getName(), ac);
+		
+		acHelper = new AttributeClassHelper(knownClasses, assignedClasses);
 	}
 	
 	private void updateAttributes()
@@ -222,9 +255,11 @@ public class AttributesPanel extends HorizontalSplitPanel
 			AttributeType attributeType = attributeTypes.get(attribute.getName());
 			StringBuilder style = new StringBuilder();
 			if (!attribute.isDirect())
-				style.append("u-italic");
+				style.append(Styles.italic.toString());
 			if (attributeType.isInstanceImmutable())
-				style.append(" u-gray");
+				style.append(" " + Styles.gray);
+			if (acHelper.isMandatory(attribute.getName()))
+				style.append(" " + Styles.bold);
 			String styleS = style.toString().trim(); 
 			if (styleS.length() > 0)
 				l.setStyleName(styleS);
@@ -329,6 +364,19 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 		
 		@Override
+		public Action[] getActions(Object target, Object sender)
+		{
+			Action[] ret = super.getActions(target, sender);
+			if (ret.length > 0)
+			{
+				AttributeExt<?> attribute = ((AttributeItem) target).getAttribute();
+				if (acHelper.isMandatory(attribute.getName()))
+					return EMPTY;
+			}
+			return ret;
+		}
+		
+		@Override
 		public void handleAction(Object sender, final Object target)
 		{
 			ConfirmDialog confirm = new ConfirmDialog(msg, msg.getMessage("Attribute.removeConfirm", 
@@ -357,7 +405,29 @@ public class AttributesPanel extends HorizontalSplitPanel
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			AttributeEditor attributeEditor = new AttributeEditor(msg, attributeTypes.values(), 
+			List<AttributeType> allowed = new ArrayList<>(attributeTypes.size());
+			for (AttributeType at: attributeTypes.values())
+				if (acHelper.isAllowed(at.getName()))
+				{
+					boolean used = false;
+					for (Attribute<?> a: attributes)
+						if (a.getName().equals(at.getName()))
+						{
+							used = true;
+							break;
+						}
+					if (!used)
+						allowed.add(at);
+				}
+			
+			if (allowed.isEmpty())
+			{
+				ErrorPopup.showNotice(msg.getMessage("notice"),
+						msg.getMessage("Attribute.noAvailableAttributes"));
+				return;
+			}
+			
+			AttributeEditor attributeEditor = new AttributeEditor(msg, allowed, 
 					groupPath, registry);
 			AttributeEditDialog dialog = new AttributeEditDialog(msg, 
 					msg.getMessage("Attribute.addAttribute"), 

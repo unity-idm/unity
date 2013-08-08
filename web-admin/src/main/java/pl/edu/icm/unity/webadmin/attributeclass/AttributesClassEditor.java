@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.webadmin.attributeclass;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -65,23 +64,20 @@ public class AttributesClassEditor extends FormLayout
 		
 		typeDescription = new DescriptionTextArea(msg.getMessage("AttributesClass.description"));
 		
-		parents = new TwinColSelect(msg.getMessage("AttributesClass.parents"));
-		parents.setRows(5);
-		parents.setWidth(100, Unit.PERCENTAGE);
-		parents.setImmediate(true);
+		parents = new ACTwinColSelect(msg.getMessage("AttributesClass.parents"),
+				msg.getMessage("AttributesClass.availableACs"),
+				msg.getMessage("AttributesClass.selectedACs"));
 		
-		allowed = new TwinColSelect(msg.getMessage("AttributesClass.allowed"));
-		allowed.setRows(5);
-		allowed.setWidth(100, Unit.PERCENTAGE);
-		allowed.setImmediate(true);
+		allowed = new ACTwinColSelect(msg.getMessage("AttributesClass.allowed"),
+				msg.getMessage("AttributesClass.availableAttributes"),
+				msg.getMessage("AttributesClass.selectedAttributes"));
 		
 		allowArbitrary = new CheckBox(msg.getMessage("AttributesClass.allowArbitrary"));
 		allowArbitrary.setImmediate(true);
 		
-		mandatory = new TwinColSelect(msg.getMessage("AttributesClass.mandatory"));
-		mandatory.setRows(5);
-		mandatory.setWidth(100, Unit.PERCENTAGE);
-		mandatory.setImmediate(true);
+		mandatory = new ACTwinColSelect(msg.getMessage("AttributesClass.mandatory"),
+				msg.getMessage("AttributesClass.availableACs"),
+				msg.getMessage("AttributesClass.selectedACs"));
 		
 		effectiveViewer = new EffectiveAttrClassViewer(msg);
 		Panel effectiveWrapper = new Panel(effectiveViewer);
@@ -139,7 +135,7 @@ public class AttributesClassEditor extends FormLayout
 				throw new IllegalArgumentException(e);
 			}
 			tmp.put(root, cur);
-			effectiveViewer.setInput(Collections.singleton(root), tmp);
+			effectiveViewer.setInput(root, tmp);
 		}
 	}
 	
