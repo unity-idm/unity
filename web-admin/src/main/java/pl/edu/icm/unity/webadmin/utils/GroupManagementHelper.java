@@ -8,7 +8,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -130,19 +129,14 @@ public class GroupManagementHelper
 	
 	public Map<String, AttributesClass> getAllACsMap() throws EngineException
 	{
-		Collection<AttributesClass> allACs;
 		try
 		{
-			allACs = attrMan.getAttributeClasses();
+			return attrMan.getAttributeClasses();
 		} catch (EngineException e)
 		{
 			ErrorPopup.showError(msg.getMessage("GroupsTree.addToGroupInitError"), e);
 			throw e;
 		}
-		Map<String, AttributesClass> allACsMap = new HashMap<>(allACs.size());
-		for (AttributesClass ac: allACs)
-			allACsMap.put(ac.getName(), ac);
-		return allACsMap;
 	}
 	
 	public Set<String> getRequiredAttributes(Map<String, AttributesClass> allACsMap,

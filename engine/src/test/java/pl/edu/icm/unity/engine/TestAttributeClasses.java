@@ -72,7 +72,7 @@ public class TestAttributeClasses extends DBIntegrationTestBase
 		AttributesClass ac2 = new AttributesClass("ac2", "desc2", new HashSet<String>(), 
 				 new HashSet<String>(), true, Collections.singleton(ac.getName()));
 		attrsMan.addAttributeClass(ac);
-		Collection<AttributesClass> acs = attrsMan.getAttributeClasses();
+		Collection<AttributesClass> acs = attrsMan.getAttributeClasses().values();
 		assertEquals(1, acs.size());
 		AttributesClass returnedAc = acs.iterator().next();
 		areEqual(ac, returnedAc);
@@ -85,7 +85,7 @@ public class TestAttributeClasses extends DBIntegrationTestBase
 		
 		
 		attrsMan.addAttributeClass(ac2);
-		acs = attrsMan.getAttributeClasses();
+		acs = attrsMan.getAttributeClasses().values();
 		assertEquals(2, acs.size());
 		Iterator<AttributesClass> acsIt = acs.iterator();
 		returnedAc = acsIt.next();

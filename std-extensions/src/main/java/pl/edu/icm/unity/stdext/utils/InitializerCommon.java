@@ -4,7 +4,9 @@
  */
 package pl.edu.icm.unity.stdext.utils;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +15,18 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
+import pl.edu.icm.unity.types.basic.AttributeStatement;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.attrstmnt.EverybodyStatement;
 
 /**
  * Code to initialize popular objects. Useful for various initializers. 
@@ -28,14 +39,45 @@ public class InitializerCommon
 	public static final String CN_ATTR = "cn";
 	public static final String ORG_ATTR = "o";
 	public static final String EMAIL_ATTR = "email";
+	
+	public static final String MAIN_AC = "Common attributes";
+	
 	private AttributesManagement attrMan;
+	private GroupsManagement groupsMan;
 
 	@Autowired
-	public InitializerCommon(@Qualifier("insecure") AttributesManagement attrMan)
+	public InitializerCommon(@Qualifier("insecure") AttributesManagement attrMan, 
+			@Qualifier("insecure") GroupsManagement groupsMan)
 	{
 		this.attrMan = attrMan;
+		this.groupsMan = groupsMan;
 	}
 
+	public void initializeMainAttributeClass() throws EngineException
+	{
+		AttributesClass unicoreAC = new AttributesClass(MAIN_AC, 
+				"General purpose attributes, should be enabled for everybody", 
+				new HashSet<>(Arrays.asList("sys:AuthorizationRole")), 
+				new HashSet<String>(), false, 
+				new HashSet<String>());
+		Map<String, AttributesClass> allAcs = attrMan.getAttributeClasses();
+		if (!allAcs.containsKey(MAIN_AC))
+			attrMan.addAttributeClass(unicoreAC);
+	}
+	
+
+	public void initializeCommonAttributeStatements() throws EngineException
+	{
+		EverybodyStatement everybodyStmt = new EverybodyStatement(
+				new EnumAttribute("sys:AuthorizationRole", 
+						"/", AttributeVisibility.local,
+						"Regular User"), 
+				ConflictResolution.skip);
+		Group rootGroup = groupsMan.getContents("/", GroupContents.METADATA).getGroup();
+		rootGroup.setAttributeStatements(new AttributeStatement[]{everybodyStmt});
+		groupsMan.updateGroup("/", rootGroup);
+	}
+	
 	public void initializeCommonAttributeTypes() throws EngineException
 	{
 		Set<AttributeType> existingATs = new HashSet<>(attrMan.getAttributeTypes());

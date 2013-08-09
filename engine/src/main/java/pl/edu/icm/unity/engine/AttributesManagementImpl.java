@@ -303,7 +303,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	}
 
 	@Override
-	public Collection<AttributesClass> getAttributeClasses() throws EngineException
+	public Map<String, AttributesClass> getAttributeClasses() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
 		SqlSession sql = db.getSqlSession(true);
@@ -311,7 +311,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		{
 			Map<String, AttributesClass> allClasses = resolveAttributeClasses(sql);
 			sql.commit();
-			return allClasses.values();
+			return allClasses;
 		} finally
 		{
 			db.releaseSqlSession(sql);

@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.webadmin.attributeclass;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,10 +106,7 @@ public class AttributesClassesComponent  extends VerticalLayout
 	{
 		try
 		{
-			Collection<AttributesClass> acs = attrMan.getAttributeClasses();
-			allACs = new HashMap<>(acs.size());
-			for (AttributesClass ac: acs)
-				allACs.put(ac.getName(), ac);
+			allACs = attrMan.getAttributeClasses();
 			table.setInput(allACs.keySet());
 			viewer.setInput(null, allACs);
 			removeAllComponents();

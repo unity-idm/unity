@@ -51,13 +51,15 @@ public class UnicoreContentInitializer implements ServerInitializer
 		try
 		{
 			commonInitializer.initializeCommonAttributeTypes();
+			commonInitializer.initializeCommonAttributeStatements();
+			commonInitializer.initializeMainAttributeClass();
 			AttributesClass unicoreAC = new AttributesClass("UNICORE portal attributes", 
 					"Attributes useful for the UNICORE portal", 
 					new HashSet<>(Arrays.asList(InitializerCommon.JPEG_ATTR,
 							InitializerCommon.ORG_ATTR)), 
 					new HashSet<>(Arrays.asList(InitializerCommon.CN_ATTR,
 							InitializerCommon.EMAIL_ATTR)), false, 
-					new HashSet<String>());
+					new HashSet<>(Arrays.asList(InitializerCommon.MAIN_AC)));
 			attrMan.addAttributeClass(unicoreAC);
 			
 			Group portal = new Group("/portal");

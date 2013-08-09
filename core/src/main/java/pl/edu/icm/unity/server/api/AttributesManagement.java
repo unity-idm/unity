@@ -6,6 +6,7 @@ package pl.edu.icm.unity.server.api;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -80,10 +81,10 @@ public interface AttributesManagement
 	public void updateAttributeClass(AttributesClass updated) throws EngineException;
 
 	/**
-	 * @return all currently defined {@link AttributesClass}es.
+	 * @return all currently defined {@link AttributesClass}es, keys are ac names.
 	 * @throws EngineException
 	 */
-	public Collection<AttributesClass> getAttributeClasses() throws EngineException;
+	public Map<String, AttributesClass> getAttributeClasses() throws EngineException;
 	
 	/**
 	 * Updates the set of entity's attribute classes in a given group. 

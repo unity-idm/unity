@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.attributeclass;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -52,10 +51,7 @@ public abstract class AbstractAttributesClassesDialog extends AbstractDialog
 
 	protected void loadACsData() throws EngineException
 	{
-		Collection<AttributesClass> allAs = attrMan.getAttributeClasses();
-		allClasses = new HashMap<>(allAs.size());
-		for (AttributesClass ac: allAs)
-			allClasses.put(ac.getName(), ac);
+		allClasses = attrMan.getAttributeClasses();
 		
 		for (String ac: allClasses.keySet())
 			acs.addItem(ac);

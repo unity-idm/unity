@@ -195,14 +195,11 @@ public class AttributesPanel extends HorizontalSplitPanel
 	{
 		Group group = groupsManagement.getContents(groupPath, GroupContents.METADATA).getGroup();
 		Collection<AttributesClass> acs = attributesManagement.getEntityAttributeClasses(owner, groupPath);
-		Collection<AttributesClass> allAcs = attributesManagement.getAttributeClasses();
+		Map<String, AttributesClass> knownClasses = attributesManagement.getAttributeClasses();
 		Set<String> assignedClasses = new HashSet<String>(acs.size());
 		for (AttributesClass ac: acs)
 			assignedClasses.add(ac.getName());
 		assignedClasses.addAll(group.getAttributesClasses());
-		Map<String, AttributesClass> knownClasses = new HashMap<>(allAcs.size());
-		for (AttributesClass ac: allAcs)
-			knownClasses.put(ac.getName(), ac);
 		
 		acHelper = new AttributeClassHelper(knownClasses, assignedClasses);
 	}
