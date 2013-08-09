@@ -91,10 +91,10 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		testCorrectness(0, 1, 1, 0,  0, 0,  //a1
 				0, 0, 1, 0,  0, 0); //a2
 
-		// condition added to /A/B/C for all members of /A/Z (entity is not a member, should be no change)		
+		// condition added to /A/B/C for all members of /A/V (entity is not a member, should be no change)		
 		groupABC.setAttributeStatements(new AttributeStatement[] {new MemberOfStatement(
 				new StringAttribute("a2", "/A/B/C", AttributeVisibility.local, "va1"), 
-				"/A/Z",
+				"/A/V",
 				ConflictResolution.skip)});
 		groupsMan.updateGroup("/A/B/C", groupABC);
 
@@ -584,6 +584,9 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 
 		groupAZ = new Group("/A/Z");
 		groupsMan.addGroup(groupAZ);
+
+		Group groupAV = new Group("/A/V");
+		groupsMan.addGroup(groupAV);
 		
 		groupABC = new Group("/A/B/C");
 		groupsMan.addGroup(groupABC);
@@ -593,6 +596,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		entity = new EntityParam(id);
 		groupsMan.addMemberFromParent("/A", entity);
 		groupsMan.addMemberFromParent("/A/B", entity);
+		groupsMan.addMemberFromParent("/A/Z", entity);
 		groupsMan.addMemberFromParent("/A/D", entity);
 		groupsMan.addMemberFromParent("/A/B/C", entity);
 		
