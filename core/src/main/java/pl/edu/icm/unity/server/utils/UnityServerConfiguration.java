@@ -64,6 +64,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String ENDPOINT_ADDRESS = "contextPath";
 	public static final String ENDPOINT_NAME = "endpointName";	
 	public static final String ENDPOINT_AUTHENTICATORS = "endpointAuthenticators";
+	public static final String INITIALIZERS = "initializers.";
 
 	public static final String AUTHENTICATORS = "authenticators.";
 	public static final String AUTHENTICATOR_NAME = "authenticatorName";
@@ -107,6 +108,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				"If this options is true then all endpoints are initialized from configuration at each startup. If it is false then the persisted endpoints are loaded and configuration is used only at the initial start of the server."));
 		defaults.put(THREAD_POOL_SIZE, new PropertyMD("4").setDescription(
 				"Number of threads used by internal processes of the server. HTTP server threads use a separate pool."));
+		defaults.put(INITIALIZERS, new PropertyMD().setList(true).setDescription(
+				"List of identifiers of initialization modules that should be run on the first startup."));
 		
 		defaults.put(ENDPOINTS, new PropertyMD().setStructuredList(true).setCategory(mainCat).
 				setDescription("List of initially enabled endpoints"));

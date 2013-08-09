@@ -37,6 +37,7 @@ import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.ServerInitializer;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
@@ -47,7 +48,6 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -106,8 +106,11 @@ public class EngineInitialization extends LifecycleBase
 	private EndpointsUpdater updater;
 	@Autowired
 	private AttributeStatementsCleaner attributeStatementsCleaner;
+	@Autowired
+	private List<ServerInitializer> initializers;
 	
 	private long endpointsLoadTime;
+	private boolean coldStart = false;
 	
 	@Override
 	public void start()
@@ -170,6 +173,7 @@ public class EngineInitialization extends LifecycleBase
 		initializeCredentialReqirements();
 		initializeAuthenticators();
 		initializeEndpoints();
+		runInitializers();
 	}
 	
 	
@@ -190,6 +194,7 @@ public class EngineInitialization extends LifecycleBase
 				{
 					log.info("Adding identity type " + it.getId());
 					dbIdentities.createIdentityType(sql, it);
+					coldStart = true;
 				}
 					
 			}
@@ -494,6 +499,23 @@ public class EngineInitialization extends LifecycleBase
 				authnManagement.addCredentialRequirement(cr);
 				log.info(" - " + name + " " + elements.toString());
 			}
+		}
+	}
+	
+	private void runInitializers()
+	{
+		if (!coldStart)
+			return;
+		List<String> enabledL = config.getListOfValues(UnityServerConfiguration.INITIALIZERS);
+		HashSet<String> enabled = new HashSet<>(enabledL);
+		for (ServerInitializer initializer: initializers)
+		{
+			if (enabled.contains(initializer.getName()))
+			{
+				log.info("Running initializer: " + initializer.getName());
+				initializer.run();
+			} else
+				log.debug("Skipping initializer: " + initializer.getName());
 		}
 	}
 

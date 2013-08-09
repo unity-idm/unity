@@ -247,7 +247,14 @@ public class GroupsTree extends Tree
 					@Override
 					public void onConfirm()
 					{
-						groupManagementHelper.addToGroup(notMember, entityId);
+						groupManagementHelper.addToGroup(notMember, entityId, 
+								new GroupManagementHelper.Callback()
+								{
+									@Override
+									public void onAdded(String toGroup)
+									{
+									}
+								});
 					}
 				});
 		confirm.show();

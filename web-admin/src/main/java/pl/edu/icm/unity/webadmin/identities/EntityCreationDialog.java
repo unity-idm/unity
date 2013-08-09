@@ -31,7 +31,10 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webadmin.attributeclass.RequiredAttributesDialog;
+import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webadmin.utils.GroupManagementHelper;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -53,6 +56,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 	private ComboBox credentialRequirement;
 	private EnumComboBox<EntityState> entityState;
 	private List<AttributeType> allTypes;
+	private EventsBus bus;
 	
 	public EntityCreationDialog(UnityMessageSource msg, String initialGroup, IdentitiesManagement identitiesMan,
 			GroupsManagement groupsMan, AuthenticationManagement authnMan, 
@@ -65,6 +69,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		this.initialGroup = initialGroup;
 		this.identitiesMan = identitiesMan;
 		this.authnMan = authnMan;
+		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
 	@Override
@@ -189,7 +194,15 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		{
 			Deque<String> missing = GroupManagementHelper.getMissingGroups(initialGroup, 
 					Collections.singleton("/"));
-			groupHelper.addToGroup(missing, created.getEntityId());
+			groupHelper.addToGroup(missing, created.getEntityId(), new GroupManagementHelper.Callback()
+			{
+				@Override
+				public void onAdded(String toGroup)
+				{
+					if (toGroup.equals(initialGroup))
+						bus.fireEvent(new GroupChangedEvent(toGroup));
+				}
+			} );
 		}
 		callback.onCreated();
 		close();

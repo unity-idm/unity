@@ -25,7 +25,6 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webadmin.attributeclass.RequiredAttributesDialog;
-import pl.edu.icm.unity.webadmin.attributeclass.RequiredAttributesDialog.Callback;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
@@ -57,7 +56,7 @@ public class GroupManagementHelper
 	 * @param msg
 	 * @param groupsMan
 	 */
-	public void addToGroup(Deque<String> notMember, long entityId)
+	public void addToGroup(Deque<String> notMember, long entityId, Callback callback)
 	{
 		EntityParam entityParam = new EntityParam(entityId);
 		List<AttributeType> allTypes;
@@ -79,12 +78,13 @@ public class GroupManagementHelper
 			return;
 		}
 		Deque<String> added = new ArrayDeque<>();
-		addToGroupRecursive(notMember, added, allTypes, allACsMap, entityParam);
+		addToGroupRecursive(notMember, added, allTypes, allACsMap, entityParam, callback);
 	}
 
 	private void addToGroupRecursive(final Deque<String> notMember, final Deque<String> added, 
 			final List<AttributeType> allTypes,
-			final Map<String, AttributesClass> allACsMap, final EntityParam entityParam)
+			final Map<String, AttributesClass> allACsMap, final EntityParam entityParam, 
+			final Callback callback)
 	{
 		if (notMember.isEmpty())
 			return;
@@ -104,13 +104,14 @@ public class GroupManagementHelper
 		{
 			RequiredAttributesDialog attrDialog = new RequiredAttributesDialog(
 					msg, msg.getMessage("GroupsTree.requiredAttributesInfo", currentGroup), 
-					required, attrHandlerRegistry, allTypes, currentGroup, new Callback()
+					required, attrHandlerRegistry, allTypes, currentGroup, 
+					new RequiredAttributesDialog.Callback()
 					{
 						@Override
 						public void onConfirm(List<Attribute<?>> attributes)
 						{
 							addToGroupSafe(notMember, added, currentGroup, allTypes, 
-									allACsMap, entityParam, attributes);
+									allACsMap, entityParam, attributes, callback);
 						}
 
 						@Override
@@ -123,7 +124,7 @@ public class GroupManagementHelper
 		} else
 		{
 			addToGroupSafe(notMember, added, currentGroup, allTypes, allACsMap, entityParam, 
-					new ArrayList<Attribute<?>>(0));
+					new ArrayList<Attribute<?>>(0), callback);
 		}
 	}
 	
@@ -166,13 +167,14 @@ public class GroupManagementHelper
 	private void addToGroupSafe(Deque<String> notMember, Deque<String> added, 
 			String currentGroup, List<AttributeType> allTypes,
 			Map<String, AttributesClass> allACsMap, final EntityParam entityParam,
-			List<Attribute<?>> attributes)
+			List<Attribute<?>> attributes, Callback callback)
 	{
 		try
 		{
 			groupsMan.addMemberFromParent(currentGroup, entityParam, attributes);
+			callback.onAdded(currentGroup);
 			added.add(currentGroup);
-			addToGroupRecursive(notMember, added, allTypes, allACsMap, entityParam);
+			addToGroupRecursive(notMember, added, allTypes, allACsMap, entityParam, callback);
 		} catch (Exception e)
 		{
 			showSummary(notMember, added, currentGroup);
@@ -225,5 +227,10 @@ public class GroupManagementHelper
 				group = new Group(group.getParentPath());
 		}
 		return notMember;
+	}
+	
+	public interface Callback
+	{
+		public void onAdded(String toGroup);
 	}
 }

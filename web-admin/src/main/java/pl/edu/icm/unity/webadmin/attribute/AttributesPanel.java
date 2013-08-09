@@ -201,7 +201,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			assignedClasses.add(ac.getName());
 		assignedClasses.addAll(group.getAttributesClasses());
 		Map<String, AttributesClass> knownClasses = new HashMap<>(allAcs.size());
-		for (AttributesClass ac: acs)
+		for (AttributesClass ac: allAcs)
 			knownClasses.put(ac.getName(), ac);
 		
 		acHelper = new AttributeClassHelper(knownClasses, assignedClasses);

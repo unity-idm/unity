@@ -6,6 +6,8 @@
 
 	<context:annotation-config/>
 
+	<bean class="pl.edu.icm.unity.unicore.utils.UnicoreContentInitializer"/>
+
 	<bean class="pl.edu.icm.unity.unicore.samlidp.ws.SamlUnicoreIdPSoapEndpointFactory"/>
 
 	<bean class="pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETDHandler"/>
