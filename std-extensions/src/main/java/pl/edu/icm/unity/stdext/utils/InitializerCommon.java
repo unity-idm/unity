@@ -35,7 +35,7 @@ import pl.edu.icm.unity.types.basic.attrstmnt.EverybodyStatement;
 @Component
 public class InitializerCommon
 {
-	public static final String JPEG_ATTR = "jpegImage";
+	public static final String JPEG_ATTR = "jpegPhoto";
 	public static final String CN_ATTR = "cn";
 	public static final String ORG_ATTR = "o";
 	public static final String EMAIL_ATTR = "email";
