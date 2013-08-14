@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.types.basic;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.types.InitializationValidator;
 
@@ -39,6 +42,7 @@ public class AttributeType implements InitializationValidator
 	private boolean selfModificable = false;
 	private AttributeVisibility visibility = AttributeVisibility.full;
 	private int flags = 0;
+	private Map<String, String> metadata = new HashMap<>();
 	
 	
 	public AttributeType()
@@ -165,6 +169,16 @@ public class AttributeType implements InitializationValidator
 			throw new IllegalAttributeTypeException("Max elements limit can not be less then min elements limit");
 		if (name == null || name.trim().equals(""))
 			throw new IllegalAttributeTypeException("Attribute type name must be set");
+	}
+
+	public Map<String, String> getMetadata()
+	{
+		return metadata;
+	}
+
+	public void setMetadata(Map<String, String> metadata)
+	{
+		this.metadata = metadata;
 	}
 
 	@Override

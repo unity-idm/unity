@@ -21,4 +21,6 @@
 	
 	<bean class="pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory"/>
+	
+	<bean class="pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider"/>
 </beans>

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -35,11 +36,14 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
+import pl.edu.icm.unity.server.attributes.AttributeMetadataProvider;
 import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
+import pl.edu.icm.unity.server.registries.AttributeMetadataProvidersRegistry;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
@@ -67,13 +71,15 @@ public class AttributesManagementImpl implements AttributesManagement
 	private DBIdentities dbIdentities;
 	private DBGroups dbGroups;
 	private IdentitiesResolver idResolver;
+	private AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
 	private AuthorizationManager authz;
 	
 	@Autowired
 	public AttributesManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
 			DBSessionManager db, DBGeneric dbGeneric, DBAttributes dbAttributes,
 			DBIdentities dbIdentities, DBGroups dbGroups, DBShared dbShared,
-			IdentitiesResolver idResolver, AuthorizationManager authz)
+			IdentitiesResolver idResolver, AuthorizationManager authz, 
+			AttributeMetadataProvidersRegistry atMetaProvidersRegistry)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
 		this.db = db;
@@ -84,6 +90,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		this.dbGroups = dbGroups;
 		this.idResolver = idResolver;
 		this.authz = authz;
+		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
 	}
 
 	/**
@@ -114,6 +121,8 @@ public class AttributesManagementImpl implements AttributesManagement
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
+			List<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql);
+			verifyATMetadata(toAdd, existingAts);
 			dbAttributes.addAttributeType(toAdd, sql);
 			sql.commit();
 		} finally
@@ -139,6 +148,8 @@ public class AttributesManagementImpl implements AttributesManagement
 			if ((atExisting.getFlags() & AttributeType.TYPE_IMMUTABLE_FLAG) != 0)
 				throw new IllegalAttributeTypeException("The attribute type with name " + at.getName() + 
 						" can not be manually updated");
+			List<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql);
+			verifyATMetadata(at, existingAts);
 			
 			dbAttributes.updateAttributeType(at, sql);
 			if (!at.getValueType().getValueSyntaxId().equals(atExisting.getValueType().getValueSyntaxId()))
@@ -150,6 +161,42 @@ public class AttributesManagementImpl implements AttributesManagement
 		}
 	}
 
+	private void verifyATMetadata(AttributeType at, List<AttributeType> existingAts) 
+			throws IllegalAttributeTypeException
+	{
+		Map<String, String> meta = at.getMetadata();
+		if (meta.isEmpty())
+			return;
+		Map<String, String> existing = new HashMap<String, String>();
+		for (AttributeType eat: existingAts)
+			for (String eatm: eat.getMetadata().keySet())
+				existing.put(eatm, eat.getName());
+		
+		for (Map.Entry<String, String> metaE: meta.entrySet())
+		{
+			AttributeMetadataProvider provider;
+			try
+			{
+				provider = atMetaProvidersRegistry.getByName(metaE.getKey());
+			} catch (IllegalTypeException e)
+			{
+				throw new IllegalAttributeTypeException("The attribute type metadata " + 
+						metaE.getKey() + " is not known.");
+			}
+			
+			if (provider.isSingleton())
+			{
+				if (existing.containsKey(metaE.getKey()))
+					throw new IllegalAttributeTypeException("The attribute type metadata " + 
+							metaE.getKey() + " can be assigned to a single attribute type only" +
+							" and it is already assigned to attribute type " + 
+							existing.get(metaE.getKey()));
+			}
+			
+			provider.verify(metaE.getValue(), at);
+		}
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -209,13 +256,62 @@ public class AttributesManagementImpl implements AttributesManagement
 		SqlSession sql = db.getSqlSession(false);
 		try
 		{
-			return dbAttributes.getAttributeTypes(sql);
+			List<AttributeType> ret =  dbAttributes.getAttributeTypes(sql);
+			sql.commit();
+			return ret;
 		} finally
 		{
 			db.releaseSqlSession(sql);
 		}
 	}
 
+
+	@Override
+	public AttributeType getAttributeTypeWithSingeltonMetadata(String metadataId)
+			throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		SqlSession sql = db.getSqlSession(false);
+		try
+		{
+			AttributeMetadataProvider provider = atMetaProvidersRegistry.getByName(metadataId);
+			if (!provider.isSingleton())
+				throw new WrongArgumentException("Metadata for this call must be singleton.");
+			List<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql);
+			AttributeType ret = null;
+			for (AttributeType at: existingAts)
+				if (at.getMetadata().containsKey(metadataId))
+					ret = at;
+			sql.close();
+			return ret;
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
+	}
+
+	@Override
+	public List<AttributeType> getAttributeTypeWithMetadata(String metadataId)
+			throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		SqlSession sql = db.getSqlSession(false);
+		try
+		{
+			List<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql);
+			List<AttributeType> ret = new ArrayList<>();
+			for (AttributeType at: existingAts)
+				if (at.getMetadata().containsKey(metadataId))
+					ret.add(at);
+			sql.close();
+			return ret;
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
+	}
+	
+	
 	/**
 	 * {@inheritDoc}
 	 */

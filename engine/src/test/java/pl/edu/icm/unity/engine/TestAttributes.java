@@ -19,9 +19,11 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -394,6 +396,60 @@ public class TestAttributes extends DBIntegrationTestBase
 		assertEquals(6, ((StringAttributeSyntax)at1B.getValueType()).getMaxLength());
 		assertEquals(600, ((StringAttributeSyntax)at2B.getValueType()).getMaxLength());
 	}
+	
+	@Test
+	public void testMetadata() throws Exception
+	{
+		AttributeType atInt = new AttributeType("at1", new IntegerAttributeSyntax());
+		atInt.getMetadata().put(EntityNameMetadataProvider.NAME, "");
+		try
+		{
+			attrsMan.addAttributeType(atInt);
+			fail("Managed to add with wrong syntax");
+		} catch (IllegalAttributeTypeException e) {};
+		
+		
+		AttributeType at1 = new AttributeType("at1", new StringAttributeSyntax());
+		at1.setMaxElements(1);
+		at1.setMinElements(1);
+		at1.getMetadata().put(EntityNameMetadataProvider.NAME, "");
+		attrsMan.addAttributeType(at1);
+
+		AttributeType ret = getAttributeTypeByName(attrsMan.getAttributeTypes(), "at1");
+		assertTrue(ret.getMetadata().containsKey(EntityNameMetadataProvider.NAME));
+		
+		attrsMan.removeAttributeType("at1", false);
+		at1.getMetadata().remove(EntityNameMetadataProvider.NAME);
+		attrsMan.addAttributeType(at1);
+		
+		AttributeType at2 = new AttributeType("at2", new StringAttributeSyntax());
+		at2.setMaxElements(1);
+		at2.setMinElements(1);
+		attrsMan.addAttributeType(at2);
+		
+		at1.getMetadata().put(EntityNameMetadataProvider.NAME, "");
+		attrsMan.updateAttributeType(at1);
+		
+		at2.getMetadata().put(EntityNameMetadataProvider.NAME, "");
+		try
+		{
+			attrsMan.updateAttributeType(at2);
+			fail("Managed to set 2nd via update");
+		} catch (IllegalAttributeTypeException e) {};
+		
+
+		AttributeType at3 = new AttributeType("at3", new StringAttributeSyntax());
+		at3.setMaxElements(1);
+		at3.setMinElements(1);
+		at3.getMetadata().put(EntityNameMetadataProvider.NAME, "");
+		try
+		{
+			attrsMan.updateAttributeType(at3);
+			fail("Managed to set 2nd via add");
+		} catch (IllegalAttributeTypeException e) {};
+		
+	}
+
 }
 
 
