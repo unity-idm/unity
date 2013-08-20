@@ -42,7 +42,8 @@ public class TopHeader extends TopHeaderLight
 	protected void addLoggedInfo(HorizontalLayout loggedPanel)
 	{
 		AuthenticatedEntity entity = InvocationContext.getCurrent().getAuthenticatedEntity();
-		Label loggedEntity = new Label(msg.getMessage("MainHeader.loggedAs", entity.getAuthenticatedWith().get(0),
+		String label = entity.getEntityLabel() == null ? "" : entity.getEntityLabel();
+		Label loggedEntity = new Label(msg.getMessage("MainHeader.loggedAs", label,
 				entity.getEntityId()));
 		loggedEntity.setStyleName(Reindeer.LABEL_H2);
 		loggedPanel.addComponent(loggedEntity);

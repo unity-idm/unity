@@ -173,5 +173,16 @@ public interface AttributesManagement
 	 */
 	public Collection<AttributeExt<?>> getAllAttributes(EntityParam entity, boolean effective, 
 			String groupPath, String attributeTypeId, boolean allowDegrade) throws EngineException;
-
+	
+	/**
+	 * Returns attribute which has the given metadata set. If there is no attribute type with this metadata, then
+	 * null is returned. The metadata must be singleton, 
+	 * otherwise unchecked exception is thrown.
+	 * @param entity
+	 * @param group
+	 * @param metadataId
+	 * @return
+	 * @throws EngineException
+	 */
+	public AttributeExt<?> getAttributeByMetadata(EntityParam entity, String group, String metadataId) throws EngineException;
 }

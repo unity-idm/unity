@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.common.attributes;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +46,7 @@ public class AttributeHandlerRegistry
 	
 	public Set<String> getSupportedSyntaxes()
 	{
-		return factoriesByType.keySet();
+		return new HashSet<>(factoriesByType.keySet());
 	}
 
 	/**

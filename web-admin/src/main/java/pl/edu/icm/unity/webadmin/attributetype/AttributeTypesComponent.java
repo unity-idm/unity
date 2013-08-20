@@ -26,6 +26,7 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
+import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -46,6 +47,7 @@ public class AttributeTypesComponent extends VerticalLayout
 	private UnityMessageSource msg;
 	private AttributesManagement attrManagement;
 	private AttributeHandlerRegistry attrHandlerRegistry;
+	private AttributeMetadataHandlerRegistry attrMetaHandlerRegistry;
 	
 	private GenericElementsTable<AttributeType> table;
 	private AttributeTypeViewer viewer;
@@ -55,11 +57,13 @@ public class AttributeTypesComponent extends VerticalLayout
 	
 	@Autowired
 	public AttributeTypesComponent(UnityMessageSource msg, AttributesManagement attrManagement, 
-			AttributeHandlerRegistry attrHandlerRegistry)
+			AttributeHandlerRegistry attrHandlerRegistry, 
+			AttributeMetadataHandlerRegistry attrMetaHandlerRegistry)
 	{
 		this.msg = msg;
 		this.attrManagement = attrManagement;
 		this.attrHandlerRegistry = attrHandlerRegistry;
+		this.attrMetaHandlerRegistry = attrMetaHandlerRegistry;
 		this.bus = WebSession.getCurrent().getEventBus();
 		HorizontalLayout hl = new HorizontalLayout();
 		
@@ -89,9 +93,9 @@ public class AttributeTypesComponent extends VerticalLayout
 					AttributeType at = item.getElement();
 					WebAttributeHandler<?> handler = AttributeTypesComponent.this.attrHandlerRegistry.getHandler(
 							at.getValueType().getValueSyntaxId());
-					viewer.setInput(at, handler);
+					viewer.setInput(at, handler, AttributeTypesComponent.this.attrMetaHandlerRegistry);
 				} else
-					viewer.setInput(null, null);
+					viewer.setInput(null, null, AttributeTypesComponent.this.attrMetaHandlerRegistry);
 			}
 		});
 		table.addActionHandler(new RefreshActionHandler());
@@ -193,7 +197,8 @@ public class AttributeTypesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			AttributeTypeEditor editor = new AttributeTypeEditor(msg, attrHandlerRegistry);
+			AttributeTypeEditor editor = new AttributeTypeEditor(msg, attrHandlerRegistry, 
+					attrMetaHandlerRegistry);
 			AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
 					msg.getMessage("AttributeTypes.addAction"), new Callback()
 					{
@@ -247,7 +252,8 @@ public class AttributeTypesComponent extends VerticalLayout
 			@SuppressWarnings("unchecked")
 			GenericItem<AttributeType> item = (GenericItem<AttributeType>)target;
 			AttributeType at = item.getElement();
-			AttributeTypeEditor editor = new AttributeTypeEditor(msg, attrHandlerRegistry, at);
+			AttributeTypeEditor editor = new AttributeTypeEditor(msg, attrHandlerRegistry, at,
+					attrMetaHandlerRegistry);
 			AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
 					msg.getMessage("AttributeTypes.editAction"), new Callback()
 					{

@@ -18,7 +18,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 @Component
 public class EntityNameMetadataProvider implements AttributeMetadataProvider 
 {
-	public static final String NAME = "entityDistinguishedName";
+	public static final String NAME = "entityDisplayedName";
 	
 	@Override
 	public String getName()

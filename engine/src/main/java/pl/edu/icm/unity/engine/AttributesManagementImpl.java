@@ -274,14 +274,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		SqlSession sql = db.getSqlSession(false);
 		try
 		{
-			AttributeMetadataProvider provider = atMetaProvidersRegistry.getByName(metadataId);
-			if (!provider.isSingleton())
-				throw new WrongArgumentException("Metadata for this call must be singleton.");
-			List<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql);
-			AttributeType ret = null;
-			for (AttributeType at: existingAts)
-				if (at.getMetadata().containsKey(metadataId))
-					ret = at;
+			AttributeType ret = getAttributeTypeWithSingeltonMetadata(metadataId, sql);
 			sql.close();
 			return ret;
 		} finally
@@ -621,6 +614,27 @@ public class AttributesManagementImpl implements AttributesManagement
 		}
 	}
 
+
+	@Override
+	public AttributeExt<?> getAttributeByMetadata(EntityParam entity, String group,
+			String metadataId) throws EngineException
+	{
+		entity.validateInitialization();
+		SqlSession sql = db.getSqlSession(false);
+		try
+		{
+			AttributeType at = getAttributeTypeWithSingeltonMetadata(metadataId, sql);
+			Collection<AttributeExt<?>> ret = getAllAttributesInternal(sql, entity, false, 
+					group, at.getName(), AuthzCapability.read, false);
+			sql.close();
+			return ret.size() == 1 ? ret.iterator().next() : null;
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
+	}
+
+	
 	private void filterLocal(Collection<AttributeExt<?>> unfiltered)
 	{
 		Iterator<AttributeExt<?>> it = unfiltered.iterator();
@@ -639,22 +653,8 @@ public class AttributesManagementImpl implements AttributesManagement
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			long entityId = idResolver.getEntityId(entity, sql);
-			if (!allowDisabled)
-			{
-				EntityState state = dbIdentities.getEntityStatus(entityId, sql);
-				if (state == EntityState.disabled)
-					throw new IllegalIdentityValueException("The entity is disabled");
-			}
-			authz.checkAuthorization(authz.isSelf(entityId), groupPath, requiredCapability);
-			if (groupPath != null)
-			{
-				Set<String> allGroups = dbShared.getAllGroups(entityId, sql);
-				if (!allGroups.contains(groupPath))
-					throw new IllegalGroupValueException("The entity is not a member of the group " + groupPath);
-			}
-			Collection<AttributeExt<?>> ret = dbAttributes.getAllAttributes(entityId, groupPath, effective,
-					attributeTypeName, sql);
+			Collection<AttributeExt<?>> ret = getAllAttributesInternal(sql, entity, effective, 
+					groupPath, attributeTypeName, requiredCapability, allowDisabled);
 			sql.commit();
 			return ret;
 		} finally
@@ -662,4 +662,42 @@ public class AttributesManagementImpl implements AttributesManagement
 			db.releaseSqlSession(sql);
 		}	
 	}
+	
+	private Collection<AttributeExt<?>> getAllAttributesInternal(SqlSession sql, EntityParam entity, 
+			boolean effective, String groupPath, String attributeTypeName, 
+			AuthzCapability requiredCapability, boolean allowDisabled) throws EngineException
+	{
+		long entityId = idResolver.getEntityId(entity, sql);
+		if (!allowDisabled)
+		{
+			EntityState state = dbIdentities.getEntityStatus(entityId, sql);
+			if (state == EntityState.disabled)
+				throw new IllegalIdentityValueException("The entity is disabled");
+		}
+		authz.checkAuthorization(authz.isSelf(entityId), groupPath, requiredCapability);
+		if (groupPath != null)
+		{
+			Set<String> allGroups = dbShared.getAllGroups(entityId, sql);
+			if (!allGroups.contains(groupPath))
+				throw new IllegalGroupValueException("The entity is not a member of the group " + groupPath);
+		}
+		Collection<AttributeExt<?>> ret = dbAttributes.getAllAttributes(entityId, groupPath, effective,
+				attributeTypeName, sql);
+		return ret;
+	}
+	
+	private AttributeType getAttributeTypeWithSingeltonMetadata(String metadataId, SqlSession sql)
+			throws EngineException
+	{
+		AttributeMetadataProvider provider = atMetaProvidersRegistry.getByName(metadataId);
+		if (!provider.isSingleton())
+			throw new WrongArgumentException("Metadata for this call must be singleton.");
+		List<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql);
+		AttributeType ret = null;
+		for (AttributeType at: existingAts)
+			if (at.getMetadata().containsKey(metadataId))
+				ret = at;
+		return ret;
+	}
+
 }

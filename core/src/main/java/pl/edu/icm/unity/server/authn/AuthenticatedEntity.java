@@ -16,6 +16,7 @@ public class AuthenticatedEntity
 	private Long entityId;
 	private boolean usedOutdatedCredential;
 	private List<String> authenticatedWith;
+	private String entityLabel;
 
 	public AuthenticatedEntity(Long entityId, String info, boolean useOutdatedCredential)
 	{
@@ -53,5 +54,15 @@ public class AuthenticatedEntity
 	public void setUsedOutdatedCredential(boolean usedOutdatedCredential)
 	{
 		this.usedOutdatedCredential = usedOutdatedCredential;
+	}
+
+	public String getEntityLabel()
+	{
+		return entityLabel;
+	}
+
+	public void setEntityLabel(String entityLabel)
+	{
+		this.entityLabel = entityLabel;
 	}
 }

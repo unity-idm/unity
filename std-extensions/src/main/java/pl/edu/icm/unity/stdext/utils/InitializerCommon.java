@@ -96,6 +96,7 @@ public class InitializerCommon
 		cn.setDescription("Common name");
 		((StringAttributeSyntax)cn.getValueType()).setMaxLength(100);
 		((StringAttributeSyntax)cn.getValueType()).setMinLength(2);
+		cn.getMetadata().put(EntityNameMetadataProvider.NAME, "");
 		if (!existingATs.contains(cn))
 			attrMan.addAttributeType(cn);
 

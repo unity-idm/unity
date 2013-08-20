@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.webadmin.attributetype;
 
+import java.util.Map;
+
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -15,6 +18,8 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
+import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandler;
 
 /**
  * Allows to inspect a single attribute type
@@ -33,6 +38,7 @@ public class AttributeTypeViewer extends FormLayout
 	private Label flags;
 	private Label syntax;
 	private Panel syntaxPanel;
+	private VerticalLayout metaPanel;
 	
 	public AttributeTypeViewer(UnityMessageSource msg)
 	{
@@ -79,6 +85,11 @@ public class AttributeTypeViewer extends FormLayout
 		syntaxPanel.setStyleName(Reindeer.PANEL_LIGHT);
 		addComponent(syntaxPanel);
 		
+		metaPanel = new VerticalLayout();
+		metaPanel.setCaption(msg.getMessage("AttributeType.metadata"));
+		metaPanel.setSpacing(true);
+		addComponent(metaPanel);
+		
 		setEmpty();
 	}
 	
@@ -93,10 +104,13 @@ public class AttributeTypeViewer extends FormLayout
 		flags.setValue("");
 		syntax.setValue("");
 		syntaxPanel.setContent(new VerticalLayout());
+		metaPanel.removeAllComponents();
+		metaPanel.setVisible(false);
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void setInput(AttributeType aType, WebAttributeHandler handler)
+	public void setInput(AttributeType aType, WebAttributeHandler handler, 
+			AttributeMetadataHandlerRegistry metaHandlersReg)
 	{
 		if (aType == null)
 		{
@@ -114,5 +128,15 @@ public class AttributeTypeViewer extends FormLayout
 		String syntaxId = aType.getValueType().getValueSyntaxId();
 		syntax.setValue(syntaxId);
 		syntaxPanel.setContent(handler.getSyntaxViewer(aType.getValueType()));
+		
+		metaPanel.removeAllComponents();
+		Map<String, String> meta = aType.getMetadata();
+		for (Map.Entry<String, String> metaE: meta.entrySet())
+		{
+			WebAttributeMetadataHandler mHandler = metaHandlersReg.getHandler(metaE.getKey());
+			Component metaPresentation = mHandler.getRepresentation(metaE.getValue());
+			metaPanel.addComponent(metaPresentation);
+		}
+		metaPanel.setVisible(!meta.isEmpty());
 	}
 }

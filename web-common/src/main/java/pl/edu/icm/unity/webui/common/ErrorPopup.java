@@ -58,7 +58,7 @@ public class ErrorPopup
 			e = e.getCause();
 			if (e.getMessage() == null)
 				break;
-			sb.append("<br>").append(e.getMessage());
+			sb.append("; ").append(e.getMessage());
 		}
 		return sb.toString();
 	}

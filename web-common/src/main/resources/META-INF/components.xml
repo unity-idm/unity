@@ -24,6 +24,10 @@
 	<bean class="pl.edu.icm.unity.webui.common.credentials.ext.CertificateCredentialEditorFactory"/>
 	<bean class="pl.edu.icm.unity.webui.common.credentials.ext.PasswordCredentialEditorFactory"/>
 
+	<bean class="pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry"/>
+	<bean class="pl.edu.icm.unity.webui.common.attrmetadata.ext.EntityNameMetadataHandlerFactory"/>
+
+
 	<bean class="pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry"/>
 
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">

@@ -52,13 +52,14 @@ public abstract class AbstractBoundEditor<T extends Number> extends CustomField<
 				limit.setEnabled(limited);				
 			}
 		});
-		isEmpty();
 		updateValidators();
 	}
 
 	@Override
 	public boolean isEmpty()
 	{
+		if (unlimited.getValue()) //when unlimited is selected we assume the field is set.
+			return false;
 		return limit.getValue() == null || limit.getValue().equals("");
 	}
 

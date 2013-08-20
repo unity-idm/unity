@@ -32,6 +32,7 @@ import pl.edu.icm.unity.webui.common.IntegerBoundEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
+import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
 
 /**
  * Allows to edit an attribute type. Can be configured to edit an existing attribute (name is fixed)
@@ -43,6 +44,7 @@ public class AttributeTypeEditor extends FormLayout
 {
 	private UnityMessageSource msg;
 	private AttributeHandlerRegistry registry;
+	private AttributeMetadataHandlerRegistry attrMetaHandlerReg;
 	
 	private AbstractTextField name;
 	private DescriptionTextArea typeDescription;
@@ -54,18 +56,22 @@ public class AttributeTypeEditor extends FormLayout
 	private ComboBox syntax;
 	private VerticalLayout syntaxPanel;
 	private AttributeSyntaxEditor<?> editor;
+	private MetadataEditor metaEditor;
 	private FormValidator validator;
 	
-	public AttributeTypeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry)
+	public AttributeTypeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, 
+			AttributeMetadataHandlerRegistry attrMetaHandlerReg)
 	{
-		this(msg, registry, null);
+		this(msg, registry, null, attrMetaHandlerReg);
 	}
 
-	public AttributeTypeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, AttributeType toEdit)
+	public AttributeTypeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, AttributeType toEdit, 
+			AttributeMetadataHandlerRegistry attrMetaHandlerReg)
 	{
 		super();
 		this.msg = msg;
 		this.registry = registry;
+		this.attrMetaHandlerReg = attrMetaHandlerReg;
 		
 		initUI(toEdit);
 	}
@@ -145,6 +151,11 @@ public class AttributeTypeEditor extends FormLayout
 			}
 		});
 		
+		metaEditor = new MetadataEditor(msg, attrMetaHandlerReg);
+		metaEditor.setMargin(true);
+		Panel metaPanel = new Panel(msg.getMessage("AttributeType.metadata"), metaEditor);
+		addComponent(metaPanel);
+		
 		if (toEdit != null)
 			setInitialValues(toEdit);
 		else
@@ -153,6 +164,7 @@ public class AttributeTypeEditor extends FormLayout
 			max.setValue(1);
 			syntax.setValue(syntaxes.first());
 		}
+		
 		validator = new FormValidator(this);
 	}
 	
@@ -171,6 +183,7 @@ public class AttributeTypeEditor extends FormLayout
 		editor = handler.getSyntaxEditorComponent(aType.getValueType());
 		syntaxPanel.removeAllComponents();
 		syntaxPanel.addComponent(editor.getEditor());
+		metaEditor.setInput(aType.getMetadata());
 	}
 	
 	public AttributeType getAttributeType() throws IllegalAttributeTypeException
@@ -193,6 +206,7 @@ public class AttributeTypeEditor extends FormLayout
 		ret.setUniqueValues(uniqueVals.getValue());
 		ret.setValueType(syntax);
 		ret.setVisibility(visibility.getSelectedValue());
+		ret.setMetadata(metaEditor.getValue());
 		return ret;
 	}
 }

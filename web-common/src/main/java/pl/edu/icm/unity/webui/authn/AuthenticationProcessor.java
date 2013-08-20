@@ -9,9 +9,13 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.AuthenticationException;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
@@ -19,6 +23,9 @@ import pl.edu.icm.unity.server.authn.AuthenticationProcessorUtil;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
+import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
@@ -43,22 +50,25 @@ public class AuthenticationProcessor
 	private UnityMessageSource msg;
 	private AuthenticationManagement authnMan;
 	private IdentitiesManagement idsMan;
+	private AttributesManagement insecureAttrMan;
 	private CredentialEditorRegistry credEditorReg;
 	
 	@Autowired
 	public AuthenticationProcessor(UnityMessageSource msg, AuthenticationManagement authnMan,
-			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg)
+			IdentitiesManagement idsMan, @Qualifier("insecure") AttributesManagement attrMan,
+			CredentialEditorRegistry credEditorReg)
 	{
-		super();
 		this.msg = msg;
 		this.authnMan = authnMan;
 		this.idsMan = idsMan;
+		this.insecureAttrMan = attrMan;
 		this.credEditorReg = credEditorReg;
 	}
 
 	public void processResults(List<AuthenticationResult> results) throws AuthenticationException
 	{
 		AuthenticatedEntity logInfo = AuthenticationProcessorUtil.processResults(results);
+		setLabel(logInfo);
 		WrappedSession session = logged(logInfo);
 
 		if (logInfo.isUsedOutdatedCredential())
@@ -67,6 +77,23 @@ public class AuthenticationProcessor
 			return;
 		}
 		redirectToOrigin(session);
+	}
+
+	private void setLabel(AuthenticatedEntity logInfo)
+	{
+		try
+		{
+			AttributeExt<?> attr = insecureAttrMan.getAttributeByMetadata(new EntityParam(logInfo.getEntityId()), "/", 
+					EntityNameMetadataProvider.NAME);
+			if (attr != null)
+				logInfo.setEntityLabel((String) attr.getValues().get(0));
+		} catch (AuthorizationException e)
+		{
+			log.debug("Not setting entity's label as the client is not authorized to read the attribute", e);
+		} catch (EngineException e)
+		{
+			log.error("Can not get the attribute designated with EntityName", e);
+		}
 	}
 	
 	private void showCredentialUpdate()
