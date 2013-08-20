@@ -61,6 +61,7 @@ public class DemoContentInitializer implements ServerInitializer
 		try
 		{
 			commonInitializer.initializeCommonAttributeTypes();
+			commonInitializer.assignCnToAdmin();
 			
 			groupsMan.addGroup(new Group("/A"));
 			groupsMan.addGroup(new Group("/A/B"));
@@ -104,13 +105,13 @@ public class DemoContentInitializer implements ServerInitializer
 			EnumAttribute a = new EnumAttribute("sys:AuthorizationRole", "/", AttributeVisibility.local, "Regular User");
 			attrMan.setAttribute(new EntityParam(base.getEntityId()), a, false);
 
-			StringAttribute orgA = new StringAttribute("o", "/A", AttributeVisibility.full, "Example organization");
+			StringAttribute orgA = new StringAttribute("o", "/", AttributeVisibility.full, "Example organization");
 			attrMan.setAttribute(new EntityParam(base.getEntityId()), orgA, false);
 
-			StringAttribute emailA = new StringAttribute("email", "/A", AttributeVisibility.full, "some@email.com");
+			StringAttribute emailA = new StringAttribute("email", "/", AttributeVisibility.full, "some@email.com");
 			attrMan.setAttribute(new EntityParam(base.getEntityId()), emailA, false);
 
-			StringAttribute cnA = new StringAttribute("cn", "/A", AttributeVisibility.full, "Hiper user");
+			StringAttribute cnA = new StringAttribute("cn", "/", AttributeVisibility.full, "Hiper user");
 			attrMan.setAttribute(new EntityParam(base.getEntityId()), cnA, false);
 
 			idsMan.setEntityCredential(new EntityParam(base.getEntityId()), "Password credential", "a");

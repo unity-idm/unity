@@ -4,21 +4,21 @@
  */
 package pl.edu.icm.unity.webadmin.identities;
 
-import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.bus.Event;
+import pl.edu.icm.unity.webui.common.EntityWithLabel;
 
 public class EntityChangedEvent implements Event
 {
-	private Entity entity;
+	private EntityWithLabel entity;
 	private String group;
 
-	public EntityChangedEvent(Entity entity, String group)
+	public EntityChangedEvent(EntityWithLabel entity, String group)
 	{
 		this.entity = entity;
 		this.group = group;
 	}
 
-	public Entity getEntity()
+	public EntityWithLabel getEntity()
 	{
 		return entity;
 	}

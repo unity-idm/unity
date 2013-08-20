@@ -624,6 +624,8 @@ public class AttributesManagementImpl implements AttributesManagement
 		try
 		{
 			AttributeType at = getAttributeTypeWithSingeltonMetadata(metadataId, sql);
+			if (at == null)
+				return null;
 			Collection<AttributeExt<?>> ret = getAllAttributesInternal(sql, entity, false, 
 					group, at.getName(), AuthzCapability.read, false);
 			sql.close();

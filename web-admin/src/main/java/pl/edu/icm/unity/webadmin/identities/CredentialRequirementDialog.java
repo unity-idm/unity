@@ -16,6 +16,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 
 /**
@@ -26,18 +27,18 @@ public class CredentialRequirementDialog extends AbstractDialog
 {
 	private IdentitiesManagement identitiesMan;
 	private AuthenticationManagement authnMan;
-	private final long entityId;
+	private final EntityWithLabel entity;
 	private final String initialCR;
 	protected Callback callback;
 	
 	private ComboBox credentialRequirement;
 	
-	public CredentialRequirementDialog(UnityMessageSource msg, long entityId, String initialCR,
+	public CredentialRequirementDialog(UnityMessageSource msg, EntityWithLabel entity, String initialCR,
 			IdentitiesManagement identitiesMan, AuthenticationManagement authnMan, Callback callback)
 	{
 		super(msg, msg.getMessage("CredentialRequirementDialog.caption"));
 		this.identitiesMan = identitiesMan;
-		this.entityId = entityId;
+		this.entity = entity;
 		this.authnMan = authnMan;
 		this.callback = callback;
 		this.initialCR = initialCR;
@@ -47,7 +48,7 @@ public class CredentialRequirementDialog extends AbstractDialog
 	@Override
 	protected FormLayout getContents()
 	{
-		Label info = new Label(msg.getMessage("CredentialRequirementDialog.changeFor", entityId));
+		Label info = new Label(msg.getMessage("CredentialRequirementDialog.changeFor", entity));
 		credentialRequirement = new ComboBox(msg.getMessage("CredentialRequirementDialog.credReq"));
 		Collection<CredentialRequirements> credReqs;
 		try
@@ -81,10 +82,10 @@ public class CredentialRequirementDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		EntityParam entity = new EntityParam(entityId);
+		EntityParam entityParam = new EntityParam(entity.getEntity().getId());
 		try
 		{
-			identitiesMan.setEntityCredentialRequirements(entity, 
+			identitiesMan.setEntityCredentialRequirements(entityParam, 
 					(String)credentialRequirement.getValue());
 		} catch (Exception e)
 		{

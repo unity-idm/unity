@@ -27,7 +27,6 @@ import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -40,6 +39,7 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
+import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
@@ -218,36 +218,36 @@ public class GroupsTree extends Tree
 		}
 	}
 
-	private void addToGroupVerification(String finalGroup, final Long entityId)
+	private void addToGroupVerification(String finalGroup, final EntityWithLabel entity)
 	{
-		final EntityParam entityParam = new EntityParam(entityId);
+		final EntityParam entityParam = new EntityParam(entity.getEntity().getId());
 		Collection<String> existingGroups;
 		try
 		{
 			existingGroups = identitiesMan.getGroups(entityParam);
 		} catch (EngineException e1)
 		{
-			ErrorPopup.showError(msg.getMessage("GroupsTree.getMembershipError", entityId), e1);
+			ErrorPopup.showError(msg.getMessage("GroupsTree.getMembershipError", entity), e1);
 			return;
 		}
 		final Deque<String> notMember = GroupManagementHelper.getMissingGroups(finalGroup, existingGroups);
 		
 		if (notMember.size() == 0)
 		{
-			ErrorPopup.showNotice(msg.getMessage("GroupsTree.alreadyMember", entityId, 
+			ErrorPopup.showNotice(msg.getMessage("GroupsTree.alreadyMember", entity, 
 					finalGroup), "");
 			return;
 		}
 		
 		ConfirmDialog confirm = new ConfirmDialog(msg, 
-				msg.getMessage("GroupsTree.confirmAddToGroup", entityId,
+				msg.getMessage("GroupsTree.confirmAddToGroup", entity,
 						groups2String(notMember)), 
 				new Callback()
 				{
 					@Override
 					public void onConfirm()
 					{
-						groupManagementHelper.addToGroup(notMember, entityId, 
+						groupManagementHelper.addToGroup(notMember, entity.getEntity().getId(), 
 								new GroupManagementHelper.Callback()
 								{
 									@Override
@@ -281,20 +281,21 @@ public class GroupsTree extends Tree
 			{
 				TableTransferable transferable = (TableTransferable) rawTransferable;
 				Object draggedRaw = transferable.getItemId();
-				Long entityId = null;
+				EntityWithLabel entity = null;
 				if (draggedRaw instanceof IdentityWithEntity)
 				{
 					IdentityWithEntity dragged = (IdentityWithEntity) draggedRaw;
-					entityId = dragged.getEntity().getId();
-				} else if (draggedRaw instanceof Entity)
+					entity = dragged.getEntityWithLabel();
+				} else if (draggedRaw instanceof EntityWithLabel)
 				{
-					entityId = ((Entity)draggedRaw).getId();
+					entity = (EntityWithLabel)draggedRaw;
 				}
-				if (entityId != null)
+				if (entity != null)
 				{
-					AbstractSelectTargetDetails target = (AbstractSelectTargetDetails) event.getTargetDetails();
+					AbstractSelectTargetDetails target = 
+							(AbstractSelectTargetDetails) event.getTargetDetails();
 					final TreeNode node = (TreeNode) target.getItemIdOver();
-					addToGroupVerification(node.getPath(), entityId);
+					addToGroupVerification(node.getPath(), entity);
 				}
 			}
 		}

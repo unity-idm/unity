@@ -51,6 +51,7 @@ public class UnicoreContentInitializer implements ServerInitializer
 		try
 		{
 			commonInitializer.initializeCommonAttributeTypes();
+			commonInitializer.assignCnToAdmin();
 			commonInitializer.initializeCommonAttributeStatements();
 			commonInitializer.initializeMainAttributeClass();
 			AttributesClass unicoreAC = new AttributesClass("UNICORE portal attributes", 

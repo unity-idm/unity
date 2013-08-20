@@ -71,7 +71,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 				CredentialDefinition.class, new GenericElementsTable.NameProvider<CredentialDefinition>()
 				{
 					@Override
-					public String toString(CredentialDefinition element)
+					public String toRepresentation(CredentialDefinition element)
 					{
 						return element.getName();
 					}

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.common;
 import java.util.Collection;
 
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 
 /**
@@ -58,9 +59,14 @@ public class GenericElementsTable<T> extends Table
 	
 	public interface NameProvider<T>
 	{
-		public String toString(T element);
+		/**
+		 * @param element
+		 * @return object of {@link Label} type or any other. In the latter case to toString method will be called 
+		 * on the returned object, and the result will be wrapped as {@link Label}.
+		 */
+		public Object toRepresentation(T element);
 	}
-	
+
 	public static class GenericItem<T>
 	{
 		private T element;
@@ -72,9 +78,12 @@ public class GenericElementsTable<T> extends Table
 			this.nameProvider = nameProvider;
 		}
 		
-		public String getName()
+		public Label getName()
 		{
-			return nameProvider.toString(element); 
+			Object representation = nameProvider.toRepresentation(element);
+			if (representation instanceof Label)
+				return (Label) representation;
+			return new Label(representation.toString());
 		}
 		
 		public T getElement()
@@ -86,7 +95,7 @@ public class GenericElementsTable<T> extends Table
 	private static class DefaultNameProvider<T> implements NameProvider<T>
 	{
 		@Override
-		public String toString(T element)
+		public String toRepresentation(T element)
 		{
 			return element.toString();
 		}

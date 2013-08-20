@@ -64,14 +64,7 @@ public class AttributesClassesComponent  extends VerticalLayout
 		setCaption(msg.getMessage("AttributesClass.caption"));
 		table =  new GenericElementsTable<String>(
 				msg.getMessage("AttributesClass.attributesClassesHeader"), 
-				String.class, new GenericElementsTable.NameProvider<String>()
-				{
-					@Override
-					public String toString(String element)
-					{
-						return element;
-					}
-				});
+				String.class);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override

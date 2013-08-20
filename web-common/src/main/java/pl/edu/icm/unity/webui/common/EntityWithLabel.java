@@ -24,7 +24,7 @@ public class EntityWithLabel
 	{
 		this.entity = entity;
 		this.label = label;
-		txtRepresentation = label == null ? "#"+entity.getId() : label + " (#" + entity.getId() + ")";
+		txtRepresentation = label == null ? "["+entity.getId()+"]" : label + " [" + entity.getId() + "]";
 	}
 	
 	public Entity getEntity()
@@ -41,5 +41,30 @@ public class EntityWithLabel
 	public String toString()
 	{
 		return txtRepresentation;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return entity.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		EntityWithLabel other = (EntityWithLabel) obj;
+		if (entity == null)
+		{
+			if (other.entity != null)
+				return false;
+		} else if (!entity.equals(other.entity))
+			return false;
+		return true;
 	}
 }

@@ -24,6 +24,7 @@ import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
@@ -34,6 +35,7 @@ import com.vaadin.event.Action;
 import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -72,9 +74,12 @@ public class AttributeTypesComponent extends VerticalLayout
 				AttributeType.class, new GenericElementsTable.NameProvider<AttributeType>()
 				{
 					@Override
-					public String toString(AttributeType element)
+					public Label toRepresentation(AttributeType element)
 					{
-						return element.getName();
+						Label ret = new Label(element.getName());
+						if (element.isTypeImmutable())
+							ret.addStyleName(Styles.gray.toString());
+						return ret;
 					}
 				});
 		table.setWidth(90, Unit.PERCENTAGE);

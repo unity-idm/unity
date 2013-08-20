@@ -12,6 +12,7 @@ import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.webui.common.EntityWithLabel;
 
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.FormLayout;
@@ -59,9 +60,10 @@ public class EntityDetailsPanel extends FormLayout
 		addComponents(id, status, identities, credReq, credStatus, groups);
 	}
 	
-	public void setInput(Entity entity, Collection<String> groups)
+	public void setInput(EntityWithLabel entityWithLabel, Collection<String> groups)
 	{
-		id.setValue(String.valueOf(entity.getId()));
+		id.setValue(entityWithLabel.toString());
+		Entity entity = entityWithLabel.getEntity();
 		
 		status.setValue(msg.getMessage("EntityState." + entity.getState().toString()));
 		

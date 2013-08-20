@@ -24,6 +24,7 @@ import pl.edu.icm.unity.webadmin.identities.EntityChangedEvent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 
@@ -64,7 +65,7 @@ public class AttributesComponent extends Panel
 			public void handleEvent(EntityChangedEvent event)
 			{
 				setInput(event.getEntity() == null ? null :
-					new EntityParam(event.getEntity().getId()), event.getGroup());
+					event.getEntity(), event.getGroup());
 			}
 		}, EntityChangedEvent.class);
 		
@@ -79,7 +80,7 @@ public class AttributesComponent extends Panel
 		setInput(null, "/");
 	}
 	
-	private void setInput(EntityParam owner, String groupPath)
+	private void setInput(EntityWithLabel owner, String groupPath)
 	{
 		if (owner == null)
 		{
@@ -88,21 +89,22 @@ public class AttributesComponent extends Panel
 			return;
 		}
 		
-		setCaption(msg.getMessage("Attribute.caption", owner.getEntityId(), groupPath));
+		setCaption(msg.getMessage("Attribute.caption", owner, groupPath));
+		EntityParam entParam = new EntityParam(owner.getEntity().getId());
 		try
 		{
 			Collection<AttributeExt<?>> attributesCol = attributesManagement.getAllAttributes(
-					owner, true, groupPath, null, true);
-			main.setInput(owner, groupPath, attributesCol);
+					entParam, true, groupPath, null, true);
+			main.setInput(entParam, groupPath, attributesCol);
 			setContent(main);
 		} catch (AuthorizationException e)
 		{
-			setProblem(msg.getMessage("Attribute.noReadAuthz", groupPath, owner.getEntityId()), 
+			setProblem(msg.getMessage("Attribute.noReadAuthz", groupPath, owner), 
 					Level.error);
 		} catch (EngineException e)
 		{
 			log.fatal("Problem retrieving attributes in the group " + groupPath + " for " 
-					+ owner.getEntityId(), e);
+					+ owner, e);
 			setProblem(msg.getMessage("Attribute.internalError", groupPath), Level.error);
 		}
 	}

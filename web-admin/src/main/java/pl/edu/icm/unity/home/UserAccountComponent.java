@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsPanel;
+import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -24,9 +25,12 @@ import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webadmin.preferences.PreferencesComponent;
+import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.bigtab.BigTabPanel;
@@ -52,7 +56,8 @@ public class UserAccountComponent extends VerticalLayout
 	public UserAccountComponent(AuthenticationManagement authnMan, IdentitiesManagement idsMan,
 			CredentialEditorRegistry credEditorReg,
 			PreferencesHandlerRegistry registry, PreferencesManagement prefMan, 
-			UnityMessageSource msg, EndpointManagement endpMan)
+			UnityMessageSource msg, EndpointManagement endpMan, 
+			AttributesManagement attrMan)
 	{
 		this.msg = msg;
 		
@@ -69,7 +74,7 @@ public class UserAccountComponent extends VerticalLayout
 		
 		try
 		{
-			com.vaadin.ui.Component userInfo = getUserInfoComponent(theUser.getEntityId(), idsMan);
+			com.vaadin.ui.Component userInfo = getUserInfoComponent(theUser.getEntityId(), idsMan, attrMan);
 			tabPanel.addTab("UserHomeUI.accountInfoLabel", "UserHomeUI.accountInfoDesc", 
 					Images.info64.getResource(), userInfo);
 		} catch (AuthorizationException e)
@@ -103,8 +108,8 @@ public class UserAccountComponent extends VerticalLayout
 		tabPanel.select(0);
 	}
 	
-	private com.vaadin.ui.Component getUserInfoComponent(long entityId, IdentitiesManagement idsMan) 
-			throws EngineException
+	private com.vaadin.ui.Component getUserInfoComponent(long entityId, IdentitiesManagement idsMan, 
+			AttributesManagement attrMan) throws EngineException
 	{
 		EntityDetailsPanel ret = new EntityDetailsPanel(msg);
 		EntityParam param = new EntityParam(entityId);
@@ -118,7 +123,10 @@ public class UserAccountComponent extends VerticalLayout
 			groups.add(msg.getMessage("UserHomeUI.unauthzGroups"));
 		}
 		Entity entity = idsMan.getEntity(param);
-		ret.setInput(entity, groups);
+		AttributeExt<?> nameAttr = attrMan.getAttributeByMetadata(param, "/", EntityNameMetadataProvider.NAME);
+		String label = nameAttr == null ? null : (String)nameAttr.getValues().get(0);
+		EntityWithLabel entityWithLabel = new EntityWithLabel(entity, label);
+		ret.setInput(entityWithLabel, groups);
 		return ret;
 	}
 }

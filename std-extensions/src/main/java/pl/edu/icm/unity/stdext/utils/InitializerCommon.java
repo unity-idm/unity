@@ -16,16 +16,21 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.attrstmnt.EverybodyStatement;
 
 /**
@@ -41,28 +46,39 @@ public class InitializerCommon
 	public static final String EMAIL_ATTR = "email";
 	
 	public static final String MAIN_AC = "Common attributes";
+	public static final String NAMING_AC = "Common identification attributes";
 	
 	private AttributesManagement attrMan;
 	private GroupsManagement groupsMan;
+	private UnityServerConfiguration config;
 
 	@Autowired
 	public InitializerCommon(@Qualifier("insecure") AttributesManagement attrMan, 
-			@Qualifier("insecure") GroupsManagement groupsMan)
+			@Qualifier("insecure") GroupsManagement groupsMan, UnityServerConfiguration config)
 	{
 		this.attrMan = attrMan;
 		this.groupsMan = groupsMan;
+		this.config = config;
 	}
 
 	public void initializeMainAttributeClass() throws EngineException
 	{
-		AttributesClass unicoreAC = new AttributesClass(MAIN_AC, 
+		AttributesClass mainAC = new AttributesClass(MAIN_AC, 
 				"General purpose attributes, should be enabled for everybody", 
 				new HashSet<>(Arrays.asList("sys:AuthorizationRole")), 
 				new HashSet<String>(), false, 
 				new HashSet<String>());
 		Map<String, AttributesClass> allAcs = attrMan.getAttributeClasses();
 		if (!allAcs.containsKey(MAIN_AC))
-			attrMan.addAttributeClass(unicoreAC);
+			attrMan.addAttributeClass(mainAC);
+
+		AttributesClass namingAC = new AttributesClass(NAMING_AC, 
+				"Identification attributes, should be set for everybody to enable common system features", 
+				new HashSet<String>(), 
+				new HashSet<String>(Arrays.asList(CN_ATTR, EMAIL_ATTR)), false, 
+				new HashSet<String>());
+		if (!allAcs.containsKey(NAMING_AC))
+			attrMan.addAttributeClass(namingAC);
 	}
 	
 
@@ -116,5 +132,15 @@ public class InitializerCommon
 		((StringAttributeSyntax)email.getValueType()).setRegexp("[^@]+@.+\\..+");
 		if (!existingATs.contains(email))
 			attrMan.addAttributeType(email);
+	}
+	
+	public void assignCnToAdmin() throws EngineException
+	{
+		String adminU = config.getValue(UnityServerConfiguration.INITIAL_ADMIN_USER);
+		StringAttribute cnA = new StringAttribute(CN_ATTR, "/", AttributeVisibility.full, 
+				"Default Administrator");
+		EntityParam entity = new EntityParam(new IdentityTaV(UsernameIdentity.ID, adminU));
+		if (attrMan.getAttributes(entity, "/", CN_ATTR).isEmpty())
+			attrMan.setAttribute(entity, cnA, false);
 	}
 }

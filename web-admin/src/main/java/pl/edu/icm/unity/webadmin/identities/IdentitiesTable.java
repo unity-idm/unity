@@ -27,9 +27,11 @@ import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -38,6 +40,7 @@ import pl.edu.icm.unity.webadmin.identities.CredentialRequirementDialog.Callback
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
@@ -77,6 +80,7 @@ public class IdentitiesTable extends TreeTable
 	private boolean groupByEntity;
 	private Entity selected;
 	private List<Filter> containerFilters;
+	private String entityNameAttribute = null;
 
 	@Autowired
 	public IdentitiesTable(IdentitiesManagement identitiesMan, GroupsManagement groupsMan, 
@@ -95,7 +99,7 @@ public class IdentitiesTable extends TreeTable
 		this.containerFilters = new ArrayList<Container.Filter>();
 		this.credEditorsRegistry = credEditorsRegistry;
 		
-		addContainerProperty("entity", Long.class, null);
+		addContainerProperty("entity", String.class, null);
 		addContainerProperty("type", String.class, "");
 		addContainerProperty("identity", String.class, "");
 		addContainerProperty("status", String.class, "");
@@ -116,7 +120,7 @@ public class IdentitiesTable extends TreeTable
 		setColumnCollapsed("local", true);
 		setColumnCollapsed("credReq", true);
 		
-		setColumnWidth("entity", 60);
+		setColumnWidth("entity", 200);
 		setColumnWidth("type", 100);
 		setColumnWidth("status", 100);
 		setColumnWidth("local", 100);
@@ -148,19 +152,19 @@ public class IdentitiesTable extends TreeTable
 				{
 					IdentitiesTable.this.selected = null;
 					bus.fireEvent(new EntityChangedEvent(null, group));
-				} else if (selected instanceof Entity)
+				} else if (selected instanceof EntityWithLabel)
 				{
 					if (selected.equals(IdentitiesTable.this.selected))
 						return;
-					IdentitiesTable.this.selected = (Entity)selected;
-					bus.fireEvent(new EntityChangedEvent((Entity)selected, group));
+					IdentitiesTable.this.selected = ((EntityWithLabel)selected).getEntity();
+					bus.fireEvent(new EntityChangedEvent((EntityWithLabel)selected, group));
 				} else if (selected instanceof IdentityWithEntity)
 				{
 					IdentityWithEntity identity = (IdentityWithEntity) selected;
-					if (identity.getEntity().equals(IdentitiesTable.this.selected))
+					if (identity.getEntityWithLabel().getEntity().equals(IdentitiesTable.this.selected))
 						return;
-					IdentitiesTable.this.selected = identity.getEntity();
-					bus.fireEvent(new EntityChangedEvent(identity.getEntity(), group));
+					IdentitiesTable.this.selected = identity.getEntityWithLabel().getEntity();
+					bus.fireEvent(new EntityChangedEvent(identity.getEntityWithLabel(), group));
 				}
 			}
 		});
@@ -185,6 +189,8 @@ public class IdentitiesTable extends TreeTable
 	public void setInput(String group, List<Long> entities) throws EngineException
 	{
 		this.group = group;
+		AttributeType nameAt = attrMan.getAttributeTypeWithSingeltonMetadata(EntityNameMetadataProvider.NAME);
+		this.entityNameAttribute = nameAt == null ? null : nameAt.getName();
 		data.clear();
 		for (Long entity: entities)
 			resolveEntity(entity); 
@@ -287,15 +293,14 @@ public class IdentitiesTable extends TreeTable
 	@SuppressWarnings("unchecked")
 	private Object addRow(Identity id, Entity ent, Map<String, Attribute<?>> attributes)
 	{
-		Object itemId = id == null ? ent : new IdentityWithEntity(id, ent);
-		setColumnWidth("entity", 60);
-		setColumnWidth("type", 100);
-		setColumnWidth("status", 100);
-		setColumnWidth("local", 100);
-		setColumnWidth("credReq", 180);
-		
+		String label = null;
+		if (entityNameAttribute != null && attributes.containsKey(entityNameAttribute))
+			label = attributes.get(entityNameAttribute).getValues().get(0).toString() + " ";
+		EntityWithLabel entWithLabel = new EntityWithLabel(ent, label);
+		Object itemId = id == null ? entWithLabel : new IdentityWithEntity(id, entWithLabel);
 		Item newItem = addItem(itemId);
-		newItem.getItemProperty("entity").setValue(ent.getId());
+		
+		newItem.getItemProperty("entity").setValue(entWithLabel.toString());
 		newItem.getItemProperty("credReq").setValue(ent.getCredentialInfo().getCredentialRequirementId());
 		newItem.getItemProperty("status").setValue(msg.getMessage("EntityState."+ent.getState().name()));
 		if (id != null)
@@ -413,15 +418,15 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final long entityId = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntity().getId() : ((Entity)target).getId();
-			new ConfirmDialog(msg, msg.getMessage("Identities.confirmRemoveFromGroup", entityId, group),
+			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
+			new ConfirmDialog(msg, msg.getMessage("Identities.confirmRemoveFromGroup", entity, group),
 					new ConfirmDialog.Callback()
 			{
 				@Override
 				public void onConfirm()
 				{
-					removeFromGroup(entityId);
+					removeFromGroup(entity.getEntity().getId());
 				}
 			}).show();
 		}
@@ -462,9 +467,9 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final long entityId = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntity().getId() : ((Entity)target).getId();
-			new IdentityCreationDialog(msg, entityId, identitiesMan,  
+			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
+			new IdentityCreationDialog(msg, entity.getEntity().getId(), identitiesMan,  
 					identityEditorReg, new IdentityCreationDialog.Callback()
 					{
 						@Override
@@ -487,15 +492,15 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final long entityId = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntity().getId() : ((Entity)target).getId();
-			new ConfirmDialog(msg, msg.getMessage("Identities.confirmEntityDelete", entityId),
+			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
+			new ConfirmDialog(msg, msg.getMessage("Identities.confirmEntityDelete", entity),
 					new ConfirmDialog.Callback()
 			{
 				@Override
 				public void onConfirm()
 				{
-					removeEntity(entityId);
+					removeEntity(entity.getEntity().getId());
 				}
 			}).show();
 		}
@@ -545,15 +550,15 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final long entityId = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntity().getId() : ((Entity)target).getId();
-			EntityState currentState = data.get(entityId).getEntity().getState();
-			new ChangeEntityStateDialog(msg, entityId, currentState, new ChangeEntityStateDialog.Callback()
+			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
+			EntityState currentState = data.get(entity.getEntity().getId()).getEntity().getState();
+			new ChangeEntityStateDialog(msg, entity, currentState, new ChangeEntityStateDialog.Callback()
 			{
 				@Override
 				public boolean onChanged(EntityState newState)
 				{
-					return setEntityStatus(entityId, newState);
+					return setEntityStatus(entity.getEntity().getId(), newState);
 				}
 			}).show();
 		}
@@ -570,11 +575,11 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final long entityId = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntity().getId() : ((Entity)target).getId();
-			IdentitiesAndAttributes info = data.get(entityId);
+			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
+			IdentitiesAndAttributes info = data.get(entity.getEntity().getId());
 			String currentCredId = info.getEntity().getCredentialInfo().getCredentialRequirementId();
-			new CredentialRequirementDialog(msg, entityId, currentCredId,
+			new CredentialRequirementDialog(msg, entity, currentCredId,
 					identitiesMan, authnMan, new Callback()
 			{
 				@Override
@@ -597,9 +602,9 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			Entity entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntity() : (Entity)target;
-			new CredentialsChangeDialog(msg, entity.getId(), authnMan, identitiesMan,
+			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
+			new CredentialsChangeDialog(msg, entity.getEntity().getId(), authnMan, identitiesMan,
 					credEditorsRegistry, new CredentialsChangeDialog.Callback()
 					{
 						@Override
@@ -618,6 +623,7 @@ public class IdentitiesTable extends TreeTable
 		{
 			super(msg.getMessage("Identities.refresh"), 
 					Images.refresh.getResource());
+			setNeedsTarget(false);
 		}
 
 		@Override
@@ -627,13 +633,13 @@ public class IdentitiesTable extends TreeTable
 		}
 	}
 
-	private void showEntityDetails(Entity entity)
+	private void showEntityDetails(EntityWithLabel entity)
 	{
 		final EntityDetailsPanel identityDetailsPanel = new EntityDetailsPanel(msg);
 		Collection<String> groups;
 		try
 		{
-			groups = identitiesMan.getGroups(new EntityParam(entity.getId()));
+			groups = identitiesMan.getGroups(new EntityParam(entity.getEntity().getId()));
 		} catch (EngineException e)
 		{
 			ErrorPopup.showError(msg.getMessage("error"), e);
@@ -654,8 +660,8 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final Entity entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntity() : ((Entity)target);
+			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
 			showEntityDetails(entity);
 		}
 	}
@@ -671,10 +677,10 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			Entity entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntity() : ((Entity)target);
+			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
 			EntityAttributesClassesDialog dialog = new EntityAttributesClassesDialog(msg, group, 
-					entity.getId(), attrMan, groupsMan, new EntityAttributesClassesDialog.Callback()
+					entity, attrMan, groupsMan, new EntityAttributesClassesDialog.Callback()
 					{
 						@Override
 						public void onChange()
@@ -724,8 +730,8 @@ public class IdentitiesTable extends TreeTable
 	public static class IdentityWithEntity
 	{
 		private Identity identity;
-		private Entity entity;
-		public IdentityWithEntity(Identity identity, Entity entity)
+		private EntityWithLabel entity;
+		public IdentityWithEntity(Identity identity, EntityWithLabel entity)
 		{
 			super();
 			this.identity = identity;
@@ -735,7 +741,7 @@ public class IdentitiesTable extends TreeTable
 		{
 			return identity;
 		}
-		public Entity getEntity()
+		public EntityWithLabel getEntityWithLabel()
 		{
 			return entity;
 		}

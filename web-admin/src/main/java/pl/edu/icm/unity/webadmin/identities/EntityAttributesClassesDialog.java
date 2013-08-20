@@ -27,6 +27,7 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webadmin.attributeclass.ACTwinColSelect;
 import pl.edu.icm.unity.webadmin.attributeclass.AbstractAttributesClassesDialog;
 import pl.edu.icm.unity.webadmin.attributeclass.EffectiveAttrClassViewer;
+import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -40,22 +41,22 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 public class EntityAttributesClassesDialog extends AbstractAttributesClassesDialog
 {
-	private long entityId;
+	private EntityWithLabel entity;
 	private Table groupAcs;
 	private Callback callback;
 	
-	public EntityAttributesClassesDialog(UnityMessageSource msg, String group, long entityId, 
+	public EntityAttributesClassesDialog(UnityMessageSource msg, String group, EntityWithLabel entity, 
 			AttributesManagement attrMan, GroupsManagement groupsMan, Callback callback)
 	{
 		super(msg, group, attrMan, groupsMan, msg.getMessage("EntityAttributesClasses.caption"));
-		this.entityId = entityId;
+		this.entity = entity;
 		this.callback = callback;
 	}
 
 	@Override
 	protected Component getContents() throws EngineException
 	{
-		Label info = new Label(msg.getMessage("EntityAttributesClasses.entityInfo", entityId, groupPath));
+		Label info = new Label(msg.getMessage("EntityAttributesClasses.entityInfo", entity, groupPath));
 		info.setStyleName(Styles.bold.toString());
 		
 		acs = new ACTwinColSelect(msg.getMessage("AttributesClass.availableACs"),
@@ -99,8 +100,8 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 	{
 		loadACsData();
 		
-		Collection<AttributesClass> curClasses = 
-				attrMan.getEntityAttributeClasses(new EntityParam(entityId), groupPath);
+		Collection<AttributesClass> curClasses = attrMan.getEntityAttributeClasses(
+				new EntityParam(entity.getEntity().getId()), groupPath);
 		Set<String> currentSel = new HashSet<>(curClasses.size());
 		for (AttributesClass ac: curClasses)
 			currentSel.add(ac.getName());
@@ -119,7 +120,8 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 		Set<String> selected = (Set<String>) acs.getValue();
 		try
 		{
-			attrMan.setEntityAttributeClasses(new EntityParam(entityId), groupPath, selected);
+			attrMan.setEntityAttributeClasses(new EntityParam(entity.getEntity().getId()), 
+					groupPath, selected);
 			callback.onChange();
 			close();
 		} catch (EngineException e)

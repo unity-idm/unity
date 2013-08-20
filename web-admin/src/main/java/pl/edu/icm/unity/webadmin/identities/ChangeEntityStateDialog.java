@@ -10,6 +10,7 @@ import com.vaadin.ui.Label;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 
 /**
@@ -18,16 +19,16 @@ import pl.edu.icm.unity.webui.common.EnumComboBox;
  */
 public class ChangeEntityStateDialog extends AbstractDialog
 {
-	private long entityId;
+	private EntityWithLabel entity;
 	protected Callback callback;
 	
 	private EnumComboBox<EntityState> entityState;
 	private final EntityState initialState;
 	
-	public ChangeEntityStateDialog(UnityMessageSource msg, long entityId, EntityState currentState, Callback callback)
+	public ChangeEntityStateDialog(UnityMessageSource msg, EntityWithLabel entity, EntityState currentState, Callback callback)
 	{
 		super(msg, msg.getMessage("ChangeEntityStateDialog.caption"));
-		this.entityId = entityId;
+		this.entity = entity;
 		this.callback = callback;
 		this.defaultSizeUndfined = true;
 		this.initialState = currentState;
@@ -36,7 +37,7 @@ public class ChangeEntityStateDialog extends AbstractDialog
 	@Override
 	protected FormLayout getContents()
 	{
-		Label info = new Label(msg.getMessage("ChangeEntityStateDialog.info", entityId));
+		Label info = new Label(msg.getMessage("ChangeEntityStateDialog.info", entity));
 		entityState = new EnumComboBox<EntityState>(msg.getMessage("ChangeEntityStateDialog.newState"), msg, 
 				"EntityState.", EntityState.class, initialState);
 		
