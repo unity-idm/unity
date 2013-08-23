@@ -120,7 +120,7 @@ public class InternalEndpointManagement
 			return Constants.MAPPER.writeValueAsBytes(root);
 		} catch (JsonProcessingException e)
 		{
-			throw new InternalException("Can't deserialize JSON endpoint state", e);
+			throw new InternalException("Can't serialize JSON endpoint state", e);
 		}
 
 	}

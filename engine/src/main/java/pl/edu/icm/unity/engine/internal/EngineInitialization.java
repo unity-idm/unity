@@ -28,12 +28,14 @@ import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.notifications.EmailFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
@@ -107,6 +109,9 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private AttributeStatementsCleaner attributeStatementsCleaner;
 	@Autowired
+	@Qualifier("insecure")
+	private NotificationsManagement notManagement;
+	@Autowired
 	private List<ServerInitializer> initializers;
 	
 	private long endpointsLoadTime;
@@ -173,6 +178,7 @@ public class EngineInitialization extends LifecycleBase
 		initializeCredentialReqirements();
 		initializeAuthenticators();
 		initializeEndpoints();
+		initializeNotifications();
 		runInitializers();
 	}
 	
@@ -499,6 +505,23 @@ public class EngineInitialization extends LifecycleBase
 				authnManagement.addCredentialRequirement(cr);
 				log.info(" - " + name + " " + elements.toString());
 			}
+		}
+	}
+	
+	
+	private void initializeNotifications()
+	{
+		File mailCfgFile = config.getFileValue(UnityServerConfiguration.MAIL_CONF, false);
+		try
+		{
+			if (notManagement.getNotificationChannels().size() > 0)
+				return;
+			String mailCfg = FileUtils.readFileToString(mailCfgFile);
+			notManagement.addNotificationChannel(EmailFacility.NAME, "default e-mail channel", mailCfg);
+		} catch (Exception e)
+		{
+			log.fatal("Can't load e-mail notification channel configuration", e);
+			throw new InternalException("Can't load e-mail notification channel configuration", e);
 		}
 	}
 	

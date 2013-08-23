@@ -130,6 +130,7 @@ public class InitializerCommon
 		((StringAttributeSyntax)email.getValueType()).setMaxLength(33);
 		((StringAttributeSyntax)email.getValueType()).setMinLength(5);
 		((StringAttributeSyntax)email.getValueType()).setRegexp("[^@]+@.+\\..+");
+		email.getMetadata().put(ContactEmailMetadataProvider.NAME, "");
 		if (!existingATs.contains(email))
 			attrMan.addAttributeType(email);
 	}

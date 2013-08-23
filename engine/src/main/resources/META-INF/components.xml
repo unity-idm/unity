@@ -22,6 +22,7 @@
 	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getServerManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getEndpointsManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getAuthenticationManagementInstance"/>
+	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getNotificationsManagementInstance"/>
 
 	<!-- The real implementation, with a real authorization module injected. However those beans are plain,
 	are not generating any events. -->	
@@ -46,7 +47,10 @@
 	<bean primary="false" class="pl.edu.icm.unity.engine.PreferencesManagementImpl">
 		<qualifier value="plain"/>
 	</bean>
-	
+	<bean primary="false" class="pl.edu.icm.unity.engine.NotificationsManagementImpl">
+		<qualifier value="plain"/>
+	</bean>
+		
 	<!-- Those beans are the same as the 'primary' beans above, but do not perform authorization. 
 	Must be used with qualifier. -->
 	<bean primary="false" class="pl.edu.icm.unity.engine.GroupsManagementImpl">
@@ -77,6 +81,10 @@
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.NotificationsManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
 
 	<bean class="pl.edu.icm.unity.engine.internal.InternalEndpointManagement"/>
 	<bean class="pl.edu.icm.unity.engine.internal.EngineInitialization"/>
@@ -84,10 +92,14 @@
 	<bean class="pl.edu.icm.unity.engine.internal.IdentityResolverImpl"/>
 	<bean class="pl.edu.icm.unity.engine.internal.EndpointsUpdater"/>
 	<bean class="pl.edu.icm.unity.engine.internal.AttributeStatementsCleaner"/>
+	<bean class="pl.edu.icm.unity.engine.internal.NotificationsManagementCore"/>
 	
 	<bean primary="true" class="pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl"/>
 	<bean primary="false" name="noauthz" class="pl.edu.icm.unity.engine.authz.InternalNoAuthzImpl"/>
 
 	<bean class="pl.edu.icm.unity.sysattrs.SystemAttributeTypes"/>
 	<bean class="pl.edu.icm.unity.utils.DemoContentInitializer"/>
+	
+	<bean class="pl.edu.icm.unity.engine.notifications.NotificationProducer"/>
+	<bean class="pl.edu.icm.unity.engine.notifications.EmailFacility"/>
 </beans>

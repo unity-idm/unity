@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
+import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.ServerManagement;
 
 /**
@@ -30,6 +31,8 @@ public class EventProxyBuilderSystem
 	private EndpointManagement endpointMan;
 	@Autowired @Qualifier("plain")
 	private AuthenticationManagement authnMan;
+	@Autowired @Qualifier("plain")
+	private NotificationsManagement notMan;
 	
 	@Autowired
 	private EventProcessor eventProcessor;
@@ -57,5 +60,13 @@ public class EventProxyBuilderSystem
 				new Class[] {AuthenticationManagement.class}, 
 				new EventDecoratingHandler(authnMan, eventProcessor, 
 						AuthenticationManagement.class.getSimpleName()));
+	}
+
+	public NotificationsManagement getNotificationsManagementInstance()
+	{
+		return (NotificationsManagement) Proxy.newProxyInstance(classLoader, 
+				new Class[] {NotificationsManagement.class}, 
+				new EventDecoratingHandler(notMan, eventProcessor, 
+						NotificationsManagement.class.getSimpleName()));
 	}
 }

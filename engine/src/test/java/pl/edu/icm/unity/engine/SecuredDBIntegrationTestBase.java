@@ -27,6 +27,7 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.authn.IdentityResolver;
@@ -67,6 +68,8 @@ public abstract class SecuredDBIntegrationTestBase
 	protected IdentityResolver identityResolver;
 	@Autowired
 	protected AuthenticationManagement authnMan;
+	@Autowired
+	protected NotificationsManagement notMan;
 	@Autowired
 	protected JettyServer httpServer;
 	@Autowired 
