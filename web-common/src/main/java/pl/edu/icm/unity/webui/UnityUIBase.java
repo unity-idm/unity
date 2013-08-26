@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 
 import com.vaadin.server.DefaultErrorHandler;
@@ -24,6 +25,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UnityUIBase.class);
 	
 	protected UnityMessageSource msg;
+	protected CancelHandler cancelHandler;
 	
 	public UnityUIBase(UnityMessageSource msg)
 	{
@@ -36,6 +38,13 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	{
 		setErrorHandler(new ErrorHandlerImpl());
 		appInit(request);
+	}
+
+
+	@Override
+	public void setCancelHandler(CancelHandler handler)
+	{
+		this.cancelHandler = handler;
 	}
 	
 	/**

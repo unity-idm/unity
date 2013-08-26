@@ -511,11 +511,16 @@ public class EngineInitialization extends LifecycleBase
 	
 	private void initializeNotifications()
 	{
-		File mailCfgFile = config.getFileValue(UnityServerConfiguration.MAIL_CONF, false);
 		try
 		{
 			if (notManagement.getNotificationChannels().size() > 0)
 				return;
+			if (!config.isSet(UnityServerConfiguration.MAIL_CONF))
+			{
+				log.info("Mail configuration file is not set, mail notification channel won't be loaded.");
+				return;
+			}
+			File mailCfgFile = config.getFileValue(UnityServerConfiguration.MAIL_CONF, false);
 			String mailCfg = FileUtils.readFileToString(mailCfgFile);
 			notManagement.addNotificationChannel(EmailFacility.NAME, "default e-mail channel", mailCfg);
 		} catch (Exception e)

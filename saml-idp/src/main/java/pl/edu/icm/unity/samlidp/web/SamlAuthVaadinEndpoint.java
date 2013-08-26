@@ -24,6 +24,7 @@ import pl.edu.icm.unity.webui.UnityVaadinServlet;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
+import pl.edu.icm.unity.webui.authn.CancelHandler;
 
 /**
  * Extends a simple {@link VaadinEndpoint} with configuration of SAML authn filter. Also SAML configuration
@@ -72,6 +73,11 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 
 		UnityVaadinServlet authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticators);
+		
+		CancelHandler cancelHandler = new SamlAuthnCancelHandler(freemarkerHandler,
+				description.getContextAddress()+AUTHENTICATION_PATH);
+		authenticationServlet.setCancelHandler(cancelHandler);
+		
 		ServletHolder authnServletHolder = createServletHolder(authenticationServlet); 
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);

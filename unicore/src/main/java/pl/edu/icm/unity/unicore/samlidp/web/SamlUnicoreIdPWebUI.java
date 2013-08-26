@@ -20,6 +20,7 @@ import pl.edu.icm.unity.samlidp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.samlidp.saml.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.samlidp.web.EopException;
 import pl.edu.icm.unity.samlidp.web.SamlIdPWebUI;
+import pl.edu.icm.unity.samlidp.web.SamlResponseHandler;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
@@ -39,9 +40,7 @@ import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 import com.vaadin.annotations.Theme;
-import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
@@ -79,7 +78,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	@Override
 	protected void appInit(VaadinRequest request)
 	{
-		SAMLAuthnContext samlCtx = getContext();
+		SAMLAuthnContext samlCtx = SamlResponseHandler.getContext();
 		samlWithEtdProcessor = new AuthnWithETDResponseProcessor(samlCtx, Calendar.getInstance());
 		super.appInit(request);
 	}
@@ -114,13 +113,13 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		{
 			//we kill the session as the user may want to log as different user if has access to several entities.
 			log.debug("SAML problem when handling client request", e);
-			handleException(e, true);
+			samlResponseHandler.handleException(e, true);
 			return;
 		} catch (Exception e)
 		{
 			log.error("Engine problem when handling client request", e);
 			//we kill the session as the user may want to log as different user if has access to several entities.
-			handleException(e, true);
+			samlResponseHandler.handleException(e, true);
 			return;
 		}
 		
@@ -155,7 +154,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		{
 			log.error("Engine problem when processing stored preferences", e);
 			//we kill the session as the user may want to log as different user if has access to several entities.
-			handleException(e, true);
+			samlResponseHandler.handleException(e, true);
 			return;
 		}
 	}
@@ -189,7 +188,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	{
 		try
 		{
-			SAMLAuthnContext samlCtx = getContext();
+			SAMLAuthnContext samlCtx = SamlResponseHandler.getContext();
 			SamlPreferencesWithETD preferences = getPreferencesWithETD();
 			updatePreferencesFromUI(preferences, samlCtx, defaultAccept);
 			SamlPreferencesWithETD.savePreferences(preferencesMan, preferences);
@@ -212,15 +211,10 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	}
 	
 	@Override
-	protected void returnSamlResponse(ResponseDocument respDoc)
+	protected String getMyAddress()
 	{
-		VaadinSession.getCurrent().setAttribute(ResponseDocument.class, respDoc);
-		String thisAddress = endpointDescription.getContextAddress() + 
-				SamlUnicoreIdPWebEndpointFactory.SERVLET_PATH;
-		VaadinSession.getCurrent().addRequestHandler(new SendResponseRequestHandler());
-		Page.getCurrent().open(thisAddress, null);		
+		return endpointDescription.getContextAddress()+SamlUnicoreIdPWebEndpointFactory.SERVLET_PATH;
 	}
-
 	
 	@Override
 	protected void confirm() throws EopException
@@ -234,9 +228,9 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 					getRestrictions());
 		} catch (Exception e)
 		{
-			handleException(e, false);
+			samlResponseHandler.handleException(e, false);
 			return;
 		}
-		returnSamlResponse(respDoc);
+		samlResponseHandler.returnSamlResponse(respDoc);
 	}
 }

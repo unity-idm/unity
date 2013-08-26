@@ -76,6 +76,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			this.authenticators.add(map);
 		}
 	}
+
 	
 	@Override
 	protected void appInit(final VaadinRequest request)
@@ -83,7 +84,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		Component[] components = new Component[authenticators.size()];
 		for (int i=0; i<components.length; i++)
 			components[i] = new AuthenticatorSetComponent(authenticators.get(i), 
-					description.getAuthenticatorSets().get(i), msg, authnProcessor);
+					description.getAuthenticatorSets().get(i), msg, authnProcessor, cancelHandler);
 		Component all = buildAllSetsUI(components);
 		
 		VerticalLayout main = new VerticalLayout();

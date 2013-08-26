@@ -23,6 +23,7 @@ import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 
 import com.vaadin.server.DeploymentConfiguration;
@@ -46,6 +47,7 @@ public class UnityVaadinServlet extends VaadinServlet
 	private transient String uiBeanName;
 	private transient EndpointDescription description;
 	private transient List<Map<String, BindingAuthn>> authenticators;
+	private transient CancelHandler cancelHandler;
 	
 	public UnityVaadinServlet(ApplicationContext applicationContext, String uiBeanName,
 			EndpointDescription description,
@@ -57,6 +59,11 @@ public class UnityVaadinServlet extends VaadinServlet
 		this.description = description;
 		this.authenticators = authenticators;
 		this.config = applicationContext.getBean(UnityServerConfiguration.class);
+	}
+	
+	public void setCancelHandler(CancelHandler cancelHandler)
+	{
+		this.cancelHandler = cancelHandler;
 	}
 	
 	@Override
@@ -131,6 +138,7 @@ public class UnityVaadinServlet extends VaadinServlet
 			{
 				VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, uiBeanName,
 						description, authenticators);
+				uiProv.setCancelHandler(cancelHandler);
 				event.getSession().addUIProvider(uiProv);
 				DeploymentConfiguration depCfg = event.getService().getDeploymentConfiguration();
 				Properties properties = depCfg.getInitParameters();

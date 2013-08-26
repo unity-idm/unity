@@ -102,7 +102,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				"and then, after a space an optional, short name which will be presented in the UI. By default the 'en' locale is installed."));
 		defaults.put(DEFAULT_LOCALE, new PropertyMD("en").setCategory(mainCat).
 				setDescription("The default locale to be used. Must be one of the enabled locales."));
-		defaults.put(MAIL_CONF, new PropertyMD("conf/mail.properties").setPath().setCategory(mainCat).
+		defaults.put(MAIL_CONF, new PropertyMD().setPath().setCategory(mainCat).
 				setDescription("A configuration file for the mail notification subsystem."));
 		defaults.put(RECREATE_ENDPOINTS_ON_STARTUP, new PropertyMD("false").setDescription(
 				"If this options is true then all endpoints are initialized from configuration at each startup. If it is false then the persisted endpoints are loaded and configuration is used only at the initial start of the server."));

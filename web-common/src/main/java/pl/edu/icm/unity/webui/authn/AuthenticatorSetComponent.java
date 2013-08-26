@@ -41,7 +41,8 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 	private UsernameComponent usernameComponent;
 	
 	public AuthenticatorSetComponent(Map<String, VaadinAuthentication> authenticators,
-			AuthenticatorSet set, UnityMessageSource msg, AuthenticationProcessor authnProcessor)
+			AuthenticatorSet set, UnityMessageSource msg, AuthenticationProcessor authnProcessor,
+			final CancelHandler cancelHandler)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
@@ -78,8 +79,26 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		authenticateButton.addClickListener(new LoginButtonListener(authenticators, set, usernameComponent));
 		addComponent(authenticatorsContainer);
 		
-		addComponent(authenticateButton);
-		setComponentAlignment(authenticateButton, Alignment.MIDDLE_CENTER);
+		HorizontalLayout buttons = new HorizontalLayout();
+		buttons.setSpacing(true);
+		buttons.addComponent(authenticateButton);
+		
+		if (cancelHandler != null)
+		{
+			Button cancel = new Button(msg.getMessage("cancel"));
+			cancel.addClickListener(new Button.ClickListener()
+			{
+				@Override
+				public void buttonClick(ClickEvent event)
+				{
+					cancelHandler.onCancel();
+				}
+			});
+			buttons.addComponent(cancel);
+		}
+		
+		addComponent(buttons);
+		setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 	}
 	
 	private class LoginButtonListener implements ClickListener

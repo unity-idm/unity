@@ -4,20 +4,16 @@
  */
 package pl.edu.icm.unity.samlidp.web;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.apache.xml.security.utils.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -30,7 +26,6 @@ import pl.edu.icm.unity.samlidp.preferences.SamlPreferences;
 import pl.edu.icm.unity.samlidp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.samlidp.saml.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.samlidp.saml.processor.AuthnResponseProcessor;
-import pl.edu.icm.unity.samlidp.web.filter.SamlParseFilter;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
@@ -58,9 +53,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.Page;
-import com.vaadin.server.RequestHandler;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -79,7 +72,6 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
-import eu.unicore.samly2.exceptions.SAMLServerException;
 
 /**
  * The main UI of the SAML web IdP. Fairly simple: shows who asks, what is going to be sent,
@@ -103,6 +95,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	protected PreferencesManagement preferencesMan;
 	
 	protected AuthnResponseProcessor samlProcessor;
+	protected SamlResponseHandler samlResponseHandler;
 	protected List<Identity> validIdentities;
 	protected Identity selectedIdentity;
 	protected Map<String, Attribute<?>> attributes;
@@ -129,23 +122,6 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			List<Map<String, BindingAuthn>> authenticators)
 	{
 		this.endpointDescription = description;
-	}
-	
-	protected static SAMLAuthnContext getContext()
-	{
-		WrappedSession httpSession = VaadinSession.getCurrent().getSession();
-		SAMLAuthnContext ret = (SAMLAuthnContext) httpSession.getAttribute(SamlParseFilter.SESSION_SAML_CONTEXT);
-		if (ret == null)
-			throw new IllegalStateException("No SAML context in UI");
-		return ret;
-	}
-	
-	protected static void cleanContext()
-	{
-		VaadinSession vSession = VaadinSession.getCurrent();
-		vSession.setAttribute(ResponseDocument.class, null);
-		WrappedSession httpSession = vSession.getSession();
-		httpSession.removeAttribute(SamlParseFilter.SESSION_SAML_CONTEXT);
 	}
 	
 	protected Entity getAuthenticatedEntity() throws EngineException
@@ -180,13 +156,19 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		return ret;
 	}
 	
+	protected String getMyAddress()
+	{
+		return endpointDescription.getContextAddress()+SamlIdPWebEndpointFactory.SERVLET_PATH;
+	}
 	
 	@Override
 	protected void appInit(VaadinRequest request)
 	{
-		SAMLAuthnContext samlCtx = getContext();
+		SAMLAuthnContext samlCtx = SamlResponseHandler.getContext();
 		samlProcessor = new AuthnResponseProcessor(samlCtx, Calendar.getInstance());
-
+		samlResponseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor, 
+				getMyAddress());
+		
 		VerticalLayout vmain = new VerticalLayout();
 		TopHeaderLight header = new TopHeaderLight(endpointDescription.getId(), msg);
 		vmain.addComponent(header);
@@ -252,13 +234,13 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		{
 			//we kill the session as the user may want to log as different user if has access to several entities.
 			log.debug("SAML problem when handling client request", e);
-			handleException(e, true);
+			samlResponseHandler.handleException(e, true);
 			return;
 		} catch (Exception e)
 		{
 			log.error("Engine problem when handling client request", e);
 			//we kill the session as the user may want to log as different user if has access to several entities.
-			handleException(e, true);
+			samlResponseHandler.handleException(e, true);
 			return;
 		}
 		
@@ -413,7 +395,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		{
 			log.error("Engine problem when processing stored preferences", e);
 			//we kill the session as the user may want to log as different user if has access to several entities.
-			handleException(e, true);
+			samlResponseHandler.handleException(e, true);
 			return;
 		}
 	}
@@ -492,7 +474,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	{
 		try
 		{
-			SAMLAuthnContext samlCtx = getContext();
+			SAMLAuthnContext samlCtx = SamlResponseHandler.getContext();
 			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan);
 			updatePreferencesFromUI(preferences, samlCtx, defaultAccept);
 			SamlPreferences.savePreferences(preferencesMan, preferences);
@@ -506,7 +488,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	{
 		storePreferences(false);
 		AuthenticationException ea = new AuthenticationException("Authentication was declined");
-		handleException(ea, false);
+		samlResponseHandler.handleException(ea, false);
 	}
 	
 	protected void confirm() throws EopException
@@ -519,96 +501,13 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes);
 		} catch (Exception e)
 		{
-			handleException(e, false);
+			samlResponseHandler.handleException(e, false);
 			return;
 		}
-		returnSamlResponse(respDoc);
+		samlResponseHandler.returnSamlResponse(respDoc);
 	}
-	
-	protected void handleException(Exception e, boolean destroySession) throws EopException
-	{
-		SAMLServerException convertedException = samlProcessor.convert2SAMLError(e, null, true);
-		ResponseDocument respDoc = samlProcessor.getErrorResponse(convertedException);
-		returnSamlErrorResponse(respDoc, convertedException, destroySession);
-		throw new EopException();
-	}
-	
-	protected void returnSamlErrorResponse(ResponseDocument respDoc, SAMLServerException error, boolean destroySession)
-	{
-		VaadinSession.getCurrent().setAttribute(SessionDisposal.class, 
-				new SessionDisposal(error, destroySession));
-		VaadinSession.getCurrent().setAttribute(SAMLServerException.class, error);
-		returnSamlResponse(respDoc);
-	}
-	
-	protected void returnSamlResponse(ResponseDocument respDoc)
-	{
-		VaadinSession.getCurrent().setAttribute(ResponseDocument.class, respDoc);
-		String thisAddress = endpointDescription.getContextAddress() + SamlIdPWebEndpointFactory.SERVLET_PATH;
-		VaadinSession.getCurrent().addRequestHandler(new SendResponseRequestHandler());
-		Page.getCurrent().open(thisAddress, null);		
-	}
-	
-	/**
-	 * This handler intercept all messages and checks if there is a SAML response in the session.
-	 * If it is present then the appropriate Freemarker page is rendered which redirects the user's browser 
-	 * back to the requesting SP.
-	 * @author K. Benedyczak
-	 */
-	public class SendResponseRequestHandler implements RequestHandler
-	{
-		@Override
-		public boolean handleRequest(VaadinSession session, VaadinRequest request, VaadinResponse response)
-						throws IOException
-		{
-			ResponseDocument samlResponse = session.getAttribute(ResponseDocument.class);
-			if (samlResponse == null)
-				return false;
-			String assertion = samlResponse.xmlText();
-			String encodedAssertion = Base64.encode(assertion.getBytes());
-			SessionDisposal error = session.getAttribute(SessionDisposal.class);
-			
-			SAMLAuthnContext samlCtx = getContext();
-			String serviceUrl = samlCtx.getRequestDocument().getAuthnRequest().getAssertionConsumerServiceURL();
-			Map<String, String> data = new HashMap<String, String>();
-			data.put("SAMLResponse", encodedAssertion);
-			data.put("samlService", serviceUrl);
-			if (error != null)
-				data.put("error", error.getE().getMessage());
-			if (samlCtx.getRelayState() != null)
-				data.put("RelayState", samlCtx.getRelayState());
-			
-			cleanContext();
-			if (error!= null && error.isDestroySession())
-				session.getSession().invalidate();
-			response.setContentType("application/xhtml+xml; charset=utf-8");
-			PrintWriter writer = response.getWriter();
-			freemarkerHandler.process("finishSaml.ftl", data, writer);
-			return true;
-		}
-	}
-	
-	private static class SessionDisposal
-	{
-		private SAMLServerException e;
-		private boolean destroySession;
-		
-		public SessionDisposal(SAMLServerException e, boolean destroySession)
-		{
-			this.e = e;
-			this.destroySession = destroySession;
-		}
 
-		protected SAMLServerException getE()
-		{
-			return e;
-		}
-
-		protected boolean isDestroySession()
-		{
-			return destroySession;
-		}
-	}
+	
 	
 	private class AttributeHideHandler implements ValueChangeListener
 	{

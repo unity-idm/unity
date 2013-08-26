@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.webui.authn.CancelHandler;
 
 import com.vaadin.server.UIClassSelectionEvent;
 import com.vaadin.server.UICreateEvent;
@@ -29,6 +30,7 @@ public class VaadinUIProvider extends UIProvider
 	private transient String uiBeanName;
 	private transient EndpointDescription description;
 	private transient List<Map<String, BindingAuthn>> authenticators;
+	private transient CancelHandler cancelHandler;
 
 	public VaadinUIProvider(ApplicationContext applicationContext, String uiBeanName,
 			EndpointDescription description,
@@ -39,6 +41,11 @@ public class VaadinUIProvider extends UIProvider
 		this.uiBeanName = uiBeanName;
 		this.description = description;
 		this.authenticators = authenticators;
+	}
+
+	public void setCancelHandler(CancelHandler cancelHandler)
+	{
+		this.cancelHandler = cancelHandler;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -55,6 +62,8 @@ public class VaadinUIProvider extends UIProvider
 		if (ui instanceof UnityWebUI)
 		{
 			((UnityWebUI)ui).configure(description, authenticators);
+			if (cancelHandler != null)
+				((UnityWebUI)ui).setCancelHandler(cancelHandler);
 		}
 		return ui;
 	}
