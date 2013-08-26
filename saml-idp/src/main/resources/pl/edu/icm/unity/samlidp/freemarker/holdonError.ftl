@@ -36,7 +36,7 @@ function forceContinue()
 	<div>
 	
 		<input type="submit" value="Try to continue"/>
-		<input type="button" value="Forcefully continue" name=button2 onclick="forceContinue()"/>
+		<input type="button" value="Forcefully continue" name="button2" onclick="forceContinue()"/>
 	</div>
 </form>
 
