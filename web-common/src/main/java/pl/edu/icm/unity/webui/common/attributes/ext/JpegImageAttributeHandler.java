@@ -25,13 +25,13 @@ import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.IntegerBoundEditor;
 import pl.edu.icm.unity.webui.common.LimitedByteArrayOuputStream;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
+import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 
 import com.vaadin.server.Resource;
 import com.vaadin.server.StreamResource;
@@ -384,6 +384,11 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 				maxWidth.setValue(initial.getMaxWidth());
 				maxHeight.setValue(initial.getMaxHeight());
 				maxSize.setValue(initial.getMaxSize());
+			} else
+			{
+				maxWidth.setValue(200);
+				maxHeight.setValue(200);
+				maxSize.setValue(1024000);
 			}
 			return fl;
 		}

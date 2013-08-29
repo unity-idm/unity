@@ -16,11 +16,11 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.webui.common.DoubleBoundEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
+import pl.edu.icm.unity.webui.common.boundededitors.DoubleBoundEditor;
 
 
 /**
@@ -104,6 +104,10 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler<Doub
 			{
 				max.setValue(initial.getMax());
 				min.setValue(initial.getMin());
+			} else
+			{
+				max.setValue(Double.MAX_VALUE);
+				min.setValue(0d);
 			}
 			fl.addComponents(min, max);
 			return fl;

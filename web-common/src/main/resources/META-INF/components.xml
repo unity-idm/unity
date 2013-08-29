@@ -26,7 +26,7 @@
 
 	<bean class="pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry"/>
 	<bean class="pl.edu.icm.unity.webui.common.attrmetadata.ext.EntityNameMetadataHandlerFactory"/>
-
+	<bean class="pl.edu.icm.unity.webui.common.attrmetadata.ext.ContactEmailMetadataHandlerFactory"/>
 
 	<bean class="pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry"/>
 

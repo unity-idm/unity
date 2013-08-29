@@ -18,11 +18,12 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.webui.common.IntegerBoundEditor;
+import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
+import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 
 
 /**
@@ -100,13 +101,12 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler<String> imp
 		public Component getEditor()
 		{
 			FormLayout fl = new FormLayout();
-			min = new TextField();
+			min = new RequiredTextField(msg);
 			min.setCaption(msg.getMessage("StringAttributeHandler.minLenE"));
 			min.addValidator(new IntegerRangeValidator(msg.getMessage("StringAttributeHandler.wrongMin"), 
 					0, Integer.MAX_VALUE));
-			min.setRequired(true);
-			min.setRequiredError(msg.getMessage("fieldRequired"));
 			min.setConverter(Integer.class);
+			min.setValue("0");
 			fl.addComponent(min);
 			max = new IntegerBoundEditor(msg, msg.getMessage("StringAttributeHandler.maxLenUndef"), 
 					msg.getMessage("NumericAttributeHandler.maxE"), Integer.MAX_VALUE);
@@ -119,6 +119,10 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler<String> imp
 				max.setValue(initial.getMaxLength());
 				min.setValue(Integer.toString(initial.getMinLength()));
 				regexp.setValue(initial.getRegexp());
+			} else
+			{
+				min.setValue("0");
+				max.setValue(200);
 			}
 			return fl;
 		}

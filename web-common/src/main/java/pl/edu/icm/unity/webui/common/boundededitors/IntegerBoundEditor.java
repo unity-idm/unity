@@ -2,9 +2,10 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common;
+package pl.edu.icm.unity.webui.common.boundededitors;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 
 import com.vaadin.data.util.converter.StringToIntegerConverter;
 import com.vaadin.data.validator.IntegerRangeValidator;
@@ -24,9 +25,11 @@ public class IntegerBoundEditor extends AbstractBoundEditor<Integer>
 	@Override
 	protected void updateValidators()
 	{
-		limit.removeAllValidators();
+		removeAllValidators();
+		
 		String range = AttributeTypeUtils.getBoundsDesc(msg, min, max);
-		limit.addValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError", range), 
+		addValidator(new ConditionalRequiredValidator<Integer>(msg, unlimited, Integer.class));
+		addValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError", range), 
 				min, max));		
 	}
 

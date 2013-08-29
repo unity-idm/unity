@@ -2,9 +2,12 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common;
+package pl.edu.icm.unity.webui.common.boundededitors;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
+import pl.edu.icm.unity.webui.common.LongRangeValidator;
+import pl.edu.icm.unity.webui.common.StringToLongConverter;
 
 /**
  * Shows a checkbox and a textfield to query for a limit number with optional unlimited setting.
@@ -21,9 +24,10 @@ public class LongBoundEditor extends AbstractBoundEditor<Long>
 	@Override
 	protected void updateValidators()
 	{
-		limit.removeAllValidators();
+		removeAllValidators();
 		String range = AttributeTypeUtils.getBoundsDesc(msg, min, max);
-		limit.addValidator(new LongRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError", range), 
+		addValidator(new ConditionalRequiredValidator<Long>(msg, unlimited, Long.class));
+		addValidator(new LongRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError", range), 
 				min, max));		
 	}
 

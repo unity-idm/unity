@@ -12,13 +12,13 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.RequiredTextField;
 
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.TwinColSelect;
 
 /**
@@ -54,10 +54,8 @@ public class CredentialRequirementEditor extends FormLayout
 	{
 		setWidth(100, Unit.PERCENTAGE);
 
-		name = new TextField();
+		name = new RequiredTextField(msg);
 		name.setCaption(msg.getMessage("CredentialRequirements.name"));
-		name.setRequired(true);
-		name.setRequiredError(msg.getMessage("fieldRequired"));
 		addComponent(name);
 		
 		description = new DescriptionTextArea(msg.getMessage("CredentialRequirements.description"));
@@ -79,7 +77,7 @@ public class CredentialRequirementEditor extends FormLayout
 		addComponent(requiredCredentials);
 		
 		CredentialRequirements cr = initial == null ? new CredentialRequirements(
-				"", "", new HashSet<String>()) : initial;
+				msg.getMessage("CredentialRequirements.defaultName"), "", new HashSet<String>()) : initial;
 		formItem = new BeanItem<CredentialRequirements>(cr);
 		if (initial != null)
 			formItem.getItemProperty("name").setReadOnly(true);

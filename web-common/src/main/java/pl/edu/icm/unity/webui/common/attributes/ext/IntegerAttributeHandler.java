@@ -18,11 +18,11 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.webui.common.LongBoundEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
+import pl.edu.icm.unity.webui.common.boundededitors.LongBoundEditor;
 
 
 /**
@@ -107,6 +107,10 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler<Long> impl
 			{
 				max.setValue(initial.getMax());
 				min.setValue(initial.getMin());
+			} else
+			{
+				max.setValue(Long.MAX_VALUE);
+				min.setValue(0l);
 			}
 			fl.addComponents(min, max);
 			return fl;

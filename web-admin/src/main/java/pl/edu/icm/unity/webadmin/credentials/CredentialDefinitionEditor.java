@@ -12,6 +12,7 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
@@ -24,7 +25,6 @@ import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.TextField;
 
 /**
  * Allows to edit a credential definition. Can be configured to edit an existing definition (name and is fixed,
@@ -63,10 +63,8 @@ public class CredentialDefinitionEditor extends FormLayout
 	{
 		setWidth(100, Unit.PERCENTAGE);
 
-		name = new TextField();
+		name = new RequiredTextField(msg);
 		name.setCaption(msg.getMessage("CredentialDefinition.name"));
-		name.setRequired(true);
-		name.setRequiredError(msg.getMessage("fieldRequired"));
 		addComponent(name);
 		
 		description = new DescriptionTextArea(msg.getMessage("CredentialDefinition.description"));
@@ -97,7 +95,7 @@ public class CredentialDefinitionEditor extends FormLayout
 		
 		String firstType = supportedTypes.iterator().next(); 
 		CredentialDefinition cd = initial == null ? new CredentialDefinition(
-				firstType, "", "") : initial;
+				firstType, msg.getMessage("CredentialDefinition.defaultName"), "") : initial;
 		formItem = new BeanItem<CredentialDefinition>(cd);
 		if (initial != null)
 		{

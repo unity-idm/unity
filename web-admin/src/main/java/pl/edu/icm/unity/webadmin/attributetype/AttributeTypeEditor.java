@@ -28,11 +28,12 @@ import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.FormValidator;
-import pl.edu.icm.unity.webui.common.IntegerBoundEditor;
+import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
+import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 
 /**
  * Allows to edit an attribute type. Can be configured to edit an existing attribute (name is fixed)
@@ -75,32 +76,28 @@ public class AttributeTypeEditor extends FormLayout
 		
 		initUI(toEdit);
 	}
-	
+
 	private void initUI(AttributeType toEdit)
 	{
 		setWidth(100, Unit.PERCENTAGE);
 
-		name = new TextField();
+		name = new RequiredTextField(msg);
 		if (toEdit != null)
 		{
 			name.setValue(toEdit.getName());
 			name.setReadOnly(true);
-		}
+		} else
+			name.setValue(msg.getMessage("AttributeType.defaultName"));
 		name.setCaption(msg.getMessage("AttributeType.name"));
-		name.setRequired(true);
-		name.setRequiredError(msg.getMessage("fieldRequired"));
 		addComponent(name);
 		
 		typeDescription = new DescriptionTextArea(msg.getMessage("AttributeType.description"));
 		addComponent(typeDescription);
 		
-		min = new TextField();
+		min = new RequiredTextField(msg);
 		min.setCaption(msg.getMessage("AttributeType.min"));
 		min.setConverter(new StringToIntegerConverter());
-		min.setRequired(true);
 		min.setNullRepresentation("");
-		min.setRequiredError(msg.getMessage("fieldRequired"));
-		min.setValidationVisible(true);
 		min.addValidator(new IntegerRangeValidator(msg.getMessage("AttributeType.invalidNumber"), 
 				0, Integer.MAX_VALUE));
 		addComponent(min);

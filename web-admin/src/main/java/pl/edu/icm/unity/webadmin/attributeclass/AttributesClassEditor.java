@@ -16,6 +16,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.RequiredTextField;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -23,7 +24,6 @@ import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.TwinColSelect;
 
 /**
@@ -58,9 +58,9 @@ public class AttributesClassEditor extends FormLayout
 	
 	private void initUI()
 	{
-		name = new TextField(msg.getMessage("AttributesClass.name"));
-		name.setRequired(true);
+		name = new RequiredTextField(msg.getMessage("AttributesClass.name"), msg);
 		name.setImmediate(true);
+		name.setValue(msg.getMessage("AttributesClass.defaultName"));
 		
 		typeDescription = new DescriptionTextArea(msg.getMessage("AttributesClass.description"));
 		
