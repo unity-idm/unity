@@ -106,6 +106,8 @@ public class CredentialResetSettings
 	public void deserializeFrom(ObjectNode node)
 	{
 		this.enabled = node.get("enable").asBoolean();
+		if (!enabled)
+			return;
 		this.maxTries = node.get("maxResends").asInt();
 		this.codeLength = node.get("codeLength").asInt();
 		this.requireEmailConfirmation = node.get("requireEmailConfirmation").asBoolean();

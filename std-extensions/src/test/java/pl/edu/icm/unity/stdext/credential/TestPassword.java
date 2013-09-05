@@ -23,49 +23,55 @@ public class TestPassword
 				"\"historySize\": 3," +
 				"\"minClassesNum\": 2," +
 				"\"denySequences\": true," +
-				"\"maxAge\": 100" +
+				"\"maxAge\": 100," +
+				"\"max\": 100" +
 				"}");
 		String serialized = verificator.getSerializedConfiguration();
 		verificator.setSerializedConfiguration(serialized);
 		
-		assertEquals(LocalCredentialState.notSet, verificator.checkCredentialState(null));
+		assertEquals(LocalCredentialState.notSet, verificator.checkCredentialState(null).getState());
 		try
 		{
-			verificator.prepareCredential("q!0?", "");
+			PasswordToken pt = new PasswordToken("q!0?");
+			verificator.prepareCredential(pt.toJson(), "");
 			fail("Set too short password");
 		} catch (IllegalCredentialException e) {}
 		try
 		{
-			verificator.prepareCredential("123q!#", "");
+			PasswordToken pt = new PasswordToken("123q!#");
+			verificator.prepareCredential(pt.toJson(), "");
 			fail("Set password wth sequence");
 		} catch (IllegalCredentialException e) {}
 		try
 		{
-			verificator.prepareCredential("zqoqso", "");
+			PasswordToken pt = new PasswordToken("zqoqso");
+			verificator.prepareCredential(pt.toJson(), "");
 			fail("Set password with 1 class");
 		} catch (IllegalCredentialException e) {}
 		
-		String c1 = verificator.prepareCredential("1asdz", "");
-		String c2 = verificator.prepareCredential("2asdz", c1);
+		PasswordToken pt = new PasswordToken("1asdz");
+		String c1 = verificator.prepareCredential(pt.toJson(), "");
+		pt = new PasswordToken("2asdz");
+		String c2 = verificator.prepareCredential(pt.toJson(), c1);
 		try
 		{
-			verificator.prepareCredential("1asdz", c2);
+			verificator.prepareCredential(new PasswordToken("1asdz").toJson(), c2);
 			fail("Set password which was used");
 		} catch (IllegalCredentialException e) {}
-		String c3 = verificator.prepareCredential("3asdz", c2);
-		String c4 = verificator.prepareCredential("4asdz", c3);
-		String c5 = verificator.prepareCredential("1asdz", c4);
+		String c3 = verificator.prepareCredential(new PasswordToken("3asdz").toJson(), c2);
+		String c4 = verificator.prepareCredential(new PasswordToken("4asdz").toJson(), c3);
+		String c5 = verificator.prepareCredential(new PasswordToken("1asdz").toJson(), c4);
 		
-		assertEquals(LocalCredentialState.correct, verificator.checkCredentialState(c5));
+		assertEquals(LocalCredentialState.correct, verificator.checkCredentialState(c5).getState());
 		Thread.sleep(500);
-		assertEquals(LocalCredentialState.outdated, verificator.checkCredentialState(c5));
+		assertEquals(LocalCredentialState.outdated, verificator.checkCredentialState(c5).getState());
 		
 		assertTrue(verificator.isSupportingInvalidation());
-		String c6 = verificator.prepareCredential("1qaZ2wsX", c5);
-		assertEquals(LocalCredentialState.correct, verificator.checkCredentialState(c6));
+		String c6 = verificator.prepareCredential(new PasswordToken("1qaZ2wsX").toJson(), c5);
+		assertEquals(LocalCredentialState.correct, verificator.checkCredentialState(c6).getState());
 		String c7 = verificator.invalidate(c6);
-		assertEquals(LocalCredentialState.outdated, verificator.checkCredentialState(c7));
-		String c8 = verificator.prepareCredential("1qaZ2wsX2", c7);
-		assertEquals(LocalCredentialState.correct, verificator.checkCredentialState(c8));
+		assertEquals(LocalCredentialState.outdated, verificator.checkCredentialState(c7).getState());
+		String c8 = verificator.prepareCredential(new PasswordToken("1qaZ2wsX2").toJson(), c7);
+		assertEquals(LocalCredentialState.correct, verificator.checkCredentialState(c8).getState());
 	}
 }

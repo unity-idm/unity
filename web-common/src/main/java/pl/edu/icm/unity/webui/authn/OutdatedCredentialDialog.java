@@ -61,11 +61,10 @@ public class OutdatedCredentialDialog extends AbstractDialog
 				credEditorReg, 
 				new Callback()
 				{
-					
 					@Override
 					public void onClose(boolean changed)
 					{
-						afterCredentialUpdate();
+						afterCredentialUpdate(changed);
 					}
 				});
 		dialog.show();
@@ -78,7 +77,7 @@ public class OutdatedCredentialDialog extends AbstractDialog
 		close();
 	}
 	
-	private void afterCredentialUpdate()
+	private void afterCredentialUpdate(final boolean changed)
 	{
 		new AbstractDialog(msg,	msg.getMessage("OutdatedCredentialDialog.finalCaption"), 
 				msg.getMessage("ok"))
@@ -96,7 +95,9 @@ public class OutdatedCredentialDialog extends AbstractDialog
 			@Override
 			protected Component getContents() throws Exception
 			{
-				return new Label(msg.getMessage("OutdatedCredentialDialog.finalInfo"));
+				String info = changed ? msg.getMessage("OutdatedCredentialDialog.finalInfo") :
+					msg.getMessage("OutdatedCredentialDialog.finalInfoNotChanged");
+				return new Label(info);
 			}
 		}.show();
 	}

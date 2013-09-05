@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.server.authn;
 
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
@@ -31,4 +34,18 @@ public interface IdentityResolver
 	 */
 	public EntityWithCredential resolveIdentity(String identity, String[] identityTypes, String credentialName)
 		throws IllegalIdentityValueException, IllegalTypeException, IllegalGroupValueException;
+	
+	/**
+	 * Updates the credential in DB. This feature is required to perform a sort of callback: credentials
+	 * may need to update themselves in DB, e.g. to invalidate them in case when it is detected during login 
+	 * that the current password is not valid anymore.
+	 * 
+	 * @param entityId
+	 * @param credentialName
+	 * @param value
+	 * @throws EngineException
+	 */
+	public void updateCredential(long entityId, String credentialName, String value) 
+			throws IllegalAttributeValueException, IllegalTypeException, 
+			IllegalAttributeTypeException, IllegalGroupValueException; 
 }

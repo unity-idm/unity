@@ -35,9 +35,11 @@ import edu.vt.middleware.password.RuleResult;
 import edu.vt.middleware.password.UppercaseCharacterRule;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
@@ -250,19 +252,18 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 				parsedCred.getSecurityQuestion(), parsedCred.getResetTries());
 		String extraInfo = pei.toJson();
 		
-		if (parsedCred.isOutdated())
-			return new CredentialPublicInformation(LocalCredentialState.outdated, extraInfo);
-		Date validityEnd = new Date(currentPassword.getTime().getTime() + maxAge);
-		if (new Date().after(validityEnd))
-			return new CredentialPublicInformation(LocalCredentialState.outdated, extraInfo);
-		if (parsedCred.getSecurityQuestion() == null && passwordResetSettings.isRequireSecurityQuestion())
+		if (isCurrentCredentialOutdated(parsedCred))
 			return new CredentialPublicInformation(LocalCredentialState.outdated, extraInfo);
 		return new CredentialPublicInformation(LocalCredentialState.correct, extraInfo);
 	}
 
+	/**
+	 * Checks if the provided password is valid. If it is then it is checked if it is still 
+	 * fulfilling all actual rules of the credential's configuration. If not then it is returned that 
+	 * credential state is outdated. 
+	 */
 	@Override
-	public AuthenticatedEntity checkPassword(String username, String password)
-			throws IllegalIdentityValueException, IllegalCredentialException, InternalException, IllegalTypeException, IllegalGroupValueException
+	public AuthenticatedEntity checkPassword(String username, String password) throws EngineException
 	{
 		EntityWithCredential resolved = identityResolver.resolveIdentity(username, 
 				IDENTITY_TYPES, credentialName);
@@ -275,7 +276,8 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		byte[] testedHash = CryptoUtils.hash(password, current.getSalt());
 		if (!Arrays.areEqual(testedHash, current.getHash()))
 			throw new IllegalCredentialException("The password is incorrect");
-		return new AuthenticatedEntity(resolved.getEntityId(), username, credState.isOutdated());
+		boolean isOutdated = isCurrentPasswordOutdated(password, credState, resolved);
+		return new AuthenticatedEntity(resolved.getEntityId(), username, isOutdated);
 	}
 
 
@@ -285,6 +287,60 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		return passwordResetSettings;
 	}
 
+	/**
+	 * As {@link #isCurrentCredentialOutdated(CredentialDBState)} but also
+	 * checks if the provided password is fulfilling the actual rules of the credential
+	 * (what can not be checked with the hashed in-db version of the credential).
+	 * <p>
+	 * Additionally, if it is detected that the credential is outdated by checking the password, 
+	 * this newly received information is stored in DB: credential is updated to be manually outdated.
+	 *   
+	 * @param password
+	 * @throws IllegalGroupValueException 
+	 * @throws IllegalAttributeTypeException 
+	 * @throws IllegalTypeException 
+	 * @throws IllegalAttributeValueException 
+	 */
+	private boolean isCurrentPasswordOutdated(String password, CredentialDBState credState, 
+			EntityWithCredential resolved) throws IllegalAttributeValueException, IllegalTypeException, 
+			IllegalAttributeTypeException, IllegalGroupValueException
+	{
+		if (isCurrentCredentialOutdated(credState))
+			return true;
+
+		PasswordValidator validator = getPasswordValidator();
+		RuleResult result = validator.validate(new PasswordData(new Password(password)));
+		if (!result.isValid())
+		{
+			String invalidated = invalidate(resolved.getCredentialValue());
+			identityResolver.updateCredential(resolved.getEntityId(), resolved.getCredentialName(), 
+						invalidated);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Checks if the provided credential state is fulfilling the rules of the credential,
+	 * if it was expired manually and if password did expire on its own.  
+	 *  
+	 * @param password
+	 * @return true if credential is invalid
+	 */
+	private boolean isCurrentCredentialOutdated(CredentialDBState credState)
+	{
+		if (credState.isOutdated())
+			return true;
+		if (credState.getSecurityQuestion() == null && 
+				passwordResetSettings.isEnabled() && 
+				passwordResetSettings.isRequireSecurityQuestion())
+			return true;
+		PasswordInfo current = credState.getPasswords().getFirst();
+		Date validityEnd = new Date(current.getTime().getTime() + maxAge);
+		if (new Date().after(validityEnd))
+			return true;
+		return false;
+	}
 	
 	private void verifyNewPassword(String existingPassword, String password, 
 			Deque<PasswordInfo> currentCredentials) throws IllegalCredentialException
