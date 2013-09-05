@@ -139,7 +139,6 @@ public class UnityVaadinServlet extends VaadinServlet
 	
 	@Override
 	protected VaadinServletService createServletService(DeploymentConfiguration deploymentConfiguration) 
-			throws ServiceException
 	{
 		final VaadinServletService service = super.createServletService(deploymentConfiguration);
 

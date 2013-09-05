@@ -65,6 +65,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String ENDPOINT_NAME = "endpointName";	
 	public static final String ENDPOINT_AUTHENTICATORS = "endpointAuthenticators";
 	public static final String INITIALIZERS = "initializers.";
+	public static final String UPDATE_INTERVAL = "asyncStateUpdateInterval";
 
 	public static final String AUTHENTICATORS = "authenticators.";
 	public static final String AUTHENTICATOR_NAME = "authenticatorName";
@@ -110,6 +111,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				"Number of threads used by internal processes of the server. HTTP server threads use a separate pool."));
 		defaults.put(INITIALIZERS, new PropertyMD().setList(true).setDescription(
 				"List of identifiers of initialization modules that should be run on the first startup."));
+		defaults.put(UPDATE_INTERVAL, new PropertyMD("60").setPositive().setDescription(
+				"Defines the interval of background update tasks in seconds. Those tasks are used to update runtime state of the server (for instance the deployed endpoints) with the data which is stored in database."));
 		
 		defaults.put(ENDPOINTS, new PropertyMD().setStructuredList(true).setCategory(mainCat).
 				setDescription("List of initially enabled endpoints"));

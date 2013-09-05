@@ -47,7 +47,7 @@ public class StringToLongConverter implements Converter<String, Long>
 	    }
 
 	    @Override
-	    public Long convertToModel(String value, Class<? extends Long> clazz, Locale locale)
+	    public Long convertToModel(String value, Locale locale)
 	            throws ConversionException {
 	        if (value == null) {
 	            return null;
@@ -73,7 +73,7 @@ public class StringToLongConverter implements Converter<String, Long>
 	    }
 
 	    @Override
-	    public String convertToPresentation(Long value, Class<? extends String> clazz, Locale locale)
+	    public String convertToPresentation(Long value, Locale locale)
 	            throws ConversionException {
 	        if (value == null) {
 	            return null;

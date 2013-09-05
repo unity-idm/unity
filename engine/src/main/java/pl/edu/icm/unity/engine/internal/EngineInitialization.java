@@ -149,8 +149,10 @@ public class EngineInitialization extends LifecycleBase
 				}
 			}
 		};
+		int interval = config.getIntValue(UnityServerConfiguration.UPDATE_INTERVAL);
 		updater.setLastUpdate(endpointsLoadTime);
-		executors.getService().scheduleWithFixedDelay(endpointsUpdater, 20, 20, TimeUnit.SECONDS);
+		executors.getService().scheduleWithFixedDelay(endpointsUpdater, interval+interval/10, 
+				interval, TimeUnit.SECONDS);
 
 		Runnable attributeStatementsUpdater = new Runnable()
 		{
@@ -166,8 +168,9 @@ public class EngineInitialization extends LifecycleBase
 				}
 			}
 		};
+		//the cleaner is just a cleaner. No need to call it very often.
 		executors.getService().scheduleWithFixedDelay(attributeStatementsUpdater, 
-				120, 600, TimeUnit.SECONDS);
+				interval*10, interval*10, TimeUnit.SECONDS);
 	}
 	
 	public void initializeDatabaseContents()

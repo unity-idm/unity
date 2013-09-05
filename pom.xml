@@ -12,10 +12,10 @@
 	<name>UNITY aggregation and parent module</name>
 	<properties>
 		<scm.base>scm:svn:https://unicore.svn.sourceforge.net/svnroot/unicore/uvos/unity/trunk</scm.base>
-		<jetty.version>8.1.11.v20130520</jetty.version>
+		<jetty.version>8.1.12.v20130726</jetty.version>
 		<slf4j.version>1.6.1</slf4j.version>
 		<spring.version>3.2.0.RELEASE</spring.version>
-		<vaadin.version>7.1.3</vaadin.version>
+		<vaadin.version>7.0.7</vaadin.version>
 		<cxf.version>2.7.5</cxf.version>
 
 		<!-- Sonar -->
@@ -114,6 +114,11 @@
 				<version>${jetty.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-websocket</artifactId>
+				<version>${jetty.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
 				<version>${slf4j.version}</version>
@@ -188,6 +193,11 @@
 			<dependency>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-client-compiled</artifactId>
+				<version>${vaadin.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-push</artifactId>
 				<version>${vaadin.version}</version>
 			</dependency>
 			<dependency>

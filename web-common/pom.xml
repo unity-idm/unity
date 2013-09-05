@@ -62,6 +62,12 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-client-compiled</artifactId>
 		</dependency>
+		<!-- 
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-push</artifactId>
+		</dependency>
+		 -->
 		<dependency>
 			<groupId>nl.simplecaptcha</groupId>
 			<artifactId>simplecaptcha</artifactId>
