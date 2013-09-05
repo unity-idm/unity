@@ -18,4 +18,9 @@ public interface PasswordExchange extends CredentialExchange
 	
 	public AuthenticatedEntity checkPassword(String username, String password) 
 			throws EngineException;
+	
+	/**
+	 * @return credential reset settings (which may indicate that reset feature is disabled)
+	 */
+	public CredentialResetSettings getCredentialResetSettings();
 }

@@ -108,7 +108,7 @@ public class CredentialRequirementsHolder
 		{
 			Attribute<?> currentCredA = attributes.get(SystemAttributeTypes.CREDENTIAL_PREFIX+entry.getKey());
 			String currentCred = currentCredA == null ? null : (String)currentCredA.getValues().get(0);
-			if (entry.getValue().checkCredentialState(currentCred) != LocalCredentialState.correct)
+			if (entry.getValue().checkCredentialState(currentCred).getState() != LocalCredentialState.correct)
 				return false;
 		}
 		return true;

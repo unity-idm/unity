@@ -19,7 +19,6 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
 import pl.edu.icm.unity.webadmin.identities.EntityChangedEvent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
@@ -68,15 +67,6 @@ public class AttributesComponent extends Panel
 					event.getEntity(), event.getGroup());
 			}
 		}, EntityChangedEvent.class);
-		
-		bus.addListener(new EventListener<AttributeTypesUpdatedEvent>()
-		{
-			@Override
-			public void handleEvent(AttributeTypesUpdatedEvent event)
-			{
-				AttributesComponent.this.main.setAttributeTypes(event.getAttributeTypes());
-			}
-		}, AttributeTypesUpdatedEvent.class);
 		setInput(null, "/");
 	}
 	

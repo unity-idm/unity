@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
-import pl.edu.icm.unity.engine.notifications.NotificationProducer;
+import pl.edu.icm.unity.engine.notifications.NotificationProducerImpl;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.notifications.NotificationStatus;
@@ -32,7 +32,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 public class TestNotifications extends DBIntegrationTestBase
 {
 	@Autowired
-	private NotificationProducer notProducer;
+	private NotificationProducerImpl notProducer;
 	@Autowired
 	private InitializerCommon initCommon;
 	

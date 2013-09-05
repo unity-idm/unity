@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -59,6 +60,16 @@ public class UnityVaadinServlet extends VaadinServlet
 		this.description = description;
 		this.authenticators = authenticators;
 		this.config = applicationContext.getBean(UnityServerConfiguration.class);
+	}
+	
+	public synchronized void updateAuthenticators(List<Map<String, BindingAuthn>> authenticators)
+	{
+		this.authenticators = new ArrayList<>(authenticators);
+	}
+	
+	protected synchronized List<Map<String, BindingAuthn>> getAuthenticators()
+	{
+		return this.authenticators;
 	}
 	
 	public void setCancelHandler(CancelHandler cancelHandler)
@@ -138,7 +149,7 @@ public class UnityVaadinServlet extends VaadinServlet
 			public void sessionInit(SessionInitEvent event) throws ServiceException
 			{
 				VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, uiBeanName,
-						description, authenticators);
+						description, getAuthenticators());
 				uiProv.setCancelHandler(cancelHandler);
 				event.getSession().addUIProvider(uiProv);
 				DeploymentConfiguration depCfg = event.getService().getDeploymentConfiguration();

@@ -37,6 +37,7 @@ import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -132,7 +133,7 @@ public class EngineHelper
 			throws IllegalCredentialException, IllegalTypeException, IllegalGroupValueException,
 			IllegalAttributeValueException, IllegalAttributeTypeException
 	{
-		if (desiredCredState == LocalCredentialState.notSet)
+		if (desiredCredState == LocalCredentialState.outdated)
 			return;
 		String credAttribute = SystemAttributeTypes.CREDENTIAL_PREFIX+
 				credentialChanged.getCredentialDefinition().getName(); 
@@ -146,8 +147,10 @@ public class EngineHelper
 			return;
 		}
 		String credential = (String)attributes.iterator().next().getValues().get(0);
-		LocalCredentialState currentState = credentialChanged.getHandler().checkCredentialState(credential);
-		if (currentState != LocalCredentialState.correct && desiredCredState == LocalCredentialState.correct)
+		CredentialPublicInformation currentState = 
+				credentialChanged.getHandler().checkCredentialState(credential);
+		if (currentState.getState() != LocalCredentialState.correct && 
+				desiredCredState == LocalCredentialState.correct)
 			throw new IllegalCredentialException("The new credential is not compatible with the previous definition and can not keep the credential state as correct");
 	}
 	

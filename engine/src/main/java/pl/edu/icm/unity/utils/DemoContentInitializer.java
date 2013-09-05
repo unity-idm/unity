@@ -19,6 +19,7 @@ import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
@@ -114,7 +115,9 @@ public class DemoContentInitializer implements ServerInitializer
 			StringAttribute cnA = new StringAttribute("cn", "/", AttributeVisibility.full, "Hiper user");
 			attrMan.setAttribute(new EntityParam(base.getEntityId()), cnA, false);
 
-			idsMan.setEntityCredential(new EntityParam(base.getEntityId()), "Password credential", "a");
+			PasswordToken pToken = new PasswordToken("a");
+			idsMan.setEntityCredential(new EntityParam(base.getEntityId()), "Password credential", 
+					pToken.toJson());
 		} catch (Exception e)
 		{
 			log.error("Error loading demo contents", e);

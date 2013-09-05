@@ -8,6 +8,8 @@ import java.io.ByteArrayInputStream;
 import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.DispatcherType;
@@ -22,6 +24,7 @@ import com.vaadin.server.VaadinServlet;
 import eu.unicore.util.configuration.ConfigurationException;
 
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
+import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -45,6 +48,10 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	protected Properties properties;
 	protected VaadinEndpointProperties genericEndpointProperties;
 
+	protected ServletContextHandler context = null;
+	protected UnityVaadinServlet theServlet;
+	protected UnityVaadinServlet authenticationServlet;
+	
 	public VaadinEndpoint(EndpointTypeDescription type, ApplicationContext applicationContext,
 			String uiBeanName, String servletPath)
 	{
@@ -83,23 +90,26 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	}
 
 	@Override
-	public ServletContextHandler getServletContextHandler()
+	public synchronized ServletContextHandler getServletContextHandler()
 	{
-	 	ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		if (context != null)
+			return context;
+	 	
+		context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath(description.getContextAddress());
 		
 		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
 				description.getContextAddress()+AUTHENTICATION_PATH);
 		context.addFilter(new FilterHolder(authnFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
 
-		UnityVaadinServlet authenticationServlet = new UnityVaadinServlet(applicationContext, 
+		authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticators);
 		ServletHolder authnServletHolder = createServletHolder(authenticationServlet);
 		authnServletHolder.setInitParameter("closeIdleSessions", "true");
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
-		UnityVaadinServlet theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
+		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
 				description, authenticators);
 		context.addServlet(createServletHolder(theServlet), servletPath + "/*");
 
@@ -114,5 +124,16 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		holder.setInitParameter("heartbeatInterval", String.valueOf(sessionTimeout/4));
 		holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(sessionTimeout));
 		return holder;
+	}
+
+	@Override
+	public synchronized void updateAuthenticators(List<Map<String, BindingAuthn>> authenticators)
+	{
+		setAuthenticators(authenticators);
+		if (authenticationServlet != null)
+		{
+			authenticationServlet.updateAuthenticators(authenticators);
+			theServlet.updateAuthenticators(authenticators);
+		}
 	}
 }

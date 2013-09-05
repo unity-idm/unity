@@ -40,6 +40,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	private CheckBox limitMaxAge;
 	private Slider maxAge;
 	private Slider historySize;
+	private CredentialResetSettingsEditor resetSettings;
 	
 	public PasswordCredentialDefinitionEditor(UnityMessageSource msg)
 	{
@@ -63,7 +64,12 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		historySize.setCaption(msg.getMessage("PasswordDefinitionEditor.historySize"));
 		Label maxAge = new Label();
 		maxAge.setCaption(msg.getMessage("PasswordDefinitionEditor.maxAgeRo"));
+		
+		CredentialResetSettingsEditor viewer = new CredentialResetSettingsEditor(msg, 
+				helper.getPasswordResetSettings());
+		
 		FormLayout form = new FormLayout(minLength, minClasses, denySequences, historySize, maxAge);
+		viewer.addViewerToLayout(form);
 		form.setSpacing(true);
 		form.setMargin(true);
 		
@@ -108,6 +114,8 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		maxAge = new Slider(msg.getMessage("PasswordDefinitionEditor.maxAge"), 1, MAX_MONTHS);
 		maxAge.setWidth(100, Unit.PERCENTAGE);
 		maxAge.setValue(24d);
+
+
 		FormLayout form = new FormLayout(minLength, minClasses, denySequences, historySize, limitMaxAge,
 				maxAge);
 		form.setSpacing(true);
@@ -116,6 +124,9 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		if (credentialDefinitionConfiguration != null)
 			helper.setSerializedConfiguration(credentialDefinitionConfiguration);
 		initUIState(helper);
+		resetSettings = new CredentialResetSettingsEditor(msg, helper.getPasswordResetSettings());
+		resetSettings.addEditorToLayout(form);
+				
 		return form;
 	}
 
@@ -131,9 +142,10 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 			maxAgeMs *= MS_IN_MONTH;
 			helper.setMaxAge(maxAgeMs);
 		} else
-			helper.setMaxAge(Long.MAX_VALUE);
+			helper.setMaxAge(PasswordVerificator.MAX_AGE_UNDEF);
 		helper.setMinClassesNum((int)(double)minClasses.getValue());
 		helper.setMinLength((int)(double)minLength.getValue());
+		helper.setPasswordResetSettings(resetSettings.getValue());
 		try
 		{
 			return helper.getSerializedConfiguration();

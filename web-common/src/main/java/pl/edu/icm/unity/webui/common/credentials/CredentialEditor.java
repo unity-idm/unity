@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.common.credentials;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 
 /**
  * Implementations allow to edit a value of a credential of a fixed type.
@@ -18,6 +19,14 @@ public interface CredentialEditor
 	 * @return the editor component
 	 */
 	public Component getEditor(String credentialConfiguration);
+	
+	/**
+	 * @param credentialInfo extra information about the credential as returned by the credential's verificator
+	 * {@link LocalCredentialVerificator#checkCredentialState(String)}.
+	 * @return the viewer component, or null if there is nothing to show
+	 */
+	public Component getViewer(String credentialInfo);
+	
 	
 	/**
 	 * @return the credential value

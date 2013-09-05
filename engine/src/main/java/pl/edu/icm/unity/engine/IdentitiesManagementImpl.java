@@ -43,6 +43,7 @@ import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
+import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -486,12 +487,13 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		CredentialRequirementsHolder credReq = engineHelper.getCredentialRequirements(
 				credentialRequirementId, sqlMap);
 		Set<String> required = credReq.getCredentialRequirements().getRequiredCredentials();
-		Map<String, LocalCredentialState> credentialsState = new HashMap<String, LocalCredentialState>();
+		Map<String, CredentialPublicInformation> credentialsState = new HashMap<>();
 		for (String cd: required)
 		{
 			LocalCredentialVerificator handler = credReq.getCredentialHandler(cd);
 			Attribute<?> currentCredA = attributes.get(SystemAttributeTypes.CREDENTIAL_PREFIX+cd);
 			String currentCred = currentCredA == null ? null : (String)currentCredA.getValues().get(0);
+			
 			credentialsState.put(cd, handler.checkCredentialState(currentCred));
 		}
 		

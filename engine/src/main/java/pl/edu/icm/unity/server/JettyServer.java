@@ -7,8 +7,10 @@ package pl.edu.icm.unity.server;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -45,7 +47,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, UnityApplication.class);
 	private List<WebAppEndpointInstance> deployedEndpoints;
-	private Set<String> usedContextPaths;
+	private Map<String, ServletContextHandler> usedContextPaths;
 	
 	@Autowired
 	public JettyServer(UnityServerConfiguration cfg)
@@ -100,7 +102,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 	@Override
 	protected synchronized Handler createRootHandler() throws ConfigurationException
 	{
-		usedContextPaths = new HashSet<String>();
+		usedContextPaths = new HashMap<String, ServletContextHandler>();
 		ContextHandlerCollection handlersCollection = new ContextHandlerCollection();
 		deployedEndpoints = new ArrayList<WebAppEndpointInstance>(16);
 		//TODO a custom default handler is needed
@@ -113,7 +115,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 	{
 		ServletContextHandler handler = endpoint.getServletContextHandler(); 
 		String contextPath = handler.getContextPath();
-		if (usedContextPaths.contains(contextPath))
+		if (usedContextPaths.containsKey(contextPath))
 		{
 			throw new WrongArgumentException("There are (at least) two web " +
 					"applications configured at the same context path: " + contextPath);
@@ -129,7 +131,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 			root.removeHandler(handler);
 			throw new EngineException("Can not start handler", e);
 		}
-		usedContextPaths.add(contextPath);
+		usedContextPaths.put(contextPath, handler);
 		deployedEndpoints.add(endpoint);
 	}
 	
@@ -145,7 +147,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 		if (endpoint == null)
 			throw new WrongArgumentException("There is no deployed endpoint with id " + id);
 		
-		ServletContextHandler handler = endpoint.getServletContextHandler();
+		ServletContextHandler handler = usedContextPaths.get(endpoint.getEndpointDescription().getContextAddress());
 		try
 		{
 			handler.stop();
@@ -172,9 +174,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 	
 	public synchronized List<WebAppEndpointInstance> getDeployedEndpoints()
 	{
-		List<WebAppEndpointInstance> ret = new ArrayList<WebAppEndpointInstance>(deployedEndpoints.size());
-		ret.addAll(deployedEndpoints);
-		return ret;
+		return new ArrayList<WebAppEndpointInstance>(deployedEndpoints);
 	}
 }
 

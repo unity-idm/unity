@@ -19,6 +19,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
+import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -33,6 +34,7 @@ import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -62,6 +64,7 @@ public class CredentialsPanel extends VerticalLayout
 	private TextField type;
 	private TextField status;
 	private DescriptionTextArea description;
+	private Panel credentialStateInfo;
 	private Panel editor;
 	private Button update;
 	private CredentialEditor credEditor;
@@ -99,6 +102,7 @@ public class CredentialsPanel extends VerticalLayout
 		type = new TextField(msg.getMessage("CredentialChangeDialog.credType"));
 		description = new DescriptionTextArea(msg.getMessage("CredentialChangeDialog.description"), true, "");
 		status = new TextField(msg.getMessage("CredentialChangeDialog.status"));
+		credentialStateInfo = new Panel(msg.getMessage("CredentialChangeDialog.credentialStateInfo"));
 		editor = new Panel(msg.getMessage("CredentialChangeDialog.value"));
 		update = new Button(msg.getMessage("CredentialChangeDialog.update"));
 		update.addClickListener(new ClickListener()
@@ -109,7 +113,7 @@ public class CredentialsPanel extends VerticalLayout
 				updateCredential();
 			}
 		});
-		FormLayout fl = new FormLayout(type, description, status, editor, update);
+		FormLayout fl = new FormLayout(type, description, status, credentialStateInfo, editor, update);
 		fl.setMargin(true);
 		credentialPanel.setContent(fl);
 		
@@ -121,7 +125,6 @@ public class CredentialsPanel extends VerticalLayout
 		else
 			addComponent(new Label(msg.getMessage("CredentialChangeDialog.credentialSingle", 
 					credentials.values().iterator().next().getName())));
-		
 		addComponent(credentialPanel);
 		setSpacing(true);
 		updateStatus();
@@ -141,11 +144,21 @@ public class CredentialsPanel extends VerticalLayout
 		type.setValue(chosen.getTypeId());
 		type.setReadOnly(true);
 		status.setReadOnly(false);
-		Map<String, LocalCredentialState> s = entity.getCredentialInfo().getCredentialsState();
-		status.setValue(msg.getMessage("CredentialStatus."+s.get(chosen.getName()).toString()));
+		Map<String, CredentialPublicInformation> s = entity.getCredentialInfo().getCredentialsState();
+		CredentialPublicInformation credPublicInfo = s.get(chosen.getName());
+		status.setValue(msg.getMessage("CredentialStatus."+credPublicInfo.getState().toString()));
 		status.setReadOnly(true);
 		credEditor = credEditorReg.getEditor(chosen.getTypeId());
 		editor.setContent(credEditor.getEditor(chosen.getJsonConfiguration()));
+		Component viewer = credEditor.getViewer(credPublicInfo.getExtraInformation());
+		if (viewer == null)
+		{
+			credentialStateInfo.setVisible(false);
+		} else
+		{
+			credentialStateInfo.setContent(viewer);
+			credentialStateInfo.setVisible(true);
+		}
 	}
 	
 	private void updateCredential()
@@ -190,17 +203,18 @@ public class CredentialsPanel extends VerticalLayout
 		contents.setMargin(true);
 		contents.setSpacing(true);
 		
-		Map<String, LocalCredentialState> state = entity.getCredentialInfo().getCredentialsState();
-		for (Map.Entry<String, LocalCredentialState> s: state.entrySet())
+		Map<String, CredentialPublicInformation> state = entity.getCredentialInfo().getCredentialsState();
+		for (Map.Entry<String, CredentialPublicInformation> s: state.entrySet())
 		{
 			Label label = new Label(s.getKey());
-			if (s.getValue() == LocalCredentialState.correct)
+			if (s.getValue().getState() == LocalCredentialState.correct)
 				label.setIcon(Images.ok.getResource());
-			else if (s.getValue() == LocalCredentialState.outdated)
+			else if (s.getValue().getState() == LocalCredentialState.outdated)
 				label.setIcon(Images.warn.getResource());
 			else
 				label.setIcon(Images.error.getResource());
-			label.setDescription(msg.getMessage("CredentialStatus."+s.getValue().toString()));
+			label.setDescription(msg.getMessage("CredentialStatus."+
+				s.getValue().getState().toString()));
 			contents.addComponents(label);
 		}
 		

@@ -40,7 +40,12 @@ public interface EndpointInstance
 			String serializedConfiguration);
 
 	public EndpointDescription getEndpointDescription();
-		
+	
+	/**
+	 * @return the current list of previously configured authenticators (with initialize).
+	 */
+	public List<Map<String, BindingAuthn>> getAuthenticators();
+	
 	/**
 	 * @return serialized representation of the endpoint configuration/state
 	 */

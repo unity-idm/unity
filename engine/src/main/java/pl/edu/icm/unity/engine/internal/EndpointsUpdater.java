@@ -4,11 +4,14 @@
  */
 package pl.edu.icm.unity.engine.internal;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +23,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 
 
@@ -32,6 +36,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 @Component
 public class EndpointsUpdater
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, EndpointsUpdater.class);
 	private long lastUpdate = 0;
 	private DBSessionManager db;
 	private DBGeneric dbGeneric;
@@ -65,9 +70,11 @@ public class EndpointsUpdater
 	{
 		List<WebAppEndpointInstance> deployedEndpoints = httpServer.getDeployedEndpoints();
 		Set<String> endpointsInDb = new HashSet<String>();
-		Set<String> endpointsDeployed = new HashSet<String>();
+		Map<String, WebAppEndpointInstance> endpointsDeployed = new HashMap<String, WebAppEndpointInstance>();
 		for (WebAppEndpointInstance endpoint: deployedEndpoints)
-			endpointsDeployed.add(endpoint.getEndpointDescription().getId());
+			endpointsDeployed.put(endpoint.getEndpointDescription().getId(), endpoint);
+		log.debug("Running periodic endpoints update task. There are " + deployedEndpoints.size() + 
+				" deployed endpoints.");
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -81,13 +88,19 @@ public class EndpointsUpdater
 				EndpointInstance instance = endpointMan.deserializeEndpoint(
 						g.getName(), g.getSubType(), g.getContents(), sql);
 
-				if (g.getLastUpdate().getTime() >= lastUpdate || hasChangedAuthenticator(
-						changedAuthenticators, instance))
+				if (g.getLastUpdate().getTime() >= lastUpdate)
 				{
-					if (endpointsDeployed.contains(g.getName()))
+					if (endpointsDeployed.containsKey(g.getName()))
+					{
+						log.info("Endpoint " + g.getName() + " will be re-deployed");
 						httpServer.undeployEndpoint(g.getName());
+					} else
+						log.info("Endpoint " + g.getName() + " will be deployed");
 					
 					httpServer.deployEndpoint((WebAppEndpointInstance) instance);
+				} else if (hasChangedAuthenticator(changedAuthenticators, instance))
+				{
+					updateEndpointAuthenticators(g.getName(), instance, endpointsDeployed);
 				}
 			}
 			lastUpdate = System.currentTimeMillis();
@@ -101,7 +114,26 @@ public class EndpointsUpdater
 		}
 	}
 	
-
+	private void updateEndpointAuthenticators(String name, EndpointInstance instance,
+			Map<String, WebAppEndpointInstance> endpointsDeployed) throws EngineException
+	{
+		log.info("Endpoint " + name + " will have its authenticators updated");
+		WebAppEndpointInstance toUpdate = endpointsDeployed.get(name);
+		try
+		{
+			toUpdate.updateAuthenticators(instance.getAuthenticators());
+		} catch (UnsupportedOperationException e)
+		{
+			log.info("Endpoint " + name + " doesn't support authenticators update so will be redeployed");
+			httpServer.undeployEndpoint(name);
+			httpServer.deployEndpoint((WebAppEndpointInstance) instance);
+		}
+	}
+	
+	/**
+	 * @param sql
+	 * @return Set of those authenticators that were updated after the last update of endpoints.
+	 */
 	private Set<String> getChangedAuthenticators(SqlSession sql)
 	{
 		Set<String> changedAuthenticators = new HashSet<String>();
@@ -115,6 +147,11 @@ public class EndpointsUpdater
 		return changedAuthenticators;
 	}
 	
+	/**
+	 * @param changedAuthenticators
+	 * @param instance
+	 * @return true if endpoint has any of the authenticators in the parameter set
+	 */
 	private boolean hasChangedAuthenticator(Set<String> changedAuthenticators, EndpointInstance instance)
 	{
 		List<AuthenticatorSet> auths = instance.getEndpointDescription().getAuthenticatorSets();
@@ -136,6 +173,7 @@ public class EndpointsUpdater
 			String name = endpoint.getEndpointDescription().getId();
 			if (!endpointsInDb.contains(name))
 			{
+				log.info("Undeploying a removed endpoint: " + name);
 				httpServer.undeployEndpoint(name);
 			}
 		}

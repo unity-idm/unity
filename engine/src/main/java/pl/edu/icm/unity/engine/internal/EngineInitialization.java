@@ -42,6 +42,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.ServerInitializer;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
+import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
@@ -141,7 +142,7 @@ public class EngineInitialization extends LifecycleBase
 				try
 				{
 					updater.updateEndpoints();
-				} catch (EngineException e)
+				} catch (Exception e)
 				{
 					log.error("Can't synchronize runtime state of endpoints " +
 							"with the persisted endpoints state", e);
@@ -149,7 +150,7 @@ public class EngineInitialization extends LifecycleBase
 			}
 		};
 		updater.setLastUpdate(endpointsLoadTime);
-		executors.getService().scheduleWithFixedDelay(endpointsUpdater, 120, 60, TimeUnit.SECONDS);
+		executors.getService().scheduleWithFixedDelay(endpointsUpdater, 20, 20, TimeUnit.SECONDS);
 
 		Runnable attributeStatementsUpdater = new Runnable()
 		{
@@ -279,7 +280,8 @@ public class EngineInitialization extends LifecycleBase
 				Identity adminId = idManagement.addEntity(admin, crDef.getName(), EntityState.valid, false);
 				
 				EntityParam adminEntity = new EntityParam(adminId.getEntityId());
-				idManagement.setEntityCredential(adminEntity, credDef.getName(), adminP);
+				PasswordToken ptoken = new PasswordToken(adminP);
+				idManagement.setEntityCredential(adminEntity, credDef.getName(), ptoken.toJson());
 //FIXME!! change initial cred state to outdated
 //				idManagement.setEntityCredentialStatus(adminEntity, credDef.getName(), 
 //						LocalCredentialState.outdated);

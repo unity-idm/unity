@@ -9,7 +9,11 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 
 /**
- * Allows for resolving an identity into entity and also retrieving the entity's credential
+ * Allows for resolving an identity into entity, returning also its credential.
+ * <p>
+ * This interface is intended for an internal use, as it performs all operations without any authorization.
+ * It should be used by the authentication related components as credential validators or authenticators. 
+ * 
  * @author K. Benedyczak
  */
 public interface IdentityResolver

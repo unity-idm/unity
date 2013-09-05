@@ -127,4 +127,11 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 			}
 		}
 	}
+	
+
+	@Override
+	public void updateAuthenticators(List<Map<String, BindingAuthn>> authenticators)
+	{
+		throw new UnsupportedOperationException();
+	}
 }

@@ -9,8 +9,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.PasswordField;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.themes.Reindeer;
 
 import eu.unicore.util.configuration.ConfigurationException;
 
@@ -24,6 +30,7 @@ import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.common.credentials.ext.PasswordResetDialog;
 
 /**
  * Retrieves passwords using a Vaadin widget.
@@ -35,6 +42,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 	private UsernameProvider usernameProvider;
 	private PasswordExchange credentialExchange;
 	private PasswordField passwordField;
+	
 	private UnityMessageSource msg;
 	private String name;
 	
@@ -92,9 +100,29 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 	@Override
 	public Component getComponent()
 	{
+		VerticalLayout ret = new VerticalLayout();
+		ret.setSpacing(true);
 		String label = name.trim().equals("") ? msg.getMessage("WebPasswordRetrieval.password") : name;
 		passwordField = new PasswordField(label);
-		return passwordField;
+		ret.addComponent(passwordField);
+		
+		if (credentialExchange.getCredentialResetSettings().isEnabled())
+		{
+			Button reset = new Button(msg.getMessage("WebPasswordRetrieval.forgottenPassword"));
+			reset.setStyleName(Reindeer.BUTTON_LINK);
+			ret.addComponent(reset);
+			ret.setComponentAlignment(reset, Alignment.TOP_RIGHT);
+			reset.addClickListener(new ClickListener()
+			{
+				@Override
+				public void buttonClick(ClickEvent event)
+				{
+					showResetDialog();
+				}
+			});
+		}
+		
+		return ret;
 	}
 
 	@Override
@@ -144,6 +172,13 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 	public Resource getImage()
 	{
 		return null;
+	}
+	
+	private void showResetDialog()
+	{
+		PasswordResetDialog dialog = new PasswordResetDialog(msg, 
+				credentialExchange.getCredentialResetSettings());
+		dialog.show();
 	}
 }
 

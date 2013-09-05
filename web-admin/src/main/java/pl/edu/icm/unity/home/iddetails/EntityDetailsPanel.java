@@ -9,7 +9,7 @@ import java.util.Map;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
-import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
@@ -82,9 +82,10 @@ public class EntityDetailsPanel extends FormLayout
 		credReq.setValue(credInf.getCredentialRequirementId());
 		
 		sb = new StringBuilder();
-		for (Map.Entry<String, LocalCredentialState> cred: credInf.getCredentialsState().entrySet())
+		for (Map.Entry<String, CredentialPublicInformation> cred: credInf.getCredentialsState().entrySet())
 		{
-			sb.append(cred.getKey() + ": " + msg.getMessage("CredentialStatus."+cred.getValue().toString()));
+			sb.append(cred.getKey() + ": " + msg.getMessage("CredentialStatus." + 
+					cred.getValue().getState().toString()));
 			sb.append("<br>");
 		}
 		credStatus.setValue(sb.toString());

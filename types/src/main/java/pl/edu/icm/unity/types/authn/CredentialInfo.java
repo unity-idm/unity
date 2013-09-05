@@ -13,10 +13,9 @@ import java.util.Map;
 public class CredentialInfo
 {
 	private String credentialRequirementId;
-	private Map<String, LocalCredentialState> credentialsState;
+	private Map<String, CredentialPublicInformation> credentialsState;
 	
-	
-	public CredentialInfo(String credentialRequirementId, Map<String, LocalCredentialState> credentialsState)
+	public CredentialInfo(String credentialRequirementId, Map<String, CredentialPublicInformation> credentialsState)
 	{
 		this.credentialRequirementId = credentialRequirementId;
 		this.credentialsState = credentialsState;
@@ -26,7 +25,8 @@ public class CredentialInfo
 	{
 		return credentialRequirementId;
 	}
-	public Map<String, LocalCredentialState> getCredentialsState()
+	
+	public Map<String, CredentialPublicInformation> getCredentialsState()
 	{
 		return credentialsState;
 	}

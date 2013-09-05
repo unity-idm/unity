@@ -11,6 +11,7 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
 public class MockPasswordVerificator extends AbstractLocalVerificator implements MockExchange
@@ -60,13 +61,13 @@ public class MockPasswordVerificator extends AbstractLocalVerificator implements
 	}
 
 	@Override
-	public LocalCredentialState checkCredentialState(String credential)
+	public CredentialPublicInformation checkCredentialState(String credential)
 	{
 		if (credential == null)
-			return LocalCredentialState.notSet;
+			return new CredentialPublicInformation(LocalCredentialState.notSet, "");
 		if (credential.startsWith("PPP"))
-			return LocalCredentialState.correct;
-		return LocalCredentialState.outdated;
+			return new CredentialPublicInformation(LocalCredentialState.correct, "");
+		return new CredentialPublicInformation(LocalCredentialState.outdated, "");
 	}
 
 	@Override

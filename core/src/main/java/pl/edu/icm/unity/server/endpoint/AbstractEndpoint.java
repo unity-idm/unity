@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.server.endpoint;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public abstract class AbstractEndpoint implements EndpointInstance
 	}
 	
 	@Override
-	public void initialize(String id, URL baseUrl, String contextAddress, String description, 
+	public synchronized void initialize(String id, URL baseUrl, String contextAddress, String description, 
 			List<AuthenticatorSet> authenticatorsInfo, List<Map<String, BindingAuthn>> authenticators,
 			String serializedConfiguration)
 	{
@@ -53,6 +54,17 @@ public abstract class AbstractEndpoint implements EndpointInstance
 	@Override
 	public void destroy()
 	{
+	}
+	
+	@Override
+	public synchronized List<Map<String, BindingAuthn>> getAuthenticators()
+	{
+		return authenticators;
+	}
+
+	protected synchronized void setAuthenticators(List<Map<String, BindingAuthn>> authenticators)
+	{
+		this.authenticators = new ArrayList<>(authenticators);
 	}
 	
 	/**

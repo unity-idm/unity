@@ -4,7 +4,10 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import org.apache.log4j.Logger;
+
 import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 import com.vaadin.server.Page;
@@ -18,6 +21,8 @@ import com.vaadin.ui.Notification.Type;
  */
 public class ErrorPopup
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ErrorPopup.class);
+	
 	public static void showNotice(String caption, String description)
 	{
 		Notification n = new Notification(caption, description, Type.HUMANIZED_MESSAGE);
@@ -43,6 +48,8 @@ public class ErrorPopup
 	public static void showError(String message, Exception e)
 	{
 		String description = getHumanMessage(e);
+		if (log.isDebugEnabled())
+			Log.logException("Exception in error popup: ", e , log);
 		showError(message, description);
 	}
 	

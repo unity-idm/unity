@@ -381,6 +381,21 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			
 			byte[] contents = helper.getSerializedConfiguration().getBytes(Constants.UTF);
 			dbGeneric.updateObject(updated.getName(), CREDENTIAL_OBJECT_TYPE, contents, sql);
+			
+			//all affected authenticators must be updated (in fact only modification timestamp is updated)
+			//so that endpoints using those authenticators may catch up with the changes. 
+			List<GenericObjectBean> authsRaw = dbGeneric.getObjectsOfType(AUTHENTICATOR_OBJECT_TYPE, sql);
+			for (GenericObjectBean rawA: authsRaw)
+			{
+				AuthenticatorImpl authenticator = engineHelper.getAuthenticatorNoCheck(rawA, sql);
+				AuthenticatorInstance authnInstance = authenticator.getAuthenticatorInstance();
+				if (updated.getName().equals(authnInstance.getLocalCredentialName()))
+				{
+					dbGeneric.updateObject(rawA.getName(), AUTHENTICATOR_OBJECT_TYPE, 
+							rawA.getContents(), sql);
+				}
+			}
+
 			sql.commit();
 		} finally
 		{

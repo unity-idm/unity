@@ -6,6 +6,7 @@ package pl.edu.icm.unity.server.authn;
 
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.CredentialType;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
@@ -57,8 +58,8 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * @return the current state of the credential, wrt the configuration of the verificator
 	 * @throws InternalException 
 	 */
-	public LocalCredentialState checkCredentialState(String currentCredential) throws InternalException;
-
+	public CredentialPublicInformation checkCredentialState(String currentCredential) throws InternalException;
+	
 	/**
 	 * @return If the instances can be put into the {@link LocalCredentialState#outdated} state.
 	 */

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -21,6 +22,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -68,6 +70,8 @@ import com.vaadin.ui.themes.Reindeer;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class AttributesPanel extends HorizontalSplitPanel
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AttributesPanel.class);
+
 	private UnityMessageSource msg;
 	private AttributeHandlerRegistry registry;
 	private AttributesManagement attributesManagement;
@@ -173,8 +177,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 		updateAttributesFilter(!showInternal.getValue(), internalAttrsFilter);
 	}
 	
-	public void setAttributeTypes(List<AttributeType> atList)
+	private void refreshAttributeTypes() throws EngineException
 	{
+		List<AttributeType> atList = attributesManagement.getAttributeTypes();
 		attributeTypes = new HashMap<String, AttributeType>();
 		for (AttributeType at: atList)
 			attributeTypes.put(at.getName(), at);	
@@ -204,8 +209,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 		acHelper = new AttributeClassHelper(knownClasses, assignedClasses);
 	}
 	
-	private void updateAttributes()
+	private void updateAttributes() throws EngineException
 	{
+		refreshAttributeTypes();
 		attributesTable.removeAllItems();
 		attributeValues.removeValues();
 		if (attributes.size() == 0)
@@ -487,13 +493,18 @@ public class AttributesPanel extends HorizontalSplitPanel
 	}
 
 	private class InternalAttributesFilter implements Container.Filter
-	{
+	{		
 		@Override
 		public boolean passesFilter(Object itemId, Item item)
 				throws UnsupportedOperationException
 		{
 			AttributeItem ai = (AttributeItem) itemId;
 			AttributeType attributeType = attributeTypes.get(ai.getAttribute().getName());
+			if (attributeType == null)
+			{
+				log.error("Attribute type is not in the map: " + ai.getAttribute().getName());
+				return false;
+			}
 			return !attributeType.isInstanceImmutable();
 		}
 

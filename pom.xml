@@ -236,6 +236,11 @@
 				<artifactId>ehcache</artifactId>
 				<version>2.7.2</version>
 			</dependency>
+			<dependency>
+				<groupId>nl.simplecaptcha</groupId>
+				<artifactId>simplecaptcha</artifactId>
+				<version>1.2.1</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 

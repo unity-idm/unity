@@ -16,6 +16,7 @@ import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
 /**
@@ -55,9 +56,9 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 	}
 
 	@Override
-	public LocalCredentialState checkCredentialState(String currentCredential)
+	public CredentialPublicInformation checkCredentialState(String currentCredential)
 	{
-		return LocalCredentialState.correct;
+		return new CredentialPublicInformation(LocalCredentialState.correct, "");
 	}
 
 	@Override

@@ -41,4 +41,10 @@ public class CertificateCredentialEditor implements CredentialEditor
 	{
 		return "";
 	}
+
+	@Override
+	public Component getViewer(String credentialConfiguration)
+	{
+		return null;
+	}
 }
