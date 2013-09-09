@@ -24,17 +24,15 @@ public class PasswordExtraInfo
 {
 	private Date lastChange;
 	private String securityQuestion;
-	private int resetTries;
 	
 	private PasswordExtraInfo()
 	{
 	}
 
-	public PasswordExtraInfo(Date lastChange, String securityQuestion, int resetTries)
+	public PasswordExtraInfo(Date lastChange, String securityQuestion)
 	{
 		this.lastChange = lastChange;
 		this.securityQuestion = securityQuestion;
-		this.resetTries = resetTries;
 	}
 
 	public Date getLastChange()
@@ -57,16 +55,6 @@ public class PasswordExtraInfo
 		this.securityQuestion = securityQuestion;
 	}
 
-	public int getResetTries()
-	{
-		return resetTries;
-	}
-
-	public void setResetTries(int resetTries)
-	{
-		this.resetTries = resetTries;
-	}
-	
 	public static PasswordExtraInfo fromJson(String json)
 	{
 		PasswordExtraInfo ret = new PasswordExtraInfo();
@@ -78,7 +66,6 @@ public class PasswordExtraInfo
 			ret.setLastChange(new Date(root.get("lastChange").asLong()));
 			if (root.has("question"))
 				ret.setSecurityQuestion(root.get("question").asText());
-			ret.setResetTries(root.get("resetTries").asInt());
 			return ret;
 		}  catch (IOException e)
 		{
@@ -93,7 +80,6 @@ public class PasswordExtraInfo
 		root.put("lastChange", lastChange.getTime());
 		if (securityQuestion != null)
 			root.put("question", securityQuestion);
-		root.put("resetTries", resetTries);
 		try
 		{
 			return Constants.MAPPER.writeValueAsString(root);

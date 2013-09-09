@@ -7,6 +7,7 @@ package pl.edu.icm.unity.stdext.credential;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
+import pl.edu.icm.unity.server.authn.CredentialReset;
 
 /**
  * Allows for exchanging a regular passphrase.
@@ -20,7 +21,7 @@ public interface PasswordExchange extends CredentialExchange
 			throws EngineException;
 	
 	/**
-	 * @return credential reset settings (which may indicate that reset feature is disabled)
+	 * @return credential reset backend
 	 */
-	public CredentialResetSettings getCredentialResetSettings();
+	public CredentialReset getCredentialResetBackend();
 }

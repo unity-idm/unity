@@ -374,41 +374,18 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		}
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void setEntityCredential(EntityParam entity, String credentialId, String rawCredential) throws EngineException
 	{
+		if (rawCredential == null)
+			throw new IllegalCredentialException("The credential can not be null");
 		entity.validateInitialization();
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
 			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.credentialModify);
-			Map<String, AttributeExt<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(
-					entityId, "/", null, sqlMap);
-			
-			Attribute<?> credReqA = attributes.get(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS);
-			String credentialRequirements = (String)credReqA.getValues().get(0);
-			CredentialRequirementsHolder credReqs = engineHelper.getCredentialRequirements(
-					credentialRequirements, sqlMap);
-			LocalCredentialVerificator handler = credReqs.getCredentialHandler(credentialId);
-			if (handler == null)
-				throw new IllegalCredentialException("The credential id is not among the entity's credential requirements: " + credentialId);
-
-			String credentialAttributeName = SystemAttributeTypes.CREDENTIAL_PREFIX+credentialId;
-			Attribute<?> currentCredentialA = attributes.get(credentialAttributeName);
-			String currentCredential = currentCredentialA != null ? 
-					(String)currentCredentialA.getValues().get(0) : null;
-					
-			//set credential value		
-			if (rawCredential != null)
-			{
-				String newCred = handler.prepareCredential(rawCredential, currentCredential);
-				StringAttribute newCredentialA = new StringAttribute(credentialAttributeName, 
-						"/", AttributeVisibility.local, Collections.singletonList(newCred));
-				attributes.put(credentialAttributeName, new AttributeExt(newCredentialA, true));
-				dbAttributes.addAttribute(entityId, newCredentialA, true, sqlMap);
-			}
+			engineHelper.setEntityCredentialInternal(entityId, credentialId, rawCredential, sqlMap);
 			sqlMap.commit();
 		} finally
 		{

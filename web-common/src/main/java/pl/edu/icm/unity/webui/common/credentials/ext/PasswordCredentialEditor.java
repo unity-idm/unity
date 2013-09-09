@@ -16,11 +16,11 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.server.authn.CredentialResetSettings;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.stdext.credential.CredentialResetSettings;
+import pl.edu.icm.unity.stdext.credential.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.PasswordExtraInfo;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
-import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 
 /**
@@ -36,7 +36,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 	private ComboBox questionSelection;
 	private TextField answer;
 	private boolean requireQA;
-	private PasswordVerificator helper;
+	private PasswordCredential helper;
 
 	public PasswordCredentialEditor(UnityMessageSource msg)
 	{
@@ -46,7 +46,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 	@Override
 	public Component getEditor(String credentialConfiguration)
 	{
-		helper = new PasswordVerificator("", "");
+		helper = new PasswordCredential();
 		helper.setSerializedConfiguration(credentialConfiguration);
 		
 	//	passwordCurrent = new PasswordField(msg.getMessage("PasswordCredentialEditor.currentPassword"));
@@ -132,9 +132,6 @@ public class PasswordCredentialEditor implements CredentialEditor
 					: pei.getSecurityQuestion();
 			ret.addComponent(new Label(msg.getMessage("PasswordCredentialEditor.securityQuestion", secQ)));
 		}
-		if (pei.getResetTries() > 0)
-			ret.addComponent(new Label(msg.getMessage("PasswordCredentialEditor.resetTries", 
-					pei.getResetTries())));
 		return ret;
 	}
 }

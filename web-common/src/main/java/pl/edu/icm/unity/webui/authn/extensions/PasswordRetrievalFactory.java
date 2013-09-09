@@ -12,7 +12,9 @@ import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.CredentialRetrievalFactory;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
+import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 /**
  * Produces password retrievals for the Vaadin authn binding
@@ -25,6 +27,9 @@ public class PasswordRetrievalFactory implements CredentialRetrievalFactory
 	
 	@Autowired
 	private UnityMessageSource msg;
+	
+	@Autowired
+	private CredentialEditorRegistry credEditorReg;
 	
 	@Override
 	public String getName()
@@ -41,7 +46,7 @@ public class PasswordRetrievalFactory implements CredentialRetrievalFactory
 	@Override
 	public CredentialRetrieval newInstance()
 	{
-		return new PasswordRetrieval(msg);
+		return new PasswordRetrieval(msg, credEditorReg.getEditor(PasswordVerificatorFactory.NAME));
 	}
 
 	@Override

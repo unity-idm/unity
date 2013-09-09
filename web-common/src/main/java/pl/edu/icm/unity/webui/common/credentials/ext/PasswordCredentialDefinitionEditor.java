@@ -20,6 +20,7 @@ import com.vaadin.ui.Slider;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.stdext.credential.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
@@ -51,7 +52,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	@Override
 	public Component getViewer(String credentialDefinitionConfiguration)
 	{
-		PasswordVerificator helper = new PasswordVerificator("", "");
+		PasswordCredential helper = new PasswordCredential();
 		helper.setSerializedConfiguration(credentialDefinitionConfiguration);
 
 		Label minLength = new Label();
@@ -120,7 +121,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 				maxAge);
 		form.setSpacing(true);
 		form.setMargin(true);
-		PasswordVerificator helper = new PasswordVerificator("", "");
+		PasswordCredential helper = new PasswordCredential();
 		if (credentialDefinitionConfiguration != null)
 			helper.setSerializedConfiguration(credentialDefinitionConfiguration);
 		initUIState(helper);
@@ -133,7 +134,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	@Override
 	public String getCredentialDefinition() throws IllegalCredentialException
 	{
-		PasswordVerificator helper = new PasswordVerificator("", "");
+		PasswordCredential helper = new PasswordCredential();
 		helper.setDenySequences(denySequences.getValue());
 		helper.setHistorySize((int)(double)historySize.getValue());
 		if (limitMaxAge.getValue())
@@ -142,7 +143,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 			maxAgeMs *= MS_IN_MONTH;
 			helper.setMaxAge(maxAgeMs);
 		} else
-			helper.setMaxAge(PasswordVerificator.MAX_AGE_UNDEF);
+			helper.setMaxAge(PasswordCredential.MAX_AGE_UNDEF);
 		helper.setMinClassesNum((int)(double)minClasses.getValue());
 		helper.setMinLength((int)(double)minLength.getValue());
 		helper.setPasswordResetSettings(resetSettings.getValue());
@@ -155,7 +156,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		}
 	}
 
-	private void initUIState(PasswordVerificator helper)
+	private void initUIState(PasswordCredential helper)
 	{
 		minLength.setValue((double)helper.getMinLength());
 		minClasses.setValue((double)helper.getMinClassesNum());

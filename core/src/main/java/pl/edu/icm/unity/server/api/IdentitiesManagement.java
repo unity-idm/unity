@@ -117,8 +117,7 @@ public interface IdentitiesManagement
 	 * Sets authentication secretes for the entity. After the change, the credential will be in correct state.  
 	 * @param entity to be modified
 	 * @param credentialId credential id to be changed. 
-	 * @param secrets the credential type specific value of the credential. Can be null,
-	 * in which case the existing secrets are retained and only {@link LocalAuthenticationState} is being modified.
+	 * @param secrets the credential type specific value of the credential. 
 	 * @throws EngineException
 	 */
 	public void setEntityCredential(EntityParam entity, String credentialId, String secrets) throws EngineException;

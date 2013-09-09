@@ -16,7 +16,8 @@ public class TestPassword
 	@Test
 	public void test() throws Exception
 	{
-		PasswordVerificatorFactory f = new PasswordVerificatorFactory();
+		//we can pass nulls as we don't test the credential reset here.
+		PasswordVerificatorFactory f = new PasswordVerificatorFactory(null, null, null);
 		LocalCredentialVerificator verificator = f.newInstance();
 		verificator.setSerializedConfiguration("{" +
 				"\"minLength\": 5," +

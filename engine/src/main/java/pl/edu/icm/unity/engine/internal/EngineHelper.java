@@ -6,8 +6,10 @@ package pl.edu.icm.unity.engine.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
@@ -33,6 +35,7 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.authn.IdentityResolver;
+import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
@@ -226,5 +229,39 @@ public class EngineHelper
 						" can not be manually added");
 			dbAttributes.addAttribute(entityId, a, false, sqlMap);
 		}
+	}
+	
+	/**
+	 * Sets entity's credential. This is internal method which doesn't perform any authorization nor
+	 * argument initialization checking.
+	 * @param entityId
+	 * @param credentialId
+	 * @param rawCredential
+	 * @param sqlMap
+	 * @throws EngineException
+	 */
+	public void setEntityCredentialInternal(long entityId, String credentialId, String rawCredential,
+			SqlSession sqlMap) throws EngineException
+	{
+		Map<String, AttributeExt<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(
+				entityId, "/", null, sqlMap);
+		
+		Attribute<?> credReqA = attributes.get(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS);
+		String credentialRequirements = (String)credReqA.getValues().get(0);
+		CredentialRequirementsHolder credReqs = getCredentialRequirements(credentialRequirements, sqlMap);
+		LocalCredentialVerificator handler = credReqs.getCredentialHandler(credentialId);
+		if (handler == null)
+			throw new IllegalCredentialException("The credential id is not among the entity's credential requirements: " + credentialId);
+
+		String credentialAttributeName = SystemAttributeTypes.CREDENTIAL_PREFIX+credentialId;
+		Attribute<?> currentCredentialA = attributes.get(credentialAttributeName);
+		String currentCredential = currentCredentialA != null ? 
+				(String)currentCredentialA.getValues().get(0) : null;
+				
+		//set credential value		
+		String newCred = handler.prepareCredential(rawCredential, currentCredential);
+		StringAttribute newCredentialA = new StringAttribute(credentialAttributeName, 
+				"/", AttributeVisibility.local, Collections.singletonList(newCred));
+		dbAttributes.addAttribute(entityId, newCredentialA, true, sqlMap);
 	}
 }

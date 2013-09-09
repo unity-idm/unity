@@ -74,6 +74,7 @@ public class EngineInitialization extends LifecycleBase
 	public static final int ENGINE_INITIALIZATION_MOMENT = 0;
 	public static final String DEFAULT_CREDENTIAL = "Password credential";
 	public static final String DEFAULT_CREDENTIAL_REQUIREMENT = "Password requirement";
+
 	
 	@Autowired
 	private InternalEndpointManagement internalEndpointManager;
@@ -527,7 +528,8 @@ public class EngineInitialization extends LifecycleBase
 			}
 			File mailCfgFile = config.getFileValue(UnityServerConfiguration.MAIL_CONF, false);
 			String mailCfg = FileUtils.readFileToString(mailCfgFile);
-			notManagement.addNotificationChannel(EmailFacility.NAME, "default e-mail channel", mailCfg);
+			notManagement.addNotificationChannel(EmailFacility.NAME, 
+					UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL, mailCfg);
 		} catch (Exception e)
 		{
 			log.fatal("Can't load e-mail notification channel configuration", e);

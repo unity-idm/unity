@@ -4,10 +4,14 @@
  */
 package pl.edu.icm.unity.stdext.credential;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.notifications.NotificationProducer;
+import pl.edu.icm.unity.server.authn.CredentialHelper;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 
 /**
  * Produces verificators of passwords.
@@ -18,6 +22,20 @@ public class PasswordVerificatorFactory implements LocalCredentialVerificatorFac
 {
 	public static final String NAME = "password";
 	
+	private NotificationProducer notificationProducer;
+	private UnityServerConfiguration serverConfig;
+	private CredentialHelper credentialHelper;
+	
+	
+	@Autowired
+	public PasswordVerificatorFactory(NotificationProducer notificationProducer,
+			UnityServerConfiguration serverConfig, CredentialHelper credentialHelper)
+	{
+		this.notificationProducer = notificationProducer;
+		this.serverConfig = serverConfig;
+		this.credentialHelper = credentialHelper;
+	}
+
 	@Override
 	public String getName()
 	{
@@ -33,7 +51,8 @@ public class PasswordVerificatorFactory implements LocalCredentialVerificatorFac
 	@Override
 	public LocalCredentialVerificator newInstance()
 	{
-		return new PasswordVerificator(getName(), getDescription());
+		return new PasswordVerificator(getName(), getDescription(), notificationProducer,
+				serverConfig, credentialHelper);
 	}
 
 	@Override

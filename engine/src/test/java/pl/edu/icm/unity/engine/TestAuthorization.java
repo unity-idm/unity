@@ -11,6 +11,7 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
+import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
@@ -112,7 +113,8 @@ public class TestAuthorization extends DBIntegrationTestBase
 			fail("set attributes with outdated credential");
 		} catch(AuthorizationException e) {}
 		
-		idsMan.setEntityCredential(entity, EngineInitialization.DEFAULT_CREDENTIAL, "foo12!~");
+		idsMan.setEntityCredential(entity, EngineInitialization.DEFAULT_CREDENTIAL, 
+				new PasswordToken("foo12!~").toJson());
 		idsMan.getIdentityTypes();
 	}
 }

@@ -7,14 +7,12 @@ package pl.edu.icm.unity.stdext.credential;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
 import org.bouncycastle.util.Arrays;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -42,93 +40,61 @@ import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.notifications.NotificationProducer;
 import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.authn.CredentialHelper;
+import pl.edu.icm.unity.server.authn.CredentialReset;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.CryptoUtils;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
 /**
- * Ordinary password credential. Highly configurable: it is possible to set minimal length,
+ * Ordinary password credential verificator. Highly configurable: it is possible to set minimal length,
  * what character classes are required, minimum number of character classes, how many previous passwords 
  * should be stored and not repeated after change, how often the password must be changed.
  * <p>
  * Additionally configuration of the credential may allow for password reset feature. Then are stored
- * email verification settings, security question settings, maximum number confirmation code re-sends and 
- * confirmation code length.
+ * email verification settings, security question settings and confirmation code length.
  * 
+ * @see PasswordCredential
  * @author K. Benedyczak
  */
 public class PasswordVerificator extends AbstractLocalVerificator implements PasswordExchange
 { 	
-	private static final String[] IDENTITY_TYPES = {UsernameIdentity.ID};
-	//200 years should be enough, Long MAX is too much as we would fail on maths
-	public static final long MAX_AGE_UNDEF = 200*12*30*24*3600000; 
-	private Random random = new Random();
-	private int minLength = 8;
-	private int historySize = 0;
-	private int minClassesNum = 3;
-	private boolean denySequences = true;
-	private long maxAge = MAX_AGE_UNDEF; 
-	private CredentialResetSettings passwordResetSettings = new CredentialResetSettings();
+	static final String[] IDENTITY_TYPES = {UsernameIdentity.ID};
 
-	public PasswordVerificator(String name, String description)
+	private NotificationProducer notificationProducer;
+	private UnityServerConfiguration serverConfig;
+	private CredentialHelper credentialHelper;
+	private Random random = new Random();
+	
+	private PasswordCredential credential = new PasswordCredential();
+
+
+	public PasswordVerificator(String name, String description,
+			NotificationProducer notificationProducer, UnityServerConfiguration serverConfig,
+			CredentialHelper credentialHelper)
 	{
 		super(name, description, PasswordExchange.ID, true);
+		this.notificationProducer = notificationProducer;
+		this.serverConfig = serverConfig;
+		this.credentialHelper = credentialHelper;
 	}
 
 	@Override
 	public String getSerializedConfiguration() throws InternalException
 	{
-		ObjectNode root = Constants.MAPPER.createObjectNode();
-		root.put("minLength", minLength);
-		root.put("historySize", historySize);
-		root.put("minClassesNum", minClassesNum);
-		root.put("maxAge", maxAge);
-		root.put("denySequences", denySequences);
-		
-		ObjectNode resetNode = root.putObject("resetSettings");
-		passwordResetSettings.serializeTo(resetNode);
-		
-		try
-		{
-			return Constants.MAPPER.writeValueAsString(root);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't serialize password credential configuration to JSON", e);
-		}
+		return credential.getSerializedConfiguration();
 	}
 
 	@Override
 	public void setSerializedConfiguration(String json) throws InternalException
 	{
-		JsonNode root;
-		try
-		{
-			root = Constants.MAPPER.readTree(json);
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't deserialize password credential configuration " +
-					"from JSON", e);
-		}
-		minLength = root.get("minLength").asInt();
-		if (minLength <= 0 || minLength > 100)
-			throw new InternalException("Minimal password length must be in range [1-100]");
-		historySize = root.get("historySize").asInt();
-		if (historySize < 0 || historySize > 1000)
-			throw new InternalException("History size must be in range [0-1000]");
-		minClassesNum = root.get("minClassesNum").asInt();
-		if (minClassesNum <= 0 || minClassesNum > 4)
-			throw new InternalException("Minimum classes number must be in range [1-4]");
-		maxAge = root.get("maxAge").asLong();
-		if (maxAge <= 0)
-			throw new InternalException("Maximum age must be positive");
-		denySequences = root.get("denySequences").asBoolean();
-		JsonNode resetNode = root.get("resetSettings");
-		if (resetNode != null)
-			passwordResetSettings.deserializeFrom((ObjectNode) resetNode);
+		credential.setSerializedConfiguration(json);
 	}
 
 	/**
@@ -138,19 +104,21 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	public String prepareCredential(String rawCredential, String currentCredential)
 			throws IllegalCredentialException, InternalException
 	{
-		Deque<PasswordInfo> currentPasswords = parseDbCredential(currentCredential).getPasswords();
+		Deque<PasswordInfo> currentPasswords = PasswordCredentialDBState.fromJson(currentCredential).
+				getPasswords();
 		
 		PasswordToken pToken = PasswordToken.loadFromJson(rawCredential);
 		
 		verifyNewPassword(pToken.getExistingPassword(), pToken.getPassword(), currentPasswords);
 		
-		if (passwordResetSettings.isEnabled() && passwordResetSettings.isRequireSecurityQuestion())
+		if (credential.getPasswordResetSettings().isEnabled() && 
+				credential.getPasswordResetSettings().isRequireSecurityQuestion())
 		{
 			if (pToken.getAnswer() == null || pToken.getQuestion() == -1)
 				throw new IllegalCredentialException("The credential must select a security question " +
 						"and provide an answer for it");
 			if (pToken.getQuestion() < 0 || pToken.getQuestion() >= 
-					passwordResetSettings.getQuestions().size())
+					credential.getPasswordResetSettings().getQuestions().size())
 				throw new IllegalCredentialException("The chosen answer for security question is invalid");
 		}
 		
@@ -159,7 +127,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		byte[] hashed = CryptoUtils.hash(pToken.getPassword(), salt);
 
 		PasswordInfo currentPassword = new PasswordInfo(hashed, salt);
-		if (historySize <= currentPasswords.size() && !currentPasswords.isEmpty())
+		if (credential.getHistorySize() <= currentPasswords.size() && !currentPasswords.isEmpty())
 			currentPasswords.removeLast();
 		currentPasswords.addFirst(currentPassword);
 
@@ -173,13 +141,14 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			entry.put("time", pi.getTime().getTime());
 		}
 		root.put("outdated", false);
-		if (passwordResetSettings.isEnabled() && passwordResetSettings.isRequireSecurityQuestion())
+		if (credential.getPasswordResetSettings().isEnabled() && 
+				credential.getPasswordResetSettings().isRequireSecurityQuestion())
 		{
-			String question = passwordResetSettings.getQuestions().get(pToken.getQuestion());
+			String question = credential.getPasswordResetSettings().getQuestions().get(
+					pToken.getQuestion());
 			root.put("question", question);
 			root.put("answerHash", CryptoUtils.hash(pToken.getAnswer().toLowerCase(), question));
 		}
-		root.put("resets", 0);
 		try
 		{
 			return Constants.MAPPER.writeValueAsString(root);
@@ -204,52 +173,18 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			throw new InternalException("Can't deserialize password credential from JSON", e);
 		}
 	}
-	
-	private CredentialDBState parseDbCredential(String raw) throws InternalException
-	{
-		if (raw == null || raw.length() == 0)
-			return new CredentialDBState(new LinkedList<PasswordInfo>(), false, null, null, 0);
-		JsonNode root;
-		try
-		{
-			root = Constants.MAPPER.readTree(raw);
-
-			JsonNode passwords = root.get("passwords");
-			Deque<PasswordInfo> ret = new LinkedList<PasswordInfo>();
-			for (int i=0; i<passwords.size(); i++)
-			{
-				JsonNode rawPasswd = passwords.get(i);
-				ret.add(new PasswordInfo(rawPasswd.get("hash").binaryValue(),
-						rawPasswd.get("salt").asText(),
-						rawPasswd.get("time").asLong()));
-			}
-			boolean outdated = root.get("outdated").asBoolean();
-			JsonNode qn = root.get("question");
-			String question = qn == null ? null : qn.asText();
-			JsonNode an = root.get("answerHash");
-			byte[] answerHash = an == null ? null : an.binaryValue();
-			JsonNode rn = root.get("resets");
-			int resetTries = rn == null ? 0 : rn.asInt();
-			return new CredentialDBState(ret, outdated, question, answerHash, resetTries);
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't deserialize password credential from JSON", e);
-		}
-
-	}
-
 
 	@Override
 	public CredentialPublicInformation checkCredentialState(String currentCredential) throws InternalException
 	{
-		CredentialDBState parsedCred = parseDbCredential(currentCredential);
+		PasswordCredentialDBState parsedCred = PasswordCredentialDBState.fromJson(currentCredential);
 		Deque<PasswordInfo> currentPasswords = parsedCred.getPasswords();
 		if (currentPasswords.isEmpty())
 			return new CredentialPublicInformation(LocalCredentialState.notSet, "");
 		
 		PasswordInfo currentPassword = currentPasswords.getFirst();
 		PasswordExtraInfo pei = new PasswordExtraInfo(currentPassword.getTime(), 
-				parsedCred.getSecurityQuestion(), parsedCred.getResetTries());
+				parsedCred.getSecurityQuestion());
 		String extraInfo = pei.toJson();
 		
 		if (isCurrentCredentialOutdated(parsedCred))
@@ -268,7 +203,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		EntityWithCredential resolved = identityResolver.resolveIdentity(username, 
 				IDENTITY_TYPES, credentialName);
 		String dbCredential = resolved.getCredentialValue();
-		CredentialDBState credState = parseDbCredential(dbCredential);
+		PasswordCredentialDBState credState = PasswordCredentialDBState.fromJson(dbCredential);
 		Deque<PasswordInfo> credentials = credState.getPasswords();
 		if (credentials.isEmpty())
 			throw new IllegalCredentialException("The entity has no password set");
@@ -282,13 +217,16 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 
 
 	@Override
-	public CredentialResetSettings getCredentialResetSettings()
+	public CredentialReset getCredentialResetBackend()
 	{
-		return passwordResetSettings;
+		return new CredentialResetImpl(notificationProducer, serverConfig, identityResolver, 
+				this, credentialHelper,
+				credentialName, getSerializedConfiguration(), 
+				credential.getPasswordResetSettings());
 	}
 
 	/**
-	 * As {@link #isCurrentCredentialOutdated(CredentialDBState)} but also
+	 * As {@link #isCurrentCredentialOutdated(PasswordCredentialDBState)} but also
 	 * checks if the provided password is fulfilling the actual rules of the credential
 	 * (what can not be checked with the hashed in-db version of the credential).
 	 * <p>
@@ -301,9 +239,8 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	 * @throws IllegalTypeException 
 	 * @throws IllegalAttributeValueException 
 	 */
-	private boolean isCurrentPasswordOutdated(String password, CredentialDBState credState, 
-			EntityWithCredential resolved) throws IllegalAttributeValueException, IllegalTypeException, 
-			IllegalAttributeTypeException, IllegalGroupValueException
+	private boolean isCurrentPasswordOutdated(String password, PasswordCredentialDBState credState, 
+			EntityWithCredential resolved) throws EngineException
 	{
 		if (isCurrentCredentialOutdated(credState))
 			return true;
@@ -313,7 +250,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		if (!result.isValid())
 		{
 			String invalidated = invalidate(resolved.getCredentialValue());
-			identityResolver.updateCredential(resolved.getEntityId(), resolved.getCredentialName(), 
+			credentialHelper.updateCredential(resolved.getEntityId(), resolved.getCredentialName(), 
 						invalidated);
 			return true;
 		}
@@ -327,16 +264,16 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	 * @param password
 	 * @return true if credential is invalid
 	 */
-	private boolean isCurrentCredentialOutdated(CredentialDBState credState)
+	private boolean isCurrentCredentialOutdated(PasswordCredentialDBState credState)
 	{
 		if (credState.isOutdated())
 			return true;
 		if (credState.getSecurityQuestion() == null && 
-				passwordResetSettings.isEnabled() && 
-				passwordResetSettings.isRequireSecurityQuestion())
+				credential.getPasswordResetSettings().isEnabled() && 
+				credential.getPasswordResetSettings().isRequireSecurityQuestion())
 			return true;
 		PasswordInfo current = credState.getPasswords().getFirst();
-		Date validityEnd = new Date(current.getTime().getTime() + maxAge);
+		Date validityEnd = new Date(current.getTime().getTime() + credential.getMaxAge());
 		if (new Date().after(validityEnd))
 			return true;
 		return false;
@@ -358,29 +295,20 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			if (Arrays.areEqual(newHashed, pi.getHash()))
 				throw new IllegalCredentialException("The same password was recently used");
 		}
-		/*
-		if (!currentCredentials.isEmpty())
-		{
-			PasswordInfo cur = currentCredentials.getFirst();
-			byte[] existingHashed = hash(existingPassword, cur.getSalt());
-			if (!Arrays.areEqual(existingHashed, cur.getHash()))
-				throw new IllegalCredentialException("The current password value is wrong");
-		}
-		*/
 	}
 
 	private PasswordValidator getPasswordValidator()
 	{
 		List<Rule> ruleList = new ArrayList<Rule>();
-		ruleList.add(new LengthRule(minLength, 512));
+		ruleList.add(new LengthRule(credential.getMinLength(), 512));
 		CharacterCharacteristicsRule charRule = new CharacterCharacteristicsRule();
 		charRule.getRules().add(new DigitCharacterRule(1));
 		charRule.getRules().add(new NonAlphanumericCharacterRule(1));
 		charRule.getRules().add(new UppercaseCharacterRule(1));
 		charRule.getRules().add(new LowercaseCharacterRule(1));
-		charRule.setNumberOfCharacteristics(minClassesNum);
+		charRule.setNumberOfCharacteristics(credential.getMinClassesNum());
 		ruleList.add(charRule);
-		if (denySequences)
+		if (credential.isDenySequences())
 		{
 			ruleList.add(new AlphabeticalSequenceRule());
 			ruleList.add(new NumericalSequenceRule(3, true));
@@ -388,147 +316,6 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			ruleList.add(new RepeatCharacterRegexRule(4));
 		}
 		return new PasswordValidator(ruleList);
-	}
-
-	public int getMinLength()
-	{
-		return minLength;
-	}
-
-	public void setMinLength(int minLength)
-	{
-		this.minLength = minLength;
-	}
-
-	public int getHistorySize()
-	{
-		return historySize;
-	}
-
-	public void setHistorySize(int historySize)
-	{
-		this.historySize = historySize;
-	}
-
-	public int getMinClassesNum()
-	{
-		return minClassesNum;
-	}
-
-	public void setMinClassesNum(int minClassesNum)
-	{
-		this.minClassesNum = minClassesNum;
-	}
-
-	public boolean isDenySequences()
-	{
-		return denySequences;
-	}
-
-	public void setDenySequences(boolean denySequences)
-	{
-		this.denySequences = denySequences;
-	}
-
-	public long getMaxAge()
-	{
-		return maxAge;
-	}
-
-	public void setMaxAge(long maxAge)
-	{
-		this.maxAge = maxAge;
-	}
-
-	public CredentialResetSettings getPasswordResetSettings()
-	{
-		return passwordResetSettings;
-	}
-
-	public void setPasswordResetSettings(CredentialResetSettings passwordResetSettings)
-	{
-		this.passwordResetSettings = passwordResetSettings;
-	}
-
-
-
-	/**
-	 * In DB representation of the credential state.
-	 * @author K. Benedyczak
-	 */
-	private static class CredentialDBState
-	{
-		private Deque<PasswordInfo> passwords;
-		private boolean outdated;
-		private String securityQuestion;
-		private byte[] answerHash;
-		private int resetTries;
-
-		public CredentialDBState(Deque<PasswordInfo> passwords, boolean outdated,
-				String securityQuestion, byte[] answerHash, int resetTries)
-		{
-			this.passwords = passwords;
-			this.outdated = outdated;
-			this.securityQuestion = securityQuestion;
-			this.answerHash = answerHash;
-			this.resetTries = resetTries;
-		}
-		public Deque<PasswordInfo> getPasswords()
-		{
-			return passwords;
-		}
-		public boolean isOutdated()
-		{
-			return outdated;
-		}
-		public String getSecurityQuestion()
-		{
-			return securityQuestion;
-		}
-		public byte[] getAnswerHash()
-		{
-			return answerHash;
-		}
-		public int getResetTries()
-		{
-			return resetTries;
-		}
-	}
-	
-	/**
-	 * In DB representation of the credential state is a list of objects as the one described in this class.
-	 * @author K. Benedyczak
-	 */
-	private static class PasswordInfo
-	{
-		private byte[] hash;
-		private String salt;
-		private Date time;
-
-		public PasswordInfo(byte[] hash, String salt)
-		{
-			this.hash = hash;
-			this.salt = salt;
-			this.time = new Date();
-		}
-		public PasswordInfo(byte[] hash, String salt, long time)
-		{
-			this.hash = hash;
-			this.salt = salt;
-			this.time = new Date(time);
-		}
-		public byte[] getHash()
-		{
-			return hash;
-		}
-		public String getSalt()
-		{
-			return salt;
-		}
-		public Date getTime()
-		{
-			return time;
-		}
 	}
 }
 

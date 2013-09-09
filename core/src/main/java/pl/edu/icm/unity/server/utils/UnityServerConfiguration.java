@@ -8,6 +8,7 @@
 
 package pl.edu.icm.unity.server.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.CommandLinePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.notifications.TemplatesStore;
 
 import eu.unicore.security.canl.AuthnAndTrustProperties;
 import eu.unicore.security.canl.CredentialProperties;
@@ -46,7 +49,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final String CONFIGURATION_FILE = "conf/unityServer.conf";
-
+	public static final String DEFAULT_EMAIL_CHANNEL = "Default e-mail channel";
+	
 	public static final String BASE_PREFIX = "unityServer.";
 
 	@DocumentationReferencePrefix
@@ -55,6 +59,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String ENABLED_LOCALES = "enabledLocales.";
 	public static final String DEFAULT_LOCALE = "defaultLocale";
 	public static final String MAIL_CONF = "mailConfig";
+	public static final String TEMPLATES_CONF = "templatesFile";
 	public static final String THREAD_POOL_SIZE = "threadPoolSize";
 	public static final String RECREATE_ENDPOINTS_ON_STARTUP = "recreateEndpointsOnStartup";
 	public static final String ENDPOINTS = "endpoints.";
@@ -105,6 +110,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("The default locale to be used. Must be one of the enabled locales."));
 		defaults.put(MAIL_CONF, new PropertyMD().setPath().setCategory(mainCat).
 				setDescription("A configuration file for the mail notification subsystem."));
+		defaults.put(TEMPLATES_CONF, new PropertyMD("conf/msgTemplates.properties").setPath().setCategory(mainCat).
+				setDescription("A file with the default message templates."));
 		defaults.put(RECREATE_ENDPOINTS_ON_STARTUP, new PropertyMD("false").setDescription(
 				"If this options is true then all endpoints are initialized from configuration at each startup. If it is false then the persisted endpoints are loaded and configuration is used only at the initial start of the server."));
 		defaults.put(THREAD_POOL_SIZE, new PropertyMD("4").setDescription(
@@ -182,6 +189,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	private IClientConfiguration clientCfg;
 	private Map<String, Locale> enabledLocales;
 	private Locale defaultLocale;
+	private TemplatesStore templatesStore;
 	
 	@Autowired
 	public UnityServerConfiguration(Environment env, ConfigurationLocationProvider locProvider) throws ConfigurationException, IOException
@@ -195,6 +203,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		defaultLocale = safeLocaleDecode(getValue(DEFAULT_LOCALE));
 		if (!isLocaleSupported(defaultLocale))
 			throw new ConfigurationException("The default locale is not among enabled ones.");
+		templatesStore = loadTemplatesStore();
 	}
 	
 	private static String getConfigurationFile(Environment env, ConfigurationLocationProvider locProvider)
@@ -209,6 +218,13 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 			
 		log.debug("Using configuration file: " + configFile);
 		return configFile;
+	}
+	
+	private TemplatesStore loadTemplatesStore() throws IOException
+	{
+		File file = getFileValue(TEMPLATES_CONF, false);
+		Properties props = FilePropertiesHelper.load(file);
+		return new TemplatesStore(props, getDefaultLocale());
 	}
 	
 	/**
@@ -285,6 +301,11 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public Map<String, Locale> getEnabledLocales()
 	{
 		return enabledLocales;
+	}
+	
+	public TemplatesStore getTemplatesStore()
+	{
+		return templatesStore;
 	}
 	
 	public Properties getProperties()

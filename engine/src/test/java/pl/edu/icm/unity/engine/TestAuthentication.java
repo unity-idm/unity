@@ -239,25 +239,29 @@ public class TestAuthentication extends DBIntegrationTestBase
 				"crMock", EntityState.valid, false);
 		EntityParam entityP = new EntityParam(id);
 		Entity entity = idsMan.getEntity(entityP);
-		assertEquals(LocalCredentialState.notSet, entity.getCredentialInfo().getCredentialsState().get("credential1"));
+		assertEquals(LocalCredentialState.notSet, entity.getCredentialInfo().
+				getCredentialsState().get("credential1").getState());
 		
 		//set entity credential and check if status notSet was changed to valid
 		idsMan.setEntityCredential(entityP, "credential1", "password");
 		entity = idsMan.getEntity(entityP);
-		assertEquals(LocalCredentialState.correct, entity.getCredentialInfo().getCredentialsState().get("credential1"));
+		assertEquals(LocalCredentialState.correct, entity.getCredentialInfo().getCredentialsState().
+				get("credential1").getState());
 
 		//update credential requirements and check if the entity has its authN status still fine
 		credReq1.setDescription("changed2");
 		authnMan.updateCredentialRequirement(credReq1);
 		entity = idsMan.getEntity(entityP);
-		assertEquals(LocalCredentialState.correct, entity.getCredentialInfo().getCredentialsState().get("credential1"));
+		assertEquals(LocalCredentialState.correct, entity.getCredentialInfo().getCredentialsState().
+				get("credential1").getState());
 
 		//update credential definition now with identity using it via credential requirements
 		credDefRet.setDescription("d3");
 		credDefRet.setJsonConfiguration("119");
 		authnMan.updateCredentialDefinition(credDefRet, LocalCredentialState.correct);
 		entity = idsMan.getEntity(entityP);
-		assertEquals(LocalCredentialState.correct, entity.getCredentialInfo().getCredentialsState().get("credential1"));
+		assertEquals(LocalCredentialState.correct, entity.getCredentialInfo().getCredentialsState().
+				get("credential1").getState());
 		
 		try
 		{
@@ -278,17 +282,22 @@ public class TestAuthentication extends DBIntegrationTestBase
 		idsMan.setEntityCredentialRequirements(entityP, "crMock2");
 		
 		entity = idsMan.getEntity(entityP);
-		assertEquals(LocalCredentialState.correct, entity.getCredentialInfo().getCredentialsState().get("credential1"));
-		assertEquals(LocalCredentialState.notSet, entity.getCredentialInfo().getCredentialsState().get("credential2"));
+		assertEquals(LocalCredentialState.correct, entity.getCredentialInfo().getCredentialsState().
+				get("credential1").getState());
+		assertEquals(LocalCredentialState.notSet, entity.getCredentialInfo().getCredentialsState().
+				get("credential2").getState());
 		idsMan.setEntityCredential(entityP, "credential2", "password2");
 		entity = idsMan.getEntity(entityP);
-		assertEquals(LocalCredentialState.correct, entity.getCredentialInfo().getCredentialsState().get("credential1"));
-		assertEquals(LocalCredentialState.correct, entity.getCredentialInfo().getCredentialsState().get("credential2"));
+		assertEquals(LocalCredentialState.correct, entity.getCredentialInfo().getCredentialsState().
+				get("credential1").getState());
+		assertEquals(LocalCredentialState.correct, entity.getCredentialInfo().getCredentialsState().
+				get("credential2").getState());
 		
 		authnMan.removeCredentialRequirement("crMock2", "crMock");
 		credReqs = authnMan.getCredentialRequirements();
 		assertEquals(1+automaticCredReqs, credReqs.size());
 		entity = idsMan.getEntity(entityP);
-		assertEquals(LocalCredentialState.correct, entity.getCredentialInfo().getCredentialsState().get("credential1"));
+		assertEquals(LocalCredentialState.correct, entity.getCredentialInfo().getCredentialsState().
+				get("credential1").getState());
 	}
 }

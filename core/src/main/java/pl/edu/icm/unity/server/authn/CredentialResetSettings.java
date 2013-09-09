@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.stdext.credential;
+package pl.edu.icm.unity.server.authn;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +21,8 @@ public class CredentialResetSettings
 	private boolean enabled = false;
 	private boolean requireEmailConfirmation = true;
 	private boolean requireSecurityQuestion = true;
-	private int maxTries = 2;
 	private int codeLength = 4;
-	private List<String> questions = new ArrayList<>();  
+	private List<String> questions = new ArrayList<>();
 	
 	public CredentialResetSettings()
 	{
@@ -59,16 +58,6 @@ public class CredentialResetSettings
 		return requireSecurityQuestion;
 	}
 
-	public int getMaxTries()
-	{
-		return maxTries;
-	}
-
-	public void setMaxTries(int maxTries)
-	{
-		this.maxTries = maxTries;
-	}
-
 	public int getCodeLength()
 	{
 		return codeLength;
@@ -94,7 +83,6 @@ public class CredentialResetSettings
 		node.put("enable", enabled);
 		if (!enabled)
 			return;
-		node.put("maxResends", maxTries);
 		node.put("codeLength", codeLength);
 		node.put("requireEmailConfirmation", requireEmailConfirmation);
 		node.put("requireSecurityQuestion", requireSecurityQuestion);
@@ -108,7 +96,6 @@ public class CredentialResetSettings
 		this.enabled = node.get("enable").asBoolean();
 		if (!enabled)
 			return;
-		this.maxTries = node.get("maxResends").asInt();
 		this.codeLength = node.get("codeLength").asInt();
 		this.requireEmailConfirmation = node.get("requireEmailConfirmation").asBoolean();
 		this.requireSecurityQuestion = node.get("requireSecurityQuestion").asBoolean();

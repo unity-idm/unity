@@ -30,7 +30,8 @@ import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.common.credentials.ext.PasswordResetDialog;
+import pl.edu.icm.unity.webui.authn.credreset.CredentialReset1Dialog;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 
 /**
  * Retrieves passwords using a Vaadin widget.
@@ -44,11 +45,13 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 	private PasswordField passwordField;
 	
 	private UnityMessageSource msg;
+	private CredentialEditor credEditor;
 	private String name;
 	
-	public PasswordRetrieval(UnityMessageSource msg)
+	public PasswordRetrieval(UnityMessageSource msg, CredentialEditor credEditor)
 	{
 		this.msg = msg;
+		this.credEditor = credEditor;
 	}
 	
 	@Override
@@ -106,7 +109,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		passwordField = new PasswordField(label);
 		ret.addComponent(passwordField);
 		
-		if (credentialExchange.getCredentialResetSettings().isEnabled())
+		if (credentialExchange.getCredentialResetBackend().getSettings().isEnabled())
 		{
 			Button reset = new Button(msg.getMessage("WebPasswordRetrieval.forgottenPassword"));
 			reset.setStyleName(Reindeer.BUTTON_LINK);
@@ -176,8 +179,8 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 	
 	private void showResetDialog()
 	{
-		PasswordResetDialog dialog = new PasswordResetDialog(msg, 
-				credentialExchange.getCredentialResetSettings());
+		CredentialReset1Dialog dialog = new CredentialReset1Dialog(msg, 
+				credentialExchange.getCredentialResetBackend(), credEditor);
 		dialog.show();
 	}
 }

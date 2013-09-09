@@ -90,6 +90,7 @@
 	<bean class="pl.edu.icm.unity.engine.internal.EngineInitialization"/>
 	<bean class="pl.edu.icm.unity.engine.internal.EngineHelper"/>
 	<bean class="pl.edu.icm.unity.engine.internal.IdentityResolverImpl"/>
+	<bean class="pl.edu.icm.unity.engine.internal.CredentialHelperImpl"/>
 	<bean class="pl.edu.icm.unity.engine.internal.EndpointsUpdater"/>
 	<bean class="pl.edu.icm.unity.engine.internal.AttributeStatementsCleaner"/>
 	<bean class="pl.edu.icm.unity.engine.internal.NotificationsManagementCore"/>

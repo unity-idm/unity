@@ -12,8 +12,8 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Slider;
 
+import pl.edu.icm.unity.server.authn.CredentialResetSettings;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.stdext.credential.CredentialResetSettings;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.ListOfElements.RemoveHandler;
@@ -30,7 +30,6 @@ public class CredentialResetSettingsEditor
 	private CredentialResetSettings initial;
 	private CheckBox enable;
 	private Slider codeLength;
-	private Slider maxResends;
 	private CheckBox requireEmailConfirmation;
 	private CheckBox requireQuestionConfirmation;
 	private TextFieldWithButton questionAdder;
@@ -57,8 +56,6 @@ public class CredentialResetSettingsEditor
 		
 		Label codeLength = new Label(String.valueOf(initial.getCodeLength()));
 		codeLength.setCaption(msg.getMessage("CredentialResetSettings.codeLength"));
-		Label maxResends = new Label(String.valueOf(initial.getMaxTries()));
-		maxResends.setCaption(msg.getMessage("CredentialResetSettings.maxResends"));
 		Label requireEmailConfirmation = new Label(initial.isRequireEmailConfirmation() ? 
 				msg.getMessage("yes") : msg.getMessage("no"));
 		requireEmailConfirmation.setCaption(msg.getMessage("CredentialResetSettings.requireEmailConfirmation"));
@@ -66,7 +63,7 @@ public class CredentialResetSettingsEditor
 				msg.getMessage("yes") : msg.getMessage("no"));
 		requireQuestionConfirmation.setCaption(msg.getMessage(
 				"CredentialResetSettings.requireQuestionConfirmation"));
-		parent.addComponents(codeLength, maxResends, requireEmailConfirmation, requireQuestionConfirmation);
+		parent.addComponents(codeLength, requireEmailConfirmation, requireQuestionConfirmation);
 		
 		if (!initial.isRequireSecurityQuestion())
 			return;
@@ -82,7 +79,7 @@ public class CredentialResetSettingsEditor
 	{
 		initUI();
 		setValue(initial);		
-		parent.addComponents(enable, codeLength, maxResends, requireEmailConfirmation, 
+		parent.addComponents(enable, codeLength, requireEmailConfirmation, 
 				requireQuestionConfirmation, questionAdder, questions);
 	}
 	
@@ -101,8 +98,6 @@ public class CredentialResetSettingsEditor
 		
 		codeLength = new Slider(msg.getMessage("CredentialResetSettings.codeLength"), 2, 10);
 		codeLength.setWidth(100, Unit.PERCENTAGE);
-		maxResends = new Slider(msg.getMessage("CredentialResetSettings.maxResends"), 0, 10);
-		maxResends.setWidth(100, Unit.PERCENTAGE);
 		
 		requireEmailConfirmation = new CheckBox(
 				msg.getMessage("CredentialResetSettings.requireEmailConfirmation"));
@@ -162,7 +157,6 @@ public class CredentialResetSettingsEditor
 	private void setEnabled(boolean how)
 	{
 		codeLength.setEnabled(how);
-		maxResends.setEnabled(how);
 		requireEmailConfirmation.setEnabled(how);
 		requireQuestionConfirmation.setEnabled(how);
 		if (how)
@@ -182,7 +176,6 @@ public class CredentialResetSettingsEditor
 	{
 		enable.setValue(initial.isEnabled());
 		codeLength.setValue((double)initial.getCodeLength());
-		maxResends.setValue((double)initial.getMaxTries());
 		requireEmailConfirmation.setValue(initial.isRequireEmailConfirmation());
 		requireQuestionConfirmation.setValue(initial.isRequireEmailConfirmation());
 		for (String question: initial.getQuestions())
@@ -195,7 +188,6 @@ public class CredentialResetSettingsEditor
 		CredentialResetSettings ret = new CredentialResetSettings();
 		ret.setEnabled(enable.getValue());
 		ret.setCodeLength((int)(double)codeLength.getValue());
-		ret.setMaxTries((int)(double)maxResends.getValue());
 		ret.setRequireEmailConfirmation(requireEmailConfirmation.getValue());
 		ret.setRequireSecurityQuestion(requireQuestionConfirmation.getValue());
 		ret.setQuestions(questions.getElements());

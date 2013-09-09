@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common.credentials.ext;
+package pl.edu.icm.unity.webui.authn.credreset;
 
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
@@ -14,9 +14,9 @@ import com.vaadin.server.WrappedSession;
  * but as Unity's engine authZ is not on guard in password reset case let's go secure.
  * @author K. Benedyczak
  */
-public class PasswordResetStateVariable
+public class CredentialResetStateVariable
 {
-	private static final String SES_NAME = PasswordResetStateVariable.class.getName(); 
+	private static final String SES_NAME = CredentialResetStateVariable.class.getName(); 
 	/**
 	 * @return returns a current state of the variable. In case no variable is defined 0 is returned.
 	 */
@@ -39,6 +39,8 @@ public class PasswordResetStateVariable
 		Integer var = (Integer) session.getAttribute(SES_NAME);
 		if (var == null)
 			var = new Integer(1);
+		else
+			var = new Integer(var+1);
 		session.setAttribute(SES_NAME, var);
 	}
 	

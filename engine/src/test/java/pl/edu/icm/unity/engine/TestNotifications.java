@@ -42,13 +42,15 @@ public class TestNotifications extends DBIntegrationTestBase
 	{
 		String emailCfg = "mail.from=...\n" +
 				"mail.smtp.host=...\n" +
+				"mail.smtp.starttls.enable=true\n" +
 				"mail.smtp.port=587\n" + //or 25
 				"mailx.smtp.auth.username=...\n" +
 				"mailx.smtp.auth.password=...\n" +
 				"mail.smtp.auth=true\n" +
 				"mail.smtp.timeoutSocket=15000\n" +
-				"mail.smtp.connectiontimeout=15000\n";
-		String destinationAddress = "... @ ...";
+				"mail.smtp.connectiontimeout=15000\n" +
+				"mailx.smtp.trustAll=true";
+		String destinationAddress = "...";
 		
 		notMan.addNotificationChannel(EmailFacility.NAME, "ch1", emailCfg);
 		EntityParam admin = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "admin"));
