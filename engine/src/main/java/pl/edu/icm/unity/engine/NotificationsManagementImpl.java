@@ -36,7 +36,7 @@ import pl.edu.icm.unity.server.utils.CacheProvider;
 @Component
 public class NotificationsManagementImpl implements NotificationsManagement
 {
-	private static final String NOTIFICATION_CHANNEL_ID = "notificationChannel";
+	public static final String NOTIFICATION_CHANNEL_ID = "notificationChannel";
 
 	private DBSessionManager db;
 	private DBGeneric dbGeneric;

@@ -36,14 +36,26 @@
 		INSERT INTO ENTITIES (CONTENTS) VALUES (#{contents})
 	</insert>
 	
+	<insert id="insertEntityWithId" parameterType="BaseB">
+		INSERT INTO ENTITIES (ID, CONTENTS) VALUES (#{id}, #{contents})
+	</insert>
+	
 	<update id="updateEntity" parameterType="BaseB">
 		UPDATE ENTITIES SET CONTENTS = #{contents} WHERE ID = #{id}
 	</update>	
+
+	<select id="getEntities" resultType="BaseB">
+		select * from ENTITIES
+	</select>
 
 	<select id="getEntityById" parameterType="long" resultType="BaseB">
 		select * from ENTITIES where ID = #{value}
 	</select>
 
+
+	<select id="getIdentities" resultMap="identityResult">
+		select * from IDENTITIES
+	</select>
 
 	<select id="getIdentitiesByEntity" parameterType="long" resultMap="identityResult">
 		select * from IDENTITIES where IDENTITIES.ENTITY_ID = #{value}

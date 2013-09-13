@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.common.identities.ext;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.security.cert.X509Certificate;
 
@@ -26,7 +27,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
-import pl.edu.icm.unity.webui.common.LimitedByteArrayOuputStream;
+import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 
 /**
@@ -84,11 +85,11 @@ public class X500IdentityEditor implements IdentityEditor
 	}
 
 	private class CertUploader implements Receiver, SucceededListener {
-		private LimitedByteArrayOuputStream fos;
+		private LimitedOuputStream fos;
 		
 		public OutputStream receiveUpload(String filename, String mimeType) 
 		{
-			fos = new LimitedByteArrayOuputStream(102400);
+			fos = new LimitedOuputStream(102400, new ByteArrayOutputStream(102400));
 			return fos;
 		}
 
@@ -103,7 +104,7 @@ public class X500IdentityEditor implements IdentityEditor
 			}
 			try
 			{
-				byte[] uploaded = fos.toByteArray();
+				byte[] uploaded = ((ByteArrayOutputStream)fos.getWrappedStream()).toByteArray();
 				ByteArrayInputStream bis = new ByteArrayInputStream(uploaded);
 				X509Certificate loaded = CertificateUtils.loadCertificate(bis, Encoding.PEM);
 				field.setValue(X500NameUtils.getReadableForm(loaded.getSubjectX500Principal()));

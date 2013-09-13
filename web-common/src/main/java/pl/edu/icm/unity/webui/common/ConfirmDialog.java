@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.common;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 
@@ -18,6 +19,7 @@ public class ConfirmDialog extends AbstractDialog
 	private static final long serialVersionUID = 1L;
 	private Callback callback;
 	private String question;
+	private boolean htmlContent = false;
 
 	public ConfirmDialog(UnityMessageSource msg, String question, Callback callback) 
 	{
@@ -33,6 +35,11 @@ public class ConfirmDialog extends AbstractDialog
 		this.defaultSizeUndfined = true;
 	}
 
+	public void setHTMLContent(boolean how)
+	{
+		this.htmlContent = how;
+	}
+	
 	public interface Callback 
 	{
 		public void onConfirm();
@@ -41,7 +48,10 @@ public class ConfirmDialog extends AbstractDialog
 	@Override
 	protected Component getContents()
 	{
-		return new Label(question);
+		Label ret = new Label(question);
+		if (htmlContent)
+			ret.setContentMode(ContentMode.HTML);
+		return ret;
 	}
 
 	@Override

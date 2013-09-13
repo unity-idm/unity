@@ -15,6 +15,11 @@
 	<insert id="insertObject" parameterType="GenericObjectB" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO VAR_OBJECTS(NAME, CONTENTS, TYPE, SUB_TYPE) VALUES (#{name}, #{contents}, #{type}, #{subType})
 	</insert>
+
+	<insert id="insertObject2" parameterType="GenericObjectB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO VAR_OBJECTS(NAME, CONTENTS, TYPE, SUB_TYPE, LAST_UPDATE) 
+			VALUES (#{name}, #{contents}, #{type}, #{subType}, #{lastUpdate})
+	</insert>
 	
 	<delete id="deleteObjectByNameType" parameterType="GenericObjectB">
 		DELETE FROM VAR_OBJECTS WHERE NAME = #{name} AND TYPE = #{type}
@@ -30,6 +35,10 @@
 	
 	<select id="selectObjectsByType" parameterType="string" resultMap="objectResult">
 		SELECT * FROM VAR_OBJECTS WHERE type = #{value}
+	</select>
+
+	<select id="selectObjectTypes" resultType="string">
+		SELECT DISTINCT type FROM VAR_OBJECTS
 	</select>
 
 	<select id="selectObjectByNameType" parameterType="GenericObjectB" resultMap="objectResult">

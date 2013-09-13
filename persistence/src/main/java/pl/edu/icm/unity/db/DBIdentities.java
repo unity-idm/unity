@@ -101,6 +101,21 @@ public class DBIdentities
 	}
 	
 	/**
+	 * Insert a new entity. The entity may have its id set or not. In the latter case the id is chosen by the DB
+	 * and set in the input object.
+	 * @param entityB
+	 * @param sqlMap
+	 */
+	public void insertEntity(BaseBean entityB, SqlSession sqlMap)
+	{
+		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
+		if (entityB.getId() == null)
+			mapper.insertEntity(entityB);
+		else
+			mapper.insertEntityWithId(entityB);
+	}
+	
+	/**
 	 * 
 	 * @param toAdd
 	 * @param entityId can be null if a new entity should be created
@@ -131,7 +146,7 @@ public class DBIdentities
 		if (entityId == null)
 		{
 			BaseBean entityB = new BaseBean();
-			mapper.insertEntity(entityB);
+			insertEntity(entityB, sqlMap);
 			entityId = entityB.getId();
 		}
 		

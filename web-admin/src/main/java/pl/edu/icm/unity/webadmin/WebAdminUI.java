@@ -39,6 +39,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 
 	private ContentsManagementTab contentsManagement;
 	private SchemaManagementTab schemaManagement;
+	private ServerManagementTab serverManagement;
 	private UserAccountComponent userAccount;
 	
 	private MainTabPanel tabPanel;
@@ -47,12 +48,13 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 	@Autowired
 	public WebAdminUI(UnityMessageSource msg, ContentsManagementTab contentsManagement,
 			SchemaManagementTab schemaManagement,
-			UserAccountComponent userAccount)
+			UserAccountComponent userAccount, ServerManagementTab serverManagement)
 	{
 		super(msg);
 		this.contentsManagement = contentsManagement;
 		this.schemaManagement = schemaManagement;
 		this.userAccount = userAccount;
+		this.serverManagement = serverManagement;
 	}
 	
 	@Override
@@ -100,6 +102,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 		tabPanel = new MainTabPanel();		
 		tabPanel.addTab(contentsManagement);
 		tabPanel.addTab(schemaManagement);
+		tabPanel.addTab(serverManagement);
 		tabPanel.setSizeFull();
 	}
 	

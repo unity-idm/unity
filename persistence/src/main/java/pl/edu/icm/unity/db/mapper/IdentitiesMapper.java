@@ -22,6 +22,8 @@ public interface IdentitiesMapper
 	public BaseBean getIdentityTypeById(long id);
 	
 	public void insertEntity(BaseBean arg);
+	public void insertEntityWithId(BaseBean arg);
+	public List<BaseBean> getEntities();	
 	public BaseBean getEntityById(long id);
 	public void updateEntity(BaseBean arg);
 	public void deleteEntity(long id);
@@ -30,5 +32,6 @@ public interface IdentitiesMapper
 	public void updateIdentity(IdentityBean arg);
 	public void deleteIdentity(String cmpVal);
 	public IdentityBean getIdentityByName(String name);
+	public List<IdentityBean> getIdentities();
 	public List<IdentityBean> getIdentitiesByEntity(long entityId);
 }

@@ -444,7 +444,7 @@ public class DBAttributes
 		return ret;
 	}
 	
-	private List<AttributeBean> getDefinedAttributes(Long entityId, Long groupId, String attributeName, 
+	public List<AttributeBean> getDefinedAttributes(Long entityId, Long groupId, String attributeName, 
 			AttributesMapper mapper)
 	{
 		AttributeBean param = new AttributeBean();

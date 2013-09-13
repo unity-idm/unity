@@ -11,7 +11,7 @@ import java.util.Set;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 
 /**
- * Implementations defines identity type. 
+ * Implementation defined identity type. 
  * @author K. Benedyczak
  */
 public interface IdentityTypeDefinition

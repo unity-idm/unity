@@ -4,52 +4,66 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Size limited {@link ByteArrayOutputStream}. After the size limit is hit, 
- * no more writes are allowed.
+ * Size limited {@link OutputStream}. After the size limit is hit, 
+ * no more writes are passing through.
  * @author K. Benedyczak
  */
-public class LimitedByteArrayOuputStream extends OutputStream
+public class LimitedOuputStream extends OutputStream
 {
-	private ByteArrayOutputStream bos;
+	private OutputStream os;
 	private int length;
+	private int written = 0;
 	private boolean overflow = false;
 	
-	public LimitedByteArrayOuputStream(int length)
+	public LimitedOuputStream(int length, OutputStream os)
 	{
 		this.length = length;
-		bos = new ByteArrayOutputStream(length > 102400 ? 102400 : length);
+		this.os = os;
 	}
 
 	@Override
 	public synchronized void write(int b) throws IOException
 	{
-		if (bos.size()+1 > length)
+		if (written+1 > length)
 		{
 			overflow = true;
 			return;
 		}
-		bos.write(b);
+		written++;
+		os.write(b);
 	}
 
 	@Override
 	public synchronized void write(byte b[], int off, int len) throws IOException
 	{
-		if (bos.size()+len > length)
+		if (written+len > length)
 		{
 			overflow = true;
 			return;
 		}
-		bos.write(b, off, len);
+		written+=len;
+		os.write(b, off, len);
 	}
-	
-	public synchronized byte[] toByteArray()
+
+	@Override
+	public void flush() throws IOException 
 	{
-		return bos.toByteArray();
+		os.flush();
+	}
+
+	@Override
+	public void close() throws IOException 
+	{
+		os.close();
+	}
+
+	public OutputStream getWrappedStream()
+	{
+		return os;
 	}
 	
 	public boolean isOverflow()

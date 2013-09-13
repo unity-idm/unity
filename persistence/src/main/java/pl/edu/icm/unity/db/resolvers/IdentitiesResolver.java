@@ -89,6 +89,8 @@ public class IdentitiesResolver
 	public Identity resolveIdentityBean(IdentityBean idB, IdentitiesMapper mapper) throws IllegalTypeException
 	{
 		BaseBean identityTypeB = mapper.getIdentityTypeById(idB.getTypeId());
+		if (identityTypeB == null)
+			throw new IllegalTypeException("The identity type " + idB.getTypeId() + " is unknown");
 		IdentityType idType = resolveIdentityType(identityTypeB);
 		Identity ret = new Identity();
 		ret.setType(idType);

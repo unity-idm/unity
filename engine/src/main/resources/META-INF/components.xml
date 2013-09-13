@@ -103,4 +103,12 @@
 	
 	<bean class="pl.edu.icm.unity.engine.notifications.NotificationProducerImpl"/>
 	<bean class="pl.edu.icm.unity.engine.notifications.EmailFacility"/>
+	
+	<bean class="pl.edu.icm.unity.engine.objhandlers.NotificationsObjectHandler"/>
+	<bean class="pl.edu.icm.unity.engine.objhandlers.EndpointObjectHandler"/>
+	<bean class="pl.edu.icm.unity.engine.objhandlers.AttributeClassObjectHandler"/>
+	<bean class="pl.edu.icm.unity.engine.objhandlers.AuthenticatorObjectHandler"/>
+	<bean class="pl.edu.icm.unity.engine.objhandlers.CredentialRequirementHandler"/>
+	<bean class="pl.edu.icm.unity.engine.objhandlers.CredentialObjectHandler"/>
+	
 </beans>

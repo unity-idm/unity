@@ -46,4 +46,35 @@
 		select VAL from UVOS_FLAG 
 	</select>
 	
+	
+	<delete id="deletedb-00">
+		DELETE FROM VAR_BIG_OBJECTS;
+	</delete>
+	<delete id="deletedb-01">
+		DELETE FROM VAR_OBJECTS;
+	</delete>
+	<delete id="deletedb-02">
+		DELETE FROM GROUP_LINKS;
+	</delete>
+	<delete id="deletedb-03">
+		DELETE FROM GROUP_ENTITIES;
+	</delete>
+	<delete id="deletedb-04">
+		DELETE FROM ATTRIBUTES;
+	</delete>
+	<delete id="deletedb-05">
+		DELETE FROM GROUPS;
+	</delete>
+	<delete id="deletedb-06">
+		DELETE FROM IDENTITIES;
+	</delete>
+	<delete id="deletedb-07">
+		DELETE FROM ENTITIES;
+	</delete>
+	<delete id="deletedb-08">
+		DELETE FROM IDENTITY_TYPES;
+	</delete>
+	<delete id="deletedb-09">
+		DELETE FROM ATTRIBUTE_TYPES;
+	</delete>
 </mapper>

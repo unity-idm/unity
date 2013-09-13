@@ -19,6 +19,7 @@
 	<bean class="pl.edu.icm.unity.server.registries.EndpointFactoriesRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.AuthenticatorsRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.AttributeMetadataProvidersRegistry"/>
+	<bean class="pl.edu.icm.unity.server.registries.GenericObjectHandlersRegistry"/>
 	
 	
 	<beans profile="production">

@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Random;
@@ -23,9 +24,10 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.LimitedByteArrayOuputStream;
+import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
@@ -45,12 +47,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Upload;
-import com.vaadin.ui.Upload.ProgressListener;
-import com.vaadin.ui.Upload.Receiver;
-import com.vaadin.ui.Upload.StartedEvent;
-import com.vaadin.ui.Upload.StartedListener;
 import com.vaadin.ui.Upload.SucceededEvent;
-import com.vaadin.ui.Upload.SucceededListener;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -222,29 +219,32 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			return value;
 		}
 		
-		private class ImageUploader implements Receiver, SucceededListener, StartedListener,
-			ProgressListener
+		private class ImageUploader extends AbstractUploadReceiver
 		{
 			private Image image;
-			private LimitedByteArrayOuputStream fos;
+			private LimitedOuputStream fos;
 			private JpegImageAttributeSyntax syntax;
 			
 			public ImageUploader(Image image, JpegImageAttributeSyntax syntax)
 			{
+				super(upload, progressIndicator);
 				this.image = image;
 				this.syntax = syntax;
 			}
 
+			@Override
 			public OutputStream receiveUpload(String filename, String mimeType) 
 			{
-				fos = new LimitedByteArrayOuputStream(syntax.getMaxSize());
+				int length = syntax.getMaxSize();
+				fos = new LimitedOuputStream(length, 
+						new ByteArrayOutputStream(length > 102400 ? 102400 : length));
 				return fos;
 			}
 
+			@Override
 			public void uploadSucceeded(SucceededEvent event) 
 			{
-				progressIndicator.setVisible(false);
-				upload.setEnabled(true);
+				super.uploadSucceeded(event);
 				
 				if (fos.isOverflow())
 				{
@@ -256,7 +256,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 				try
 				{
 					image.setVisible(true);
-					value = syntax.deserialize(fos.toByteArray());
+					value = syntax.deserialize(((ByteArrayOutputStream)fos.getWrappedStream()).toByteArray());
 					if (scale.getValue())
 						value = scaleIfNeeded(value, syntax.getMaxWidth(), syntax.getMaxHeight());
 					image.setSource(new SimpleImageSource(value, syntax, "jpg").getResource());
@@ -265,34 +265,6 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 					ErrorPopup.showError(msg.getMessage("JpegAttributeHandler.uploadInvalid"),
 							"");
 					fos = null;
-				}
-			}
-
-			/**
-			 * {@inheritDoc}
-			 */
-			@Override
-			public void uploadStarted(StartedEvent event)
-			{
-				upload.setEnabled(false);
-				image.setVisible(false);
-				long length = event.getContentLength();
-				if (length <= 0)
-					progressIndicator.setIndeterminate(true);
-				else
-					progressIndicator.setIndeterminate(false);
-				progressIndicator.setVisible(true);
-			}
-
-			/**
-			 * {@inheritDoc}
-			 */
-			@Override
-			public void updateProgress(long readBytes, long contentLength)
-			{
-				if (contentLength > 0 && !progressIndicator.isIndeterminate())
-				{
-					progressIndicator.setValue((float)readBytes/contentLength);
 				}
 			}
 		};		

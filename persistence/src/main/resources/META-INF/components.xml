@@ -30,5 +30,16 @@
 	<bean class="pl.edu.icm.unity.db.json.AttributeTypeSerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.AttributeSerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.EventSerializer"/>
+
+	<bean class="pl.edu.icm.unity.db.export.ImportExport"/>
+	<bean class="pl.edu.icm.unity.db.export.AttributeTypesIE"/>
+	<bean class="pl.edu.icm.unity.db.export.IdentityTypesIE"/>
+	<bean class="pl.edu.icm.unity.db.export.EntitiesIE"/>
+	<bean class="pl.edu.icm.unity.db.export.IdentitiesIE"/>
+	<bean class="pl.edu.icm.unity.db.export.GroupsIE"/>
+	<bean class="pl.edu.icm.unity.db.export.GroupMembersIE"/>
+	<bean class="pl.edu.icm.unity.db.export.AttributesIE"/>
+	<bean class="pl.edu.icm.unity.db.export.GenericsIE"/>
+
 	
 </beans>

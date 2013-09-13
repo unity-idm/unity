@@ -20,7 +20,6 @@ import pl.edu.icm.unity.server.utils.ServerInitializer;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.utils.DemoContentInitializer;
 
 /**
  * Populates DB with UNICORE related contents.
@@ -29,7 +28,7 @@ import pl.edu.icm.unity.utils.DemoContentInitializer;
 @Component
 public class UnicoreContentInitializer implements ServerInitializer
 {
-	private static Logger log = Log.getLogger(Log.U_SERVER, DemoContentInitializer.class);
+	private static Logger log = Log.getLogger(Log.U_SERVER, UnicoreContentInitializer.class);
 	public static final String NAME = "unicoreInitializer";
 	private InitializerCommon commonInitializer;
 	private AttributesManagement attrMan;
@@ -61,6 +60,11 @@ public class UnicoreContentInitializer implements ServerInitializer
 					new HashSet<>(Arrays.asList(InitializerCommon.CN_ATTR,
 							InitializerCommon.EMAIL_ATTR)), false, 
 					new HashSet<>(Arrays.asList(InitializerCommon.MAIN_AC)));
+			if (attrMan.getAttributeClasses().containsKey(unicoreAC.getName()))
+			{
+				log.info("Seems that UNICORE contents is installed, skipping.");
+				return;
+			}
 			attrMan.addAttributeClass(unicoreAC);
 			
 			Group portal = new Group("/portal");

@@ -28,6 +28,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
@@ -64,6 +65,12 @@ public class DemoContentInitializer implements ServerInitializer
 			commonInitializer.initializeCommonAttributeTypes();
 			commonInitializer.assignCnToAdmin();
 			
+			GroupContents rootContents = groupsMan.getContents("/", GroupContents.GROUPS);
+			if (rootContents.getSubGroups().contains("/A"))
+			{
+				log.error("Seems that demo contents is installed, skipping");
+				return;
+			}
 			groupsMan.addGroup(new Group("/A"));
 			groupsMan.addGroup(new Group("/A/B"));
 			groupsMan.addGroup(new Group("/A/B/C"));
@@ -71,7 +78,6 @@ public class DemoContentInitializer implements ServerInitializer
 			groupsMan.addGroup(new Group("/D/E"));
 			groupsMan.addGroup(new Group("/D/G"));
 			groupsMan.addGroup(new Group("/D/F"));
-
 			AttributeType userPicture = new AttributeType("picture", new JpegImageAttributeSyntax());
 			((JpegImageAttributeSyntax)userPicture.getValueType()).setMaxSize(1400000);
 			((JpegImageAttributeSyntax)userPicture.getValueType()).setMaxWidth(900);

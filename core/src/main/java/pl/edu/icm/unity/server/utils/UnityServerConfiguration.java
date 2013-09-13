@@ -71,6 +71,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String ENDPOINT_AUTHENTICATORS = "endpointAuthenticators";
 	public static final String INITIALIZERS = "initializers.";
 	public static final String UPDATE_INTERVAL = "asyncStateUpdateInterval";
+	public static final String WORKSPACE_DIRECTORY = "workspaceDirectory";
 
 	public static final String AUTHENTICATORS = "authenticators.";
 	public static final String AUTHENTICATOR_NAME = "authenticatorName";
@@ -120,6 +121,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				"List of identifiers of initialization modules that should be run on the first startup."));
 		defaults.put(UPDATE_INTERVAL, new PropertyMD("60").setPositive().setDescription(
 				"Defines the interval of background update tasks in seconds. Those tasks are used to update runtime state of the server (for instance the deployed endpoints) with the data which is stored in database."));
+		defaults.put(WORKSPACE_DIRECTORY, new PropertyMD("data/workspace").setPath().setDescription(
+				"Defines a folder where the server will write its internal files."));
 		
 		defaults.put(ENDPOINTS, new PropertyMD().setStructuredList(true).setCategory(mainCat).
 				setDescription("List of initially enabled endpoints"));
@@ -204,6 +207,10 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		if (!isLocaleSupported(defaultLocale))
 			throw new ConfigurationException("The default locale is not among enabled ones.");
 		templatesStore = loadTemplatesStore();
+		
+		File workspace = new File(getValue(WORKSPACE_DIRECTORY));
+		if (!workspace.exists())
+			workspace.mkdirs();
 	}
 	
 	private static String getConfigurationFile(Environment env, ConfigurationLocationProvider locProvider)

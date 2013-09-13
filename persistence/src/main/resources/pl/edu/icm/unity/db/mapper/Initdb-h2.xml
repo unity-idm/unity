@@ -31,4 +31,31 @@
 	<update id="shutdown">
 		SHUTDOWN;
 	</update>
+	
+	
+	<update id="resetIndex-00">
+		ALTER TABLE VAR_BIG_OBJECTS ALTER COLUMN ID RESTART WITH 1;
+	</update>
+	<update id="resetIndex-01">
+		ALTER TABLE VAR_OBJECTS ALTER COLUMN ID RESTART WITH 1;
+	</update>
+	<update id="resetIndex-02">
+		ALTER TABLE ATTRIBUTES ALTER COLUMN ID RESTART WITH 1;
+	</update>
+	<update id="resetIndex-03">
+		ALTER TABLE GROUPS ALTER COLUMN ID RESTART WITH 1;
+	</update>
+	<update id="resetIndex-04">
+		ALTER TABLE IDENTITIES ALTER COLUMN ID RESTART WITH 1;
+	</update>
+	<update id="resetIndex-05">
+		ALTER TABLE ENTITIES ALTER COLUMN ID RESTART WITH 1;
+	</update>
+	<update id="resetIndex-06">
+		ALTER TABLE IDENTITY_TYPES ALTER COLUMN ID RESTART WITH 1;
+	</update>
+	<update id="resetIndex-07">
+		ALTER TABLE ATTRIBUTE_TYPES ALTER COLUMN ID RESTART WITH 1;
+	</update>
+	
 </mapper>

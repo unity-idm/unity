@@ -15,9 +15,11 @@ import pl.edu.icm.unity.db.model.GenericObjectBean;
 public interface GenericMapper
 {
 	public int insertObject(GenericObjectBean toAdd);
+	public int insertObject2(GenericObjectBean toAdd);
 	public void deleteObjectByNameType(GenericObjectBean toRemove);
 	public void deleteObjectsByType(String type);
 	public void updateByNameType(GenericObjectBean updated);
 	public List<GenericObjectBean> selectObjectsByType(String type);
+	public List<String> selectObjectTypes();
 	public GenericObjectBean selectObjectByNameType(GenericObjectBean nameType);
 }
