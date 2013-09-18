@@ -51,8 +51,8 @@
 			<classifier>tests</classifier>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.saml</groupId>
-			<artifactId>samlClient-cxf</artifactId>
+			<groupId>eu.unicore.security</groupId>
+			<artifactId>secutils-cxf</artifactId>
 			<scope>test</scope>
 		</dependency>
 		

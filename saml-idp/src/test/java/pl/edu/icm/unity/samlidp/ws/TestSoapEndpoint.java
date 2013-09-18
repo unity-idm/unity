@@ -19,9 +19,6 @@ import org.junit.Test;
 
 import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
-import eu.unicore.samlclient.AuthnResponseAssertions;
-import eu.unicore.samlclient.SAMLAttributeQueryClient;
-import eu.unicore.samlclient.SAMLAuthnClient;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.AttributeAssertionParser;
 import eu.unicore.samly2.attrprofile.ParsedAttribute;
@@ -29,6 +26,9 @@ import eu.unicore.samly2.elements.NameID;
 import eu.unicore.samly2.elements.SAMLAttribute;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.exceptions.SAMLValidationException;
+import eu.unicore.security.wsutil.samlclient.AuthnResponseAssertions;
+import eu.unicore.security.wsutil.samlclient.SAMLAttributeQueryClient;
+import eu.unicore.security.wsutil.samlclient.SAMLAuthnClient;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;

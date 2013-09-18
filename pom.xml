@@ -155,12 +155,6 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
-				<groupId>pl.edu.icm.saml</groupId>
-				<artifactId>samlClient-cxf</artifactId>
-				<version>1.0.0-SNAPSHOT</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
 				<groupId>postgresql</groupId>
 				<artifactId>postgresql</artifactId>
 				<version>9.1-901.jdbc4</version>
