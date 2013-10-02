@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.saml;
 
+import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
@@ -52,6 +53,32 @@ public class WebAuthWithETDRequestValidator extends WebAuthRequestValidator
 	protected void validateIssuer(AuthnRequestType authnRequest) throws SAMLServerException
 	{
 		NameIDType issuer = authnRequest.getIssuer();
-		SoapAuthWithETDRequestValidator.checkX500Issuer(issuer);
+		checkX500Issuer(issuer);
+	}
+	
+	
+	/**
+	 * Checks if the given name id is of X.500 type.
+	 * @param issuer
+	 * @throws SAMLRequesterException
+	 */
+	protected void checkX500Issuer(NameIDType issuer) throws SAMLRequesterException
+	{
+		if (issuer == null)
+			throw new SAMLRequesterException("Issuer of SAML request must be present in SSO AuthN");
+		if (issuer.getFormat() == null || !issuer.getFormat().equals(SAMLConstants.NFORMAT_DN))
+			throw new SAMLRequesterException(
+					SAMLConstants.SubStatus.STATUS2_REQUEST_UNSUPP,
+					"Query identity type must be set to X.500 for ETD creation query");
+		if (issuer.getStringValue() == null)
+			throw new SAMLRequesterException("Issuer value of SAML request must be present in SSO AuthN");
+		try
+		{
+			X500NameUtils.getX500Principal(issuer.getStringValue());
+		} catch (Exception e)
+		{
+			throw new SAMLRequesterException("Issuer value of SAML request is not a valid X.500 name: " 
+					+ e.getMessage());
+		}
 	}
 }

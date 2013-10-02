@@ -33,8 +33,9 @@ import eu.unicore.security.etd.DelegationRestrictions;
 
 /**
  * Implementation of the SAML authentication protocol over SOAP.
- * This version also adds a bootstrap ETD assertion and requires that 
- * requests have X.500 issuer and required user's identity type must be as well X.500.
+ * <p>
+ * This version is UNICORE aware: if request has X.500 issuer and required identity is as well X.500,
+ * then a bootstrap ETD assertion is generated and added. 
  *  
  * @author K. Benedyczak
  */
@@ -61,6 +62,7 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 			log.debug("Throwing SAML fault, caused by validation exception", e1);
 			throw new Fault(e1);
 		}
+		
 		AuthnWithETDResponseProcessor samlProcessor = new AuthnWithETDResponseProcessor(context);
 		NameIDType samlRequester = context.getRequest().getIssuer();
 		
@@ -73,7 +75,8 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 
 			Identity selectedIdentity = getIdentity(samlProcessor, spPreferences);
 			Collection<Attribute<?>> attributes = getAttributes(samlProcessor, spPreferences);
-			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes, getRestrictions(spEtdPreferences));
+			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes, 
+					getRestrictions(spEtdPreferences));
 		} catch (Exception e)
 		{
 			log.debug("Throwing SAML fault, caused by processing exception", e);

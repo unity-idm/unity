@@ -7,6 +7,7 @@ package pl.edu.icm.unity.unicore.utils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,10 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.ServerInitializer;
+import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Group;
 
@@ -66,6 +70,34 @@ public class UnicoreContentInitializer implements ServerInitializer
 				return;
 			}
 			attrMan.addAttributeClass(unicoreAC);
+			
+			Set<AttributeType> existingATs = new HashSet<>(attrMan.getAttributeTypes());
+			
+			Set<String> allowedRoles = new HashSet<>();
+			allowedRoles.add("user");
+			allowedRoles.add("admin");
+			allowedRoles.add("server");
+			allowedRoles.add("banned");
+			AttributeType roleAT = new AttributeType("urn:unicore:attrType:role", 
+					new EnumAttributeSyntax(allowedRoles));
+			roleAT.setMinElements(1);
+			roleAT.setDescription("User or server role used for UNICORE authorization. " +
+					"The 'user' role provides normal access, 'admin' the full access, " +
+					"'server' allows for registering in UNICORE registry, " +
+					"'banned' users have access fully blocked.");
+			if (!existingATs.contains(roleAT))
+				attrMan.addAttributeType(roleAT);
+
+			AttributeType xloginAT = new AttributeType("urn:unicore:attrType:xlogin", new StringAttributeSyntax());
+			xloginAT.setMinElements(1);
+			xloginAT.setMaxElements(16);
+			xloginAT.setDescription("UNIX account name (uid)");
+			((StringAttributeSyntax)xloginAT.getValueType()).setMaxLength(100);
+			((StringAttributeSyntax)xloginAT.getValueType()).setMinLength(1);
+			if (!existingATs.contains(xloginAT))
+				attrMan.addAttributeType(xloginAT);
+			
+			//TODO add the rest of UNICORE attribute types.
 			
 			Group portal = new Group("/portal");
 			portal.setAttributesClasses(Collections.singleton(unicoreAC.getName()));

@@ -51,6 +51,11 @@ public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 			DelegationRestrictions restrictions) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
+		boolean etdMode = checkX500Issuer(getContext().getRequest().getIssuer()) && 
+				SAMLConstants.NFORMAT_DN.equals(getRequestedFormat());
+		if (!etdMode)
+			return super.processAuthnRequest(authenticatedIdentity, attributes);
+		
 		SubjectType authenticatedOne = establishSubject(authenticatedIdentity);
 
 		AssertionResponse resp = getOKResponseDocument();
@@ -90,5 +95,24 @@ public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 		{
 			throw new SAMLProcessingException("Internal error while signing the trust delegation", e);
 		}
+	}
+	
+	
+	protected boolean checkX500Issuer(NameIDType issuer)
+	{
+		if (issuer == null)
+			return false;
+		if (issuer.getFormat() == null || !issuer.getFormat().equals(SAMLConstants.NFORMAT_DN))
+			return false;
+		if (issuer.getStringValue() == null)
+			return false;
+		try
+		{
+			X500NameUtils.getX500Principal(issuer.getStringValue());
+		} catch (Exception e)
+		{
+			return false;
+		}
+		return true;
 	}
 }

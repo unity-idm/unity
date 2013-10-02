@@ -17,9 +17,12 @@ import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 
 /**
  * Extension of the {@link UnityAuthnRequestValidator}. Requests for ETD generation
- * are required to have X.500 issuer and required user's identity type must be as well X.500.
+ * can have X.500 issuer as well as entity. Requested format must be X.500.
  * <p> 
- * This class is a twin of {@link WebAuthWithETDRequestValidator}
+ * This class is a twin of {@link WebAuthWithETDRequestValidator}, but it doesn't require X.500 issuer:
+ * if the issuer is of entity type, then it is also OK, and the wrapping endpoint should fallback to the standard
+ * processing of SAML authn (UNICORE unaware).
+ * 
  * @author K. Benedyczak
  */
 public class SoapAuthWithETDRequestValidator extends UnityAuthnRequestValidator
@@ -54,27 +57,31 @@ public class SoapAuthWithETDRequestValidator extends UnityAuthnRequestValidator
 	}
 	
 	/**
-	 * Reusable - checks if the given name id is of X.500 type.
+	 * Checks if the given name id is of X.500 type or entity type.
 	 * @param issuer
 	 * @throws SAMLRequesterException
 	 */
-	public static void checkX500Issuer(NameIDType issuer) throws SAMLRequesterException
+	private void checkX500Issuer(NameIDType issuer) throws SAMLRequesterException
 	{
 		if (issuer == null)
 			throw new SAMLRequesterException("Issuer of SAML request must be present in SSO AuthN");
-		if (issuer.getFormat() == null || !issuer.getFormat().equals(SAMLConstants.NFORMAT_DN))
+		if (issuer.getFormat() != null && !issuer.getFormat().equals(SAMLConstants.NFORMAT_DN)
+				&& !issuer.getFormat().equals(SAMLConstants.NFORMAT_ENTITY))
 			throw new SAMLRequesterException(
 					SAMLConstants.SubStatus.STATUS2_REQUEST_UNSUPP,
-					"Query identity type must be set to X.500 for ETD creation query");
+					"Query identity type must be set to X.500 or entity for SAML request");
 		if (issuer.getStringValue() == null)
 			throw new SAMLRequesterException("Issuer value of SAML request must be present in SSO AuthN");
-		try
+		if (issuer.getFormat() != null && issuer.getFormat().equals(SAMLConstants.NFORMAT_DN))
 		{
-			X500NameUtils.getX500Principal(issuer.getStringValue());
-		} catch (Exception e)
-		{
-			throw new SAMLRequesterException("Issuer value of SAML request is not a valid X.500 name: " 
-					+ e.getMessage());
+			try
+			{
+				X500NameUtils.getX500Principal(issuer.getStringValue());
+			} catch (Exception e)
+			{
+				throw new SAMLRequesterException("Issuer value of SAML request is not a valid X.500 name: " 
+						+ e.getMessage());
+			}
 		}
 	}
 }
