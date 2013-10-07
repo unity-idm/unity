@@ -54,9 +54,10 @@ public interface RegistrationsManagement
 	/**
 	 * Submits a new registration request. It gets a pending state.
 	 * @param request
+	 * @return automatically asigned identifier of the request
 	 * @throws EngineException
 	 */
-	public void submitRegistrationRequest(RegistrationRequest request) throws EngineException;
+	public String submitRegistrationRequest(RegistrationRequest request) throws EngineException;
 	
 	/**
 	 * Lists all registration requests.

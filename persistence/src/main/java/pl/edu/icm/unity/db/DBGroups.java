@@ -14,6 +14,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.db.generic.DependencyNotificationManager;
 import pl.edu.icm.unity.db.json.GroupsSerializer;
 import pl.edu.icm.unity.db.mapper.AttributesMapper;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
@@ -24,12 +25,12 @@ import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.db.model.GroupElementBean;
 import pl.edu.icm.unity.db.resolvers.GroupResolver;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -43,21 +44,24 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 @Component
 public class DBGroups
 {
+	public static final String GROUPS_NOTIFICATION_ID = "groups";
 	private DBShared dbShared;
 	private GroupResolver groupResolver;
 	private IdentitiesResolver idResolver;
 	private DBLimits limits;
 	private GroupsSerializer jsonS;
+	private DependencyNotificationManager notificationsManager;
 	
 	@Autowired
 	public DBGroups(DBShared dbShared, GroupResolver groupResolver, IdentitiesResolver idResolver, 
-			GroupsSerializer jsonS, DB db)
+			GroupsSerializer jsonS, DB db, DependencyNotificationManager notificationsManager)
 	{
 		this.groupResolver = groupResolver;
 		this.idResolver = idResolver;
 		this.limits = db.getDBLimits();
 		this.jsonS = jsonS;
 		this.dbShared = dbShared;
+		this.notificationsManager = notificationsManager;
 	}
 	
 	/**
@@ -65,14 +69,13 @@ public class DBGroups
 	 * @param parent
 	 * @param name
 	 * @throws InternalException
+	 * @throws EngineException 
 	 * @throws IllegalArgumentException 
-	 * @throws IllegalAttributeTypeException 
 	 * @throws GroupNotKnownException
 	 * @throws ElementAlreadyExistsException
 	 */
 	public void addGroup(Group toAdd, SqlSession sqlMap) 
-		throws InternalException, IllegalGroupValueException, WrongArgumentException, 
-		IllegalAttributeTypeException
+		throws InternalException, EngineException
 	{
 		limits.checkNameLimit(toAdd.getName());
 			
@@ -87,14 +90,16 @@ public class DBGroups
 		param.setContents(jsonS.toJson(toAdd, mapper, aMapper));
 		if (param.getContents().length > limits.getContentsLimit())
 			throw new IllegalGroupValueException("Group metadata size (description, rules, ...) is too big.");
+		
+		notificationsManager.firePreAddEvent(GROUPS_NOTIFICATION_ID, toAdd, sqlMap);
+		
 		mapper.insertGroup(param);
 		
 		sqlMap.clearCache();
 	}
 	
 	public void updateGroup(String toUpdate, Group updated, SqlSession sqlMap) 
-			throws InternalException, IllegalGroupValueException, 
-			IllegalAttributeTypeException, WrongArgumentException
+			throws InternalException, EngineException
 	{
 		limits.checkNameLimit(updated.getName());
 		
@@ -110,6 +115,10 @@ public class DBGroups
 		param.setContents(jsonS.toJson(updated, mapper, aMapper));
 		if (param.getContents().length > limits.getContentsLimit())
 			throw new IllegalGroupValueException("Group metadata size (description, rules, ...) is too big.");
+		
+		Group old = new Group(toUpdate);
+		jsonS.fromJson(gb.getContents(), old, mapper, aMapper);
+		notificationsManager.firePreUpdateEvent(GROUPS_NOTIFICATION_ID, old, updated, sqlMap);
 		mapper.updateGroup(param);
 
 		sqlMap.clearCache();
@@ -118,7 +127,7 @@ public class DBGroups
 	
 	
 	public void removeGroup(String path, boolean recursive, SqlSession sqlMap) 
-			throws InternalException, IllegalGroupValueException
+			throws InternalException, EngineException
 	{
 		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
 		GroupBean gb = groupResolver.resolveGroup(path, mapper);
@@ -129,6 +138,9 @@ public class DBGroups
 			if (mapper.getSubgroups(gb.getId()).size() > 0)
 				throw new IllegalGroupValueException("The group contains subgroups");
 		}
+		Group removed = new Group(path);
+		jsonS.fromJson(gb.getContents(), removed, mapper, sqlMap.getMapper(AttributesMapper.class));
+		notificationsManager.firePreRemoveEvent(GROUPS_NOTIFICATION_ID, removed, sqlMap);
 		mapper.deleteGroup(gb.getId());
 	}
 	

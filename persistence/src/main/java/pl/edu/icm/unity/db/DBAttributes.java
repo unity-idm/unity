@@ -17,6 +17,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.db.generic.DependencyNotificationManager;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
 import pl.edu.icm.unity.db.json.AttributeSerializer;
 import pl.edu.icm.unity.db.json.AttributeTypeSerializer;
@@ -50,6 +51,7 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 @Component
 public class DBAttributes
 {
+	public static final String ATTRIBUTE_TYPES_NOTIFICATION_ID = "attributeTypes";
 	private DBLimits limits;
 	private AttributesResolver attrResolver;
 	private AttributeTypeSerializer atSerializer;
@@ -58,13 +60,15 @@ public class DBAttributes
 	private DBShared dbShared;
 	private AttributeStatementProcessor statementsHelper;
 	private AttributeClassDB acDB;
+	private DependencyNotificationManager notificationsManager;
 	
 	
 	@Autowired
 	public DBAttributes(DB db, AttributesResolver attrResolver,
 			AttributeTypeSerializer atSerializer, AttributeSerializer aSerializer,
 			GroupResolver groupResolver, DBShared dbShared,
-			AttributeStatementProcessor statementsHelper, AttributeClassDB acDB)
+			AttributeStatementProcessor statementsHelper, AttributeClassDB acDB,
+			DependencyNotificationManager notificationsManager)
 	{
 		this.limits = db.getDBLimits();
 		this.attrResolver = attrResolver;
@@ -74,10 +78,11 @@ public class DBAttributes
 		this.dbShared = dbShared;
 		this.statementsHelper = statementsHelper;
 		this.acDB = acDB;
+		this.notificationsManager = notificationsManager;
 	}
 
 	public void addAttributeType(AttributeType toAdd, SqlSession sqlMap) 
-			throws WrongArgumentException, IllegalAttributeTypeException
+			throws EngineException
 	{
 		limits.checkNameLimit(toAdd.getName());
 		AttributesMapper mapper = sqlMap.getMapper(AttributesMapper.class);
@@ -87,6 +92,7 @@ public class DBAttributes
 		
 		AttributeTypeBean atb = new AttributeTypeBean(toAdd.getName(), atSerializer.toJson(toAdd), 
 				toAdd.getValueType().getValueSyntaxId());
+		notificationsManager.firePreAddEvent(ATTRIBUTE_TYPES_NOTIFICATION_ID, toAdd, sqlMap);
 		mapper.insertAttributeType(atb);
 	}
 
@@ -100,7 +106,7 @@ public class DBAttributes
 	}
 	
 	public void removeAttributeType(String id, boolean withInstances, SqlSession sqlMap)
-			throws IllegalAttributeTypeException
+			throws EngineException
 	{
 		AttributesMapper mapper = sqlMap.getMapper(AttributesMapper.class);
 		if (mapper.getAttributeType(id) == null)
@@ -113,12 +119,14 @@ public class DBAttributes
 			if (mapper.getAttributes(ab).size() > 0)
 				throw new IllegalAttributeTypeException("The attribute type " + id + " has instances");
 		}
+		AttributeTypeBean atBean = attrResolver.resolveAttributeType(id, mapper);
+		AttributeType removed = attrResolver.resolveAttributeTypeBean(atBean);
+		notificationsManager.firePreRemoveEvent(ATTRIBUTE_TYPES_NOTIFICATION_ID, removed, sqlMap);
 		mapper.deleteAttributeType(id);
 	}
 
 	public void updateAttributeType(AttributeType toUpdate, SqlSession sqlMap) 
-			throws WrongArgumentException, 
-			IllegalGroupValueException, IllegalTypeException, IllegalAttributeTypeException
+			throws EngineException
 	{
 		limits.checkNameLimit(toUpdate.getName());
 		AttributesMapper mapper = sqlMap.getMapper(AttributesMapper.class);
@@ -142,6 +150,9 @@ public class DBAttributes
 		}
 		AttributeTypeBean updatedB = new AttributeTypeBean(toUpdate.getName(), atSerializer.toJson(toUpdate), 
 				toUpdate.getValueType().getValueSyntaxId());
+		AttributeTypeBean atBean = attrResolver.resolveAttributeType(toUpdate.getName(), mapper);
+		AttributeType old = attrResolver.resolveAttributeTypeBean(atBean);
+		notificationsManager.firePreUpdateEvent(ATTRIBUTE_TYPES_NOTIFICATION_ID, old, toUpdate, sqlMap);
 		mapper.updateAttributeType(updatedB);
 	}
 	
