@@ -4,10 +4,6 @@
  */
 package pl.edu.icm.unity.engine.authn;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.CredentialRetrievalFactory;
@@ -16,7 +12,6 @@ import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.server.authn.IdentityResolver;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
-import pl.edu.icm.unity.types.JsonSerializable;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 
@@ -26,12 +21,13 @@ import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
  * <p>
  * Instantiation is quite complex:
  * either a one arg constructor is called, then state initialized with 
- * {@link AuthenticatorImpl#setSerializedConfiguration(String)}.
+ * {@link AuthenticatorImpl#setAuthenticatorInstance(AuthenticatorInstance)}.
  * Otherwise a multiarg constructor is called to initialize the object completely and it may be followed by a 
  * {@link #setCredentialName(String)} to set a local credential name if the authenticator is local
+ * 
  * @author K. Benedyczak
  */
-public class AuthenticatorImpl implements JsonSerializable
+public class AuthenticatorImpl
 {
 	private CredentialRetrieval retrieval;
 	private CredentialVerificator verificator;
@@ -115,31 +111,12 @@ public class AuthenticatorImpl implements JsonSerializable
 		instanceDescription.setVerificatorJsonConfiguration(vConfiguration);
 	}
 	
-	
-	@Override
-	public String getSerializedConfiguration()
+	/**
+	 * Sets {@link AuthenticatorInstance} loaded from persisted storage
+	 * @param deserialized
+	 */
+	public void setAuthenticatorInstance(AuthenticatorInstance deserialized)
 	{
-		try
-		{
-			return Constants.MAPPER.writeValueAsString(instanceDescription);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't serialize authenticator state to JSON", e);
-		}
-	}
-
-	@Override
-	public void setSerializedConfiguration(String json)
-	{
-		AuthenticatorInstance deserialized;
-		try
-		{
-			deserialized = Constants.MAPPER.readValue(json, AuthenticatorInstance.class);
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't deserialize authenticator state from JSON", e);
-		}
-		
 		createCoworkers(deserialized.getTypeDescription(), deserialized.getRetrievalJsonConfiguration(),
 				deserialized.getVerificatorJsonConfiguration());
 		setCredentialName(deserialized.getLocalCredentialName());

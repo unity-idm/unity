@@ -29,9 +29,7 @@ import pl.edu.icm.unity.engine.internal.EngineHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -452,7 +450,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	}
 	
 	private CredentialInfo getCredentialInfo(long entityId, SqlSession sqlMap) 
-			throws IllegalTypeException, IllegalGroupValueException, IllegalCredentialException
+			throws EngineException
 	{
 		Map<String, AttributeExt<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(entityId, "/", null, sqlMap);
 		

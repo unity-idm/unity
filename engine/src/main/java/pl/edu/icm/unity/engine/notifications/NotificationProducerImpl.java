@@ -17,21 +17,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.DBSessionManager;
-import pl.edu.icm.unity.db.model.GenericObjectBean;
-import pl.edu.icm.unity.engine.internal.NotificationsManagementCore;
+import pl.edu.icm.unity.db.generic.notify.NotificationChannelDB;
+import pl.edu.icm.unity.db.generic.notify.NotificationChannelHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.notifications.NotificationChannel;
+import pl.edu.icm.unity.notifications.NotificationChannelInstance;
 import pl.edu.icm.unity.notifications.NotificationFacility;
 import pl.edu.icm.unity.notifications.NotificationProducer;
 import pl.edu.icm.unity.notifications.NotificationStatus;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.registries.NotificationFacilitiesRegistry;
 import pl.edu.icm.unity.server.utils.CacheProvider;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.NotificationChannel;
 
 /**
  * Internal (shouldn't be exposed directly to end-users) subsystem for sending notifications.
@@ -40,28 +41,27 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @Component
 public class NotificationProducerImpl implements NotificationProducer
 {
-	private static final String NOTIFICATION_CHANNEL_ID = "notificationChannel";
 	private AttributesManagement attrMan;
 	private DBSessionManager db;
-	private DBGeneric dbGeneric;
 	private Ehcache channelsCache;
-	private NotificationsManagementCore notificationsCore;
+	private NotificationFacilitiesRegistry facilitiesRegistry;
+	private NotificationChannelDB channelDB;
 	
 	@Autowired
 	public NotificationProducerImpl(@Qualifier("insecure") AttributesManagement attrMan, DBSessionManager db,
-			DBGeneric dbGeneric, CacheProvider cacheProvider,
-			NotificationsManagementCore notificationsCore)
+			CacheProvider cacheProvider,
+			NotificationFacilitiesRegistry facilitiesRegistry, NotificationChannelDB channelDB)
 	{
 		this.attrMan = attrMan;
 		this.db = db;
-		this.dbGeneric = dbGeneric;
 		initCache(cacheProvider.getManager());
-		this.notificationsCore = notificationsCore;
+		this.facilitiesRegistry = facilitiesRegistry;
+		this.channelDB = channelDB;
 	}
 
 	private void initCache(CacheManager cacheManager)
 	{
-		channelsCache = cacheManager.addCacheIfAbsent(NOTIFICATION_CHANNEL_ID);
+		channelsCache = cacheManager.addCacheIfAbsent(NotificationChannelHandler.NOTIFICATION_CHANNEL_ID);
 		CacheConfiguration config = channelsCache.getCacheConfiguration();
 		config.setTimeToIdleSeconds(120);
 		config.setTimeToLiveSeconds(120);
@@ -75,38 +75,36 @@ public class NotificationProducerImpl implements NotificationProducer
 			String msgSubject, String message) throws EngineException
 	{
 		recipient.validateInitialization();		
-		NotificationChannel channel = loadChannel(channelName);
-		NotificationFacility facility = notificationsCore.getNotificationFacility(channel.getFacilityId());
+		NotificationChannelInstance channel = loadChannel(channelName);
+		NotificationFacility facility = facilitiesRegistry.getByName(channel.getFacilityId());
 		String recipientAddress = getAddressForEntity(recipient, facility.getRecipientAddressMetadataKey());
 		return channel.sendNotification(recipientAddress, msgSubject, message);
 	}
 	
-	private NotificationChannel loadChannel(String channelName) throws EngineException
+	private NotificationChannelInstance loadChannel(String channelName) throws EngineException
 	{
 		Element cachedChannel = channelsCache.get(channelName);
-		NotificationChannel channel;
+		NotificationChannelInstance channel;
 		if (cachedChannel == null)
 		{
 			channel = loadFromDb(channelName);
 		} else
-			channel = (NotificationChannel) cachedChannel.getObjectValue();
+			channel = (NotificationChannelInstance) cachedChannel.getObjectValue();
 		
 		if (channel == null)
 			throw new WrongArgumentException("Channel " + channelName + " is not known");
 		return channel;
 	}
 	
-	private NotificationChannel loadFromDb(String channelName) throws EngineException
+	private NotificationChannelInstance loadFromDb(String channelName) throws EngineException
 	{
-		NotificationChannel channel;
+		NotificationChannelInstance channel;
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			GenericObjectBean raw = dbGeneric.getObjectByNameType(channelName, 
-					NOTIFICATION_CHANNEL_ID, sql);
-			String config = notificationsCore.deserializeChannel(raw.getContents());
-			NotificationFacility facility = notificationsCore.getNotificationFacility(raw.getSubType());
-			channel = facility.getChannel(config);
+			NotificationChannel channelDesc = channelDB.get(channelName, sql);
+			NotificationFacility facility = facilitiesRegistry.getByName(channelDesc.getFacilityId());
+			channel = facility.getChannel(channelDesc.getConfiguration());
 			sql.commit();
 		} finally
 		{

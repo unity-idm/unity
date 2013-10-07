@@ -30,32 +30,17 @@ public class CredentialRequirementsHolder
 	private Map<String, LocalCredentialVerificator> handlers = new HashMap<String, LocalCredentialVerificator>();
 
 	/**
-	 * Constructs a new instance from scratch
-	 * @param requirements
-	 * @param reg
-	 * @param credDefs
-	 * @throws IllegalCredentialException 
-	 */
-	public CredentialRequirementsHolder(CredentialRequirements requirements, AuthenticatorsRegistry reg, 
-			Collection<CredentialDefinition> credDefs) throws IllegalCredentialException
-	{
-		this.reg = reg;
-		this.requirements = requirements;
-		initHandlers(requirements.getRequiredCredentials(), credDefs);
-	}
-	
-	/**
-	 * Constructs a new instance from serialized DB state
+	 * Constructs a new instance from {@link CredentialRequirements}
 	 * @param reg
 	 * @param json
 	 * @param credDefs
 	 * @throws IllegalCredentialException 
 	 */
-	public CredentialRequirementsHolder(AuthenticatorsRegistry reg, byte[] json, 
+	public CredentialRequirementsHolder(AuthenticatorsRegistry reg, CredentialRequirements requirements, 
 			Collection<CredentialDefinition> credDefs) throws IllegalCredentialException
 	{
 		this.reg = reg;
-		this.requirements = CredentialRequirementsSerializer.deserialize(json);
+		this.requirements = requirements;
 		initHandlers(requirements.getRequiredCredentials(), credDefs);
 	}
 	
@@ -69,6 +54,20 @@ public class CredentialRequirementsHolder
 			initHandler(reg, crDefsMap.get(credDef));
 	}
 
+	public static void checkCredentials(CredentialRequirements requirements, Map<String, CredentialDefinition> crDefsMap,
+			AuthenticatorsRegistry reg) throws IllegalCredentialException
+	{
+		Set<String> configuredCredentials = requirements.getRequiredCredentials();
+		for (String credDef: configuredCredentials)
+		{
+			CredentialDefinition def = crDefsMap.get(credDef);
+			LocalCredentialVerificatorFactory fact = reg.getLocalCredentialFactory(def.getTypeId());
+			if (fact == null)
+				throw new IllegalCredentialException("The credential type " + def.getTypeId() + 
+						" is unknown");
+		}
+	}
+	
 	private void initHandler(AuthenticatorsRegistry reg, CredentialDefinition def) throws IllegalCredentialException
 	{
 		LocalCredentialVerificatorFactory fact = reg.getLocalCredentialFactory(def.getTypeId());

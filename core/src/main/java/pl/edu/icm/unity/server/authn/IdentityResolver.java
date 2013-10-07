@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.server.authn;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
@@ -28,7 +29,8 @@ public interface IdentityResolver
 	 * @throws IllegalIdentityValueException if the given identity is not present in the db
 	 * @throws IllegalGroupValueException 
 	 * @throws IllegalTypeException 
+	 * @throws EngineException 
 	 */
 	public EntityWithCredential resolveIdentity(String identity, String[] identityTypes, String credentialName)
-		throws IllegalIdentityValueException, IllegalTypeException, IllegalGroupValueException;
+		throws IllegalIdentityValueException, IllegalTypeException, IllegalGroupValueException, EngineException;
 }

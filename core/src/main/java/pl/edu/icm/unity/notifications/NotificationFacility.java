@@ -17,7 +17,7 @@ public interface NotificationFacility extends DescribedObject
 {
 	public void validateConfiguration(String configuration) throws WrongArgumentException;
 	
-	public NotificationChannel getChannel(String configuration);
+	public NotificationChannelInstance getChannel(String configuration);
 	
 	/**
 	 * @return an id of {@link AttributeMetadataProvider}. Attribute with this metadata is resolved in the 

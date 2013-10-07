@@ -31,6 +31,21 @@
 	<bean class="pl.edu.icm.unity.db.json.AttributeSerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.EventSerializer"/>
 
+	<bean class="pl.edu.icm.unity.db.generic.DependencyNotificationManager"/>
+	<bean class="pl.edu.icm.unity.db.generic.GenericObjectHandlersRegistry"/>
+	<bean class="pl.edu.icm.unity.db.generic.ac.AttributeClassDB"/>
+	<bean class="pl.edu.icm.unity.db.generic.ac.AttributeClassHandler"/>
+	<bean class="pl.edu.icm.unity.db.generic.authn.AuthenticatorInstanceDB"/>
+	<bean class="pl.edu.icm.unity.db.generic.authn.AuthenticatorInstanceHandler"/>
+	<bean class="pl.edu.icm.unity.db.generic.cred.CredentialDB"/>
+	<bean class="pl.edu.icm.unity.db.generic.cred.CredentialHandler"/>
+	<bean class="pl.edu.icm.unity.db.generic.credreq.CredentialRequirementDB"/>
+	<bean class="pl.edu.icm.unity.db.generic.credreq.CredentialRequirementHandler"/>
+	<bean class="pl.edu.icm.unity.db.generic.notify.NotificationChannelDB"/>
+	<bean class="pl.edu.icm.unity.db.generic.notify.NotificationChannelHandler"/>
+	<bean class="pl.edu.icm.unity.db.generic.reg.RegistrationFormDB"/>
+	<bean class="pl.edu.icm.unity.db.generic.reg.RegistrationFormHandler"/>
+
 	<bean class="pl.edu.icm.unity.db.export.ImportExport"/>
 	<bean class="pl.edu.icm.unity.db.export.AttributeTypesIE"/>
 	<bean class="pl.edu.icm.unity.db.export.IdentityTypesIE"/>

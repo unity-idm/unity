@@ -44,4 +44,8 @@
 	<select id="selectObjectByNameType" parameterType="GenericObjectB" resultMap="objectResult">
 		SELECT * FROM VAR_OBJECTS WHERE NAME = #{name} AND TYPE = #{type}
 	</select>
+
+	<select id="selectObjectNamesByType" parameterType="GenericObjectB">
+		SELECT NAME FROM VAR_OBJECTS WHERE TYPE = #{type}
+	</select>
 </mapper>

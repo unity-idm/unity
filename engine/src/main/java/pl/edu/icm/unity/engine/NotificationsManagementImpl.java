@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.engine;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,20 +11,16 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.DBSessionManager;
-import pl.edu.icm.unity.db.model.GenericObjectBean;
+import pl.edu.icm.unity.db.generic.notify.NotificationChannelDB;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.internal.NotificationsManagementCore;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.notifications.NotificationFacility;
-import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
-import pl.edu.icm.unity.server.utils.CacheProvider;
+import pl.edu.icm.unity.types.basic.NotificationChannel;
 
 
 /**
@@ -36,27 +30,24 @@ import pl.edu.icm.unity.server.utils.CacheProvider;
 @Component
 public class NotificationsManagementImpl implements NotificationsManagement
 {
-	public static final String NOTIFICATION_CHANNEL_ID = "notificationChannel";
-
 	private DBSessionManager db;
-	private DBGeneric dbGeneric;
+	private NotificationChannelDB notificationDB;
 	private NotificationsManagementCore notificationsCore;
 	private AuthorizationManager authz;
 	
-
 	
 	@Autowired
-	public NotificationsManagementImpl(NotificationsManagementCore notificationsCore,
-			DBSessionManager db, DBGeneric dbGeneric, ObjectMapper mapper, 
-			CacheProvider cacheManager, AttributesManagement attrMan, AuthorizationManager authz)
+	public NotificationsManagementImpl(DBSessionManager db,
+			NotificationChannelDB notificationDB,
+			NotificationsManagementCore notificationsCore, AuthorizationManager authz)
 	{
-		this.notificationsCore = notificationsCore;
 		this.db = db;
-		this.dbGeneric = dbGeneric;
+		this.notificationDB = notificationDB;
+		this.notificationsCore = notificationsCore;
 		this.authz = authz;
 	}
 
-	
+
 	@Override
 	public Set<String> getNotificationFacilities() throws EngineException
 	{
@@ -65,23 +56,21 @@ public class NotificationsManagementImpl implements NotificationsManagement
 	}
 
 	@Override
-	public void addNotificationChannel(String facilityId, String channelName,
-			String configuration) throws EngineException
+	public void addNotificationChannel(NotificationChannel channel) throws EngineException
 	{
-		if (facilityId == null || channelName == null || configuration == null)
-			throw new WrongArgumentException("None of the arguments can be null");
-		NotificationFacility facility = notificationsCore.getNotificationFacility(facilityId);
+		if (channel.getFacilityId() == null || channel.getName() == null || channel.getConfiguration() == null)
+			throw new WrongArgumentException("All channel fields must be set up");
+		NotificationFacility facility = notificationsCore.getNotificationFacility(channel.getFacilityId());
 		if (facility == null)
-			throw new WrongArgumentException("Notification facility name is unknown: " + facilityId);
-		facility.validateConfiguration(configuration);
+			throw new WrongArgumentException("Notification facility name is unknown: " + 
+					channel.getFacilityId());
+		facility.validateConfiguration(channel.getConfiguration());
 		
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			byte[] contents = notificationsCore.serializeChannel(configuration);
-			dbGeneric.addObject(channelName, NOTIFICATION_CHANNEL_ID, 
-					facilityId, contents, sql);
+			notificationDB.insert(channel.getName(), channel, sql);
 			sql.commit();
 		} finally
 		{
@@ -98,12 +87,8 @@ public class NotificationsManagementImpl implements NotificationsManagement
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			dbGeneric.removeObject(channelName, NOTIFICATION_CHANNEL_ID, sql);
+			notificationDB.remove(channelName, sql);
 			sql.commit();
-		} catch(IllegalArgumentException e)
-		{
-			throw new WrongArgumentException("Notification channel with name " + channelName + 
-					" is not known", e);
 		}finally
 		{
 			db.releaseSqlSession(sql);
@@ -121,14 +106,12 @@ public class NotificationsManagementImpl implements NotificationsManagement
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			GenericObjectBean raw = dbGeneric.getObjectByNameType(channelName, 
-					NOTIFICATION_CHANNEL_ID, sql);
-			if (raw == null)
-				throw new WrongArgumentException("Channel " + channelName + " is not known");
-			NotificationFacility facility = notificationsCore.getNotificationFacility(raw.getSubType());
+			NotificationChannel channel = notificationDB.get(channelName, sql);
+			NotificationFacility facility = notificationsCore.getNotificationFacility(
+					channel.getFacilityId());
 			facility.validateConfiguration(newConfiguration);
-			byte[] contents = notificationsCore.serializeChannel(newConfiguration);
-			dbGeneric.updateObject(channelName, NOTIFICATION_CHANNEL_ID, contents, sql);
+			channel.setConfiguration(newConfiguration);
+			notificationDB.update(channelName, channel, sql);
 			sql.commit();
 		} finally
 		{
@@ -137,18 +120,13 @@ public class NotificationsManagementImpl implements NotificationsManagement
 	}
 
 	@Override
-	public Map<String, String> getNotificationChannels() throws EngineException
+	public Map<String, NotificationChannel> getNotificationChannels() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			List<GenericObjectBean> raw = dbGeneric.getObjectsOfType(NOTIFICATION_CHANNEL_ID, sql);
-			Map<String, String> ret = new HashMap<>(raw.size());
-			for (GenericObjectBean gb: raw)
-			{
-				ret.put(gb.getName(), notificationsCore.deserializeChannel(gb.getContents()));
-			}
+			Map<String, NotificationChannel> ret = notificationDB.getAllAsMap(sql);
 			sql.commit();
 			return ret;
 		} finally

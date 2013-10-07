@@ -13,12 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBGeneric;
+import pl.edu.icm.unity.db.generic.GenericEntityHandler;
+import pl.edu.icm.unity.db.generic.GenericObjectHandlersRegistry;
 import pl.edu.icm.unity.db.mapper.GenericMapper;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.server.registries.GenericObjectHandlersRegistry;
-import pl.edu.icm.unity.server.utils.GenericObjectHandler;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -107,10 +107,10 @@ public class GenericsIE extends AbstractIE
 			}
 			JsonUtils.nextExpect(input, JsonToken.END_OBJECT);
 			
-			GenericObjectHandler handler = handlersRegistry.getByName(type);
+			GenericEntityHandler<?> handler = handlersRegistry.getByName(type);
 			if (handler == null)
 				throw new IOException("The generic object type " + type + " is not supported");
-			byte[] contents = handler.updateBeforeImport(type, subType, name, parsed);
+			byte[] contents = handler.updateBeforeImport(name, parsed);
 			dbGeneric.addObject(name, type, subType, contents, lastUpdate, sql);
 		}
 		JsonUtils.expect(input, JsonToken.END_ARRAY);

@@ -140,7 +140,7 @@ public class PreferencesManagementImpl implements PreferencesManagement
 	}
 	
 	private String getPreferenceAttribute(long entityId, SqlSession sql) 
-			throws IllegalTypeException, IllegalGroupValueException
+			throws EngineException
 	{
 		Collection<AttributeExt<?>> preference = dbAttributes.getAllAttributes(entityId, "/", false, 
 				SystemAttributeTypes.PREFERENCES, sql);

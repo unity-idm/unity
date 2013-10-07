@@ -17,19 +17,19 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
 import pl.edu.icm.unity.db.json.AttributeSerializer;
 import pl.edu.icm.unity.db.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.db.mapper.AttributesMapper;
-import pl.edu.icm.unity.db.mapper.GenericMapper;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.model.AttributeBean;
 import pl.edu.icm.unity.db.model.AttributeTypeBean;
 import pl.edu.icm.unity.db.model.DBLimits;
-import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.db.model.GroupElementBean;
 import pl.edu.icm.unity.db.resolvers.AttributesResolver;
 import pl.edu.icm.unity.db.resolvers.GroupResolver;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
@@ -57,20 +57,23 @@ public class DBAttributes
 	private GroupResolver groupResolver;
 	private DBShared dbShared;
 	private AttributeStatementProcessor statementsHelper;
+	private AttributeClassDB acDB;
 	
 	
 	@Autowired
-	public DBAttributes(DB db, AttributesResolver attrResolver, DBShared dbShared,
+	public DBAttributes(DB db, AttributesResolver attrResolver,
 			AttributeTypeSerializer atSerializer, AttributeSerializer aSerializer,
-			GroupResolver groupResolver, AttributeStatementProcessor statementsHelper)
+			GroupResolver groupResolver, DBShared dbShared,
+			AttributeStatementProcessor statementsHelper, AttributeClassDB acDB)
 	{
 		this.limits = db.getDBLimits();
 		this.attrResolver = attrResolver;
 		this.atSerializer = atSerializer;
 		this.aSerializer = aSerializer;
 		this.groupResolver = groupResolver;
-		this.statementsHelper = statementsHelper;
 		this.dbShared = dbShared;
+		this.statementsHelper = statementsHelper;
+		this.acDB = acDB;
 	}
 
 	public void addAttributeType(AttributeType toAdd, SqlSession sqlMap) 
@@ -262,13 +265,12 @@ public class DBAttributes
 	 * @param attributeTypeName
 	 * @param sql
 	 * @return
-	 * @throws IllegalGroupValueException 
-	 * @throws IllegalTypeException 
+	 * @throws EngineException 
 	 * @throws WrongArgumentException 
 	 */
 	public Collection<AttributeExt<?>> getAllAttributes(long entityId, String groupPath, boolean effective, 
 			String attributeTypeName, SqlSession sql) 
-			throws IllegalTypeException, IllegalGroupValueException
+			throws EngineException
 	{
 		Map<String, Map<String, AttributeExt<?>>> asMap = getAllAttributesAsMap(entityId, groupPath, effective, 
 				attributeTypeName, sql);
@@ -280,7 +282,7 @@ public class DBAttributes
 	
 	public Map<String, AttributeExt<?>> getAllAttributesAsMapOneGroup(long entityId, String groupPath,
 			String attributeTypeName, SqlSession sql) 
-			throws IllegalTypeException, IllegalGroupValueException
+			throws EngineException
 	{
 		if (groupPath == null)
 			throw new IllegalArgumentException("For this method group must be specified");
@@ -297,13 +299,12 @@ public class DBAttributes
 	 * @param attributeTypeName
 	 * @param sql
 	 * @return
-	 * @throws IllegalGroupValueException 
-	 * @throws IllegalTypeException 
+	 * @throws EngineException 
 	 * @throws WrongArgumentException 
 	 */
 	public Map<String, Map<String, AttributeExt<?>>> getAllAttributesAsMap(long entityId, String groupPath, 
 			boolean effective, String attributeTypeName, SqlSession sql) 
-			throws IllegalTypeException, IllegalGroupValueException
+			throws EngineException
 	{
 		AttributesMapper atMapper = sql.getMapper(AttributesMapper.class);
 		GroupsMapper gMapper = sql.getMapper(GroupsMapper.class);
@@ -319,10 +320,7 @@ public class DBAttributes
 		Set<String> allGroups = dbShared.getAllGroups(entityId, gMapper);
 		Map<String, Map<String, AttributeExt<?>>> ret = new HashMap<String, Map<String, AttributeExt<?>>>();
 		
-		GenericMapper genMapper = sql.getMapper(GenericMapper.class);
-		List<GenericObjectBean> rawAClasses = genMapper.selectObjectsByType(
-				AttributeClassUtil.ATTRIBUTE_CLASS_OBJECT_TYPE);
-		Map<String, AttributesClass> allClasses = AttributeClassUtil.resolveAttributeClasses(rawAClasses);
+		Map<String, AttributesClass> allClasses = acDB.getAllAsMap(sql);
 		
 		for (String group: groups)
 		{

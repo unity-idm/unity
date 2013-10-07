@@ -11,11 +11,11 @@ import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.db.AttributeClassUtil;
 import pl.edu.icm.unity.db.DBAttributes;
-import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
+import pl.edu.icm.unity.db.generic.ac.AttributeClassUtil;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
@@ -46,7 +46,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	private DBSessionManager db;
 	private DBGroups dbGroups;
 	private DBAttributes dbAttributes;
-	private DBGeneric dbGeneric;
+	private AttributeClassDB acDB;
 	private AuthorizationManager authz;
 	private EngineHelper engineHelper;
 	private IdentitiesResolver idResolver;
@@ -54,13 +54,14 @@ public class GroupsManagementImpl implements GroupsManagement
 	
 	@Autowired
 	public GroupsManagementImpl(DBSessionManager db, DBGroups dbGroups,
-			DBAttributes dbAttributes, DBGeneric dbGeneric, AuthorizationManager authz,
-			EngineHelper engineHelper, IdentitiesResolver idResolver)
+			DBAttributes dbAttributes, AttributeClassDB acDB,
+			AuthorizationManager authz, EngineHelper engineHelper,
+			IdentitiesResolver idResolver)
 	{
 		this.db = db;
 		this.dbGroups = dbGroups;
 		this.dbAttributes = dbAttributes;
-		this.dbGeneric = dbGeneric;
+		this.acDB = acDB;
 		this.authz = authz;
 		this.engineHelper = engineHelper;
 		this.idResolver = idResolver;
@@ -74,7 +75,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		try
 		{
 			validateGroupStatements(toAdd, sql);
-			AttributeClassUtil.validateAttributeClasses(toAdd.getAttributesClasses(), dbGeneric, sql);
+			AttributeClassUtil.validateAttributeClasses(toAdd.getAttributesClasses(), acDB, sql);
 			dbGroups.addGroup(toAdd, sql);
 			sql.commit();
 		} finally
@@ -189,13 +190,13 @@ public class GroupsManagementImpl implements GroupsManagement
 		try 
 		{
 			validateGroupStatements(group, sql);
-			AttributeClassUtil.validateAttributeClasses(group.getAttributesClasses(), dbGeneric, sql);
+			AttributeClassUtil.validateAttributeClasses(group.getAttributesClasses(), acDB, sql);
 			GroupContents gc = dbGroups.getContents(path, GroupContents.MEMBERS, sql);
 			List<AttributeType> allTypes = dbAttributes.getAttributeTypes(sql);
 			for (Long entity: gc.getMembers())
 			{
 				AttributeClassHelper helper = AttributeClassUtil.getACHelper(entity, path, 
-						dbAttributes, dbGeneric, group.getAttributesClasses(), sql);
+						dbAttributes, acDB, group.getAttributesClasses(), sql);
 				Collection<String> attributes = dbAttributes.getEntityInGroupAttributeNames(
 						entity, path, sql);
 				helper.checkAttribtues(attributes, allTypes);

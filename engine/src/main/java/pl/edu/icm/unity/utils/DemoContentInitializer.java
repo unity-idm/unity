@@ -101,10 +101,10 @@ public class DemoContentInitializer implements ServerInitializer
 			height.setDescription("He\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjh");
 			attrMan.addAttributeType(height);
 
-			IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "foo", true);
+			IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "demo-user", true);
 			Identity base = idsMan.addEntity(toAdd, "Password requirement", EntityState.valid, false);
 
-			IdentityParam toAddDn = new IdentityParam(X500Identity.ID, "CN=test foo", true);
+			IdentityParam toAddDn = new IdentityParam(X500Identity.ID, "CN=Demo user", true);
 			idsMan.addIdentity(toAddDn, new EntityParam(base.getEntityId()), true);
 
 			groupsMan.addMemberFromParent("/A", new EntityParam(base.getEntityId()));
@@ -121,7 +121,7 @@ public class DemoContentInitializer implements ServerInitializer
 			StringAttribute cnA = new StringAttribute("cn", "/", AttributeVisibility.full, "Hiper user");
 			attrMan.setAttribute(new EntityParam(base.getEntityId()), cnA, false);
 
-			PasswordToken pToken = new PasswordToken("a");
+			PasswordToken pToken = new PasswordToken("the!test1");
 			idsMan.setEntityCredential(new EntityParam(base.getEntityId()), "Password credential", 
 					pToken.toJson());
 		} catch (Exception e)

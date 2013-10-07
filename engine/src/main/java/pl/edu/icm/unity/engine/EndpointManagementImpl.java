@@ -13,13 +13,13 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.DBSessionManager;
-import pl.edu.icm.unity.db.model.GenericObjectBean;
+import pl.edu.icm.unity.engine.authn.AuthenticatorLoader;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
-import pl.edu.icm.unity.engine.internal.EndpointsUpdater;
-import pl.edu.icm.unity.engine.internal.InternalEndpointManagement;
+import pl.edu.icm.unity.engine.endpoints.EndpointDB;
+import pl.edu.icm.unity.engine.endpoints.EndpointsUpdater;
+import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -44,25 +44,28 @@ public class EndpointManagementImpl implements EndpointManagement
 {
 	private EndpointFactoriesRegistry endpointFactoriesReg;
 	private DBSessionManager db;
-	private DBGeneric dbGeneric;
+	private AuthenticatorLoader authnLoader;
 	private JettyServer httpServer;
 	private InternalEndpointManagement internalManagement;
 	private EndpointsUpdater endpointsUpdater;
 	private AuthorizationManager authz;
+	private EndpointDB endpointDB;
 	
 	@Autowired
 	public EndpointManagementImpl(EndpointFactoriesRegistry endpointFactoriesReg,
-			DBSessionManager db, DBGeneric dbGeneric, JettyServer httpServer,
-			InternalEndpointManagement internalManagement,
-			EndpointsUpdater endpointsUpdater, AuthorizationManager authz)
+			DBSessionManager db, AuthenticatorLoader authnLoader,
+			JettyServer httpServer, InternalEndpointManagement internalManagement,
+			EndpointsUpdater endpointsUpdater, AuthorizationManager authz,
+			EndpointDB endpointDB)
 	{
 		this.endpointFactoriesReg = endpointFactoriesReg;
 		this.db = db;
-		this.dbGeneric = dbGeneric;
+		this.authnLoader = authnLoader;
 		this.httpServer = httpServer;
 		this.internalManagement = internalManagement;
 		this.endpointsUpdater = endpointsUpdater;
 		this.authz = authz;
+		this.endpointDB = endpointDB;
 	}
 
 
@@ -108,14 +111,13 @@ public class EndpointManagementImpl implements EndpointManagement
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			List<Map<String, BindingAuthn>> authenticators = internalManagement.getAuthenticators(authenticatorsInfo, sql);
+			List<Map<String, BindingAuthn>> authenticators = authnLoader.getAuthenticators(
+					authenticatorsInfo, sql);
 			verifyAuthenticators(authenticators, factory.getDescription().getSupportedBindings());
 			instance.initialize(endpointName, httpServer.getUrls()[0], 
 					address, description, authenticatorsInfo, authenticators, jsonConfiguration);
 
-			byte[] contents = internalManagement.serializeEndpoint(instance); 
-			dbGeneric.addObject(endpointName, InternalEndpointManagement.ENDPOINT_OBJECT_TYPE, 
-					typeId, contents, sql);
+			endpointDB.insert(endpointName, instance, sql);
 			httpServer.deployEndpoint((WebAppEndpointInstance) instance);
 			sql.commit();
 		} catch (Exception e)
@@ -168,15 +170,11 @@ public class EndpointManagementImpl implements EndpointManagement
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			GenericObjectBean inDb = dbGeneric.getObjectByNameType(id, 
-					InternalEndpointManagement.ENDPOINT_OBJECT_TYPE, sql);
-			if (inDb == null)
-				throw new IllegalArgumentException("There is no endpoint with the provided id");
-			dbGeneric.removeObject(id, InternalEndpointManagement.ENDPOINT_OBJECT_TYPE, sql);
+			endpointDB.remove(id, sql);
 			sql.commit();
 		} catch (Exception e)
 		{
-			throw new EngineException("Unable to deploy an endpoint: " + e.getMessage(), e);
+			throw new EngineException("Unable to undeploy an endpoint: " + e.getMessage(), e);
 		} finally
 		{
 			db.releaseSqlSession(sql);
@@ -213,14 +211,9 @@ public class EndpointManagementImpl implements EndpointManagement
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			GenericObjectBean inDb = dbGeneric.getObjectByNameType(id, 
-					InternalEndpointManagement.ENDPOINT_OBJECT_TYPE, sql);
-			if (inDb == null)
-				throw new IllegalArgumentException("There is no endpoint with the id " + id);
-			EndpointInstance instance = internalManagement.deserializeEndpoint(id, 
-					inDb.getSubType(), inDb.getContents(), sql);
-			
-			EndpointFactory factory = endpointFactoriesReg.getById(inDb.getSubType());
+			EndpointInstance instance = endpointDB.get(id, sql); 
+			String endpointTypeId = instance.getEndpointDescription().getType().getName();
+			EndpointFactory factory = endpointFactoriesReg.getById(endpointTypeId);
 			EndpointInstance newInstance = factory.newInstance();
 			
 			String jsonConf = (jsonConfiguration != null) ? jsonConfiguration : 
@@ -233,21 +226,18 @@ public class EndpointManagementImpl implements EndpointManagement
 			if (authn != null)
 			{
 				newAuthn = authn;
-				authenticators = internalManagement.getAuthenticators(authn, sql);
+				authenticators = authnLoader.getAuthenticators(authn, sql);
 			} else
 			{
 				newAuthn = instance.getEndpointDescription().getAuthenticatorSets();
-				authenticators = internalManagement.getAuthenticators(newAuthn, sql);
+				authenticators = authnLoader.getAuthenticators(newAuthn, sql);
 			}
 
 			newInstance.initialize(id, httpServer.getUrls()[0], 
 					instance.getEndpointDescription().getContextAddress(), 
 					newDesc, newAuthn, authenticators, jsonConf);
 			
-			byte[] contents = internalManagement.serializeEndpoint(newInstance);
-			dbGeneric.updateObject(inDb.getName(), InternalEndpointManagement.ENDPOINT_OBJECT_TYPE, 
-					contents, sql);
-
+			endpointDB.update(id, newInstance, sql);
 			sql.commit();				
 		} catch (Exception e)
 		{

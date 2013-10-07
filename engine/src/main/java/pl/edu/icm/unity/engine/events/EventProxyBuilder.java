@@ -13,6 +13,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.RegistrationsManagement;
 
 /**
  * Java dynamic proxy builder, decorating wrapped objects with event generation. 
@@ -31,6 +32,8 @@ public class EventProxyBuilder
 	private IdentitiesManagement idsMan;
 	@Autowired @Qualifier("plain")
 	private PreferencesManagement prefMan;
+	@Autowired @Qualifier("plain")
+	private RegistrationsManagement regMan;
 	
 	@Autowired
 	private EventProcessor eventProcessor;
@@ -66,5 +69,13 @@ public class EventProxyBuilder
 				new Class[] {PreferencesManagement.class}, 
 				new EventDecoratingHandler(prefMan, eventProcessor, 
 						PreferencesManagement.class.getSimpleName()));
+	}
+	
+	public RegistrationsManagement getRegistrationsManagementInstance()
+	{
+		return (RegistrationsManagement) Proxy.newProxyInstance(classLoader, 
+				new Class[] {RegistrationsManagement.class}, 
+				new EventDecoratingHandler(regMan, eventProcessor, 
+						RegistrationsManagement.class.getSimpleName()));
 	}
 }

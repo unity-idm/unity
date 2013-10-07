@@ -28,6 +28,8 @@ import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.endpoints.EndpointsUpdater;
+import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -59,6 +61,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
+import pl.edu.icm.unity.types.basic.NotificationChannel;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.utils.LifecycleBase;
 
@@ -528,8 +531,10 @@ public class EngineInitialization extends LifecycleBase
 			}
 			File mailCfgFile = config.getFileValue(UnityServerConfiguration.MAIL_CONF, false);
 			String mailCfg = FileUtils.readFileToString(mailCfgFile);
-			notManagement.addNotificationChannel(EmailFacility.NAME, 
-					UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL, mailCfg);
+			NotificationChannel emailCh = new NotificationChannel(
+					UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL, 
+					"Default email channel", mailCfg, EmailFacility.NAME);
+			notManagement.addNotificationChannel(emailCh);
 		} catch (Exception e)
 		{
 			log.fatal("Can't load e-mail notification channel configuration", e);

@@ -2,19 +2,17 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.db;
+package pl.edu.icm.unity.db.generic.ac;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
 
-import pl.edu.icm.unity.db.json.AttributeClassSerializer;
-import pl.edu.icm.unity.db.model.GenericObjectBean;
+import pl.edu.icm.unity.db.DBAttributes;
+import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
@@ -31,35 +29,23 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 public abstract class AttributeClassUtil
 {
 	private static final AttributeClassHelper EMPTY_AC_HELPER = new AttributeClassHelper();
-	public static final String ATTRIBUTE_CLASS_OBJECT_TYPE = "attributeClass";
 	public static final String ATTRIBUTE_CLASSES_ATTRIBUTE = "sys:AttributeClasses"; 
 	
-	public static void validateAttributeClasses(Collection<String> toCheck, DBGeneric dbGeneric, SqlSession sql) 
-			throws IllegalTypeException
+	public static void validateAttributeClasses(Collection<String> toCheck, AttributeClassDB acDB, SqlSession sql) 
+			throws EngineException
 	{
 		if (toCheck == null)
 			return;
-		List<GenericObjectBean> raw = dbGeneric.getObjectsOfType(ATTRIBUTE_CLASS_OBJECT_TYPE, sql);
-		Set<String> available = new HashSet<>(raw.size());
-		for (GenericObjectBean b: raw)
-			available.add(b.getName());
+		Set<String> available = acDB.getAllNames(sql);
 		for (String check: toCheck)
 			if (!available.contains(check))
 				throw new IllegalTypeException("Attributes class " + check + " is not available");
 	}
 	
-	public static Map<String, AttributesClass> resolveAttributeClasses(DBGeneric dbGeneric, SqlSession sql)
+	public static Map<String, AttributesClass> resolveAttributeClasses(AttributeClassDB acDB, SqlSession sql) 
+			throws EngineException
 	{
-		List<GenericObjectBean> raw = dbGeneric.getObjectsOfType(ATTRIBUTE_CLASS_OBJECT_TYPE, sql);
-		return resolveAttributeClasses(raw);
-	}
-	
-	public static Map<String, AttributesClass> resolveAttributeClasses(List<GenericObjectBean> raw)
-	{
-		Map<String, AttributesClass> allClasses = new HashMap<>(raw.size());
-		for (GenericObjectBean rawA: raw)
-			allClasses.put(rawA.getName(), AttributeClassSerializer.deserialize(rawA.getContents()));
-		return allClasses;
+		return acDB.getAllAsMap(sql);
 	}
 	
 	/**
@@ -76,7 +62,7 @@ public abstract class AttributeClassUtil
 	 */
 	@SuppressWarnings("unchecked")
 	public static AttributeClassHelper getACHelper(long entityId, String groupPath, DBAttributes dbAttributes, 
-			DBGeneric dbGeneric, DBGroups dbGroups, SqlSession sql) throws EngineException
+			AttributeClassDB acDB, DBGroups dbGroups, SqlSession sql) throws EngineException
 	{
 		Collection<AttributeExt<?>> acAttrs = dbAttributes.getAllAttributes(entityId, 
 				groupPath, false, ATTRIBUTE_CLASSES_ATTRIBUTE, sql);
@@ -84,7 +70,7 @@ public abstract class AttributeClassUtil
 		AttributeExt<String> ac = null;
 		if (acAttrs.size() != 0)
 			ac = (AttributeExt<String>) acAttrs.iterator().next();
-		return getACHelperGeneric(group.getAttributesClasses(), ac == null ? null : ac.getValues(), dbGeneric, sql);
+		return getACHelperGeneric(group.getAttributesClasses(), ac == null ? null : ac.getValues(), acDB, sql);
 	}
 
 	/**
@@ -102,7 +88,7 @@ public abstract class AttributeClassUtil
 	 */
 	@SuppressWarnings("unchecked")
 	public static AttributeClassHelper getACHelper(long entityId, String groupPath, DBAttributes dbAttributes, 
-			DBGeneric dbGeneric, Set<String> acs, SqlSession sql) throws EngineException
+			AttributeClassDB acDB, Set<String> acs, SqlSession sql) throws EngineException
 	{
 		Collection<AttributeExt<?>> acAttrs = dbAttributes.getAllAttributes(entityId, 
 				groupPath, false, ATTRIBUTE_CLASSES_ATTRIBUTE, sql);
@@ -110,7 +96,7 @@ public abstract class AttributeClassUtil
 		if (acAttrs.size() != 0)
 			ac = (AttributeExt<String>) acAttrs.iterator().next();
 		
-		return getACHelperGeneric(acs, ac == null ? null : ac.getValues(), dbGeneric, sql);
+		return getACHelperGeneric(acs, ac == null ? null : ac.getValues(), acDB, sql);
 	}
 
 	/**
@@ -127,14 +113,14 @@ public abstract class AttributeClassUtil
 	 * @throws EngineException
 	 */
 	public static AttributeClassHelper getACHelper(String groupPath, Collection<String> acs,  
-			DBGeneric dbGeneric, DBGroups dbGroups, SqlSession sql) throws EngineException
+			AttributeClassDB acDB, DBGroups dbGroups, SqlSession sql) throws EngineException
 	{
 		Group group = dbGroups.getContents(groupPath, GroupContents.METADATA, sql).getGroup();
-		return getACHelperGeneric(group.getAttributesClasses(), acs, dbGeneric, sql);
+		return getACHelperGeneric(group.getAttributesClasses(), acs, acDB, sql);
 	}
 	
 	private static AttributeClassHelper getACHelperGeneric(Collection<String> groupAcs, Collection<String> entityAcs,   
-			DBGeneric dbGeneric, SqlSession sql) throws EngineException
+			AttributeClassDB acDB, SqlSession sql) throws EngineException
 	{
 		Set<String> allAcs = new HashSet<>();
 		if (entityAcs != null)
@@ -143,7 +129,7 @@ public abstract class AttributeClassUtil
 			allAcs.addAll(groupAcs);
 		if (allAcs.size() != 0)
 		{
-			Map<String, AttributesClass> allClasses = resolveAttributeClasses(dbGeneric, sql);
+			Map<String, AttributesClass> allClasses = resolveAttributeClasses(acDB, sql);
 			return new AttributeClassHelper(allClasses, allAcs);
 		}
 		return EMPTY_AC_HELPER;

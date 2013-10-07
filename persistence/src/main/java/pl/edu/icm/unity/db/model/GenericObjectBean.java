@@ -21,6 +21,11 @@ public class GenericObjectBean extends BaseBean
 		super(name, contents);
 		this.type = type;
 	}
+	public GenericObjectBean(String name, byte[] contents, String type, String subType)
+	{
+		this(name, contents, type);
+		this.subType = subType;
+	}
 
 	public String getType()
 	{

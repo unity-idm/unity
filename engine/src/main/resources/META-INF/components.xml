@@ -19,6 +19,7 @@
 	<bean primary="true" factory-bean="proxyBuilder" factory-method="getGroupsManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder" factory-method="getIdentitiesManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder" factory-method="getPreferencesManagementInstance"/>
+	<bean primary="true" factory-bean="proxyBuilder" factory-method="getRegistrationsManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getServerManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getEndpointsManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getAuthenticationManagementInstance"/>
@@ -48,6 +49,9 @@
 		<qualifier value="plain"/>
 	</bean>
 	<bean primary="false" class="pl.edu.icm.unity.engine.NotificationsManagementImpl">
+		<qualifier value="plain"/>
+	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.RegistrationsManagementImpl">
 		<qualifier value="plain"/>
 	</bean>
 		
@@ -85,13 +89,15 @@
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-
-	<bean class="pl.edu.icm.unity.engine.internal.InternalEndpointManagement"/>
+	<bean primary="false" class="pl.edu.icm.unity.engine.RegistrationsManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	
 	<bean class="pl.edu.icm.unity.engine.internal.EngineInitialization"/>
 	<bean class="pl.edu.icm.unity.engine.internal.EngineHelper"/>
 	<bean class="pl.edu.icm.unity.engine.internal.IdentityResolverImpl"/>
 	<bean class="pl.edu.icm.unity.engine.internal.CredentialHelperImpl"/>
-	<bean class="pl.edu.icm.unity.engine.internal.EndpointsUpdater"/>
 	<bean class="pl.edu.icm.unity.engine.internal.AttributeStatementsCleaner"/>
 	<bean class="pl.edu.icm.unity.engine.internal.NotificationsManagementCore"/>
 	
@@ -103,12 +109,11 @@
 	
 	<bean class="pl.edu.icm.unity.engine.notifications.NotificationProducerImpl"/>
 	<bean class="pl.edu.icm.unity.engine.notifications.EmailFacility"/>
+
+	<bean class="pl.edu.icm.unity.engine.authn.AuthenticatorLoader"/>
 	
-	<bean class="pl.edu.icm.unity.engine.objhandlers.NotificationsObjectHandler"/>
-	<bean class="pl.edu.icm.unity.engine.objhandlers.EndpointObjectHandler"/>
-	<bean class="pl.edu.icm.unity.engine.objhandlers.AttributeClassObjectHandler"/>
-	<bean class="pl.edu.icm.unity.engine.objhandlers.AuthenticatorObjectHandler"/>
-	<bean class="pl.edu.icm.unity.engine.objhandlers.CredentialRequirementHandler"/>
-	<bean class="pl.edu.icm.unity.engine.objhandlers.CredentialObjectHandler"/>
-	
+	<bean class="pl.edu.icm.unity.engine.endpoints.EndpointsUpdater"/>
+	<bean class="pl.edu.icm.unity.engine.endpoints.EndpointHandler"/>
+	<bean class="pl.edu.icm.unity.engine.endpoints.EndpointDB"/>
+	<bean class="pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement"/>
 </beans>

@@ -10,7 +10,7 @@ import java.util.concurrent.Future;
  * Configured instance of {@link NotificationFacility} able to send notifications.
  * @author K. Benedyczak
  */
-public interface NotificationChannel
+public interface NotificationChannelInstance
 {
 	/**
 	 * @return name of the facility this channel is associated with.

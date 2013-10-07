@@ -2,8 +2,9 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.internal;
+package pl.edu.icm.unity.engine.endpoints;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,10 +16,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.DBSessionManager;
-import pl.edu.icm.unity.db.model.GenericObjectBean;
-import pl.edu.icm.unity.engine.AuthenticationManagementImpl;
+import pl.edu.icm.unity.db.generic.authn.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
@@ -39,18 +38,21 @@ public class EndpointsUpdater
 	private static final Logger log = Log.getLogger(Log.U_SERVER, EndpointsUpdater.class);
 	private long lastUpdate = 0;
 	private DBSessionManager db;
-	private DBGeneric dbGeneric;
 	private JettyServer httpServer;
 	private InternalEndpointManagement endpointMan;
+	private EndpointDB endpointDB;
+	private AuthenticatorInstanceDB authnDB;
 	
 	@Autowired
-	public EndpointsUpdater(DBSessionManager db, DBGeneric dbGeneric,
-			JettyServer httpServer, InternalEndpointManagement endpointMan)
+	public EndpointsUpdater(DBSessionManager db, JettyServer httpServer,
+			InternalEndpointManagement endpointMan, EndpointDB endpointDB,
+			AuthenticatorInstanceDB authnDB)
 	{
 		this.db = db;
-		this.dbGeneric = dbGeneric;
 		this.httpServer = httpServer;
 		this.endpointMan = endpointMan;
+		this.endpointDB = endpointDB;
+		this.authnDB = authnDB;
 	}
 
 	public void updateEndpoints() throws EngineException
@@ -79,28 +81,26 @@ public class EndpointsUpdater
 		try
 		{
 			Set<String> changedAuthenticators = getChangedAuthenticators(sql);
-			
-			List<GenericObjectBean> endpoints = dbGeneric.getObjectsOfType(
-					InternalEndpointManagement.ENDPOINT_OBJECT_TYPE, sql);
-			for (GenericObjectBean g: endpoints)
-			{
-				endpointsInDb.add(g.getName());
-				EndpointInstance instance = endpointMan.deserializeEndpoint(
-						g.getName(), g.getSubType(), g.getContents(), sql);
 
-				if (g.getLastUpdate().getTime() >= lastUpdate)
+			List<Map.Entry<EndpointInstance, Date>> endpoints = endpointDB.getAllWithUpdateTimestamps(sql);
+			for (Map.Entry<EndpointInstance, Date> instanceWithDate: endpoints)
+			{
+				EndpointInstance instance = instanceWithDate.getKey();
+				String name = instance.getEndpointDescription().getId();
+				endpointsInDb.add(name);
+				if (instanceWithDate.getValue().getTime() >= lastUpdate)
 				{
-					if (endpointsDeployed.containsKey(g.getName()))
+					if (endpointsDeployed.containsKey(name))
 					{
-						log.info("Endpoint " + g.getName() + " will be re-deployed");
-						httpServer.undeployEndpoint(g.getName());
+						log.info("Endpoint " + name + " will be re-deployed");
+						httpServer.undeployEndpoint(name);
 					} else
-						log.info("Endpoint " + g.getName() + " will be deployed");
+						log.info("Endpoint " + name + " will be deployed");
 					
 					httpServer.deployEndpoint((WebAppEndpointInstance) instance);
 				} else if (hasChangedAuthenticator(changedAuthenticators, instance))
 				{
-					updateEndpointAuthenticators(g.getName(), instance, endpointsDeployed);
+					updateEndpointAuthenticators(name, instance, endpointsDeployed);
 				}
 			}
 			lastUpdate = System.currentTimeMillis();
@@ -133,16 +133,16 @@ public class EndpointsUpdater
 	/**
 	 * @param sql
 	 * @return Set of those authenticators that were updated after the last update of endpoints.
+	 * @throws EngineException 
 	 */
-	private Set<String> getChangedAuthenticators(SqlSession sql)
+	private Set<String> getChangedAuthenticators(SqlSession sql) throws EngineException
 	{
 		Set<String> changedAuthenticators = new HashSet<String>();
-		List<GenericObjectBean> authenticators = dbGeneric.getObjectsOfType(
-				AuthenticationManagementImpl.AUTHENTICATOR_OBJECT_TYPE, sql);
-		for (GenericObjectBean a: authenticators)
+		List<Map.Entry<String, Date>> authnNames = authnDB.getAllNamesWithUpdateTimestamps(sql);
+		for (Map.Entry<String, Date> authn: authnNames)
 		{
-			if (a.getLastUpdate().getTime() >= lastUpdate)
-				changedAuthenticators.add(a.getName());
+			if (authn.getValue().getTime() >= lastUpdate)
+				changedAuthenticators.add(authn.getKey());
 		}
 		return changedAuthenticators;
 	}

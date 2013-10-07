@@ -17,8 +17,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.internal.AttributeStatementsCleaner;
-import pl.edu.icm.unity.engine.internal.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.JettyServer;
@@ -29,6 +29,7 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.authn.IdentityResolver;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
@@ -62,6 +63,8 @@ public abstract class SecuredDBIntegrationTestBase
 	protected PreferencesManagement preferencesMan;
 	@Autowired
 	protected EndpointManagement endpointMan;
+	@Autowired
+	protected RegistrationsManagement registrationsMan;
 	@Autowired
 	protected InternalEndpointManagement internalEndpointMan;
 	@Autowired

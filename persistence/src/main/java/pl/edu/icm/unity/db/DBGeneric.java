@@ -6,6 +6,7 @@ package pl.edu.icm.unity.db;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +15,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.mapper.GenericMapper;
 import pl.edu.icm.unity.db.model.DBLimits;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.registries.GenericObjectHandlersRegistry;
 
 
 /**
@@ -27,13 +26,11 @@ import pl.edu.icm.unity.server.registries.GenericObjectHandlersRegistry;
 public class DBGeneric
 {
 	private DBLimits limits;
-	private final GenericObjectHandlersRegistry handlersRegistry;
 	
 	@Autowired
-	public DBGeneric(DB db, GenericObjectHandlersRegistry handlersRegistry)
+	public DBGeneric(DB db)
 	{
 		this.limits = db.getDBLimits();
-		this.handlersRegistry = handlersRegistry;
 	}
 
 	/**
@@ -51,7 +48,6 @@ public class DBGeneric
 	public long addObject(String name, String type, String subType, byte[] contents, Date lastUpdate, 
 			SqlSession sqlMap) throws WrongArgumentException
 	{
-		checkHandler(type);
 		limits.checkNameLimit(name);
 		limits.checkNameLimit(subType);
 		if (contents == null)
@@ -73,6 +69,12 @@ public class DBGeneric
 			throws WrongArgumentException
 	{
 		return addObject(name, type, subType, contents, null, sqlMap);
+	}
+
+	public Set<String> getNamesOfType(String type, SqlSession sqlMap)
+	{
+		GenericMapper mapper = sqlMap.getMapper(GenericMapper.class);
+		return mapper.selectObjectNamesByType(type);
 	}
 	
 	public List<GenericObjectBean> getObjectsOfType(String type, SqlSession sqlMap)
@@ -129,17 +131,6 @@ public class DBGeneric
 			if (!shouldExist)
 				throw new IllegalArgumentException("The object with " + param.getName() 
 					+ " name already exists");
-		}
-	}
-	
-	private void checkHandler(String type) throws WrongArgumentException
-	{
-		try
-		{
-			handlersRegistry.getByName(type);
-		} catch (IllegalTypeException e)
-		{
-			throw new WrongArgumentException("The type " + type + " has no handler registered");
 		}
 	}
 }

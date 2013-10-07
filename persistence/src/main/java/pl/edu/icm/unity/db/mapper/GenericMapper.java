@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.db.mapper;
 
 import java.util.List;
+import java.util.Set;
 
 import pl.edu.icm.unity.db.model.GenericObjectBean;
 
@@ -20,6 +21,7 @@ public interface GenericMapper
 	public void deleteObjectsByType(String type);
 	public void updateByNameType(GenericObjectBean updated);
 	public List<GenericObjectBean> selectObjectsByType(String type);
+	public Set<String> selectObjectNamesByType(String type);
 	public List<String> selectObjectTypes();
 	public GenericObjectBean selectObjectByNameType(GenericObjectBean nameType);
 }

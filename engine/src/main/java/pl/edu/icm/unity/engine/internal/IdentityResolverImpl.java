@@ -15,9 +15,7 @@ import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.server.authn.IdentityResolver;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
@@ -52,8 +50,7 @@ public class IdentityResolverImpl implements IdentityResolver
 
 	@Override
 	public EntityWithCredential resolveIdentity(String identity, String[] identityTypes,
-			String credentialName) throws IllegalIdentityValueException, 
-			IllegalTypeException, IllegalGroupValueException
+			String credentialName) throws EngineException
 	{
 		SqlSession sql = db.getSqlSession(true);
 		try

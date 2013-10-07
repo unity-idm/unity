@@ -30,7 +30,7 @@ import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
 
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.notifications.NotificationChannel;
+import pl.edu.icm.unity.notifications.NotificationChannelInstance;
 import pl.edu.icm.unity.notifications.NotificationFacility;
 import pl.edu.icm.unity.notifications.NotificationStatus;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
@@ -91,7 +91,7 @@ public class EmailFacility implements NotificationFacility
 	}
 
 	@Override
-	public NotificationChannel getChannel(String configuration)
+	public NotificationChannelInstance getChannel(String configuration)
 	{
 		return new EmailChannel(configuration);
 	}
@@ -102,7 +102,7 @@ public class EmailFacility implements NotificationFacility
 		return ContactEmailMetadataProvider.NAME;
 	}
 	
-	private class EmailChannel implements NotificationChannel
+	private class EmailChannel implements NotificationChannelInstance
 	{
 		private Session session;
 		

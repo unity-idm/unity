@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.basic.NotificationChannel;
 
 /**
  * Management and usage of notifications subsystem (email, sms, ...)
@@ -24,12 +25,9 @@ public interface NotificationsManagement
 	/**
 	 * Creates a new channel for a given facility. E.g. a new email facility configured to use a concrete 
 	 * SMTP server.
-	 * @param facilityId
-	 * @param channelName
-	 * @param configuration
+	 * @param toAdd
 	 */
-	public void addNotificationChannel(String facilityId, String channelName, String configuration) 
-			throws EngineException;
+	public void addNotificationChannel(NotificationChannel toAdd) throws EngineException;
 	
 	/**
 	 * Removes a specified channel.
@@ -48,8 +46,8 @@ public interface NotificationsManagement
 	
 	/**
 	 * 
-	 * @return map of available notification channels. Values of the map are the configurations of the channels.
+	 * @return map of available notification channels.
 	 * @throws EngineException
 	 */
-	public Map<String, String> getNotificationChannels() throws EngineException;
+	public Map<String, NotificationChannel> getNotificationChannels() throws EngineException;
 }

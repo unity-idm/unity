@@ -91,7 +91,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		
 		//create authenticator
 		AuthenticatorInstance authInstance = authnMan.createAuthenticator(
-				"auth1", authType.getId(), null, "bbb", "credential1");
+				"auth1", authType.getId(), "8", "bbb", "credential1");
 
 		//get authenticators
 		Collection<AuthenticatorInstance> auths = authnMan.getAuthenticators("web");
@@ -102,14 +102,14 @@ public class TestAuthentication extends DBIntegrationTestBase
 		assertEquals("8", authInstanceR.getVerificatorJsonConfiguration());
 		
 		//update authenticator
-		authnMan.updateAuthenticator("auth1", "8", "b");
+		authnMan.updateAuthenticator("auth1", "9", "b");
 
 		auths = authnMan.getAuthenticators("web");
 		assertEquals(1, auths.size());
 		authInstanceR = auths.iterator().next();
 		assertEquals("auth1", authInstanceR.getId());
 		assertEquals("b", authInstanceR.getRetrievalJsonConfiguration());
-		assertEquals("8", authInstanceR.getVerificatorJsonConfiguration());
+		assertEquals("9", authInstanceR.getVerificatorJsonConfiguration());
 		
 		//create endpoint
 		List<EndpointTypeDescription> endpointTypes = endpointMan.getEndpointTypes();

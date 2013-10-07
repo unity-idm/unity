@@ -24,6 +24,7 @@ import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.basic.NotificationChannel;
 
 /**
  * Tests the core notifications mechanism and the email facility.
@@ -52,7 +53,7 @@ public class TestNotifications extends DBIntegrationTestBase
 				"mailx.smtp.trustAll=true";
 		String destinationAddress = "...";
 		
-		notMan.addNotificationChannel(EmailFacility.NAME, "ch1", emailCfg);
+		notMan.addNotificationChannel(new NotificationChannel("ch1", "", emailCfg, EmailFacility.NAME));
 		EntityParam admin = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "admin"));
 		initCommon.initializeCommonAttributeTypes();
 
@@ -82,11 +83,11 @@ public class TestNotifications extends DBIntegrationTestBase
 		assertEquals(1, notMan.getNotificationFacilities().size());
 		assertTrue(notMan.getNotificationFacilities().contains(EmailFacility.NAME));
 		assertEquals(0, notMan.getNotificationChannels().size());
-		notMan.addNotificationChannel(EmailFacility.NAME, "ch1", emailCfg);
-		Map<String, String> channels = notMan.getNotificationChannels();
+		notMan.addNotificationChannel(new NotificationChannel("ch1", "", emailCfg, EmailFacility.NAME));
+		Map<String, NotificationChannel> channels = notMan.getNotificationChannels();
 		assertEquals(1, channels.size());
 		assertTrue(channels.containsKey("ch1"));
-		assertEquals(emailCfg, channels.get("ch1"));
+		assertEquals(emailCfg, channels.get("ch1").getConfiguration());
 		
 		try
 		{
@@ -99,7 +100,7 @@ public class TestNotifications extends DBIntegrationTestBase
 		channels = notMan.getNotificationChannels();
 		assertEquals(1, channels.size());
 		assertTrue(channels.containsKey("ch1"));
-		assertEquals(emailCfg2, channels.get("ch1"));
+		assertEquals(emailCfg2, channels.get("ch1").getConfiguration());
 
 		try
 		{
@@ -111,10 +112,10 @@ public class TestNotifications extends DBIntegrationTestBase
 		notMan.removeNotificationChannel("ch1");
 		assertEquals(0, notMan.getNotificationChannels().size());
 
-		notMan.addNotificationChannel(EmailFacility.NAME, "ch1", emailCfg);
+		notMan.addNotificationChannel(new NotificationChannel("ch1", "", emailCfg, EmailFacility.NAME));
 		channels = notMan.getNotificationChannels();
 		assertEquals(1, channels.size());
 		assertTrue(channels.containsKey("ch1"));
-		assertEquals(emailCfg, channels.get("ch1"));
+		assertEquals(emailCfg, channels.get("ch1").getConfiguration());
 	}
 }

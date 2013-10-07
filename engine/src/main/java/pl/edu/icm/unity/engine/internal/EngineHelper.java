@@ -16,14 +16,12 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.db.AttributeClassUtil;
 import pl.edu.icm.unity.db.DBAttributes;
-import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.DBGroups;
-import pl.edu.icm.unity.db.model.GenericObjectBean;
-import pl.edu.icm.unity.engine.AuthenticationManagementImpl;
-import pl.edu.icm.unity.engine.authn.AuthenticatorImpl;
+import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
+import pl.edu.icm.unity.db.generic.ac.AttributeClassUtil;
+import pl.edu.icm.unity.db.generic.cred.CredentialDB;
+import pl.edu.icm.unity.db.generic.credreq.CredentialRequirementDB;
 import pl.edu.icm.unity.engine.authn.CredentialHolder;
 import pl.edu.icm.unity.engine.authn.CredentialRequirementsHolder;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -32,15 +30,14 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.server.authn.IdentityResolver;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
+import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -56,29 +53,30 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 public class EngineHelper
 {
 	private DBAttributes dbAttributes;
-	private DBGeneric dbGeneric;
+	private AttributeClassDB acDB;
 	private DBGroups dbGroups;
 	private AuthenticatorsRegistry authReg;
-	private IdentityResolver identityResolver;
+	private CredentialDB credentialDB;
+	private CredentialRequirementDB credentialRequirementDB;
+
 	
 	@Autowired
-	public EngineHelper(DBAttributes dbAttributes, DBGeneric dbGeneric, DBGroups dbGroups,
-			AuthenticatorsRegistry authReg, IdentityResolver identityResolver)
+	public EngineHelper(DBAttributes dbAttributes, AttributeClassDB acDB,
+			DBGroups dbGroups, AuthenticatorsRegistry authReg,
+			CredentialDB credentialDB, CredentialRequirementDB credentialRequirementDB)
 	{
-		super();
 		this.dbAttributes = dbAttributes;
-		this.dbGeneric = dbGeneric;
+		this.acDB = acDB;
 		this.dbGroups = dbGroups;
 		this.authReg = authReg;
-		this.identityResolver = identityResolver;
+		this.credentialDB = credentialDB;
+		this.credentialRequirementDB = credentialRequirementDB;
 	}
 
 	public void setEntityCredentialRequirements(long entityId, String credReqId, SqlSession sqlMap) 
-			throws IllegalAttributeValueException, IllegalTypeException, IllegalAttributeTypeException, IllegalGroupValueException
+			throws EngineException
 	{
-		GenericObjectBean raw = dbGeneric.getObjectByNameType(credReqId, 
-				AuthenticationManagementImpl.CREDENTIAL_REQ_OBJECT_TYPE, sqlMap);
-		if (raw == null)
+		if (!credentialRequirementDB.exists(credReqId, sqlMap))
 			throw new IllegalArgumentException("There is no required credential set with id " + credReqId);
 		setEntityCredentialRequirementsNoCheck(entityId, credReqId, sqlMap);
 	}
@@ -91,32 +89,21 @@ public class EngineHelper
 		dbAttributes.addAttribute(entityId, credReq, true, sqlMap);
 	}
 
+	public CredentialRequirementsHolder getCredentialRequirements(String requirementName, SqlSession sqlMap) 
+			throws EngineException
+	{
+		CredentialRequirements requirements = credentialRequirementDB.get(requirementName, sqlMap);
+		List<CredentialDefinition> credDefs = credentialDB.getAll(sqlMap);
+		return new CredentialRequirementsHolder(authReg, requirements, credDefs);
+	}
+	
+
 	public Set<Long> getEntitiesByAttribute(String attribute, Set<String> values, SqlSession sql) 
 			throws IllegalTypeException, IllegalGroupValueException
 	{
 		return dbAttributes.getEntitiesBySimpleAttribute("/", attribute, values, sql);
 	}
-
-	public CredentialRequirementsHolder getCredentialRequirements(String requirementName, SqlSession sqlMap) 
-			throws IllegalCredentialException
-	{
-		GenericObjectBean raw = dbGeneric.getObjectByNameType(requirementName, 
-				AuthenticationManagementImpl.CREDENTIAL_REQ_OBJECT_TYPE, sqlMap);
-		if (raw == null)
-			throw new IllegalCredentialException("The credential requirement is unknown: " 
-					+ requirementName);
-		List<CredentialDefinition> credDefs = getCredentialDefinitions(sqlMap);
-		return new CredentialRequirementsHolder(authReg, raw.getContents(), credDefs);
-	}
 	
-	public CredentialHolder resolveCredentialBean(GenericObjectBean raw, SqlSession sqlMap)
-	{
-		CredentialHolder helper = new CredentialHolder(authReg);
-		String contents = new String(raw.getContents(), Constants.UTF);
-		helper.setSerializedConfiguration(contents);
-		return helper;
-	}
-
 	/**
 	 * @param desiredCredState If value is 'correct', then method checks if there is an existing credential and 
 	 * if it is correct with the given CredentialHolder. If it is set and incorrect, an exception is thrown. 
@@ -125,16 +112,11 @@ public class EngineHelper
 	 * @param entityId
 	 * @param credentialChanged
 	 * @param sql
-	 * @throws IllegalCredentialException
-	 * @throws IllegalTypeException
-	 * @throws IllegalGroupValueException
-	 * @throws IllegalAttributeValueException
-	 * @throws IllegalAttributeTypeException
+	 * @throws EngineException 
 	 */
 	public void checkEntityCredentialState(long entityId, LocalCredentialState desiredCredState,
 			CredentialHolder credentialChanged, SqlSession sql) 
-			throws IllegalCredentialException, IllegalTypeException, IllegalGroupValueException,
-			IllegalAttributeValueException, IllegalAttributeTypeException
+			throws EngineException
 	{
 		if (desiredCredState == LocalCredentialState.outdated)
 			return;
@@ -157,52 +139,6 @@ public class EngineHelper
 			throw new IllegalCredentialException("The new credential is not compatible with the previous definition and can not keep the credential state as correct");
 	}
 	
-	public AuthenticatorImpl getAuthenticator(String id, SqlSession sql) 
-			throws WrongArgumentException
-	{
-		GenericObjectBean raw = dbGeneric.getObjectByNameType(id, 
-				AuthenticationManagementImpl.AUTHENTICATOR_OBJECT_TYPE, sql);
-		if (raw == null)
-			throw new WrongArgumentException("The authenticator " + id + " is not known");
-		AuthenticatorImpl ret = getAuthenticatorNoCheck(raw, sql);
-		return ret;
-	}
-
-	public AuthenticatorImpl getAuthenticatorNoCheck(GenericObjectBean raw, SqlSession sql) 
-			throws WrongArgumentException
-	{
-		AuthenticatorImpl authenticator = new AuthenticatorImpl(identityResolver, authReg, raw.getName());
-		String contents = new String(raw.getContents(), Constants.UTF);
-		authenticator.setSerializedConfiguration(contents);
-		String localCredential = authenticator.getAuthenticatorInstance().getLocalCredentialName(); 
-		if (localCredential != null)
-		{
-			GenericObjectBean rawC = dbGeneric.getObjectByNameType(localCredential, 
-					AuthenticationManagementImpl.CREDENTIAL_OBJECT_TYPE, sql);
-			if (rawC == null)
-				throw new WrongArgumentException("The authenticator's " + 
-						authenticator.getAuthenticatorInstance().getId() + 
-						" credential is not known: " + localCredential);
-			CredentialHolder credential = resolveCredentialBean(rawC, sql);
-			authenticator.setVerificatorConfiguration(credential.getCredentialDefinition().
-					getJsonConfiguration());
-		}
-		return authenticator;
-	}
-	
-	public List<CredentialDefinition> getCredentialDefinitions(SqlSession sql)
-	{
-		List<CredentialDefinition> ret = new ArrayList<CredentialDefinition>();
-		List<GenericObjectBean> raw = dbGeneric.getObjectsOfType(
-				AuthenticationManagementImpl.CREDENTIAL_OBJECT_TYPE, sql);
-		for (GenericObjectBean rawA: raw)
-		{
-			CredentialHolder helper = resolveCredentialBean(rawA, sql);
-			ret.add(helper.getCredentialDefinition());
-		}
-		return ret;
-	}
-	
 	/**
 	 * Checks if the given set of attributes fulfills rules of ACs of a specified group 
 	 * @throws EngineException 
@@ -211,7 +147,7 @@ public class EngineHelper
 			throws EngineException
 	{
 		AttributeClassHelper helper = AttributeClassUtil.getACHelper(path, 
-				new ArrayList<String>(0), dbGeneric, dbGroups, sql);
+				new ArrayList<String>(0), acDB, dbGroups, sql);
 		Set<String> attributeNames = new HashSet<>(attributes.size());
 		for (Attribute<?> a: attributes)
 			attributeNames.add(a.getName());

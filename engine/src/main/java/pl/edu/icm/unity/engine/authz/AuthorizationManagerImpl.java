@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -171,7 +172,14 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 						"is outdated and the only allowed operation is the credential update");
 		}
 		
-		Set<AuthzRole> roles = establishRoles(client.getEntityId(), group);
+		Set<AuthzRole> roles;
+		try
+		{
+			roles = establishRoles(client.getEntityId(), group);
+		} catch (EngineException e)
+		{
+			throw new InternalException("Can't establish caller's roles", e);
+		}
 		Set<AuthzCapability> capabilities = getRoleCapabilities(roles, selfAccess);
 		
 		for (AuthzCapability requiredCapability: requiredCapabilities)
@@ -197,7 +205,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		return ret;
 	}
 	
-	private Set<AuthzRole> establishRoles(long entityId, Group group)
+	private Set<AuthzRole> establishRoles(long entityId, Group group) throws EngineException
 	{
 		Map<String, Map<String, AttributeExt<?>>> allAttributes = getAllAttributes(entityId);
 		Group current = group;
@@ -230,7 +238,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		}
 	}
 	
-	private Map<String, Map<String, AttributeExt<?>>> getAllAttributes(long entityId) 
+	private Map<String, Map<String, AttributeExt<?>>> getAllAttributes(long entityId) throws EngineException 
 	{
 		SqlSession sql = db.getSqlSession(true);
 		try
