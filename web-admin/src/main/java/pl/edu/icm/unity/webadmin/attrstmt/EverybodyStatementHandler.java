@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.attrstmt;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -34,7 +34,7 @@ public class EverybodyStatementHandler implements AttributeStatementWebHandlerFa
 	}
 
 	@Override
-	public AttributeStatementComponent getEditorComponent(List<AttributeType> attributeTypes, String group)
+	public AttributeStatementComponent getEditorComponent(Collection<AttributeType> attributeTypes, String group)
 	{
 		return new EverybodyStatementComponent(msg, handlersReg, attributeTypes, group);
 	}
@@ -57,7 +57,7 @@ public class EverybodyStatementHandler implements AttributeStatementWebHandlerFa
 	{
 		public EverybodyStatementComponent(UnityMessageSource msg,
 				AttributeHandlerRegistry attrHandlerRegistry,
-				List<AttributeType> attributeTypes, String group)
+				Collection<AttributeType> attributeTypes, String group)
 		{
 			super(msg, attrHandlerRegistry, attributeTypes, group, new EverybodyStatement().getDescription());
 			addAssignedAttributeField();

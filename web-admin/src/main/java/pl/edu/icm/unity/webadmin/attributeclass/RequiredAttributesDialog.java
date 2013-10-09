@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webadmin.attributeclass;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class RequiredAttributesDialog extends AbstractDialog
 	private UnityMessageSource msg;
 	private Set<String> missingAttributes;
 	private AttributeHandlerRegistry attrHandlerRegistry;
-	private List<AttributeType> attributeTypes;
+	private Collection<AttributeType> attributeTypes;
 	private String group;
 	private Callback callback;
 	
@@ -43,7 +44,7 @@ public class RequiredAttributesDialog extends AbstractDialog
 
 	public RequiredAttributesDialog(UnityMessageSource msg, String info, 
 			Set<String> missingAttributes, AttributeHandlerRegistry attrHandlerRegistry,
-			List<AttributeType> attributeTypes, String group, Callback callback)
+			Collection<AttributeType> attributeTypes, String group, Callback callback)
 	{
 		super(msg, msg.getMessage("RequiredAttributesDialog.caption"));
 		this.msg = msg;

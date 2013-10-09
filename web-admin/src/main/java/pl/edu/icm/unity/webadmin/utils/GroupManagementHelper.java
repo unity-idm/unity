@@ -58,7 +58,7 @@ public class GroupManagementHelper
 	public void addToGroup(Deque<String> notMember, long entityId, Callback callback)
 	{
 		EntityParam entityParam = new EntityParam(entityId);
-		List<AttributeType> allTypes;
+		Collection<AttributeType> allTypes;
 		try
 		{
 			allTypes = attrMan.getAttributeTypes();
@@ -81,7 +81,7 @@ public class GroupManagementHelper
 	}
 
 	private void addToGroupRecursive(final Deque<String> notMember, final Deque<String> added, 
-			final List<AttributeType> allTypes,
+			final Collection<AttributeType> allTypes,
 			final Map<String, AttributesClass> allACsMap, final EntityParam entityParam, 
 			final Callback callback)
 	{
@@ -159,7 +159,7 @@ public class GroupManagementHelper
 	}
 	
 	private void addToGroupSafe(Deque<String> notMember, Deque<String> added, 
-			String currentGroup, List<AttributeType> allTypes,
+			String currentGroup, Collection<AttributeType> allTypes,
 			Map<String, AttributesClass> allACsMap, final EntityParam entityParam,
 			List<Attribute<?>> attributes, Callback callback)
 	{

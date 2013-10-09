@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.attributetype;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -119,7 +119,7 @@ public class AttributeTypesComponent extends VerticalLayout
 	{
 		try
 		{
-			List<AttributeType> types = attrManagement.getAttributeTypes();
+			Collection<AttributeType> types = attrManagement.getAttributeTypes();
 			table.setInput(types);
 			removeAllComponents();
 			addComponent(main);

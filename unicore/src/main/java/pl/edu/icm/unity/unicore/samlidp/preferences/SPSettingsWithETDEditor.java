@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.preferences;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
@@ -28,14 +28,14 @@ public class SPSettingsWithETDEditor extends SPSettingsEditor
 	private ETDSettingsEditor editor;
 	
 	public SPSettingsWithETDEditor(UnityMessageSource msg, Identity[] identities, 
-			List<AttributeType> atTypes, String sp, SPSettings initial, SPETDSettings initialETD)
+			Collection<AttributeType> atTypes, String sp, SPSettings initial, SPETDSettings initialETD)
 	{
 		super(msg, identities, atTypes, sp, initial);
 		editor = new ETDSettingsEditor(msg, this);
 		editor.setValues(initialETD);
 	}
 
-	public SPSettingsWithETDEditor(UnityMessageSource msg, Identity[] identities, List<AttributeType> atTypes,
+	public SPSettingsWithETDEditor(UnityMessageSource msg, Identity[] identities, Collection<AttributeType> atTypes,
 			Set<String> allSps)
 	{
 		super(msg, identities, atTypes, allSps);

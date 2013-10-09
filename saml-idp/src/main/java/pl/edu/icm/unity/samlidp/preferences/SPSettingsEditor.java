@@ -6,7 +6,6 @@ package pl.edu.icm.unity.samlidp.preferences;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import pl.edu.icm.unity.samlidp.preferences.SamlPreferences.SPSettings;
@@ -40,7 +39,7 @@ public class SPSettingsEditor extends FormLayout
 {
 	protected UnityMessageSource msg;
 	protected Identity[] identities;
-	protected List<AttributeType> attributeTypes;
+	protected Collection<AttributeType> attributeTypes;
 	
 	protected String groupAT;
 	protected ComboBox sp;
@@ -50,7 +49,7 @@ public class SPSettingsEditor extends FormLayout
 	protected GenericElementsTable<String> hidden;
 	
 	public SPSettingsEditor(UnityMessageSource msg, Identity[] identities, 
-			List<AttributeType> atTypes, String sp, SPSettings initial)
+			Collection<AttributeType> atTypes, String sp, SPSettings initial)
 	{
 		this.msg = msg;
 		this.identities = identities;
@@ -58,7 +57,7 @@ public class SPSettingsEditor extends FormLayout
 		initUI(initial, sp, null);
 	}
 
-	public SPSettingsEditor(UnityMessageSource msg, Identity[] identities, List<AttributeType> atTypes,
+	public SPSettingsEditor(UnityMessageSource msg, Identity[] identities, Collection<AttributeType> atTypes,
 			Set<String> allSps)
 	{
 		this.msg = msg;

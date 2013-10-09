@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.attrstmt;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.vaadin.ui.Component;
 
@@ -15,7 +15,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 public interface AttributeStatementWebHandlerFactory
 {
 	public String getSupportedAttributeStatementName();
-	public AttributeStatementComponent getEditorComponent(List<AttributeType> attributeTypes, String group);
+	public AttributeStatementComponent getEditorComponent(Collection<AttributeType> attributeTypes, String group);
 	public String getTextRepresentation(AttributeStatement as);
 	
 	public interface AttributeStatementComponent

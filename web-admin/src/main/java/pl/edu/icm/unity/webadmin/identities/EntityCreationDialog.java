@@ -55,7 +55,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 	private CheckBox addToGroup;
 	private ComboBox credentialRequirement;
 	private EnumComboBox<EntityState> entityState;
-	private List<AttributeType> allTypes;
+	private Collection<AttributeType> allTypes;
 	private EventsBus bus;
 	
 	public EntityCreationDialog(UnityMessageSource msg, String initialGroup, IdentitiesManagement identitiesMan,

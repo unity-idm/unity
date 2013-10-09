@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.groupdetails;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -63,7 +63,7 @@ public class AttributeStatementEditDialog extends AbstractDialog
 	@Override
 	protected Component getContents() throws Exception
 	{
-		List<AttributeType> attributeTypes;
+		Collection<AttributeType> attributeTypes;
 		try
 		{
 			attributeTypes = attrsMan.getAttributeTypes();

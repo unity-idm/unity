@@ -6,7 +6,6 @@ package pl.edu.icm.unity.webadmin.attribute;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -179,10 +178,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	private void refreshAttributeTypes() throws EngineException
 	{
-		List<AttributeType> atList = attributesManagement.getAttributeTypes();
-		attributeTypes = new HashMap<String, AttributeType>();
-		for (AttributeType at: atList)
-			attributeTypes.put(at.getName(), at);	
+		attributeTypes = attributesManagement.getAttributeTypesAsMap();
 	}
 	
 	public void setInput(EntityParam owner, String groupPath, Collection<AttributeExt<?>> attributesCol) 

@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.engine;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +26,7 @@ import pl.edu.icm.unity.db.resolvers.GroupResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
@@ -36,6 +36,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
+import pl.edu.icm.unity.types.registration.AttributeParamValue;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -223,27 +224,54 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			SqlSession sql) throws EngineException
 	{
 		//TODO
+		if (form.getAgreements().size() != request.getAgreements().size())
+			throw new WrongArgumentException("Number of agreements in the" +
+					" request does not match the form agreements.");
+		for (int i=0; i<form.getAgreements().size(); i++)
+		{
+			if (form.getAgreements().get(i).isManatory() && 
+					!request.getAgreements().get(i).isSelected())
+				throw new WrongArgumentException("Mandatory agreement is not accepted.");
+		}
+		
+		Set<String> allowedA = new HashSet<>();
+		for (AttributeRegistrationParam regP: form.getAttributeParams())
+			allowedA.add(regP.getAttributeType());
+		for (AttributeParamValue attrP: request.getAttributes())
+		{
+			Attribute<?> attr = attrP.getAttribute();
+			if (!allowedA.contains(attr.getName()))
+				throw new WrongArgumentException("Attribute " + 
+						attr.getName() + " is not allowed for this form");
+		}
+//TODO values
+		
+		if (!form.isCollectComments() && request.getComments() != null)
+			throw new WrongArgumentException("This registration " +
+					"form doesn't allow for passing comments.");
+			
+		
+		request.getCredentials();
+		
+		request.getGroupSelections();
+		
+		request.getIdentities();
+		
+		request.getRegistrationCode();
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void validateFormContents(RegistrationForm form, SqlSession sql) throws EngineException
 	{
 		GroupsMapper gm = sql.getMapper(GroupsMapper.class);
 		
-		List<AttributeType> ats = dbAttributes.getAttributeTypes(sql);
-		Map<String, AttributeType> atMap = new HashMap<>(ats.size());
-		for (AttributeType at: ats)
-			atMap.put(at.getName(), at);
+		Map<String, AttributeType> atMap = dbAttributes.getAttributeTypes(sql);
 		for (Attribute<?> attr: form.getAttributeAssignments())
 		{
 			AttributeType at = atMap.get(attr.getName());
 			if (at == null)
 				throw new WrongArgumentException("Attribute type " + attr.getName() + 
 						" does not exist");
-			@SuppressWarnings("rawtypes")
-			AttributeValueSyntax syntax = at.getValueType();
-			for (Object o: attr.getValues())
-				syntax.validate(o);
+			validateAValues(attr, at);
 			groupsResolver.resolveGroup(attr.getGroupPath(), gm);
 		}
 
@@ -283,5 +311,15 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		{
 			identityTypesRegistry.getByName(id.getIdentityType());
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void validateAValues(Attribute<?> attr, AttributeType at) 
+			throws IllegalAttributeValueException
+	{
+		@SuppressWarnings("rawtypes")
+		AttributeValueSyntax syntax = at.getValueType();
+		for (Object o: attr.getValues())
+			syntax.validate(o);
 	}
 }

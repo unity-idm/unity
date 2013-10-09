@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.samlidp.preferences;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -48,7 +48,7 @@ public class SamlPreferencesEditor implements PreferencesEditor
 	protected SamlSPSettingsViewer viewer;
 	
 	protected Identity[] identities;
-	protected List<AttributeType> atTypes;
+	protected Collection<AttributeType> atTypes;
 
 	public SamlPreferencesEditor(UnityMessageSource msg, SamlPreferences preferences, IdentitiesManagement idsMan,
 			AttributesManagement atsMan)

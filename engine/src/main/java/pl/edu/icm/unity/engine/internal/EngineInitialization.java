@@ -226,12 +226,10 @@ public class EngineInitialization extends LifecycleBase
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			List<AttributeType> existing = dbAttributes.getAttributeTypes(sql);
-			Set<AttributeType> existingSet = new HashSet<AttributeType>();
-			existingSet.addAll(existing);
+			Map<String, AttributeType> existing = dbAttributes.getAttributeTypes(sql);
 			for (AttributeType at: sysTypes.getSystemAttributes())
 			{
-				if (!existingSet.contains(at))
+				if (!existing.containsKey(at.getName()))
 				{
 					log.info("Adding a system attribute type: " + at.getName());
 					dbAttributes.addAttributeType(at, sql);

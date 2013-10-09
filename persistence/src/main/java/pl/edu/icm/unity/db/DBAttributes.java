@@ -156,17 +156,17 @@ public class DBAttributes
 		mapper.updateAttributeType(updatedB);
 	}
 	
-	public List<AttributeType> getAttributeTypes(SqlSession sqlMap)
+	public Map<String, AttributeType> getAttributeTypes(SqlSession sqlMap)
 	{
 		AttributesMapper mapper = sqlMap.getMapper(AttributesMapper.class);
 		List<AttributeTypeBean> raw = mapper.getAttributeTypes();
-		List<AttributeType> ret = new ArrayList<AttributeType>(raw.size());
+		Map<String, AttributeType> ret = new HashMap<String, AttributeType>(raw.size());
 		for (int i=0; i<raw.size(); i++)
 		{
 			AttributeTypeBean r = raw.get(i);
 			try
 			{
-				ret.add(attrResolver.resolveAttributeTypeBean(r));
+				ret.put(r.getName(), attrResolver.resolveAttributeTypeBean(r));
 			} catch (IllegalTypeException e)
 			{
 				throw new InternalException("Can not find implementation for attribtue type returned " +

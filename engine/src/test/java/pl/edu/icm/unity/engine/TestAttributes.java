@@ -181,7 +181,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	{
 		int automaticAttributes = 1;
 		final int sa = systemAttributeTypes.getSystemAttributes().size()+automaticAttributes;
-		List<AttributeType> ats = attrsMan.getAttributeTypes();
+		Collection<AttributeType> ats = attrsMan.getAttributeTypes();
 		assertEquals(sa, ats.size());
 
 		AttributeType at = createSimpleAT("some");
@@ -390,7 +390,7 @@ public class TestAttributes extends DBIntegrationTestBase
 		((StringAttributeSyntax)at2.getValueType()).setMaxLength(600);
 		attrsMan.addAttributeType(at2);
 		
-		List<AttributeType> ats = attrsMan.getAttributeTypes();
+		Collection<AttributeType> ats = attrsMan.getAttributeTypes();
 		AttributeType at1B = getAttributeTypeByName(ats, "at1");
 		AttributeType at2B = getAttributeTypeByName(ats, "at2");
 		assertEquals(6, ((StringAttributeSyntax)at1B.getValueType()).getMaxLength());

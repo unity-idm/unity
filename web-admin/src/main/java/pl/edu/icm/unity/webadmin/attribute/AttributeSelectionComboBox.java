@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.webadmin.attribute;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -22,7 +21,7 @@ public class AttributeSelectionComboBox extends MapComboBox<AttributeType>
 {
 	public AttributeSelectionComboBox(String caption, AttributesManagement attrsMan) throws EngineException
 	{
-		List<AttributeType> attributeTypes = attrsMan.getAttributeTypes();
+		Collection<AttributeType> attributeTypes = attrsMan.getAttributeTypes();
 		initContents(caption, attributeTypes);		
 	}
 	

@@ -6,10 +6,8 @@ package pl.edu.icm.unity.server.attributes;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -146,23 +144,16 @@ public class AttributeClassHelper
 	 * (i.e. those with instances immutable flag).
 	 * @throws SchemaConsistencyException 
 	 */
-	public void checkAttribtues(Collection<String> attributes, List<AttributeType> allTypes) 
+	public void checkAttribtues(Collection<String> attributes, Map<String, AttributeType> allTypes) 
 			throws SchemaConsistencyException 
 	{
 		Set<String> mandatory = new HashSet<>(effectiveClass.getMandatory());
-		Map<String, AttributeType> typesMap;
-		
-		if (allTypes != null)
-		{
-			typesMap = new HashMap<>(allTypes.size());
-			for (AttributeType at: allTypes)
-				typesMap.put(at.getName(), at);
-		} else
-			typesMap = Collections.emptyMap();
+		if (allTypes == null)
+			allTypes = Collections.emptyMap();
 		
 		for (String name: attributes)
 		{
-			AttributeType at = typesMap.get(name);
+			AttributeType at = allTypes.get(name);
 			boolean system = at == null ? false : at.isInstanceImmutable();
 			if (!system && !effectiveClass.isAllowedDirectly(name))
 				throw new SchemaConsistencyException("The assigned attribute " + name + 

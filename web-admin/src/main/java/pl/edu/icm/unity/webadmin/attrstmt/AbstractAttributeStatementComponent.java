@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.attrstmt;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.vaadin.server.UserError;
 import com.vaadin.server.Sizeable.Unit;
@@ -32,7 +32,7 @@ public abstract class AbstractAttributeStatementComponent implements AttributeSt
 {
 	protected UnityMessageSource msg;
 	protected AttributeHandlerRegistry attrHandlerRegistry;
-	protected List<AttributeType> attributeTypes; 
+	protected Collection<AttributeType> attributeTypes; 
 	protected String group;
 	
 	protected FormLayout main;
@@ -41,7 +41,7 @@ public abstract class AbstractAttributeStatementComponent implements AttributeSt
 	
 	public AbstractAttributeStatementComponent(UnityMessageSource msg,
 			AttributeHandlerRegistry attrHandlerRegistry,
-			List<AttributeType> attributeTypes, String group, String description)
+			Collection<AttributeType> attributeTypes, String group, String description)
 	{
 		this.msg = msg;
 		this.attrHandlerRegistry = attrHandlerRegistry;

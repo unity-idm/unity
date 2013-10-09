@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.identities;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 import com.vaadin.ui.ComboBox;
@@ -46,7 +46,7 @@ public class AddAttributeColumnDialog extends AbstractDialog
 		Label info = new Label(msg.getMessage("AddAttributeColumnDialog.info"));
 		Label info2 = new Label(msg.getMessage("AddAttributeColumnDialog.info2"));
 		attributeType = new ComboBox(msg.getMessage("AddAttributeColumnDialog.attribute"));
-		List<AttributeType> attrTypes;
+		Collection<AttributeType> attrTypes;
 		try
 		{
 			attrTypes = attrsMan.getAttributeTypes();

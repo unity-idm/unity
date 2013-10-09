@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.attrstmt;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -40,7 +40,7 @@ public class CopySubgroupAttributeStatementHandler implements AttributeStatement
 	}
 
 	@Override
-	public AttributeStatementComponent getEditorComponent(List<AttributeType> attributeTypes, String group)
+	public AttributeStatementComponent getEditorComponent(Collection<AttributeType> attributeTypes, String group)
 	{
 		return new CopyParentAttributeStatementComponent(msg, handlersReg, attributeTypes, group);
 	}
@@ -71,7 +71,7 @@ public class CopySubgroupAttributeStatementHandler implements AttributeStatement
 		
 		public CopyParentAttributeStatementComponent(UnityMessageSource msg,
 				AttributeHandlerRegistry attrHandlerRegistry,
-				List<AttributeType> attributeTypes, String group)
+				Collection<AttributeType> attributeTypes, String group)
 		{
 			super(msg, attrHandlerRegistry, attributeTypes, group,
 					new CopySubgroupAttributeStatement().getDescription());

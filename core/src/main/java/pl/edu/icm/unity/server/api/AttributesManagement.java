@@ -56,7 +56,13 @@ public interface AttributesManagement
 	 * @return all attribute types
 	 * @throws EngineException
 	 */
-	public List<AttributeType> getAttributeTypes() throws EngineException;
+	public Collection<AttributeType> getAttributeTypes() throws EngineException;
+
+	/**
+	 * @return all attribute types map with names as keys
+	 * @throws EngineException
+	 */
+	public Map<String, AttributeType> getAttributeTypesAsMap() throws EngineException;
 
 	
 	/**

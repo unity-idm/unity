@@ -123,10 +123,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
-			List<AttributeType> ats = dbAttributes.getAttributeTypes(sqlMap);
-			Map<String, AttributeType> atsMap = new HashMap<String, AttributeType>();
-			for (AttributeType at: ats)
-				atsMap.put(at.getName(), at);
+			Map<String, AttributeType> atsMap = dbAttributes.getAttributeTypes(sqlMap);
 			Map<String, String> extractedAts = toUpdate.getExtractedAttributes();
 			Set<AttributeType> supportedForExtraction = idTypeDef.getAttributesSupportedForExtraction();
 			Map<String, AttributeType> supportedForExtractionMap = new HashMap<String, AttributeType>();

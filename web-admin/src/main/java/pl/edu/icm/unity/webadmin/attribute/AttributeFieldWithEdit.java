@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.attribute;
 
-import java.util.List;
+import java.util.Collection;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -33,7 +33,7 @@ public class AttributeFieldWithEdit extends CustomField<String>
 {
 	private UnityMessageSource msg;
 	protected AttributeHandlerRegistry attrHandlerRegistry;
-	protected List<AttributeType> attributeTypes;
+	protected Collection<AttributeType> attributeTypes;
 	protected String group;
 	private TextField attributeTF;
 	private HorizontalLayout hl;
@@ -43,7 +43,7 @@ public class AttributeFieldWithEdit extends CustomField<String>
 	
 	public AttributeFieldWithEdit(UnityMessageSource msg, String caption, 
 			AttributeHandlerRegistry attrHandlerRegistry,
-			List<AttributeType> attributeTypes, String group, Attribute<?> initial)
+			Collection<AttributeType> attributeTypes, String group, Attribute<?> initial)
 	{
 		this.msg = msg;
 		this.attrHandlerRegistry = attrHandlerRegistry;

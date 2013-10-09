@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.attributetype;
 
-import java.util.List;
+import java.util.Collection;
 
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.bus.Event;
@@ -15,14 +15,14 @@ import pl.edu.icm.unity.webui.bus.Event;
  */
 public class AttributeTypesUpdatedEvent implements Event
 {
-	private List<AttributeType> attributeTypes;
+	private Collection<AttributeType> attributeTypes;
 
-	public AttributeTypesUpdatedEvent(List<AttributeType> attributeTypes)
+	public AttributeTypesUpdatedEvent(Collection<AttributeType> attributeTypes)
 	{
 		this.attributeTypes = attributeTypes;
 	}
 
-	public List<AttributeType> getAttributeTypes()
+	public Collection<AttributeType> getAttributeTypes()
 	{
 		return attributeTypes;
 	}

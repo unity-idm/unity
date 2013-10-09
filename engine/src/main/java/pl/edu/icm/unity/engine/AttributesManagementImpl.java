@@ -120,7 +120,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			List<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql);
+			Collection<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql).values();
 			verifyATMetadata(toAdd, existingAts);
 			dbAttributes.addAttributeType(toAdd, sql);
 			sql.commit();
@@ -147,7 +147,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			if ((atExisting.getFlags() & AttributeType.TYPE_IMMUTABLE_FLAG) != 0)
 				throw new IllegalAttributeTypeException("The attribute type with name " + at.getName() + 
 						" can not be manually updated");
-			List<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql);
+			Collection<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql).values();
 			verifyATMetadata(at, existingAts);
 			
 			dbAttributes.updateAttributeType(at, sql);
@@ -160,7 +160,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		}
 	}
 
-	private void verifyATMetadata(AttributeType at, List<AttributeType> existingAts) 
+	private void verifyATMetadata(AttributeType at, Collection<AttributeType> existingAts) 
 			throws IllegalAttributeTypeException
 	{
 		Map<String, String> meta = at.getMetadata();
@@ -249,13 +249,29 @@ public class AttributesManagementImpl implements AttributesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<AttributeType> getAttributeTypes() throws EngineException
+	public Collection<AttributeType> getAttributeTypes() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
 		SqlSession sql = db.getSqlSession(false);
 		try
 		{
-			List<AttributeType> ret =  dbAttributes.getAttributeTypes(sql);
+			Collection<AttributeType> ret =  dbAttributes.getAttributeTypes(sql).values();
+			sql.commit();
+			return ret;
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
+	}
+
+	@Override
+	public Map<String, AttributeType> getAttributeTypesAsMap() throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		SqlSession sql = db.getSqlSession(false);
+		try
+		{
+			Map<String, AttributeType> ret =  dbAttributes.getAttributeTypes(sql);
 			sql.commit();
 			return ret;
 		} finally
@@ -290,7 +306,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		SqlSession sql = db.getSqlSession(false);
 		try
 		{
-			List<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql);
+			Collection<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql).values();
 			List<AttributeType> ret = new ArrayList<>();
 			for (AttributeType at: existingAts)
 				if (at.getMetadata().containsKey(metadataId))
@@ -415,7 +431,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			long entityId = idResolver.getEntityId(entity, sql);
 			Collection<String> allAttributes = dbAttributes.getEntityInGroupAttributeNames(entityId, 
 					group, sql);
-			List<AttributeType> allTypes = dbAttributes.getAttributeTypes(sql);
+			Map<String, AttributeType> allTypes = dbAttributes.getAttributeTypes(sql);
 			acHelper.checkAttribtues(allAttributes, allTypes);
 
 			StringAttribute classAttr = new StringAttribute(SystemAttributeTypes.ATTRIBUTE_CLASSES, 
@@ -682,7 +698,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		AttributeMetadataProvider provider = atMetaProvidersRegistry.getByName(metadataId);
 		if (!provider.isSingleton())
 			throw new WrongArgumentException("Metadata for this call must be singleton.");
-		List<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql);
+		Collection<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql).values();
 		AttributeType ret = null;
 		for (AttributeType at: existingAts)
 			if (at.getMetadata().containsKey(metadataId))

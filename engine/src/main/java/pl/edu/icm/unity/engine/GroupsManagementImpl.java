@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -192,7 +193,7 @@ public class GroupsManagementImpl implements GroupsManagement
 			validateGroupStatements(group, sql);
 			AttributeClassUtil.validateAttributeClasses(group.getAttributesClasses(), acDB, sql);
 			GroupContents gc = dbGroups.getContents(path, GroupContents.MEMBERS, sql);
-			List<AttributeType> allTypes = dbAttributes.getAttributeTypes(sql);
+			Map<String, AttributeType> allTypes = dbAttributes.getAttributeTypes(sql);
 			for (Long entity: gc.getMembers())
 			{
 				AttributeClassHelper helper = AttributeClassUtil.getACHelper(entity, path, 

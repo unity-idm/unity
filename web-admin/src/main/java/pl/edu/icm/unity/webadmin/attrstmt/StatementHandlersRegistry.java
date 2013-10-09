@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.attrstmt;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class StatementHandlersRegistry
 			this.handlers.put(factory.getSupportedAttributeStatementName(), factory);
 	}
 
-	public Map<String, AttributeStatementComponent> getAvailableComponents(List<AttributeType> attributeTypes, 
+	public Map<String, AttributeStatementComponent> getAvailableComponents(Collection<AttributeType> attributeTypes, 
 			String group)
 	{
 		Map<String, AttributeStatementComponent> ret = new TreeMap<String, AttributeStatementComponent>();

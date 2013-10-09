@@ -111,7 +111,7 @@ public abstract class SecuredDBIntegrationTestBase
 		return null;
 	}
 
-	protected AttributeType getAttributeTypeByName(List<AttributeType> attrs, String name)
+	protected AttributeType getAttributeTypeByName(Collection<AttributeType> attrs, String name)
 	{
 		for (AttributeType a: attrs)
 			if (a.getName().equals(name))
