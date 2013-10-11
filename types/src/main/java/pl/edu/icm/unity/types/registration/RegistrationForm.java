@@ -170,4 +170,124 @@ public class RegistrationForm extends DescribedObjectImpl
 	{
 		this.attributeClassAssignments = attributeClassAssignments;
 	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((agreements == null) ? 0 : agreements.hashCode());
+		result = prime
+				* result
+				+ ((attributeAssignments == null) ? 0 : attributeAssignments
+						.hashCode());
+		result = prime
+				* result
+				+ ((attributeClassAssignments == null) ? 0
+						: attributeClassAssignments.hashCode());
+		result = prime * result
+				+ ((attributeParams == null) ? 0 : attributeParams.hashCode());
+		result = prime * result + (collectComments ? 1231 : 1237);
+		result = prime * result
+				+ ((credentialParams == null) ? 0 : credentialParams.hashCode());
+		result = prime
+				* result
+				+ ((credentialRequirementAssignment == null) ? 0
+						: credentialRequirementAssignment.hashCode());
+		result = prime * result
+				+ ((formInformation == null) ? 0 : formInformation.hashCode());
+		result = prime * result
+				+ ((groupAssignments == null) ? 0 : groupAssignments.hashCode());
+		result = prime * result + ((groupParams == null) ? 0 : groupParams.hashCode());
+		result = prime * result
+				+ ((identityParams == null) ? 0 : identityParams.hashCode());
+		result = prime * result + (publiclyAvailable ? 1231 : 1237);
+		result = prime * result
+				+ ((registrationCode == null) ? 0 : registrationCode.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RegistrationForm other = (RegistrationForm) obj;
+		if (agreements == null)
+		{
+			if (other.agreements != null)
+				return false;
+		} else if (!agreements.equals(other.agreements))
+			return false;
+		if (attributeAssignments == null)
+		{
+			if (other.attributeAssignments != null)
+				return false;
+		} else if (!attributeAssignments.equals(other.attributeAssignments))
+			return false;
+		if (attributeClassAssignments == null)
+		{
+			if (other.attributeClassAssignments != null)
+				return false;
+		} else if (!attributeClassAssignments.equals(other.attributeClassAssignments))
+			return false;
+		if (attributeParams == null)
+		{
+			if (other.attributeParams != null)
+				return false;
+		} else if (!attributeParams.equals(other.attributeParams))
+			return false;
+		if (collectComments != other.collectComments)
+			return false;
+		if (credentialParams == null)
+		{
+			if (other.credentialParams != null)
+				return false;
+		} else if (!credentialParams.equals(other.credentialParams))
+			return false;
+		if (credentialRequirementAssignment == null)
+		{
+			if (other.credentialRequirementAssignment != null)
+				return false;
+		} else if (!credentialRequirementAssignment
+				.equals(other.credentialRequirementAssignment))
+			return false;
+		if (formInformation == null)
+		{
+			if (other.formInformation != null)
+				return false;
+		} else if (!formInformation.equals(other.formInformation))
+			return false;
+		if (groupAssignments == null)
+		{
+			if (other.groupAssignments != null)
+				return false;
+		} else if (!groupAssignments.equals(other.groupAssignments))
+			return false;
+		if (groupParams == null)
+		{
+			if (other.groupParams != null)
+				return false;
+		} else if (!groupParams.equals(other.groupParams))
+			return false;
+		if (identityParams == null)
+		{
+			if (other.identityParams != null)
+				return false;
+		} else if (!identityParams.equals(other.identityParams))
+			return false;
+		if (publiclyAvailable != other.publiclyAvailable)
+			return false;
+		if (registrationCode == null)
+		{
+			if (other.registrationCode != null)
+				return false;
+		} else if (!registrationCode.equals(other.registrationCode))
+			return false;
+		return true;
+	}
 }

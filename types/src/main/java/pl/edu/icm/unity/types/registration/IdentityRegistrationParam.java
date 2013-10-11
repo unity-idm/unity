@@ -21,4 +21,32 @@ public class IdentityRegistrationParam extends RegistrationParam
 	{
 		this.identityType = identityType;
 	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((identityType == null) ? 0 : identityType.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		IdentityRegistrationParam other = (IdentityRegistrationParam) obj;
+		if (identityType == null)
+		{
+			if (other.identityType != null)
+				return false;
+		} else if (!identityType.equals(other.identityType))
+			return false;
+		return true;
+	}
 }

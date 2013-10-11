@@ -90,7 +90,7 @@ public class DBGeneric
 	}
 
 	public void removeObject(String name, String type, SqlSession sqlMap)
-			throws IllegalArgumentException
+			throws WrongArgumentException
 	{
 		GenericMapper mapper = sqlMap.getMapper(GenericMapper.class);
 		GenericObjectBean param = new GenericObjectBean(name, null, type);
@@ -119,17 +119,17 @@ public class DBGeneric
 	}
 	
 	private void checkExists(GenericObjectBean param, GenericMapper mapper, boolean shouldExist) 
-			throws IllegalArgumentException
+			throws WrongArgumentException
 	{
 		if (mapper.selectObjectByNameType(param) == null)
 		{
 			if (shouldExist)
-				throw new IllegalArgumentException("The object with " + param.getName() 
+				throw new WrongArgumentException("The object with " + param.getName() 
 					+ " name doesn't exist");
 		} else
 		{
 			if (!shouldExist)
-				throw new IllegalArgumentException("The object with " + param.getName() 
+				throw new WrongArgumentException("The object with " + param.getName() 
 					+ " name already exists");
 		}
 	}

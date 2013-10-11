@@ -45,7 +45,8 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * Output also. For instance the input can be a password, output a hashed and salted version
 	 * 
 	 * @param rawCredential the new credential value
-	 * @param currentCredential the existing credential, encoded in the database specific way
+	 * @param currentCredential the existing credential, encoded in the database specific way. May be empty or 
+	 * null, when there is no existing credential recorded in DB.
 	 * @return string which will be persisted in the database and will be used for verification
 	 * @throws IllegalCredentialException if the new credential is not valid
 	 * @throws InternalException 

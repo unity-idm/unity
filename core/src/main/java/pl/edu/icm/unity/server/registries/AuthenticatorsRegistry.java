@@ -15,13 +15,16 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.authn.CredentialRetrievalFactory;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
+import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
+import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialType;
 
 /**
@@ -141,5 +144,16 @@ public class AuthenticatorsRegistry
 	public LocalCredentialVerificatorFactory getLocalCredentialFactory(String id)
 	{
 		return localCredentialVerificatorFactories.get(id);
+	}
+	
+	public LocalCredentialVerificator createLocalCredentialVerificator(CredentialDefinition def) 
+			throws IllegalCredentialException
+	{
+		LocalCredentialVerificatorFactory fact = getLocalCredentialFactory(def.getTypeId());
+		if (fact == null)
+			throw new IllegalCredentialException("The credential type " + def.getTypeId() + " is unknown");
+		LocalCredentialVerificator validator = fact.newInstance();
+		validator.setSerializedConfiguration(def.getJsonConfiguration());
+		return validator;
 	}
 }

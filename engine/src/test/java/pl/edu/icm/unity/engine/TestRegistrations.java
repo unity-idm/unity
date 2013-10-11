@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -108,6 +110,8 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		List<RegistrationForm> forms = registrationsMan.getForms();
 		assertEquals(1, forms.size());
+		RegistrationForm read = forms.get(0);
+		form.equals(read);
 		assertEquals(form, forms.get(0));
 		
 		registrationsMan.removeForm("f1", false);
@@ -131,57 +135,63 @@ public class TestRegistrations extends DBIntegrationTestBase
 		List<Attribute<?>> attrsB = new ArrayList<>();
 		attrsB.add(attrB);
 		form.setAttributeAssignments(attrsB);
-		checkUpdateOrAdd(form, "attr");
+		checkUpdateOrAdd(form, "attr", WrongArgumentException.class);
 		form.setAttributeAssignments(null);
 		
 		AttributeClassAssignment acAB = new AttributeClassAssignment();
 		acAB.setAcName("missing");
 		acAB.setGroup("/");
 		form.setAttributeClassAssignments(Collections.singletonList(acAB));
-		checkUpdateOrAdd(form, "AC");
+		checkUpdateOrAdd(form, "AC", WrongArgumentException.class);
 		form.setAttributeClassAssignments(null);
 		
 		attrReg.setAttributeType("missing");
 		form.setAttributeParams(Collections.singletonList(attrReg));
-		checkUpdateOrAdd(form, "attr(2)");
+		checkUpdateOrAdd(form, "attr(2)", WrongArgumentException.class);
 		form.setAttributeParams(null);
 		
 		credParam.setCredentialName("missing");
 		form.setCredentialParams(Collections.singletonList(credParam));
-		checkUpdateOrAdd(form, "cred");
+		checkUpdateOrAdd(form, "cred", WrongArgumentException.class);
 		form.setCredentialParams(null);
 		
 		form.setCredentialRequirementAssignment("missing");
-		checkUpdateOrAdd(form, "cred req");
+		checkUpdateOrAdd(form, "cred req", WrongArgumentException.class);
 		form.setCredentialRequirementAssignment(null);
-		checkUpdateOrAdd(form, "credential req (2)");
+		checkUpdateOrAdd(form, "credential req (2)", WrongArgumentException.class);
 		
 		form.setCredentialRequirementAssignment(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT);
 		
 		groupParam.setGroupPath("/missing");
 		form.setGroupParams(Collections.singletonList(groupParam));
-		checkUpdateOrAdd(form, "group");
+		checkUpdateOrAdd(form, "group", IllegalGroupValueException.class);
 		form.setGroupParams(null);
 		
 		idParam.setIdentityType("missing");
 		form.setIdentityParams(Collections.singletonList(idParam));
-		checkUpdateOrAdd(form, "id");
+		checkUpdateOrAdd(form, "id", IllegalTypeException.class);
 		
 		//TODO - test correct updates
 		//TODO - test removal for forms with requests
 	}
 	
-	private void checkUpdateOrAdd(RegistrationForm form, String msg) throws EngineException
+	private void checkUpdateOrAdd(RegistrationForm form, String msg, Class<?> exception) throws EngineException
 	{
 		try
 		{
 			registrationsMan.addForm(form);
 			fail("Added the form with illegal " + msg);
-		} catch (WrongArgumentException e) {/*ok*/}
+		} catch (EngineException e) 
+		{
+			assertTrue(e.toString(), e.getClass().isAssignableFrom(exception));
+		}
 		try
 		{
 			registrationsMan.updateForm(form, false);
 			fail("Updated the form with illegal " + msg);
-		} catch (WrongArgumentException e) {/*ok*/}
+		} catch (EngineException e) 
+		{
+			assertTrue(e.toString(), e.getClass().isAssignableFrom(exception));
+		}
 	}
 }

@@ -70,12 +70,7 @@ public class CredentialRequirementsHolder
 	
 	private void initHandler(AuthenticatorsRegistry reg, CredentialDefinition def) throws IllegalCredentialException
 	{
-		LocalCredentialVerificatorFactory fact = reg.getLocalCredentialFactory(def.getTypeId());
-		if (fact == null)
-			throw new IllegalCredentialException("The credential type " + def.getTypeId() + " is unknown");
-		LocalCredentialVerificator validator = fact.newInstance();
-		validator.setSerializedConfiguration(def.getJsonConfiguration());
-		handlers.put(def.getName(), validator);
+		handlers.put(def.getName(), reg.createLocalCredentialVerificator(def));
 	}
 	
 	/**
