@@ -142,7 +142,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	@Override
 	public void updateForm(RegistrationForm updatedForm, boolean ignoreRequests)
 			throws EngineException
-			{
+	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = db.getSqlSession(true);
 		try
@@ -163,7 +163,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		{
 			db.releaseSqlSession(sql);
 		}
-			}
+	}
 
 	@Override
 	public List<RegistrationForm> getForms() throws EngineException
@@ -222,14 +222,14 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	public void processReqistrationRequest(String id, RegistrationRequest finalRequest,
 			RegistrationRequestAction action, AdminComment publicComment,
 			AdminComment privateComment) throws EngineException
-			{
+	{
 		throw new RuntimeException("not implemented"); // TODO Auto-generated method stub
-			}
+	}
 
 
 	private void validateRequestContents(RegistrationForm form, RegistrationRequest request, 
 			SqlSession sql) throws EngineException
-			{
+	{
 		validateRequestAgreements(form, request);
 		validateRequestAttributes(form, request, sql);
 		validateRequestCode(form, request);
@@ -243,11 +243,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (request.getGroupSelections().size() != form.getGroupParams().size())
 			throw new WrongArgumentException("Wrong amount of group selections, should be: " + 
 					form.getGroupParams().size());
-			}
+	}
 
 	private void validateRequestAgreements(RegistrationForm form, RegistrationRequest request) 
 			throws WrongArgumentException
-			{
+	{
 		if (form.getAgreements().size() != request.getAgreements().size())
 			throw new WrongArgumentException("Number of agreements in the" +
 					" request does not match the form agreements.");
@@ -257,11 +257,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 					!request.getAgreements().get(i).isSelected())
 				throw new WrongArgumentException("Mandatory agreement is not accepted.");
 		}
-			}
+	}
 
 	private void validateRequestAttributes(RegistrationForm form, RegistrationRequest request, SqlSession sql) 
 			throws WrongArgumentException, IllegalAttributeValueException, IllegalAttributeTypeException
-			{
+	{
 
 		validateParamsBase(form.getAttributeParams(), request.getAttributes(), "attributes");
 		Map<String, AttributeType> atMap = dbAttributes.getAttributeTypes(sql);
@@ -282,11 +282,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 						" is not allowed for this form");
 			AttributeValueChecker.validate(attr, atMap.get(attr.getName()));
 		}
-			}
+	}
 
 	private void validateRequestIdentities(RegistrationForm form, RegistrationRequest request) 
 			throws WrongArgumentException, IllegalIdentityValueException, IllegalTypeException
-			{
+	{
 		List<IdentityParam> requestedIds = request.getIdentities();
 		validateParamsBase(form.getIdentityParams(), requestedIds, "identities");
 		for (int i=0; i<requestedIds.size(); i++)
@@ -299,11 +299,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 						+ idParam.getTypeId() + " type");
 			identityTypesRegistry.getByName(idParam.getTypeId()).validate(idParam.getValue());
 		}
-			}
+	}
 
 	private void validateRequestCredentials(RegistrationForm form, RegistrationRequest request, SqlSession sql) 
 			throws EngineException
-			{
+	{
 		List<CredentialParamValue> requestedCreds = request.getCredentials();
 		List<CredentialRegistrationParam> formCreds = form.getCredentialParams();
 		if (formCreds.size() != requestedCreds.size())
@@ -317,7 +317,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 					authnRegistry.createLocalCredentialVerificator(credDef);
 			credVerificator.prepareCredential(requestedCreds.get(i).getSecrets(), "");
 		}
-			}
+	}
 
 	private void validateRequestCode(RegistrationForm form, RegistrationRequest request) throws WrongArgumentException
 	{
@@ -335,7 +335,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 
 	private void validateParamsBase(List<? extends RegistrationParam> paramDefinitions, List<?> params, 
 			String info) throws WrongArgumentException
-			{
+	{
 		if (paramDefinitions.size() != params.size())
 			throw new WrongArgumentException("There should be " + paramDefinitions.size() + " " + 
 					info + " parameters");
@@ -343,7 +343,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			if (!paramDefinitions.get(i).isOptional() && params.get(i) == null)
 				throw new WrongArgumentException("The parameter nr " + i + " of " + 
 						info + " is required");
-			}
+	}
 
 
 	private void validateFormContents(RegistrationForm form, SqlSession sql) throws EngineException
