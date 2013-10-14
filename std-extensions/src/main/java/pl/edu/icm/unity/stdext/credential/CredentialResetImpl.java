@@ -18,8 +18,6 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.notifications.NotificationProducer;
-import pl.edu.icm.unity.notifications.NotificationTemplate;
-import pl.edu.icm.unity.notifications.TemplatesStore;
 import pl.edu.icm.unity.server.authn.CredentialHelper;
 import pl.edu.icm.unity.server.authn.CredentialReset;
 import pl.edu.icm.unity.server.authn.CredentialResetSettings;
@@ -54,7 +52,6 @@ public class CredentialResetImpl implements CredentialReset
 			'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
 	
 	private NotificationProducer notificationProducer;
-	private UnityServerConfiguration serverConfig;
 	private IdentityResolver identityResolver;
 	private CredentialHelper credentialHelper;
 	private LocalCredentialVerificator localCredentialHandler;
@@ -74,7 +71,7 @@ public class CredentialResetImpl implements CredentialReset
 	private static final Random rnd = new SecureRandom();
 	
 	public CredentialResetImpl(NotificationProducer notificationProducer,
-			UnityServerConfiguration serverConfig, IdentityResolver identityResolver,
+			IdentityResolver identityResolver,
 			LocalCredentialVerificator localVerificator,
 			CredentialHelper credentialHelper,
 			String credentialId, String completeCredentialConfiguration,
@@ -82,7 +79,6 @@ public class CredentialResetImpl implements CredentialReset
 	{
 		this.notificationProducer = notificationProducer;
 		this.credentialHelper = credentialHelper;
-		this.serverConfig = serverConfig;
 		this.identityResolver = identityResolver;
 		this.credentialId = credentialId;
 		this.localCredentialHandler = localVerificator;
@@ -171,18 +167,14 @@ public class CredentialResetImpl implements CredentialReset
 		if (codeSendingAttempts >= MAX_RESENDS)
 			throw new TooManyAttempts();
 		codeSendingAttempts++;
-		TemplatesStore tplStore = serverConfig.getTemplatesStore();
-		NotificationTemplate tpl = tplStore.getTemplate(PASSWORD_RESET_TPL);
 		if (codeSent == null)
 			createCode();
 
 		Map<String, String> params = new HashMap<>();
 		params.put(CODE_VAR, codeSent);
 		params.put(USER_VAR, subject.getIdentity().getValue());
-		String body = tpl.getBody(params);
-		String header = tpl.getSubject(params);
 		notificationProducer.sendNotification(subject, UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL, 
-					header, body);
+					PASSWORD_RESET_TPL, params);
 	}
 
 

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine;
 
 import static org.junit.Assert.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
 
@@ -19,6 +20,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.notifications.NotificationStatus;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.credential.CredentialResetImpl;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -57,9 +59,13 @@ public class TestNotifications extends DBIntegrationTestBase
 		EntityParam admin = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "admin"));
 		initCommon.initializeCommonAttributeTypes();
 
+		Map<String, String> params = new HashMap<String, String>();
+		params.put(CredentialResetImpl.CODE_VAR, "AAAA");
+		params.put(CredentialResetImpl.USER_VAR, "some user");
+		
 		try
 		{
-			notProducer.sendNotification(admin, "ch1", "Test message subject", "test message");
+			notProducer.sendNotification(admin, "ch1", CredentialResetImpl.PASSWORD_RESET_TPL, params);
 			fail("Managed to send email for an entity without email attribute");
 		} catch(IllegalIdentityValueException e){}
 
@@ -67,7 +73,7 @@ public class TestNotifications extends DBIntegrationTestBase
 				"/", AttributeVisibility.full, destinationAddress);
 		attrsMan.setAttribute(admin, emailA, false);
 		Future<NotificationStatus> statusFuture = notProducer.sendNotification(admin, "ch1", 
-				"Test message subject", "test message");
+				CredentialResetImpl.PASSWORD_RESET_TPL, params);
 		NotificationStatus status = statusFuture.get();
 		if (!status.isSuccessful())
 			status.getProblem().printStackTrace();

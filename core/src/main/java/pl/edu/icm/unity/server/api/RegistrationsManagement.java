@@ -7,7 +7,6 @@ package pl.edu.icm.unity.server.api;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
@@ -77,6 +76,6 @@ public interface RegistrationsManagement
 	 * @throws EngineException
 	 */
 	public void processReqistrationRequest(String id, RegistrationRequest finalRequest, 
-			RegistrationRequestAction action, AdminComment publicComment, 
-			AdminComment privateComment) throws EngineException;
+			RegistrationRequestAction action, String publicComment, 
+			String privateComment) throws EngineException;
 }

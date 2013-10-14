@@ -7,6 +7,7 @@ package pl.edu.icm.unity.types.registration;
 import java.util.List;
 
 import pl.edu.icm.unity.types.DescribedObjectImpl;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
@@ -40,7 +41,30 @@ public class RegistrationForm extends DescribedObjectImpl
 	private List<String> groupAssignments;
 	private List<AttributeClassAssignment> attributeClassAssignments;
 	
+	private RegistrationFormNotifications notificationsConfiguration;
+	private EntityState initialEntityState;
 	
+	
+	public RegistrationFormNotifications getNotificationsConfiguration()
+	{
+		return notificationsConfiguration;
+	}
+
+	public void setNotificationsConfiguration(RegistrationFormNotifications notificationsConfiguration)
+	{
+		this.notificationsConfiguration = notificationsConfiguration;
+	}
+
+	public EntityState getInitialEntityState()
+	{
+		return initialEntityState;
+	}
+
+	public void setInitialEntityState(EntityState initialEntityState)
+	{
+		this.initialEntityState = initialEntityState;
+	}
+
 	public List<IdentityRegistrationParam> getIdentityParams()
 	{
 		return identityParams;
@@ -201,6 +225,13 @@ public class RegistrationForm extends DescribedObjectImpl
 		result = prime * result + ((groupParams == null) ? 0 : groupParams.hashCode());
 		result = prime * result
 				+ ((identityParams == null) ? 0 : identityParams.hashCode());
+		result = prime
+				* result
+				+ ((initialEntityState == null) ? 0 : initialEntityState.hashCode());
+		result = prime
+				* result
+				+ ((notificationsConfiguration == null) ? 0
+						: notificationsConfiguration.hashCode());
 		result = prime * result + (publiclyAvailable ? 1231 : 1237);
 		result = prime * result
 				+ ((registrationCode == null) ? 0 : registrationCode.hashCode());
@@ -279,6 +310,14 @@ public class RegistrationForm extends DescribedObjectImpl
 			if (other.identityParams != null)
 				return false;
 		} else if (!identityParams.equals(other.identityParams))
+			return false;
+		if (initialEntityState != other.initialEntityState)
+			return false;
+		if (notificationsConfiguration == null)
+		{
+			if (other.notificationsConfiguration != null)
+				return false;
+		} else if (!notificationsConfiguration.equals(other.notificationsConfiguration))
 			return false;
 		if (publiclyAvailable != other.publiclyAvailable)
 			return false;

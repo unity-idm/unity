@@ -9,13 +9,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.AuthenticationException;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.AttributesInternalProcessing;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
@@ -50,18 +49,18 @@ public class AuthenticationProcessor
 	private UnityMessageSource msg;
 	private AuthenticationManagement authnMan;
 	private IdentitiesManagement idsMan;
-	private AttributesManagement insecureAttrMan;
+	private AttributesInternalProcessing attrProcessor;
 	private CredentialEditorRegistry credEditorReg;
 	
 	@Autowired
 	public AuthenticationProcessor(UnityMessageSource msg, AuthenticationManagement authnMan,
-			IdentitiesManagement idsMan, @Qualifier("insecure") AttributesManagement attrMan,
+			IdentitiesManagement idsMan, AttributesInternalProcessing attrMan,
 			CredentialEditorRegistry credEditorReg)
 	{
 		this.msg = msg;
 		this.authnMan = authnMan;
 		this.idsMan = idsMan;
-		this.insecureAttrMan = attrMan;
+		this.attrProcessor = attrMan;
 		this.credEditorReg = credEditorReg;
 	}
 
@@ -83,7 +82,7 @@ public class AuthenticationProcessor
 	{
 		try
 		{
-			AttributeExt<?> attr = insecureAttrMan.getAttributeByMetadata(new EntityParam(logInfo.getEntityId()), "/", 
+			AttributeExt<?> attr = attrProcessor.getAttributeByMetadata(new EntityParam(logInfo.getEntityId()), "/", 
 					EntityNameMetadataProvider.NAME);
 			if (attr != null)
 				logInfo.setEntityLabel((String) attr.getValues().get(0));

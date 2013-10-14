@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.types.registration;
 
-import java.util.Date;
 import java.util.List;
 
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -18,7 +17,6 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  */
 public class RegistrationRequest
 {
-	private Date timestamp;
 	private String formId;
 	
 	private List<IdentityParam> identities;
@@ -30,14 +28,6 @@ public class RegistrationRequest
 	private String registrationCode;
 	
 	
-	public Date getTimestamp()
-	{
-		return timestamp;
-	}
-	public void setTimestamp(Date timestamp)
-	{
-		this.timestamp = timestamp;
-	}
 	public String getFormId()
 	{
 		return formId;
@@ -101,5 +91,82 @@ public class RegistrationRequest
 	public void setRegistrationCode(String registrationCode)
 	{
 		this.registrationCode = registrationCode;
+	}
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((agreements == null) ? 0 : agreements.hashCode());
+		result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
+		result = prime * result + ((comments == null) ? 0 : comments.hashCode());
+		result = prime * result + ((credentials == null) ? 0 : credentials.hashCode());
+		result = prime * result + ((formId == null) ? 0 : formId.hashCode());
+		result = prime * result
+				+ ((groupSelections == null) ? 0 : groupSelections.hashCode());
+		result = prime * result + ((identities == null) ? 0 : identities.hashCode());
+		result = prime * result
+				+ ((registrationCode == null) ? 0 : registrationCode.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RegistrationRequest other = (RegistrationRequest) obj;
+		if (agreements == null)
+		{
+			if (other.agreements != null)
+				return false;
+		} else if (!agreements.equals(other.agreements))
+			return false;
+		if (attributes == null)
+		{
+			if (other.attributes != null)
+				return false;
+		} else if (!attributes.equals(other.attributes))
+			return false;
+		if (comments == null)
+		{
+			if (other.comments != null)
+				return false;
+		} else if (!comments.equals(other.comments))
+			return false;
+		if (credentials == null)
+		{
+			if (other.credentials != null)
+				return false;
+		} else if (!credentials.equals(other.credentials))
+			return false;
+		if (formId == null)
+		{
+			if (other.formId != null)
+				return false;
+		} else if (!formId.equals(other.formId))
+			return false;
+		if (groupSelections == null)
+		{
+			if (other.groupSelections != null)
+				return false;
+		} else if (!groupSelections.equals(other.groupSelections))
+			return false;
+		if (identities == null)
+		{
+			if (other.identities != null)
+				return false;
+		} else if (!identities.equals(other.identities))
+			return false;
+		if (registrationCode == null)
+		{
+			if (other.registrationCode != null)
+				return false;
+		} else if (!registrationCode.equals(other.registrationCode))
+			return false;
+		return true;
 	}
 }

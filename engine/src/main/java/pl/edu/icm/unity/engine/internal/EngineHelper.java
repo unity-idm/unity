@@ -13,11 +13,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
+import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassUtil;
 import pl.edu.icm.unity.db.generic.cred.CredentialDB;
@@ -33,8 +35,11 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -43,6 +48,11 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 
 /**
  * Misc operations on entities, attributes and generic objects useful for multiple
@@ -52,7 +62,9 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 @Component
 public class EngineHelper
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, EngineHelper.class);
 	private DBAttributes dbAttributes;
+	private DBIdentities dbIdentities;
 	private AttributeClassDB acDB;
 	private DBGroups dbGroups;
 	private AuthenticatorsRegistry authReg;
@@ -61,11 +73,12 @@ public class EngineHelper
 
 	
 	@Autowired
-	public EngineHelper(DBAttributes dbAttributes, AttributeClassDB acDB,
-			DBGroups dbGroups, AuthenticatorsRegistry authReg,
+	public EngineHelper(DBAttributes dbAttributes, DBIdentities dbIdentities,
+			AttributeClassDB acDB, DBGroups dbGroups, AuthenticatorsRegistry authReg,
 			CredentialDB credentialDB, CredentialRequirementDB credentialRequirementDB)
 	{
 		this.dbAttributes = dbAttributes;
+		this.dbIdentities = dbIdentities;
 		this.acDB = acDB;
 		this.dbGroups = dbGroups;
 		this.authReg = authReg;
@@ -168,6 +181,65 @@ public class EngineHelper
 	}
 	
 	/**
+	 * Adds an entity with all the complicated logic around it. Does not perform authorization and DB 
+	 * transaction set up: pure business logic.
+	 * @param toAdd
+	 * @param credReqId
+	 * @param initialState
+	 * @param extractAttributes
+	 * @param attributes
+	 * @param sqlMap
+	 * @throws EngineException 
+	 */
+	public Identity addEntity(IdentityParam toAdd, String credReqId, EntityState initialState, 
+			boolean extractAttributes, List<Attribute<?>> attributes, SqlSession sqlMap) 
+					throws EngineException
+	{
+		checkGroupAttributeClassesConsistency(attributes, "/", sqlMap);
+		
+		Identity ret = dbIdentities.insertIdentity(toAdd, null, sqlMap);
+		long entityId = ret.getEntityId();
+		if (!PersistentIdentity.ID.equals(toAdd.getTypeId()))
+		{
+			IdentityParam persistent = new IdentityParam(PersistentIdentity.ID, 
+					PersistentIdentity.getNewId(), true);
+			dbIdentities.insertIdentity(persistent, entityId, sqlMap);
+		}
+		
+		dbIdentities.setEntityStatus(entityId, initialState, sqlMap);
+		dbGroups.addMemberFromParent("/", new EntityParam(ret.getEntityId()), sqlMap);
+		setEntityCredentialRequirements(entityId, credReqId, sqlMap);
+		
+		addAttributesList(attributes, entityId, sqlMap);
+		
+		if (extractAttributes)
+			extractAttributes(ret, sqlMap);
+		return ret;
+	}
+	
+	public void extractAttributes(Identity from, SqlSession sql)
+	{
+		IdentityType idType = from.getType();
+		IdentityTypeDefinition typeProvider = idType.getIdentityTypeProvider();
+		Map<String, String> toExtract = idType.getExtractedAttributes();
+		List<Attribute<?>> extractedList = typeProvider.extractAttributes(from.getValue(), toExtract);
+		long entityId = from.getEntityId();
+		for (Attribute<?> extracted: extractedList)
+		{
+			extracted.setGroupPath("/");
+			try
+			{
+				dbAttributes.addAttribute(entityId, extracted, false, sql);
+			} catch (EngineException e)
+			{
+				log.warn("Can not add extracted attribute " + extracted.getName() 
+						+ " for entity " + entityId + ": " + e.toString());
+			}
+		}
+	}
+
+	
+	/**
 	 * Sets entity's credential. This is internal method which doesn't perform any authorization nor
 	 * argument initialization checking.
 	 * @param entityId
@@ -200,4 +272,5 @@ public class EngineHelper
 				"/", AttributeVisibility.local, Collections.singletonList(newCred));
 		dbAttributes.addAttribute(entityId, newCredentialA, true, sqlMap);
 	}
+
 }

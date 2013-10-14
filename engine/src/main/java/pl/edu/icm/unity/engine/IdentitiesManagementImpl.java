@@ -12,12 +12,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBAttributes;
-import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.DBShared;
@@ -35,9 +33,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
@@ -63,10 +59,8 @@ import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 @Component
 public class IdentitiesManagementImpl implements IdentitiesManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, IdentitiesManagementImpl.class);
 	private DBSessionManager db;
 	private DBIdentities dbIdentities;
-	private DBGroups dbGroups;
 	private DBAttributes dbAttributes;
 	private DBShared dbShared;
 	private IdentitiesResolver idResolver;
@@ -76,13 +70,12 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 
 	@Autowired
 	public IdentitiesManagementImpl(DBSessionManager db, DBIdentities dbIdentities,
-			DBGroups dbGroups, DBAttributes dbAttributes, DBShared dbShared,
+			DBAttributes dbAttributes, DBShared dbShared,
 			IdentitiesResolver idResolver, EngineHelper engineHelper,
 			AuthorizationManager authz, IdentityTypesRegistry idTypesRegistry)
 	{
 		this.db = db;
 		this.dbIdentities = dbIdentities;
-		this.dbGroups = dbGroups;
 		this.dbAttributes = dbAttributes;
 		this.dbShared = dbShared;
 		this.idResolver = idResolver;
@@ -170,26 +163,8 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
-			engineHelper.checkGroupAttributeClassesConsistency(attributes, "/", sqlMap);
-			
-			Identity ret = dbIdentities.insertIdentity(toAdd, null, sqlMap);
-			long entityId = ret.getEntityId();
-			if (!PersistentIdentity.ID.equals(toAdd.getTypeId()))
-			{
-				IdentityParam persistent = new IdentityParam(PersistentIdentity.ID, 
-						PersistentIdentity.getNewId(), true);
-				dbIdentities.insertIdentity(persistent, entityId, sqlMap);
-			}
-			
-			dbIdentities.setEntityStatus(entityId, initialState, sqlMap);
-			dbGroups.addMemberFromParent("/", new EntityParam(ret.getEntityId()), sqlMap);
-			engineHelper.setEntityCredentialRequirements(entityId, credReqId, sqlMap);
-			
-			engineHelper.addAttributesList(attributes, entityId, sqlMap);
-			
-			if (extractAttributes)
-				extractAttributes(ret, sqlMap);
-			
+			Identity ret = engineHelper.addEntity(toAdd, credReqId, initialState, 
+					extractAttributes, attributes, sqlMap);
 			sqlMap.commit();
 			return ret;
 		} finally
@@ -214,7 +189,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
 			Identity ret = dbIdentities.insertIdentity(toAdd, entityId, sqlMap);
 			if (extractAttributes)
-				extractAttributes(ret, sqlMap);
+				engineHelper.extractAttributes(ret, sqlMap);
 			sqlMap.commit();
 			return ret;
 		} finally
@@ -223,26 +198,6 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		}
 	}
 
-	private void extractAttributes(Identity from, SqlSession sql)
-	{
-		IdentityType idType = from.getType();
-		IdentityTypeDefinition typeProvider = idType.getIdentityTypeProvider();
-		Map<String, String> toExtract = idType.getExtractedAttributes();
-		List<Attribute<?>> extractedList = typeProvider.extractAttributes(from.getValue(), toExtract);
-		long entityId = from.getEntityId();
-		for (Attribute<?> extracted: extractedList)
-		{
-			extracted.setGroupPath("/");
-			try
-			{
-				dbAttributes.addAttribute(entityId, extracted, false, sql);
-			} catch (EngineException e)
-			{
-				log.info("Can not add extracted attribute " + extracted.getName() 
-						+ " for entity " + entityId + ": " + e.toString());
-			}
-		}
-	}
 	
 	/**
 	 * {@inheritDoc}

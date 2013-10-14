@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsDialog;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsPanel;
+import pl.edu.icm.unity.server.api.AttributesInternalProcessing;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -71,6 +72,7 @@ public class IdentitiesTable extends TreeTable
 	private UnityMessageSource msg;
 	private AuthenticationManagement authnMan;
 	private AttributesManagement attrMan;
+	private AttributesInternalProcessing attrProcessor;
 	private IdentityEditorRegistry identityEditorReg;
 	private AttributeHandlerRegistry attrHandlerRegistry;
 	private CredentialEditorRegistry credEditorsRegistry;
@@ -85,10 +87,12 @@ public class IdentitiesTable extends TreeTable
 	@Autowired
 	public IdentitiesTable(IdentitiesManagement identitiesMan, GroupsManagement groupsMan, 
 			AuthenticationManagement authnMan, AttributesManagement attrMan,
+			AttributesInternalProcessing attrProcessor,
 			IdentityEditorRegistry identityEditorReg, CredentialEditorRegistry credEditorsRegistry,
 			AttributeHandlerRegistry attrHandlerReg, UnityMessageSource msg)
 	{
 		this.identitiesMan = identitiesMan;
+		this.attrProcessor = attrProcessor;
 		this.groupsMan = groupsMan;
 		this.identityEditorReg = identityEditorReg;
 		this.authnMan = authnMan;
@@ -189,7 +193,8 @@ public class IdentitiesTable extends TreeTable
 	public void setInput(String group, List<Long> entities) throws EngineException
 	{
 		this.group = group;
-		AttributeType nameAt = attrMan.getAttributeTypeWithSingeltonMetadata(EntityNameMetadataProvider.NAME);
+		AttributeType nameAt = attrProcessor.getAttributeTypeWithSingeltonMetadata(
+				EntityNameMetadataProvider.NAME);
 		this.entityNameAttribute = nameAt == null ? null : nameAt.getName();
 		data.clear();
 		for (Long entity: entities)

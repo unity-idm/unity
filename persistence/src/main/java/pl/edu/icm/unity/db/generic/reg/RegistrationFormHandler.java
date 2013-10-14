@@ -24,6 +24,7 @@ import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -33,6 +34,7 @@ import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 
 /**
  * Handler for {@link CredentialDefinition}
@@ -69,11 +71,12 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 			root.put("GroupAssignments", jsonMapper.valueToTree(value.getGroupAssignments()));
 			root.put("GroupParams", jsonMapper.valueToTree(value.getGroupParams()));
 			root.put("IdentityParams", jsonMapper.valueToTree(value.getIdentityParams()));
+			root.put("InitialEntityState", jsonMapper.valueToTree(value.getInitialEntityState().name()));
 			root.put("Name", value.getName());
+			root.put("NotificationsConfiguration", jsonMapper.valueToTree(value.getNotificationsConfiguration()));
 			root.put("PubliclyAvailable", value.isPubliclyAvailable());
 			root.put("RegistrationCode", value.getRegistrationCode());
 			byte[] contents = jsonMapper.writeValueAsBytes(root);
-System.out.println(new String(contents));
 			return new GenericObjectBean(value.getName(), contents, supportedType);
 		} catch (JsonProcessingException e)
 		{
@@ -139,7 +142,7 @@ System.out.println(new String(contents));
 				ret.setAttributeParams(r);
 			}
 			n = root.get("CollectComments");
-			ret.setCollectComments(n == null ? null : n.asBoolean());
+			ret.setCollectComments(n.asBoolean());
 			n = root.get("CredentialParams");
 			if (n != null)
 			{
@@ -180,10 +183,23 @@ System.out.println(new String(contents));
 						new TypeReference<List<IdentityRegistrationParam>>(){});
 				ret.setIdentityParams(r);
 			}
+			n = root.get("InitialEntityState");
+			ret.setInitialEntityState(n == null ? EntityState.valid : EntityState.valueOf(n.asText()));
+			
 			n = root.get("Name");
-			ret.setName(n == null ? null : n.asText());
+			ret.setName(n.asText());
+			
+			n = root.get("NotificationsConfiguration");
+			if (n != null)
+			{
+				String v = jsonMapper.writeValueAsString(n);
+				RegistrationFormNotifications r = jsonMapper.readValue(v, 
+						new TypeReference<RegistrationFormNotifications>(){});
+				ret.setNotificationsConfiguration(r);
+			}
+
 			n = root.get("PubliclyAvailable");
-			ret.setPubliclyAvailable(n == null ? null : n.asBoolean());
+			ret.setPubliclyAvailable(n.asBoolean());
 			n = root.get("RegistrationCode");
 			ret.setRegistrationCode(n == null ? null : n.asText());
 			

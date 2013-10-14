@@ -31,4 +31,33 @@ public class AttributeParamValue
 	{
 		this.external = external;
 	}
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((attribute == null) ? 0 : attribute.hashCode());
+		result = prime * result + (external ? 1231 : 1237);
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AttributeParamValue other = (AttributeParamValue) obj;
+		if (attribute == null)
+		{
+			if (other.attribute != null)
+				return false;
+		} else if (!attribute.equals(other.attribute))
+			return false;
+		if (external != other.external)
+			return false;
+		return true;
+	}
 }

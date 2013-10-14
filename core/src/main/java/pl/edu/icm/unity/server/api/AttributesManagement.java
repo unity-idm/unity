@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.server.api;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -64,25 +63,6 @@ public interface AttributesManagement
 	 */
 	public Map<String, AttributeType> getAttributeTypesAsMap() throws EngineException;
 
-	
-	/**
-	 * Returns attribute type which has the given metadata set. The metadata must be singleton, 
-	 * otherwise unchecked exception is thrown. If there is no attribute type with this metadata, then
-	 * null is returned.
-	 * 
-	 * @param metadataId
-	 * @return
-	 * @throws EngineException
-	 */
-	public AttributeType getAttributeTypeWithSingeltonMetadata(String metadataId) throws EngineException;
-
-	/**
-	 * Returns all attribute types which have the given metadata set.
-	 * @param metadataId
-	 * @return
-	 * @throws EngineException
-	 */
-	public List<AttributeType> getAttributeTypeWithMetadata(String metadataId) throws EngineException;
 	
 	/**
 	 * Defines a new attribute class
@@ -179,16 +159,4 @@ public interface AttributesManagement
 	 */
 	public Collection<AttributeExt<?>> getAllAttributes(EntityParam entity, boolean effective, 
 			String groupPath, String attributeTypeId, boolean allowDegrade) throws EngineException;
-	
-	/**
-	 * Returns attribute which has the given metadata set. If there is no attribute type with this metadata, then
-	 * null is returned. The metadata must be singleton, 
-	 * otherwise unchecked exception is thrown.
-	 * @param entity
-	 * @param group
-	 * @param metadataId
-	 * @return
-	 * @throws EngineException
-	 */
-	public AttributeExt<?> getAttributeByMetadata(EntityParam entity, String group, String metadataId) throws EngineException;
 }

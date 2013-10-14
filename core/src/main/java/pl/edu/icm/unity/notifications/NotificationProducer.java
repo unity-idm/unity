@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.notifications;
 
+import java.util.Map;
 import java.util.concurrent.Future;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -18,19 +19,40 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 public interface NotificationProducer
 {
 	/**
-	 * Sends notification to a specified channel. The engine is responsible for establishing notification 
-	 * address (email/telephone number etc) for a given recipient.  
-	 * 
-	 * NOTE: this operation requires no authorization. Therefore it is not suitable for any kind 
-	 * of direct exposure to end users.
-	 * 
+	 * Sends a message which is resolved from a given template with parameters.
 	 * @param recipient
 	 * @param channelName
-	 * @param message
-	 * @param msgSubject message subject, which might be ignored by some of the notification facilities.
-	 * @return future object allowing to check notification sending state
+	 * @param templateId
+	 * @param params
+	 * @return
 	 * @throws EngineException
 	 */
 	public Future<NotificationStatus> sendNotification(EntityParam recipient, String channelName, 
-			String msgSubject, String message) throws EngineException;
+			String templateId, Map<String, String> params) throws EngineException;
+
+	/**
+	 * Sends a message which is resolved from a given template with parameters.
+	 * @param recipientAddress actual address of the recipient, as email address. 
+	 * @param channelName
+	 * @param templateId
+	 * @param params
+	 * @return
+	 * @throws EngineException
+	 */
+	public Future<NotificationStatus> sendNotification(String recipientAddress, String channelName, 
+			String templateId, Map<String, String> params) throws EngineException;
+	
+	/**
+	 * Sends a message which is resolved from a given template with parameters.
+	 * This version sends a message to all entities which are members of a given group and 
+	 * have channel's address defined in this group. 
+	 * @param group
+	 * @param channelName
+	 * @param templateId
+	 * @param params
+	 * @return
+	 * @throws EngineException
+	 */
+	public void sendNotificationToGroup(String group, String channelName, 
+			String templateId, Map<String, String> params) throws EngineException;
 }

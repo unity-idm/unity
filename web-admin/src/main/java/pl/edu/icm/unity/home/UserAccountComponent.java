@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsPanel;
-import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.AttributesInternalProcessing;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -57,7 +57,7 @@ public class UserAccountComponent extends VerticalLayout
 			CredentialEditorRegistry credEditorReg,
 			PreferencesHandlerRegistry registry, PreferencesManagement prefMan, 
 			UnityMessageSource msg, EndpointManagement endpMan, 
-			AttributesManagement attrMan)
+			AttributesInternalProcessing attrMan)
 	{
 		this.msg = msg;
 		
@@ -109,7 +109,7 @@ public class UserAccountComponent extends VerticalLayout
 	}
 	
 	private com.vaadin.ui.Component getUserInfoComponent(long entityId, IdentitiesManagement idsMan, 
-			AttributesManagement attrMan) throws EngineException
+			AttributesInternalProcessing attrMan) throws EngineException
 	{
 		EntityDetailsPanel ret = new EntityDetailsPanel(msg);
 		EntityParam param = new EntityParam(entityId);

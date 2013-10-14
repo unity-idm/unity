@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,9 +17,10 @@ import java.util.List;
 public class RegistrationRequestState
 {
 	private String requestId;
+	private Date timestamp;
 	private RegistrationRequest request;
-	private List<AdminComment> adminComments;
-	private List<AdminComment> publicAdminComments;
+	private List<AdminComment> adminComments = new ArrayList<>();
+	private List<AdminComment> publicAdminComments = new ArrayList<>();
 	private RegistrationRequestStatus status;
 
 	public String getRequestId()
@@ -27,6 +30,14 @@ public class RegistrationRequestState
 	public void setRequestId(String requestId)
 	{
 		this.requestId = requestId;
+	}
+	public Date getTimestamp()
+	{
+		return timestamp;
+	}
+	public void setTimestamp(Date timestamp)
+	{
+		this.timestamp = timestamp;
 	}
 	public RegistrationRequest getRequest()
 	{

@@ -12,6 +12,18 @@ public class AdminComment extends Comment
 {
 	private long authorEntityId;
 
+	
+	public AdminComment(String contents, long authorEntityId)
+	{
+		super(contents);
+		this.authorEntityId = authorEntityId;
+	}
+
+	public AdminComment()
+	{
+		super();
+	}
+
 	public long getAuthorEntityId()
 	{
 		return authorEntityId;
@@ -20,5 +32,29 @@ public class AdminComment extends Comment
 	public void setAuthorEntityId(long authorEntityId)
 	{
 		this.authorEntityId = authorEntityId;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + (int) (authorEntityId ^ (authorEntityId >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AdminComment other = (AdminComment) obj;
+		if (authorEntityId != other.authorEntityId)
+			return false;
+		return true;
 	}
 }

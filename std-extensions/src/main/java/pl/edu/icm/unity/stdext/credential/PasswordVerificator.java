@@ -46,7 +46,6 @@ import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.CredentialHelper;
 import pl.edu.icm.unity.server.authn.CredentialReset;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.CryptoUtils;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
@@ -68,7 +67,6 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	static final String[] IDENTITY_TYPES = {UsernameIdentity.ID};
 
 	private NotificationProducer notificationProducer;
-	private UnityServerConfiguration serverConfig;
 	private CredentialHelper credentialHelper;
 	private Random random = new Random();
 	
@@ -76,12 +74,10 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 
 
 	public PasswordVerificator(String name, String description,
-			NotificationProducer notificationProducer, UnityServerConfiguration serverConfig,
-			CredentialHelper credentialHelper)
+			NotificationProducer notificationProducer, CredentialHelper credentialHelper)
 	{
 		super(name, description, PasswordExchange.ID, true);
 		this.notificationProducer = notificationProducer;
-		this.serverConfig = serverConfig;
 		this.credentialHelper = credentialHelper;
 	}
 
@@ -219,7 +215,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	@Override
 	public CredentialReset getCredentialResetBackend()
 	{
-		return new CredentialResetImpl(notificationProducer, serverConfig, identityResolver, 
+		return new CredentialResetImpl(notificationProducer, identityResolver, 
 				this, credentialHelper,
 				credentialName, getSerializedConfiguration(), 
 				credential.getPasswordResetSettings());

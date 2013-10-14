@@ -11,7 +11,6 @@ import pl.edu.icm.unity.notifications.NotificationProducer;
 import pl.edu.icm.unity.server.authn.CredentialHelper;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 
 /**
  * Produces verificators of passwords.
@@ -23,16 +22,14 @@ public class PasswordVerificatorFactory implements LocalCredentialVerificatorFac
 	public static final String NAME = "password";
 	
 	private NotificationProducer notificationProducer;
-	private UnityServerConfiguration serverConfig;
 	private CredentialHelper credentialHelper;
 	
 	
 	@Autowired
 	public PasswordVerificatorFactory(NotificationProducer notificationProducer,
-			UnityServerConfiguration serverConfig, CredentialHelper credentialHelper)
+			CredentialHelper credentialHelper)
 	{
 		this.notificationProducer = notificationProducer;
-		this.serverConfig = serverConfig;
 		this.credentialHelper = credentialHelper;
 	}
 
@@ -52,7 +49,7 @@ public class PasswordVerificatorFactory implements LocalCredentialVerificatorFac
 	public LocalCredentialVerificator newInstance()
 	{
 		return new PasswordVerificator(getName(), getDescription(), notificationProducer,
-				serverConfig, credentialHelper);
+				credentialHelper);
 	}
 
 	@Override

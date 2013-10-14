@@ -160,7 +160,7 @@ public class EmailFacility implements NotificationFacility
 						sendEmail(msgSubject, message, recipientAddress);
 					} catch (Exception e)
 					{
-						log.error("E-mail notifiication failed", e);
+						log.error("E-mail notification failed", e);
 						retStatus.setProblem(e);
 					}
 				}

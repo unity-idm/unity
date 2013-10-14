@@ -177,6 +177,11 @@ public class RegistrationFormDB extends GenericObjectsDB<RegistrationForm>
 					if (attr.getGroup().startsWith(removedObject.toString()))
 						throw new IllegalCredentialException("The group is used by an attribute in registration form " 
 							+ form.getName());
+				if (form.getNotificationsConfiguration() != null && 
+						removedObject.toString().equals(form.getNotificationsConfiguration().
+								getAdminsNotificationGroup()))
+					throw new IllegalCredentialException("The group is used as administrators notification group in registration form " 
+							+ form.getName());
 			}
 		}
 	}
