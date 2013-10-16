@@ -20,8 +20,6 @@ import pl.edu.icm.unity.db.DBShared;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassUtil;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
-import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -39,6 +37,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
  * Attributes and ACs related operations, intended for reuse between other classes.
+ * No operation in this interface performs any authorization.
  * @author K. Benedyczak
  */
 @Component
@@ -51,13 +50,12 @@ public class AttributesHelper
 	private DBShared dbShared;
 	private DBIdentities dbIdentities;
 	private IdentitiesResolver idResolver;
-	private AuthorizationManager authz;
 	
 	@Autowired
 	public AttributesHelper(AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
 			DBAttributes dbAttributes, AttributeClassDB acDB, DBGroups dbGroups,
 			DBShared dbShared, DBIdentities dbIdentities,
-			IdentitiesResolver idResolver, AuthorizationManager authz)
+			IdentitiesResolver idResolver)
 	{
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
 		this.dbAttributes = dbAttributes;
@@ -66,7 +64,6 @@ public class AttributesHelper
 		this.dbShared = dbShared;
 		this.dbIdentities = dbIdentities;
 		this.idResolver = idResolver;
-		this.authz = authz;
 	}
 
 
@@ -90,8 +87,9 @@ public class AttributesHelper
 		AttributeType at = getAttributeTypeWithSingeltonMetadata(metadataId, sql);
 		if (at == null)
 			return null;
-		Collection<AttributeExt<?>> ret = getAllAttributesInternal(sql, entity, false, 
-				group, at.getName(), AuthzCapability.read, false);
+		long entityId = idResolver.getEntityId(entity, sql);
+		Collection<AttributeExt<?>> ret = getAllAttributesInternal(sql, entityId, false, 
+				group, at.getName(), false);
 		return ret.size() == 1 ? ret.iterator().next() : null; 
 	}
 
@@ -121,18 +119,16 @@ public class AttributesHelper
 	}
 	
 	
-	public Collection<AttributeExt<?>> getAllAttributesInternal(SqlSession sql, EntityParam entity, 
+	public Collection<AttributeExt<?>> getAllAttributesInternal(SqlSession sql, long entityId, 
 			boolean effective, String groupPath, String attributeTypeName, 
-			AuthzCapability requiredCapability, boolean allowDisabled) throws EngineException
+			boolean allowDisabled) throws EngineException
 	{
-		long entityId = idResolver.getEntityId(entity, sql);
 		if (!allowDisabled)
 		{
 			EntityState state = dbIdentities.getEntityStatus(entityId, sql);
 			if (state == EntityState.disabled)
 				throw new IllegalIdentityValueException("The entity is disabled");
 		}
-		authz.checkAuthorization(authz.isSelf(entityId), groupPath, requiredCapability);
 		if (groupPath != null)
 		{
 			Set<String> allGroups = dbShared.getAllGroups(entityId, sql);

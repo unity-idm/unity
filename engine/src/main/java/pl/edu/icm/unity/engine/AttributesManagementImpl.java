@@ -583,8 +583,10 @@ public class AttributesManagementImpl implements AttributesManagement
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			Collection<AttributeExt<?>> ret = attributesHelper.getAllAttributesInternal(sql, entity, effective, 
-					groupPath, attributeTypeName, requiredCapability, allowDisabled);
+			long entityId = idResolver.getEntityId(entity, sql);
+			authz.checkAuthorization(authz.isSelf(entityId), groupPath, requiredCapability);
+			Collection<AttributeExt<?>> ret = attributesHelper.getAllAttributesInternal(sql, entityId, 
+					effective, groupPath, attributeTypeName, allowDisabled);
 			sql.commit();
 			return ret;
 		} finally
