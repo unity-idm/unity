@@ -12,8 +12,7 @@ package pl.edu.icm.unity.types.registration;
 public class RegistrationFormNotifications
 {
 	private String submittedTemplate;
-	private String adminCommentTemplate;
-	private String publicCommentTemplate;
+	private String updatedTemplate;
 	private String rejectedTemplate;
 	private String acceptedTemplate;
 	
@@ -28,21 +27,13 @@ public class RegistrationFormNotifications
 	{
 		this.submittedTemplate = submittedTemplate;
 	}
-	public String getAdminCommentTemplate()
+	public String getUpdatedTemplate()
 	{
-		return adminCommentTemplate;
+		return updatedTemplate;
 	}
-	public void setAdminCommentTemplate(String adminCommentTemplate)
+	public void setUpdatedTemplate(String updatedTemplate)
 	{
-		this.adminCommentTemplate = adminCommentTemplate;
-	}
-	public String getPublicCommentTemplate()
-	{
-		return publicCommentTemplate;
-	}
-	public void setPublicCommentTemplate(String publicCommentTemplate)
-	{
-		this.publicCommentTemplate = publicCommentTemplate;
+		this.updatedTemplate = updatedTemplate;
 	}
 	public String getRejectedTemplate()
 	{
@@ -85,21 +76,15 @@ public class RegistrationFormNotifications
 				+ ((acceptedTemplate == null) ? 0 : acceptedTemplate.hashCode());
 		result = prime
 				* result
-				+ ((adminCommentTemplate == null) ? 0 : adminCommentTemplate
-						.hashCode());
-		result = prime
-				* result
 				+ ((adminsNotificationGroup == null) ? 0 : adminsNotificationGroup
 						.hashCode());
 		result = prime * result + ((channel == null) ? 0 : channel.hashCode());
-		result = prime
-				* result
-				+ ((publicCommentTemplate == null) ? 0 : publicCommentTemplate
-						.hashCode());
 		result = prime * result
 				+ ((rejectedTemplate == null) ? 0 : rejectedTemplate.hashCode());
 		result = prime * result
 				+ ((submittedTemplate == null) ? 0 : submittedTemplate.hashCode());
+		result = prime * result
+				+ ((updatedTemplate == null) ? 0 : updatedTemplate.hashCode());
 		return result;
 	}
 	@Override
@@ -118,12 +103,6 @@ public class RegistrationFormNotifications
 				return false;
 		} else if (!acceptedTemplate.equals(other.acceptedTemplate))
 			return false;
-		if (adminCommentTemplate == null)
-		{
-			if (other.adminCommentTemplate != null)
-				return false;
-		} else if (!adminCommentTemplate.equals(other.adminCommentTemplate))
-			return false;
 		if (adminsNotificationGroup == null)
 		{
 			if (other.adminsNotificationGroup != null)
@@ -136,12 +115,6 @@ public class RegistrationFormNotifications
 				return false;
 		} else if (!channel.equals(other.channel))
 			return false;
-		if (publicCommentTemplate == null)
-		{
-			if (other.publicCommentTemplate != null)
-				return false;
-		} else if (!publicCommentTemplate.equals(other.publicCommentTemplate))
-			return false;
 		if (rejectedTemplate == null)
 		{
 			if (other.rejectedTemplate != null)
@@ -153,6 +126,12 @@ public class RegistrationFormNotifications
 			if (other.submittedTemplate != null)
 				return false;
 		} else if (!submittedTemplate.equals(other.submittedTemplate))
+			return false;
+		if (updatedTemplate == null)
+		{
+			if (other.updatedTemplate != null)
+				return false;
+		} else if (!updatedTemplate.equals(other.updatedTemplate))
 			return false;
 		return true;
 	}
