@@ -23,6 +23,7 @@ import eu.unicore.util.httpclient.DefaultClientConfiguration;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory;
+import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -171,13 +172,15 @@ public class TestWSCore extends DBIntegrationTestBase
 	{
 		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user1", true), 
 				"cr-pass", EntityState.valid, false);
-		idsMan.setEntityCredential(new EntityParam(added1), "credential1", "mockPassword1");
+		idsMan.setEntityCredential(new EntityParam(added1), "credential1", 
+				new PasswordToken("mockPassword1").toJson());
 		
 		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user2", true), 
 				"cr-certpass", EntityState.valid, false);
 		idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=Test UVOS,O=UNICORE,C=EU", true), 
 				new EntityParam(added2), false);
-		idsMan.setEntityCredential(new EntityParam(added2), "credential1", "mockPassword2");
+		idsMan.setEntityCredential(new EntityParam(added2), "credential1", 
+				new PasswordToken("mockPassword2").toJson());
 	}
 	
 	protected void setupMockAuthn() throws Exception

@@ -26,7 +26,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 public class RegistrationForm extends DescribedObjectImpl
 {
 	private boolean publiclyAvailable;
-	private RegistrationFormNotifications notificationsConfiguration;
+	private RegistrationFormNotifications notificationsConfiguration = new RegistrationFormNotifications();
 	
 	private List<IdentityRegistrationParam> identityParams;
 	private List<AttributeRegistrationParam> attributeParams;	

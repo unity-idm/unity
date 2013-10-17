@@ -233,8 +233,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			sql.commit();
 			
 			RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-			if (notificationsCfg != null)
-				notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(), 
+			notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(), 
 					notificationsCfg.getChannel(), 
 					notificationsCfg.getSubmittedTemplate(),
 					getBaseNotificationParams(form.getName(), requestFull.getRequestId()));
@@ -333,8 +332,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		currentRequest.setStatus(RegistrationRequestStatus.rejected);
 		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-		if (notificationsCfg != null)
-			sendProcessingNotification(notificationsCfg.getRejectedTemplate(), 
+		sendProcessingNotification(notificationsCfg.getRejectedTemplate(), 
 				currentRequest, currentRequest.getRequestId(), form.getName(), publicComment, 
 				internalComment, notificationsCfg, sql);
 	}
@@ -346,8 +344,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		validateRequestContents(form, currentRequest.getRequest(), sql);
 		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-		if (notificationsCfg != null)
-			sendProcessingNotification(notificationsCfg.getUpdatedTemplate(),
+		sendProcessingNotification(notificationsCfg.getUpdatedTemplate(),
 				currentRequest, currentRequest.getRequestId(), form.getName(), 
 				publicComment, internalComment,	notificationsCfg, sql);
 	}
@@ -415,8 +412,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		}
 		
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-		if (notificationsCfg != null)
-			sendProcessingNotification(notificationsCfg.getAcceptedTemplate(),
+		sendProcessingNotification(notificationsCfg.getAcceptedTemplate(),
 				currentRequest, currentRequest.getRequestId(), form.getName(), 
 				publicComment, internalComment,	notificationsCfg, sql);
 	}
@@ -635,6 +631,9 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		
 		if (form.getInitialEntityState() == null)
 			throw new WrongArgumentException("Initial entity state must be set in the form.");
+		
+		if (form.getNotificationsConfiguration() == null)
+			throw new WrongArgumentException("NotificationsConfiguration must be set in the form.");
 	}
 	
 	private Map<String, String> getBaseNotificationParams(String formId, String requestId)
@@ -654,6 +653,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			AdminComment publicComment, AdminComment internalComment,
 			RegistrationFormNotifications notificationsCfg, SqlSession sql) throws EngineException
 	{
+		if (notificationsCfg.getChannel() == null)
+			return;
 		Map<String, String> notifyParams = getBaseNotificationParams(formId, requestId);
 		if (publicComment != null)
 			notifyParams.put(VAR_PUB_COMMENT, publicComment.getContents());

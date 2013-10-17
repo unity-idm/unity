@@ -146,6 +146,8 @@ public class NotificationProducerImpl implements NotificationProducer
 	public void sendNotificationToGroup(String group, String channelName,
 			String templateId, Map<String, String> params) throws EngineException
 	{
+		if (templateId == null)
+			return;
 		NotificationTemplate template = templateStore.getTemplate(templateId);
 		String subject = template.getSubject(params);
 		String body = template.getBody(params);
