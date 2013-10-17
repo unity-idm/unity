@@ -347,7 +347,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		if (notificationsCfg != null)
-			sendProcessingNotification(notificationsCfg.getRejectedTemplate(), 
+			sendProcessingNotification(notificationsCfg.getUpdatedTemplate(),
 				currentRequest, currentRequest.getRequestId(), form.getName(), 
 				publicComment, internalComment,	notificationsCfg, sql);
 	}
@@ -416,7 +416,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		if (notificationsCfg != null)
-			sendProcessingNotification(notificationsCfg.getRejectedTemplate(), 
+			sendProcessingNotification(notificationsCfg.getAcceptedTemplate(),
 				currentRequest, currentRequest.getRequestId(), form.getName(), 
 				publicComment, internalComment,	notificationsCfg, sql);
 	}
