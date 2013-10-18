@@ -97,7 +97,7 @@ public class TestSoapETD extends DBIntegrationTestBase
 		DefaultClientConfiguration clientCfg = getClientCfg();
 		clientCfg.setSslAuthn(true);
 		
-		NameID localIssuer = new NameID("unicore receiver", SAMLConstants.NFORMAT_ENTITY);
+		NameID localIssuer = new NameID("unicore@example.com", SAMLConstants.NFORMAT_EMAIL);
 		SAMLAuthnClient client = new SAMLAuthnClient(attrWSUrl, clientCfg);
 		try
 		{
