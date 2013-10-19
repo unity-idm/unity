@@ -14,6 +14,7 @@ import pl.edu.icm.unity.webadmin.attributeclass.AttributesClassesComponent;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesComponent;
 import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionsComponent;
 import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementsComponent;
+import pl.edu.icm.unity.webadmin.registrations.RegistrationFormsComponent;
 
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
@@ -34,11 +35,11 @@ public class SchemaManagementTab  extends VerticalLayout
 	@Autowired
 	public SchemaManagementTab(UnityMessageSource msg, AttributeTypesComponent attributeTypes,
 			CredentialDefinitionsComponent cdComponent, CredentialRequirementsComponent crComponent,
-			AttributesClassesComponent acComponent)
+			AttributesClassesComponent acComponent, RegistrationFormsComponent regComponent)
 	{
 		super();
 		this.msg = msg;
-		this.tabs = new MainTabPanel(attributeTypes, acComponent, cdComponent, crComponent);
+		this.tabs = new MainTabPanel(attributeTypes, acComponent, cdComponent, crComponent, regComponent);
 		this.tabs.setStyleName(Reindeer.TABSHEET_MINIMAL);
 		initUI();
 	}

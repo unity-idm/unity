@@ -2,16 +2,21 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.groupbrowser;
+package pl.edu.icm.unity.webui.common;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.GroupContents;
 
 import com.vaadin.ui.ComboBox;
+
 
 /**
  * Combo box allowing to choose a group. This components can automatically populate the combobox 
@@ -20,8 +25,17 @@ import com.vaadin.ui.ComboBox;
  */
 public class GroupComboBox extends ComboBox
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, GroupComboBox.class);
 	private GroupsManagement groupsMan;
+	private List<String> fixedGroups;
 	
+	public GroupComboBox(String caption, Collection<String> groups)
+	{
+		setCaption(caption);
+		this.fixedGroups = new ArrayList<>(groups);
+		setNullSelectionAllowed(false);
+	}
+
 	public GroupComboBox(String caption, GroupsManagement groupsMan)
 	{
 		setCaption(caption);
@@ -32,14 +46,23 @@ public class GroupComboBox extends ComboBox
 	public void setInput(String rootGroup, boolean recursive)
 	{
 		removeAllItems();
-		List<String> groups = new ArrayList<String>();
-		getGroups(rootGroup, recursive, groups);
-		Collections.sort(groups);
-		for (String group: groups)
+		if (groupsMan != null)
+		{
+			fixedGroups = new ArrayList<String>();
+			getGroups(rootGroup, recursive, fixedGroups);
+		}
+		Collections.sort(fixedGroups);
+		for (String group: fixedGroups)
 			addItem(group);
-		if (!groups.isEmpty())
-			select(groups.get(0));
+		if (!fixedGroups.isEmpty())
+			select(fixedGroups.get(0));
 	}
+	
+	public List<String> getGroups()
+	{
+		return new ArrayList<>(fixedGroups);
+	}
+	
 	
 	private void getGroups(String group, boolean recursive, List<String> groups)
 	{
@@ -55,7 +78,7 @@ public class GroupComboBox extends ComboBox
 			}
 		} catch (Exception e)
 		{
-			//ignored - probably authZ error
+			log.warn("Can't read groups for combo box", e);
 		}
 	}
 }

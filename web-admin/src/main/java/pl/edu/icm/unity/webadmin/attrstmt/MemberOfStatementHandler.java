@@ -13,8 +13,8 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.attrstmnt.MemberOfStatement;
-import pl.edu.icm.unity.webadmin.groupbrowser.GroupComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**

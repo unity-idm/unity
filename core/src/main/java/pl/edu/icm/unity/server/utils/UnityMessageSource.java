@@ -46,6 +46,10 @@ public class UnityMessageSource extends ResourceBundleMessageSource
 		return super.getMessage(code, args, loc);
 	}
 	
+	public String getYesNo(boolean value)
+	{
+		return value ? getMessage("yes") : getMessage("no");
+	}
 	
 	public Locale getLocale()
 	{

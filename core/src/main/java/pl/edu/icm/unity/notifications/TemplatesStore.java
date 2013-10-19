@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.notifications;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -31,12 +32,20 @@ public class TemplatesStore
 	private Properties properties;
 	private Locale defaultLocale;
 	private Map<String, NotificationTemplate> cachedTemplates;
+	private Set<String> templateKeys;
 	
 	public TemplatesStore(Properties properties, Locale defaultLocale)
 	{
 		this.properties = properties;
 		this.defaultLocale = defaultLocale;
 		cachedTemplates = new ConcurrentHashMap<>(10);
+		templateKeys = new HashSet<>();
+		for (Object keyO: properties.keySet())
+		{
+			String key = (String) keyO;
+			if (key.contains("."))
+				templateKeys.add(key.substring(0, key.indexOf('.')));
+		}
 	}
 	
 	public NotificationTemplate getTemplate(String id) throws WrongArgumentException
@@ -47,6 +56,11 @@ public class TemplatesStore
 		ret = loadTemplate(id);
 		cachedTemplates.put(id, ret);
 		return ret;
+	}
+	
+	public Set<String> getTemplateIds()
+	{
+		return new HashSet<>(templateKeys);
 	}
 	
 	private NotificationTemplate loadTemplate(String id) throws WrongArgumentException

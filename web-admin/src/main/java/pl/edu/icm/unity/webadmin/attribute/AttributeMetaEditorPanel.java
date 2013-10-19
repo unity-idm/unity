@@ -14,6 +14,7 @@ import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.MapComboBox;
+import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;

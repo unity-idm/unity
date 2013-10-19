@@ -6,5 +6,23 @@ package pl.edu.icm.unity.webui.common;
 
 public class FormValidationException extends Exception
 {
+	public FormValidationException()
+	{
+		super();
+	}
 
+	public FormValidationException(String message, Throwable cause)
+	{
+		super(message, cause);
+	}
+
+	public FormValidationException(String message)
+	{
+		super(message);
+	}
+
+	public FormValidationException(Throwable cause)
+	{
+		super(cause);
+	}
 }

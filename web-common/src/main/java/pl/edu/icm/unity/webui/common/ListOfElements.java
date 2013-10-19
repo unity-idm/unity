@@ -60,6 +60,12 @@ public class ListOfElements<T> extends VerticalLayout
 		removeComponent(entry);
 	}
 	
+	public void clearContents()
+	{
+		components.clear();
+		removeAllComponents();
+	}
+	
 	public List<T> getElements()
 	{
 		List<T> ret = new ArrayList<>(components.size());
