@@ -184,7 +184,8 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 				ret.setIdentityParams(r);
 			}
 			n = root.get("InitialEntityState");
-			ret.setInitialEntityState(n == null ? EntityState.valid : EntityState.valueOf(n.asText()));
+			ret.setInitialEntityState((n == null || n.isNull()) ? 
+					EntityState.valid : EntityState.valueOf(n.asText()));
 			
 			n = root.get("Name");
 			ret.setName(n.asText());
@@ -201,7 +202,7 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 			n = root.get("PubliclyAvailable");
 			ret.setPubliclyAvailable(n.asBoolean());
 			n = root.get("RegistrationCode");
-			ret.setRegistrationCode(n == null ? null : n.asText());
+			ret.setRegistrationCode((n == null || n.isNull()) ? null : n.asText());
 			
 			return ret;
 		} catch (Exception e)

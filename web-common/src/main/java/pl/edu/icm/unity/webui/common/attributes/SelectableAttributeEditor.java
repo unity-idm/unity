@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common.attributes;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -61,7 +62,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Attribute<?> getAttribute() throws FormValidationException
 	{
-		List<?> values = valuesComponent.getElements();
+		List<?> values = valuesComponent == null ? new ArrayList<>(0) : valuesComponent.getElements();
 		AttributeType at = attributeSel.getSelectedValue();
 		String group;
 		if (attributeTypes.size() > 0)
@@ -84,7 +85,8 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 			public void valueChange(ValueChangeEvent event)
 			{
 				AttributeType selected = attributeSel.getSelectedValue();
-				valuesPanel.setContent(getValuesPart(selected));
+				valuesComponent = getValuesPart(selected);
+				valuesPanel.setContent(valuesComponent);
 			}
 		});
 		attributeSel.setImmediate(true);
@@ -107,7 +109,10 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 		main.addComponent(valuesPanel);
 		setCompositionRoot(main);
 		if (attributeTypes.size() > 0)
-			valuesPanel.setContent(getValuesPart(attributeSel.getSelectedValue()));
+		{
+			valuesComponent = getValuesPart(attributeSel.getSelectedValue());
+			valuesPanel.setContent(valuesComponent);
+		}
 	}
 
 }

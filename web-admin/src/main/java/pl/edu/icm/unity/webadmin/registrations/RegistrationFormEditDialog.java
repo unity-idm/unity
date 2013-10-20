@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.webadmin.registrations;
 
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
@@ -22,7 +21,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  */
 public class RegistrationFormEditDialog extends AbstractDialog
 {
-	private CheckBox ignoreRequests;
+
 	private RegistrationFormEditor editor;
 	private Callback callback;
 	
@@ -43,10 +42,6 @@ public class RegistrationFormEditDialog extends AbstractDialog
 		vl.addComponent(editor);
 		vl.setComponentAlignment(editor, Alignment.TOP_LEFT);
 		vl.setHeight(100, Unit.PERCENTAGE);
-		
-		ignoreRequests = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreRequests"));
-		if (editor.isEdit())
-			vl.addComponent(ignoreRequests);
 		return vl;
 	}
 
@@ -56,7 +51,7 @@ public class RegistrationFormEditDialog extends AbstractDialog
 		try
 		{
 			RegistrationForm form = editor.getForm();
-			if (callback.newForm(form, ignoreRequests.getValue()))
+			if (callback.newForm(form, editor.isIgnoreRequests()))
 				close();
 		} catch (FormValidationException e) 
 		{

@@ -69,8 +69,9 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 			addEntry(null, null);
 	}
 	
-	public void addEntries(Collection<T> values)
+	public void setEntries(Collection<T> values)
 	{
+		clearContents();
 		for (T value: values)
 			addEntry(value, null);
 	}

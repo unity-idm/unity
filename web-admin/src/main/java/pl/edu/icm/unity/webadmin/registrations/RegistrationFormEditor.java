@@ -81,6 +81,7 @@ public class RegistrationFormEditor extends VerticalLayout
 	private boolean editMode;
 	
 	private TabSheet tabs;
+	private CheckBox ignoreRequests;
 	
 	private AbstractTextField name;
 	private DescriptionTextArea description;
@@ -145,17 +146,25 @@ public class RegistrationFormEditor extends VerticalLayout
 	{
 		setWidth(100, Unit.PERCENTAGE);
 		setHeight(100, Unit.PERCENTAGE);
+		setSpacing(true);
 		tabs = new TabSheet();
 		initMainTab(toEdit);
 		initCollectedTab(toEdit);
 		initAssignedTab(toEdit);
+		ignoreRequests = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreRequests"));
+		if (editMode)
+		{
+			addComponent(ignoreRequests);
+			setComponentAlignment(ignoreRequests, Alignment.TOP_RIGHT);
+		}
 		addComponent(tabs);
 		setComponentAlignment(tabs, Alignment.TOP_LEFT);
+		setExpandRatio(tabs, 1);
 	}
 	
-	public boolean isEdit()
+	public boolean isIgnoreRequests()
 	{
-		return editMode;
+		return ignoreRequests.getValue();
 	}
 	
 	public RegistrationForm getForm() throws FormValidationException
@@ -284,14 +293,17 @@ public class RegistrationFormEditor extends VerticalLayout
 		if (toEdit != null)
 		{
 			formInformation.setValue(toEdit.getFormInformation());
-			registrationCode.setValue(toEdit.getRegistrationCode());
+			if (toEdit.getRegistrationCode() != null)
+				registrationCode.setValue(toEdit.getRegistrationCode());
 			collectComments.setValue(toEdit.isCollectComments());
 			List<AgreementRegistrationParam> agreementsP = toEdit.getAgreements();
 			if (agreementsP != null)
-				agreements.addEntries(agreementsP);
-			
-			identityParams.addEntries(toEdit.getIdentityParams());
-			attributeParams.addEntries(toEdit.getAttributeParams());
+				agreements.setEntries(agreementsP);
+			agreements.setEntries(toEdit.getAgreements());
+			identityParams.setEntries(toEdit.getIdentityParams());
+			attributeParams.setEntries(toEdit.getAttributeParams());
+			groupParams.setEntries(toEdit.getGroupParams());
+			credentialParams.setEntries(toEdit.getCredentialParams());
 		}
 	}
 	
@@ -328,6 +340,9 @@ public class RegistrationFormEditor extends VerticalLayout
 		{
 			credentialRequirementAssignment.setValue(toEdit.getCredentialRequirementAssignment());
 			initialState.setEnumValue(toEdit.getInitialEntityState());
+			attributeAssignments.setEntries(toEdit.getAttributeAssignments());
+			groupAssignments.setEntries(toEdit.getGroupAssignments());
+			attributeClassAssignments.setEntries(toEdit.getAttributeClassAssignments());
 		}
 	}
 	

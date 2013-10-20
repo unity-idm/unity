@@ -81,7 +81,6 @@ public class RegistrationFormsComponent extends VerticalLayout
 		this.attrHandlerRegistry = attrHandlerRegistry;
 		
 		HorizontalLayout hl = new HorizontalLayout();
-		
 		setCaption(msg.getMessage("RegistrationFormsComponent.caption"));
 		table = new GenericElementsTable<RegistrationForm>(msg.getMessage("RegistrationFormsComponent.formsTable"), 
 				RegistrationForm.class, new GenericElementsTable.NameProvider<RegistrationForm>()
@@ -94,7 +93,8 @@ public class RegistrationFormsComponent extends VerticalLayout
 				});
 		table.setWidth(90, Unit.PERCENTAGE);
 		hl.addComponent(table);
-		viewer = new RegistrationFormViewer(msg, attrHandlersRegistry);
+		viewer = new RegistrationFormViewer(msg, attrHandlersRegistry, serverCfg.getTemplatesStore());
+		viewer.setInput(null);
 		hl.addComponent(viewer);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
@@ -120,6 +120,8 @@ public class RegistrationFormsComponent extends VerticalLayout
 		hl.setSpacing(true);
 		hl.setMargin(new MarginInfo(true, false, true, false));
 		main = hl;
+		hl.setExpandRatio(table, 0.3f);
+		hl.setExpandRatio(viewer, 0.7f);
 		refresh();
 	}
 	

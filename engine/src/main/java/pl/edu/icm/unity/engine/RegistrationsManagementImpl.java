@@ -561,12 +561,17 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		Map<String, AttributeType> atMap = dbAttributes.getAttributeTypes(sql);
 		if (form.getAttributeAssignments() != null)
 		{
+			Set<String> used = new HashSet<>();
 			for (Attribute<?> attr: form.getAttributeAssignments())
 			{
 				AttributeType at = atMap.get(attr.getName());
 				if (at == null)
 					throw new WrongArgumentException("Attribute type " + attr.getName() + 
 							" does not exist");
+				if (used.contains(at.getName()))
+					throw new WrongArgumentException("Assigned attribute " + at.getName() + 
+							" was specified more then once.");
+				used.add(at.getName());
 				AttributeValueChecker.validate(attr, at);
 				groupsResolver.resolveGroup(attr.getGroupPath(), gm);
 			}
@@ -574,11 +579,16 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 
 		if (form.getAttributeParams() != null)
 		{
+			Set<String> used = new HashSet<>();
 			for (AttributeRegistrationParam attr: form.getAttributeParams())
 			{
 				if (!atMap.containsKey(attr.getAttributeType()))
 					throw new WrongArgumentException("Attribute type " + attr.getAttributeType() + 
 							" does not exist");
+				if (used.contains(attr.getAttributeType()))
+					throw new WrongArgumentException("Collected attribute " + attr.getAttributeType() + 
+							" was specified more then once.");
+				used.add(attr.getAttributeType());
 				groupsResolver.resolveGroup(attr.getGroup(), gm);
 			}
 		}
@@ -587,7 +597,12 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		{
 			Set<String> acs = new HashSet<>();
 			for (AttributeClassAssignment ac: form.getAttributeClassAssignments())
+			{
+				if (acs.contains(ac.getAcName()))
+					throw new WrongArgumentException("Assigned attribute class " + 
+							ac.getAcName() + " was specified more then once.");
 				acs.add(ac.getAcName());
+			}
 			acDB.assertExist(acs, sql);
 		}
 
@@ -595,7 +610,12 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		{
 			Set<String> creds = new HashSet<>();
 			for (CredentialRegistrationParam cred: form.getCredentialParams())
+			{
+				if (creds.contains(cred.getCredentialName()))
+					throw new WrongArgumentException("Collected credential " + 
+							cred.getCredentialName() + " was specified more then once.");
 				creds.add(cred.getCredentialName());
+			}
 			credentialDB.assertExist(creds, sql);
 		}
 
@@ -607,17 +627,27 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 
 		if (form.getGroupAssignments() != null)
 		{
+			Set<String> used = new HashSet<>();
 			for (String group: form.getGroupAssignments())
 			{
 				groupsResolver.resolveGroup(group, gm);
+				if (used.contains(group))
+					throw new WrongArgumentException("Assigned group " + group + 
+							" was specified more then once.");
+				used.add(group);
 			}
 		}
 
 		if (form.getGroupParams() != null)
 		{
+			Set<String> used = new HashSet<>();
 			for (GroupRegistrationParam group: form.getGroupParams())
 			{
 				groupsResolver.resolveGroup(group.getGroupPath(), gm);
+				if (used.contains(group.getGroupPath()))
+					throw new WrongArgumentException("Selectable group " + group.getGroupPath() + 
+							" was specified more then once.");
+				used.add(group.getGroupPath());
 			}
 		}
 

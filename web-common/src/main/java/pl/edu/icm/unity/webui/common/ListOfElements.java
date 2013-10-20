@@ -9,7 +9,9 @@ import java.util.List;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -74,7 +76,7 @@ public class ListOfElements<T> extends VerticalLayout
 		return ret;
 	}
 	
-	private class Entry extends HorizontalLayout
+	private class Entry extends CustomComponent
 	{
 		private T element;
 		private Label label;
@@ -83,6 +85,8 @@ public class ListOfElements<T> extends VerticalLayout
 		
 		public Entry(T elementV)
 		{
+			HorizontalLayout cont = new HorizontalLayout();
+			
 			this.element = elementV;
 			setSpacing(true);
 			if (editHandler != null)
@@ -101,7 +105,7 @@ public class ListOfElements<T> extends VerticalLayout
 						addComponent(labelConverter.toLabel(element));
 					}
 				});
-				addComponent(edit);
+				cont.addComponent(edit);
 			}
 			if (removeHandler != null)
 			{
@@ -119,9 +123,14 @@ public class ListOfElements<T> extends VerticalLayout
 							removeEntry(Entry.this);
 					}
 				});
-				addComponent(remove);
+				cont.addComponent(remove);
 			}
-			addComponent(labelConverter.toLabel(element));
+			cont.addComponent(labelConverter.toLabel(element));
+			Label line = new Label("<hr>", ContentMode.HTML);
+			VerticalLayout main = new VerticalLayout(cont, line);
+			main.setSpacing(true);
+			setCompositionRoot(main);
+			
 		}
 		
 		public T getElement()

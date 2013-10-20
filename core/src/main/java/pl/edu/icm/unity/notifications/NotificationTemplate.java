@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.notifications;
 
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -43,6 +44,16 @@ public class NotificationTemplate
 	public String getSubject(Map<String, String> params)
 	{
 		return getMsg(subjectTemplatesByLocale, params);
+	}
+
+	public String getRawBody()
+	{
+		return getMsg(bodyTemplatesByLocale, new HashMap<String, String>(0));
+	}
+
+	public String getRawSubject()
+	{
+		return getMsg(subjectTemplatesByLocale, new HashMap<String, String>(0));
 	}
 	
 	private String getMsg(Map<Locale, String> templatesByLocale, Map<String, String> params)
