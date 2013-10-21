@@ -38,6 +38,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 	private static final long serialVersionUID = 1L;
 
 	private ContentsManagementTab contentsManagement;
+	private RegistrationsManagementTab registrationsManagement;
 	private SchemaManagementTab schemaManagement;
 	private ServerManagementTab serverManagement;
 	private UserAccountComponent userAccount;
@@ -47,7 +48,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 	
 	@Autowired
 	public WebAdminUI(UnityMessageSource msg, ContentsManagementTab contentsManagement,
-			SchemaManagementTab schemaManagement,
+			SchemaManagementTab schemaManagement, RegistrationsManagementTab registrationsManagement,
 			UserAccountComponent userAccount, ServerManagementTab serverManagement)
 	{
 		super(msg);
@@ -55,6 +56,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 		this.schemaManagement = schemaManagement;
 		this.userAccount = userAccount;
 		this.serverManagement = serverManagement;
+		this.registrationsManagement = registrationsManagement;
 	}
 	
 	@Override
@@ -101,6 +103,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 	{
 		tabPanel = new MainTabPanel();		
 		tabPanel.addTab(contentsManagement);
+		tabPanel.addTab(registrationsManagement);
 		tabPanel.addTab(schemaManagement);
 		tabPanel.addTab(serverManagement);
 		tabPanel.setSizeFull();

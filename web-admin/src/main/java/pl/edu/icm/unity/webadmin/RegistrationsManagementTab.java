@@ -10,42 +10,36 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webadmin.attributeclass.AttributesClassesComponent;
-import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesComponent;
-import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionsComponent;
-import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementsComponent;
+import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormsComponent;
 
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
- * Tab containing management views for the data schema definition as attribute types, attribute classes
- * or identity types.
+ * Tab containing management views for the management of registrations: forms, requests and form filling.
  * 
  * @author K. Benedyczak
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class SchemaManagementTab  extends VerticalLayout
+public class RegistrationsManagementTab  extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private MainTabPanel tabs;
 
 	@Autowired
-	public SchemaManagementTab(UnityMessageSource msg, AttributeTypesComponent attributeTypes,
-			CredentialDefinitionsComponent cdComponent, CredentialRequirementsComponent crComponent,
-			AttributesClassesComponent acComponent)
+	public RegistrationsManagementTab(UnityMessageSource msg, RegistrationFormsComponent regComponent)
 	{
 		super();
 		this.msg = msg;
-		this.tabs = new MainTabPanel(attributeTypes, acComponent, cdComponent, crComponent);
+		this.tabs = new MainTabPanel(regComponent);
 		this.tabs.setStyleName(Reindeer.TABSHEET_MINIMAL);
 		initUI();
 	}
 
 	private void initUI()
 	{
-		setCaption(msg.getMessage("SchemaManagementTab.caption"));
+		setCaption(msg.getMessage("RegistrationsManagementTab.caption"));
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setMargin(true);
 		wrapper.addComponent(tabs);
@@ -53,5 +47,4 @@ public class SchemaManagementTab  extends VerticalLayout
 		addComponent(wrapper);
 		setSizeFull();
 	}
-
 }

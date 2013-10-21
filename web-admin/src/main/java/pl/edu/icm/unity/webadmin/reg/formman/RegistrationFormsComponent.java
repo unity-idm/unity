@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.registrations;
+package pl.edu.icm.unity.webadmin.reg.formman;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.webadmin.registrations.RegistrationFormEditDialog.Callback;
+import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditDialog.Callback;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;

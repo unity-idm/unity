@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.registrations;
+package pl.edu.icm.unity.webadmin.reg.formman;
 
 import java.util.ArrayList;
 import java.util.Collection;

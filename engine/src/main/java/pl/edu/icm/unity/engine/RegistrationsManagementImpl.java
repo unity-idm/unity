@@ -63,6 +63,7 @@ import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
+import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
@@ -568,10 +569,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				if (at == null)
 					throw new WrongArgumentException("Attribute type " + attr.getName() + 
 							" does not exist");
-				if (used.contains(at.getName()))
-					throw new WrongArgumentException("Assigned attribute " + at.getName() + 
+				String key = at.getName() + " @ " + attr.getGroupPath();
+				if (used.contains(key))
+					throw new WrongArgumentException("Assigned attribute " + key + 
 							" was specified more then once.");
-				used.add(at.getName());
+				used.add(key);
 				AttributeValueChecker.validate(attr, at);
 				groupsResolver.resolveGroup(attr.getGroupPath(), gm);
 			}
@@ -585,10 +587,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				if (!atMap.containsKey(attr.getAttributeType()))
 					throw new WrongArgumentException("Attribute type " + attr.getAttributeType() + 
 							" does not exist");
-				if (used.contains(attr.getAttributeType()))
-					throw new WrongArgumentException("Collected attribute " + attr.getAttributeType() + 
+				String key = attr.getAttributeType() + " @ " + attr.getGroup();
+				if (used.contains(key))
+					throw new WrongArgumentException("Collected attribute " + key + 
 							" was specified more then once.");
-				used.add(attr.getAttributeType());
+				used.add(key);
 				groupsResolver.resolveGroup(attr.getGroup(), gm);
 			}
 		}
@@ -653,9 +656,19 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 
 		if (form.getIdentityParams() != null)
 		{
+			Set<String> usedRemote = new HashSet<>();
 			for (IdentityRegistrationParam id: form.getIdentityParams())
 			{
 				identityTypesRegistry.getByName(id.getIdentityType());
+				if (id.getRetrievalSettings() == ParameterRetrievalSettings.automatic || 
+						id.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
+				{
+					if (usedRemote.contains(id.getIdentityType()))
+						throw new WrongArgumentException("There can be only one identity " +
+								"collected automatically of each type. There are more " +
+								"then one of type " + id.getIdentityType());
+					usedRemote.add(id.getIdentityType());
+				}
 			}
 		}
 		

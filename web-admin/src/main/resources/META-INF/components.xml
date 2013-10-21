@@ -18,6 +18,7 @@
 	<bean scope="prototype" id="WebAdminUI" class="pl.edu.icm.unity.webadmin.WebAdminUI"/>
 
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.ContentsManagementTab"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.RegistrationsManagementTab"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.SchemaManagementTab"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.ServerManagementTab"/>
 	
@@ -33,7 +34,7 @@
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionsComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.attributeclass.AttributesClassesComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.serverman.ImportExportComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.registrations.RegistrationFormsComponent"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormsComponent"/>
 	
 	<bean class="pl.edu.icm.unity.webadmin.attrstmt.StatementHandlersRegistry"/>
 	<bean class="pl.edu.icm.unity.webadmin.attrstmt.EverybodyStatementHandler"/>
