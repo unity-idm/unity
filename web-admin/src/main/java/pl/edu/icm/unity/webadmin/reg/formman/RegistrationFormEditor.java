@@ -30,6 +30,7 @@ import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -399,7 +400,11 @@ public class RegistrationFormEditor extends VerticalLayout
 		{
 			identityType = new NotNullComboBox(msg.getMessage("RegistrationFormViewer.paramIdentity"));
 			for (IdentityType it: identityTypes)
+			{
+				if (PersistentIdentity.ID.equals(it.getIdentityTypeProvider().getId()))
+					continue;
 				identityType.addItem(it.getIdentityTypeProvider().getId());
+			}
 			main.addComponent(identityType);
 			if (value != null)
 				identityType.setValue(value.getIdentityType());

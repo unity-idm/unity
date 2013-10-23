@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.server.authn;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -17,9 +18,9 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
  */
 public class RemotelyAuthenticatedContext
 {
-	private Collection<IdentityTaV> identities;
-	private Collection<Attribute<?>> attributes;
-	private Collection<String> groups;
+	private Collection<IdentityTaV> identities = new ArrayList<>();
+	private Collection<Attribute<?>> attributes = new ArrayList<>();
+	private Collection<String> groups = new ArrayList<>();
 
 	public Collection<IdentityTaV> getIdentities()
 	{

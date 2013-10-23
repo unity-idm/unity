@@ -35,6 +35,7 @@
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.attributeclass.AttributesClassesComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.serverman.ImportExportComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormsComponent"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formfill.RegistrationRequestsComponent"/>
 	
 	<bean class="pl.edu.icm.unity.webadmin.attrstmt.StatementHandlersRegistry"/>
 	<bean class="pl.edu.icm.unity.webadmin.attrstmt.EverybodyStatementHandler"/>

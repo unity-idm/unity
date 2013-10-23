@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.authn.RemotelyAuthenticatedContext;
@@ -19,10 +21,12 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeParamValue;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
+import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
@@ -68,6 +72,8 @@ public class RegistrationRequestEditor extends CustomComponent
 	private AttributesManagement attrsMan;
 	private AuthenticationManagement authnMan;
 	
+	private Map<String, IdentityTaV> remoteIdentitiesByType;
+	private Map<String, Attribute<?>> remoteAttributes;
 	private List<IdentityEditor> identityParamEditors;
 	private List<CredentialEditor> credentialParamEditors;
 	private List<FixedAttributeEditor> attributeEditor;
@@ -112,6 +118,7 @@ public class RegistrationRequestEditor extends CustomComponent
 	private void checkRemotelyObtainedData()
 	{
 		List<IdentityRegistrationParam> idParams = form.getIdentityParams();
+		remoteIdentitiesByType = new HashMap<>();
 		for (IdentityRegistrationParam idParam: idParams)
 		{
 			if (!idParam.isOptional() && 
@@ -123,6 +130,7 @@ public class RegistrationRequestEditor extends CustomComponent
 				for (IdentityTaV id: identities)
 					if (id.getTypeId().equals(idParam.getIdentityType()))
 					{
+						remoteIdentitiesByType.put(id.getTypeId(), id);
 						found = true;
 						break;
 					}
@@ -135,6 +143,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		}
 		
 		List<AttributeRegistrationParam> aParams = form.getAttributeParams();
+		remoteAttributes = new HashMap<>();
 		if (aParams != null)
 		{
 			for (AttributeRegistrationParam aParam: aParams)
@@ -150,6 +159,8 @@ public class RegistrationRequestEditor extends CustomComponent
 								a.getGroupPath().equals(aParam.getGroup()))
 						{
 							found = true;
+							remoteAttributes.put(a.getGroupPath()+"//"+
+									a.getName(), a);
 							break;
 						}
 					if (!found)
@@ -192,17 +203,74 @@ public class RegistrationRequestEditor extends CustomComponent
 	{
 		RegistrationRequest ret = new RegistrationRequest();
 		
+		ret.setFormId(form.getName());
+
+		List<IdentityParam> identities = new ArrayList<>();
+		int j=0;
+		for (int i=0; i<form.getIdentityParams().size(); i++)
+		{
+			IdentityRegistrationParam regParam = form.getIdentityParams().get(i);
+			String id;
+			if (regParam.getRetrievalSettings() == ParameterRetrievalSettings.interactive)
+			{
+				IdentityEditor editor = identityParamEditors.get(j++);
+				try
+				{
+					id = editor.getValue();
+				} catch (IllegalIdentityValueException e)
+				{
+					throw new FormValidationException(e);
+				}
+			} else
+			{
+				id = remoteIdentitiesByType.get(regParam.getIdentityType()).getValue();
+			}
+			IdentityParam ip = new IdentityParam(regParam.getIdentityType(), id, true);
+			identities.add(ip);
+		}
+		ret.setIdentities(identities);
+		
+		if (form.getCredentialParams() != null)
+		{
+			List<CredentialParamValue> credentials = new ArrayList<>();
+			for (int i=0; i<form.getCredentialParams().size(); i++)
+			{
+				CredentialEditor credE = credentialParamEditors.get(i);
+				try
+				{
+					String credValue = credE.getValue();
+					CredentialParamValue cp = new CredentialParamValue();
+					cp.setCredentialId(form.getCredentialParams().get(i).getCredentialName());
+					cp.setSecrets(credValue);
+				} catch (IllegalCredentialException e)
+				{
+					throw new FormValidationException(e);
+				}
+			}
+			ret.setCredentials(credentials);
+		}
 		if (form.getAttributeParams() != null)
 		{
 			List<AttributeParamValue> a = new ArrayList<>();
+			int interactiveIndex=0;
 			for (int i=0; i<form.getAttributeParams().size(); i++)
 			{
-				//TODO remote
-				FixedAttributeEditor ae = attributeEditor.get(i);
-				Attribute<?> attr = ae.getAttribute();
+				AttributeRegistrationParam aparam = form.getAttributeParams().get(i);
+				
 				AttributeParamValue ap = new AttributeParamValue();
-				ap.setAttribute(attr);
-				ap.setExternal(false);
+				if (aparam.getRetrievalSettings() == ParameterRetrievalSettings.interactive)
+				{
+					FixedAttributeEditor ae = attributeEditor.get(interactiveIndex++);
+					Attribute<?> attr = ae.getAttribute();
+					ap.setAttribute(attr);
+					ap.setExternal(false);
+				} else
+				{
+					Attribute<?> attr = remoteAttributes.get(
+							aparam.getGroup() + "//" + aparam.getAttributeType());
+					ap.setAttribute(attr);
+					ap.setExternal(true);
+				}
 				a.add(ap);
 			}
 			ret.setAttributes(a);
@@ -210,10 +278,17 @@ public class RegistrationRequestEditor extends CustomComponent
 		if (form.getGroupParams() != null)
 		{
 			List<Selection> g = new ArrayList<>();
+			int interactiveIndex=0;
 			for (int i=0; i<form.getGroupParams().size(); i++)
 			{
-				//TODO remote
-				g.add(new Selection(groupSelectors.get(i).getValue()));
+				GroupRegistrationParam gp = form.getGroupParams().get(i);
+				if (gp.getRetrievalSettings() == ParameterRetrievalSettings.interactive)
+				{
+					g.add(new Selection(groupSelectors.get(interactiveIndex++).getValue()));
+				} else
+				{
+					g.add(new Selection(remotelyAuthenticated.getGroups().contains(gp.getGroupPath())));
+				}
 			}
 			ret.setGroupSelections(g);
 		}
@@ -228,7 +303,6 @@ public class RegistrationRequestEditor extends CustomComponent
 			ret.setComments(comment.getValue());
 		if (form.getRegistrationCode() != null)
 			ret.setRegistrationCode(registrationCode.getValue());
-		//TODO 
 		return ret;
 	}
 	
@@ -288,9 +362,11 @@ public class RegistrationRequestEditor extends CustomComponent
 		
 		if (form.getRegistrationCode() != null)
 		{
-			registrationCode = new TextField(msg.getMessage("RegistrationRequest.comment"));
+			registrationCode = new TextField(msg.getMessage("RegistrationRequest.registrationCode"));
 			gl.addComponent(registrationCode, 0, 4);
 		}
+		
+		setCompositionRoot(gl);
 	}
 	
 	private Component createIdentityUI()
@@ -298,6 +374,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		VerticalLayout vl = new VerticalLayout();
 		vl.setSpacing(true);
 		List<IdentityRegistrationParam> idParams = form.getIdentityParams();
+		identityParamEditors = new ArrayList<>();
 		for (int i=0; i<idParams.size(); i++)
 		{
 			IdentityRegistrationParam idParam = idParams.get(i);
@@ -313,7 +390,6 @@ public class RegistrationRequestEditor extends CustomComponent
 				editorUI.setCaption(idParam.getIdentityType());
 			//TODO
 			//if (idParam.getDescription() != null)
-			
 			//TODO idPram.isOptional()
 			
 			if (i < idParams.size() - 1)
@@ -330,7 +406,8 @@ public class RegistrationRequestEditor extends CustomComponent
 		Map<String, CredentialDefinition> credentials = new HashMap<String, CredentialDefinition>();
 		for (CredentialDefinition credential: allCreds)
 			credentials.put(credential.getName(), credential);
-
+		
+		credentialParamEditors = new ArrayList<>();
 		List<CredentialRegistrationParam> credParams = form.getCredentialParams();
 		for (int i=0; i<credParams.size(); i++)
 		{
@@ -359,6 +436,7 @@ public class RegistrationRequestEditor extends CustomComponent
 
 		Map<String, AttributeType> atTypes = attrsMan.getAttributeTypesAsMap();
 		List<AttributeRegistrationParam> attributeParams = form.getAttributeParams();
+		attributeEditor = new ArrayList<>();
 		for (int i=0; i<attributeParams.size(); i++)
 		{
 			AttributeRegistrationParam aParam = attributeParams.get(i);
@@ -384,6 +462,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		VerticalLayout vl = new VerticalLayout();
 		vl.setSpacing(true);
 		List<GroupRegistrationParam> groupParams = form.getGroupParams();
+		groupSelectors = new ArrayList<>();
 		for (int i=0; i<groupParams.size(); i++)
 		{
 			GroupRegistrationParam gParam = groupParams.get(i);
@@ -406,6 +485,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		VerticalLayout vl = new VerticalLayout();
 		vl.setSpacing(true);
 		List<AgreementRegistrationParam> aParams = form.getAgreements();
+		agreementSelectors = new ArrayList<>();
 		for (int i=0; i<aParams.size(); i++)
 		{
 			AgreementRegistrationParam aParam = aParams.get(i);
