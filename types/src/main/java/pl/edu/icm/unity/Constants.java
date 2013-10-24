@@ -9,7 +9,7 @@ import java.nio.charset.Charset;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Various useful appliactaion wide constatnts
+ * Various useful application wide constants
  * @author K. Benedyczak
  */
 public class Constants
