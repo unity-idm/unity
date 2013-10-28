@@ -43,13 +43,15 @@ public class GroupComboBox extends ComboBox
 		setNullSelectionAllowed(false);
 	}
 
-	public void setInput(String rootGroup, boolean recursive)
+	public void setInput(String rootGroup, boolean recursive, boolean inclusive)
 	{
 		removeAllItems();
 		if (groupsMan != null)
 		{
 			fixedGroups = new ArrayList<String>();
 			getGroups(rootGroup, recursive, fixedGroups);
+			if (inclusive)
+				fixedGroups.add(rootGroup);
 		}
 		Collections.sort(fixedGroups);
 		for (String group: fixedGroups)

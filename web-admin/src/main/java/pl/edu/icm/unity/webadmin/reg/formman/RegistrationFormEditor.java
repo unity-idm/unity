@@ -231,7 +231,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		adminsNotificationGroup = new GroupComboBox(
 				msg.getMessage("RegistrationFormViewer.adminsNotificationsGroup"), groupsMan);
 		adminsNotificationGroup.setNullSelectionAllowed(true);
-		adminsNotificationGroup.setInput("/", true);
+		adminsNotificationGroup.setInput("/", true, true);
 		this.groups = adminsNotificationGroup.getGroups();
 		
 		submittedTemplate = new ComboBox(msg.getMessage("RegistrationFormViewer.submittedTemplate"));
@@ -365,6 +365,7 @@ public class RegistrationFormEditor extends VerticalLayout
 			FormLayout ret = new FormLayout();
 			required = new CheckBox(msg.getMessage("RegistrationFormEditor.mandatory"));
 			text = new TextArea(msg.getMessage("RegistrationFormViewer.agreement"));
+			text.setWidth(100, Unit.PERCENTAGE);
 			ret.addComponents(text, required);
 			if (value != null)
 			{
@@ -442,7 +443,7 @@ public class RegistrationFormEditor extends VerticalLayout
 			attributeType = new AttributeSelectionComboBox(
 					msg.getMessage("RegistrationFormViewer.paramAttribute"), attributeTypes);
 			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramAttributeGroup"), groups);
-			group.setInput("/", true);
+			group.setInput("/", true, true);
 			showGroups = new CheckBox(msg.getMessage("RegistrationFormViewer.paramShowGroup"));
 			useDescription = new CheckBox(msg.getMessage("RegistrationFormViewer.paramUseDescription"));
 			
@@ -488,7 +489,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		public Component getEditorComponent(GroupRegistrationParam value)
 		{
 			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramGroup"), groups);
-			group.setInput("/", true);
+			group.setInput("/", true, true);
 			if (value != null)
 				group.setValue(value.getGroupPath());
 			main.addComponent(group);
@@ -607,7 +608,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		{
 			FormLayout main = new FormLayout();
 			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramGroup"), groups);
-			group.setInput("/", true);
+			group.setInput("/", true, true);
 			if (value != null)
 				group.setValue(value);
 			main.addComponent(group);
@@ -638,7 +639,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		{
 			FormLayout main = new FormLayout();
 			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramGroup"), groups);
-			group.setInput("/", true);
+			group.setInput("/", true, true);
 			
 			ac = new NotNullComboBox(msg.getMessage("RegistrationFormViewer.assignedAC")); 
 			for (String a: attributeClasses)

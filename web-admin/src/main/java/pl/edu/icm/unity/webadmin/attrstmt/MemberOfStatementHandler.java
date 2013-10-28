@@ -71,7 +71,7 @@ public class MemberOfStatementHandler implements AttributeStatementWebHandlerFac
 			addAssignedAttributeField();
 			conditionAnyGroup = new GroupComboBox(msg.getMessage("AttributeStatementEditDialog.group"), 
 					groupsMan);
-			conditionAnyGroup.setInput("/", true);
+			conditionAnyGroup.setInput("/", true, false);
 			main.addComponent(conditionAnyGroup);
 		}
 

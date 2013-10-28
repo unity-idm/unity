@@ -94,7 +94,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 		if (allowedGroups.size() > 1)
 		{
 			groupSel = new GroupComboBox(msg.getMessage("Attributes.group"), allowedGroups);
-			groupSel.setInput("/", true);
+			groupSel.setInput("/", true, true);
 			top.addComponent(groupSel);
 		}
 		if (showVisibilityWidget)
