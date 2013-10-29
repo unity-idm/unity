@@ -179,16 +179,18 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			vl.addComponent(field);
 			
 			upload = new Upload();
-			ImageUploader uploader = new ImageUploader(field, syntax); 
+			progressIndicator = new ProgressIndicator(0);
+			progressIndicator.setVisible(false);
+			progressIndicator.setPollingInterval(2000);
+			
+			ImageUploader uploader = new ImageUploader(field, syntax, progressIndicator); 
 			upload.setReceiver(uploader);
 			upload.addSucceededListener(uploader);
 			upload.addStartedListener(uploader);
 			upload.addProgressListener(uploader);
 			upload.setWidth(100, Unit.PERCENTAGE);
 			vl.addComponent(upload);
-			progressIndicator = new ProgressIndicator(0);
-			progressIndicator.setVisible(false);
-			progressIndicator.setPollingInterval(2000);
+
 			vl.addComponent(progressIndicator);
 			scale = new CheckBox(msg.getMessage("JpegAttributeHandler.scaleIfNeeded"));
 			scale.setValue(true);
@@ -225,9 +227,9 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			private LimitedOuputStream fos;
 			private JpegImageAttributeSyntax syntax;
 			
-			public ImageUploader(Image image, JpegImageAttributeSyntax syntax)
+			public ImageUploader(Image image, JpegImageAttributeSyntax syntax, ProgressIndicator progress)
 			{
-				super(upload, progressIndicator);
+				super(upload, progress);
 				this.image = image;
 				this.syntax = syntax;
 			}

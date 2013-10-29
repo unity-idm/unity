@@ -138,11 +138,15 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 	{
 		private Button add;
 		private Button remove;
+		private Label hr;
 		private Editor<T> editor;
 		
 		public Entry(T elementV)
 		{
 			setSpacing(true);
+
+			hr = new Label("<hr>", ContentMode.HTML);
+			addComponent(hr);
 			
 			editor = editorProvider.getEditor();
 			Component c = editor.getEditorComponent(elementV);
@@ -178,7 +182,6 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 			hl.addComponents(add, remove);
 			
 			addComponent(hl);
-			addComponent(new Label("<hr>", ContentMode.HTML));
 		}
 		
 		public T getElement() throws FormValidationException
@@ -188,6 +191,7 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 		
 		public void refreshButtons()
 		{
+			hr.setVisible(ListOfEmbeddedElements.this.components.get(0) != this);
 			remove.setVisible(ListOfEmbeddedElements.this.components.size() > min);
 			add.setVisible(ListOfEmbeddedElements.this.components.size() < max);
 		}

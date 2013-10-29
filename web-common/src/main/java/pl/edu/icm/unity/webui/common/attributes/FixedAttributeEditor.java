@@ -60,8 +60,9 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 			caption = attributeType.getName();
 		if (description == null)
 			description = attributeType.getDescription();
-		main.setCaption(caption);
-		main.setDescription(description);
+		main.setSpacing(true);
+		setCaption(caption);
+		setDescription(description);
 		
 		if (showGroup)
 		{

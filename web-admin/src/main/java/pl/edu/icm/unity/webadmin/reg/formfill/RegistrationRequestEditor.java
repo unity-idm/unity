@@ -46,12 +46,13 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 import eu.unicore.security.AuthenticationException;
 
@@ -308,65 +309,77 @@ public class RegistrationRequestEditor extends CustomComponent
 	
 	private void initUI() throws EngineException
 	{
-		GridLayout gl = new GridLayout(2, 5);
-		gl.setSpacing(true);
+		VerticalLayout main = new VerticalLayout();
+		main.setSpacing(true);
+		main.setWidth(80, Unit.PERCENTAGE);
 		
-		Label formName = new Label(msg.getMessage("RegistrationRequest.formName", form.getName()));
-		gl.addComponent(formName, 0, 0);
+		Label formName = new Label(form.getName());
+		formName.addStyleName(Reindeer.LABEL_H1);
+		main.addComponent(formName);
 		
 		String info = form.getFormInformation() == null ? "" : form.getFormInformation();
 		Label formInformation = new Label(info, ContentMode.HTML);
-		gl.addComponent(formInformation, 1, 0);
+		main.addComponent(formInformation);
+
+		if (form.getRegistrationCode() != null)
+		{
+			FormLayout wrap = new FormLayout();
+			registrationCode = new TextField(msg.getMessage("RegistrationRequest.registrationCode"));
+			wrap.addComponent(registrationCode);
+			main.addComponent(wrap);
+		}
 		
 		Panel identityP = new Panel(msg.getMessage("RegistrationRequest.identities"));
-		gl.addComponent(identityP, 0, 1);
+		identityP.setStyleName(Reindeer.PANEL_LIGHT);
 		identityP.setContent(createIdentityUI());
+		main.addComponent(identityP);
 
 		if (form.getCredentialParams() != null && form.getCredentialParams().size() > 0)
 		{
 			Panel credentialP = new Panel(msg.getMessage("RegistrationRequest.credentials"));
-			gl.addComponent(credentialP, 1, 1);
+			credentialP.setStyleName(Reindeer.PANEL_LIGHT);
 			credentialP.setContent(createCredentialsUI());
+			main.addComponent(credentialP);
 		}
 		
-		int col = 0;
 		if (form.getAttributeParams() != null && form.getAttributeParams().size() > 0)
 		{
 			Panel attributeP = new Panel(msg.getMessage("RegistrationRequest.attributes"));
-			gl.addComponent(attributeP, col, 2);
+			attributeP.setStyleName(Reindeer.PANEL_LIGHT);
+			main.addComponent(attributeP);
 			attributeP.setContent(createAttributesUI());
-			col++;
 		}
 		
 		if (form.getGroupParams() != null && form.getGroupParams().size() > 0)
 		{
 			Panel groupP = new Panel(msg.getMessage("RegistrationRequest.groups"));
-			gl.addComponent(groupP, col, 2);
+			groupP.setStyleName(Reindeer.PANEL_LIGHT);
+			main.addComponent(groupP);
 			groupP.setContent(createGroupsUI());
-		}
-		
-		col = 0;
-		if (form.getAgreements() != null && form.getAgreements().size() > 0)
-		{
-			Panel agreementsP = new Panel(msg.getMessage("RegistrationRequest.agreements"));
-			gl.addComponent(agreementsP, col, 3);
-			agreementsP.setContent(createAgreementsUI());
-			col++;
+			main.addComponent(new Label("<br>", ContentMode.HTML));
 		}
 		
 		if (form.isCollectComments())
 		{
-			comment = new TextArea(msg.getMessage("RegistrationRequest.comment"));
-			gl.addComponent(comment, col, 3);
+			Panel commentsP = new Panel(msg.getMessage("RegistrationRequest.comment"));
+			commentsP.setStyleName(Reindeer.PANEL_LIGHT);
+			comment = new TextArea();
+			comment.setWidth(80, Unit.PERCENTAGE);
+			commentsP.setContent(comment);
+			main.addComponent(commentsP);
+			main.addComponent(new Label("<br>", ContentMode.HTML));
 		}
-		
-		if (form.getRegistrationCode() != null)
+
+		if (form.getAgreements() != null && form.getAgreements().size() > 0)
 		{
-			registrationCode = new TextField(msg.getMessage("RegistrationRequest.registrationCode"));
-			gl.addComponent(registrationCode, 0, 4);
+			Panel agreementsP = new Panel(msg.getMessage("RegistrationRequest.agreements"));
+			agreementsP.setStyleName(Reindeer.PANEL_LIGHT);
+			main.addComponent(agreementsP);
+			agreementsP.setContent(createAgreementsUI());
+			main.addComponent(new Label("<br>", ContentMode.HTML));
 		}
 		
-		setCompositionRoot(gl);
+		setCompositionRoot(main);
 	}
 	
 	private Component createIdentityUI()
@@ -384,10 +397,11 @@ public class RegistrationRequestEditor extends CustomComponent
 			identityParamEditors.add(editor);
 			Component editorUI = editor.getEditor();
 			vl.addComponent(editorUI);
-			if (idParam.getLabel() != null)
-				editorUI.setCaption(idParam.getLabel());
-			else
-				editorUI.setCaption(idParam.getIdentityType());
+			//TODO - pass label somehow?
+//			if (idParam.getLabel() != null)
+//				editorUI.setCaption(idParam.getLabel());
+//			else
+//				editorUI.setCaption(idParam.getIdentityType());
 			//TODO
 			//if (idParam.getDescription() != null)
 			//TODO idPram.isOptional()
@@ -444,9 +458,10 @@ public class RegistrationRequestEditor extends CustomComponent
 				continue;
 			AttributeType at = atTypes.get(aParam.getAttributeType());
 			String description = aParam.isUseDescription() ? at.getDescription() : aParam.getDescription();
+			String aName = isEmpty(aParam.getLabel()) ? aParam.getAttributeType() : aParam.getLabel();
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
 					at, aParam.isShowGroups(), aParam.getGroup(), AttributeVisibility.full, 
-					aParam.getLabel(), description);
+					aName, description);
 			attributeEditor.add(editor);
 			//TODO aPram.isOptional()
 			vl.addComponent(editor);
@@ -469,13 +484,11 @@ public class RegistrationRequestEditor extends CustomComponent
 			if (gParam.getRetrievalSettings() != ParameterRetrievalSettings.interactive)
 				continue;
 			CheckBox cb = new CheckBox();
-			cb.setCaption(gParam.getLabel() == null ? gParam.getGroupPath() : gParam.getLabel());
+			cb.setCaption(isEmpty(gParam.getLabel()) ? gParam.getGroupPath() : gParam.getLabel());
 			if (gParam.getDescription() != null)
 				cb.setDescription(gParam.getDescription());
 			groupSelectors.add(cb);
 			vl.addComponent(cb);
-			if (i < groupParams.size() - 1)
-				vl.addComponent(new Label("<hr>", ContentMode.HTML));
 		}		
 		return vl;
 	}
@@ -499,6 +512,11 @@ public class RegistrationRequestEditor extends CustomComponent
 				vl.addComponent(new Label("<hr>", ContentMode.HTML));
 		}		
 		return vl;
+	}
+	
+	private boolean isEmpty(String str)
+	{
+		return str == null || str.equals("");
 	}
 }
 

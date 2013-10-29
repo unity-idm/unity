@@ -489,7 +489,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		public Component getEditorComponent(GroupRegistrationParam value)
 		{
 			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramGroup"), groups);
-			group.setInput("/", true, true);
+			group.setInput("/", true, false);
 			if (value != null)
 				group.setValue(value.getGroupPath());
 			main.addComponent(group);
@@ -608,7 +608,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		{
 			FormLayout main = new FormLayout();
 			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramGroup"), groups);
-			group.setInput("/", true, true);
+			group.setInput("/", true, false);
 			if (value != null)
 				group.setValue(value);
 			main.addComponent(group);

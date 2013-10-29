@@ -173,6 +173,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
 		
 		formInformation = new Label();
+		formInformation.setContentMode(ContentMode.HTML);
 		formInformation.setCaption(msg.getMessage("RegistrationFormViewer.formInformation"));
 		registrationCode = new Label();
 		registrationCode.setCaption(msg.getMessage("RegistrationFormViewer.registrationCode"));

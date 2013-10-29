@@ -50,9 +50,11 @@ public class GroupComboBox extends ComboBox
 		{
 			fixedGroups = new ArrayList<String>();
 			getGroups(rootGroup, recursive, fixedGroups);
-			if (inclusive)
-				fixedGroups.add(rootGroup);
 		}
+		if (inclusive && !fixedGroups.contains(rootGroup))
+			fixedGroups.add(rootGroup);
+		if (!inclusive && fixedGroups.contains(rootGroup))
+			fixedGroups.remove(rootGroup);
 		Collections.sort(fixedGroups);
 		for (String group: fixedGroups)
 			addItem(group);
