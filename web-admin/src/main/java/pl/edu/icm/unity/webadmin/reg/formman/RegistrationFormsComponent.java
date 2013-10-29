@@ -22,6 +22,8 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditDialog.Callback;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
@@ -55,6 +57,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 	private UnityServerConfiguration serverCfg;
 	private AttributesManagement attributeMan;
 	private AttributeHandlerRegistry attrHandlerRegistry;
+	private EventsBus bus;
 
 	
 	private GenericElementsTable<RegistrationForm> table;
@@ -79,6 +82,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 		this.serverCfg = cfg;
 		this.attributeMan = attributeMan;
 		this.attrHandlerRegistry = attrHandlerRegistry;
+		this.bus = WebSession.getCurrent().getEventBus();
 		
 		HorizontalLayout hl = new HorizontalLayout();
 		setCaption(msg.getMessage("RegistrationFormsComponent.caption"));
@@ -148,6 +152,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 		try
 		{
 			registrationsManagement.updateForm(updatedForm, ignoreRequests);
+			bus.fireEvent(new RegistrationFormChangedEvent(updatedForm));
 			refresh();
 			return true;
 		} catch (Exception e)
@@ -162,6 +167,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 		try
 		{
 			registrationsManagement.addForm(form);
+			bus.fireEvent(new RegistrationFormChangedEvent(form));
 			refresh();
 			return true;
 		} catch (Exception e)
@@ -176,6 +182,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 		try
 		{
 			registrationsManagement.removeForm(name, dropRequests);
+			bus.fireEvent(new RegistrationFormChangedEvent(name));
 			refresh();
 			return true;
 		} catch (Exception e)

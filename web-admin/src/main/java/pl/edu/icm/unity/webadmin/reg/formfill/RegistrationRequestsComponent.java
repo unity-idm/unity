@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.reg.formfill;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -16,9 +17,14 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.authn.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
+import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
+import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormChangedEvent;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
@@ -32,6 +38,8 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
+
+
 /**
  * Responsible for showing registration forms list and allowing to launch editor of a chosen one.
  * 
@@ -41,6 +49,7 @@ import com.vaadin.ui.themes.Reindeer;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class RegistrationRequestsComponent extends VerticalLayout
 {
+	private Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationRequestsComponent.class);
 	private UnityMessageSource msg;
 	private RegistrationsManagement registrationsManagement;
 	private IdentityEditorRegistry identityEditorRegistry;
@@ -68,6 +77,20 @@ public class RegistrationRequestsComponent extends VerticalLayout
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
 		this.attrsMan = attrsMan;
 		this.authnMan = authnMan;
+		WebSession.getCurrent().getEventBus().addListener(new EventListener<RegistrationFormChangedEvent>()
+		{
+			@Override
+			public void handleEvent(RegistrationFormChangedEvent event)
+			{
+				try
+				{
+					refresh();
+				} catch (EngineException e)
+				{
+					log.error("Can't refresh registration forms", e);
+				}
+			}
+		}, RegistrationFormChangedEvent.class);
 	}
 
 	public void setShowNonPublic(boolean showNonPublic)
@@ -143,11 +166,15 @@ public class RegistrationRequestsComponent extends VerticalLayout
 		}
 	}
 	
-	private boolean addRequest(RegistrationRequest request)
+	private boolean addRequest(RegistrationRequest request, boolean andAccept)
 	{
 		try
 		{
-			registrationsManagement.submitRegistrationRequest(request);
+			String id = registrationsManagement.submitRegistrationRequest(request);
+			if (andAccept)
+				registrationsManagement.processReqistrationRequest(id, request, 
+						RegistrationRequestAction.accept, "", 
+						msg.getMessage("RegistrationRequestsComponent.autoAccept"));
 			return true;
 		} catch (EngineException e)
 		{
@@ -170,9 +197,9 @@ public class RegistrationRequestsComponent extends VerticalLayout
 					editor, new RegistrationRequestEditorDialog.Callback()
 					{
 						@Override
-						public boolean newRequest(RegistrationRequest request)
+						public boolean newRequest(RegistrationRequest request, boolean autoAccept)
 						{
-							return addRequest(request);
+							return addRequest(request, autoAccept);
 						}
 					});
 			dialog.show();

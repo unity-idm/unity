@@ -22,4 +22,11 @@ public interface AttributeValueEditor<T>
 	 * @throws IllegalAttributeValueException if the current state of the editor is invalid
 	 */
 	public T getCurrentValue() throws IllegalAttributeValueException;
+	
+	/**
+	 * Updates the editor's label of the value, which was initially set upon object construction
+	 * (see {@link WebAttributeHandler#getEditorComponent(Object, String, pl.edu.icm.unity.types.basic.AttributeValueSyntax)}).
+	 * @param label
+	 */
+	public void setLabel(String label);
 }

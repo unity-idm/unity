@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common.attributes;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.vaadin.ui.Label;
@@ -29,7 +30,7 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 	private String description;
 	private String group;
 	private boolean showGroup;
-	private ListOfEmbeddedElements<?> valuesComponent;
+	private ListOfEmbeddedElements<LabelledValue> valuesComponent;
 	private AttributeVisibility visibility;
 	private VerticalLayout main = new VerticalLayout();
 
@@ -50,8 +51,11 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Attribute<?> getAttribute() throws FormValidationException
 	{
-		List<?> values = valuesComponent.getElements();
-		return new Attribute(attributeType.getName(), attributeType.getValueType(), group, visibility, values);
+		List<LabelledValue> values = valuesComponent.getElements();
+		List<Object> aValues = new ArrayList<>(values.size());
+		for (LabelledValue v: values)
+			aValues.add(v.getValue());
+		return new Attribute(attributeType.getName(), attributeType.getValueType(), group, visibility, aValues);
 	}
 	
 	private void initUI()
@@ -61,15 +65,13 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 		if (description == null)
 			description = attributeType.getDescription();
 		main.setSpacing(true);
-		setCaption(caption);
-		setDescription(description);
 		
 		if (showGroup)
 		{
 			main.addComponent(new Label(group));
 		}
 
-		valuesComponent = getValuesPart(attributeType);
+		valuesComponent = getValuesPart(attributeType, caption);
 		main.addComponent(valuesComponent);
 		
 		setCompositionRoot(main);

@@ -38,6 +38,7 @@ public class ValuesEditorPanel<T> extends VerticalLayout
 	private WebAttributeHandler<T> handler;
 	
 	private ValuesTable valuesTable;
+	private String attributeName;
 	
 	
 	public ValuesEditorPanel(UnityMessageSource msg, 
@@ -65,9 +66,10 @@ public class ValuesEditorPanel<T> extends VerticalLayout
 		return valuesTable.getValues();
 	}
 	
-	public void setValues(List<T> values)
+	public void setValues(List<T> values, String attributeName)
 	{
 		valuesTable.setValues(values, syntax, handler);
+		this.attributeName = attributeName;
 	}
 	
 	private class DropHandlerImpl implements DropHandler
@@ -131,7 +133,7 @@ public class ValuesEditorPanel<T> extends VerticalLayout
 		{
 			@SuppressWarnings("unchecked")
 			final T value = (T) valuesTable.getItemById(target);
-			AttributeValueEditor<T> editor = handler.getEditorComponent(value, syntax);
+			AttributeValueEditor<T> editor = handler.getEditorComponent(value, attributeName, syntax);
 			ValueEditDialog<T> dialog = new ValueEditDialog<T>(msg, msg.getMessage("Attribute.editValue"), 
 					editor, new Callback<T>()
 					{
@@ -158,7 +160,7 @@ public class ValuesEditorPanel<T> extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			AttributeValueEditor<T> editor = handler.getEditorComponent(null, syntax);
+			AttributeValueEditor<T> editor = handler.getEditorComponent(null, attributeName, syntax);
 			ValueEditDialog<T> dialog = new ValueEditDialog<T>(msg, msg.getMessage("Attribute.addValue"), 
 					editor, new Callback<T>()
 					{

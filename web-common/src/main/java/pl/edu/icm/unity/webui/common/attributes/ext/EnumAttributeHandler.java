@@ -30,6 +30,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
@@ -65,34 +66,40 @@ public class EnumAttributeHandler implements WebAttributeHandler<String>, WebAtt
 	}
 	
 	@Override
-	public AttributeValueEditor<String> getEditorComponent(String initialValue, 
+	public AttributeValueEditor<String> getEditorComponent(String initialValue, String label,
 			AttributeValueSyntax<String> syntax)
 	{
-		return new EnumValueEditor(initialValue, (EnumAttributeSyntax) syntax);
+		return new EnumValueEditor(initialValue, label, (EnumAttributeSyntax) syntax);
 	}
 	
 	private class EnumValueEditor implements AttributeValueEditor<String>
 	{
 		private String value;
+		private String label;
 		private EnumAttributeSyntax syntax;
 		private ComboBox field;
 		
-		public EnumValueEditor(String value, EnumAttributeSyntax syntax)
+		public EnumValueEditor(String value, String label, EnumAttributeSyntax syntax)
 		{
 			this.value = value;
 			this.syntax = syntax;
+			this.label = label;
 		}
 
 		@Override
 		public Component getEditor()
 		{
-			field = new ComboBox();
+			FormLayout main = new FormLayout();
+			field = new ComboBox(label);
 			field.setNullSelectionAllowed(false);
 			for (String allowed: syntax.getAllowed())
 				field.addItem(allowed);
 			if (value != null)
 				field.setValue(value);
-			return field;
+			else
+				field.setValue(syntax.getAllowed().iterator().next());
+			main.addComponent(field);
+			return main;
 		}
 
 		@Override
@@ -108,6 +115,12 @@ public class EnumAttributeHandler implements WebAttributeHandler<String>, WebAtt
 				throw e;
 			}
 			return cur;
+		}
+
+		@Override
+		public void setLabel(String label)
+		{
+			field.setCaption(label);
 		}
 	}
 

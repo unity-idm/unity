@@ -85,7 +85,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 			public void valueChange(ValueChangeEvent event)
 			{
 				AttributeType selected = attributeSel.getSelectedValue();
-				valuesComponent = getValuesPart(selected);
+				valuesComponent = getValuesPart(selected, selected.getName());
 				valuesPanel.setContent(valuesComponent);
 			}
 		});
@@ -110,7 +110,8 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 		setCompositionRoot(main);
 		if (attributeTypes.size() > 0)
 		{
-			valuesComponent = getValuesPart(attributeSel.getSelectedValue());
+			AttributeType selected = attributeSel.getSelectedValue();
+			valuesComponent = getValuesPart(selected, selected.getName());
 			valuesPanel.setContent(valuesComponent);
 		}
 	}

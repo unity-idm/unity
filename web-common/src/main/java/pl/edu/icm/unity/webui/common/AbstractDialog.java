@@ -9,8 +9,10 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -77,7 +79,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		close();
 	}
 	
-	private void initGUI(boolean sizeUndefined) throws Exception
+	protected void initGUI(boolean sizeUndefined) throws Exception
 	{
 		setModal(true);
 		setClosable(false);
@@ -101,12 +103,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 			contentsPanel.setSizeFull();
 		vl.addComponent(contentsPanel);
 		
-		HorizontalLayout hl = new HorizontalLayout();
-		hl.setSpacing(true);
-		hl.setMargin(true);
-		hl.addComponent(confirm);
-		if (cancel != null)
-			hl.addComponent(cancel);
+		Layout hl = getButtonsBar();
 		vl.addComponent(hl);
 		vl.setComponentAlignment(hl, Alignment.BOTTOM_RIGHT);
 		
@@ -114,6 +111,17 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		if (!sizeUndefined)
 			vl.setSizeFull();
 		setContent(vl);
+	}
+	
+	protected AbstractOrderedLayout getButtonsBar()
+	{
+		HorizontalLayout hl = new HorizontalLayout();
+		hl.setSpacing(true);
+		hl.setMargin(true);
+		hl.addComponent(confirm);
+		if (cancel != null)
+			hl.addComponent(cancel);
+		return hl;
 	}
 	
 	public void show(boolean sizeUndefined)

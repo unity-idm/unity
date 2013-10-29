@@ -31,27 +31,31 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 	private EditorProvider<T> editorProvider;
 	private int min = 0;
 	private int max = Integer.MAX_VALUE;
+	private boolean showLine;
+	private Label lonelyLabel;
 	private Button lonelyAdd;
 	private List<Entry> components;
 	
 	public ListOfEmbeddedElements(UnityMessageSource msg, EditorProvider<T> editorProvider,
-			int min, int max)
+			int min, int max, boolean showLine)
 	{
-		this("", msg, editorProvider, min, max);
+		this("", msg, editorProvider, min, max, showLine);
 	}
 
 	public ListOfEmbeddedElements(String caption, UnityMessageSource msg, EditorProvider<T> editorProvider,
-			int min, int max)
+			int min, int max, boolean showLine)
 	{
 		this.msg = msg;
 		this.editorProvider = editorProvider;
 		this.min = min;
 		this.max = max;
+		this.showLine = showLine;
 
 		setMargin(true);
 		setCaption(caption);
 		
 		components = new ArrayList<>();
+		lonelyLabel = new Label();
 		lonelyAdd = new Button();
 		lonelyAdd.setIcon(Images.add.getResource());
 		lonelyAdd.setDescription(msg.getMessage("add"));
@@ -64,9 +68,21 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 				addEntry(null, null);
 			}
 		});
-		addComponent(lonelyAdd);
+		HorizontalLayout lonelyBar = new HorizontalLayout(lonelyLabel, lonelyAdd);
+		lonelyBar.setSpacing(true);
+		addComponent(lonelyBar);
 		for (int i=0; i<min; i++)
 			addEntry(null, null);
+	}
+
+	/**
+	 * Sets label which is displayed before the button to add the <b>first</b> value.
+	 * By default this label is empty.
+	 * @param label
+	 */
+	public void setLonelyLabel(String label)
+	{
+		lonelyLabel.setValue(label);
 	}
 	
 	public void setEntries(Collection<T> values)
@@ -79,29 +95,35 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 	public void addEntry(T value, Entry after)
 	{
 		lonelyAdd.setVisible(false);
-		Entry component = new Entry(value);
+		lonelyLabel.setVisible(false);
+		Entry component;
 		if (after == null)
 		{
+			component = new Entry(value, 0);
 			components.add(0, component);
 			addComponent(component, 0);
 		} else
 		{
 			int i = components.indexOf(after);
+			component = new Entry(value, i+1);
 			components.add(i+1, component);
 			addComponent(component, i+1);
 		}
-		for (Entry e: components)
-			e.refreshButtons();
+		for (int i=0; i<components.size(); i++)
+			components.get(i).refresh(i);
 	}
 	
 	private void remove(Entry e)
 	{
 		components.remove(e);
 		removeComponent(e);
-		for (Entry ee: components)
-			ee.refreshButtons();
+		for (int i=0; i<components.size(); i++)
+			components.get(i).refresh(i);
 		if (components.size() == 0)
+		{
 			lonelyAdd.setVisible(true);
+			lonelyLabel.setVisible(true);
+		}
 	}
 	
 	public void clearContents()
@@ -125,7 +147,18 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 		 * @param value initial value or null if not set
 		 * @return
 		 */
-		public Component getEditorComponent(T value);
+		public Component getEditorComponent(T value, int position);
+		
+		/**
+		 * Called when the position of the edited value changed. 
+		 * @param position
+		 */
+		public void setEditedComponentPosition(int position);
+		
+		/**
+		 * @return the value from editor.
+		 * @throws FormValidationException
+		 */
 		public T getValue() throws FormValidationException;
 	}
 
@@ -141,15 +174,18 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 		private Label hr;
 		private Editor<T> editor;
 		
-		public Entry(T elementV)
+		public Entry(T elementV, int position)
 		{
 			setSpacing(true);
 
-			hr = new Label("<hr>", ContentMode.HTML);
-			addComponent(hr);
+			if (showLine)
+			{
+				hr = new Label("<hr>", ContentMode.HTML);
+				addComponent(hr);
+			}
 			
 			editor = editorProvider.getEditor();
-			Component c = editor.getEditorComponent(elementV);
+			Component c = editor.getEditorComponent(elementV, position);
 			addComponent(c);
 			
 			add = new Button();
@@ -189,11 +225,13 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 			return editor.getValue();
 		}
 		
-		public void refreshButtons()
+		public void refresh(int newPosition)
 		{
-			hr.setVisible(ListOfEmbeddedElements.this.components.get(0) != this);
+			if (showLine)
+				hr.setVisible(ListOfEmbeddedElements.this.components.get(0) != this);
 			remove.setVisible(ListOfEmbeddedElements.this.components.size() > min);
 			add.setVisible(ListOfEmbeddedElements.this.components.size() < max);
+			editor.setEditedComponentPosition(newPosition);
 		}
 	}
 

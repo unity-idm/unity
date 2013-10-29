@@ -48,7 +48,8 @@ public interface WebAttributeHandler<T>
 	 * @param initialValue value to be edited or null if value is to be created from scratch
 	 * @return
 	 */
-	public AttributeValueEditor<T> getEditorComponent(T initialValue, AttributeValueSyntax<T> syntaxDesc);
+	public AttributeValueEditor<T> getEditorComponent(T initialValue, String label, 
+			AttributeValueSyntax<T> syntaxDesc);
 	
 	/**
 	 * @param syntax

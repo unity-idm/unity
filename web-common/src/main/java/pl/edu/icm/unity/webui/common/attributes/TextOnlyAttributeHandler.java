@@ -15,6 +15,7 @@ import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
@@ -28,6 +29,7 @@ import com.vaadin.ui.VerticalLayout;
 public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler<T>
 {
 	private static final int LARGE_STRING = 100;
+	private static final int SMALL_STRING = 50;
 	
 	public static String trimString(String full, int limited)
 	{
@@ -58,47 +60,55 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 	}
 	
 	@Override
-	public AttributeValueEditor<T> getEditorComponent(T initialValue, 
+	public AttributeValueEditor<T> getEditorComponent(T initialValue, String label,
 			AttributeValueSyntax<T> syntax)
 	{
-		return new StringValueEditor(initialValue, syntax);
+		return new StringValueEditor(initialValue, label, syntax);
 	}
 	
 	private class StringValueEditor implements AttributeValueEditor<T>
 	{
 		private T value;
+		private String label;
 		private AttributeValueSyntax<T> syntax;
 		private AbstractTextField field;
 		
-		public StringValueEditor(T value, AttributeValueSyntax<T> syntax)
+		public StringValueEditor(T value, String label, AttributeValueSyntax<T> syntax)
 		{
 			this.value = value;
 			this.syntax = syntax;
+			this.label = label;
 		}
 
 		@Override
 		public Component getEditor()
 		{
-			VerticalLayout main = new VerticalLayout();
+			FormLayout main = new FormLayout();
 			boolean large = false;
+			Integer limitedWidth = null;
 			if (syntax instanceof StringAttributeSyntax)
 			{
 				StringAttributeSyntax sas = (StringAttributeSyntax) syntax;
 				if (sas.getMaxLength() > LARGE_STRING)
 					large = true;
+				if (sas.getMaxLength() < SMALL_STRING)
+					limitedWidth = sas.getMaxLength();
 			}
 			
 			field = large ? new TextArea() : new TextField();
 			if (value != null)
 				field.setValue(value.toString());
-			field.setSizeFull();
+			if (limitedWidth != null)
+				field.setColumns(limitedWidth);
+			else
+				field.setSizeFull();
+			field.setCaption(label);
 			main.addComponent(field);
 			
+			StringBuilder sb = new StringBuilder();
 			for (String hint: getHints(syntax))
-			{
-				Label info = new Label(hint);
-				main.addComponent(info);
-			}
+				sb.append(hint).append("<br>");
+			field.setDescription(sb.toString());
 			
 			main.setSpacing(true);
 			return main;
@@ -123,6 +133,12 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 				field.setComponentError(new UserError(e.getMessage()));
 				throw new IllegalAttributeValueException(e.getMessage(), e);
 			}
+		}
+
+		@Override
+		public void setLabel(String label)
+		{
+			field.setCaption(label);
 		}
 	}
 

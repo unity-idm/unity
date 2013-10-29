@@ -72,7 +72,7 @@ public class AttributeEditor extends HorizontalLayout
 	{
 		if (!typeFixed)
 			attrTypePanel.setAttributeType(attribute.getName());
-		valuesPanel.setValues(attribute.getValues());
+		valuesPanel.setValues(attribute.getValues(), attribute.getName());
 	}
 
 	/**

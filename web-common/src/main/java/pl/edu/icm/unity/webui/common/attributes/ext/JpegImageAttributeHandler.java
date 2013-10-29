@@ -48,7 +48,6 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.SucceededEvent;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Jpeg image attribute handler for the web
@@ -130,15 +129,16 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 	}
 	
 	@Override
-	public AttributeValueEditor<BufferedImage> getEditorComponent(BufferedImage initialValue, 
+	public AttributeValueEditor<BufferedImage> getEditorComponent(BufferedImage initialValue, String label,
 			AttributeValueSyntax<BufferedImage> syntax)
 	{
-		return new JpegImageValueEditor(initialValue, (JpegImageAttributeSyntax) syntax);
+		return new JpegImageValueEditor(initialValue, label, (JpegImageAttributeSyntax) syntax);
 	}
 	
 	private class JpegImageValueEditor implements AttributeValueEditor<BufferedImage>
 	{
 		private BufferedImage value;
+		private String label;
 		private JpegImageAttributeSyntax syntax;
 		private Image field;
 		private Upload upload;
@@ -146,16 +146,17 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		private CheckBox scale;
 		private Label error;
 		
-		public JpegImageValueEditor(BufferedImage value, JpegImageAttributeSyntax syntax)
+		public JpegImageValueEditor(BufferedImage value, String label, JpegImageAttributeSyntax syntax)
 		{
 			this.value = value;
 			this.syntax = syntax;
+			this.label = label;
 		}
 
 		@Override
 		public Component getEditor()
 		{
-			VerticalLayout vl = new VerticalLayout();
+			FormLayout vl = new FormLayout();
 			vl.setSpacing(true);
 			
 			error = new Label();
@@ -189,6 +190,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			upload.addStartedListener(uploader);
 			upload.addProgressListener(uploader);
 			upload.setWidth(100, Unit.PERCENTAGE);
+			upload.setCaption(label);
 			vl.addComponent(upload);
 
 			vl.addComponent(progressIndicator);
@@ -269,16 +271,22 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 					fos = null;
 				}
 			}
+		}
+
+		@Override
+		public void setLabel(String label)
+		{
+			upload.setCaption(label);
 		};		
 	}
 	
-	private void setHints(VerticalLayout vl, JpegImageAttributeSyntax syntax)
+	private void setHints(FormLayout vl, JpegImageAttributeSyntax syntax)
 	{
-		Label maxSize = new Label(msg.getMessage("JpegAttributeHandler.maxSize", syntax.getMaxSize()));
+		Label maxSize = new Label(msg.getMessage("JpegAttributeHandler.maxSize", syntax.getMaxSize())
+				+ "  " + 
+				msg.getMessage("JpegAttributeHandler.maxDim", syntax.getMaxWidth(), 
+						syntax.getMaxHeight()));
 		vl.addComponent(maxSize);
-		Label maxDim = new Label(msg.getMessage("JpegAttributeHandler.maxDim", syntax.getMaxWidth(),
-				syntax.getMaxHeight()));
-		vl.addComponent(maxDim);
 	}
 	
 	public class SimpleImageSource implements StreamSource
@@ -316,7 +324,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 	@Override
 	public Component getSyntaxViewer(AttributeValueSyntax<BufferedImage> syntax)
 	{
-		VerticalLayout vl = new VerticalLayout();
+		FormLayout vl = new FormLayout();
 		setHints(vl, (JpegImageAttributeSyntax) syntax);
 		return vl;
 	}
