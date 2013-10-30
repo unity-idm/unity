@@ -9,6 +9,8 @@ import com.vaadin.ui.Component;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 
 /**
  * Dialog allowing to edit an attribute. It takes an editor component as argument, so can be easily used to display 
@@ -39,9 +41,16 @@ public class AttributeEditDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		Attribute<?> attribute = editor.getAttribute();
-		if (callback.newAttribute(attribute))
-			close();
+		Attribute<?> attribute;
+		try
+		{
+			attribute = editor.getAttribute();
+			if (callback.newAttribute(attribute))
+				close();
+		} catch (FormValidationException e)
+		{
+			ErrorPopup.showFormError(msg);
+		}
 	}
 	
 	public interface Callback

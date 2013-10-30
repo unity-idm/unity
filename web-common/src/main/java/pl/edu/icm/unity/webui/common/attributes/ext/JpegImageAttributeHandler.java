@@ -24,6 +24,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
@@ -35,6 +36,8 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 
+import com.vaadin.event.MouseEvents;
+import com.vaadin.event.MouseEvents.ClickEvent;
 import com.vaadin.server.Resource;
 import com.vaadin.server.StreamResource;
 import com.vaadin.server.Sizeable.Unit;
@@ -59,6 +62,8 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, JpegImageAttributeHandler.class);
 	private static final Random r = new Random();
+	private static final int PREVIEW_WIDTH = 256;
+	private static final int PREVIEW_HEIGHT = 128;
 	private UnityMessageSource msg;
 	
 	@Autowired
@@ -166,10 +171,10 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			field = new Image();
 			if (value != null)
 			{
-				field = new Image();
 				try
 				{
-					SimpleImageSource source = new SimpleImageSource(value, syntax, "jpg");
+					BufferedImage scalledPreview = scaleIfNeeded(value, PREVIEW_WIDTH, PREVIEW_HEIGHT);
+					SimpleImageSource source = new SimpleImageSource(scalledPreview, syntax, "jpg");
 					field.setSource(source.getResource());
 				} catch (Exception e)
 				{
@@ -178,6 +183,16 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 				}
 			}
 			vl.addComponent(field);
+			field.addClickListener(new MouseEvents.ClickListener()
+			{
+				@Override
+				public void click(ClickEvent event)
+				{
+					if (value != null)
+						new ShowImageDialog(syntax, value).show();
+				}
+			});
+			field.setDescription(msg.getMessage("JpegAttributeHandler.clickToEnlarge"));
 			
 			upload = new Upload();
 			progressIndicator = new ProgressIndicator(0);
@@ -263,7 +278,8 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 					value = syntax.deserialize(((ByteArrayOutputStream)fos.getWrappedStream()).toByteArray());
 					if (scale.getValue())
 						value = scaleIfNeeded(value, syntax.getMaxWidth(), syntax.getMaxHeight());
-					image.setSource(new SimpleImageSource(value, syntax, "jpg").getResource());
+					BufferedImage scalledPreview = scaleIfNeeded(value, PREVIEW_WIDTH, PREVIEW_HEIGHT);
+					image.setSource(new SimpleImageSource(scalledPreview, syntax, "jpg").getResource());
 				} catch (Exception e)
 				{
 					ErrorPopup.showError(msg.getMessage("JpegAttributeHandler.uploadInvalid"),
@@ -391,6 +407,37 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 				throw new IllegalAttributeTypeException(e.getMessage(), e);
 			}
 		}
+	}
+	
+	private class ShowImageDialog extends AbstractDialog
+	{
+		private AttributeValueSyntax<BufferedImage> syntax;
+		private BufferedImage image;
 		
+		public ShowImageDialog(AttributeValueSyntax<BufferedImage> syntax, BufferedImage image)
+		{
+			super(JpegImageAttributeHandler.this.msg, 
+					JpegImageAttributeHandler.this.msg.getMessage("JpegAttributeHandler.image"), 
+					JpegImageAttributeHandler.this.msg.getMessage("close"));
+			this.syntax = syntax;
+			this.image = image;
+			setWidth(90, Unit.PERCENTAGE);
+			setHeight(90, Unit.PERCENTAGE);
+		}
+
+		@Override
+		protected Component getContents() throws Exception
+		{
+			Image imageC = new Image();
+			SimpleImageSource source = new SimpleImageSource(image, syntax, "jpg");
+			imageC.setSource(source.getResource());
+			return imageC;
+		}
+
+		@Override
+		protected void onConfirm()
+		{
+			close();
+		}
 	}
 }

@@ -10,7 +10,9 @@ import java.util.List;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
@@ -33,13 +35,13 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 	private int max = Integer.MAX_VALUE;
 	private boolean showLine;
 	private Label lonelyLabel;
-	private Button lonelyAdd;
+	private HorizontalLayout lonelyBar;
 	private List<Entry> components;
 	
 	public ListOfEmbeddedElements(UnityMessageSource msg, EditorProvider<T> editorProvider,
 			int min, int max, boolean showLine)
 	{
-		this("", msg, editorProvider, min, max, showLine);
+		this(null, msg, editorProvider, min, max, showLine);
 	}
 
 	public ListOfEmbeddedElements(String caption, UnityMessageSource msg, EditorProvider<T> editorProvider,
@@ -51,12 +53,12 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 		this.max = max;
 		this.showLine = showLine;
 
-		setMargin(true);
-		setCaption(caption);
+		if (caption != null)
+			setCaption(caption);
 		
 		components = new ArrayList<>();
 		lonelyLabel = new Label();
-		lonelyAdd = new Button();
+		Button lonelyAdd = new Button();
 		lonelyAdd.setIcon(Images.add.getResource());
 		lonelyAdd.setDescription(msg.getMessage("add"));
 		lonelyAdd.setStyleName(Reindeer.BUTTON_SMALL);
@@ -68,9 +70,11 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 				addEntry(null, null);
 			}
 		});
-		HorizontalLayout lonelyBar = new HorizontalLayout(lonelyLabel, lonelyAdd);
+		lonelyBar = new HorizontalLayout(lonelyLabel, lonelyAdd);
 		lonelyBar.setSpacing(true);
+		lonelyBar.setMargin(new MarginInfo(true, false, true, false));
 		addComponent(lonelyBar);
+		setComponentAlignment(lonelyBar, Alignment.TOP_LEFT);
 		for (int i=0; i<min; i++)
 			addEntry(null, null);
 	}
@@ -94,8 +98,7 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 	
 	public void addEntry(T value, Entry after)
 	{
-		lonelyAdd.setVisible(false);
-		lonelyLabel.setVisible(false);
+		lonelyBar.setVisible(false);
 		Entry component;
 		if (after == null)
 		{
@@ -109,6 +112,7 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 			components.add(i+1, component);
 			addComponent(component, i+1);
 		}
+		setComponentAlignment(component, Alignment.TOP_LEFT);
 		for (int i=0; i<components.size(); i++)
 			components.get(i).refresh(i);
 	}
@@ -120,17 +124,14 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 		for (int i=0; i<components.size(); i++)
 			components.get(i).refresh(i);
 		if (components.size() == 0)
-		{
-			lonelyAdd.setVisible(true);
-			lonelyLabel.setVisible(true);
-		}
+			lonelyBar.setVisible(true);
 	}
 	
 	public void clearContents()
 	{
 		components.clear();
 		removeAllComponents();
-		addComponent(lonelyAdd);
+		addComponent(lonelyBar);
 	}
 	
 	public List<T> getElements() throws FormValidationException

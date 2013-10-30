@@ -94,6 +94,14 @@ public abstract class AbstractAttributeEditor extends CustomComponent
 		
 		private String establishLabel(int position)
 		{
+			if (baseLabel == null)
+			{
+				if (at.getMaxElements() > 1)
+					return "(" + (position+1) +")";
+				else
+					return "";
+			}
+			
 			if (at.getMaxElements() > 1)
 				return baseLabel + " (" + (position+1) +"):";
 			else

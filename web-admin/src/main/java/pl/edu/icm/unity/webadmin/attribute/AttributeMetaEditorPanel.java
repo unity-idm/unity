@@ -48,7 +48,7 @@ public class AttributeMetaEditorPanel extends FormLayout
 	{
 		this(Collections.singletonList(attributeType), groupPath, msg);
 		this.visibility.setEnumValue(visibility);
-		setSizeFull();
+		setWidth(100, Unit.PERCENTAGE);
 	}
 	
 	public AttributeMetaEditorPanel(Collection<AttributeType> attributeTypes, String groupPath, UnityMessageSource msg)
@@ -90,7 +90,7 @@ public class AttributeMetaEditorPanel extends FormLayout
 		visibility.setSizeUndefined();
 		visibility.setWidth(10, Unit.EM);
 		addComponent(visibility);
-		setSizeFull();
+		setWidth(100, Unit.PERCENTAGE);
 	}
 
 	private void createAttributeWidget(String attributeName)

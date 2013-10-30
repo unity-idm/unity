@@ -5,17 +5,17 @@
 package pl.edu.icm.unity.webadmin.attribute;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.webadmin.attribute.AttributeMetaEditorPanel.TypeChangeCallback;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
+import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
 
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
 
@@ -23,10 +23,9 @@ import com.vaadin.ui.HorizontalLayout;
  * Allows for editing an attribute or for creating a new one.
  * @author K. Benedyczak
  */
-@SuppressWarnings({ "unchecked", "rawtypes" })
 public class AttributeEditor extends HorizontalLayout
 {
-	private ValuesEditorPanel valuesPanel;
+	private FixedAttributeEditor valuesPanel;
 	private AttributeMetaEditorPanel attrTypePanel;
 	private String groupPath;
 	private boolean typeFixed = false;
@@ -44,8 +43,8 @@ public class AttributeEditor extends HorizontalLayout
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeMetaEditorPanel(attributeTypes, groupPath, msg);
 		AttributeType initial = attrTypePanel.getAttributeType();
-		WebAttributeHandler<?> handler = handlerRegistry.getHandler(initial.getValueType().getValueSyntaxId());
-		valuesPanel = new ValuesEditorPanel(msg, Collections.emptyList(), initial.getValueType(), handler);
+		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, initial, 
+				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null);
 
 		attrTypePanel.setCallback(new TypeChangeCallback()
 		{
@@ -53,12 +52,11 @@ public class AttributeEditor extends HorizontalLayout
 			public void attributeTypeChanged(AttributeType newType)
 			{
 				removeComponent(valuesPanel);
-				WebAttributeHandler<?> handler = handlerRegistry.getHandler(
-						newType.getValueType().getValueSyntaxId());
-				valuesPanel = new ValuesEditorPanel(msg, Collections.emptyList(), 
-						newType.getValueType(), handler);
+				valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newType, 
+						false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null);
 				addComponent(valuesPanel);
 				setComponentAlignment(valuesPanel, Alignment.TOP_LEFT);
+				setExpandRatio(valuesPanel, 1.5f);
 			}
 		});
 		initCommon();
@@ -72,7 +70,7 @@ public class AttributeEditor extends HorizontalLayout
 	{
 		if (!typeFixed)
 			attrTypePanel.setAttributeType(attribute.getName());
-		valuesPanel.setValues(attribute.getValues(), attribute.getName());
+		valuesPanel.setAttributeValues(attribute.getValues());
 	}
 
 	/**
@@ -87,9 +85,9 @@ public class AttributeEditor extends HorizontalLayout
 	{
 		this.groupPath = attribute.getGroupPath();
 		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg, attribute.getVisibility());
-		AttributeValueSyntax<?> syntax = attributeType.getValueType();
-		WebAttributeHandler<?> handler = handlerRegistry.getHandler(syntax.getValueSyntaxId());
-		valuesPanel = new ValuesEditorPanel(msg, attribute.getValues(), syntax, handler);
+		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, 
+				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null);
+		valuesPanel.setAttributeValues(attribute.getValues());
 		initCommon();
 	}
 
@@ -105,9 +103,8 @@ public class AttributeEditor extends HorizontalLayout
 	{
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg, attributeType.getVisibility());
-		AttributeValueSyntax<?> syntax = attributeType.getValueType();
-		WebAttributeHandler<?> handler = handlerRegistry.getHandler(syntax.getValueSyntaxId());
-		valuesPanel = new ValuesEditorPanel(msg, Collections.emptyList(), attributeType.getValueType(), handler);
+		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, 
+				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null);
 		typeFixed = true;
 		initCommon();
 	}
@@ -115,19 +112,21 @@ public class AttributeEditor extends HorizontalLayout
 	private void initCommon()
 	{
 		setSpacing(true);
+		attrTypePanel.setMargin(new MarginInfo(true, true, true, false));
 		addComponent(attrTypePanel);
 		setComponentAlignment(attrTypePanel, Alignment.TOP_RIGHT);
 		addComponent(valuesPanel);
 		setComponentAlignment(valuesPanel, Alignment.TOP_LEFT);
+		setExpandRatio(attrTypePanel, 1.0f);
+		setExpandRatio(valuesPanel, 1.5f);
 		setSizeFull();
 	}
 	
-	public Attribute<?> getAttribute()
+	public Attribute<?> getAttribute() throws FormValidationException
 	{
-		AttributeType attrType = attrTypePanel.getAttributeType();
-		List<?> values = valuesPanel.getValues();
-		return new Attribute(attrType.getName(), attrType.getValueType(), groupPath, 
-				attrTypePanel.getVisibility(), values);
+		Attribute<?> ret = valuesPanel.getAttribute();
+		ret.setVisibility(attrTypePanel.getVisibility());
+		return ret;
 	}
 
 }

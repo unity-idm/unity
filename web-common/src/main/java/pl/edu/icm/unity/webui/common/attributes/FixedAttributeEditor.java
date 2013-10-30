@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.common.attributes;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -48,6 +49,14 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 		initUI();
 	}
 	
+	public void setAttributeValues(List<?> values)
+	{
+		List<LabelledValue> labelledValues = new ArrayList<>(values.size());
+		for (Object value: values)
+			labelledValues.add(new LabelledValue(value, caption));
+		valuesComponent.setEntries(labelledValues);
+	}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Attribute<?> getAttribute() throws FormValidationException
 	{
@@ -73,7 +82,7 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 
 		valuesComponent = getValuesPart(attributeType, caption);
 		main.addComponent(valuesComponent);
-		
+		main.setComponentAlignment(valuesComponent, Alignment.TOP_LEFT);
 		setCompositionRoot(main);
 	}
 }
