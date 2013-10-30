@@ -458,7 +458,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			AttributeEditor attributeEditor = new AttributeEditor(msg, attributeType, attribute, 
 					registry);
 			AttributeEditDialog dialog = new AttributeEditDialog(msg, 
-					msg.getMessage("Attribute.addAttribute"), 
+					msg.getMessage("Attribute.editAttribute"), 
 					new AttributeEditDialog.Callback()
 					{
 						@Override
