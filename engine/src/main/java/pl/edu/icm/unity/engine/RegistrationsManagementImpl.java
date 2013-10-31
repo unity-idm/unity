@@ -280,12 +280,12 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			AdminComment internalComment = null;
 			if (publicCommentStr != null)
 			{
-				publicComment = new AdminComment(publicCommentStr, client.getEntityId());
-				currentRequest.getPublicAdminComments().add(publicComment);
+				publicComment = new AdminComment(publicCommentStr, client.getEntityId(), true);
+				currentRequest.getAdminComments().add(publicComment);
 			}
 			if (internalCommentStr != null)
 			{
-				internalComment = new AdminComment(internalCommentStr, client.getEntityId());
+				internalComment = new AdminComment(internalCommentStr, client.getEntityId(), false);
 				currentRequest.getAdminComments().add(internalComment);
 			}
 			

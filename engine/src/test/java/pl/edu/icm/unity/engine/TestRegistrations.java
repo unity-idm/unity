@@ -61,7 +61,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 	@Test
 	public void testRegistrationForms() throws Exception
 	{
-		RegistrationForm form = initAndCreateForm();
+		RegistrationForm form = initAndCreateForm(false);
 		
 		List<RegistrationForm> forms = registrationsMan.getForms();
 		assertEquals(1, forms.size());
@@ -138,13 +138,13 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		try
 		{
-			registrationsMan.updateForm(getForm(), false);
+			registrationsMan.updateForm(getForm(false), false);
 		} catch (SchemaConsistencyException e)
 		{
 			//OK
 		}
 		
-		registrationsMan.updateForm(getForm(), true);
+		registrationsMan.updateForm(getForm(false), true);
 		
 		try
 		{
@@ -190,18 +190,28 @@ public class TestRegistrations extends DBIntegrationTestBase
 			//OK
 		}
 	}
+
+	@Test
+	public void testRequestWithNull() throws EngineException
+	{
+		initAndCreateForm(true);
+		RegistrationRequest request = getRequest();
+		request.setRegistrationCode(null);
+		registrationsMan.submitRegistrationRequest(request);
+		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
+		assertEquals(request.getRegistrationCode(), fromDb.getRequest().getRegistrationCode());
+	}
 	
 	@Test
 	public void testRequests() throws EngineException
 	{
-		initAndCreateForm();
+		initAndCreateForm(false);
 		RegistrationRequest request = getRequest();
 		String id1 = registrationsMan.submitRegistrationRequest(request);
 		
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(request, fromDb.getRequest());
 		assertEquals(0, fromDb.getAdminComments().size());
-		assertEquals(0, fromDb.getPublicAdminComments().size());
 		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
 		assertEquals(id1, fromDb.getRequestId());
 		assertNotNull(fromDb.getTimestamp());
@@ -210,10 +220,9 @@ public class TestRegistrations extends DBIntegrationTestBase
 				RegistrationRequestAction.update, "pub1", "priv1");
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(request, fromDb.getRequest());
-		assertEquals(1, fromDb.getAdminComments().size());
-		assertEquals(1, fromDb.getPublicAdminComments().size());
-		assertEquals("priv1", fromDb.getAdminComments().get(0).getContents());
-		assertEquals("pub1", fromDb.getPublicAdminComments().get(0).getContents());
+		assertEquals(2, fromDb.getAdminComments().size());
+		assertEquals("priv1", fromDb.getAdminComments().get(1).getContents());
+		assertEquals("pub1", fromDb.getAdminComments().get(0).getContents());
 		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
 		assertEquals(id1, fromDb.getRequestId());
 		assertNotNull(fromDb.getTimestamp());
@@ -221,10 +230,9 @@ public class TestRegistrations extends DBIntegrationTestBase
 		registrationsMan.processReqistrationRequest(fromDb.getRequestId(), null, 
 				RegistrationRequestAction.update, "a2", "p2");
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
-		assertEquals(2, fromDb.getAdminComments().size());
-		assertEquals(2, fromDb.getPublicAdminComments().size());
-		assertEquals("p2", fromDb.getAdminComments().get(1).getContents());
-		assertEquals("a2", fromDb.getPublicAdminComments().get(1).getContents());
+		assertEquals(4, fromDb.getAdminComments().size());
+		assertEquals("p2", fromDb.getAdminComments().get(3).getContents());
+		assertEquals("a2", fromDb.getAdminComments().get(2).getContents());
 		
 		registrationsMan.processReqistrationRequest(fromDb.getRequestId(), null, 
 				RegistrationRequestAction.drop, null, null);
@@ -235,10 +243,9 @@ public class TestRegistrations extends DBIntegrationTestBase
 				RegistrationRequestAction.reject, "a2", "p2");
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(request, fromDb.getRequest());
-		assertEquals(1, fromDb.getAdminComments().size());
-		assertEquals(1, fromDb.getPublicAdminComments().size());
-		assertEquals("p2", fromDb.getAdminComments().get(0).getContents());
-		assertEquals("a2", fromDb.getPublicAdminComments().get(0).getContents());
+		assertEquals(2, fromDb.getAdminComments().size());
+		assertEquals("p2", fromDb.getAdminComments().get(1).getContents());
+		assertEquals("a2", fromDb.getAdminComments().get(0).getContents());
 		assertEquals(RegistrationRequestStatus.rejected, fromDb.getStatus());
 		assertEquals(id2, fromDb.getRequestId());
 		assertNotNull(fromDb.getTimestamp());
@@ -248,10 +255,9 @@ public class TestRegistrations extends DBIntegrationTestBase
 				RegistrationRequestAction.accept, "a2", "p2");
 		fromDb = registrationsMan.getRegistrationRequests().get(1);
 		assertEquals(request, fromDb.getRequest());
-		assertEquals(1, fromDb.getAdminComments().size());
-		assertEquals(1, fromDb.getPublicAdminComments().size());
-		assertEquals("p2", fromDb.getAdminComments().get(0).getContents());
-		assertEquals("a2", fromDb.getPublicAdminComments().get(0).getContents());
+		assertEquals(2, fromDb.getAdminComments().size());
+		assertEquals("p2", fromDb.getAdminComments().get(1).getContents());
+		assertEquals("a2", fromDb.getAdminComments().get(0).getContents());
 		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
 		assertEquals(id3, fromDb.getRequestId());
 		assertNotNull(fromDb.getTimestamp());
@@ -297,7 +303,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 	}
 	
 	
-	private RegistrationForm getForm()
+	private RegistrationForm getForm(boolean nullCode)
 	{
 		RegistrationForm form = new RegistrationForm();
 		
@@ -358,7 +364,8 @@ public class TestRegistrations extends DBIntegrationTestBase
 		form.setIdentityParams(Collections.singletonList(idParam));
 		form.setName("f1");
 		form.setPubliclyAvailable(true);
-		form.setRegistrationCode("123");
+		if (!nullCode)
+			form.setRegistrationCode("123");
 		form.setInitialEntityState(EntityState.valid);
 		return form;
 	}
@@ -404,14 +411,14 @@ public class TestRegistrations extends DBIntegrationTestBase
 		}
 	}
 	
-	private RegistrationForm initAndCreateForm() throws EngineException
+	private RegistrationForm initAndCreateForm(boolean nullCode) throws EngineException
 	{
 		commonInitializer.initializeCommonAttributeTypes();
 		commonInitializer.initializeMainAttributeClass();
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addGroup(new Group("/B"));
 		
-		RegistrationForm form = getForm();
+		RegistrationForm form = getForm(nullCode);
 
 		registrationsMan.addForm(form);
 		return form;
