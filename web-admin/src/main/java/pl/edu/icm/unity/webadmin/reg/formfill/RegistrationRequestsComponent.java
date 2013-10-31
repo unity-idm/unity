@@ -23,8 +23,10 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormChangedEvent;
+import pl.edu.icm.unity.webadmin.reg.reqman.RegistrationRequestChangedEvent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
+import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
@@ -60,6 +62,7 @@ public class RegistrationRequestsComponent extends VerticalLayout
 
 	private boolean showNonPublic;
 	private VerticalLayout main;
+	private EventsBus bus;
 	
 	@Autowired
 	public RegistrationRequestsComponent(UnityMessageSource msg,
@@ -77,7 +80,8 @@ public class RegistrationRequestsComponent extends VerticalLayout
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
 		this.attrsMan = attrsMan;
 		this.authnMan = authnMan;
-		WebSession.getCurrent().getEventBus().addListener(new EventListener<RegistrationFormChangedEvent>()
+		bus = WebSession.getCurrent().getEventBus();
+		bus.addListener(new EventListener<RegistrationFormChangedEvent>()
 		{
 			@Override
 			public void handleEvent(RegistrationFormChangedEvent event)
@@ -173,8 +177,9 @@ public class RegistrationRequestsComponent extends VerticalLayout
 			String id = registrationsManagement.submitRegistrationRequest(request);
 			if (andAccept)
 				registrationsManagement.processReqistrationRequest(id, request, 
-						RegistrationRequestAction.accept, "", 
+						RegistrationRequestAction.accept, null, 
 						msg.getMessage("RegistrationRequestsComponent.autoAccept"));
+			bus.fireEvent(new RegistrationRequestChangedEvent(id));
 			return true;
 		} catch (EngineException e)
 		{

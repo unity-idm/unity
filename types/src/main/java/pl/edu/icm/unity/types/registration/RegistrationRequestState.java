@@ -20,7 +20,6 @@ public class RegistrationRequestState
 	private Date timestamp;
 	private RegistrationRequest request;
 	private List<AdminComment> adminComments = new ArrayList<>();
-	private List<AdminComment> publicAdminComments = new ArrayList<>();
 	private RegistrationRequestStatus status;
 
 	public String getRequestId()
@@ -54,14 +53,6 @@ public class RegistrationRequestState
 	public void setAdminComments(List<AdminComment> adminComments)
 	{
 		this.adminComments = adminComments;
-	}
-	public List<AdminComment> getPublicAdminComments()
-	{
-		return publicAdminComments;
-	}
-	public void setPublicAdminComments(List<AdminComment> publicAdminComments)
-	{
-		this.publicAdminComments = publicAdminComments;
 	}
 	public RegistrationRequestStatus getStatus()
 	{

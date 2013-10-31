@@ -59,7 +59,6 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 		{
 			ObjectNode root = jsonMapper.createObjectNode();
 			root.put("AdminComments", jsonMapper.valueToTree(value.getAdminComments()));
-			root.put("PublicAdminComments", jsonMapper.valueToTree(value.getPublicAdminComments()));
 			root.put("RequestId", jsonMapper.valueToTree(value.getRequestId()));
 			root.put("Status", jsonMapper.valueToTree(value.getStatus()));
 			root.put("Timestamp", jsonMapper.valueToTree(value.getTimestamp().getTime()));
@@ -126,15 +125,6 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 				ret.setAdminComments(r);
 			}
 
-			n = root.get("PublicAdminComments");
-			if (n != null)
-			{
-				String v = jsonMapper.writeValueAsString(n);
-				List<AdminComment> r = jsonMapper.readValue(v, 
-						new TypeReference<List<AdminComment>>(){});
-				ret.setPublicAdminComments(r);
-			}
-			
 			n = root.get("RequestId");
 			ret.setRequestId(n.asText());
 
@@ -160,7 +150,7 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 			retReq.setAttributes(getAttributes((ArrayNode) n, sql));
 
 			n = root.get("Comments");
-			if (n != null)
+			if (n != null && !n.isNull())
 				retReq.setComments(n.asText());
 			
 			n = root.get("Credentials");
@@ -194,7 +184,7 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 			}
 			
 			n = root.get("RegistrationCode");
-			if (n != null)
+			if (n != null && !n.isNull())
 				retReq.setRegistrationCode(n.asText());
 			return ret;
 		} catch (Exception e)

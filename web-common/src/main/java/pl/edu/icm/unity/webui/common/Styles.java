@@ -18,6 +18,7 @@ public enum Styles
 	italic("u-italic"),
 	bold("u-bold"),
 	gray("u-gray"),
+	messageBox("u-messageBox"),
 	error("u-error"),
 	header("u-header");
 	

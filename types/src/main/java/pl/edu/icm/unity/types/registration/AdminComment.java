@@ -11,12 +11,14 @@ package pl.edu.icm.unity.types.registration;
 public class AdminComment extends Comment
 {
 	private long authorEntityId;
+	private boolean publicComment;
 
 	
-	public AdminComment(String contents, long authorEntityId)
+	public AdminComment(String contents, long authorEntityId, boolean publicComment)
 	{
 		super(contents);
 		this.authorEntityId = authorEntityId;
+		this.publicComment = publicComment;
 	}
 
 	public AdminComment()
@@ -34,12 +36,23 @@ public class AdminComment extends Comment
 		this.authorEntityId = authorEntityId;
 	}
 
+	public boolean isPublicComment()
+	{
+		return publicComment;
+	}
+
+	public void setPublicComment(boolean publicComment)
+	{
+		this.publicComment = publicComment;
+	}
+
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + (int) (authorEntityId ^ (authorEntityId >>> 32));
+		result = prime * result + (publicComment ? 1231 : 1237);
 		return result;
 	}
 
@@ -54,6 +67,8 @@ public class AdminComment extends Comment
 			return false;
 		AdminComment other = (AdminComment) obj;
 		if (authorEntityId != other.authorEntityId)
+			return false;
+		if (publicComment != other.publicComment)
 			return false;
 		return true;
 	}
