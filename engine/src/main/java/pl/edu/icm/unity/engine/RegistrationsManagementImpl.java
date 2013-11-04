@@ -63,10 +63,10 @@ import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
+import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
-import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
@@ -471,7 +471,6 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private void validateRequestAttributes(RegistrationForm form, RegistrationRequest request, SqlSession sql) 
 			throws WrongArgumentException, IllegalAttributeValueException, IllegalAttributeTypeException
 	{
-
 		validateParamsBase(form.getAttributeParams(), request.getAttributes(), "attributes");
 		Map<String, AttributeType> atMap = dbAttributes.getAttributeTypes(sql);
 		for (int i=0; i<request.getAttributes().size(); i++)
@@ -542,7 +541,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			throw new WrongArgumentException("The registration code is invalid.");
 	}
 
-	private void validateParamsBase(List<? extends RegistrationParam> paramDefinitions, List<?> params, 
+	private void validateParamsBase(List<? extends OptionalRegistrationParam> paramDefinitions, List<?> params, 
 			String info) throws WrongArgumentException
 	{
 		if (paramDefinitions.size() != params.size())
@@ -550,7 +549,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 					info + " parameters");
 		for (int i=0; i<paramDefinitions.size(); i++)
 			if (!paramDefinitions.get(i).isOptional() && params.get(i) == null)
-				throw new WrongArgumentException("The parameter nr " + i + " of " + 
+				throw new WrongArgumentException("The parameter nr " + (i+1) + " of " + 
 						info + " is required");
 	}
 

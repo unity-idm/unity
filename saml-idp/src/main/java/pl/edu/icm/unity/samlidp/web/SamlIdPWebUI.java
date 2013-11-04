@@ -43,8 +43,10 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
+import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
@@ -64,7 +66,6 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -99,7 +100,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	protected List<Identity> validIdentities;
 	protected Identity selectedIdentity;
 	protected Map<String, Attribute<?>> attributes;
-	protected List<CheckBox> hide;
+	protected ListOfSelectableElements attributesHiding;
 	protected CheckBox rememberCB;
 	protected ComboBox identitiesCB;
 
@@ -145,7 +146,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	protected Collection<Attribute<?>> getUserFilteredAttributes()
 	{
 		Set<String> hidden = new HashSet<String>();
-		for (CheckBox cb: hide)
+		for (CheckBox cb: attributesHiding.getSelection())
 			if (cb.getValue())
 				hidden.add((String) cb.getData());
 		
@@ -298,31 +299,17 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		
 		contents.addComponent(attributesL);
 		contents.addComponent(attributesInfo);
-		GridLayout gl = new GridLayout(2, attributes.size()+1);
-		gl.setSpacing(true);
-		gl.setWidth(100, Unit.PERCENTAGE);
-		gl.addComponent(hideL, 1, 0);
-		gl.setColumnExpandRatio(0, 10);
-		gl.setColumnExpandRatio(1, 1);
-		int row=1;
-		hide = new ArrayList<CheckBox>(attributes.size());
+		
+		attributesHiding = new ListOfSelectableElements(null, hideL, DisableMode.WHEN_SELECTED);
 		for (Attribute<?> at: attributes.values())
 		{
 			Label attrInfo = new Label();
 			String representation = handlersRegistry.getSimplifiedAttributeRepresentation(at, 80);
 			attrInfo.setValue(representation);
-			gl.addComponent(attrInfo, 0, row);
-
-			CheckBox cb = new CheckBox();
-			cb.setData(at.getName());
-			cb.setImmediate(true);
-			cb.addValueChangeListener(new AttributeHideHandler(attrInfo));
-			gl.addComponent(cb, 1, row);
-			hide.add(cb);
-			row++;
+			attributesHiding.addEntry(attrInfo, false, at.getName());
 		}
 		
-		contents.addComponent(gl);
+		contents.addComponent(attributesHiding);
 	}
 	
 	protected void createButtonsPart(VerticalLayout contents)
@@ -406,7 +393,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			return;
 		Set<String> hidden = settings.getHiddenAttribtues();
 		String groupAttribtue = samlProcessor.getConfiguredGroupAttribute();
-		for (CheckBox cb: hide)
+		for (CheckBox cb: attributesHiding.getSelection())
 		{
 			String a = (String) cb.getData();
 			if (hidden.contains(a))
@@ -455,7 +442,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		settings.setDoNotAsk(true);
 		Set<String> hidden = new HashSet<String>();
 		String groupAttribtue = samlProcessor.getConfiguredGroupAttribute();
-		for (CheckBox h: hide)
+		for (CheckBox h: attributesHiding.getSelection())
 		{
 			if (!h.getValue())
 				continue;
@@ -505,24 +492,5 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			return;
 		}
 		samlResponseHandler.returnSamlResponse(respDoc);
-	}
-
-	
-	
-	private class AttributeHideHandler implements ValueChangeListener
-	{
-		private Label associatedLabel;
-		
-		public AttributeHideHandler(Label associatedLabel)
-		{
-			this.associatedLabel = associatedLabel;
-		}
-
-		@Override
-		public void valueChange(ValueChangeEvent event)
-		{
-			Boolean value = (Boolean)event.getProperty().getValue();
-			associatedLabel.setEnabled(!value);
-		}
 	}
 }

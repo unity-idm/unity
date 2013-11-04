@@ -20,6 +20,7 @@ import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
+import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
@@ -345,11 +346,17 @@ public class RegistrationFormViewer extends VerticalLayout
 				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate);
 	}
 	
-	private String toHTMLLabel(RegistrationParam value)
+	private String toHTMLLabel(OptionalRegistrationParam value)
 	{
 		String settings = msg.getMessage("ParameterRetrievalSettings."+value.getRetrievalSettings());
 		return value.getLabel() + " " + getOptionalStr(value.isOptional()) + " [" + settings + "] [" + 
 				value.getDescription() + "]";
+	}
+
+	private String toHTMLLabel(RegistrationParam value)
+	{
+		String settings = msg.getMessage("ParameterRetrievalSettings."+value.getRetrievalSettings());
+		return value.getLabel() + " [" + settings + "] [" + value.getDescription() + "]";
 	}
 	
 	private String getOptionalStr(boolean value)

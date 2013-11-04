@@ -17,6 +17,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.db.generic.DefaultEntityHandler;
@@ -85,6 +86,11 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 		ArrayNode jsonAttrs = root.putArray("Attributes");
 		for (AttributeParamValue a: attributes)
 		{
+			if (a == null)
+			{
+				jsonAttrs.add((ObjectNode)null);
+				continue;
+			}
 			ObjectNode ap = jsonMapper.createObjectNode();
 			ap.set("attribute", attributeSerializer.toJson(a.getAttribute()));
 			ap.put("external", a.isExternal());
@@ -98,7 +104,13 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 		List<AttributeParamValue> ret = new ArrayList<>(n.size());
 		for (int i=0; i<n.size(); i++)
 		{
-			ObjectNode el = (ObjectNode) n.get(i);
+			JsonNode node = n.get(i);
+			if (node instanceof NullNode)
+			{
+				ret.add(null);
+				continue;
+			}
+			ObjectNode el = (ObjectNode) node;
 			AttributeParamValue av = new AttributeParamValue();
 			av.setExternal(el.get("external").asBoolean());
 			Attribute<?> a = attributeSerializer.fromJson((ObjectNode) el.get("attribute"), sql);

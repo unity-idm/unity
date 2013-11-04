@@ -351,7 +351,6 @@ public class TestRegistrations extends DBIntegrationTestBase
 		groupParam.setDescription("description");
 		groupParam.setGroupPath("/B");
 		groupParam.setLabel("label");
-		groupParam.setOptional(true);
 		groupParam.setRetrievalSettings(ParameterRetrievalSettings.automatic);
 		form.setGroupParams(Collections.singletonList(groupParam));
 		

@@ -31,6 +31,7 @@ public class ListOfElements<T> extends VerticalLayout
 	private LabelConverter<T> labelConverter;
 	private EditHandler<T> editHandler;
 	private RemoveHandler<T> removeHandler;
+	private boolean addSeparatorLine;
 	
 	public ListOfElements(UnityMessageSource msg, LabelConverter<T> labelConverter)
 	{
@@ -42,6 +43,16 @@ public class ListOfElements<T> extends VerticalLayout
 	public void setEditHandler(EditHandler<T> editHandler)
 	{
 		this.editHandler = editHandler;
+	}
+
+	public boolean isAddSeparatorLine()
+	{
+		return addSeparatorLine;
+	}
+
+	public void setAddSeparatorLine(boolean addSeparatorLine)
+	{
+		this.addSeparatorLine = addSeparatorLine;
 	}
 
 	public void setRemoveHandler(RemoveHandler<T> removeHandler)
@@ -126,8 +137,12 @@ public class ListOfElements<T> extends VerticalLayout
 				cont.addComponent(remove);
 			}
 			cont.addComponent(labelConverter.toLabel(element));
-			Label line = new Label("<hr>", ContentMode.HTML);
-			VerticalLayout main = new VerticalLayout(cont, line);
+			VerticalLayout main = new VerticalLayout(cont);
+			if (addSeparatorLine)
+			{
+				Label line = new Label("<hr>", ContentMode.HTML);
+				main.addComponent(line);
+			}
 			main.setSpacing(true);
 			setCompositionRoot(main);
 			

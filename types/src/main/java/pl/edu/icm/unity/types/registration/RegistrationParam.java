@@ -12,7 +12,6 @@ public class RegistrationParam
 {
 	private String label;
 	private String description;
-	private boolean optional;
 	private ParameterRetrievalSettings retrievalSettings;
 
 	public String getLabel()
@@ -31,14 +30,6 @@ public class RegistrationParam
 	{
 		this.description = description;
 	}
-	public boolean isOptional()
-	{
-		return optional;
-	}
-	public void setOptional(boolean optional)
-	{
-		this.optional = optional;
-	}
 	public ParameterRetrievalSettings getRetrievalSettings()
 	{
 		return retrievalSettings;
@@ -47,7 +38,6 @@ public class RegistrationParam
 	{
 		this.retrievalSettings = retrievalSettings;
 	}
-	
 	@Override
 	public int hashCode()
 	{
@@ -55,7 +45,6 @@ public class RegistrationParam
 		int result = 1;
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
-		result = prime * result + (optional ? 1231 : 1237);
 		result = prime * result
 				+ ((retrievalSettings == null) ? 0 : retrievalSettings.hashCode());
 		return result;
@@ -81,8 +70,6 @@ public class RegistrationParam
 			if (other.label != null)
 				return false;
 		} else if (!label.equals(other.label))
-			return false;
-		if (optional != other.optional)
 			return false;
 		if (retrievalSettings != other.retrievalSettings)
 			return false;

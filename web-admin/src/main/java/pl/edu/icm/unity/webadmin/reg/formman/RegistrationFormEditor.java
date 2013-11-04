@@ -43,6 +43,7 @@ import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
+import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
@@ -388,7 +389,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		public void setEditedComponentPosition(int position) {}
 	}
 	
-	private class IdentityEditorAndProvider extends ParameterEditor implements EditorProvider<IdentityRegistrationParam>,
+	private class IdentityEditorAndProvider extends OptionalParameterEditor implements EditorProvider<IdentityRegistrationParam>,
 			Editor<IdentityRegistrationParam>
 	{
 		private ComboBox identityType;
@@ -429,7 +430,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		public void setEditedComponentPosition(int position) {}
 	}
 
-	private class AttributeEditorAndProvider extends ParameterEditor implements EditorProvider<AttributeRegistrationParam>,
+	private class AttributeEditorAndProvider extends OptionalParameterEditor implements EditorProvider<AttributeRegistrationParam>,
 			Editor<AttributeRegistrationParam>
 	{
 		private AttributeSelectionComboBox attributeType;
@@ -574,25 +575,22 @@ public class RegistrationFormEditor extends VerticalLayout
 		protected FormLayout main = new FormLayout();
 		protected TextField label;
 		protected TextField description;
-		protected CheckBox optional;
 		protected EnumComboBox<ParameterRetrievalSettings> retrievalSettings;
 
 		protected void initEditorComponent(RegistrationParam value)
 		{
 			label = new TextField(msg.getMessage("RegistrationFormViewer.paramLabel"));
 			description = new TextField(msg.getMessage("RegistrationFormViewer.paramDescription"));
-			optional = new CheckBox(msg.getMessage("RegistrationFormViewer.paramOptional"));
 			retrievalSettings = new EnumComboBox<ParameterRetrievalSettings>(
 					msg.getMessage("RegistrationFormViewer.paramSettings"), msg, 
 					"ParameterRetrievalSettings.", ParameterRetrievalSettings.class, 
 					ParameterRetrievalSettings.interactive);
-			main.addComponents(label, description, optional, retrievalSettings);
+			main.addComponents(label, description, retrievalSettings);
 			
 			if (value != null)
 			{
 				label.setValue(value.getLabel());
 				description.setValue(value.getDescription());
-				optional.setValue(value.isOptional());
 				retrievalSettings.setEnumValue(value.getRetrievalSettings());
 			}
 		}
@@ -601,12 +599,32 @@ public class RegistrationFormEditor extends VerticalLayout
 		{
 			v.setDescription(description.getValue());
 			v.setLabel(label.getValue());
-			v.setOptional(optional.getValue());
 			v.setRetrievalSettings(retrievalSettings.getSelectedValue());
 		}
 	}
 	
-	
+	private abstract class OptionalParameterEditor extends ParameterEditor
+	{
+		protected CheckBox optional;
+
+		protected void initEditorComponent(OptionalRegistrationParam value)
+		{
+			super.initEditorComponent(value);
+			optional = new CheckBox(msg.getMessage("RegistrationFormViewer.paramOptional"));
+			main.addComponent(optional);
+			
+			if (value != null)
+			{
+				optional.setValue(value.isOptional());
+			}
+		}
+		
+		protected void fill(OptionalRegistrationParam v)
+		{
+			super.fill(v);
+			v.setOptional(optional.getValue());
+		}
+	}	
 	private class GroupAssignmentEditorAndProvider implements EditorProvider<String>,
 			Editor<String>
 	{

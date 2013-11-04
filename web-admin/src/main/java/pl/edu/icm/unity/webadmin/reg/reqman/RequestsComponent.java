@@ -15,11 +15,10 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.webadmin.reg.reqman.RequestsTable.RequestSelectionListener;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
+import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Component responsible for management of the submitted registration requests.
@@ -34,16 +33,18 @@ import com.vaadin.ui.themes.Reindeer;
 public class RequestsComponent extends CustomComponent
 {
 	private RegistrationsManagement registrationsManagement;
+	private AttributeHandlerRegistry handlersRegistry;
 	private UnityMessageSource msg;
 	
 	private RequestsTable requestsTable;
 	
 	@Autowired
-	public RequestsComponent(RegistrationsManagement registrationsManagement,
-			UnityMessageSource msg)
+	public RequestsComponent(RegistrationsManagement registrationsManagement, 
+			AttributeHandlerRegistry handlersRegistry, UnityMessageSource msg)
 	{
 		this.registrationsManagement = registrationsManagement;
 		this.msg = msg;
+		this.handlersRegistry = handlersRegistry;
 		initUI();
 		WebSession.getCurrent().getEventBus().addListener(new EventListener<RegistrationRequestChangedEvent>()
 		{
@@ -58,14 +59,9 @@ public class RequestsComponent extends CustomComponent
 
 	private void initUI()
 	{
-		HorizontalSplitPanel hl = new HorizontalSplitPanel();
-		hl.addStyleName(Reindeer.SPLITPANEL_SMALL);
-		hl.setSizeFull();
 		requestsTable = new RequestsTable(registrationsManagement, msg);
-		VerticalLayout wrapper = new VerticalLayout(requestsTable);
-		wrapper.setMargin(true);
-		
-		final RequestProcessingPanel requestPanel = new RequestProcessingPanel(msg, registrationsManagement);
+		final RequestProcessingPanel requestPanel = new RequestProcessingPanel(msg, registrationsManagement,
+				handlersRegistry);
 		requestsTable.addValueChangeListener(new RequestSelectionListener()
 		{
 			@Override
@@ -75,9 +71,7 @@ public class RequestsComponent extends CustomComponent
 			}
 		});
 		
-		hl.setFirstComponent(wrapper);
-		hl.setSecondComponent(requestPanel);
-		hl.setSplitPosition(40, Unit.PERCENTAGE);
+		CompositeSplitPanel hl = new CompositeSplitPanel(false, true, requestsTable, requestPanel, 40);
 		setCompositionRoot(hl);
 		setSizeFull();
 		setCaption(msg.getMessage("RequestsComponent.caption"));

@@ -8,7 +8,7 @@ package pl.edu.icm.unity.types.registration;
  * Identity registration option.
  * @author K. Benedyczak
  */
-public class IdentityRegistrationParam extends RegistrationParam
+public class IdentityRegistrationParam extends OptionalRegistrationParam
 {
 	private String identityType;
 

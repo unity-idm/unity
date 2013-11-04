@@ -13,6 +13,29 @@ import com.vaadin.ui.TextArea;
 public class DescriptionTextArea extends TextArea
 {
 	/**
+	 * Editable, without a value, no caption
+	 * @param caption
+	 */
+	public DescriptionTextArea()
+	{
+		this(false, "");
+	}
+
+	/**
+	 * Allows to set whether is read only and the initial value, no caption
+	 * @param caption
+	 * @param readOnly
+	 * @param initialValue
+	 */
+	public DescriptionTextArea(boolean readOnly, String initialValue)
+	{
+		setWordwrap(false);
+		setWidth(100, Unit.PERCENTAGE);
+		setValue(initialValue);
+		setReadOnly(readOnly);
+	}
+	
+	/**
 	 * Editable, without a value
 	 * @param caption
 	 */

@@ -8,7 +8,7 @@ package pl.edu.icm.unity.types.registration;
  * Attribute registration option.
  * @author K. Benedyczak
  */
-public class AttributeRegistrationParam extends RegistrationParam
+public class AttributeRegistrationParam extends OptionalRegistrationParam
 {
 	private String attributeType;
 	private String group;

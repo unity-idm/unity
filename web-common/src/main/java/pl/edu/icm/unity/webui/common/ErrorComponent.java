@@ -4,6 +4,10 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import org.apache.log4j.Logger;
+
+import pl.edu.icm.unity.server.utils.Log;
+
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.FormLayout;
@@ -16,6 +20,7 @@ import com.vaadin.ui.Label;
  */
 public class ErrorComponent extends FormLayout
 {
+	private Logger log = Log.getLogger(Log.U_SERVER_WEB, ErrorComponent.class);
 	public enum Level {error, warning}
 	
 	public ErrorComponent()
@@ -31,6 +36,7 @@ public class ErrorComponent extends FormLayout
 		errorL.setIcon(Images.error32.getResource());
 		errorL.setValue(description + ": " + ErrorPopup.getHumanMessage(error));
 		errorL.setContentMode(ContentMode.HTML);
+		log.warn("Error component initialized with the error with exception", error);
 		addCommon(errorL);
 	}
 

@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webadmin.reg.reqman;
 
+import java.util.List;
+
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
@@ -19,6 +21,7 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
@@ -26,6 +29,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
  * Responsible for displaying a submitted request ({@link RegistrationRequestState}), its editing and processing.
@@ -35,6 +39,7 @@ public class RequestProcessingPanel extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private RegistrationsManagement regMan;
+	private AttributeHandlerRegistry handlersRegistry;
 	
 	private EventsBus bus;
 	private RequestCommentPanel commentPanel;
@@ -49,10 +54,12 @@ public class RequestProcessingPanel extends CustomComponent
 	private Label requestStatus;
 	private Label requestDate;
 	
-	public RequestProcessingPanel(UnityMessageSource msg, RegistrationsManagement regMan)
+	public RequestProcessingPanel(UnityMessageSource msg, RegistrationsManagement regMan,
+			AttributeHandlerRegistry handlersRegistry)
 	{
 		this.msg = msg;
 		this.regMan = regMan;
+		this.handlersRegistry = handlersRegistry;
 		this.bus = WebSession.getCurrent().getEventBus();
 		initUI();
 	}
@@ -76,7 +83,7 @@ public class RequestProcessingPanel extends CustomComponent
 		commentPanel = new RequestCommentPanel(msg, regMan);
 		commentPanel.setCaption(msg.getMessage("RequestProcessingPanel.comments"));
 		
-		requestReviewPanel = new RequestReviewPanel(msg);
+		requestReviewPanel = new RequestReviewPanel(msg, handlersRegistry);
 		requestReviewPanel.setCaption(msg.getMessage("RequestProcessingPanel.requested"));
 		
 		tabs.addComponent(requestReviewPanel);
@@ -130,16 +137,31 @@ public class RequestProcessingPanel extends CustomComponent
 		}
 		main.setVisible(true);
 
-		//TODO
 		this.requestState = input;
 		RegistrationRequest request = input.getRequest();
+		List<RegistrationForm> forms;
+		try
+		{
+			forms = regMan.getForms();
+		} catch (EngineException e)
+		{
+			ErrorPopup.showError(msg.getMessage("RequestsTable.errorGetRequests"), e);
+			return;
+		}
+		RegistrationForm form = null;
+		for (RegistrationForm f: forms)
+			if (f.getName().equals(request.getFormId()))
+				form = f;
+		if (form == null)
+			throw new IllegalStateException("Got request for the non-existing form " + 
+		request.getFormId() + " " + input.getRequestId());
 		requestForm.setValue(request.getFormId());
 		requestId.setValue(input.getRequestId());
 		requestStatus.setValue(msg.getMessage("RegistrationRequestStatus." + input.getStatus()));
 		requestDate.setValue(Constants.SIMPLE_DATE_FORMAT.format(input.getTimestamp()));
 		
 		commentPanel.setInput(input);
-		requestReviewPanel.setInput(input);
+		requestReviewPanel.setInput(input, form);
 		
 		accept.setVisible(input.getStatus() == RegistrationRequestStatus.pending);
 		reject.setVisible(input.getStatus() == RegistrationRequestStatus.pending);
@@ -150,7 +172,7 @@ public class RequestProcessingPanel extends CustomComponent
 		try
 		{
 			regMan.processReqistrationRequest(requestState.getRequestId(), 
-					requestState.getRequest(), action, null, null);
+					requestReviewPanel.getUpdatedRequest(), action, null, null);
 			bus.fireEvent(new RegistrationRequestChangedEvent(requestState.getRequestId()));
 		} catch (EngineException e)
 		{

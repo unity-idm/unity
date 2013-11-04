@@ -178,9 +178,8 @@ public class RegistrationRequestEditor extends CustomComponent
 		{
 			for (GroupRegistrationParam gParam: gParams)
 			{
-				if (!gParam.isOptional() && 
-						(gParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic
-						|| gParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden))
+				if (gParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic
+						|| gParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
 				{
 					Collection<String> groups = remotelyAuthenticated.getGroups();
 					boolean found = false;
