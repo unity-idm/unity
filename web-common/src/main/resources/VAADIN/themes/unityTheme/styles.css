@@ -25,6 +25,12 @@
 	padding:5px;
 }
 
+.u-formSection {
+	font-size: 13px;
+	font-weight: bold;
+	margin: 14px 0 4px 0;
+}
+
 .u-italic {
 	font-style: italic;
 }

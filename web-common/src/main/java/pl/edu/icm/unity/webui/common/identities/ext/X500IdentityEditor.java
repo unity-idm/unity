@@ -10,11 +10,13 @@ import java.io.OutputStream;
 import java.security.cert.X509Certificate;
 
 import com.vaadin.server.UserError;
-import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Upload;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Upload.Receiver;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.Upload.SucceededListener;
@@ -38,6 +40,8 @@ public class X500IdentityEditor implements IdentityEditor
 {
 	private UnityMessageSource msg;
 	private TextField field;
+	private X500EditorField editor;
+	private boolean required;
 	
 	public X500IdentityEditor(UnityMessageSource msg)
 	{
@@ -45,20 +49,11 @@ public class X500IdentityEditor implements IdentityEditor
 	}
 
 	@Override
-	public Component getEditor()
+	public AbstractField<String> getEditor(boolean required)
 	{
-		field = new TextField(msg.getMessage("X500IdentityEditor.dn"));
-		field.setWidth(100, Unit.PERCENTAGE);
-		Upload upload = new Upload();
-		upload.setCaption(msg.getMessage("X500IdentityEditor.certUploadCaption"));
-		CertUploader uploader = new CertUploader(); 
-		upload.setReceiver(uploader);
-		upload.addSucceededListener(uploader);
-		
-		FormLayout hl = new FormLayout();
-		hl.addComponents(field, upload);
-		hl.setMargin(true);
-		return hl;
+		this.required = required;
+		editor = new X500EditorField();
+		return editor;
 	}
 
 	@Override
@@ -67,17 +62,19 @@ public class X500IdentityEditor implements IdentityEditor
 		String dn = field.getValue();
 		if (dn.trim().equals(""))
 		{
+			if (!required)
+				return null;
 			String err = msg.getMessage("X500IdentityEditor.dnEmpty");
-			field.setComponentError(new UserError(err));
+			editor.setComponentError(new UserError(err));
 			throw new IllegalIdentityValueException(err);
 		}
 		try
 		{
 			X500NameUtils.getX500Principal(dn);
-			field.setComponentError(null);
+			editor.setComponentError(null);
 		} catch (Exception e)
 		{
-			field.setComponentError(new UserError(msg.getMessage("X500IdentityEditor.dnError", 
+			editor.setComponentError(new UserError(msg.getMessage("X500IdentityEditor.dnError", 
 					e.getMessage())));
 			throw new IllegalIdentityValueException(e.getMessage());
 		}
@@ -115,5 +112,38 @@ public class X500IdentityEditor implements IdentityEditor
 				fos = null;
 			}
 		}
-	};		
+	};
+	
+	private class X500EditorField extends CustomField<String> 
+	{
+
+		@Override
+		protected Component initContent()
+		{
+			field = new TextField();
+			field.setWidth(100, Unit.PERCENTAGE);
+			Upload upload = new Upload();
+			upload.setCaption(msg.getMessage("X500IdentityEditor.certUploadCaption"));
+			CertUploader uploader = new CertUploader(); 
+			upload.setReceiver(uploader);
+			upload.addSucceededListener(uploader);
+			
+			VerticalLayout vl = new VerticalLayout();
+			FormLayout wrapper = new FormLayout(upload);
+			wrapper.setMargin(false);
+			vl.addComponents(field, wrapper);
+			vl.setSpacing(true);
+			
+			setCaption(msg.getMessage("X500IdentityEditor.dn"));
+			setRequired(required);
+			return vl;
+		}
+
+		@Override
+		public Class<? extends String> getType()
+		{
+			return String.class;
+		}
+		
+	}
 }

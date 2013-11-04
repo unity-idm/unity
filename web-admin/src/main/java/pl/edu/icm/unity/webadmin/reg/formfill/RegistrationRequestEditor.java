@@ -35,6 +35,7 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
@@ -43,11 +44,13 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
 import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
@@ -320,18 +323,17 @@ public class RegistrationRequestEditor extends CustomComponent
 		Label formInformation = new Label(info, ContentMode.HTML);
 		main.addComponent(formInformation);
 
+		FormLayout mainFormLayout = new FormLayout();
+		main.addComponent(mainFormLayout);
+		
 		if (form.getRegistrationCode() != null)
 		{
-			FormLayout wrap = new FormLayout();
 			registrationCode = new TextField(msg.getMessage("RegistrationRequest.registrationCode"));
-			wrap.addComponent(registrationCode);
-			main.addComponent(wrap);
+			registrationCode.setRequired(true);
+			mainFormLayout.addComponent(registrationCode);
 		}
 		
-		Panel identityP = new Panel(msg.getMessage("RegistrationRequest.identities"));
-		identityP.setStyleName(Reindeer.PANEL_LIGHT);
-		identityP.setContent(createIdentityUI());
-		main.addComponent(identityP);
+		createIdentityUI(mainFormLayout);
 
 		if (form.getCredentialParams() != null && form.getCredentialParams().size() > 0)
 		{
@@ -381,10 +383,11 @@ public class RegistrationRequestEditor extends CustomComponent
 		setCompositionRoot(main);
 	}
 	
-	private Component createIdentityUI()
+	private void createIdentityUI(Layout layout)
 	{
-		VerticalLayout vl = new VerticalLayout();
-		vl.setSpacing(true);
+		Label identityL = new Label(msg.getMessage("RegistrationRequest.identities"));
+		identityL.addStyleName(Styles.formSection.toString());
+		layout.addComponent(identityL);
 		List<IdentityRegistrationParam> idParams = form.getIdentityParams();
 		identityParamEditors = new ArrayList<>();
 		for (int i=0; i<idParams.size(); i++)
@@ -394,21 +397,16 @@ public class RegistrationRequestEditor extends CustomComponent
 				continue;
 			IdentityEditor editor = identityEditorRegistry.getEditor(idParam.getIdentityType());
 			identityParamEditors.add(editor);
-			Component editorUI = editor.getEditor();
-			vl.addComponent(editorUI);
-			//TODO - pass label somehow?
-//			if (idParam.getLabel() != null)
-//				editorUI.setCaption(idParam.getLabel());
-//			else
-//				editorUI.setCaption(idParam.getIdentityType());
-			//TODO
-			//if (idParam.getDescription() != null)
-			//TODO idPram.isOptional()
+			AbstractField<String> editorUI = editor.getEditor(!idParam.isOptional());
+			layout.addComponent(editorUI);
+			if (idParam.getLabel() != null)
+				editorUI.setCaption(idParam.getLabel());
+			if (idParam.getDescription() != null)
+				editorUI.setDescription(idParam.getDescription());
 			
 			if (i < idParams.size() - 1)
-				vl.addComponent(new Label("<hr>", ContentMode.HTML));
+				layout.addComponent(new Label("<hr>", ContentMode.HTML));
 		}
-		return vl;
 	}
 	
 	private Component createCredentialsUI() throws EngineException

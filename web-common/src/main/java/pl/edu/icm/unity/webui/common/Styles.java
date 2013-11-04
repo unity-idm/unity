@@ -17,6 +17,7 @@ public enum Styles
 	textCenter("u-textCenter"),
 	italic("u-italic"),
 	bold("u-bold"),
+	formSection("u-formSection"),
 	gray("u-gray"),
 	messageBox("u-messageBox"),
 	error("u-error"),

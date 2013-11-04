@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common.identities;
 
-import com.vaadin.ui.Component;
+import com.vaadin.ui.AbstractField;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -18,7 +18,7 @@ public interface IdentityEditor
 	/**
 	 * @return the editor component
 	 */
-	public Component getEditor();
+	public AbstractField<String> getEditor(boolean required);
 	
 	/**
 	 * @return the current identity value

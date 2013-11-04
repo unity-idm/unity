@@ -597,8 +597,10 @@ public class RegistrationFormEditor extends VerticalLayout
 		
 		protected void fill(RegistrationParam v)
 		{
-			v.setDescription(description.getValue());
-			v.setLabel(label.getValue());
+			if (!description.getValue().isEmpty())
+				v.setDescription(description.getValue());
+			if (!label.getValue().isEmpty())
+				v.setLabel(label.getValue());
 			v.setRetrievalSettings(retrievalSettings.getSelectedValue());
 		}
 	}

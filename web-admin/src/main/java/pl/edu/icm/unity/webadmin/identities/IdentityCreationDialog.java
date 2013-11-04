@@ -35,7 +35,6 @@ public class IdentityCreationDialog extends AbstractDialog
 	protected Callback callback;
 	
 	protected ComboBox identityType;
-	protected Panel identityPanel;
 	protected IdentityEditor identityEditor;
 	protected CheckBox extractAttributes;
 	
@@ -67,7 +66,10 @@ public class IdentityCreationDialog extends AbstractDialog
 		identityType.setNullSelectionAllowed(false);
 		identityType.setImmediate(true);
 
-		identityPanel = new Panel(msg.getMessage("IdentityCreation.idValue"));
+		Panel identityPanel = new Panel(msg.getMessage("IdentityCreation.idValue"));
+		final FormLayout idLayout = new FormLayout();
+		idLayout.setMargin(true);
+		identityPanel.setContent(idLayout);
 		
 		identityType.addValueChangeListener(new ValueChangeListener()
 		{
@@ -76,7 +78,8 @@ public class IdentityCreationDialog extends AbstractDialog
 			{
 				String type = (String) identityType.getValue();
 				IdentityEditor editor = identityEditorReg.getEditor(type);
-				identityPanel.setContent(editor.getEditor());
+				idLayout.removeAllComponents();
+				idLayout.addComponent(editor.getEditor(true));
 				IdentityCreationDialog.this.identityEditor = editor;
 			}
 		});
