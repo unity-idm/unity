@@ -60,6 +60,7 @@ public class RequestCommentPanel extends CustomComponent
 		contentP.setHeight(80, Unit.PERCENTAGE);
 		
 		Button postPublic = new Button(msg.getMessage("RequestProcessingPanel.postPublic"));
+		postPublic.setDescription(msg.getMessage("RequestProcessingPanel.postPublicTooltip"));
 		postPublic.addClickListener(new Button.ClickListener()
 		{
 			@Override
@@ -69,6 +70,7 @@ public class RequestCommentPanel extends CustomComponent
 			}
 		});
 		Button postInternal = new Button(msg.getMessage("RequestProcessingPanel.postInternal"));
+		postInternal.setDescription(msg.getMessage("RequestProcessingPanel.postInternalTooltip"));
 		postInternal.addClickListener(new Button.ClickListener()
 		{
 			@Override
@@ -117,8 +119,8 @@ public class RequestCommentPanel extends CustomComponent
 			else
 				sb.append(msg.getMessage("RequestCommentPanel.internal"));
 			sb.append(" ").append(Constants.SIMPLE_DATE_FORMAT.format(comment.getDate()));
-			sb.append("<p>").append(comment.getContents());
-			Label commentL = new Label(sb.toString(), ContentMode.HTML);
+			sb.append("\n\n").append(comment.getContents());
+			Label commentL = new Label(sb.toString(), ContentMode.PREFORMATTED);
 			commentL.addStyleName(Styles.messageBox.toString());
 			contentP.addComponent(commentL);
 		}

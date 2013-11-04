@@ -17,7 +17,9 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Component responsible for management of the submitted registration requests.
@@ -56,11 +58,12 @@ public class RequestsComponent extends CustomComponent
 
 	private void initUI()
 	{
-		HorizontalLayout hl = new HorizontalLayout();
-		hl.setMargin(true);
-		hl.setSpacing(true);
+		HorizontalSplitPanel hl = new HorizontalSplitPanel();
+		hl.addStyleName(Reindeer.SPLITPANEL_SMALL);
 		hl.setSizeFull();
 		requestsTable = new RequestsTable(registrationsManagement, msg);
+		VerticalLayout wrapper = new VerticalLayout(requestsTable);
+		wrapper.setMargin(true);
 		
 		final RequestProcessingPanel requestPanel = new RequestProcessingPanel(msg, registrationsManagement);
 		requestsTable.addValueChangeListener(new RequestSelectionListener()
@@ -72,10 +75,11 @@ public class RequestsComponent extends CustomComponent
 			}
 		});
 		
-		hl.addComponents(requestsTable, requestPanel);
-		hl.setExpandRatio(requestsTable, 0.5f);
-		hl.setExpandRatio(requestPanel, 0.5f);
+		hl.setFirstComponent(wrapper);
+		hl.setSecondComponent(requestPanel);
+		hl.setSplitPosition(40, Unit.PERCENTAGE);
 		setCompositionRoot(hl);
+		setSizeFull();
 		setCaption(msg.getMessage("RequestsComponent.caption"));
 	}
 }

@@ -10,8 +10,10 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.themes.Reindeer;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -36,6 +38,7 @@ public class RequestProcessingPanel extends CustomComponent
 	
 	private EventsBus bus;
 	private RequestCommentPanel commentPanel;
+	private RequestReviewPanel requestReviewPanel;
 	private RegistrationRequestState requestState;
 	private Button accept;
 	private Button reject;
@@ -67,9 +70,17 @@ public class RequestProcessingPanel extends CustomComponent
 		
 		FormLayout topInfo = new FormLayout(requestForm, requestStatus, requestDate, requestId);
 		
+		TabSheet tabs = new TabSheet();
+		tabs.addStyleName(Reindeer.TABSHEET_MINIMAL);
 		
 		commentPanel = new RequestCommentPanel(msg, regMan);
+		commentPanel.setCaption(msg.getMessage("RequestProcessingPanel.comments"));
 		
+		requestReviewPanel = new RequestReviewPanel(msg);
+		requestReviewPanel.setCaption(msg.getMessage("RequestProcessingPanel.requested"));
+		
+		tabs.addComponent(requestReviewPanel);
+		tabs.addComponent(commentPanel);
 		
 		accept = new Button(msg.getMessage("RequestProcessingPanel.accept"));
 		accept.addClickListener(new Button.ClickListener()
@@ -102,7 +113,7 @@ public class RequestProcessingPanel extends CustomComponent
 		buttonsBar.setSpacing(true);
 		
 		
-		main = new VerticalLayout(topInfo, commentPanel, buttonsBar);
+		main = new VerticalLayout(topInfo, tabs, buttonsBar);
 		main.setComponentAlignment(buttonsBar, Alignment.BOTTOM_RIGHT);
 		main.setMargin(true);
 		main.setSpacing(true);
@@ -128,6 +139,7 @@ public class RequestProcessingPanel extends CustomComponent
 		requestDate.setValue(Constants.SIMPLE_DATE_FORMAT.format(input.getTimestamp()));
 		
 		commentPanel.setInput(input);
+		requestReviewPanel.setInput(input);
 		
 		accept.setVisible(input.getStatus() == RegistrationRequestStatus.pending);
 		reject.setVisible(input.getStatus() == RegistrationRequestStatus.pending);
