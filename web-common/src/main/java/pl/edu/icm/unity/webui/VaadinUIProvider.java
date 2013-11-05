@@ -31,16 +31,18 @@ public class VaadinUIProvider extends UIProvider
 	private transient EndpointDescription description;
 	private transient List<Map<String, BindingAuthn>> authenticators;
 	private transient CancelHandler cancelHandler;
+	private transient EndpointRegistrationConfiguration registrationConfiguraiton;
 
 	public VaadinUIProvider(ApplicationContext applicationContext, String uiBeanName,
-			EndpointDescription description,
-			List<Map<String, BindingAuthn>> authenticators)
+			EndpointDescription description, List<Map<String, BindingAuthn>> authenticators,
+			EndpointRegistrationConfiguration registrationConfiguraiton)
 	{
 		super();
 		this.applicationContext = applicationContext;
 		this.uiBeanName = uiBeanName;
 		this.description = description;
 		this.authenticators = authenticators;
+		this.registrationConfiguraiton = registrationConfiguraiton;
 	}
 
 	public void setCancelHandler(CancelHandler cancelHandler)
@@ -61,7 +63,7 @@ public class VaadinUIProvider extends UIProvider
 		UI ui = (UI) applicationContext.getBean(uiBeanName);
 		if (ui instanceof UnityWebUI)
 		{
-			((UnityWebUI)ui).configure(description, authenticators);
+			((UnityWebUI)ui).configure(description, authenticators, registrationConfiguraiton);
 			if (cancelHandler != null)
 				((UnityWebUI)ui).setCancelHandler(cancelHandler);
 		}

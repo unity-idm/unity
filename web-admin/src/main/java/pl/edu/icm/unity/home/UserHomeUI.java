@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.common.TopHeader;
@@ -50,7 +51,8 @@ public class UserHomeUI extends UnityUIBase implements UnityWebUI
 
 	@Override
 	public void configure(EndpointDescription description,
-			List<Map<String, BindingAuthn>> authenticators)
+			List<Map<String, BindingAuthn>> authenticators,
+			EndpointRegistrationConfiguration regCfg)
 	{
 		this.endpointDescription = description;
 	}

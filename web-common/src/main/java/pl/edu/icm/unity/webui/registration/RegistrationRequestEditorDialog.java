@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.reg.formfill;
+package pl.edu.icm.unity.webui.registration;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
@@ -27,15 +27,17 @@ public class RegistrationRequestEditorDialog extends AbstractDialog
 	private RegistrationRequestEditor editor;
 	private Callback callback;
 	private Button submitAndAccept;
+	private boolean addAutoAccept;
 	
 	public RegistrationRequestEditorDialog(UnityMessageSource msg, String caption, 
-			RegistrationRequestEditor editor, Callback callback)
+			RegistrationRequestEditor editor, boolean addAutoAccept, Callback callback)
 	{
 		super(msg, caption, msg.getMessage("RegistrationRequestEditorDialog.submitRequest"), 
 				msg.getMessage("cancel"));
 		submitAndAccept = new Button(msg.getMessage("RegistrationRequestEditorDialog.submitAndAccept"), this);
 		this.editor = editor;
 		this.callback = callback;
+		this.addAutoAccept = addAutoAccept;
 		setWidth(80, Unit.PERCENTAGE);
 		setHeight(85, Unit.PERCENTAGE);
 	}
@@ -44,7 +46,8 @@ public class RegistrationRequestEditorDialog extends AbstractDialog
 	protected AbstractOrderedLayout getButtonsBar()
 	{
 		AbstractOrderedLayout ret = super.getButtonsBar();
-		ret.addComponent(submitAndAccept, 0);
+		if (addAutoAccept)
+			ret.addComponent(submitAndAccept, 0);
 		return ret;
 	}
 	

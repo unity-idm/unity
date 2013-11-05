@@ -20,6 +20,7 @@ import pl.edu.icm.unity.samlidp.FreemarkerHandler;
 import pl.edu.icm.unity.samlidp.SamlProperties;
 import pl.edu.icm.unity.samlidp.web.filter.SamlParseFilter;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityVaadinServlet;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
@@ -70,9 +71,11 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
 				description.getContextAddress()+AUTHENTICATION_PATH);
 		context.addFilter(new FilterHolder(authnFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
-
+		
+		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
 		UnityVaadinServlet authenticationServlet = new UnityVaadinServlet(applicationContext, 
-				AuthenticationUI.class.getSimpleName(), description, authenticators);
+				AuthenticationUI.class.getSimpleName(), description, authenticators,
+				registrationConfiguration);
 		
 		CancelHandler cancelHandler = new SamlAuthnCancelHandler(freemarkerHandler,
 				description.getContextAddress()+AUTHENTICATION_PATH);
@@ -83,7 +86,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
 		UnityVaadinServlet theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
-				description, authenticators);
+				description, authenticators, registrationConfiguration);
 		context.addServlet(createServletHolder(theServlet), servletPath + "/*");
 		
 		return context;

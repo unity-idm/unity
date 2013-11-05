@@ -52,4 +52,15 @@ public interface EndpointInstance
 	public String getSerializedConfiguration();
 
 	public void destroy();
+	
+	
+	/**
+	 * Runtime update of the authenticators being used by this endpoint.
+	 * @param handler
+	 * @param authenticators
+	 * @throws UnsupportedOperationException if the operation is unsupported and the endpoint must be 
+	 * re-created instead.
+	 */
+	public void updateAuthenticators(List<Map<String, BindingAuthn>> authenticators)
+		throws UnsupportedOperationException;
 }

@@ -160,6 +160,9 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		InvocationContext authnCtx = InvocationContext.getCurrent();
 		AuthenticatedEntity client = authnCtx.getAuthenticatedEntity();
 
+		if (client == null)
+			throw new AuthorizationException("Access is denied. The client is not authenticated.");
+		
 		//special case: if the credential is outdated, the only allowed operation is to update it
 		//or read. Read is needed as to show credential update options it is needed to know the current state.
 		if (client.isUsedOutdatedCredential())

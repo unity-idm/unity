@@ -17,6 +17,7 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.registration.RegistrationRequestChangedEvent;
 
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;

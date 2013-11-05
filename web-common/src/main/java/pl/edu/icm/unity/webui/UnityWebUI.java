@@ -19,7 +19,8 @@ import pl.edu.icm.unity.webui.authn.CancelHandler;
 public interface UnityWebUI
 {
 	public void configure(EndpointDescription description, 
-			List<Map<String, BindingAuthn>> authenticators);
+			List<Map<String, BindingAuthn>> authenticators,
+			EndpointRegistrationConfiguration registrationConfiguration);
 	
 	/**
 	 * Method invoked only if the endpoint supports cancellation of authentication. Some of the endpoints

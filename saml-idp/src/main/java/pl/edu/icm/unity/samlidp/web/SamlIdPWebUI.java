@@ -40,6 +40,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.WebSession;
@@ -120,7 +121,8 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 
 	@Override
 	public void configure(EndpointDescription description,
-			List<Map<String, BindingAuthn>> authenticators)
+			List<Map<String, BindingAuthn>> authenticators,
+			EndpointRegistrationConfiguration regCfg)
 	{
 		this.endpointDescription = description;
 	}

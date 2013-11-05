@@ -30,6 +30,7 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.registration.RegistrationRequestChangedEvent;
 
 /**
  * Responsible for displaying a submitted request ({@link RegistrationRequestState}), its editing and processing.

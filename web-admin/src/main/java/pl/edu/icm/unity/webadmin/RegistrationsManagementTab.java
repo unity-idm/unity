@@ -10,9 +10,9 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webadmin.reg.formfill.RegistrationRequestsComponent;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormsComponent;
 import pl.edu.icm.unity.webadmin.reg.reqman.RequestsComponent;
+import pl.edu.icm.unity.webui.registration.RegistrationFormsChooserComponent;
 
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
@@ -31,11 +31,12 @@ public class RegistrationsManagementTab  extends VerticalLayout
 
 	@Autowired
 	public RegistrationsManagementTab(UnityMessageSource msg, RegistrationFormsComponent regComponent,
-			RequestsComponent requestsComponent, RegistrationRequestsComponent reqFillComponent)
+			RequestsComponent requestsComponent, RegistrationFormsChooserComponent reqFillComponent)
 	{
 		super();
 		this.msg = msg;
 		reqFillComponent.setShowNonPublic(true);
+		reqFillComponent.setAddAutoAccept(true);
 		reqFillComponent.initUI();
 		this.tabs = new MainTabPanel(requestsComponent, reqFillComponent, regComponent);
 		this.tabs.setStyleName(Reindeer.TABSHEET_MINIMAL);

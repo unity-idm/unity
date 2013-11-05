@@ -30,12 +30,15 @@ import com.vaadin.ui.Button.ClickListener;
 
 /**
  * Displays authenticators set.
+ * <p>
+ * The set may be decorated with a link to start the registration procedure.
  * @author K. Benedyczak
  */
 public class AuthenticatorSetComponent extends VerticalLayout implements ActivationListener
 {
 	private static final long serialVersionUID = 1L;
 	private UnityMessageSource msg;
+	
 	private AuthenticationProcessor authnProcessor;
 	private Button authenticateButton;
 	private UsernameComponent usernameComponent;
@@ -100,6 +103,8 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		addComponent(buttons);
 		setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 	}
+	
+	
 	
 	private class LoginButtonListener implements ClickListener
 	{

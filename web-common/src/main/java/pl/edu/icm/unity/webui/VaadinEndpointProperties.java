@@ -29,6 +29,8 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	public static final String PREFIX = "unity.endpoint.";
 	
 	public static final String SESSION_TIMEOUT = "sessionTimeout";
+	public static final String ENABLE_REGISTRATION = "enableRegistration";
+	public static final String ENABLED_REGISTRATION_FORMS = "enabledRegistrationForms.";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
@@ -37,7 +39,12 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	{
 		META.put(SESSION_TIMEOUT, new PropertyMD("600").setPositive().
 				setDescription("Defines maximum validity period (in seconds) of a web session."));
-		
+		META.put(ENABLE_REGISTRATION, new PropertyMD("false").
+				setDescription("Controls if registration option should be allowed for an endpoint."));
+		META.put(ENABLED_REGISTRATION_FORMS, new PropertyMD().setList(false).
+				setDescription("Defines which registration forms should be enabled for the endpoint. " +
+						"Values are form names. If the form with given name doesn't exist it will be ignored." +
+						"If there are no forms defined with this property, then all public forms are made available."));
 	}
 	
 	public VaadinEndpointProperties(Properties properties)

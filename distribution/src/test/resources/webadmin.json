@@ -1,1 +1,2 @@
 unity.endpoint.sessionTimeout=1800
+unity.endpoint.enableRegistration=true

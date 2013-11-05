@@ -102,15 +102,17 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 				description.getContextAddress()+AUTHENTICATION_PATH);
 		context.addFilter(new FilterHolder(authnFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
 
+		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
 		authenticationServlet = new UnityVaadinServlet(applicationContext, 
-				AuthenticationUI.class.getSimpleName(), description, authenticators);
+				AuthenticationUI.class.getSimpleName(), description, authenticators, 
+				registrationConfiguration);
 		ServletHolder authnServletHolder = createServletHolder(authenticationServlet);
 		authnServletHolder.setInitParameter("closeIdleSessions", "true");
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
 		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
-				description, authenticators);
+				description, authenticators, registrationConfiguration);
 		context.addServlet(createServletHolder(theServlet), servletPath + "/*");
 
 		return context;
@@ -126,6 +128,13 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		return holder;
 	}
 
+	protected EndpointRegistrationConfiguration getRegistrationConfiguration()
+	{
+		return new EndpointRegistrationConfiguration(genericEndpointProperties.getListOfValues(
+				VaadinEndpointProperties.ENABLED_REGISTRATION_FORMS),
+				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.ENABLE_REGISTRATION));
+	}
+	
 	@Override
 	public synchronized void updateAuthenticators(List<Map<String, BindingAuthn>> authenticators)
 	{

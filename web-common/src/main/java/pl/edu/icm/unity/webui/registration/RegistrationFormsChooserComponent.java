@@ -2,8 +2,10 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.reg.formfill;
+package pl.edu.icm.unity.webui.registration;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -22,8 +24,6 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
-import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormChangedEvent;
-import pl.edu.icm.unity.webadmin.reg.reqman.RegistrationRequestChangedEvent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -36,6 +36,7 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
@@ -49,23 +50,26 @@ import com.vaadin.ui.themes.Reindeer;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class RegistrationRequestsComponent extends VerticalLayout
+public class RegistrationFormsChooserComponent extends VerticalLayout
 {
-	private Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationRequestsComponent.class);
-	private UnityMessageSource msg;
-	private RegistrationsManagement registrationsManagement;
-	private IdentityEditorRegistry identityEditorRegistry;
-	private CredentialEditorRegistry credentialEditorRegistry;
-	private AttributeHandlerRegistry attributeHandlerRegistry;
-	private AttributesManagement attrsMan;
-	private AuthenticationManagement authnMan;
+	private Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationFormsChooserComponent.class);
+	protected UnityMessageSource msg;
+	protected RegistrationsManagement registrationsManagement;
+	protected IdentityEditorRegistry identityEditorRegistry;
+	protected CredentialEditorRegistry credentialEditorRegistry;
+	protected AttributeHandlerRegistry attributeHandlerRegistry;
+	protected AttributesManagement attrsMan;
+	protected AuthenticationManagement authnMan;
 
-	private boolean showNonPublic;
-	private VerticalLayout main;
-	private EventsBus bus;
+	protected boolean showNonPublic;
+	protected boolean addAutoAccept;
+	protected Collection<String> allowedForms;
+	protected List<RegistrationForm> displayedForms;
+	protected VerticalLayout main;
+	protected EventsBus bus;
 	
 	@Autowired
-	public RegistrationRequestsComponent(UnityMessageSource msg,
+	public RegistrationFormsChooserComponent(UnityMessageSource msg,
 			RegistrationsManagement registrationsManagement,
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
@@ -102,31 +106,58 @@ public class RegistrationRequestsComponent extends VerticalLayout
 		this.showNonPublic = showNonPublic;
 	}
 	
-	private void refresh() throws EngineException
+	public void setAddAutoAccept(boolean addAutoAccept)
 	{
+		this.addAutoAccept = addAutoAccept;
+	}
+	
+	public void setAllowedForms(Collection<String> allowed)
+	{
+		allowedForms = allowed;
+	}
+	
+	public List<RegistrationForm> getDisplayedForms()
+	{
+		return displayedForms;
+	}
+	
+	protected void refresh() throws EngineException
+	{
+		if (main == null)
+			return;
 		main.removeAllComponents();
 		List<RegistrationForm> forms = registrationsManagement.getForms();
+		displayedForms = new ArrayList<>(forms.size());
+		boolean available = false;
 		for (RegistrationForm form: forms)
 		{
 			if (!showNonPublic && !form.isPubliclyAvailable())
+				continue;
+			if (allowedForms != null && !allowedForms.contains(form.getName()))
 				continue;
 			Button button = new Button(form.getName());
 			button.setStyleName(Reindeer.BUTTON_LINK);
 			button.addClickListener(new ButtonListener(form));
 			main.addComponent(button);
+			displayedForms.add(form);
+			available = true;
 		}
+		
+		if (!available)
+			main.addComponent(new Label(msg.getMessage("RegistrationFormsChooserComponent.noFormsInfo")));
 	}
 	
 	public void initUI()
 	{
-		setCaption(msg.getMessage("RegistrationRequestsComponent.caption"));
+		setCaption(msg.getMessage("RegistrationFormsChooserComponent.caption"));
 		try
 		{
+			removeAllComponents();
 			main = new VerticalLayout();
 			main.setSpacing(true);
 			main.setMargin(true);
 			addComponent(main);
-			Button refresh = new Button(msg.getMessage("RegistrationRequestsComponent.refresh"));
+			Button refresh = new Button(msg.getMessage("RegistrationFormsChooserComponent.refresh"));
 			refresh.setIcon(Images.refresh.getResource());
 			refresh.addClickListener(new ClickListener()
 			{
@@ -138,7 +169,7 @@ public class RegistrationRequestsComponent extends VerticalLayout
 						refresh();
 					} catch (EngineException e)
 					{
-						ErrorPopup.showError(msg.getMessage("RegistrationRequestsComponent.errorRefresh"), e);
+						ErrorPopup.showError(msg.getMessage("RegistrationFormsChooserComponent.errorRefresh"), e);
 					}
 				}
 			});
@@ -147,7 +178,7 @@ public class RegistrationRequestsComponent extends VerticalLayout
 		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent();
-			error.setError(msg.getMessage("RegistrationRequestsComponent.errorGetForms"), e);
+			error.setError(msg.getMessage("RegistrationFormsChooserComponent.errorGetForms"), e);
 			removeAllComponents();
 			addComponent(error);
 		}
@@ -166,11 +197,13 @@ public class RegistrationRequestsComponent extends VerticalLayout
 		@Override
 		public void buttonClick(ClickEvent event)
 		{
-			showDialog(form);
+			RegistrationRequestEditorDialog dialog = getDialog(form);
+			if (dialog != null)
+				dialog.show();
 		}
 	}
 	
-	private boolean addRequest(RegistrationRequest request, boolean andAccept)
+	protected boolean addRequest(RegistrationRequest request, boolean andAccept)
 	{
 		try
 		{
@@ -178,18 +211,19 @@ public class RegistrationRequestsComponent extends VerticalLayout
 			if (andAccept)
 				registrationsManagement.processReqistrationRequest(id, request, 
 						RegistrationRequestAction.accept, null, 
-						msg.getMessage("RegistrationRequestsComponent.autoAccept"));
+						msg.getMessage("RegistrationFormsChooserComponent.autoAccept"));
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));
 			return true;
 		} catch (EngineException e)
 		{
 			ErrorPopup.showError(msg.getMessage(
-					"RegistrationRequestsComponent.errorRequestSubmit"), e);
+					"RegistrationFormsChooserComponent.errorRequestSubmit"), e);
 			return false;
 		}
 	}
 	
-	private void showDialog(RegistrationForm form)
+	
+	public RegistrationRequestEditorDialog getDialog(RegistrationForm form)
 	{
 		try
 		{
@@ -198,8 +232,8 @@ public class RegistrationRequestsComponent extends VerticalLayout
 					credentialEditorRegistry, 
 					attributeHandlerRegistry, attrsMan, authnMan);
 			RegistrationRequestEditorDialog dialog = new RegistrationRequestEditorDialog(msg, 
-					msg.getMessage("RegistrationRequestsComponent.dialogCaption"), 
-					editor, new RegistrationRequestEditorDialog.Callback()
+					msg.getMessage("RegistrationFormsChooserComponent.dialogCaption"), 
+					editor, addAutoAccept, new RegistrationRequestEditorDialog.Callback()
 					{
 						@Override
 						public boolean newRequest(RegistrationRequest request, boolean autoAccept)
@@ -207,10 +241,11 @@ public class RegistrationRequestsComponent extends VerticalLayout
 							return addRequest(request, autoAccept);
 						}
 					});
-			dialog.show();
+			return dialog;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("RegistrationRequestsComponent.errorShowFormEdit"), e);
+			ErrorPopup.showError(msg.getMessage("RegistrationFormsChooserComponent.errorShowFormEdit"), e);
+			return null;
 		}
 	}
 }

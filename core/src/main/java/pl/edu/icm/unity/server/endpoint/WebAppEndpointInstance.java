@@ -4,9 +4,6 @@
  */
 package pl.edu.icm.unity.server.endpoint;
 
-import java.util.List;
-import java.util.Map;
-
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
 
@@ -20,14 +17,4 @@ public interface WebAppEndpointInstance extends EndpointInstance
 	 * @return web application context
 	 */
 	public ServletContextHandler getServletContextHandler();
-	
-	/**
-	 * Runtime update of the authenticators being used by this endpoint.
-	 * @param handler
-	 * @param authenticators
-	 * @throws UnsupportedOperationException if the operation is unsupported and the endpoint must be 
-	 * re-created instead.
-	 */
-	public void updateAuthenticators(List<Map<String, BindingAuthn>> authenticators)
-		throws UnsupportedOperationException;
 }

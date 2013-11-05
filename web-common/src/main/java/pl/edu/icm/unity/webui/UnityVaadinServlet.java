@@ -49,10 +49,12 @@ public class UnityVaadinServlet extends VaadinServlet
 	private transient EndpointDescription description;
 	private transient List<Map<String, BindingAuthn>> authenticators;
 	private transient CancelHandler cancelHandler;
+	private transient EndpointRegistrationConfiguration registrationConfiguration;
 	
 	public UnityVaadinServlet(ApplicationContext applicationContext, String uiBeanName,
 			EndpointDescription description,
-			List<Map<String, BindingAuthn>> authenticators)
+			List<Map<String, BindingAuthn>> authenticators,
+			EndpointRegistrationConfiguration registrationConfiguration)
 	{
 		super();
 		this.applicationContext = applicationContext;
@@ -60,6 +62,7 @@ public class UnityVaadinServlet extends VaadinServlet
 		this.description = description;
 		this.authenticators = authenticators;
 		this.config = applicationContext.getBean(UnityServerConfiguration.class);
+		this.registrationConfiguration = registrationConfiguration;
 	}
 	
 	public synchronized void updateAuthenticators(List<Map<String, BindingAuthn>> authenticators)
@@ -148,7 +151,7 @@ public class UnityVaadinServlet extends VaadinServlet
 			public void sessionInit(SessionInitEvent event) throws ServiceException
 			{
 				VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, uiBeanName,
-						description, getAuthenticators());
+						description, getAuthenticators(), registrationConfiguration);
 				uiProv.setCancelHandler(cancelHandler);
 				event.getSession().addUIProvider(uiProv);
 				DeploymentConfiguration depCfg = event.getService().getDeploymentConfiguration();

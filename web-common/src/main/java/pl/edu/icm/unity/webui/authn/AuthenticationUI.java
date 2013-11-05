@@ -17,21 +17,30 @@ import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.ActivationListener;
+import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
+import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent;
+import pl.edu.icm.unity.webui.registration.RegistrationFormChooserDialog;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.themes.Reindeer;
 
 
 
@@ -51,22 +60,29 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private List<Map<String, VaadinAuthentication>> authenticators;
 	private LocaleChoiceComponent localeChoice;
 	private AuthenticationProcessor authnProcessor;
+	private EndpointRegistrationConfiguration registrationConfiguration;
+	private InsecureRegistrationFormsChooserComponent formsChooser;
+	
 	
 	@Autowired
-	public AuthenticationUI(LocaleChoiceComponent localeChoice, UnityMessageSource msg, 
-			AuthenticationProcessor authnProcessor)
+	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,
+			AuthenticationProcessor authnProcessor,
+			InsecureRegistrationFormsChooserComponent formsChooser)
 	{
 		super(msg);
-		this.authnProcessor = authnProcessor;
 		this.localeChoice = localeChoice;
+		this.authnProcessor = authnProcessor;
+		this.formsChooser = formsChooser;
 	}
 
 	@Override
 	public void configure(EndpointDescription description,
-			List<Map<String, BindingAuthn>> authenticators)
+			List<Map<String, BindingAuthn>> authenticators,
+			EndpointRegistrationConfiguration regCfg)
 	{
 		this.description = description;
 		this.authenticators = new ArrayList<Map<String,VaadinAuthentication>>();
+		this.registrationConfiguration = regCfg;
 		for (int i=0; i<authenticators.size(); i++)
 		{
 			Map<String, VaadinAuthentication> map = new HashMap<String, VaadinAuthentication>();
@@ -84,8 +100,10 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		Component[] components = new Component[authenticators.size()];
 		for (int i=0; i<components.length; i++)
 			components[i] = new AuthenticatorSetComponent(authenticators.get(i), 
-					description.getAuthenticatorSets().get(i), msg, authnProcessor, cancelHandler);
-		Component all = buildAllSetsUI(components);
+					description.getAuthenticatorSets().get(i), msg, authnProcessor, 
+					cancelHandler);
+		Button registrationButton = buildRegistrationButton();
+		Component all = buildAllSetsUI(registrationButton, components);
 		
 		VerticalLayout main = new VerticalLayout();
 		
@@ -117,6 +135,36 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		verifyIfOriginAvailable();
 	}
 	
+	private Button buildRegistrationButton()
+	{
+		if (!registrationConfiguration.isShowRegistrationOption())
+			return null;
+		Button register = new Button(msg.getMessage("RegistrationFormChooserDialog.register"));
+		register.addStyleName(Reindeer.BUTTON_LINK);
+		if (registrationConfiguration.getEnabledForms().size() > 0)
+			formsChooser.setAllowedForms(registrationConfiguration.getEnabledForms());
+		formsChooser.initUI();
+		
+		final AbstractDialog dialog;
+		if (formsChooser.getDisplayedForms().size() == 1)
+		{
+			dialog = formsChooser.getDialog(formsChooser.getDisplayedForms().get(0));
+		} else
+		{
+			dialog = new RegistrationFormChooserDialog(
+				msg, msg.getMessage("RegistrationFormChooserDialog.selectForm"), formsChooser);
+		}
+		register.addClickListener(new ClickListener()
+		{
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				dialog.show();
+			}
+		});
+		return register;
+	}
+	
 	private void verifyIfOriginAvailable()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
@@ -125,14 +173,10 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			ErrorPopup.showError(msg.getMessage("AuthenticationProcessor.noOriginatingAddress"), "");
 	}
 	
-	private Component buildAllSetsUI(final Component... setComponents)
+	private Component buildAllSetsUI(final Button registrationButton, final Component... setComponents)
 	{
-		if (setComponents.length == 1)
-		{
-			if (setComponents[0] instanceof ActivationListener)
-				((ActivationListener)setComponents[0]).stateChanged(true);
-			return setComponents[0];
-		}
+
+		
 		HorizontalLayout all = new HorizontalLayout();
 		final Panel currentAuthnSet = new Panel();
 		AuthenticatorSetChangedListener setChangeListener = new AuthenticatorSetChangedListener()
@@ -143,20 +187,17 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			public void setWasChanged(int i)
 			{
 				Component c = setComponents[i];
-				currentAuthnSet.setContent(c);
 				if (last != null)
 					last.stateChanged(false);
 				if (c instanceof ActivationListener)
-				{
 					last = (ActivationListener)c;
-					last.stateChanged(true);
-				}
+				currentAuthnSet.setContent(getSingleSetUI(registrationButton, c));
 			}
 		};
 		AuthenticatorSetSelectComponent setSelection = new AuthenticatorSetSelectComponent(msg, 
 				setChangeListener, description, authenticators);
 
-		currentAuthnSet.setContent(setComponents[0]);
+		currentAuthnSet.setContent(getSingleSetUI(registrationButton, setComponents[0]));
 		
 		all.addComponent(setSelection);
 		all.setComponentAlignment(setSelection, Alignment.TOP_CENTER);
@@ -164,6 +205,30 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		all.setComponentAlignment(currentAuthnSet, Alignment.TOP_CENTER);
 		all.setSpacing(true);
 		all.setSizeFull();
+		all.setExpandRatio(setSelection, 1.0f);
+		all.setExpandRatio(currentAuthnSet, 1.0f);
+		if (setComponents.length == 1)
+		{
+			setSelection.setVisible(false);
+			currentAuthnSet.setWidth(50, Unit.PERCENTAGE);
+			all.setComponentAlignment(currentAuthnSet, Alignment.TOP_RIGHT);
+		}
+
 		return all;
+	}
+	
+	private Component getSingleSetUI(Button registrationButton, Component c)
+	{
+		if (c instanceof ActivationListener)
+			((ActivationListener)c).stateChanged(true);
+		
+		if (registrationButton == null)
+			return c;
+		
+		VerticalLayout vl = new VerticalLayout(c, registrationButton);
+		vl.setSpacing(true);
+		vl.setComponentAlignment(registrationButton, Alignment.BOTTOM_RIGHT);
+		vl.setMargin(new MarginInfo(false, true, true, false));
+		return vl;
 	}
 }
