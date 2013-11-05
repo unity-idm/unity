@@ -209,7 +209,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 		{
 			String id = registrationsManagement.submitRegistrationRequest(request);
 			if (andAccept)
-				registrationsManagement.processReqistrationRequest(id, request, 
+				registrationsManagement.processRegistrationRequest(id, request, 
 						RegistrationRequestAction.accept, null, 
 						msg.getMessage("RegistrationFormsChooserComponent.autoAccept"));
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));

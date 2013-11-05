@@ -216,7 +216,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		assertEquals(id1, fromDb.getRequestId());
 		assertNotNull(fromDb.getTimestamp());
 		
-		registrationsMan.processReqistrationRequest(fromDb.getRequestId(), null, 
+		registrationsMan.processRegistrationRequest(fromDb.getRequestId(), null, 
 				RegistrationRequestAction.update, "pub1", "priv1");
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(request, fromDb.getRequest());
@@ -227,19 +227,20 @@ public class TestRegistrations extends DBIntegrationTestBase
 		assertEquals(id1, fromDb.getRequestId());
 		assertNotNull(fromDb.getTimestamp());
 
-		registrationsMan.processReqistrationRequest(fromDb.getRequestId(), null, 
+		registrationsMan.processRegistrationRequest(fromDb.getRequestId(), null, 
 				RegistrationRequestAction.update, "a2", "p2");
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(4, fromDb.getAdminComments().size());
 		assertEquals("p2", fromDb.getAdminComments().get(3).getContents());
 		assertEquals("a2", fromDb.getAdminComments().get(2).getContents());
 		
-		registrationsMan.processReqistrationRequest(fromDb.getRequestId(), null, 
+		registrationsMan.processRegistrationRequest(fromDb.getRequestId(), null, 
 				RegistrationRequestAction.drop, null, null);
 		assertEquals(0, registrationsMan.getRegistrationRequests().size());
 		
+		request = getRequest();
 		String id2 = registrationsMan.submitRegistrationRequest(request);
-		registrationsMan.processReqistrationRequest(id2, null, 
+		registrationsMan.processRegistrationRequest(id2, null, 
 				RegistrationRequestAction.reject, "a2", "p2");
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(request, fromDb.getRequest());
@@ -250,8 +251,9 @@ public class TestRegistrations extends DBIntegrationTestBase
 		assertEquals(id2, fromDb.getRequestId());
 		assertNotNull(fromDb.getTimestamp());
 		
+		request = getRequest();
 		String id3 = registrationsMan.submitRegistrationRequest(request);
-		registrationsMan.processReqistrationRequest(id3, null, 
+		registrationsMan.processRegistrationRequest(id3, null, 
 				RegistrationRequestAction.accept, "a2", "p2");
 		fromDb = registrationsMan.getRegistrationRequests().get(1);
 		assertEquals(request, fromDb.getRequest());
@@ -288,12 +290,15 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		
 		// accept with updates -> check if results are fine
+		request = getRequest();
 		IdentityParam ip = new IdentityParam(X500Identity.ID, "CN=registration test2", true);
 		request.setIdentities(Collections.singletonList(ip));		
 		String id4 = registrationsMan.submitRegistrationRequest(request);
+		
+		request = getRequest();
 		ip = new IdentityParam(X500Identity.ID, "CN=registration test updated", true);
 		request.setIdentities(Collections.singletonList(ip));
-		registrationsMan.processReqistrationRequest(id4, request, 
+		registrationsMan.processRegistrationRequest(id4, request, 
 				RegistrationRequestAction.accept, "a2", "p2");
 		idsMan.getEntity(new EntityParam(new IdentityTaV(X500Identity.ID, "CN=registration test updated")));
 		

@@ -95,7 +95,7 @@ public class RequestCommentPanel extends CustomComponent
 	{
 		try
 		{
-			regMan.processReqistrationRequest(requestState.getRequestId(), 
+			regMan.processRegistrationRequest(requestState.getRequestId(), 
 					requestState.getRequest(), RegistrationRequestAction.update, 
 					asPublic ? comment : null, asPublic ? null : comment);
 			bus.fireEvent(new RegistrationRequestChangedEvent(requestState.getRequestId()));

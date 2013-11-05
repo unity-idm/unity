@@ -172,7 +172,7 @@ public class RequestProcessingPanel extends CustomComponent
 	{
 		try
 		{
-			regMan.processReqistrationRequest(requestState.getRequestId(), 
+			regMan.processRegistrationRequest(requestState.getRequestId(), 
 					requestReviewPanel.getUpdatedRequest(), action, null, null);
 			bus.fireEvent(new RegistrationRequestChangedEvent(requestState.getRequestId()));
 		} catch (EngineException e)

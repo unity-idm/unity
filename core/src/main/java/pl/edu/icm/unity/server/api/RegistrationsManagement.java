@@ -52,6 +52,8 @@ public interface RegistrationsManagement
 	
 	/**
 	 * Submits a new registration request. It gets a pending state.
+	 * Note that the input parameter can be modified by the invocation: all the supplied credential secrets
+	 * are transformed to the internal (typically hashed) form. 
 	 * @param request
 	 * @return automatically asigned identifier of the request
 	 * @throws EngineException
@@ -67,7 +69,7 @@ public interface RegistrationsManagement
 	
 	/**
 	 * Accepts, deletes or rejects a given registration request. The request can be freely modified at this time
-	 * too. 
+	 * too, with one exception: the credentials originally submitted are always preserved.
 	 * @param id request id to be processed
 	 * @param finalRequest updated registration request with edits made by admin
 	 * @param action what to do with the request.
@@ -75,7 +77,7 @@ public interface RegistrationsManagement
 	 * @param privateComment comment to be internally recored only.
 	 * @throws EngineException
 	 */
-	public void processReqistrationRequest(String id, RegistrationRequest finalRequest, 
+	public void processRegistrationRequest(String id, RegistrationRequest finalRequest, 
 			RegistrationRequestAction action, String publicComment, 
 			String privateComment) throws EngineException;
 }

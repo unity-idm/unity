@@ -264,7 +264,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	}
 
 	@Override
-	public void processReqistrationRequest(String id, RegistrationRequest finalRequest,
+	public void processRegistrationRequest(String id, RegistrationRequest finalRequest,
 			RegistrationRequestAction action, String publicCommentStr,
 			String internalCommentStr) throws EngineException
 	{
@@ -275,7 +275,10 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		{
 			RegistrationRequestState currentRequest = requestDB.get(id, sql);
 			if (finalRequest != null)
+			{
+				finalRequest.setCredentials(currentRequest.getRequest().getCredentials());
 				currentRequest.setRequest(finalRequest);
+			}
 			InvocationContext authnCtx = InvocationContext.getCurrent();
 			AuthenticatedEntity client = authnCtx.getAuthenticatedEntity();
 			AdminComment publicComment = null;
