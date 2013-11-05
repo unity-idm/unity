@@ -35,7 +35,7 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-core</artifactId>
+			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
 			<type>test-jar</type>
 			<scope>test</scope>
