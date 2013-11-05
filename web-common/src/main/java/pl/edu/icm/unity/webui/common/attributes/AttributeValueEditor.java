@@ -5,8 +5,7 @@
 package pl.edu.icm.unity.webui.common.attributes;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-
-import com.vaadin.ui.Component;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
 
 /**
  * Attribute value editor, with possibility to retrieve the edited value.
@@ -15,7 +14,7 @@ import com.vaadin.ui.Component;
 public interface AttributeValueEditor<T>
 {
 	
-	public Component getEditor();
+	public ComponentsContainer getEditor(boolean required);
 	
 	/**
 	 * @return the edited value 

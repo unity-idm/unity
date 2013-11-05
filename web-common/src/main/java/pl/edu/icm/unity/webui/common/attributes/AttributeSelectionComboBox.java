@@ -34,7 +34,6 @@ public class AttributeSelectionComboBox extends MapComboBox<AttributeType>
 	{
 		setNullSelectionAllowed(false);
 		setSizeUndefined();
-		setWidth(100, Unit.PERCENTAGE);
 		setCaption(caption);
 		
 		SortedMap<String, AttributeType> typesByName = new TreeMap<String, AttributeType>();

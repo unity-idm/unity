@@ -9,14 +9,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.security.cert.X509Certificate;
 
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.UserError;
-import com.vaadin.ui.AbstractField;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Upload;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Upload.Receiver;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.Upload.SucceededListener;
@@ -28,6 +25,7 @@ import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
@@ -40,7 +38,6 @@ public class X500IdentityEditor implements IdentityEditor
 {
 	private UnityMessageSource msg;
 	private TextField field;
-	private X500EditorField editor;
 	private boolean required;
 	
 	public X500IdentityEditor(UnityMessageSource msg)
@@ -49,11 +46,22 @@ public class X500IdentityEditor implements IdentityEditor
 	}
 
 	@Override
-	public AbstractField<String> getEditor(boolean required)
+	public ComponentsContainer getEditor(boolean required)
 	{
 		this.required = required;
-		editor = new X500EditorField();
-		return editor;
+		field = new TextField();
+		field.setWidth(100, Unit.PERCENTAGE);
+		Upload upload = new Upload();
+		upload.setCaption(msg.getMessage("X500IdentityEditor.certUploadCaption"));
+		CertUploader uploader = new CertUploader(); 
+		upload.setReceiver(uploader);
+		upload.addSucceededListener(uploader);
+		
+		FormLayout wrapper = new FormLayout(upload);
+		wrapper.setMargin(false);
+		field.setCaption(msg.getMessage("X500IdentityEditor.dn"));
+		field.setRequired(required);
+		return new ComponentsContainer(field, wrapper);
 	}
 
 	@Override
@@ -65,16 +73,16 @@ public class X500IdentityEditor implements IdentityEditor
 			if (!required)
 				return null;
 			String err = msg.getMessage("X500IdentityEditor.dnEmpty");
-			editor.setComponentError(new UserError(err));
+			field.setComponentError(new UserError(err));
 			throw new IllegalIdentityValueException(err);
 		}
 		try
 		{
 			X500NameUtils.getX500Principal(dn);
-			editor.setComponentError(null);
+			field.setComponentError(null);
 		} catch (Exception e)
 		{
-			editor.setComponentError(new UserError(msg.getMessage("X500IdentityEditor.dnError", 
+			field.setComponentError(new UserError(msg.getMessage("X500IdentityEditor.dnError", 
 					e.getMessage())));
 			throw new IllegalIdentityValueException(e.getMessage());
 		}
@@ -113,37 +121,4 @@ public class X500IdentityEditor implements IdentityEditor
 			}
 		}
 	};
-	
-	private class X500EditorField extends CustomField<String> 
-	{
-
-		@Override
-		protected Component initContent()
-		{
-			field = new TextField();
-			field.setWidth(100, Unit.PERCENTAGE);
-			Upload upload = new Upload();
-			upload.setCaption(msg.getMessage("X500IdentityEditor.certUploadCaption"));
-			CertUploader uploader = new CertUploader(); 
-			upload.setReceiver(uploader);
-			upload.addSucceededListener(uploader);
-			
-			VerticalLayout vl = new VerticalLayout();
-			FormLayout wrapper = new FormLayout(upload);
-			wrapper.setMargin(false);
-			vl.addComponents(field, wrapper);
-			vl.setSpacing(true);
-			
-			setCaption(msg.getMessage("X500IdentityEditor.dn"));
-			setRequired(required);
-			return vl;
-		}
-
-		@Override
-		public Class<? extends String> getType()
-		{
-			return String.class;
-		}
-		
-	}
 }

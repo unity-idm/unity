@@ -14,6 +14,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
@@ -30,7 +31,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
@@ -78,6 +78,7 @@ public class EnumAttributeHandler implements WebAttributeHandler<String>, WebAtt
 		private String label;
 		private EnumAttributeSyntax syntax;
 		private ComboBox field;
+		private boolean required;
 		
 		public EnumValueEditor(String value, String label, EnumAttributeSyntax syntax)
 		{
@@ -87,28 +88,32 @@ public class EnumAttributeHandler implements WebAttributeHandler<String>, WebAtt
 		}
 
 		@Override
-		public Component getEditor()
+		public ComponentsContainer getEditor(boolean required)
 		{
-			FormLayout main = new FormLayout();
+			this.required = required;
 			field = new ComboBox(label);
-			field.setNullSelectionAllowed(false);
+			field.setNullSelectionAllowed(!required);
+			field.setRequired(required);
+			field.setTextInputAllowed(false);
 			for (String allowed: syntax.getAllowed())
 				field.addItem(allowed);
 			if (value != null)
 				field.setValue(value);
-			else
+			else if (required)
 				field.setValue(syntax.getAllowed().iterator().next());
-			main.addComponent(field);
-			return main;
+			return new ComponentsContainer(field);
 		}
 
 		@Override
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{
 			String cur = (String)field.getValue();
+			if (cur == null && !required)
+				return null;
 			try
 			{
 				syntax.validate(cur);
+				field.setComponentError(null);
 			} catch (IllegalAttributeValueException e)
 			{
 				field.setComponentError(new UserError(e.getMessage()));

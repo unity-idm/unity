@@ -7,21 +7,24 @@ package pl.edu.icm.unity.webui.common.attributes;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
-import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements.Editor;
-import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements.EditorProvider;
+import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
+import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
+import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.AbstractOrderedLayout;
 
 /**
- * Component allowing to edit an attribute. The values are displayed too, however may be 
+ * Base of the components allowing to edit an attribute. The values are displayed too, however may be 
  * presented in a simplified form.
+ * <p>
+ * This base class provides a common editor code so it is easy to wire the {@link ListOfEmbeddedElementsStub}
+ * class to edit valuesof an attribute.
  * 
  * @author K. Benedyczak
  */
-public abstract class AbstractAttributeEditor extends CustomComponent
+public abstract class AbstractAttributeEditor
 {
 	protected UnityMessageSource msg;
 	private AttributeHandlerRegistry registry;
@@ -32,11 +35,12 @@ public abstract class AbstractAttributeEditor extends CustomComponent
 		this.registry = registry;
 	}
 	
-	protected ListOfEmbeddedElements<LabelledValue> getValuesPart(AttributeType at, String label)
+	protected ListOfEmbeddedElementsStub<LabelledValue> getValuesPart(AttributeType at, String label, boolean required,
+			AbstractOrderedLayout layout)
 	{
-		ListOfEmbeddedElements<LabelledValue> ret = new ListOfEmbeddedElements<>(msg, 
-				new AttributeValueEditorAndProvider(at, label), 
-				at.getMinElements(), at.getMaxElements(), false);
+		ListOfEmbeddedElementsStub<LabelledValue> ret = new ListOfEmbeddedElementsStub<LabelledValue>(msg, 
+				new AttributeValueEditorAndProvider(at, label, required), 
+				at.getMinElements(), at.getMaxElements(), false, layout);
 		ret.setLonelyLabel(label+":");
 		return ret;
 	}
@@ -48,22 +52,24 @@ public abstract class AbstractAttributeEditor extends CustomComponent
 		private AttributeValueEditor<?> editor;
 		private LabelledValue editedValue;
 		private String baseLabel;
+		private boolean required;
 		
-		public AttributeValueEditorAndProvider(AttributeType at, String label)
+		public AttributeValueEditorAndProvider(AttributeType at, String label, boolean required)
 		{
 			this.at = at;
 			this.baseLabel = label;
+			this.required = required;
 		}
 
 		@Override
 		public Editor<LabelledValue> getEditor()
 		{
-			return new AttributeValueEditorAndProvider(at, baseLabel);
+			return new AttributeValueEditorAndProvider(at, baseLabel, required);
 		}
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
-		public Component getEditorComponent(LabelledValue value, int position)
+		public ComponentsContainer getEditorComponent(LabelledValue value, int position)
 		{
 			if (value == null)
 				value = new LabelledValue(null, establishLabel(position));
@@ -71,7 +77,7 @@ public abstract class AbstractAttributeEditor extends CustomComponent
 			WebAttributeHandler handler = registry.getHandler(at.getValueType().getValueSyntaxId());
 			editor = handler.getEditorComponent(value.getValue(), value.getLabel(), at.getValueType());
 			editedValue = value;
-			return editor.getEditor();
+			return editor.getEditor(required);
 		}
 
 		@Override

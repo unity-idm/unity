@@ -5,12 +5,12 @@
 package pl.edu.icm.unity.webui.common.identities.ext;
 
 import com.vaadin.server.UserError;
-import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 
 /**
@@ -29,12 +29,12 @@ public class UsernameIdentityEditor implements IdentityEditor
 	}
 
 	@Override
-	public AbstractField<String> getEditor(boolean required)
+	public ComponentsContainer getEditor(boolean required)
 	{
 		field = new TextField(msg.getMessage("UsernameIdentityEditor.username"));
 		field.setRequired(required);
 		this.required = required;
-		return field;
+		return new ComponentsContainer(field);
 	}
 
 	@Override
@@ -49,6 +49,7 @@ public class UsernameIdentityEditor implements IdentityEditor
 			field.setComponentError(new UserError(err));
 			throw new IllegalIdentityValueException(err);
 		}
+		field.setComponentError(null);		
 		return username;
 	}
 }

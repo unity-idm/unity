@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.webui.common.identities;
 
-import com.vaadin.ui.AbstractField;
-
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
 
 /**
  * Implementations allow to edit a value of an {@link Identity} of a fixed type.
@@ -18,7 +17,7 @@ public interface IdentityEditor
 	/**
 	 * @return the editor component
 	 */
-	public AbstractField<String> getEditor(boolean required);
+	public ComponentsContainer getEditor(boolean required);
 	
 	/**
 	 * @return the current identity value

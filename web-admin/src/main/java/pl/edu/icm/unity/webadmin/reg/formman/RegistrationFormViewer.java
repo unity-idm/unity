@@ -243,9 +243,9 @@ public class RegistrationFormViewer extends VerticalLayout
 			@Override
 			public Label toLabel(CredentialRegistrationParam value)
 			{
-				String content = value.getLabel() + "<br>" + 
-						value.getDescription() + "<br>" + 
-						value.getCredentialName();
+				String content = value.getCredentialName() + "<br>" + 
+						"[" + emptyNull(value.getLabel()) +  "] ["+
+						emptyNull(value.getDescription()) + "]";
 				return new Label(content, ContentMode.HTML);
 			}
 		});
@@ -349,19 +349,24 @@ public class RegistrationFormViewer extends VerticalLayout
 	private String toHTMLLabel(OptionalRegistrationParam value)
 	{
 		String settings = msg.getMessage("ParameterRetrievalSettings."+value.getRetrievalSettings());
-		return value.getLabel() + " " + getOptionalStr(value.isOptional()) + " [" + settings + "] [" + 
-				value.getDescription() + "]";
+		return emptyNull(value.getLabel()) + " " + getOptionalStr(value.isOptional()) + " [" + settings + "] [" + 
+				emptyNull(value.getDescription()) + "]";
 	}
 
 	private String toHTMLLabel(RegistrationParam value)
 	{
 		String settings = msg.getMessage("ParameterRetrievalSettings."+value.getRetrievalSettings());
-		return value.getLabel() + " [" + settings + "] [" + value.getDescription() + "]";
+		return emptyNull(value.getLabel()) + " [" + settings + "] [" + emptyNull(value.getDescription()) + "]";
 	}
 	
 	private String getOptionalStr(boolean value)
 	{
 		return "[" + (value ? msg.getMessage("RegistrationFormViewer.optional") : 
 			msg.getMessage("RegistrationFormViewer.mandatory")) + "]";
+	}
+	
+	private String emptyNull(String a)
+	{
+		return a == null ? "" : a;
 	}
 }

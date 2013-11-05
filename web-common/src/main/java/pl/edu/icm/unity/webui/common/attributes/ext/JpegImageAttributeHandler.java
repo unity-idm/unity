@@ -26,6 +26,7 @@ import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
@@ -150,6 +151,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		private ProgressIndicator progressIndicator;
 		private CheckBox scale;
 		private Label error;
+		private boolean required;
 		
 		public JpegImageValueEditor(BufferedImage value, String label, JpegImageAttributeSyntax syntax)
 		{
@@ -159,14 +161,11 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		}
 
 		@Override
-		public Component getEditor()
+		public ComponentsContainer getEditor(boolean required)
 		{
-			FormLayout vl = new FormLayout();
-			vl.setSpacing(true);
-			
 			error = new Label();
-			vl.addComponent(error);
 			error.setStyleName(Styles.error.toString());
+			error.setVisible(false);
 			
 			field = new Image();
 			if (value != null)
@@ -182,7 +181,6 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 					field.setSource(Images.error32.getResource());
 				}
 			}
-			vl.addComponent(field);
 			field.addClickListener(new MouseEvents.ClickListener()
 			{
 				@Override
@@ -206,22 +204,23 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			upload.addProgressListener(uploader);
 			upload.setWidth(100, Unit.PERCENTAGE);
 			upload.setCaption(label);
-			vl.addComponent(upload);
 
-			vl.addComponent(progressIndicator);
 			scale = new CheckBox(msg.getMessage("JpegAttributeHandler.scaleIfNeeded"));
 			scale.setValue(true);
-			vl.addComponent(scale);
-			setHints(vl, syntax);
-			return vl;
+			return new ComponentsContainer(field, error, upload, progressIndicator, scale, 
+					getHints(syntax));
 		}
 
 		@Override
 		public BufferedImage getCurrentValue() throws IllegalAttributeValueException
 		{
+			if (value == null && !required)
+				return null;
 			if (value == null)
 			{
 				error.setValue(msg.getMessage("JpegAttributeHandler.noImage"));
+				error.setVisible(true);
+				field.setVisible(false);
 				throw new IllegalAttributeValueException(msg.getMessage("JpegAttributeHandler.noImage"));
 			}
 			try
@@ -230,11 +229,13 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			} catch (IllegalAttributeValueException e)
 			{
 				error.setValue(e.getMessage());
+				error.setVisible(true);
 				field.setVisible(false);
 				throw e;
 			}
 			
-			error.setValue("");
+			error.setVisible(false);
+			field.setVisible(true);
 			return value;
 		}
 		
@@ -296,13 +297,12 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		};		
 	}
 	
-	private void setHints(FormLayout vl, JpegImageAttributeSyntax syntax)
+	private Component getHints(JpegImageAttributeSyntax syntax)
 	{
-		Label maxSize = new Label(msg.getMessage("JpegAttributeHandler.maxSize", syntax.getMaxSize())
+		return new Label(msg.getMessage("JpegAttributeHandler.maxSize", syntax.getMaxSize())
 				+ "  " + 
 				msg.getMessage("JpegAttributeHandler.maxDim", syntax.getMaxWidth(), 
 						syntax.getMaxHeight()));
-		vl.addComponent(maxSize);
 	}
 	
 	public class SimpleImageSource implements StreamSource
@@ -340,9 +340,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 	@Override
 	public Component getSyntaxViewer(AttributeValueSyntax<BufferedImage> syntax)
 	{
-		FormLayout vl = new FormLayout();
-		setHints(vl, (JpegImageAttributeSyntax) syntax);
-		return vl;
+		return new FormLayout(getHints((JpegImageAttributeSyntax)syntax));
 	}
 
 	@Override

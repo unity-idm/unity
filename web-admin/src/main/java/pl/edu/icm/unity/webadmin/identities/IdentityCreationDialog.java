@@ -79,7 +79,7 @@ public class IdentityCreationDialog extends AbstractDialog
 				String type = (String) identityType.getValue();
 				IdentityEditor editor = identityEditorReg.getEditor(type);
 				idLayout.removeAllComponents();
-				idLayout.addComponent(editor.getEditor(true));
+				idLayout.addComponents(editor.getEditor(true).getComponents());
 				IdentityCreationDialog.this.identityEditor = editor;
 			}
 		});

@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
@@ -22,11 +23,13 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupComboBox;
-import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
+import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
 
 /**
  * Attribute editor allowing to choose an attribute. It can use a fixed group for returned attribute or can 
  * allow to select it. It can allow to edit attribute visibility too.
+ * <p>
+ * This class is not a component on its own - it returns one.
  * 
  * @author K. Benedyczak
  */
@@ -34,7 +37,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 {
 	private Collection<AttributeType> attributeTypes;
 	private Collection<String> allowedGroups;
-	private ListOfEmbeddedElements<?> valuesComponent;
+	private ListOfEmbeddedElementsStub<?> valuesComponent;
 	private AttributeSelectionComboBox attributeSel;
 	private GroupComboBox groupSel;
 	private EnumComboBox<AttributeVisibility> visibilitySel;
@@ -62,7 +65,10 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Attribute<?> getAttribute() throws FormValidationException
 	{
-		List<?> values = valuesComponent == null ? new ArrayList<>(0) : valuesComponent.getElements();
+		List<?> labelledValues = valuesComponent == null ? new ArrayList<>(0) : valuesComponent.getElements();
+		List<Object> values = new ArrayList<>(labelledValues.size());
+		for (Object lv: labelledValues)
+			values.add(((LabelledValue)lv).getValue());
 		AttributeType at = attributeSel.getSelectedValue();
 		String group;
 		if (attributeTypes.size() > 0)
@@ -70,7 +76,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 		else
 			group = allowedGroups.iterator().next();
 		AttributeVisibility visibility = showVisibilityWidget ? visibilitySel.getSelectedValue() : 
-			AttributeVisibility.full;
+			at.getVisibility();
 		return new Attribute(at.getName(), at.getValueType(), group, visibility, values);
 	}
 	
@@ -84,9 +90,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				AttributeType selected = attributeSel.getSelectedValue();
-				valuesComponent = getValuesPart(selected, selected.getName());
-				valuesPanel.setContent(valuesComponent);
+				setNewValuesUI();
 			}
 		});
 		attributeSel.setImmediate(true);
@@ -107,13 +111,22 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 		valuesPanel.setCaption(msg.getMessage("Attributes.values"));
 		main.addComponent(top);
 		main.addComponent(valuesPanel);
-		setCompositionRoot(main);
 		if (attributeTypes.size() > 0)
-		{
-			AttributeType selected = attributeSel.getSelectedValue();
-			valuesComponent = getValuesPart(selected, selected.getName());
-			valuesPanel.setContent(valuesComponent);
-		}
+			setNewValuesUI();
+	}
+
+	private void setNewValuesUI()
+	{
+		AttributeType selected = attributeSel.getSelectedValue();
+		FormLayout ct = new FormLayout();
+		ct.setMargin(true);
+		valuesComponent = getValuesPart(selected, selected.getName(), true, ct);
+		valuesPanel.setContent(ct);
+	}
+	
+	public Component getComponent()
+	{
+		return main;
 	}
 
 }

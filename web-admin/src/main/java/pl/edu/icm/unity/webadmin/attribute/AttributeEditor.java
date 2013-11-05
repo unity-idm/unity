@@ -17,6 +17,7 @@ import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
 
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 
 /**
@@ -26,6 +27,7 @@ import com.vaadin.ui.HorizontalLayout;
 public class AttributeEditor extends HorizontalLayout
 {
 	private FixedAttributeEditor valuesPanel;
+	private FormLayout attrValuesContainer;
 	private AttributeMetaEditorPanel attrTypePanel;
 	private String groupPath;
 	private boolean typeFixed = false;
@@ -43,20 +45,23 @@ public class AttributeEditor extends HorizontalLayout
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeMetaEditorPanel(attributeTypes, groupPath, msg);
 		AttributeType initial = attrTypePanel.getAttributeType();
+		attrValuesContainer = new FormLayout();
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, initial, 
-				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null);
+				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, true,
+				attrValuesContainer);
 
 		attrTypePanel.setCallback(new TypeChangeCallback()
 		{
 			@Override
 			public void attributeTypeChanged(AttributeType newType)
 			{
-				removeComponent(valuesPanel);
+				removeComponent(attrValuesContainer);
 				valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newType, 
-						false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null);
-				addComponent(valuesPanel);
-				setComponentAlignment(valuesPanel, Alignment.TOP_LEFT);
-				setExpandRatio(valuesPanel, 1.5f);
+						false, AttributeEditor.this.groupPath, AttributeVisibility.full, 
+						null, null, true, attrValuesContainer);
+				addComponent(attrValuesContainer);
+				setComponentAlignment(attrValuesContainer, Alignment.TOP_LEFT);
+				setExpandRatio(attrValuesContainer, 1.5f);
 			}
 		});
 		initCommon();
@@ -85,8 +90,10 @@ public class AttributeEditor extends HorizontalLayout
 	{
 		this.groupPath = attribute.getGroupPath();
 		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg, attribute.getVisibility());
+		attrValuesContainer = new FormLayout();
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, 
-				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null);
+				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, true,
+				attrValuesContainer);
 		valuesPanel.setAttributeValues(attribute.getValues());
 		initCommon();
 	}
@@ -103,8 +110,10 @@ public class AttributeEditor extends HorizontalLayout
 	{
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg, attributeType.getVisibility());
+		attrValuesContainer = new FormLayout();
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, 
-				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null);
+				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, true,
+				attrValuesContainer);
 		typeFixed = true;
 		initCommon();
 	}
@@ -112,13 +121,13 @@ public class AttributeEditor extends HorizontalLayout
 	private void initCommon()
 	{
 		setSpacing(true);
-		attrTypePanel.setMargin(new MarginInfo(true, true, true, false));
+		attrValuesContainer.setMargin(new MarginInfo(true, true, true, false));
 		addComponent(attrTypePanel);
 		setComponentAlignment(attrTypePanel, Alignment.TOP_RIGHT);
-		addComponent(valuesPanel);
-		setComponentAlignment(valuesPanel, Alignment.TOP_LEFT);
+		addComponent(attrValuesContainer);
+		setComponentAlignment(attrValuesContainer, Alignment.TOP_LEFT);
 		setExpandRatio(attrTypePanel, 1.0f);
-		setExpandRatio(valuesPanel, 1.5f);
+		setExpandRatio(attrValuesContainer, 1.5f);
 		setSizeFull();
 	}
 	

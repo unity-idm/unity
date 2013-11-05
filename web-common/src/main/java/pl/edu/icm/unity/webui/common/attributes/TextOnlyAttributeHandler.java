@@ -9,13 +9,13 @@ import java.util.List;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
 
 import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
@@ -72,6 +72,7 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 		private String label;
 		private AttributeValueSyntax<T> syntax;
 		private AbstractTextField field;
+		private boolean required;
 		
 		public StringValueEditor(T value, String label, AttributeValueSyntax<T> syntax)
 		{
@@ -81,9 +82,9 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 		}
 
 		@Override
-		public Component getEditor()
+		public ComponentsContainer getEditor(boolean required)
 		{
-			FormLayout main = new FormLayout();
+			this.required = required;
 			boolean large = false;
 			Integer limitedWidth = null;
 			if (syntax instanceof StringAttributeSyntax)
@@ -103,33 +104,33 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 			else
 				field.setSizeFull();
 			field.setCaption(label);
-			main.addComponent(field);
+			field.setRequired(required);
 			
 			StringBuilder sb = new StringBuilder();
 			for (String hint: getHints(syntax))
 				sb.append(hint).append("<br>");
 			field.setDescription(sb.toString());
 			
-			main.setSpacing(true);
-			return main;
+			return new ComponentsContainer(field);
 		}
 
 		@Override
 		public T getCurrentValue() throws IllegalAttributeValueException
 		{
+			if (!required && field.getValue().isEmpty())
+				return null;
 			try
 			{
 				T cur = convertFromString(field.getValue());
 				syntax.validate(cur);
+				field.setComponentError(null);
 				return cur;
 			} catch (IllegalAttributeValueException e)
 			{
-				field.setComponentError(null);
 				field.setComponentError(new UserError(e.getMessage()));
 				throw e;
 			} catch (Exception e)
 			{
-				field.setComponentError(null);
 				field.setComponentError(new UserError(e.getMessage()));
 				throw new IllegalAttributeValueException(e.getMessage(), e);
 			}

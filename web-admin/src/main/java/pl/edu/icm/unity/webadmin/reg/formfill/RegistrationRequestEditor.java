@@ -34,6 +34,7 @@ import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.Selection;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -43,15 +44,14 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
+import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.AbstractField;
+import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -208,6 +208,8 @@ public class RegistrationRequestEditor extends CustomComponent
 		
 		ret.setFormId(form.getName());
 
+		boolean hasFormException = false;
+		
 		List<IdentityParam> identities = new ArrayList<>();
 		int j=0;
 		for (int i=0; i<form.getIdentityParams().size(); i++)
@@ -222,13 +224,14 @@ public class RegistrationRequestEditor extends CustomComponent
 					id = editor.getValue();
 				} catch (IllegalIdentityValueException e)
 				{
-					throw new FormValidationException(e);
+					hasFormException = true;
+					continue;
 				}
 			} else
 			{
 				id = remoteIdentitiesByType.get(regParam.getIdentityType()).getValue();
 			}
-			IdentityParam ip = new IdentityParam(regParam.getIdentityType(), id, true);
+			IdentityParam ip = id == null ? null : new IdentityParam(regParam.getIdentityType(), id, true);
 			identities.add(ip);
 		}
 		ret.setIdentities(identities);
@@ -245,9 +248,11 @@ public class RegistrationRequestEditor extends CustomComponent
 					CredentialParamValue cp = new CredentialParamValue();
 					cp.setCredentialId(form.getCredentialParams().get(i).getCredentialName());
 					cp.setSecrets(credValue);
+					credentials.add(cp);
 				} catch (IllegalCredentialException e)
 				{
-					throw new FormValidationException(e);
+					hasFormException = true;
+					continue;
 				}
 			}
 			ret.setCredentials(credentials);
@@ -264,9 +269,22 @@ public class RegistrationRequestEditor extends CustomComponent
 				if (aparam.getRetrievalSettings() == ParameterRetrievalSettings.interactive)
 				{
 					FixedAttributeEditor ae = attributeEditor.get(interactiveIndex++);
-					Attribute<?> attr = ae.getAttribute();
-					ap.setAttribute(attr);
-					ap.setExternal(false);
+					Attribute<?> attr;
+					try
+					{
+						attr = ae.getAttribute();
+					} catch (FormValidationException e)
+					{
+						hasFormException = true;
+						continue;
+					}
+					if (attr == null)
+						ap = null;
+					else
+					{
+						ap.setAttribute(attr);
+						ap.setExternal(false);
+					}
 				} else
 				{
 					Attribute<?> attr = remoteAttributes.get(
@@ -299,13 +317,30 @@ public class RegistrationRequestEditor extends CustomComponent
 		{
 			List<Selection> a = new ArrayList<>();
 			for (int i=0; i<form.getAgreements().size(); i++)
-				a.add(new Selection(agreementSelectors.get(i).getValue()));
+			{
+				CheckBox cb = agreementSelectors.get(i);
+				a.add(new Selection(cb.getValue()));
+				if (form.getAgreements().get(i).isManatory() && !cb.getValue())
+					cb.setComponentError(new UserError(msg.getMessage("selectionRequired")));
+				else
+					cb.setComponentError(null);
+			}
 			ret.setAgreements(a);
 		}
 		if (form.isCollectComments())
 			ret.setComments(comment.getValue());
 		if (form.getRegistrationCode() != null)
+		{
 			ret.setRegistrationCode(registrationCode.getValue());
+			if (registrationCode.getValue().isEmpty())
+				registrationCode.setComponentError(new UserError(msg.getMessage("fieldRequired")));
+			else
+				registrationCode.setComponentError(null);
+		}
+		
+		if (hasFormException)
+			throw new FormValidationException();
+		
 		return ret;
 	}
 	
@@ -336,48 +371,32 @@ public class RegistrationRequestEditor extends CustomComponent
 		createIdentityUI(mainFormLayout);
 
 		if (form.getCredentialParams() != null && form.getCredentialParams().size() > 0)
-		{
-			Panel credentialP = new Panel(msg.getMessage("RegistrationRequest.credentials"));
-			credentialP.setStyleName(Reindeer.PANEL_LIGHT);
-			credentialP.setContent(createCredentialsUI());
-			main.addComponent(credentialP);
-		}
+			createCredentialsUI(mainFormLayout);
 		
 		if (form.getAttributeParams() != null && form.getAttributeParams().size() > 0)
-		{
-			Panel attributeP = new Panel(msg.getMessage("RegistrationRequest.attributes"));
-			attributeP.setStyleName(Reindeer.PANEL_LIGHT);
-			main.addComponent(attributeP);
-			attributeP.setContent(createAttributesUI());
-		}
+			createAttributesUI(mainFormLayout);
 		
 		if (form.getGroupParams() != null && form.getGroupParams().size() > 0)
 		{
-			Panel groupP = new Panel(msg.getMessage("RegistrationRequest.groups"));
-			groupP.setStyleName(Reindeer.PANEL_LIGHT);
-			main.addComponent(groupP);
-			groupP.setContent(createGroupsUI());
-			main.addComponent(new Label("<br>", ContentMode.HTML));
+			createGroupsUI(mainFormLayout);
+			mainFormLayout.addComponent(new Label("<br>", ContentMode.HTML));
 		}
 		
 		if (form.isCollectComments())
 		{
-			Panel commentsP = new Panel(msg.getMessage("RegistrationRequest.comment"));
-			commentsP.setStyleName(Reindeer.PANEL_LIGHT);
+			Label identityL = new Label(msg.getMessage("RegistrationRequest.comment"));
+			identityL.addStyleName(Styles.formSection.toString());
+			mainFormLayout.addComponent(identityL);
 			comment = new TextArea();
 			comment.setWidth(80, Unit.PERCENTAGE);
-			commentsP.setContent(comment);
-			main.addComponent(commentsP);
-			main.addComponent(new Label("<br>", ContentMode.HTML));
+			mainFormLayout.addComponent(comment);
+			mainFormLayout.addComponent(new Label("<br>", ContentMode.HTML));
 		}
 
 		if (form.getAgreements() != null && form.getAgreements().size() > 0)
 		{
-			Panel agreementsP = new Panel(msg.getMessage("RegistrationRequest.agreements"));
-			agreementsP.setStyleName(Reindeer.PANEL_LIGHT);
-			main.addComponent(agreementsP);
-			agreementsP.setContent(createAgreementsUI());
-			main.addComponent(new Label("<br>", ContentMode.HTML));
+			createAgreementsUI(mainFormLayout);
+			mainFormLayout.addComponent(new Label("<br>", ContentMode.HTML));
 		}
 		
 		setCompositionRoot(main);
@@ -397,8 +416,8 @@ public class RegistrationRequestEditor extends CustomComponent
 				continue;
 			IdentityEditor editor = identityEditorRegistry.getEditor(idParam.getIdentityType());
 			identityParamEditors.add(editor);
-			AbstractField<String> editorUI = editor.getEditor(!idParam.isOptional());
-			layout.addComponent(editorUI);
+			ComponentsContainer editorUI = editor.getEditor(!idParam.isOptional());
+			layout.addComponents(editorUI.getComponents());
 			if (idParam.getLabel() != null)
 				editorUI.setCaption(idParam.getLabel());
 			if (idParam.getDescription() != null)
@@ -409,10 +428,12 @@ public class RegistrationRequestEditor extends CustomComponent
 		}
 	}
 	
-	private Component createCredentialsUI() throws EngineException
+	private void createCredentialsUI(Layout layout) throws EngineException
 	{
-		VerticalLayout vl = new VerticalLayout();
-		vl.setSpacing(true);
+		Label identityL = new Label(msg.getMessage("RegistrationRequest.credentials"));
+		identityL.addStyleName(Styles.formSection.toString());
+		layout.addComponent(identityL);
+		
 		Collection<CredentialDefinition> allCreds = authnMan.getCredentialDefinitions();
 		Map<String, CredentialDefinition> credentials = new HashMap<String, CredentialDefinition>();
 		for (CredentialDefinition credential: allCreds)
@@ -425,26 +446,27 @@ public class RegistrationRequestEditor extends CustomComponent
 			CredentialRegistrationParam param = credParams.get(i);
 			CredentialDefinition credDefinition = credentials.get(param.getCredentialName());
 			CredentialEditor editor = credentialEditorRegistry.getEditor(credDefinition.getTypeId());
-			Component editorUI = editor.getEditor(credDefinition.getJsonConfiguration());
+			ComponentsContainer editorUI = editor.getEditor(credDefinition.getJsonConfiguration(), true);
 			if (param.getLabel() != null)
 				editorUI.setCaption(param.getLabel());
 			else
-				editorUI.setCaption(param.getCredentialName());
+				editorUI.setCaption(param.getCredentialName()+":");
+			if (param.getDescription() != null)
+				editorUI.setDescription(param.getDescription());
 			credentialParamEditors.add(editor);
-			vl.addComponent(editorUI);
-			//TODO
-			//if (credParam.getDescription() != null)
+			layout.addComponents(editorUI.getComponents());
+				
 			if (i < credParams.size() - 1)
-				vl.addComponent(new Label("<hr>", ContentMode.HTML));
+				layout.addComponent(new Label("<hr>", ContentMode.HTML));
 		}
-		return vl;
 	}
 	
-	private Component createAttributesUI() throws EngineException
+	private void createAttributesUI(AbstractOrderedLayout layout) throws EngineException
 	{
-		VerticalLayout vl = new VerticalLayout();
-		vl.setSpacing(true);
-
+		Label identityL = new Label(msg.getMessage("RegistrationRequest.attributes"));
+		identityL.addStyleName(Styles.formSection.toString());
+		layout.addComponent(identityL);
+		
 		Map<String, AttributeType> atTypes = attrsMan.getAttributeTypesAsMap();
 		List<AttributeRegistrationParam> attributeParams = form.getAttributeParams();
 		attributeEditor = new ArrayList<>();
@@ -458,21 +480,19 @@ public class RegistrationRequestEditor extends CustomComponent
 			String aName = isEmpty(aParam.getLabel()) ? aParam.getAttributeType() : aParam.getLabel();
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
 					at, aParam.isShowGroups(), aParam.getGroup(), AttributeVisibility.full, 
-					aName, description);
+					aName, description, !aParam.isOptional(), layout);
 			attributeEditor.add(editor);
-			//TODO aPram.isOptional()
-			vl.addComponent(editor);
 			if (i < attributeParams.size() - 1)
-				vl.addComponent(new Label("<hr>", ContentMode.HTML));
+				layout.addComponent(new Label("<hr>", ContentMode.HTML));
 		}		
-		
-		return vl;
 	}
 	
-	private Component createGroupsUI()
+	private void createGroupsUI(Layout layout)
 	{
-		VerticalLayout vl = new VerticalLayout();
-		vl.setSpacing(true);
+		Label titleL = new Label(msg.getMessage("RegistrationRequest.groups"));
+		titleL.addStyleName(Styles.formSection.toString());
+		layout.addComponent(titleL);
+		
 		List<GroupRegistrationParam> groupParams = form.getGroupParams();
 		groupSelectors = new ArrayList<>();
 		for (int i=0; i<groupParams.size(); i++)
@@ -485,15 +505,16 @@ public class RegistrationRequestEditor extends CustomComponent
 			if (gParam.getDescription() != null)
 				cb.setDescription(gParam.getDescription());
 			groupSelectors.add(cb);
-			vl.addComponent(cb);
+			layout.addComponent(cb);
 		}		
-		return vl;
 	}
 
-	private Component createAgreementsUI()
+	private void createAgreementsUI(Layout layout)
 	{
-		VerticalLayout vl = new VerticalLayout();
-		vl.setSpacing(true);
+		Label titleL = new Label(msg.getMessage("RegistrationRequest.agreements"));
+		titleL.addStyleName(Styles.formSection.toString());
+		layout.addComponent(titleL);
+		
 		List<AgreementRegistrationParam> aParams = form.getAgreements();
 		agreementSelectors = new ArrayList<>();
 		for (int i=0; i<aParams.size(); i++)
@@ -501,14 +522,18 @@ public class RegistrationRequestEditor extends CustomComponent
 			AgreementRegistrationParam aParam = aParams.get(i);
 			Label aText = new Label(aParam.getText(), ContentMode.HTML);
 			CheckBox cb = new CheckBox(msg.getMessage("RegistrationRequest.agree"));
-			cb.setRequired(aParam.isManatory());
 			agreementSelectors.add(cb);
-			vl.addComponent(aText);
-			vl.addComponent(cb);
+			layout.addComponent(aText);
+			layout.addComponent(cb);
+			if (aParam.isManatory())
+			{
+				Label mandatory = new Label(msg.getMessage("RegistrationRequest.mandatoryAgreement"));
+				mandatory.addStyleName(Styles.italic.toString());
+				layout.addComponent(mandatory);
+			}
 			if (i < aParams.size() - 1)
-				vl.addComponent(new Label("<hr>", ContentMode.HTML));
+				layout.addComponent(new Label("<hr>", ContentMode.HTML));
 		}		
-		return vl;
 	}
 	
 	private boolean isEmpty(String str)

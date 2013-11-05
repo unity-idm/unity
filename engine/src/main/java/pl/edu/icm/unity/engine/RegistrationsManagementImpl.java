@@ -56,6 +56,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
+import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
 import pl.edu.icm.unity.types.registration.AttributeParamValue;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
@@ -189,7 +190,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			{
 				List<RegistrationRequestState> requests = requestDB.getAll(sql);
 				for (RegistrationRequestState req: requests)
-					if (formId.equals(req.getRequest().getFormId()))
+					if (formId.equals(req.getRequest().getFormId()) && 
+							req.getStatus() == RegistrationRequestStatus.pending)
 						throw new SchemaConsistencyException("There are requests bound to " +
 								"this form, and it was not chosen to ignore them.");
 			}
@@ -368,6 +370,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			addAttr(a, rootAttributes, remainingAttributesByGroup);
 		for (AttributeParamValue ap: req.getAttributes())
 		{
+			if (ap == null)
+				continue;
 			Attribute<?> a = ap.getAttribute();
 			addAttr(a, rootAttributes, remainingAttributesByGroup);
 		}
@@ -378,7 +382,12 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				form.getInitialEntityState(), false, rootAttributes, sql);
 
 		for (int i=1; i<identities.size(); i++)
-			dbIdentities.insertIdentity(identities.get(i), initial.getEntityId(), sql);
+		{
+			IdentityParam idParam = identities.get(i);
+			if (idParam == null)
+				continue;
+			dbIdentities.insertIdentity(idParam, initial.getEntityId(), sql);
+		}
 
 		Set<String> sortedGroups = new TreeSet<>();
 		for (String group: form.getGroupAssignments())
@@ -676,6 +685,15 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		
 		if (form.getNotificationsConfiguration() == null)
 			throw new WrongArgumentException("NotificationsConfiguration must be set in the form.");
+		
+		if (form.getAgreements() != null)
+		{
+			for (AgreementRegistrationParam o: form.getAgreements())
+			{
+				if (o.getText() == null || o.getText().isEmpty())
+					throw new WrongArgumentException("Agreement text must not be empty.");
+			}
+		}
 	}
 	
 	private Map<String, String> getBaseNotificationParams(String formId, String requestId)

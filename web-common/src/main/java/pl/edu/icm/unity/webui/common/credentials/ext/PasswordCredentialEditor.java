@@ -9,7 +9,6 @@ import java.util.List;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
@@ -21,6 +20,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.PasswordExtraInfo;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 
 /**
@@ -30,13 +30,13 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 public class PasswordCredentialEditor implements CredentialEditor
 {
 	private UnityMessageSource msg;
-	//private PasswordField passwordCurrent;
 	private PasswordField password1;
 	private PasswordField password2;
 	private ComboBox questionSelection;
 	private TextField answer;
 	private boolean requireQA;
 	private PasswordCredential helper;
+	private boolean required;
 
 	public PasswordCredentialEditor(UnityMessageSource msg)
 	{
@@ -44,17 +44,19 @@ public class PasswordCredentialEditor implements CredentialEditor
 	}
 
 	@Override
-	public Component getEditor(String credentialConfiguration)
+	public ComponentsContainer getEditor(String credentialConfiguration, boolean required)
 	{
+		this.required = required;
 		helper = new PasswordCredential();
 		helper.setSerializedConfiguration(credentialConfiguration);
 		
-	//	passwordCurrent = new PasswordField(msg.getMessage("PasswordCredentialEditor.currentPassword"));
 		password1 = new PasswordField(msg.getMessage("PasswordCredentialEditor.password"));
 		password2 = new PasswordField(msg.getMessage("PasswordCredentialEditor.repeatPassword"));
-		FormLayout ret = new FormLayout(password1, password2);
-		ret.setSpacing(true);
-		ret.setMargin(true);
+		if (required)
+		{
+			password1.setRequired(true);
+			password2.setRequired(true);
+		}
 		
 		CredentialResetSettings resetSettings = helper.getPasswordResetSettings();
 		requireQA = resetSettings.isEnabled() && resetSettings.isRequireSecurityQuestion(); 
@@ -66,15 +68,24 @@ public class PasswordCredentialEditor implements CredentialEditor
 			questionSelection.select(resetSettings.getQuestions().get(0));
 			questionSelection.setNullSelectionAllowed(false);
 			answer = new TextField(msg.getMessage("PasswordCredentialEditor.answer"));
-			ret.addComponents(questionSelection, answer);
+			if (required)
+				answer.setRequired(true);
+			return new ComponentsContainer(password1, password2, questionSelection, answer);
 		}
-		return ret;
+		return new ComponentsContainer(password1, password2);
 	}
 
 	@Override
 	public String getValue() throws IllegalCredentialException
 	{
-		//String p0 = passwordCurrent.getValue();
+		if (!required && password1.getValue().isEmpty() && password2.getValue().isEmpty())
+			return null;
+		if (required && password1.getValue().isEmpty())
+		{
+			password1.setComponentError(new UserError(msg.getMessage("fieldRequired")));
+			throw new IllegalCredentialException(msg.getMessage("fieldRequired"));
+		} else
+			password1.setComponentError(null);
 		String p1 = password1.getValue();
 		String p2 = password2.getValue();
 		if (!p1.equals(p2))
@@ -86,7 +97,6 @@ public class PasswordCredentialEditor implements CredentialEditor
 			password2.setComponentError(null);
 
 		PasswordToken pToken = new PasswordToken(p1);
-		//pToken.setExistingPassword(p0);
 		
 		if (requireQA)
 		{

@@ -149,7 +149,10 @@ public class CredentialsPanel extends VerticalLayout
 		status.setValue(msg.getMessage("CredentialStatus."+credPublicInfo.getState().toString()));
 		status.setReadOnly(true);
 		credEditor = credEditorReg.getEditor(chosen.getTypeId());
-		editor.setContent(credEditor.getEditor(chosen.getJsonConfiguration()));
+		FormLayout credLayout = new FormLayout();
+		credLayout.setMargin(true);
+		credLayout.addComponents(credEditor.getEditor(chosen.getJsonConfiguration(), true).getComponents());
+		editor.setContent(credLayout);
 		Component viewer = credEditor.getViewer(credPublicInfo.getExtraInformation());
 		if (viewer == null)
 		{

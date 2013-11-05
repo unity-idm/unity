@@ -5,11 +5,11 @@
 package pl.edu.icm.unity.webui.common.credentials.ext;
 
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 
 /**
@@ -27,13 +27,10 @@ public class CertificateCredentialEditor implements CredentialEditor
 	}
 
 	@Override
-	public Component getEditor(String credentialConfiguration)
+	public ComponentsContainer getEditor(String credentialConfiguration, boolean required)
 	{
 		Label label = new Label(msg.getMessage("CertificateCredentialEditor.info"));
-		FormLayout ret = new FormLayout(label);
-		ret.setSpacing(true);
-		ret.setMargin(true);
-		return ret;
+		return new ComponentsContainer(label);
 	}
 
 	@Override

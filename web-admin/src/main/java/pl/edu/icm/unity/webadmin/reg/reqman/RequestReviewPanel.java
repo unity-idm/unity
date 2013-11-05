@@ -131,9 +131,11 @@ public class RequestReviewPanel extends CustomComponent
 		}
 		
 		ret.setAttributes(new ArrayList<AttributeParamValue>(attributes.getSelection().size()));
-		for (int i=0; i<attributes.getSelection().size(); i++)
+		for (int i=0, j=0; i<orig.getAttributes().size(); i++)
 		{
-			if (!attributes.getSelection().get(i).getValue())
+			if (orig.getAttributes().get(i) == null)
+				ret.getAttributes().add(null);
+			else if (!attributes.getSelection().get(j++).getValue())
 				ret.getAttributes().add(orig.getAttributes().get(i));
 			else
 				ret.getAttributes().add(null);
@@ -157,7 +159,11 @@ public class RequestReviewPanel extends CustomComponent
 		
 		identities.clearContents();
 		for (IdentityParam idParam: request.getIdentities())
+		{
+			if (idParam == null)
+				continue;
 			identities.addEntry(idParam.toString());
+		}
 		
 		agreements.clearContents();
 		for (int i=0; i<request.getAgreements().size(); i++)
@@ -174,6 +180,8 @@ public class RequestReviewPanel extends CustomComponent
 		attributes.clearEntries();
 		for (AttributeParamValue ap: request.getAttributes())
 		{
+			if (ap == null)
+				continue;
 			Label attrInfo = new Label();
 			String representation = handlersRegistry.getSimplifiedAttributeRepresentation(
 					ap.getAttribute(), 80);
