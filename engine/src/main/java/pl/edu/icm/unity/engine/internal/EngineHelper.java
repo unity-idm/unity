@@ -251,6 +251,22 @@ public class EngineHelper
 	public void setEntityCredentialInternal(long entityId, String credentialId, String rawCredential,
 			SqlSession sqlMap) throws EngineException
 	{
+		String newCred = prepareEntityCredentialInternal(entityId, credentialId, rawCredential, sqlMap);
+		setPreviouslyPreparedEntityCredentialInternal(entityId, newCred, credentialId, sqlMap);
+	}
+	
+	/**
+	 * Prepares entity's credential (hashes, checks etc). This is internal method which doesn't perform any authorization nor
+	 * argument initialization checking.
+	 * @param entityId
+	 * @param credentialId
+	 * @param rawCredential
+	 * @param sqlMap
+	 * @throws EngineException
+	 */
+	public String prepareEntityCredentialInternal(long entityId, String credentialId, String rawCredential,
+			SqlSession sqlMap) throws EngineException
+	{
 		Map<String, AttributeExt<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(
 				entityId, "/", null, sqlMap);
 		
@@ -259,15 +275,29 @@ public class EngineHelper
 		CredentialRequirementsHolder credReqs = getCredentialRequirements(credentialRequirements, sqlMap);
 		LocalCredentialVerificator handler = credReqs.getCredentialHandler(credentialId);
 		if (handler == null)
-			throw new IllegalCredentialException("The credential id is not among the entity's credential requirements: " + credentialId);
+			throw new IllegalCredentialException("The credential id is not among the " +
+					"entity's credential requirements: " + credentialId);
 
 		String credentialAttributeName = SystemAttributeTypes.CREDENTIAL_PREFIX+credentialId;
 		Attribute<?> currentCredentialA = attributes.get(credentialAttributeName);
 		String currentCredential = currentCredentialA != null ? 
 				(String)currentCredentialA.getValues().get(0) : null;
 				
-		//set credential value		
-		String newCred = handler.prepareCredential(rawCredential, currentCredential);
+		return handler.prepareCredential(rawCredential, currentCredential);
+	}
+
+	/**
+	 * Sets a credential which was previously prepared (i.e. hashed etc). Absolutely no checking is performed.
+	 * @param entityId
+	 * @param newCred
+	 * @param credentialId
+	 * @param sqlMap
+	 * @throws EngineException
+	 */
+	public void setPreviouslyPreparedEntityCredentialInternal(long entityId, String newCred, 
+			String credentialId, SqlSession sqlMap) throws EngineException
+	{
+		String credentialAttributeName = SystemAttributeTypes.CREDENTIAL_PREFIX+credentialId;
 		StringAttribute newCredentialA = new StringAttribute(credentialAttributeName, 
 				"/", AttributeVisibility.local, Collections.singletonList(newCred));
 		dbAttributes.addAttribute(entityId, newCredentialA, true, sqlMap);

@@ -226,7 +226,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		try
 		{
 			RegistrationForm form = formsDB.get(request.getFormId(), sql);
-			validateRequestContents(form, request, sql);
+			validateRequestContents(form, request, true, sql);
 			RegistrationRequestState requestFull = new RegistrationRequestState();
 			requestFull.setStatus(RegistrationRequestStatus.pending);
 			requestFull.setRequest(request);
@@ -344,7 +344,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			AdminComment publicComment, AdminComment internalComment, SqlSession sql) 
 			throws EngineException
 	{
-		validateRequestContents(form, currentRequest.getRequest(), sql);
+		validateRequestContents(form, currentRequest.getRequest(), false, sql);
 		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		sendProcessingNotification(notificationsCfg.getUpdatedTemplate(),
@@ -358,7 +358,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	{
 		currentRequest.setStatus(RegistrationRequestStatus.accepted);
 
-		validateRequestContents(form, currentRequest.getRequest(), sql);
+		validateRequestContents(form, currentRequest.getRequest(), false, sql);
 		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
 		
 		RegistrationRequest req = currentRequest.getRequest();
@@ -417,8 +417,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		
 		for (CredentialParamValue c: req.getCredentials())
 		{
-			engineHelper.setEntityCredentialInternal(initial.getEntityId(), c.getCredentialId(), 
-					c.getSecrets(), sql);
+			engineHelper.setPreviouslyPreparedEntityCredentialInternal(
+					initial.getEntityId(), c.getSecrets(), c.getCredentialId(), sql);
 		}
 		
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
@@ -445,13 +445,13 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		}
 	}
 	
-	private void validateRequestContents(RegistrationForm form, RegistrationRequest request, 
+	private void validateRequestContents(RegistrationForm form, RegistrationRequest request, boolean doCredentialCheckAndUpdate,
 			SqlSession sql) throws EngineException
 	{
 		validateRequestAgreements(form, request);
 		validateRequestAttributes(form, request, sql);
 		validateRequestCode(form, request);
-		validateRequestCredentials(form, request, sql);
+		validateRequestCredentials(form, request, doCredentialCheckAndUpdate, sql);
 		validateRequestIdentities(form, request);
 
 		if (!form.isCollectComments() && request.getComments() != null)
@@ -518,7 +518,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		}
 	}
 
-	private void validateRequestCredentials(RegistrationForm form, RegistrationRequest request, SqlSession sql) 
+	private void validateRequestCredentials(RegistrationForm form, RegistrationRequest request, 
+			boolean doCredentialCheckAndUpdate, SqlSession sql) 
 			throws EngineException
 	{
 		List<CredentialParamValue> requestedCreds = request.getCredentials();
@@ -530,9 +531,14 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		{
 			String credential = formCreds.get(i).getCredentialName();
 			CredentialDefinition credDef = credentialDB.get(credential, sql);
-			LocalCredentialVerificator credVerificator = 
+			if (doCredentialCheckAndUpdate)
+			{
+				LocalCredentialVerificator credVerificator = 
 					authnRegistry.createLocalCredentialVerificator(credDef);
-			credVerificator.prepareCredential(requestedCreds.get(i).getSecrets(), "");
+				String updatedSecrets = credVerificator.prepareCredential(
+						requestedCreds.get(i).getSecrets(), "");
+				requestedCreds.get(i).setSecrets(updatedSecrets);
+			}
 		}
 	}
 
