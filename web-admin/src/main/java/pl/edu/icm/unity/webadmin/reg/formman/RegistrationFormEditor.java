@@ -715,6 +715,8 @@ public class RegistrationFormEditor extends VerticalLayout
 		public ComponentsContainer getEditorComponent(Attribute<?> value, int index)
 		{
 			ae = new SelectableAttributeEditor(msg, attrHandlerRegistry, attributeTypes, true, groups);
+			if (value != null)
+				ae.setInitialAttribute(value);
 			return new ComponentsContainer(ae.getComponent());
 		}
 

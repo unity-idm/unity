@@ -37,7 +37,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 {
 	private Collection<AttributeType> attributeTypes;
 	private Collection<String> allowedGroups;
-	private ListOfEmbeddedElementsStub<?> valuesComponent;
+	private ListOfEmbeddedElementsStub<LabelledValue> valuesComponent;
 	private AttributeSelectionComboBox attributeSel;
 	private GroupComboBox groupSel;
 	private EnumComboBox<AttributeVisibility> visibilitySel;
@@ -60,6 +60,25 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 			Collection<AttributeType> attributeTypes, boolean showVisibilityWidget, String fixedGroup)
 	{
 		this(msg, registry, attributeTypes, showVisibilityWidget, Collections.singleton(fixedGroup));
+	}
+	
+	public void setInitialAttribute(Attribute<?> initial)
+	{
+		attributeSel.setValue(initial.getName());
+		if (groupSel != null)
+			groupSel.setValue(initial.getGroupPath());
+		if (visibilitySel != null)
+			visibilitySel.setEnumValue(initial.getVisibility());
+		setNewValuesUI();
+		List<LabelledValue> labelledValues = new ArrayList<>(initial.getValues().size());
+		
+		String baseLabel = initial.getName();
+		for (int i=0; i<initial.getValues().size(); i++)
+		{
+			String label = baseLabel + ((initial.getValues().size() > 1) ? " (" + (i+1) + "):" : ""); 
+			labelledValues.add(new LabelledValue(initial.getValues().get(i), label));
+		}
+		valuesComponent.setEntries(labelledValues);
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
