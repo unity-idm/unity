@@ -85,29 +85,30 @@ public class ListOfEmbeddedElementsStub<T>
 	public void setEntries(Collection<T> values)
 	{
 		clearContents();
+		Entry e = null;
 		for (T value: values)
-			addEntry(value, null);
+			e = addEntry(value, e);
 	}
 	
-	public void addEntry(T value, Entry after)
+	public Entry addEntry(T value, Entry after)
 	{
 		lonelyBar.setVisible(false);
 		int parentOffset = parent.getComponentIndex(lonelyBar)+1;
-		Entry component;
+		Entry entry;
 		if (after == null)
 		{
-			component = new Entry(value, 0);
-			components.add(0, component);
-			Component[] uiComponents = component.getContents().getComponents(); 
+			entry = new Entry(value, 0);
+			components.add(0, entry);
+			Component[] uiComponents = entry.getContents().getComponents(); 
 			for (int i=0; i<uiComponents.length; i++)
 				parent.addComponent(uiComponents[i], i+parentOffset);
 		} else
 		{
 			int i = components.indexOf(after);
-			component = new Entry(value, i+1);
-			components.add(i+1, component);
+			entry = new Entry(value, i+1);
+			components.add(i+1, entry);
 			
-			Component[] uiComponents = component.getContents().getComponents();
+			Component[] uiComponents = entry.getContents().getComponents();
 			int start = (i+1)*uiComponents.length;
 			for (int j=0; j<uiComponents.length; j++)
 				parent.addComponent(uiComponents[j], start+j+parentOffset);
@@ -115,6 +116,7 @@ public class ListOfEmbeddedElementsStub<T>
 		
 		for (int i=0; i<components.size(); i++)
 			components.get(i).refresh(i);
+		return entry;
 	}
 	
 	private void remove(Entry e)
