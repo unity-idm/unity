@@ -422,9 +422,6 @@ public class RegistrationRequestEditor extends CustomComponent
 				editorUI.setCaption(idParam.getLabel());
 			if (idParam.getDescription() != null)
 				editorUI.setDescription(idParam.getDescription());
-			
-			if (i < idParams.size() - 1)
-				layout.addComponent(new Label("<hr>", ContentMode.HTML));
 		}
 	}
 	
@@ -482,8 +479,6 @@ public class RegistrationRequestEditor extends CustomComponent
 					at, aParam.isShowGroups(), aParam.getGroup(), AttributeVisibility.full, 
 					aName, description, !aParam.isOptional(), layout);
 			attributeEditor.add(editor);
-			if (i < attributeParams.size() - 1)
-				layout.addComponent(new Label("<hr>", ContentMode.HTML));
 		}		
 	}
 	
