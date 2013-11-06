@@ -339,7 +339,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		sendProcessingNotification(notificationsCfg.getRejectedTemplate(), 
-				currentRequest, currentRequest.getRequestId(), form.getName(), publicComment, 
+				currentRequest, currentRequest.getRequestId(), form.getName(),
+				true, publicComment, 
 				internalComment, notificationsCfg, sql);
 	}
 	
@@ -351,7 +352,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		sendProcessingNotification(notificationsCfg.getUpdatedTemplate(),
-				currentRequest, currentRequest.getRequestId(), form.getName(), 
+				currentRequest, currentRequest.getRequestId(), form.getName(), false, 
 				publicComment, internalComment,	notificationsCfg, sql);
 	}
 	
@@ -426,7 +427,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		sendProcessingNotification(notificationsCfg.getAcceptedTemplate(),
-				currentRequest, currentRequest.getRequestId(), form.getName(), 
+				currentRequest, currentRequest.getRequestId(), form.getName(), true,
 				publicComment, internalComment,	notificationsCfg, sql);
 	}
 	
@@ -715,28 +716,32 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	
 	/**
 	 * Creates and sends notifications to the requester and admins in effect of request processing.
+	 * @param sendToRequester if true then the notification is sent to requester if only we have its address.
+	 * If false, then notification is sent to requester only if we have its address and 
+	 * if a public comment was given.
 	 * @throws EngineException 
 	 */
 	private void sendProcessingNotification(String templateId, RegistrationRequestState currentRequest, 
-			String requestId, String formId,
+			String requestId, String formId, boolean sendToRequester,
 			AdminComment publicComment, AdminComment internalComment,
 			RegistrationFormNotifications notificationsCfg, SqlSession sql) throws EngineException
 	{
 		if (notificationsCfg.getChannel() == null)
 			return;
 		Map<String, String> notifyParams = getBaseNotificationParams(formId, requestId);
-		if (publicComment != null)
-			notifyParams.put(VAR_PUB_COMMENT, publicComment.getContents());
-
+		notifyParams.put(VAR_PUB_COMMENT, publicComment == null ? "" : publicComment.getContents());
+		notifyParams.put(VAR_INTERNAL_COMMENT, "");
 		String requesterAddress = getRequesterAddress(currentRequest, notificationsCfg, sql);
 		if (requesterAddress != null)
-			notificationProducer.sendNotification(requesterAddress, 
-					notificationsCfg.getChannel(), 
-					templateId,
-					notifyParams);
+		{
+			if (sendToRequester || publicComment != null)
+				notificationProducer.sendNotification(requesterAddress, 
+						notificationsCfg.getChannel(), 
+						templateId,
+						notifyParams);
+		}
 		
-		if (internalComment != null)
-			notifyParams.put(VAR_INTERNAL_COMMENT, internalComment.getContents());
+		notifyParams.put(VAR_INTERNAL_COMMENT, internalComment == null ? "" : internalComment.getContents());
 		notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(), 
 				notificationsCfg.getChannel(), 
 				templateId,
