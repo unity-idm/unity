@@ -80,7 +80,7 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 	private void initUI(AbstractOrderedLayout parent)
 	{
 		if (caption == null)
-			caption = attributeType.getName();
+			caption = attributeType.getName() + ":";
 		if (description == null)
 			description = attributeType.getDescription();
 		

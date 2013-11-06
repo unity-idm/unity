@@ -46,6 +46,9 @@ public class AttributeEditor extends HorizontalLayout
 		attrTypePanel = new AttributeMetaEditorPanel(attributeTypes, groupPath, msg);
 		AttributeType initial = attrTypePanel.getAttributeType();
 		attrValuesContainer = new FormLayout();
+		addComponent(attrValuesContainer);
+		setComponentAlignment(attrValuesContainer, Alignment.TOP_LEFT);
+		setExpandRatio(attrValuesContainer, 1.5f);
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, initial, 
 				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, true,
 				attrValuesContainer);
@@ -55,13 +58,10 @@ public class AttributeEditor extends HorizontalLayout
 			@Override
 			public void attributeTypeChanged(AttributeType newType)
 			{
-				removeComponent(attrValuesContainer);
+				attrValuesContainer.removeAllComponents();
 				valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newType, 
 						false, AttributeEditor.this.groupPath, AttributeVisibility.full, 
 						null, null, true, attrValuesContainer);
-				addComponent(attrValuesContainer);
-				setComponentAlignment(attrValuesContainer, Alignment.TOP_LEFT);
-				setExpandRatio(attrValuesContainer, 1.5f);
 			}
 		});
 		initCommon();

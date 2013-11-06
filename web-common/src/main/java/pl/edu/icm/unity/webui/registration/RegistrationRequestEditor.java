@@ -477,7 +477,7 @@ public class RegistrationRequestEditor extends CustomComponent
 				continue;
 			AttributeType at = atTypes.get(aParam.getAttributeType());
 			String description = aParam.isUseDescription() ? at.getDescription() : aParam.getDescription();
-			String aName = isEmpty(aParam.getLabel()) ? aParam.getAttributeType() : aParam.getLabel();
+			String aName = isEmpty(aParam.getLabel()) ? (aParam.getAttributeType()+":") : aParam.getLabel();
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
 					at, aParam.isShowGroups(), aParam.getGroup(), AttributeVisibility.full, 
 					aName, description, !aParam.isOptional(), layout);

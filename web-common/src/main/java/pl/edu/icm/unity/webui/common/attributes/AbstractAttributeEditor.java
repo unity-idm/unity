@@ -41,7 +41,7 @@ public abstract class AbstractAttributeEditor
 		ListOfEmbeddedElementsStub<LabelledValue> ret = new ListOfEmbeddedElementsStub<LabelledValue>(msg, 
 				new AttributeValueEditorAndProvider(at, label, required), 
 				at.getMinElements(), at.getMaxElements(), false, layout);
-		ret.setLonelyLabel(label+":");
+		ret.setLonelyLabel(label);
 		return ret;
 	}
 
@@ -109,9 +109,12 @@ public abstract class AbstractAttributeEditor
 			}
 			
 			if (at.getMaxElements() > 1)
-				return baseLabel + " (" + (position+1) +"):";
-			else
-				return baseLabel + ":";
+			{
+				String base = (baseLabel.endsWith(":")) ? baseLabel.substring(0, baseLabel.length()-1) 
+						: baseLabel;
+				return base +" (" + (position+1) +"):";
+			} else
+				return baseLabel;
 		}
 	}
 	
