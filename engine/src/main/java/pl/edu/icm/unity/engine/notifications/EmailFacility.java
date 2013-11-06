@@ -169,6 +169,7 @@ public class EmailFacility implements NotificationFacility
 		
 		private void sendEmail(String subject, String body, String to) throws MessagingException
 		{
+			log.debug("Sending e-mail message to '" + to +"' with subject: " + subject);
 			MimeMessage msg = new MimeMessage(session);
 			msg.setFrom();
 			msg.setRecipients(Message.RecipientType.TO, to);
