@@ -64,7 +64,7 @@ public class ParentAttributeStatementHandler implements AttributeStatementWebHan
 			super(msg, attrHandlerRegistry, attributeTypes, group,
 					new HasParentAttributeStatement().getDescription());
 			addAssignedAttributeField();
-			addConditionAttributeField();
+			addConditionAttributeField(false);
 		}
 
 		@Override

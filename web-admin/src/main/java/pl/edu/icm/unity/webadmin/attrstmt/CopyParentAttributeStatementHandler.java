@@ -67,7 +67,7 @@ public class CopyParentAttributeStatementHandler implements AttributeStatementWe
 		{
 			super(msg, attrHandlerRegistry, attributeTypes, group, 
 					new CopyParentAttributeStatement().getDescription());
-			addConditionAttributeField();
+			addConditionAttributeField(false);
 		}
 
 		@Override

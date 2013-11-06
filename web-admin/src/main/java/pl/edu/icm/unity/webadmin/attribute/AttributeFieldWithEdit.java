@@ -37,17 +37,20 @@ public class AttributeFieldWithEdit extends CustomField<String>
 	protected String group;
 	private TextField attributeTF;
 	private HorizontalLayout hl;
+	private boolean valuesRequired;
 	
 	private Attribute<?> attribute;
 	private AttributeType fixedAttributeType;
 	
 	public AttributeFieldWithEdit(UnityMessageSource msg, String caption, 
 			AttributeHandlerRegistry attrHandlerRegistry,
-			Collection<AttributeType> attributeTypes, String group, Attribute<?> initial)
+			Collection<AttributeType> attributeTypes, String group, Attribute<?> initial,
+			boolean valuesRequired)
 	{
 		this.msg = msg;
 		this.attrHandlerRegistry = attrHandlerRegistry;
 		this.group = group;
+		this.valuesRequired = valuesRequired;
 		this.attributeTypes = attributeTypes;
 		setCaption(caption);
 		setRequired(true);
@@ -82,7 +85,7 @@ public class AttributeFieldWithEdit extends CustomField<String>
 	private void editAttribute()
 	{
 		AttributeEditor theEditor = fixedAttributeType == null ? 
-				new AttributeEditor(msg, attributeTypes, group, attrHandlerRegistry) :
+				new AttributeEditor(msg, attributeTypes, group, attrHandlerRegistry, valuesRequired) :
 				new AttributeEditor(msg, fixedAttributeType, group, attrHandlerRegistry);
 		if (attribute != null)
 			theEditor.setInitialAttribute(attribute);

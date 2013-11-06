@@ -74,7 +74,7 @@ public class RequiredAttributesDialog extends AbstractDialog
 		for (String a: missingAttributes)
 		{
 			AttributeFieldWithEdit aEdit = new AttributeFieldWithEdit(msg, a, 
-					attrHandlerRegistry, attributeTypes, group, null);
+					attrHandlerRegistry, attributeTypes, group, null, true);
 			aEdit.setFixedType(typesMap.get(a));
 			attrEdits.add(aEdit);
 			main.addComponent(aEdit);

@@ -69,7 +69,7 @@ public class SubgroupAttributeStatementHandler implements AttributeStatementWebH
 			super(msg, attrHandlerRegistry, attributeTypes, group,
 					new HasSubgroupAttributeStatement().getDescription());
 			addAssignedAttributeField();
-			addConditionAttributeField();
+			addConditionAttributeField(false);
 			conditionGroup = new GroupComboBox(msg.getMessage("AttributeStatementEditDialog.inGroup"), 
 					groupsMan);
 			conditionGroup.setInput(group, false, false);

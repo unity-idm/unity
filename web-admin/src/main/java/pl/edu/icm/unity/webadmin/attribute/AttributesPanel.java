@@ -427,7 +427,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			}
 			
 			AttributeEditor attributeEditor = new AttributeEditor(msg, allowed, 
-					groupPath, registry);
+					groupPath, registry, true);
 			AttributeEditDialog dialog = new AttributeEditDialog(msg, 
 					msg.getMessage("Attribute.addAttribute"), 
 					new AttributeEditDialog.Callback()

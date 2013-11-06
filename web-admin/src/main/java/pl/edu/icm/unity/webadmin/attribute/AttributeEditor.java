@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.attribute;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -40,7 +41,7 @@ public class AttributeEditor extends HorizontalLayout
 	 * @param handlerRegistry
 	 */
 	public AttributeEditor(final UnityMessageSource msg, Collection<AttributeType> attributeTypes, String groupPath,
-			final AttributeHandlerRegistry handlerRegistry)
+			final AttributeHandlerRegistry handlerRegistry, final boolean required)
 	{
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeMetaEditorPanel(attributeTypes, groupPath, msg);
@@ -50,7 +51,7 @@ public class AttributeEditor extends HorizontalLayout
 		setComponentAlignment(attrValuesContainer, Alignment.TOP_LEFT);
 		setExpandRatio(attrValuesContainer, 1.5f);
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, initial, 
-				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, true,
+				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, required,
 				attrValuesContainer);
 
 		attrTypePanel.setCallback(new TypeChangeCallback()
@@ -61,7 +62,7 @@ public class AttributeEditor extends HorizontalLayout
 				attrValuesContainer.removeAllComponents();
 				valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newType, 
 						false, AttributeEditor.this.groupPath, AttributeVisibility.full, 
-						null, null, true, attrValuesContainer);
+						null, null, required, attrValuesContainer);
 			}
 		});
 		initCommon();
@@ -131,9 +132,16 @@ public class AttributeEditor extends HorizontalLayout
 		setSizeFull();
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Attribute<?> getAttribute() throws FormValidationException
 	{
 		Attribute<?> ret = valuesPanel.getAttribute();
+		if (ret == null)
+		{
+			AttributeType at = attrTypePanel.getAttributeType();
+			return new Attribute(at.getName(), at.getValueType(), groupPath, attrTypePanel.getVisibility(), 
+					new ArrayList<>());
+		}
 		ret.setVisibility(attrTypePanel.getVisibility());
 		return ret;
 	}

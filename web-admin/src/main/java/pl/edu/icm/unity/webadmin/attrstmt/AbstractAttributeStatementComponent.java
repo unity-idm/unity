@@ -74,16 +74,16 @@ public abstract class AbstractAttributeStatementComponent implements AttributeSt
 	{
 		assignedAttribute = new AttributeFieldWithEdit(msg, 
 				msg.getMessage("AttributeStatementEditDialog.assignedAttribute"), 
-				attrHandlerRegistry, attributeTypes, group, null);
+				attrHandlerRegistry, attributeTypes, group, null, true);
 		assignedAttribute.setWidth(100, Unit.PERCENTAGE);
 		main.addComponent(assignedAttribute);
 	}
 
-	protected void addConditionAttributeField()
+	protected void addConditionAttributeField(boolean requireValues)
 	{
 		conditionAttribute = new AttributeFieldWithEdit(msg, 
 				msg.getMessage("AttributeStatementEditDialog.conditionAttribute"),
-				attrHandlerRegistry, attributeTypes, group, null);
+				attrHandlerRegistry, attributeTypes, group, null, requireValues);
 		conditionAttribute.setWidth(100, Unit.PERCENTAGE);
 		main.addComponent(conditionAttribute);
 	}
