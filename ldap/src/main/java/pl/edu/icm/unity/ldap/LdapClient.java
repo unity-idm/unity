@@ -18,6 +18,7 @@ import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.FailoverServerSet;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ReadOnlySearchRequest;
@@ -63,8 +64,14 @@ public class LdapClient
 	public RemotelyAuthenticatedInput bindAndSearch(String user, String password, 
 			LdapClientConfiguration configuration) throws LDAPException, LdapAuthenticationException
 	{
+		LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
+		connectionOptions.setConnectTimeoutMillis(configuration.getSocketConnectTimeout());
+		connectionOptions.setFollowReferrals(configuration.isFollowReferral());
+		connectionOptions.setReferralHopLimit(configuration.getReferralHopCount());
+		connectionOptions.setResponseTimeoutMillis(configuration.getSocketReadTimeout());
+		
 		FailoverServerSet failoverSet = new FailoverServerSet(configuration.getServers(), 
-				configuration.getPorts());
+				configuration.getPorts(), connectionOptions);
 		LDAPConnection connection = failoverSet.getConnection();
 		
 		String dn = configuration.getBindDN(user);

@@ -29,6 +29,9 @@ public class LdapProperties extends PropertiesHelper
 	
 	public static final String SERVERS = "servers.";
 	public static final String PORTS = "ports.";
+	public static final String SOCKET_TIMEOUT = "socketTimeout";
+	public static final String FOLLOW_REFERRALS = "referralHopLimit";
+	
 	public static final String USER_DN_TEMPLATE = "userDNTemplate";
 	public static final String BIND_ONLY = "authenticateOnly";
 	public static final String ATTRIBUTES = "attributes.";
@@ -54,6 +57,10 @@ public class LdapProperties extends PropertiesHelper
 				"hostnames. Use only one if there is no redundancy."));
 		META.put(PORTS, new PropertyMD().setList(true).setDescription("List of redundant LDAP server " +
 				"ports. The ports must match their corresponding servers."));
+		META.put(SOCKET_TIMEOUT, new PropertyMD("30000").setNonNegative().setDescription("Number of milliseconds the " +
+				"network operations (connect and read) are allowed to lasts. Set to 0 to disable the limit."));
+		META.put(FOLLOW_REFERRALS, new PropertyMD("2").setNonNegative().setDescription("Number of referrals to follow. " +
+				"Set to 0 to disable following referrals."));
 		META.put(USER_DN_TEMPLATE, new PropertyMD().setMandatory().setDescription("Template of a DN of " +
 				"the user that should be used to log in. The tempalte must possess a single occurence " +
 				"of a special string: '{USERNAME}' (without quotation). The username provided by the client" +

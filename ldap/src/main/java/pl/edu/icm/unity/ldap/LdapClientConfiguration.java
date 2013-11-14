@@ -154,4 +154,25 @@ public class LdapClientConfiguration
 	{
 		return ldapProperties.getValue(LdapProperties.MEMBER_OF_GROUP_ATTRIBUTE);
 	}
+	
+	public int getSocketConnectTimeout()
+	{
+		return ldapProperties.getIntValue(LdapProperties.SOCKET_TIMEOUT);
+	}
+
+	public int getSocketReadTimeout()
+	{
+		return ldapProperties.getIntValue(LdapProperties.SOCKET_TIMEOUT);
+	}
+	
+	public int getReferralHopCount()
+	{
+		return ldapProperties.getIntValue(LdapProperties.FOLLOW_REFERRALS);
+	}
+	
+	public boolean isFollowReferral()
+	{
+		 return getReferralHopCount() == 0;
+	}
+
 }
