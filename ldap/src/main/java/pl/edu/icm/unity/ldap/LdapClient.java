@@ -21,6 +21,7 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ReadOnlySearchRequest;
+import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
@@ -60,15 +61,21 @@ public class LdapClient
 	}
 
 	public RemotelyAuthenticatedInput bindAndSearch(String user, String password, 
-			LdapClientConfiguration configuration) throws LDAPException
+			LdapClientConfiguration configuration) throws LDAPException, LdapAuthenticationException
 	{
 		FailoverServerSet failoverSet = new FailoverServerSet(configuration.getServers(), 
 				configuration.getPorts());
 		LDAPConnection connection = failoverSet.getConnection();
 		
 		String dn = configuration.getBindDN(user);
-		//TODO handle authn error so it can be easily distinguished in the calling code
-		connection.bind(dn, password);
+		try
+		{
+			connection.bind(dn, password);
+		} catch (LDAPException e)
+		{
+			if (ResultCode.INVALID_CREDENTIALS.equals(e.getResultCode()))
+				throw new LdapAuthenticationException("Wrong username or credentials", e);
+		}
 		
 		if (configuration.isBindOnly())
 		{
@@ -92,8 +99,7 @@ public class LdapClient
 		
 		SearchResultEntry entry = result.getSearchEntry(dn);
 		if (entry == null)
-			; //TODO - the same case as authn error - the user was not returned in the search,
-			// what means that it was filtered out by the valid users filter.
+			throw new LdapAuthenticationException("User is not matching the valid users filter");
 		
 		RemotelyAuthenticatedInput ret = assembleBaseResult(entry);
 		findGroupsMembership(connection, entry, configuration, ret.getGroups());
@@ -142,7 +148,7 @@ public class LdapClient
 		List<GroupSpecification> gss = configuration.getGroupSpecifications();
 		Map<String, GroupSpecification> gsByObjectClass = new HashMap<>(gss.size());
 		StringBuilder searchFilter = new StringBuilder(128);
-		searchFilter.append("|(");
+		searchFilter.append("(|");
 		Set<String> attributes = new HashSet<>();
 		attributes.add("objectClass");
 
@@ -208,8 +214,7 @@ public class LdapClient
 			
 			for (String m: members)
 			{
-				String name = extractNameFromDn(matchAttributeName, m);
-				if (name != null && name.equals(matchValue))
+				if (m.equals(matchValue))
 				{
 					RemoteGroupMembership gm = createGroupMembership(groupEntry.getDN(), 
 							gs.getGroupNameAttribute()); 
@@ -281,7 +286,7 @@ public class LdapClient
 		RDN[] rdns;
 		try
 		{
-			rdns = DN.getRDNs(nameAttribute);
+			rdns = DN.getRDNs(dn);
 		} catch (LDAPException e)
 		{
 			log.warn("Found a string which is not a DN, what was expected. Most probably the LDAP " +

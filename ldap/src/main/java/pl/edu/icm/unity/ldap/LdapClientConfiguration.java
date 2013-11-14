@@ -67,21 +67,18 @@ public class LdapClientConfiguration
 		for (String key: keys)
 		{
 			GroupSpecification gs = new GroupSpecification();
-			gs.setGroupNameAttribute(ldapProperties.getSubkeyValue(LdapProperties.GROUP_DEFINITION_PFX+key, 
-					LdapProperties.GROUP_DEFINITION_NAME_ATTR));
-			gs.setMatchByMemberAttribute(ldapProperties.getSubkeyValue(LdapProperties.GROUP_DEFINITION_PFX+key, 
-					LdapProperties.GROUP_DEFINITION_MATCHBY_MEMBER_ATTR));
-			gs.setMemberAttribute(ldapProperties.getSubkeyValue(LdapProperties.GROUP_DEFINITION_PFX+key, 
-					LdapProperties.GROUP_DEFINITION_MEMBER_ATTR));
-			gs.setObjectClass(ldapProperties.getSubkeyValue(LdapProperties.GROUP_DEFINITION_PFX+key, 
-					LdapProperties.GROUP_DEFINITION_OC));
+			gs.setGroupNameAttribute(ldapProperties.getValue(key+LdapProperties.GROUP_DEFINITION_NAME_ATTR));
+			gs.setMatchByMemberAttribute(ldapProperties.getValue(
+					key+LdapProperties.GROUP_DEFINITION_MATCHBY_MEMBER_ATTR));
+			gs.setMemberAttribute(ldapProperties.getValue(key + LdapProperties.GROUP_DEFINITION_MEMBER_ATTR));
+			gs.setObjectClass(ldapProperties.getValue(key + LdapProperties.GROUP_DEFINITION_OC));
 			groups.add(gs);
 		}
 		
 		try
 		{
 			String filterStr = ldapProperties.getValue(LdapProperties.VALID_USERS_FILTER);
-			validUsersFilter = filterStr == null ? null : Filter.create(filterStr);
+			validUsersFilter = filterStr == null ? Filter.create("objectclass=*") : Filter.create(filterStr);
 		} catch (LDAPException e)
 		{
 			throw new ConfigurationException("Valid users filter is invalid.", e);
