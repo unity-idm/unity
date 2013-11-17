@@ -4,28 +4,66 @@
  */
 package pl.edu.icm.unity.ldap;
 
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Properties;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 
+import com.unboundid.ldap.listener.InMemoryDirectoryServer;
+import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
+import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.schema.Schema;
 
 import static pl.edu.icm.unity.ldap.LdapProperties.*;
 import static org.junit.Assert.*;
 
 public class LdapTests
 {
+	private static InMemoryDirectoryServer ds;
+	private static String port;
+	private static String hostname;
+	
+	@BeforeClass
+	public static void startEmbeddedServer() throws Exception
+	{
+		InMemoryDirectoryServerConfig config =
+				new InMemoryDirectoryServerConfig("dc=unity-example,dc=com");
+
+		Schema def = Schema.getDefaultStandardSchema();
+		Schema mini = Schema.getSchema("src/test/resources/nis-cut.ldif");
+		Schema merged = Schema.mergeSchemas(mini, def);
+		config.setSchema(merged);
+		
+		ds = new InMemoryDirectoryServer(config);
+		ds.importFromLDIF(true, "src/test/resources/test-data.ldif");
+		ds.startListening();
+		LDAPConnection conn = ds.getConnection();
+		hostname = conn.getConnectedAddress();
+		port = conn.getConnectedPort()+"";
+	}
+	
+	@AfterClass
+	public static void shutdown()
+	{
+		ds.shutDown(true);
+	}
+	
 	@Test
 	public void testBind()
 	{
 		Properties p = new Properties();
-		p.setProperty(PREFIX+SERVERS+"1", "centos6-unity1");
-		p.setProperty(PREFIX+PORTS+"1", "389");
+
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
 		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
 		p.setProperty(PREFIX+BIND_ONLY, "true");
 		LdapProperties lp = new LdapProperties(p);
@@ -38,26 +76,26 @@ public class LdapTests
 		{
 			client.bindAndSearch("user1", "wrong", clientConfig);
 			fail("authenticated with a wrong password");
-		} catch (LDAPException e)
-		{
-			e.printStackTrace();
-			fail("authn only failed");
 		} catch (LdapAuthenticationException e)
 		{
 			//ok, expected
-		}
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			fail("authn only failed");
+		} 
 
 		try
 		{
 			client.bindAndSearch("wrong", "wrong", clientConfig);
 			fail("authenticated with a wrong username");
-		} catch (LDAPException e)
-		{
-			e.printStackTrace();
-			fail("authn only failed");
 		} catch (LdapAuthenticationException e)
 		{
 			//ok, expected
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			fail("authn only failed");
 		}
 		
 		try
@@ -76,11 +114,12 @@ public class LdapTests
 	}
 	
 	@Test
-	public void testSimpleAttributes() throws LDAPException, LdapAuthenticationException
+	public void testSimpleAttributes() throws LDAPException, LdapAuthenticationException, 
+		KeyManagementException, NoSuchAlgorithmException
 	{
 		Properties p = new Properties();
-		p.setProperty(PREFIX+SERVERS+"1", "centos6-unity1");
-		p.setProperty(PREFIX+PORTS+"1", "389");
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
 		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
 		p.setProperty(PREFIX+VALID_USERS_FILTER, "(!(cn=user2))");
 
@@ -90,7 +129,7 @@ public class LdapTests
 		
 		try
 		{
-			client.bindAndSearch("user2", "user2", clientConfig);
+			client.bindAndSearch("user2", "user1", clientConfig);
 			fail("authenticated with a username which should be filtered out");
 		} catch (LdapAuthenticationException e)
 		{
@@ -120,18 +159,18 @@ public class LdapTests
 	}
 
 	@Test
-	public void testMemberOfGroups() throws LDAPException, LdapAuthenticationException
+	public void testMemberOfGroups() throws Exception
 	{
 		Properties p = new Properties();
-		p.setProperty(PREFIX+SERVERS+"1", "centos6-unity1");
-		p.setProperty(PREFIX+PORTS+"1", "389");
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
 		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
 		p.setProperty(PREFIX+MEMBER_OF_ATTRIBUTE, "secretary");
 
 		LdapProperties lp = new LdapProperties(p);
 		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp);
 		LdapClient client = new LdapClient("test");
-		RemotelyAuthenticatedInput ret = client.bindAndSearch("user2", "user2", clientConfig);
+		RemotelyAuthenticatedInput ret = client.bindAndSearch("user2", "user1", clientConfig);
 		assertEquals(2, ret.getGroups().size());
 		assertTrue(containsGroup(ret.getGroups(), "cn=nice,dc=org"));
 		assertTrue(containsGroup(ret.getGroups(), "cn=nicer,dc=org"));
@@ -141,7 +180,7 @@ public class LdapTests
 		lp = new LdapProperties(p);
 		clientConfig = new LdapClientConfiguration(lp);
 		client = new LdapClient("test");
-		ret = client.bindAndSearch("user2", "user2", clientConfig);
+		ret = client.bindAndSearch("user2", "user1", clientConfig);
 		assertEquals(2, ret.getGroups().size());
 		assertTrue(containsGroup(ret.getGroups(), "nice"));
 		assertTrue(containsGroup(ret.getGroups(), "nicer"));
@@ -149,11 +188,11 @@ public class LdapTests
 	}
 
 	@Test
-	public void testGroupsScanning() throws LDAPException, LdapAuthenticationException
+	public void testGroupsScanning() throws Exception
 	{
 		Properties p = new Properties();
-		p.setProperty(PREFIX+SERVERS+"1", "centos6-unity1");
-		p.setProperty(PREFIX+PORTS+"1", "389");
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
 		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
 		p.setProperty(PREFIX+GROUPS_BASE_NAME, "dc=unity-example,dc=com");
 		p.setProperty(PREFIX+GROUP_DEFINITION_PFX+"1."+GROUP_DEFINITION_OC, "posixGroup");

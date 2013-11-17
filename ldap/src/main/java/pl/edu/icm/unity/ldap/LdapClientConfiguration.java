@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.ldap;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -13,6 +14,10 @@ import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.SearchScope;
 
+import eu.emi.security.authn.x509.StoreUpdateListener;
+import eu.emi.security.authn.x509.X509CertChainValidator;
+import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
+import eu.unicore.security.canl.TruststoreProperties;
 import eu.unicore.util.configuration.ConfigurationException;
 
 /**
@@ -31,6 +36,7 @@ public class LdapClientConfiguration
 	private String bindTemplate;
 	private List<GroupSpecification> groups;
 	private Filter validUsersFilter;
+	private X509CertChainValidator connectionValidator;
 	
 	public LdapClientConfiguration(LdapProperties ldapProperties)
 	{
@@ -82,6 +88,19 @@ public class LdapClientConfiguration
 		} catch (LDAPException e)
 		{
 			throw new ConfigurationException("Valid users filter is invalid.", e);
+		}
+		
+		if (isTlsEnabled())
+		{
+			if (ldapProperties.getBooleanValue(LdapProperties.TLS_TRUST_ALL))
+				connectionValidator = new BinaryCertChainValidator(true);
+			else
+			{
+				TruststoreProperties tp = new TruststoreProperties(ldapProperties.getProperties(), 
+						new HashSet<StoreUpdateListener>(), 
+						LdapProperties.PREFIX+TruststoreProperties.DEFAULT_PREFIX);
+				connectionValidator = tp.getValidator();
+			}
 		}
 	}
 
@@ -173,6 +192,16 @@ public class LdapClientConfiguration
 	public boolean isFollowReferral()
 	{
 		 return getReferralHopCount() == 0;
+	}
+	
+	public boolean isTlsEnabled()
+	{
+		return ldapProperties.getBooleanValue(LdapProperties.USE_TLS);
+	}
+	
+	public X509CertChainValidator getTlsValidator()
+	{
+		return connectionValidator;
 	}
 
 }

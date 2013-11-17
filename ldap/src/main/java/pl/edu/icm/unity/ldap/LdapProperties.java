@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.server.utils.Log;
 
+import eu.unicore.security.canl.TruststoreProperties;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.PropertiesHelper;
@@ -31,6 +32,9 @@ public class LdapProperties extends PropertiesHelper
 	public static final String PORTS = "ports.";
 	public static final String SOCKET_TIMEOUT = "socketTimeout";
 	public static final String FOLLOW_REFERRALS = "referralHopLimit";
+	
+	public static final String USE_TLS = "useTls";
+	public static final String TLS_TRUST_ALL = "trustAllServerCertificates";
 	
 	public static final String USER_DN_TEMPLATE = "userDNTemplate";
 	public static final String BIND_ONLY = "authenticateOnly";
@@ -57,6 +61,11 @@ public class LdapProperties extends PropertiesHelper
 				"hostnames. Use only one if there is no redundancy."));
 		META.put(PORTS, new PropertyMD().setList(true).setDescription("List of redundant LDAP server " +
 				"ports. The ports must match their corresponding servers."));
+		META.put(USE_TLS, new PropertyMD("false").setDescription("If true then the secured TLS protocol will be used" +
+				" to connect to the LDAP server."));
+		META.put(TLS_TRUST_ALL, new PropertyMD("false").setDescription("Used only when TLS mode is enabled. " +
+				"If true then the secured TLS protocol will accept any server's certificate. " +
+				"If false - then the truststore must be configured."));
 		META.put(SOCKET_TIMEOUT, new PropertyMD("30000").setNonNegative().setDescription("Number of milliseconds the " +
 				"network operations (connect and read) are allowed to lasts. Set to 0 to disable the limit."));
 		META.put(FOLLOW_REFERRALS, new PropertyMD("2").setNonNegative().setDescription("Number of referrals to follow. " +
@@ -107,10 +116,18 @@ public class LdapProperties extends PropertiesHelper
 				"If defined then the group's name will be the value of the attribute in the group's DN " +
 				"with a name defined here."));
 		
+		META.put(TruststoreProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().
+				setDescription("Properties starting with this prefix are used to configure client's'" +
+						" trust settings for the TLS connections. See separate documentation for details."));
 	}
 	
 	public LdapProperties(Properties properties) throws ConfigurationException
 	{
 		super(PREFIX, properties, META, log);
+	}
+	
+	public Properties getProperties()
+	{
+		return properties;
 	}
 }

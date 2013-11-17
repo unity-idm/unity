@@ -4,11 +4,15 @@
  */
 package pl.edu.icm.unity.ldap;
 
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.net.ssl.SSLContext;
 
 import org.apache.log4j.Logger;
 
@@ -28,7 +32,9 @@ import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
 
+import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
+import eu.unicore.security.canl.SSLContextCreator;
 
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
@@ -62,7 +68,8 @@ public class LdapClient
 	}
 
 	public RemotelyAuthenticatedInput bindAndSearch(String user, String password, 
-			LdapClientConfiguration configuration) throws LDAPException, LdapAuthenticationException
+			LdapClientConfiguration configuration) throws LDAPException, LdapAuthenticationException, 
+			KeyManagementException, NoSuchAlgorithmException
 	{
 		LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
 		connectionOptions.setConnectTimeoutMillis(configuration.getSocketConnectTimeout());
@@ -70,8 +77,19 @@ public class LdapClient
 		connectionOptions.setReferralHopLimit(configuration.getReferralHopCount());
 		connectionOptions.setResponseTimeoutMillis(configuration.getSocketReadTimeout());
 		
-		FailoverServerSet failoverSet = new FailoverServerSet(configuration.getServers(), 
+		FailoverServerSet failoverSet;
+		if (configuration.isTlsEnabled())
+		{
+			X509CertChainValidator validator = configuration.getTlsValidator();
+			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, "TLS", "LDAP client", log);
+			failoverSet = new FailoverServerSet(configuration.getServers(), 
+					configuration.getPorts(), ctx.getSocketFactory(), connectionOptions);
+		} else
+		{
+			failoverSet = new FailoverServerSet(configuration.getServers(), 
 				configuration.getPorts(), connectionOptions);
+		}
+		
 		LDAPConnection connection = failoverSet.getConnection();
 		
 		String dn = configuration.getBindDN(user);
