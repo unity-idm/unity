@@ -10,6 +10,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.ldap.LdapClientConfiguration.ConnectionMode;
 import pl.edu.icm.unity.server.utils.Log;
 
 import eu.unicore.security.canl.TruststoreProperties;
@@ -33,7 +34,7 @@ public class LdapProperties extends PropertiesHelper
 	public static final String SOCKET_TIMEOUT = "socketTimeout";
 	public static final String FOLLOW_REFERRALS = "referralHopLimit";
 	
-	public static final String USE_TLS = "useTls";
+	public static final String CONNECTION_MODE = "connectionMode";
 	public static final String TLS_TRUST_ALL = "trustAllServerCertificates";
 	
 	public static final String USER_DN_TEMPLATE = "userDNTemplate";
@@ -61,8 +62,9 @@ public class LdapProperties extends PropertiesHelper
 				"hostnames. Use only one if there is no redundancy."));
 		META.put(PORTS, new PropertyMD().setList(true).setDescription("List of redundant LDAP server " +
 				"ports. The ports must match their corresponding servers."));
-		META.put(USE_TLS, new PropertyMD("false").setDescription("If true then the secured TLS protocol will be used" +
-				" to connect to the LDAP server."));
+		META.put(CONNECTION_MODE, new PropertyMD(ConnectionMode.plain).setDescription("It can be controlled " +
+				"whether a connection to teh server should be made using a plain socket, over SSL socket" +
+				"or over a socket with START TLS after handshake."));
 		META.put(TLS_TRUST_ALL, new PropertyMD("false").setDescription("Used only when TLS mode is enabled. " +
 				"If true then the secured TLS protocol will accept any server's certificate. " +
 				"If false - then the truststore must be configured."));

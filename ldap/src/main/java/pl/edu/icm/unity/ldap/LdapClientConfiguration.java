@@ -28,6 +28,8 @@ public class LdapClientConfiguration
 {
 	private LdapProperties ldapProperties;
 	
+	public enum ConnectionMode {plain, SSL, startTLS};
+	
 	public static final String USERNAME_TOKEN = "{USERNAME}";
 	
 	private String[] servers;
@@ -90,7 +92,8 @@ public class LdapClientConfiguration
 			throw new ConfigurationException("Valid users filter is invalid.", e);
 		}
 		
-		if (isTlsEnabled())
+		ConnectionMode mode = getConnectionMode();
+		if (mode != ConnectionMode.plain)
 		{
 			if (ldapProperties.getBooleanValue(LdapProperties.TLS_TRUST_ALL))
 				connectionValidator = new BinaryCertChainValidator(true);
@@ -194,9 +197,9 @@ public class LdapClientConfiguration
 		 return getReferralHopCount() == 0;
 	}
 	
-	public boolean isTlsEnabled()
+	public ConnectionMode getConnectionMode()
 	{
-		return ldapProperties.getBooleanValue(LdapProperties.USE_TLS);
+		return ldapProperties.getEnumValue(LdapProperties.CONNECTION_MODE, ConnectionMode.class);
 	}
 	
 	public X509CertChainValidator getTlsValidator()

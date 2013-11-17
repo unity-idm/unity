@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.DereferencePolicy;
+import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.FailoverServerSet;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -31,11 +32,13 @@ import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.security.canl.SSLContextCreator;
 
+import pl.edu.icm.unity.ldap.LdapClientConfiguration.ConnectionMode;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
@@ -78,7 +81,7 @@ public class LdapClient
 		connectionOptions.setResponseTimeoutMillis(configuration.getSocketReadTimeout());
 		
 		FailoverServerSet failoverSet;
-		if (configuration.isTlsEnabled())
+		if (configuration.getConnectionMode() == ConnectionMode.SSL)
 		{
 			X509CertChainValidator validator = configuration.getTlsValidator();
 			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, "TLS", "LDAP client", log);
@@ -91,6 +94,22 @@ public class LdapClient
 		}
 		
 		LDAPConnection connection = failoverSet.getConnection();
+		
+		if (configuration.getConnectionMode() == ConnectionMode.startTLS)
+		{
+			X509CertChainValidator validator = configuration.getTlsValidator();
+			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, "TLSv1.2", "LDAP client", log);
+			ExtendedResult extendedResult = connection.processExtendedOperation(
+					new StartTLSExtendedRequest(ctx));
+
+			if (extendedResult.getResultCode() != ResultCode.SUCCESS)
+			{
+				connection.close();
+				throw new LDAPException(extendedResult.getResultCode(), "Unable to esablish " +
+						"a secure TLS connection to the LDAP server: " + 
+						extendedResult.toString());
+			}
+		}
 		
 		String dn = configuration.getBindDN(user);
 		try
@@ -129,6 +148,7 @@ public class LdapClient
 		RemotelyAuthenticatedInput ret = assembleBaseResult(entry);
 		findGroupsMembership(connection, entry, configuration, ret.getGroups());
 		
+		connection.close();
 		return ret;
 		
 	}
