@@ -10,6 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.net.ssl.SSLServerSocketFactory;
@@ -350,29 +351,20 @@ public class LdapTests
 		assertTrue(containsGroup(ret.getGroups(), "g2"));
 	}
 	
-	private boolean containsGroup(List<RemoteGroupMembership> groups, String group)
+	private boolean containsGroup(Map<String, RemoteGroupMembership> groups, String group)
 	{
-		for (RemoteGroupMembership ra: groups)
-		{
-			if (ra.getName().equals(group))
-				return true;
-		}
-		return false;
+		return groups.containsKey(group);
 	}
 
-	private boolean containsAttribute(List<RemoteAttribute> attrs, String attr, String... values)
+	private boolean containsAttribute(Map<String, RemoteAttribute> attrs, String attr, String... values)
 	{
-		for (RemoteAttribute ra: attrs)
-		{
-			if (ra.getName().equals(attr))
-			{
-				for (int i=0; i<values.length; i++)
-					if (!ra.getValues().get(i).equals(values[i]))
-						return false;
-				return true;
-			}
-		}
-		return false;
+		RemoteAttribute ra = attrs.get(attr);
+		if (ra == null)
+			return false;
+		for (int i=0; i<values.length; i++)
+			if (!ra.getValues().get(i).equals(values[i]))
+				return false;
+		return true;
 	}
 }
 

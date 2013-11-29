@@ -26,6 +26,7 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.utils.GroupUtils;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -230,7 +231,7 @@ public class GroupsTree extends Tree
 			ErrorPopup.showError(msg.getMessage("GroupsTree.getMembershipError", entity), e1);
 			return;
 		}
-		final Deque<String> notMember = GroupManagementHelper.getMissingGroups(finalGroup, existingGroups);
+		final Deque<String> notMember = GroupUtils.getMissingGroups(finalGroup, existingGroups);
 		
 		if (notMember.size() == 0)
 		{

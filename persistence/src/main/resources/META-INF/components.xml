@@ -48,6 +48,8 @@
 	<bean class="pl.edu.icm.unity.db.generic.reg.RegistrationFormHandler"/>
 	<bean class="pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB"/>
 	<bean class="pl.edu.icm.unity.db.generic.reg.RegistrationRequestHandler"/>
+	<bean class="pl.edu.icm.unity.db.generic.tprofile.TranslationProfileDB"/>
+	<bean class="pl.edu.icm.unity.db.generic.tprofile.TranslationProfileHandler"/>
 
 	<bean class="pl.edu.icm.unity.db.export.ImportExport"/>
 	<bean class="pl.edu.icm.unity.db.export.AttributeTypesIE"/>

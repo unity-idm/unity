@@ -22,6 +22,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.utils.GroupUtils;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -192,7 +193,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		
 		if (addToGroup.getValue())
 		{
-			Deque<String> missing = GroupManagementHelper.getMissingGroups(initialGroup, 
+			Deque<String> missing = GroupUtils.getMissingGroups(initialGroup, 
 					Collections.singleton("/"));
 			groupHelper.addToGroup(missing, created.getEntityId(), new GroupManagementHelper.Callback()
 			{

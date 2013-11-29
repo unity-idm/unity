@@ -13,6 +13,7 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.ServerManagement;
+import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 
 /**
  * Java dynamic proxy builder, decorating wrapped objects with event generation. This is the same as 
@@ -33,6 +34,8 @@ public class EventProxyBuilderSystem
 	private AuthenticationManagement authnMan;
 	@Autowired @Qualifier("plain")
 	private NotificationsManagement notMan;
+	@Autowired @Qualifier("plain")
+	private TranslationProfileManagement tprofileMan;
 	
 	@Autowired
 	private EventProcessor eventProcessor;
@@ -68,5 +71,13 @@ public class EventProxyBuilderSystem
 				new Class[] {NotificationsManagement.class}, 
 				new EventDecoratingHandler(notMan, eventProcessor, 
 						NotificationsManagement.class.getSimpleName()));
+	}
+	
+	public TranslationProfileManagement getTranslationProfileManagementInstance()
+	{
+		return (TranslationProfileManagement) Proxy.newProxyInstance(classLoader, 
+				new Class[] {TranslationProfileManagement.class}, 
+				new EventDecoratingHandler(tprofileMan, eventProcessor, 
+						TranslationProfileManagement.class.getSimpleName()));
 	}
 }

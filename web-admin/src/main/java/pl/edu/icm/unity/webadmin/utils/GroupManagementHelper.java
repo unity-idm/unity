@@ -21,7 +21,6 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webadmin.attributeclass.RequiredAttributesDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
@@ -200,27 +199,6 @@ public class GroupManagementHelper
 	public AttributesManagement getAttrMan()
 	{
 		return attrMan;
-	}
-
-	/**
-	 * Computes deque of full group names which are not in the collection of existingGroups
-	 * and are on the path to the finalGroup (inclusive). 
-	 * @param finalGroup
-	 * @param existingGroups
-	 * @return
-	 */
-	public static Deque<String> getMissingGroups(String finalGroup, Collection<String> existingGroups)
-	{
-		Group group = new Group(finalGroup);
-		String[] path = group.getPath();
-		final Deque<String> notMember = new ArrayDeque<String>(path.length);
-		for (int i=path.length-1; i>=0 && !existingGroups.contains(group.toString()); i--)
-		{
-			notMember.addLast(group.toString());
-			if (!group.isTopLevel())
-				group = new Group(group.getParentPath());
-		}
-		return notMember;
 	}
 	
 	public interface Callback

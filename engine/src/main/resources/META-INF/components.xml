@@ -24,7 +24,8 @@
 	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getEndpointsManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getAuthenticationManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getNotificationsManagementInstance"/>
-
+	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getTranslationProfileManagementInstance"/>
+	
 	<!-- The real implementation, with a real authorization module injected. However those beans are plain,
 	are not generating any events. -->	
 	<bean primary="false" class="pl.edu.icm.unity.engine.GroupsManagementImpl">
@@ -54,7 +55,10 @@
 	<bean primary="false" class="pl.edu.icm.unity.engine.RegistrationsManagementImpl">
 		<qualifier value="plain"/>
 	</bean>
-		
+	<bean primary="false" class="pl.edu.icm.unity.engine.TranslationProfileManagementImpl">
+		<qualifier value="plain"/>
+	</bean>
+			
 	<!-- Those beans are the same as the 'primary' beans above, but do not perform authorization. 
 	Must be used with qualifier. -->
 	<bean primary="false" class="pl.edu.icm.unity.engine.GroupsManagementImpl">
@@ -90,6 +94,10 @@
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
 	<bean primary="false" class="pl.edu.icm.unity.engine.RegistrationsManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.TranslationProfileManagementImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>

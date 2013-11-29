@@ -10,8 +10,21 @@ package pl.edu.icm.unity.server.authn.remote;
  */
 public class RemoteIdentity extends RemoteInformationBase
 {
-	public RemoteIdentity(String name)
+	private String identityType;
+	
+	public RemoteIdentity(String name, String type)
 	{
 		super(name);
+		this.identityType = type;
+	}
+
+	public String getIdentityType()
+	{
+		return identityType;
+	}
+
+	public void setIdentityType(String identityType)
+	{
+		this.identityType = identityType;
 	}
 }

@@ -44,6 +44,7 @@ import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.stdext.identity.X500Identity;
 
 /**
  * LDAP v3 client code. Immutable -> thread safe.
@@ -56,7 +57,6 @@ import pl.edu.icm.unity.server.utils.Log;
  * with some additional options. Most notably it is possible to use a full DN of the group or its attribute 
  * as the group name.  
  * 
- * TODO - ssl connection mode.
  * @author K. Benedyczak
  */
 public class LdapClient
@@ -124,8 +124,7 @@ public class LdapClient
 		if (configuration.isBindOnly())
 		{
 			RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);
-			List<RemoteIdentity> identities = ret.getIdentities();
-			identities.add(new RemoteIdentity(dn));
+			ret.addIdentity(new RemoteIdentity(dn, X500Identity.ID));
 			return ret;
 		}
 		
@@ -156,19 +155,17 @@ public class LdapClient
 	private RemotelyAuthenticatedInput assembleBaseResult(SearchResultEntry entry)
 	{
 		RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);
-		List<RemoteAttribute> attributes = ret.getAttributes();
 		for (Attribute a: entry.getAttributes())
 		{
-			attributes.add(new RemoteAttribute(a.getBaseName(), (Object[])a.getValues()));
+			ret.addAttribute(new RemoteAttribute(a.getBaseName(), (Object[])a.getValues()));
 		}
 		
-		List<RemoteIdentity> identities = ret.getIdentities();
-		identities.add(new RemoteIdentity(entry.getDN()));
+		ret.addIdentity(new RemoteIdentity(entry.getDN(), X500Identity.ID));
 		return ret;
 	}
 	
 	private void findGroupsMembership(LDAPConnection connection, SearchResultEntry userEntry,
-			LdapClientConfiguration configuration, List<RemoteGroupMembership> ret) 
+			LdapClientConfiguration configuration, Map<String, RemoteGroupMembership> ret) 
 					throws LDAPException
 	{
 		if (nonEmpty(configuration.getMemberOfAttribute()))
@@ -186,7 +183,7 @@ public class LdapClient
 	 * @param configuration
 	 * @throws LDAPException 
 	 */
-	private void searchGroupsForMember(LDAPConnection connection, List<RemoteGroupMembership> ret,
+	private void searchGroupsForMember(LDAPConnection connection, Map<String, RemoteGroupMembership> ret,
 			SearchResultEntry userEntry, LdapClientConfiguration configuration) throws LDAPException
 	{
 		String base = configuration.getGroupsBaseName();
@@ -239,7 +236,7 @@ public class LdapClient
 		}
 	}	
 
-	private void findMemberInGroup(List<RemoteGroupMembership> ret, SearchResultEntry userEntry, 
+	private void findMemberInGroup(Map<String, RemoteGroupMembership> ret, SearchResultEntry userEntry, 
 			SearchResultEntry groupEntry, GroupSpecification gs)
 	{
 		String memberAttribute = gs.getMemberAttribute();
@@ -264,7 +261,7 @@ public class LdapClient
 					RemoteGroupMembership gm = createGroupMembership(groupEntry.getDN(), 
 							gs.getGroupNameAttribute()); 
 					if (gm != null)
-						ret.add(gm);
+						ret.put(gm.getName(), gm);
 					break;
 				}
 			}			
@@ -277,7 +274,7 @@ public class LdapClient
 					RemoteGroupMembership gm = createGroupMembership(groupEntry.getDN(), 
 							gs.getGroupNameAttribute()); 
 					if (gm != null)
-						ret.add(gm);
+						ret.put(gm.getName(), gm);
 					break;
 				}
 			}
@@ -290,7 +287,7 @@ public class LdapClient
 	 * @param userEntry
 	 * @param configuration
 	 */
-	private void findMemberOfGroups(List<RemoteGroupMembership> ret,
+	private void findMemberOfGroups(Map<String, RemoteGroupMembership> ret,
 			SearchResultEntry userEntry, LdapClientConfiguration configuration)
 	{
 		Attribute ga = userEntry.getAttribute(configuration.getMemberOfAttribute());
@@ -302,7 +299,7 @@ public class LdapClient
 			{
 				RemoteGroupMembership gm = createGroupMembership(groups[i], memberOfGroupAttr); 
 				if (gm != null)
-					ret.add(gm);
+					ret.put(gm.getName(), gm);
 			}
 		}
 	}

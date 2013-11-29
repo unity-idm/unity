@@ -24,4 +24,11 @@
 	
 	<bean class="pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider"/>
 	<bean class="pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider"/>
+	
+	<bean class="pl.edu.icm.unity.stdext.tactions.CreateUserActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.tactions.MapAttributeActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.tactions.MapGroupActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.tactions.MapIdentityActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.tactions.UpdateAttributesActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.tactions.UpdateGroupsActionFactory"/>
 </beans>

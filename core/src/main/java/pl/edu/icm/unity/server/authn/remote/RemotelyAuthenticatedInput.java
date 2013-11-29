@@ -4,8 +4,10 @@
  */
 package pl.edu.icm.unity.server.authn.remote;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Holds a raw information obtained from an upstream IdP. The purpose of this class is to provide a common interchange
@@ -20,16 +22,17 @@ import java.util.List;
 public class RemotelyAuthenticatedInput
 {
 	private String idpName;
-	private List<RemoteGroupMembership> groups;
-	private List<RemoteAttribute> attributes;
-	private List<RemoteIdentity> identities;
+	private Map<String, RemoteGroupMembership> groups;
+	private Map<String, RemoteAttribute> attributes;
+	private Map<String, RemoteIdentity> identities;
+	private String primaryIdentity;
 
 	public RemotelyAuthenticatedInput(String idpName)
 	{
 		this.idpName = idpName;
-		groups = new ArrayList<>();
-		attributes = new ArrayList<>();
-		identities = new ArrayList<>();
+		groups = new HashMap<>();
+		attributes = new HashMap<>();
+		identities = new LinkedHashMap<>();
 	}
 
 	public String getIdpName()
@@ -40,28 +43,71 @@ public class RemotelyAuthenticatedInput
 	{
 		this.idpName = idpName;
 	}
-	public List<RemoteGroupMembership> getGroups()
-	{
-		return groups;
-	}
+
 	public void setGroups(List<RemoteGroupMembership> groups)
 	{
-		this.groups = groups;
-	}
-	public List<RemoteAttribute> getAttributes()
-	{
-		return attributes;
+		for (RemoteGroupMembership gm: groups)
+			this.groups.put(gm.getName(), gm);
 	}
 	public void setAttributes(List<RemoteAttribute> attributes)
 	{
-		this.attributes = attributes;
-	}
-	public List<RemoteIdentity> getIdentities()
-	{
-		return identities;
+		for (RemoteAttribute gm: attributes)
+			this.attributes.put(gm.getName(), gm);
 	}
 	public void setIdentities(List<RemoteIdentity> identities)
 	{
-		this.identities = identities;
+		for (RemoteIdentity gm: identities)
+			this.identities.put(gm.getName(), gm);
+	}
+	public void addIdentity(RemoteIdentity gm)
+	{
+		this.identities.put(gm.getName(), gm);
+	}
+	public void addAttribute(RemoteAttribute attribute)
+	{
+		this.attributes.put(attribute.getName(), attribute);
+	}
+	public void addGroup(RemoteGroupMembership group)
+	{
+		this.groups.put(group.getName(), group);
+	}
+	
+	public Map<String, RemoteGroupMembership> getGroups()
+	{
+		return groups;
+	}
+
+	public Map<String, RemoteAttribute> getAttributes()
+	{
+		return attributes;
+	}
+
+	public Map<String, RemoteIdentity> getIdentities()
+	{
+		return identities;
+	}
+	
+	public RemoteIdentity getPrimaryIdentity()
+	{
+		return primaryIdentity == null ? 
+				(identities.size() == 0 ? null : identities.values().iterator().next()) 
+				: identities.get(primaryIdentity);
+	}
+
+	public String getPrimaryIdentityName()
+	{
+		return primaryIdentity == null ? 
+				(identities.size() == 0 ? null : identities.values().iterator().next().getName()) 
+				: primaryIdentity;
+	}
+
+	public void setPrimaryIdentityName(String primaryIdentity)
+	{
+		this.primaryIdentity = primaryIdentity;
+	}
+	
+	public String toString()
+	{
+		return idpName + " - " + getPrimaryIdentityName();
 	}
 }
