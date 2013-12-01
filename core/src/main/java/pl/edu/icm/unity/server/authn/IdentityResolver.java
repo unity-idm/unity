@@ -33,4 +33,14 @@ public interface IdentityResolver
 	 */
 	public EntityWithCredential resolveIdentity(String identity, String[] identityTypes, String credentialName)
 		throws IllegalIdentityValueException, IllegalTypeException, IllegalGroupValueException, EngineException;
+
+	/**
+	 * Simple version that only resolves, but doesn't establish any local credential. Useful for remote 
+	 * verificators.
+	 * @param identity
+	 * @param identityTypes
+	 * @return
+	 * @throws EngineException
+	 */
+	public long resolveIdentity(String identity, String[] identityTypes) throws EngineException;
 }

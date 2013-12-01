@@ -24,7 +24,6 @@ import eu.unicore.util.configuration.ConfigurationException;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
@@ -120,9 +119,9 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 		}
 		try
 		{
-			AuthenticatedEntity authenticatedEntity = credentialExchange.checkCertificate(clientCert);
-			component.setError(false);
-			return new AuthenticationResult(Status.success, authenticatedEntity);
+			AuthenticationResult authenticationResult = credentialExchange.checkCertificate(clientCert);
+			component.setError(authenticationResult.getStatus() != Status.success);
+			return authenticationResult;
 		} catch (Exception e)
 		{
 			component.setError(true);

@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.server.authn;
 
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
+
 /**
  * This class object is returned by authenticator with information about authentication result. 
  * This cover authentication result of a single authenticator, not the combined result of authentication
@@ -38,12 +40,31 @@ public class AuthenticationResult
 	}
 	
 	private Status status;	
-	//TODO add data about remote authenticated principal
+	private RemotelyAuthenticatedContext remoteAuthnContext;
 	private AuthenticatedEntity authenticatedEntity;
 
+	/**
+	 * Used by local varificators
+	 * @param status
+	 * @param authenticatedEntity
+	 */
 	public AuthenticationResult(Status status, AuthenticatedEntity authenticatedEntity)
 	{
 		this.status = status;
+		this.authenticatedEntity = authenticatedEntity;
+	}
+
+	/**
+	 * Used by remote verificators
+	 * @param status
+	 * @param remoteAuthnContext
+	 * @param authenticatedEntity
+	 */
+	public AuthenticationResult(Status status, RemotelyAuthenticatedContext remoteAuthnContext,
+			AuthenticatedEntity authenticatedEntity)
+	{
+		this.status = status;
+		this.remoteAuthnContext = remoteAuthnContext;
 		this.authenticatedEntity = authenticatedEntity;
 	}
 
@@ -56,6 +77,9 @@ public class AuthenticationResult
 	{
 		return authenticatedEntity;
 	}
-	
-	
+
+	public RemotelyAuthenticatedContext getRemoteAuthnContext()
+	{
+		return remoteAuthnContext;
+	}
 }

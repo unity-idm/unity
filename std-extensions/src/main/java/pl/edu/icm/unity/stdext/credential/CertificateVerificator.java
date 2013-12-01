@@ -10,8 +10,11 @@ import eu.emi.security.authn.x509.impl.X500NameUtils;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
+import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
@@ -60,13 +63,21 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 	}
 
 	@Override
-	public AuthenticatedEntity checkCertificate(X509Certificate[] chain)
+	public AuthenticationResult checkCertificate(X509Certificate[] chain)
 			throws EngineException
 	{
 		String identity = chain[0].getSubjectX500Principal().getName();
-		EntityWithCredential resolved = identityResolver.resolveIdentity(identity, 
+		try
+		{
+			EntityWithCredential resolved = identityResolver.resolveIdentity(identity, 
 				IDENTITY_TYPES, credentialName);
-		return new AuthenticatedEntity(resolved.getEntityId(), X500NameUtils.getReadableForm(identity), false);
+			AuthenticatedEntity entity = new AuthenticatedEntity(resolved.getEntityId(), 
+					X500NameUtils.getReadableForm(identity), false);
+			return new AuthenticationResult(Status.success, entity);
+		} catch (IllegalIdentityValueException notFound)
+		{
+			return new AuthenticationResult(Status.deny, null);
+		}
 	}
 
 	@Override

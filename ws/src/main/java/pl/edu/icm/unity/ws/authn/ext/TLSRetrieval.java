@@ -14,7 +14,6 @@ import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
@@ -63,8 +62,7 @@ public class TLSRetrieval implements CredentialRetrieval, CXFAuthentication
 		}
 		try
 		{
-			AuthenticatedEntity authenticatedEntity = credentialExchange.checkCertificate(certificates);
-			return new AuthenticationResult(Status.success, authenticatedEntity);
+			return credentialExchange.checkCertificate(certificates);
 		} catch (Exception e)
 		{
 			return new AuthenticationResult(Status.deny, null);

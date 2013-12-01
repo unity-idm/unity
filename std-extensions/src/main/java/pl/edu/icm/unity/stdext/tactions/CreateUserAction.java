@@ -13,6 +13,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemoteInformationBase;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
@@ -94,7 +95,7 @@ public class CreateUserAction extends AbstractTranslationAction
 
 	private List<Attribute<?>> getRootGroupAttributes(RemotelyAuthenticatedInput input) throws EngineException
 	{
-		List<Attribute<?>> attrs = UpdateAttributesAction.getAttributes(input, attrMan);
+		List<Attribute<?>> attrs = AbstractRemoteVerificator.extractAttributes(input, attrMan);
 		List<Attribute<?>> ret = new ArrayList<>();
 		for (Attribute<?> attr: attrs)
 		{

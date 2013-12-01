@@ -7,7 +7,7 @@ package pl.edu.icm.unity.stdext.credential;
 import java.security.cert.X509Certificate;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 
 /**
@@ -20,6 +20,6 @@ public interface CertificateExchange extends CredentialExchange
 {
 	public static final String ID = "certificate exchange";
 	
-	public AuthenticatedEntity checkCertificate(X509Certificate[] chain) throws EngineException;
+	public AuthenticationResult checkCertificate(X509Certificate[] chain) throws EngineException;
 
 }

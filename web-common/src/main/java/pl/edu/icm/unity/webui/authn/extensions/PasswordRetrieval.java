@@ -22,7 +22,6 @@ import eu.unicore.util.configuration.ConfigurationException;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
@@ -147,9 +146,16 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		}
 		try
 		{
-			AuthenticatedEntity authenticatedEntity = credentialExchange.checkPassword(username, password);
-			passwordField.setComponentError(null);
-			return new AuthenticationResult(Status.success, authenticatedEntity);
+			AuthenticationResult authenticationResult = credentialExchange.checkPassword(username, password);
+			if (authenticationResult.getStatus() == Status.success)
+				passwordField.setComponentError(null);
+			else
+			{
+				passwordField.setComponentError(new UserError(
+						msg.getMessage("WebPasswordRetrieval.wrongPassword")));
+				passwordField.setValue("");
+			}
+			return authenticationResult;
 		} catch (Exception e)
 		{
 			passwordField.setComponentError(new UserError(

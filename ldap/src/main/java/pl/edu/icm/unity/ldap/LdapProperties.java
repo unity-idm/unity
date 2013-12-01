@@ -52,6 +52,7 @@ public class LdapProperties extends PropertiesHelper
 	public static final String GROUP_DEFINITION_NAME_ATTR = "nameAttribute";
 	public static final String GROUP_DEFINITION_MATCHBY_MEMBER_ATTR = "matchByMemberAttribute";
 
+	public static final String TRANSLATION_PROFILE = "translationProfile";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META=new HashMap<String, PropertyMD>();
@@ -117,6 +118,11 @@ public class LdapProperties extends PropertiesHelper
 				"group name from its DN. If undefined then the DN will be used as group's name. " +
 				"If defined then the group's name will be the value of the attribute in the group's DN " +
 				"with a name defined here."));
+
+		META.put(TRANSLATION_PROFILE, new PropertyMD().setMandatory().setDescription("Name of a translation" +
+				" profile, which will be used to map remotely obtained attributes and identity" +
+				" to the local counterparts. The profile should at least map the remote identity."));
+
 		
 		META.put(TruststoreProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().
 				setDescription("Properties starting with this prefix are used to configure client's'" +

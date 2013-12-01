@@ -43,6 +43,8 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.notifications.NotificationProducer;
 import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
+import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialHelper;
 import pl.edu.icm.unity.server.authn.CredentialReset;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
@@ -194,7 +196,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	 * credential state is outdated. 
 	 */
 	@Override
-	public AuthenticatedEntity checkPassword(String username, String password) throws EngineException
+	public AuthenticationResult checkPassword(String username, String password) throws EngineException
 	{
 		EntityWithCredential resolved = identityResolver.resolveIdentity(username, 
 				IDENTITY_TYPES, credentialName);
@@ -208,7 +210,8 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		if (!Arrays.areEqual(testedHash, current.getHash()))
 			throw new IllegalCredentialException("The password is incorrect");
 		boolean isOutdated = isCurrentPasswordOutdated(password, credState, resolved);
-		return new AuthenticatedEntity(resolved.getEntityId(), username, isOutdated);
+		AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), username, isOutdated);
+		return new AuthenticationResult(Status.success, ae);
 	}
 
 

@@ -4,47 +4,95 @@
  */
 package pl.edu.icm.unity.ldap;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Properties;
+
+import eu.unicore.security.AuthenticationException;
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
+import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialReset;
 import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 
 /**
  * Supports {@link PasswordExchange} and verifies the password and username against a configured LDAP 
- * server. Access to remote attribute and groups is also provided.
+ * server. Access to remote attributes and groups is also provided.
  * 
  * @author K. Benedyczak
  */
 public class LdapVerificator extends AbstractRemoteVerificator implements PasswordExchange
 {
-
-	public LdapVerificator(String name, String description)
+	private LdapProperties ldapProperties;
+	private LdapClient client;
+	private LdapClientConfiguration clientConfiguration;
+	
+	public LdapVerificator(String name, String description, 
+			TranslationProfileManagement profileManagement, AttributesManagement attrMan)
 	{
-		super(name, description, PasswordExchange.ID);
+		super(name, description, PasswordExchange.ID, profileManagement, attrMan);
+		this.client = new LdapClient(name);
 	}
 
 	@Override
 	public String getSerializedConfiguration() throws InternalException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		StringWriter sbw = new StringWriter();
+		try
+		{
+			ldapProperties.getProperties().store(sbw, "");
+		} catch (IOException e)
+		{
+			throw new InternalException("Can't serialize LDAP verificator configuration", e);
+		}
+		return sbw.toString();
 	}
 
 	@Override
-	public void setSerializedConfiguration(String json) throws InternalException
+	public void setSerializedConfiguration(String source) throws InternalException
 	{
-		// TODO Auto-generated method stub
-		
+		try
+		{
+			Properties properties = new Properties();
+			properties.load(new StringReader(source));
+			ldapProperties = new LdapProperties(properties);
+			setTranslationProfile(ldapProperties.getValue(LdapProperties.TRANSLATION_PROFILE));
+			clientConfiguration = new LdapClientConfiguration(ldapProperties);
+		} catch(ConfigurationException e)
+		{
+			throw new InternalException("Invalid configuration of the LDAP verificator", e);
+		} catch (IOException e)
+		{
+			throw new InternalException("Invalid configuration of the LDAP verificator(?)", e);
+		} catch (EngineException e)
+		{
+			throw new InternalException("Problem with the translation profile of the LDAP verificator", e);
+		}
 	}
 
 	@Override
-	public AuthenticatedEntity checkPassword(String username, String password)
+	public AuthenticationResult checkPassword(String username, String password)
 			throws EngineException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		RemotelyAuthenticatedInput input;
+		try
+		{
+			input = client.bindAndSearch(username, password, clientConfiguration);
+			return getResult(input);
+		} catch (LdapAuthenticationException e)
+		{
+			return new AuthenticationResult(Status.deny, null, null);
+		} catch (Exception e)
+		{
+			throw new AuthenticationException("Problem when authenticating against the LDAP server", e);
+		} 
 	}
 
 	@Override

@@ -16,7 +16,6 @@ import org.apache.xmlbeans.impl.util.Base64;
 import eu.unicore.security.HTTPAuthNTokens;
 
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
@@ -66,9 +65,7 @@ public class HttpBasicRetrieval implements CredentialRetrieval, CXFAuthenticatio
 			return new AuthenticationResult(Status.notApplicable, null);
 		try
 		{
-			AuthenticatedEntity authenticatedEntity = credentialExchange.checkPassword(
-					authnTokens.getUserName(), authnTokens.getPasswd());
-			return new AuthenticationResult(Status.success, authenticatedEntity);
+			return credentialExchange.checkPassword(authnTokens.getUserName(), authnTokens.getPasswd());
 		} catch (Exception e)
 		{
 			return new AuthenticationResult(Status.deny, null);

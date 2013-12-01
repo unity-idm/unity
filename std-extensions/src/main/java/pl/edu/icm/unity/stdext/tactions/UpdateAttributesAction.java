@@ -4,11 +4,9 @@
  */
 package pl.edu.icm.unity.stdext.tactions;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -16,7 +14,7 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
+import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemoteInformationBase;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
@@ -24,8 +22,6 @@ import pl.edu.icm.unity.server.authn.remote.translation.AbstractTranslationActio
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
@@ -80,7 +76,7 @@ public class UpdateAttributesAction extends AbstractTranslationAction
 				existingANames.add(a.getGroupPath()+"///" + a.getName());
 		}
 
-		List<Attribute<?>> attrs = getAttributes(input, attrMan);
+		List<Attribute<?>> attrs = AbstractRemoteVerificator.extractAttributes(input, attrMan);
 		for (Attribute<?> attr: attrs)
 		{
 			if (!selection.matcher(attr.getName()).matches())
@@ -92,38 +88,6 @@ public class UpdateAttributesAction extends AbstractTranslationAction
 		}
 	}
 
-	public static List<Attribute<?>> getAttributes(RemotelyAuthenticatedInput input,
-			AttributesManagement attrMan) throws EngineException
-	{
-		Map<String, RemoteAttribute> attributes = input.getAttributes();
-		Map<String, AttributeType> atMap = attrMan.getAttributeTypesAsMap();
-		
-		List<Attribute<?>> ret = new ArrayList<>();
-		for (Map.Entry<String, RemoteAttribute> ra: attributes.entrySet())
-		{
-			Map<String, String> metadata = ra.getValue().getMetadata();
-			String scope = metadata.get(RemoteInformationBase.UNITY_GROUP);
-			if (scope == null)
-				continue;
-			String unityName = metadata.get(RemoteInformationBase.UNITY_ATTRIBUTE);
-			if (unityName == null)
-				continue;
-			if (!atMap.containsKey(unityName))
-				continue;
-
-			String visibilityM = metadata.get(RemoteInformationBase.UNITY_ATTRIBUTE_VISIBILITY);
-			AttributeVisibility visibility = visibilityM == null ? AttributeVisibility.full : 
-				AttributeVisibility.valueOf(visibilityM);
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			Attribute<?> mapped = new Attribute(unityName, atMap.get(unityName).getValueType(), 
-					scope, visibility, ra.getValue().getValues());
-			ret.add(mapped);
-		}
-		return ret;
-	}
-
-	
-	
 	@Override
 	public String[] getParameters()
 	{

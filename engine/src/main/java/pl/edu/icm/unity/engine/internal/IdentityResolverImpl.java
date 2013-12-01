@@ -77,6 +77,21 @@ public class IdentityResolverImpl implements IdentityResolver
 		}
 	}
 	
+	@Override
+	public long resolveIdentity(String identity, String[] identityTypes) throws IllegalIdentityValueException
+	{
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			long entityId = getEntity(identity, identityTypes, sql);
+			sql.commit();
+			return entityId;
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
+	}
+	
 	private long getEntity(String identity, String[] identityTypes, SqlSession sqlMap) 
 			throws IllegalIdentityValueException
 	{

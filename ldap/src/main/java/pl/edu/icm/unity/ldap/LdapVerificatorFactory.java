@@ -4,8 +4,11 @@
  */
 package pl.edu.icm.unity.ldap;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
 
@@ -19,6 +22,16 @@ public class LdapVerificatorFactory implements CredentialVerificatorFactory
 {
 	public static final String NAME = "ldap";
 	
+	private TranslationProfileManagement profileManagement;
+	private AttributesManagement attrMan;
+	
+	@Autowired
+	public LdapVerificatorFactory(TranslationProfileManagement profileManagement, AttributesManagement attrMan)
+	{
+		this.profileManagement = profileManagement;
+		this.attrMan = attrMan;
+	}
+
 	@Override
 	public String getName()
 	{
@@ -34,6 +47,6 @@ public class LdapVerificatorFactory implements CredentialVerificatorFactory
 	@Override
 	public CredentialVerificator newInstance()
 	{
-		return new LdapVerificator(getName(), getDescription());
+		return new LdapVerificator(getName(), getDescription(), profileManagement, attrMan);
 	}
 }
