@@ -20,6 +20,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.IdentityResolver;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
+import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -35,13 +36,15 @@ public class AuthenticatorLoader
 	private IdentityResolver identityResolver;
 	private AuthenticatorInstanceDB authenticatorDB;
 	private AuthenticatorsRegistry authReg;
+	private LocalCredentialsRegistry localCredReg;
 	private CredentialDB credDB;
 	
 	@Autowired
 	public AuthenticatorLoader(IdentityResolver identityResolver,
 			AuthenticatorInstanceDB authenticatorDB, AuthenticatorsRegistry authReg,
-			CredentialDB credDB)
+			CredentialDB credDB, LocalCredentialsRegistry localCredReg)
 	{
+		this.localCredReg = localCredReg;
 		this.identityResolver = identityResolver;
 		this.authenticatorDB = authenticatorDB;
 		this.authReg = authReg;
@@ -66,7 +69,7 @@ public class AuthenticatorLoader
 		if (localCredential != null)
 		{
 			CredentialDefinition credDef = credDB.get(localCredential, sql);
-			CredentialHolder credential = new CredentialHolder(credDef, authReg);
+			CredentialHolder credential = new CredentialHolder(credDef, localCredReg);
 			authenticator.setVerificatorConfiguration(credential.getCredentialDefinition().
 					getJsonConfiguration());
 		}

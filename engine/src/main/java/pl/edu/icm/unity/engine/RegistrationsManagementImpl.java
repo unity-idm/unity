@@ -47,8 +47,8 @@ import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
-import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
+import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -98,7 +98,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	
 	private GroupResolver groupsResolver;
 	private IdentityTypesRegistry identityTypesRegistry;
-	private AuthenticatorsRegistry authnRegistry;
+	private LocalCredentialsRegistry authnRegistry;
 	private AuthorizationManager authz;
 	private EngineHelper engineHelper;
 	private AttributesHelper attributesHelper;
@@ -110,7 +110,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			CredentialRequirementDB credentialReqDB, AttributeClassDB acDB,
 			DBAttributes dbAttributes, DBIdentities dbIdentities, DBGroups dbGroups,
 			GroupResolver groupsResolver, IdentityTypesRegistry identityTypesRegistry,
-			AuthenticatorsRegistry authnRegistry, AuthorizationManager authz,
+			LocalCredentialsRegistry authnRegistry, AuthorizationManager authz,
 			EngineHelper engineHelper, AttributesHelper attributesHelper,
 			NotificationProducerImpl notificationProducer)
 	{

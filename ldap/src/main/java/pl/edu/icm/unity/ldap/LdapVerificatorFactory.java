@@ -24,7 +24,7 @@ public class LdapVerificatorFactory implements CredentialVerificatorFactory
 	
 	private TranslationProfileManagement profileManagement;
 	private AttributesManagement attrMan;
-	
+
 	@Autowired
 	public LdapVerificatorFactory(TranslationProfileManagement profileManagement, AttributesManagement attrMan)
 	{

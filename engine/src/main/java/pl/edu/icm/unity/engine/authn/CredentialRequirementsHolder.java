@@ -12,7 +12,7 @@ import java.util.Set;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
-import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
+import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -26,7 +26,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 public class CredentialRequirementsHolder
 {
 	private CredentialRequirements requirements;
-	private AuthenticatorsRegistry reg;
+	private LocalCredentialsRegistry reg;
 	private Map<String, LocalCredentialVerificator> handlers = new HashMap<String, LocalCredentialVerificator>();
 
 	/**
@@ -36,7 +36,7 @@ public class CredentialRequirementsHolder
 	 * @param credDefs
 	 * @throws IllegalCredentialException 
 	 */
-	public CredentialRequirementsHolder(AuthenticatorsRegistry reg, CredentialRequirements requirements, 
+	public CredentialRequirementsHolder(LocalCredentialsRegistry reg, CredentialRequirements requirements, 
 			Collection<CredentialDefinition> credDefs) throws IllegalCredentialException
 	{
 		this.reg = reg;
@@ -55,7 +55,7 @@ public class CredentialRequirementsHolder
 	}
 
 	public static void checkCredentials(CredentialRequirements requirements, Map<String, CredentialDefinition> crDefsMap,
-			AuthenticatorsRegistry reg) throws IllegalCredentialException
+			LocalCredentialsRegistry reg) throws IllegalCredentialException
 	{
 		Set<String> configuredCredentials = requirements.getRequiredCredentials();
 		for (String credDef: configuredCredentials)
@@ -68,7 +68,7 @@ public class CredentialRequirementsHolder
 		}
 	}
 	
-	private void initHandler(AuthenticatorsRegistry reg, CredentialDefinition def) throws IllegalCredentialException
+	private void initHandler(LocalCredentialsRegistry reg, CredentialDefinition def) throws IllegalCredentialException
 	{
 		handlers.put(def.getName(), reg.createLocalCredentialVerificator(def));
 	}

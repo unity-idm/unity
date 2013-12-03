@@ -15,17 +15,13 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.authn.CredentialRetrievalFactory;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
-import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.authn.CredentialType;
 
 /**
  * Registry of components which are used to create {@link AuthenticatorInstance}s and local credential handlers.
@@ -43,8 +39,6 @@ public class AuthenticatorsRegistry
 	private Map<String, Set<AuthenticatorTypeDescription>> authenticatorsByBinding;
 	private Map<String, AuthenticatorTypeDescription> authenticatorsById;
 	
-	private Map<String, LocalCredentialVerificatorFactory> localCredentialVerificatorFactories;
-	
 	@Autowired
 	public AuthenticatorsRegistry(List<CredentialRetrievalFactory> retrievalFactories, 
 			List<CredentialVerificatorFactory> verificatorFactories)
@@ -54,17 +48,11 @@ public class AuthenticatorsRegistry
 		
 		credentialRetrievalFactories = new HashMap<String, CredentialRetrievalFactory>();
 		credentialVerificatorFactories = new HashMap<String, CredentialVerificatorFactory>();
-		localCredentialVerificatorFactories = new HashMap<String, LocalCredentialVerificatorFactory>();
 		
 		for (CredentialRetrievalFactory f: retrievalFactories)
 			credentialRetrievalFactories.put(f.getName(), f);
 		for (CredentialVerificatorFactory f: verificatorFactories)
-		{
 			credentialVerificatorFactories.put(f.getName(), f);
-			if (f instanceof LocalCredentialVerificatorFactory)
-				localCredentialVerificatorFactories.put(f.getName(), (LocalCredentialVerificatorFactory) f);	
-		}
-			
 		
 		log.debug("The following authenticator types are available:");
 		for (int j=0; j<verificatorFactories.size(); j++)
@@ -126,34 +114,5 @@ public class AuthenticatorsRegistry
 		for (String binding: authenticatorsByBinding.keySet())
 			ret.addAll(authenticatorsByBinding.get(binding));
 		return ret;
-	}
-	
-	public Set<CredentialType> getLocalCredentialTypes()
-	{
-		Set<CredentialType> ret = new HashSet<CredentialType>();
-		
-		for (LocalCredentialVerificatorFactory fact: localCredentialVerificatorFactories.values())
-		{
-			CredentialType credentialType = new CredentialType(fact.getName(), fact.getDescription(),
-					fact.isSupportingInvalidation());
-			ret.add(credentialType);
-		}
-		return ret;
-	}
-	
-	public LocalCredentialVerificatorFactory getLocalCredentialFactory(String id)
-	{
-		return localCredentialVerificatorFactories.get(id);
-	}
-	
-	public LocalCredentialVerificator createLocalCredentialVerificator(CredentialDefinition def) 
-			throws IllegalCredentialException
-	{
-		LocalCredentialVerificatorFactory fact = getLocalCredentialFactory(def.getTypeId());
-		if (fact == null)
-			throw new IllegalCredentialException("The credential type " + def.getTypeId() + " is unknown");
-		LocalCredentialVerificator validator = fact.newInstance();
-		validator.setSerializedConfiguration(def.getJsonConfiguration());
-		return validator;
 	}
 }

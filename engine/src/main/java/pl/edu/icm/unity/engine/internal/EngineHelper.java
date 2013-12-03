@@ -34,7 +34,7 @@ import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
-import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
+import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
@@ -67,14 +67,14 @@ public class EngineHelper
 	private DBIdentities dbIdentities;
 	private AttributeClassDB acDB;
 	private DBGroups dbGroups;
-	private AuthenticatorsRegistry authReg;
+	private LocalCredentialsRegistry authReg;
 	private CredentialDB credentialDB;
 	private CredentialRequirementDB credentialRequirementDB;
 
 	
 	@Autowired
 	public EngineHelper(DBAttributes dbAttributes, DBIdentities dbIdentities,
-			AttributeClassDB acDB, DBGroups dbGroups, AuthenticatorsRegistry authReg,
+			AttributeClassDB acDB, DBGroups dbGroups, LocalCredentialsRegistry authReg,
 			CredentialDB credentialDB, CredentialRequirementDB credentialRequirementDB)
 	{
 		this.dbAttributes = dbAttributes;

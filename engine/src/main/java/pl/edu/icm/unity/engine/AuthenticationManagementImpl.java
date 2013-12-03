@@ -33,6 +33,7 @@ import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.authn.IdentityResolver;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
+import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
@@ -52,6 +53,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 public class AuthenticationManagementImpl implements AuthenticationManagement
 {
 	private AuthenticatorsRegistry authReg;
+	private LocalCredentialsRegistry localCredReg;
 	private DBSessionManager db;
 	private AuthenticatorInstanceDB authenticatorDB;
 	private CredentialDB credentialDB;
@@ -69,9 +71,10 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			CredentialDB credentialDB, CredentialRequirementDB credentialRequirementDB,
 			IdentityResolver identityResolver, EngineHelper engineHelper,
 			EndpointsUpdater endpointsUpdater, AuthenticatorLoader authenticatorLoader,
-			DBAttributes dbAttributes, AuthorizationManager authz)
+			DBAttributes dbAttributes, AuthorizationManager authz, LocalCredentialsRegistry localCredReg)
 	{
 		this.authReg = authReg;
+		this.localCredReg = localCredReg;
 		this.db = db;
 		this.authenticatorDB = authenticatorDB;
 		this.credentialDB = credentialDB;
@@ -109,7 +112,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			if (authenticator.getAuthenticatorInstance().getTypeDescription().isLocal())
 			{
 				CredentialDefinition credentialDef = credentialDB.get(credentialName, sql);
-				CredentialHolder credential = new CredentialHolder(credentialDef, authReg);
+				CredentialHolder credential = new CredentialHolder(credentialDef, localCredReg);
 				String verificationMethod = authenticator.getAuthenticatorInstance().
 						getTypeDescription().getVerificationMethod();
 				if (!credential.getCredentialDefinition().getTypeId().equals(verificationMethod))
@@ -184,7 +187,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	public Collection<CredentialType> getCredentialTypes() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
-		return authReg.getLocalCredentialTypes();
+		return localCredReg.getLocalCredentialTypes();
 	}
 
 	@Override
@@ -233,7 +236,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 		try
 		{
 			Map<String, CredentialDefinition> credDefs = credentialDB.getAllAsMap(sql);
-			CredentialRequirementsHolder.checkCredentials(updated, credDefs, authReg);
+			CredentialRequirementsHolder.checkCredentials(updated, credDefs, localCredReg);
 			credentialRequirementDB.update(updated.getName(), updated, sql);
 			sql.commit();
 		} finally
@@ -274,7 +277,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		CredentialHolder helper = new CredentialHolder(credentialDefinition, authReg);
+		CredentialHolder helper = new CredentialHolder(credentialDefinition, localCredReg);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -294,7 +297,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 
-		CredentialHolder helper = new CredentialHolder(updated, authReg);
+		CredentialHolder helper = new CredentialHolder(updated, localCredReg);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{

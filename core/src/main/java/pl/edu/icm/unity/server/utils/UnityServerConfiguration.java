@@ -93,6 +93,9 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	
 	public static final String INITIAL_ADMIN_USER = "initialAdminUsername";
 	public static final String INITIAL_ADMIN_PASSWORD = "initialAdminPassword";
+	public static final String INITIAL_ADMIN_USER_OUTDATED = "initialAdminOutdated";
+	
+	public static final String TRANSLATION_PROFILES = "translationProfiles.";
 	
 
 	@DocumentationReferenceMeta
@@ -176,6 +179,13 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("Username of the administrator to be installed to the empty database."));
 		defaults.put(INITIAL_ADMIN_PASSWORD, new PropertyMD("admin").setCategory(mainCat).
 				setDescription("Password of the administrator to be installed to the empty database."));
+		defaults.put(INITIAL_ADMIN_USER_OUTDATED, new PropertyMD("true").setCategory(mainCat).
+				setDescription("If false then the default admin user is not " +
+						"set to outdated state after creation. Useful only for testbeds."));
+		
+		defaults.put(TRANSLATION_PROFILES, new PropertyMD().setList(false).setCategory(mainCat).
+				setDescription("List of file paths, where each file contains a definition of a translation profile, " +
+						"used to configure mapping of remote identities to the local representation."));
 		
 		defaults.put(TruststoreProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).
 				setDescription("Properties starting with this prefix are used to configure server's trust settings and certificate validation. See separate documentation for details."));

@@ -18,7 +18,7 @@ import pl.edu.icm.unity.db.generic.cred.CredentialDB;
 import pl.edu.icm.unity.db.generic.cred.CredentialHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
-import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
+import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
@@ -34,13 +34,13 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 @Component
 public class RegistrationRequestDB extends GenericObjectsDB<RegistrationRequestState>
 {
-	private AuthenticatorsRegistry authnRegistry;
+	private LocalCredentialsRegistry authnRegistry;
 	private CredentialDB credentialDB;
 	
 	@Autowired
 	public RegistrationRequestDB(RegistrationRequestHandler handler,
 			DBGeneric dbGeneric, DependencyNotificationManager notificationManager,
-			AuthenticatorsRegistry authnRegistry, CredentialDB credentialDB)
+			LocalCredentialsRegistry authnRegistry, CredentialDB credentialDB)
 	{
 		super(handler, dbGeneric, notificationManager, RegistrationRequestState.class,
 				"registration form");

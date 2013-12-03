@@ -23,6 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import eu.unicore.util.configuration.ConfigurationException;
+
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
@@ -38,7 +42,10 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
+import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
+import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.ServerInitializer;
@@ -53,6 +60,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -119,6 +127,15 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private List<ServerInitializer> initializers;
 	
+	@Autowired
+	private TranslationActionsRegistry tactionsRegistry;
+	@Autowired
+	private ObjectMapper jsonMapper;
+	@Autowired
+	@Qualifier("insecure")
+	private TranslationProfileManagement profilesManagement;
+	
+	
 	private long endpointsLoadTime;
 	private boolean coldStart = false;
 	
@@ -184,6 +201,7 @@ public class EngineInitialization extends LifecycleBase
 		initializeAdminUser();
 		initializeCredentials();
 		initializeCredentialReqirements();
+		initializeTranslationProfiles();
 		initializeAuthenticators();
 		initializeEndpoints();
 		initializeNotifications();
@@ -287,9 +305,9 @@ public class EngineInitialization extends LifecycleBase
 				EntityParam adminEntity = new EntityParam(adminId.getEntityId());
 				PasswordToken ptoken = new PasswordToken(adminP);
 				idManagement.setEntityCredential(adminEntity, credDef.getName(), ptoken.toJson());
-//FIXME!! change initial cred state to outdated
-//				idManagement.setEntityCredentialStatus(adminEntity, credDef.getName(), 
-//						LocalCredentialState.outdated);
+				if (config.getBooleanValue(UnityServerConfiguration.INITIAL_ADMIN_USER_OUTDATED))
+					idManagement.setEntityCredentialStatus(adminEntity, credDef.getName(), 
+							LocalCredentialState.outdated);
 				EnumAttribute roleAt = new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE,
 						"/", AttributeVisibility.local, 
 						AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE);
@@ -537,6 +555,44 @@ public class EngineInitialization extends LifecycleBase
 		{
 			log.fatal("Can't load e-mail notification channel configuration", e);
 			throw new InternalException("Can't load e-mail notification channel configuration", e);
+		}
+	}
+	
+	private void initializeTranslationProfiles()
+	{
+		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
+		log.info("Removing old translation profiles");
+		try
+		{
+			Map<String, TranslationProfile> existingProfiles = profilesManagement.listProfiles();
+			for (String pr: existingProfiles.keySet())
+				profilesManagement.removeProfile(pr);
+		} catch (EngineException e)
+		{
+			throw new InternalException("Can't wipe existing translation profiles", e);
+		}
+		log.info("Loading configured translation profiles");
+		for (String profileFile: profileFiles)
+		{
+			String json;
+			try
+			{
+				json = FileUtils.readFileToString(new File(profileFile));
+			} catch (IOException e)
+			{
+				throw new ConfigurationException("Problem loading translation profile from file: " +
+						profileFile, e);
+			}
+			TranslationProfile tp = new TranslationProfile(json, jsonMapper, tactionsRegistry);
+			log.info(" - loaded translation profile: " + tp.getName() + " from " + profileFile);
+			try
+			{
+				profilesManagement.addProfile(tp);
+			} catch (EngineException e)
+			{
+				throw new InternalException("Can't install the configured translation profile " 
+						+ tp.getName(), e);
+			}
 		}
 	}
 	

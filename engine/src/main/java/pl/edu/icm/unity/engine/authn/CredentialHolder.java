@@ -7,7 +7,7 @@ package pl.edu.icm.unity.engine.authn;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
-import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
+import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 /**
@@ -20,14 +20,14 @@ public class CredentialHolder
 	private CredentialDefinition credential;
 	private LocalCredentialVerificator handler;
 
-	public CredentialHolder(CredentialDefinition credDef, AuthenticatorsRegistry reg) 
+	public CredentialHolder(CredentialDefinition credDef, LocalCredentialsRegistry reg) 
 			throws IllegalCredentialException
 	{
 		checkCredentialDefinition(credDef, reg);
 		credential = credDef;
 	}
 
-	private void checkCredentialDefinition(CredentialDefinition def, AuthenticatorsRegistry reg) 
+	private void checkCredentialDefinition(CredentialDefinition def, LocalCredentialsRegistry reg) 
 			throws IllegalCredentialException
 	{
 		LocalCredentialVerificatorFactory fact = reg.getLocalCredentialFactory(def.getTypeId());
