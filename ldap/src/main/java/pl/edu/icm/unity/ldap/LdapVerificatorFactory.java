@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.ldap;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.api.AttributesManagement;
@@ -26,7 +27,8 @@ public class LdapVerificatorFactory implements CredentialVerificatorFactory
 	private AttributesManagement attrMan;
 
 	@Autowired
-	public LdapVerificatorFactory(TranslationProfileManagement profileManagement, AttributesManagement attrMan)
+	public LdapVerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement, 
+			@Qualifier("insecure") AttributesManagement attrMan)
 	{
 		this.profileManagement = profileManagement;
 		this.attrMan = attrMan;

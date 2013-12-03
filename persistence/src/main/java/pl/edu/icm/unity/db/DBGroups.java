@@ -193,7 +193,8 @@ public class DBGroups
 		{
 			GroupElementBean param = new GroupElementBean(gb.getParent(), entityId);
 			if (mapper.isMember(param) == null)
-				throw new IllegalGroupValueException("Can't add to the group, as the entity is not a member of its parent group");
+				throw new IllegalGroupValueException("Can't add to the group " + path + 
+						", as the entity is not a member of its parent group");
 		}
 
 		GroupElementBean param = new GroupElementBean(gb.getId(), entityId);

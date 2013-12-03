@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.authn.extensions;
 
+import org.apache.log4j.Logger;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -21,11 +23,13 @@ import com.vaadin.ui.themes.Reindeer;
 import eu.unicore.util.configuration.ConfigurationException;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
@@ -39,6 +43,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
  */
 public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthentication
 {
+	private Logger log = Log.getLogger(Log.U_SERVER_WEB, PasswordRetrieval.class);
 	private UsernameProvider usernameProvider;
 	private PasswordExchange credentialExchange;
 	private PasswordField passwordField;
@@ -158,6 +163,8 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 			return authenticationResult;
 		} catch (Exception e)
 		{
+			if (!(e instanceof IllegalCredentialException))
+				log.warn("Password verificator has thrown an exception", e);
 			passwordField.setComponentError(new UserError(
 					msg.getMessage("WebPasswordRetrieval.wrongPassword")));
 			passwordField.setValue("");

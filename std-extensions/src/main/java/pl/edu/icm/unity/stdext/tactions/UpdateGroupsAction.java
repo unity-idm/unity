@@ -89,7 +89,7 @@ public class UpdateGroupsAction extends AbstractTranslationAction
 
 	private void addToGroupRecursive(EntityParam who, Deque<String> missingGroups) throws EngineException
 	{
-		String group = missingGroups.poll();
+		String group = missingGroups.pollLast();
 		groupsMan.addMemberFromParent(group, who);
 		if (!missingGroups.isEmpty())
 			addToGroupRecursive(who, missingGroups);
