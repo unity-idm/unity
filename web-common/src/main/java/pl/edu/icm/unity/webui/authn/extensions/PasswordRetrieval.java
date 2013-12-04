@@ -51,6 +51,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 	private UnityMessageSource msg;
 	private CredentialEditor credEditor;
 	private String name;
+	private String registrationFormForUnknown;
 	
 	public PasswordRetrieval(UnityMessageSource msg, CredentialEditor credEditor)
 	{
@@ -69,6 +70,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 	{
 		ObjectNode root = Constants.MAPPER.createObjectNode();
 		root.put("name", name);
+		root.put("registrationFormForUnknown", registrationFormForUnknown);
 		try
 		{
 			return Constants.MAPPER.writeValueAsString(root);
@@ -85,6 +87,9 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		{
 			JsonNode root = Constants.MAPPER.readTree(json);
 			name = root.get("name").asText();
+			JsonNode formNode = root.get("registrationFormForUnknown");
+			if (formNode != null && !formNode.isNull())
+				registrationFormForUnknown = formNode.asText();
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("The configuration of the web-" +
@@ -154,7 +159,12 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 			AuthenticationResult authenticationResult = credentialExchange.checkPassword(username, password);
 			if (authenticationResult.getStatus() == Status.success)
 				passwordField.setComponentError(null);
-			else
+			else if (authenticationResult.getStatus() == Status.unknownRemotePrincipal && 
+					registrationFormForUnknown != null) 
+			{
+				authenticationResult.setFormForUnknownPrincipal(registrationFormForUnknown);
+				passwordField.setValue("");
+			} else
 			{
 				passwordField.setComponentError(new UserError(
 						msg.getMessage("WebPasswordRetrieval.wrongPassword")));

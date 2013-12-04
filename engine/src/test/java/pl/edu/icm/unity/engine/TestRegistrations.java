@@ -35,7 +35,6 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
@@ -44,6 +43,7 @@ import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.types.registration.IdentityParamValue;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -291,12 +291,12 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		// accept with updates -> check if results are fine
 		request = getRequest();
-		IdentityParam ip = new IdentityParam(X500Identity.ID, "CN=registration test2", true);
+		IdentityParamValue ip = new IdentityParamValue(X500Identity.ID, "CN=registration test2");
 		request.setIdentities(Collections.singletonList(ip));		
 		String id4 = registrationsMan.submitRegistrationRequest(request);
 		
 		request = getRequest();
-		ip = new IdentityParam(X500Identity.ID, "CN=registration test updated", true);
+		ip = new IdentityParamValue(X500Identity.ID, "CN=registration test updated");
 		request.setIdentities(Collections.singletonList(ip));
 		registrationsMan.processRegistrationRequest(id4, request, 
 				RegistrationRequestAction.accept, "a2", "p2");
@@ -389,7 +389,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		request.setCredentials(Collections.singletonList(cp));
 		request.setFormId("f1");
 		request.setGroupSelections(Collections.singletonList(new Selection(true)));
-		IdentityParam ip = new IdentityParam(X500Identity.ID, "CN=registration test", true);
+		IdentityParamValue ip = new IdentityParamValue(X500Identity.ID, "CN=registration test");
 		request.setIdentities(Collections.singletonList(ip));
 		request.setRegistrationCode("123");
 		return request;

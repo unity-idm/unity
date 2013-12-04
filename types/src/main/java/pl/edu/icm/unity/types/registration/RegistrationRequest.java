@@ -6,8 +6,6 @@ package pl.edu.icm.unity.types.registration;
 
 import java.util.List;
 
-import pl.edu.icm.unity.types.basic.IdentityParam;
-
 /**
  * Registration request, tied to a registration form contains data collected during registration process.
  * This data can be entered by the user in UI, taken from external IdP or possibly from other 
@@ -19,7 +17,7 @@ public class RegistrationRequest
 {
 	private String formId;
 	
-	private List<IdentityParam> identities;
+	private List<IdentityParamValue> identities;
 	private List<AttributeParamValue> attributes;
 	private List<CredentialParamValue> credentials;
 	private List<Selection> groupSelections;
@@ -36,11 +34,11 @@ public class RegistrationRequest
 	{
 		this.formId = formId;
 	}
-	public List<IdentityParam> getIdentities()
+	public List<IdentityParamValue> getIdentities()
 	{
 		return identities;
 	}
-	public void setIdentities(List<IdentityParam> identities)
+	public void setIdentities(List<IdentityParamValue> identities)
 	{
 		this.identities = identities;
 	}

@@ -8,6 +8,7 @@ import java.util.List;
 
 import pl.edu.icm.unity.exceptions.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
 
 /**
  * Utility methods processing results of authenticators
@@ -29,7 +30,13 @@ public class AuthenticationProcessorUtil
 		for (AuthenticationResult result: results)
 		{
 			if (result.getStatus() != Status.success)
+			{
+				if (result.getStatus() == Status.unknownRemotePrincipal && 
+						result.getFormForUnknownPrincipal() != null && results.size() == 1)
+					throw new UnknownRemoteUserException("AuthenticationProcessorUtil.authnFailed", 
+							result.getFormForUnknownPrincipal(), result.getRemoteAuthnContext());
 				throw new AuthenticationException("AuthenticationProcessorUtil.authnFailed");
+			}
 			Long curId = result.getAuthenticatedEntity().getEntityId();
 			if (entityId == null)
 				entityId = curId;

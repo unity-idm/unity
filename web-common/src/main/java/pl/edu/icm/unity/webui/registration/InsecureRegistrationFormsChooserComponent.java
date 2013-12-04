@@ -10,17 +10,9 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
 import com.vaadin.ui.VerticalLayout;
 
@@ -42,14 +34,9 @@ public class InsecureRegistrationFormsChooserComponent extends RegistrationForms
 	@Autowired
 	public InsecureRegistrationFormsChooserComponent(UnityMessageSource msg,
 			@Qualifier("insecure") RegistrationsManagement registrationsManagement,
-			IdentityEditorRegistry identityEditorRegistry,
-			CredentialEditorRegistry credentialEditorRegistry,
-			AttributeHandlerRegistry attributeHandlerRegistry,
-			@Qualifier("insecure") AttributesManagement attrsMan, 
-			@Qualifier("insecure") AuthenticationManagement authnMan)
+			InsecureRegistrationFormLauncher formLauncher)
 	{
-		super(msg, registrationsManagement, identityEditorRegistry, 
-				credentialEditorRegistry, attributeHandlerRegistry, attrsMan, authnMan);
+		super(msg, registrationsManagement, formLauncher);
 	}
 
 	@Override
@@ -69,25 +56,6 @@ public class InsecureRegistrationFormsChooserComponent extends RegistrationForms
 			error.setError(msg.getMessage("RegistrationFormsChooserComponent.errorGetForms"), e);
 			removeAllComponents();
 			addComponent(error);
-		}
-	}
-
-	@Override
-	protected boolean addRequest(RegistrationRequest request, boolean autoAccept)
-	{
-		try
-		{
-			String id = registrationsManagement.submitRegistrationRequest(request);
-			bus.fireEvent(new RegistrationRequestChangedEvent(id));
-			
-			ErrorPopup.showNotice(msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"), 
-					msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfo"));
-			return true;
-		} catch (EngineException e)
-		{
-			ErrorPopup.showError(msg.getMessage(
-					"RegistrationFormsChooserComponent.errorRequestSubmit"), e);
-			return false;
 		}
 	}
 }

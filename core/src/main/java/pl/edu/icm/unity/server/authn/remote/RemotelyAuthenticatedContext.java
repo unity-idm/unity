@@ -18,11 +18,16 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
  */
 public class RemotelyAuthenticatedContext
 {
+	private String remoteIdPName;
 	private Collection<IdentityTaV> identities = new ArrayList<>();
 	private IdentityTaV primaryIdentity;
 	private Collection<Attribute<?>> attributes = new ArrayList<>();
 	private Collection<String> groups = new ArrayList<>();
 
+	public RemotelyAuthenticatedContext(String remoteIdPName)
+	{
+		this.remoteIdPName = remoteIdPName;
+	}
 	public Collection<IdentityTaV> getIdentities()
 	{
 		return identities;
@@ -54,5 +59,9 @@ public class RemotelyAuthenticatedContext
 	public void setPrimaryIdentity(IdentityTaV primaryIdentity)
 	{
 		this.primaryIdentity = primaryIdentity;
+	}
+	public String getRemoteIdPName()
+	{
+		return remoteIdPName;
 	}
 }

@@ -4,25 +4,32 @@
  */
 package pl.edu.icm.unity.types.registration;
 
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
- * Attribute registration parameter. If the parameter was provided by an external IdP its name is set here too. 
+ * Identity registration parameter. If the parameter was provided by an external IdP its name is set here too. 
  * @author K. Benedyczak
  */
-public class AttributeParamValue
+public class IdentityParamValue extends IdentityParam
 {
-	private Attribute<?> attribute;
 	private String externalIdp;
 
-	public Attribute<?> getAttribute()
+	public IdentityParamValue(String type, String value, String remoteIdp) 
 	{
-		return attribute;
+		super(type, value, false);
+		this.externalIdp = remoteIdp;
 	}
-	public void setAttribute(Attribute<?> attribute)
+
+	public IdentityParamValue(String type, String value) 
 	{
-		this.attribute = attribute;
+		super(type, value, true);
+		this.externalIdp = null;
 	}
+	
+	public IdentityParamValue() 
+	{
+	}	
+	
 	public String getExternalIdp()
 	{
 		return externalIdp;
@@ -35,8 +42,7 @@ public class AttributeParamValue
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((attribute == null) ? 0 : attribute.hashCode());
+		int result = super.hashCode();
 		result = prime * result + ((externalIdp == null) ? 0 : externalIdp.hashCode());
 		return result;
 	}
@@ -45,17 +51,11 @@ public class AttributeParamValue
 	{
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AttributeParamValue other = (AttributeParamValue) obj;
-		if (attribute == null)
-		{
-			if (other.attribute != null)
-				return false;
-		} else if (!attribute.equals(other.attribute))
-			return false;
+		IdentityParamValue other = (IdentityParamValue) obj;
 		if (externalIdp == null)
 		{
 			if (other.externalIdp != null)
@@ -63,5 +63,14 @@ public class AttributeParamValue
 		} else if (!externalIdp.equals(other.externalIdp))
 			return false;
 		return true;
+	}
+	
+	/**
+	 * @return full String representation
+	 */
+	public String toString()
+	{
+		return externalIdp == null ? super.toString() : 
+			"[from: " + externalIdp + "] " + super.toString();
 	}
 }

@@ -42,6 +42,7 @@ public class AuthenticationResult
 	private Status status;	
 	private RemotelyAuthenticatedContext remoteAuthnContext;
 	private AuthenticatedEntity authenticatedEntity;
+	private String formForUnknownPrincipal;
 
 	/**
 	 * Used by local varificators
@@ -81,5 +82,15 @@ public class AuthenticationResult
 	public RemotelyAuthenticatedContext getRemoteAuthnContext()
 	{
 		return remoteAuthnContext;
+	}
+
+	public String getFormForUnknownPrincipal()
+	{
+		return formForUnknownPrincipal;
+	}
+
+	public void setFormForUnknownPrincipal(String formForUnknownPrincipal)
+	{
+		this.formForUnknownPrincipal = formForUnknownPrincipal;
 	}
 }

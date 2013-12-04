@@ -9,11 +9,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.ActivationListener;
@@ -23,6 +27,7 @@ import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
+import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent;
 import pl.edu.icm.unity.webui.registration.RegistrationFormChooserDialog;
 
@@ -55,24 +60,27 @@ import com.vaadin.ui.themes.Reindeer;
 public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 {
 	private static final long serialVersionUID = 1L;
-
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationUI.class);
 	private EndpointDescription description;
 	private List<Map<String, VaadinAuthentication>> authenticators;
 	private LocaleChoiceComponent localeChoice;
 	private AuthenticationProcessor authnProcessor;
 	private EndpointRegistrationConfiguration registrationConfiguration;
 	private InsecureRegistrationFormsChooserComponent formsChooser;
+	private InsecureRegistrationFormLauncher formLauncher;
 	
 	
 	@Autowired
 	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,
 			AuthenticationProcessor authnProcessor,
-			InsecureRegistrationFormsChooserComponent formsChooser)
+			InsecureRegistrationFormsChooserComponent formsChooser,
+			InsecureRegistrationFormLauncher formLauncher)
 	{
 		super(msg);
 		this.localeChoice = localeChoice;
 		this.authnProcessor = authnProcessor;
 		this.formsChooser = formsChooser;
+		this.formLauncher = formLauncher;
 	}
 
 	@Override
@@ -101,7 +109,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		for (int i=0; i<components.length; i++)
 			components[i] = new AuthenticatorSetComponent(authenticators.get(i), 
 					description.getAuthenticatorSets().get(i), msg, authnProcessor, 
-					cancelHandler);
+					formLauncher, cancelHandler);
 		Button registrationButton = buildRegistrationButton();
 		Component all = buildAllSetsUI(registrationButton, components);
 		
@@ -148,7 +156,15 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		final AbstractDialog dialog;
 		if (formsChooser.getDisplayedForms().size() == 1)
 		{
-			dialog = formsChooser.getDialog(formsChooser.getDisplayedForms().get(0));
+			try
+			{
+				dialog = formLauncher.getDialog(formsChooser.getDisplayedForms().get(0), 
+						new RemotelyAuthenticatedContext("--none--"));
+			} catch (EngineException e)
+			{
+				log.error("Can't initialize registration form dialog", e);
+				return null;
+			}
 		} else
 		{
 			dialog = new RegistrationFormChooserDialog(

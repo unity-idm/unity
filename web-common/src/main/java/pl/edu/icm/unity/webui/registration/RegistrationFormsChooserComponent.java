@@ -15,24 +15,17 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
@@ -55,14 +48,9 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	private Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationFormsChooserComponent.class);
 	protected UnityMessageSource msg;
 	protected RegistrationsManagement registrationsManagement;
-	protected IdentityEditorRegistry identityEditorRegistry;
-	protected CredentialEditorRegistry credentialEditorRegistry;
-	protected AttributeHandlerRegistry attributeHandlerRegistry;
-	protected AttributesManagement attrsMan;
-	protected AuthenticationManagement authnMan;
+	protected RegistrationFormLauncher formLauncher;
 
 	protected boolean showNonPublic;
-	protected boolean addAutoAccept;
 	protected Collection<String> allowedForms;
 	protected List<RegistrationForm> displayedForms;
 	protected VerticalLayout main;
@@ -71,19 +59,12 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	@Autowired
 	public RegistrationFormsChooserComponent(UnityMessageSource msg,
 			RegistrationsManagement registrationsManagement,
-			IdentityEditorRegistry identityEditorRegistry,
-			CredentialEditorRegistry credentialEditorRegistry,
-			AttributeHandlerRegistry attributeHandlerRegistry,
-			AttributesManagement attrsMan, AuthenticationManagement authnMan)
+			RegistrationFormLauncher formLauncher)
 	{
 		super();
 		this.msg = msg;
 		this.registrationsManagement = registrationsManagement;
-		this.identityEditorRegistry = identityEditorRegistry;
-		this.credentialEditorRegistry = credentialEditorRegistry;
-		this.attributeHandlerRegistry = attributeHandlerRegistry;
-		this.attrsMan = attrsMan;
-		this.authnMan = authnMan;
+		this.formLauncher = formLauncher;
 		bus = WebSession.getCurrent().getEventBus();
 		bus.addListener(new EventListener<RegistrationFormChangedEvent>()
 		{
@@ -108,7 +89,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	
 	public void setAddAutoAccept(boolean addAutoAccept)
 	{
-		this.addAutoAccept = addAutoAccept;
+		formLauncher.setAddAutoAccept(addAutoAccept);
 	}
 	
 	public void setAllowedForms(Collection<String> allowed)
@@ -197,55 +178,16 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 		@Override
 		public void buttonClick(ClickEvent event)
 		{
-			RegistrationRequestEditorDialog dialog = getDialog(form);
-			if (dialog != null)
+			RegistrationRequestEditorDialog dialog;
+			try
+			{
+				dialog = formLauncher.getDialog(form, 
+						new RemotelyAuthenticatedContext("--none--"));
 				dialog.show();
-		}
-	}
-	
-	protected boolean addRequest(RegistrationRequest request, boolean andAccept)
-	{
-		try
-		{
-			String id = registrationsManagement.submitRegistrationRequest(request);
-			if (andAccept)
-				registrationsManagement.processRegistrationRequest(id, request, 
-						RegistrationRequestAction.accept, null, 
-						msg.getMessage("RegistrationFormsChooserComponent.autoAccept"));
-			bus.fireEvent(new RegistrationRequestChangedEvent(id));
-			return true;
-		} catch (EngineException e)
-		{
-			ErrorPopup.showError(msg.getMessage(
-					"RegistrationFormsChooserComponent.errorRequestSubmit"), e);
-			return false;
-		}
-	}
-	
-	
-	public RegistrationRequestEditorDialog getDialog(RegistrationForm form)
-	{
-		try
-		{
-			RegistrationRequestEditor editor = new RegistrationRequestEditor(msg, form, 
-					new RemotelyAuthenticatedContext(), identityEditorRegistry, 
-					credentialEditorRegistry, 
-					attributeHandlerRegistry, attrsMan, authnMan);
-			RegistrationRequestEditorDialog dialog = new RegistrationRequestEditorDialog(msg, 
-					msg.getMessage("RegistrationFormsChooserComponent.dialogCaption"), 
-					editor, addAutoAccept, new RegistrationRequestEditorDialog.Callback()
-					{
-						@Override
-						public boolean newRequest(RegistrationRequest request, boolean autoAccept)
-						{
-							return addRequest(request, autoAccept);
-						}
-					});
-			return dialog;
-		} catch (Exception e)
-		{
-			ErrorPopup.showError(msg.getMessage("RegistrationFormsChooserComponent.errorShowFormEdit"), e);
-			return null;
+			} catch (EngineException e)
+			{
+				ErrorPopup.showError(msg.getMessage("RegistrationFormsChooserComponent.errorShowFormEdit"), e);
+			}
 		}
 	}
 }

@@ -7,10 +7,10 @@ package pl.edu.icm.unity.webadmin.reg.reqman;
 import java.util.ArrayList;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeParamValue;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.types.registration.IdentityParamValue;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
@@ -158,7 +158,7 @@ public class RequestReviewPanel extends CustomComponent
 		code.setVisible(request.getRegistrationCode() != null);
 		
 		identities.clearContents();
-		for (IdentityParam idParam: request.getIdentities())
+		for (IdentityParamValue idParam: request.getIdentities())
 		{
 			if (idParam == null)
 				continue;
@@ -185,6 +185,8 @@ public class RequestReviewPanel extends CustomComponent
 			Label attrInfo = new Label();
 			String representation = handlersRegistry.getSimplifiedAttributeRepresentation(
 					ap.getAttribute(), 80);
+			if (ap.getExternalIdp() != null)
+				representation = "[from: " + ap.getExternalIdp() + "] " + representation;
 			attrInfo.setValue(representation);
 			attributes.addEntry(attrInfo, false);
 		}
@@ -196,7 +198,9 @@ public class RequestReviewPanel extends CustomComponent
 			if (!selection.isSelected())
 				continue;
 			GroupRegistrationParam groupParam = form.getGroupParams().get(i);
-			groups.addEntry(new Label(groupParam.getGroupPath()), false);
+			String groupEntry = selection.getExternalIdp() == null ? groupParam.getGroupPath() :
+				"[from: " + selection.getExternalIdp() + "] " + groupParam.getGroupPath();
+			groups.addEntry(new Label(groupEntry), false);
 		}
 	}
 }

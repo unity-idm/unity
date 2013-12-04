@@ -27,10 +27,10 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.AttributeParamValue;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
+import pl.edu.icm.unity.types.registration.IdentityParamValue;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
@@ -93,7 +93,7 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 			}
 			ObjectNode ap = jsonMapper.createObjectNode();
 			ap.set("attribute", attributeSerializer.toJson(a.getAttribute()));
-			ap.put("external", a.isExternal());
+			ap.put("externalIdP", a.getExternalIdp());
 			jsonAttrs.add(ap);
 		}
 	}
@@ -112,7 +112,9 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 			}
 			ObjectNode el = (ObjectNode) node;
 			AttributeParamValue av = new AttributeParamValue();
-			av.setExternal(el.get("external").asBoolean());
+			JsonNode eidp = el.get("externalIdP");
+			if (eidp != null && !eidp.isNull())
+				av.setExternalIdp(eidp.asText());
 			Attribute<?> a = attributeSerializer.fromJson((ObjectNode) el.get("attribute"), sql);
 			av.setAttribute(a);
 			ret.add(av);
@@ -190,8 +192,8 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 			if (n != null)
 			{
 				String v = jsonMapper.writeValueAsString(n);
-				List<IdentityParam> r = jsonMapper.readValue(v, 
-						new TypeReference<List<IdentityParam>>(){});
+				List<IdentityParamValue> r = jsonMapper.readValue(v, 
+						new TypeReference<List<IdentityParamValue>>(){});
 				retReq.setIdentities(r);
 			}
 			

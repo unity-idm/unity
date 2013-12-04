@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import pl.edu.icm.unity.exceptions.AuthenticationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -21,7 +22,6 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeParamValue;
@@ -29,6 +29,7 @@ import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.types.registration.IdentityParamValue;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -36,6 +37,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
@@ -56,8 +58,6 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
-
-import eu.unicore.security.AuthenticationException;
 
 /**
  * Generates a UI based on a given registration form. User can fill the form and a request is returned.
@@ -119,7 +119,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		initUI();
 	}
 
-	private void checkRemotelyObtainedData()
+	private void checkRemotelyObtainedData() throws AuthenticationException
 	{
 		List<IdentityRegistrationParam> idParams = form.getIdentityParams();
 		remoteIdentitiesByType = new HashMap<>();
@@ -210,7 +210,8 @@ public class RegistrationRequestEditor extends CustomComponent
 
 		boolean hasFormException = false;
 		
-		List<IdentityParam> identities = new ArrayList<>();
+		List<IdentityParamValue> identities = new ArrayList<>();
+		IdentityParamValue ip;
 		int j=0;
 		for (int i=0; i<form.getIdentityParams().size(); i++)
 		{
@@ -227,11 +228,13 @@ public class RegistrationRequestEditor extends CustomComponent
 					hasFormException = true;
 					continue;
 				}
+				ip = id == null ? null : new IdentityParamValue(regParam.getIdentityType(), id);
 			} else
 			{
 				id = remoteIdentitiesByType.get(regParam.getIdentityType()).getValue();
+				ip = id == null ? null : new IdentityParamValue(regParam.getIdentityType(), id, 
+						remotelyAuthenticated.getRemoteIdPName());
 			}
-			IdentityParam ip = id == null ? null : new IdentityParam(regParam.getIdentityType(), id, true);
 			identities.add(ip);
 		}
 		ret.setIdentities(identities);
@@ -283,14 +286,14 @@ public class RegistrationRequestEditor extends CustomComponent
 					else
 					{
 						ap.setAttribute(attr);
-						ap.setExternal(false);
+						ap.setExternalIdp(null);
 					}
 				} else
 				{
 					Attribute<?> attr = remoteAttributes.get(
 							aparam.getGroup() + "//" + aparam.getAttributeType());
 					ap.setAttribute(attr);
-					ap.setExternal(true);
+					ap.setExternalIdp(remotelyAuthenticated.getRemoteIdPName());
 				}
 				a.add(ap);
 			}
@@ -308,7 +311,8 @@ public class RegistrationRequestEditor extends CustomComponent
 					g.add(new Selection(groupSelectors.get(interactiveIndex++).getValue()));
 				} else
 				{
-					g.add(new Selection(remotelyAuthenticated.getGroups().contains(gp.getGroupPath())));
+					g.add(new Selection(remotelyAuthenticated.getGroups().contains(gp.getGroupPath()),
+							remotelyAuthenticated.getRemoteIdPName()));
 				}
 			}
 			ret.setGroupSelections(g);
@@ -423,6 +427,7 @@ public class RegistrationRequestEditor extends CustomComponent
 			if (idParam.getDescription() != null)
 				editorUI.setDescription(idParam.getDescription());
 		}
+		createExternalIdentitiesUI(layout);
 	}
 	
 	private void createCredentialsUI(Layout layout) throws EngineException
@@ -479,7 +484,8 @@ public class RegistrationRequestEditor extends CustomComponent
 					at, aParam.isShowGroups(), aParam.getGroup(), AttributeVisibility.full, 
 					aName, description, !aParam.isOptional(), layout);
 			attributeEditor.add(editor);
-		}		
+		}
+		createExternalAttributesUI(layout);
 	}
 	
 	private void createGroupsUI(Layout layout)
@@ -501,7 +507,8 @@ public class RegistrationRequestEditor extends CustomComponent
 				cb.setDescription(gParam.getDescription());
 			groupSelectors.add(cb);
 			layout.addComponent(cb);
-		}		
+		}
+		createExternalGroupsUI(layout);
 	}
 
 	private void createAgreementsUI(Layout layout)
@@ -529,6 +536,95 @@ public class RegistrationRequestEditor extends CustomComponent
 			if (i < aParams.size() - 1)
 				layout.addComponent(new Label("<hr>", ContentMode.HTML));
 		}		
+	}
+	
+	private void createExternalIdentitiesUI(Layout layout)
+	{
+		ListOfElements<String> identitiesList = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
+		{
+			@Override
+			public Label toLabel(String value)
+			{
+				return new Label(value);
+			}
+		});
+		List<IdentityRegistrationParam> idParams = form.getIdentityParams();
+		for (int i=0; i<idParams.size(); i++)
+		{
+			IdentityRegistrationParam idParam = idParams.get(i);
+			if (idParam.getRetrievalSettings() != ParameterRetrievalSettings.automatic)
+				continue;
+			IdentityTaV id = remoteIdentitiesByType.get(idParam.getIdentityType());
+			if (id == null)
+				continue;
+			identitiesList.addEntry(id.toString());
+		}
+		if (identitiesList.size() > 0)
+		{
+			Label titleL = new Label(msg.getMessage("RegistrationRequest.externalIdentities"));
+			titleL.addStyleName(Styles.italic.toString());
+			layout.addComponent(titleL);
+			layout.addComponent(identitiesList);
+		}
+	}
+	
+	private void createExternalAttributesUI(Layout layout)
+	{
+		List<AttributeRegistrationParam> attributeParams = form.getAttributeParams();
+		ListOfElements<String> attributesList = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
+		{
+			@Override
+			public Label toLabel(String value)
+			{
+				return new Label(value);
+			}
+		});
+		for (int i=0; i<attributeParams.size(); i++)
+		{
+			AttributeRegistrationParam aParam = attributeParams.get(i);
+			if (aParam.getRetrievalSettings() != ParameterRetrievalSettings.automatic)
+				continue;
+			Attribute<?> a = remoteAttributes.get(aParam.getGroup() + "//" + aParam.getAttributeType());
+			if (a == null)
+				continue;
+			String aString = attributeHandlerRegistry.getSimplifiedAttributeRepresentation(a, 120);
+			attributesList.addEntry(aString);
+		}
+		if (attributesList.size() > 0)
+		{
+			Label titleL = new Label(msg.getMessage("RegistrationRequest.externalAttributes"));
+			titleL.addStyleName(Styles.italic.toString());
+			layout.addComponent(titleL);
+			layout.addComponent(attributesList);
+		}
+	}
+	
+	private void createExternalGroupsUI(Layout layout)
+	{
+		ListOfElements<String> groupsList = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
+		{
+			@Override
+			public Label toLabel(String value)
+			{
+				return new Label(value);
+			}
+		});
+		List<GroupRegistrationParam> groupParams = form.getGroupParams();
+		for (int i=0; i<groupParams.size(); i++)
+		{
+			GroupRegistrationParam gParam = groupParams.get(i);
+			if (gParam.getRetrievalSettings() != ParameterRetrievalSettings.automatic)
+				continue;
+			if (remotelyAuthenticated.getGroups().contains(gParam.getGroupPath()))
+				groupsList.addEntry(gParam.getGroupPath());
+		}
+		if (groupsList.size() > 0)
+		{
+			Label titleL = new Label(msg.getMessage("RegistrationRequest.externalGroups"));
+			titleL.addStyleName(Styles.italic.toString());
+			layout.addComponent(titleL);
+			layout.addComponent(groupsList);
+		}
 	}
 	
 	private boolean isEmpty(String str)

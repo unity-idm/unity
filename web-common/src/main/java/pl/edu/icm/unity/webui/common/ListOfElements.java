@@ -87,6 +87,11 @@ public class ListOfElements<T> extends VerticalLayout
 		return ret;
 	}
 	
+	public int size()
+	{
+		return components.size();
+	}
+	
 	private class Entry extends CustomComponent
 	{
 		private T element;

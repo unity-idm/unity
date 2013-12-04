@@ -6,11 +6,13 @@ package pl.edu.icm.unity.types.registration;
 
 /**
  * Base class of option selection, actually binary.
+ * If the selection is associated 
  * @author K. Benedyczak
  */
 public class Selection
 {
 	private boolean selected;
+	private String externalIdp;
 
 	public Selection()
 	{
@@ -19,6 +21,12 @@ public class Selection
 	public Selection(boolean selected)
 	{
 		this.selected = selected;
+	}
+
+	public Selection(boolean selected, String externalIdp)
+	{
+		this.selected = selected;
+		this.externalIdp = externalIdp;
 	}
 
 	public boolean isSelected()
@@ -31,11 +39,22 @@ public class Selection
 		this.selected = selected;
 	}
 
+	public String getExternalIdp()
+	{
+		return externalIdp;
+	}
+
+	public void setExternalIdp(String externalIdp)
+	{
+		this.externalIdp = externalIdp;
+	}
+
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((externalIdp == null) ? 0 : externalIdp.hashCode());
 		result = prime * result + (selected ? 1231 : 1237);
 		return result;
 	}
@@ -50,6 +69,12 @@ public class Selection
 		if (getClass() != obj.getClass())
 			return false;
 		Selection other = (Selection) obj;
+		if (externalIdp == null)
+		{
+			if (other.externalIdp != null)
+				return false;
+		} else if (!externalIdp.equals(other.externalIdp))
+			return false;
 		if (selected != other.selected)
 			return false;
 		return true;

@@ -41,6 +41,31 @@
 					"/"
 				]
 			}			
+		},	
+
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "createUser",
+				"parameters": [
+					"true"
+				]
+			}			
+		},	
+
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "updateGroups",
+				"parameters": [
+					".*"
+				]
+			}			
 		}
+	
 	]
 }

@@ -8,13 +8,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import pl.edu.icm.unity.exceptions.AuthenticationException;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
+import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
+import pl.edu.icm.unity.webui.registration.RegistrationRequestEditorDialog;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.UserError;
@@ -36,19 +43,23 @@ import com.vaadin.ui.Button.ClickListener;
  */
 public class AuthenticatorSetComponent extends VerticalLayout implements ActivationListener
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticatorSetComponent.class);
 	private static final long serialVersionUID = 1L;
 	private UnityMessageSource msg;
 	
 	private AuthenticationProcessor authnProcessor;
 	private Button authenticateButton;
 	private UsernameComponent usernameComponent;
+	private InsecureRegistrationFormLauncher formLauncher;
 	
 	public AuthenticatorSetComponent(Map<String, VaadinAuthentication> authenticators,
 			AuthenticatorSet set, UnityMessageSource msg, AuthenticationProcessor authnProcessor,
+			InsecureRegistrationFormLauncher formLauncher,
 			final CancelHandler cancelHandler)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
+		this.formLauncher = formLauncher;
 		boolean needCommonUsername = false;
 		setSpacing(true);
 		setMargin(true);
@@ -136,13 +147,45 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 				authnProcessor.processResults(results);
 			} catch (AuthenticationException e)
 			{
-				String error = msg.getMessage(e.getMessage());
-				if (usernameComp != null)
-					usernameComp.setError(error);
-				ErrorPopup.showError(error, "");
+				if (e instanceof UnknownRemoteUserException)
+				{
+					UnknownRemoteUserException ee = (UnknownRemoteUserException) e;
+					if (ee.getFormForUser() != null)
+					{
+						showRegistration(ee);
+						return;
+					} else
+					{
+						handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"));
+					}
+				}
+				handleError(msg.getMessage(e.getMessage()));
 			}
 		}
+		
+		private void showRegistration(UnknownRemoteUserException ee)
+		{
+			RegistrationRequestEditorDialog dialog;
+			try
+			{
+				dialog = formLauncher.getDialog(ee.getFormForUser(), ee.getRemoteContext());
+				dialog.show();
+			} catch (EngineException e)
+			{
+				log.error("Can't show a registration form for the remotely authenticated user as configured. " +
+						"Probably the form name is wrong.", e);
+				handleError(msg.getMessage("AuthenticationUI.problemWithRegistration"));
+			}
+		}
+		
+		private void handleError(String error)
+		{
+			if (usernameComp != null)
+				usernameComp.setError(error);
+			ErrorPopup.showError(error, "");
+		}
 	}
+	
 	
 	private class UsernameComponent extends HorizontalLayout implements UsernameProvider
 	{
