@@ -50,29 +50,28 @@ public class CredentialRequirementViewer extends FormLayout
 		addComponent(credentials);
 		setComponentAlignment(credentials, Alignment.TOP_LEFT);
 		
-		setEmpty();
+		setContentVisible(false);
 	}
 	
-	private void setEmpty()
+	private void setContentVisible(boolean how)
 	{
-		name.setValue(msg.getMessage("CredentialRequirements.notSelected"));
-		description.setValue("");
-		credentials.removeAllItems();
-		credentials.setVisible(false);
+		name.setVisible(how);
+		description.setVisible(how);
+		credentials.setVisible(how);
 	}
 	
 	public void setInput(CredentialRequirements cr)
 	{
 		if (cr == null)
 		{
-			setEmpty();
+			setContentVisible(false);
 			return;
 		}
 		
+		setContentVisible(true);
 		name.setValue(cr.getName());
 		description.setValue(cr.getDescription());
 		credentials.removeAllItems();
-		credentials.setVisible(true);
 		for (String cred: cr.getRequiredCredentials())
 			credentials.addItem(new Object[] {cred}, cred);
 	}

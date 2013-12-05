@@ -42,30 +42,29 @@ public class CredentialDefinitionViewer extends FormLayout
 		type.setCaption(msg.getMessage("CredentialDefinition.type"));
 		typeSpecific = new Panel(msg.getMessage("CredentialDefinition.typeSettings"));
 		addComponents(name, description, type, typeSpecific);
-		setEmpty();
+		setContentVisible(false);
 	}
 	
-	private void setEmpty()
+	private void setContentVisible(boolean how)
 	{
-		name.setValue(msg.getMessage("CredentialDefinition.notSelected"));
-		description.setValue("");
-		type.setValue("");
-		typeSpecific.setContent(new Label());
-		typeSpecific.setVisible(false);
+		name.setVisible(how);
+		description.setVisible(how);
+		type.setVisible(how);
+		typeSpecific.setVisible(how);
 	}
 	
 	public void setInput(CredentialDefinition cd, CredentialEditorFactory cdFactory)
 	{
 		if (cd == null)
 		{
-			setEmpty();
+			setContentVisible(false);
 			return;
 		}
+		setContentVisible(true);
 		
 		name.setValue(cd.getName());
 		description.setValue(cd.getDescription());
 		type.setValue(cd.getTypeId());
-		typeSpecific.setVisible(true);
 		
 		pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer viewer = 
 				cdFactory.creteCredentialDefinitionViewer();

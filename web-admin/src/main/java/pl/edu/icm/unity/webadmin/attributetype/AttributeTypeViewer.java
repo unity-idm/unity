@@ -90,22 +90,21 @@ public class AttributeTypeViewer extends FormLayout
 		metaPanel.setSpacing(true);
 		addComponent(metaPanel);
 		
-		setEmpty();
+		setContentsVisible(false);
 	}
 	
-	private void setEmpty()
+	private void setContentsVisible(boolean how)
 	{
-		name.setValue(msg.getMessage("AttributeType.notSelected"));
-		typeDescription.setValue("");
-		cardinality.setValue("");
-		uniqueVals.setValue("");
-		selfModificable.setValue("");
-		visibility.setValue("");
-		flags.setValue("");
-		syntax.setValue("");
-		syntaxPanel.setContent(new VerticalLayout());
-		metaPanel.removeAllComponents();
-		metaPanel.setVisible(false);
+		name.setVisible(how);
+		typeDescription.setVisible(how);
+		cardinality.setVisible(how);
+		uniqueVals.setVisible(how);
+		selfModificable.setVisible(how);
+		visibility.setVisible(how);
+		flags.setVisible(how);
+		syntax.setVisible(how);
+		syntaxPanel.setVisible(how);
+		metaPanel.setVisible(how);
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -114,10 +113,11 @@ public class AttributeTypeViewer extends FormLayout
 	{
 		if (aType == null)
 		{
-			setEmpty();
+			setContentsVisible(false);
 			return;
 		}
 		
+		setContentsVisible(true);
 		name.setValue(aType.getName());
 		typeDescription.setValue(aType.getDescription());
 		cardinality.setValue(AttributeTypeUtils.getBoundsDesc(msg, aType.getMinElements(), aType.getMaxElements()));
