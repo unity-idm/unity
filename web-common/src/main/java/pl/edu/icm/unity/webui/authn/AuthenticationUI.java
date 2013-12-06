@@ -186,7 +186,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		WrappedSession session = VaadinSession.getCurrent().getSession();
 		String origURL = (String) session.getAttribute(AuthenticationFilter.ORIGINAL_ADDRESS);
 		if (origURL == null)
-			ErrorPopup.showError(msg.getMessage("AuthenticationProcessor.noOriginatingAddress"), "");
+			ErrorPopup.showError(msg, msg.getMessage("AuthenticationProcessor.noOriginatingAddress"), "");
 	}
 	
 	private Component buildAllSetsUI(final Button registrationButton, final Component... setComponents)

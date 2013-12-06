@@ -143,7 +143,7 @@ public class AttributeTypesComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("AttributeTypes.errorUpdate"), e);
+			ErrorPopup.showError(msg, msg.getMessage("AttributeTypes.errorUpdate"), e);
 			return false;
 		}
 	}
@@ -157,7 +157,7 @@ public class AttributeTypesComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("AttributeTypes.errorAdd"), e);
+			ErrorPopup.showError(msg, msg.getMessage("AttributeTypes.errorAdd"), e);
 			return false;
 		}
 	}
@@ -171,7 +171,7 @@ public class AttributeTypesComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("AttributeTypes.errorRemove"), e);
+			ErrorPopup.showError(msg, msg.getMessage("AttributeTypes.errorRemove"), e);
 			return false;
 		}
 	}

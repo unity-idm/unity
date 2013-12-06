@@ -62,7 +62,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 			log.error("UI code got an unchecked and not handled properly exception: " 
 					+ event.getThrowable(), event.getThrowable());
 			
-			ErrorPopup.showError(msg.getMessage("error"), 
+			ErrorPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("UnityUIBase.unhandledError"));
 		} 
 	}

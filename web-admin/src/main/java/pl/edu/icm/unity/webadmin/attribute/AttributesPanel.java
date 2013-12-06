@@ -282,7 +282,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			bus.fireEvent(new AttributeChangedEvent(toRemove.getGroupPath(), toRemove.getName()));
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("Attribute.removeAttributeError", toRemove.getName()), e);
+			ErrorPopup.showError(msg, msg.getMessage("Attribute.removeAttributeError", toRemove.getName()), e);
 		}
 	}
 	
@@ -298,7 +298,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("Attribute.addAttributeError", attribute.getName()), e);
+			ErrorPopup.showError(msg, msg.getMessage("Attribute.addAttributeError", attribute.getName()), e);
 			return false;
 		}
 	}
@@ -322,7 +322,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("Attribute.addAttributeError", attribute.getName()), e);
+			ErrorPopup.showError(msg, msg.getMessage("Attribute.addAttributeError", attribute.getName()), e);
 			return false;
 		}
 	}
@@ -421,7 +421,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			
 			if (allowed.isEmpty())
 			{
-				ErrorPopup.showNotice(msg.getMessage("notice"),
+				ErrorPopup.showNotice(msg, msg.getMessage("notice"),
 						msg.getMessage("Attribute.noAvailableAttributes"));
 				return;
 			}

@@ -129,7 +129,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			return authenticationMan.getCredentialRequirements();
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("CredentialRequirements.errorGetCredentialRequirements"), e);
+			ErrorPopup.showError(msg, msg.getMessage("CredentialRequirements.errorGetCredentialRequirements"), e);
 			return null;
 		}
 	}
@@ -141,7 +141,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			return authenticationMan.getCredentialDefinitions();
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("CredentialRequirements.errorGetCredentials"), e);
+			ErrorPopup.showError(msg, msg.getMessage("CredentialRequirements.errorGetCredentials"), e);
 			return null;
 		}
 		
@@ -157,7 +157,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("CredentialRequirements.errorUpdate"), e);
+			ErrorPopup.showError(msg, msg.getMessage("CredentialRequirements.errorUpdate"), e);
 			return false;
 		}
 	}
@@ -172,7 +172,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("CredentialRequirements.errorAdd"), e);
+			ErrorPopup.showError(msg, msg.getMessage("CredentialRequirements.errorAdd"), e);
 			return false;
 		}
 	}
@@ -187,7 +187,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("CredentialRequirements.errorRemove"), e);
+			ErrorPopup.showError(msg, msg.getMessage("CredentialRequirements.errorRemove"), e);
 			return false;
 		}
 	}

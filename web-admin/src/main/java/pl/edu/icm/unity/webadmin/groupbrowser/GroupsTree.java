@@ -193,7 +193,7 @@ public class GroupsTree extends Tree
 			refreshNode(parent);
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("GroupsTree.removeGroupError"), e);
+			ErrorPopup.showError(msg, msg.getMessage("GroupsTree.removeGroupError"), e);
 		}
 	}
 	
@@ -204,7 +204,7 @@ public class GroupsTree extends Tree
 			groupsMan.addGroup(toBeCreated);
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("GroupsTree.addGroupError"), e);
+			ErrorPopup.showError(msg, msg.getMessage("GroupsTree.addGroupError"), e);
 		}
 	}
 
@@ -215,7 +215,7 @@ public class GroupsTree extends Tree
 			groupsMan.updateGroup(path, group);
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("GroupsTree.updateGroupError"), e);
+			ErrorPopup.showError(msg, msg.getMessage("GroupsTree.updateGroupError"), e);
 		}
 	}
 
@@ -228,14 +228,14 @@ public class GroupsTree extends Tree
 			existingGroups = identitiesMan.getGroups(entityParam);
 		} catch (EngineException e1)
 		{
-			ErrorPopup.showError(msg.getMessage("GroupsTree.getMembershipError", entity), e1);
+			ErrorPopup.showError(msg, msg.getMessage("GroupsTree.getMembershipError", entity), e1);
 			return;
 		}
 		final Deque<String> notMember = GroupUtils.getMissingGroups(finalGroup, existingGroups);
 		
 		if (notMember.size() == 0)
 		{
-			ErrorPopup.showNotice(msg.getMessage("GroupsTree.alreadyMember", entity, 
+			ErrorPopup.showNotice(msg, msg.getMessage("GroupsTree.alreadyMember", entity, 
 					finalGroup), "");
 			return;
 		}
@@ -376,7 +376,7 @@ public class GroupsTree extends Tree
 				group = groupsMan.getContents(node.getPath(), GroupContents.METADATA).getGroup();
 			} catch (Exception e)
 			{
-				ErrorPopup.showError(msg.getMessage("GroupsTree.resolveGroupError"), e);
+				ErrorPopup.showError(msg, msg.getMessage("GroupsTree.resolveGroupError"), e);
 				return;
 			}
 			

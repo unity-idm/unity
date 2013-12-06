@@ -154,19 +154,19 @@ public class ImportExportComponent extends VerticalLayout
 	{
 		if (uploader.isOverflow())
 		{
-			ErrorPopup.showError(msg.getMessage("error"), msg.getMessage("ImportExport.uploadFileTooBig"));
+			ErrorPopup.showError(msg, msg.getMessage("error"), msg.getMessage("ImportExport.uploadFileTooBig"));
 			return;
 		}
 		if (uploader.isUploading())
 		{
-			ErrorPopup.showError(msg.getMessage("error"), msg.getMessage("ImportExport.uploadInProgress"));
+			ErrorPopup.showError(msg, msg.getMessage("error"), msg.getMessage("ImportExport.uploadInProgress"));
 			return;
 		}
 			
 		final File f = uploader.getFile();
 		if (f == null)
 		{
-			ErrorPopup.showError(msg.getMessage("error"), msg.getMessage("ImportExport.uploadFileFirst"));
+			ErrorPopup.showError(msg, msg.getMessage("error"), msg.getMessage("ImportExport.uploadFileFirst"));
 			return;
 		}
 		
@@ -192,7 +192,7 @@ public class ImportExportComponent extends VerticalLayout
 		} catch (Exception e)
 		{
 			uploader.unblock();
-			ErrorPopup.showError(msg.getMessage("ImportExport.importFailed"), e);
+			ErrorPopup.showError(msg, msg.getMessage("ImportExport.importFailed"), e);
 		}
 	}
 	
@@ -201,17 +201,17 @@ public class ImportExportComponent extends VerticalLayout
 		int current = refreshDumps();
 		if (current > 4)
 		{
-			ErrorPopup.showError(msg.getMessage("error"), 
+			ErrorPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("ImportExport.tooManyDumps"));
 			return;
 		}
 		try
 		{
 			serverManagement.exportDb();
-			ErrorPopup.showNotice(msg.getMessage("notice"), msg.getMessage("ImportExport.exportSucceeded"));
+			ErrorPopup.showNotice(msg, msg.getMessage("notice"), msg.getMessage("ImportExport.exportSucceeded"));
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg.getMessage("ImportExport.exportFailed"), e);
+			ErrorPopup.showError(msg, msg.getMessage("ImportExport.exportFailed"), e);
 		}
 		refreshDumps();
 	}

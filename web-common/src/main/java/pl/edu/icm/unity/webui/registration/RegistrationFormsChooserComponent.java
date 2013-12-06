@@ -150,7 +150,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 						refresh();
 					} catch (EngineException e)
 					{
-						ErrorPopup.showError(msg.getMessage("RegistrationFormsChooserComponent.errorRefresh"), e);
+						ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsChooserComponent.errorRefresh"), e);
 					}
 				}
 			});
@@ -186,7 +186,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 				dialog.show();
 			} catch (EngineException e)
 			{
-				ErrorPopup.showError(msg.getMessage("RegistrationFormsChooserComponent.errorShowFormEdit"), e);
+				ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsChooserComponent.errorShowFormEdit"), e);
 			}
 		}
 	}

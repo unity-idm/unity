@@ -41,7 +41,7 @@ public class SPSettingsWithETDDialog extends AbstractDialog
 		String sp = editor.getSP();
 		if (sp == null)
 		{
-			ErrorPopup.showError(msg.getMessage("Generic.formError"), 
+			ErrorPopup.showError(msg, msg.getMessage("Generic.formError"), 
 					msg.getMessage("SAMLPreferences.spIsRequired"));
 			return;
 		}

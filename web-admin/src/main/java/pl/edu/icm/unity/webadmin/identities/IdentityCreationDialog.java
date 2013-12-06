@@ -112,7 +112,7 @@ public class IdentityCreationDialog extends AbstractDialog
 					extractAttributes.getValue());
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("IdentityCreation.entityCreateError"), e);
+			ErrorPopup.showError(msg, msg.getMessage("IdentityCreation.entityCreateError"), e);
 			return;
 		}
 		

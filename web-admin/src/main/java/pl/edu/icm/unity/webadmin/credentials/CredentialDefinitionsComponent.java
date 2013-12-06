@@ -137,7 +137,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("CredentialDefinitions.errorUpdate"), e);
+			ErrorPopup.showError(msg, msg.getMessage("CredentialDefinitions.errorUpdate"), e);
 			return false;
 		}
 	}
@@ -152,7 +152,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("CredentialDefinitions.errorAdd"), e);
+			ErrorPopup.showError(msg, msg.getMessage("CredentialDefinitions.errorAdd"), e);
 			return false;
 		}
 	}
@@ -167,7 +167,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("CredentialDefinitions.errorRemove"), e);
+			ErrorPopup.showError(msg, msg.getMessage("CredentialDefinitions.errorRemove"), e);
 			return false;
 		}
 	}

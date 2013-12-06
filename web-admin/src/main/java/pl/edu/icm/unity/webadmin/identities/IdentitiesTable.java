@@ -361,7 +361,7 @@ public class IdentitiesTable extends TreeTable
 		
 		if (Long.valueOf(entityId) == entity.getEntityId())
 		{
-			ErrorPopup.showError(msg.getMessage("error"), msg.getMessage("Identities.notRemovingLoggedUser"));
+			ErrorPopup.showError(msg, msg.getMessage("error"), msg.getMessage("Identities.notRemovingLoggedUser"));
 			return;
 		}
 		try
@@ -370,7 +370,7 @@ public class IdentitiesTable extends TreeTable
 			refresh();
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("Identities.removeEntityError"), e);
+			ErrorPopup.showError(msg, msg.getMessage("Identities.removeEntityError"), e);
 		}
 	}
 
@@ -382,7 +382,7 @@ public class IdentitiesTable extends TreeTable
 			refresh();
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("Identities.removeIdentityError"), e);
+			ErrorPopup.showError(msg, msg.getMessage("Identities.removeIdentityError"), e);
 		}
 	}
 
@@ -395,7 +395,7 @@ public class IdentitiesTable extends TreeTable
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("Identities.changeEntityStatusError"), e);
+			ErrorPopup.showError(msg, msg.getMessage("Identities.changeEntityStatusError"), e);
 			return false;
 		}
 	}
@@ -408,7 +408,7 @@ public class IdentitiesTable extends TreeTable
 			refresh();
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("Identities.removeFromGroupError"), e);
+			ErrorPopup.showError(msg, msg.getMessage("Identities.removeFromGroupError"), e);
 		}
 	}
 	
@@ -647,7 +647,7 @@ public class IdentitiesTable extends TreeTable
 			groups = identitiesMan.getGroups(new EntityParam(entity.getEntity().getId()));
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg.getMessage("error"), e);
+			ErrorPopup.showError(msg, msg.getMessage("error"), e);
 			return;
 		}
 		identityDetailsPanel.setInput(entity, groups);

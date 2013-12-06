@@ -83,7 +83,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 			allTypes = groupHelper.getAttrMan().getAttributeTypes();
 		} catch (EngineException e1)
 		{
-			ErrorPopup.showError(msg.getMessage("error"),
+			ErrorPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("EntityCreation.cantGetAttrTypes"));
 			throw new IllegalStateException();
 		}
@@ -100,13 +100,13 @@ public class EntityCreationDialog extends IdentityCreationDialog
 			credReqs = authnMan.getCredentialRequirements();
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("error"),
+			ErrorPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("EntityCreation.cantGetcredReq"));
 			throw new IllegalStateException();
 		}
 		if (credReqs.isEmpty())
 		{
-			ErrorPopup.showError(msg.getMessage("error"),
+			ErrorPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("EntityCreation.credReqMissing"));
 			throw new IllegalStateException();
 		}
@@ -187,7 +187,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 					attributes);
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("EntityCreation.entityCreateError"), e);
+			ErrorPopup.showError(msg, msg.getMessage("EntityCreation.entityCreateError"), e);
 			return;
 		}
 		

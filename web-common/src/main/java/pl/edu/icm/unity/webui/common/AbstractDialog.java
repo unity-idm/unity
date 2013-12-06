@@ -13,6 +13,7 @@ import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
@@ -44,7 +45,9 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	protected Component contentsComponent;
 	protected UnityMessageSource msg;
 	protected boolean defaultSizeUndfined = false;
-
+	protected boolean lightweightWrapperPanel = false;
+	
+	
 	/**
 	 * With only one, confirm button, which usually should be labelled as 'close'. 
 	 * @param msg
@@ -146,6 +149,8 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		vl.setMargin(true);
 		
 		Panel contentsPanel = new Panel();
+		if (lightweightWrapperPanel)
+			contentsPanel.addStyleName(Reindeer.PANEL_LIGHT);
 		VerticalLayout internal = new VerticalLayout();
 		contentsComponent = getContents();
 		internal.addComponent(contentsComponent);

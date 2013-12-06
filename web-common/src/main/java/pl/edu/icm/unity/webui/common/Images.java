@@ -16,10 +16,15 @@ public enum Images
 	info64		(I.PH + "64/bullet_info.png"),
 	key64		(I.PH + "64/key.png"),
 	settings64	(I.PH + "64/settings.png"),
+
+	stderror64	(I.P + "64/error.png"),
+	stdwarn64	(I.P + "64/warning.png"),
+	stdinfo64	(I.P + "64/info.png"),
 	
 	exit32		(I.P + "32/exit.png"),
-	error32		(I.P + "32/error"),
+	error32		(I.P + "32/error.png"),
 	warn32		(I.P + "32/warn.png"),
+	info32		(I.P + "32/information.png"),
 	toAdmin32	(I.P + "32/manager.png"),
 	toProfile32	(I.P + "32/personal.png"),
 

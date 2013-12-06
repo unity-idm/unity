@@ -143,7 +143,7 @@ public class SamlPreferencesEditor implements PreferencesEditor
 				initStateData();
 			} catch (EngineException e)
 			{
-				ErrorPopup.showError(msg.getMessage("SAMLPreferences.errorLoadindSystemInfo"), e);
+				ErrorPopup.showError(msg, msg.getMessage("SAMLPreferences.errorLoadindSystemInfo"), e);
 				return;
 			}
 			SPSettingsEditor editor = new SPSettingsEditor(msg, identities, 
@@ -176,7 +176,7 @@ public class SamlPreferencesEditor implements PreferencesEditor
 				initStateData();
 			} catch (EngineException e)
 			{
-				ErrorPopup.showError(msg.getMessage("SAMLPreferences.errorLoadindSystemInfo"), e);
+				ErrorPopup.showError(msg, msg.getMessage("SAMLPreferences.errorLoadindSystemInfo"), e);
 				return;
 			}
 			@SuppressWarnings("unchecked")

@@ -85,13 +85,13 @@ public class RegistrationFormLauncher
 						RegistrationRequestAction.accept, null, 
 						msg.getMessage("RegistrationFormsChooserComponent.autoAccept"));
 			else
-				ErrorPopup.showNotice(msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"), 
+				ErrorPopup.showNotice(msg, msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"), 
 						msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfo"));
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));
 			return true;
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg.getMessage(
+			ErrorPopup.showError(msg, msg.getMessage(
 					"RegistrationFormsChooserComponent.errorRequestSubmit"), e);
 			return false;
 		}

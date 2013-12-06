@@ -268,7 +268,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 				
 				if (fos.isOverflow())
 				{
-					ErrorPopup.showError(msg.getMessage("JpegAttributeHandler.uploadFailed"),
+					ErrorPopup.showError(msg, msg.getMessage("JpegAttributeHandler.uploadFailed"),
 							msg.getMessage("JpegAttributeHandler.imageSizeTooBig"));
 					fos = null;
 					return;
@@ -283,7 +283,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 					image.setSource(new SimpleImageSource(scalledPreview, syntax, "jpg").getResource());
 				} catch (Exception e)
 				{
-					ErrorPopup.showError(msg.getMessage("JpegAttributeHandler.uploadInvalid"),
+					ErrorPopup.showError(msg, msg.getMessage("JpegAttributeHandler.uploadInvalid"),
 							"");
 					fos = null;
 				}

@@ -47,7 +47,7 @@ public class CredentialDefinitionEditDialog extends AbstractDialog
 				close();
 		} catch (IllegalCredentialException e) 
 		{
-			ErrorPopup.showError(msg.getMessage("Generic.formError"), 
+			ErrorPopup.showError(msg, msg.getMessage("Generic.formError"), 
 						msg.getMessage("Generic.formErrorHint"));
 			return;
 		}

@@ -56,7 +56,7 @@ public class CredentialReset3Dialog extends AbstractDialog
 	{
 		if (CredentialResetStateVariable.get() != 2)
 		{
-			ErrorPopup.showError(msg.getMessage("error"),
+			ErrorPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("CredentialReset.illegalAppState"));
 			throw new Exception();
 		}
@@ -66,7 +66,7 @@ public class CredentialReset3Dialog extends AbstractDialog
 			backend.sendCode();
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("error"),
+			ErrorPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("CredentialReset.resetNotPossible"));
 			CredentialResetStateVariable.reset();
 			throw e;
@@ -89,7 +89,7 @@ public class CredentialReset3Dialog extends AbstractDialog
 					resend.setEnabled(false);
 				} catch (Exception e)
 				{
-					ErrorPopup.showError(msg.getMessage("error"),
+					ErrorPopup.showError(msg, msg.getMessage("error"),
 							msg.getMessage("CredentialReset.resetNotPossible"));
 					onCancel();
 				}
@@ -130,14 +130,14 @@ public class CredentialReset3Dialog extends AbstractDialog
 			backend.verifyDynamicData(a);
 		} catch (TooManyAttempts e)
 		{
-			ErrorPopup.showError(msg.getMessage("error"), 
+			ErrorPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("CredentialReset.codeInvalidOrExpired"));
 			onCancel();
 			return;
 		} catch (Exception e)
 		{
 			answer.setValue("");
-			ErrorPopup.showError(msg.getMessage("error"), 
+			ErrorPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("CredentialReset.codeInvalid"));
 			return;
 		}

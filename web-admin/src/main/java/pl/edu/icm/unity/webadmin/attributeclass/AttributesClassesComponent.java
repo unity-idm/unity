@@ -124,7 +124,7 @@ public class AttributesClassesComponent  extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("AttributesClass.errorAdd"), e);
+			ErrorPopup.showError(msg, msg.getMessage("AttributesClass.errorAdd"), e);
 			return false;
 		}
 	}
@@ -138,7 +138,7 @@ public class AttributesClassesComponent  extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("AttributesClass.errorRemove"), e);
+			ErrorPopup.showError(msg, msg.getMessage("AttributesClass.errorRemove"), e);
 			return false;
 		}
 	}
@@ -175,7 +175,7 @@ public class AttributesClassesComponent  extends VerticalLayout
 				allTypes = attrMan.getAttributeTypes();
 			} catch (EngineException e)
 			{
-				ErrorPopup.showError(msg.getMessage("AttributesClass.errorGetAttributeTypes"), e);
+				ErrorPopup.showError(msg, msg.getMessage("AttributesClass.errorGetAttributeTypes"), e);
 				return;
 			}
 			AttributesClassEditor editor = new AttributesClassEditor(msg, allACs, allTypes);

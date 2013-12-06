@@ -49,10 +49,10 @@ public class AttributeTypeEditDialog extends AbstractDialog
 		} catch (IllegalAttributeTypeException e) 
 		{
 			if (e.getMessage() == null || e.getMessage().equals(""))
-				ErrorPopup.showError(msg.getMessage("Generic.formError"), 
+				ErrorPopup.showError(msg, msg.getMessage("Generic.formError"), 
 						msg.getMessage("Generic.formErrorHint"));
 			else
-				ErrorPopup.showError(msg.getMessage("AttributeType.invalidSyntaxDefinition"), e);
+				ErrorPopup.showError(msg, msg.getMessage("AttributeType.invalidSyntaxDefinition"), e);
 			return;
 		}
 	}

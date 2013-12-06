@@ -21,6 +21,8 @@ public enum Styles
 	gray("u-gray"),
 	messageBox("u-messageBox"),
 	error("u-error"),
+	textLarge("u-textLarge"),
+	textXLarge("u-textXLarge"),
 	header("u-header");
 	
 	

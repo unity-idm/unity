@@ -96,7 +96,6 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		HorizontalLayout buttons = new HorizontalLayout();
 		buttons.setSpacing(true);
 		buttons.addComponent(authenticateButton);
-		
 		if (cancelHandler != null)
 		{
 			Button cancel = new Button(msg.getMessage("cancel"));
@@ -114,9 +113,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		addComponent(buttons);
 		setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 	}
-	
-	
-	
+		
 	private class LoginButtonListener implements ClickListener
 	{
 		private static final long serialVersionUID = 1L;
@@ -182,7 +179,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		{
 			if (usernameComp != null)
 				usernameComp.setError(error);
-			ErrorPopup.showError(error, "");
+			ErrorPopup.showError(msg, error, "");
 		}
 	}
 	

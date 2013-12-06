@@ -83,7 +83,7 @@ public class UserAccountComponent extends VerticalLayout
 		} catch (Exception e)
 		{
 			log.error("Error when creating user information view", e);
-			ErrorPopup.showError(msg.getMessage("error"), e);
+			ErrorPopup.showError(msg, msg.getMessage("error"), e);
 		}
 		
 		try
@@ -98,7 +98,7 @@ public class UserAccountComponent extends VerticalLayout
 		} catch (Exception e)
 		{
 			log.error("Error when creating credentials view", e);
-			ErrorPopup.showError(msg.getMessage("error"), e);
+			ErrorPopup.showError(msg, msg.getMessage("error"), e);
 		}
 
 		PreferencesComponent preferencesComponent = new PreferencesComponent(msg, registry, prefMan, endpMan);

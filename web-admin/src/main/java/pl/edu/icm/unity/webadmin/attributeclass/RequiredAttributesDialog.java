@@ -102,7 +102,7 @@ public class RequiredAttributesDialog extends AbstractDialog
 				a = aEdit.getAttribute();
 			} catch (FormValidationException e)
 			{
-				ErrorPopup.showError(msg.getMessage("Generic.formError"),
+				ErrorPopup.showError(msg, msg.getMessage("Generic.formError"),
 						msg.getMessage("RequiredAttributesDialog.someAttributesUnset"));
 				return;
 			}

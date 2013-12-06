@@ -102,7 +102,7 @@ public class X500IdentityEditor implements IdentityEditor
 		{
 			if (fos.isOverflow())
 			{
-				ErrorPopup.showError(msg.getMessage("X500IdentityEditor.uploadFailed"),
+				ErrorPopup.showError(msg, msg.getMessage("X500IdentityEditor.uploadFailed"),
 						msg.getMessage("X500IdentityEditor.certSizeTooBig"));
 				fos = null;
 				return;
@@ -115,7 +115,7 @@ public class X500IdentityEditor implements IdentityEditor
 				field.setValue(X500NameUtils.getReadableForm(loaded.getSubjectX500Principal()));
 			} catch (Exception e)
 			{
-				ErrorPopup.showError(msg.getMessage("X500IdentityEditor.uploadInvalid"),
+				ErrorPopup.showError(msg, msg.getMessage("X500IdentityEditor.uploadInvalid"),
 						e);
 				fos = null;
 			}

@@ -146,7 +146,7 @@ public class RequestProcessingPanel extends CustomComponent
 			forms = regMan.getForms();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg.getMessage("RequestsTable.errorGetRequests"), e);
+			ErrorPopup.showError(msg, msg.getMessage("RequestsTable.errorGetRequests"), e);
 			return;
 		}
 		RegistrationForm form = null;
@@ -177,7 +177,7 @@ public class RequestProcessingPanel extends CustomComponent
 			bus.fireEvent(new RegistrationRequestChangedEvent(requestState.getRequestId()));
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg.getMessage("RequestProcessingPanel.errorRequestProcess"), e);
+			ErrorPopup.showError(msg, msg.getMessage("RequestProcessingPanel.errorRequestProcess"), e);
 		}
 	}
 }

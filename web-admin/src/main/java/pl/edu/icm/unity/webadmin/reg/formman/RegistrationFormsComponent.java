@@ -158,7 +158,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("RegistrationFormsComponent.errorUpdate"), e);
+			ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorUpdate"), e);
 			return false;
 		}
 	}
@@ -173,7 +173,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("RegistrationFormsComponent.errorAdd"), e);
+			ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorAdd"), e);
 			return false;
 		}
 	}
@@ -188,7 +188,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("RegistrationFormsComponent.errorRemove"), e);
+			ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorRemove"), e);
 			return false;
 		}
 	}
@@ -228,7 +228,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 						attrHandlerRegistry);
 			} catch (EngineException e)
 			{
-				ErrorPopup.showError(msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
+				ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
 				return;
 			}
 			RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, 
@@ -265,7 +265,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 						attrHandlerRegistry, item.getElement());
 			} catch (EngineException e)
 			{
-				ErrorPopup.showError(msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
+				ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
 				return;
 			}
 			RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, 

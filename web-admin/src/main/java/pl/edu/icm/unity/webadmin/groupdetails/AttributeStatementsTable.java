@@ -92,7 +92,7 @@ public class AttributeStatementsTable extends Table
 			bus.fireEvent(new GroupChangedEvent(group.toString()));
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("AttributeStatements.cantUpdateGroup"), e);
+			ErrorPopup.showError(msg, msg.getMessage("AttributeStatements.cantUpdateGroup"), e);
 		}
 	}
 	

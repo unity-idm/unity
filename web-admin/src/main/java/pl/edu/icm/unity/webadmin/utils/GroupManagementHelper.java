@@ -63,7 +63,7 @@ public class GroupManagementHelper
 			allTypes = attrMan.getAttributeTypes();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg.getMessage("GroupsTree.addToGroupInitError"), e);
+			ErrorPopup.showError(msg, msg.getMessage("GroupsTree.addToGroupInitError"), e);
 			return;
 		}
 
@@ -133,7 +133,7 @@ public class GroupManagementHelper
 			return attrMan.getAttributeClasses();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg.getMessage("GroupsTree.addToGroupInitError"), e);
+			ErrorPopup.showError(msg, msg.getMessage("GroupsTree.addToGroupInitError"), e);
 			throw e;
 		}
 	}
@@ -150,7 +150,7 @@ public class GroupManagementHelper
 			acHelper = new AttributeClassHelper(allACsMap, groupAcs);
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg.getMessage("GroupsTree.addToGroupInitError"), e);
+			ErrorPopup.showError(msg, msg.getMessage("GroupsTree.addToGroupInitError"), e);
 			throw e;
 		}
 		
@@ -171,7 +171,7 @@ public class GroupManagementHelper
 		} catch (Exception e)
 		{
 			showSummary(notMember, added, currentGroup);
-			ErrorPopup.showError(msg.getMessage("GroupsTree.addToGroupError", 
+			ErrorPopup.showError(msg, msg.getMessage("GroupsTree.addToGroupError", 
 					entityParam.getEntityId(), currentGroup), e);
 		}
 	}
@@ -183,10 +183,10 @@ public class GroupManagementHelper
 		if (notMember.isEmpty())
 			return;
 		if (added.isEmpty())
-			ErrorPopup.showNotice(msg.getMessage("GroupsTree.addMembershipSummary"), 
+			ErrorPopup.showNotice(msg, msg.getMessage("GroupsTree.addMembershipSummary"), 
 					msg.getMessage("GroupsTree.notAdded", notMember));
 		else
-			ErrorPopup.showNotice(msg.getMessage("GroupsTree.addMembershipSummary"), 
+			ErrorPopup.showNotice(msg, msg.getMessage("GroupsTree.addMembershipSummary"), 
 					msg.getMessage("GroupsTree.partiallyAdded", added, notMember));
 	}
 	

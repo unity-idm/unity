@@ -69,7 +69,7 @@ public class AttributeStatementEditDialog extends AbstractDialog
 			attributeTypes = attrsMan.getAttributeTypes();
 		} catch(Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("AttributeStatementEditDialog.cantReadAttributeTypes"), e);
+			ErrorPopup.showError(msg, msg.getMessage("AttributeStatementEditDialog.cantReadAttributeTypes"), e);
 			throw e;
 		}
 
@@ -126,7 +126,7 @@ public class AttributeStatementEditDialog extends AbstractDialog
 			ret = component.getStatementFromComponent();
 		} catch (FormValidationException e)
 		{
-			ErrorPopup.showError(msg.getMessage("AttributeStatementEditDialog.invalidFormSettings"), 
+			ErrorPopup.showError(msg, msg.getMessage("AttributeStatementEditDialog.invalidFormSettings"), 
 					e.getMessage());
 			return;
 		}

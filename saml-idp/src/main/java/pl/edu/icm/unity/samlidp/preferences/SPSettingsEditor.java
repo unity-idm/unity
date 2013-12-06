@@ -269,7 +269,7 @@ public class SPSettingsEditor extends FormLayout
 				selection.select(selContainer.getIdByIndex(0));
 			} else
 			{
-				ErrorPopup.showNotice(msg.getMessage("notice"), msg.getMessage("SAMLPreferences.allSelected"));
+				ErrorPopup.showNotice(msg, msg.getMessage("notice"), msg.getMessage("SAMLPreferences.allSelected"));
 				throw new FormValidationException();
 			}
 			return selection;

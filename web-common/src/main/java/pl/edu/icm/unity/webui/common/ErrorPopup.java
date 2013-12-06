@@ -10,8 +10,14 @@ import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
-import com.vaadin.server.Page;
+import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Image;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Notification.Type;
 
 
@@ -23,34 +29,31 @@ public class ErrorPopup
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ErrorPopup.class);
 	
-	public static void showNotice(String caption, String description)
+	public static void showNotice(UnityMessageSource msg, String caption, String description)
 	{
-		Notification n = new Notification(caption, description, Type.HUMANIZED_MESSAGE);
-		n.setDelayMsec(-1);
-		n.show(Page.getCurrent());
+		CustomNotificationDialog dialog = new CustomNotificationDialog(msg, msg.getMessage("notice"), 
+				caption, description, Type.HUMANIZED_MESSAGE);
+		dialog.show();
 	}
 
-	public static void showError(String caption, String description)
+	public static void showError(UnityMessageSource msg, String caption, String description)
 	{
-		Notification n = new Notification(caption, description, Type.ERROR_MESSAGE);
-		n.setDelayMsec(-1);
-		n.show(Page.getCurrent());
+		CustomNotificationDialog dialog = new CustomNotificationDialog(msg, msg.getMessage("error"), 
+				caption, description, Type.ERROR_MESSAGE);
+		dialog.show();
 	}
 
 	public static void showFormError(UnityMessageSource msg)
 	{
-		Notification n = new Notification(msg.getMessage("Generic.formError"), 
-				msg.getMessage("Generic.formErrorHint"), Type.ERROR_MESSAGE);
-		n.setDelayMsec(-1);
-		n.show(Page.getCurrent());
+		showError(msg, msg.getMessage("Generic.formError"), msg.getMessage("Generic.formErrorHint"));
 	}
 
-	public static void showError(String message, Exception e)
+	public static void showError(UnityMessageSource msg, String message, Exception e)
 	{
 		String description = getHumanMessage(e);
 		if (log.isDebugEnabled())
 			Log.logException("Exception in error popup: ", e , log);
-		showError(message, description);
+		showError(msg, message, description);
 	}
 	
 	public static String getHumanMessage(Throwable e)
@@ -68,5 +71,76 @@ public class ErrorPopup
 			sb.append("; ").append(e.getMessage());
 		}
 		return sb.toString();
+	}
+	
+	
+	public static class CustomNotificationDialog extends AbstractDialog
+	{
+		private String header;
+		private String message;
+		private Notification.Type type;
+		
+		public CustomNotificationDialog(UnityMessageSource msg, String caption, String header, String message,
+				Notification.Type type)
+		{
+			super(msg, caption, msg.getMessage("close"));
+			this.header = header;
+			this.message = message;
+			this.type = type;
+			this.defaultSizeUndfined = true;
+			this.lightweightWrapperPanel = true;
+		}
+
+		@Override
+		protected Component getContents() throws Exception
+		{
+			HorizontalLayout main = new HorizontalLayout();
+			main.setSpacing(true);
+			Image img = new Image();
+			if (type == Type.ERROR_MESSAGE)
+			{
+				img.setSource(Images.stderror64.getResource());
+			} else if (type == Type.WARNING_MESSAGE)
+			{
+				img.setSource(Images.stdwarn64.getResource());
+			} else
+			{
+				img.setSource(Images.stdinfo64.getResource());
+			}
+			main.addComponent(img);
+			main.setComponentAlignment(img, Alignment.MIDDLE_CENTER);
+			
+			main.addComponent(new Label("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", ContentMode.HTML));
+			
+			VerticalLayout right = new VerticalLayout();
+			right.setSpacing(true);
+			if (header != null)
+			{
+				Label headerL = new Label(header, ContentMode.HTML);
+				headerL.addStyleName(Styles.textXLarge.toString());
+				headerL.addStyleName(Styles.bold.toString());
+				if (type == Type.ERROR_MESSAGE)
+					headerL.addStyleName(Styles.error.toString());
+				right.addComponent(headerL);
+				right.addComponent(new Label(""));
+				right.setComponentAlignment(headerL, Alignment.MIDDLE_CENTER);
+			}
+			
+			if (message != null)
+			{
+				Label msgL = new Label(message, ContentMode.HTML);
+				msgL.addStyleName(Styles.textLarge.toString());
+				right.addComponent(msgL);
+			}
+			main.addComponent(right);
+			
+			return main;
+		}
+
+		@Override
+		protected void onConfirm()
+		{
+			close();
+		}
 	}
 }

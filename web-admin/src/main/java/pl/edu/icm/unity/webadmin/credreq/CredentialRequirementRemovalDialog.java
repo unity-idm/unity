@@ -64,7 +64,7 @@ public class CredentialRequirementRemovalDialog extends AbstractDialog
 		Collections.sort(crs);
 		if (crs.size() == 0)
 		{
-			ErrorPopup.showError(msg.getMessage("CredentialRequirements.removalError"), 
+			ErrorPopup.showError(msg, msg.getMessage("CredentialRequirements.removalError"), 
 					msg.getMessage("CredentialRequirements.cantRemoveLast"));
 			throw new WrongArgumentException("");
 		}

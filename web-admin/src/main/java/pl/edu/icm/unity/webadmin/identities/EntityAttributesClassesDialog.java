@@ -87,7 +87,7 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 			loadData();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg.getMessage("EntityAttributesClasses.errorloadingData"), e);
+			ErrorPopup.showError(msg, msg.getMessage("EntityAttributesClasses.errorloadingData"), e);
 			throw e;
 		}
 		extra.addComponents(groupAcs, effective);
@@ -126,7 +126,7 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 			close();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg.getMessage("EntityAttributesClasses.errorUpdatingACs"), e);
+			ErrorPopup.showError(msg, msg.getMessage("EntityAttributesClasses.errorUpdatingACs"), e);
 		}
 	}
 	

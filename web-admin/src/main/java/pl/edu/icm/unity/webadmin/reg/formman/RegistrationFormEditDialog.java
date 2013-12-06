@@ -56,10 +56,10 @@ public class RegistrationFormEditDialog extends AbstractDialog
 		} catch (FormValidationException e) 
 		{
 			if (e.getMessage() == null || e.getMessage().equals(""))
-				ErrorPopup.showError(msg.getMessage("Generic.formError"), 
+				ErrorPopup.showError(msg, msg.getMessage("Generic.formError"), 
 						msg.getMessage("Generic.formErrorHint"));
 			else
-				ErrorPopup.showError(msg.getMessage("Generic.formError"), e);
+				ErrorPopup.showError(msg, msg.getMessage("Generic.formError"), e);
 			return;
 		}
 	}

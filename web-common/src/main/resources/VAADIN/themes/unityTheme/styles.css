@@ -51,6 +51,16 @@
 	background: url("../unityTheme/img/top-bar-bg.jpg");
 }
 
+.u-textLarge {
+	font-size: large;	
+	line-height: 1.4;
+}
+
+.u-textXLarge {
+	font-size: x-large;
+	line-height: 2;
+}
+
 .u-bigTab {
 /*	
     background: url("../unityTheme/img/bg-dark.jpg");

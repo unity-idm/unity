@@ -56,13 +56,13 @@ public class CredentialRequirementDialog extends AbstractDialog
 			credReqs = authnMan.getCredentialRequirements();
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("error"),
+			ErrorPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("EntityCreation.cantGetcredReq"));
 			throw new IllegalStateException();
 		}
 		if (credReqs.isEmpty())
 		{
-			ErrorPopup.showError(msg.getMessage("error"),
+			ErrorPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("EntityCreation.credReqMissing"));
 			throw new IllegalStateException();
 		}
@@ -89,7 +89,7 @@ public class CredentialRequirementDialog extends AbstractDialog
 					(String)credentialRequirement.getValue());
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("CredentialRequirementDialog.changeError"), e);
+			ErrorPopup.showError(msg, msg.getMessage("CredentialRequirementDialog.changeError"), e);
 			return;
 		}
 		

@@ -57,7 +57,7 @@ public class CredentialReset2Dialog extends AbstractDialog
 	{
 		if (CredentialResetStateVariable.get() != 1)
 		{
-			ErrorPopup.showError(msg.getMessage("error"),
+			ErrorPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("CredentialReset.illegalAppState"));
 			throw new Exception();
 		}
@@ -102,14 +102,14 @@ public class CredentialReset2Dialog extends AbstractDialog
 			backend.verifyStaticData(a);
 		} catch (TooManyAttempts e) 
 		{
-			ErrorPopup.showError(msg.getMessage("error"), 
+			ErrorPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("CredentialReset.usernameOrAnswerInvalid"));
 			onCancel();
 			return;
 		} catch (Exception e)
 		{
 			answer.setValue("");
-			ErrorPopup.showError(msg.getMessage("error"), 
+			ErrorPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("CredentialReset.usernameOrAnswerInvalid"));
 			return;
 		}

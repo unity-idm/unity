@@ -66,7 +66,7 @@ public class PreferenceViewTab extends VerticalLayout
 			refresh();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg.getMessage("Preferences.errorReset"), e);
+			ErrorPopup.showError(msg, msg.getMessage("Preferences.errorReset"), e);
 		}
 	}
 	
@@ -87,7 +87,7 @@ public class PreferenceViewTab extends VerticalLayout
 			refresh();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg.getMessage("Preferences.errorUpdate"), e);
+			ErrorPopup.showError(msg, msg.getMessage("Preferences.errorUpdate"), e);
 		}
 	}
 	
@@ -167,7 +167,7 @@ public class PreferenceViewTab extends VerticalLayout
 					refresh();
 				} catch (EngineException e)
 				{
-					ErrorPopup.showError(msg.getMessage("Preferences.errorRefresh"), e);
+					ErrorPopup.showError(msg, msg.getMessage("Preferences.errorRefresh"), e);
 				}
 			}
 		});

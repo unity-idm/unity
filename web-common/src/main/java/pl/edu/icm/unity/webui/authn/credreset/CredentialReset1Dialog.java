@@ -49,7 +49,7 @@ public class CredentialReset1Dialog extends AbstractDialog
 	{
 		if (CredentialResetStateVariable.get() != 0)
 		{
-			ErrorPopup.showError(msg.getMessage("error"),
+			ErrorPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("CredentialReset.illegalAppState"));
 			throw new Exception();
 		}

@@ -181,7 +181,7 @@ public class CredentialsPanel extends VerticalLayout
 			idsMan.setEntityCredential(entityP, credDef.getName(), secrets);
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
+			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
 			return;
 		}
 		changed = true;
@@ -196,7 +196,7 @@ public class CredentialsPanel extends VerticalLayout
 			entity = idsMan.getEntity(entityP);
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("CredentialChangeDialog.entityRefreshError"), e);
+			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.entityRefreshError"), e);
 		}
 	}
 	
@@ -234,7 +234,7 @@ public class CredentialsPanel extends VerticalLayout
 			entity = idsMan.getEntity(new EntityParam(entityId));
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("CredentialChangeDialog.getEntityError"), e);
+			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.getEntityError"), e);
 			throw e;
 		}
 		
@@ -251,13 +251,13 @@ public class CredentialsPanel extends VerticalLayout
 			
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg.getMessage("CredentialChangeDialog.cantGetCredReqs"), e);
+			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.cantGetCredReqs"), e);
 			throw e;
 		}
 		
 		if (credReq == null)
 		{
-			ErrorPopup.showError(msg.getMessage("CredentialChangeDialog.noCredReqDef"), "");
+			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.noCredReqDef"), "");
 			log.fatal("Can not find credential requirement information, for the one set for the entity: " + credReqId);
 			throw new IllegalStateException("");
 		}
@@ -267,7 +267,7 @@ public class CredentialsPanel extends VerticalLayout
 			allCreds = authnMan.getCredentialDefinitions();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg.getMessage("CredentialChangeDialog.cantGetCredDefs"), e);
+			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.cantGetCredDefs"), e);
 			throw e;
 		}
 		
@@ -280,7 +280,7 @@ public class CredentialsPanel extends VerticalLayout
 		}
 		if (credentials.size() == 0)
 		{
-			ErrorPopup.showError(msg.getMessage("error"), msg.getMessage("CredentialChangeDialog.noCredentials"));
+			ErrorPopup.showError(msg, msg.getMessage("error"), msg.getMessage("CredentialChangeDialog.noCredentials"));
 			throw new IllegalStateException();
 		}
 	}
