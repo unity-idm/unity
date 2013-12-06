@@ -45,9 +45,16 @@ public class GenericElementsTable<T> extends Table
 	
 	public void setInput(Collection<T> types)
 	{
+		@SuppressWarnings("unchecked")
+		GenericItem<T> selected = (GenericItem<T>) getValue();
 		removeAllItems();
 		for (T attributeType: types)
-			addItem(new GenericItem<T>(attributeType, nameProvider));
+		{
+			GenericItem<T> item = new GenericItem<T>(attributeType, nameProvider);
+			addItem(item);
+			if (selected != null && selected.getElement().equals(attributeType))
+				setValue(item);
+		}
 		sort();
 	}
 	

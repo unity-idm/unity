@@ -252,11 +252,12 @@ public class IdentitiesTable extends TreeTable
 	
 	private void updateContents()
 	{
+		Object selected = getValue();
 		removeAllItems();
 		if (groupByEntity)
-			setGroupedContents();
+			setGroupedContents(selected);
 		else
-			setFlatContents();
+			setFlatContents(selected);
 	}
 	
 	/*
@@ -264,7 +265,7 @@ public class IdentitiesTable extends TreeTable
 	 * This is because Vaadin (tested at 7.0.4) seems to ignore parent elements when not matching filter
 	 * during addition, but properly shows them afterwards.
 	 */
-	private void setGroupedContents()
+	private void setGroupedContents(Object selected)
 	{
 		Container.Filterable filterable = (Filterable) getContainerDataSource();
 		filterable.removeAllContainerFilters();
@@ -272,18 +273,22 @@ public class IdentitiesTable extends TreeTable
 		{
 			Entity entity = entry.getEntity();
 			Object parentKey = addRow(null, entity, entry.getAttributes());
+			if (selected != null && selected.equals(parentKey))
+				setValue(parentKey);
 			for (Identity id: entry.getIdentities())
 			{
 				Object key = addRow(id, entity, entry.getAttributes());
 				setParent(key, parentKey);
 				setChildrenAllowed(key, false);
+				if (selected != null && selected.equals(key))
+					setValue(key);
 			}
 		}
 		for (Filter filter: containerFilters)
 			filterable.addContainerFilter(filter);
 	}
 
-	private void setFlatContents()
+	private void setFlatContents(Object selected)
 	{
 		for (IdentitiesAndAttributes entry: data.values())
 		{
@@ -291,6 +296,8 @@ public class IdentitiesTable extends TreeTable
 			{
 				Object itemId = addRow(id, entry.getEntity(), entry.getAttributes());
 				setChildrenAllowed(itemId, false);
+				if (selected != null && selected.equals(itemId))
+					setValue(itemId);
 			}
 		}
 	}
