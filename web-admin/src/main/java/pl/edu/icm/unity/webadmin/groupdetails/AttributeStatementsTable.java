@@ -26,6 +26,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 import com.vaadin.data.Container;
+import com.vaadin.event.Action;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
@@ -46,6 +47,7 @@ public class AttributeStatementsTable extends Table
 	private StatementHandlersRegistry statementHandlersReg;
 	private Group group;
 	private EventsBus bus;
+	private List<SingleActionHandler> actionHandlers;
 	
 	
 	public AttributeStatementsTable(UnityMessageSource msg, GroupsManagement groupsMan,
@@ -57,11 +59,15 @@ public class AttributeStatementsTable extends Table
 		this.attrsMan = attrsMan;
 		this.statementHandlersReg = statementHandlersRegistry;
 		this.bus = WebSession.getCurrent().getEventBus();
+		this.actionHandlers = new ArrayList<>();
 		
 		addContainerProperty(MAIN_COL, String.class, null);
 		setColumnHeader(MAIN_COL, msg.getMessage("AttributeStatements.tableHdr"));
 		setSizeFull();
 		setSortEnabled(false);
+		setSelectable(true);
+		setMultiSelect(false);
+		setImmediate(true);
 		addActionHandler(new AddHandler());
 		addActionHandler(new EditHandler());
 		addActionHandler(new DeleteHandler());
@@ -208,6 +214,17 @@ public class AttributeStatementsTable extends Table
 		}
 	}
 
+	@Override
+	public void addActionHandler(Action.Handler actionHandler) {
+		super.addActionHandler(actionHandler);
+		if (actionHandler instanceof SingleActionHandler)
+			actionHandlers.add((SingleActionHandler) actionHandler);
+	}
+
+	public List<SingleActionHandler> getActionHandlers()
+	{
+		return actionHandlers;
+	}
 	
 	private class DeleteHandler extends SingleActionHandler
 	{

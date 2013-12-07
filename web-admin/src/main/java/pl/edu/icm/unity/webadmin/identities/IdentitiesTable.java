@@ -83,7 +83,8 @@ public class IdentitiesTable extends TreeTable
 	private Entity selected;
 	private List<Filter> containerFilters;
 	private String entityNameAttribute = null;
-
+	private List<SingleActionHandler> actionHandlers;
+	
 	@Autowired
 	public IdentitiesTable(IdentitiesManagement identitiesMan, GroupsManagement groupsMan, 
 			AuthenticationManagement authnMan, AttributesManagement attrMan,
@@ -102,6 +103,7 @@ public class IdentitiesTable extends TreeTable
 		this.bus = WebSession.getCurrent().getEventBus();
 		this.containerFilters = new ArrayList<Container.Filter>();
 		this.credEditorsRegistry = credEditorsRegistry;
+		this.actionHandlers = new ArrayList<>();
 		
 		addContainerProperty("entity", String.class, null);
 		addContainerProperty("type", String.class, "");
@@ -174,6 +176,18 @@ public class IdentitiesTable extends TreeTable
 		});
 	}
 
+	@Override
+	public void addActionHandler(Action.Handler actionHandler) {
+		super.addActionHandler(actionHandler);
+		if (actionHandler instanceof SingleActionHandler)
+			actionHandlers.add((SingleActionHandler) actionHandler);
+	}
+
+	public List<SingleActionHandler> getActionHandlers()
+	{
+		return actionHandlers;
+	}
+	
 	public void setMode(boolean groupByEntity)
 	{
 		this.groupByEntity = groupByEntity;

@@ -4,13 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.groupdetails;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.themes.Reindeer;
 
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -25,54 +19,40 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
  * Table with group {@link AttributesClass}es with possibility to active edit dialog.
  * @author K. Benedyczak
  */
-public class GroupAttributesClassesPanel extends HorizontalLayout
+public class GroupAttributesClassesTable extends Table
 {
 	private UnityMessageSource msg;
 	private GroupsManagement groupsManagement;
 	private AttributesManagement attrMan;
-	private Table table;
-	private Button edit;
 	private Group group;
+	private SingleActionHandler[] handlers;
 	
-	public GroupAttributesClassesPanel(UnityMessageSource msg, GroupsManagement groupsManagement, 
+	public GroupAttributesClassesTable(UnityMessageSource msg, GroupsManagement groupsManagement, 
 			AttributesManagement attrMan)
 	{
 		this.msg = msg;
 		this.attrMan = attrMan;
 		this.groupsManagement = groupsManagement;
-		table = new Table();
-		table.addContainerProperty(msg.getMessage("GroupDetails.groupAcs"), 
+		addContainerProperty(msg.getMessage("GroupDetails.groupAcs"), 
 				String.class, null);
-		table.setWidth(90, Unit.PERCENTAGE);
-		table.setHeight(9, Unit.EM);
-		table.addActionHandler(new EditHandler());
-		edit = new Button();
-		edit.setStyleName(Reindeer.BUTTON_SMALL);
-		edit.setIcon(Images.attributes.getResource());
-		edit.setDescription(msg.getMessage("GroupDetails.editDescription"));
-		edit.addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				showEditor();
-			}
-		});
+		handlers = new SingleActionHandler [] {new EditHandler()};
+		addActionHandler(handlers[0]);
 		setWidth(100, Unit.PERCENTAGE);
-		setSpacing(true);
-		addComponents(table, edit);
-		setComponentAlignment(edit, Alignment.TOP_LEFT);
-		setExpandRatio(table, 1.0f);
 	}
 	
+	public SingleActionHandler[] getHandlers()
+	{
+		return handlers;
+	}
+
 	public void setInput(Group group)
 	{
 		this.group = group;
-		table.removeAllItems();
+		removeAllItems();
 		if (group == null)
 			return;
 		for (String ac: group.getAttributesClasses())
-			table.addItem(new String[]{ac}, ac);
+			addItem(new String[]{ac}, ac);
 	}
 	
 	private void showEditor()

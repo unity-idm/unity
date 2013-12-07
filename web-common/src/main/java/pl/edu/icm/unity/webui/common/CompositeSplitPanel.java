@@ -20,13 +20,15 @@ import com.vaadin.ui.VerticalSplitPanel;
  */
 public class CompositeSplitPanel extends VerticalLayout
 {
-	public CompositeSplitPanel(boolean vertical, boolean needsMargin, 
-			Component first, Component second, int firstSpacePercent)
+	private VerticalLayout vl1;
+	private VerticalLayout vl2;
+	
+	public CompositeSplitPanel(boolean vertical, boolean needsMargin, int firstSpacePercent)
 	{
 		AbstractSplitPanel split;
-		VerticalLayout vl1 = new VerticalLayout(first);
+		vl1 = new VerticalLayout();
 		vl1.setSizeFull();
-		VerticalLayout vl2 = new VerticalLayout(second);
+		vl2 = new VerticalLayout();
 		vl2.setSizeFull();
 		
 		if (vertical)
@@ -47,5 +49,25 @@ public class CompositeSplitPanel extends VerticalLayout
 		addComponent(split);
 		setMargin(needsMargin);
 		setSizeFull();
+	}
+	
+	public CompositeSplitPanel(boolean vertical, boolean needsMargin, 
+			Component first, Component second, int firstSpacePercent)
+	{
+		this(vertical, needsMargin, firstSpacePercent);
+		setFirstComponent(first);
+		setSecondComponent(second);
+	}
+	
+	public void setFirstComponent(Component first)
+	{
+		vl1.removeAllComponents();
+		vl1.addComponent(first);
+	}
+
+	public void setSecondComponent(Component second)
+	{
+		vl2.removeAllComponents();
+		vl2.addComponent(second);
 	}
 }

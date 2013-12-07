@@ -33,12 +33,14 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 
@@ -51,6 +53,7 @@ import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
 import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
@@ -104,15 +107,12 @@ public class AttributesPanel extends HorizontalSplitPanel
 		attributesTable = new Table();
 		attributesTable.setNullSelectionAllowed(false);
 		attributesTable.setImmediate(true);
-		attributesTable.setSizeFull();
 		BeanItemContainer<AttributeItem> tableContainer = new BeanItemContainer<AttributeItem>(AttributeItem.class);
 		attributesTable.setSelectable(true);
 		attributesTable.setMultiSelect(false);
 		attributesTable.setContainerDataSource(tableContainer);
 		attributesTable.setColumnHeaders(new String[] {msg.getMessage("Attribute.attributes")});
-		attributesTable.addActionHandler(new AddAttributeActionHandler());
-		attributesTable.addActionHandler(new EditAttributeActionHandler());
-		attributesTable.addActionHandler(new RemoveAttributeActionHandler());
+		
 		
 		attributesTable.addValueChangeListener(new ValueChangeListener()
 		{
@@ -127,6 +127,15 @@ public class AttributesPanel extends HorizontalSplitPanel
 			}
 		});
 
+		Toolbar toolbar = new Toolbar(attributesTable, Orientation.VERTICAL);
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(attributesTable, toolbar);
+		tableWithToolbar.setSizeFull();
+		SingleActionHandler[] handlers = new SingleActionHandler[] {new AddAttributeActionHandler(), 
+				new EditAttributeActionHandler(), new RemoveAttributeActionHandler()};
+		for (SingleActionHandler handler: handlers)
+			attributesTable.addActionHandler(handler);
+		toolbar.addActionHandlers(handlers);
+		
 		internalAttrsFilter = new InternalAttributesFilter();
 		effectiveAttrsFilter = new EffectiveAttributesFilter();
 		showEffective = new CheckBox(msg.getMessage("Attribute.showEffective"), true);
@@ -165,8 +174,8 @@ public class AttributesPanel extends HorizontalSplitPanel
 		left.setMargin(new MarginInfo(false, true, false, false));
 		left.setSizeFull();
 		left.setSpacing(true);
-		left.addComponents(filtersBar, attributesTable);
-		left.setExpandRatio(attributesTable, 1.0f);
+		left.addComponents(filtersBar, tableWithToolbar);
+		left.setExpandRatio(tableWithToolbar, 1.0f);
 		
 		setFirstComponent(left);
 		setSecondComponent(attributeValues);

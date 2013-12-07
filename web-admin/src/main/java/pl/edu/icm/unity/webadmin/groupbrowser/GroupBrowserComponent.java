@@ -14,7 +14,10 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.bus.RefreshEvent;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.Toolbar;
 
+import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -43,7 +46,13 @@ public class GroupBrowserComponent extends Panel
 	private void init()
 	{
 		setCaption(msg.getMessage("GroupBrowser.caption"));
-		setContent(groupsTree);
+		
+		Toolbar toolbar = new Toolbar(groupsTree, Orientation.HORIZONTAL);
+		toolbar.addActionHandlers(groupsTree.getActionHandlers());
+		ComponentWithToolbar treeWithToolbar = new ComponentWithToolbar(groupsTree, toolbar);
+		treeWithToolbar.setWidth(100, Unit.PERCENTAGE);
+		
+		setContent(treeWithToolbar);
 		setStyleName(Reindeer.PANEL_LIGHT);
 		setSizeFull();
 		EventsBus bus = WebSession.getCurrent().getEventBus();

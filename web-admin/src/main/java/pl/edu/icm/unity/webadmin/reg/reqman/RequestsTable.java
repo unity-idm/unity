@@ -11,13 +11,16 @@ import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Toolbar;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Table;
 
@@ -62,8 +65,15 @@ public class RequestsTable extends CustomComponent
 				msg.getMessage("RegistrationRequest.requestedIdentity")});
 		requestsTable.setSortContainerPropertyId(requestsTable.getContainerPropertyIds().iterator().next());
 		requestsTable.setSortAscending(true);
-		requestsTable.addActionHandler(new RefreshActionHandler());
-		setCompositionRoot(requestsTable);
+		RefreshActionHandler handler = new RefreshActionHandler();
+		requestsTable.addActionHandler(handler);
+		
+		Toolbar toolbar = new Toolbar(requestsTable, Orientation.HORIZONTAL);
+		toolbar.addActionHandlers(handler);
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(requestsTable, toolbar);
+		tableWithToolbar.setSizeFull();
+		
+		setCompositionRoot(tableWithToolbar);
 		refresh();
 	}
 

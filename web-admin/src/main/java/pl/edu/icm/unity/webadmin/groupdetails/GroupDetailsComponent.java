@@ -22,12 +22,15 @@ import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
@@ -49,7 +52,7 @@ public class GroupDetailsComponent extends Panel
 	
 	private VerticalLayout main;
 	private DescriptionTextArea description;
-	private GroupAttributesClassesPanel acPanel;
+	private GroupAttributesClassesTable acPanel;
 	private AttributeStatementsTable attrStatements;
 	
 	@Autowired
@@ -67,12 +70,23 @@ public class GroupDetailsComponent extends Panel
 	
 		description = new DescriptionTextArea(msg.getMessage("GroupDetails.description"), true, "");
 		
-		acPanel = new GroupAttributesClassesPanel(msg, groupsManagement, attrsMan);
+		acPanel = new GroupAttributesClassesTable(msg, groupsManagement, attrsMan);
+		Toolbar acToolbar = new Toolbar(acPanel, Orientation.VERTICAL);
+		acToolbar.addActionHandlers(acPanel.getHandlers());
+		ComponentWithToolbar acWithToolbar = new ComponentWithToolbar(acPanel, acToolbar);
+		acWithToolbar.setSizeFull();
+		
 		attrStatements = new AttributeStatementsTable(msg, groupsManagement, 
 				attrsMan, statementHandlersReg);
 		
-		main.addComponents(description, acPanel, attrStatements);
-		main.setExpandRatio(attrStatements, 1.0f);
+		Toolbar asToolbar = new Toolbar(attrStatements, Orientation.VERTICAL);
+		asToolbar.addActionHandlers(attrStatements.getActionHandlers());
+		ComponentWithToolbar asWithToolbar = new ComponentWithToolbar(attrStatements, asToolbar);
+		asWithToolbar.setSizeFull();
+		
+		main.addComponents(description, acWithToolbar, asWithToolbar);
+		main.setExpandRatio(acWithToolbar, 0.5f);
+		main.setExpandRatio(asWithToolbar, 0.5f);
 		
 		setSizeFull();
 		setContent(main);

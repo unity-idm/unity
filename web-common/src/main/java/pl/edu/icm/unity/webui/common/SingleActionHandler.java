@@ -38,6 +38,11 @@ public abstract class SingleActionHandler implements Handler
 		this.needsTarget = needsTarget;
 	}
 
+	public Action getActionUnconditionally()
+	{
+		return action[0];
+	}
+	
 	@Override
 	public Action[] getActions(Object target, Object sender)
 	{

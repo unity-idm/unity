@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
@@ -25,11 +26,13 @@ import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementEditDialog.Callback;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 
 /**
@@ -93,10 +96,14 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		table.addActionHandler(new EditActionHandler());
 		table.addActionHandler(new DeleteActionHandler());
 		table.setWidth(90, Unit.PERCENTAGE);
+		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
+		toolbar.addActionHandlers(table.getActionHandlers());
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
+		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		
 		viewer = new CredentialRequirementViewer(msg);
 		HorizontalLayout hl = new HorizontalLayout();
-		hl.addComponents(table, viewer);
+		hl.addComponents(tableWithToolbar, viewer);
 		hl.setSizeFull();
 		hl.setMargin(new MarginInfo(true, false, true, false));
 		hl.setSpacing(true);

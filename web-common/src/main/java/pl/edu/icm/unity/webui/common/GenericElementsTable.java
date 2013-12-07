@@ -4,9 +4,12 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.event.Action;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 
@@ -20,6 +23,8 @@ import com.vaadin.ui.Table;
 public class GenericElementsTable<T> extends Table
 {
 	private NameProvider<T> nameProvider;
+	private List<SingleActionHandler> actionHandlers;
+	
 	
 	public GenericElementsTable(String columnHeader, Class<T> clazz)
 	{
@@ -29,6 +34,7 @@ public class GenericElementsTable<T> extends Table
 	public GenericElementsTable(String columnHeader, Class<T> clazz, NameProvider<T> nameProvider)
 	{
 		this.nameProvider = nameProvider;
+		this.actionHandlers = new ArrayList<>();
 		setNullSelectionAllowed(false);
 		setImmediate(true);
 		setSizeFull();
@@ -41,6 +47,18 @@ public class GenericElementsTable<T> extends Table
 		setColumnHeaders(new String[] {columnHeader});
 		setSortContainerPropertyId(getContainerPropertyIds().iterator().next());
 		setSortAscending(true);
+	}
+	
+	@Override
+	public void addActionHandler(Action.Handler actionHandler) {
+		super.addActionHandler(actionHandler);
+		if (actionHandler instanceof SingleActionHandler)
+			actionHandlers.add((SingleActionHandler) actionHandler);
+	}
+
+	public List<SingleActionHandler> getActionHandlers()
+	{
+		return actionHandlers;
 	}
 	
 	public void setInput(Collection<T> types)

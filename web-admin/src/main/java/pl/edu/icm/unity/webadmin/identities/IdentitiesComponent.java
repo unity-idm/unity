@@ -33,11 +33,13 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Toolbar;
 
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.Orientation;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
@@ -81,12 +83,13 @@ public class IdentitiesComponent extends Panel
 		final CheckBox mode = new CheckBox(msg.getMessage("Identities.mode"));
 		mode.setImmediate(true);
 		
+		Toolbar toolbar = new Toolbar(identitiesTable, Orientation.HORIZONTAL);
+		
 		filtersBar = new HorizontalLayout();
 		filtersBar.addComponent(new Label(msg.getMessage("Identities.filters")));
 		filtersBar.setVisible(false);
 		
 		Button addAttributes = new Button();
-		addAttributes.setStyleName(Reindeer.BUTTON_SMALL);
 		addAttributes.setDescription(msg.getMessage("Identities.addAttributes"));
 		addAttributes.setIcon(Images.addColumn.getResource());
 		addAttributes.addClickListener(new ClickListener()
@@ -109,7 +112,6 @@ public class IdentitiesComponent extends Panel
 		});
 		
 		Button removeAttributes = new Button();
-		removeAttributes.setStyleName(Reindeer.BUTTON_SMALL);
 		removeAttributes.setDescription(msg.getMessage("Identities.removeAttributes"));
 		removeAttributes.setIcon(Images.removeColumn.getResource());
 		removeAttributes.addClickListener(new ClickListener()
@@ -132,7 +134,6 @@ public class IdentitiesComponent extends Panel
 		});
 		
 		Button addFilter = new Button();
-		addFilter.setStyleName(Reindeer.BUTTON_SMALL);
 		addFilter.setDescription(msg.getMessage("Identities.addFilter"));
 		addFilter.setIcon(Images.addFilter.getResource());
 		addFilter.addClickListener(new ClickListener()
@@ -154,7 +155,10 @@ public class IdentitiesComponent extends Panel
 		});
 		Label spacer = new Label();
 		spacer.setSizeFull();
-		topBar.addComponents(mode, spacer, addFilter, addAttributes, removeAttributes);
+		toolbar.addActionHandlers(identitiesTable.getActionHandlers());
+		toolbar.addSeparator();
+		toolbar.addButtons(addFilter, addAttributes, removeAttributes);
+		topBar.addComponents(mode, spacer, toolbar);
 		topBar.setExpandRatio(spacer, 2f);
 		topBar.setWidth(100, Unit.PERCENTAGE);
 		

@@ -47,6 +47,7 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
+import com.vaadin.event.Action;
 import com.vaadin.event.Transferable;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.DropHandler;
@@ -69,6 +70,7 @@ public class GroupsTree extends Tree
 	private IdentityEditorRegistry identityEditorReg;
 	private GroupManagementHelper groupManagementHelper;
 	private EventsBus bus;
+	private List<SingleActionHandler> actionHandlers;
 
 	@Autowired
 	public GroupsTree(GroupsManagement groupsMan, IdentitiesManagement identitiesMan, 
@@ -83,7 +85,7 @@ public class GroupsTree extends Tree
 		this.identityEditorReg = identityEditorReg;
 		this.groupManagementHelper = new GroupManagementHelper(msg, groupsMan, 
 				attrMan, attrHandlerRegistry);
-
+		this.actionHandlers = new ArrayList<>();
 		addExpandListener(new GroupExpandListener());
 		addValueChangeListener(new ValueChangeListenerImpl());
 		addActionHandler(new RefreshActionHandler());
@@ -110,6 +112,18 @@ public class GroupsTree extends Tree
 		}
 	}
 
+	@Override
+	public void addActionHandler(Action.Handler actionHandler) {
+		super.addActionHandler(actionHandler);
+		if (actionHandler instanceof SingleActionHandler)
+			actionHandlers.add((SingleActionHandler) actionHandler);
+	}
+
+	public List<SingleActionHandler> getActionHandlers()
+	{
+		return actionHandlers;
+	}
+	
 	/**
 	 * We can have two cases: either we can read '/' or not. In the latter case we take groups where the
 	 * logged user is the member, and we put all of them as root groups.

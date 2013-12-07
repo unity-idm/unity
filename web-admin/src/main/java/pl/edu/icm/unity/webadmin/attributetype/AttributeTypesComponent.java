@@ -17,12 +17,14 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypeEditDialog.Callback;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -34,6 +36,7 @@ import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.event.Action;
 import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -82,10 +85,8 @@ public class AttributeTypesComponent extends VerticalLayout
 						return ret;
 					}
 				});
-		table.setWidth(90, Unit.PERCENTAGE);
-		hl.addComponent(table);
+
 		viewer = new AttributeTypeViewer(msg);
-		hl.addComponent(viewer);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
@@ -107,6 +108,13 @@ public class AttributeTypesComponent extends VerticalLayout
 		table.addActionHandler(new AddActionHandler());
 		table.addActionHandler(new EditActionHandler());
 		table.addActionHandler(new DeleteActionHandler());
+		
+		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
+		toolbar.addActionHandlers(table.getActionHandlers());
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
+		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
+
+		hl.addComponents(tableWithToolbar, viewer);
 		hl.setSizeFull();
 		hl.setMargin(true);
 		hl.setSpacing(true);

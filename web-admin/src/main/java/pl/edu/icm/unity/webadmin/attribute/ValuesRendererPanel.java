@@ -8,6 +8,7 @@ import java.util.List;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -17,7 +18,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.VerticalSplitPanel;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Renders attribute values panel.
@@ -58,8 +59,7 @@ public class ValuesRendererPanel extends VerticalLayout
 	private void buildMultiValueView(final WebAttributeHandler handler, final AttributeValueSyntax<?> syntax, 
 			List<?> values)
 	{
-		final VerticalSplitPanel main = new VerticalSplitPanel();
-		main.setSplitPosition(33, Unit.PERCENTAGE);
+		final CompositeSplitPanel main = new CompositeSplitPanel(true, false, 33);
 		
 		final ValuesTable valuesTable = new ValuesTable(msg);
 		valuesTable.setValues(values, syntax, handler);
@@ -78,6 +78,7 @@ public class ValuesRendererPanel extends VerticalLayout
 				c.setSizeUndefined();
 				
 				Panel valuePanel = new Panel(msg.getMessage("Attribute.selectedValue"));
+				valuePanel.addStyleName(Reindeer.PANEL_LIGHT);
 				valuePanel.setContent(c);
 				valuePanel.setSizeFull();
 				main.setSecondComponent(valuePanel);
@@ -95,6 +96,7 @@ public class ValuesRendererPanel extends VerticalLayout
 		Component c = handler.getRepresentation(value, syntax);
 		c.setSizeUndefined();
 		Panel valuePanel = new Panel(msg.getMessage("Attribute.value"));
+		valuePanel.addStyleName(Reindeer.PANEL_LIGHT);
 		valuePanel.setSizeFull();
 		valuePanel.setContent(c);
 		addComponent(valuePanel);

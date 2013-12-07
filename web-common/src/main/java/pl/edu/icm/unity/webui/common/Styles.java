@@ -23,6 +23,9 @@ public enum Styles
 	error("u-error"),
 	textLarge("u-textLarge"),
 	textXLarge("u-textXLarge"),
+	toolbarButton("u-toolbarButton"),
+	verticalLine("u-verticalLine"),
+	horizontalLine("u-horizontalLine"),
 	header("u-header");
 	
 	

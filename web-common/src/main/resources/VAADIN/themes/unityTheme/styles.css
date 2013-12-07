@@ -69,6 +69,10 @@
 	/*background-color: gray;*/
 }
 
+.u-toolbarButton:hover {
+	box-shadow: 0px 1px 3px 0px #888;
+}
+
 .u-bigTab:hover {
     background: url("../unityTheme/img/bigTab-bg2-gray.jpg");
     box-shadow: 6px 6px 3px #888;
@@ -82,4 +86,22 @@
 
 .u-textCenter {
 	text-align: center;
-} 
+}
+
+.u-verticalLine {
+	width: 0px;
+	height: 16px;
+	float: left; 
+	border: 1px inset;
+	color: gray;
+	margin: 0px 8px;
+}
+
+.u-horizontalLine {
+	width: 16px;
+	height: 0px;
+	float: left; 
+	border: 1px inset;
+	color: gray;
+	margin: 8px 0px;
+}
