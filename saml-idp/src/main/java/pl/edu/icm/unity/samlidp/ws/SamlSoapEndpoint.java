@@ -4,11 +4,6 @@
  */
 package pl.edu.icm.unity.samlidp.ws;
 
-import java.io.ByteArrayInputStream;
-import java.io.CharArrayWriter;
-import java.io.IOException;
-import java.util.Properties;
-
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
 import eu.unicore.util.configuration.ConfigurationException;
@@ -46,31 +41,15 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	@Override
 	public void setSerializedConfiguration(String config)
 	{
+		super.setSerializedConfiguration(config);
 		try
 		{
-			Properties properties = new Properties();
-			properties.load(new ByteArrayInputStream(config.getBytes()));
 			samlProperties = new SamlProperties(properties);
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("Can't initialize the SAML SOAP" +
 					" IdP endpoint's configuration", e);
 		}
-	}
-
-	@Override
-	public String getSerializedConfiguration()
-	{
-		CharArrayWriter writer = new CharArrayWriter();
-		try
-		{
-			Properties properties = samlProperties.getProperties();
-			properties.store(writer, "");
-		} catch (IOException e)
-		{
-			throw new IllegalStateException("Can not serialize endpoint's configuration", e);
-		}
-		return writer.toString();
 	}
 
 	@Override

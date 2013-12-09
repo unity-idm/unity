@@ -44,6 +44,84 @@ import xmlbeans.org.oasis.saml2.assertion.NameIDDocument;
 public class TestWSCore extends DBIntegrationTestBase
 {
 	@Test
+	public void testBlockAccess() throws Exception
+	{
+		setupMockAuthn();
+		createUsers();
+		
+		List<EndpointTypeDescription> endpointTypes = endpointMan.getEndpointTypes();
+		assertEquals(1, endpointTypes.size());
+		EndpointTypeDescription type = endpointTypes.get(0);
+
+		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
+		authnCfg.add(new AuthenticatorSet(Collections.singleton("Apass")));
+		endpointMan.deploy(type.getName(), "endpoint1", "/mock", "desc", authnCfg, "");
+
+		httpServer.start();
+		
+		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
+		clientCfg.setCredential(new KeystoreCredential("src/test/resources/demoKeystore.p12", 
+				"the!uvos".toCharArray(), "the!uvos".toCharArray(), "uvos", "PKCS12"));
+		clientCfg.setValidator(new KeystoreCertChainValidator("src/test/resources/demoTruststore.jks", 
+				"unicore".toCharArray(), "JKS", -1));
+		clientCfg.setSslEnabled(true);
+
+		clientCfg.setHttpUser("user1");
+		clientCfg.setHttpPassword("wrong");
+		clientCfg.setSslAuthn(false);
+		clientCfg.setHttpAuthn(true);
+		WSClientFactory factoryBad = new WSClientFactory(clientCfg);
+		MockWSSEI wsProxyBad = factoryBad.createPlainWSProxy(MockWSSEI.class, "https://localhost:2443/mock"+
+				MockWSEndpointFactory.SERVLET_PATH);
+		clientCfg.setHttpPassword("mockPassword1");
+		WSClientFactory factoryOK = new WSClientFactory(clientCfg);
+		MockWSSEI wsProxyOK = factoryOK.createPlainWSProxy(MockWSSEI.class, "https://localhost:2443/mock"+
+				MockWSEndpointFactory.SERVLET_PATH);
+
+		wsProxyOK.getAuthenticatedUser();
+		
+		//no blocking after this
+		for (int i=0; i<4; i++)
+		{
+			try
+			{
+				NameIDDocument retDoc = wsProxyBad.getAuthenticatedUser();
+				fail("Managed to authenticate with wrong password: " + retDoc.xmlText());
+			} catch (SOAPFaultException e)
+			{
+				//ok
+			}
+		}
+		
+		//reset
+		wsProxyOK.getAuthenticatedUser();
+		
+		//this should trigger blockade
+		for (int i=0; i<5; i++)
+		{
+			try
+			{
+				NameIDDocument retDoc = wsProxyBad.getAuthenticatedUser();
+				fail("Managed to authenticate with wrong password: " + retDoc.xmlText());
+			} catch (SOAPFaultException e)
+			{
+				//ok
+			}
+		}
+		
+		//this should be blocked
+		try
+		{
+			wsProxyOK.getAuthenticatedUser();
+			fail("Managed to authenticate with correct password when access should be blocked");
+		} catch (SOAPFaultException e)
+		{
+			//ok
+		}
+		
+	}
+	
+	@Test
 	public void test() throws Exception
 	{
 		setupMockAuthn();

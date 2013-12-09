@@ -13,7 +13,9 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.exceptions.AuthenticationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
+import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
+import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
@@ -25,6 +27,7 @@ import pl.edu.icm.unity.webui.registration.RegistrationRequestEditorDialog;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.UserError;
+import com.vaadin.server.VaadinService;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -51,15 +54,17 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 	private Button authenticateButton;
 	private UsernameComponent usernameComponent;
 	private InsecureRegistrationFormLauncher formLauncher;
+	private ExecutorsService execService;
 	
 	public AuthenticatorSetComponent(Map<String, VaadinAuthentication> authenticators,
 			AuthenticatorSet set, UnityMessageSource msg, AuthenticationProcessor authnProcessor,
-			InsecureRegistrationFormLauncher formLauncher,
+			InsecureRegistrationFormLauncher formLauncher, ExecutorsService execService,
 			final CancelHandler cancelHandler)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
 		this.formLauncher = formLauncher;
+		this.execService = execService;
 		boolean needCommonUsername = false;
 		setSpacing(true);
 		setMargin(true);
@@ -132,6 +137,15 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		@Override
 		public void buttonClick(ClickEvent event)
 		{
+			String ip = VaadinService.getCurrentRequest().getRemoteAddr();
+			UnsuccessfulAuthenticationCounter counter = AuthenticationProcessor.getLoginCounter();
+			if (counter.getRemainingBlockedTime(ip) > 0)
+			{
+				AccessBlockedDialog dialog = new AccessBlockedDialog(msg, execService);
+				dialog.show();
+				return;
+			}
+			
 			List<AuthenticationResult> results = new ArrayList<AuthenticationResult>();
 			for (String authenticator: set.getAuthenticators())
 			{
@@ -142,20 +156,18 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 			try
 			{
 				authnProcessor.processResults(results);
+			} catch (UnknownRemoteUserException e)
+			{
+				if (e.getFormForUser() != null)
+				{
+					showRegistration(e);
+					return;
+				} else
+				{
+					handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"));
+				}
 			} catch (AuthenticationException e)
 			{
-				if (e instanceof UnknownRemoteUserException)
-				{
-					UnknownRemoteUserException ee = (UnknownRemoteUserException) e;
-					if (ee.getFormForUser() != null)
-					{
-						showRegistration(ee);
-						return;
-					} else
-					{
-						handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"));
-					}
-				}
 				handleError(msg.getMessage(e.getMessage()));
 			}
 		}

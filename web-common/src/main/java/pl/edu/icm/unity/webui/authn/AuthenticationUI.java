@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Scope;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
@@ -68,19 +69,21 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private EndpointRegistrationConfiguration registrationConfiguration;
 	private InsecureRegistrationFormsChooserComponent formsChooser;
 	private InsecureRegistrationFormLauncher formLauncher;
-	
+	private ExecutorsService execService;
 	
 	@Autowired
 	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,
 			AuthenticationProcessor authnProcessor,
 			InsecureRegistrationFormsChooserComponent formsChooser,
-			InsecureRegistrationFormLauncher formLauncher)
+			InsecureRegistrationFormLauncher formLauncher,
+			ExecutorsService execService)
 	{
 		super(msg);
 		this.localeChoice = localeChoice;
 		this.authnProcessor = authnProcessor;
 		this.formsChooser = formsChooser;
 		this.formLauncher = formLauncher;
+		this.execService = execService;
 	}
 
 	@Override
@@ -109,7 +112,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		for (int i=0; i<components.length; i++)
 			components[i] = new AuthenticatorSetComponent(authenticators.get(i), 
 					description.getAuthenticatorSets().get(i), msg, authnProcessor, 
-					formLauncher, cancelHandler);
+					formLauncher, execService, cancelHandler);
 		Button registrationButton = buildRegistrationButton();
 		Component all = buildAllSetsUI(registrationButton, components);
 		

@@ -103,16 +103,17 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		context.addFilter(new FilterHolder(authnFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
 
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
+
 		authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticators, 
-				registrationConfiguration);
+				registrationConfiguration, genericEndpointProperties);
 		ServletHolder authnServletHolder = createServletHolder(authenticationServlet);
 		authnServletHolder.setInitParameter("closeIdleSessions", "true");
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
 		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
-				description, authenticators, registrationConfiguration);
+				description, authenticators, registrationConfiguration, genericEndpointProperties);
 		context.addServlet(createServletHolder(theServlet), servletPath + "/*");
 
 		return context;

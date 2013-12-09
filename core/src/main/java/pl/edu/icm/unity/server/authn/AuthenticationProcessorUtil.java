@@ -16,6 +16,8 @@ import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
  */
 public class AuthenticationProcessorUtil
 {
+	
+	
 	/**
 	 * Assumes that the input is a complete result of evaluation of all authenticators in a single set.
 	 * Returns an authenticated entity or throws an exception when there is a problem.

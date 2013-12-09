@@ -10,6 +10,8 @@ import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
+import com.vaadin.event.MouseEvents.ClickEvent;
+import com.vaadin.event.MouseEvents.ClickListener;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
@@ -96,6 +98,14 @@ public class ErrorPopup
 		{
 			HorizontalLayout main = new HorizontalLayout();
 			main.setSpacing(true);
+			addClickListener(new ClickListener()
+			{
+				@Override
+				public void click(ClickEvent event)
+				{
+					close();
+				}
+			});
 			Image img = new Image();
 			if (type == Type.ERROR_MESSAGE)
 			{
@@ -130,6 +140,7 @@ public class ErrorPopup
 			{
 				Label msgL = new Label(message, ContentMode.HTML);
 				msgL.addStyleName(Styles.textLarge.toString());
+				msgL.setWidth(30, Unit.EM);
 				right.addComponent(msgL);
 			}
 			main.addComponent(right);

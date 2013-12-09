@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
@@ -50,11 +52,13 @@ public class UnityVaadinServlet extends VaadinServlet
 	private transient List<Map<String, BindingAuthn>> authenticators;
 	private transient CancelHandler cancelHandler;
 	private transient EndpointRegistrationConfiguration registrationConfiguration;
+	private transient VaadinEndpointProperties vaadinEndpointProperties;
 	
 	public UnityVaadinServlet(ApplicationContext applicationContext, String uiBeanName,
 			EndpointDescription description,
 			List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration registrationConfiguration)
+			EndpointRegistrationConfiguration registrationConfiguration,
+			VaadinEndpointProperties vaadinEndpointProperties)
 	{
 		super();
 		this.applicationContext = applicationContext;
@@ -63,6 +67,23 @@ public class UnityVaadinServlet extends VaadinServlet
 		this.authenticators = authenticators;
 		this.config = applicationContext.getBean(UnityServerConfiguration.class);
 		this.registrationConfiguration = registrationConfiguration;
+		this.vaadinEndpointProperties = vaadinEndpointProperties;
+	}
+	
+	@Override
+	public void init(ServletConfig config) throws ServletException
+	{
+		super.init(config);
+		Object counter = getServletContext().getAttribute(UnsuccessfulAuthenticationCounter.class.getName());
+		if (counter == null)
+		{
+			int blockAfter = vaadinEndpointProperties.getIntValue(
+					VaadinEndpointProperties.BLOCK_AFTER_UNSUCCESSFUL);
+			int blockFor = vaadinEndpointProperties.getIntValue(VaadinEndpointProperties.BLOCK_FOR) * 1000;
+			getServletContext().setAttribute(UnsuccessfulAuthenticationCounter.class.getName(),
+					new UnsuccessfulAuthenticationCounter(blockAfter, blockFor));
+		}
+		
 	}
 	
 	public synchronized void updateAuthenticators(List<Map<String, BindingAuthn>> authenticators)

@@ -7,6 +7,8 @@ package pl.edu.icm.unity.webui.authn;
 import java.net.URI;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,8 @@ import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessorUtil;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
+import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
@@ -29,15 +33,16 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 import com.vaadin.server.Page;
+import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinSession;
+import com.vaadin.server.WrappedHttpSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.UI;
 
 /**
  * Handles results of authentication and if it is all right, redirects to the source application.
  * 
- * TODO - this is far from being complete: needs to support remote unresolved entities and
- * support fragments.
+ * TODO - this is far from being complete: needs to support fragments.
  * 
  * @author K. Benedyczak
  */
@@ -66,7 +71,18 @@ public class AuthenticationProcessor
 
 	public void processResults(List<AuthenticationResult> results) throws AuthenticationException
 	{
-		AuthenticatedEntity logInfo = AuthenticationProcessorUtil.processResults(results);
+		String ip = VaadinService.getCurrentRequest().getRemoteAddr();
+		UnsuccessfulAuthenticationCounter counter = getLoginCounter();
+		AuthenticatedEntity logInfo;
+		try
+		{
+			logInfo = AuthenticationProcessorUtil.processResults(results);
+		} catch (AuthenticationException e)
+		{
+			if (!(e instanceof UnknownRemoteUserException))
+				counter.unsuccessfulAttempt(ip);
+			throw e;
+		}
 		setLabel(logInfo);
 		WrappedSession session = logged(logInfo);
 
@@ -163,5 +179,12 @@ public class AuthenticationProcessor
 		Page p = Page.getCurrent();
 		URI currentLocation = p.getLocation();
 		p.setLocation(currentLocation);
+	}
+	
+	public static UnsuccessfulAuthenticationCounter getLoginCounter()
+	{
+		HttpSession httpSession = ((WrappedHttpSession)VaadinSession.getCurrent().getSession()).getHttpSession();
+		return (UnsuccessfulAuthenticationCounter) httpSession.getServletContext().getAttribute(
+				UnsuccessfulAuthenticationCounter.class.getName());
 	}
 }
