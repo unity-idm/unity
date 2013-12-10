@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webadmin.identities;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import com.vaadin.ui.ComboBox;
@@ -20,30 +22,48 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
 public class RemoveAttributeColumnDialog extends AbstractDialog
 {
 	protected Callback callback;
-	private Set<String> alreadyUsed;
+	private Set<String> alreadyUsedInRoot;
+	private Set<String> alreadyUsedInCurrent;
+	private String currentGroup;
+	private Map<String, String> labelsToAttr;
 	
 	private ComboBox attributeType;
 	
 	
-	public RemoveAttributeColumnDialog(UnityMessageSource msg, Set<String> alreadyUsed, Callback callback)
+	public RemoveAttributeColumnDialog(UnityMessageSource msg, Set<String> alreadyUsedInRoot, 
+			Set<String> alreadyUsedInCurrent, String currentGroup, Callback callback)
 	{
 		super(msg, msg.getMessage("RemoveAttributeColumnDialog.caption"));
-		this.alreadyUsed = alreadyUsed;
+		this.alreadyUsedInCurrent = alreadyUsedInCurrent;
+		this.alreadyUsedInRoot = alreadyUsedInRoot;
 		this.callback = callback;
 		this.defaultSizeUndfined = true;
+		this.currentGroup = currentGroup;
 	}
 
 	@Override
 	protected FormLayout getContents()
 	{
+		labelsToAttr = new HashMap<>();
 		Label info = new Label(msg.getMessage("RemoveAttributeColumnDialog.info"));
 		attributeType = new ComboBox(msg.getMessage("RemoveAttributeColumnDialog.attribute"));
-		for (String at: alreadyUsed)
+		for (String at: alreadyUsedInRoot)
 		{
-			attributeType.addItem(at);
+			String key = at + "@/";
+			attributeType.addItem(key);
+			labelsToAttr.put(key, at + "@//" );
 		}
-		if (alreadyUsed.size()>0)
-			attributeType.select(alreadyUsed.iterator().next());
+		for (String at: alreadyUsedInCurrent)
+		{
+			String key = at + "@" + currentGroup;
+			attributeType.addItem(key);
+			labelsToAttr.put(key, at + "@/" + currentGroup );
+		}
+		if (alreadyUsedInRoot.size()>0)
+			attributeType.select(alreadyUsedInRoot.iterator().next() + "@/");
+		else if (alreadyUsedInCurrent.size()>0)
+			attributeType.select(alreadyUsedInCurrent.iterator().next() + "@" + currentGroup);
+
 		attributeType.setNullSelectionAllowed(false);
 		FormLayout main = new FormLayout();
 		main.addComponents(info, attributeType);
@@ -55,12 +75,21 @@ public class RemoveAttributeColumnDialog extends AbstractDialog
 	protected void onConfirm()
 	{
 		String selected = (String)attributeType.getValue();
-		callback.onChosen(selected);
+		if (selected == null)
+		{
+			close();
+			return;
+		}
+		String parsable = labelsToAttr.get(selected);
+		int split = parsable.lastIndexOf("@/");
+		String group = parsable.substring(split+2);
+		String attr = parsable.substring(0, split);
+		callback.onChosen(attr, group);
 		close();
 	}
 	
 	public interface Callback 
 	{
-		public void onChosen(String attributeType);
+		public void onChosen(String attributeType, String group);
 	}
 }

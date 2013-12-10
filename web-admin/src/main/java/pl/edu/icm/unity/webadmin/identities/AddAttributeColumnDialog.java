@@ -5,8 +5,8 @@
 package pl.edu.icm.unity.webadmin.identities;
 
 import java.util.Collection;
-import java.util.Set;
 
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
@@ -25,16 +25,15 @@ public class AddAttributeColumnDialog extends AbstractDialog
 {
 	private AttributesManagement attrsMan;
 	protected Callback callback;
-	private Set<String> alreadyUsed;
 	
 	private ComboBox attributeType;
+	private CheckBox useRootGroup;
 	
 	
 	public AddAttributeColumnDialog(UnityMessageSource msg, AttributesManagement attrsMan, 
-			Set<String> alreadyUsed, Callback callback)
+			Callback callback)
 	{
 		super(msg, msg.getMessage("AddAttributeColumnDialog.caption"));
-		this.alreadyUsed = alreadyUsed;
 		this.attrsMan = attrsMan;
 		this.callback = callback;
 		this.defaultSizeUndfined = true;
@@ -59,19 +58,19 @@ public class AddAttributeColumnDialog extends AbstractDialog
 		String sel = null;
 		for (AttributeType at: attrTypes)
 		{
-			if (!alreadyUsed.contains(at.getName()))
-			{
-				attributeType.addItem(at.getName());
-				if (sel == null)
-					sel = at.getName();
-			}
+			attributeType.addItem(at.getName());
+			if (sel == null)
+				sel = at.getName();
 		}
 		if (sel != null)
 			attributeType.select(sel);
 		attributeType.setNullSelectionAllowed(false);
 		
+		useRootGroup = new CheckBox(msg.getMessage("AddAttributeColumnDialog.useRootGroup"), true);
+		useRootGroup.setDescription(msg.getMessage("AddAttributeColumnDialog.useRootGroupTooltip"));
+		
 		FormLayout main = new FormLayout();
-		main.addComponents(info, info2, attributeType);
+		main.addComponents(info, info2, attributeType, useRootGroup);
 		main.setSizeFull();
 		return main;
 	}
@@ -79,12 +78,13 @@ public class AddAttributeColumnDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		callback.onChosen((String)attributeType.getValue());
+		String group = useRootGroup.getValue() ? "/" : null;
+		callback.onChosen((String)attributeType.getValue(), group);
 		close();
 	}
 	
 	public interface Callback 
 	{
-		public void onChosen(String attributeType);
+		public void onChosen(String attributeType, String group);
 	}
 }

@@ -97,15 +97,14 @@ public class IdentitiesComponent extends Panel
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				Set<String> alreadyUsed = IdentitiesComponent.this.identitiesTable.getAttributeColumns();
 				new AddAttributeColumnDialog(IdentitiesComponent.this.msg, 
-						attrsMan, alreadyUsed, new Callback()
+						attrsMan, new Callback()
 						{
 							@Override
-							public void onChosen(String attributeType)
+							public void onChosen(String attributeType, String group)
 							{
 								IdentitiesComponent.this.identitiesTable.
-									addAttributeColumn(attributeType);
+									addAttributeColumn(attributeType, group);
 							}
 						}).show(); 
 			}
@@ -119,15 +118,19 @@ public class IdentitiesComponent extends Panel
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				Set<String> alreadyUsed = IdentitiesComponent.this.identitiesTable.getAttributeColumns();
-				new RemoveAttributeColumnDialog(IdentitiesComponent.this.msg, alreadyUsed, 
+				Set<String> alreadyUsedRoot = 
+						IdentitiesComponent.this.identitiesTable.getAttributeColumns(true);
+				Set<String> alreadyUsedCurrent = 
+						IdentitiesComponent.this.identitiesTable.getAttributeColumns(false);
+				new RemoveAttributeColumnDialog(IdentitiesComponent.this.msg, alreadyUsedRoot,
+						alreadyUsedCurrent, IdentitiesComponent.this.identitiesTable.getGroup(),
 						new RemoveAttributeColumnDialog.Callback()
 						{
 							@Override
-							public void onChosen(String attributeType)
+							public void onChosen(String attributeType, String group)
 							{
 								IdentitiesComponent.this.identitiesTable.
-									removeAttributeColumn(attributeType);
+									removeAttributeColumn(group, attributeType);
 							}
 						}).show(); 
 			}
@@ -214,10 +217,24 @@ public class IdentitiesComponent extends Panel
 			@Override
 			public void handleEvent(AttributeChangedEvent event)
 			{
-				Set<String> interesting = IdentitiesComponent.this.identitiesTable.getAttributeColumns();
+				Set<String> interestingCurrent = 
+						IdentitiesComponent.this.identitiesTable.getAttributeColumns(false);
 				String curGroup = IdentitiesComponent.this.identitiesTable.getGroup();
-				if (interesting.contains(event.getAttributeName()) && curGroup.equals(event.getGroup()))
+				if (interestingCurrent.contains(event.getAttributeName()) && curGroup.equals(event.getGroup()))
+				{
 					setGroup(curGroup);
+					return;
+				}
+				if (curGroup.equals("/") && curGroup.equals(event.getGroup()))
+				{
+					Set<String> interestingRoot = 
+						IdentitiesComponent.this.identitiesTable.getAttributeColumns(true);
+					if (interestingRoot.contains(event.getAttributeName()))
+					{
+						setGroup(curGroup);
+						return;
+					}
+				}
 			}
 		}, AttributeChangedEvent.class);
 		setGroup(null);

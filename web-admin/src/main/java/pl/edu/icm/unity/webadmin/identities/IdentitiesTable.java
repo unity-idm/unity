@@ -67,6 +67,8 @@ import com.vaadin.ui.TreeTable;
 public class IdentitiesTable extends TreeTable
 {
 	public static final String ATTR_COL_PREFIX = "a::";
+	public static final String ATTR_ROOT_COL_PREFIX = ATTR_COL_PREFIX + "root::";
+	public static final String ATTR_CURRENT_COL_PREFIX = ATTR_COL_PREFIX + "current::";
 	private IdentitiesManagement identitiesMan;
 	private GroupsManagement groupsMan;
 	private UnityMessageSource msg;
@@ -216,25 +218,34 @@ public class IdentitiesTable extends TreeTable
 		updateContents();
 	}
 	
-	public void addAttributeColumn(String attribute)
+	/**
+	 * Adds a new attribute column. 
+	 * @param attribute
+	 * @param group group from where the attribute's value should be displayed. If it is null then the current 
+	 * group is used. Otherwise root group is assumed (in future other 'fixed' groups might be supported, 
+	 * but it isn't implemented yet)
+	 */
+	public void addAttributeColumn(String attribute, String group)
 	{
-		String key = ATTR_COL_PREFIX+attribute;
+		String key = (group == null) ? ATTR_CURRENT_COL_PREFIX+attribute : ATTR_ROOT_COL_PREFIX+attribute;
 		addContainerProperty(key, String.class, "");
-		setColumnHeader(key, attribute);
+		setColumnHeader(key, attribute + (group == null ? "@" + this.group : "@/"));
 		refresh();
 	}
 
-	public void removeAttributeColumn(String... attributes)
+	public void removeAttributeColumn(String group, String... attributes)
 	{
 		for (String attribute: attributes)
 		{
-			String key = ATTR_COL_PREFIX+attribute;
-			removeContainerProperty(key);
+			if (group.equals("/"))
+				removeContainerProperty(ATTR_ROOT_COL_PREFIX + attribute);
+			if (group.equals(this.group))
+				removeContainerProperty(ATTR_CURRENT_COL_PREFIX + attribute);
 		}
 		refresh();
 	}
 	
-	public Set<String> getAttributeColumns()
+	public Set<String> getAttributeColumns(boolean root)
 	{
 		Collection<?> props = getContainerPropertyIds();
 		Set<String> ret = new HashSet<String>();
@@ -243,10 +254,33 @@ public class IdentitiesTable extends TreeTable
 			if (!(prop instanceof String))
 				continue;
 			String property = (String) prop;
-			if (property.startsWith(ATTR_COL_PREFIX))
-				ret.add(property.substring(ATTR_COL_PREFIX.length()));
+			if (root)
+			{
+				if (property.startsWith(ATTR_ROOT_COL_PREFIX))
+					ret.add(property.substring(ATTR_ROOT_COL_PREFIX.length()));
+			} else
+			{
+				if (property.startsWith(ATTR_CURRENT_COL_PREFIX))
+					ret.add(property.substring(ATTR_CURRENT_COL_PREFIX.length()));
+			}
 		}
 		return ret;
+	}
+
+	private void updateAttributeColumnHeaders()
+	{
+		Collection<?> props = getContainerPropertyIds();
+		for (Object prop: props)
+		{
+			if (!(prop instanceof String))
+				continue;
+			String property = (String) prop;
+			if (property.startsWith(ATTR_CURRENT_COL_PREFIX))
+			{
+				String attrName = property.substring(ATTR_CURRENT_COL_PREFIX.length());
+				setColumnHeader(property, attrName + "@" + this.group);
+			}
+		}
 	}
 	
 	public void addFilter(Filter filter)
@@ -264,8 +298,10 @@ public class IdentitiesTable extends TreeTable
 		refresh();
 	}
 	
+	
 	private void updateContents()
 	{
+		updateAttributeColumnHeaders();
 		Object selected = getValue();
 		removeAllItems();
 		if (groupByEntity)
@@ -286,12 +322,12 @@ public class IdentitiesTable extends TreeTable
 		for (IdentitiesAndAttributes entry: data.values())
 		{
 			Entity entity = entry.getEntity();
-			Object parentKey = addRow(null, entity, entry.getAttributes());
+			Object parentKey = addRow(null, entity, entry.getRootAttributes(), entry.getCurrentAttributes());
 			if (selected != null && selected.equals(parentKey))
 				setValue(parentKey);
 			for (Identity id: entry.getIdentities())
 			{
-				Object key = addRow(id, entity, entry.getAttributes());
+				Object key = addRow(id, entity, entry.getRootAttributes(), entry.getCurrentAttributes());
 				setParent(key, parentKey);
 				setChildrenAllowed(key, false);
 				if (selected != null && selected.equals(key))
@@ -308,7 +344,8 @@ public class IdentitiesTable extends TreeTable
 		{
 			for (Identity id: entry.getIdentities())
 			{
-				Object itemId = addRow(id, entry.getEntity(), entry.getAttributes());
+				Object itemId = addRow(id, entry.getEntity(), entry.getRootAttributes(), 
+						entry.getCurrentAttributes());
 				setChildrenAllowed(itemId, false);
 				if (selected != null && selected.equals(itemId))
 					setValue(itemId);
@@ -317,11 +354,12 @@ public class IdentitiesTable extends TreeTable
 	}
 	
 	@SuppressWarnings("unchecked")
-	private Object addRow(Identity id, Entity ent, Map<String, Attribute<?>> attributes)
+	private Object addRow(Identity id, Entity ent, Map<String, Attribute<?>> rootAttributes, 
+			Map<String, Attribute<?>> curAttributes)
 	{
 		String label = null;
-		if (entityNameAttribute != null && attributes.containsKey(entityNameAttribute))
-			label = attributes.get(entityNameAttribute).getValues().get(0).toString() + " ";
+		if (entityNameAttribute != null && rootAttributes.containsKey(entityNameAttribute))
+			label = rootAttributes.get(entityNameAttribute).getValues().get(0).toString() + " ";
 		EntityWithLabel entWithLabel = new EntityWithLabel(ent, label);
 		Object itemId = id == null ? entWithLabel : new IdentityWithEntity(id, entWithLabel);
 		Item newItem = addItem(itemId);
@@ -347,10 +385,9 @@ public class IdentitiesTable extends TreeTable
 			if (!(propertyId instanceof String))
 				continue;
 			String propId = (String) propertyId;
-			if (!propId.startsWith("a::"))
+			if (!propId.startsWith(ATTR_COL_PREFIX))
 				continue;
-			String attributeName = propId.substring(3);
-			Attribute<?> attribute = attributes.get(attributeName);
+			Attribute<?> attribute = getAttributeForColumnProperty(propId, rootAttributes, curAttributes);
 			String val;
 			if (attribute == null)
 				val = msg.getMessage("Identities.attributeUndefined");
@@ -363,16 +400,35 @@ public class IdentitiesTable extends TreeTable
 		return itemId;
 	}
 	
+	private Attribute<?> getAttributeForColumnProperty(String propId, Map<String, Attribute<?>> rootAttributes, 
+			Map<String, Attribute<?>> curAttributes)
+	{
+		if (propId.startsWith(ATTR_CURRENT_COL_PREFIX))
+		{
+			String attributeName = propId.substring(ATTR_CURRENT_COL_PREFIX.length());
+			return curAttributes.get(attributeName);
+		} else
+		{
+			String attributeName = propId.substring(ATTR_ROOT_COL_PREFIX.length());
+			return rootAttributes.get(attributeName);
+		}
+	}
+	
 	private void resolveEntity(long entity) throws EngineException
 	{
 		Entity resolvedEntity = identitiesMan.getEntity(new EntityParam(entity));
-		Collection<AttributeExt<?>> rawAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
+		Collection<AttributeExt<?>> rawRootAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
 				true, "/", null, true);
-		Map<String, Attribute<?>> attrs = new HashMap<String, Attribute<?>>(rawAttrs.size());
-		for (Attribute<?> a: rawAttrs)
-			attrs.put(a.getName(), a);
+		Collection<AttributeExt<?>> rawCurAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
+				true, this.group, null, true);
+		Map<String, Attribute<?>> rootAttrs = new HashMap<String, Attribute<?>>(rawRootAttrs.size());
+		Map<String, Attribute<?>> curAttrs = new HashMap<String, Attribute<?>>(rawRootAttrs.size());
+		for (Attribute<?> a: rawRootAttrs)
+			rootAttrs.put(a.getName(), a);
+		for (Attribute<?> a: rawCurAttrs)
+			curAttrs.put(a.getName(), a);
 		IdentitiesAndAttributes resolved = new IdentitiesAndAttributes(resolvedEntity, 
-				resolvedEntity.getIdentities(),	attrs);
+				resolvedEntity.getIdentities(),	rootAttrs, curAttrs);
 		data.put(resolvedEntity.getId(), resolved);
 	}
 	
@@ -727,21 +783,28 @@ public class IdentitiesTable extends TreeTable
 	{
 		private Entity entity;
 		private Identity[] identities;
-		private Map<String, Attribute<?>> attributes;
+		private Map<String, Attribute<?>> rootAttributes;
+		private Map<String, Attribute<?>> currentAttributes;
 
-		public IdentitiesAndAttributes(Entity entity, Identity[] identities, Map<String, Attribute<?>> attributes)
+		public IdentitiesAndAttributes(Entity entity, Identity[] identities, 
+				Map<String, Attribute<?>> rootAttributes, Map<String, Attribute<?>> currentAttributes)
 		{
 			this.identities = identities;
-			this.attributes = attributes;
+			this.rootAttributes = rootAttributes;
+			this.currentAttributes = currentAttributes;
 			this.entity = entity;
 		}
 		public Identity[] getIdentities()
 		{
 			return identities;
 		}
-		public Map<String, Attribute<?>> getAttributes()
+		public Map<String, Attribute<?>> getRootAttributes()
 		{
-			return attributes;
+			return rootAttributes;
+		}
+		public Map<String, Attribute<?>> getCurrentAttributes()
+		{
+			return currentAttributes;
 		}
 		public Entity getEntity()
 		{
