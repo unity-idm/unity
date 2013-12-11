@@ -105,7 +105,8 @@ public class UnicoreContentInitializer implements ServerInitializer
 			
 		} catch (Exception e)
 		{
-			log.error("Error loading UNICORE contents", e);
+			log.warn("Error loading default UNICORE contents. This is not critical and usaully " +
+					"means that your existing data is in conflict with the loaded contents.", e);
 		}
 	}
 

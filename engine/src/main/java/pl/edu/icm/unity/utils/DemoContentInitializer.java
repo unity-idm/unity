@@ -126,7 +126,9 @@ public class DemoContentInitializer implements ServerInitializer
 					pToken.toJson());
 		} catch (Exception e)
 		{
-			log.error("Error loading demo contents", e);
+			log.warn("Error loading demo contents. This can happen and by far is not critical. " +
+					"It means that demonstration contents was not loaded to your database, " +
+					"usaully due to conflict with its existing data", e);
 		}
 	}
 

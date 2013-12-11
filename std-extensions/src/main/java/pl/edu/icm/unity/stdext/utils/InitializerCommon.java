@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -141,7 +142,13 @@ public class InitializerCommon
 		StringAttribute cnA = new StringAttribute(CN_ATTR, "/", AttributeVisibility.full, 
 				"Default Administrator");
 		EntityParam entity = new EntityParam(new IdentityTaV(UsernameIdentity.ID, adminU));
-		if (attrMan.getAttributes(entity, "/", CN_ATTR).isEmpty())
-			attrMan.setAttribute(entity, cnA, false);
+		try
+		{
+			if (attrMan.getAttributes(entity, "/", CN_ATTR).isEmpty())
+				attrMan.setAttribute(entity, cnA, false);
+		} catch (IllegalIdentityValueException e)
+		{
+			//ok - no default admin, no default CN.
+		}
 	}
 }
