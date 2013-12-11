@@ -538,8 +538,12 @@ public class EngineInitialization extends LifecycleBase
 	{
 		try
 		{
-			if (notManagement.getNotificationChannels().size() > 0)
-				return;
+			Map<String, NotificationChannel> existingChannels = notManagement.getNotificationChannels();
+			for (String key: existingChannels.keySet())
+			{
+				notManagement.removeNotificationChannel(key);
+				log.info("Removed old definition of the notification channel " + key);
+			}
 			if (!config.isSet(UnityServerConfiguration.MAIL_CONF))
 			{
 				log.info("Mail configuration file is not set, mail notification channel won't be loaded.");
@@ -551,6 +555,8 @@ public class EngineInitialization extends LifecycleBase
 					UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL, 
 					"Default email channel", mailCfg, EmailFacility.NAME);
 			notManagement.addNotificationChannel(emailCh);
+			log.info("Created a notification channel: " + emailCh.getName() + " [" + 
+					emailCh.getFacilityId() + "]");
 		} catch (Exception e)
 		{
 			log.fatal("Can't load e-mail notification channel configuration", e);
