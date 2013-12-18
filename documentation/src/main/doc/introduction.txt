@@ -1,0 +1,176 @@
+== What (for) is Unity?
+
+In short Unity is a *complete solution for identity, federation and inter-federation management*.
+Or, looking at the same functional area from a different perspective, it is an *extremely flexible authentication
+solution*.
+
+Unity allows its administrators to enable authentication (or login) using various protocols, with different 
+configurations. The actual authentication can be performed using the built-in users database or can be delegated to
+one of supported upstream identity providers (IdPs). The information obtained from upstream IdPs can be flexibly 
+translated and merged with the local database if needed and re-exported using other protocols.
+Those fundamental usage pattern is shown on the figure below.  
+
+image::./figures/general.png[alt="Unity general function as a versatile authentication platform",align="center",scaledwidth="50%"]
+
+
+[NOTE]
+Unity is under a heavy development. Not all extensions and functions of the engine which are on the presented
+figures and even some of the enumerated use-cases are already available/doable. We plan to deliver the remaining
+fundamental (and many other) features soon. For the actual information on what is supported check the <<features-info>>
+section.  
+
+The most important design principles of Unity are:
+
+- *Simplicity* There are tons of competitive solutions, but we found most of them terribly difficult to install and
+maintain. We try hard to make Unity as user friendly as possible.
+- *Extensibility* There is a plethora of authentication protocols, credential systems, IDM solutions and 
+issues related to their coordination. We can't support all of them right from the start. But we should be able to 
+seamlessly support most, if not all, of them. Unity is designed to be truly extensible in all places 
+where it makes sense to do so.
+- *Security* We doesn't provide inherently insecure solutions in Unity. No, it is not possible to use MD5 hashes
+of passwords in the local database.
+
+
+What is important to underline here: _Unity is NOT yet another bundle of several, coupled together systems_. It 
+is a solution built from the ground up. All pieces perfectly fit together. Startup is fast. Administration of all 
+parts is performed in the same style. And the whole solution is fully web and cloud ready.
+
+
+=== Use cases
+
+We believe that the amount of Unity use-cases is endless. Here are some:
+
+
+. Web application developers want to secure it with authentication, provide user accounts with different authorization
+roles (admin, customer, ...) and a couple of personal attributes.
+[none]
+- icon:check[role="green"] Instead of developing the system, this whole functionality can be outsourced to Unity, 
+	after a simple step of integration with the protocol of choice as SAML or OpenID. What is more, 
+	the increasing user-management requirements will not require any more development steps. Secure password reset? 
+	Yes, it's here.
+
+. University wants to integrate its users with a national educational SAML federation.
+[none]
+- icon:check[role="green"] Unity can be a drop in replacement of other SAML IdP as Shibboleth. 
+    And instantly delivers functionality
+    of often needed add-ons (as Internet2 Grouper, authN extensions). It doens't require to install additional 
+    user databases (as LDAP) - everything is included. And even better, Unity can still expose the local LDAP
+    instance.
+        
+. Commercial company wants to enable an advanced authentication for their suite of cloud applications:
+  multifactor authentication (MFA) for sensitive management applications and social network logins for customer-oriented
+  interfaces. Still with an ability to control who uses what, how often, block unwanted users, 
+  with user profile management UI for the users.
+[none]
+- icon:check[role="green"] This is the same situation as in the first use-case: it is only a matter of 
+  a different configuration of Unity.
+		
+. University, which is already integrated with a SAML federation, wants to join also another SAML federation.
+[none] 
+- icon:check[role="green"] Instead of setting up (and what is much worse: maintaining) 
+      a second instance of IdP service, Unity can expose
+      several SAML endpoints, with different configurations, so the new federation can be joined immediately.
+		    
+. Organization wants to offer its web resources to several SAML federations. At the same time people authenticating 
+  with the social logins as Google accounts should be let in to, but only after filling a registration form and 
+  after successful vetting by the organization's staff.
+[none]
+- icon:check[role="green"] Unity allows for arbitrary number of configuration of authentication 
+  endpoints and sources. The above task 
+  can be simply achieved by using several Unity authentication configurations together and the ability
+  to define and deploy registration forms. Of course registration can be bound to the concrete authentication
+  pipleines.
+ 		
+     
+      
+
+=== Details for IT professionals
+
+Internally Unity is composed from two parts: 
+
+ - An orchestration platform, or a container of highly specialized extensions.
+ - A rich (and growing) set of extensions providing support for the actual Unity features.
+ 
+Unity extensibility is the the core concept, and there are no exceptions. For instance 
+each and every supported credential type is an extension, there are no 'hardcoded' ones.
+
+The core platform provides persistence of the service state (i.e. managed entities, attributes, groups, etc),
+extensions management and orchestration and additionally several cross cutting features. Such core features
+are preferences management, notifications, registrations support etc. 
+ 
+Unity is written solely in Java 7, which is the single hard installation requirement. All used technologies 
+are as lightweight as possible. Unity works as set of services available via an HTTP server, 
+which is embedded (Jetty). Therefore there is no need to install it behind an existing HTTP or servlet server, or 
+even worse to setup a JEE container to run Unity. 
+
+The most of the Unity functionality is controlled via rich its web-admin interface. However several things needs to 
+be set up in configuration files. 
+
+
+image::./figures/local.png[alt="Powerful, built-in Unity identity management subsystem",align="center",scaledwidth="50%"]
+
+
+
+[glossary]
+=== General Unity concepts
+
+Below we present a glossary of key terms which are used throughout this manual.
+
+Endpoint::
+ Unity provides a couple of modules which are used to access the Unity. Those modules are called endpoint types. 
+ Each endpoint type can be deployed multiple times, with different configuration. A deployed and configured endpoint type
+ is called endpoint instance or endpoint for short. Examples: web admin UI is an endpoint type providing 
+ web browser management access; SAML SOAP authentication is enabled by another endpoint.
+
+Entity::
+ Entity is used to describe a principal that can try to authenticate using Unity, have assigned attributes etc.
+ In practice it is a user or software agent. 
+ 
+Identity::
+ Each entity can have one or more representations.  Each representation is called identity. Identities have its type,
+ as _username_ or _X.500 Distinguished Name_ (DN) which defines its syntax, equality rules etc. If an entity has 
+ several identities attached, then all are equivalent. This is used to provide aliases for the same principal,
+ at the same time supporting different authentication systems, which represent principals in different ways.  
+
+Credentials (local)::
+ Credentials are associated with entities and are used to perform local entity authentication. When authentication
+ is done using a remote IdP, then the local credential is not used. Therefore some entities may have no local 
+ credentials, if only the remote authentication is allowed for them. Credential implementations are pluggable. 
+ Each implementation may be configured differently and each configured credential is called credential type.   
+ For example there is a password credential implementation, which can be configured two times: as a _secured password_
+ which requires 3 character classes and minimal length of 8 characters and as a _simple password_ with
+ less strict requirements. 
+
+Credential requirement::
+ Credential requirement is a simple, named set of credential types. Credential requirement is assigned to an entity 
+ and defines which credential types make sense and can be used for the entity. Using credential requirements, the
+ ordinary system users may have a simple password credential type assigned, managers a secured password and 
+ administrators tuple of secured password and certificate to employ a more secure authentication. 
+
+Attributes and attribute types::
+ Attributes are assigned to entities and are valid in a scope a group, i.e. attributes are always 
+ assigned in a concrete group. Attribute can have from zero to many values. Values must have a common syntax, Unity
+ supports several syntaxes as strings or JPEG photos. Attribute has its type, which define the rules for 
+ an attribute in the system, in the first place its name and values syntax.   
+
+Group::
+ Groups are nodes in a tree-like structure and contain entities. Groups are hierarchical, i.e. each member
+ of a subgroup must be the member of the parent group. Groups not only are used to logically group/sort members but
+ provide additional automatic content management features as automatic attributes assignment via attribute statements. 
+
+Attribute statements::
+ Attribute statements are defined in a group. Attribute statement automatically assigns an attribute to selected 
+ members of the group. For instance there are statements which can copy an attribute X for all users which has 
+ X attribute in a parent group to the current group (what enables attributes propagation). 
+
+Attribute class::
+ Attribute class defines which attributes (more properly: which attribute types) are allowed and/or mandatory. 
+ Attribute class is assigned either to a group (then it governs the settings for all group members) or to a specific
+ group member. Attribute classes can be organized in a hierarchical structure, where more complex classes inherit 
+ definitions from basic classes.
+
+Upstream or remote IdP::
+ An external service which is used by Unity to perform authentication. Upstream IdPs can return more information about
+ the authenticated user (besides the fact that the user correctly authenticated with as a given identity). Unity is
+ able to make use of this information: translate it and insert to the local database.
+

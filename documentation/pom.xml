@@ -1,0 +1,151 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<groupId>pl.edu.icm.unity</groupId>
+		<artifactId>unity-server-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>unity-documentation</artifactId>
+	<packaging>pom</packaging>
+	<name>UNITY ${m.name} module</name>
+	<description>Documentation of the whole Unity system</description>
+
+	<properties>
+		<m.name>documentation</m.name>
+	</properties>
+
+	<scm>
+		<connection>${scm.base}/${m.name}</connection>
+		<developerConnection>${scm.base}/${m.name}</developerConnection>
+	</scm>
+
+	<repositories>
+		<repository>
+			<id>unicore.eu</id>
+			<name>UNICORE repository</name>
+			<url>http://unicore-dev.zam.kfa-juelich.de/maven</url>
+		</repository>
+	</repositories>
+
+	<distributionManagement>
+		<site>
+			<id>unicore.eu</id>
+			<url>dav:https://unicore-dev.zam.kfa-juelich.de/documentation/unity-${project.version}</url>
+		</site>
+	</distributionManagement>
+
+	<dependencies>
+		<!-- dependencies are used to generate documentation from the code -->
+
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-types</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- Those two guys disable inherited docman which we doen't use -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>${exec.maven.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>svn</id>
+						<phase>pre-site</phase>
+						<configuration>
+							<skip>true</skip>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>run</id>
+						<phase>pre-site</phase>
+						<configuration>
+							<skip>true</skip>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+		<!-- the current asciidoctor maven plugin is outdated -->
+		<!-- 
+			<plugin>
+				<groupId>org.asciidoctor</groupId>
+				<artifactId>asciidoctor-maven-plugin</artifactId>
+				<version>0.1.3.1</version>
+				<executions>
+					<execution>
+						<id>output-html</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>process-asciidoc</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<outputDirectory>${project.reporting.outputDirectory}</outputDirectory>
+					<sourceDocumentName>src/main/doc/manual.txt</sourceDocumentName>
+					<backend>html5</backend>
+				</configuration>
+			</plugin>
+			 -->
+			 
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>${exec.maven.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>asciidoctor</id>
+						<phase>pre-site</phase>
+						<configuration>
+							<executable>asciidoctor</executable>
+							<arguments>
+								<argument>-D</argument>
+								<argument>${project.reporting.outputDirectory}</argument>
+								<argument>src/main/doc/manual.txt</argument>
+							</arguments>
+						</configuration>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.6</version>
+				<executions>
+					<execution>
+						<id>copy-documentation-images</id>
+						<phase>pre-site</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.reporting.outputDirectory}/figures</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/doc/figures</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

@@ -1,0 +1,111 @@
+== Installation and operation manual
+
+=== Prerequisites
+
+Unity is tested on the Linux platform. Also other variants of Unix should be fine to run Unity.  
+
+Unity theoretically can be run on Windows server, however we neither provide startup scripts for windows nor
+test it. If you would love to run Unity on Windows machine, write to the support mailing list. 
+
+Unity is distributed with everything needed to install and run the system except of Java. 
+Java Runtime Environment 7 must be installed, both OpenJDK and Oracle distributions are supported.
+It is strongly advised to use the latest, updated version of the JRE.
+
+=== Fresh installation
+
+If the +.tar.gz+ version is used, it must be simply downloaded and unpacked. A directory with Unity version
+number is included. Typically the start script should be created or integrated with the startup system of the
+machine. It is also a good idea to add the +INSTALLATION_DIRECTORY/bin/+ folder to the +PATH+ environment variable,
+so the scripts are instantly available. This is assumed later on in all examples.  
+
+If the +.rpm+ version is used it should be installed with the package manager. The only dependency is Java JRE,
+which will be installed automatically if not yet available on the machine. The startup scripts are also installed
+automatically. 
+
+[NOTE]
+In case of RPM installation the standard Linux directory layout is used. This manual uses the names of Unity 
+subdirectories as found in the +.tar.gz+ distribution. The mapping of those folders to locations used in the case of 
+the RPM installation is as follows:
+
+[options="header"]
+|===
+|+tar.gz+		| RPM 
+|bin/			| /usr/sbin/
+|lib/			| /usr/share/unity-idm/lib/
+|logs/			| /var/log/unity-idm/
+|data/			| /var/lib/unity-idm/data/
+|conf/			| /etc/unity-idm/
+|===
+
+Unity can be started right away, but most probably the default setting should be changed. 
+Please refer to the <<quick_start>> or <<configuration>> sections for a short or detailed information how to 
+configure the system.
+
+=== Starting and stopping the server
+
+Starting is simple:
+
+----
+$> unity-start
+----
+
+It is always good to check the log files. The +log/unity-startup.log+ should contain only few lines saying that
+the server started successfully. If there are any errors there, it means that a very low level problem happened, 
+for instance the JRE is not available. The +log/unity-server.log+ should provide a more detailed information, 
+which should be also checked. There should be no +ERROR+ and no +WARN+ entries.
+
+Stopping the server is simple as well:
+
+----
+$> unity-stop
+----
+
+
+=== Update
+
+When using the +.tar.gz+ the update can be conveniently performed on a single machine, in a safe way: 
+
+. Install the updated version in a separate directory as in the case of a fresh installation.
+. Configure it with the settings of the running instance, however change the port to any other which is free. 
+. Apply any required changes in configuration, e.g. to enable new features of the updated version.
+. Create a dump of the server state on the running instance.
+. Start the new instance (next to the old one).
+. Load the dumped state to the new instance and test it.
+. If everything is all right stop it and change its port to the correct port used by the old service.
+. If needed create an another, up-to-date dump of the old service state and stop it.
+. Start the new service and load the latest dump.
+. If needed reconfigure startup scripts to start the updated service, as well as update the +PATH+ variable to use
+new Unity binaries location. It is a good practice to have a symbolic link to the actual Unity installation directory
+that is used in the +PATH+ and startup scripts. Then it is possible to simply change its target to the updated 
+service directory.
+
+The above procedure is long but allows for a detailed testing of the service before rolling it out into production.
+Of course if you want to be quick and unsafe, you can skip the testing phase.
+
+If using the RPM installation method, the safe test drive of the updated system can be only performed with a help
+of an additional machine: install the updated version there first, upload the dump of the old instance and test it.
+If everything is all right then the actual update may take place: 
+
+. Create a dump of the database state.
+. Stop the old service.
+. Update the RPM using platform tools (usually +yum+).
+. Check if any configuration files needs to be updated (search for +.rpmnew+ files in /etc/unity-idm).
+. Start the new service.
+
+[NOTE] 
+The database dump can be created and loaded from the Web Admin UI, from the _Server maintenance_ tab.
+
+
+
+[id=quick_start]
+=== Quick start
+
+
+
+
+
+
+
+
+
+  

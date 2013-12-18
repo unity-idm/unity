@@ -1,0 +1,14 @@
+== Consumer access: the endpoints
+
+include::endpoint-admin.txt[]
+
+include::endpoint-home.txt[]
+
+include::endpoint-saml.txt[]
+
+
+
+
+
+
+

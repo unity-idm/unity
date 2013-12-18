@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="Unity Identity Management System">
+	<body>
+		<menu name="Unity">
+			<item name="Manual" href="index.html" />
+		</menu>
+	</body>
+</project>

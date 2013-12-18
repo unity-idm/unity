@@ -1,0 +1,90 @@
+
+[appendix,id=features-info]
+== Currently supported features 
+
+=== Core engine features
+
+[cols="<1,^1,<2", options="header"]
+|===
+|Feature 				| Status 						| Notes
+|Identities, entities	| icon:check[role="green"]		|
+|Groups					| icon:check[role="green"]		|
+|Attribute statements	| icon:check[role="green"]		|
+|Attribute classes		| icon:check[role="green"]		| Updates are not yet implemented
+|Credentials			| icon:check[role="green"]		|
+|Credential requirements| icon:check[role="green"]		|
+|Upstream IdPs framework| icon:check[role="green"]		|
+|Registration forms		| icon:check[role="green"]		|
+|Preferences			| icon:check[role="green"]		|
+|Notifications			| icon:exclamation[role="red"]	| Partially implemented, but not fully integrated.
+|Auditing				| icon:exclamation[role="red"]	| Not yet available.
+|===
+
+=== Local credentials
+
+[cols="<1,^1,<2", options="header"]
+|===
+|Feature 						| Status 						| Notes
+|Password						| icon:check[role="green"]		|
+|Certificate					| icon:check[role="green"]		| Pseudo credential allowing for X.509 certificate login
+|One Time Passwords				| icon:exclamation[role="red"]	| Not yet available
+|Other credential/token systems	| icon:exclamation[role="red"]	| Not yet available
+|===
+
+
+=== Endpoints
+
+[cols="<1,^1,<2", options="header"]
+|===
+|Feature 						| Status 						| Notes
+|SAML 2, Web SSO binding		| icon:check[role="green"]		| Full metadata support is missing
+|SAML 2, SOAP binding			| icon:check[role="green"]		| Full metadata support is missing
+|Web admin interface			| icon:check[role="green"]		|
+|REST admin interface			| icon:exclamation[role="red"]	| Not yet available
+|Web user profile management	| icon:check[role="green"]		| Available however more functionality is required
+|SAML 2, Web binding + UNICORE profile | icon:check[role="green"]		|
+|SAML 2, SOAP binding + UNICORE profile	| icon:check[role="green"]		|
+|OpenID 2						| icon:exclamation[role="red"]	| Not yet available
+|OAuth 1						| icon:exclamation[role="red"]	| Not yet available
+|OAuth 2						| icon:exclamation[role="red"]	| Not yet available
+|Other access protocols			| icon:exclamation[role="red"]	| Not yet available
+|===
+
+
+=== Upstream IdPs
+
+[cols="<1,^1,<2", options="header"]
+|===
+|Feature 						| Status 						| Notes
+|LDAP							| icon:check[role="green"]		|
+|SAML 2, Web SSO binding		| icon:exclamation[role="red"]	| Not yet available
+|OpenID 2						| icon:exclamation[role="red"]	| Not yet available
+|OAuth 1						| icon:exclamation[role="red"]	| Not yet available
+|OAuth 2						| icon:exclamation[role="red"]	| Not yet available
+|Other remote authentication protocols	| icon:exclamation[role="red"]	| Not yet available
+|===
+
+=== Attribute syntaxes
+
+[cols="<1,^1,<2", options="header"]
+|===
+|Feature 						| Status 						| Notes
+|String							| icon:check[role="green"]		|
+|Enumeration					| icon:check[role="green"]		|
+|Integer number					| icon:check[role="green"]		|
+|Floating point number			| icon:check[role="green"]		|
+|JPEG image						| icon:check[role="green"]		|
+|Other types					| icon:exclamation[role="red"]	| Not yet available
+|===
+
+=== Identity types
+
+[cols="<1,^1,<2", options="header"]
+|===
+|Feature 						| Status 						| Notes
+|User name						| icon:check[role="green"]		|
+|X.500 distinguished name (DN)	| icon:check[role="green"]		|
+|URI							| icon:exclamation[role="red"]	| Not yet available
+|Other types					| icon:exclamation[role="red"]	| Not yet available
+|===
+

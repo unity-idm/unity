@@ -1,0 +1,30 @@
+Unity Manual
+============
+Unity Team <unity-support@lists.sourceforge.net>
+:revnumber: 1.0.0
+:numbered:
+:toc: left
+:linkcss:
+:iconsdir: ./icons
+:icons: font
+
+include::introduction.txt[]
+
+include::installation.txt[]
+
+include::configuration.txt[]
+
+include::contents-management.txt[]
+
+include::external-idps.txt[]
+
+include::endpoints.txt[]
+
+include::features_changelog.txt[]
+
+
+
+
+
+
+    
