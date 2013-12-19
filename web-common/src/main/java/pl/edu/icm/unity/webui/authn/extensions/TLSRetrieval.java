@@ -43,7 +43,6 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 	private CertificateExchange credentialExchange;
 	private UnityMessageSource msg;
 	private String name;
-	private TLSAuthnComponent component;
 	
 	public TLSRetrieval(UnityMessageSource msg)
 	{
@@ -91,102 +90,114 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 	}
 
 	@Override
-	public boolean needsCommonUsernameComponent()
+	public VaadinAuthenticationUI createUIInstance()
 	{
-		return false;
+		return new TLSRetrievalUI();
 	}
 
-	@Override
-	public Component getComponent()
+	
+	private class TLSRetrievalUI implements VaadinAuthenticationUI
 	{
-		component = new TLSAuthnComponent();
-		return component;
-	}
+		private TLSAuthnComponent component;
 
-	@Override
-	public void setUsernameCallback(UsernameProvider usernameCallback)
-	{
-	}
-
-	@Override
-	public AuthenticationResult getAuthenticationResult()
-	{
-		X509Certificate[] clientCert = getTLSCertificate();
-
-		if (clientCert == null)
+		@Override
+		public boolean needsCommonUsernameComponent()
 		{
-			return new AuthenticationResult(Status.notApplicable, null);
+			return false;
 		}
-		try
+
+		@Override
+		public Component getComponent()
 		{
-			AuthenticationResult authenticationResult = credentialExchange.checkCertificate(clientCert);
-			component.setError(authenticationResult.getStatus() != Status.success);
-			return authenticationResult;
-		} catch (Exception e)
-		{
-			component.setError(true);
-			return new AuthenticationResult(Status.deny, null);
+			component = new TLSAuthnComponent();
+			return component;
 		}
-	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getLabel()
-	{
-		return name;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Resource getImage()
-	{
-		return null;
-	}
-	
-	
-	private static X509Certificate[] getTLSCertificate()
-	{
-		HttpServletRequest request = VaadinServletService.getCurrentServletRequest();
-		if (request == null)
-			return null;
-		return (X509Certificate[]) request.getAttribute(
-				"javax.servlet.request.X509Certificate");
-	}
-	
-	@SuppressWarnings("serial")
-	private class TLSAuthnComponent extends VerticalLayout
-	{
-		private Label info;
-		
-		public TLSAuthnComponent()
+		@Override
+		public void setUsernameCallback(UsernameProvider usernameCallback)
 		{
-			String label = name.trim().equals("") ? msg.getMessage("WebTLSRetrieval.title") : name;
-			Label title = new Label(label);
-			title.addStyleName(Reindeer.LABEL_H2);
-			addComponent(title);
-			info = new Label();
-			addComponent(info);
+		}
+
+		@Override
+		public AuthenticationResult getAuthenticationResult()
+		{
 			X509Certificate[] clientCert = getTLSCertificate();
+
 			if (clientCert == null)
 			{
-				info.setValue(msg.getMessage("WebTLSRetrieval.noCert"));
-			} else
+				return new AuthenticationResult(Status.notApplicable, null);
+			}
+			try
 			{
-				info.setValue(msg.getMessage("WebTLSRetrieval.certInfo", 
-						X500NameUtils.getReadableForm(clientCert[0].getSubjectX500Principal())));
+				AuthenticationResult authenticationResult = credentialExchange.checkCertificate(clientCert);
+				component.setError(authenticationResult.getStatus() != Status.success);
+				return authenticationResult;
+			} catch (Exception e)
+			{
+				component.setError(true);
+				return new AuthenticationResult(Status.deny, null);
 			}
 		}
-		
-		public void setError(boolean how)
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String getLabel()
 		{
-			info.setComponentError(how ? new UserError(
-					msg.getMessage("WebTLSRetrieval.unknownUser")) : null);
+			return name;
 		}
-	}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Resource getImage()
+		{
+			return null;
+		}
+
+
+		private X509Certificate[] getTLSCertificate()
+		{
+			HttpServletRequest request = VaadinServletService.getCurrentServletRequest();
+			if (request == null)
+				return null;
+			return (X509Certificate[]) request.getAttribute(
+					"javax.servlet.request.X509Certificate");
+		}
+
+		@SuppressWarnings("serial")
+		private class TLSAuthnComponent extends VerticalLayout
+		{
+			private Label info;
+
+			public TLSAuthnComponent()
+			{
+				String label = name.trim().equals("") ? msg.getMessage("WebTLSRetrieval.title") : name;
+				Label title = new Label(label);
+				title.addStyleName(Reindeer.LABEL_H2);
+				addComponent(title);
+				info = new Label();
+				addComponent(info);
+				X509Certificate[] clientCert = getTLSCertificate();
+				if (clientCert == null)
+				{
+					info.setValue(msg.getMessage("WebTLSRetrieval.noCert"));
+				} else
+				{
+					info.setValue(msg.getMessage("WebTLSRetrieval.certInfo", 
+							X500NameUtils.getReadableForm(clientCert[0].getSubjectX500Principal())));
+				}
+			}
+
+			public void setError(boolean how)
+			{
+				info.setComponentError(how ? new UserError(
+						msg.getMessage("WebTLSRetrieval.unknownUser")) : null);
+			}
+		}
+	}	
 }
 
 

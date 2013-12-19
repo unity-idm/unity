@@ -25,6 +25,7 @@ import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
@@ -63,7 +64,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationUI.class);
 	private EndpointDescription description;
-	private List<Map<String, VaadinAuthentication>> authenticators;
+	private List<Map<String, VaadinAuthenticationUI>> authenticators;
 	private LocaleChoiceComponent localeChoice;
 	private AuthenticationProcessor authnProcessor;
 	private EndpointRegistrationConfiguration registrationConfiguration;
@@ -92,14 +93,14 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			EndpointRegistrationConfiguration regCfg)
 	{
 		this.description = description;
-		this.authenticators = new ArrayList<Map<String,VaadinAuthentication>>();
+		this.authenticators = new ArrayList<Map<String,VaadinAuthenticationUI>>();
 		this.registrationConfiguration = regCfg;
 		for (int i=0; i<authenticators.size(); i++)
 		{
-			Map<String, VaadinAuthentication> map = new HashMap<String, VaadinAuthentication>();
+			Map<String, VaadinAuthenticationUI> map = new HashMap<String, VaadinAuthenticationUI>();
 			Map<String, BindingAuthn> origMap = authenticators.get(i);
 			for (Map.Entry<String, BindingAuthn> el: origMap.entrySet())
-				map.put(el.getKey(), (VaadinAuthentication)el.getValue());
+				map.put(el.getKey(), ((VaadinAuthentication)el.getValue()).createUIInstance());
 			this.authenticators.add(map);
 		}
 	}

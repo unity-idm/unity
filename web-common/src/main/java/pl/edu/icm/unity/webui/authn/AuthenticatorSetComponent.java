@@ -21,6 +21,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.RegistrationRequestEditorDialog;
@@ -56,7 +57,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 	private InsecureRegistrationFormLauncher formLauncher;
 	private ExecutorsService execService;
 	
-	public AuthenticatorSetComponent(Map<String, VaadinAuthentication> authenticators,
+	public AuthenticatorSetComponent(Map<String, VaadinAuthenticationUI> authenticators,
 			AuthenticatorSet set, UnityMessageSource msg, AuthenticationProcessor authnProcessor,
 			InsecureRegistrationFormLauncher formLauncher, ExecutorsService execService,
 			final CancelHandler cancelHandler)
@@ -74,7 +75,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		authenticatorsContainer.addComponent(new Label("<hr>", ContentMode.HTML));
 		for (String authenticator: set.getAuthenticators())
 		{
-			VaadinAuthentication vaadinAuth = authenticators.get(authenticator); 
+			VaadinAuthenticationUI vaadinAuth = authenticators.get(authenticator); 
 			if (vaadinAuth.needsCommonUsernameComponent())
 				needCommonUsername = true;
 			authenticatorsContainer.addComponent(vaadinAuth.getComponent());
@@ -89,7 +90,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 			addComponent(usernameComponent);
 			for (String authenticator: set.getAuthenticators())
 			{
-				VaadinAuthentication vaadinAuth = authenticators.get(authenticator); 
+				VaadinAuthenticationUI vaadinAuth = authenticators.get(authenticator); 
 				if (vaadinAuth.needsCommonUsernameComponent())
 					vaadinAuth.setUsernameCallback(usernameComponent);
 			}
@@ -122,11 +123,11 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 	private class LoginButtonListener implements ClickListener
 	{
 		private static final long serialVersionUID = 1L;
-		private Map<String, VaadinAuthentication> authenticators;
+		private Map<String, VaadinAuthenticationUI> authenticators;
 		private AuthenticatorSet set;
 		private UsernameComponent usernameComp;
 		
-		public LoginButtonListener(Map<String, VaadinAuthentication> authenticators,
+		public LoginButtonListener(Map<String, VaadinAuthenticationUI> authenticators,
 				AuthenticatorSet set, UsernameComponent usernameComp)
 		{
 			this.authenticators = authenticators;
@@ -149,7 +150,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 			List<AuthenticationResult> results = new ArrayList<AuthenticationResult>();
 			for (String authenticator: set.getAuthenticators())
 			{
-				VaadinAuthentication vaadinAuth = authenticators.get(authenticator);
+				VaadinAuthenticationUI vaadinAuth = authenticators.get(authenticator);
 				results.add(vaadinAuth.getAuthenticationResult());
 			}
 			

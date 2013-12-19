@@ -32,9 +32,11 @@ import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
+import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialReset1Dialog;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 /**
  * Retrieves passwords using a Vaadin widget.
@@ -44,21 +46,18 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthentication
 {
 	private Logger log = Log.getLogger(Log.U_SERVER_WEB, PasswordRetrieval.class);
-	private UsernameProvider usernameProvider;
-	private PasswordExchange credentialExchange;
-	private PasswordField passwordField;
-	
 	private UnityMessageSource msg;
-	private CredentialEditor credEditor;
+	private PasswordExchange credentialExchange;
 	private String name;
 	private String registrationFormForUnknown;
-	
-	public PasswordRetrieval(UnityMessageSource msg, CredentialEditor credEditor)
+	private CredentialEditorRegistry credEditorReg;
+
+	public PasswordRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg)
 	{
 		this.msg = msg;
-		this.credEditor = credEditor;
+		this.credEditorReg = credEditorReg;
 	}
-	
+
 	@Override
 	public String getBindingName()
 	{
@@ -103,108 +102,128 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		this.credentialExchange = (PasswordExchange) e;
 	}
 
-	@Override
-	public boolean needsCommonUsernameComponent()
-	{
-		return true;
-	}
 
 	@Override
-	public Component getComponent()
+	public VaadinAuthenticationUI createUIInstance()
 	{
-		VerticalLayout ret = new VerticalLayout();
-		ret.setSpacing(true);
-		String label = name.trim().equals("") ? msg.getMessage("WebPasswordRetrieval.password") : name;
-		passwordField = new PasswordField(label);
-		ret.addComponent(passwordField);
-		
-		if (credentialExchange.getCredentialResetBackend().getSettings().isEnabled())
+		return new PasswordRetrievalUI(credEditorReg.getEditor(PasswordVerificatorFactory.NAME));
+	}
+
+
+	private class PasswordRetrievalUI implements VaadinAuthenticationUI
+	{
+		private UsernameProvider usernameProvider;
+		private PasswordField passwordField;
+		private CredentialEditor credEditor;
+
+		public PasswordRetrievalUI(CredentialEditor credEditor)
 		{
-			Button reset = new Button(msg.getMessage("WebPasswordRetrieval.forgottenPassword"));
-			reset.setStyleName(Reindeer.BUTTON_LINK);
-			ret.addComponent(reset);
-			ret.setComponentAlignment(reset, Alignment.TOP_RIGHT);
-			reset.addClickListener(new ClickListener()
+			this.credEditor = credEditor;
+		}
+
+		@Override
+		public boolean needsCommonUsernameComponent()
+		{
+			return true;
+		}
+
+		@Override
+		public Component getComponent()
+		{
+			VerticalLayout ret = new VerticalLayout();
+			ret.setSpacing(true);
+			String label = name.trim().equals("") ? msg.getMessage("WebPasswordRetrieval.password") : name;
+			passwordField = new PasswordField(label);
+			ret.addComponent(passwordField);
+
+			if (credentialExchange.getCredentialResetBackend().getSettings().isEnabled())
 			{
-				@Override
-				public void buttonClick(ClickEvent event)
+				Button reset = new Button(msg.getMessage("WebPasswordRetrieval.forgottenPassword"));
+				reset.setStyleName(Reindeer.BUTTON_LINK);
+				ret.addComponent(reset);
+				ret.setComponentAlignment(reset, Alignment.TOP_RIGHT);
+				reset.addClickListener(new ClickListener()
 				{
-					showResetDialog();
+					@Override
+					public void buttonClick(ClickEvent event)
+					{
+						showResetDialog();
+					}
+				});
+			}
+
+			return ret;
+		}
+
+		@Override
+		public void setUsernameCallback(UsernameProvider usernameCallback)
+		{
+			this.usernameProvider = usernameCallback;
+		}
+
+		@Override
+		public AuthenticationResult getAuthenticationResult()
+		{
+			String username = usernameProvider.getUsername();
+			String password = passwordField.getValue();
+			if (username.equals("") && password.equals(""))
+			{
+				passwordField.setComponentError(new UserError(
+						msg.getMessage("WebPasswordRetrieval.noPassword")));
+				return new AuthenticationResult(Status.notApplicable, null);
+			}
+			try
+			{
+				AuthenticationResult authenticationResult = credentialExchange.checkPassword(username, password);
+				if (authenticationResult.getStatus() == Status.success)
+					passwordField.setComponentError(null);
+				else if (authenticationResult.getStatus() == Status.unknownRemotePrincipal && 
+						registrationFormForUnknown != null) 
+				{
+					authenticationResult.setFormForUnknownPrincipal(registrationFormForUnknown);
+					passwordField.setValue("");
+				} else
+				{
+					passwordField.setComponentError(new UserError(
+							msg.getMessage("WebPasswordRetrieval.wrongPassword")));
+					passwordField.setValue("");
 				}
-			});
-		}
-		
-		return ret;
-	}
-
-	@Override
-	public void setUsernameCallback(UsernameProvider usernameCallback)
-	{
-		this.usernameProvider = usernameCallback;
-	}
-
-	@Override
-	public AuthenticationResult getAuthenticationResult()
-	{
-		String username = usernameProvider.getUsername();
-		String password = passwordField.getValue();
-		if (username.equals("") && password.equals(""))
-		{
-			passwordField.setComponentError(new UserError(
-					msg.getMessage("WebPasswordRetrieval.noPassword")));
-			return new AuthenticationResult(Status.notApplicable, null);
-		}
-		try
-		{
-			AuthenticationResult authenticationResult = credentialExchange.checkPassword(username, password);
-			if (authenticationResult.getStatus() == Status.success)
-				passwordField.setComponentError(null);
-			else if (authenticationResult.getStatus() == Status.unknownRemotePrincipal && 
-					registrationFormForUnknown != null) 
+				return authenticationResult;
+			} catch (Exception e)
 			{
-				authenticationResult.setFormForUnknownPrincipal(registrationFormForUnknown);
-				passwordField.setValue("");
-			} else
-			{
+				if (!(e instanceof IllegalCredentialException))
+					log.warn("Password verificator has thrown an exception", e);
 				passwordField.setComponentError(new UserError(
 						msg.getMessage("WebPasswordRetrieval.wrongPassword")));
 				passwordField.setValue("");
+				return new AuthenticationResult(Status.deny, null);
 			}
-			return authenticationResult;
-		} catch (Exception e)
-		{
-			if (!(e instanceof IllegalCredentialException))
-				log.warn("Password verificator has thrown an exception", e);
-			passwordField.setComponentError(new UserError(
-					msg.getMessage("WebPasswordRetrieval.wrongPassword")));
-			passwordField.setValue("");
-			return new AuthenticationResult(Status.deny, null);
 		}
-	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getLabel()
-	{
-		return name;
-	}
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String getLabel()
+		{
+			return name;
+		}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Resource getImage()
-	{
-		return null;
-	}
-	
-	private void showResetDialog()
-	{
-		CredentialReset1Dialog dialog = new CredentialReset1Dialog(msg, 
-				credentialExchange.getCredentialResetBackend(), credEditor);
-		dialog.show();
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Resource getImage()
+		{
+			return null;
+		}
+
+		private void showResetDialog()
+		{
+			CredentialReset1Dialog dialog = new CredentialReset1Dialog(msg, 
+					credentialExchange.getCredentialResetBackend(), credEditor);
+			dialog.show();
+		}
 	}
 }
 

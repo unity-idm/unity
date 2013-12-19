@@ -12,6 +12,7 @@ import java.util.Set;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -30,7 +31,7 @@ public class AuthenticatorSetSelectComponent extends VerticalLayout
 	private UnityMessageSource msg;
 	
 	public AuthenticatorSetSelectComponent(UnityMessageSource msg, final AuthenticatorSetChangedListener listener,
-			EndpointDescription description,  List<Map<String, VaadinAuthentication>> authenticators)
+			EndpointDescription description,  List<Map<String, VaadinAuthenticationUI>> authenticators)
 	{
 		this.msg = msg;
 		
@@ -44,7 +45,7 @@ public class AuthenticatorSetSelectComponent extends VerticalLayout
 			buttons.addItem(i);
 			
 			Set<String> set = description.getAuthenticatorSets().get(i).getAuthenticators();
-			Map<String, VaadinAuthentication> authenticatorsInSet = authenticators.get(i); 
+			Map<String, VaadinAuthenticationUI> authenticatorsInSet = authenticators.get(i); 
 			String caption = getAuthenticatorSetName(set, authenticatorsInSet);
 			Resource icon = getAuthenticatorSetIcon(set, authenticatorsInSet);
 			buttons.setItemCaption(i, caption);
@@ -65,7 +66,7 @@ public class AuthenticatorSetSelectComponent extends VerticalLayout
 
 	
 	private String getAuthenticatorSetName(Set<String> set, 
-			Map<String, VaadinAuthentication> authenticators)
+			Map<String, VaadinAuthenticationUI> authenticators)
 	{
 		Set<String> withLabels = new HashSet<String>();
 		for (String s: set)
@@ -93,11 +94,11 @@ public class AuthenticatorSetSelectComponent extends VerticalLayout
 	}
 	
 	private Resource getAuthenticatorSetIcon(Set<String> set, 
-			Map<String, VaadinAuthentication> authenticators)
+			Map<String, VaadinAuthenticationUI> authenticators)
 	{
 		for (String a: set)
 		{
-			VaadinAuthentication va = authenticators.get(a);
+			VaadinAuthenticationUI va = authenticators.get(a);
 			if (va.getImage() != null)
 				return va.getImage();
 		}

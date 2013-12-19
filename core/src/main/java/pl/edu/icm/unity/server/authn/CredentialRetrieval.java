@@ -11,7 +11,7 @@ import pl.edu.icm.unity.types.JsonSerializable;
  * Retrieves credential, using a some binding specific method. Cooperates 
  * with {@link CredentialVerificator} via {@link CredentialExchange}.
  * <p>
- * Implementations must be thread safe.
+ * Implementations must be thread safe and immutable.
  * @author K. Benedyczak
  */
 public interface CredentialRetrieval extends BindingAuthn, JsonSerializable

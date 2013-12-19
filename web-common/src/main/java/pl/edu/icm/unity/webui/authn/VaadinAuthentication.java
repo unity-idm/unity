@@ -22,40 +22,49 @@ public interface VaadinAuthentication extends BindingAuthn
 	public static final String NAME = "web-vaadin7";
 	
 	/**
-	 * @return true if the retrieval requires username to be provided. Username is provided 
-	 * from a component shared by all authenticators in a set. 
+	 * @return a new instance of the credential retrieval UI
 	 */
-	public boolean needsCommonUsernameComponent();
+	public VaadinAuthenticationUI createUIInstance();
 	
-	/**
-	 * @return UI component associated with this retrieval
-	 */
-	public Component getComponent();
 	
-	/**
-	 * Invoked only when {@link #needsCommonUsernameComponent()} returns true. 
-	 * @param usernameCallback
-	 */
-	public void setUsernameCallback(UsernameProvider usernameCallback);
-	
-	/**
-	 * Should trigger the actual authentication (if was not triggered manually via the component)
-	 * and return the result of the authentication.
-	 * @return
-	 */
-	public AuthenticationResult getAuthenticationResult();
-	
-	/**
-	 * @return label for presentation in the user interface.
-	 * returns non null value.
-	 */
-	public String getLabel();
-	
-	/**
-	 * @return image for the presentation in the user interface. Can be null.
-	 */
-	public Resource getImage();
-	
+	public interface VaadinAuthenticationUI
+	{
+		/**
+		 * @return true if the retrieval requires username to be provided. Username is provided 
+		 * from a component shared by all authenticators in a set. 
+		 */
+		public boolean needsCommonUsernameComponent();
+		
+		/**
+		 * @return UI component associated with this retrieval
+		 */
+		public Component getComponent();
+		
+		/**
+		 * Invoked only when {@link #needsCommonUsernameComponent()} returns true. 
+		 * @param usernameCallback
+		 */
+		public void setUsernameCallback(UsernameProvider usernameCallback);
+		
+		/**
+		 * Should trigger the actual authentication (if was not triggered manually via the component)
+		 * and return the result of the authentication.
+		 * @return
+		 */
+		public AuthenticationResult getAuthenticationResult();
+		
+		/**
+		 * @return label for presentation in the user interface.
+		 * returns non null value.
+		 */
+		public String getLabel();
+		
+		/**
+		 * @return image for the presentation in the user interface. Can be null.
+		 */
+		public Resource getImage();
+	}
+		
 	/**
 	 * Can be used by retriever to get the username which is actually entered.
 	 * @author K. Benedyczak
