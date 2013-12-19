@@ -77,23 +77,40 @@ public class RegistrationFormLauncher
 
 	protected boolean addRequest(RegistrationRequest request, boolean andAccept)
 	{
+		String id;
 		try
 		{
-			String id = registrationsManagement.submitRegistrationRequest(request);
-			if (andAccept && addAutoAccept)
-				registrationsManagement.processRegistrationRequest(id, request, 
-						RegistrationRequestAction.accept, null, 
-						msg.getMessage("RegistrationFormsChooserComponent.autoAccept"));
-			else
-				ErrorPopup.showNotice(msg, msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"), 
-						msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfo"));
+			id = registrationsManagement.submitRegistrationRequest(request);
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));
-			return true;
 		} catch (EngineException e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage(
 					"RegistrationFormsChooserComponent.errorRequestSubmit"), e);
 			return false;
+		}
+		
+		try
+		{
+			if (andAccept && addAutoAccept)
+			{
+				registrationsManagement.processRegistrationRequest(id, request, 
+						RegistrationRequestAction.accept, null, 
+						msg.getMessage("RegistrationFormsChooserComponent.autoAccept"));
+				bus.fireEvent(new RegistrationRequestChangedEvent(id));
+				ErrorPopup.showNotice(msg, msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"), 
+						msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoWithAccept"));
+			} else
+			{
+				ErrorPopup.showNotice(msg, msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"), 
+						msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoNoAccept"));
+			}
+			
+			return true;
+		} catch (EngineException e)
+		{
+			ErrorPopup.showError(msg, msg.getMessage(
+					"RegistrationFormsChooserComponent.errorRequestAutoAccept"), e);
+			return true;
 		}
 	}
 	
