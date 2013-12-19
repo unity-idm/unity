@@ -8,7 +8,7 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>unity-documentation</artifactId>
-	<packaging>pom</packaging>
+	<packaging>jar</packaging>
 	<name>UNITY ${m.name} module</name>
 	<description>Documentation of the whole Unity system</description>
 
@@ -41,28 +41,38 @@
 
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-types</artifactId>
+			<artifactId>unity-server-core</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-ws</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-saml-idp</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-web-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-ldap</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>eu.unicore.security</groupId>
+			<artifactId>securityLibrary</artifactId>
 		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
-			<!-- Those two guys disable inherited docman which we doen't use -->
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>${exec.maven.plugin.version}</version>
-				<executions>
-					<execution>
-						<id>svn</id>
-						<phase>pre-site</phase>
-						<configuration>
-							<skip>true</skip>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+			<!-- Disable inherited docman which we doesn't use -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
@@ -100,34 +110,26 @@
 				</configuration>
 			</plugin>
 			 -->
-			 
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>${exec.maven.plugin.version}</version>
-				<executions>
-					<execution>
-						<id>asciidoctor</id>
-						<phase>pre-site</phase>
-						<configuration>
-							<executable>asciidoctor</executable>
-							<arguments>
-								<argument>-D</argument>
-								<argument>${project.reporting.outputDirectory}</argument>
-								<argument>src/main/doc/manual.txt</argument>
-							</arguments>
-						</configuration>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>2.6</version>
 				<executions>
+					<execution>
+						<id>copy-documentation-to-workspace</id>
+						<phase>pre-site</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target/workspace</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/doc</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
 					<execution>
 						<id>copy-documentation-images</id>
 						<phase>pre-site</phase>
@@ -138,11 +140,63 @@
 							<outputDirectory>${project.reporting.outputDirectory}/figures</outputDirectory>
 							<resources>
 								<resource>
-									<directory>src/main/doc/figures</directory>
+									<directory>target/workspace/figures</directory>
 									<filtering>true</filtering>
 								</resource>
 							</resources>
 						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>${exec.maven.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>svn</id>
+						<phase>pre-site</phase>
+						<configuration>
+							<skip>true</skip>
+						</configuration>
+					</execution>
+					<execution>
+						<id>generate-conf-references</id>
+						<phase>pre-site</phase>
+						<configuration>
+							<mainClass>pl.edu.icm.unity.doc.utils.AsciidoctorFormatter</mainClass>
+							<arguments>
+								<argument>target/workspace</argument>
+								<argument>eu.unicore.security.canl.TruststoreProperties|sec-ref-trustProperties.txt|unityServer.core.truststore</argument>
+								<argument>eu.unicore.security.canl.CredentialProperties|sec-ref-credProperties.txt|unityServer.core.credential</argument>
+								<argument>pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration|ref-httpServerProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.server.utils.UnityServerConfiguration|ref-mainServerProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.ws.CXFEndpointProperties|ref-cxfEndpointProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.ldap.LdapProperties|ref-ldapProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.webui.VaadinEndpointProperties|ref-vaadinEndpointProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.samlidp.SamlProperties|ref-samlProperties.txt|</argument>
+							</arguments>
+						</configuration>
+						<goals>
+							<goal>java</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>asciidoctor</id>
+						<phase>pre-site</phase>
+						<configuration>
+							<executable>asciidoctor</executable>
+							<arguments>
+								<argument>-D</argument>
+								<argument>${project.reporting.outputDirectory}</argument>
+								<argument>target/workspace/manual.txt</argument>
+							</arguments>
+						</configuration>
+						<goals>
+							<goal>exec</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>

@@ -1,3 +1,5 @@
 
 
 === LDAP 
+
+include::ref-ldapProperties.txt[]

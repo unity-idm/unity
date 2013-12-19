@@ -1,1 +1,3 @@
 === Web and WS SAML endpoints
+
+include::ref-samlProperties.txt[]

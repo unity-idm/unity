@@ -1,3 +1,10 @@
 [id=configuration]
 == General server configuration
 
+include::ref-mainServerProperties.txt[]
+
+include::sec-ref-credProperties.txt[]
+
+include::sec-ref-trustProperties.txt[]
+
+include::ref-httpServerProperties.txt[]

@@ -85,7 +85,7 @@ public class SamlProperties extends PropertiesHelper
 	public static final String GROUP_SELECTION = "groupSelection";
 	
 	public static final String ATTRIBUTE_FILTER = "attributeFilter.";
-	public static final String ATTRIBUTE_FILTER_TARGET = "filteredRequester.";
+	public static final String ATTRIBUTE_FILTER_TARGET = "filteredRequester";
 	public static final String ATTRIBUTE_FILTER_INCLUDE = "included.";
 	public static final String ATTRIBUTE_FILTER_EXCLUDE = "excluded.";
 	

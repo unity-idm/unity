@@ -1,5 +1,9 @@
 == Consumer access: the endpoints
 
+include::ref-cxfEndpointProperties.txt[]
+
+include::ref-vaadinEndpointProperties.txt[]
+
 include::endpoint-admin.txt[]
 
 include::endpoint-home.txt[]

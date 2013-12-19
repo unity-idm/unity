@@ -16,6 +16,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import eu.unicore.security.canl.TruststoreProperties;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
+import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 
@@ -27,6 +28,7 @@ public class LdapProperties extends PropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, LdapProperties.class);
 	
+	@DocumentationReferencePrefix
 	public static final String PREFIX = "ldap.";
 	
 	public static final String SERVERS = "servers.";

@@ -2,22 +2,23 @@
 
 In short Unity is a *complete solution for identity, federation and inter-federation management*.
 Or, looking at the same functional area from a different perspective, it is an *extremely flexible authentication
-solution*.
+service*.
 
 Unity allows its administrators to enable authentication (or login) using various protocols, with different 
-configurations. The actual authentication can be performed using the built-in users database or can be delegated to
+configurations for many relaying parties. The actual authentication can be performed using 
+the built-in feature-rich users database or can be delegated to
 one of supported upstream identity providers (IdPs). The information obtained from upstream IdPs can be flexibly 
 translated and merged with the local database if needed and re-exported using other protocols.
-Those fundamental usage pattern is shown on the figure below.  
+Those fundamental usage patterns are shown on the following figure:  
 
 image::./figures/general.png[alt="Unity general function as a versatile authentication platform",align="center",scaledwidth="50%"]
 
 
 [NOTE]
-Unity is under a heavy development. Not all extensions and functions of the engine which are on the presented
-figures and even some of the enumerated use-cases are already available/doable. We plan to deliver the remaining
-fundamental (and many other) features soon. For the actual information on what is supported check the <<features-info>>
-section.  
+Unity is under heavy development. Not all extensions and functions of the engine which are on the presented
+figures are already available. Even some of the enumerated use-cases are not already fully achievable. 
+We plan to deliver the remaining fundamental (and many other) features soon. For the actual and detailed information on
+what is currently supported check the <<features-info>> section.  
 
 The most important design principles of Unity are:
 

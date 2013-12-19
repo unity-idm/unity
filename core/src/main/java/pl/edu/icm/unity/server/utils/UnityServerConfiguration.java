@@ -36,8 +36,6 @@ import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.FilePropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
-import eu.unicore.util.httpclient.ClientProperties;
-import eu.unicore.util.httpclient.IClientConfiguration;
 import eu.unicore.util.jetty.HttpServerProperties;
 
 /**
@@ -188,18 +186,15 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 						"used to configure mapping of remote identities to the local representation."));
 		
 		defaults.put(TruststoreProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).
-				setDescription("Properties starting with this prefix are used to configure server's trust settings and certificate validation. See separate documentation for details."));
+				setDescription("Properties starting with this prefix are used to configure server's trust settings and certificate validation. See separate table for details."));
 		defaults.put(CredentialProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).
-				setDescription("Properties starting with this prefix are used to configure server's credential. See separate documentation for details."));
+				setDescription("Properties starting with this prefix are used to configure server's credential. See separate table for details."));
 		defaults.put(HttpServerProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).
-				setDescription("Properties starting with this prefix are used to configure Jetty HTTP server settings. See separate documentation for details."));
-		defaults.put(ClientProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).
-				setDescription("Properties starting with this prefix are used to configure HTTP client settings, when UVOS server performs client calls (what happens very rarely e.g. when registering in registry). See separate documentation for details."));
+				setDescription("Properties starting with this prefix are used to configure Jetty HTTP server settings. See separate table for details."));
 	}
 
 	private UnityHttpServerConfiguration jp;
 	private IAuthnAndTrustConfiguration authnTrust;
-	private IClientConfiguration clientCfg;
 	private Map<String, Locale> enabledLocales;
 	private Locale defaultLocale;
 	private TemplatesStore templatesStore;
@@ -211,7 +206,6 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		jp = new UnityHttpServerConfiguration(properties);
 		authnTrust = new AuthnAndTrustProperties(properties, 
 				P+TruststoreProperties.DEFAULT_PREFIX, P+CredentialProperties.DEFAULT_PREFIX);
-		clientCfg = new ClientProperties(properties, P+ClientProperties.DEFAULT_PREFIX, authnTrust);
 		enabledLocales = loadEnabledLocales();
 		defaultLocale = safeLocaleDecode(getValue(DEFAULT_LOCALE));
 		if (!isLocaleSupported(defaultLocale))
@@ -303,11 +297,6 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public IAuthnAndTrustConfiguration getAuthAndTrust()
 	{
 		return authnTrust;
-	}
-	
-	public IClientConfiguration getClientConfiguration()
-	{
-		return clientCfg;
 	}
 	
 	public Locale getDefaultLocale()
