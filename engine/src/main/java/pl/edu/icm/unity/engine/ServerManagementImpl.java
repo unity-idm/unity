@@ -6,8 +6,10 @@ package pl.edu.icm.unity.engine;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +25,8 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.ServerManagement;
+import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.Log;
 
 /**
  * Implementation of general maintenance.
@@ -31,6 +35,7 @@ import pl.edu.icm.unity.server.api.ServerManagement;
 @Component
 public class ServerManagementImpl implements ServerManagement
 {
+	private Logger log = Log.getLogger(Log.U_SERVER, ServerManagementImpl.class);
 	private DBSessionManager db;
 	private ImportExport dbDump;
 	private InitDB initDb;
@@ -41,7 +46,7 @@ public class ServerManagementImpl implements ServerManagement
 	@Autowired
 	public ServerManagementImpl(DBSessionManager db, ImportExport dbDump, InitDB initDb,
 			EngineInitialization engineInit, JettyServer httpServer,
-			AuthorizationManager authz)
+			AuthorizationManager authz, ExecutorsService executorsService)
 	{
 		this.db = db;
 		this.dbDump = dbDump;
@@ -49,6 +54,7 @@ public class ServerManagementImpl implements ServerManagement
 		this.engineInit = engineInit;
 		this.httpServer = httpServer;
 		this.authz = authz;
+		executorsService.getService().scheduleWithFixedDelay(new ClenupDumpsTask(), 20, 60, TimeUnit.SECONDS);
 	}
 
 
@@ -113,5 +119,29 @@ public class ServerManagementImpl implements ServerManagement
 		}
 		httpServer.undeployAllEndpoints();
 		engineInit.initializeDatabaseContents();
+	}
+	
+	private class ClenupDumpsTask implements Runnable
+	{
+		private static final long DUMP_STORE_TIME = 600000;
+		
+		@Override
+		public void run()
+		{
+			File exportsDirectory = dbDump.getExportDirectory();
+			File[] files = exportsDirectory.listFiles();
+			long now = System.currentTimeMillis();
+			
+			for (File file: files)
+			{
+				if (file.lastModified() + DUMP_STORE_TIME < now)
+				{
+					log.debug("Removing the old, temporary, database dump from the workspace: " 
+							+ file);
+					file.delete();
+					continue;
+				}
+			}
+		}
 	}
 }

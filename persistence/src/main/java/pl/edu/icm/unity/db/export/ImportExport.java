@@ -164,12 +164,31 @@ public class ImportExport
 		return ret;
 	}
 	
-	private File createExportFile() throws IOException
+	public File getExportDirectory()
 	{
 		File workspace = configuration.getFileValue(UnityServerConfiguration.WORKSPACE_DIRECTORY, true);
 		File exportDir = new File(workspace, ServerManagement.DB_DUMP_DIRECTORY);
 		if (!exportDir.exists())
 			exportDir.mkdir();
-		return File.createTempFile("export-", ".json", exportDir);
+		return exportDir;
+	}
+	
+	public String getExportFilePrefix()
+	{
+		return "export-";
+	}
+	
+	public String getExportFileSuffix()
+	{
+		return ".json";
+	}
+	
+	private File createExportFile() throws IOException
+	{
+		File exportDir = getExportDirectory();
+		if (exportDir.list().length > 1)
+			throw new IOException("Maximum number of database dumps was reached. " +
+					"Subsequent dumps can be created in few minutes.");
+		return File.createTempFile(getExportFilePrefix(), getExportFileSuffix(), exportDir);
 	}
 }
