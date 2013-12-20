@@ -1,10 +1,146 @@
 [id=configuration]
 == General server configuration
 
+The server uses two main configuration files: +conf/unityServer.conf+ and +conf/log4j.properties+. To change 
+their default locations one needs to edit startup scripts. 
+
+The +conf/log4j.properties+ file configures the logging of the server. This is described in the section <<logging>>.
+
+The +conf/unityServer.conf+ file is the main server configuration file. All other configuration files are defined 
+in it.
+
+
+
+  
+
 include::ref-mainServerProperties.txt[]
+
+
+=== Credentials and truststores
+
+The server credential, used in the first place to setup the TLS server socket is configured with the 
+following properties. The simple example is:
+
+----
+---- 
 
 include::sec-ref-credProperties.txt[]
 
+
+
+
 include::sec-ref-trustProperties.txt[]
 
+
+=== Advanced HTTP server settings
+
 include::ref-httpServerProperties.txt[]
+
+
+
+
+
+[id="logging"]
+=== Logging configuration
+
+Unity uses the Log4j logging framework in version 1.2.x (note that the latest version 2.x is much different).
+What is more the log4j-extras package is included so additional logging features are enabled. 
+Logging is configured in the +conf/log4j.properties+ file.
+
+[NOTE]
+===========
+You can change the logging configuration at runtime by editing the +conf/log4j.properties+ file.
+The new configuration will take effect a few seconds after the file has been modified.
+===========
+
+By default, log files are written to the the +logs/+ directory. 
+
+The following example config file configures logging so that log files are 
+rotated daily, compressed.
+
+-------------------
+# The default log level and the output (appender)
+log4j.rootLogger=INFO, LOGFILE
+
+# What to log
+log4j.logger.net.sf.ehcache=WARN
+log4j.logger.org.springframework=WARN
+log4j.logger.org.eclipse.jetty=INFO
+log4j.logger.unity.server=DEBUG
+log4j.logger.unity.server.config=INFO
+log4j.logger.org.apache=INFO
+log4j.logger.pl.edu.icm=DEBUG
+log4j.logger.pl.edu.icm.unity.db.mapper=INFO
+
+
+#Configuration of appenders which performs actual logging
+
+# LOGFILE is set to be a file appender using a PatternLayout with daily rolling.
+log4j.appender.LOGFILE=org.apache.log4j.rolling.RollingFileAppender
+log4j.appender.LOGFILE.RollingPolicy=org.apache.log4j.rolling.TimeBasedRollingPolicy
+log4j.appender.LOGFILE.RollingPolicy.FileNamePattern=logs/unity-server.log.%d{yyyy-MM-dd}.gz
+log4j.appender.LOGFILE.File=logs/unity-server.log
+log4j.appender.LOGFILE.layout=org.apache.log4j.PatternLayout
+log4j.appender.LOGFILE.layout.ConversionPattern=%d{ISO8601} [%t] %-5p %c %x - %m%n
+-------------------
+
+[NOTE]
+===========
+In Log4j, the log rotation frequency is controlled by the DatePattern. Check 
+http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/DailyRollingFileAppender.html
+for the details.
+===========
+
+For more info on controlling the logging we refer to the log4j documentation:
+  
+  - http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/PatternLayout.html[PatternLayout]
+  
+  - http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/RollingFileAppender.html[RollingFileAppender]
+  
+  - http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/DailyRollingFileAppender.html[DailyRollingFileAppender]
+  
+ 
+Log4j supports a very wide range of logging options, such as date based or size based file rollover,
+logging different things to different files and much more. For full information on Log4j we refer to
+the publicly available documentation, for example the 
+http://logging.apache.org/log4j/1.2/manual.html[Log4j manual].
+ 
+
+=== Logger categories, names and levels
+
+Logger names are hierarchical. In Unity, prefixes are used (e.g. "unity.server.con") 
+to which the Java class name is appended. The most common logging prefixes are:
+
+- +unity.server+ - general server messages
+- +unity.server.config+ - configuration parsing and loading
+- +unity.server.db+ - database related
+- +unity.server.web+ - web interface related
+- +unity.server.saml+ - SAML subsystem related
+- +unity.server.ldap+ - upstream LDAP IdP related 
+- +unity.server.ws+ - SOAP (web service) stack related
+- +unity.server.externaltranslation+ - messages connected with the translation of any upstream IdP 
+data to the Unity format.
+ 
+
+Therefore the logging output produced can be controlled in a fine-grained manner. 
+Log levels in Log4j are (in increasing level of severity): 
+
+# +TRACE+ on this level _huge_ pieces of unprocessed information are dumped,
+# +DEBUG+ admin-friendly, verbose information, useful for hunting problems, 
+# +INFO+ standard information, not much output,
+# +WARN+ warnings are logged when something went wrong (so it should be investigated), but recovery was possible,
+# +ERROR+ something went wrong and operation probably failed, 
+# +FATAL+ something went really wrong - this is used very rarely for critical situations like overall server failure.
+
+For example, to debug a configuration problem, you can set:
+  
+------
+log4j.logger.unity.server.config=DEBUG
+------
+
+[NOTE]
+===========
+The best way to discover what is the name of interesting category is turn on the general DEBUG logging 
+for a while. Then interesting events can be seen and subsequently the logging configuration can be fine tuned
+to only show them.
+===========

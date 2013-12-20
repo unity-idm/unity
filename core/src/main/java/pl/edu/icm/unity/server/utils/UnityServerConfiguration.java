@@ -173,8 +173,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		defaults.put(CREDENTIAL_REQ_CONTENTS, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setList(false).setMandatory().setCategory(mainCat).
 				setDescription("Credential requirement contents, i.e. credentials that belongs to it"));
 
-		defaults.put(INITIAL_ADMIN_USER, new PropertyMD("admin").setCategory(mainCat).
-				setDescription("Username of the administrator to be installed to the empty database."));
+		defaults.put(INITIAL_ADMIN_USER, new PropertyMD().setCategory(mainCat).
+				setDescription("Username of the administrator to be installed to the database upon startup. Remove the property if no admin should be added."));
 		defaults.put(INITIAL_ADMIN_PASSWORD, new PropertyMD("admin").setCategory(mainCat).
 				setDescription("Password of the administrator to be installed to the empty database."));
 		defaults.put(INITIAL_ADMIN_USER_OUTDATED, new PropertyMD("true").setCategory(mainCat).

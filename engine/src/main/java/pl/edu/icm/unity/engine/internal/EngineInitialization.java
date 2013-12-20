@@ -36,6 +36,7 @@ import pl.edu.icm.unity.engine.endpoints.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
@@ -64,7 +65,6 @@ import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityType;
@@ -266,20 +266,17 @@ public class EngineInitialization extends LifecycleBase
 	
 	private void initializeAdminUser()
 	{
-		SqlSession sql = db.getSqlSession(true);
-		GroupContents contents;
 		try
 		{
+			String adminU = config.getValue(UnityServerConfiguration.INITIAL_ADMIN_USER);
+			if (adminU == null)
+				return;
+			String adminP = config.getValue(UnityServerConfiguration.INITIAL_ADMIN_PASSWORD);
+			IdentityParam admin = new IdentityParam(UsernameIdentity.ID, adminU, true);
 			try
 			{
-				contents = dbGroups.getContents("/", GroupContents.MEMBERS, sql);
-				sql.commit();
-			} finally
-			{
-				db.releaseSqlSession(sql);
-			}
-			
-			if (contents.getMembers().size() == 0)
+				idManagement.getEntity(new EntityParam(admin));
+			} catch (IllegalIdentityValueException e)
 			{
 				log.info("Database contains no users, adding the admin user and the " +
 						"default credential settings");
@@ -297,9 +294,8 @@ public class EngineInitialization extends LifecycleBase
 						Collections.singleton(credDef.getName()));
 				authnManagement.addCredentialRequirement(crDef);
 
-				String adminU = config.getValue(UnityServerConfiguration.INITIAL_ADMIN_USER);
-				String adminP = config.getValue(UnityServerConfiguration.INITIAL_ADMIN_PASSWORD);
-				IdentityParam admin = new IdentityParam(UsernameIdentity.ID, adminU, true);
+
+				
 				Identity adminId = idManagement.addEntity(admin, crDef.getName(), EntityState.valid, false);
 				
 				EntityParam adminEntity = new EntityParam(adminId.getEntityId());
