@@ -14,6 +14,7 @@
 
 	<properties>
 		<m.name>documentation</m.name>
+	    <maven.javadoc.skip>true</maven.javadoc.skip>
 	</properties>
 
 	<scm>
@@ -72,28 +73,11 @@
 
 	<build>
 		<plugins>
-			<!-- Disable inherited docman which we doesn't use -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.7</version>
-				<executions>
-					<execution>
-						<id>run</id>
-						<phase>pre-site</phase>
-						<configuration>
-							<skip>true</skip>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 		<!-- the current asciidoctor maven plugin is outdated -->
 		<!-- 
 			<plugin>
 				<groupId>org.asciidoctor</groupId>
 				<artifactId>asciidoctor-maven-plugin</artifactId>
-				<version>0.1.3.1</version>
 				<executions>
 					<execution>
 						<id>output-html</id>
@@ -112,7 +96,6 @@
 			 -->
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.6</version>
 				<executions>
 					<execution>
 						<id>copy-documentation-to-workspace</id>
@@ -153,15 +136,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
-				<version>${exec.maven.plugin.version}</version>
 				<executions>
-					<execution>
-						<id>svn</id>
-						<phase>pre-site</phase>
-						<configuration>
-							<skip>true</skip>
-						</configuration>
-					</execution>
 					<execution>
 						<id>generate-conf-references</id>
 						<phase>pre-site</phase>
@@ -202,4 +177,39 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+		<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.8</version>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.4</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>summary</report>
+							<report>scm</report>
+							<!-- 
+							<report>mailing-list</report>
+							<report>project-team</report>
+							<report>issue-tracking</report>
+							<report>license</report>
+							<report>dependencies</report> 
+							-->
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+		</plugins>
+	</reporting>
+	
+	
 </project>
