@@ -29,7 +29,7 @@ the RPM installation is as follows:
 
 [options="header"]
 |===
-|+tar.gz+		| RPM 
+|TAR.GZ			| RPM 
 |bin/			| /usr/sbin/
 |lib/			| /usr/share/unity-idm/lib/
 |logs/			| /var/log/unity-idm/
@@ -123,7 +123,7 @@ during the first start after installation and also after the Unity database is d
 . If the database is empty the tables are automatically created. There is no need to invoke any database initialization 
 scripts. The database is populated with the mandatory system contents.
 . If there is no configured admin user in the database, this user is created, using the configured credentials.
-The default admin user credential is automatically set to the +outdated+ state, what causes a necessity to change it 
+The default admin user credential is automatically set to the _outdated_ state, what causes a necessity to change it 
 immediately after the first login. 
 . Subsequently the data structures defined in configuration files are loaded to the database. 
 This functionality is provided to be able to manage of those parts of the 

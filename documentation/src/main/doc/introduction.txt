@@ -4,6 +4,7 @@ In short Unity is a *complete solution for identity, federation and inter-federa
 Or, looking at the same functional area from a different perspective, it is an *extremely flexible authentication
 service*.
 
+
 Unity allows its administrators to enable authentication (or login) using various protocols, with different 
 configurations for many relaying parties. The actual authentication can be performed using 
 the built-in feature-rich users database or can be delegated to
@@ -13,6 +14,11 @@ Those fundamental usage patterns are shown on the following figure:
 
 image::./figures/general.png[alt="Unity general function as a versatile authentication platform",align="center",scaledwidth="50%"]
 
+What is important to underline here: 
+
+[.red]*Unity is NOT yet another bundle of several, coupled together systems.* 
+It is a solution built from the ground up. All pieces perfectly fit together. Startup is fast. Administration of all 
+parts is performed in the same style. And the whole solution is fully web and cloud ready.
 
 [NOTE]
 Unity is under heavy development. Not all extensions and functions of the engine which are on the presented
@@ -31,10 +37,6 @@ where it makes sense to do so.
 - *Security* We doesn't provide inherently insecure solutions in Unity. No, it is not possible to use MD5 hashes
 of passwords in the local database.
 
-
-What is important to underline here: _Unity is NOT yet another bundle of several, coupled together systems_. It 
-is a solution built from the ground up. All pieces perfectly fit together. Startup is fast. Administration of all 
-parts is performed in the same style. And the whole solution is fully web and cloud ready.
 
 
 === Use cases

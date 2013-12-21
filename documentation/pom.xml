@@ -144,8 +144,8 @@
 							<mainClass>pl.edu.icm.unity.doc.utils.AsciidoctorFormatter</mainClass>
 							<arguments>
 								<argument>target/workspace</argument>
-								<argument>eu.unicore.security.canl.TruststoreProperties|sec-ref-trustProperties.txt|unityServer.core.truststore</argument>
-								<argument>eu.unicore.security.canl.CredentialProperties|sec-ref-credProperties.txt|unityServer.core.credential</argument>
+								<argument>eu.unicore.security.canl.TruststoreProperties|sec-ref-trustProperties.txt|unityServer.core.truststore.</argument>
+								<argument>eu.unicore.security.canl.CredentialProperties|sec-ref-credProperties.txt|unityServer.core.credential.</argument>
 								<argument>pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration|ref-httpServerProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.server.utils.UnityServerConfiguration|ref-mainServerProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.ws.CXFEndpointProperties|ref-cxfEndpointProperties.txt|</argument>

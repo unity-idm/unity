@@ -17,6 +17,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
+import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import eu.unicore.util.jetty.HttpServerProperties;
 
 /**
@@ -37,15 +38,20 @@ public class UnityHttpServerConfiguration extends HttpServerProperties
 	
 	static
 	{
-		defaults.putAll(HttpServerProperties.defaults);
-		defaults.put(USE_NIO, new PropertyMD("true").
+		DocumentationCategory mainCat = new DocumentationCategory("General settings", "1");
+		DocumentationCategory advancedCat = new DocumentationCategory("Advanced settings", "9");
+		defaults.put(HTTPS_HOST, new PropertyMD("localhost").setCategory(mainCat).
+				setDescription("The hostname or IP address for HTTPS connections."));
+		defaults.put(HTTPS_PORT, new PropertyMD("2443").setBounds(1, 65535).setCategory(mainCat).
+				setDescription("The HTTPS port to be used."));
+
+		for (Map.Entry<String, PropertyMD> entry: HttpServerProperties.defaults.entrySet())
+			defaults.put(entry.getKey(), entry.getValue().setCategory(advancedCat));
+
+		defaults.put(USE_NIO, new PropertyMD("true").setCategory(advancedCat).
 				setDescription("Controls whether the NIO connector be used. NIO is best suited under high-load, " +
 						"when lots of connections exist that are idle for long periods."));
 		defaults.get(REQUIRE_CLIENT_AUTHN).setDefault("false");
-		defaults.put(HTTPS_HOST, new PropertyMD("localhost").
-				setDescription("The hostname or IP address for HTTPS connections."));
-		defaults.put(HTTPS_PORT, new PropertyMD("2443").setBounds(1, 65535).
-				setDescription("The HTTPS port to be used."));
 	}
 
 	public UnityHttpServerConfiguration(Properties source) throws ConfigurationException

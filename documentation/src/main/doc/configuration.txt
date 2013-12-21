@@ -9,30 +9,157 @@ The +conf/log4j.properties+ file configures the logging of the server. This is d
 The +conf/unityServer.conf+ file is the main server configuration file. All other configuration files are defined 
 in it.
 
-
-
+[NOTE]
+Currently the configuration is read only at startup so after any change a restart is required. 
+We plan to deliver a better tooling, so the most common configuration updates won't require the restart.
+Also note that some of the configuration file parts may be deactivated - then the settings from such sections
+won't be loaded even after restart. 
   
+The table showing all the options is very long, so here a description of the most important parts
+of the configuration with few examples. 
+
+There are several sections of the configured elements:
+
+ * The general server settings, it is always good to review them.
+ ** The initial admin username and password is set here. After the server is initialized and admin account(s) are 
+ set up those options may be removed and used only in emergency case (i.e. when the last admin user remove itself).
+ ** The option   
+ * HTTP server settings, where there are two important settings: listen hostname and port. The rest is fairly advanced.
+ * Server trust settings and the server credential, mostly used for SSL. This is documented separately in the subsections
+<<server_trust>> and <<server_cred>>.
+ * Definitions of various artifacts of the server to be loaded: credentials, credential requirements, authenticators and 
+endpoints. Note that the credentials and credential requirements can be also managed more conveniently with the web adminUI.
+ 
 
 include::ref-mainServerProperties.txt[]
 
+[[server_trust]]
+=== PKI/X.509 trust settings
 
-=== Credentials and truststores
+Public Key Infrastructure (PKI) trust settings are used to validate certificates, i.e. to check if the certificate
+are not faked. This is performed, in the first place when a connection with a remote peer is initiated over 
+the network, using the SSL (or TLS) protocol. Additionally certificate validation can happen in few other situations, e.g. when checking digital signatures 
+of various sensitive pieces of data.
 
-The server credential, used in the first place to setup the TLS server socket is configured with the 
-following properties. The simple example is:
+Certificates validation is primarily configured using a set of initially trusted certificates of so called 
+Certificate Authorities (CAs). Those trusted certificates are also known as _trust anchors_ and their collection
+is called a _trust store_.
 
-----
----- 
+Except of _trust anchors_ validation mechanism can use additional input for checking if a certificate being checked 
+was not revoked and if its subject is in a permitted namespace.
 
-include::sec-ref-credProperties.txt[]
+[NOTE]
+In this section we refer to the configuration of the general trust store of the server, which is used
+to setup its network connection. However several subsystems allow for configuring their separate
+trust stores (e.g. the LDAP callout may use a different trust store to verify LDAP server certificate).
+In all the cases the configuration is the same, however the properties prefix may vary.    
 
+Unity allows for different types of trust stores. All of them are configured using a set of properties.
 
-
+ - _Keystore trust store_ - trusted certificates are
+ stored in a single binary file in the JKS or PKCS12 format. The file can be manipulated using a special tool
+ like JDK +keytool+ or +openssl+ (in case of PKCS12 format). This format is a good choice if the trust store 
+ should be stored in a single file or when compatibility with other Java solutions is desired.   
+ - _OpenSSL trust store_ - allows to use a directory with CA certificates stored in PEM format, under precisely
+ defined names: the CA certificates, CRLs, signing policy files and namespaces files are named 
+ +<hash>.0+, +<hash>.r0+, +<hash>.signing_policy+ and +<hash>.namespaces+. The hash must be generated using the +openssl+ tool
+ from a trusted certificate. This format is used by many well known servers, Linux distributions often provide tools
+ to help in trust store management. Therefore this format is suggested if reuse of the truststore is needed.
+ - _Directory trust store_ - the most flexible and convenient option, suggested for all remaining cases. It allows
+ administrators to use a list of wildcard expressions, concrete paths of files or even URLs to remote files 
+ as a set of trusted CAs and corresponding CRLs. With this trust store it is trivial to configure a
+ designated directory(-ies) as a trust store.
+ 
+In all cases trust stores can be (and by default are) configured to be automatically refreshed. 
+ 
+The following table provides a reference to settings of all of the trust stores.
 
 include::sec-ref-trustProperties.txt[]
 
+*Examples*
 
-=== Advanced HTTP server settings
+Directory trust store, with a minimal set of options:
+
+ unityServer.core.truststore.type=directory
+ unityServer.core.truststore.directoryLocations.1=/trust/dir/*.pem
+ unityServer.core.truststore.crlLocations=/trust/dir/*.crl
+ 
+Directory trust store, with a complete set of options:
+
+ unityServer.core.truststore.type=directory
+ unityServer.core.truststore.allowProxy=DENY
+ unityServer.core.truststore.updateInterval=1234
+ unityServer.core.truststore.directoryLocations.1=/trust/dir/*.pem
+ unityServer.core.truststore.directoryLocations.2=http://caserver/ca.pem
+ unityServer.core.truststore.directoryEncoding=PEM
+ unityServer.core.truststore.directoryConnectionTimeout=100
+ unityServer.core.truststore.directoryDiskCachePath=/tmp
+ unityServer.core.truststore.crlLocations.1=/trust/dir/*.crl
+ unityServer.core.truststore.crlLocations.2=http://caserver/crl.pem
+ unityServer.core.truststore.crlUpdateInterval=400
+ unityServer.core.truststore.crlMode=REQUIRE
+ unityServer.core.truststore.crlConnectionTimeout=200
+ unityServer.core.truststore.crlDiskCachePath=/tmp
+
+Java keystore used as a trust store:
+
+ unityServer.core.truststore.type=keystore
+ unityServer.core.truststore.keystorePath=src/test/resources/certs/truststore.jks
+ unityServer.core.truststore.keystoreFormat=JKS
+ unityServer.core.truststore.keystorePassword=xxxxxx
+
+
+[[server_cred]]
+=== Configuring the PKI credential
+
+Unity uses private key and a corresponding certificate (called together as a _credential_) 
+to identify itself to its clients during TLS connection and sometimes to digitally sign returned documents. 
+This allows clients to be sure that they are talking with the genuine, not faked peer. 
+Note that also clients or users may use certificates to identify themselves to Unity - this is another topic.  
+
+[NOTE]
+Do not confuse the _PKI credential_ used by the server to identify itself with the credentials of the
+entities handled in the Unity's database.
+
+[NOTE]
+For production usage, Unity should use a certificate issued by a well trusted certificate authority.
+
+Credentials might be provided in several formats:
+
+ - Credential can be obtained from a _keystore file_, encoded in JKS or PKCS12 format.  
+ - Credential can be loaded as a pair of PEM files (one with private key and another with certificate),
+ - or from a pair of DER files,
+ - or even from a single file, with PEM-encoded certificates and private key (in any order).  
+
+The following table list all parameters which allows for configuring the credential.
+Note that nearly all options are optional. If not defined, the format is guessed.
+However some credential formats require additional settings. For instance if using _der_ format
+the _keyPath_ is mandatory as you need two DER files: one with certificate and one with the key (and
+the latter path can not be guessed). 
+
+include::sec-ref-credProperties.txt[]
+
+*Examples*
+
+Credential as a pair of DER files:
+
+ unityServer.core.credential.format=der
+ unityServer.core.credential.password=SOME PASS
+ unityServer.core.credential.path=/etc/credentials/cert-1.der
+ unityServer.core.credential.keyPath=/etc/credentials/pk-1.der
+
+Credential as a JKS file (credential type can be autodetected in almost every case):
+
+ unityServer.core.credential.path=/etc/credentials/server1.jks
+ unityServer.core.credential.password=xxxxxx
+
+
+
+=== HTTP server settings
+
+The embedded HTTP server is using sensible default values of HTTP settings. There are only two properties which needs to be 
+always properly set: hostname and port. However in some cases it may be necessary 
+to fine tune also the advanced settings. The complete reference is included below:
 
 include::ref-httpServerProperties.txt[]
 
@@ -47,11 +174,6 @@ Unity uses the Log4j logging framework in version 1.2.x (note that the latest ve
 What is more the log4j-extras package is included so additional logging features are enabled. 
 Logging is configured in the +conf/log4j.properties+ file.
 
-[NOTE]
-===========
-You can change the logging configuration at runtime by editing the +conf/log4j.properties+ file.
-The new configuration will take effect a few seconds after the file has been modified.
-===========
 
 By default, log files are written to the the +logs/+ directory. 
 
@@ -106,7 +228,7 @@ the publicly available documentation, for example the
 http://logging.apache.org/log4j/1.2/manual.html[Log4j manual].
  
 
-=== Logger categories, names and levels
+==== Logger categories, names and levels
 
 Logger names are hierarchical. In Unity, prefixes are used (e.g. "unity.server.con") 
 to which the Java class name is appended. The most common logging prefixes are:
@@ -125,12 +247,12 @@ data to the Unity format.
 Therefore the logging output produced can be controlled in a fine-grained manner. 
 Log levels in Log4j are (in increasing level of severity): 
 
-# +TRACE+ on this level _huge_ pieces of unprocessed information are dumped,
-# +DEBUG+ admin-friendly, verbose information, useful for hunting problems, 
-# +INFO+ standard information, not much output,
-# +WARN+ warnings are logged when something went wrong (so it should be investigated), but recovery was possible,
-# +ERROR+ something went wrong and operation probably failed, 
-# +FATAL+ something went really wrong - this is used very rarely for critical situations like overall server failure.
+- +TRACE+ on this level _huge_ pieces of unprocessed information are dumped,
+- +DEBUG+ admin-friendly, verbose information, useful for hunting problems, 
+- +INFO+ standard information, not much output,
+- +WARN+ warnings are logged when something went wrong (so it should be investigated), but recovery was possible,
+- +ERROR+ something went wrong and operation probably failed, 
+- +FATAL+ something went really wrong - this is used very rarely for critical situations like overall server failure.
 
 For example, to debug a configuration problem, you can set:
   

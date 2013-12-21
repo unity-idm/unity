@@ -102,6 +102,10 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	static
 	{
 		DocumentationCategory mainCat = new DocumentationCategory("General settings", "1");
+		DocumentationCategory initCredCat = new DocumentationCategory("Content initializers: credentials", "2");
+		DocumentationCategory initCredReqCat = new DocumentationCategory("Content initializers: credential requirements", "3");
+		DocumentationCategory initAuthnCat = new DocumentationCategory("Content initializers: authenticators", "4");
+		DocumentationCategory initEndpointsCat = new DocumentationCategory("Content initializers: endpoints", "5");
 		DocumentationCategory otherCat = new DocumentationCategory("Other", "8");
 		
 		defaults.put(ENABLED_LOCALES, new PropertyMD().setList(true).setCategory(mainCat).
@@ -114,65 +118,17 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("A configuration file for the mail notification subsystem."));
 		defaults.put(TEMPLATES_CONF, new PropertyMD("conf/msgTemplates.properties").setPath().setCategory(mainCat).
 				setDescription("A file with the default message templates."));
-		defaults.put(RECREATE_ENDPOINTS_ON_STARTUP, new PropertyMD("false").setDescription(
-				"If this options is true then all endpoints are initialized from configuration at each startup. If it is false then the persisted endpoints are loaded and configuration is used only at the initial start of the server."));
-		defaults.put(THREAD_POOL_SIZE, new PropertyMD("4").setDescription(
+		defaults.put(RECREATE_ENDPOINTS_ON_STARTUP, new PropertyMD("true").setCategory(mainCat).
+				setDescription("If this options is true then all endpoints are initialized from configuration at each startup." +
+				" If it is false then the previously persisted endpoints are loaded."));
+		defaults.put(THREAD_POOL_SIZE, new PropertyMD("4").setCategory(mainCat).setDescription(
 				"Number of threads used by internal processes of the server. HTTP server threads use a separate pool."));
-		defaults.put(INITIALIZERS, new PropertyMD().setList(true).setDescription(
+		defaults.put(INITIALIZERS, new PropertyMD().setList(true).setCategory(mainCat).setDescription(
 				"List of identifiers of initialization modules that should be run on the first startup."));
-		defaults.put(UPDATE_INTERVAL, new PropertyMD("60").setPositive().setDescription(
+		defaults.put(UPDATE_INTERVAL, new PropertyMD("60").setPositive().setCategory(mainCat).setDescription(
 				"Defines the interval of background update tasks in seconds. Those tasks are used to update runtime state of the server (for instance the deployed endpoints) with the data which is stored in database."));
-		defaults.put(WORKSPACE_DIRECTORY, new PropertyMD("data/workspace").setPath().setDescription(
+		defaults.put(WORKSPACE_DIRECTORY, new PropertyMD("data/workspace").setPath().setCategory(mainCat).setDescription(
 				"Defines a folder where the server will write its internal files."));
-		
-		defaults.put(ENDPOINTS, new PropertyMD().setStructuredList(true).setCategory(mainCat).
-				setDescription("List of initially enabled endpoints"));
-		defaults.put(ENDPOINT_TYPE, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(mainCat).
-				setDescription("Endpoint type"));
-		defaults.put(ENDPOINT_CONFIGURATION, new PropertyMD().setStructuredListEntry(ENDPOINTS).setPath().setMandatory().setCategory(mainCat).
-				setDescription("Path of the file with JSON configuration of the endpoint"));
-		defaults.put(ENDPOINT_DESCRIPTION, new PropertyMD("").setStructuredListEntry(ENDPOINTS).setCategory(mainCat).
-				setDescription("Description of the endpoint"));
-		defaults.put(ENDPOINT_ADDRESS, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(mainCat).
-				setDescription("Context path of the endpoint"));
-		defaults.put(ENDPOINT_NAME, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(mainCat).
-				setDescription("Endpoint name"));
-		defaults.put(ENDPOINT_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(mainCat).
-				setDescription("Endpoint authenticator names: each set is separated with ';' and particular authenticators in each set with ','."));
-
-		defaults.put(AUTHENTICATORS, new PropertyMD().setStructuredList(true).setCategory(mainCat).
-				setDescription("List of initially enabled authenticators"));
-		defaults.put(AUTHENTICATOR_NAME, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setMandatory().setCategory(mainCat).
-				setDescription("Authenticator name"));
-		defaults.put(AUTHENTICATOR_TYPE, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setMandatory().setCategory(mainCat).
-				setDescription("Authenticator type"));
-		defaults.put(AUTHENTICATOR_CREDENTIAL, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setCategory(mainCat).
-				setDescription("For local authenticator the name of the local credential associated with it."));
-		defaults.put(AUTHENTICATOR_VERIFICATOR_CONFIG, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setCategory(mainCat).
-				setDescription("Authenticator configuration file of the verificator"));
-		defaults.put(AUTHENTICATOR_RETRIEVAL_CONFIG, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setMandatory().setCategory(mainCat).
-				setDescription("Authenticator configuration file of the retrieval"));
-
-		defaults.put(CREDENTIALS, new PropertyMD().setStructuredList(true).setCategory(mainCat).
-				setDescription("List of initially defined credentials"));
-		defaults.put(CREDENTIAL_NAME, new PropertyMD().setStructuredListEntry(CREDENTIALS).setMandatory().setCategory(mainCat).
-				setDescription("Credential name"));
-		defaults.put(CREDENTIAL_TYPE, new PropertyMD().setStructuredListEntry(CREDENTIALS).setMandatory().setCategory(mainCat).
-				setDescription("Credential type"));
-		defaults.put(CREDENTIAL_DESCRIPTION, new PropertyMD("").setStructuredListEntry(CREDENTIALS).setCategory(mainCat).
-				setDescription("Credential description"));
-		defaults.put(CREDENTIAL_CONFIGURATION, new PropertyMD().setStructuredListEntry(CREDENTIALS).setMandatory().setCategory(mainCat).
-				setDescription("Credential configuration file"));
-
-		defaults.put(CREDENTIAL_REQS, new PropertyMD().setStructuredList(true).setCategory(mainCat).
-				setDescription("List of initially defined credential requirements"));
-		defaults.put(CREDENTIAL_REQ_NAME, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setMandatory().setCategory(mainCat).
-				setDescription("Credential requirement name"));
-		defaults.put(CREDENTIAL_REQ_DESCRIPTION, new PropertyMD("").setStructuredListEntry(CREDENTIAL_REQS).setCategory(mainCat).
-				setDescription("Credential requirement description"));
-		defaults.put(CREDENTIAL_REQ_CONTENTS, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setList(false).setMandatory().setCategory(mainCat).
-				setDescription("Credential requirement contents, i.e. credentials that belongs to it"));
-
 		defaults.put(INITIAL_ADMIN_USER, new PropertyMD().setCategory(mainCat).
 				setDescription("Username of the administrator to be installed to the database upon startup. Remove the property if no admin should be added."));
 		defaults.put(INITIAL_ADMIN_PASSWORD, new PropertyMD("admin").setCategory(mainCat).
@@ -184,6 +140,55 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		defaults.put(TRANSLATION_PROFILES, new PropertyMD().setList(false).setCategory(mainCat).
 				setDescription("List of file paths, where each file contains a definition of a translation profile, " +
 						"used to configure mapping of remote identities to the local representation."));
+
+		
+		defaults.put(ENDPOINTS, new PropertyMD().setStructuredList(true).setCategory(initEndpointsCat).
+				setDescription("List of initially enabled endpoints"));
+		defaults.put(ENDPOINT_TYPE, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(initEndpointsCat).
+				setDescription("Endpoint type"));
+		defaults.put(ENDPOINT_CONFIGURATION, new PropertyMD().setStructuredListEntry(ENDPOINTS).setPath().setMandatory().setCategory(initEndpointsCat).
+				setDescription("Path of the file with JSON configuration of the endpoint"));
+		defaults.put(ENDPOINT_DESCRIPTION, new PropertyMD("").setStructuredListEntry(ENDPOINTS).setCategory(initEndpointsCat).
+				setDescription("Description of the endpoint"));
+		defaults.put(ENDPOINT_ADDRESS, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(initEndpointsCat).
+				setDescription("Context path of the endpoint"));
+		defaults.put(ENDPOINT_NAME, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(initEndpointsCat).
+				setDescription("Endpoint name"));
+		defaults.put(ENDPOINT_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(initEndpointsCat).
+				setDescription("Endpoint authenticator names: each set is separated with ';' and particular authenticators in each set with ','."));
+
+		defaults.put(AUTHENTICATORS, new PropertyMD().setStructuredList(true).setCategory(initAuthnCat).
+				setDescription("List of initially enabled authenticators"));
+		defaults.put(AUTHENTICATOR_NAME, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setMandatory().setCategory(initAuthnCat).
+				setDescription("Authenticator name"));
+		defaults.put(AUTHENTICATOR_TYPE, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setMandatory().setCategory(initAuthnCat).
+				setDescription("Authenticator type"));
+		defaults.put(AUTHENTICATOR_CREDENTIAL, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setCategory(initAuthnCat).
+				setDescription("For local authenticator the name of the local credential associated with it."));
+		defaults.put(AUTHENTICATOR_VERIFICATOR_CONFIG, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setCategory(initAuthnCat).
+				setDescription("Authenticator configuration file of the verificator"));
+		defaults.put(AUTHENTICATOR_RETRIEVAL_CONFIG, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setMandatory().setCategory(initAuthnCat).
+				setDescription("Authenticator configuration file of the retrieval"));
+
+		defaults.put(CREDENTIALS, new PropertyMD().setStructuredList(true).setCategory(initCredCat).
+				setDescription("List of initially defined credentials"));
+		defaults.put(CREDENTIAL_NAME, new PropertyMD().setStructuredListEntry(CREDENTIALS).setMandatory().setCategory(initCredCat).
+				setDescription("Credential name"));
+		defaults.put(CREDENTIAL_TYPE, new PropertyMD().setStructuredListEntry(CREDENTIALS).setMandatory().setCategory(initCredCat).
+				setDescription("Credential type"));
+		defaults.put(CREDENTIAL_DESCRIPTION, new PropertyMD("").setStructuredListEntry(CREDENTIALS).setCategory(initCredCat).
+				setDescription("Credential description"));
+		defaults.put(CREDENTIAL_CONFIGURATION, new PropertyMD().setStructuredListEntry(CREDENTIALS).setMandatory().setCategory(initCredCat).
+				setDescription("Credential configuration file"));
+
+		defaults.put(CREDENTIAL_REQS, new PropertyMD().setStructuredList(true).setCategory(initCredReqCat).
+				setDescription("List of initially defined credential requirements"));
+		defaults.put(CREDENTIAL_REQ_NAME, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setMandatory().setCategory(initCredReqCat).
+				setDescription("Credential requirement name"));
+		defaults.put(CREDENTIAL_REQ_DESCRIPTION, new PropertyMD("").setStructuredListEntry(CREDENTIAL_REQS).setCategory(initCredReqCat).
+				setDescription("Credential requirement description"));
+		defaults.put(CREDENTIAL_REQ_CONTENTS, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setList(false).setMandatory().setCategory(initCredReqCat).
+				setDescription("Credential requirement contents, i.e. credentials that belongs to it"));
 		
 		defaults.put(TruststoreProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).
 				setDescription("Properties starting with this prefix are used to configure server's trust settings and certificate validation. See separate table for details."));
