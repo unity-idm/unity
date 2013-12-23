@@ -1,5 +1,46 @@
-
-
 === LDAP 
+
+LDAP based authentication allows for outsourcing credential verification to a server 
+talking with the LDAP protocol, as OpenLDAP or Active Directory.
+
+To configure LDAP authentication a server address must be provided as well as some information
+regarding the LDAP directory schema. The amount of options varies depending on the amount of 
+information that should be retrieved from LDAP. 
+
+Let's consider an (complex) example:
+
+----
+ldap.servers.1=localhost
+ldap.ports.1=389
+ldap.userDNTemplate=cn={USERNAME},ou=users,dc=unity-example,dc=com
+ldap.attributes.1=cn
+ldap.attributes.2=sn
+ldap.groupsBaseName=dc=unity-example,dc=com
+ldap.groups.1.objectClass=posixGroup
+ldap.groups.1.memberAttribute=memberUid
+ldap.groups.1.matchByMemberAttribute=cn
+ldap.groups.1.nameAttribute=cn
+ldap.groups.2.objectClass=groupOfNames
+ldap.groups.2.memberAttribute=member
+ldap.groups.2.nameAttribute=cn
+----
+
+In this example a single LDAP server is configured (also alternative addresses may be added 
+to take advantage of LDAP high availability deployment if it is set up): localhost:389.
+The login name which is presented for authentication is converted to an LDAP DN using a template 
+expression. Thanks to it the user needs not to enter the full DN.
+The two attributes (+cn+ and +sn+) are going to be retrieved for the user.
+Finally there are two group definitions, configuring how to extract group membership from LDAP.
+In this case the LDAP server stores groups as separate tree nodes which contains group 
+members as values of a designated attribute. 
+
+In the both cases the groups are searched under the LDAP tree node +dc=unity-example,dc=com+. In the first
+case the group objects have the class +posixGroup+. Members are listed as values of the +memberUid+ attribute.
+What is more the values are not the full DNs of the members but only their +cn+ attributes. The 
+group's short name is in its +cn+ attribute. The 2nd group definition is similar but another 
+object class is used (+groupOfNames+), members are in other attribute (+members+) and are given 
+with their full DNs.
+
+The complete LDAP options reference follows:
 
 include::ref-ldapProperties.txt[]

@@ -49,7 +49,10 @@ public class AsciidoctorFormatter implements HelpFormatter
 				keysInCats.put(cat, current);
 			}
 			
-			current.add(meta.getSortKey() != null ? meta.getSortKey() + "-_-_-"+key : key);
+			String convertedKey = getPropertyKey(key, meta, pfx, metadata);
+			current.add(meta.getSortKey() != null ? 
+				meta.getSortKey() + "||||||" + convertedKey + "-_-_-" + key : 
+				convertedKey + "-_-_-" + key);
 		}
 		
 		

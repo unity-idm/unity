@@ -19,6 +19,7 @@ import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
+import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 
 /**
  * Low level configuration handling - implemented with {@link Properties} as storage format.
@@ -61,73 +62,76 @@ public class LdapProperties extends PropertiesHelper
 	
 	static
 	{
-		META.put(SERVERS, new PropertyMD().setList(true).setDescription("List of redundant LDAP server " +
+		DocumentationCategory main = new DocumentationCategory("General settings", "1");
+		DocumentationCategory groups = new DocumentationCategory("Group retrieval settings", "3");
+		
+		META.put(SERVERS, new PropertyMD().setList(true).setCategory(main).setDescription("List of redundant LDAP server " +
 				"hostnames. Use only one if there is no redundancy."));
-		META.put(PORTS, new PropertyMD().setList(true).setDescription("List of redundant LDAP server " +
+		META.put(PORTS, new PropertyMD().setList(true).setCategory(main).setDescription("List of redundant LDAP server " +
 				"ports. The ports must match their corresponding servers."));
-		META.put(CONNECTION_MODE, new PropertyMD(ConnectionMode.plain).setDescription("It can be controlled " +
+		META.put(CONNECTION_MODE, new PropertyMD(ConnectionMode.plain).setCategory(main).setDescription("It can be controlled " +
 				"whether a connection to teh server should be made using a plain socket, over SSL socket" +
 				"or over a socket with START TLS after handshake."));
-		META.put(TLS_TRUST_ALL, new PropertyMD("false").setDescription("Used only when TLS mode is enabled. " +
+		META.put(TLS_TRUST_ALL, new PropertyMD("false").setCategory(main).setDescription("Used only when TLS mode is enabled. " +
 				"If true then the secured TLS protocol will accept any server's certificate. " +
 				"If false - then the truststore must be configured."));
-		META.put(SOCKET_TIMEOUT, new PropertyMD("30000").setNonNegative().setDescription("Number of milliseconds the " +
+		META.put(SOCKET_TIMEOUT, new PropertyMD("30000").setNonNegative().setCategory(main).setDescription("Number of milliseconds the " +
 				"network operations (connect and read) are allowed to lasts. Set to 0 to disable the limit."));
-		META.put(FOLLOW_REFERRALS, new PropertyMD("2").setNonNegative().setDescription("Number of referrals to follow. " +
+		META.put(FOLLOW_REFERRALS, new PropertyMD("2").setNonNegative().setCategory(main).setDescription("Number of referrals to follow. " +
 				"Set to 0 to disable following referrals."));
-		META.put(USER_DN_TEMPLATE, new PropertyMD().setMandatory().setDescription("Template of a DN of " +
+		META.put(USER_DN_TEMPLATE, new PropertyMD().setMandatory().setCategory(main).setDescription("Template of a DN of " +
 				"the user that should be used to log in. The tempalte must possess a single occurence " +
 				"of a special string: '{USERNAME}' (without quotation). The username provided by the client" +
 				" will be substituted."));
-		META.put(BIND_ONLY, new PropertyMD("false").setDescription("If true then the user is only authenticated" +
+		META.put(BIND_ONLY, new PropertyMD("false").setCategory(main).setDescription("If true then the user is only authenticated" +
 				" and no LDAP attributes (including groups) are collected for the user. " +
 				"This is much faster but maximally limits an information imported to Unity."));
-		META.put(ATTRIBUTES, new PropertyMD().setList(false).setDescription("List of " +
+		META.put(ATTRIBUTES, new PropertyMD().setList(false).setCategory(main).setDescription("List of " +
 				"attributes to be retrieved. If the list is empty then all available attributes are fetched."));
-		META.put(SEARCH_TIME_LIMIT, new PropertyMD("60").setDescription("Amount of time (in seconds) " +
+		META.put(SEARCH_TIME_LIMIT, new PropertyMD("60").setCategory(main).setDescription("Amount of time (in seconds) " +
 				"for which a search query may be executed. Note that depending on configuration there " +
 				"might be up to two queries performed per a single authentication. The LDAP server " +
 				"might have more strict limit."));
-		META.put(GROUPS_BASE_NAME, new PropertyMD().setDescription("Base DN under which all groups are defined. " +
+		META.put(GROUPS_BASE_NAME, new PropertyMD().setCategory(groups).setDescription("Base DN under which all groups are defined. " +
 				"Groups need not to be immediatelly under this DN. If not defined, then groups " +
 				"are not searched for the membership of the user."));
-		META.put(GROUP_DEFINITION_PFX, new PropertyMD().setStructuredList(true).setDescription("Group " +
+		META.put(GROUP_DEFINITION_PFX, new PropertyMD().setStructuredList(true).setCategory(groups).setDescription("Group " +
 				"definitions should be defined under this prefix."));
-		META.put(GROUP_DEFINITION_OC, new PropertyMD().setMandatory().setStructuredListEntry(GROUP_DEFINITION_PFX).
+		META.put(GROUP_DEFINITION_OC, new PropertyMD().setMandatory().setCategory(groups).setStructuredListEntry(GROUP_DEFINITION_PFX).
 				setDescription("Object class of the group."));
-		META.put(GROUP_DEFINITION_MEMBER_ATTR, new PropertyMD().setMandatory().setStructuredListEntry(GROUP_DEFINITION_PFX).
+		META.put(GROUP_DEFINITION_MEMBER_ATTR, new PropertyMD().setCategory(groups).setMandatory().setStructuredListEntry(GROUP_DEFINITION_PFX).
 				setDescription("Group's entry attribute with group members. Usually something like 'member'."));
-		META.put(GROUP_DEFINITION_NAME_ATTR, new PropertyMD().setStructuredListEntry(GROUP_DEFINITION_PFX).
+		META.put(GROUP_DEFINITION_NAME_ATTR, new PropertyMD().setCategory(groups).setStructuredListEntry(GROUP_DEFINITION_PFX).
 				setDescription("Group's entry attribute with group's name. If undefined then the whole DN is used."));
-		META.put(GROUP_DEFINITION_MATCHBY_MEMBER_ATTR, new PropertyMD().setStructuredListEntry(GROUP_DEFINITION_PFX).
+		META.put(GROUP_DEFINITION_MATCHBY_MEMBER_ATTR, new PropertyMD().setCategory(groups).setStructuredListEntry(GROUP_DEFINITION_PFX).
 				setDescription("If this attribute is defined then it is assumed thet the members in " +
 						"the group entry are given with values of a single attribute (e.g. uid), " +
 						"not with their full DNs. This property defines this attribute (should " +
 						"be present on the user's entry for which groups are searched)."));
 
-		META.put(VALID_USERS_FILTER, new PropertyMD().setDescription("Standard LDAP filter of valid users." +
+		META.put(VALID_USERS_FILTER, new PropertyMD().setCategory(main).setDescription("Standard LDAP filter of valid users." +
 				" Even the users who can authenticate but are not matching this filter will " +
 				"have access denied. IMPORTANT: if the '" + BIND_ONLY + "' mode is turned on, this" +
 				" setting is ignored."));
 		
 		
-		META.put(MEMBER_OF_ATTRIBUTE, new PropertyMD().setDescription("User's attribute name which contains " +
+		META.put(MEMBER_OF_ATTRIBUTE, new PropertyMD().setCategory(groups).setDescription("User's attribute name which contains " +
 				"groups of the user, usually something like 'memberOf'. If not defined then groups " +
 				"are not extracted from the user's entry (but might be retrieved by" +
 				" scanning all groups in the LDAP tree)."));
-		META.put(MEMBER_OF_GROUP_ATTRIBUTE, new PropertyMD().setDescription("If user's attributes are read from " +
+		META.put(MEMBER_OF_GROUP_ATTRIBUTE, new PropertyMD().setCategory(groups).setDescription("If user's attributes are read from " +
 				"'memberOf' (or alike) attribute, then this property may be used to extract the actual " +
 				"group name from its DN. If undefined then the DN will be used as group's name. " +
 				"If defined then the group's name will be the value of the attribute in the group's DN " +
 				"with a name defined here."));
 
-		META.put(TRANSLATION_PROFILE, new PropertyMD().setMandatory().setDescription("Name of a translation" +
+		META.put(TRANSLATION_PROFILE, new PropertyMD().setMandatory().setCategory(main).setDescription("Name of a translation" +
 				" profile, which will be used to map remotely obtained attributes and identity" +
 				" to the local counterparts. The profile should at least map the remote identity."));
 
 		
-		META.put(TruststoreProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().
-				setDescription("Properties starting with this prefix are used to configure client's'" +
+		META.put(TruststoreProperties.DEFAULT_PREFIX, new PropertyMD().setCategory(main).setCanHaveSubkeys().
+				setDescription("Properties starting with this prefix are used to configure clients'" +
 						" trust settings for the TLS connections. See separate documentation for details."));
 	}
 	

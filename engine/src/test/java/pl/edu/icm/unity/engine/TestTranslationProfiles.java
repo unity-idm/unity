@@ -82,7 +82,8 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		List<TranslationRule> rules = new ArrayList<>();
 		TranslationAction action1 = tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
 				"(.*)", "$1", EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT);
-		rules.add(new TranslationRule(action1, new TranslationCondition()));
+		rules.add(new TranslationRule(action1, new TranslationCondition(
+				"identities[\"cn=test\"] != null")));
 		
 		TranslationAction action2 = tactionReg.getByName(CreateUserActionFactory.NAME).getInstance(
 				"true");

@@ -2,5 +2,115 @@
 [[external-idps]]
 == Integration of 3rd party Identity Providers
 
+Unity can use external services to authenticate its own clients. This way Unity can act as 
+authentication hub (many authentication options are offered in a single place) and as a 
+authentication bridge (Unity client can use different authentication protocol then the 
+protocol of the upstream IdP).
+
+Data from external IdPs is accessed in a protocol specific way. The configuration of this
+part is described in following subsections. After the protocol specific part, a common process 
+for all external IdP types take place: translation of the obtained data to the internal Unity 
+representation. This "mapping" can handle both semantical and syntactical differences of the 
+identity-related information. It is configured with so called _translation profiles_.
+
+=== Translation profiles configuration
+
+Translation profile is a named, ordered list of conditional rules. The rules are used to 
+modify the remotely obtained data and/or to perform automatic modifications of the Unity's 
+database. For instance translation profile can change remote attribute 'height' value from
+inches to centimeters and insert a remotely authenticated user to the local database (to the correct group)
+if the user is not yet there.
+
+Translation profile is associated with a remote authenticator in its configuration. 
+The definition of the profile itself is given in a separate JSON file and the list 
+of profile files is specified in the Unity main configuration file.
+
+Translation profile (both conditions and rules) operate on a data structure which is initially
+filled by the protocol specific component. The structure can contain:
+ * Identity (or identities) authenticated by the remote IdP.
+ * External attributes encoded with a list of string values.
+ * Groups assigned by the remote IdP.
+ 
+What data is actually returned is dependent on the protocol, upstream server and callout configuration.
+
+
+The overall syntax of the translation profile file is as follows:
+
+----
+{
+	"name": "PROFILE NAME",
+	"description": "PROFILE DESCRIPTION",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "RULE CONDITION"
+			}, 
+			"action": {
+				"name": "ACTION NAME",
+				"parameters": [
+					ACTION-PARAM1,
+					ASTION-PARAM2,
+					...
+				]
+			}			
+		},
+		
+        ... OTHER RULES ...
+    ]
+}
+----
+
+The rule condition is given as a MVEL expression language. The documentation can be found here 
+http://mvel.codehaus.org/Language+Guide+for+2.0 and the quick start is here
+http://mvel.codehaus.org/Getting+Started+for+2.0
+The context of the expression language contains three map objects named +identities+,
++groups+ and +attributes+, indexed with identity, group and attribute names respectively. 
+
+For instance the following condition tests whether the authenticated user name is +john+.
+----
+"conditionValue": "identities[\"john\"] != null"
+----  
+
+The actions and their arguments are documented in the following table. Where argument is ended with _RE_
+a regular expression can be used.
+
+[cols="m,n,n", options="header"]
+|=== 
+| Action name 		| Arguments 									| Description
+| mapIdentity 		| +replacedRE+ +replacement+ +credentialRequirement+  | Convert identity value to local representation & assigns credential requirement.
+| mapGroup 			| +replacedRE+ +replacement+ 					| Converts group to local representation.
+| mapAttribute		| +replacedRE+ +replacement+ +group+			| Convert attribute names and assign them to a local group.
+| createUser 		| +withAttributes+								| If there is a previously mapped identity in the context and it is not available in the local 
+DB it is created. If the argument is true, then also the attributes mapped to the '/' group are assigned.
+| updateGroups 		| +groupsRE+									| Adds the client to the groups which were provided by the remote IdP. 
+Only groups that has been previously mapped to the unity group are considered (other are ignored). 
+A subset of all groups can be selected with parameter.
+| updateAttributes	| +pattern+ +valuesOnly+						| Updates selected attributes of the client. Only attributes that
+ has been previously mapped to local name and have assigned group scope can be updated (other are ignored). 
+ Can work in two modes: either all attributes are added/updated or only the values are updated for
+ those attributes which are already present locally.
+|===
+
+
+The following example rule maps all (the +true+ condition) remote identities to local representation
+without any identity change (the original identity is replaced with itself) and assigns it the 
++PasswordOnly+ credential requirement. 
+
+----
+        {
+			"condition": {
+				"conditionValue": "true"
+			}, 
+			"action": {
+				"name": "mapIdentity",
+				"parameters": [
+					"(.*)",
+					"$1",
+					"PasswordOnly"
+				]
+			}			
+		}
+----
+
 
 include::external-ldap.txt[]
