@@ -47,6 +47,11 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-persistence</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-ws</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -152,6 +157,7 @@
 								<argument>pl.edu.icm.unity.ldap.LdapProperties|ref-ldapProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.webui.VaadinEndpointProperties|ref-vaadinEndpointProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.samlidp.SamlProperties|ref-samlProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.db.DBConfiguration|ref-dbProperties.txt|</argument>
 							</arguments>
 						</configuration>
 						<goals>

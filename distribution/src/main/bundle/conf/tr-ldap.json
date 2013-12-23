@@ -1,0 +1,46 @@
+{
+	"name": "ldapProfile",
+	"description": "Allows to translate local Open LDAP data into local representation. gr1->/A/B, identity is taken as-is, cn->cn, everything is synced automatically",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			}, 
+			"action": {
+				"name": "mapIdentity",
+				"parameters": [
+					"(.*)",
+					"$1",
+					"Password requirement"
+				]
+			}			
+		},
+			
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapGroup",
+				"parameters": [
+					"gr1",
+					"/A/B"
+				]
+			}			
+		},	
+
+		{
+			"condition": {
+				"conditionValue": "true"
+			}, 
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"cn",
+					"cn",
+					"/"
+				]
+			}			
+		}
+	]
+}

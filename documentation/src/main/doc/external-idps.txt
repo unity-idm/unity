@@ -1,5 +1,5 @@
 
-
+[[external-idps]]
 == Integration of 3rd party Identity Providers
 
 

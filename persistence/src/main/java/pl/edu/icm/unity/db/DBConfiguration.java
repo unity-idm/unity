@@ -16,6 +16,8 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.configuration.DocumentationReferenceMeta;
+import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.db.DBPropertiesHelper;
@@ -30,11 +32,13 @@ public class DBConfiguration extends PropertiesHelper
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, DBConfiguration.class);
 	public enum Dialect {h2, mysql, psql};
 
+	@DocumentationReferencePrefix
 	public static final String PREFIX = UnityServerConfiguration.BASE_PREFIX+DBPropertiesHelper.PREFIX;
 	
 	public static final String DBCONFIG_FILE = "mapconfigFile";
 	public static final String LOCAL_DB_URL = "localDBUrl";
 	
+	@DocumentationReferenceMeta
 	public static final Map<String, PropertyMD> META;
 	static 
 	{

@@ -72,7 +72,7 @@ When using the +.tar.gz+ the update can be conveniently performed on a single ma
 . Start the new instance (next to the old one).
 . Load the dumped state to the new instance and test it.
 . If everything is all right stop it and change its port to the correct port used by the old service.
-. If needed create an another, up-to-date dump of the old service state and stop it.
+. If needed, create an another, up-to-date dump of the old service state and stop it.
 . Start the new service and load the latest dump.
 . If needed reconfigure startup scripts to start the updated service, as well as update the +PATH+ variable to use
 new Unity binaries location. It is a good practice to have a symbolic link to the actual Unity installation directory
@@ -111,8 +111,9 @@ Here we list the most important facts about the default configuration:
 one trusted CA.
 - The server uses an embedded H2 database. Its performance is fine, however it is not recommended in production 
 deployments where DB backups and high availability may easily become an requirement.
-- The server should be run as unprivileged user, unless the start script is directly called by the root user. The
-initialization scripts guarantee this (the user is +unity-idm+).
+- The server should be started by an unprivileged user. It is not required in case of using 
+the system initialization scripts installed with RPM, which can be run by root 
+(the user will be automatically changed to +unity-idm+).
 
 
 ==== The first and subsequent startups
@@ -134,14 +135,6 @@ for various use-cases.
 
 The distribution is set up to load demo contents. If you don't need it - remove it from the configuration 
 (see below how).
-
-
-
-
-
-
-
-
 
 
 

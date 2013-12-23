@@ -6,32 +6,54 @@ their default locations one needs to edit startup scripts.
 
 The +conf/log4j.properties+ file configures the logging of the server. This is described in the section <<logging>>.
 
-The +conf/unityServer.conf+ file is the main server configuration file. All other configuration files are defined 
+The +conf/unityServer.conf+ file is the main server configuration file. All other additional configuration files are defined 
 in it.
 
 [NOTE]
 Currently the configuration is read only at startup so after any change a restart is required. 
 We plan to deliver a better tooling, so the most common configuration updates won't require the restart.
-Also note that some of the configuration file parts may be deactivated - then the settings from such sections
-won't be loaded even after restart. 
   
-The table showing all the options is very long, so here a description of the most important parts
-of the configuration with few examples. 
+The table showing all the options is quite long, so here we provide a description of the most important parts
+of the configuration: 
 
-There are several sections of the configured elements:
-
- * The general server settings, it is always good to review them.
- ** The initial admin username and password is set here. After the server is initialized and admin account(s) are 
+ * The general server settings (it is always good to review them) include:
+ ** The initial admin username and password. After the server is initialized and admin account(s) are 
  set up those options may be removed and used only in emergency case (i.e. when the last admin user remove itself).
- ** The option   
- * HTTP server settings, where there are two important settings: listen hostname and port. The rest is fairly advanced.
+ ** Location of the files with configuration of the e-mail subsystem and message templates. More information on this topic
+ is included in the subsection <<notifications>>.
+ ** Database configuration which is described in the section <<db-conf>>.
+ ** Loaders of example contents, which are useful for a quick start.
+ ** Configuration of enabled languages.
+ * HTTP server settings, where there are two important settings: hostname and port where the server listens. The rest is fairly advanced.
  * Server trust settings and the server credential, mostly used for SSL. This is documented separately in the subsections
 <<server_trust>> and <<server_cred>>.
- * Definitions of various artifacts of the server to be loaded: credentials, credential requirements, authenticators and 
-endpoints. Note that the credentials and credential requirements can be also managed more conveniently with the web adminUI.
- 
+ * Definitions of various artifacts of the server to be loaded: credentials, credential requirements, authenticators, 
+endpoints and translation profiles. Note that the credentials and credential requirements can be also managed more
+conveniently with the Web Admin UI.
+The configuration of authenticators and endpoints is described in the subsection <<cfg-authenticators>>
+and the translation profiles are covered in <<external-idps>>. 
+
+The general options reference table follows:
 
 include::ref-mainServerProperties.txt[]
+
+[[db-conf]]
+=== Database configuration
+
+Unity uses two databases. The primary one is used to store the complete state of the system.
+The second one, called as _local database_, is used to record a stream of events which happen in the system. 
+The purpose of the separate databases is that the primary database can be replicated and/or shared
+between multiple instances of Unity server, while the local database should not be replicated/shared.
+Of course backups of both databases can and should be performed.
+
+Note that the Admin UI provides a possibility to create a dump of the primary database and to restore 
+the system from such dump.
+
+The following table enumerates all options which are used to configure both databases. Only one option
+pertains to the local database, the rest is for the primary one. This is because the local database is
+always handled by the H2 database engine, so only the database storage location can be changed. 
+
+include::ref-dbProperties.txt[]
 
 [[server_trust]]
 === PKI/X.509 trust settings
@@ -154,16 +176,112 @@ Credential as a JKS file (credential type can be autodetected in almost every ca
  unityServer.core.credential.password=xxxxxx
 
 
+[[cfg-authenticators]]
+=== Authenticators
+
+[NOTE]
+Credential types and credential requirements can be configured in the Web Admin UI, so we skip 
+a description of their configuration in the configuration files.
+
+
+Authenticators and endpoints as of now can be configured only in the configuration file. Endpoints 
+are covered in a separate section <<endpoints>>.
+
+Authenticator is a pair of two configured elements: _credential verificator_ and _credential retrieval_.
+The credential retrieval collects a credential in a binding specific way, for instance it may
+gather it from a SOAP header (in case of the web service binding) or present a text field and 
+allow a user to enter it (in case of the web binding). The verificator is not binding-specific and 
+is only responsible for validation of a presented credential. For example the passowrd verificator
+can be used with any retrieval which is collecting a password from a client.
+
+Authenticators are added to endpoints and manage endpoint's authentication. The endpoint must have at least 
+one authenticator associated (and can have more when alternative or multi-credential authentication 
+scenarios are implemented). 
+
+Example configuration:
+
+-----
+unityServer.core.authenticators.2.authenticatorName=pwdWeb
+unityServer.core.authenticators.2.authenticatorType=password with web-password
+unityServer.core.authenticators.2.localCredential=secured password
+unityServer.core.authenticators.2.retrievalConfigurationFile=conf/passwordRetrieval-config.json
+-----  
+
+The name of the authenticator is an arbitrary unique string. The type is the most important part:
+it defines the name of the credential verificator and retrieval, both names must be separated with the string
++with+. The following table lists allowed credential verificators and retrievals. Any combination can be used,
+assuming the same credential is exchanged.
+
+[cols="m,n,n", options="header"]
+|====
+|Verificator		| Exchanges			| Description 
+|password			| Password 			| Local verificator.
+|ldap				| Password			| External verificator, uses LDAP.
+|certificate		| X.509 certificate | Local verificator.
+|==== 
+
+[cols="m,n,n,n", options="header"]
+|====
+|Retrieval			| Exchanges			| Compatible binding 	| Description 
+|web-password		| Password			| Web (Vaadin) 			| Uses textfield to collect a password
+|web-certificate	| X.509 certificate	| Web (Vaadin) 			| Uses client-authenticated TLS/SSL certificate
+|cxf-httpbasic		| Password			| Web Service (CXF stack)| Uses HTTP BASIC submitted password
+|cxf-certificate	| X.509 certificate	| Web Service (CXF stack)| Uses client-authenticated TLS/SSL certificate
+|==== 
+
+Both credential verificator and credential retrieval can require a separate configuration in external files, 
+in the example only the credential retrieval has it configured. Finally all local verificators must be
+associated with the existing local credential (the _secured password_ in the example).
+
+Configuration of external verificators is covered in the section <<external-idps>>. Configuration
+of retrievals and local verificators is either not needed or trivial. 
+Currently only the +web-password+ allows for it, offering two options:
+
+----
+{
+	"name": "LDAP password",
+	"registrationFormForUnknown": "ldapRegistration"
+}	
+----
+
+Name is used in the web interface. The registration form parameter is used only for cases when the
+retrieval is used with a remote authenticator: then the given registration form is presented
+automatically to the users who properly authenticated against the upstream IdP but doesn't have 
+a local account. 
+
 
 === HTTP server settings
 
-The embedded HTTP server is using sensible default values of HTTP settings. There are only two properties which needs to be 
-always properly set: hostname and port. However in some cases it may be necessary 
+The embedded HTTP server is using sensible default values of HTTP settings. There are only two properties which 
+always needs to be properly set: hostname and port. However in some cases it may be necessary 
 to fine tune also the advanced settings. The complete reference is included below:
 
 include::ref-httpServerProperties.txt[]
 
 
+[[notifications]]
+=== Notifications and e-mail settings
+
+Notifications and other messages are sent by Unity in several cases, for instance as an optional verification
+step during password reset or to notify an administrator about a new registration request.
+
+Currently the only notification channel available is the e-mail channel. It can be disabled 
+by removing or commenting the e-mail configuration property in the main configuration file.
+If enabled it is configured in a separate properties file. The default file provides a detailed information
+on the available options so should be easy to edit.
+
+The actual contents of the messages being sent is governed by the _templates configuration file_. 
+Currently a template is a named pair of two strings: title and message body. What's more the template
+can contain several variables which must be formated as:
+
+----
+${VARIABLE_NAME}   
+----
+
+Variables are replaced dynamically with concrete values when a message is prepared to be sent. Naturally
+each subsystem sending messages provides different variables. The example configuration file
+contains default forms for all currently implemented notifications with variables included so it should 
+be easy to update them.
 
 
 
@@ -178,7 +296,7 @@ Logging is configured in the +conf/log4j.properties+ file.
 By default, log files are written to the the +logs/+ directory. 
 
 The following example config file configures logging so that log files are 
-rotated daily, compressed.
+rotated daily, and the old log files are compressed.
 
 -------------------
 # The default log level and the output (appender)
@@ -262,7 +380,7 @@ log4j.logger.unity.server.config=DEBUG
 
 [NOTE]
 ===========
-The best way to discover what is the name of interesting category is turn on the general DEBUG logging 
+The best way to discover what is the name of the interesting category is to turn on the general DEBUG logging 
 for a while. Then interesting events can be seen and subsequently the logging configuration can be fine tuned
 to only show them.
 ===========
