@@ -1,9 +1,54 @@
 [[endpoints]]
 == Consumer access: the endpoints
 
+Endpoints make Unity features accessible to the outside world. There are several endpoint 
+implementations (or types) and each of them can be deployed multiple times under different addresses
+with different settings. Such a deployed and configured endpoint type is simply called _endpoint_ or
+_endpoint instance_.
+
+Each endpoint supports a _binding_. Binding defines an access mechanism (e.g. SOAP Web Service or 
+Web browser interface) and a technology in which it is programmed. Endpoints with the same binding
+share some basic configuration options.
+
+Endpoints are configured in the main configuration file. An example endpoint definition:
+
+----
+unityServer.core.endpoints.1.endpointType=WebAdminUI
+unityServer.core.endpoints.1.endpointName=UNITY administration interface
+unityServer.core.endpoints.1.contextPath=/admin
+unityServer.core.endpoints.1.endpointConfigurationFile=conf/webadmin.json
+unityServer.core.endpoints.1.endpointAuthenticators=secPwdWeb;simplePwdWeb,certWeb
+----
+
+The endpoint instance configuration must specify the endpoint type (in the example it is +WebAdminUI+), one 
+of the available ones. Each available endpoint has a separate subsection later on, which provide its 
+type name. The endpoint instance must be named (any string) - the name is displayed in various user interfaces.
+
+Endpoint context path defines the first element of a server relative address of an endpoint. E.g. for the
+above context path +/admin+ all URLs of the endpoint instance will start with the URL 
++pass:[https://unity-hostname:unity-port/admin/...]+.
+
+Endpoint configuration file is used to specify endpoint type-specific configuration, including the 
+binding specific settings.
+
+The final configuration element of all endpoints is the configuration of authenticators. Endpoint
+can have many _alternative_ authenticators enabled. Names of those authenticators must be separated with semicolon. 
+Additionally an endpoint may require simultaneous authentication using more then one authenticator. In such
+case the required authenticators must be enumerated with a comma as a separator. In the above example
+the endpoint allows for choosing between two authentication methods: one will use a single authenticator 
++simplePwdWeb+ and another alternative will require simultaneous authentication using +certWeb+ and +simplePwdWeb+.
+ 
+As it was mentioned there are options which are common for all endpoints with the same binding.
+Those options are presented here, the endpoint sections later on do not contain them.  
+ 
+For the Web Service CXF binding the common options are:
 include::ref-cxfEndpointProperties.txt[]
 
+
+Options for all Web Vaadin endpoints are:
 include::ref-vaadinEndpointProperties.txt[]
+
+
 
 include::endpoint-admin.txt[]
 

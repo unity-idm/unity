@@ -26,7 +26,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, VaadinEndpointProperties.class);
 	@DocumentationReferencePrefix
-	public static final String PREFIX = "unity.endpoint.";
+	public static final String PREFIX = "unity.endpoint.web.";
 	
 	public static final String SESSION_TIMEOUT = "sessionTimeout";
 	public static final String BLOCK_AFTER_UNSUCCESSFUL = "blockAfterUnsuccessfulLogins";

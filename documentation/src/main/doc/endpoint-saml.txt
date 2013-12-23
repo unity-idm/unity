@@ -1,3 +1,65 @@
-=== Web and WS SAML endpoints
+[[endp-web-saml]]
+=== Web SAML SSO endpoint
+
+Endpoint type:: +SAMLWebIdP+
+Binding:: Web (Vaadin)
+Exposed paths:: +/saml2idp-web+
+
+This endpoint exposes the SAML 2 authentication interface, implementing the SSO profile
+of the SAML HTTP-POST binding. If you do not plan to use SOAP clients, this endpoint can be safely disabled.
+
+The endpoint first authenticates the redirected client, then presents a confirmation screen
+where a user can review and alter returned information and after acceptance redirects the user 
+to the SAML Service Provider with a SAML response.
+
+The options of the endpoint (besides the standard ones for the binding) are:
 
 include::ref-samlProperties.txt[]
+
+
+[[endp-ws-saml]]
+=== Web Service SAML SOAP endpoint
+
+Endpoint type:: +SAMLSoapIdP+
+Binding:: Web Service (CXF)
+Exposed paths:: +/saml2idp-soap+
+
+This endpoint exposes the SAML 2 authentication interface, exposing the functionality of the 
+Attribute Query and Authentication SAML protocols over the SAML SOAP binding.
+
+The SAML options are the same as in the case of the <<endp-web-saml>>.
+
+[[endp-web-unicore]]
+=== UNICORE Web SAML SSO endpoint
+
+Endpoint type:: +SAMLUnicoreWebIdP+
+Binding:: Web (Vaadin)
+Exposed paths:: +/saml2unicoreIdp-web+
+
+This endpoint is a slightly enhanced <<endp-web-saml>>, with the UNICORE 7 Grid middleware support.
+It is useful for UNICORE portal SAML authentication, if you don't integrate Unity with UNICORE portal 
+don't use this endpoint.
+
+The endpoint is configured in the same way as the <<endp-web-saml>>, the only functional difference is  
+that it allow to generate and return UNICORE 7 trust delegations make for the relaying party.
+
+Only the users with the X.500 identity (among others identities) may use this endpoint. However neither 
+authentication with certificate nor possession of a X.509 certificate is not required.
+
+
+[[endp-ws-unicore]]
+=== UNICORE Web Service SAML SOAP endpoint
+
+Endpoint type:: +SAMLUnicoreSoapIdP+
+Binding:: Web Service (CXF)
+Exposed paths:: +/saml2unicoreidp-soap+
+
+This endpoint is a slightly enhanced <<endp-ws-saml>>, with the UNICORE 7 Grid middleware support.
+It is useful for UNICORE standalone client (e.g. UCC) SAML authentication, if you don't integrate Unity with 
+UNICORE don't use this endpoint.
+
+The endpoint is configured in the same way as the <<endp-ws-saml>>, the only functional difference is  
+that it generates and return UNICORE 7 trust delegations make for the client.
+
+Only the users with the X.500 identity (among others identities) may use this endpoint. However neither 
+authentication with certificate nor possession of a X.509 certificate is not required.

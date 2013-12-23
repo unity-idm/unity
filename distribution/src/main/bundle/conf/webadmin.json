@@ -1,2 +1,4 @@
-unity.endpoint.sessionTimeout=1800
-unity.endpoint.enableRegistration=true
+unity.endpoint.web.sessionTimeout=1800
+unity.endpoint.web.enableRegistration=true
+unity.endpoint.web.blockAfterUnsuccessfulLogins=4
+unity.endpoint.web.blockFor=30
