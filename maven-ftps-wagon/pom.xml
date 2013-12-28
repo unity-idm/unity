@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>pl.edu.icm.maven</groupId>
+	<artifactId>wagon-sftp</artifactId>
+	<version>1.0.0</version>
+	<name>Apache Maven Wagon :: Providers :: FTPS Provider</name>
+	<description>Wagon provider that gets and puts artifacts from and to remote server using FTPS protocol</description>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<distributionManagement>
+		<repository>
+			<id>unicore.eu</id>
+			<name>UNICORE repository</name>
+			<url>dav:https://unicore-dev.zam.kfa-juelich.de/maven</url>
+		</repository>
+		<snapshotRepository>
+			<id>unicore.eu</id>
+			<name>UNICORE SNAPSHOT Repository</name>
+			<url>dav:https://unicore-dev.zam.kfa-juelich.de/maven</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.maven.wagon</groupId>
+			<artifactId>wagon-ftp</artifactId>
+			<version>2.5</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<!-- Allows to deploy with dav:// with Maven 3. 
+		Note: the latest version 2.5 seems not to work with maven 3.0.-->
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-webdav-jackrabbit</artifactId>
+				<version>2.4</version>
+			</extension>
+		</extensions>
+	
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-component-metadata</artifactId>
+				<version>1.5.5</version>
+				<executions>
+					<execution>
+						<id>generate</id>
+						<goals>
+							<goal>generate-metadata</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
