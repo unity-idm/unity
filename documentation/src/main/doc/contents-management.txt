@@ -8,6 +8,7 @@ After the first login it is required to change the initial password.
  
 
 The most important features of the Web Admin UI are:
+
 * Management of attribute types, attribute classes,
   credential types and credential requirements (_Schema management tab_).
 * Possibility to manage groups, their attribute classes and attribute statements (_Contents management tab_).

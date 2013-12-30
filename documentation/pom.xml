@@ -27,14 +27,14 @@
 			<id>unicore.eu</id>
 			<name>UNICORE repository</name>
 			<url>http://unicore-dev.zam.kfa-juelich.de/maven</url>
-		</repository>
+		</repository>		
 	</repositories>
 
 	<distributionManagement>
 		<site>
-			<id>unicore.eu</id>
-			<url>dav:https://unicore-dev.zam.kfa-juelich.de/documentation/unity-${project.version}</url>
-		</site>
+      		<id>unity-idm.eu</id>
+      		<url>ftps://unity-idm.eu/documentation/unity-${project.version}</url>
+    	</site>
 	</distributionManagement>
 
 	<dependencies>
@@ -77,6 +77,15 @@
 	</dependencies>
 
 	<build>
+		<extensions>
+			<!-- Enabling the use of FTP -->
+			<extension>
+				<groupId>pl.edu.icm.maven</groupId>
+				<artifactId>wagon-sftp</artifactId>
+				<version>1.0.0</version>
+			</extension>
+		</extensions>
+
 		<plugins>
 		<!-- the current asciidoctor maven plugin is outdated -->
 		<!-- 
@@ -184,7 +193,7 @@
 		</plugins>
 	</build>
 	
-		<reporting>
+	<reporting>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

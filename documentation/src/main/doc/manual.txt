@@ -1,6 +1,6 @@
 Unity Manual
 ============
-Unity Team <unity-support@lists.sourceforge.net>
+Unity Team <unity-idm-discuss@lists.sourceforge.net>
 :revnumber: 1.0.0
 :numbered:
 :toc: left
