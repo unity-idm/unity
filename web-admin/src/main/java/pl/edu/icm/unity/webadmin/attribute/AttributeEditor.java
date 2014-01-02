@@ -47,9 +47,6 @@ public class AttributeEditor extends HorizontalLayout
 		attrTypePanel = new AttributeMetaEditorPanel(attributeTypes, groupPath, msg);
 		AttributeType initial = attrTypePanel.getAttributeType();
 		attrValuesContainer = new FormLayout();
-		addComponent(attrValuesContainer);
-		setComponentAlignment(attrValuesContainer, Alignment.TOP_LEFT);
-		setExpandRatio(attrValuesContainer, 1.5f);
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, initial, 
 				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, required,
 				attrValuesContainer);
@@ -122,14 +119,15 @@ public class AttributeEditor extends HorizontalLayout
 	private void initCommon()
 	{
 		setSpacing(true);
-		attrValuesContainer.setMargin(new MarginInfo(true, true, true, false));
+		attrValuesContainer.setMargin(new MarginInfo(true, true, true, true));
+		attrValuesContainer.setSizeUndefined();
+		attrTypePanel.setSizeUndefined();
 		addComponent(attrTypePanel);
 		setComponentAlignment(attrTypePanel, Alignment.TOP_RIGHT);
 		addComponent(attrValuesContainer);
 		setComponentAlignment(attrValuesContainer, Alignment.TOP_LEFT);
 		setExpandRatio(attrTypePanel, 1.0f);
 		setExpandRatio(attrValuesContainer, 1.5f);
-		setSizeFull();
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
