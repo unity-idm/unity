@@ -1,0 +1,62 @@
+#!/bin/bash
+#
+# Unity Server RedHat-compatible startup script. The script paths (startup.properties, and DIR) needs to be updated
+# to the actual installation path. 
+#
+# chkconfig: 235 97 03
+# description:  Unity Server
+
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# and common settings (PID file variable)
+. /etc/unity-idm/startup.properties
+
+UNITY_USER="unity-idm"
+DIR="/usr/sbin"
+NAME="Unity"
+
+#This must be equal to the file name
+SERVICE=unity-idm-server
+
+start() {
+        echo -n "Starting $NAME: "
+        daemon --user $UNITY_USER "$DIR/unity-idm-server-start"
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && touch "/var/lock/subsys/$SERVICE"
+        echo
+        return $RETVAL
+}
+stop() {
+	echo -n $"Stopping $NAME: "
+	runuser -s /bin/sh -c "$DIR/unity-idm-server-stop" $UNITY_USER 
+    rm -f "/var/lock/subsys/$SERVICE"
+	echo
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  status)
+        status -p "$PID" "$SERVICE"
+	RETVAL=$?
+	;;
+  restart)
+	stop
+	start
+	;;
+  reload)
+	echo "Reloading is not supported for this service. Use restart, if the modified configuration files are not automatically reloaded." 
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|status|restart|help}"
+	exit 1
+esac
+
+exit $RETVAL

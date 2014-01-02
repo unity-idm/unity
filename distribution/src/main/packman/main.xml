@@ -1,0 +1,611 @@
+<?xml version="1.0"?>
+<project xmlns:mvn="urn:maven-artifact-ant" name="Unity distribution-specific packager" default="main">
+
+	<description>Builds binary Linux bundles</description>
+	<property name="main.dir" value="${basedir}" />
+	<property name="libs" value="${main.dir}/target/libs" />
+	<property name="packman.libs" value="${main.dir}/src/main/packman/tools" />
+	<!-- These properties can be only overwritten from command line -->
+	<property name="maven.version" value="3.0.4" />
+	<property name="maven.repo.local" value="${user.home}/.m2/repository" />
+	<property name="maven.repo.url" value="http://unicore-dev.zam.kfa-juelich.de/maven" />
+	<property name="package.config.dir" value="src/main/package" />
+
+	<!-- Other general properties are set in the 'init-settings' task, 
+	     as it loads Maven properties first, so one can use them in configuration file -->
+
+	<!--copy-help task, convert property name to path-->
+	<taskdef name="copy-help" classname="eu.unicore.ant.PathMod" classpath="${packman.libs}/antPathMod-1.2.jar" />
+
+	<!-- maven settings -->
+	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="urn:maven-artifact-ant">
+		<classpath>
+			<pathelement location="${packman.libs}/maven-ant-tasks-2.1.3.jar" />
+		</classpath>
+	</typedef>
+
+	<!-- ant-contrib settings -->
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+		<classpath>
+			<pathelement location="${packman.libs}/ant-contrib-1.0b3.jar" />
+		</classpath>
+	</taskdef>
+	<target name="logo">
+		<echo message=" "/>
+		<echo message="########################################################################" />
+		<echo message="# ||||||||  ||||||||    ||||   ||  ||  ||||  ||||  ||||||||  ||     || #" />
+		<echo message="# ||    ||  ||    ||  ||    || || ||   ||  ||  ||  ||    ||  ||||   || #" />
+		<echo message="# ||    ||  ||||||||  ||       ||||    ||  ||  ||  ||||||||  || ||  || #" />
+		<echo message="# ||||||||  ||    ||  ||       || ||   ||      ||  ||    ||  ||  || || #" />
+		<echo message="# ||        ||    ||  ||    || ||  ||  ||      ||  ||    ||  ||   |||| #" />
+		<echo message="# ||        ||    ||    ||||   ||   || ||      ||  ||    ||  ||     || #" />
+		<echo message="#                                                                      #" />
+		<echo message="# Packaging Manager v.1.2.0-unity                                      #" />
+		<echo message="########################################################################" />
+		<echo message=" " />
+	</target>
+
+
+	<!-- set default package type -->
+	<target name="set-default-package-type" unless="package.type">
+		<property name="os.default.package.type" value="all-rpm" />
+		<property name="package.type" value="${os.default.package.type}" />
+		<echo message="---setting package.type to ${package.type}" />
+	</target>
+
+	<target name="set-default-package-properties" depends="set-os-specfic-properties">
+		<property name="os.disttag.name" value="" />
+		<property name="os.disttag.version" value="" />
+		<property name="os.disttag" value="${os.disttag.name}${os.disttag.version}" />
+
+		<echo message="---setting os.disttag to ${os.disttag}" />
+	</target>
+
+
+	<!-- set default final artifact name -->
+	<target name="set-default-artifact-name" unless="maven.component.finalName">
+		<property name="maven.component.finalName" value="${maven.component.artifactId}-${maven.component.version}.${dependency.type}" />
+		<echo message="---setting maven.component.finalName to ${maven.component.finalName}" />
+	</target>
+
+	<!-- main target -->
+	<target name="main" depends="logo,set-os-specfic-properties,set-default-package-properties,set-default-package-type">
+		<!--<echo message="Package type: ${package.type}" />-->
+		<antcall target="${package.type}" />
+	</target>
+
+	<!-- DO NOT CHANGE DEPENDS ORDER IN THIS TARGET-->
+	<target name="all-rpm" depends="rpm,rpm.tar.gz,src.tar.gz,src.rpm" />
+	<target name="all-deb" depends="deb,deb.tar.gz,src.deb,src.tar.gz" />
+	<target name="rpm" depends="set-distribution-rpm,clean,init,set-distribution-dir,prepare-distribution-structure,copy-jars,copyset,rpm-bin-build" />
+	<target name="prep.src.rpm" depends="set-distribution-rpm,clean,init,set-distribution-dir,prepare-distribution-structure,copy-jars,copyset" />
+	<target name="src.rpm" depends="set-distribution-rpm,clean,init,set-distribution-dir,set-spec-additions,rpm-src-build" />
+	<target name="deb" depends="set-distribution-deb,clean,init,set-distribution-bin-builddir-deb,set-distribution-dir,set-rules-additions,prepare-bin-deb-structure,copy-jars,copyset,deb-bin-build" />
+	<target name="src.deb" depends="set-distribution-deb,clean,init,set-distribution-src-builddir-deb,set-distribution-dir,set-src-rules-additions,prepare-src-deb-structure,deb-src-build" />
+	<target name="prep.src.deb" depends="set-distribution-deb,clean,init,set-distribution-src-builddir-deb,set-distribution-dir,prepare-distribution-structure,copy-jars,copyset" />
+
+	<!-- common target -->
+
+	<target name="init" depends="init-settings,build-artifact" unless="skip.init" />
+
+	<target name="os-detect" unless="skip.os.detect">
+		<echo message="Detect operating system name and version" />
+		<loadfile property="os.info" srcFile="/etc/issue" />
+		<propertyregex property="os.distro.name" input="${os.info}" regexp=".*(Debian).*" 
+			select="\1" override="true" casesensitive="false" />
+		<propertyregex property="os.distro.name" input="${os.info}" regexp=".*(Scientific).*" 
+			select="\1" override="true" casesensitive="false" />
+		<propertyregex property="os.distro.name" input="${os.info}" regexp=".*(Fedora).*" 
+			select="\1" override="true" casesensitive="false" />
+		<propertyregex property="os.distro.name" input="${os.info}" regexp=".*(CentOS).*" 
+			select="\1" override="true" casesensitive="false" />
+		<echo message="---system name:    ${os.distro.name} Linux" />
+		<if>
+			<equals arg1="${os.distro.name}" arg2="Debian" casesensitive="false"/>
+			<then>
+				<propertyregex property="os.distro.version" input="${os.info}" regexp="(^[a-zA-Z]*).*([L|l]inux) (.*) (.*n.*)" select="\3" casesensitive="false" />
+				<property name="os.disttag.name" value=".deb" />
+				<property name="os.default.package.type" value="all-deb" />
+			</then>
+			<elseif>
+				<equals arg1="${os.distro.name}" arg2="Scientific" casesensitive="false"/>
+				<then>
+					<propertyregex property="os.distro.version" input="${os.info}" regexp="(^[a-zA-Z]*).*([L|l]inux).*([0-9]\.[0-9])" select="\3" casesensitive="false" />
+					<property name="os.disttag.name" value=".sl" />
+					<property name="os.default.package.type" value="all-rpm" />
+				</then>
+			</elseif>
+			<elseif>
+				<equals arg1="${os.distro.name}" arg2="Fedora" casesensitive="false"/>
+				<then>
+					<propertyregex property="os.distro.version" input="${os.info}" regexp=" ([0-9][0-9]) " select="\1" casesensitive="false" />
+					<property name="os.disttag.name" value=".fc" />
+					<property name="os.default.package.type" value="all-rpm" />
+				</then>
+			</elseif>
+			<elseif>
+				<equals arg1="${os.distro.name}" arg2="CentOS" casesensitive="false"/>
+				<then>
+					<propertyregex property="os.distro.version" input="${os.info}" regexp=" ([0-9]\.[0-9]) " select="\1" casesensitive="false" />
+					<property name="os.disttag.name" value=".el" />
+					<property name="os.default.package.type" value="all-rpm" />
+				</then>
+			</elseif>
+		</if>
+
+		<echo message="---system version: ${os.distro.version}" />
+	</target>
+
+	<target name="set-os-specfic-properties" depends="os-detect,architecture-detect">
+		<!--DEBIAN testing distro -->
+		<if>
+			<contains string="${os.distro.version}" substring="wheezy" casesensitive="false" />
+			<then>
+				<property name="os.disttag.version" value="6" />
+			</then>
+		</if>
+		<propertyregex property="os.disttag.version" input="${os.distro.version}" regexp="([0-9]*)\.([0-9]*)" select="\1" casesensitive="false" />
+	</target>
+
+	<target name="architecture-detect" if="detect.architecture">
+		<echo message="Detect system architecture" />
+		<!--<property name="os.architecture" value="${os.arch}" />-->
+
+		<if>
+			<equals arg1="${os.distro.name}" arg2="Debian" />
+			<then>
+				<exec executable="dpkg-architecture" failonerror="true" outputproperty="os.architecture">
+					<arg value="-qDEB_BUILD_ARCH" />
+				</exec>
+			</then>
+			<else>
+				<exec executable="/bin/uname" failonerror="true" outputproperty="os.architecture">
+					<arg value="-m" />
+				</exec>
+			</else>
+
+		</if>
+		<echo message="---system architecture:  ${os.architecture}" />
+
+	</target>
+
+	<target name="init-settings" unless="skip.init">
+		<echo message="Getting information from pom.xml" />
+		<mvn:remoteRepository id="vsgc-public" url="${maven.repo.url}" />
+		<mvn:localRepository id="local.repo" path="${maven.repo.local}" />
+		<mvn:pom id="mypom" file="${main.dir}/pom.xml">
+			<remoteRepository refid="vsgc-public" />
+			<localRepository refid="local.repo" />
+		</mvn:pom>
+		<property name="maven.component.version" value="${mypom.version}" />
+		<property name="maven.component.artifactId" value="${mypom.artifactId}" />
+		<property name="maven.component.groupId" value="${mypom.groupId}" />
+		<property name="maven.component.name" value="${mypom.name}" />
+		<propertyregex property="package.version" input="${maven.component.version}" regexp="(\d\.\d\.\d)(-(.*))?" select="\1" />
+		<propertyregex property="package.release" input="${maven.component.version}" regexp="(\d\.\d\.\d)(-(.*))?" select="\3" />
+		<echo message="-- set component: ${maven.component.groupId}.${maven.component.artifactId}.${maven.component.version}" />
+		<echo message="-- set package.version=${package.version},package.release=${package.release}" />
+
+
+		<!--import component properties file -->
+		<property file="${main.dir}/${package.config.dir}/distributions/${distribution}/conf.properties" />
+		<property file="${main.dir}/${package.config.dir}/conf.properties" />
+
+		<!--default properties if not set from cmd or property file-->
+		<property name="dependency.type" value="jar" />
+		<property name="package.prefix" value="" />
+		<property name="libraries.base" value="/usr/share/" />
+		<property name="src.tar.gz.main.dir" value="" />
+		<property name="package.suffix" value="" />
+		<property name="exclude.dependency" value="" />
+		<property name="src.distribution.default" value="${main.dir}/${package.config.dir}/distributions/Default/src" />
+		<property name="pre.src.rpm.command" value="" />
+		<property name="pre.src.deb.command" value="${pre.src.rpm.command}" />
+
+		<!--property to copy-help task -->
+		<property name="mapDirs" value="etc::etc/__c,usr/share/doc::usr/share/doc/__c,uconfigurator::usr/share/unity-idm/configurator/updater.d" />
+
+		<condition property="pomPackaging">
+			<equals arg1="${dependency.type}" arg2="pom" />
+		</condition>
+	</target>
+
+	<!-- Note: this target is called also for POM packaging, as it also fetches endorsed libraries (if used) -->
+	<target name="build-artifact">
+		<echo message="Building local artifact" />
+		<mvn:mvn pom="${main.dir}/pom.xml" fork="true" mavenVersion="${maven.version}">
+			<localRepository refid="local.repo" />
+			<arg value="package" />
+			<arg value="-DskipTests" />
+			<arg value="-Dmaven.repo.local=${maven.repo.local}" />
+		</mvn:mvn>
+		<condition property="endorsedPresent">
+			<and>
+				<not>
+					<isset property="skip.copy.endorsed"/>
+				</not>
+				<available file="${main.dir}/target/endorsed" type="dir"/>
+			</and>
+		</condition>
+	</target>
+
+	<target name="set-distribution-dir">
+		<property name="src.distribution.selected" value="${main.dir}/${package.config.dir}/distributions/${distribution}/src" />
+		<property name="distribution.base" value="${main.dir}/target/${distribution}${distribution.builddir}" />
+		<property name="libs.target" value="${libraries.base}${component.package.name}/lib" />
+		<property name="distribution.libs" value="${distribution.base}${libs.target}" />
+	</target>
+
+	<target name="prepare-distribution-structure">
+		<echo message="Preparing structure" />
+		<echo message="-- copying files from default" />
+		<mkdir dir="${distribution.base}" />
+		<copy todir="${distribution.base}">
+			<fileset dir="${src.distribution.default}">
+				<exclude name="**/*.svn" />
+				<exclude name="**/*.git" />
+				<exclude name="**/*.gitignore" />
+				<exclude name="**/*.gitmodules" />
+				<exclude name="**/*.gitattributes" />
+			</fileset>
+		</copy>
+		<echo message="-- copying files from distribution" />
+		<copy todir="${distribution.base}">
+			<fileset dir="${src.distribution.selected}">
+				<exclude name="**/*.svn" />
+				<exclude name="**/*.git" />
+				<exclude name="**/*.gitignore" />
+				<exclude name="**/*.gitmodules" />
+				<exclude name="**/*.gitattributes" />
+
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="copyset">
+		<echo message="Coping file from conf.properties file" />
+		<copy-help target="copy-files" prefix="files" componentName="${component.package.name}" dirs="${mapDirs}" verbose="false" />
+		<copy-help target="copy-dirs" prefix="dirs" componentName="${component.package.name}" dirs="${mapDirs}" verbose="false" />
+	</target>
+
+	<target name="copy-files">
+		<echo message="-- copy files ${file} from ${main.dir} to ${distribution.base}/${todir}" />
+		<copy todir="${distribution.base}/${todir}">
+			<fileset dir="${main.dir}" includes="${file}">
+				<exclude name="**/*.svn" />
+				<exclude name="**/*.git" />
+				<exclude name="**/*.gitignore" />
+				<exclude name="**/*.gitmodules" />
+				<exclude name="**/*.gitattributes" />
+
+			</fileset>
+			<mapper type="flatten" />
+		</copy>
+	</target>
+
+	<target name="copy-dirs">
+		<echo message="-- copy dirs ${file}" />
+		<copy todir="${distribution.base}/${todir}">
+			<fileset dir="${main.dir}/${file}">
+				<exclude name="**/*.svn" />
+				<exclude name="**/*.git" />
+				<exclude name="**/*.gitignore" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="copy-jars" depends="update-jars,index-jars" unless="skip.copy.jars">
+		<echo message="-- copy jar files to rpm lib dir" />
+		<copy todir="${distribution.libs}">
+			<fileset dir="${libs}">
+				<exclude name="${exclude.dependency}" />
+				<include name="**/*.jar" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="copy-main-artifact" depends="set-default-artifact-name" unless="pomPackaging">
+		<echo message="-- copy main artifact" />
+		<copy file="${main.dir}/target/${maven.component.finalName}" todir="${libs}" />
+	</target>
+
+	<target name="copy-endorsed-jars" if="endorsedPresent">
+		<echo message="-- copy endorsed jars" />
+		<mkdir dir="${libs}/endorsed" />
+		<copy todir="${libs}/endorsed">
+			<fileset dir="${main.dir}/target/endorsed" />
+		</copy>
+	</target>
+
+	<target name="update-jars" unless="skip.copy.jars">
+		<!-- not as dependencies, as we want to skip them if skip.copy.jars is set -->
+		<mkdir dir="${libs}" />
+		<antcall target="copy-main-artifact" />
+		<antcall target="copy-endorsed-jars" />
+		<echo message="Updating jar files,download from maven repo" />
+		<mvn:remoteRepository id="vsgc-public" url="${maven.repo.url}" />
+		<mvn:localRepository id="local.repo" path="${maven.repo.local}" />
+		<mvn:mvn pom="${main.dir}/pom.xml" fork="true" mavenVersion="${maven.version}">
+			<localRepository refid="local.repo" />
+			<arg value="dependency:copy-dependencies" />
+			<arg value="-DincludeScope=runtime" />
+			<arg value="-DoutputDirectory=${libs}" />
+			<!--<arg value="-Dmaven.repo.local=${maven.repo.local}" /> -->
+		</mvn:mvn>
+	</target>
+
+	<target name="index-jars" if="indexJars" unless="skip.copy.jars">
+		<echo message="Index jar files" />
+		<!--	<apply executable="jar" output="${main.dir}/target/index-jars.out" verbose="true" append="true"> -->
+		<apply executable="jar" spawn="true">
+			<arg value="i" />
+			<fileset dir="${libs}">
+				<patternset>
+					<include name="**/*.jar" />
+				</patternset>
+			</fileset>
+		</apply> 
+	</target>
+
+	<!-- tar target -->
+	<target name="rpm.tar.gz" depends="init,set-distribution-rpm,set-distribution-dir,prepare-distribution-structure,copyset,copy-jars">
+		<echo message="Create binary tar.gz" />
+		<tar destfile="${main.dir}/target/${package.prefix}${component.package.name}${package.suffix}-${package.version}-${package.release}${os.disttag}.${os.architecture}.tar.gz" compression="gzip" basedir="${distribution.base}" />
+	</target>
+
+	<target name="deb.tar.gz" depends="init,set-distribution-deb,set-distribution-bin-builddir-deb,set-distribution-dir,prepare-bin-deb-structure,copyset,copy-jars">
+		<echo message="Create binary tar.gz" />
+		<tar destfile="${main.dir}/target/${package.prefix}${component.package.name}${package.suffix}_${package.version}-${package.release}${os.disttag}_${os.architecture}.tar.gz" compression="gzip" basedir="${distribution.base}" />
+	</target>
+
+	<target name="src.tar.gz" depends="init">
+		<basename property="maven.repo.dir" file="${maven.repo.local}" />
+		<echo message="Create source tar.gz" />
+		<tar destfile="${main.dir}/target/${package.prefix}${component.package.name}${package.suffix}-${package.version}-${package.release}.src.tar.gz" compression="gzip" basedir="${main.dir}/${src.tar.gz.main.dir}" excludes="**/.svn,**/.git,**/.git/**,**/.svn/**,**/.gitignore,**/.gitmodules,**/.gitattributes,**/target/**,**/reports/**,**/${maven.repo.local}/**,**/${maven.repo.dir}/**" longfile="gnu" />
+	</target>
+
+	<target name="deb.src.tar.gz" depends="src.tar.gz">
+		<move file="${main.dir}/target/${package.prefix}${component.package.name}${package.suffix}-${package.version}-${package.release}.src.tar.gz" tofile="${main.dir}/target/${package.prefix}${component.package.name}${package.suffix}_${package.version}.orig.tar.gz" />
+	</target>
+
+	<!--rpm target -->
+	<target name="set-spec-additions">
+		<property name="preamble" value="BuildRequires: subversion  ${line.separator}BuildRequires: maven  ${line.separator}BuildRequires: java-1.6.0-openjdk-devel ${line.separator}Source0 : ${package.prefix}${component.package.name}${package.suffix}-${package.version}-${package.release}.src.tar.gz" />
+		<property name="install_command" value="%prep ${line.separator}%setup -q -c . ${line.separator}%build${line.separator}%install ${line.separator}rm -rf $RPM_BUILD_ROOT ${line.separator}mkdir -p $RPM_BUILD_ROOT ${line.separator}${pre.src.rpm.command} ${line.separator}mvn -q package -Ppackman -Dmaven.test.skip -Dmaven.repo.local=`pwd`/maven-repo -Dpackage.version=${package.version} -Dpackage.release=${package.release} -Ddistribution=${distribution} -Dpackage.config.dir=${package.config.dir} -Dpackage.type=prep.src.rpm -DindexJars -B; ${line.separator}cp -r target/${distribution}/RPMS/builddir/* $RPM_BUILD_ROOT ${line.separator}%clean ${line.separator}rm -rf $RPM_BUILD_ROOT${line.separator}" />
+
+	</target>
+
+	<target name="set-distribution-rpm">
+		<property name="distribution" value="RedHat" />
+		<property name="distribution.builddir" value="/RPMS/builddir" />
+		<property name="os.architecture" value="noarch" />
+		<echo message="---distribution set to ${distribution}" />
+		<echo message="---architecture set to ${os.architecture}" />
+
+	</target>
+
+	<!--build source rpm -->
+	<target name="rpm-src-build" depends="src.tar.gz">
+		<echo message="Build rpm" />
+		<echo message="---copy spec file" />
+		<copy tofile="${main.dir}/target/${distribution}/SRPMS/component.spec">
+			<fileset file="${main.dir}/${package.config.dir}/distributions/${distribution}/component.spec_template" />
+			<filterset>
+				<filter token="component-version" value="${package.version}" />
+				<filter token="component-release" value="${package.release}" />
+				<filter token="component-name" value="${component.package.name}" />
+				<filter token="component-prefix" value="${package.prefix}" />
+				<filter token="component-suffix" value="${package.suffix}" />
+				<filter token="component-disttag" value="${os.disttag}" />
+				<filter token="component-architecture" value="${os.architecture}" />	
+				<filter token="maven-component-name" value="${maven.component.name}" />
+				<filter token="maven-component-version" value="${maven.component.version}" />
+				<filter token="preamble" value="${preamble}" />
+				<filter token="install_command" value="${install_command}" />
+			</filterset>
+		</copy>
+		<copy file="${main.dir}/target/${package.prefix}${component.package.name}${package.suffix}-${package.version}-${package.release}.src.tar.gz" todir="${main.dir}/target/${distribution}/SRPMS/SOURCES" />
+		<mkdir dir="${main.dir}/target/${distribution}/SRPMS/SRPMS" />
+		<echo message="---run rpmbuild" />
+		<exec dir="${main.dir}/target/${distribution}/SRPMS" executable="rpmbuild" failonerror="true">
+			<arg value="-bs" />
+			<arg value="component.spec" />
+			<arg value="--define" />
+			<arg value="%_topdir ${main.dir}/target/${distribution}/SRPMS" />
+			<arg value="--nodeps" />
+		</exec>
+		<move todir="${main.dir}/target">
+			<fileset file="${main.dir}/target/${distribution}/SRPMS/SRPMS/*.src.rpm" />
+		</move>
+
+	</target>
+
+	<target name="rpm-bin-build">
+		<echo message="Build rpm" />
+		<echo message="---copy spec file" />
+		<copy tofile="${distribution.base}/../component.spec">
+			<fileset file="${main.dir}/${package.config.dir}/distributions/${distribution}/component.spec_template" />
+			<filterset>
+				<filter token="component-version" value="${package.version}" />
+				<filter token="component-release" value="${package.release}" />
+				<filter token="component-name" value="${component.package.name}" />
+				<filter token="component-prefix" value="${package.prefix}" />
+				<filter token="component-suffix" value="${package.suffix}" />
+				<filter token="component-disttag" value="${os.disttag}" />
+				<filter token="component-architecture" value="${os.architecture}" />
+				<filter token="maven-component-name" value="${maven.component.name}" />
+				<filter token="maven-component-version" value="${maven.component.version}" />	
+				<filter token="preamble" value="" />
+				<filter token="install_command" value="%define _rpmdir .${line.separator}%define _rpmfilename %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm${line.separator}%clean${line.separator}" />
+			</filterset>
+		</copy>
+		<echo message="---run rpmbuild" />
+		<exec dir="${distribution.base}/../" executable="rpmbuild" failonerror="true">
+			<arg value="-bb" />
+			<arg value="--buildroot" />
+			<arg value="${distribution.base}" />
+			<arg value="component.spec" />
+		</exec>
+		<move todir="${main.dir}/target">
+			<fileset file="${distribution.base}/../*.rpm" />
+		</move>
+	</target>
+
+
+
+	<!-- deb target -->
+	<target name="set-distribution-deb">
+		<property name="distribution" value="Debian" />
+		<property name="os.architecture" value="all" />
+		<echo message="---distribution set to ${distribution}" />
+		<echo message="---architecture set to ${os.architecture}" />
+	</target>
+
+	<!--overload values of distribution.base, necessary for build src.deb and deb by a single packman run -->
+	<target name="set-distribution-src-builddir-deb">
+		<var name="distribution.builddir" unset="true" />
+		<var name="distribution.base" unset="true" />
+		<property name="distribution.builddir" value="/source/${package.prefix}${component.package.name}${package.suffix}-${package.version}" />
+		<property name="distribution.base" value="${main.dir}/target/${distribution}${distribution.builddir}" />
+	</target>
+
+	<target name="set-distribution-bin-builddir-deb">
+		<var name="distribution.builddir" unset="true" />
+		<var name="distribution.base" unset="true" />
+		<property name="distribution.builddir" value="/binary/${package.prefix}${component.package.name}${package.suffix}-${package.version}/${package.prefix}${component.package.name}${package.suffix}" />
+		<property name="distribution.base" value="${main.dir}/target/${distribution}${distribution.builddir}" />
+	</target>
+
+	<target name="set-rules-additions">
+		<condition property="pre.src.deb.postfix" value="" else=";">
+			<equals arg1="${pre.src.deb.command}" arg2="" />
+		</condition>
+		<!--<property name="install_command" value="mkdir $(DEB_BUILD_ROOT)/debian/${package.prefix}${component.package.name}${package.suffix};cp -R $(DEB_BUILD_ROOT)/${package.prefix}${component.package.name}${package.suffix}/* $(DEB_BUILD_ROOT)/debian/${package.prefix}${component.package.name}${package.suffix}/" /> -->
+		<property name="install_command" value="mkdir $(DEB_BUILD_ROOT)/debian/${package.prefix}${component.package.name}${package.suffix}; cp -R $(DEB_BUILD_ROOT)/${package.prefix}${component.package.name}${package.suffix}/* $(DEB_BUILD_ROOT)/debian/${package.prefix}${component.package.name}${package.suffix}/" />
+		<property name="rule_vars" value="DEB_BUILD_ROOT := $(CURDIR)" />
+	</target>
+	<target name="set-src-rules-additions" depends="set-rules-additions">
+		<!--<property name="build_command" value="mkdir ${package.prefix}${component.package.name}${package.suffix}_src;tar -zxf ${package.prefix}${component.package.name}${package.suffix}_${package.version}-${package.release}.orig.tar.gz -C ${package.prefix}${component.package.name}${package.suffix}_src;cd ${package.prefix}${component.package.name}${package.suffix}_src;${pre.src.deb.command}${pre.src.deb.postfix}mvn -q package -Ppackman -Dmaven.test.skip -Dmaven.repo.local=`pwd`/maven-repo -Dpackage.version=${package.version} -Dpackage.release=${package.release} -Ddistribution=${distribution} -Dpackage.type=prep.src.deb -DindexJars -B;cp -R target/${distribution}${distribution.builddir} $(DEB_BUILD_ROOT)/${package.prefix}${component.package.name}${package.suffix}" /> -->
+		<property name="build_command" value="${pre.src.deb.command}${pre.src.deb.postfix}mvn -q package -Ppackman -Dmaven.test.skip -Dmaven.repo.local=`pwd`/maven-repo -Dpackage.version=${package.version} -Dpackage.release=${package.release} -Ddistribution=${distribution} -Dpackage.type=prep.src.deb -Dpackage.config.dir=${package.config.dir} -DindexJars -B -Dskip.os.detect;cp -R target/${distribution}${distribution.builddir} $(DEB_BUILD_ROOT)/${package.prefix}${component.package.name}${package.suffix}" />
+		<property name="build_depends" value="Build-Depends: debhelper (>= 7.0.50~),openjdk-6-jdk (>= 6b18-1.8.2-4),maven2 (>=2.2.1-5),ant (>=1.8.0-4),subversion ${line.separator}" />
+
+	</target>
+
+	<target name="prepare-bin-deb-structure" depends="prepare-distribution-structure">
+		<echo message="Preparing deb structure" />
+
+		<echo message="-- copying files from debian" />
+		<mkdir dir="${distribution.base}/../debian" />
+		<copy todir="${distribution.base}/../debian">
+			<fileset dir="${src.distribution.selected}/../debian" />
+			<filterset>
+				<filter token="component-version" value="${package.version}" />
+				<filter token="component-release" value="${package.release}" />
+				<filter token="component-name" value="${component.package.name}" />
+				<filter token="component-prefix" value="${package.prefix}" />
+				<filter token="component-suffix" value="${package.suffix}" />
+				<filter token="component-disttag" value="${os.disttag}" />
+				<filter token="component-architecture" value="${os.architecture}" />
+				<filter token="maven-component-name" value="${maven.component.name}" />
+				<filter token="maven-component-version" value="${maven.component.version}" />	
+				<filter token="build_command" value="" />
+				<filter token="install_command" value="${install_command}" />
+				<filter token="vars" value="${rule_vars}" />
+				<filter token="build_depends" value="" />
+			</filterset>
+		</copy>
+	</target>
+
+	<target name="prepare-src-deb-structure" depends="deb.src.tar.gz,prepare-distribution-structure">
+		<echo message="Preparing source deb structure" />
+
+		<echo message="-- copying files from debian" />
+		<mkdir dir="${distribution.base}/debian" />
+		<copy todir="${distribution.base}/debian">
+			<fileset dir="${src.distribution.selected}/../debian" />
+			<filterset>
+				<filter token="component-version" value="${package.version}" />
+				<filter token="component-release" value="${package.release}" />
+				<filter token="component-name" value="${component.package.name}" />
+				<filter token="component-prefix" value="${package.prefix}" />
+				<filter token="component-suffix" value="${package.suffix}" />
+				<filter token="component-disttag" value="${os.disttag}" />
+				<filter token="component-architecture" value="${os.architecture}" />
+				<filter token="maven-component-name" value="${maven.component.name}" />
+				<filter token="maven-component-version" value="${maven.component.version}" />	
+				<filter token="build_command" value="${build_command}" />
+				<filter token="install_command" value="${install_command}" />
+				<filter token="vars" value="${rule_vars}" />
+				<filter token="build_depends" value="${build_depends}" />
+			</filterset>
+		</copy>
+	</target>
+
+
+	<target name="deb-bin-build">
+		<echo message="Build binary deb" />
+		<exec dir="${distribution.base}/../debian" executable="chmod" failonerror="true">
+			<arg value="+x" />
+			<arg value="rules" />
+		</exec>
+
+		<exec dir="${distribution.base}/../" executable="dpkg-buildpackage" failonerror="true">
+			<arg value="-rfakeroot" />
+			<arg value="-us" />
+			<arg value="-uc" />
+			<arg value="-b" />
+			<!--<arg value="-a${os.architecture}" /> -->
+		</exec>
+		<copy todir="${main.dir}/target">
+			<fileset file="${distribution.base}/../../*.deb" />
+		</copy>
+	</target>
+
+	<target name="deb-src-build">
+		<echo message="Build source deb" />
+		<!--3.0 quilt format requirements -->
+		<copy file="${main.dir}/target/${package.prefix}${component.package.name}${package.suffix}_${package.version}.orig.tar.gz" todir="${distribution.base}/../" />
+		<!--<move file="${distribution.base}/../${package.prefix}${component.package.name}${package.suffix}-${package.version}.orig.tar.gz" tofile="${distribution.base}/../${package.prefix}${component.package.name}${package.suffix}_${package.version}.orig.tar.gz" /> -->
+		<untar src="${main.dir}/target/${package.prefix}${component.package.name}${package.suffix}_${package.version}.orig.tar.gz" dest="${distribution.base}" compression="gzip" />
+
+		<exec dir="${distribution.base}/debian" executable="chmod" failonerror="true">
+			<arg value="+x" />
+			<arg value="rules" />
+		</exec>
+
+		<exec dir="${distribution.base}" executable="dpkg-buildpackage" failonerror="true">
+			<arg value="-rfakeroot" />
+			<arg value="-us" />
+			<arg value="-uc" />
+			<arg value="-S" />
+			<!--<arg value="-a${os.architecture}" />-->
+		</exec>
+		<!--ADDITIONAL src.deb.tar.gz -->
+		<tar destfile="${distribution.base}/../${package.prefix}${component.package.name}${package.suffix}-${package.version}-${package.release}.src.deb.tar.gz" compression="gzip" basedir="${distribution.base}" includes="*.dsc,*.tar.gz" />
+
+		<copy todir="${main.dir}/target">
+			<fileset file="${distribution.base}/../*.dsc" />
+			<fileset file="${distribution.base}/../*.tar.gz" />
+		</copy>
+	</target>
+
+
+	<!-- clean before build -->
+	<target name="clean">
+		<echo message="Clean target dirs" />
+		<delete quiet="true" includeemptydirs="true" verbose="false">
+			<fileset dir="${main.dir}/target/${distribution}" />
+			<!-- Shouldn't be needed: copy will overwrite older files by default.
+			     And this deletes files built by other packman invocations with different configurations
+			<fileset dir="${main.dir}/target/" includes="*.rpm" />
+			<fileset dir="${main.dir}/target/" includes="*.deb" />
+			<fileset dir="${main.dir}/target/" includes="*.tar.gz" />
+			<fileset dir="${main.dir}/target/" includes="*.dsc" />
+			-->
+			<fileset dir="${main.dir}/target/jars" />
+			<fileset dir="${main.dir}/target/endorsed" />
+		</delete>
+	</target>
+
+
+</project>

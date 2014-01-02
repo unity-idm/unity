@@ -15,7 +15,8 @@ It is strongly advised to use the latest, updated version of the JRE.
 
 If the +.tar.gz+ version is used, it must be simply downloaded and unpacked. A directory with Unity version
 number is included. Typically the start script should be created or integrated with the startup system of the
-machine. It is also a good idea to add the +INSTALLATION_DIRECTORY/bin/+ folder to the +PATH+ environment variable,
+machine. The distribution's +extra/+ folder may provide a suitable script. 
+It is also a good idea to add the +INSTALLATION_DIRECTORY/bin/+ folder to the +PATH+ environment variable,
 so the scripts are instantly available. This is assumed later on in all examples.  
 
 If the +.rpm+ version is used it should be installed with the package manager. The only dependency is Java JRE,
@@ -46,7 +47,7 @@ configure the system.
 Starting is simple:
 
 ----
-$> unity-start
+$> unity-idm-server-start
 ----
 
 It is always good to check the log files. The +log/unity-startup.log+ should contain only few lines saying that
@@ -57,7 +58,7 @@ which should be also checked. There should be no +ERROR+ and no +WARN+ entries.
 Stopping the server is simple as well:
 
 ----
-$> unity-stop
+$> unity-idm-server-stop
 ----
 
 

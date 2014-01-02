@@ -1,0 +1,22 @@
+#!/bin/bash
+
+. /etc/unity-idm/startup.properties
+
+
+if [ -e "$PID" ]
+ then
+  if [ -d /proc/$(cat "$PID") ]
+   then
+     echo "A UNITY instance may be already running with process id "$(cat $PID)
+     echo "If this is not the case, delete the file $PID and re-run this script"
+     exit 1
+   fi
+fi
+
+CP=.$(find "$LIB" -name '*.jar' -exec printf ":{}" \;)
+
+export CLASSPATH=$CP
+
+nohup $JAVA ${MEM} ${OPTS} ${DEFS} pl.edu.icm.unity.server.UnityApplication ${PARAM} >& "$STARTLOG" &
+ 
+echo $! > "$PID"

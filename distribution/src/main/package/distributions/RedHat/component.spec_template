@@ -9,7 +9,7 @@ Group: System Environment/Daemons
 URL: http://unity-idm.eu
 Requires: java-1.7.0-openjdk findutils bash
 BuildArch: @component-architecture@
-Packager: Krzysztof Benedyczak <unicore-support@lists.sourceforge.net> 
+Packager: Krzysztof Benedyczak <unity-idm-discuss@lists.sourceforge.net> 
 @preamble@
 
 %description
@@ -31,78 +31,49 @@ provides a self-contained Unity server.
 #
 # Config files
 #
-%attr(750, unicore, unicore) %dir "/etc/unicore/uvos-server"
-%attr(640, unicore, unicore) %config(noreplace) "/etc/unicore/uvos-server/uvosServer.conf"
-%attr(640, unicore, unicore) %config(noreplace) "/etc/unicore/uvos-server/*.properties"
+%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.conf"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.json"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.properties"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.p12"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.jks"
 
-%attr(750, unicore, unicore) %dir "/etc/unicore/uvos-server/db"
-%attr(750, unicore, unicore) %dir "/etc/unicore/uvos-server/db/dbUpdate"
-%attr(640, unicore, unicore) %config(noreplace) "/etc/unicore/uvos-server/db/dbUpdate/update.properties"
-%attr(750, unicore, unicore) %dir "/etc/unicore/uvos-server/db/dbUpdate/from-1.0-to-1.1"
-%attr(640, unicore, unicore) %config(noreplace) "/etc/unicore/uvos-server/db/dbUpdate/from-1.0-to-1.1/*"
-%attr(750, unicore, unicore) %dir "/etc/unicore/uvos-server/db/dbUpdate/from-1.1-to-1.2"
-%attr(640, unicore, unicore) %config(noreplace) "/etc/unicore/uvos-server/db/dbUpdate/from-1.1-to-1.2/*"
-
-%attr(750, unicore, unicore) %dir "/etc/unicore/uvos-server/certs"
-%attr(750, unicore, unicore) %dir "/etc/unicore/uvos-server/attributeTypes"
-%attr(640, unicore, unicore) %config(noreplace) "/etc/unicore/uvos-server/attributeTypes/*"
-
-%attr(755, root, root) "/etc/rc.d/init.d/unicore-uvos-server"
+%attr(755, root, root) "/etc/rc.d/init.d/unity-idm-server"
 
 #
 #Others
 #
-%attr(755, root, root) %dir "/usr/share/unicore/uvos-server/script"
-%attr(755, root, root) "/usr/share/unicore/uvos-server/script/*"
-#%attr(755, root, root) %dir "/usr/sbin"
-%attr(755, root, root) "/usr/sbin/unicore-uvos-server-*"
+%attr(755, root, root) "/usr/sbin/unity-idm-server-*"
 
 #
-#logs
+#var
 #
-%dir %attr(755, unicore, unicore) "/var/run/unicore"
-%attr(755, unicore, unicore) %dir  "/var/log/unicore"
-%attr(755, unicore, unicore) %dir  "/var/log/unicore/uvos-server"
-%attr(750, unicore, unicore) %dir  "/var/lib/unicore"
-%attr(750, unicore, unicore) %dir  "/var/lib/unicore/uvos-server"
-%attr(750, unicore, unicore) %dir  "/var/lib/unicore/uvos-server/webapps"
-%attr(750, unicore, unicore) %dir  "/var/lib/unicore/uvos-server/data"
-
-#
-# Documentation and samples
-#
-%attr(755, root, root) %docdir "/usr/share/doc/unicore/uvos-server/"
-%attr(644, root, root) "/usr/share/doc/unicore/uvos-server/*"
+%attr(750, unity-idm, unity-idm) %dir  "/var/log/unity-idm"
+%attr(750, unity-idm, unity-idm) %dir  "/var/run/unity-idm"
+%attr(750, unity-idm, unity-idm) %dir  "/var/lib/unity-idm"
+%attr(750, unity-idm, unity-idm) %dir  "/var/lib/unity-idm/data"
+%attr(750, unity-idm, unity-idm) %dir  "/var/lib/unity-idm/workspace"
 
 #
 # jar files
 #
-%attr(755, root, root) %dir "/usr/share/unicore/uvos-server/lib"
-%attr(644, root, root) "/usr/share/unicore/uvos-server/lib/*.jar"
-#%attr(755, root, root) %dir "/usr/share/unicore/uvos-server/lib/endorsed"
-#%attr(644, root, root) "/usr/share/unicore/uvos-server/lib/endorsed/*.jar"
-
-#
-#unicore-configurator
-#
-%dir %attr(755 root root) "/usr/share/unicore/configurator"
-%dir %attr(755 root root) "/usr/share/unicore/configurator/updater.d"
-%attr(644 root root) "/usr/share/unicore/configurator/updater.d/uvos_server.py"
-
-
+%attr(755, root, root) %dir "/usr/share/unity-idm/lib"
+%attr(644, root, root) "/usr/share/unity-idm/lib/*.jar"
+#%attr(755, root, root) %dir "/usr/share/unity-idm/lib/endorsed"
+#%attr(644, root, root) "/usr/share/unity-idm/lib/endorsed/*.jar"
 
 %pre
-/usr/sbin/groupadd -r unicore 2>/dev/null || :
-/usr/sbin/useradd -c "UNICORE" -g unicore \
-    -s /sbin/nologin -r -d /usr/share/unicore unicore 2>/dev/null || : 
+/usr/sbin/groupadd -r unity-idm 2>/dev/null || :
+/usr/sbin/useradd -c "Unity IDM" -g unity-idm \
+    -s /sbin/nologin -r -d /usr/share/unity-idm unity-idm 2>/dev/null || : 
 
 %post
-/sbin/chkconfig --add unicore-uvos-server
+/sbin/chkconfig --add unity-idm-server
 
 %preun
 if [ "$1" = "0" ]; then
- 	/etc/init.d/unicore-uvos-server stop >/dev/null 2>&1
- 	/sbin/chkconfig --del unicore-uvos-server
+ 	/etc/init.d/unity-idm-server stop >/dev/null 2>&1
+ 	/sbin/chkconfig --del unity-idm-server
 fi
 
 

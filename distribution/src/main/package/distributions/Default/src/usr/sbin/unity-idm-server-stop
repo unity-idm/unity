@@ -1,21 +1,16 @@
 #!/bin/bash
 
+. /etc/unity-idm/startup.properties
 
-#
-# stops UNITY server
-#
-
-source "`dirname $0`"/_setenv.sh
-
-if [ -e LAST_PID ]
+if [ -e "$PID" ]
 then
-	kill -15 `cat LAST_PID`
+	kill -15 `cat "$PID"`
 else
-	echo "No LAST_PID file. It seems that server is not running."
+	echo "No $PID file. It seems that server is not running."
 	exit
 fi
 
-P=`cat LAST_PID`
+P=`cat "$PID"`
 echo "Waiting for server to stop..."
 stopped="no"
 until [ "$stopped" = "" ]; do
@@ -29,4 +24,5 @@ done
 
 echo "Server stopped."
 
-rm -f LAST_PID
+rm -f "$PID"
+

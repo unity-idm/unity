@@ -1,0 +1,32 @@
+#!/bin/bash
+
+
+pushd `dirname $0` > /dev/null
+BASE_DIR=`pwd`
+popd > /dev/null
+BASE_DIR=`dirname "$BASE_DIR"` 
+
+
+. "${BASE_DIR}"/conf/startup.properties
+
+
+if [ -e "$PID" ]
+ then
+  if [ -d /proc/$(cat "$PID") ]
+   then
+     echo "A UNITY instance may be already running with process id "$(cat $PID)
+     echo "If this is not the case, delete the file $PID and re-run this script"
+     exit 1
+   fi
+fi
+
+CP=.$(find "$LIB" -name '*.jar' -exec printf ":{}" \;)
+
+export CLASSPATH=$CP
+
+PWD="`pwd`"
+cd "$BASE_DIR"
+nohup $JAVA ${MEM} ${OPTS} ${DEFS} pl.edu.icm.unity.server.UnityApplication ${PARAM} >& "$STARTLOG" &
+cd "$PWD"
+ 
+echo $! > "$PID"

@@ -24,6 +24,10 @@
 			<outputDirectory>/logs</outputDirectory>
 		</fileSet>
 		<fileSet>
+			<directory>src/main/bundle/extra</directory>
+			<outputDirectory>/extra</outputDirectory>
+		</fileSet>
+		<fileSet>
 			<directory>src/main/bundle/bin</directory>
 			<outputDirectory>/bin</outputDirectory>
 			<fileMode>0744</fileMode>
