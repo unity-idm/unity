@@ -36,7 +36,8 @@ public class ErrorComponent extends FormLayout
 		errorL.setIcon(Images.error32.getResource());
 		errorL.setValue(description + ": " + ErrorPopup.getHumanMessage(error));
 		errorL.setContentMode(ContentMode.HTML);
-		log.warn("Error component initialized with the error with exception", error);
+		log.debug("Error component initialized with the error with exception. Description: " + description, 
+				error);
 		addCommon(errorL);
 	}
 
