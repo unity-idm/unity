@@ -29,6 +29,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	public static final String PREFIX = "unity.endpoint.web.";
 	
 	public static final String SESSION_TIMEOUT = "sessionTimeout";
+	public static final String PRODUCTION_MODE = "productionMode";
 	public static final String BLOCK_AFTER_UNSUCCESSFUL = "blockAfterUnsuccessfulLogins";
 	public static final String BLOCK_FOR = "blockFor";
 	public static final String ENABLE_REGISTRATION = "enableRegistration";
@@ -41,6 +42,8 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	{
 		META.put(SESSION_TIMEOUT, new PropertyMD("600").setPositive().
 				setDescription("Defines maximum validity period (in seconds) of a web session."));
+		META.put(PRODUCTION_MODE, new PropertyMD("true").setHidden().
+				setDescription("Controls wether Vaadin should work in production mode or in debug mode (false)."));
 		META.put(BLOCK_AFTER_UNSUCCESSFUL, new PropertyMD("5").setPositive().
 				setDescription("Defines maximum number of unsuccessful logins before the access is temporarely blocked."));
 		META.put(BLOCK_FOR, new PropertyMD("60").setPositive().

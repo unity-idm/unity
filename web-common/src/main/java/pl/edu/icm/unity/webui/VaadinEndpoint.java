@@ -42,6 +42,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	public static final String AUTHENTICATION_PATH = "/authentication";
 	public static final String VAADIN_RESOURCES = "/VAADIN/*";
 	public static final String SESSION_TIMEOUT_PARAM = "session-timeout";
+	public static final String PRODUCTION_MODE_PARAM = "productionMode";
 	protected ApplicationContext applicationContext;
 	protected String uiBeanName;
 	protected String servletPath;
@@ -124,8 +125,10 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		ServletHolder holder = new ServletHolder(servlet);
 		holder.setInitParameter("closeIdleSessions", "true");
 		int sessionTimeout = genericEndpointProperties.getIntValue(VaadinEndpointProperties.SESSION_TIMEOUT);
+		boolean productionMode = genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.PRODUCTION_MODE);
 		holder.setInitParameter("heartbeatInterval", String.valueOf(sessionTimeout/4));
 		holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(sessionTimeout));
+		holder.setInitParameter(PRODUCTION_MODE_PARAM, String.valueOf(productionMode));
 		return holder;
 	}
 
