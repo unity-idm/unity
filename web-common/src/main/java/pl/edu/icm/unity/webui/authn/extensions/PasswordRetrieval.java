@@ -134,6 +134,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 			ret.setSpacing(true);
 			String label = name.trim().equals("") ? msg.getMessage("WebPasswordRetrieval.password") : name;
 			passwordField = new PasswordField(label);
+			passwordField.setId("WebPasswordRetrieval.password");
 			ret.addComponent(passwordField);
 
 			if (credentialExchange.getCredentialResetBackend().getSettings().isEnabled())

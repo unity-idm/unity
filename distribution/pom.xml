@@ -40,7 +40,18 @@
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
-		
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>2.39.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-firefox-driver</artifactId>
+			<version>2.39.0</version>
+			<scope>test</scope>
+		</dependency>
 
 		<!-- compile -->
 		<dependency>
@@ -100,6 +111,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- 
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -107,6 +119,7 @@
 					<skip>true</skip>
 				</configuration>
 			</plugin>
+			 -->
 		</plugins>
 	</build>
 </project>

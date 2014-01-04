@@ -83,6 +83,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		}
 		
 		authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
+		authenticateButton.setId("AuthenticationUI.authnenticateButton");
 		usernameComponent = null;
 		if (needCommonUsername)
 		{
@@ -205,6 +206,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		public UsernameComponent()
 		{
 			username = new TextField(msg.getMessage("AuthenticationUI.username"));
+			username.setId("AuthenticationUI.username");
 			addComponent(username);
 		}
 

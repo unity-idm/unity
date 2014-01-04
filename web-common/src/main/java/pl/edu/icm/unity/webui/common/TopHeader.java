@@ -45,6 +45,7 @@ public class TopHeader extends TopHeaderLight
 		String label = entity.getEntityLabel() == null ? "" : entity.getEntityLabel();
 		Label loggedEntity = new Label(msg.getMessage("MainHeader.loggedAs", label,
 				entity.getEntityId()));
+		loggedEntity.setId("MainHeader.loggedAs");
 		loggedEntity.setStyleName(Reindeer.LABEL_H2);
 		loggedPanel.addComponent(loggedEntity);
 		loggedPanel.setComponentAlignment(loggedEntity, Alignment.MIDDLE_RIGHT);
@@ -61,6 +62,7 @@ public class TopHeader extends TopHeaderLight
 		Button logout = new Button();
 		logout.setIcon(Images.exit32.getResource());
 		logout.setDescription(msg.getMessage("MainHeader.logout"));
+		logout.setId("MainHeader.logout");
 		logout.setStyleName(Reindeer.BUTTON_LINK);
 		logout.addClickListener(new Button.ClickListener()
 		{
