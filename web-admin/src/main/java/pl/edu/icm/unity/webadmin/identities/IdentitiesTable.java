@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webadmin.identities;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -436,7 +437,7 @@ public class IdentitiesTable extends TreeTable
 	{
 		AuthenticatedEntity entity = InvocationContext.getCurrent().getAuthenticatedEntity();
 		
-		if (Long.valueOf(entityId) == entity.getEntityId())
+		if (entityId == entity.getEntityId().longValue())
 		{
 			ErrorPopup.showError(msg, msg.getMessage("error"), msg.getMessage("Identities.notRemovingLoggedUser"));
 			return;
@@ -789,7 +790,7 @@ public class IdentitiesTable extends TreeTable
 		public IdentitiesAndAttributes(Entity entity, Identity[] identities, 
 				Map<String, Attribute<?>> rootAttributes, Map<String, Attribute<?>> currentAttributes)
 		{
-			this.identities = identities;
+			this.identities = Arrays.copyOf(identities, identities.length);
 			this.rootAttributes = rootAttributes;
 			this.currentAttributes = currentAttributes;
 			this.entity = entity;

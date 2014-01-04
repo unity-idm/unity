@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.stdext.credential;
 
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
 
@@ -30,7 +31,7 @@ class PasswordCredentialDBState
 		this.passwords = passwords;
 		this.outdated = outdated;
 		this.securityQuestion = securityQuestion;
-		this.answerHash = answerHash;
+		this.answerHash = answerHash != null ? Arrays.copyOf(answerHash, answerHash.length) : null;
 	}
 	public Deque<PasswordInfo> getPasswords()
 	{

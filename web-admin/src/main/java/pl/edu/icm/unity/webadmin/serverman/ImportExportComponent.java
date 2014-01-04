@@ -217,7 +217,7 @@ public class ImportExportComponent extends VerticalLayout
 		}
 
 		@Override
-		public void uploadSucceeded(SucceededEvent event)
+		public synchronized void uploadSucceeded(SucceededEvent event)
 		{
 			super.uploadSucceeded(event);
 			if (!fos.isOverflow())

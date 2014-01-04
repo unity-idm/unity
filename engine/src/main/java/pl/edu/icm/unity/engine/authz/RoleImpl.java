@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.authz;
 
+import java.util.Arrays;
+
 
 public class RoleImpl implements AuthzRole
 {
@@ -22,7 +24,7 @@ public class RoleImpl implements AuthzRole
 	{
 		this.name = name;
 		this.description = description;
-		this.capabilities = capabilities;
+		setCapabilities(capabilities);
 		this.allCapabilities = new AuthzCapability[capabilities.length + selfAccessCapabilities.length];
 		int i=0;
 		for (; i<capabilities.length; i++)
@@ -61,6 +63,6 @@ public class RoleImpl implements AuthzRole
 	
 	public void setCapabilities(AuthzCapability[] capabilities)
 	{
-		this.capabilities = capabilities;
+		this.capabilities = Arrays.copyOf(capabilities, capabilities.length);
 	}
 }

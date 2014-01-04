@@ -28,7 +28,7 @@ import pl.edu.icm.unity.server.UnityApplication;
  */
 public class SeleniumTestBase
 {
-	public static final int WAIT_TIME_S = 5;
+	public static final int WAIT_TIME_S = 8;
 	protected WebDriver driver;
 
 	private StringBuffer verificationErrors = new StringBuffer();

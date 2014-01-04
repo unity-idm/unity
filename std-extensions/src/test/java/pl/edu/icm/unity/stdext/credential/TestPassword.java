@@ -14,6 +14,14 @@ import pl.edu.icm.unity.types.authn.LocalCredentialState;
 public class TestPassword
 {
 	@Test
+	public void testArayCopy() throws Exception
+	{
+		byte[] A = {1,2,3,4};
+		PasswordInfo pi = new PasswordInfo(A, "11");
+		assertArrayEquals(A, pi.getHash());
+	}
+		
+	@Test
 	public void test() throws Exception
 	{
 		//we can pass nulls as we don't test the credential reset here.

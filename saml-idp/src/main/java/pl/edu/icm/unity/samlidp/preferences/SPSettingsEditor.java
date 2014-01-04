@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.samlidp.preferences;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -52,7 +53,7 @@ public class SPSettingsEditor extends FormLayout
 			Collection<AttributeType> atTypes, String sp, SPSettings initial)
 	{
 		this.msg = msg;
-		this.identities = identities;
+		this.identities = Arrays.copyOf(identities, identities.length);
 		this.attributeTypes = atTypes;
 		initUI(initial, sp, null);
 	}
@@ -61,7 +62,7 @@ public class SPSettingsEditor extends FormLayout
 			Set<String> allSps)
 	{
 		this.msg = msg;
-		this.identities = identities;
+		this.identities = Arrays.copyOf(identities, identities.length);
 		this.attributeTypes = atTypes;
 		initUI(null, null, allSps);
 	}

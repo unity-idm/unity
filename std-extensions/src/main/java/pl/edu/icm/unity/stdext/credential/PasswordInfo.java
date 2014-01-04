@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.stdext.credential;
 
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -18,13 +19,13 @@ public class PasswordInfo
 
 	public PasswordInfo(byte[] hash, String salt)
 	{
-		this.hash = hash;
+		this.hash = Arrays.copyOf(hash, hash.length);
 		this.salt = salt;
 		this.time = new Date();
 	}
 	public PasswordInfo(byte[] hash, String salt, long time)
 	{
-		this.hash = hash;
+		this.hash = Arrays.copyOf(hash, hash.length);
 		this.salt = salt;
 		this.time = new Date(time);
 	}

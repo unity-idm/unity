@@ -126,7 +126,8 @@ public class CredentialResetImpl implements CredentialReset
 	private String getFakeQuestion()
 	{
 		List<String> questions = settings.getQuestions();
-		int num = subject.getIdentity().getValue().hashCode() % questions.size();
+		int hash = subject.getIdentity().getValue().hashCode();
+		int num = (hash < 0 ? -hash : hash) % questions.size();
 		return questions.get(num);
 	}
 	

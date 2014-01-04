@@ -38,9 +38,9 @@ public class CredentialResetStateVariable
 		WrappedSession session = vSession.getSession();
 		Integer var = (Integer) session.getAttribute(SES_NAME);
 		if (var == null)
-			var = new Integer(1);
+			var = Integer.valueOf(1);
 		else
-			var = new Integer(var+1);
+			var = Integer.valueOf(var+1);
 		session.setAttribute(SES_NAME, var);
 	}
 	
