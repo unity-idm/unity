@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.reg.reqman;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import pl.edu.icm.unity.Constants;
@@ -119,7 +120,8 @@ public class RequestCommentPanel extends CustomComponent
 				sb.append(msg.getMessage("RequestCommentPanel.public"));
 			else
 				sb.append(msg.getMessage("RequestCommentPanel.internal"));
-			sb.append(" ").append(Constants.SIMPLE_DATE_FORMAT.format(comment.getDate()));
+			sb.append(" ").append(new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT).
+					format(comment.getDate()));
 			sb.append("\n\n").append(comment.getContents());
 			Label commentL = new Label(sb.toString(), ContentMode.PREFORMATTED);
 			commentL.addStyleName(Styles.messageBox.toString());

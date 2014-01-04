@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.reg.reqman;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import pl.edu.icm.unity.Constants;
@@ -150,7 +151,7 @@ public class RequestsTable extends CustomComponent
 		
 		public String getSubmitTime()
 		{
-			return Constants.SIMPLE_DATE_FORMAT.format(request.getTimestamp());
+			return new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT).format(request.getTimestamp());
 		}
 
 		public String getStatus()

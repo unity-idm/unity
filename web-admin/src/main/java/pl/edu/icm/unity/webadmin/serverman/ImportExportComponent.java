@@ -11,7 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -55,8 +54,6 @@ import com.vaadin.ui.Upload.SucceededEvent;
 public class ImportExportComponent extends VerticalLayout
 {
 	private static final int MAX_SIZE = 10000000;
-	public static final DateFormat TIME_FORMAT = new SimpleDateFormat("yyyyMMdd-HHmmssMM");
-
 	private final UnityMessageSource msg;
 	private final ServerManagement serverManagement;
 	private final UnityServerConfiguration serverConfig;
@@ -354,7 +351,7 @@ public class ImportExportComponent extends VerticalLayout
 
 			try 
 			{
-				String ts = TIME_FORMAT.format(new Date());
+				String ts = new SimpleDateFormat("yyyyMMdd-HHmmssMM").format(new Date());
 				final DownloadStream ds = new DownloadStream(new FileInputStream(dump), 
 						getMIMEType(), "unity-dbdump-" + ts + ".json");
 				ds.setParameter("Content-Length", String.valueOf(dump.length()));

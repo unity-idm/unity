@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.reg.reqman;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import com.vaadin.ui.Alignment;
@@ -159,7 +160,7 @@ public class RequestProcessingPanel extends CustomComponent
 		requestForm.setValue(request.getFormId());
 		requestId.setValue(input.getRequestId());
 		requestStatus.setValue(msg.getMessage("RegistrationRequestStatus." + input.getStatus()));
-		requestDate.setValue(Constants.SIMPLE_DATE_FORMAT.format(input.getTimestamp()));
+		requestDate.setValue(new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT).format(input.getTimestamp()));
 		
 		commentPanel.setInput(input);
 		requestReviewPanel.setInput(input, form);
