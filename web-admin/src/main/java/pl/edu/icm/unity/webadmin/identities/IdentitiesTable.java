@@ -374,6 +374,7 @@ public class IdentitiesTable extends TreeTable
 		addContainerProperty(key, String.class, "");
 		setColumnHeader(key, attribute + (group == null ? "@" + this.group : "@/"));
 		refresh();
+		savePreferences();
 	}
 
 	public void removeAttributeColumn(String group, String... attributes)
@@ -386,6 +387,7 @@ public class IdentitiesTable extends TreeTable
 				removeContainerProperty(ATTR_CURRENT_COL_PREFIX + attribute);
 		}
 		refresh();
+		savePreferences();
 	}
 	
 	public Set<String> getAttributeColumns(boolean root)
