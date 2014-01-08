@@ -26,6 +26,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -75,6 +76,7 @@ public class IdentitiesTable extends TreeTable
 	private UnityMessageSource msg;
 	private AuthenticationManagement authnMan;
 	private AttributesManagement attrMan;
+	private PreferencesManagement preferencesMan;
 	private AttributesInternalProcessing attrProcessor;
 	private IdentityEditorRegistry identityEditorReg;
 	private AttributeHandlerRegistry attrHandlerRegistry;
@@ -90,11 +92,12 @@ public class IdentitiesTable extends TreeTable
 	
 	@Autowired
 	public IdentitiesTable(IdentitiesManagement identitiesMan, GroupsManagement groupsMan, 
-			AuthenticationManagement authnMan, AttributesManagement attrMan,
+			AuthenticationManagement authnMan, AttributesManagement attrMan,PreferencesManagement preferencesMan,
 			AttributesInternalProcessing attrProcessor,
 			IdentityEditorRegistry identityEditorReg, CredentialEditorRegistry credEditorsRegistry,
 			AttributeHandlerRegistry attrHandlerReg, UnityMessageSource msg)
 	{
+		this.preferencesMan = preferencesMan;
 		this.identitiesMan = identitiesMan;
 		this.attrProcessor = attrProcessor;
 		this.groupsMan = groupsMan;
@@ -134,6 +137,8 @@ public class IdentitiesTable extends TreeTable
 		setColumnWidth("status", 100);
 		setColumnWidth("local", 100);
 		setColumnWidth("credReq", 180);
+		
+		loadPreferences();
 		
 		addActionHandler(new RefreshHandler());
 		addActionHandler(new ShowEntityDetailsHandler());
@@ -177,8 +182,145 @@ public class IdentitiesTable extends TreeTable
 				}
 			}
 		});
+
+		addColumnResizeListener(new ColumnResizeListener()
+		{
+
+			@Override
+			public void columnResize(ColumnResizeEvent event)
+			{
+				savePreferences();
+
+			}
+		});
+
+		addColumnReorderListener(new ColumnReorderListener()
+		{
+
+			@Override
+			public void columnReorder(ColumnReorderEvent event)
+			{
+				savePreferences();
+
+			}
+		});
+		//For future: addColumnCollapseListener
 	}
 
+	public void savePreferences()
+	{
+		Collection<?> props = getContainerPropertyIds();
+
+		IdentitiesTablePreferences preferences = new IdentitiesTablePreferences();
+		Object[] columns = getVisibleColumns();
+
+		for (Object prop : props)
+		{
+			if (!(prop instanceof String))
+				continue;
+			String property = (String) prop;
+			IdentitiesTablePreferences.ColumnSettings settings = new IdentitiesTablePreferences.ColumnSettings();
+			settings.setCollapsed(isColumnCollapsed(property));
+
+			settings.setWidth(getColumnWidth(property));
+
+			for (int i = 0; i < columns.length; i++)
+			{
+				String c = (String) columns[i];
+				if (c.equals(property))
+				{
+					settings.setOrder(i);
+				}
+			}
+
+			preferences.addColumneSettings(property, settings);
+		}
+		try
+		{
+			IdentitiesTablePreferences.savePreferences(preferencesMan, preferences);
+		} catch (EngineException e)
+		{
+			ErrorPopup.showError(msg, msg.getMessage("error"),
+					msg.getMessage("Identities.cannotSavePrefernces"));
+			return;
+
+		}
+
+	}
+
+	public void loadPreferences()
+	{
+
+		IdentitiesTablePreferences preferences = null;
+		try
+		{
+			preferences = IdentitiesTablePreferences.getPreferences(preferencesMan);
+		} catch (EngineException e)
+		{
+			ErrorPopup.showError(msg, msg.getMessage("error"),
+					msg.getMessage("Identities.cannotLoadPrefernces"));
+			return;
+		}
+
+		Collection<?> pprops = getContainerPropertyIds();
+		Set<String> props = new HashSet<String>();
+
+		for (Object prop : pprops)
+		{
+			if (!(prop instanceof String))
+				continue;
+			String property = (String) prop;
+			props.add(property);
+		}
+
+		String[] scol = new String[preferences.getColumnSettings().size()];
+		if (preferences != null && preferences.getColumnSettings().size() > 0)
+		{
+
+			for (Map.Entry<String, IdentitiesTablePreferences.ColumnSettings> entry : preferences
+					.getColumnSettings().entrySet())
+			{
+				if (!props.contains(entry.getKey().toString()))
+				{
+
+					if (entry.getKey().startsWith(ATTR_ROOT_COL_PREFIX))
+						addAttributeColumn(
+								entry.getKey()
+										.substring(ATTR_ROOT_COL_PREFIX
+												.length()),
+								"/");
+
+					if (entry.getKey().startsWith(ATTR_CURRENT_COL_PREFIX))
+						addAttributeColumn(
+								entry.getKey()
+										.substring(ATTR_CURRENT_COL_PREFIX
+												.length()),
+								null);
+
+					setColumnCollapsed(entry.getKey(), entry.getValue()
+							.isCollapsed());
+					setColumnWidth(entry.getKey(), entry.getValue().getWidth());
+
+				} else
+				{
+
+					if (!entry.getKey().equals("entity"))
+					{
+						setColumnCollapsed(entry.getKey(), entry.getValue()
+								.isCollapsed());
+					}
+					setColumnWidth(entry.getKey(), entry.getValue().getWidth());
+
+				}
+
+				scol[entry.getValue().getOrder()] = entry.getKey();
+
+			}
+			setVisibleColumns(scol);
+		}
+
+	}
+	
 	@Override
 	public void addActionHandler(Action.Handler actionHandler) {
 		super.addActionHandler(actionHandler);
@@ -844,6 +986,7 @@ public class IdentitiesTable extends TreeTable
 			result = prime * result + ((identity == null) ? 0 : identity.hashCode());
 			return result;
 		}
+
 		@Override
 		public boolean equals(Object obj)
 		{
@@ -865,7 +1008,3 @@ public class IdentitiesTable extends TreeTable
 
 	}
 }
-
-
-
-
