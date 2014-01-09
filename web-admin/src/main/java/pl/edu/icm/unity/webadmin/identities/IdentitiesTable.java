@@ -210,9 +210,8 @@ public class IdentitiesTable extends TreeTable
 	public void savePreferences()
 	{
 		Collection<?> props = getContainerPropertyIds();
-
 		IdentitiesTablePreferences preferences = new IdentitiesTablePreferences();
-		Object[] columns = getVisibleColumns();
+		Object[] columns = getVisibleColumns(); //order of the columns
 
 		for (Object prop : props)
 		{
@@ -262,10 +261,10 @@ public class IdentitiesTable extends TreeTable
 			return;
 		}
 
-		Collection<?> pprops = getContainerPropertyIds();
+		
 		Set<String> props = new HashSet<String>();
 
-		for (Object prop : pprops)
+		for (Object prop : getContainerPropertyIds())
 		{
 			if (!(prop instanceof String))
 				continue;
@@ -273,9 +272,9 @@ public class IdentitiesTable extends TreeTable
 			props.add(property);
 		}
 
-		String[] scol = new String[preferences.getColumnSettings().size()];
+		
 		if (preferences != null && preferences.getColumnSettings().size() > 0)
-		{
+		{       String[] scol = new String[preferences.getColumnSettings().size()];
 
 			for (Map.Entry<String, IdentitiesTablePreferences.ColumnSettings> entry : preferences
 					.getColumnSettings().entrySet())
