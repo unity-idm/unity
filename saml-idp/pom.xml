@@ -6,12 +6,12 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>unity-server-saml-idp</artifactId>
+	<artifactId>unity-server-saml</artifactId>
 	<packaging>jar</packaging>
 	<name>UNITY Server ${m.name} module</name>
-	<description>Module with SAML Identity Provider endpoints: web and SOAP</description>
+	<description>Module with SAML support</description>
 	<properties>
-		<m.name>saml-idp</m.name>
+		<m.name>saml</m.name>
 	</properties>
 
 	<scm>

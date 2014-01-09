@@ -9,8 +9,8 @@ import java.util.Set;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 
-import pl.edu.icm.unity.samlidp.preferences.SPSettingsEditor;
-import pl.edu.icm.unity.samlidp.preferences.SamlPreferences.SPSettings;
+import pl.edu.icm.unity.saml.idp.preferences.SPSettingsEditor;
+import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Identity;

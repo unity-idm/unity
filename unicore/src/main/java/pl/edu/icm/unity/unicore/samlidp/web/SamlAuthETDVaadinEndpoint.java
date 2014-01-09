@@ -8,8 +8,8 @@ import javax.servlet.Filter;
 
 import org.springframework.context.ApplicationContext;
 
-import pl.edu.icm.unity.samlidp.FreemarkerHandler;
-import pl.edu.icm.unity.samlidp.web.SamlAuthVaadinEndpoint;
+import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
+import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 /**

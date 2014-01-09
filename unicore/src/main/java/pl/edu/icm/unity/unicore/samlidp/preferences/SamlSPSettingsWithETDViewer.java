@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.preferences;
 
-import pl.edu.icm.unity.samlidp.preferences.SamlPreferences.SPSettings;
-import pl.edu.icm.unity.samlidp.preferences.SamlSPSettingsViewer;
+import pl.edu.icm.unity.saml.idp.preferences.SamlSPSettingsViewer;
+import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
 import pl.edu.icm.unity.unicore.samlidp.web.ETDSettingsEditor;

@@ -9,9 +9,13 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
-import static pl.edu.icm.unity.samlidp.SamlProperties.*;
+import static pl.edu.icm.unity.saml.idp.SamlProperties.*;
+
 import org.junit.Test;
 
+import pl.edu.icm.unity.saml.idp.AttributeFilters;
+import pl.edu.icm.unity.saml.idp.GroupChooser;
+import pl.edu.icm.unity.saml.idp.SamlProperties;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;

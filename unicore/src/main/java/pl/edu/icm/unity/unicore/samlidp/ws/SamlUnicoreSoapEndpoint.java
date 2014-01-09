@@ -6,8 +6,8 @@ package pl.edu.icm.unity.unicore.samlidp.ws;
 
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
-import pl.edu.icm.unity.samlidp.ws.SAMLAssertionQueryImpl;
-import pl.edu.icm.unity.samlidp.ws.SamlSoapEndpoint;
+import pl.edu.icm.unity.saml.idp.ws.SAMLAssertionQueryImpl;
+import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
