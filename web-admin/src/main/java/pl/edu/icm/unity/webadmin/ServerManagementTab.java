@@ -10,6 +10,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webadmin.serverman.EndpointsStatusComponent;
 import pl.edu.icm.unity.webadmin.serverman.ImportExportComponent;
 
 import com.vaadin.ui.VerticalLayout;
@@ -28,11 +29,11 @@ public class ServerManagementTab  extends VerticalLayout
 	private MainTabPanel tabs;
 
 	@Autowired
-	public ServerManagementTab(UnityMessageSource msg, ImportExportComponent ieComponent)
+	public ServerManagementTab(UnityMessageSource msg, ImportExportComponent ieComponent,EndpointsStatusComponent esComponent)
 	{
 		super();
 		this.msg = msg;
-		this.tabs = new MainTabPanel(ieComponent);
+		this.tabs = new MainTabPanel(ieComponent,esComponent);
 		this.tabs.setStyleName(Reindeer.TABSHEET_MINIMAL);
 		initUI();
 	}
