@@ -9,11 +9,14 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.InitDB;
+import pl.edu.icm.unity.server.api.ServerManagement;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.utils.DemoContentInitializer;
 
 /**
@@ -39,12 +42,17 @@ public class TestImportExport extends DBIntegrationTestBase
 	private InitDB initDb;
 	@Autowired
 	private DBSessionManager db;
+	@Autowired
+	private UnityServerConfiguration configuration;
 	
 	
 	@Test
 	public void test() throws Exception
 	{
 		initializer.run();
+		FileUtils.deleteDirectory(new File(
+				configuration.getFileValue(UnityServerConfiguration.WORKSPACE_DIRECTORY, true), 
+				ServerManagement.DB_DUMP_DIRECTORY));
 		
 		int atsSize = attrsMan.getAttributeTypes().size();
 		int idTypesSize = idsMan.getIdentityTypes().size();

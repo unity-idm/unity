@@ -26,7 +26,7 @@
 	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getAuthenticationManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getNotificationsManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder3" factory-method="getTranslationProfileManagementInstance"/>
-	
+
 	<!-- The real implementation, with a real authorization module injected. However those beans are plain,
 	are not generating any events. -->	
 	<bean primary="false" class="pl.edu.icm.unity.engine.GroupsManagementImpl">
@@ -102,6 +102,9 @@
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
+
+	<!-- Currently simplistic -->
+	<bean class="pl.edu.icm.unity.engine.PKIManagementImpl"/>
 
 	<bean class="pl.edu.icm.unity.engine.AttributesInternalProcessingImpl"/>
 	

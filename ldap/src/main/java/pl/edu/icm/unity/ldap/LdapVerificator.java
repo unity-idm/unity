@@ -14,6 +14,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
@@ -33,12 +34,15 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 	private LdapProperties ldapProperties;
 	private LdapClient client;
 	private LdapClientConfiguration clientConfiguration;
+	private PKIManagement pkiManagement;
 	
 	public LdapVerificator(String name, String description, 
-			TranslationProfileManagement profileManagement, AttributesManagement attrMan)
+			TranslationProfileManagement profileManagement, AttributesManagement attrMan,
+			PKIManagement pkiManagement)
 	{
 		super(name, description, PasswordExchange.ID, profileManagement, attrMan);
 		this.client = new LdapClient(name);
+		this.pkiManagement = pkiManagement;
 	}
 
 	@Override
@@ -64,7 +68,7 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 			properties.load(new StringReader(source));
 			ldapProperties = new LdapProperties(properties);
 			setTranslationProfile(ldapProperties.getValue(LdapProperties.TRANSLATION_PROFILE));
-			clientConfiguration = new LdapClientConfiguration(ldapProperties);
+			clientConfiguration = new LdapClientConfiguration(ldapProperties, pkiManagement);
 		} catch(ConfigurationException e)
 		{
 			throw new InternalException("Invalid configuration of the LDAP verificator", e);

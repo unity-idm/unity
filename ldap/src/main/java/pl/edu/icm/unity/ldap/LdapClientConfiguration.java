@@ -5,19 +5,19 @@
 package pl.edu.icm.unity.ldap;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.PKIManagement;
 
 import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.SearchScope;
 
-import eu.emi.security.authn.x509.StoreUpdateListener;
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
-import eu.unicore.security.canl.TruststoreProperties;
 import eu.unicore.util.configuration.ConfigurationException;
 
 /**
@@ -40,7 +40,7 @@ public class LdapClientConfiguration
 	private Filter validUsersFilter;
 	private X509CertChainValidator connectionValidator;
 	
-	public LdapClientConfiguration(LdapProperties ldapProperties)
+	public LdapClientConfiguration(LdapProperties ldapProperties, PKIManagement pkiManagement)
 	{
 		this.ldapProperties = ldapProperties;
 		List<String> servers = ldapProperties.getListOfValues(LdapProperties.SERVERS);
@@ -99,10 +99,15 @@ public class LdapClientConfiguration
 				connectionValidator = new BinaryCertChainValidator(true);
 			else
 			{
-				TruststoreProperties tp = new TruststoreProperties(ldapProperties.getProperties(), 
-						new HashSet<StoreUpdateListener>(), 
-						LdapProperties.PREFIX+TruststoreProperties.DEFAULT_PREFIX);
-				connectionValidator = tp.getValidator();
+				try
+				{
+					connectionValidator = pkiManagement.getValidator(
+							ldapProperties.getValue(LdapProperties.TRUSTSTORE));
+				} catch (EngineException e)
+				{
+					throw new ConfigurationException("Can't load certificate validator " +
+							"for the ldap client", e);
+				}
 			}
 		}
 	}

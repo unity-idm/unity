@@ -26,10 +26,6 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.notifications.TemplatesStore;
 
-import eu.unicore.security.canl.AuthnAndTrustProperties;
-import eu.unicore.security.canl.CredentialProperties;
-import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
-import eu.unicore.security.canl.TruststoreProperties;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -58,6 +54,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String DEFAULT_LOCALE = "defaultLocale";
 	public static final String MAIL_CONF = "mailConfig";
 	public static final String TEMPLATES_CONF = "templatesFile";
+	public static final String PKI_CONF = "pkiConfigFile";
 	public static final String THREAD_POOL_SIZE = "threadPoolSize";
 	public static final String RECREATE_ENDPOINTS_ON_STARTUP = "recreateEndpointsOnStartup";
 	public static final String ENDPOINTS = "endpoints.";
@@ -70,7 +67,9 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String INITIALIZERS = "initializers.";
 	public static final String UPDATE_INTERVAL = "asyncStateUpdateInterval";
 	public static final String WORKSPACE_DIRECTORY = "workspaceDirectory";
-
+	public static final String MAIN_CREDENTIAL = "credential";
+	public static final String MAIN_TRUSTSTORE = "truststore";
+	
 	public static final String AUTHENTICATORS = "authenticators.";
 	public static final String AUTHENTICATOR_NAME = "authenticatorName";
 	public static final String AUTHENTICATOR_TYPE = "authenticatorType";
@@ -118,6 +117,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("A configuration file for the mail notification subsystem."));
 		defaults.put(TEMPLATES_CONF, new PropertyMD("conf/msgTemplates.properties").setPath().setCategory(mainCat).
 				setDescription("A file with the default message templates."));
+		defaults.put(PKI_CONF, new PropertyMD("conf/pki.properties").setPath().setCategory(mainCat).
+				setDescription("A file with the configuration of the PKI: credentials and truststores."));
 		defaults.put(RECREATE_ENDPOINTS_ON_STARTUP, new PropertyMD("true").setCategory(mainCat).
 				setDescription("If this options is true then all endpoints are initialized from configuration at each startup." +
 				" If it is false then the previously persisted endpoints are loaded."));
@@ -190,16 +191,16 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		defaults.put(CREDENTIAL_REQ_CONTENTS, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setList(false).setMandatory().setCategory(initCredReqCat).
 				setDescription("Credential requirement contents, i.e. credentials that belongs to it"));
 		
-		defaults.put(TruststoreProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).
-				setDescription("Properties starting with this prefix are used to configure server's trust settings and certificate validation. See separate table for details."));
-		defaults.put(CredentialProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).
-				setDescription("Properties starting with this prefix are used to configure server's credential. See separate table for details."));
+		defaults.put(MAIN_TRUSTSTORE, new PropertyMD().setMandatory().setCategory(mainCat).
+				setDescription("Name of the truststore to be used by the server."));
+		defaults.put(MAIN_CREDENTIAL, new PropertyMD().setMandatory().setCategory(mainCat).
+				setDescription("Name of the credential to be used by the server."));
 		defaults.put(HttpServerProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).
 				setDescription("Properties starting with this prefix are used to configure Jetty HTTP server settings. See separate table for details."));
 	}
 
 	private UnityHttpServerConfiguration jp;
-	private IAuthnAndTrustConfiguration authnTrust;
+	private UnityPKIConfiguration pkiConf;
 	private Map<String, Locale> enabledLocales;
 	private Locale defaultLocale;
 	private TemplatesStore templatesStore;
@@ -208,9 +209,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public UnityServerConfiguration(Environment env, ConfigurationLocationProvider locProvider) throws ConfigurationException, IOException
 	{
 		super(P, getConfigurationFile(env, locProvider), defaults, log);
+		pkiConf = new UnityPKIConfiguration(FilePropertiesHelper.load(getFileValue(PKI_CONF, false)));
 		jp = new UnityHttpServerConfiguration(properties);
-		authnTrust = new AuthnAndTrustProperties(properties, 
-				P+TruststoreProperties.DEFAULT_PREFIX, P+CredentialProperties.DEFAULT_PREFIX);
 		enabledLocales = loadEnabledLocales();
 		defaultLocale = safeLocaleDecode(getValue(DEFAULT_LOCALE));
 		if (!isLocaleSupported(defaultLocale))
@@ -299,11 +299,6 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		return jp;
 	}
 	
-	public IAuthnAndTrustConfiguration getAuthAndTrust()
-	{
-		return authnTrust;
-	}
-	
 	public Locale getDefaultLocale()
 	{
 		return defaultLocale;
@@ -317,6 +312,11 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public TemplatesStore getTemplatesStore()
 	{
 		return templatesStore;
+	}
+
+	public UnityPKIConfiguration getPKIConfiguration()
+	{
+		return pkiConf;
 	}
 	
 	public Properties getProperties()

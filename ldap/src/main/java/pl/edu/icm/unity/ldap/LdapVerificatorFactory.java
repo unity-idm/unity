@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
@@ -25,13 +26,16 @@ public class LdapVerificatorFactory implements CredentialVerificatorFactory
 	
 	private TranslationProfileManagement profileManagement;
 	private AttributesManagement attrMan;
+	private PKIManagement pkiManagement;
 
 	@Autowired
 	public LdapVerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement, 
-			@Qualifier("insecure") AttributesManagement attrMan)
+			@Qualifier("insecure") AttributesManagement attrMan,
+			PKIManagement pkiManagement)
 	{
 		this.profileManagement = profileManagement;
 		this.attrMan = attrMan;
+		this.pkiManagement = pkiManagement;
 	}
 
 	@Override
@@ -49,6 +53,6 @@ public class LdapVerificatorFactory implements CredentialVerificatorFactory
 	@Override
 	public CredentialVerificator newInstance()
 	{
-		return new LdapVerificator(getName(), getDescription(), profileManagement, attrMan);
+		return new LdapVerificator(getName(), getDescription(), profileManagement, attrMan, pkiManagement);
 	}
 }

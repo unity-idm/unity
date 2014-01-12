@@ -27,6 +27,7 @@ import eu.unicore.util.jetty.JettyServerBase;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration;
@@ -50,9 +51,10 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 	private Map<String, ServletContextHandler> usedContextPaths;
 	
 	@Autowired
-	public JettyServer(UnityServerConfiguration cfg)
+	public JettyServer(UnityServerConfiguration cfg, PKIManagement pkiManagement)
 	{
-		super(createURLs(cfg.getJettyProperties()), cfg.getAuthAndTrust(), cfg.getJettyProperties(), null);
+		super(createURLs(cfg.getJettyProperties()), pkiManagement.getMainAuthnAndTrust(), 
+				cfg.getJettyProperties(), null);
 		initServer();
 	}
 

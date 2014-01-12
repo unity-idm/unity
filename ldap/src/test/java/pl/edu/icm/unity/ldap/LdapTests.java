@@ -9,9 +9,11 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
@@ -20,6 +22,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
@@ -31,10 +36,13 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.schema.Schema;
 
+import eu.emi.security.authn.x509.X509CertChainValidatorExt;
+import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
+import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
-import eu.unicore.security.canl.TruststoreProperties;
+import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 
 import static pl.edu.icm.unity.ldap.LdapProperties.*;
 import static org.junit.Assert.*;
@@ -46,6 +54,9 @@ public class LdapTests
 	private static String hostname;
 	private static String sslPort;
 	private static String sslHostname;
+	
+	private static PKIManagement pkiManagement;
+	private static X509CertChainValidatorExt regularValidator, emptyValidator;
 	
 	@BeforeClass
 	public static void startEmbeddedServer() throws Exception
@@ -86,6 +97,47 @@ public class LdapTests
 		LDAPConnection sslConn = ds.getConnection("SSL");
 		sslHostname = sslConn.getConnectedAddress();
 		sslPort = sslConn.getConnectedPort()+"";
+		
+		regularValidator = new KeystoreCertChainValidator("src/test/resources/demoTruststore.jks", 
+				"unicore".toCharArray(), "JKS", -1);
+		emptyValidator = new KeystoreCertChainValidator("src/test/resources/empty.jks", 
+				"the!empty".toCharArray(), "JKS", -1);
+		
+		pkiManagement = new PKIManagement()
+		{
+			@Override
+			public Set<String> getValidatorNames() throws EngineException
+			{
+				return Collections.singleton("main");
+			}
+			
+			@Override
+			public X509CertChainValidatorExt getValidator(String name) throws EngineException
+			{
+				if (name.equals("REGULAR"))
+					return regularValidator;
+				if (name.equals("EMPTY"))
+					return emptyValidator;
+				throw new WrongArgumentException("No such validator " + name);
+			}
+			
+			@Override
+			public Set<String> getCredentialNames() throws EngineException
+			{
+				return null;
+			}
+			@Override
+			public X509Credential getCredential(String name) throws EngineException
+			{
+				return null;
+			}
+
+			@Override
+			public IAuthnAndTrustConfiguration getMainAuthnAndTrust()
+			{
+				return null;
+			}
+		};
 	}
 	
 	@AfterClass
@@ -103,9 +155,10 @@ public class LdapTests
 		p.setProperty(PREFIX+PORTS+"1", port);
 		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
 		p.setProperty(PREFIX+BIND_ONLY, "true");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
 		LdapProperties lp = new LdapProperties(p);
 		
-		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
 		
 		LdapClient client = new LdapClient("test");
 
@@ -142,7 +195,8 @@ public class LdapTests
 			assertEquals(0, ret.getAttributes().size());
 			assertEquals(0, ret.getGroups().size());
 			assertEquals(1, ret.getIdentities().size());
-			assertEquals("cn=user1,ou=users,dc=unity-example,dc=com", ret.getIdentities().get(0).getName());
+			assertEquals("cn=user1,ou=users,dc=unity-example,dc=com", 
+					ret.getIdentities().values().iterator().next().getName());
 		} catch (Exception e)
 		{
 			e.printStackTrace();
@@ -161,9 +215,10 @@ public class LdapTests
 		p.setProperty(PREFIX+BIND_ONLY, "true");
 		p.setProperty(PREFIX+CONNECTION_MODE, "ssl");
 		p.setProperty(PREFIX+TLS_TRUST_ALL, "true");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
 		
 		LdapProperties lp = new LdapProperties(p);
-		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
 		LdapClient client = new LdapClient("test");
 		
 		try
@@ -173,7 +228,8 @@ public class LdapTests
 			assertEquals(0, ret.getAttributes().size());
 			assertEquals(0, ret.getGroups().size());
 			assertEquals(1, ret.getIdentities().size());
-			assertEquals("cn=user1,ou=users,dc=unity-example,dc=com", ret.getIdentities().get(0).getName());
+			assertEquals("cn=user1,ou=users,dc=unity-example,dc=com", ret.getIdentities()
+					.values().iterator().next().getName());
 		} catch (Exception e)
 		{
 			e.printStackTrace();
@@ -181,24 +237,12 @@ public class LdapTests
 		}
 		
 		p.setProperty(PREFIX+TLS_TRUST_ALL, "false");
-		p.setProperty(PREFIX+TruststoreProperties.DEFAULT_PREFIX+TruststoreProperties.PROP_TYPE, "keystore");
-		p.setProperty(PREFIX+TruststoreProperties.DEFAULT_PREFIX+TruststoreProperties.PROP_KS_PATH, 
-				"src/test/resources/demoTruststore.jks");
-		p.setProperty(PREFIX+TruststoreProperties.DEFAULT_PREFIX+TruststoreProperties.PROP_KS_PASSWORD, "unicore");
-		p.setProperty(PREFIX+TruststoreProperties.DEFAULT_PREFIX+TruststoreProperties.PROP_KS_TYPE, "JKS");
+		p.setProperty(PREFIX+TRUSTSTORE, "REGULAR");
 		lp = new LdapProperties(p);
-		clientConfig = new LdapClientConfiguration(lp);
+		clientConfig = new LdapClientConfiguration(lp, pkiManagement);
 		client = new LdapClient("test");
 		client.bindAndSearch("user1", "user1", clientConfig);
 		
-		p.setProperty(PREFIX+SERVERS+"1", hostname);
-		p.setProperty(PREFIX+PORTS+"1", port);
-		p.setProperty(PREFIX+CONNECTION_MODE, "startTLS");
-		p.setProperty(PREFIX+TLS_TRUST_ALL, "true");
-		lp = new LdapProperties(p);
-		clientConfig = new LdapClientConfiguration(lp);
-		client = new LdapClient("test");
-		client.bindAndSearch("user1", "user1", clientConfig);
 	}
 	
 	/**
@@ -216,25 +260,18 @@ public class LdapTests
 		p.setProperty(PREFIX+BIND_ONLY, "true");
 		p.setProperty(PREFIX+CONNECTION_MODE, "startTLS");
 		p.setProperty(PREFIX+TLS_TRUST_ALL, "false");
-		p.setProperty(PREFIX+TruststoreProperties.DEFAULT_PREFIX+TruststoreProperties.PROP_TYPE, "keystore");
-		p.setProperty(PREFIX+TruststoreProperties.DEFAULT_PREFIX+TruststoreProperties.PROP_KS_PATH, 
-				"src/test/resources/demoTruststore.jks");
-		p.setProperty(PREFIX+TruststoreProperties.DEFAULT_PREFIX+TruststoreProperties.PROP_KS_PASSWORD, "unicore");
-		p.setProperty(PREFIX+TruststoreProperties.DEFAULT_PREFIX+TruststoreProperties.PROP_KS_TYPE, "JKS");
+		p.setProperty(PREFIX+TRUSTSTORE, "REGULAR");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
 		
 		LdapProperties lp = new LdapProperties(p);
-		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
 		LdapClient client = new LdapClient("test");
 		client.bindAndSearch("user1", "user1", clientConfig);
 		
-		p.setProperty(PREFIX+TruststoreProperties.DEFAULT_PREFIX+TruststoreProperties.PROP_TYPE, "keystore");
-		p.setProperty(PREFIX+TruststoreProperties.DEFAULT_PREFIX+TruststoreProperties.PROP_KS_PATH, 
-				"src/test/resources/empty.jks");
-		p.setProperty(PREFIX+TruststoreProperties.DEFAULT_PREFIX+TruststoreProperties.PROP_KS_PASSWORD, "the!empty");
-		p.setProperty(PREFIX+TruststoreProperties.DEFAULT_PREFIX+TruststoreProperties.PROP_KS_TYPE, "JKS");
+		p.setProperty(PREFIX+TRUSTSTORE, "EMPTY");
 		
 		lp = new LdapProperties(p);
-		clientConfig = new LdapClientConfiguration(lp);
+		clientConfig = new LdapClientConfiguration(lp, pkiManagement);
 		client = new LdapClient("test");
 		try
 		{
@@ -256,9 +293,10 @@ public class LdapTests
 		p.setProperty(PREFIX+PORTS+"1", port);
 		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
 		p.setProperty(PREFIX+VALID_USERS_FILTER, "(!(cn=user2))");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
 
 		LdapProperties lp = new LdapProperties(p);
-		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
 		LdapClient client = new LdapClient("test");
 		
 		try
@@ -284,7 +322,7 @@ public class LdapTests
 		p.setProperty(PREFIX+ATTRIBUTES+"2", "cn");
 		
 		lp = new LdapProperties(p);
-		clientConfig = new LdapClientConfiguration(lp);
+		clientConfig = new LdapClientConfiguration(lp, pkiManagement);
 		client = new LdapClient("test");
 		ret = client.bindAndSearch("user1", "user1", clientConfig);
 		assertEquals(2, ret.getAttributes().size());
@@ -300,9 +338,10 @@ public class LdapTests
 		p.setProperty(PREFIX+PORTS+"1", port);
 		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
 		p.setProperty(PREFIX+MEMBER_OF_ATTRIBUTE, "secretary");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
 
 		LdapProperties lp = new LdapProperties(p);
-		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
 		LdapClient client = new LdapClient("test");
 		RemotelyAuthenticatedInput ret = client.bindAndSearch("user2", "user1", clientConfig);
 		assertEquals(2, ret.getGroups().size());
@@ -312,7 +351,7 @@ public class LdapTests
 		
 		p.setProperty(PREFIX+MEMBER_OF_GROUP_ATTRIBUTE, "cn");
 		lp = new LdapProperties(p);
-		clientConfig = new LdapClientConfiguration(lp);
+		clientConfig = new LdapClientConfiguration(lp, pkiManagement);
 		client = new LdapClient("test");
 		ret = client.bindAndSearch("user2", "user1", clientConfig);
 		assertEquals(2, ret.getGroups().size());
@@ -339,9 +378,10 @@ public class LdapTests
 		p.setProperty(PREFIX+GROUP_DEFINITION_PFX+"3."+GROUP_DEFINITION_OC, "groupOfUniqueNames");
 		p.setProperty(PREFIX+GROUP_DEFINITION_PFX+"3."+GROUP_DEFINITION_MEMBER_ATTR, "uniqueMember");
 		p.setProperty(PREFIX+GROUP_DEFINITION_PFX+"3."+GROUP_DEFINITION_NAME_ATTR, "cn");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
 		
 		LdapProperties lp = new LdapProperties(p);
-		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
 		LdapClient client = new LdapClient("test");
 		RemotelyAuthenticatedInput ret = client.bindAndSearch("user1", "user1", clientConfig);
 
