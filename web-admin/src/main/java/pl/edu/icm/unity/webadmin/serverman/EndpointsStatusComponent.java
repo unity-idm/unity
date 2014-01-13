@@ -15,18 +15,11 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
-import com.vaadin.server.Resource;
-import com.vaadin.server.ThemeResource;
-import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.Embedded;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -40,7 +33,6 @@ public class EndpointsStatusComponent extends VerticalLayout
 {
 
 	private UnityMessageSource msg;
-
 	private EndpointManagement endpointMan;
 
 	@Autowired
@@ -80,13 +72,12 @@ public class EndpointsStatusComponent extends VerticalLayout
 
 		for (EndpointDescription endpointDesc : endpoints)
 		{
-			
-			addComponent(new SingleEndpointComponent(endpointDesc));
+
+			addComponent(new SingleEndpointComponent(endpointDesc, msg));
 			addComponent(new Label());
 			Label line = new Label();
 			line.addStyleName(Styles.horizontalLine.toString());
 			addComponent(line);
-			
 
 		}
 
