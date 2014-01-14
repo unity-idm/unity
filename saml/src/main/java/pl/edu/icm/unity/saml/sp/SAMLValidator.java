@@ -30,7 +30,7 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
  */
 public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExchange
 {
-	private SAMLRequesterProperties samlProperties;
+	private SAMLSPValidatorProperties samlProperties;
 	private PKIManagement pkiMan;
 	
 	public SAMLValidator(String name, String description, TranslationProfileManagement profileManagement, 
@@ -51,7 +51,8 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 		{
 			throw new InternalException("Can't serialize SAML verificator configuration", e);
 		}
-		return sbw.toString();	}
+		return sbw.toString();	
+	}
 
 	@Override
 	public void setSerializedConfiguration(String source) throws InternalException
@@ -60,8 +61,8 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 		{
 			Properties properties = new Properties();
 			properties.load(new StringReader(source));
-			samlProperties = new SAMLRequesterProperties(properties, pkiMan);
-			setTranslationProfile(samlProperties.getValue(SAMLRequesterProperties.TRANSLATION_PROFILE));
+			samlProperties = new SAMLSPValidatorProperties(properties, pkiMan);
+			setTranslationProfile(samlProperties.getValue(SAMLSPValidatorProperties.TRANSLATION_PROFILE));
 		} catch(ConfigurationException e)
 		{
 			throw new InternalException("Invalid configuration of the SAML verificator", e);
@@ -78,23 +79,23 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 	public AuthnRequestDocument createSAMLRequest(String identityProviderURL, String returnURL) 
 			throws InternalException
 	{
-		String requestrId = samlProperties.getValue(SAMLRequesterProperties.REQUESTER_ID);
+		String requestrId = samlProperties.getValue(SAMLSPValidatorProperties.REQUESTER_ID);
 		NameID issuer = new NameID(requestrId, SAMLConstants.NFORMAT_ENTITY);
 		AuthnRequest request = new AuthnRequest(issuer.getXBean());
 		
-		NameFormat requestedFormat = samlProperties.getEnumValue(SAMLRequesterProperties.REQUESTED_NAME_FORMAT, 
+		NameFormat requestedFormat = samlProperties.getEnumValue(SAMLSPValidatorProperties.REQUESTED_NAME_FORMAT, 
 				NameFormat.class);
 		if (requestedFormat != null)
 			request.setFormat(requestedFormat.getSamlRepresentation());
 		request.getXMLBean().setDestination(identityProviderURL);
 		request.getXMLBean().setAssertionConsumerServiceURL(returnURL);
 
-		if (samlProperties.getBooleanValue(SAMLRequesterProperties.SIGN_REQUEST))
+		if (samlProperties.getBooleanValue(SAMLSPValidatorProperties.SIGN_REQUEST))
 		{
 			try
 			{
 				X509Credential credential = pkiMan.getCredential(
-						samlProperties.getValue(SAMLRequesterProperties.CREDENTIAL));
+						samlProperties.getValue(SAMLSPValidatorProperties.CREDENTIAL));
 				request.sign(credential.getKey(), credential.getCertificateChain());
 			} catch (Exception e)
 			{

@@ -21,12 +21,12 @@ import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 
 /**
- * Configuration of a SAML requester (or SAML SP).
+ * Configuration of a SAML requester (or SAML SP) - binding and IdP independent part.
  * @author K. Benedyczak
  */
-public class SAMLRequesterProperties extends PropertiesHelper
+public class SAMLSPValidatorProperties extends PropertiesHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, SAMLRequesterProperties.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, SAMLSPValidatorProperties.class);
 	
 	@DocumentationReferencePrefix
 	public static final String P = "unity.saml.requester.";
@@ -38,7 +38,7 @@ public class SAMLRequesterProperties extends PropertiesHelper
 	public static final String SIGN_REQUEST = "signRequest";
 	public static final String CREDENTIAL = "requesterCredential";
 	public static final String REQUESTED_NAME_FORMAT = "requestedNameFormat";
-	public static final String ACCEPTED_NAME_FORMATS = "acceptedNameFormats";
+	public static final String ACCEPTED_NAME_FORMATS = "acceptedNameFormats.";
 	
 	
 	public static final String TRANSLATION_PROFILE = "translationProfile";
@@ -67,7 +67,7 @@ public class SAMLRequesterProperties extends PropertiesHelper
 	}
 
 	
-	public SAMLRequesterProperties(Properties properties, PKIManagement pkiMan) throws ConfigurationException
+	public SAMLSPValidatorProperties(Properties properties, PKIManagement pkiMan) throws ConfigurationException
 	{
 		super(P, properties, META, log);
 		if (getBooleanValue(SIGN_REQUEST))

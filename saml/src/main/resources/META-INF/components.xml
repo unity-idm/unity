@@ -17,6 +17,7 @@
 	<bean class="pl.edu.icm.unity.saml.idp.preferences.SamlPreferencesHandler"/>
 	
 	<bean class="pl.edu.icm.unity.saml.sp.SAMLValidatorFactory"/>
+	<bean class="pl.edu.icm.unity.saml.sp.web.SAMLRetrievalFactory"/>
 	
 	
 	<bean scope="prototype" id="SamlIdPWebUI" class="pl.edu.icm.unity.saml.idp.web.SamlIdPWebUI"/>
