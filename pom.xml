@@ -191,13 +191,14 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>4.0.0-SNAPSHOT</version>
+				<version>4.0.1-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>pl.edu.icm.saml</groupId>
 				<artifactId>samly2</artifactId>
 				<version>2.0.1-SNAPSHOT</version>
-			</dependency>			<dependency>
+			</dependency>
+			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>secutils-cxf</artifactId>
 				<version>1.0.0-SNAPSHOT</version>

@@ -137,7 +137,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		defaults.put(INITIAL_ADMIN_USER_OUTDATED, new PropertyMD("true").setCategory(mainCat).
 				setDescription("If false then the default admin user is not " +
 						"set to outdated state after creation. Useful only for testbeds."));
-		
+
 		defaults.put(TRANSLATION_PROFILES, new PropertyMD().setList(false).setCategory(mainCat).
 				setDescription("List of file paths, where each file contains a definition of a translation profile, " +
 						"used to configure mapping of remote identities to the local representation."));
@@ -211,6 +211,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		super(P, getConfigurationFile(env, locProvider), defaults, log);
 		pkiConf = new UnityPKIConfiguration(FilePropertiesHelper.load(getFileValue(PKI_CONF, false)));
 		jp = new UnityHttpServerConfiguration(properties);
+			
 		enabledLocales = loadEnabledLocales();
 		defaultLocale = safeLocaleDecode(getValue(DEFAULT_LOCALE));
 		if (!isLocaleSupported(defaultLocale))

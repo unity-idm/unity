@@ -178,6 +178,24 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 	{
 		return new ArrayList<WebAppEndpointInstance>(deployedEndpoints);
 	}
+	
+	/**
+	 * @return base address of the server which should be used as its externally accessible address.
+	 */
+	public URL getAdvertisedAddress()
+	{
+		String advertisedHost = extraSettings.getValue(UnityHttpServerConfiguration.ADVERTISED_HOST);
+		if (advertisedHost == null)
+			return getUrls()[0];
+		URL url = getUrls()[0];
+		try {
+			return new URL(url.getProtocol(), advertisedHost, 
+					url.getPort(), url.getFile());
+		} catch (MalformedURLException e) {
+			throw new RuntimeException("Ups, URL can not " +
+					"be reconstructed, while it should", e);
+		}
+	}
 }
 
 

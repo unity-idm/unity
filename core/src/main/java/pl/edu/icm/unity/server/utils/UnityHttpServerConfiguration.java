@@ -32,7 +32,8 @@ public class UnityHttpServerConfiguration extends HttpServerProperties
 
 	public static final String HTTPS_PORT = "port";
 	public static final String HTTPS_HOST = "host";
-
+	public static final String ADVERTISED_HOST = "advertisedHost";
+	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
 	
@@ -41,9 +42,14 @@ public class UnityHttpServerConfiguration extends HttpServerProperties
 		DocumentationCategory mainCat = new DocumentationCategory("General settings", "1");
 		DocumentationCategory advancedCat = new DocumentationCategory("Advanced settings", "9");
 		defaults.put(HTTPS_HOST, new PropertyMD("localhost").setCategory(mainCat).
-				setDescription("The hostname or IP address for HTTPS connections."));
-		defaults.put(HTTPS_PORT, new PropertyMD("2443").setBounds(1, 65535).setCategory(mainCat).
-				setDescription("The HTTPS port to be used."));
+				setDescription("The hostname or IP address for HTTPS connections. Use 0.0.0.0 to listen on all interfaces."));
+		defaults.put(HTTPS_PORT, new PropertyMD("2443").setBounds(0, 65535).setCategory(mainCat).
+				setDescription("The HTTPS port to be used. If zero (0) is set then a random free port is used."));
+		defaults.put(ADVERTISED_HOST, new PropertyMD().setCategory(mainCat).
+				setDescription("The hostname or IP address which is advertised externally whenever " +
+						"the server has to provide its address. By default it is set to the listen address, " + 
+						"however it must be set when the listen address is 0.0.0.0 and " +
+						"also should be set whenver the server is listening on private interface accessible via DNAT or similar solutions."));
 
 		for (Map.Entry<String, PropertyMD> entry: HttpServerProperties.defaults.entrySet())
 			defaults.put(entry.getKey(), entry.getValue().setCategory(advancedCat));
@@ -57,5 +63,8 @@ public class UnityHttpServerConfiguration extends HttpServerProperties
 	public UnityHttpServerConfiguration(Properties source) throws ConfigurationException
 	{
 		super(source, PREFIX, defaults);
+		if ("0.0.0.0".equals(getValue(HTTPS_HOST)) && getValue(ADVERTISED_HOST) == null)
+			throw new ConfigurationException(getKeyDescription(ADVERTISED_HOST) + 
+					" must be set when the listen address is 0.0.0.0 (all interfaces).");
 	}
 }
