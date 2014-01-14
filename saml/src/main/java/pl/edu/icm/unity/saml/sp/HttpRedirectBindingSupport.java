@@ -26,8 +26,6 @@ import org.bouncycastle.util.encoders.Base64;
  */
 public class HttpRedirectBindingSupport
 {
-	public enum MessageType {SAMLRequest, SAMLResponse}
-	
 	/**
 	 * Produces a redirect URL with encoded SAML message.
 	 * @param messageType whether the argument is request or response
@@ -38,7 +36,7 @@ public class HttpRedirectBindingSupport
 	 * @throws IOException 
 	 * @throws  
 	 */
-	public static String getRedirectURL(MessageType messageType, String relayState, 
+	public static String getRedirectURL(SAMLMessageType messageType, String relayState, 
 			String samlMessage, String samlParticipantURL) throws IOException
 	{
 		try

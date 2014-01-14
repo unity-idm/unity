@@ -6,11 +6,13 @@ package pl.edu.icm.unity.saml.sp.web;
 
 import java.io.IOException;
 
-import org.apache.xmlbeans.impl.util.Base64;
+import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.saml.sp.HttpPostBindingSupport;
 import pl.edu.icm.unity.saml.sp.HttpRedirectBindingSupport;
-import pl.edu.icm.unity.saml.sp.HttpRedirectBindingSupport.MessageType;
+import pl.edu.icm.unity.saml.sp.SAMLMessageType;
 import pl.edu.icm.unity.saml.sp.web.SAMLSPRetrievalProperties.Binding;
+import pl.edu.icm.unity.server.utils.Log;
 
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.VaadinRequest;
@@ -27,6 +29,7 @@ import com.vaadin.server.WrappedSession;
  */
 public class RedirectRequestHandler implements RequestHandler
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, RedirectRequestHandler.class);
 	public static final String PATH = "/redirectToIdP";
 	
 	@Override
@@ -41,7 +44,7 @@ public class RedirectRequestHandler implements RequestHandler
 				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 		if (context == null)
 			return false;
-		//TODO logging
+
 		Binding binding = context.getBinding();
 		if (binding == Binding.httpPost)
 		{
@@ -61,8 +64,15 @@ public class RedirectRequestHandler implements RequestHandler
 		response.setHeader("Cache-Control","no-cache,no-store,must-revalidate");
 		response.setHeader("Pragma","no-cache");
 		response.setDateHeader("Expires", -1);
-		
-		String htmlResponse = getHtmlPOSTFormContents(context.getIdpUrl(), context.getRequest(), null);
+
+		log.debug("Starting SAML HTTP POST binding exchange with IdP " + context.getIdpUrl());
+		String htmlResponse = HttpPostBindingSupport.getHtmlPOSTFormContents(
+				SAMLMessageType.SAMLRequest, context.getIdpUrl(), context.getRequest(), null);
+		if (log.isTraceEnabled())
+		{
+			log.trace("SAML request is:\n" + context.getRequest());
+			log.trace("Returned POST form is:\n" + htmlResponse);
+		}
 		response.getWriter().append(htmlResponse);
 	}
 	
@@ -71,43 +81,14 @@ public class RedirectRequestHandler implements RequestHandler
 		VaadinServletResponse rr = (VaadinServletResponse) response;
 		response.setHeader("Cache-Control","no-cache,no-store");
 		response.setHeader("Pragma","no-cache");
-		String redirectURL = HttpRedirectBindingSupport.getRedirectURL(MessageType.SAMLRequest, null, 
+		log.debug("Starting SAML HTTP Redirect binding exchange with IdP " + context.getIdpUrl());
+		String redirectURL = HttpRedirectBindingSupport.getRedirectURL(SAMLMessageType.SAMLRequest, null, 
 				context.getRequest(), context.getIdpUrl());
+		if (log.isTraceEnabled())
+		{
+			log.trace("SAML request is:\n" + context.getRequest());
+			log.trace("Returned Redirect URL is:\n" + redirectURL);
+		}
 		rr.sendRedirect(redirectURL);
 	}
-	
-	
-	private String getHtmlPOSTFormContents(String identityProviderURL, 
-			String xmlRequest, String relayState)
-	{
-		String f = formForm.replace("__ACTION__", identityProviderURL);
-		f = f.replace("__RELAYSTATE__", relayState == null ? "" : relayState);
-		String encodedReq = new String(Base64.encode(xmlRequest.getBytes()));
-		f = f.replace("__SAMLREQUEST__", encodedReq);
-		return f;
-	}	
-
-	private static final String formForm = 
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-		"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">" +
-		"<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">" +
-		"<body onload=\"document.forms[0].submit()\">" +
-		"<noscript>" +
-		"<p>" +
-		"<strong>Note:</strong> Since your browser does not support JavaScript," +
-		"you must press the Continue button once to proceed." +
-		"</p>" +
-		"</noscript>" +
-		"<form action=\"__ACTION__\" method=\"post\">" +
-		"<div>" +
-		"<input type=\"hidden\" name=\"RelayState\" value=\"__RELAYSTATE__\"/>" +
-		"<input type=\"hidden\" name=\"SAMLRequest\" value=\"__SAMLREQUEST__\"/>" +
-		"</div>" +
-		"<noscript>" +
-		"<div>" +
-		"<input type=\"submit\" value=\"Continue\"/>" +
-		"</div>" +
-		"</noscript>" +
-		"</form>" +
-		"</body></html>";
 }

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml.sp.web;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.Set;
@@ -34,6 +35,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.web.SAMLSPRetrievalProperties.Binding;
+import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
@@ -57,10 +59,12 @@ public class SAMLRetrieval implements CredentialRetrieval, VaadinAuthentication
 	private UnityMessageSource msg;
 	private SAMLExchange credentialExchange;
 	private SAMLSPRetrievalProperties samlProperties;
+	private URL baseAddress;
 
-	public SAMLRetrieval(UnityMessageSource msg)
+	public SAMLRetrieval(UnityMessageSource msg, JettyServer jettyServer)
 	{
 		this.msg = msg;
+		this.baseAddress = jettyServer.getAdvertisedAddress();
 	}
 
 	@Override
@@ -263,8 +267,7 @@ public class SAMLRetrieval implements CredentialRetrieval, VaadinAuthentication
 					idpKey + SAMLSPRetrievalProperties.IDP_ADDRESS);
 			String servletPath = VaadinServlet.getCurrent().getServletContext().getContextPath() + 
 					VaadinServletService.getCurrentServletRequest().getServletPath();
-			//FIXME - add host address
-			String responseUrl = servletPath + ResponseConsumerRequestHandler.PATH;
+			String responseUrl = baseAddress + servletPath + ResponseConsumerRequestHandler.PATH;
 			AuthnRequestDocument request = credentialExchange.createSAMLRequest(
 					identityProviderURL, responseUrl);
 			context.setRequest(request.xmlText());
