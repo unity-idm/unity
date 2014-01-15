@@ -4,9 +4,10 @@
  */
 package pl.edu.icm.unity.saml.sp;
 
+import pl.edu.icm.unity.exceptions.AuthenticationException;
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
-import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 /**
  * Credential exchange between verificator and retrieval for SAML credential.
@@ -20,5 +21,6 @@ public interface SAMLExchange extends CredentialExchange
 	public static final String ID = "SAML2 exchange";
 	
 	public AuthnRequestDocument createSAMLRequest(String identityProviderURL, String returnURL);
-	public void verifySAMLResponse(ResponseDocument response);
+	public SAMLSPProperties getSamlValidatorSettings();
+	public AuthenticationResult verifySAMLResponse(RemoteAuthnContext authnContext) throws AuthenticationException;
 }

@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterOutputStream;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.bouncycastle.util.encoders.Base64;
@@ -76,4 +78,23 @@ public class HttpRedirectBindingSupport
 		return base64String;
 	}
 
+	/**
+	 * Reversed {@link #toURLParam(String)}.
+	 * @param samlRequest value of the URL parameter with the SAML assertion. It is assumed that the value was
+	 * already URL decoded.
+	 * @return String after Base64 decoding and decompression.
+	 * @throws IOException
+	 */
+	public static String inflateSAMLRequest(String samlRequest) throws IOException
+	{
+		byte[] third = Base64.decode(samlRequest);
+		Inflater decompressor = new Inflater(true);
+		decompressor.setInput(third, 0, third.length);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
+		InflaterOutputStream os = new InflaterOutputStream(baos, decompressor);
+		os.write(third);
+		os.finish();
+		os.close();
+		return new String(baos.toByteArray(), "UTF-8");
+	}
 }

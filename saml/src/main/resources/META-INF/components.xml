@@ -16,6 +16,7 @@
 	
 	<bean class="pl.edu.icm.unity.saml.idp.preferences.SamlPreferencesHandler"/>
 	
+	<bean class="eu.unicore.samly2.validators.ReplayAttackChecker"/>
 	<bean class="pl.edu.icm.unity.saml.sp.SAMLValidatorFactory"/>
 	<bean class="pl.edu.icm.unity.saml.sp.web.SAMLRetrievalFactory"/>
 	

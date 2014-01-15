@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import eu.unicore.samly2.validators.ReplayAttackChecker;
+
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
@@ -26,15 +28,17 @@ public class SAMLValidatorFactory implements CredentialVerificatorFactory
 	private TranslationProfileManagement profileManagement;
 	private AttributesManagement attrMan;
 	private PKIManagement pkiMan;
+	private ReplayAttackChecker replayAttackChecker;
 	
 	@Autowired
 	public SAMLValidatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement,
 			@Qualifier("insecure") AttributesManagement attrMan, 
-			PKIManagement pkiMan)
+			PKIManagement pkiMan, ReplayAttackChecker replayAttackChecker)
 	{
 		this.profileManagement = profileManagement;
 		this.attrMan = attrMan;
 		this.pkiMan = pkiMan;
+		this.replayAttackChecker = replayAttackChecker;
 	}
 
 	@Override
@@ -52,6 +56,7 @@ public class SAMLValidatorFactory implements CredentialVerificatorFactory
 	@Override
 	public CredentialVerificator newInstance()
 	{
-		return new SAMLValidator(NAME, getDescription(), profileManagement, attrMan, pkiMan);
+		return new SAMLValidator(NAME, getDescription(), profileManagement, attrMan, pkiMan, 
+				replayAttackChecker);
 	}
 }

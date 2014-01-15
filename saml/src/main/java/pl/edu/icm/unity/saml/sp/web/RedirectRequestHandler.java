@@ -10,8 +10,9 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.saml.sp.HttpPostBindingSupport;
 import pl.edu.icm.unity.saml.sp.HttpRedirectBindingSupport;
+import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLMessageType;
-import pl.edu.icm.unity.saml.sp.web.SAMLSPRetrievalProperties.Binding;
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties.Binding;
 import pl.edu.icm.unity.server.utils.Log;
 
 import com.vaadin.server.RequestHandler;
@@ -43,14 +44,19 @@ public class RedirectRequestHandler implements RequestHandler
 		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
 				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 		if (context == null)
+		{
+			log.warn("Got a request to the ..." + PATH + " path, " +
+					"but no SAML authn context is present in the session.");
 			return false;
+		}
+			
 
-		Binding binding = context.getBinding();
-		if (binding == Binding.httpPost)
+		Binding binding = context.getRequestBinding();
+		if (binding == Binding.HTTP_POST)
 		{
 			handlePost(context, response);
 			return true;
-		} else if (binding == Binding.httpRedirect)
+		} else if (binding == Binding.HTTP_REDIRECT)
 		{
 			handleRedirect(context, response);
 			return true;
