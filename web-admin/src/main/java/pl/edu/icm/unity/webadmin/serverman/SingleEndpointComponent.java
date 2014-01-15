@@ -1,5 +1,7 @@
 package pl.edu.icm.unity.webadmin.serverman;
 
+import java.util.Map;
+
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
@@ -22,6 +24,7 @@ import com.vaadin.ui.themes.Reindeer;
 public class SingleEndpointComponent extends CustomComponent
 {
 	private EndpointDescription endpoint;
+
 	private UnityMessageSource msg;
 
 	public SingleEndpointComponent(EndpointDescription endpoint, UnityMessageSource msg)
@@ -41,14 +44,13 @@ public class SingleEndpointComponent extends CustomComponent
 		final Button showhide = new Button();
 		showhide.setIcon(Images.zoomin.getResource());
 		showhide.addStyleName(Reindeer.BUTTON_LINK);
-		showhide.addStyleName(Styles.toolbarButton.toString());
 
 		header.addComponent(showhide);
 		header.setComponentAlignment(showhide, Alignment.BOTTOM_LEFT);
 
 		// Name
-		HorizontalLayout nameFieldLayout = addFieldWithLabel(header, "name",
-				endpoint.getId(), false);
+		HorizontalLayout nameFieldLayout = addFieldWithLabel(header,
+				msg.getMessage("EndpointsStatus.name"), endpoint.getId(), 0);
 		nameFieldLayout.setMargin(false);
 		header.setComponentAlignment(nameFieldLayout, Alignment.BOTTOM_CENTER);
 
@@ -64,6 +66,36 @@ public class SingleEndpointComponent extends CustomComponent
 
 		final VerticalLayout content = new VerticalLayout();
 
+		HorizontalLayout lt = addFieldWithLabel(content,
+				msg.getMessage("EndpointsStatus.type"), endpoint.getType()
+						.getName(), 19);
+		addFieldWithLabel(lt, msg.getMessage("EndpointsStatus.type") + " "
+				+ msg.getMessage("EndpointsStatus.description").toLowerCase(),
+				endpoint.getType().getDescription(), 2);
+
+		if (endpoint.getDescription() != null && endpoint.getDescription().length() > 0)
+		{
+			addFieldWithLabel(content, msg.getMessage("EndpointsStatus.description"),
+					endpoint.getDescription(), 19);
+
+		}
+		addFieldWithLabel(content, msg.getMessage("EndpointsStatus.contextAddress"),
+				endpoint.getContextAddress(), 19);
+
+		int i = 0;
+
+		addFieldWithLabel(content, msg.getMessage("EndpointsStatus.paths"), "", 19);
+
+		for (Map.Entry<String, String> entry : endpoint.getType().getPaths().entrySet())
+		{
+			i++;
+			HorizontalLayout l = addFieldWithLabel(content, String.valueOf(i),
+					endpoint.getContextAddress() + entry.getKey(), 55);
+			addFieldWithLabel(l, msg.getMessage("EndpointsStatus.description"),
+					entry.getValue(), 2);
+
+		}
+
 		StringBuilder bindings = new StringBuilder();
 		for (String s : endpoint.getType().getSupportedBindings())
 		{
@@ -73,30 +105,27 @@ public class SingleEndpointComponent extends CustomComponent
 			bindings.append(s);
 
 		}
-
-		if (endpoint.getDescription() != null && endpoint.getDescription().length() > 0)
-		{
-			addFieldWithLabel(content, "description", endpoint.getDescription(), true);
-
-		}
-		addFieldWithLabel(content, "contextAddress", endpoint.getContextAddress(), true);
-
 		// Bindings
-		addFieldWithLabel(content, "bindings", bindings.toString(), true);
+		addFieldWithLabel(content, msg.getMessage("EndpointsStatus.bindings"),
+				bindings.toString(), 19);
 
-		StringBuilder auth = new StringBuilder();
+		i = 0;
+		addFieldWithLabel(content, msg.getMessage("EndpointsStatus.authenticatorsSet"), "",
+				19);
 		for (AuthenticatorSet s : endpoint.getAuthenticatorSets())
 		{
+			i++;
+			StringBuilder auth = new StringBuilder();
 			for (String a : s.getAuthenticators())
 			{
 				if (auth.length() > 0)
 					auth.append(",");
 				auth.append(a);
 			}
-		}
+			addFieldWithLabel(content, String.valueOf(i), auth.toString(), 55);
+			// Authenticators
 
-		// Authenticators
-		addFieldWithLabel(content, "authenticators", auth.toString(), true);
+		}
 
 		content.setVisible(false);
 		main.addComponent(content);
@@ -124,23 +153,23 @@ public class SingleEndpointComponent extends CustomComponent
 	}
 
 	private HorizontalLayout addFieldWithLabel(Layout parent, String name, String value,
-			boolean useSpace)
+			int space)
 	{
-		if (useSpace)
+		if (space != 0)
 		{
 			Label spacer = new Label();
-			spacer.setWidth(19, Unit.PIXELS);
+			spacer.setWidth(space, Unit.PIXELS);
 		}
-		Label namel = new Label(msg.getMessage("EndpointsStatus." + name) + ":");
+		Label namel = new Label(name + ":");
 		namel.addStyleName(Styles.bold.toString());
 		Label nameVal = new Label(value);
 		HorizontalLayout fieldLayout = new HorizontalLayout();
 		fieldLayout.setSpacing(true);
 
-		if (useSpace)
+		if (space != 0)
 		{
 			Label spacer = new Label();
-			spacer.setWidth(19, Unit.PIXELS);
+			spacer.setWidth(space, Unit.PIXELS);
 			fieldLayout.addComponents(spacer, namel, nameVal);
 		} else
 		{
