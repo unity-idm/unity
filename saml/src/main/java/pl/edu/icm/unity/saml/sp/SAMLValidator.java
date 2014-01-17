@@ -20,6 +20,7 @@ import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.elements.NameID;
 import eu.unicore.samly2.exceptions.SAMLValidationException;
 import eu.unicore.samly2.proto.AuthnRequest;
+import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.AssertionValidator;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.samly2.validators.SSOAuthnResponseValidator;
@@ -142,10 +143,20 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 		
 		String consumerSamlName = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
 		
+		SamlTrustChecker samlTrustChecker;
+		try
+		{
+			samlTrustChecker = samlProperties.getTrustChecker();
+		} catch (ConfigurationException e1)
+		{
+			throw new AuthenticationException("The SAML response can not be verified - " +
+					"there is an internal configuration error", e1);
+		}
+		
 		SSOAuthnResponseValidator validator = new SSOAuthnResponseValidator(
 				consumerSamlName, context.getSpUrl(), 
 				context.getRequestId(), AssertionValidator.DEFAULT_VALIDITY_GRACE_PERIOD, 
-				samlProperties.getTrustChecker(), replayAttackChecker, 
+				samlTrustChecker, replayAttackChecker, 
 				SAMLBindings.valueOf(context.getResponseBinding().toString()));
 		
 		try

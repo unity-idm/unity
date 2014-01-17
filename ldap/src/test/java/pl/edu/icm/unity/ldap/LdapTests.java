@@ -7,6 +7,7 @@ package pl.edu.icm.unity.ldap;
 import java.net.InetAddress;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -134,6 +135,18 @@ public class LdapTests
 
 			@Override
 			public IAuthnAndTrustConfiguration getMainAuthnAndTrust()
+			{
+				return null;
+			}
+
+			@Override
+			public Set<String> getCertificateNames() throws EngineException
+			{
+				return null;
+			}
+
+			@Override
+			public X509Certificate getCertificate(String name) throws EngineException
 			{
 				return null;
 			}

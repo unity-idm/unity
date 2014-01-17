@@ -8,12 +8,16 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.Binding;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
@@ -49,6 +53,7 @@ import com.vaadin.ui.themes.Reindeer;
  */
 public class SAMLRetrievalUI implements VaadinAuthenticationUI
 {	
+	private Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLRetrievalUI.class);
 	private UnityMessageSource msg;
 	private SAMLExchange credentialExchange;
 	private URL baseAddress;
@@ -56,7 +61,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private Button loginButton;
 	private Button cancelButton;
 	private ProgressIndicator progress;
-	private Label error;
+	private Label messageLabel;
 	private ResponseWaitingThread waitingThread;
 	private AuthenticationResult authnResult = null;
 	
@@ -140,11 +145,9 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		});
 		hl.addComponents(progress, cancelButton);
 		
-		error = new Label();
-		error.addStyleName(Styles.error.toString());
-		error.setVisible(false);
-		
-		ret.addComponents(loginButton, hl, error);
+		messageLabel = new Label();
+		showInfo(msg.getMessage("WebSAMLRetrieval.pleaseLogin"));
+		ret.addComponents(loginButton, hl, messageLabel);
 
 		checkInProgress();
 		
@@ -202,8 +205,20 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		WrappedSession session = VaadinSession.getCurrent().getSession();
 		session.removeAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 		switchInProgress(null);
-		authnResult = null;
 	}
+	
+	private void showError(String message)
+	{
+		messageLabel.setValue(message);
+		messageLabel.addStyleName(Styles.error.toString());
+	}
+	
+	private void showInfo(String message)
+	{
+		messageLabel.setValue(message);
+		messageLabel.removeStyleName(Styles.error.toString());
+	}
+	
 	
 	private void startLogin(String idpKey)
 	{
@@ -228,8 +243,17 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		String servletPath = VaadinServlet.getCurrent().getServletContext().getContextPath() + 
 				VaadinServletService.getCurrentServletRequest().getServletPath();
 		String responseUrl = baseAddress + servletPath + ResponseConsumerRequestHandler.PATH;
-		AuthnRequestDocument request = credentialExchange.createSAMLRequest(
-				identityProviderURL, responseUrl);
+		AuthnRequestDocument request;
+		try
+		{
+			request = credentialExchange.createSAMLRequest(identityProviderURL, responseUrl);
+		} catch (Exception e)
+		{
+			ErrorPopup.showError(msg, msg.getMessage("WebSAMLRetrieval.configurationError"), e);
+			log.error("Can not create SAML request", e);
+			breakLogin();
+			return;
+		}
 		Binding requestBinding = samlProperties.getEnumValue(idpKey + SAMLSPProperties.IDP_BINDING, 
 				Binding.class);
 		context.setRequest(request.xmlText(), request.getAuthnRequest().getID(), responseUrl,
@@ -248,21 +272,22 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		session.lock();
 		try
 		{
-			breakLogin();
 			try
 			{
 				authnResult = credentialExchange.verifySAMLResponse(authnContext);
 			} catch (Exception e)
 			{
+				log.error("SAML response verification failed", e);
 				authnResult = new AuthenticationResult(Status.deny, null);
 			}
 			if (authnResult.getStatus() == Status.deny)
 			{
-				error.setValue(msg.getMessage("WebSAMLRetrieval.authnFailedError"));
-				error.setVisible(true);
+				showError(msg.getMessage("WebSAMLRetrieval.authnFailedError"));
 			} else
-				error.setVisible(false);
-			
+			{
+				showInfo(msg.getMessage("WebSAMLRetrieval.authnSuccessful", authnContext.getIdpUrl()));
+			}
+			breakLogin();
 		} finally
 		{
 			session.unlock();
@@ -279,8 +304,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	{
 		if (authnResult != null)
 			return authnResult;
-		error.setValue(msg.getMessage("WebSAMLRetrieval.notYetLoggedError"));
-		error.setVisible(true);
+		showError(msg.getMessage("WebSAMLRetrieval.notYetLoggedError"));
 		return new AuthenticationResult(Status.deny, null);
 		/*
 		String username = usernameProvider.getUsername();
@@ -329,14 +353,17 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	{
 		private RemoteAuthnContext context;
 		private boolean stop = false;
+		private InvocationContext invocationContext;
 		
 		public ResponseWaitingThread(RemoteAuthnContext context)
 		{
 			this.context = context;
+			this.invocationContext = InvocationContext.getCurrent();
 		}
 
 		public void run()
 		{
+			InvocationContext.setCurrent(invocationContext);
 			while (!isStopped())
 			{
 				if (context.getResponse() == null)

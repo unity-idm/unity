@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.samlidp;
 
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -146,6 +147,18 @@ public class TestSamlConfiguration
 
 			@Override
 			public IAuthnAndTrustConfiguration getMainAuthnAndTrust()
+			{
+				return null;
+			}
+
+			@Override
+			public Set<String> getCertificateNames() throws EngineException
+			{
+				return null;
+			}
+
+			@Override
+			public X509Certificate getCertificate(String name) throws EngineException
 			{
 				return null;
 			}

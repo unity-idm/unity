@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +17,8 @@ import org.springframework.stereotype.Component;
 
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.X509Credential;
+import eu.emi.security.authn.x509.impl.CertificateUtils;
+import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import eu.unicore.security.canl.CredentialProperties;
 import eu.unicore.security.canl.DefaultAuthnAndTrustConfiguration;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
@@ -37,6 +42,7 @@ public class PKIManagementImpl implements PKIManagement
 	private UnityPKIConfiguration pkiConf;
 	private Map<String, X509Credential> credentials;
 	private Map<String, X509CertChainValidatorExt> validators;
+	private Map<String, X509Certificate> certificates;
 	private IAuthnAndTrustConfiguration mainAuthnTrust;
 	
 	@Autowired
@@ -70,6 +76,23 @@ public class PKIManagementImpl implements PKIManagement
 		} catch (EngineException e)
 		{
 			throw new ConfigurationException("Can't load the main server credential/truststore", e);
+		}
+		
+		Set<String> certNames = pkiConf.getStructuredListKeys(UnityPKIConfiguration.CERTIFICATES);
+		certificates = new HashMap<String, X509Certificate>();
+		for (String cert: certNames)
+		{
+			FileInputStream fis;
+			try
+			{
+				fis = new FileInputStream(pkiConf.getFileValue(
+						cert+UnityPKIConfiguration.CERTIFICATE_FILE, false));
+				X509Certificate certificate = CertificateUtils.loadCertificate(fis, Encoding.PEM);
+				certificates.put(pkiConf.getCertificateName(cert), certificate);
+			} catch (IOException e)
+			{
+				throw new ConfigurationException("Can not load certificate " + cert, e);
+			}
 		}
 	}
 	
@@ -109,5 +132,22 @@ public class PKIManagementImpl implements PKIManagement
 	public IAuthnAndTrustConfiguration getMainAuthnAndTrust()
 	{
 		return mainAuthnTrust;
+	}
+
+
+	@Override
+	public Set<String> getCertificateNames() throws EngineException
+	{
+		return certificates.keySet();
+	}
+
+
+	@Override
+	public X509Certificate getCertificate(String name) throws EngineException
+	{
+		if (!getCertificateNames().contains(name))
+			throw new WrongArgumentException("The certificate " + name + " is not defined. " +
+					"Available certificates: " + getCertificateNames());
+		return certificates.get(name);
 	}
 }

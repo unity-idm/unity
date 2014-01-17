@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.server.api;
 
+import java.security.cert.X509Certificate;
 import java.util.Set;
 
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
@@ -13,7 +14,7 @@ import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
- * Provides access to PKI related stores: credentials and truststores (validators).
+ * Provides access to PKI related stores: credentials, certificates and truststores (validators).
  * <p>
  * Currently it is read only and implementation is based on FS stored data. In future it will be enhanced
  * to support DB-stored data with possibility to add/remove contents.
@@ -51,4 +52,19 @@ public interface PKIManagement
 	 * @return method allows to quickly get {@link IAuthnAndTrustConfiguration} of the main server.
 	 */
 	public IAuthnAndTrustConfiguration getMainAuthnAndTrust();
+	
+	
+	/**
+	 * @return set with available certificate names
+	 * @throws EngineException
+	 */
+	public Set<String> getCertificateNames() throws EngineException;
+	
+	/**
+	 * @param name 
+	 * @return certificate by name
+	 * @throws EngineException
+	 */
+	public X509Certificate getCertificate(String name) throws EngineException;
+	
 }

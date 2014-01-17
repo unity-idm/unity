@@ -36,6 +36,8 @@ public class UnityPKIConfiguration extends PropertiesHelper
 	
 	public static final String CREDENTIALS = "credentials.";
 	public static final String TRUSTSTORES = "truststores.";
+	public static final String CERTIFICATES = "certificates.";
+	public static final String CERTIFICATE_FILE = "certificateFile";
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -52,6 +54,11 @@ public class UnityPKIConfiguration extends PropertiesHelper
 				setDescription("List of truststores. The subkey deefines the truststore name."));
 		for (Map.Entry<String, PropertyMD> e: TruststoreProperties.META.entrySet())
 			defaults.put(e.getKey(), e.getValue().setStructuredListEntry(TRUSTSTORES));
+		
+		defaults.put(CERTIFICATES, new PropertyMD().setStructuredList(false).
+				setDescription("List of certificates."));
+		defaults.put(CERTIFICATE_FILE, new PropertyMD().setStructuredListEntry(CERTIFICATES).setMandatory().
+				setDescription("Certificate file path (PEM format)."));
 	}
 
 	public UnityPKIConfiguration(Properties source) throws ConfigurationException, IOException
@@ -77,6 +84,11 @@ public class UnityPKIConfiguration extends PropertiesHelper
 	public String getTruststoreName(String listKey)
 	{
 		return listKey.substring(TRUSTSTORES.length(), listKey.length()-1);
+	}
+	
+	public String getCertificateName(String listKey)
+	{
+		return listKey.substring(CERTIFICATES.length(), listKey.length()-1);
 	}
 	
 	public Properties getProperties()

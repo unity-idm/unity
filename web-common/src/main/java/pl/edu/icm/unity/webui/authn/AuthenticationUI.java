@@ -33,6 +33,7 @@ import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent;
 import pl.edu.icm.unity.webui.registration.RegistrationFormChooserDialog;
 
+import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
@@ -59,6 +60,7 @@ import com.vaadin.ui.themes.Reindeer;
 @org.springframework.stereotype.Component("AuthenticationUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityTheme")
+@PreserveOnRefresh
 public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 {
 	private static final long serialVersionUID = 1L;
@@ -195,8 +197,6 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	
 	private Component buildAllSetsUI(final Button registrationButton, final Component... setComponents)
 	{
-
-		
 		HorizontalLayout all = new HorizontalLayout();
 		final Panel currentAuthnSet = new Panel();
 		AuthenticatorSetChangedListener setChangeListener = new AuthenticatorSetChangedListener()

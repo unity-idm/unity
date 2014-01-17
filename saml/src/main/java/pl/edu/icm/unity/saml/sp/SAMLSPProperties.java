@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.saml.sp;
 
-import java.io.ByteArrayInputStream;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,8 +16,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.NameFormat;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
-import eu.emi.security.authn.x509.impl.CertificateUtils;
-import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.trust.SamlTrustChecker;
@@ -89,8 +86,7 @@ public class SAMLSPProperties extends PropertiesHelper
 		META.put(IDP_ID, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setMandatory().setCategory(common).setDescription(
 				"SAML entity identifier of the IdP."));
 		META.put(IDP_CERTIFICATE, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setMandatory().setCategory(common).setDescription(
-				"Certificate of the IdP in PEM format. Note that this is the certificate value, " +
-				"not file path. This certificate is used to verify signature of SAML " +
+				"Certificate name (as used in centralized PKI store) of the IdP. This certificate is used to verify signature of SAML " +
 				"response and included assertions. Therefore it is of highest importance for the whole system security."));
 		
 		META.put(REQUESTER_ID, new PropertyMD().setMandatory().setCategory(verificator).setDescription(
@@ -120,10 +116,12 @@ public class SAMLSPProperties extends PropertiesHelper
 				"Name of the SAML authentication GUI component"));
 	}
 	
+	private PKIManagement pkiManagement;
 	
 	public SAMLSPProperties(Properties properties, PKIManagement pkiMan) throws ConfigurationException
 	{
 		super(P, properties, META, log);
+		this.pkiManagement = pkiMan;
 		if (getBooleanValue(SIGN_REQUEST))
 		{
 			String credential = getValue(CREDENTIAL);
@@ -139,6 +137,8 @@ public class SAMLSPProperties extends PropertiesHelper
 				throw new ConfigurationException("Can't esablish a list of known credentials", e);
 			}
 		}
+		//test drive
+		getTrustChecker();
 	}
 	
 	public Properties getProperties()
@@ -146,30 +146,25 @@ public class SAMLSPProperties extends PropertiesHelper
 		return properties;
 	}
 	
-	public SamlTrustChecker getTrustChecker()
+	public SamlTrustChecker getTrustChecker() throws ConfigurationException
 	{
 		Set<String> idpKeys = getStructuredListKeys(IDP_PREFIX);
 		StrictSamlTrustChecker trustChecker = new StrictSamlTrustChecker();
 		for (String idpKey: idpKeys)
 		{
 			String idpId = getValue(idpKey+IDP_ID);
-			String idpCertAsPem = getValue(idpKey+IDP_CERTIFICATE);
-			X509Certificate idpCert = getCertificate(idpCertAsPem, idpId);
+			String idpCertName = getValue(idpKey+IDP_CERTIFICATE);
+			X509Certificate idpCert;
+			try
+			{
+				idpCert = pkiManagement.getCertificate(idpCertName);
+			} catch (EngineException e)
+			{
+				throw new ConfigurationException("Remote SAML IdP certificate can not be loaded " 
+						+ idpCertName, e);
+			}
 			trustChecker.addTrustedIssuer(idpId, SAMLConstants.NFORMAT_ENTITY, idpCert.getPublicKey());
 		}
 		return trustChecker;
-	}
-	
-	private X509Certificate getCertificate(String pem, String idpId)
-	{
-		ByteArrayInputStream is;
-		try
-		{
-			is = new ByteArrayInputStream(pem.getBytes("US-ASCII"));
-			return CertificateUtils.loadCertificate(is, Encoding.PEM);
-		} catch (Exception e)
-		{
-			throw new ConfigurationException("The IdP's certificate of IdP " + idpId + " is invalid", e);
-		}
 	}
 }
