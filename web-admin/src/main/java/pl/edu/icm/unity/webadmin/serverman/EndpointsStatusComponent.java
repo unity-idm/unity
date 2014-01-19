@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webadmin.serverman;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -56,19 +57,12 @@ public class EndpointsStatusComponent extends VerticalLayout
 			EndpointsStatusComponent.class);
 
 	private UnityMessageSource msg;
-
 	private EndpointManagement endpointMan;
-
 	private AuthenticationManagement authMan;
-
 	private TranslationProfileManagement profilesMan;
-
 	private VerticalLayout endpointsView;
-
 	private UnityServerConfiguration config;
-
 	private TranslationActionsRegistry tactionsRegistry;
-
 	private ObjectMapper jsonMapper;
 
 	@Autowired
@@ -102,14 +96,8 @@ public class EndpointsStatusComponent extends VerticalLayout
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				try
-				{
-					reloadAuthenticators();
-				} catch (EngineException | IOException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+
+				reloadAuthenticators();
 
 			}
 		});
@@ -123,14 +111,8 @@ public class EndpointsStatusComponent extends VerticalLayout
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				try
-				{
-					reloadTranlationProfile();
-				} catch (EngineException | IOException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+
+				reloadTranslationProfile();
 
 			}
 
@@ -142,30 +124,28 @@ public class EndpointsStatusComponent extends VerticalLayout
 		buttons.setSpacing(true);
 		addComponent(buttons);
 
-		
-		HorizontalLayout h=new HorizontalLayout();
-		Label e = new Label("Endpoints:");
+		HorizontalLayout h = new HorizontalLayout();
+		Label e = new Label(msg.getMessage("EndpointsStatus.Listcaption"));
 		h.addStyleName(Styles.bold.toString());
-		Button refreshViewButton=new Button();
+		Button refreshViewButton = new Button();
 		refreshViewButton.setIcon(Images.refresh.getResource());
 		refreshViewButton.addStyleName(Reindeer.BUTTON_LINK);
 		refreshViewButton.addClickListener(new Button.ClickListener()
 		{
-			
+
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
 				updateContent();
-				
+
 			}
 		});
-		
+
 		h.addComponent(e);
 		h.addComponent(refreshViewButton);
-		
-		
+
 		addComponent(h);
-		
+
 		endpointsView = new VerticalLayout();
 		endpointsView.setMargin(true);
 		endpointsView.setSpacing(true);
@@ -175,18 +155,38 @@ public class EndpointsStatusComponent extends VerticalLayout
 
 	}
 
-	private void reloadAuthenticators() throws EngineException, IOException
+	private void reloadAuthenticators()
 	{
-		config.reloadIfChanged();
-		// log.info("Loading all configured authenticators");
-		Collection<AuthenticatorInstance> authenticators = authMan.getAuthenticators(null);
-		Map<String, AuthenticatorInstance> existing = new HashMap<String, AuthenticatorInstance>();
-		Map<String, AuthenticatorInstance> toRemove = new HashMap<String, AuthenticatorInstance>();
-		
-		for (AuthenticatorInstance ai : authenticators){
-			existing.put(ai.getId(), ai);
-			toRemove.put(ai.getId(), ai);
+		log.info("Reloading Authenticators");
+		try
+		{
+			config.reloadIfChanged();
+		} catch (Exception e)
+		{
+			ErrorPopup.showError(msg,
+					msg.getMessage("EndpointsStatus.CannotReloadConfig"), e);
+			return;
 		}
+		log.info("Reading all configured authenticators");
+		Collection<AuthenticatorInstance> authenticators;
+		try
+		{
+			authenticators = authMan.getAuthenticators(null);
+		} catch (EngineException e)
+		{
+			ErrorPopup.showError(msg,
+					msg.getMessage("EndpointsStatus.CannotGetAuthenticators"),
+					e);
+			return;
+		}
+		Map<String, AuthenticatorInstance> existing = new HashMap<String, AuthenticatorInstance>();
+
+		for (AuthenticatorInstance ai : authenticators)
+		{
+			existing.put(ai.getId(), ai);
+
+		}
+		Map<String, AuthenticatorInstance> toRemove = new HashMap<>(existing);
 
 		Set<String> authenticatorsList = config
 				.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
@@ -206,20 +206,54 @@ public class EndpointsStatusComponent extends VerticalLayout
 			String credential = config.getValue(authenticatorKey
 					+ UnityServerConfiguration.AUTHENTICATOR_CREDENTIAL);
 
-			String vJsonConfiguration = vConfigFile == null ? null : FileUtils
-					.readFileToString(vConfigFile);
-			String rJsonConfiguration = FileUtils.readFileToString(rConfigFile);
+			String vJsonConfiguration = null;
+			String rJsonConfiguration = null;
+			try
+			{
+				vJsonConfiguration = vConfigFile == null ? null : FileUtils
+						.readFileToString(vConfigFile);
+				rJsonConfiguration = FileUtils.readFileToString(rConfigFile);
+			} catch (IOException e)
+			{
+				ErrorPopup.showError(
+						msg,
+						msg.getMessage("EndpointsStatus.CannotReadJsonConfig"),
+						e);
+				return;
+			}
 
 			if (!existing.containsKey(name))
 			{
-				authMan.createAuthenticator(name, type, vJsonConfiguration,
-						rJsonConfiguration, credential);
-				// log.info(" - " + name + " [" + type + "]");
+				log.info("Add " + name + " [" + type + "]");
+				try
+				{
+					authMan.createAuthenticator(name, type, vJsonConfiguration,
+							rJsonConfiguration, credential);
+				} catch (EngineException e)
+				{
+					ErrorPopup.showError(
+							msg,
+							msg.getMessage("EndpointsStatus.CannotAddAuthenticator"),
+							e);
+					return;
+				}
+
 			} else
 			{
-				
-				authMan.updateAuthenticator(name, vJsonConfiguration,
-						rJsonConfiguration);
+				log.info("Update " + name + " [" + type + "]");
+				try
+				{
+					authMan.updateAuthenticator(name, vJsonConfiguration,
+							rJsonConfiguration);
+				} catch (EngineException e)
+				{
+					ErrorPopup.showError(
+							msg,
+							msg.getMessage("EndpointsStatus.CannotUpdateAuthenticator"),
+							e);
+					return;
+				}
+
 			}
 			toRemove.remove(name);
 
@@ -227,48 +261,131 @@ public class EndpointsStatusComponent extends VerticalLayout
 
 		for (String auth : toRemove.keySet())
 		{
-			authMan.removeAuthenticator(auth);
+			try
+			{
+				log.info("Remove " + auth + " authenticator");
+				authMan.removeAuthenticator(auth);
+			} catch (Exception e)
+			{
+				ErrorPopup.showError(
+						msg,
+						msg.getMessage("EndpointsStatus.CannotRemoveAuthenticator"),
+						e);
+				return;
+			}
 		}
 
 	}
 
-	private void reloadTranlationProfile() throws EngineException, IOException
-	{
-		config.reloadIfChanged();
-		Map<String, TranslationProfile> existing = profilesMan.listProfiles();
-		Map<String, TranslationProfile> toRemove = profilesMan.listProfiles();
-		
+	private void reloadTranslationProfile()
+	{	log.info("Reloading translation profile");
+		try
+		{
+			config.reloadIfChanged();
+		} catch (Exception e)
+		{
+			ErrorPopup.showError(msg,
+					msg.getMessage("EndpointsStatus.CannotReloadConfig"), e);
+			return;
+		}
+		Map<String, TranslationProfile> existing;
+		try
+		{
+			existing = profilesMan.listProfiles();
+		} catch (EngineException e)
+		{
+			ErrorPopup.showError(
+					msg,
+					msg.getMessage("EndpointsStatus.CannotGetTranslationProfiles"),
+					e);
+			return;
+		}
+		Map<String, TranslationProfile> toRemove = new HashMap<>(existing);
+
 		List<String> profileFiles = config
 				.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
 		for (String profileFile : profileFiles)
 		{
 			String json;
-			json = FileUtils.readFileToString(new File(profileFile));
+			try
+			{
+				json = FileUtils.readFileToString(new File(profileFile));
+			} catch (IOException e)
+			{
+				ErrorPopup.showError(
+						msg,
+						msg.getMessage("EndpointsStatus.CannotReadJsonConfig"),
+						e);
+				return;
+			}
 			TranslationProfile tp = new TranslationProfile(json, jsonMapper,
 					tactionsRegistry);
 
 			if (existing.containsKey(tp.getName()))
 			{
-				profilesMan.updateProfile(tp);
-				
+				try
+				{
+					log.info("Update "+tp.getName());
+					profilesMan.updateProfile(tp);
+				} catch (EngineException e)
+				{
+					ErrorPopup.showError(
+							msg,
+							msg.getMessage("EndpointsStatus.CannotUpdateTranslationProfile"),
+							e);
+					return;
+				}
+
 			} else
 			{
-				profilesMan.addProfile(tp);
-				
+				try
+				{	log.info("Add "+tp.getName());
+					profilesMan.addProfile(tp);
+				} catch (EngineException e)
+				{
+					ErrorPopup.showError(
+							msg,
+							msg.getMessage("EndpointsStatus.CannotAddTranslationProfile"),
+							e);
+					return;
+				}
+
 			}
 			toRemove.remove(tp.getName());
 
 		}
-		
-		for(String tp:toRemove.keySet()){
-			profilesMan.removeProfile(tp);
-			
+
+		for (String tp : toRemove.keySet())
+		{
+			try
+			{	log.info("Remove "+tp);
+				profilesMan.removeProfile(tp);
+			} catch (Exception e)
+			{
+				ErrorPopup.showError(
+						msg,
+						msg.getMessage("EndpointsStatus.CannotRemoveTranslationProfile"),
+						e);
+				return;
+			}
+
 		}
 
 	}
 
 	private void updateContent()
 	{
+		
+		try
+		{
+			config.reloadIfChanged();
+		} catch (Exception e)
+		{
+			ErrorPopup.showError(msg,msg.getMessage("EndpointsStatus.CannotReloadConfig") , e);
+			return;    
+		}
+		
+		
 		endpointsView.removeAllComponents();
 
 		List<EndpointDescription> endpoints = null;
@@ -282,13 +399,47 @@ public class EndpointsStatusComponent extends VerticalLayout
 			return;
 		}
 
+		List<String> existing=new ArrayList<>();
 		for (EndpointDescription endpointDesc : endpoints)
 		{
 
 			endpointsView.addComponent(new SingleEndpointComponent(endpointMan,
-					endpointDesc, config, msg));
-
+					endpointDesc, config, msg,SingleEndpointComponent.STATUS_DEPLOYED));
+			existing.add(endpointDesc.getId());
 		}
+		
+		
+		
+		
+		
+		Set<String> endpointsList = config.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
+		for (String endpointKey: endpointsList)
+		{
+			if(!existing.contains(config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_NAME)))
+			{
+				String name = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_NAME);
+				String description = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_DESCRIPTION);		
+				
+				
+				EndpointDescription en=new EndpointDescription();
+				en.setId(name);
+				en.setDescription(description);
+				endpointsView.addComponent(new SingleEndpointComponent(endpointMan,
+						en, config, msg,SingleEndpointComponent.STATUS_UNDEPLOYED));
+				
+				
+				
+				
+	
+			}
+		}
+		
+		
+		
+		
+		
+		
+		
 
 	}
 
