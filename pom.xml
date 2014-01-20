@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pl.edu.icm.unity</groupId>
 	<artifactId>unity-server-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>UNITY aggregation and parent module</name>
 	<organization>
 		<name>Unity</name>
@@ -37,7 +36,8 @@
 	<scm>
 		<connection>${scm.base}</connection>
 		<developerConnection>${scm.base}</developerConnection>
-	</scm>
+	  <tag>unity-server-parent-1.0.0</tag>
+  </scm>
 
 	<modules>
 		<module>types</module>
