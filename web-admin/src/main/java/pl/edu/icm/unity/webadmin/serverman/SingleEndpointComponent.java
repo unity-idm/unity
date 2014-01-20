@@ -128,7 +128,7 @@ public class SingleEndpointComponent extends CustomComponent
 		reloadButton = new Button();
 		reloadButton.setIcon(Images.refresh.getResource());
 		reloadButton.addStyleName(Reindeer.BUTTON_LINK);
-		reloadButton.setDescription(msg.getMessage("EndpointsStatus.reloadEndpoint"));
+		reloadButton.setDescription(msg.getMessage("Endpoints.reloadEndpoint"));
 		reloadButton.addClickListener(new ClickListener()
 		{
 
@@ -143,7 +143,7 @@ public class SingleEndpointComponent extends CustomComponent
 		undeplyButton = new Button();
 		undeplyButton.setIcon(Images.delete.getResource());
 		undeplyButton.addStyleName(Reindeer.BUTTON_LINK);
-		undeplyButton.setDescription(msg.getMessage("EndpointsStatus.undeployEndpoint"));
+		undeplyButton.setDescription(msg.getMessage("Endpoints.undeployEndpoint"));
 
 		undeplyButton.addClickListener(new ClickListener()
 		{
@@ -152,7 +152,7 @@ public class SingleEndpointComponent extends CustomComponent
 			public void buttonClick(ClickEvent event)
 			{
 				new ConfirmDialog(msg, msg
-						.getMessage("EndpointsStatus.unDeployQuestion"),
+						.getMessage("Endpoints.unDeployQuestion"),
 						new ConfirmDialog.Callback()
 
 						{
@@ -171,7 +171,7 @@ public class SingleEndpointComponent extends CustomComponent
 		deployButton = new Button();
 		deployButton.setIcon(Images.add.getResource());
 		deployButton.addStyleName(Reindeer.BUTTON_LINK);
-		deployButton.setDescription(msg.getMessage("EndpointsStatus.deployEndpoint"));
+		deployButton.setDescription(msg.getMessage("Endpoints.deployEndpoint"));
 
 		deployButton.addClickListener(new ClickListener()
 		{
@@ -198,7 +198,7 @@ public class SingleEndpointComponent extends CustomComponent
 		{
 			log.error("Cannot reload configuration",e);
 			ErrorPopup.showError(msg,
-					msg.getMessage("EndpointsStatus.cannotReloadConfig"), e);
+					msg.getMessage("Endpoints.cannotReloadConfig"), e);
 			return;
 		}
 
@@ -210,7 +210,7 @@ public class SingleEndpointComponent extends CustomComponent
 		{
 			log.error("Cannot undeploy endpoint",e);
 			ErrorPopup.showError(msg,
-					msg.getMessage("EndpointsStatus.cannotUndeployEndpoint"), e);
+					msg.getMessage("Endpoints.cannotUndeployEndpoint"), e);
 			return;
 
 		}
@@ -252,7 +252,7 @@ public class SingleEndpointComponent extends CustomComponent
 		{
 			log.error("Cannot reload configuration",e);
 			ErrorPopup.showError(msg,
-					msg.getMessage("EndpointsStatus.cannotReloadConfig"), e);
+					msg.getMessage("Endpoints.cannotReloadConfig"), e);
 			return;
 		}
 
@@ -295,7 +295,7 @@ public class SingleEndpointComponent extends CustomComponent
 					log.error("Cannot read json file",e);
 					ErrorPopup.showError(
 							msg,
-							msg.getMessage("EndpointsStatus.cannotReadJsonConfig"),
+							msg.getMessage("Endpoints.cannotReadJsonConfig"),
 							e);
 					return;
 				}
@@ -310,7 +310,7 @@ public class SingleEndpointComponent extends CustomComponent
 					log.error("Cannot deploy endpoint",e);
 					ErrorPopup.showError(
 							msg,
-							msg.getMessage("EndpointsStatus.cannotDeployEndpoint"),
+							msg.getMessage("Endpoints.cannotDeployEndpoint"),
 							e);
 					return;
 				}
@@ -324,8 +324,8 @@ public class SingleEndpointComponent extends CustomComponent
 		{
 			ErrorPopup.showError(
 					msg,
-					msg.getMessage("EndpointsStatus.cannotDeployEndpoint"),
-					msg.getMessage("EndpointsStatus.cannotDeployRemovedConfigEndpoint"));
+					msg.getMessage("Endpoints.cannotDeployEndpoint"),
+					msg.getMessage("Endpoints.cannotDeployRemovedConfigEndpoint"));
 			setVisible(false);
 			return;
 
@@ -344,7 +344,7 @@ public class SingleEndpointComponent extends CustomComponent
 		{
 			log.error("Cannot reload configuration",e);
 			ErrorPopup.showError(msg,
-					msg.getMessage("EndpointsStatus.cannotReloadConfig"), e);
+					msg.getMessage("Endpoints.cannotReloadConfig"), e);
 			return;
 		}
 
@@ -384,7 +384,7 @@ public class SingleEndpointComponent extends CustomComponent
 					log.error("Cannot read json file",e);
 					ErrorPopup.showError(
 							msg,
-							msg.getMessage("EndpointsStatus.cannotReadJsonConfig"),
+							msg.getMessage("Endpoints.cannotReadJsonConfig"),
 							e);
 					return;
 				}
@@ -398,7 +398,7 @@ public class SingleEndpointComponent extends CustomComponent
 					log.error("Cannot update endpoint",e);
 					ErrorPopup.showError(
 							msg,
-							msg.getMessage("EndpointsStatus.cannotUpdateEndpoint"),
+							msg.getMessage("Endpoints.cannotUpdateEndpoint"),
 							e);
 					return;
 				}
@@ -419,7 +419,7 @@ public class SingleEndpointComponent extends CustomComponent
 					ErrorPopup.showError(
 							msg,
 							msg.getMessage("error"),
-							msg.getMessage("EndpointsStatus.cannotLoadEndpoints"));
+							msg.getMessage("Endpoints.cannotLoadEndpoints"));
 				}
 				setStatus(STATUS_DEPLOYED);
 
@@ -429,7 +429,7 @@ public class SingleEndpointComponent extends CustomComponent
 		if (!updated)
 		{
 			new ConfirmDialog(msg,
-					msg.getMessage("EndpointsStatus.unDeployWhenRemoved"),
+					msg.getMessage("Endpoints.unDeployWhenRemoved"),
 					new ConfirmDialog.Callback()
 
 					{
@@ -452,7 +452,7 @@ public class SingleEndpointComponent extends CustomComponent
 		if (status.equals(STATUS_DEPLOYED))
 		{       this.status=status;
 		        this.statusImage.setSource(Images.ok.getResource());
-		        this.statusImage.setDescription(msg.getMessage("EndpointsStatus.deployed"));
+		        this.statusImage.setDescription(msg.getMessage("Endpoints.deployed"));
 			updateHeader();
 			updateContent();
 			showHideContentButton.setEnabled(true);
@@ -467,7 +467,7 @@ public class SingleEndpointComponent extends CustomComponent
 		if (status.equals(STATUS_UNDEPLOYED))
 		{       this.status=status;
 		        this.statusImage.setSource(Images.error.getResource());
-		        this.statusImage.setDescription(msg.getMessage("EndpointsStatus.undeployed"));
+		        this.statusImage.setDescription(msg.getMessage("Endpoints.undeployed"));
 			updateHeader();
 			showHideContentButton.setEnabled(false);
 			showHideContentButton.setIcon(Images.zoomin.getResource());
@@ -492,14 +492,14 @@ public class SingleEndpointComponent extends CustomComponent
 
 		// Name
 		HorizontalLayout nameFieldLayout = new HorizontalLayout();
-		addFieldWithLabel(nameFieldLayout,msg.getMessage("EndpointsStatus.name"), endpoint.getId(), 0);
+		addFieldWithLabel(nameFieldLayout,msg.getMessage("Endpoints.name"), endpoint.getId(), 0);
 		nameFieldLayout.setMargin(false);
 		//nameFieldLayout.getComponent(1).setWidth(10f * endpoint.getId().length(),Unit.PIXELS);
 		nameFieldLayout.setWidth(500,Unit.PIXELS);
 		header.addComponent(nameFieldLayout);
 		header.setComponentAlignment(nameFieldLayout, Alignment.BOTTOM_CENTER);
 		
-		Label statusLabel = new Label(msg.getMessage("EndpointsStatus.status") + ":");
+		Label statusLabel = new Label(msg.getMessage("Endpoints.status") + ":");
 		statusLabel.addStyleName(Styles.bold.toString());
 		header.addComponent(statusLabel);
 		header.setComponentAlignment(statusLabel, Alignment.BOTTOM_CENTER);
@@ -529,11 +529,11 @@ public class SingleEndpointComponent extends CustomComponent
 		if (status.equals(STATUS_DEPLOYED))
 		{
 			HorizontalLayout lt = addFieldWithLabel(content,
-					msg.getMessage("EndpointsStatus.type"), endpoint.getType()
+					msg.getMessage("Endpoints.type"), endpoint.getType()
 							.getName(), 19);
-			addFieldWithLabel(lt, msg.getMessage("EndpointsStatus.type")
+			addFieldWithLabel(lt, msg.getMessage("Endpoints.type")
 					+ " "
-					+ msg.getMessage("EndpointsStatus.description")
+					+ msg.getMessage("Endpoints.description")
 							.toLowerCase(), endpoint.getType()
 					.getDescription(), 2);
 
@@ -541,17 +541,17 @@ public class SingleEndpointComponent extends CustomComponent
 					&& endpoint.getDescription().length() > 0)
 			{
 				addFieldWithLabel(content,
-						msg.getMessage("EndpointsStatus.description"),
+						msg.getMessage("Endpoints.description"),
 						endpoint.getDescription(), 19);
 
 			}
 			addFieldWithLabel(content,
-					msg.getMessage("EndpointsStatus.contextAddress"),
+					msg.getMessage("Endpoints.contextAddress"),
 					endpoint.getContextAddress(), 19);
 
 			int i = 0;
 
-			addFieldWithLabel(content, msg.getMessage("EndpointsStatus.paths"), "", 19);
+			addFieldWithLabel(content, msg.getMessage("Endpoints.paths"), "", 19);
 
 			for (Map.Entry<String, String> entry : endpoint.getType().getPaths()
 					.entrySet())
@@ -562,7 +562,7 @@ public class SingleEndpointComponent extends CustomComponent
 				addFieldWithLabel(hp, String.valueOf(i),
 						endpoint.getContextAddress() + entry.getKey(), 55);
 				addFieldWithLabel(hp,
-						msg.getMessage("EndpointsStatus.description"),
+						msg.getMessage("Endpoints.description"),
 						entry.getValue(), 2);
 				content.addComponent(hp);
 
@@ -578,12 +578,12 @@ public class SingleEndpointComponent extends CustomComponent
 
 			}
 			// Bindings
-			addFieldWithLabel(content, msg.getMessage("EndpointsStatus.bindings"),
+			addFieldWithLabel(content, msg.getMessage("Endpoints.bindings"),
 					bindings.toString(), 19);
 
 			i = 0;
 			addFieldWithLabel(content,
-					msg.getMessage("EndpointsStatus.authenticatorsSet"), "", 19);
+					msg.getMessage("Endpoints.authenticatorsSet"), "", 19);
 			for (AuthenticatorSet s : endpoint.getAuthenticatorSets())
 			{
 				i++;
