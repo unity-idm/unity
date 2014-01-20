@@ -125,8 +125,10 @@ public class EndpointsStatusComponent extends VerticalLayout
 		addComponent(buttons);
 
 		HorizontalLayout h = new HorizontalLayout();
-		Label e = new Label(msg.getMessage("EndpointsStatus.Listcaption"));
-		h.addStyleName(Styles.bold.toString());
+		Label e = new Label(msg.getMessage("EndpointsStatus.listCaption"));
+		e.addStyleName(Styles.bold.toString());
+		
+		
 		Button refreshViewButton = new Button();
 		refreshViewButton.setIcon(Images.refresh.getResource());
 		refreshViewButton.addStyleName(Reindeer.BUTTON_LINK);
@@ -140,8 +142,10 @@ public class EndpointsStatusComponent extends VerticalLayout
 
 			}
 		});
-
+		refreshViewButton.setDescription(msg.getMessage("EndpointsStatus.refreshEndpointsList"));
+		
 		h.addComponent(e);
+		h.addComponent(new Label(" "));
 		h.addComponent(refreshViewButton);
 
 		addComponent(h);
@@ -162,20 +166,21 @@ public class EndpointsStatusComponent extends VerticalLayout
 		{
 			config.reloadIfChanged();
 		} catch (Exception e)
-		{
+		{	log.error("Cannot reload configuration",e);
 			ErrorPopup.showError(msg,
-					msg.getMessage("EndpointsStatus.CannotReloadConfig"), e);
+					msg.getMessage("EndpointsStatus.cannotReloadConfig"), e);
 			return;
 		}
-		log.info("Reading all configured authenticators");
+		
 		Collection<AuthenticatorInstance> authenticators;
 		try
-		{
+		{	
 			authenticators = authMan.getAuthenticators(null);
 		} catch (EngineException e)
-		{
+		{       
+			log.error("Cannot load authenticators",e);
 			ErrorPopup.showError(msg,
-					msg.getMessage("EndpointsStatus.CannotGetAuthenticators"),
+					msg.getMessage("EndpointsStatus.cannotGetAuthenticators"),
 					e);
 			return;
 		}
@@ -214,10 +219,11 @@ public class EndpointsStatusComponent extends VerticalLayout
 						.readFileToString(vConfigFile);
 				rJsonConfiguration = FileUtils.readFileToString(rConfigFile);
 			} catch (IOException e)
-			{
+			{	
+				log.error("Cannot read json file",e);
 				ErrorPopup.showError(
 						msg,
-						msg.getMessage("EndpointsStatus.CannotReadJsonConfig"),
+						msg.getMessage("EndpointsStatus.cannotReadJsonConfig"),
 						e);
 				return;
 			}
@@ -231,9 +237,10 @@ public class EndpointsStatusComponent extends VerticalLayout
 							rJsonConfiguration, credential);
 				} catch (EngineException e)
 				{
+					log.error("Cannot add authenticator",e);
 					ErrorPopup.showError(
 							msg,
-							msg.getMessage("EndpointsStatus.CannotAddAuthenticator"),
+							msg.getMessage("EndpointsStatus.cannotAddAuthenticator"),
 							e);
 					return;
 				}
@@ -247,9 +254,10 @@ public class EndpointsStatusComponent extends VerticalLayout
 							rJsonConfiguration);
 				} catch (EngineException e)
 				{
+					log.error("Cannot update authenticator",e);
 					ErrorPopup.showError(
 							msg,
-							msg.getMessage("EndpointsStatus.CannotUpdateAuthenticator"),
+							msg.getMessage("EndpointsStatus.cannotUpdateAuthenticator"),
 							e);
 					return;
 				}
@@ -267,9 +275,10 @@ public class EndpointsStatusComponent extends VerticalLayout
 				authMan.removeAuthenticator(auth);
 			} catch (Exception e)
 			{
+				log.error("Cannot remove authenticator",e);
 				ErrorPopup.showError(
 						msg,
-						msg.getMessage("EndpointsStatus.CannotRemoveAuthenticator"),
+						msg.getMessage("EndpointsStatus.cannotRemoveAuthenticator"),
 						e);
 				return;
 			}
@@ -283,9 +292,9 @@ public class EndpointsStatusComponent extends VerticalLayout
 		{
 			config.reloadIfChanged();
 		} catch (Exception e)
-		{
+		{	log.error("Cannot reload configuration",e);
 			ErrorPopup.showError(msg,
-					msg.getMessage("EndpointsStatus.CannotReloadConfig"), e);
+					msg.getMessage("EndpointsStatus.cannotReloadConfig"), e);
 			return;
 		}
 		Map<String, TranslationProfile> existing;
@@ -293,10 +302,11 @@ public class EndpointsStatusComponent extends VerticalLayout
 		{
 			existing = profilesMan.listProfiles();
 		} catch (EngineException e)
-		{
+		{	
+			log.error("Cannot load translation profiles",e);
 			ErrorPopup.showError(
 					msg,
-					msg.getMessage("EndpointsStatus.CannotGetTranslationProfiles"),
+					msg.getMessage("EndpointsStatus.cannotGetTranslationProfiles"),
 					e);
 			return;
 		}
@@ -312,9 +322,10 @@ public class EndpointsStatusComponent extends VerticalLayout
 				json = FileUtils.readFileToString(new File(profileFile));
 			} catch (IOException e)
 			{
+				log.error("Cannot read json file",e);
 				ErrorPopup.showError(
 						msg,
-						msg.getMessage("EndpointsStatus.CannotReadJsonConfig"),
+						msg.getMessage("EndpointsStatus.cannotReadJsonConfig"),
 						e);
 				return;
 			}
@@ -329,9 +340,10 @@ public class EndpointsStatusComponent extends VerticalLayout
 					profilesMan.updateProfile(tp);
 				} catch (EngineException e)
 				{
+					log.error("Cannot update translation",e);
 					ErrorPopup.showError(
 							msg,
-							msg.getMessage("EndpointsStatus.CannotUpdateTranslationProfile"),
+							msg.getMessage("EndpointsStatus.cannotUpdateTranslationProfile"),
 							e);
 					return;
 				}
@@ -343,9 +355,10 @@ public class EndpointsStatusComponent extends VerticalLayout
 					profilesMan.addProfile(tp);
 				} catch (EngineException e)
 				{
+					log.error("Cannot add translation profile",e);
 					ErrorPopup.showError(
 							msg,
-							msg.getMessage("EndpointsStatus.CannotAddTranslationProfile"),
+							msg.getMessage("EndpointsStatus.cannotAddTranslationProfile"),
 							e);
 					return;
 				}
@@ -362,9 +375,10 @@ public class EndpointsStatusComponent extends VerticalLayout
 				profilesMan.removeProfile(tp);
 			} catch (Exception e)
 			{
+				log.error("Cannot remove translation profile",e);
 				ErrorPopup.showError(
 						msg,
-						msg.getMessage("EndpointsStatus.CannotRemoveTranslationProfile"),
+						msg.getMessage("EndpointsStatus.cannotRemoveTranslationProfile"),
 						e);
 				return;
 			}
@@ -380,8 +394,8 @@ public class EndpointsStatusComponent extends VerticalLayout
 		{
 			config.reloadIfChanged();
 		} catch (Exception e)
-		{
-			ErrorPopup.showError(msg,msg.getMessage("EndpointsStatus.CannotReloadConfig") , e);
+		{	log.error("Cannot reload configuration",e);
+			ErrorPopup.showError(msg,msg.getMessage("EndpointsStatus.cannotReloadConfig") , e);
 			return;    
 		}
 		
@@ -393,7 +407,8 @@ public class EndpointsStatusComponent extends VerticalLayout
 		{
 			endpoints = endpointMan.getEndpoints();
 		} catch (EngineException e)
-		{
+		{	
+			log.error("Cannot load endpoints",e);
 			ErrorPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("EndpointsStatus.cannotLoadEndpoints"));
 			return;
