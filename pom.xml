@@ -19,7 +19,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<scm.base>scm:svn:https://unicore.svn.sourceforge.net/svnroot/unicore/uvos/unity/trunk</scm.base>
+		<scm.base>scm:git:https://git.assembla.com/unity-public.git</scm.base>
 		<jetty.version>8.1.12.v20130726</jetty.version>
 		<slf4j.version>1.6.1</slf4j.version>
 		<spring.version>3.2.0.RELEASE</spring.version>
@@ -126,6 +126,17 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
+		
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.4.2</version>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 
 	<dependencyManagement>
