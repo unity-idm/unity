@@ -78,7 +78,26 @@
 		</repository>
 	</repositories>
 
+	<distributionManagement>
+		<repository>
+			<id>unicore.eu</id>
+			<name>UNICORE repository</name>
+			<url>dav:https://unicore-dev.zam.kfa-juelich.de/maven</url>
+		</repository>
+	</distributionManagement>
+
+
 	<build>
+		<!-- Allows to deploy with dav:// with Maven 3. Note that newer versions
+		of this extension do not work with Maven 2.2 -->
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-webdav-jackrabbit</artifactId>
+				<version>1.0</version>
+			</extension>
+		</extensions>
+	
 		<pluginManagement>
 			<plugins>
 				<plugin>
