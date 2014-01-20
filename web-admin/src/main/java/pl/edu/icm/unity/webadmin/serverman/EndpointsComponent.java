@@ -56,9 +56,10 @@ public class EndpointsComponent extends VerticalLayout
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			EndpointsComponent.class);
 
+	private final String msgPrefix="Endpoints";
 	private UnityMessageSource msg;
 	private EndpointManagement endpointMan;
-	private VerticalLayout endpointsView;
+	private VerticalLayout content;
 	private UnityServerConfiguration config;
 	
 
@@ -76,10 +77,10 @@ public class EndpointsComponent extends VerticalLayout
 
 	private void initUI()
 	{
-		setCaption(msg.getMessage("Endpoints.caption"));
+		setCaption(msg.getMessage(msgPrefix+".caption"));
 		
 		HorizontalLayout h = new HorizontalLayout();
-		Label e = new Label(msg.getMessage("Endpoints.listCaption"));
+		Label e = new Label(msg.getMessage(msgPrefix+".listCaption"));
 		e.addStyleName(Styles.bold.toString());
 		h.setMargin(true);
 		h.setSpacing(true);
@@ -97,7 +98,7 @@ public class EndpointsComponent extends VerticalLayout
 
 			}
 		});
-		refreshViewButton.setDescription(msg.getMessage("Endpoints.refreshEndpointsList"));
+		refreshViewButton.setDescription(msg.getMessage(msgPrefix+".refreshList"));
 		
 		
 		h.addComponent(e);
@@ -106,10 +107,10 @@ public class EndpointsComponent extends VerticalLayout
 
 		addComponent(h);
 
-		endpointsView = new VerticalLayout();
-		endpointsView.setMargin(true);
-		endpointsView.setSpacing(true);
-		addComponent(endpointsView);
+		content = new VerticalLayout();
+		content.setMargin(true);
+		content.setSpacing(true);
+		addComponent(content);
 
 		updateContent();
 
@@ -127,12 +128,12 @@ public class EndpointsComponent extends VerticalLayout
 			config.reloadIfChanged();
 		} catch (Exception e)
 		{	log.error("Cannot reload configuration",e);
-			ErrorPopup.showError(msg,msg.getMessage("Endpoints.cannotReloadConfig") , e);
+			ErrorPopup.showError(msg,msg.getMessage(msgPrefix+".cannotReloadConfig") , e);
 			return;    
 		}
 		
 		
-		endpointsView.removeAllComponents();
+		content.removeAllComponents();
 
 		List<EndpointDescription> endpoints = null;
 		try
@@ -142,7 +143,7 @@ public class EndpointsComponent extends VerticalLayout
 		{	
 			log.error("Cannot load endpoints",e);
 			ErrorPopup.showError(msg, msg.getMessage("error"),
-					msg.getMessage("Endpoints.cannotLoadEndpoints"));
+					msg.getMessage(msgPrefix+".cannotLoadList"));
 			return;
 		}
 
@@ -150,7 +151,7 @@ public class EndpointsComponent extends VerticalLayout
 		for (EndpointDescription endpointDesc : endpoints)
 		{
 
-			endpointsView.addComponent(new SingleEndpointComponent(endpointMan,
+			content.addComponent(new SingleEndpointComponent(endpointMan,
 					endpointDesc, config, msg,SingleEndpointComponent.STATUS_DEPLOYED));
 			existing.add(endpointDesc.getId());
 		}
@@ -171,7 +172,7 @@ public class EndpointsComponent extends VerticalLayout
 				EndpointDescription en=new EndpointDescription();
 				en.setId(name);
 				en.setDescription(description);
-				endpointsView.addComponent(new SingleEndpointComponent(endpointMan,
+				content.addComponent(new SingleEndpointComponent(endpointMan,
 						en, config, msg,SingleEndpointComponent.STATUS_UNDEPLOYED));
 				
 				

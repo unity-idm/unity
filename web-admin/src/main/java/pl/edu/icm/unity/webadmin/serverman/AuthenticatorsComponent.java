@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,11 +23,14 @@ import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
-
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Show information about all authenticators
@@ -39,47 +43,136 @@ public class AuthenticatorsComponent extends VerticalLayout
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			AuthenticatorsComponent.class);
-	
+	private final String msgPrefix = "Authenticators";
+
 	private UnityMessageSource msg;
 	private UnityServerConfiguration config;
 	private AuthenticationManagement authMan;
-	
-	
-	
+	private VerticalLayout content;
+
 	@Autowired
 	public AuthenticatorsComponent(UnityMessageSource msg, UnityServerConfiguration config,
 			AuthenticationManagement authMan)
 	{
-		
+
 		this.msg = msg;
 		this.config = config;
 		this.authMan = authMan;
 		initUI();
 	}
 
-	private void initUI(){
-		
-		setCaption(msg.getMessage("Authenticators.caption"));
-		setMargin(true);
-		setSpacing(true);
+	private void initUI()
+	{
 
-		Button reloadAuthButton = new Button(
-				msg.getMessage("Authenticators.reloadAuthenticators"));
-		reloadAuthButton.setIcon(Images.refresh.getResource());
-		reloadAuthButton.addClickListener(new Button.ClickListener()
+	//	setCaption(msg.getMessage(msgPrefix + ".caption"));
+	//	setMargin(true);
+	//	setSpacing(true);
+
+//		Button reloadAuthButton = new Button(msg.getMessage(msgPrefix + ".reloadAll"));
+//		reloadAuthButton.setIcon(Images.refresh.getResource());
+//		reloadAuthButton.addClickListener(new Button.ClickListener()
+//		{
+//
+//			@Override
+//			public void buttonClick(ClickEvent event)
+//			{
+//
+//				reloadAuthenticators();
+//
+//			}
+//		});
+//		addComponent(reloadAuthButton);
+
+		setCaption(msg.getMessage(msgPrefix + ".caption"));
+
+		HorizontalLayout h = new HorizontalLayout();
+		Label e = new Label(msg.getMessage(msgPrefix + ".listCaption"));
+		e.addStyleName(Styles.bold.toString());
+		h.setMargin(true);
+		h.setSpacing(true);
+
+		Button refreshViewButton = new Button();
+		refreshViewButton.setIcon(Images.refresh.getResource());
+		refreshViewButton.addStyleName(Reindeer.BUTTON_LINK);
+		refreshViewButton.addClickListener(new Button.ClickListener()
 		{
 
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-
-				reloadAuthenticators();
+				updateContent();
 
 			}
 		});
-		addComponent(reloadAuthButton);
+		refreshViewButton.setDescription(msg.getMessage(msgPrefix + ".refreshList"));
+
+		h.addComponent(e);
+		h.addComponent(new Label(" "));
+		h.addComponent(refreshViewButton);
+
+		addComponent(h);
+
+		content = new VerticalLayout();
+		content.setMargin(true);
+		content.setSpacing(true);
+		addComponent(content);
+
+		updateContent();
+
 	}
-	
+
+	private void updateContent()
+	{
+		content.removeAllComponents();
+		try
+		{
+			config.reloadIfChanged();
+		} catch (Exception e)
+		{
+			log.error("Cannot reload configuration", e);
+			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotReloadConfig"), e);
+			return;
+		}
+
+		Collection<AuthenticatorInstance> authenticators;
+		try
+		{
+			authenticators = authMan.getAuthenticators(null);
+		} catch (EngineException e)
+		{
+			log.error("Cannot load authenticators", e);
+			ErrorPopup.showError(msg,
+					msg.getMessage("Authenticators.cannotGetAuthenticators"), e);
+			return;
+		}
+		Set<String> existing = new HashSet<String>();
+
+		for (AuthenticatorInstance ai : authenticators)
+		{
+			existing.add(ai.getId());
+			content.addComponent(new SingleAuthenticatorComponent(authMan, ai, config,
+					msg, SingleEndpointComponent.STATUS_DEPLOYED));
+
+		}
+
+		Set<String> authenticatorsList = config
+				.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
+		for (String authenticatorKey : authenticatorsList)
+		{
+			String name = config.getValue(authenticatorKey
+					+ UnityServerConfiguration.AUTHENTICATOR_NAME);
+			if (!existing.contains(name))
+			{
+				AuthenticatorInstance au = new AuthenticatorInstance();
+				au.setId(name);
+				content.addComponent(new SingleAuthenticatorComponent(authMan, au,
+						config, msg,
+						SingleEndpointComponent.STATUS_UNDEPLOYED));
+			}
+		}
+
+	}
+
 	private void reloadAuthenticators()
 	{
 		log.info("Reloading Authenticators");
@@ -87,22 +180,21 @@ public class AuthenticatorsComponent extends VerticalLayout
 		{
 			config.reloadIfChanged();
 		} catch (Exception e)
-		{	log.error("Cannot reload configuration",e);
-			ErrorPopup.showError(msg,
-					msg.getMessage("Endpoints.cannotReloadConfig"), e);
+		{
+			log.error("Cannot reload configuration", e);
+			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotReloadConfig"), e);
 			return;
 		}
-		
+
 		Collection<AuthenticatorInstance> authenticators;
 		try
-		{	
+		{
 			authenticators = authMan.getAuthenticators(null);
 		} catch (EngineException e)
-		{       
-			log.error("Cannot load authenticators",e);
+		{
+			log.error("Cannot load authenticators", e);
 			ErrorPopup.showError(msg,
-					msg.getMessage("Authenticators.cannotGetAuthenticators"),
-					e);
+					msg.getMessage(msgPrefix+".cannotLoadList"), e);
 			return;
 		}
 		Map<String, AuthenticatorInstance> existing = new HashMap<String, AuthenticatorInstance>();
@@ -140,12 +232,10 @@ public class AuthenticatorsComponent extends VerticalLayout
 						.readFileToString(vConfigFile);
 				rJsonConfiguration = FileUtils.readFileToString(rConfigFile);
 			} catch (IOException e)
-			{	
-				log.error("Cannot read json file",e);
-				ErrorPopup.showError(
-						msg,
-						msg.getMessage("Endpoints.cannotReadJsonConfig"),
-						e);
+			{
+				log.error("Cannot read json file", e);
+				ErrorPopup.showError(msg,
+						msg.getMessage(msgPrefix+".cannotReadJsonConfig"), e);
 				return;
 			}
 
@@ -158,10 +248,9 @@ public class AuthenticatorsComponent extends VerticalLayout
 							rJsonConfiguration, credential);
 				} catch (EngineException e)
 				{
-					log.error("Cannot add authenticator",e);
-					ErrorPopup.showError(
-							msg,
-							msg.getMessage("Authenticators.cannotAddAuthenticator"),
+					log.error("Cannot add authenticator", e);
+					ErrorPopup.showError(msg,
+							msg.getMessage(msgPrefix+".cannotAdd"),
 							e);
 					return;
 				}
@@ -175,10 +264,9 @@ public class AuthenticatorsComponent extends VerticalLayout
 							rJsonConfiguration);
 				} catch (EngineException e)
 				{
-					log.error("Cannot update authenticator",e);
-					ErrorPopup.showError(
-							msg,
-							msg.getMessage("Authenticators.cannotUpdateAuthenticator"),
+					log.error("Cannot update authenticator", e);
+					ErrorPopup.showError(msg, msg
+							.getMessage(msgPrefix+"cannotUpdate"),
 							e);
 					return;
 				}
@@ -196,11 +284,9 @@ public class AuthenticatorsComponent extends VerticalLayout
 				authMan.removeAuthenticator(auth);
 			} catch (Exception e)
 			{
-				log.error("Cannot remove authenticator",e);
-				ErrorPopup.showError(
-						msg,
-						msg.getMessage("Authenticators.cannotRemoveAuthenticator"),
-						e);
+				log.error("Cannot remove authenticator", e);
+				ErrorPopup.showError(msg,
+						msg.getMessage(msgPrefix+".cannotRemove"), e);
 				return;
 			}
 		}

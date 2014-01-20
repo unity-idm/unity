@@ -73,7 +73,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		
 
 		Button reloadTransProfileButton = new Button(
-				msg.getMessage("TranslationProfiles.reloadTranslationProfiles"));
+				msg.getMessage("TranslationProfiles.reloadAll"));
 		reloadTransProfileButton.setIcon(Images.refresh.getResource());
 		reloadTransProfileButton.addClickListener(new Button.ClickListener()
 		{
