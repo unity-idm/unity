@@ -3,12 +3,11 @@
 	<parent>
 		<groupId>pl.edu.icm.unity</groupId>
 		<artifactId>unity-server-parent</artifactId>
-		<version>1.0.0</version>
+		<version>1.0.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>unity-documentation</artifactId>
-	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<name>UNITY ${m.name} module</name>
 	<description>Documentation of the whole Unity system</description>
