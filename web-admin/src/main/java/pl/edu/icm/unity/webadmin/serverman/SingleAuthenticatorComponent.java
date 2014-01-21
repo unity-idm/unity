@@ -20,7 +20,10 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
 
 /**
  * Show authenticator
@@ -34,6 +37,7 @@ public class SingleAuthenticatorComponent extends SingleComponent
 			SingleAuthenticatorComponent.class);
 
 	AuthenticatorInstance authenticator;
+
 	AuthenticationManagement authMan;
 
 	public SingleAuthenticatorComponent(AuthenticationManagement authMan,
@@ -83,18 +87,59 @@ public class SingleAuthenticatorComponent extends SingleComponent
 					authenticator.getTypeDescription().getSupportedBinding(),
 					35);
 
-			addFieldWithLabel(content, msg.getMessage(msgPrefix + ".localCredential"),
-					authenticator.getLocalCredentialName(), 19);
+			String cr = authenticator.getLocalCredentialName();
+			if (cr != null && !cr.isEmpty())
+			{
+				addFieldWithLabel(content,
+						msg.getMessage(msgPrefix + ".localCredential"), cr,
+						19);
+			}
+			String ver = authenticator.getVerificatorJsonConfiguration();
 
-			addFieldWithLabel(
-					content,
-					msg.getMessage(msgPrefix + ".verificatorJsonConfiguration"),
-					authenticator.getVerificatorJsonConfiguration(), 19);
+			if (ver != null && !ver.isEmpty())
+			{
+				Label space = new Label();
+				space.setWidth(19, Unit.PIXELS);
+				HorizontalLayout l = new HorizontalLayout();
+				l.setSpacing(true);
+				Panel p = new Panel(msg.getMessage(msgPrefix
+						+ ".verificatorJsonConfiguration")
+						+ ":");
+				p.setWidth(500, Unit.PIXELS);
+				p.setHeight(150, Unit.PIXELS);
+				Label val = new Label(ver, ContentMode.PREFORMATTED);
+				val.setSizeUndefined();
+				p.setContent(val);
+				l.addComponents(space, p);
+				content.addComponent(l);
 
-			addFieldWithLabel(content,
-					msg.getMessage(msgPrefix + ".retrievalJsonConfiguration"),
-					authenticator.getRetrievalJsonConfiguration(), 19);
+			}
 
+			String ret = authenticator.getRetrievalJsonConfiguration();
+			if (ret != null && !ret.isEmpty())
+			{
+				if (ver != null && !ver.isEmpty())
+				{
+					Label s = new Label();
+					s.setHeight(10, Unit.PIXELS);
+					content.addComponent(s);
+				}
+				Label space = new Label();
+				space.setWidth(19, Unit.PIXELS);
+				HorizontalLayout l = new HorizontalLayout();
+				l.setSpacing(true);
+				Panel p = new Panel(msg.getMessage(msgPrefix
+						+ ".retrievalJsonConfiguration")
+						+ ":");
+				p.setWidth(500, Unit.PIXELS);
+				p.setHeight(150, Unit.PIXELS);
+				Label val = new Label(ret, ContentMode.PREFORMATTED);
+				val.setSizeUndefined();
+				p.setContent(val);
+				l.addComponents(space, p);
+				content.addComponent(l);
+
+			}
 		}
 	}
 
@@ -112,7 +157,8 @@ public class SingleAuthenticatorComponent extends SingleComponent
 			{
 				log.error("Cannot remove authenticator", e);
 				ErrorPopup.showError(msg,
-						msg.getMessage(msgPrefix + "." + "cannotUndeploy"), e);
+						msg.getMessage(msgPrefix + "." + "cannotUndeploy"),
+						e);
 				return false;
 
 			}
@@ -258,7 +304,7 @@ public class SingleAuthenticatorComponent extends SingleComponent
 							.getFileValue(authenticatorKey
 									+ UnityServerConfiguration.AUTHENTICATOR_RETRIEVAL_CONFIG,
 									false);
-					
+
 					String vJsonConfiguration = null;
 					String rJsonConfiguration = null;
 					try
