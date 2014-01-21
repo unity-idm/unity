@@ -152,7 +152,7 @@ public class EndpointsComponent extends VerticalLayout
 		{
 
 			content.addComponent(new SingleEndpointComponent(endpointMan,
-					endpointDesc, config, msg,SingleEndpointComponent.STATUS_DEPLOYED));
+					endpointDesc, config, msg,SingleEndpointComponent.STATUS_DEPLOYED,msgPrefix));
 			existing.add(endpointDesc.getId());
 		}
 		
@@ -173,7 +173,7 @@ public class EndpointsComponent extends VerticalLayout
 				en.setId(name);
 				en.setDescription(description);
 				content.addComponent(new SingleEndpointComponent(endpointMan,
-						en, config, msg,SingleEndpointComponent.STATUS_UNDEPLOYED));
+						en, config, msg,SingleEndpointComponent.STATUS_UNDEPLOYED,msgPrefix));
 				
 				
 				

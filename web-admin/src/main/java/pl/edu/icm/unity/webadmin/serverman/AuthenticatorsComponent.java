@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
 package pl.edu.icm.unity.webadmin.serverman;
 
 import java.io.File;
@@ -64,25 +68,6 @@ public class AuthenticatorsComponent extends VerticalLayout
 	private void initUI()
 	{
 
-	//	setCaption(msg.getMessage(msgPrefix + ".caption"));
-	//	setMargin(true);
-	//	setSpacing(true);
-
-//		Button reloadAuthButton = new Button(msg.getMessage(msgPrefix + ".reloadAll"));
-//		reloadAuthButton.setIcon(Images.refresh.getResource());
-//		reloadAuthButton.addClickListener(new Button.ClickListener()
-//		{
-//
-//			@Override
-//			public void buttonClick(ClickEvent event)
-//			{
-//
-//				reloadAuthenticators();
-//
-//			}
-//		});
-//		addComponent(reloadAuthButton);
-
 		setCaption(msg.getMessage(msgPrefix + ".caption"));
 
 		HorizontalLayout h = new HorizontalLayout();
@@ -105,10 +90,30 @@ public class AuthenticatorsComponent extends VerticalLayout
 			}
 		});
 		refreshViewButton.setDescription(msg.getMessage(msgPrefix + ".refreshList"));
+		
+		Button reloadAllButton = new Button();
+		reloadAllButton.setIcon(Images.transfer.getResource());
+		reloadAllButton.addStyleName(Reindeer.BUTTON_LINK);
+		reloadAllButton.addClickListener(new Button.ClickListener()
+		{
 
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				reloadAuthenticators();
+				updateContent();
+
+			}
+		});
+		reloadAllButton.setDescription(msg.getMessage(msgPrefix + ".reloadAll"));
+		
+		
+		
+		
 		h.addComponent(e);
 		h.addComponent(new Label(" "));
 		h.addComponent(refreshViewButton);
+		h.addComponent(reloadAllButton);
 
 		addComponent(h);
 
@@ -130,7 +135,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		} catch (Exception e)
 		{
 			log.error("Cannot reload configuration", e);
-			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotReloadConfig"), e);
+			ErrorPopup.showError(msg, msg.getMessage(msgPrefix+".cannotReloadConfig"), e);
 			return;
 		}
 
@@ -142,7 +147,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		{
 			log.error("Cannot load authenticators", e);
 			ErrorPopup.showError(msg,
-					msg.getMessage("Authenticators.cannotGetAuthenticators"), e);
+					msg.getMessage(msgPrefix+".cannotLoadList"), e);
 			return;
 		}
 		Set<String> existing = new HashSet<String>();
@@ -151,7 +156,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		{
 			existing.add(ai.getId());
 			content.addComponent(new SingleAuthenticatorComponent(authMan, ai, config,
-					msg, SingleEndpointComponent.STATUS_DEPLOYED));
+					msg, SingleEndpointComponent.STATUS_DEPLOYED,msgPrefix));
 
 		}
 
@@ -167,7 +172,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 				au.setId(name);
 				content.addComponent(new SingleAuthenticatorComponent(authMan, au,
 						config, msg,
-						SingleEndpointComponent.STATUS_UNDEPLOYED));
+						SingleEndpointComponent.STATUS_UNDEPLOYED,msgPrefix));
 			}
 		}
 
@@ -182,7 +187,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		} catch (Exception e)
 		{
 			log.error("Cannot reload configuration", e);
-			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotReloadConfig"), e);
+			ErrorPopup.showError(msg, msg.getMessage(msgPrefix+".cannotReloadConfig"), e);
 			return;
 		}
 
@@ -250,7 +255,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 				{
 					log.error("Cannot add authenticator", e);
 					ErrorPopup.showError(msg,
-							msg.getMessage(msgPrefix+".cannotAdd"),
+							msg.getMessage(msgPrefix+".cannotDeploy"),
 							e);
 					return;
 				}
@@ -286,7 +291,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 			{
 				log.error("Cannot remove authenticator", e);
 				ErrorPopup.showError(msg,
-						msg.getMessage(msgPrefix+".cannotRemove"), e);
+						msg.getMessage(msgPrefix+".cannotUndeploy"), e);
 				return;
 			}
 		}
