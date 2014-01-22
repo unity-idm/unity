@@ -105,3 +105,7 @@
 	color: gray;
 	margin: 8px 0px;
 }
+
+.v-caption-bold {
+  font-weight: bold;
+}

@@ -24,7 +24,7 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.FormLayout;
 
 /**
  * Show translation profile
@@ -312,32 +312,37 @@ public class SingleTranslationProfileComponent extends SingleComponent
 		if (status.equals(STATUS_DEPLOYED))
 		{
 
-			addFieldWithLabel(content, msg.getMessage(msgPrefix + ".description"),
-					translationProfile.getDescription(), 19);
-			addFieldWithLabel(content, msg.getMessage(msgPrefix + ".rules"), "", 19);
+			addFieldToContent(msg.getMessage(msgPrefix + ".description"),
+					translationProfile.getDescription());
+			addFieldToContent(msg.getMessage(msgPrefix + ".rules"), "");
 
+			 
+			
+			FormLayout rulesL=new FormLayout();
+		
+			rulesL.setSpacing(false);
+			rulesL.setMargin(false);
+			
+			int i=0;
 			for (TranslationRule rule : translationProfile.getRules())
-			{
-				HorizontalLayout ah = new HorizontalLayout();
-				addFieldWithLabel(ah, msg.getMessage(msgPrefix + ".ruleCondition"),
-						rule.getCondition().getCondition(), 35);
-				addFieldWithLabel(ah, msg.getMessage(msgPrefix + ".ruleAction"),
-						rule.getAction().getName(), 2);
-
+			{	i++;
+			       
+				addField(rulesL,String.valueOf(i)+":  "+msg.getMessage(msgPrefix + ".ruleCondition"),
+						"<code>"+rule.getCondition().getCondition()+"</code>");
 				StringBuilder params = new StringBuilder();
 				for (String p : rule.getAction().getParameters())
 				{
 					if (params.length() > 0)
-						params.append(",");
+						params.append(", ");
 					params.append(p);
 				}
+				addField(rulesL,msg.getMessage(msgPrefix + ".ruleAction"),
+						"<code>"+rule.getAction().getName()+"</code>"+" "+params);
 
-				addFieldWithLabel(ah,
-						msg.getMessage(msgPrefix + ".ruleActionParams"),
-						params.toString(), 2);
-
-				content.addComponent(ah);
+				
+				content.addComponent(rulesL);
 			}
+			
 
 		}
 	}

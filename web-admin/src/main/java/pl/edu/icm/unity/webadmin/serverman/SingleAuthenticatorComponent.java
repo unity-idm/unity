@@ -21,7 +21,6 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 
 import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 
@@ -63,83 +62,66 @@ public class SingleAuthenticatorComponent extends SingleComponent
 
 		if (status.equals(STATUS_DEPLOYED))
 		{
-			addFieldWithLabel(content, msg.getMessage(msgPrefix + ".type"),
-					authenticator.getTypeDescription().getId(), 19);
+			addFieldToContent(msg.getMessage(msgPrefix + ".type"), authenticator
+					.getTypeDescription().getId());
+			addFieldToContent(msg.getMessage(msgPrefix + ".verificationMethod"),
+					authenticator.getTypeDescription().getVerificationMethod());
+			addFieldToContent(msg.getMessage(msgPrefix + ".verificationMethodDescription"),
+					authenticator.getTypeDescription()
+							.getVerificationMethodDescription());
 
-			HorizontalLayout vm = new HorizontalLayout();
-			addFieldWithLabel(vm, msg.getMessage(msgPrefix + ".verificationMethod"),
-					authenticator.getTypeDescription().getVerificationMethod(),
-					35);
-			addFieldWithLabel(vm, msg.getMessage(msgPrefix
-					+ ".verificationMethodDescription"), authenticator
-					.getTypeDescription().getVerificationMethodDescription(), 2);
-			content.addComponent(vm);
+			addFieldToContent(msg.getMessage(msgPrefix + ".retrievalMethod"), authenticator
+					.getTypeDescription().getRetrievalMethod());
+			addFieldToContent(msg.getMessage(msgPrefix + ".retrievalMethodDescription"),
+					msg.getMessage(authenticator.getTypeDescription()
+							.getRetrievalMethodDescription()));
 
-			HorizontalLayout rm = new HorizontalLayout();
-			addFieldWithLabel(rm, msg.getMessage(msgPrefix + ".retrievalMethod"),
-					authenticator.getTypeDescription().getRetrievalMethod(), 35);
-			addFieldWithLabel(rm, msg.getMessage(msgPrefix
-					+ ".retrievalMethodDescription"), authenticator
-					.getTypeDescription().getRetrievalMethodDescription(), 2);
-			content.addComponent(rm);
-
-			addFieldWithLabel(content, msg.getMessage(msgPrefix + ".supportedBinding"),
-					authenticator.getTypeDescription().getSupportedBinding(),
-					35);
+			addFieldToContent(msg.getMessage(msgPrefix + ".supportedBinding"),
+					authenticator.getTypeDescription().getSupportedBinding());
 
 			String cr = authenticator.getLocalCredentialName();
 			if (cr != null && !cr.isEmpty())
 			{
-				addFieldWithLabel(content,
-						msg.getMessage(msgPrefix + ".localCredential"), cr,
-						19);
+				addFieldToContent(msg.getMessage(msgPrefix + ".localCredential"),
+						cr);
 			}
-			String ver = authenticator.getVerificatorJsonConfiguration();
 
+			String ver = authenticator.getVerificatorJsonConfiguration();
 			if (ver != null && !ver.isEmpty())
 			{
-				Label space = new Label();
-				space.setWidth(19, Unit.PIXELS);
-				HorizontalLayout l = new HorizontalLayout();
-				l.setSpacing(true);
-				Panel p = new Panel(msg.getMessage(msgPrefix
-						+ ".verificatorJsonConfiguration")
-						+ ":");
+
+				addFieldToContent(
+						msg.getMessage(msgPrefix
+								+ ".verificatorJsonConfiguration"),
+						"");
+				Panel p = new Panel();
 				p.setWidth(500, Unit.PIXELS);
 				p.setHeight(150, Unit.PIXELS);
 				Label val = new Label(ver, ContentMode.PREFORMATTED);
 				val.setSizeUndefined();
 				p.setContent(val);
-				l.addComponents(space, p);
-				content.addComponent(l);
+				content.addComponent(p);
 
 			}
 
 			String ret = authenticator.getRetrievalJsonConfiguration();
 			if (ret != null && !ret.isEmpty())
 			{
-				if (ver != null && !ver.isEmpty())
-				{
-					Label s = new Label();
-					s.setHeight(10, Unit.PIXELS);
-					content.addComponent(s);
-				}
-				Label space = new Label();
-				space.setWidth(19, Unit.PIXELS);
-				HorizontalLayout l = new HorizontalLayout();
-				l.setSpacing(true);
-				Panel p = new Panel(msg.getMessage(msgPrefix
-						+ ".retrievalJsonConfiguration")
-						+ ":");
+
+				addFieldToContent(
+						msg.getMessage(msgPrefix
+								+ ".retrievalJsonConfiguration"),
+						"");
+				Panel p = new Panel();
 				p.setWidth(500, Unit.PIXELS);
 				p.setHeight(150, Unit.PIXELS);
 				Label val = new Label(ret, ContentMode.PREFORMATTED);
 				val.setSizeUndefined();
 				p.setContent(val);
-				l.addComponents(space, p);
-				content.addComponent(l);
+				content.addComponent(p);
 
 			}
+
 		}
 	}
 
@@ -321,7 +303,7 @@ public class SingleAuthenticatorComponent extends SingleComponent
 						return false;
 					}
 
-					log.info("Add " + name + " [" + type + "]");
+					log.info("Update " + name + " [" + type + "]");
 					try
 					{
 						authMan.updateAuthenticator(name,
@@ -329,7 +311,7 @@ public class SingleAuthenticatorComponent extends SingleComponent
 								rJsonConfiguration);
 					} catch (EngineException e)
 					{
-						log.error("Cannot add authenticator", e);
+						log.error("Cannot update authenticator", e);
 						ErrorPopup.showError(
 								msg,
 								msg.getMessage(msgPrefix

@@ -14,11 +14,13 @@ import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
@@ -37,7 +39,8 @@ public class SingleComponent extends CustomComponent
 	protected UnityServerConfiguration config;
 	protected UnityMessageSource msg;
 	protected GridLayout header;
-	protected VerticalLayout content;
+	protected FormLayout content;
+	protected HorizontalLayout footer;
 	protected Button showHideContentButton;
 	protected Button undeplyButton;
 	protected Button reloadButton;
@@ -69,14 +72,26 @@ public class SingleComponent extends CustomComponent
 		main.addComponent(line);
 
 		main.addComponent(header);
-
-		content = new VerticalLayout();
-		content.setVisible(false);
-		main.addComponent(content);
+		
 		line = new Label();
 		line.addStyleName(Styles.horizontalLine.toString());
 		main.addComponent(line);
 
+		content = new FormLayout();
+		content.setVisible(false);
+		content.setSpacing(false);
+		main.addComponent(content);
+		
+		footer = new HorizontalLayout();
+		line = new Label();
+		line.addStyleName(Styles.horizontalLine.toString());
+		footer.setSpacing(false);
+		footer.setMargin(false);
+		footer.addComponent(line);
+		footer.setSizeFull();
+
+		main.addComponent(footer);
+		
 		setCompositionRoot(main);
 		showHideContentButton = new Button();
 		showHideContentButton.setIcon(Images.zoomin.getResource());
@@ -92,10 +107,12 @@ public class SingleComponent extends CustomComponent
 				{
 					showHideContentButton.setIcon(Images.zoomin.getResource());
 					content.setVisible(false);
+					footer.setVisible(false);
 				} else
 				{
 					showHideContentButton.setIcon(Images.zoomout.getResource());
 					content.setVisible(true);
+					footer.setVisible(true);
 				}
 
 			}
@@ -170,8 +187,16 @@ public class SingleComponent extends CustomComponent
 			updateHeader();
 			updateContent();
 			showHideContentButton.setEnabled(true);
-			showHideContentButton.setIcon(Images.zoomin.getResource());
-			content.setVisible(false);
+			if (content.isVisible())
+			{
+				showHideContentButton.setIcon(Images.zoomout.getResource());
+
+			} else
+			{
+				showHideContentButton.setIcon(Images.zoomin.getResource());
+
+			}
+
 			undeplyButton.setVisible(true);
 			reloadButton.setVisible(true);
 			deployButton.setVisible(false);
@@ -189,6 +214,7 @@ public class SingleComponent extends CustomComponent
 			deployButton.setVisible(true);
 
 		}
+		footer.setVisible(content.isVisible());
 
 	}
 
@@ -201,10 +227,17 @@ public class SingleComponent extends CustomComponent
 
 		// Name
 		HorizontalLayout nameFieldLayout = new HorizontalLayout();
-		addFieldWithLabel(nameFieldLayout, msg.getMessage(msgPrefix + "." + "name"), name,
-				0);
+		HorizontalLayout h=new HorizontalLayout();
+		h.setSpacing(true);
+		h.setMargin(false);
+		Label l=new Label(msg.getMessage(msgPrefix + "." + "name")+":");
+		l.addStyleName(Styles.bold.toString());
+		Label val=new Label(name);
+		h.addComponents(l,val);
 		nameFieldLayout.setMargin(false);
 		nameFieldLayout.setWidth(500, Unit.PIXELS);
+		
+		nameFieldLayout.addComponents(h);
 		header.addComponent(nameFieldLayout);
 		header.setComponentAlignment(nameFieldLayout, Alignment.BOTTOM_CENTER);
 
@@ -227,7 +260,7 @@ public class SingleComponent extends CustomComponent
 		header.addComponent(statusImage);
 
 		Label spacer = new Label();
-		spacer.setWidth(10, Unit.PIXELS);
+		spacer.setWidth(30, Unit.PIXELS);
 		header.addComponent(spacer);
 
 		header.addComponent(reloadButton);
@@ -255,7 +288,7 @@ public class SingleComponent extends CustomComponent
 	{
 		return reloadConfig();
 	}
-	
+
 	protected boolean undeploy()
 	{
 		return reloadConfig();
@@ -281,34 +314,17 @@ public class SingleComponent extends CustomComponent
 		return true;
 	}
 
-	protected HorizontalLayout addFieldWithLabel(Layout parent, String name, String value,
-			int space)
+	protected void addFieldToContent(String name, String value)
 	{
-		if (space != 0)
-		{
-			Label spacer = new Label();
-			spacer.setWidth(space, Unit.PIXELS);
-		}
-		Label namel = new Label(name + ":");
-		namel.addStyleName(Styles.bold.toString());
-		Label nameVal = new Label(value);
-		HorizontalLayout fieldLayout = new HorizontalLayout();
-		fieldLayout.setSpacing(true);
+		addField(content, name, value);
+	}
 
-		if (space != 0)
-		{
-			Label spacer = new Label();
-			spacer.setWidth(space, Unit.PIXELS);
-			fieldLayout.addComponents(spacer, namel, nameVal);
-
-		} else
-		{
-			fieldLayout.addComponents(namel, nameVal);
-
-		}
-
-		parent.addComponent(fieldLayout);
-		return fieldLayout;
+	protected void addField(Layout parent, String name, String value)
+	{
+		Label val = new Label(value, ContentMode.HTML);
+		val.setCaption(name + ":");
+		val.addStyleName("bold");
+		parent.addComponents(val);
 
 	}
 }

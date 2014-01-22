@@ -25,8 +25,11 @@ import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.Styles;
 
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 
 /**
  * Show endpoint
@@ -326,28 +329,37 @@ public class SingleEndpointComponent extends SingleComponent
 
 		if (status.equals(STATUS_DEPLOYED))
 		{
-			HorizontalLayout lt = addFieldWithLabel(content, msg.getMessage(msgPrefix
-					+ ".type"), endpoint.getType().getName(), 19);
-			addFieldWithLabel(lt, msg.getMessage(msgPrefix + ".typeDescription"),
-					endpoint.getType().getDescription(), 2);
 
-			addFieldWithLabel(content, msg.getMessage(msgPrefix + ".paths"), "", 35);
+			addFieldToContent(msg.getMessage(msgPrefix + ".type"), endpoint.getType()
+					.getName());
+			addFieldToContent(msg.getMessage(msgPrefix + ".typeDescription"), endpoint
+					.getType().getDescription());
 
+			addFieldToContent(msg.getMessage(msgPrefix + ".paths"), "");
+
+			HorizontalLayout hp = new HorizontalLayout();
+			FormLayout pa = new FormLayout();
+			pa.setSpacing(false);
+			pa.setMargin(false);
+
+			FormLayout pad = new FormLayout();
+			pad.setSpacing(false);
+			pad.setMargin(false);
 			int i = 0;
 			for (Map.Entry<String, String> entry : endpoint.getType().getPaths()
 					.entrySet())
 			{
 				i++;
-				HorizontalLayout hp = new HorizontalLayout();
-				// TODO Add server address prefix
-				addFieldWithLabel(hp, String.valueOf(i),
-						endpoint.getContextAddress() + entry.getKey(), 65);
-				addFieldWithLabel(hp,
-						msg.getMessage(msgPrefix + ".pathDescription"),
-						entry.getValue(), 2);
-				content.addComponent(hp);
+				addField(pa, String.valueOf(i), endpoint.getContextAddress()
+						+ entry.getKey());
+				addField(pad, msg.getMessage(msgPrefix + ".pathDescription"),
+						entry.getValue());
 
 			}
+			Label space = new Label();
+			space.setWidth(15, Unit.PIXELS);
+			hp.addComponents(pa, space, pad);
+			content.addComponent(hp);
 
 			StringBuilder bindings = new StringBuilder();
 			for (String s : endpoint.getType().getSupportedBindings())
@@ -359,23 +371,25 @@ public class SingleEndpointComponent extends SingleComponent
 
 			}
 			// Bindings
-			addFieldWithLabel(content, msg.getMessage(msgPrefix + ".bindings"),
-					bindings.toString(), 35);
+			addFieldToContent(msg.getMessage(msgPrefix + ".binding"),
+					bindings.toString());
 
 			if (endpoint.getDescription() != null
 					&& endpoint.getDescription().length() > 0)
 			{
-				addFieldWithLabel(content,
-						msg.getMessage(msgPrefix + ".description"),
-						endpoint.getDescription(), 19);
+				addFieldToContent(msg.getMessage(msgPrefix + ".description"),
+						endpoint.getDescription());
 
 			}
-			addFieldWithLabel(content, msg.getMessage(msgPrefix + ".contextAddress"),
-					endpoint.getContextAddress(), 19);
+			addFieldToContent(msg.getMessage(msgPrefix + ".contextAddress"),
+					endpoint.getContextAddress());
 
 			i = 0;
-			addFieldWithLabel(content,
-					msg.getMessage(msgPrefix + ".authenticatorsSet"), "", 19);
+			addFieldToContent(msg.getMessage(msgPrefix + ".authenticatorsSet"), "");
+
+			FormLayout au = new FormLayout();
+			au.setSpacing(false);
+			au.setMargin(false);
 			for (AuthenticatorSet s : endpoint.getAuthenticatorSets())
 			{
 				i++;
@@ -387,10 +401,13 @@ public class SingleEndpointComponent extends SingleComponent
 					auth.append(a);
 				}
 				// Authenticators
-				addFieldWithLabel(content, String.valueOf(i), auth.toString(), 65);
+				addField(au, String.valueOf(i), auth.toString());
 
 			}
+			content.addComponent(au);
 		}
+		
+		
 
 	}
 
