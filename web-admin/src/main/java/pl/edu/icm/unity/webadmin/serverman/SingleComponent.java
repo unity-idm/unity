@@ -29,7 +29,7 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
-public class SingleComponent extends CustomComponent
+public abstract class SingleComponent extends CustomComponent
 {
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SingleComponent.class);
@@ -274,15 +274,9 @@ public class SingleComponent extends CustomComponent
 
 	}
 
-	protected void updateContent()
-	{
+	protected abstract void updateContent();
 
-	}
-
-	protected void updateHeader()
-	{
-
-	}
+	protected abstract void updateHeader();
 
 	protected boolean deploy()
 	{
@@ -323,7 +317,7 @@ public class SingleComponent extends CustomComponent
 	{
 		Label val = new Label(value, ContentMode.HTML);
 		val.setCaption(name + ":");
-		val.addStyleName("bold");
+		val.addStyleName(Styles.captionBold.toString());
 		parent.addComponents(val);
 
 	}

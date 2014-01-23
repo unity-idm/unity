@@ -25,7 +25,6 @@ import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
-import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -161,7 +160,7 @@ public class SingleEndpointComponent extends SingleComponent
 								+ ".cannotReadJsonConfig"), e);
 						return false;
 					}
-					log.info("Deploy " + endpoint.getId() + " endpoint");
+					
 					try
 					{
 						this.endpoint = endpointMan.deploy(type,
@@ -206,7 +205,6 @@ public class SingleEndpointComponent extends SingleComponent
 		{
 			log.info("Reload " + endpoint.getId() + " endpoint");
 			boolean updated = false;
-			log.info("Reading all configured endpoints");
 			Set<String> endpointsList = config
 					.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
 			for (String endpointKey : endpointsList)

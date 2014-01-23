@@ -246,7 +246,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 
 			if (!existing.containsKey(name))
 			{
-				log.info("Add " + name + " [" + type + "]");
+				log.info("Add " + name + " [" + type + "] authenticator");
 				try
 				{
 					authMan.createAuthenticator(name, type, vJsonConfiguration,
@@ -262,7 +262,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 
 			} else
 			{
-				log.info("Update " + name + " [" + type + "]");
+				log.info("Update " + name + " [" + type + "] authenticator");
 				try
 				{
 					authMan.updateAuthenticator(name, vJsonConfiguration,

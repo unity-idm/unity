@@ -221,7 +221,6 @@ public class SingleAuthenticatorComponent extends SingleComponent
 						return false;
 					}
 
-					log.info("Add " + name + " [" + type + "]");
 					try
 					{
 						this.authenticator = authMan.createAuthenticator(

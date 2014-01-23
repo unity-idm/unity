@@ -26,7 +26,8 @@ public enum Styles
 	toolbarButton("u-toolbarButton"),
 	verticalLine("u-verticalLine"),
 	horizontalLine("u-horizontalLine"),
-	header("u-header");
+	header("u-header"),
+	captionBold("bold");
 	
 	
 	private String value;

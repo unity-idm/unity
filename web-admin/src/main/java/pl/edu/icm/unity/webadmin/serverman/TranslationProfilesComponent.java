@@ -199,7 +199,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 
 
 	private void reloadTranslationProfile()
-	{	log.info("Reloading translation profile");
+	{	log.info("Reloading all translation profiles");
 		try
 		{
 			config.reloadIfChanged();
@@ -248,7 +248,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			{
 				try
 				{
-					log.info("Update "+tp.getName());
+					log.info("Update "+tp.getName()+" translation profile");
 					profilesMan.updateProfile(tp);
 				} catch (EngineException e)
 				{
@@ -263,7 +263,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			} else
 			{
 				try
-				{	log.info("Add "+tp.getName());
+				{	log.info("Add "+tp.getName()+" translation profile");
 					profilesMan.addProfile(tp);
 				} catch (EngineException e)
 				{
@@ -283,7 +283,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		for (String tp : toRemove.keySet())
 		{
 			try
-			{	log.info("Remove "+tp);
+			{	log.info("Remove "+tp+" translation profile");
 				profilesMan.removeProfile(tp);
 			} catch (Exception e)
 			{

@@ -152,7 +152,6 @@ public class SingleTranslationProfileComponent extends SingleComponent
 				{
 					try
 					{
-						log.info("Add " + tp.getName());
 						profilesMan.addProfile(tp);
 					} catch (EngineException e)
 					{
@@ -214,7 +213,7 @@ public class SingleTranslationProfileComponent extends SingleComponent
 	{
 		if (super.reload())
 		{
-			log.info("Reload " + translationProfile.getName() + "translation profile");
+			log.info("Reload " + translationProfile.getName() + " translation profile");
 			boolean updated = false;
 
 			List<String> profileFiles = config
@@ -242,7 +241,7 @@ public class SingleTranslationProfileComponent extends SingleComponent
 				{
 					try
 					{
-						log.info("Update " + tp.getName());
+						log.info("Update " + tp.getName()+ " translation profile");
 						profilesMan.updateProfile(tp);
 					} catch (EngineException e)
 					{
