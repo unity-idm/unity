@@ -216,6 +216,7 @@ public abstract class DeployableComponentBase extends CustomComponent
 
 		}
 		footer.setVisible(content.isVisible());
+		separator.setVisible(!content.isVisible());
 
 	}
 
