@@ -204,7 +204,8 @@ public class TranslationProfilesComponent extends VerticalLayout
 		{
 			config.reloadIfChanged();
 		} catch (Exception e)
-		{	log.error("Cannot reload configuration",e);
+		{	
+			log.error("Cannot reload configuration",e);
 			ErrorPopup.showError(msg,
 					msg.getMessage(msgPrefix+".cannotReloadConfig"), e);
 			return;
@@ -263,7 +264,8 @@ public class TranslationProfilesComponent extends VerticalLayout
 			} else
 			{
 				try
-				{	log.info("Add "+tp.getName()+" translation profile");
+				{	
+					log.info("Add "+tp.getName()+" translation profile");
 					profilesMan.addProfile(tp);
 				} catch (EngineException e)
 				{
@@ -283,7 +285,8 @@ public class TranslationProfilesComponent extends VerticalLayout
 		for (String tp : toRemove.keySet())
 		{
 			try
-			{	log.info("Remove "+tp+" translation profile");
+			{	
+				log.info("Remove "+tp+" translation profile");
 				profilesMan.removeProfile(tp);
 			} catch (Exception e)
 			{
