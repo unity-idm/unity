@@ -36,16 +36,16 @@ import com.vaadin.ui.Label;
  * @author P. Piernik
  */
 @Component
-public class SingleEndpointComponent extends SingleComponent
+public class EndpointComponent extends DeployableComponentBase
 {
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
-			SingleEndpointComponent.class);
+			EndpointComponent.class);
 
 	private EndpointManagement endpointMan;
 	private EndpointDescription endpoint;
 
-	public SingleEndpointComponent(EndpointManagement endpointMan,
+	public EndpointComponent(EndpointManagement endpointMan,
 			EndpointDescription endpoint, UnityServerConfiguration config,
 			UnityMessageSource msg, String status, String msgPrefix)
 	{

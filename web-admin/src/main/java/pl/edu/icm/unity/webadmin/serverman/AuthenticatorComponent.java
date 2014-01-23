@@ -29,17 +29,17 @@ import com.vaadin.ui.Panel;
  * 
  * @author P. Piernik
  */
-public class SingleAuthenticatorComponent extends SingleComponent
+public class AuthenticatorComponent extends DeployableComponentBase
 {
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
-			SingleAuthenticatorComponent.class);
+			AuthenticatorComponent.class);
 
 	AuthenticatorInstance authenticator;
 
 	AuthenticationManagement authMan;
 
-	public SingleAuthenticatorComponent(AuthenticationManagement authMan,
+	public AuthenticatorComponent(AuthenticationManagement authMan,
 			AuthenticatorInstance authenticator, UnityServerConfiguration config,
 			UnityMessageSource msg, String status, String msgPrefix)
 	{

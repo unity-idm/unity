@@ -87,12 +87,8 @@ public class AuthenticatorImpl
 	public void setConfiguration(String rConfiguration, String vConfiguration)
 	{
 		retrieval.setSerializedConfiguration(rConfiguration);
-		instanceDescription.setRetrievalJsonConfiguration(rConfiguration);
-		if(vConfiguration!=null)
-		    setVerificatorConfiguration(vConfiguration);
-		else
-		    instanceDescription.setVerificatorJsonConfiguration(vConfiguration);
-			
+	        instanceDescription.setRetrievalJsonConfiguration(rConfiguration);
+	        setVerificatorConfiguration(vConfiguration);	
 	}
 	
 	public void setCredentialName(String credential)

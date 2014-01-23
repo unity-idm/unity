@@ -31,18 +31,18 @@ import com.vaadin.ui.FormLayout;
  * 
  * @author P. Piernik
  */
-public class SingleTranslationProfileComponent extends SingleComponent
+public class TranslationProfileComponent extends DeployableComponentBase
 {
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
-			SingleTranslationProfileComponent.class);
+			TranslationProfileComponent.class);
 
 	private TranslationProfileManagement profilesMan;
 	private TranslationActionsRegistry tactionsRegistry;
 	private ObjectMapper jsonMapper;
 	private TranslationProfile translationProfile;
 
-	public SingleTranslationProfileComponent(TranslationProfileManagement profilesMan,
+	public TranslationProfileComponent(TranslationProfileManagement profilesMan,
 			TranslationActionsRegistry tactionsRegistry, ObjectMapper jsonMapper,
 			TranslationProfile translationProfile, UnityServerConfiguration config,
 			UnityMessageSource msg, String status, String msgPrefix)

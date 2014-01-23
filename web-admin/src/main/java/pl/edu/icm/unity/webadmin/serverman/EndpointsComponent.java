@@ -80,6 +80,7 @@ public class EndpointsComponent extends VerticalLayout
 		Button refreshViewButton = new Button();
 		refreshViewButton.setIcon(Images.refresh.getResource());
 		refreshViewButton.addStyleName(Reindeer.BUTTON_LINK);
+		refreshViewButton.addStyleName(Styles.toolbarButton.toString());
 		refreshViewButton.addClickListener(new Button.ClickListener()
 		{
 
@@ -143,8 +144,8 @@ public class EndpointsComponent extends VerticalLayout
 		for (EndpointDescription endpointDesc : endpoints)
 		{
 
-			content.addComponent(new SingleEndpointComponent(endpointMan,
-					endpointDesc, config, msg,SingleEndpointComponent.STATUS_DEPLOYED,msgPrefix));
+			content.addComponent(new EndpointComponent(endpointMan,
+					endpointDesc, config, msg,EndpointComponent.STATUS_DEPLOYED,msgPrefix));
 			existing.add(endpointDesc.getId());
 		}
 		
@@ -164,8 +165,8 @@ public class EndpointsComponent extends VerticalLayout
 				EndpointDescription en=new EndpointDescription();
 				en.setId(name);
 				en.setDescription(description);
-				content.addComponent(new SingleEndpointComponent(endpointMan,
-						en, config, msg,SingleEndpointComponent.STATUS_UNDEPLOYED,msgPrefix));
+				content.addComponent(new EndpointComponent(endpointMan,
+						en, config, msg,EndpointComponent.STATUS_UNDEPLOYED,msgPrefix));
 				
 				
 				

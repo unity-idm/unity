@@ -87,6 +87,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		Button refreshViewButton = new Button();
 		refreshViewButton.setIcon(Images.refresh.getResource());
 		refreshViewButton.addStyleName(Reindeer.BUTTON_LINK);
+		refreshViewButton.addStyleName(Styles.toolbarButton.toString());
 		refreshViewButton.addClickListener(new Button.ClickListener()
 		{
 
@@ -103,6 +104,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		Button reloadAllButton = new Button();
 		reloadAllButton.setIcon(Images.transfer.getResource());
 		reloadAllButton.addStyleName(Reindeer.BUTTON_LINK);
+		reloadAllButton.addStyleName(Styles.toolbarButton.toString());
 		reloadAllButton.addClickListener(new Button.ClickListener()
 		{
 
@@ -163,7 +165,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		
 		for(TranslationProfile profile:existing.values())
 		{
-			content.addComponent(new SingleTranslationProfileComponent(profilesMan, tactionsRegistry, jsonMapper, profile, config, msg,SingleComponent.STATUS_DEPLOYED, msgPrefix));
+			content.addComponent(new TranslationProfileComponent(profilesMan, tactionsRegistry, jsonMapper, profile, config, msg,DeployableComponentBase.STATUS_DEPLOYED, msgPrefix));
 		}
 		
 		List<String> profileFiles = config
@@ -188,7 +190,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 
 			if (!existing.containsKey(tp.getName()))
 			{
-				content.addComponent(new SingleTranslationProfileComponent(profilesMan, tactionsRegistry, jsonMapper, tp, config, msg,SingleComponent.STATUS_UNDEPLOYED, msgPrefix));
+				content.addComponent(new TranslationProfileComponent(profilesMan, tactionsRegistry, jsonMapper, tp, config, msg,DeployableComponentBase.STATUS_UNDEPLOYED, msgPrefix));
 				
 			}
 		}

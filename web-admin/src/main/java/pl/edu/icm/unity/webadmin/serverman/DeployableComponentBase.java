@@ -29,10 +29,10 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
-public abstract class SingleComponent extends CustomComponent
+public abstract class DeployableComponentBase extends CustomComponent
 {
 
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SingleComponent.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, DeployableComponentBase.class);
 
 	public static final String STATUS_DEPLOYED = "deployed";
 	public static final String STATUS_UNDEPLOYED = "undeployed";
@@ -49,7 +49,7 @@ public abstract class SingleComponent extends CustomComponent
 	protected String msgPrefix;
 	protected Label separator;
 
-	public SingleComponent(UnityServerConfiguration config, UnityMessageSource msg,
+	public DeployableComponentBase(UnityServerConfiguration config, UnityMessageSource msg,
 			String status, String msgPrefix)
 	{
 
@@ -120,6 +120,7 @@ public abstract class SingleComponent extends CustomComponent
 		reloadButton = new Button();
 		reloadButton.setIcon(Images.transfer.getResource());
 		reloadButton.addStyleName(Reindeer.BUTTON_LINK);
+		reloadButton.addStyleName(Styles.toolbarButton.toString());
 		reloadButton.setDescription(msg.getMessage(msgPrefix + "." + "reload"));
 		reloadButton.addClickListener(new ClickListener()
 		{
@@ -135,8 +136,8 @@ public abstract class SingleComponent extends CustomComponent
 		undeplyButton = new Button();
 		undeplyButton.setIcon(Images.delete.getResource());
 		undeplyButton.addStyleName(Reindeer.BUTTON_LINK);
+		undeplyButton.addStyleName(Styles.toolbarButton.toString());
 		undeplyButton.setDescription(msg.getMessage(msgPrefix + "." + "undeploy"));
-
 		undeplyButton.addClickListener(new ClickListener()
 		{
 
@@ -162,6 +163,7 @@ public abstract class SingleComponent extends CustomComponent
 		deployButton = new Button();
 		deployButton.setIcon(Images.add.getResource());
 		deployButton.addStyleName(Reindeer.BUTTON_LINK);
+		deployButton.addStyleName(Styles.toolbarButton.toString());
 		deployButton.setDescription(msg.getMessage(msgPrefix + "." + "deploy"));
 
 		deployButton.addClickListener(new ClickListener()

@@ -79,6 +79,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		Button refreshViewButton = new Button();
 		refreshViewButton.setIcon(Images.refresh.getResource());
 		refreshViewButton.addStyleName(Reindeer.BUTTON_LINK);
+		refreshViewButton.addStyleName(Styles.toolbarButton.toString());
 		refreshViewButton.addClickListener(new Button.ClickListener()
 		{
 
@@ -94,6 +95,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		Button reloadAllButton = new Button();
 		reloadAllButton.setIcon(Images.transfer.getResource());
 		reloadAllButton.addStyleName(Reindeer.BUTTON_LINK);
+		reloadAllButton.addStyleName(Styles.toolbarButton.toString());
 		reloadAllButton.addClickListener(new Button.ClickListener()
 		{
 
@@ -155,8 +157,8 @@ public class AuthenticatorsComponent extends VerticalLayout
 		for (AuthenticatorInstance ai : authenticators)
 		{
 			existing.add(ai.getId());
-			content.addComponent(new SingleAuthenticatorComponent(authMan, ai, config,
-					msg, SingleEndpointComponent.STATUS_DEPLOYED,msgPrefix));
+			content.addComponent(new AuthenticatorComponent(authMan, ai, config,
+					msg, EndpointComponent.STATUS_DEPLOYED,msgPrefix));
 
 		}
 
@@ -170,9 +172,9 @@ public class AuthenticatorsComponent extends VerticalLayout
 			{
 				AuthenticatorInstance au = new AuthenticatorInstance();
 				au.setId(name);
-				content.addComponent(new SingleAuthenticatorComponent(authMan, au,
+				content.addComponent(new AuthenticatorComponent(authMan, au,
 						config, msg,
-						SingleEndpointComponent.STATUS_UNDEPLOYED,msgPrefix));
+						EndpointComponent.STATUS_UNDEPLOYED,msgPrefix));
 			}
 		}
 
