@@ -47,6 +47,7 @@ public abstract class SingleComponent extends CustomComponent
 	protected Button deployButton;
 	protected String status;
 	protected String msgPrefix;
+	protected Label separator;
 
 	public SingleComponent(UnityServerConfiguration config, UnityMessageSource msg,
 			String status, String msgPrefix)
@@ -67,15 +68,11 @@ public abstract class SingleComponent extends CustomComponent
 		header.setSpacing(true);
 		header.setColumnExpandRatio(2, 0);
 
-		Label line = new Label();
-		line.addStyleName(Styles.horizontalLine.toString());
-		main.addComponent(line);
-
 		main.addComponent(header);
 		
-		line = new Label();
-		line.addStyleName(Styles.horizontalLine.toString());
-		main.addComponent(line);
+		separator = new Label();
+		separator.addStyleName(Styles.horizontalLine.toString());
+		main.addComponent(separator);
 
 		content = new FormLayout();
 		content.setVisible(false);
@@ -83,7 +80,7 @@ public abstract class SingleComponent extends CustomComponent
 		main.addComponent(content);
 		
 		footer = new HorizontalLayout();
-		line = new Label();
+		Label line = new Label();
 		line.addStyleName(Styles.horizontalLine.toString());
 		footer.setSpacing(false);
 		footer.setMargin(false);
@@ -106,11 +103,13 @@ public abstract class SingleComponent extends CustomComponent
 				if (content.isVisible())
 				{
 					showHideContentButton.setIcon(Images.zoomin.getResource());
+					separator.setVisible(true);
 					content.setVisible(false);
 					footer.setVisible(false);
 				} else
 				{
 					showHideContentButton.setIcon(Images.zoomout.getResource());
+					separator.setVisible(false);
 					content.setVisible(true);
 					footer.setVisible(true);
 				}
@@ -230,10 +229,8 @@ public abstract class SingleComponent extends CustomComponent
 		HorizontalLayout h=new HorizontalLayout();
 		h.setSpacing(true);
 		h.setMargin(false);
-		Label l=new Label(msg.getMessage(msgPrefix + "." + "name")+":");
-		l.addStyleName(Styles.bold.toString());
 		Label val=new Label(name);
-		h.addComponents(l,val);
+		h.addComponents(val);
 		nameFieldLayout.setMargin(false);
 		nameFieldLayout.setWidth(500, Unit.PIXELS);
 		
