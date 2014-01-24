@@ -37,7 +37,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
- * Show information about all authenticators
+ * Displays list of authenticator component 
  * 
  * @author P. Piernik
  */

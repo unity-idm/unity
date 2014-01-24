@@ -29,10 +29,17 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
-public abstract class DeployableComponentBase extends CustomComponent
+/**
+ * Represent base view of server deployable component.
+ * Contains header,collapsible content and buttons to callapse/expand and deploy/undeploy/reload
+ * 
+ * @author P. Piernik
+ *
+ */
+public abstract class DeployableComponentViewBase extends CustomComponent
 {
 
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, DeployableComponentBase.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, DeployableComponentViewBase.class);
 
 	public static final String STATUS_DEPLOYED = "deployed";
 	public static final String STATUS_UNDEPLOYED = "undeployed";
@@ -49,7 +56,7 @@ public abstract class DeployableComponentBase extends CustomComponent
 	protected String msgPrefix;
 	protected Label separator;
 
-	public DeployableComponentBase(UnityServerConfiguration config, UnityMessageSource msg,
+	public DeployableComponentViewBase(UnityServerConfiguration config, UnityMessageSource msg,
 			String status, String msgPrefix)
 	{
 
@@ -67,7 +74,7 @@ public abstract class DeployableComponentBase extends CustomComponent
 		header = new GridLayout(10, 1);
 		header.setSpacing(true);
 		header.setColumnExpandRatio(2, 0);
-
+		
 		main.addComponent(header);
 		
 		separator = new Label();

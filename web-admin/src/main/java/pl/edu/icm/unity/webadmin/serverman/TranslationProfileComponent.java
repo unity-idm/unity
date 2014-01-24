@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
@@ -27,11 +28,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.ui.FormLayout;
 
 /**
- * Show translation profile
+ * Display translation profile fields with values
+ * Allow deploy/undeploy/reload translation profile
  * 
  * @author P. Piernik
- */
-public class TranslationProfileComponent extends DeployableComponentBase
+ */ 
+@Component
+class TranslationProfileComponent extends DeployableComponentViewBase
 {
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,

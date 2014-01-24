@@ -37,7 +37,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
- * Show information about all endpoints
+ * Displays list of endpoint component 
  * 
  * @author P. Piernik
  */

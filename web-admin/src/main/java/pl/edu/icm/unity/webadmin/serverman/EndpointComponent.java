@@ -31,12 +31,13 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
 /**
- * Show endpoint
+ * Display endpoint fields with values
+ * Allow deploy/undeploy/reload endpoint  
  * 
  * @author P. Piernik
  */
 @Component
-public class EndpointComponent extends DeployableComponentBase
+public class EndpointComponent extends DeployableComponentViewBase
 {
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,

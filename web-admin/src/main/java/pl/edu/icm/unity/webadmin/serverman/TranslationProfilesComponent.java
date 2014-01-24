@@ -38,7 +38,7 @@ import com.vaadin.ui.themes.Reindeer;
 
 
 /**
- * Show information about all translation profiles
+ * Displays list of translation profile component 
  * 
  * @author P. Piernik
  */
@@ -165,7 +165,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		
 		for(TranslationProfile profile:existing.values())
 		{
-			content.addComponent(new TranslationProfileComponent(profilesMan, tactionsRegistry, jsonMapper, profile, config, msg,DeployableComponentBase.STATUS_DEPLOYED, msgPrefix));
+			content.addComponent(new TranslationProfileComponent(profilesMan, tactionsRegistry, jsonMapper, profile, config, msg,DeployableComponentViewBase.STATUS_DEPLOYED, msgPrefix));
 		}
 		
 		List<String> profileFiles = config
@@ -190,7 +190,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 
 			if (!existing.containsKey(tp.getName()))
 			{
-				content.addComponent(new TranslationProfileComponent(profilesMan, tactionsRegistry, jsonMapper, tp, config, msg,DeployableComponentBase.STATUS_UNDEPLOYED, msgPrefix));
+				content.addComponent(new TranslationProfileComponent(profilesMan, tactionsRegistry, jsonMapper, tp, config, msg,DeployableComponentViewBase.STATUS_UNDEPLOYED, msgPrefix));
 				
 			}
 		}

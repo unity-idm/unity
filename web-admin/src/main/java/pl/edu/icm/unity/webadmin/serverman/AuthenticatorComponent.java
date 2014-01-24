@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
@@ -25,11 +26,13 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 
 /**
- * Show authenticator
+ * Display authenticator fields with values
+ * Allow deploy/undeploy/reload authenticator
  * 
  * @author P. Piernik
  */
-public class AuthenticatorComponent extends DeployableComponentBase
+@Component
+public class AuthenticatorComponent extends DeployableComponentViewBase
 {
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
