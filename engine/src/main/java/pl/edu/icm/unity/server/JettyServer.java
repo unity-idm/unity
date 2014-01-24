@@ -111,11 +111,28 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 		handlersCollection.addHandler(new DefaultHandler());
 		return handlersCollection;
 	}
-	
+
+	/**
+	 * Deploys a classic Unity endpoint.
+	 * @param endpoint
+	 * @throws EngineException
+	 */
 	public synchronized void deployEndpoint(WebAppEndpointInstance endpoint) 
 			throws EngineException
 	{
-		ServletContextHandler handler = endpoint.getServletContextHandler(); 
+		ServletContextHandler handler = endpoint.getServletContextHandler();
+		deployHandler(handler);
+		deployedEndpoints.add(endpoint);
+	}
+	
+	/**
+	 * Deploys a simple handler. It is only checked if the context path is free.
+	 * @param handler
+	 * @throws EngineException
+	 */
+	public synchronized void deployHandler(ServletContextHandler handler) 
+			throws EngineException
+	{
 		String contextPath = handler.getContextPath();
 		if (usedContextPaths.containsKey(contextPath))
 		{
@@ -134,7 +151,6 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 			throw new EngineException("Can not start handler", e);
 		}
 		usedContextPaths.put(contextPath, handler);
-		deployedEndpoints.add(endpoint);
 	}
 	
 	public synchronized void undeployEndpoint(String id) throws EngineException

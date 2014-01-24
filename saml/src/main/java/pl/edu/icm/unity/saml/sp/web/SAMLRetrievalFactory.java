@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
+import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.server.JettyServer;
+import pl.edu.icm.unity.server.api.SharedEndpointManagement;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.CredentialRetrievalFactory;
@@ -30,6 +32,11 @@ public class SAMLRetrievalFactory implements CredentialRetrievalFactory
 	private UnityMessageSource msg;
 	@Autowired
 	private JettyServer jettyServer;
+	@Autowired
+	private SharedEndpointManagement sharedEndpointMan;
+	@Autowired
+	private SamlContextManagement samlContextManagement;
+
 	
 	@Override
 	public String getName()
@@ -46,7 +53,7 @@ public class SAMLRetrievalFactory implements CredentialRetrievalFactory
 	@Override
 	public CredentialRetrieval newInstance()
 	{
-		return new SAMLRetrieval(msg, jettyServer);
+		return new SAMLRetrieval(msg, jettyServer, sharedEndpointMan, samlContextManagement);
 	}
 
 	@Override

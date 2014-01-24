@@ -105,7 +105,8 @@
 
 	<!-- Currently simplistic -->
 	<bean class="pl.edu.icm.unity.engine.PKIManagementImpl"/>
-
+	<bean class="pl.edu.icm.unity.engine.SharedEndpointManagementImpl"/>
+	
 	<bean class="pl.edu.icm.unity.engine.AttributesInternalProcessingImpl"/>
 	
 	<bean class="pl.edu.icm.unity.engine.internal.EngineInitialization"/>

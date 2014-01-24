@@ -20,7 +20,7 @@ public interface SAMLExchange extends CredentialExchange
 {
 	public static final String ID = "SAML2 exchange";
 	
-	public AuthnRequestDocument createSAMLRequest(String identityProviderURL, String returnURL);
+	public AuthnRequestDocument createSAMLRequest(String identityProviderURL, String returnURL, boolean sign);
 	public SAMLSPProperties getSamlValidatorSettings();
 	public AuthenticationResult verifySAMLResponse(RemoteAuthnContext authnContext) throws AuthenticationException;
 }

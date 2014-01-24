@@ -7,7 +7,9 @@ package pl.edu.icm.unity.saml.sp.web;
 import java.net.URL;
 
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
+import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.server.JettyServer;
+import pl.edu.icm.unity.server.api.SharedEndpointManagement;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -26,11 +28,17 @@ public class SAMLRetrieval implements CredentialRetrieval, VaadinAuthentication
 	private UnityMessageSource msg;
 	private SAMLExchange credentialExchange;
 	private URL baseAddress;
-
-	public SAMLRetrieval(UnityMessageSource msg, JettyServer jettyServer)
+	private String baseContext;
+	private SamlContextManagement samlContextManagement;
+	
+	public SAMLRetrieval(UnityMessageSource msg, JettyServer jettyServer, 
+			SharedEndpointManagement sharedEndpointMan,
+			SamlContextManagement samlContextManagement)
 	{
 		this.msg = msg;
 		this.baseAddress = jettyServer.getAdvertisedAddress();
+		this.baseContext = sharedEndpointMan.getBaseContextPath();
+		this.samlContextManagement = samlContextManagement;
 	}
 
 	@Override
@@ -60,7 +68,8 @@ public class SAMLRetrieval implements CredentialRetrieval, VaadinAuthentication
 	@Override
 	public VaadinAuthenticationUI createUIInstance()
 	{
-		return new SAMLRetrievalUI(msg, credentialExchange, baseAddress);
+		return new SAMLRetrievalUI(msg, credentialExchange, baseAddress, baseContext,
+				samlContextManagement);
 	}
 }
 

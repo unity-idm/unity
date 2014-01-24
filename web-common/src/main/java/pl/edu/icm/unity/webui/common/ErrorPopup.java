@@ -133,6 +133,7 @@ public class ErrorPopup
 				Label headerL = new Label(header, ContentMode.HTML);
 				headerL.addStyleName(Styles.textXLarge.toString());
 				headerL.addStyleName(Styles.bold.toString());
+				headerL.setWidth(20, Unit.EM);
 				if (type == Type.ERROR_MESSAGE)
 					headerL.addStyleName(Styles.error.toString());
 				right.addComponent(headerL);

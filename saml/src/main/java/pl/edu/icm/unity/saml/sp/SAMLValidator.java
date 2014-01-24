@@ -99,7 +99,7 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 	}
 
 	@Override
-	public AuthnRequestDocument createSAMLRequest(String identityProviderURL, String returnURL) 
+	public AuthnRequestDocument createSAMLRequest(String identityProviderURL, String returnURL, boolean sign) 
 			throws InternalException
 	{
 		String requestrId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
@@ -113,7 +113,7 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 		request.getXMLBean().setDestination(identityProviderURL);
 		request.getXMLBean().setAssertionConsumerServiceURL(returnURL);
 
-		if (samlProperties.getBooleanValue(SAMLSPProperties.SIGN_REQUEST))
+		if (sign)
 		{
 			try
 			{

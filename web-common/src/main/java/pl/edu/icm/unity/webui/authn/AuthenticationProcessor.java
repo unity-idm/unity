@@ -33,7 +33,6 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 import com.vaadin.server.Page;
-import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedHttpSession;
 import com.vaadin.server.WrappedSession;
@@ -69,9 +68,8 @@ public class AuthenticationProcessor
 		this.credEditorReg = credEditorReg;
 	}
 
-	public void processResults(List<AuthenticationResult> results) throws AuthenticationException
+	public void processResults(List<AuthenticationResult> results, String clientIp) throws AuthenticationException
 	{
-		String ip = VaadinService.getCurrentRequest().getRemoteAddr();
 		UnsuccessfulAuthenticationCounter counter = getLoginCounter();
 		AuthenticatedEntity logInfo;
 		try
@@ -80,7 +78,7 @@ public class AuthenticationProcessor
 		} catch (AuthenticationException e)
 		{
 			if (!(e instanceof UnknownRemoteUserException))
-				counter.unsuccessfulAttempt(ip);
+				counter.unsuccessfulAttempt(clientIp);
 			throw e;
 		}
 		setLabel(logInfo);

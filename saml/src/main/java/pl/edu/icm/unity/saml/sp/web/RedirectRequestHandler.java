@@ -73,7 +73,8 @@ public class RedirectRequestHandler implements RequestHandler
 
 		log.debug("Starting SAML HTTP POST binding exchange with IdP " + context.getIdpUrl());
 		String htmlResponse = HttpPostBindingSupport.getHtmlPOSTFormContents(
-				SAMLMessageType.SAMLRequest, context.getIdpUrl(), context.getRequest(), null);
+				SAMLMessageType.SAMLRequest, context.getIdpUrl(), context.getRequest(), 
+				context.getRelayState());
 		if (log.isTraceEnabled())
 		{
 			log.trace("SAML request is:\n" + context.getRequest());
@@ -88,8 +89,8 @@ public class RedirectRequestHandler implements RequestHandler
 		response.setHeader("Cache-Control","no-cache,no-store");
 		response.setHeader("Pragma","no-cache");
 		log.debug("Starting SAML HTTP Redirect binding exchange with IdP " + context.getIdpUrl());
-		String redirectURL = HttpRedirectBindingSupport.getRedirectURL(SAMLMessageType.SAMLRequest, null, 
-				context.getRequest(), context.getIdpUrl());
+		String redirectURL = HttpRedirectBindingSupport.getRedirectURL(SAMLMessageType.SAMLRequest, 
+				context.getRelayState(), context.getRequest(), context.getIdpUrl());
 		if (log.isTraceEnabled())
 		{
 			log.trace("SAML request is:\n" + context.getRequest());

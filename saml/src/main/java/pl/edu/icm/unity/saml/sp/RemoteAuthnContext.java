@@ -5,6 +5,8 @@
 package pl.edu.icm.unity.saml.sp;
 
 import java.io.Serializable;
+import java.util.Date;
+import java.util.concurrent.ThreadLocalRandom;
 
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.Binding;
 
@@ -15,6 +17,8 @@ import pl.edu.icm.unity.saml.sp.SAMLSPProperties.Binding;
  */
 public class RemoteAuthnContext implements Serializable
 {
+	private Date creationTime;
+	private String relayState;
 	private String request;
 	private String requestId;
 	private String spUrl;
@@ -22,19 +26,43 @@ public class RemoteAuthnContext implements Serializable
 	private Binding requestBinding;
 	private Binding responseBinding;
 	private String response;
+	private String returnUrl;
 
+
+	public RemoteAuthnContext()
+	{
+		this.relayState = String.valueOf(ThreadLocalRandom.current().nextLong()) + 
+				String.valueOf(ThreadLocalRandom.current().nextLong());
+		this.creationTime = new Date();
+	}
+
+	public synchronized String getReturnUrl()
+	{
+		return returnUrl;
+	}
+
+	public synchronized Date getCreationTime()
+	{
+		return creationTime;
+	}
+
+	public synchronized String getRelayState()
+	{
+		return relayState;
+	}
 	public synchronized String getRequest()
 	{
 		return request;
 	}
 	public synchronized void setRequest(String request, String requestId, String spUrl,
-			Binding requestBinding, String idpUrl)
+			Binding requestBinding, String idpUrl, String returnUrl)
 	{
 		this.request = request;
 		this.requestId = requestId;
 		this.spUrl = spUrl;
 		this.requestBinding = requestBinding;
 		this.idpUrl = idpUrl;
+		this.returnUrl = returnUrl;
 	}
 	
 	public synchronized void setResponse(String response, Binding responseBinding)

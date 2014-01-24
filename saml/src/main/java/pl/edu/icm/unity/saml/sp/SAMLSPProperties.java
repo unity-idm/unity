@@ -28,7 +28,7 @@ import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 
 /**
- * Configuration of a SAML requester (or SAML SP) - binding and IdP independent part.
+ * Configuration of a SAML requester (or SAML SP).
  * @author K. Benedyczak
  */
 public class SAMLSPProperties extends PropertiesHelper
@@ -48,7 +48,6 @@ public class SAMLSPProperties extends PropertiesHelper
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
 	
 	public static final String REQUESTER_ID = "requesterEntityId";
-	public static final String SIGN_REQUEST = "signRequest";
 	public static final String CREDENTIAL = "requesterCredential";
 	public static final String REQUESTED_NAME_FORMAT = "requestedNameFormat";
 	public static final String ACCEPTED_NAME_FORMATS = "acceptedNameFormats.";
@@ -61,8 +60,10 @@ public class SAMLSPProperties extends PropertiesHelper
 	public static final String IDP_ADDRESS = "address";
 	public static final String IDP_BINDING = "binding";
 	public static final String IDP_CERTIFICATE = "certificate";
+	public static final String IDP_SIGN_REQUEST = "signRequest";
 
 	public static final String TRANSLATION_PROFILE = "translationProfile";
+	public static final String REGISTRATION_FORM = "registrationFormForUnknown";
 	
 	static
 	{
@@ -88,11 +89,11 @@ public class SAMLSPProperties extends PropertiesHelper
 		META.put(IDP_CERTIFICATE, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setMandatory().setCategory(common).setDescription(
 				"Certificate name (as used in centralized PKI store) of the IdP. This certificate is used to verify signature of SAML " +
 				"response and included assertions. Therefore it is of highest importance for the whole system security."));
+		META.put(IDP_SIGN_REQUEST, new PropertyMD("false").setCategory(common).setStructuredListEntry(IDP_PREFIX).setDescription(
+				"Controls whether the requests for this IdP should be signed."));
 		
 		META.put(REQUESTER_ID, new PropertyMD().setMandatory().setCategory(verificator).setDescription(
 				"SAML entity ID (must be a URI) of the lcoal SAML requester (or service provider)."));
-		META.put(SIGN_REQUEST, new PropertyMD("true").setCategory(verificator).setDescription(
-				"Controls whether the requests should be signed."));
 		META.put(CREDENTIAL, new PropertyMD().setCategory(verificator).setDescription(
 				"Local credential, used to sign requests. If signing is disabled it is not used."));
 		META.put(REQUESTED_NAME_FORMAT, new PropertyMD().setEnum(NameFormat.emailAddress).setCategory(verificator).setDescription(
@@ -110,8 +111,10 @@ public class SAMLSPProperties extends PropertiesHelper
 		META.put(TRANSLATION_PROFILE, new PropertyMD().setMandatory().setCategory(verificator).setDescription("Name of a translation" +
 				" profile, which will be used to map remotely obtained attributes and identity" +
 				" to the local counterparts. The profile should at least map the remote identity."));
-
 		
+		META.put(REGISTRATION_FORM, new PropertyMD().setCategory(webRetrieval).setDescription(
+				"Name of a registration form to be shown for a remotely authenticated principal who " +
+				"has no local account. If unset such users will be denied."));
 		META.put(DISPLAY_NAME, new PropertyMD("SAML authentication").setCategory(webRetrieval).setDescription(
 				"Name of the SAML authentication GUI component"));
 	}
@@ -122,11 +125,27 @@ public class SAMLSPProperties extends PropertiesHelper
 	{
 		super(P, properties, META, log);
 		this.pkiManagement = pkiMan;
-		if (getBooleanValue(SIGN_REQUEST))
+		Set<String> idpKeys = getStructuredListKeys(IDP_PREFIX);
+		boolean sign = false;
+		for (String idpKey: idpKeys)
+		{
+			boolean s = getBooleanValue(idpKey+IDP_SIGN_REQUEST);  
+			sign |= s;
+			if (s && getEnumValue(idpKey+IDP_BINDING, Binding.class) == Binding.HTTP_REDIRECT)
+			{
+				String name = getValue(idpKey+IDP_NAME);  
+				throw new ConfigurationException("IdP " + name + " is configured to use " +
+						"HTTP Redirect binding and sign requests. This is unsupported " +
+						"currently and against SAML interoperability specification.");
+			}
+			
+		}
+		if (sign)
 		{
 			String credential = getValue(CREDENTIAL);
 			if (credential == null)
-				throw new ConfigurationException("Credential must be defined when request signing is enabled.");
+				throw new ConfigurationException("Credential must be defined when " +
+						"request signing is enabled for at least one IdP.");
 			try
 			{
 				if (!pkiMan.getCredentialNames().contains(credential))
