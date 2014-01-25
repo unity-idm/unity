@@ -6,9 +6,9 @@ package pl.edu.icm.unity.saml.idp.web;
 
 import java.util.Calendar;
 
-import pl.edu.icm.unity.exceptions.AuthenticationException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 
 /**

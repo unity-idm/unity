@@ -24,7 +24,6 @@ import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.AssertionValidator;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.samly2.validators.SSOAuthnResponseValidator;
-import eu.unicore.security.AuthenticationException;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -32,6 +31,7 @@ import pl.edu.icm.unity.saml.NameFormat;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
@@ -174,7 +174,7 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 			return getResult(input);
 		} catch (EngineException e)
 		{
-			throw new AuthenticationException("Problem retrieving the contents of the (proper) SAML data", e);
+			throw new AuthenticationException("Problem retrieving the contents of the SAML data", e);
 		}
 	}
 	

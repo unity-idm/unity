@@ -10,8 +10,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.exceptions.AuthenticationException;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;

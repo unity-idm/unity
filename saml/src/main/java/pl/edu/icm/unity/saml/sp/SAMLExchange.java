@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.saml.sp;
 
-import pl.edu.icm.unity.exceptions.AuthenticationException;
+import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;

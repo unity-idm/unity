@@ -15,6 +15,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.AbstractVerificator;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
@@ -66,9 +67,17 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 	 * @return
 	 * @throws EngineException 
 	 */
-	protected AuthenticationResult getResult(RemotelyAuthenticatedInput input) throws EngineException
+	protected AuthenticationResult getResult(RemotelyAuthenticatedInput input) throws AuthenticationException
 	{
-		RemotelyAuthenticatedContext context = processRemoteInput(input);
+		RemotelyAuthenticatedContext context;
+		try
+		{
+			context = processRemoteInput(input);
+		} catch (EngineException e)
+		{
+			throw new AuthenticationException("The mapping of the remtely authenticated " +
+					"principal to a local representation failed", e);
+		}
 		return assembleAuthenticationResult(context);
 	}
 	
@@ -82,7 +91,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 	 * @throws EngineException 
 	 */
 	protected AuthenticationResult assembleAuthenticationResult(RemotelyAuthenticatedContext remoteContext) 
-			throws EngineException
+			throws AuthenticationException
 	{
 		IdentityTaV remoteIdentityMapped = remoteContext.getPrimaryIdentity();
 		if (remoteIdentityMapped == null)
@@ -97,7 +106,14 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 			return new AuthenticationResult(Status.success, remoteContext, authenticatedEntity);
 		} catch (IllegalIdentityValueException ie)
 		{
-			return new AuthenticationResult(Status.unknownRemotePrincipal, remoteContext, null);
+			AuthenticationResult r = new AuthenticationResult(Status.unknownRemotePrincipal, 
+					remoteContext, null);
+			throw new AuthenticationException(r, "The mapped identity is not present in the local " +
+					"user store.");
+		} catch (EngineException e)
+		{
+			throw new AuthenticationException("Problem occured when searching for the " +
+					"mapped, remotely authenticated identity in the local user store", e);
 		}
 	}
 	

@@ -16,6 +16,7 @@ import pl.edu.icm.unity.saml.sp.SAMLResponseConsumerServlet;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.Binding;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
@@ -38,6 +39,7 @@ import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.VaadinServletService;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
@@ -48,7 +50,6 @@ import com.vaadin.ui.themes.Reindeer;
  * The UI part of the remote SAML authn. Shows widget allowing to choose IdP (if more then one is configured)
  * starts the authN and awaits for answer in the context. When it is there, the validator is contacted for verification.
  * It is also possible to cancel the authentication which is in progress.
- * FIXME - review synchro
  * @author K. Benedyczak
  */
 public class SAMLRetrievalUI implements VaadinAuthenticationUI
@@ -63,6 +64,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	
 	private String selectedIdp;
 	private Label messageLabel;
+	private Label errorDetailLabel;
 	private ResponseWaitingThread waitingThread;
 	private SamlContextManagement samlContextManagement;
 	
@@ -131,8 +133,13 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		selectedIdp = idps.iterator().next();
 		
 		messageLabel = new Label();
+		messageLabel.setContentMode(ContentMode.HTML);
 		messageLabel.addStyleName(Styles.error.toString());
-		ret.addComponents(messageLabel);
+		errorDetailLabel = new Label();
+		errorDetailLabel.setContentMode(ContentMode.HTML);
+		errorDetailLabel.addStyleName(Styles.italic.toString());
+		errorDetailLabel.setVisible(false);
+		ret.addComponents(messageLabel, errorDetailLabel);
 
 		checkInProgress();
 		
@@ -197,9 +204,16 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		if (message == null)
 		{
 			messageLabel.setValue("");
+			errorDetailLabel.setVisible(false);
 			return;
 		}
 		messageLabel.setValue(message);
+	}
+
+	private void showErrorDetail(String message)
+	{
+		errorDetailLabel.setVisible(true);
+		errorDetailLabel.setValue(message);
 	}
 	
 	private void startLogin(String idpKey)
@@ -256,27 +270,35 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		AuthenticationResult authnResult;
 		try
 		{
-			//TODO - better error reporting
 			try
 			{
 				authnResult = credentialExchange.verifySAMLResponse(authnContext);
+			} catch (AuthenticationException e)
+			{
+				log.warn("SAML response verification or processing failed", e);
+				String reason = ErrorPopup.getHumanMessage(e, "<br>");
+				showErrorDetail(msg.getMessage("WebSAMLRetrieval.authnFailedDetailInfo", reason));
+				authnResult = e.getResult();
 			} catch (Exception e)
 			{
-				log.error("SAML response verification failed", e);
+				log.error("Runtime error during SAML response processing or principal mapping", e);
 				authnResult = new AuthenticationResult(Status.deny, null);
 			}
+
 			if (authnResult.getStatus() == Status.success)
 			{
 				showError(null);
-			} else if (authnResult.getStatus() == Status.deny)
-			{
-				showError(msg.getMessage("WebSAMLRetrieval.authnFailedError"));
 			} else if (authnResult.getStatus() == Status.unknownRemotePrincipal && 
 					registrationFormForUnknown != null) 
 			{
 				authnResult.setFormForUnknownPrincipal(registrationFormForUnknown);
 				showError(null);
+			} else
+			{
+				showError(msg.getMessage("WebSAMLRetrieval.authnFailedError"));
 			}
+
+			
 			breakLogin(false);
 		} finally
 		{

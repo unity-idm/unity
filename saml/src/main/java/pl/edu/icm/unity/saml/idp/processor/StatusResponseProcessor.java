@@ -6,13 +6,13 @@ package pl.edu.icm.unity.saml.idp.processor;
 
 import org.apache.xmlbeans.XmlObject;
 
-import pl.edu.icm.unity.exceptions.AuthenticationException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.SamlProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLContext;
+import pl.edu.icm.unity.server.authn.AuthenticationException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.RequestAbstractType;
 import eu.unicore.samly2.SAMLConstants;

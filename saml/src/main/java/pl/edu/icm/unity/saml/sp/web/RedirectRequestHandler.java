@@ -8,10 +8,7 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.saml.sp.HttpPostBindingSupport;
-import pl.edu.icm.unity.saml.sp.HttpRedirectBindingSupport;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
-import pl.edu.icm.unity.saml.sp.SAMLMessageType;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.Binding;
 import pl.edu.icm.unity.server.utils.Log;
 
@@ -21,6 +18,10 @@ import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
+
+import eu.unicore.samly2.binding.HttpPostBindingSupport;
+import eu.unicore.samly2.binding.HttpRedirectBindingSupport;
+import eu.unicore.samly2.binding.SAMLMessageType;
 
 /**
  * Custom Vaadin {@link RequestHandler} which is used to produce a proper GET response to the browser, 

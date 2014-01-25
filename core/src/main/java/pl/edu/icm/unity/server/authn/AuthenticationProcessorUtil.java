@@ -6,7 +6,6 @@ package pl.edu.icm.unity.server.authn;
 
 import java.util.List;
 
-import pl.edu.icm.unity.exceptions.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
 

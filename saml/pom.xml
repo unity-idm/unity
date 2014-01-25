@@ -73,5 +73,10 @@
 			<groupId>org.freemarker</groupId>
 			<artifactId>freemarker</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>eu.unicore.security</groupId>
+			<artifactId>securityLibrary</artifactId>
+		</dependency>
+		
 	</dependencies>
 </project>

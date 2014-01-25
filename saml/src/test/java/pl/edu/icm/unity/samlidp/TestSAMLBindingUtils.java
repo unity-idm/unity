@@ -10,7 +10,8 @@ import java.io.UnsupportedEncodingException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import pl.edu.icm.unity.saml.sp.HttpRedirectBindingSupport;
+import eu.unicore.samly2.binding.HttpRedirectBindingSupport;
+
 
 public class TestSAMLBindingUtils
 {

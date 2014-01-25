@@ -61,8 +61,13 @@ public class ErrorPopup
 		}
 		showError(msg, message, description);
 	}
-	
+
 	public static String getHumanMessage(Throwable e)
+	{
+		return getHumanMessage(e, "; ");
+	}
+	
+	public static String getHumanMessage(Throwable e, String separator)
 	{
 		StringBuilder sb = new StringBuilder();
 		if (e instanceof AuthorizationException)
@@ -74,7 +79,7 @@ public class ErrorPopup
 			e = e.getCause();
 			if (e.getMessage() == null)
 				break;
-			sb.append("; ").append(e.getMessage());
+			sb.append(separator).append(e.getMessage());
 		}
 		return sb.toString();
 	}
