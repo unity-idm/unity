@@ -12,9 +12,10 @@
 	Problem occurred during authentication process.  
 	<br/><br/>
 	The error is: ${samlError}
-	</div>
+	<p>
 	You will be automatically redirected in 5s back to the service which requested 
 	authentication, with the above information.
+	</p>
 </#if>
 
 
