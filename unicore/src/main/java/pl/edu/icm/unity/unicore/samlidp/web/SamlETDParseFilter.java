@@ -14,6 +14,7 @@ import pl.edu.icm.unity.samlidp.FreemarkerHandler;
 import pl.edu.icm.unity.samlidp.SamlProperties;
 import pl.edu.icm.unity.samlidp.saml.SAMLProcessingException;
 import pl.edu.icm.unity.samlidp.saml.ctx.SAMLAuthnContext;
+import pl.edu.icm.unity.samlidp.web.EopException;
 import pl.edu.icm.unity.samlidp.web.filter.SamlParseFilter;
 import pl.edu.icm.unity.unicore.samlidp.saml.WebAuthWithETDRequestValidator;
 
@@ -31,7 +32,7 @@ public class SamlETDParseFilter extends SamlParseFilter
 	}
 
 	protected void validate(SAMLAuthnContext context, HttpServletResponse servletResponse) 
-			throws SAMLProcessingException, IOException
+			throws SAMLProcessingException, IOException, EopException
 	{
 		WebAuthWithETDRequestValidator validator = new WebAuthWithETDRequestValidator(endpointAddress, 
 				samlConfig.getAuthnTrustChecker(), samlConfig.getRequestValidity(), 

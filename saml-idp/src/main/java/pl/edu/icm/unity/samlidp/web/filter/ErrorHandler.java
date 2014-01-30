@@ -18,6 +18,7 @@ import pl.edu.icm.unity.samlidp.FreemarkerHandler;
 import pl.edu.icm.unity.samlidp.saml.SAMLProcessingException;
 import pl.edu.icm.unity.samlidp.saml.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.samlidp.saml.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.samlidp.web.EopException;
 import pl.edu.icm.unity.server.utils.Log;
 
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
@@ -62,9 +63,10 @@ public class ErrorHandler
 	 * @param response
 	 * @throws SAMLProcessingException
 	 * @throws IOException
+	 * @throws EopException 
 	 */
 	public void commitErrorResponse(SAMLAuthnContext samlCtx, SAMLServerException error, 
-			HttpServletResponse response) throws SAMLProcessingException, IOException
+			HttpServletResponse response) throws SAMLProcessingException, IOException, EopException
 	{
 		String serviceUrl = samlCtx.getRequestDocument().getAuthnRequest().getAssertionConsumerServiceURL();
 		if (serviceUrl == null)
@@ -86,9 +88,11 @@ public class ErrorHandler
 		response.setContentType("application/xhtml+xml; charset=utf-8");
 		PrintWriter w = response.getWriter();
 		freemarker.process("finishSaml.ftl", data, w);
+		throw new EopException();
 	}
 	
-	public void showErrorPage(SAMLProcessingException reason, HttpServletResponse response) throws IOException
+	public void showErrorPage(SAMLProcessingException reason, HttpServletResponse response) 
+			throws IOException, EopException
 	{
 		log.debug("SAML error is going to be shown to the user redirected to Unity IdP by the " +
 				"SAML requester", reason);
@@ -99,9 +103,11 @@ public class ErrorHandler
 		if (reason.getCause() != null)
 			data.put("errorCause", reason.getCause().toString());
 		freemarker.process("finishError.ftl", data, w);
+		throw new EopException();
 	}
 
-	public void showHoldOnPage(String request, String relayState, HttpServletResponse response) throws IOException
+	public void showHoldOnPage(String request, String relayState, HttpServletResponse response) 
+			throws IOException, EopException
 	{
 		response.setContentType("application/xhtml+xml; charset=utf-8");
 		PrintWriter w = response.getWriter();
@@ -110,5 +116,6 @@ public class ErrorHandler
 		if (relayState != null)
 			data.put("RelayState", relayState);
 		freemarker.process("holdonError.ftl", data, w);
+		throw new EopException();
 	}
 }

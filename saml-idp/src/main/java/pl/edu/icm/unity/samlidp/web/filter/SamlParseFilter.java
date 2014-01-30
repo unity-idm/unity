@@ -31,6 +31,7 @@ import pl.edu.icm.unity.samlidp.SamlProperties;
 import pl.edu.icm.unity.samlidp.saml.SAMLProcessingException;
 import pl.edu.icm.unity.samlidp.saml.WebAuthRequestValidator;
 import pl.edu.icm.unity.samlidp.saml.ctx.SAMLAuthnContext;
+import pl.edu.icm.unity.samlidp.web.EopException;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 
 /**
@@ -73,6 +74,18 @@ public class SamlParseFilter implements Filter
 	@Override
 	public void doFilter(ServletRequest requestBare, ServletResponse responseBare, FilterChain chain)
 			throws IOException, ServletException
+	{
+		try
+		{
+			doFilterInterruptible(requestBare, responseBare, chain);
+		} catch (EopException e)
+		{
+			//OK, that's fine, response was already committed
+		}
+	}
+	
+	protected void doFilterInterruptible(ServletRequest requestBare, ServletResponse responseBare, FilterChain chain)
+			throws IOException, ServletException, EopException
 	{
 		if (!(requestBare instanceof HttpServletRequest))
 			throw new ServletException("This filter can be used only for HTTP servlets");
@@ -120,6 +133,8 @@ public class SamlParseFilter implements Filter
 		chain.doFilter(request, response);
 	}
 
+	
+	
 	protected SAMLAuthnContext createSamlContext(HttpServletRequest request, AuthnRequestDocument samlRequest)
 	{
 		SAMLAuthnContext ret = new SAMLAuthnContext(samlRequest, samlConfig);
@@ -164,7 +179,7 @@ public class SamlParseFilter implements Filter
 	}
 
 	protected void validate(SAMLAuthnContext context, HttpServletResponse servletResponse) 
-			throws SAMLProcessingException, IOException
+			throws SAMLProcessingException, IOException, EopException
 	{
 		WebAuthRequestValidator validator = new WebAuthRequestValidator(endpointAddress, 
 				samlConfig.getAuthnTrustChecker(), samlConfig.getRequestValidity(), 
