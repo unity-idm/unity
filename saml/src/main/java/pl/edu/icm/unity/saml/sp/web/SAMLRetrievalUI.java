@@ -18,7 +18,6 @@ import pl.edu.icm.unity.saml.sp.SAMLSPProperties.Binding;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -338,17 +337,14 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	{
 		private RemoteAuthnContext context;
 		private boolean stop = false;
-		private InvocationContext invocationContext;
 		
 		public ResponseWaitingThread(RemoteAuthnContext context)
 		{
 			this.context = context;
-			this.invocationContext = InvocationContext.getCurrent();
 		}
 
 		public void safeRun()
 		{
-			InvocationContext.setCurrent(invocationContext);
 			while (!isStopped())
 			{
 				if (context.getResponse() == null)
