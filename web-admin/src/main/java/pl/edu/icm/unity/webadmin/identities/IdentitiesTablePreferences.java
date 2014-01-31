@@ -28,15 +28,15 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class IdentitiesTablePreferences implements JsonSerializable
 {
+	public static final String ID = IdentitiesTablePreferences.class.getName();
+	protected final ObjectMapper mapper = Constants.MAPPER;
+	private Map<String, ColumnSettings> colSettings;
+
 	public IdentitiesTablePreferences()
 	{
 		super();
 		colSettings = new HashMap<String, IdentitiesTablePreferences.ColumnSettings>();
 	}
-
-	public static final String ID = IdentitiesTablePreferences.class.getName();
-	protected final ObjectMapper mapper = Constants.MAPPER;
-	private Map<String, ColumnSettings> colSettings = new HashMap<String, IdentitiesTablePreferences.ColumnSettings>();
 
 	@Override
 	public String getSerializedConfiguration() throws InternalException
