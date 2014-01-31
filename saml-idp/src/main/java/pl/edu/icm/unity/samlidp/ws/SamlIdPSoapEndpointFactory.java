@@ -50,10 +50,10 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(CXFAuthentication.NAME);
-		Map<String,String> paths=new HashMap<String, String>();
-		paths.put(SERVLET_PATH,"SAML 2 identity provider web endpoint");
+		Map<String,String> paths = new HashMap<String, String>();
+		paths.put(SERVLET_PATH, "SAML 2 identity provider web endpoint");
 		description = new EndpointTypeDescription(NAME, 
-				"SAML 2 identity provider web endpoint", supportedAuthn,paths);
+				"SAML 2 identity provider web endpoint", supportedAuthn, paths);
 	}
 
 	@Override
