@@ -77,6 +77,8 @@ a regular expression can be used.
 [cols="m,n,n", options="header"]
 |=== 
 | Action name 		| Arguments 									| Description
+| mapIdentityByType | +sourceIdentityType+ +targetIdentityType+ +credentialRequirement+| Maps a remote identity by type to a local identity with a new type.
+| mapAttributeToIdentity| +attribute+ +identityType+ +credentialRequirement+  | Maps a remote attribute to a local identity with a given type.
 | mapIdentity 		| +replacedRE+ +replacement+ +credentialRequirement+  | Convert identity value to local representation & assigns credential requirement.
 | mapGroup 			| +replacedRE+ +replacement+ 					| Converts group to local representation.
 | mapAttribute		| +replacedRE+ +replacement+ +group+			| Convert attribute names and assign them to a local group.
@@ -90,7 +92,6 @@ A subset of all groups can be selected with parameter.
  Can work in two modes: either all attributes are added/updated or only the values are updated for
  those attributes which are already present locally.
 |===
-
 
 The following example rule maps all (the +true+ condition) remote identities to local representation
 without any identity change (the original identity is replaced with itself) and assigns it the 

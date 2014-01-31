@@ -27,4 +27,10 @@ public class RemoteIdentity extends RemoteInformationBase
 	{
 		this.identityType = identityType;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return getName() + " (" + identityType + ")";
+	}
 }

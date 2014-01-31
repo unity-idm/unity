@@ -115,6 +115,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		private UsernameProvider usernameProvider;
 		private PasswordField passwordField;
 		private CredentialEditor credEditor;
+		private AuthenticationResultCallback callback;
 
 		public PasswordRetrievalUI(CredentialEditor credEditor)
 		{
@@ -125,6 +126,12 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		public boolean needsCommonUsernameComponent()
 		{
 			return true;
+		}
+
+		@Override
+		public void setAuthenticationResultCallback(AuthenticationResultCallback callback)
+		{
+			this.callback = callback;
 		}
 
 		@Override
@@ -163,7 +170,13 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		}
 
 		@Override
-		public AuthenticationResult getAuthenticationResult()
+		public void triggerAuthentication()
+		{
+			callback.setAuthenticationResult(getAuthenticationResult());
+		}
+		
+
+		private AuthenticationResult getAuthenticationResult()
 		{
 			String username = usernameProvider.getUsername();
 			String password = passwordField.getValue();
@@ -224,6 +237,12 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 			CredentialReset1Dialog dialog = new CredentialReset1Dialog(msg, 
 					credentialExchange.getCredentialResetBackend(), credEditor);
 			dialog.show();
+		}
+
+		@Override
+		public void cancelAuthentication()
+		{
+			//do nothing
 		}
 	}
 }

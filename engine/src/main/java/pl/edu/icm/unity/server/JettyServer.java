@@ -27,6 +27,7 @@ import eu.unicore.util.jetty.JettyServerBase;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration;
@@ -50,9 +51,10 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 	private Map<String, ServletContextHandler> usedContextPaths;
 	
 	@Autowired
-	public JettyServer(UnityServerConfiguration cfg)
+	public JettyServer(UnityServerConfiguration cfg, PKIManagement pkiManagement)
 	{
-		super(createURLs(cfg.getJettyProperties()), cfg.getAuthAndTrust(), cfg.getJettyProperties(), null);
+		super(createURLs(cfg.getJettyProperties()), pkiManagement.getMainAuthnAndTrust(), 
+				cfg.getJettyProperties(), null);
 		initServer();
 	}
 
@@ -109,11 +111,28 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 		handlersCollection.addHandler(new DefaultHandler());
 		return handlersCollection;
 	}
-	
+
+	/**
+	 * Deploys a classic Unity endpoint.
+	 * @param endpoint
+	 * @throws EngineException
+	 */
 	public synchronized void deployEndpoint(WebAppEndpointInstance endpoint) 
 			throws EngineException
 	{
-		ServletContextHandler handler = endpoint.getServletContextHandler(); 
+		ServletContextHandler handler = endpoint.getServletContextHandler();
+		deployHandler(handler);
+		deployedEndpoints.add(endpoint);
+	}
+	
+	/**
+	 * Deploys a simple handler. It is only checked if the context path is free.
+	 * @param handler
+	 * @throws EngineException
+	 */
+	public synchronized void deployHandler(ServletContextHandler handler) 
+			throws EngineException
+	{
 		String contextPath = handler.getContextPath();
 		if (usedContextPaths.containsKey(contextPath))
 		{
@@ -132,7 +151,6 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 			throw new EngineException("Can not start handler", e);
 		}
 		usedContextPaths.put(contextPath, handler);
-		deployedEndpoints.add(endpoint);
 	}
 	
 	public synchronized void undeployEndpoint(String id) throws EngineException
@@ -175,6 +193,24 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 	public synchronized List<WebAppEndpointInstance> getDeployedEndpoints()
 	{
 		return new ArrayList<WebAppEndpointInstance>(deployedEndpoints);
+	}
+	
+	/**
+	 * @return base address of the server which should be used as its externally accessible address.
+	 */
+	public URL getAdvertisedAddress()
+	{
+		String advertisedHost = extraSettings.getValue(UnityHttpServerConfiguration.ADVERTISED_HOST);
+		if (advertisedHost == null)
+			return getUrls()[0];
+		URL url = getUrls()[0];
+		try {
+			return new URL(url.getProtocol(), advertisedHost, 
+					url.getPort(), url.getFile());
+		} catch (MalformedURLException e) {
+			throw new RuntimeException("Ups, URL can not " +
+					"be reconstructed, while it should", e);
+		}
 	}
 }
 

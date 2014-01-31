@@ -33,9 +33,9 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.notifications.NotificationChannelInstance;
 import pl.edu.icm.unity.notifications.NotificationFacility;
 import pl.edu.icm.unity.notifications.NotificationStatus;
+import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
 
 /**
@@ -53,14 +53,13 @@ public class EmailFacility implements NotificationFacility
 	private static final String CFG_TRUST_ALL = "mailx.smtp.trustAll";
 	
 	private ExecutorsService executorsService;
-	private UnityServerConfiguration serverConfig;
+	private PKIManagement pkiManagement;
 	
 	@Autowired
-	public EmailFacility(ExecutorsService executorsService,
-			UnityServerConfiguration serverConfig)
+	public EmailFacility(ExecutorsService executorsService, PKIManagement pkiManagement)
 	{
 		this.executorsService = executorsService;
-		this.serverConfig = serverConfig;
+		this.pkiManagement = pkiManagement;
 	}
 
 	@Override
@@ -138,7 +137,7 @@ public class EmailFacility implements NotificationFacility
 				props.put("mail.smtp.ssl.socketFactory", trustAllSF);
 			} else
 			{
-				X509CertChainValidator validator = serverConfig.getAuthAndTrust().getValidator();
+				X509CertChainValidator validator = pkiManagement.getMainAuthnAndTrust().getValidator();
 				SSLSocketFactory factory = SocketFactoryCreator.getSocketFactory(null, validator);
 				props.put("mail.smtp.ssl.socketFactory", factory);
 			}

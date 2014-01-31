@@ -10,12 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import eu.unicore.samly2.exceptions.SAMLServerException;
 
-import pl.edu.icm.unity.samlidp.FreemarkerHandler;
-import pl.edu.icm.unity.samlidp.SamlProperties;
-import pl.edu.icm.unity.samlidp.saml.SAMLProcessingException;
-import pl.edu.icm.unity.samlidp.saml.ctx.SAMLAuthnContext;
-import pl.edu.icm.unity.samlidp.web.EopException;
-import pl.edu.icm.unity.samlidp.web.filter.SamlParseFilter;
+import pl.edu.icm.unity.saml.SAMLProcessingException;
+import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
+import pl.edu.icm.unity.saml.idp.SamlProperties;
+import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
+import pl.edu.icm.unity.saml.idp.web.EopException;
+import pl.edu.icm.unity.saml.idp.web.filter.SamlParseFilter;
 import pl.edu.icm.unity.unicore.samlidp.saml.WebAuthWithETDRequestValidator;
 
 /**

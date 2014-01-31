@@ -28,7 +28,9 @@
 	<bean class="pl.edu.icm.unity.stdext.tactions.CreateUserActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.MapAttributeActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.MapGroupActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.tactions.MapAttributeToIdentityActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.MapIdentityActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.tactions.MapIdentityByTypeActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.UpdateAttributesActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.UpdateGroupsActionFactory"/>
 </beans>

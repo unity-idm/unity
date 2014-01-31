@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
@@ -34,17 +35,20 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 	private IdentitiesManagement identitiesMan;
 	private AttributesManagement attributesMan;
 	private PreferencesManagement preferencesMan;
+	private PKIManagement pkiManagement;
 	
 	
 	@Autowired
 	public SamlUnicoreIdPSoapEndpointFactory(UnityMessageSource msg, IdentitiesManagement identitiesMan,
-			AttributesManagement attributesMan, PreferencesManagement preferencesMan)
+			AttributesManagement attributesMan, PreferencesManagement preferencesMan,
+			PKIManagement pkiManagement)
 	{
 		super();
 		this.msg = msg;
 		this.identitiesMan = identitiesMan;
 		this.attributesMan = attributesMan;
 		this.preferencesMan = preferencesMan;
+		this.pkiManagement = pkiManagement;
 
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(CXFAuthentication.NAME);
@@ -62,6 +66,6 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new SamlUnicoreSoapEndpoint(msg, getDescription(), SERVLET_PATH, identitiesMan, 
-				attributesMan, preferencesMan);
+				attributesMan, preferencesMan, pkiManagement);
 	}
 }

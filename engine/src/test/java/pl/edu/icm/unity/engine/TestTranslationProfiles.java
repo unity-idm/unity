@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
@@ -22,8 +23,10 @@ import pl.edu.icm.unity.server.authn.remote.translation.TranslationCondition;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationRule;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.stdext.tactions.CreateUserActionFactory;
+import pl.edu.icm.unity.stdext.tactions.MapAttributeToIdentityActionFactory;
 import pl.edu.icm.unity.stdext.tactions.MapIdentityActionFactory;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -84,21 +87,27 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 				"(.*)", "$1", EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT);
 		rules.add(new TranslationRule(action1, new TranslationCondition(
 				"identities[\"cn=test\"] != null")));
-		
-		TranslationAction action2 = tactionReg.getByName(CreateUserActionFactory.NAME).getInstance(
-				"true");
+
+		TranslationAction action2 = tactionReg.getByName(MapAttributeToIdentityActionFactory.NAME).getInstance(
+				"uid", UsernameIdentity.ID, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT);
 		rules.add(new TranslationRule(action2, new TranslationCondition()));
+		
+		TranslationAction action3 = tactionReg.getByName(CreateUserActionFactory.NAME).getInstance(
+				"true");
+		rules.add(new TranslationRule(action3, new TranslationCondition()));
 		
 		TranslationProfile tp1 = new TranslationProfile("p1", rules);
 		
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		input.addIdentity(new RemoteIdentity("cn=test", X500Identity.ID));
+		input.addAttribute(new RemoteAttribute("uid", "foo"));
 		
 		tp1.translate(input);
 		
 		Entity entity = idsMan.getEntity(new EntityParam(new IdentityTaV(X500Identity.ID, "cn=test")));
 		assertEquals(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				entity.getCredentialInfo().getCredentialRequirementId());
+		assertEquals(3, entity.getIdentities().length);
 	}
 }
 

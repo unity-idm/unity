@@ -9,8 +9,8 @@ import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.event.Action.Handler;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.samlidp.preferences.SamlPreferences.SPSettings;
-import pl.edu.icm.unity.samlidp.preferences.SamlPreferencesEditor;
+import pl.edu.icm.unity.saml.idp.preferences.SamlPreferencesEditor;
+import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;

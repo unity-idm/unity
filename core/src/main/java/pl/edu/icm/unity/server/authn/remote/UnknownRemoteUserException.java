@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.server.authn.remote;
 
-import pl.edu.icm.unity.exceptions.AuthenticationException;
+import pl.edu.icm.unity.server.authn.AuthenticationException;
 
 /**
  * Thrown on authentication problem, when the user is properly authenticated remotely 

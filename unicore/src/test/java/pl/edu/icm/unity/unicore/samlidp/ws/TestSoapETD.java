@@ -62,10 +62,7 @@ public class TestSoapETD extends DBIntegrationTestBase
 			"unity.saml.defaultGroup=/\n" +
 			"unity.saml.groupAttribute=groups\n" +
 			"unity.saml.groupSelection=all\n" +
-			"unity.saml.credential.format=pkcs12\n" +
-			"unity.saml.credential.path=src/test/resources/demoKeystore.p12\n" +
-			"unity.saml.credential.keyAlias=uvos\n" +
-			"unity.saml.credential.password=the!uvos\n";
+			"unity.saml.credential=MAIN\n";
 
 	@Before
 	public void setup()

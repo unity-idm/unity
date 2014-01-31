@@ -72,7 +72,7 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-saml-idp</artifactId>
+			<artifactId>unity-server-saml</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

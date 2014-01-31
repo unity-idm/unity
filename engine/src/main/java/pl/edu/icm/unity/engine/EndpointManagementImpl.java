@@ -114,7 +114,7 @@ public class EndpointManagementImpl implements EndpointManagement
 			List<Map<String, BindingAuthn>> authenticators = authnLoader.getAuthenticators(
 					authenticatorsInfo, sql);
 			verifyAuthenticators(authenticators, factory.getDescription().getSupportedBindings());
-			instance.initialize(endpointName, httpServer.getUrls()[0], 
+			instance.initialize(endpointName, httpServer.getAdvertisedAddress(), 
 					address, description, authenticatorsInfo, authenticators, jsonConfiguration);
 
 			endpointDB.insert(endpointName, instance, sql);
@@ -233,7 +233,7 @@ public class EndpointManagementImpl implements EndpointManagement
 				authenticators = authnLoader.getAuthenticators(newAuthn, sql);
 			}
 
-			newInstance.initialize(id, httpServer.getUrls()[0], 
+			newInstance.initialize(id, httpServer.getAdvertisedAddress(), 
 					instance.getEndpointDescription().getContextAddress(), 
 					newDesc, newAuthn, authenticators, jsonConf);
 			

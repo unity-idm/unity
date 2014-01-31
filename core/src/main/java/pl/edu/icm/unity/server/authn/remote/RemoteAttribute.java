@@ -32,4 +32,10 @@ public class RemoteAttribute extends RemoteInformationBase
 	{
 		this.values = values;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return getName() + ": " + values;
+	}
 }

@@ -48,7 +48,7 @@
 		<module>web-common</module>
 		<module>web-admin</module>
 		<module>ws</module>
-		<module>saml-idp</module>
+		<module>saml</module>
 		<module>unicore</module>
 		<module>ldap</module>
 		<module>distribution</module>
@@ -221,7 +221,12 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>4.0.0</version>
+				<version>4.0.1-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>pl.edu.icm.saml</groupId>
+				<artifactId>samly2</artifactId>
+				<version>2.1.0-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
