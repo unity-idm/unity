@@ -72,6 +72,7 @@ public class MapIdentityAction extends AbstractTranslationAction
 			RemoteIdentity changed = identities.remove(key);
 			identities.put(sb.toString(), changed);
 			changed.getMetadata().put(RemoteInformationBase.UNITY_IDENTITY, sb.toString());
+			changed.getMetadata().put(RemoteInformationBase.UNITY_IDENTITY_TYPE, changed.getIdentityType());
 			changed.getMetadata().put(RemoteInformationBase.UNITY_IDENTITY_CREDREQ, credentialRequirement);
 		}
 	}
