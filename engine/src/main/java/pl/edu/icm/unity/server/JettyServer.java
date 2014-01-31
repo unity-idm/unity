@@ -28,6 +28,7 @@ import eu.unicore.util.jetty.JettyServerBase;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration;
@@ -44,7 +45,7 @@ import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
  * @author K. Benedyczak
  */
 @Component
-public class JettyServer extends JettyServerBase implements Lifecycle
+public class JettyServer extends JettyServerBase implements Lifecycle, NetworkServer
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, UnityApplication.class);
 	private List<WebAppEndpointInstance> deployedEndpoints;
@@ -195,9 +196,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle
 		return new ArrayList<WebAppEndpointInstance>(deployedEndpoints);
 	}
 	
-	/**
-	 * @return base address of the server which should be used as its externally accessible address.
-	 */
+	@Override
 	public URL getAdvertisedAddress()
 	{
 		String advertisedHost = extraSettings.getValue(UnityHttpServerConfiguration.ADVERTISED_HOST);
