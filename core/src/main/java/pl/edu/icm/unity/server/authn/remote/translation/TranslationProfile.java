@@ -7,6 +7,7 @@ package pl.edu.icm.unity.server.authn.remote.translation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.apache.log4j.NDC;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,6 +19,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.DescribedObjectImpl;
 
 /**
@@ -26,6 +28,7 @@ import pl.edu.icm.unity.types.DescribedObjectImpl;
  */
 public class TranslationProfile extends DescribedObjectImpl
 {
+	private Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, TranslationProfile.class);
 	private List<TranslationRule> rules;
 
 	public TranslationProfile(String name, List<TranslationRule> rules)
@@ -52,6 +55,9 @@ public class TranslationProfile extends DescribedObjectImpl
 	public void translate(RemotelyAuthenticatedInput input) throws EngineException
 	{
 		NDC.push("[TrProfile " + getName() + "]");
+		if (log.isDebugEnabled())
+			log.debug("Input received from IdP " + input.getIdpName() + ":\n" + input.getTextDump());
+		
 		try
 		{
 			int i=1;

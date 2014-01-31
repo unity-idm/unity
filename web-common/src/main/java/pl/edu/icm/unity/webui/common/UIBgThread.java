@@ -44,7 +44,7 @@ public abstract class UIBgThread implements Runnable
 			safeRun();
 		} catch (Exception e)
 		{
-			log.error("Waiter action failed", e);
+			log.error("Background action action failed", e);
 		} finally
 		{
 			InvocationContext.setCurrent(null);

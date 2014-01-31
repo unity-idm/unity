@@ -6,10 +6,11 @@ package pl.edu.icm.unity.unicore.samlidp.ws;
 
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
-import pl.edu.icm.unity.samlidp.ws.SAMLAssertionQueryImpl;
-import pl.edu.icm.unity.samlidp.ws.SamlSoapEndpoint;
+import pl.edu.icm.unity.saml.idp.ws.SAMLAssertionQueryImpl;
+import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -25,9 +26,10 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 {
 	public SamlUnicoreSoapEndpoint(UnityMessageSource msg, EndpointTypeDescription type,
 			String servletPath, IdentitiesManagement identitiesMan,
-			AttributesManagement attributesMan, PreferencesManagement preferencesMan)
+			AttributesManagement attributesMan, PreferencesManagement preferencesMan,
+			PKIManagement pkiManagement)
 	{
-		super(msg, type, servletPath, identitiesMan, attributesMan, preferencesMan);
+		super(msg, type, servletPath, identitiesMan, attributesMan, preferencesMan, pkiManagement);
 	}
 
 

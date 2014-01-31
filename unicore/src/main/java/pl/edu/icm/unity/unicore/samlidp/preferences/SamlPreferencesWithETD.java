@@ -11,7 +11,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.samlidp.preferences.SamlPreferences;
+import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 

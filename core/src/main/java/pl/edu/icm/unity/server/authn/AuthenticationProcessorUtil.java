@@ -6,7 +6,6 @@ package pl.edu.icm.unity.server.authn;
 
 import java.util.List;
 
-import pl.edu.icm.unity.exceptions.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
 
@@ -33,8 +32,7 @@ public class AuthenticationProcessorUtil
 		{
 			if (result.getStatus() != Status.success)
 			{
-				if (result.getStatus() == Status.unknownRemotePrincipal && 
-						result.getFormForUnknownPrincipal() != null && results.size() == 1)
+				if (result.getStatus() == Status.unknownRemotePrincipal && results.size() == 1)
 					throw new UnknownRemoteUserException("AuthenticationProcessorUtil.authnFailed", 
 							result.getFormForUnknownPrincipal(), result.getRemoteAuthnContext());
 				throw new AuthenticationException("AuthenticationProcessorUtil.authnFailed");

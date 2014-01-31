@@ -66,5 +66,28 @@ public class TestMapActions
 				RemoteInformationBase.UNITY_IDENTITY));
 		assertEquals("cr", input.getIdentities().get("idUNITY").getMetadata().get(
 				RemoteInformationBase.UNITY_IDENTITY_CREDREQ));
+		assertEquals("tt", input.getIdentities().get("idUNITY").getMetadata().get(
+				RemoteInformationBase.UNITY_IDENTITY_TYPE));
 	}
+	
+	@Test
+	public void testMapIdentityByType() throws EngineException
+	{
+		MapIdentityByTypeAction mapAction = new MapIdentityByTypeAction(new String[] {"source", "target", "cr"});
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
+		input.addIdentity(new RemoteIdentity("idfoo", "some"));
+		input.addIdentity(new RemoteIdentity("other", "source"));
+		
+		mapAction.invoke(input);
+		
+		assertNotNull(input.getIdentities().get("idfoo"));
+		assertNotNull(input.getIdentities().get("other"));
+		assertEquals("other", input.getIdentities().get("other").getMetadata().get(
+				RemoteInformationBase.UNITY_IDENTITY));
+		assertEquals("target", input.getIdentities().get("other").getMetadata().get(
+				RemoteInformationBase.UNITY_IDENTITY_TYPE));
+		assertEquals("cr", input.getIdentities().get("other").getMetadata().get(
+				RemoteInformationBase.UNITY_IDENTITY_CREDREQ));
+	}
+
 }

@@ -13,7 +13,6 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.ldap.LdapClientConfiguration.ConnectionMode;
 import pl.edu.icm.unity.server.utils.Log;
 
-import eu.unicore.security.canl.TruststoreProperties;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -54,7 +53,8 @@ public class LdapProperties extends PropertiesHelper
 	public static final String GROUP_DEFINITION_MEMBER_ATTR = "memberAttribute";
 	public static final String GROUP_DEFINITION_NAME_ATTR = "nameAttribute";
 	public static final String GROUP_DEFINITION_MATCHBY_MEMBER_ATTR = "matchByMemberAttribute";
-
+	
+	public static final String TRUSTSTORE = "truststore";
 	public static final String TRANSLATION_PROFILE = "translationProfile";
 	
 	@DocumentationReferenceMeta
@@ -130,9 +130,8 @@ public class LdapProperties extends PropertiesHelper
 				" to the local counterparts. The profile should at least map the remote identity."));
 
 		
-		META.put(TruststoreProperties.DEFAULT_PREFIX, new PropertyMD().setCategory(main).setCanHaveSubkeys().
-				setDescription("Properties starting with this prefix are used to configure clients'" +
-						" trust settings for the TLS connections. See separate documentation for details."));
+		META.put(TRUSTSTORE, new PropertyMD().setCategory(main).
+				setDescription("Truststore name used to configure client's trust settings for the TLS connections."));
 	}
 	
 	public LdapProperties(Properties properties) throws ConfigurationException

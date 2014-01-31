@@ -14,4 +14,10 @@ public class RemoteGroupMembership extends RemoteInformationBase
 	{
 		super(name);
 	}
+	
+	@Override
+	public String toString()
+	{
+		return getName();
+	}
 }

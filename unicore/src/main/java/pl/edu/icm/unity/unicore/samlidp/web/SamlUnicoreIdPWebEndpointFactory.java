@@ -13,8 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.samlidp.FreemarkerHandler;
-import pl.edu.icm.unity.samlidp.web.SamlAuthVaadinEndpoint;
+import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
+import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
+import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -34,13 +35,15 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	private EndpointTypeDescription description;
 	private ApplicationContext applicationContext;
 	private FreemarkerHandler freemarkerHandler;
+	private PKIManagement pkiManagement;
 	
 	@Autowired
 	public SamlUnicoreIdPWebEndpointFactory(ApplicationContext applicationContext, 
-			FreemarkerHandler freemarkerHandler)
+			FreemarkerHandler freemarkerHandler, PKIManagement pkiManagement)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;
+		this.pkiManagement = pkiManagement;
 		
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
@@ -60,6 +63,6 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new SamlAuthETDVaadinEndpoint(getDescription(), applicationContext, freemarkerHandler,
-				SamlUnicoreIdPWebUI.class, SERVLET_PATH);
+				SamlUnicoreIdPWebUI.class, SERVLET_PATH, pkiManagement);
 	}
 }

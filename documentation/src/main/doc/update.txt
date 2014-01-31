@@ -1,0 +1,25 @@
+== Version specific update instructions
+
+=== From 1.0.0 to 1.1.0
+
+In version 1.1.0 a centralized configuration of credentials and truststores was introduced.
+Therefore all of the credentials and truststores are now configured in a single file and referenced
+by name in other files. Configuration should be updated as follows:
+
+# [Mandatory for the RPM installations; recommended for tar.gz installations] 
+A new property should be added to the main configuration file +unityServer.conf+, specifying the location
+of the +pki.properties+ file. Typically +unityServer.core.pkiConfigFile=/etc/unity-idm/pki.properties+ 
+(RPM installation) or +unityServer.core.pkiConfigFile=conf/pki.properties+ (tar.gz installation, this value is also
+the default one).
+# All distinct credentials and truststores used in the configuration should be identified. The possible locations are
+enumerated below:
+## base server credential and truststore used in the main config file,
+## each SAML endpoint typically have both the credential and truststore defined,
+## the LDAP credential using SSL mode can have a truststore defined.
+# For each distinct truststore and keystore an name must be chosen, and the configuration of the credential/truststore
+must be copied to the +pki.properties+ file mentioned in the previous point. The syntax is described in the manual.
+# Finally in each place where the original configuration of the credential or truststore was provided directly,
+it should be removed and replaced with a single option referencing the globally defined credential/truststore. This
+option key (the last part) is respectively +.credential+ or +.truststore+.
+
+ 

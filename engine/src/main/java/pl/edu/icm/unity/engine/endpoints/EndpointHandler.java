@@ -89,7 +89,7 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 			EndpointInstance instance = factory.newInstance();
 			List<Map<String, BindingAuthn>> authenticators = 
 					authnLoader.getAuthenticators(description.getAuthenticatorSets(), sql);
-			instance.initialize(blob.getName(), httpServer.getUrls()[0],
+			instance.initialize(blob.getName(), httpServer.getAdvertisedAddress(),
 					description.getContextAddress(), description.getDescription(), 
 					description.getAuthenticatorSets(), authenticators, state);
 			return instance;

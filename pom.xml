@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pl.edu.icm.unity</groupId>
 	<artifactId>unity-server-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<name>UNITY aggregation and parent module</name>
 	<organization>
 		<name>Unity</name>
@@ -19,7 +18,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<scm.base>scm:svn:https://unicore.svn.sourceforge.net/svnroot/unicore/uvos/unity/trunk</scm.base>
+		<scm.base>scm:git:git://git@git.assembla.com:unity-public.git</scm.base>
 		<jetty.version>8.1.12.v20130726</jetty.version>
 		<slf4j.version>1.6.1</slf4j.version>
 		<spring.version>3.2.0.RELEASE</spring.version>
@@ -37,7 +36,8 @@
 	<scm>
 		<connection>${scm.base}</connection>
 		<developerConnection>${scm.base}</developerConnection>
-	</scm>
+	  <tag>HEAD</tag>
+  </scm>
 
 	<modules>
 		<module>types</module>
@@ -48,7 +48,7 @@
 		<module>web-common</module>
 		<module>web-admin</module>
 		<module>ws</module>
-		<module>saml-idp</module>
+		<module>saml</module>
 		<module>unicore</module>
 		<module>ldap</module>
 		<module>distribution</module>
@@ -78,7 +78,26 @@
 		</repository>
 	</repositories>
 
+	<distributionManagement>
+		<repository>
+			<id>unicore.eu</id>
+			<name>UNICORE repository</name>
+			<url>dav:https://unicore-dev.zam.kfa-juelich.de/maven</url>
+		</repository>
+	</distributionManagement>
+
+
 	<build>
+		<!-- Allows to deploy with dav:// with Maven 3. Note that newer versions
+		of this extension do not work with Maven 2.2 -->
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-webdav-jackrabbit</artifactId>
+				<version>1.0</version>
+			</extension>
+		</extensions>
+	
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -126,6 +145,17 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
+		
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.4.2</version>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 
 	<dependencyManagement>
@@ -191,12 +221,17 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>4.0.0-SNAPSHOT</version>
+				<version>4.0.1-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>pl.edu.icm.saml</groupId>
+				<artifactId>samly2</artifactId>
+				<version>2.1.0-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>secutils-cxf</artifactId>
-				<version>1.0.0-SNAPSHOT</version>
+				<version>1.0.1</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>

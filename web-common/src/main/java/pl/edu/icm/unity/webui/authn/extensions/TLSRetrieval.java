@@ -99,6 +99,7 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 	private class TLSRetrievalUI implements VaadinAuthenticationUI
 	{
 		private TLSAuthnComponent component;
+		private AuthenticationResultCallback callback;
 
 		@Override
 		public boolean needsCommonUsernameComponent()
@@ -119,7 +120,18 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 		}
 
 		@Override
-		public AuthenticationResult getAuthenticationResult()
+		public void setAuthenticationResultCallback(AuthenticationResultCallback callback)
+		{
+			this.callback = callback;
+		}
+
+		@Override
+		public void triggerAuthentication()
+		{
+			callback.setAuthenticationResult(getAuthenticationResult());
+		}
+		
+		private AuthenticationResult getAuthenticationResult()
 		{
 			X509Certificate[] clientCert = getTLSCertificate();
 
@@ -196,6 +208,12 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 				info.setComponentError(how ? new UserError(
 						msg.getMessage("WebTLSRetrieval.unknownUser")) : null);
 			}
+		}
+
+		@Override
+		public void cancelAuthentication()
+		{
+			//nop
 		}
 	}	
 }

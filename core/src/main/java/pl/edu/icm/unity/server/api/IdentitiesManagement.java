@@ -55,7 +55,7 @@ public interface IdentitiesManagement
 			boolean extractAttributes, List<Attribute<?>> attributes) throws EngineException;
 
 	/**
-	 * As {@link #addEntity(IdentityParam, String, EntityState, boolean, List)} with the empty list of attribute classes.
+	 * As {@link #addEntity(IdentityParam, String, EntityState, boolean, List)} with the empty list of attributes.
 	 */
 	public Identity addEntity(IdentityParam toAdd, String credReqIdId, EntityState initialState,
 			boolean extractAttributes) throws EngineException;

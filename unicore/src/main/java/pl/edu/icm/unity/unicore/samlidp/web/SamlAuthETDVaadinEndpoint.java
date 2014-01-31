@@ -8,8 +8,9 @@ import javax.servlet.Filter;
 
 import org.springframework.context.ApplicationContext;
 
-import pl.edu.icm.unity.samlidp.FreemarkerHandler;
-import pl.edu.icm.unity.samlidp.web.SamlAuthVaadinEndpoint;
+import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
+import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
+import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 /**
@@ -20,9 +21,10 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 {
 	public SamlAuthETDVaadinEndpoint(EndpointTypeDescription type, ApplicationContext applicationContext,
-			FreemarkerHandler freemarkerHandler, Class<?> uiClass, String servletPath)
+			FreemarkerHandler freemarkerHandler, Class<?> uiClass, String servletPath, 
+			PKIManagement pkiManagement)
 	{
-		super(type, applicationContext, freemarkerHandler, uiClass, servletPath);
+		super(type, applicationContext, freemarkerHandler, uiClass, servletPath, pkiManagement);
 	}
 	
 	@Override

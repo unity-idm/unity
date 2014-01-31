@@ -47,11 +47,27 @@ public interface VaadinAuthentication extends BindingAuthn
 		public void setUsernameCallback(UsernameProvider usernameCallback);
 		
 		/**
-		 * Should trigger the actual authentication (if was not triggered manually via the component)
-		 * and return the result of the authentication.
-		 * @return
+		 * Sets a callback object which is used to communicate the authentication result back to the 
+		 * main authentication framework. 
+		 * @param callback
 		 */
-		public AuthenticationResult getAuthenticationResult();
+		public void setAuthenticationResultCallback(AuthenticationResultCallback callback);
+		
+		/**
+		 * Should trigger the actual authentication (if was not triggered manually via the component).
+		 * If it is possible the implementation should invoke 
+		 * {@link AuthenticationResultCallback#setAuthenticationResult(AuthenticationResult)}
+		 * method inside of the implementation of this method. Some of the implementations may need to 
+		 * initiate a long-running process with browser redirections after this method is called. Those must
+		 * set the authentication result ASAP after it is available. 
+		 */
+		public void triggerAuthentication();
+		
+		/**
+		 * If called the authenticator should cancel the ongoing authentication if any. It can be called only
+		 * after the {@link #triggerAuthentication()} was called and before the authenticator invoked callback.
+		 */
+		public void cancelAuthentication();
 		
 		/**
 		 * @return label for presentation in the user interface.
@@ -73,4 +89,20 @@ public interface VaadinAuthentication extends BindingAuthn
 	{
 		public String getUsername();
 	}
+	
+	/**
+	 * Retrieval must provide an authentication result via this callback ASAP, after it is triggered.
+	 * @author K. Benedyczak
+	 */
+	public interface AuthenticationResultCallback
+	{
+		public void setAuthenticationResult(AuthenticationResult result);
+		
+		/**
+		 * Should be called to signal the framework that authentication was cancelled/failed/stopped etc 
+		 * in the component, so waiting for its finish makes no sense.
+		 */
+		public void cancelAuthentication();
+	}
+
 }
