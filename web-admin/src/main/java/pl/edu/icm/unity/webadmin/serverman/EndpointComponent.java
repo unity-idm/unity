@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.EndpointManagement;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -39,21 +40,21 @@ import com.vaadin.ui.Label;
 @Component
 public class EndpointComponent extends DeployableComponentViewBase
 {
-
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			EndpointComponent.class);
 
 	private EndpointManagement endpointMan;
 	private EndpointDescription endpoint;
+	private NetworkServer networkServer;
 
-	public EndpointComponent(EndpointManagement endpointMan,
+	public EndpointComponent(EndpointManagement endpointMan, NetworkServer networkServer,
 			EndpointDescription endpoint, UnityServerConfiguration config,
 			UnityMessageSource msg, String status, String msgPrefix)
 	{
-
 		super(config, msg, status, msgPrefix);
 		this.endpointMan = endpointMan;
 		this.endpoint = endpoint;
+		this.networkServer = networkServer;
 		initUI();
 		setStatus(status);
 	}
@@ -82,9 +83,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 					.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
 			for (String endpointKey : endpointsList)
 			{
-				if (config.getValue(
-						endpointKey
-								+ UnityServerConfiguration.ENDPOINT_NAME)
+				if (config.getValue(endpointKey	+ UnityServerConfiguration.ENDPOINT_NAME)
 						.equals(endpoint.getId()))
 				{
 					inConfig = true;
@@ -318,12 +317,10 @@ public class EndpointComponent extends DeployableComponentViewBase
 	protected void updateHeader()
 	{
 		updateHeader(endpoint.getId());
-
 	}
 
 	protected void updateContent()
 	{
-
 		content.removeAllComponents();
 
 		if (status.equals(STATUS_DEPLOYED))
@@ -349,7 +346,8 @@ public class EndpointComponent extends DeployableComponentViewBase
 					.entrySet())
 			{
 				i++;
-				addField(pa, String.valueOf(i), endpoint.getContextAddress()
+				addField(pa, String.valueOf(i), networkServer.getAdvertisedAddress() + 
+						endpoint.getContextAddress()
 						+ entry.getKey());
 				addField(pad, msg.getMessage(msgPrefix + ".pathDescription"),
 						entry.getValue());
@@ -364,11 +362,10 @@ public class EndpointComponent extends DeployableComponentViewBase
 			for (String s : endpoint.getType().getSupportedBindings())
 			{
 				if (bindings.length() > 0)
-
 					bindings.append(",");
 				bindings.append(s);
-
 			}
+			
 			// Bindings
 			addFieldToContent(msg.getMessage(msgPrefix + ".binding"),
 					bindings.toString());
@@ -401,13 +398,8 @@ public class EndpointComponent extends DeployableComponentViewBase
 				}
 				// Authenticators
 				addField(au, String.valueOf(i), auth.toString());
-
 			}
 			content.addComponent(au);
 		}
-		
-		
-
 	}
-
 }

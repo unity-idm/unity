@@ -19,6 +19,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -53,17 +54,18 @@ public class EndpointsComponent extends VerticalLayout
 	private EndpointManagement endpointMan;
 	private VerticalLayout content;
 	private UnityServerConfiguration config;
-	
+	private NetworkServer networkServer;
 
 	@Autowired
 	public EndpointsComponent(UnityMessageSource msg, EndpointManagement endpointMan,
 			AuthenticationManagement authMan, TranslationProfileManagement profilesMan,
 			TranslationActionsRegistry tactionsRegistry, ObjectMapper jsonMapper,
-			UnityServerConfiguration config)
+			UnityServerConfiguration config, NetworkServer networkServer)
 	{
 		this.config = config;
 		this.msg = msg;
 		this.endpointMan = endpointMan;
+		this.networkServer = networkServer;
 		initUI();
 	}
 
@@ -125,7 +127,6 @@ public class EndpointsComponent extends VerticalLayout
 			return;    
 		}
 		
-		
 		content.removeAllComponents();
 
 		List<EndpointDescription> endpoints = null;
@@ -144,14 +145,10 @@ public class EndpointsComponent extends VerticalLayout
 		for (EndpointDescription endpointDesc : endpoints)
 		{
 
-			content.addComponent(new EndpointComponent(endpointMan,
-					endpointDesc, config, msg,EndpointComponent.STATUS_DEPLOYED,msgPrefix));
+			content.addComponent(new EndpointComponent(endpointMan, networkServer,
+					endpointDesc, config, msg, EndpointComponent.STATUS_DEPLOYED, msgPrefix));
 			existing.add(endpointDesc.getId());
 		}
-		
-		
-		
-		
 		
 		Set<String> endpointsList = config.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
 		for (String endpointKey: endpointsList)
@@ -165,23 +162,10 @@ public class EndpointsComponent extends VerticalLayout
 				EndpointDescription en=new EndpointDescription();
 				en.setId(name);
 				en.setDescription(description);
-				content.addComponent(new EndpointComponent(endpointMan,
+				content.addComponent(new EndpointComponent(endpointMan, networkServer,
 						en, config, msg,EndpointComponent.STATUS_UNDEPLOYED,msgPrefix));
-				
-				
-				
-				
-	
 			}
 		}
-		
-		
-		
-		
-		
-		
-		
-
 	}
 
 }
