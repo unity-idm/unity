@@ -60,12 +60,13 @@ public class UpdateGroupsAction extends AbstractTranslationAction
 			return;
 		}
 		String unityIdentity = ri.getMetadata().get(RemoteInformationBase.UNITY_IDENTITY);
-		if (unityIdentity == null)
+		String unityIdentityType = ri.getMetadata().get(RemoteInformationBase.UNITY_IDENTITY_TYPE);
+		if (unityIdentity == null || unityIdentityType == null)
 		{
 			log.debug("No mapped identity, skipping");
 			return;
 		}
-		EntityParam entity = new EntityParam(new IdentityTaV(ri.getIdentityType(), ri.getName()));
+		EntityParam entity = new EntityParam(new IdentityTaV(unityIdentityType, unityIdentity));
 		Collection<String> currentGroups = idsMan.getGroups(entity);
 		for (Map.Entry<String, RemoteGroupMembership> gm: groups.entrySet())
 		{

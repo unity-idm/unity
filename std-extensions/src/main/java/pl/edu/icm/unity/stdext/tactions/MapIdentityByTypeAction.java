@@ -44,6 +44,7 @@ public class MapIdentityByTypeAction extends AbstractTranslationAction
 	{
 		Map<String, RemoteIdentity> identities = input.getIdentities();
 		
+		boolean primarySet = false;
 		for (RemoteIdentity entry: identities.values())
 		{
 			if (entry.getIdentityType().equals(sourceIdentityType))
@@ -53,6 +54,12 @@ public class MapIdentityByTypeAction extends AbstractTranslationAction
 				entry.getMetadata().put(RemoteInformationBase.UNITY_IDENTITY_CREDREQ, credReq);
 				log.debug("Mapped identity of type " + sourceIdentityType + " to " +  
 						targetIdentityType + " type, keeping the value " + entry.getName());
+				if (!primarySet)
+				{
+					log.debug("Setting primary identity to " + entry.getName());
+					primarySet = true;
+					input.setPrimaryIdentityName(entry.getName());
+				}
 			}
 		}
 	}

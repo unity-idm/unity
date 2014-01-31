@@ -1,0 +1,70 @@
+{
+	"name": "samlProfile",
+	"description": "Allows to translate remote SAML IdP data into local representation.",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			}, 
+			"action": {
+				"name": "mapAttributeToIdentity",
+				"parameters": [
+					"urn:oid:0.9.2342.19200300.100.1.1",
+					"userName",
+					"Password requirement"
+				]
+			}			
+		},
+			
+		{
+			"condition": {
+				"conditionValue": "true"
+			}, 
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"cn",
+					"cn",
+					"/"
+				]
+			}			
+		},	
+
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapGroup",
+				"parameters": [
+					"student",
+					"/A/B"
+				]
+			}			
+		},	
+
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "createUser",
+				"parameters": [
+					"true"
+				]
+			}			
+		},	
+
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "updateGroups",
+				"parameters": [
+					".*"
+				]
+			}			
+		}
+	]
+}

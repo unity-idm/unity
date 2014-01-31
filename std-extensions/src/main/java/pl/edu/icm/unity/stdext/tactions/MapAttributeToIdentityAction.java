@@ -66,6 +66,9 @@ public class MapAttributeToIdentityAction extends AbstractTranslationAction
 		log.debug("Created a new identity from attribute " + attribute + ": " + value + 
 				" of " + identityType + " type");
 		input.getIdentities().put(value, newId);
+		
+		log.debug("Setting primary identity to " + value);
+		input.setPrimaryIdentityName(value);
 	}
 
 	@Override

@@ -233,13 +233,11 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		switchInProgress(context);
 		
 		SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
-		String identityProviderURL = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_ADDRESS);
-		boolean sign = samlProperties.getBooleanValue(idpKey + SAMLSPProperties.IDP_SIGN_REQUEST);
 		String responseUrl = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
 		AuthnRequestDocument request;
 		try
 		{
-			request = credentialExchange.createSAMLRequest(identityProviderURL, responseUrl, sign);
+			request = credentialExchange.createSAMLRequest(idpKey, responseUrl);
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage("WebSAMLRetrieval.configurationError"), e);
@@ -250,9 +248,11 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		Binding requestBinding = samlProperties.getEnumValue(idpKey + SAMLSPProperties.IDP_BINDING, 
 				Binding.class);
 		String servletPath = VaadinServlet.getCurrent().getServletContext().getContextPath() + 
-				VaadinServletService.getCurrentServletRequest().getServletPath();		
+				VaadinServletService.getCurrentServletRequest().getServletPath();
+		String identityProviderURL = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_ADDRESS);
+		String groupAttribute = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE);
 		context.setRequest(request.xmlText(), request.getAuthnRequest().getID(), responseUrl,
-				requestBinding, identityProviderURL, servletPath);
+				requestBinding, identityProviderURL, servletPath, groupAttribute);
 		
 		
 		Page.getCurrent().open(servletPath + RedirectRequestHandler.PATH, null);

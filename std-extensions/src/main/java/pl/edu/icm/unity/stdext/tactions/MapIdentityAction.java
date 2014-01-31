@@ -49,6 +49,7 @@ public class MapIdentityAction extends AbstractTranslationAction
 		Map<String, RemoteIdentity> identities = input.getIdentities();
 		Set<String> keys = new HashSet<>(identities.keySet());
 		
+		boolean primarySet = false;
 		for (String key: keys)
 		{
 			Matcher m = toReplace.matcher(key);
@@ -74,6 +75,12 @@ public class MapIdentityAction extends AbstractTranslationAction
 			changed.getMetadata().put(RemoteInformationBase.UNITY_IDENTITY, sb.toString());
 			changed.getMetadata().put(RemoteInformationBase.UNITY_IDENTITY_TYPE, changed.getIdentityType());
 			changed.getMetadata().put(RemoteInformationBase.UNITY_IDENTITY_CREDREQ, credentialRequirement);
+			if (!primarySet)
+			{
+				log.debug("Setting primary identity to " + sb.toString());
+				primarySet = true;
+				input.setPrimaryIdentityName(sb.toString());
+			}
 		}
 	}
 

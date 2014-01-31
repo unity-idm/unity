@@ -12,11 +12,12 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.assertion.AttributeAssertionParser;
+import eu.unicore.samly2.attrprofile.ParsedAttribute;
 import eu.unicore.samly2.elements.NameID;
 import eu.unicore.samly2.exceptions.SAMLValidationException;
 import eu.unicore.samly2.proto.AuthnRequest;
@@ -27,7 +28,6 @@ import eu.unicore.samly2.validators.SSOAuthnResponseValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.saml.NameFormat;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
@@ -39,8 +39,6 @@ import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import xmlbeans.org.oasis.saml2.assertion.AssertionDocument;
-import xmlbeans.org.oasis.saml2.assertion.AttributeStatementType;
-import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
@@ -99,17 +97,17 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 	}
 
 	@Override
-	public AuthnRequestDocument createSAMLRequest(String identityProviderURL, String returnURL, boolean sign) 
-			throws InternalException
+	public AuthnRequestDocument createSAMLRequest(String idpKey, String returnURL) throws InternalException
 	{
+		boolean sign = samlProperties.getBooleanValue(idpKey + SAMLSPProperties.IDP_SIGN_REQUEST);
 		String requestrId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
+		String identityProviderURL = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_ADDRESS);
+		String requestedNameFormat = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_REQUESTED_NAME_FORMAT);
 		NameID issuer = new NameID(requestrId, SAMLConstants.NFORMAT_ENTITY);
 		AuthnRequest request = new AuthnRequest(issuer.getXBean());
 		
-		NameFormat requestedFormat = samlProperties.getEnumValue(SAMLSPProperties.REQUESTED_NAME_FORMAT, 
-				NameFormat.class);
-		if (requestedFormat != null)
-			request.setFormat(requestedFormat.getSamlRepresentation());
+		if (requestedNameFormat != null)
+			request.setFormat(requestedNameFormat);
 		request.getXMLBean().setDestination(identityProviderURL);
 		request.getXMLBean().setAssertionConsumerServiceURL(returnURL);
 
@@ -168,7 +166,8 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 					"by an untrusted identity provider.", e);
 		}
 
-		RemotelyAuthenticatedInput input = convertAssertion(responseDocument, validator);
+		RemotelyAuthenticatedInput input = convertAssertion(responseDocument, validator, 
+				context.getGroupAttribute());
 		try
 		{
 			return getResult(input);
@@ -179,7 +178,7 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 	}
 	
 	private RemotelyAuthenticatedInput convertAssertion(ResponseDocument responseDocument,
-			SSOAuthnResponseValidator validator)
+			SSOAuthnResponseValidator validator, String groupA) throws AuthenticationException
 	{
 		NameIDType issuer = responseDocument.getResponse().getIssuer();
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput(issuer.getStringValue());
@@ -187,7 +186,7 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 		input.setIdentities(getAuthenticatedIdentities(validator));
 		List<RemoteAttribute> remoteAttributes = getAttributes(validator);
 		input.setAttributes(remoteAttributes);
-		input.setGroups(getGroups(remoteAttributes));
+		input.setGroups(getGroups(remoteAttributes, groupA));
 		
 		return input;
 	}
@@ -204,42 +203,33 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 		return ret;
 	}
 	
-	private List<RemoteAttribute> getAttributes(SSOAuthnResponseValidator validator)
+	private List<RemoteAttribute> getAttributes(SSOAuthnResponseValidator validator) throws AuthenticationException
 	{
 		List<AssertionDocument> assertions = validator.getOtherAssertions();
 		List<RemoteAttribute> ret = new ArrayList<>(assertions.size());
 		for (AssertionDocument assertion: assertions)
 		{
-			AttributeStatementType[] attrStatements = assertion.getAssertion().getAttributeStatementArray();
-			if (attrStatements == null)
-				continue;
-			for (AttributeStatementType attrStatement: attrStatements)
+			AttributeAssertionParser parser = new AttributeAssertionParser(assertion);
+			List<ParsedAttribute> parsedAttrs;
+			try
 			{
-				AttributeType[] attributes = attrStatement.getAttributeArray();
-				for (AttributeType attribute: attributes)
-				{
-					XmlObject[] attrValues = attribute.getAttributeValueArray();
-					Object[] attrValuesString = convertValues(attrValues);
-					ret.add(new RemoteAttribute(attribute.getName(), attrValuesString));
-				}
+				parsedAttrs = parser.getAttributes();
+			} catch (SAMLValidationException e)
+			{
+				throw new AuthenticationException("Problem retrieving attributes from the SAML data", e);
+			}
+			for (ParsedAttribute pa: parsedAttrs)
+			{
+				List<String> strValues = pa.getStringValues();
+				ret.add(new RemoteAttribute(pa.getName(), 
+						(Object[]) strValues.toArray(new String[strValues.size()])));
 			}
 		}
 		return ret;
 	}
 	
-	private String[] convertValues(XmlObject[] attrValues)
+	private List<RemoteGroupMembership> getGroups(List<RemoteAttribute> remoteAttributes, String groupA)
 	{
-		String[] ret = new String[attrValues.length];
-		for (int i=0; i<attrValues.length; i++)
-		{
-			ret[i] = attrValues[i].xmlText();
-		}
-		return ret;
-	}
-
-	private List<RemoteGroupMembership> getGroups(List<RemoteAttribute> remoteAttributes)
-	{
-		String groupA = samlProperties.getValue(SAMLSPProperties.GROUP_MEMBERSHIP_ATTRIBUTE);
 		List<RemoteGroupMembership> ret = new ArrayList<>();
 		if (groupA == null)
 			return ret;

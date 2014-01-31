@@ -110,4 +110,31 @@ public class RemotelyAuthenticatedInput
 	{
 		return idpName + " - " + getPrimaryIdentityName();
 	}
+	
+	/**
+	 * @return Multiline string with a complete contents 
+	 */
+	public String getTextDump()
+	{
+		StringBuilder sb = new StringBuilder();
+		if (!identities.isEmpty())
+		{
+			sb.append("Identities:\n");
+			for (RemoteIdentity id: identities.values())
+				sb.append(" - ").append(id).append("\n");
+		}
+		if (!attributes.isEmpty())
+		{
+			sb.append("Attributes:\n");
+			for (RemoteAttribute at: attributes.values())
+				sb.append(" - ").append(at).append("\n");
+		}
+		if (!groups.isEmpty())
+		{
+			sb.append("Groups:\n");
+			for (RemoteGroupMembership gr: groups.values())
+				sb.append(" - ").append(gr).append("\n");
+		}
+		return sb.toString();
+	}
 }

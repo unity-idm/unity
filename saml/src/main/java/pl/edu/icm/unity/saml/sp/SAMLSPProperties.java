@@ -13,7 +13,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.NameFormat;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import eu.unicore.samly2.SAMLBindings;
@@ -49,9 +48,7 @@ public class SAMLSPProperties extends PropertiesHelper
 	
 	public static final String REQUESTER_ID = "requesterEntityId";
 	public static final String CREDENTIAL = "requesterCredential";
-	public static final String REQUESTED_NAME_FORMAT = "requestedNameFormat";
 	public static final String ACCEPTED_NAME_FORMATS = "acceptedNameFormats.";
-	public static final String GROUP_MEMBERSHIP_ATTRIBUTE = "groupMembershipAttribute";
 	
 	public static final String DISPLAY_NAME = "displayName";
 	public static final String IDP_PREFIX = "remoteIdp.";
@@ -61,6 +58,8 @@ public class SAMLSPProperties extends PropertiesHelper
 	public static final String IDP_BINDING = "binding";
 	public static final String IDP_CERTIFICATE = "certificate";
 	public static final String IDP_SIGN_REQUEST = "signRequest";
+	public static final String IDP_REQUESTED_NAME_FORMAT = "requestedNameFormat";
+	public static final String IDP_GROUP_MEMBERSHIP_ATTRIBUTE = "groupMembershipAttribute";
 
 	public static final String TRANSLATION_PROFILE = "translationProfile";
 	public static final String REGISTRATION_FORM = "registrationFormForUnknown";
@@ -91,23 +90,25 @@ public class SAMLSPProperties extends PropertiesHelper
 				"response and included assertions. Therefore it is of highest importance for the whole system security."));
 		META.put(IDP_SIGN_REQUEST, new PropertyMD("false").setCategory(common).setStructuredListEntry(IDP_PREFIX).setDescription(
 				"Controls whether the requests for this IdP should be signed."));
+		META.put(IDP_REQUESTED_NAME_FORMAT, new PropertyMD().setCategory(common).setStructuredListEntry(IDP_PREFIX).setDescription(
+				"If defined then specifies what SAML name format should be requested from the IdP." +
+				" If undefined then IdP is free to choose, however see the " + ACCEPTED_NAME_FORMATS +
+				" property. Value is arbitrary string, meaningful for the IdP. SAML specifies several standard formats:" +
+				" +urn:oasis:names:tc:SAML:2.0:nameid-format:persistent+," +
+				" +urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress+," +
+				" +urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName+ and " +
+				" +urn:oasis:names:tc:SAML:2.0:nameid-format:transient+ are the most popular."));
+		META.put(IDP_GROUP_MEMBERSHIP_ATTRIBUTE, new PropertyMD().setCategory(common).setStructuredListEntry(IDP_PREFIX).setDescription(
+				"Defines a SAML attribute name which will be treated as an attribute carrying group" +
+				" membership information."));
 		
 		META.put(REQUESTER_ID, new PropertyMD().setMandatory().setCategory(verificator).setDescription(
 				"SAML entity ID (must be a URI) of the lcoal SAML requester (or service provider)."));
 		META.put(CREDENTIAL, new PropertyMD().setCategory(verificator).setDescription(
 				"Local credential, used to sign requests. If signing is disabled it is not used."));
-		META.put(REQUESTED_NAME_FORMAT, new PropertyMD().setEnum(NameFormat.emailAddress).setCategory(verificator).setDescription(
-				"If defined then specifies what SAML name format should be requested from the IdP." +
-				" If undefined then IdP is free to choose, however see the " + ACCEPTED_NAME_FORMATS +
-				" property."));
 		META.put(ACCEPTED_NAME_FORMATS, new PropertyMD().setList(false).setCategory(verificator).setDescription(
 				"If defined then specifies what SAML name formatd are accepted from IdP. " +
-				"Useful when the property " + REQUESTED_NAME_FORMAT + " is undefined. " +
-				"If this property is defined then this setting is ignored. Allowed values are the same" +
-				"as for the " + REQUESTED_NAME_FORMAT + "."));
-		META.put(GROUP_MEMBERSHIP_ATTRIBUTE, new PropertyMD().setCategory(verificator).setDescription(
-				"Defines a SAML attribute name which will be treated as an attribute carrying group" +
-				" membership information."));
+				"Useful when the property " + IDP_REQUESTED_NAME_FORMAT + " is undefined for at least one IdP. "));
 		META.put(TRANSLATION_PROFILE, new PropertyMD().setMandatory().setCategory(verificator).setDescription("Name of a translation" +
 				" profile, which will be used to map remotely obtained attributes and identity" +
 				" to the local counterparts. The profile should at least map the remote identity."));
