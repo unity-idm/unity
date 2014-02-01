@@ -20,6 +20,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.vaadin.ui.CheckBox;
 
 /**
  * User's preferences for the IdentitiesTable .
@@ -31,11 +32,13 @@ public class IdentitiesTablePreferences implements JsonSerializable
 	public static final String ID = IdentitiesTablePreferences.class.getName();
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	private Map<String, ColumnSettings> colSettings;
+	private boolean groupbyEntitiesSetting;
 
 	public IdentitiesTablePreferences()
 	{
 		super();
 		colSettings = new HashMap<String, IdentitiesTablePreferences.ColumnSettings>();
+		groupbyEntitiesSetting = false;
 	}
 
 	@Override
@@ -57,6 +60,8 @@ public class IdentitiesTablePreferences implements JsonSerializable
 		ObjectNode settingsN = main.with("colSettings");
 		for (Map.Entry<String, ColumnSettings> entry : colSettings.entrySet())
 			settingsN.put(entry.getKey(), serializeSingle(entry.getValue()));
+		ObjectNode settingC = main.with("checkBoxSettings");
+			   settingC.put("groupByEntities",groupbyEntitiesSetting);
 	}
 
 	protected ObjectNode serializeSingle(ColumnSettings what)
@@ -89,13 +94,16 @@ public class IdentitiesTablePreferences implements JsonSerializable
 
 	protected void deserializeAll(ObjectNode main)
 	{
-		ObjectNode spSettingsNode = main.with("colSettings");
-		Iterator<String> keys = spSettingsNode.fieldNames();
+		ObjectNode spSettingsNodeC = main.with("colSettings");
+		Iterator<String> keys = spSettingsNodeC.fieldNames();
 		for (String key; keys.hasNext();)
 		{
 			key = keys.next();
-			colSettings.put(key, deserializeSingle(spSettingsNode.with(key)));
+			colSettings.put(key, deserializeSingle(spSettingsNodeC.with(key)));
 		}
+		ObjectNode spSettingsNodeB = main.with("checkBoxSettings");;
+		groupbyEntitiesSetting=spSettingsNodeB.get("groupByEntities").asBoolean();
+		
 	}
 
 	protected ColumnSettings deserializeSingle(ObjectNode from)
@@ -147,6 +155,16 @@ public class IdentitiesTablePreferences implements JsonSerializable
 	public Map<String, ColumnSettings> getColumnSettings()
 	{
 		return colSettings;
+	}
+
+	public boolean getGroupByEntitiesSetting()
+	{
+		return groupbyEntitiesSetting;
+	}
+
+	public void setGroupByEntitiesSetting(boolean groupCheckboxSetting)
+	{
+		this.groupbyEntitiesSetting = groupCheckboxSetting;
 	}
 
 	public void addColumneSettings(String columnName, ColumnSettings settings)

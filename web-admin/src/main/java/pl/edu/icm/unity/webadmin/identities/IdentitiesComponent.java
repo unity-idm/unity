@@ -82,6 +82,7 @@ public class IdentitiesComponent extends Panel
 		topBar.setSpacing(true);
 		final CheckBox mode = new CheckBox(msg.getMessage("Identities.mode"));
 		mode.setImmediate(true);
+		mode.setValue(IdentitiesComponent.this.identitiesTable.isGroupByEntity());
 		
 		Toolbar toolbar = new Toolbar(identitiesTable, Orientation.HORIZONTAL);
 		
@@ -156,11 +157,27 @@ public class IdentitiesComponent extends Panel
 						}).show(); 
 			}
 		});
+		
+		
+		Button savePreferences = new Button();
+		savePreferences.setDescription(msg.getMessage("Identities.savePreferences"));
+		savePreferences.setIcon(Images.save.getResource());
+		savePreferences.addClickListener(new ClickListener()
+		{
+			
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				IdentitiesComponent.this.identitiesTable.savePreferences();
+				
+			}
+		});
+			
 		Label spacer = new Label();
 		spacer.setSizeFull();
 		toolbar.addActionHandlers(identitiesTable.getActionHandlers());
 		toolbar.addSeparator();
-		toolbar.addButtons(addFilter, addAttributes, removeAttributes);
+		toolbar.addButtons(addFilter, addAttributes, removeAttributes,savePreferences);
 		topBar.addComponents(mode, spacer, toolbar);
 		topBar.setExpandRatio(spacer, 2f);
 		topBar.setWidth(100, Unit.PERCENTAGE);

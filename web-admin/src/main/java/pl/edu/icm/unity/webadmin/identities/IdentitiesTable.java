@@ -184,23 +184,23 @@ public class IdentitiesTable extends TreeTable
 			}
 		});
 
-		addColumnResizeListener(new ColumnResizeListener()
-		{
-			@Override
-			public void columnResize(ColumnResizeEvent event)
-			{
-				savePreferences();
-			}
-		});
-
-		addColumnReorderListener(new ColumnReorderListener()
-		{
-			@Override
-			public void columnReorder(ColumnReorderEvent event)
-			{
-				savePreferences();
-			}
-		});
+//		addColumnResizeListener(new ColumnResizeListener()
+//		{
+//			@Override
+//			public void columnResize(ColumnResizeEvent event)
+//			{
+//				savePreferences();
+//			}
+//		});
+//
+//		addColumnReorderListener(new ColumnReorderListener()
+//		{
+//			@Override
+//			public void columnReorder(ColumnReorderEvent event)
+//			{
+//				savePreferences();
+//			}
+//		});
 		//For future: addColumnCollapseListener, expected for Vaadin 7.2
 	}
 
@@ -232,6 +232,8 @@ public class IdentitiesTable extends TreeTable
 
 			preferences.addColumneSettings(property, settings);
 		}
+		
+		preferences.setGroupByEntitiesSetting(groupByEntity);
 		try
 		{
 			IdentitiesTablePreferences.savePreferences(preferencesMan, preferences);
@@ -258,10 +260,10 @@ public class IdentitiesTable extends TreeTable
 					msg.getMessage("Identities.cannotLoadPrefernces"));
 			return;
 		}
-
+		groupByEntity=preferences.getGroupByEntitiesSetting();
 		
 		Set<String> props = new HashSet<String>();
-
+		
 		for (Object prop : getContainerPropertyIds())
 		{
 			if (!(prop instanceof String))
@@ -361,7 +363,7 @@ public class IdentitiesTable extends TreeTable
 		addContainerProperty(key, String.class, "");
 		setColumnHeader(key, attribute + (group == null ? "@" + this.group : "@/"));
 		refresh();
-		savePreferences();
+	//	savePreferences();
 	}
 
 	public void removeAttributeColumn(String group, String... attributes)
@@ -374,7 +376,7 @@ public class IdentitiesTable extends TreeTable
 				removeContainerProperty(ATTR_CURRENT_COL_PREFIX + attribute);
 		}
 		refresh();
-		savePreferences();
+	//	savePreferences();
 	}
 	
 	public Set<String> getAttributeColumns(boolean root)
@@ -545,7 +547,7 @@ public class IdentitiesTable extends TreeTable
 			return rootAttributes.get(attributeName);
 		}
 	}
-	
+
 	private void resolveEntity(long entity) throws EngineException
 	{
 		Entity resolvedEntity = identitiesMan.getEntity(new EntityParam(entity));
@@ -904,6 +906,11 @@ public class IdentitiesTable extends TreeTable
 					});
 			dialog.show();
 		}
+	}
+	
+	public boolean isGroupByEntity()
+	{
+		return groupByEntity;
 	}
 
 	
