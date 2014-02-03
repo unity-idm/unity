@@ -40,9 +40,8 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 {
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, DeployableComponentViewBase.class);
-
-	public static final String STATUS_DEPLOYED = "deployed";
-	public static final String STATUS_UNDEPLOYED = "undeployed";
+	public static enum Status {deployed, undeployed};
+	
 	protected UnityServerConfiguration config;
 	protected UnityMessageSource msg;
 	protected GridLayout header;
@@ -53,16 +52,14 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 	protected Button reloadButton;
 	protected Button deployButton;
 	protected String status;
-	protected String msgPrefix;
 	protected Label separator;
 
 	public DeployableComponentViewBase(UnityServerConfiguration config, UnityMessageSource msg,
-			String status, String msgPrefix)
+			String status)
 	{
 
 		this.config = config;
 		this.msg = msg;
-		this.msgPrefix = msgPrefix;
 		initUI();
 
 	}
@@ -93,14 +90,12 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		footer.setMargin(false);
 		footer.addComponent(line);
 		footer.setSizeFull();
-
 		main.addComponent(footer);
 		
 		setCompositionRoot(main);
 		showHideContentButton = new Button();
 		showHideContentButton.setIcon(Images.zoomin.getResource());
 		showHideContentButton.addStyleName(Reindeer.BUTTON_LINK);
-
 		showHideContentButton.addClickListener(new ClickListener()
 		{
 
@@ -128,7 +123,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		reloadButton.setIcon(Images.transfer.getResource());
 		reloadButton.addStyleName(Reindeer.BUTTON_LINK);
 		reloadButton.addStyleName(Styles.toolbarButton.toString());
-		reloadButton.setDescription(msg.getMessage(msgPrefix + "." + "reload"));
+		reloadButton.setDescription(msg.getMessage("DeployableComponentBase.reload"));
 		reloadButton.addClickListener(new ClickListener()
 		{
 
@@ -144,25 +139,25 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		undeplyButton.setIcon(Images.delete.getResource());
 		undeplyButton.addStyleName(Reindeer.BUTTON_LINK);
 		undeplyButton.addStyleName(Styles.toolbarButton.toString());
-		undeplyButton.setDescription(msg.getMessage(msgPrefix + "." + "undeploy"));
+		undeplyButton.setDescription(msg.getMessage("DeployableComponentBase.undeploy"));
 		undeplyButton.addClickListener(new ClickListener()
 		{
 
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				new ConfirmDialog(msg, msg.getMessage(msgPrefix + "."
-						+ "unDeployQuestion"), new ConfirmDialog.Callback()
+				new ConfirmDialog(msg, msg.getMessage("DeployableComponentBase.unDeployQuestion"),
+						new ConfirmDialog.Callback()
 
-				{
+						{
 
-					@Override
-					public void onConfirm()
-					{
+							@Override
+							public void onConfirm()
+							{
 
-						undeploy();
-					}
-				}).show();
+								undeploy();
+							}
+						}).show();
 
 			}
 		});
@@ -171,8 +166,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		deployButton.setIcon(Images.add.getResource());
 		deployButton.addStyleName(Reindeer.BUTTON_LINK);
 		deployButton.addStyleName(Styles.toolbarButton.toString());
-		deployButton.setDescription(msg.getMessage(msgPrefix + "." + "deploy"));
-
+		deployButton.setDescription(msg.getMessage("DeployableComponentBase.deploy"));
 		deployButton.addClickListener(new ClickListener()
 		{
 
@@ -186,10 +180,20 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		});
 
 	}
+	
+	protected abstract void updateContent();
+
+	protected abstract void updateHeader();
+
+	protected abstract void deploy();
+	
+	protected abstract void undeploy();
+	
+	protected abstract void reload();
 
 	protected void setStatus(String status)
 	{
-		if (status.equals(STATUS_DEPLOYED))
+		if (status.equals(Status.deployed.toString()))
 		{
 			this.status = status;
 			updateHeader();
@@ -209,7 +213,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 			reloadButton.setVisible(true);
 			deployButton.setVisible(false);
 
-		} else if (status.equals(STATUS_UNDEPLOYED))
+		} else if (status.equals(Status.undeployed.toString()))
 		{
 			this.status = status;
 			updateHeader();
@@ -234,7 +238,6 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		header.addComponent(showHideContentButton);
 		header.setComponentAlignment(showHideContentButton, Alignment.BOTTOM_LEFT);
 
-		// Name
 		HorizontalLayout nameFieldLayout = new HorizontalLayout();
 		HorizontalLayout h=new HorizontalLayout();
 		h.setSpacing(true);
@@ -242,27 +245,26 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		Label val=new Label(name);
 		h.addComponents(val);
 		nameFieldLayout.setMargin(false);
-		nameFieldLayout.setWidth(500, Unit.PIXELS);
-		
+		nameFieldLayout.setWidth(500, Unit.PIXELS);	
 		nameFieldLayout.addComponents(h);
 		header.addComponent(nameFieldLayout);
 		header.setComponentAlignment(nameFieldLayout, Alignment.BOTTOM_CENTER);
 
-		Label statusLabel = new Label(msg.getMessage(msgPrefix + "." + "status") + ":");
+		Label statusLabel = new Label(msg.getMessage("DeployableComponentBase.status") + ":");
 		statusLabel.addStyleName(Styles.bold.toString());
 		header.addComponent(statusLabel);
 		header.setComponentAlignment(statusLabel, Alignment.BOTTOM_CENTER);
 
 		Image statusImage = new Image();
-		if (status.equals(STATUS_DEPLOYED))
+		if (status.equals(Status.deployed.toString()))
 		{
 			statusImage.setSource(Images.ok.getResource());
-			statusImage.setDescription(msg.getMessage(msgPrefix + "." + "deployed"));
-		} else if (status.equals(STATUS_UNDEPLOYED))
+			statusImage.setDescription(msg.getMessage("DeployableComponentBase.deployed"));
+		} else if (status.equals(Status.undeployed.toString()))
 		{
 
 			statusImage.setSource(Images.error.getResource());
-			statusImage.setDescription(msg.getMessage(msgPrefix + "." + "undeployed"));
+			statusImage.setDescription(msg.getMessage("DeployableComponentBase.undeployed"));
 		}
 		header.addComponent(statusImage);
 
@@ -279,26 +281,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		header.addComponent(deployButton);
 		header.setComponentAlignment(deployButton, Alignment.BOTTOM_LEFT);
 
-	}
-
-	protected abstract void updateContent();
-
-	protected abstract void updateHeader();
-
-	protected boolean deploy()
-	{
-		return reloadConfig();
-	}
-
-	protected boolean undeploy()
-	{
-		return reloadConfig();
-	}
-
-	protected boolean reload()
-	{
-		return reloadConfig();
-	}
+	}	
 
 	protected boolean reloadConfig()
 	{
@@ -308,8 +291,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		} catch (Exception e)
 		{
 			log.error("Cannot reload configuration", e);
-			ErrorPopup.showError(msg,
-					msg.getMessage(msgPrefix + ".cannotReloadConfig"), e);
+			ErrorPopup.showError(msg, msg.getMessage("Configuration.cannotReloadConfig"), e);
 			return false;
 		}
 		return true;

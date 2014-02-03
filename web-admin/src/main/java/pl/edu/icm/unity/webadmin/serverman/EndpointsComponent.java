@@ -49,7 +49,6 @@ public class EndpointsComponent extends VerticalLayout
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			EndpointsComponent.class);
 
-	private final String msgPrefix="Endpoints";
 	private UnityMessageSource msg;
 	private EndpointManagement endpointMan;
 	private VerticalLayout content;
@@ -71,11 +70,11 @@ public class EndpointsComponent extends VerticalLayout
 
 	private void initUI()
 	{
-		setCaption(msg.getMessage(msgPrefix+".caption"));
+		setCaption(msg.getMessage("Endpoints.caption"));
 		
 		HorizontalLayout h = new HorizontalLayout();
-		Label e = new Label(msg.getMessage(msgPrefix+".listCaption"));
-		e.addStyleName(Styles.bold.toString());
+		Label listCaption = new Label(msg.getMessage("Endpoints.listCaption"));
+		listCaption.addStyleName(Styles.bold.toString());
 		h.setMargin(true);
 		h.setSpacing(true);
 		
@@ -93,10 +92,9 @@ public class EndpointsComponent extends VerticalLayout
 
 			}
 		});
-		refreshViewButton.setDescription(msg.getMessage(msgPrefix+".refreshList"));
+		refreshViewButton.setDescription(msg.getMessage("Endpoints.refreshList"));
 		
-		
-		h.addComponent(e);
+		h.addComponent(listCaption);
 		h.addComponent(new Label(" "));
 		h.addComponent(refreshViewButton);
 
@@ -122,11 +120,14 @@ public class EndpointsComponent extends VerticalLayout
 		{
 			config.reloadIfChanged();
 		} catch (Exception e)
-		{	log.error("Cannot reload configuration",e);
-			ErrorPopup.showError(msg,msg.getMessage(msgPrefix+".cannotReloadConfig") , e);
-			return;    
+		{
+			log.error("Cannot reload configuration", e);
+			ErrorPopup.showError(msg, msg
+					.getMessage("DeployableComponentBase.cannotReloadConfig"),
+					e);
+			return;
 		}
-		
+
 		content.removeAllComponents();
 
 		List<EndpointDescription> endpoints = null;
@@ -134,36 +135,41 @@ public class EndpointsComponent extends VerticalLayout
 		{
 			endpoints = endpointMan.getEndpoints();
 		} catch (EngineException e)
-		{	
-			log.error("Cannot load endpoints",e);
+		{
+			log.error("Cannot load endpoints", e);
 			ErrorPopup.showError(msg, msg.getMessage("error"),
-					msg.getMessage(msgPrefix+".cannotLoadList"));
+					msg.getMessage("Endpoints.cannotLoadList"));
 			return;
 		}
 
-		List<String> existing=new ArrayList<>();
+		List<String> existing = new ArrayList<>();
 		for (EndpointDescription endpointDesc : endpoints)
 		{
 
 			content.addComponent(new EndpointComponent(endpointMan, networkServer,
-					endpointDesc, config, msg, EndpointComponent.STATUS_DEPLOYED, msgPrefix));
+					endpointDesc, config, msg,
+					DeployableComponentViewBase.Status.deployed.toString()));
 			existing.add(endpointDesc.getId());
 		}
-		
-		Set<String> endpointsList = config.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
-		for (String endpointKey: endpointsList)
+
+		Set<String> endpointsList = config
+				.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
+		for (String endpointKey : endpointsList)
 		{
-			if(!existing.contains(config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_NAME)))
+			if (!existing.contains(config.getValue(endpointKey
+					+ UnityServerConfiguration.ENDPOINT_NAME)))
 			{
-				String name = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_NAME);
-				String description = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_DESCRIPTION);		
-				
-				
-				EndpointDescription en=new EndpointDescription();
+				String name = config.getValue(endpointKey
+						+ UnityServerConfiguration.ENDPOINT_NAME);
+				String description = config.getValue(endpointKey
+						+ UnityServerConfiguration.ENDPOINT_DESCRIPTION);
+				EndpointDescription en = new EndpointDescription();
 				en.setId(name);
 				en.setDescription(description);
-				content.addComponent(new EndpointComponent(endpointMan, networkServer,
-						en, config, msg,EndpointComponent.STATUS_UNDEPLOYED,msgPrefix));
+				content.addComponent(new EndpointComponent(endpointMan,
+						networkServer, en, config, msg,
+						DeployableComponentViewBase.Status.undeployed
+								.toString()));
 			}
 		}
 	}

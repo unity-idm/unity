@@ -47,7 +47,6 @@ public class AuthenticatorsComponent extends VerticalLayout
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			AuthenticatorsComponent.class);
-	private final String msgPrefix = "Authenticators";
 
 	private UnityMessageSource msg;
 	private UnityServerConfiguration config;
@@ -68,11 +67,11 @@ public class AuthenticatorsComponent extends VerticalLayout
 	private void initUI()
 	{
 
-		setCaption(msg.getMessage(msgPrefix + ".caption"));
+		setCaption(msg.getMessage("Authenticators.caption"));
 
 		HorizontalLayout h = new HorizontalLayout();
-		Label e = new Label(msg.getMessage(msgPrefix + ".listCaption"));
-		e.addStyleName(Styles.bold.toString());
+		Label listCaption = new Label(msg.getMessage("Authenticators.listCaption"));
+		listCaption.addStyleName(Styles.bold.toString());
 		h.setMargin(true);
 		h.setSpacing(true);
 
@@ -90,7 +89,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 
 			}
 		});
-		refreshViewButton.setDescription(msg.getMessage(msgPrefix + ".refreshList"));
+		refreshViewButton.setDescription(msg.getMessage("Authenticators.refreshList"));
 		
 		Button reloadAllButton = new Button();
 		reloadAllButton.setIcon(Images.transfer.getResource());
@@ -107,16 +106,12 @@ public class AuthenticatorsComponent extends VerticalLayout
 
 			}
 		});
-		reloadAllButton.setDescription(msg.getMessage(msgPrefix + ".reloadAll"));
-		
-		
-		
-		
-		h.addComponent(e);
+		reloadAllButton.setDescription(msg.getMessage("Authenticators.reloadAll"));
+	
+		h.addComponent(listCaption);
 		h.addComponent(new Label(" "));
 		h.addComponent(refreshViewButton);
 		h.addComponent(reloadAllButton);
-
 		addComponent(h);
 
 		content = new VerticalLayout();
@@ -137,7 +132,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		} catch (Exception e)
 		{
 			log.error("Cannot reload configuration", e);
-			ErrorPopup.showError(msg, msg.getMessage(msgPrefix+".cannotReloadConfig"), e);
+			ErrorPopup.showError(msg, msg.getMessage("Configuration.cannotReloadConfig"), e);
 			return;
 		}
 
@@ -149,7 +144,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		{
 			log.error("Cannot load authenticators", e);
 			ErrorPopup.showError(msg,
-					msg.getMessage(msgPrefix+".cannotLoadList"), e);
+					msg.getMessage("Authenticators.cannotLoadList"), e);
 			return;
 		}
 		Set<String> existing = new HashSet<String>();
@@ -158,12 +153,11 @@ public class AuthenticatorsComponent extends VerticalLayout
 		{
 			existing.add(ai.getId());
 			content.addComponent(new AuthenticatorComponent(authMan, ai, config,
-					msg, EndpointComponent.STATUS_DEPLOYED,msgPrefix));
+					msg, DeployableComponentViewBase.Status.deployed.toString()));
 
 		}
 
-		Set<String> authenticatorsList = config
-				.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
+		Set<String> authenticatorsList = config.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
 		for (String authenticatorKey : authenticatorsList)
 		{
 			String name = config.getValue(authenticatorKey
@@ -172,9 +166,8 @@ public class AuthenticatorsComponent extends VerticalLayout
 			{
 				AuthenticatorInstance au = new AuthenticatorInstance();
 				au.setId(name);
-				content.addComponent(new AuthenticatorComponent(authMan, au,
-						config, msg,
-						EndpointComponent.STATUS_UNDEPLOYED,msgPrefix));
+				content.addComponent(new AuthenticatorComponent(authMan, au,config, msg,
+						DeployableComponentViewBase.Status.undeployed.toString()));
 			}
 		}
 
@@ -189,7 +182,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		} catch (Exception e)
 		{
 			log.error("Cannot reload configuration", e);
-			ErrorPopup.showError(msg, msg.getMessage(msgPrefix+".cannotReloadConfig"), e);
+			ErrorPopup.showError(msg, msg.getMessage("Configuration.cannotReloadConfig"), e);
 			return;
 		}
 
@@ -201,9 +194,10 @@ public class AuthenticatorsComponent extends VerticalLayout
 		{
 			log.error("Cannot load authenticators", e);
 			ErrorPopup.showError(msg,
-					msg.getMessage(msgPrefix+".cannotLoadList"), e);
+					msg.getMessage("Authenticators.cannotLoadList"), e);
 			return;
 		}
+		
 		Map<String, AuthenticatorInstance> existing = new HashMap<String, AuthenticatorInstance>();
 
 		for (AuthenticatorInstance ai : authenticators)
@@ -212,9 +206,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 
 		}
 		Map<String, AuthenticatorInstance> toRemove = new HashMap<>(existing);
-
-		Set<String> authenticatorsList = config
-				.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
+		Set<String> authenticatorsList = config.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
 		for (String authenticatorKey : authenticatorsList)
 		{
 			String name = config.getValue(authenticatorKey
@@ -242,7 +234,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 			{
 				log.error("Cannot read json file", e);
 				ErrorPopup.showError(msg,
-						msg.getMessage(msgPrefix+".cannotReadJsonConfig"), e);
+						msg.getMessage("Authenticators.cannotReadJsonConfig"), e);
 				return;
 			}
 
@@ -257,7 +249,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 				{
 					log.error("Cannot add authenticator", e);
 					ErrorPopup.showError(msg,
-							msg.getMessage(msgPrefix+".cannotDeploy"),
+							msg.getMessage("Authenticators.cannotDeploy",name),
 							e);
 					return;
 				}
@@ -273,7 +265,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 				{
 					log.error("Cannot update authenticator", e);
 					ErrorPopup.showError(msg, msg
-							.getMessage(msgPrefix+"cannotUpdate"),
+							.getMessage("Authenticators.cannotUpdate",name),
 							e);
 					return;
 				}
@@ -293,7 +285,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 			{
 				log.error("Cannot remove authenticator", e);
 				ErrorPopup.showError(msg,
-						msg.getMessage(msgPrefix+".cannotUndeploy"), e);
+						msg.getMessage("Authenticators.cannotUndeploy",auth), e);
 				return;
 			}
 		}

@@ -39,14 +39,13 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 			AuthenticatorComponent.class);
 
 	AuthenticatorInstance authenticator;
-
 	AuthenticationManagement authMan;
 
 	public AuthenticatorComponent(AuthenticationManagement authMan,
 			AuthenticatorInstance authenticator, UnityServerConfiguration config,
-			UnityMessageSource msg, String status, String msgPrefix)
+			UnityMessageSource msg, String status)
 	{
-		super(config, msg, status, msgPrefix);
+		super(config, msg, status);
 		this.authenticator = authenticator;
 		this.authMan = authMan;
 		setStatus(status);
@@ -62,314 +61,266 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 	protected void updateContent()
 	{
 		content.removeAllComponents();
-
-		if (status.equals(STATUS_DEPLOYED))
+		
+		if (status.equals(Status.undeployed.toString()))
+			return;
+		
+		addFieldToContent(msg.getMessage("Authenticators.type"), authenticator
+				.getTypeDescription().getId());
+		addFieldToContent(msg.getMessage("Authenticators.verificationMethod"),
+				authenticator.getTypeDescription().getVerificationMethod());
+		addFieldToContent(msg.getMessage("Authenticators.verificationMethodDescription"),
+				authenticator.getTypeDescription()
+						.getVerificationMethodDescription());
+		addFieldToContent(msg.getMessage("Authenticators.retrievalMethod"), authenticator
+				.getTypeDescription().getRetrievalMethod());
+		addFieldToContent(msg.getMessage("Authenticators.retrievalMethodDescription"),
+				msg.getMessage(authenticator.getTypeDescription()
+						.getRetrievalMethodDescription()));
+		addFieldToContent(msg.getMessage("Authenticators.supportedBinding"), authenticator
+				.getTypeDescription().getSupportedBinding());
+		String cr = authenticator.getLocalCredentialName();
+		if (cr != null && !cr.isEmpty())
 		{
-			addFieldToContent(msg.getMessage(msgPrefix + ".type"), authenticator
-					.getTypeDescription().getId());
-			addFieldToContent(msg.getMessage(msgPrefix + ".verificationMethod"),
-					authenticator.getTypeDescription().getVerificationMethod());
-			addFieldToContent(msg.getMessage(msgPrefix + ".verificationMethodDescription"),
-					authenticator.getTypeDescription()
-							.getVerificationMethodDescription());
+			addFieldToContent(msg.getMessage("Authenticators.localCredential"), cr);
+		}
 
-			addFieldToContent(msg.getMessage(msgPrefix + ".retrievalMethod"), authenticator
-					.getTypeDescription().getRetrievalMethod());
-			addFieldToContent(msg.getMessage(msgPrefix + ".retrievalMethodDescription"),
-					msg.getMessage(authenticator.getTypeDescription()
-							.getRetrievalMethodDescription()));
+		String ver = authenticator.getVerificatorJsonConfiguration();
+		if (ver != null && !ver.isEmpty())
+		{
 
-			addFieldToContent(msg.getMessage(msgPrefix + ".supportedBinding"),
-					authenticator.getTypeDescription().getSupportedBinding());
-
-			String cr = authenticator.getLocalCredentialName();
-			if (cr != null && !cr.isEmpty())
-			{
-				addFieldToContent(msg.getMessage(msgPrefix + ".localCredential"),
-						cr);
-			}
-
-			String ver = authenticator.getVerificatorJsonConfiguration();
-			if (ver != null && !ver.isEmpty())
-			{
-
-				addFieldToContent(
-						msg.getMessage(msgPrefix
-								+ ".verificatorJsonConfiguration"),
-						"");
-				Panel p = new Panel();
-				p.setWidth(500, Unit.PIXELS);
-				p.setHeight(150, Unit.PIXELS);
-				Label val = new Label(ver, ContentMode.PREFORMATTED);
-				val.setSizeUndefined();
-				p.setContent(val);
-				content.addComponent(p);
-
-			}
-
-			String ret = authenticator.getRetrievalJsonConfiguration();
-			if (ret != null && !ret.isEmpty())
-			{
-
-				addFieldToContent(
-						msg.getMessage(msgPrefix
-								+ ".retrievalJsonConfiguration"),
-						"");
-				Panel p = new Panel();
-				p.setWidth(500, Unit.PIXELS);
-				p.setHeight(150, Unit.PIXELS);
-				Label val = new Label(ret, ContentMode.PREFORMATTED);
-				val.setSizeUndefined();
-				p.setContent(val);
-				content.addComponent(p);
-
-			}
+			addFieldToContent(msg.getMessage("Authenticators.verificatorJsonConfiguration"), "");
+			Panel p = new Panel();
+			p.setWidth(500, Unit.PIXELS);
+			p.setHeight(150, Unit.PIXELS);
+			Label val = new Label(ver, ContentMode.PREFORMATTED);
+			val.setSizeUndefined();
+			p.setContent(val);
+			content.addComponent(p);
 
 		}
+
+		String ret = authenticator.getRetrievalJsonConfiguration();
+		if (ret != null && !ret.isEmpty())
+		{
+
+			addFieldToContent(msg.getMessage("Authenticators.retrievalJsonConfiguration"), "");
+			Panel p = new Panel();
+			p.setWidth(500, Unit.PIXELS);
+			p.setHeight(150, Unit.PIXELS);
+			Label val = new Label(ret, ContentMode.PREFORMATTED);
+			val.setSizeUndefined();
+			p.setContent(val);
+			content.addComponent(p);
+
+		}
+
 	}
 
 	@Override
-	protected boolean undeploy()
+	protected void undeploy()
 	{
-		if (super.undeploy())
+		if (!super.reloadConfig())
+			return;
+
+		log.info("Remove " + authenticator.getId() + " authenticator");
+		try
 		{
+			authMan.removeAuthenticator(authenticator.getId());
+		} catch (Exception e)
+		{
+			log.error("Cannot remove authenticator", e);
+			ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotUndeploy",
+					authenticator.getId()), e);
+			return;
 
-			log.info("Remove " + authenticator.getId() + " authenticator");
-			try
-			{
-				authMan.removeAuthenticator(authenticator.getId());
-			} catch (Exception e)
-			{
-				log.error("Cannot remove authenticator", e);
-				ErrorPopup.showError(msg,
-						msg.getMessage(msgPrefix + "." + "cannotUndeploy"),
-						e);
-				return false;
+		}
 
+		boolean inConfig = false;
+		Set<String> authenticatorsList = config
+				.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
+		for (String authenticatorKey : authenticatorsList)
+		{
+			if (config.getValue(authenticatorKey + UnityServerConfiguration.AUTHENTICATOR_NAME)
+					.equals(authenticator.getId()))
+			{
+				inConfig = true;
 			}
 
-			boolean inConfig = false;
+		}
 
-			Set<String> authenticatorsList = config
-					.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
-			for (String authenticatorKey : authenticatorsList)
+		if (inConfig)
+		{
+			setStatus(Status.undeployed.toString());
+		} else
+		{
+			setVisible(false);
+		}
+
+	}
+
+	@Override
+	protected void deploy()
+	{
+		if (!super.reloadConfig())
+			return;
+		
+		log.info("Add " + authenticator.getId() + "authenticator");
+		boolean added = false;
+		Set<String> authenticatorsList = config.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
+		for (String authenticatorKey : authenticatorsList)
+		{
+
+			String name = config.getValue(authenticatorKey + UnityServerConfiguration.AUTHENTICATOR_NAME);
+			if (authenticator.getId().equals(name))
 			{
-				if (config.getValue(
-						authenticatorKey
-								+ UnityServerConfiguration.AUTHENTICATOR_NAME)
-						.equals(authenticator.getId()))
+				String type = config.getValue(authenticatorKey 
+								+ UnityServerConfiguration.AUTHENTICATOR_TYPE);
+				File vConfigFile = config.getFileValue(authenticatorKey
+								+ UnityServerConfiguration.AUTHENTICATOR_VERIFICATOR_CONFIG,
+								false);
+				File rConfigFile = config.getFileValue(authenticatorKey
+								+ UnityServerConfiguration.AUTHENTICATOR_RETRIEVAL_CONFIG,
+								false);
+				String credential = config.getValue(authenticatorKey
+								+ UnityServerConfiguration.AUTHENTICATOR_CREDENTIAL);
+
+				String vJsonConfiguration = null;
+				String rJsonConfiguration = null;
+				try
 				{
-					inConfig = true;
+					vJsonConfiguration = vConfigFile == null ? null : FileUtils
+							.readFileToString(vConfigFile);
+					rJsonConfiguration = FileUtils
+							.readFileToString(rConfigFile);
+				} catch (IOException e)
+				{
+					log.error("Cannot read json file", e);
+					ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotReadJsonConfig"), e);
+					return;
 				}
 
-			}
-
-			if (inConfig)
-			{
-				setStatus(STATUS_UNDEPLOYED);
-			} else
-			{
-				setVisible(false);
+				try
+				{
+					this.authenticator = authMan.createAuthenticator(name,
+							type, vJsonConfiguration,
+							rJsonConfiguration, credential);
+				} catch (EngineException e)
+				{
+					log.error("Cannot add authenticator", e);
+					ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotDeploy",
+							authenticator.getId()), e);
+					return;
+				}
+				setStatus(Status.deployed.toString());
+				added = true;
 			}
 
 		}
-		return true;
+
+		if (!added)
+		{
+			ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotDeploy",
+					authenticator.getId()), msg.getMessage(
+					"Authenticators.cannotDeployRemovedConfig",
+					authenticator.getId()));
+			setVisible(false);
+			return;
+
+		}
+
 	}
 
 	@Override
-	protected boolean deploy()
+	protected void reload()
 	{
-		if (super.deploy())
+		if (!super.reloadConfig())
+			return;
+		
+		log.info("Reload " + authenticator.getId() + " authenticator");
+		boolean updated = false;
+		Set<String> authenticatorsList = config.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
+		for (String authenticatorKey : authenticatorsList)
 		{
-			log.info("Add " + authenticator.getId() + "authenticator");
-			boolean added = false;
-
-			Set<String> authenticatorsList = config
-					.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
-			for (String authenticatorKey : authenticatorsList)
+			String name = config.getValue(authenticatorKey
+					+ UnityServerConfiguration.AUTHENTICATOR_NAME);
+			if (authenticator.getId().equals(name))
 			{
+				String type = config.getValue(authenticatorKey
+						+ UnityServerConfiguration.AUTHENTICATOR_TYPE);
+				File vConfigFile = config.getFileValue(authenticatorKey
+								+ UnityServerConfiguration.AUTHENTICATOR_VERIFICATOR_CONFIG,
+								false);
+				File rConfigFile = config.getFileValue(authenticatorKey
+								+ UnityServerConfiguration.AUTHENTICATOR_RETRIEVAL_CONFIG,
+								false);
 
-				String name = config.getValue(authenticatorKey
-						+ UnityServerConfiguration.AUTHENTICATOR_NAME);
-				if (authenticator.getId().equals(name))
+				String vJsonConfiguration = null;
+				String rJsonConfiguration = null;
+				try
 				{
-					String type = config
-							.getValue(authenticatorKey
-									+ UnityServerConfiguration.AUTHENTICATOR_TYPE);
-					File vConfigFile = config
-							.getFileValue(authenticatorKey
-									+ UnityServerConfiguration.AUTHENTICATOR_VERIFICATOR_CONFIG,
-									false);
-					File rConfigFile = config
-							.getFileValue(authenticatorKey
-									+ UnityServerConfiguration.AUTHENTICATOR_RETRIEVAL_CONFIG,
-									false);
-					String credential = config
-							.getValue(authenticatorKey
-									+ UnityServerConfiguration.AUTHENTICATOR_CREDENTIAL);
-
-					String vJsonConfiguration = null;
-					String rJsonConfiguration = null;
-					try
-					{
-						vJsonConfiguration = vConfigFile == null ? null
-								: FileUtils.readFileToString(vConfigFile);
-						rJsonConfiguration = FileUtils
-								.readFileToString(rConfigFile);
-					} catch (IOException e)
-					{
-						log.error("Cannot read json file", e);
-						ErrorPopup.showError(msg, msg.getMessage(msgPrefix
-								+ ".cannotReadJsonConfig"), e);
-						return false;
-					}
-
-					try
-					{
-						this.authenticator = authMan.createAuthenticator(
-								name, type, vJsonConfiguration,
-								rJsonConfiguration, credential);
-					} catch (EngineException e)
-					{
-						log.error("Cannot add authenticator", e);
-						ErrorPopup.showError(
-								msg,
-								msg.getMessage(msgPrefix
-										+ ".cannotDeploy"),
-								e);
-						return false;
-					}
-					setStatus(STATUS_DEPLOYED);
-					added = true;
+					vJsonConfiguration = vConfigFile == null ? null : FileUtils
+							.readFileToString(vConfigFile);
+					rJsonConfiguration = FileUtils
+							.readFileToString(rConfigFile);
+				} catch (IOException e)
+				{
+					log.error("Cannot read json file", e);
+					ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotReadJsonConfig"), e);
+					return;
 				}
 
-			}
-
-			if (!added)
-			{
-				ErrorPopup.showError(
-						msg,
-						msg.getMessage(msgPrefix + ".cannotDeploy"),
-						msg.getMessage(msgPrefix
-								+ ".cannotDeployRemovedConfig"));
-				setVisible(false);
-				return false;
-
-			}
-		}
-		return true;
-	}
-
-	@Override
-	protected boolean reload()
-	{
-		if (super.reload())
-		{
-			log.info("Reload " + authenticator.getId() + " authenticator");
-			boolean updated = false;
-
-			Set<String> authenticatorsList = config
-					.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
-			for (String authenticatorKey : authenticatorsList)
-			{
-
-				String name = config.getValue(authenticatorKey
-						+ UnityServerConfiguration.AUTHENTICATOR_NAME);
-				if (authenticator.getId().equals(name))
+				log.info("Update " + name + " [" + type + "]");
+				try
 				{
-					String type = config
-							.getValue(authenticatorKey
-									+ UnityServerConfiguration.AUTHENTICATOR_TYPE);
-					File vConfigFile = config
-							.getFileValue(authenticatorKey
-									+ UnityServerConfiguration.AUTHENTICATOR_VERIFICATOR_CONFIG,
-									false);
-					File rConfigFile = config
-							.getFileValue(authenticatorKey
-									+ UnityServerConfiguration.AUTHENTICATOR_RETRIEVAL_CONFIG,
-									false);
+					authMan.updateAuthenticator(name, vJsonConfiguration,
+							rJsonConfiguration);
+				} catch (EngineException e)
+				{
+					log.error("Cannot update authenticator", e);
+					ErrorPopup.showError(msg, msg.getMessage(
+							"Authenticators.cannotDeploy",
+							authenticator.getId()), e);
+					return;
+				}
 
-					String vJsonConfiguration = null;
-					String rJsonConfiguration = null;
-					try
+				try
+				{
+					for (AuthenticatorInstance au : authMan.getAuthenticators(null))
 					{
-						vJsonConfiguration = vConfigFile == null ? null
-								: FileUtils.readFileToString(vConfigFile);
-						rJsonConfiguration = FileUtils
-								.readFileToString(rConfigFile);
-					} catch (IOException e)
-					{
-						log.error("Cannot read json file", e);
-						ErrorPopup.showError(msg, msg.getMessage(msgPrefix
-								+ ".cannotReadJsonConfig"), e);
-						return false;
-					}
-
-					log.info("Update " + name + " [" + type + "]");
-					try
-					{
-						authMan.updateAuthenticator(name,
-								vJsonConfiguration,
-								rJsonConfiguration);
-					} catch (EngineException e)
-					{
-						log.error("Cannot update authenticator", e);
-						ErrorPopup.showError(
-								msg,
-								msg.getMessage(msgPrefix
-										+ ".cannotDeploy"),
-								e);
-						return false;
-					}
-
-					try
-					{
-						for (AuthenticatorInstance au : authMan
-								.getAuthenticators(null))
+						if (au.getId().equals(authenticator.getId()))
 						{
-							if (au.getId()
-									.equals(authenticator
-											.getId()))
-							{
-								this.authenticator = au;
-							}
+							this.authenticator = au;
 						}
-					} catch (EngineException e)
-					{
-						log.error("Cannot load authenticators", e);
-						ErrorPopup.showError(
-								msg,
-								msg.getMessage("error"),
-								msg.getMessage(msgPrefix
-										+ ".cannotLoadList"));
 					}
-
-					setStatus(STATUS_DEPLOYED);
-					updated = true;
+				} catch (EngineException e)
+				{
+					log.error("Cannot load authenticators", e);
+					ErrorPopup.showError(msg,msg.getMessage("error"),
+							msg.getMessage("Authenticators.cannotLoadList"));
 				}
 
+				setStatus(Status.deployed.toString());
+				updated = true;
 			}
-			if (!updated)
-			{
-				new ConfirmDialog(msg, msg.getMessage(msgPrefix
-						+ ".unDeployWhenRemoved"),
-						new ConfirmDialog.Callback()
 
-						{
-
-							@Override
-							public void onConfirm()
-							{
-
-								undeploy();
-
-							}
-						}).show();
-
-			}
 		}
+		if (!updated)
+		{
+			new ConfirmDialog(msg, msg.getMessage("Authenticators.unDeployWhenRemoved",
+					authenticator.getId()), new ConfirmDialog.Callback()
 
-		return true;
+			{
+
+				@Override
+				public void onConfirm()
+				{
+
+					undeploy();
+
+				}
+			}).show();
+
+		}
 	}
-
 }

@@ -48,9 +48,9 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 	public TranslationProfileComponent(TranslationProfileManagement profilesMan,
 			TranslationActionsRegistry tactionsRegistry, ObjectMapper jsonMapper,
 			TranslationProfile translationProfile, UnityServerConfiguration config,
-			UnityMessageSource msg, String status, String msgPrefix)
+			UnityMessageSource msg, String status)
 	{
-		super(config, msg, status, msgPrefix);
+		super(config, msg, status);
 		this.tactionsRegistry = tactionsRegistry;
 		this.jsonMapper = jsonMapper;
 		this.profilesMan = profilesMan;
@@ -66,244 +66,213 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 	}
 
 	@Override
-	protected boolean undeploy()
+	protected void undeploy()
 	{
-		if (super.undeploy())
+		if (!super.reloadConfig())
+			return;
+
+		log.info("Remove " + translationProfile.getName() + " translation profile");
+		try
 		{
-			log.info("Remove " + translationProfile.getName() + " translation profile");
+			profilesMan.removeProfile(translationProfile.getName());
+		} catch (Exception e)
+		{
+			log.error("Cannot remove translationProfile", e);
+			ErrorPopup.showError(msg, msg.getMessage(
+					"TranslationProfiles.cannotUndeploy",
+					translationProfile.getName()), e);
+			return;
+
+		}
+
+		boolean inConfig = false;
+		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
+		for (String profileFile : profileFiles)
+		{
+			String json;
 			try
 			{
-				profilesMan.removeProfile(translationProfile.getName());
-			} catch (Exception e)
+				json = FileUtils.readFileToString(new File(profileFile));
+			} catch (IOException e)
 			{
-				log.error("Cannot remove translationProfile", e);
-				ErrorPopup.showError(msg,
-						msg.getMessage(msgPrefix + "." + "cannotUndeploy"), e);
-				return false;
-
+				log.error("Cannot read json file", e);
+				ErrorPopup.showError(msg,msg.getMessage("TranslationProfiles.cannotReadJsonConfig"), e);
+				return;
 			}
+			TranslationProfile tp = new TranslationProfile(json, jsonMapper,
+					tactionsRegistry);
 
-			boolean inConfig = false;
-			List<String> profileFiles = config
-					.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
-			for (String profileFile : profileFiles)
+			if (tp.getName().equals(translationProfile.getName()))
 			{
-				String json;
-				try
-				{
-					json = FileUtils.readFileToString(new File(profileFile));
-				} catch (IOException e)
-				{
-					log.error("Cannot read json file", e);
-					ErrorPopup.showError(
-							msg,
-							msg.getMessage(msgPrefix
-									+ ".cannotReadJsonConfig"),
-							e);
-					return false;
-				}
-				TranslationProfile tp = new TranslationProfile(json, jsonMapper,
-						tactionsRegistry);
-
-				if (tp.getName().equals(translationProfile.getName()))
-				{
-					inConfig = true;
-				}
-			}
-
-			if (inConfig)
-			{
-				setStatus(STATUS_UNDEPLOYED);
-			} else
-			{
-				setVisible(false);
+				inConfig = true;
 			}
 		}
-		return true;
+
+		if (inConfig)
+		{
+			setStatus(Status.undeployed.toString());
+		} else
+		{
+			setVisible(false);
+		}
 	}
 
 	@Override
-	protected boolean deploy()
+	protected void deploy()
 	{
-		if (super.deploy())
+		if (!super.reloadConfig())
+			return;
+		
+		log.info("Add " + translationProfile.getName() + "translation profile");
+		boolean added = false;
+		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
+		for (String profileFile : profileFiles)
 		{
-			log.info("Add " + translationProfile.getName() + "translation profile");
-			boolean added = false;
-
-			List<String> profileFiles = config
-					.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
-			for (String profileFile : profileFiles)
+			String json;
+			try
 			{
-				String json;
+				json = FileUtils.readFileToString(new File(profileFile));
+			} catch (IOException e)
+			{
+				log.error("Cannot read json file", e);
+				ErrorPopup.showError(msg, msg.getMessage("TranslationProfiles.cannotReadJsonConfig"), e);
+				return;
+			}
+			TranslationProfile tp = new TranslationProfile(json, jsonMapper, tactionsRegistry);
+			
+			if (tp.getName().equals(translationProfile.getName()))
+			{
 				try
 				{
-					json = FileUtils.readFileToString(new File(profileFile));
-				} catch (IOException e)
+					profilesMan.addProfile(tp);
+				} catch (EngineException e)
 				{
-					log.error("Cannot read json file", e);
-					ErrorPopup.showError(
-							msg,
-							msg.getMessage(msgPrefix
-									+ ".cannotReadJsonConfig"),
-							e);
-					return false;
+					log.error("Cannot add translation profile", e);
+					ErrorPopup.showError(msg, msg.getMessage(
+							"TranslationProfiles.cannotDeploy",
+							translationProfile.getName()), e);
+					return;
 				}
-				TranslationProfile tp = new TranslationProfile(json, jsonMapper,
-						tactionsRegistry);
 
-				if (tp.getName().equals(translationProfile.getName()))
+				Map<String, TranslationProfile> existing;
+				try
 				{
-					try
-					{
-						profilesMan.addProfile(tp);
-					} catch (EngineException e)
-					{
-						log.error("Cannot add translation profile", e);
-						ErrorPopup.showError(
-								msg,
-								msg.getMessage(msgPrefix
-										+ ".cannotDeploy"),
-								e);
-						return false;
-					}
+					existing = profilesMan.listProfiles();
+				} catch (EngineException e)
+				{
+					log.error("Cannot load translation profiles", e);
+					ErrorPopup.showError(msg, msg.getMessage("TranslationProfiles.cannotLoadList"), e);
+					return;
+				}
 
-					Map<String, TranslationProfile> existing;
-					try
+				for (TranslationProfile tr : existing.values())
+				{
+					if (tr.getName().equals(translationProfile.getName()))
 					{
-						existing = profilesMan.listProfiles();
-					} catch (EngineException e)
-					{
-						log.error("Cannot load translation profiles", e);
-						ErrorPopup.showError(msg, msg.getMessage(msgPrefix
-								+ ".cannotLoadList"), e);
-						return false;
+						this.translationProfile = tr;
 					}
+				}
 
+				setStatus(Status.deployed.toString());
+				added = true;
+
+			}
+
+		}
+
+		if (!added)
+		{
+			ErrorPopup.showError(msg, msg.getMessage(
+					"TranslationProfiles.cannotDeploy",
+					translationProfile.getName()), msg.getMessage(
+					"TranslationProfiles.cannotDeployRemovedConfig",
+					translationProfile.getName()));
+			setVisible(false);
+			return;
+
+		}
+
+	}
+
+	@Override
+	protected void reload()
+	{
+		if (!super.reloadConfig())
+			return;
+		log.info("Reload " + translationProfile.getName() + " translation profile");
+		boolean updated = false;
+		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
+		for (String profileFile : profileFiles)
+		{
+			String json;
+			try
+			{
+				json = FileUtils.readFileToString(new File(profileFile));
+			} catch (IOException e)
+			{
+				log.error("Cannot read json file", e);
+				ErrorPopup.showError(msg, msg.getMessage("TranslationProfiles.cannotReadJsonConfig"), e);
+				return;
+			}
+			TranslationProfile tp = new TranslationProfile(json, jsonMapper,
+					tactionsRegistry);
+
+			if (tp.getName().equals(translationProfile.getName()))
+			{
+				try
+				{
+					log.info("Update " + tp.getName() + " translation profile");
+					profilesMan.updateProfile(tp);
+				} catch (EngineException e)
+				{
+					log.error("Cannot update translation profile", e);
+					ErrorPopup.showError(msg, msg.getMessage("TranslationProfiles.cannotUpdate",
+							translationProfile.getName()), e);
+					return;
+				}
+
+				try
+				{
+					Map<String, TranslationProfile> existing = profilesMan
+							.listProfiles();
 					for (TranslationProfile tr : existing.values())
 					{
-						if (tr.getName().equals(
-								translationProfile.getName()))
+						if (tr.getName().equals(translationProfile.getName()))
 						{
 							this.translationProfile = tr;
 						}
 					}
-
-					setStatus(STATUS_DEPLOYED);
-					added = true;
-
+				} catch (EngineException e)
+				{
+					log.error("Cannot load translation profiles", e);
+					ErrorPopup.showError(msg, msg.getMessage("TranslationProfiles.cannotLoadList"), e);
+					return;
 				}
 
-			}
-
-			if (!added)
-			{
-				ErrorPopup.showError(
-						msg,
-						msg.getMessage(msgPrefix + ".cannotDeploy"),
-						msg.getMessage(msgPrefix
-								+ ".cannotDeployRemovedConfig"));
-				setVisible(false);
-				return false;
+				setStatus(Status.deployed.toString());
+				updated = true;
 
 			}
+
 		}
-		return true;
-
-	}
-
-	@Override
-	protected boolean reload()
-	{
-		if (super.reload())
+		if (!updated)
 		{
-			log.info("Reload " + translationProfile.getName() + " translation profile");
-			boolean updated = false;
+			new ConfirmDialog(msg, msg.getMessage(
+					"TranslationProfiles.unDeployWhenRemoved",
+					translationProfile.getName()), new ConfirmDialog.Callback()
 
-			List<String> profileFiles = config
-					.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
-			for (String profileFile : profileFiles)
 			{
-				String json;
-				try
-				{
-					json = FileUtils.readFileToString(new File(profileFile));
-				} catch (IOException e)
-				{
-					log.error("Cannot read json file", e);
-					ErrorPopup.showError(
-							msg,
-							msg.getMessage(msgPrefix
-									+ ".cannotReadJsonConfig"),
-							e);
-					return false;
-				}
-				TranslationProfile tp = new TranslationProfile(json, jsonMapper,
-						tactionsRegistry);
 
-				if (tp.getName().equals(translationProfile.getName()))
+				@Override
+				public void onConfirm()
 				{
-					try
-					{
-						log.info("Update " + tp.getName()+ " translation profile");
-						profilesMan.updateProfile(tp);
-					} catch (EngineException e)
-					{
-						log.error("Cannot update translation profile", e);
-						ErrorPopup.showError(
-								msg,
-								msg.getMessage(msgPrefix
-										+ ".cannotUpdate"),
-								e);
-						return false;
-					}
 
-					try
-					{
-						Map<String, TranslationProfile> existing = profilesMan
-								.listProfiles();
-						for (TranslationProfile tr : existing.values())
-						{
-							if (tr.getName().equals(
-									translationProfile
-											.getName()))
-							{
-								this.translationProfile = tr;
-							}
-						}
-					} catch (EngineException e)
-					{
-						log.error("Cannot load translation profiles", e);
-						ErrorPopup.showError(msg, msg.getMessage(msgPrefix
-								+ ".cannotLoadList"), e);
-						return false;
-					}
-
-					setStatus(STATUS_DEPLOYED);
-					updated = true;
+					undeploy();
 
 				}
+			}).show();
 
-			}
-			if (!updated)
-			{
-				new ConfirmDialog(msg, msg.getMessage(msgPrefix
-						+ ".unDeployWhenRemoved"),
-						new ConfirmDialog.Callback()
-
-						{
-
-							@Override
-							public void onConfirm()
-							{
-
-								undeploy();
-
-							}
-						}).show();
-
-			}
 		}
-		return true;
 	}
 
 	@Override
@@ -311,17 +280,14 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 	{
 		content.removeAllComponents();
 
-		if (status.equals(STATUS_DEPLOYED))
+		if (status.equals(Status.deployed.toString()))
 		{
 
-			addFieldToContent(msg.getMessage(msgPrefix + ".description"),
+			addFieldToContent(msg.getMessage("TranslationProfiles.description"),
 					translationProfile.getDescription());
-			addFieldToContent(msg.getMessage(msgPrefix + ".rules"), "");
-
-			 
+			addFieldToContent(msg.getMessage("TranslationProfiles.rules"), "");
 			
 			FormLayout rulesL=new FormLayout();
-		
 			rulesL.setSpacing(false);
 			rulesL.setMargin(false);
 			
@@ -329,8 +295,8 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 			for (TranslationRule rule : translationProfile.getRules())
 			{	i++;
 			       
-				addField(rulesL,String.valueOf(i)+":  "+msg.getMessage(msgPrefix + ".ruleCondition"),
-						"<code>"+rule.getCondition().getCondition()+"</code>");
+				addField(rulesL, String.valueOf(i) + ":  " + msg.getMessage("TranslationProfiles.ruleCondition"),
+						"<code>" + rule.getCondition().getCondition() + "</code>");
 				StringBuilder params = new StringBuilder();
 				for (String p : rule.getAction().getParameters())
 				{
@@ -338,8 +304,8 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 						params.append(", ");
 					params.append(p);
 				}
-				addField(rulesL,msg.getMessage(msgPrefix + ".ruleAction"),
-						"<code>"+rule.getAction().getName()+"</code>"+" "+params);
+				addField(rulesL, msg.getMessage("TranslationProfiles.ruleAction"),
+						"<code>" + rule.getAction().getName() + "</code>" + " " + params);
 
 				
 				content.addComponent(rulesL);
