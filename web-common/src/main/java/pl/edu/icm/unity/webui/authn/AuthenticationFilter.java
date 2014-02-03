@@ -72,9 +72,9 @@ public class AuthenticationFilter implements Filter
 		}
 	}
 
-	private static boolean hasPathPrefix(String pathInfo , String prefix) {
+	public static boolean hasPathPrefix(String pathInfo , String prefix) {
 
-		if (pathInfo == null) {
+		if (pathInfo == null || pathInfo.equals("")) {
 			return false;
 		}
 

@@ -213,7 +213,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	@Override
 	protected String getMyAddress()
 	{
-		return endpointDescription.getContextAddress()+SamlUnicoreIdPWebEndpointFactory.SERVLET_PATH;
+		return endpointDescription.getContextAddress()+SamlUnicoreIdPWebEndpointFactory.SAML_SERVLET_PATH;
 	}
 	
 	@Override

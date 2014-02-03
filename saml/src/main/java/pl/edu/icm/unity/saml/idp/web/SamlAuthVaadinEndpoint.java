@@ -39,14 +39,16 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	protected SamlProperties samlProperties;
 	protected FreemarkerHandler freemarkerHandler;
 	protected PKIManagement pkiManagement;
+	protected String samlConsumerPath;
 	
 	public SamlAuthVaadinEndpoint(EndpointTypeDescription type, ApplicationContext applicationContext,
 			FreemarkerHandler freemarkerHandler, Class<?> uiClass, String servletPath, 
-			PKIManagement pkiManagement)
+			PKIManagement pkiManagement, String samlConsumerPath)
 	{
 		super(type, applicationContext, uiClass.getSimpleName(), servletPath);
 		this.freemarkerHandler = freemarkerHandler;
 		this.pkiManagement = pkiManagement;
+		this.samlConsumerPath = samlConsumerPath;
 	}
 	
 	@Override
@@ -98,6 +100,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	
 	protected Filter getSamlParseFilter(String endpointURL)
 	{
-		return new SamlParseFilter(samlProperties, freemarkerHandler, endpointURL);
+		return new SamlParseFilter(samlProperties, freemarkerHandler, endpointURL, samlConsumerPath, 
+				servletPath);
 	}
 }

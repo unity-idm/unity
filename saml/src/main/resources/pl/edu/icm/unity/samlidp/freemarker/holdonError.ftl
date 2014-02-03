@@ -12,7 +12,7 @@ function forceContinue()
 }
 </script>
 
-<form id="mainform" method="post">
+<form id="mainform" method="${method}">
     <div>
     	ERROR! It was detected that currently there is an authentication going on with this browser session,
     	most probably in another window or tab of your web browser.

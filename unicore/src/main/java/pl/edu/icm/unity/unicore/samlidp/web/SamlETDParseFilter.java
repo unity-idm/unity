@@ -26,9 +26,10 @@ import pl.edu.icm.unity.unicore.samlidp.saml.WebAuthWithETDRequestValidator;
  */
 public class SamlETDParseFilter extends SamlParseFilter
 {
-	public SamlETDParseFilter(SamlProperties samlConfig, FreemarkerHandler freemarker, String endpointAddress)
+	public SamlETDParseFilter(SamlProperties samlConfig, FreemarkerHandler freemarker, String endpointAddress,
+			String samlConsumerPath, String samlServletPath)
 	{
-		super(samlConfig, freemarker, endpointAddress);
+		super(samlConfig, freemarker, endpointAddress, samlConsumerPath, samlServletPath);
 	}
 
 	protected void validate(SAMLAuthnContext context, HttpServletResponse servletResponse) 

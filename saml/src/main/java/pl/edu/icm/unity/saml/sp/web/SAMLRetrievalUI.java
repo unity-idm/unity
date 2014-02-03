@@ -203,7 +203,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		if (message == null)
 		{
 			messageLabel.setValue("");
-			errorDetailLabel.setVisible(false);
+			showErrorDetail(null);
 			return;
 		}
 		messageLabel.setValue(message);
@@ -211,6 +211,12 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 
 	private void showErrorDetail(String message)
 	{
+		if (message == null)
+		{
+			errorDetailLabel.setVisible(false);
+			errorDetailLabel.setValue("");
+			return;
+		}
 		errorDetailLabel.setVisible(true);
 		errorDetailLabel.setValue(message);
 	}
@@ -267,6 +273,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		VaadinSession session = VaadinSession.getCurrent();
 		session.lock();
 		AuthenticationResult authnResult;
+		showError(null);
 		try
 		{
 			try

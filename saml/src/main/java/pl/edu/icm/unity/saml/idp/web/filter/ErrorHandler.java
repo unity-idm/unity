@@ -106,7 +106,7 @@ public class ErrorHandler
 		throw new EopException();
 	}
 
-	public void showHoldOnPage(String request, String relayState, HttpServletResponse response) 
+	public void showHoldOnPage(String request, String relayState, String method, HttpServletResponse response) 
 			throws IOException, EopException
 	{
 		response.setContentType("application/xhtml+xml; charset=utf-8");
@@ -115,6 +115,7 @@ public class ErrorHandler
 		data.put("originalRequest", request);
 		if (relayState != null)
 			data.put("RelayState", relayState);
+		data.put("method", method);
 		freemarker.process("holdonError.ftl", data, w);
 		throw new EopException();
 	}

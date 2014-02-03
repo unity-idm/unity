@@ -26,10 +26,10 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 @Component
 public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 {
-	public static final String SERVLET_PATH = "/saml2unicoreIdp-web";
+	public static final String SAML_CONSUMER_PATH = "/saml2unicoreIdp-web";
+	public static final String SAML_SERVLET_PATH = "/saml2unicoreIdp-web-service";
 	public static final String NAME = "SAMLUnicoreWebIdP";
 	
-
 	private EndpointTypeDescription description;
 	private ApplicationContext applicationContext;
 	private FreemarkerHandler freemarkerHandler;
@@ -59,6 +59,6 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new SamlAuthETDVaadinEndpoint(getDescription(), applicationContext, freemarkerHandler,
-				SamlUnicoreIdPWebUI.class, SERVLET_PATH, pkiManagement);
+				SamlUnicoreIdPWebUI.class, SAML_SERVLET_PATH, pkiManagement, SAML_CONSUMER_PATH);
 	}
 }
