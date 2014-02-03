@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.Servlet;
 
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -108,26 +109,33 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticators, 
 				registrationConfiguration, genericEndpointProperties);
-		ServletHolder authnServletHolder = createServletHolder(authenticationServlet);
+		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet);
 		authnServletHolder.setInitParameter("closeIdleSessions", "true");
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
 		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
 				description, authenticators, registrationConfiguration, genericEndpointProperties);
-		context.addServlet(createServletHolder(theServlet), servletPath + "/*");
+		context.addServlet(createVaadinServletHolder(theServlet), servletPath + "/*");
 
 		return context;
 	}
-	
-	protected ServletHolder createServletHolder(VaadinServlet servlet)
+
+	protected ServletHolder createServletHolder(Servlet servlet)
 	{
 		ServletHolder holder = new ServletHolder(servlet);
 		holder.setInitParameter("closeIdleSessions", "true");
 		int sessionTimeout = genericEndpointProperties.getIntValue(VaadinEndpointProperties.SESSION_TIMEOUT);
+		holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(sessionTimeout));
+		return holder;
+	}
+	
+	protected ServletHolder createVaadinServletHolder(VaadinServlet servlet)
+	{
+		ServletHolder holder = createServletHolder(servlet);
+		int sessionTimeout = genericEndpointProperties.getIntValue(VaadinEndpointProperties.SESSION_TIMEOUT);
 		boolean productionMode = genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.PRODUCTION_MODE);
 		holder.setInitParameter("heartbeatInterval", String.valueOf(sessionTimeout/4));
-		holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(sessionTimeout));
 		holder.setInitParameter(PRODUCTION_MODE_PARAM, String.valueOf(productionMode));
 		return holder;
 	}

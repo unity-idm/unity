@@ -4,17 +4,20 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.web;
 
-import javax.servlet.Filter;
+import javax.servlet.Servlet;
 
 import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
+import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
+
 /**
- * Extends a simple {@link SamlAuthVaadinEndpoint}, changing the SAML parse filter to {@link SamlETDParseFilter}. 
+ * Extends a simple {@link SamlAuthVaadinEndpoint}, changing the SAML parse servlet to 
+ * {@link SamlETDParseServlet}. 
  * 
  * @author K. Benedyczak
  */
@@ -27,11 +30,11 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 		super(type, applicationContext, freemarkerHandler, uiClass, servletPath, pkiManagement, 
 				samlConsumerPath);
 	}
-	
+
 	@Override
-	protected Filter getSamlParseFilter(String endpointURL)
+	protected Servlet getSamlParseServlet(String endpointURL, String uiUrl)
 	{
-		return new SamlETDParseFilter(samlProperties, freemarkerHandler, endpointURL, samlConsumerPath, 
-				servletPath);
+		return new SamlETDParseServlet(samlProperties, 
+				endpointURL, uiUrl, new ErrorHandler(freemarkerHandler));
 	}
 }

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
- * See LICENCE.txt file for licensing information.
+ * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE file for licensing information.
  */
 package pl.edu.icm.unity.saml.idp.web.filter;
 
@@ -9,12 +9,8 @@ import java.io.IOException;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterOutputStream;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -23,41 +19,30 @@ import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 import org.bouncycastle.util.encoders.Base64;
 
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.exceptions.SAMLServerException;
-
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.SamlProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.web.EopException;
 import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
 import pl.edu.icm.unity.server.utils.Log;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.exceptions.SAMLServerException;
 
 /**
- * Filter which is invoked prior to authentication. 
- * It behaves in two modes:
+ * Low level servlet performing the initial SAML handling. Supports both POST and HTTP-Redirect (GET) 
+ * SAML profiles. 
  * <p>
- * If a request comes to the base path of the servlet, it is assumed it is a request with POST or GET SAML request.
- * The filter retrieves the SAML request, parses it, validates and if everything is correct proceeds stores it in 
- * the session and proceeds. In case of problems a SAML error is returned
+ * The servlet retrieves the SAML request, parses it, validates and if everything is correct 
+ * stores it in the session and forwards the processing to the Vaadin part. In case of problems a SAML error is returned
  * to the requester or error page is displayed if the SAML requester can not be established (e.g. no request
- * or request can not be parsed). 
- * If a SAML Request is found in the HTTP request parameters and context is already set up, then a hold-on error 
- * page is displayed, to prevent simultaneous authentications. User may kill the previous authn session and it 
- * expires automatically after a configured amount of time.  
- * <p>
- * If a request comes to any other address then the base servlet path, then the filter checks if a SAML context 
- * is available in the session. If not - the request is banned and an error page displayed.
- * 
- * 
+ * or request can not be parsed).
  * @author K. Benedyczak
  */
-public class SamlParseFilter implements Filter
+public class SamlParseServlet extends HttpServlet
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlParseFilter.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlParseServlet.class);
 	
 	/**
 	 * Under this key the SAMLContext object is stored in the session.
@@ -71,90 +56,93 @@ public class SamlParseFilter implements Filter
 	public static final String REQ_FORCE = "force";
 	protected SamlProperties samlConfig;
 	protected String endpointAddress;
-	protected String samlConsumerPath;
-	protected String samlServletPath;
+	protected String samlUiServletPath;
 	protected ErrorHandler errorHandler;
-	
-	public SamlParseFilter(SamlProperties samlConfig, FreemarkerHandler freemarker, String endpointAddress,
-			String samlConsumerPath, String samlServletPath)
+
+	public SamlParseServlet(SamlProperties samlConfig, String endpointAddress,
+			String samlUiServletPath, ErrorHandler errorHandler)
 	{
+		super();
 		this.samlConfig = samlConfig;
 		this.endpointAddress = endpointAddress;
-		this.errorHandler = new ErrorHandler(freemarker);
-		this.samlConsumerPath = samlConsumerPath;
-		this.samlServletPath = samlServletPath;
+		this.samlUiServletPath = samlUiServletPath;
+		this.errorHandler = errorHandler;
 	}
 
+	/**
+	 * GET handling -> SAML Redirect binding.
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void doFilter(ServletRequest requestBare, ServletResponse responseBare, FilterChain chain)
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException
+	{
+		processSamlRequest(request, response);
+	}
+
+	/**
+	 * POST handling -> SAML POST binding
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException
+	{
+		processSamlRequest(request, response);
+	}
+
+	protected void processSamlRequest(HttpServletRequest request, HttpServletResponse response) 
 			throws IOException, ServletException
 	{
 		try
 		{
-			doFilterInterruptible(requestBare, responseBare, chain);
+			processSamlRequestInterruptible(request, response);
 		} catch (EopException e)
 		{
-			//OK, that's fine, response was already committed
+			//OK
 		}
 	}
 	
-	protected void doFilterInterruptible(ServletRequest requestBare, ServletResponse responseBare, FilterChain chain)
+	protected void processSamlRequestInterruptible(HttpServletRequest request, HttpServletResponse response) 
 			throws IOException, ServletException, EopException
 	{
-		if (!(requestBare instanceof HttpServletRequest))
-			throw new ServletException("This filter can be used only for HTTP servlets");
-		HttpServletRequest request = (HttpServletRequest) requestBare;
-		HttpServletResponse response = (HttpServletResponse) responseBare;
-		if (samlConsumerPath.equals(request.getServletPath()))
-		{
-			processSamlRequest(request, response, chain);
-		} else
-		{
-			if (log.isTraceEnabled())
-				log.trace("Request to not protected address: " + request.getRequestURI());
-			chain.doFilter(request, response);
-			return;
-		}
-		
-	}
-
-	protected void processSamlRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) 
-			throws IOException, ServletException, EopException
-	{
+		log.trace("Starting SAML request processing");
 		HttpSession session = request.getSession();
 		SAMLAuthnContext context = (SAMLAuthnContext) session.getAttribute(SESSION_SAML_CONTEXT); 
+
+		String samlRequestStr = request.getParameter(SAMLConstants.REQ_SAML_REQUEST);
+		//do we have a new request?
+		if (samlRequestStr == null)
+		{
+			if (log.isTraceEnabled())
+				log.trace("Request to SAML endpoint address, without SAML input, error: " + 
+						request.getRequestURI());
+			errorHandler.showErrorPage(new SAMLProcessingException("No SAML request"), 
+					(HttpServletResponse) response);
+			return;
+		}
+		//ok, we do have a new request. 
+
+		
 		//is there processing in progress?
 		if (context != null)
 		{
-			String samlRequest = request.getParameter(SAMLConstants.REQ_SAML_REQUEST);
-			//do we have a new request?
-			if (samlRequest == null)
-			{
-				if (log.isTraceEnabled())
-					log.trace("Request to SAML endpoint address, without SAML input, error: " + 
-							request.getRequestURI());
-				errorHandler.showErrorPage(new SAMLProcessingException("No SAML request"), 
-						(HttpServletResponse) response);
-				return;
-			}
-			
-			//ok, we do have a new request. 
 			//We can have the old session expired or order to forcefully close it.
 			String force = request.getParameter(REQ_FORCE);
 			if ((force == null || force.equals("false")) && !context.isExpired())
 			{
 				if (log.isTraceEnabled())
-					log.trace("Request to protected address, with SAML input and we have " +
+					log.trace("Request to SAML consumer address, with SAML input and we have " +
 							"SAML login in progress, redirecting to hold on page: " + 
 							request.getRequestURI());
-				errorHandler.showHoldOnPage(samlRequest, 
+				errorHandler.showHoldOnPage(samlRequestStr, 
 						request.getParameter(SAMLConstants.RELAY_STATE),
 						request.getMethod(), response);
 				return;
 			} else
 			{
 				if (log.isTraceEnabled())
-					log.trace("Request to protected address, with SAML input and we are " +
+					log.trace("Request to SAML consumer address, with SAML input and we are " +
 							"forced to break the previous SAML login: " + 
 							request.getRequestURI());
 				session.removeAttribute(SESSION_SAML_CONTEXT);
@@ -180,7 +168,8 @@ public class SamlParseFilter implements Filter
 		session.setAttribute(SESSION_SAML_CONTEXT, context);
 		if (log.isTraceEnabled())
 			log.trace("Request with SAML input handled successfully");
-		request.getRequestDispatcher(samlServletPath).forward(request, response);
+		response.sendRedirect(samlUiServletPath);
+		//request.getRequestDispatcher(samlUiServletPath).forward(request, response);
 	}
 	
 	protected SAMLAuthnContext createSamlContext(HttpServletRequest request, AuthnRequestDocument samlRequest)
@@ -253,15 +242,5 @@ public class SamlParseFilter implements Filter
 		os.finish();
 		os.close();
 		return new String(baos.toByteArray(), Constants.UTF);
-	}
-	
-	@Override
-	public void init(FilterConfig filterConfig) throws ServletException
-	{
-	}
-
-	@Override
-	public void destroy()
-	{
 	}
 }

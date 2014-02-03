@@ -8,6 +8,7 @@ import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
+import javax.servlet.Servlet;
 
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -18,7 +19,9 @@ import eu.unicore.util.configuration.ConfigurationException;
 
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.SamlProperties;
-import pl.edu.icm.unity.saml.idp.web.filter.SamlParseFilter;
+import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
+import pl.edu.icm.unity.saml.idp.web.filter.SamlGuardFilter;
+import pl.edu.icm.unity.saml.idp.web.filter.SamlParseServlet;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
@@ -42,10 +45,10 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	protected String samlConsumerPath;
 	
 	public SamlAuthVaadinEndpoint(EndpointTypeDescription type, ApplicationContext applicationContext,
-			FreemarkerHandler freemarkerHandler, Class<?> uiClass, String servletPath, 
+			FreemarkerHandler freemarkerHandler, Class<?> uiClass, String samlUiServletPath, 
 			PKIManagement pkiManagement, String samlConsumerPath)
 	{
-		super(type, applicationContext, uiClass.getSimpleName(), servletPath);
+		super(type, applicationContext, uiClass.getSimpleName(), samlUiServletPath);
 		this.freemarkerHandler = freemarkerHandler;
 		this.pkiManagement = pkiManagement;
 		this.samlConsumerPath = samlConsumerPath;
@@ -70,9 +73,15 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	 	ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath(description.getContextAddress());
 
-		String endpointURL = getServletUrl(servletPath);
-		Filter samlFilter = getSamlParseFilter(endpointURL); 
-		context.addFilter(new FilterHolder(samlFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
+		String endpointURL = getServletUrl(samlConsumerPath);
+		String uiURL = getServletUrl(servletPath);
+		Filter samlGuardFilter = new SamlGuardFilter(samlConsumerPath, servletPath, 
+				new ErrorHandler(freemarkerHandler));
+		context.addFilter(new FilterHolder(samlGuardFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
+		
+		Servlet samlParseServlet = getSamlParseServlet(endpointURL, uiURL);
+		ServletHolder samlParseHolder = createServletHolder(samlParseServlet);
+		context.addServlet(samlParseHolder, samlConsumerPath + "/*");
 		
 		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
 				description.getContextAddress()+AUTHENTICATION_PATH);
@@ -87,20 +96,20 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 				description.getContextAddress()+AUTHENTICATION_PATH);
 		authenticationServlet.setCancelHandler(cancelHandler);
 		
-		ServletHolder authnServletHolder = createServletHolder(authenticationServlet); 
+		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet); 
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
 		UnityVaadinServlet theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
 				description, authenticators, registrationConfiguration, genericEndpointProperties);
-		context.addServlet(createServletHolder(theServlet), servletPath + "/*");
+		context.addServlet(createVaadinServletHolder(theServlet), servletPath + "/*");
 		
 		return context;
 	}
 	
-	protected Filter getSamlParseFilter(String endpointURL)
+	protected Servlet getSamlParseServlet(String endpointURL, String uiUrl)
 	{
-		return new SamlParseFilter(samlProperties, freemarkerHandler, endpointURL, samlConsumerPath, 
-				servletPath);
+		return new SamlParseServlet(samlProperties, 
+				endpointURL, uiUrl, new ErrorHandler(freemarkerHandler));
 	}
 }

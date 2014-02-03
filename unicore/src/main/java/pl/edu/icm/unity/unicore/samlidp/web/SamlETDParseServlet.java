@@ -11,27 +11,28 @@ import javax.servlet.http.HttpServletResponse;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 
 import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.SamlProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.web.EopException;
-import pl.edu.icm.unity.saml.idp.web.filter.SamlParseFilter;
+import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
+import pl.edu.icm.unity.saml.idp.web.filter.SamlParseServlet;
 import pl.edu.icm.unity.unicore.samlidp.saml.WebAuthWithETDRequestValidator;
 
 /**
- * Extension of the {@link SamlParseFilter}. It changes the default SAML SSO 
+ * Extension of the {@link SamlParseServlet}. It changes the default SAML SSO 
  * validator to the {@link WebAuthWithETDRequestValidator}.
  * 
  * @author K. Benedyczak
  */
-public class SamlETDParseFilter extends SamlParseFilter
+public class SamlETDParseServlet extends SamlParseServlet
 {
-	public SamlETDParseFilter(SamlProperties samlConfig, FreemarkerHandler freemarker, String endpointAddress,
-			String samlConsumerPath, String samlServletPath)
+	public SamlETDParseServlet(SamlProperties samlConfig, String endpointAddress,
+			String samlUiServletPath, ErrorHandler errorHandler)
 	{
-		super(samlConfig, freemarker, endpointAddress, samlConsumerPath, samlServletPath);
+		super(samlConfig, endpointAddress, samlUiServletPath, errorHandler);
 	}
 
+	@Override
 	protected void validate(SAMLAuthnContext context, HttpServletResponse servletResponse) 
 			throws SAMLProcessingException, IOException, EopException
 	{
