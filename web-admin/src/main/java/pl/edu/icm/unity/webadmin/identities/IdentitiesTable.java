@@ -26,6 +26,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -67,6 +68,7 @@ import com.vaadin.ui.TreeTable;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class IdentitiesTable extends TreeTable
 {
+	enum BaseColumnId {entity, type, identity, status, local, credReq};
 	public static final String ATTR_COL_PREFIX = "a::";
 	public static final String ATTR_ROOT_COL_PREFIX = ATTR_COL_PREFIX + "root::";
 	public static final String ATTR_CURRENT_COL_PREFIX = ATTR_COL_PREFIX + "current::";
@@ -75,6 +77,7 @@ public class IdentitiesTable extends TreeTable
 	private UnityMessageSource msg;
 	private AuthenticationManagement authnMan;
 	private AttributesManagement attrMan;
+	private PreferencesManagement preferencesMan;
 	private AttributesInternalProcessing attrProcessor;
 	private IdentityEditorRegistry identityEditorReg;
 	private AttributeHandlerRegistry attrHandlerRegistry;
@@ -90,11 +93,12 @@ public class IdentitiesTable extends TreeTable
 	
 	@Autowired
 	public IdentitiesTable(IdentitiesManagement identitiesMan, GroupsManagement groupsMan, 
-			AuthenticationManagement authnMan, AttributesManagement attrMan,
+			AuthenticationManagement authnMan, AttributesManagement attrMan,PreferencesManagement preferencesMan,
 			AttributesInternalProcessing attrProcessor,
 			IdentityEditorRegistry identityEditorReg, CredentialEditorRegistry credEditorsRegistry,
 			AttributeHandlerRegistry attrHandlerReg, UnityMessageSource msg)
 	{
+		this.preferencesMan = preferencesMan;
 		this.identitiesMan = identitiesMan;
 		this.attrProcessor = attrProcessor;
 		this.groupsMan = groupsMan;
@@ -108,32 +112,34 @@ public class IdentitiesTable extends TreeTable
 		this.credEditorsRegistry = credEditorsRegistry;
 		this.actionHandlers = new ArrayList<>();
 		
-		addContainerProperty("entity", String.class, null);
-		addContainerProperty("type", String.class, "");
-		addContainerProperty("identity", String.class, "");
-		addContainerProperty("status", String.class, "");
-		addContainerProperty("local", String.class, "");
-		addContainerProperty("credReq", String.class, "");
-		setColumnHeader("entity", msg.getMessage("Identities.entity"));
-		setColumnHeader("type", msg.getMessage("Identities.type"));
-		setColumnHeader("identity", msg.getMessage("Identities.identity"));
-		setColumnHeader("status", msg.getMessage("Identities.status"));
-		setColumnHeader("local", msg.getMessage("Identities.local"));
-		setColumnHeader("credReq", msg.getMessage("Identities.credReq"));
+		addContainerProperty(BaseColumnId.entity.toString(), String.class, null);
+		addContainerProperty(BaseColumnId.type.toString(), String.class, "");
+		addContainerProperty(BaseColumnId.identity.toString(), String.class, "");
+		addContainerProperty(BaseColumnId.status.toString(), String.class, "");
+		addContainerProperty(BaseColumnId.local.toString(), String.class, "");
+		addContainerProperty(BaseColumnId.credReq.toString(), String.class, "");
+		setColumnHeader(BaseColumnId.entity.toString(), msg.getMessage("Identities.entity"));
+		setColumnHeader(BaseColumnId.type.toString(), msg.getMessage("Identities.type"));
+		setColumnHeader(BaseColumnId.identity.toString(), msg.getMessage("Identities.identity"));
+		setColumnHeader(BaseColumnId.status.toString(), msg.getMessage("Identities.status"));
+		setColumnHeader(BaseColumnId.local.toString(), msg.getMessage("Identities.local"));
+		setColumnHeader(BaseColumnId.credReq.toString(), msg.getMessage("Identities.credReq"));
 		
 		setSelectable(true);
 		setMultiSelect(false);
 		setColumnReorderingAllowed(true);
 		setColumnCollapsingAllowed(true);
-		setColumnCollapsible("entity", false);
-		setColumnCollapsed("local", true);
-		setColumnCollapsed("credReq", true);
+		setColumnCollapsible(BaseColumnId.entity.toString(), false);
+		setColumnCollapsed(BaseColumnId.local.toString(), true);
+		setColumnCollapsed(BaseColumnId.credReq.toString(), true);
 		
-		setColumnWidth("entity", 200);
-		setColumnWidth("type", 100);
-		setColumnWidth("status", 100);
-		setColumnWidth("local", 100);
-		setColumnWidth("credReq", 180);
+		setColumnWidth(BaseColumnId.entity.toString(), 200);
+		setColumnWidth(BaseColumnId.type.toString(), 100);
+		setColumnWidth(BaseColumnId.status.toString(), 100);
+		setColumnWidth(BaseColumnId.local.toString(), 100);
+		setColumnWidth(BaseColumnId.credReq.toString(), 180);
+		
+		loadPreferences();
 		
 		addActionHandler(new RefreshHandler());
 		addActionHandler(new ShowEntityDetailsHandler());
@@ -177,8 +183,133 @@ public class IdentitiesTable extends TreeTable
 				}
 			}
 		});
+
+//		addColumnResizeListener(new ColumnResizeListener()
+//		{
+//			@Override
+//			public void columnResize(ColumnResizeEvent event)
+//			{
+//				savePreferences();
+//			}
+//		});
+//
+//		addColumnReorderListener(new ColumnReorderListener()
+//		{
+//			@Override
+//			public void columnReorder(ColumnReorderEvent event)
+//			{
+//				savePreferences();
+//			}
+//		});
+		//For future: addColumnCollapseListener, expected for Vaadin 7.2
 	}
 
+	public void savePreferences()
+	{
+		Collection<?> props = getContainerPropertyIds();
+		IdentitiesTablePreferences preferences = new IdentitiesTablePreferences();
+		Object[] columns = getVisibleColumns(); //order of the columns
+
+		for (Object prop : props)
+		{
+			if (!(prop instanceof String))
+				continue;
+			String property = (String) prop;
+			IdentitiesTablePreferences.ColumnSettings settings = 
+					new IdentitiesTablePreferences.ColumnSettings();
+			settings.setCollapsed(isColumnCollapsed(property));
+
+			settings.setWidth(getColumnWidth(property));
+
+			for (int i = 0; i < columns.length; i++)
+			{
+				String c = (String) columns[i];
+				if (c.equals(property))
+				{
+					settings.setOrder(i);
+				}
+			}
+
+			preferences.addColumneSettings(property, settings);
+		}
+		
+		preferences.setGroupByEntitiesSetting(groupByEntity);
+		try
+		{
+			IdentitiesTablePreferences.savePreferences(preferencesMan, preferences);
+		} catch (EngineException e)
+		{
+			ErrorPopup.showError(msg, msg.getMessage("error"),
+					msg.getMessage("Identities.cannotSavePrefernces"));
+			return;
+
+		}
+
+	}
+
+	public void loadPreferences()
+	{
+
+		IdentitiesTablePreferences preferences = null;
+		try
+		{
+			preferences = IdentitiesTablePreferences.getPreferences(preferencesMan);
+		} catch (EngineException e)
+		{
+			ErrorPopup.showError(msg, msg.getMessage("error"),
+					msg.getMessage("Identities.cannotLoadPrefernces"));
+			return;
+		}
+		groupByEntity=preferences.getGroupByEntitiesSetting();
+		
+		Set<String> props = new HashSet<String>();
+		
+		for (Object prop : getContainerPropertyIds())
+		{
+			if (!(prop instanceof String))
+				continue;
+			String property = (String) prop;
+			props.add(property);
+		}
+
+		
+		if (preferences != null && preferences.getColumnSettings().size() > 0)
+		{       String[] scol = new String[preferences.getColumnSettings().size()];
+
+			for (Map.Entry<String, IdentitiesTablePreferences.ColumnSettings> entry : 
+				preferences.getColumnSettings().entrySet())
+			{
+				if (!props.contains(entry.getKey().toString()))
+				{
+					if (entry.getKey().startsWith(ATTR_ROOT_COL_PREFIX))
+						addAttributeColumn(entry.getKey().substring(
+								ATTR_ROOT_COL_PREFIX.length()), "/");
+					if (entry.getKey().startsWith(ATTR_CURRENT_COL_PREFIX))
+						addAttributeColumn(entry.getKey().substring(
+								ATTR_CURRENT_COL_PREFIX.length()), null);
+
+					setColumnCollapsed(entry.getKey(), entry.getValue().isCollapsed());
+					setColumnWidth(entry.getKey(), entry.getValue().getWidth());
+
+				} else
+				{
+					if (!entry.getKey().equals(BaseColumnId.entity.toString()))
+					{
+						setColumnCollapsed(entry.getKey(), entry.getValue()
+								.isCollapsed());
+					}
+					setColumnWidth(entry.getKey(), entry.getValue().getWidth());
+
+				}
+
+				scol[entry.getValue().getOrder()] = entry.getKey();
+
+			}
+			setVisibleColumns(scol);
+		}
+
+	}
+	
 	@Override
 	public void addActionHandler(Action.Handler actionHandler) {
 		super.addActionHandler(actionHandler);
@@ -232,6 +363,7 @@ public class IdentitiesTable extends TreeTable
 		addContainerProperty(key, String.class, "");
 		setColumnHeader(key, attribute + (group == null ? "@" + this.group : "@/"));
 		refresh();
+	//	savePreferences();
 	}
 
 	public void removeAttributeColumn(String group, String... attributes)
@@ -244,6 +376,7 @@ public class IdentitiesTable extends TreeTable
 				removeContainerProperty(ATTR_CURRENT_COL_PREFIX + attribute);
 		}
 		refresh();
+	//	savePreferences();
 	}
 	
 	public Set<String> getAttributeColumns(boolean root)
@@ -365,19 +498,19 @@ public class IdentitiesTable extends TreeTable
 		Object itemId = id == null ? entWithLabel : new IdentityWithEntity(id, entWithLabel);
 		Item newItem = addItem(itemId);
 		
-		newItem.getItemProperty("entity").setValue(entWithLabel.toString());
-		newItem.getItemProperty("credReq").setValue(ent.getCredentialInfo().getCredentialRequirementId());
-		newItem.getItemProperty("status").setValue(msg.getMessage("EntityState."+ent.getState().name()));
+		newItem.getItemProperty(BaseColumnId.entity.toString()).setValue(entWithLabel.toString());
+		newItem.getItemProperty(BaseColumnId.credReq.toString()).setValue(ent.getCredentialInfo().getCredentialRequirementId());
+		newItem.getItemProperty(BaseColumnId.status.toString()).setValue(msg.getMessage("EntityState."+ent.getState().name()));
 		if (id != null)
 		{
-			newItem.getItemProperty("type").setValue(id.getTypeId());
-			newItem.getItemProperty("identity").setValue(id.toPrettyStringNoPrefix());
-			newItem.getItemProperty("local").setValue(new Boolean(id.isLocal()).toString());
+			newItem.getItemProperty(BaseColumnId.type.toString()).setValue(id.getTypeId());
+			newItem.getItemProperty(BaseColumnId.identity.toString()).setValue(id.toPrettyStringNoPrefix());
+			newItem.getItemProperty(BaseColumnId.local.toString()).setValue(new Boolean(id.isLocal()).toString());
 		} else
 		{
-			newItem.getItemProperty("type").setValue("");
-			newItem.getItemProperty("identity").setValue("");
-			newItem.getItemProperty("local").setValue("");
+			newItem.getItemProperty(BaseColumnId.type.toString()).setValue("");
+			newItem.getItemProperty(BaseColumnId.identity.toString()).setValue("");
+			newItem.getItemProperty(BaseColumnId.local.toString()).setValue("");
 		}
 		
 		Collection<?> propertyIds = newItem.getItemPropertyIds();
@@ -414,7 +547,7 @@ public class IdentitiesTable extends TreeTable
 			return rootAttributes.get(attributeName);
 		}
 	}
-	
+
 	private void resolveEntity(long entity) throws EngineException
 	{
 		Entity resolvedEntity = identitiesMan.getEntity(new EntityParam(entity));
@@ -774,6 +907,11 @@ public class IdentitiesTable extends TreeTable
 			dialog.show();
 		}
 	}
+	
+	public boolean isGroupByEntity()
+	{
+		return groupByEntity;
+	}
 
 	
 	/**
@@ -844,6 +982,7 @@ public class IdentitiesTable extends TreeTable
 			result = prime * result + ((identity == null) ? 0 : identity.hashCode());
 			return result;
 		}
+
 		@Override
 		public boolean equals(Object obj)
 		{
@@ -865,7 +1004,3 @@ public class IdentitiesTable extends TreeTable
 
 	}
 }
-
-
-
-
