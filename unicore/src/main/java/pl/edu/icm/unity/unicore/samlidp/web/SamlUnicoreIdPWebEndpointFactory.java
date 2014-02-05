@@ -28,8 +28,8 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 @Component
 public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 {
-	public static final String SAML_CONSUMER_PATH = "/saml2unicoreIdp-web";
-	public static final String SAML_SERVLET_PATH = "/saml2unicoreIdp-web-service";
+	public static final String SAML_CONSUMER_SERVLET_PATH = "/saml2unicoreIdp-web";
+	public static final String SAML_UI_SERVLET_PATH = "/saml2unicoreIdp-web-ui";
 	public static final String NAME = "SAMLUnicoreWebIdP";
 	
 	private EndpointTypeDescription description;
@@ -48,7 +48,7 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
 		Map<String,String> paths=new HashMap<String, String>();
-		paths.put(SERVLET_PATH,"SAML 2 UNICORE identity provider web endpoint");
+		paths.put(SAML_CONSUMER_SERVLET_PATH,"SAML 2 UNICORE identity provider web endpoint");
 		description = new EndpointTypeDescription(NAME, 
 				"SAML 2 UNICORE identity provider web endpoint", supportedAuthn,paths);
 	}
@@ -63,6 +63,6 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new SamlAuthETDVaadinEndpoint(getDescription(), applicationContext, freemarkerHandler,
-				SamlUnicoreIdPWebUI.class, SAML_SERVLET_PATH, pkiManagement, SAML_CONSUMER_PATH);
+				SamlUnicoreIdPWebUI.class, SAML_UI_SERVLET_PATH, pkiManagement, SAML_CONSUMER_SERVLET_PATH);
 	}
 }
