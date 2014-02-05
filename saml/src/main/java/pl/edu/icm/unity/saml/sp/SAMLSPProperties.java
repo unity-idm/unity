@@ -49,8 +49,8 @@ public class SAMLSPProperties extends PropertiesHelper
 	public static final String REQUESTER_ID = "requesterEntityId";
 	public static final String CREDENTIAL = "requesterCredential";
 	public static final String ACCEPTED_NAME_FORMATS = "acceptedNameFormats.";
-	
 	public static final String DISPLAY_NAME = "displayName";
+	
 	public static final String IDP_PREFIX = "remoteIdp.";
 	public static final String IDP_NAME = "name";
 	public static final String IDP_ID = "samlId";
@@ -60,9 +60,8 @@ public class SAMLSPProperties extends PropertiesHelper
 	public static final String IDP_SIGN_REQUEST = "signRequest";
 	public static final String IDP_REQUESTED_NAME_FORMAT = "requestedNameFormat";
 	public static final String IDP_GROUP_MEMBERSHIP_ATTRIBUTE = "groupMembershipAttribute";
-
-	public static final String TRANSLATION_PROFILE = "translationProfile";
-	public static final String REGISTRATION_FORM = "registrationFormForUnknown";
+	public static final String IDP_TRANSLATION_PROFILE = "translationProfile";
+	public static final String IDP_REGISTRATION_FORM = "registrationFormForUnknown";
 	
 	static
 	{
@@ -101,6 +100,13 @@ public class SAMLSPProperties extends PropertiesHelper
 		META.put(IDP_GROUP_MEMBERSHIP_ATTRIBUTE, new PropertyMD().setCategory(common).setStructuredListEntry(IDP_PREFIX).setDescription(
 				"Defines a SAML attribute name which will be treated as an attribute carrying group" +
 				" membership information."));
+		META.put(IDP_TRANSLATION_PROFILE, new PropertyMD().setMandatory().setCategory(common).setStructuredListEntry(IDP_PREFIX).
+				setDescription("Name of a translation" +
+				" profile, which will be used to map remotely obtained attributes and identity" +
+				" to the local counterparts. The profile should at least map the remote identity."));
+		META.put(IDP_REGISTRATION_FORM, new PropertyMD().setCategory(common).setStructuredListEntry(IDP_PREFIX).setDescription(
+				"Name of a registration form to be shown for a remotely authenticated principal who " +
+				"has no local account. If unset such users will be denied."));
 		
 		META.put(REQUESTER_ID, new PropertyMD().setMandatory().setCategory(verificator).setDescription(
 				"SAML entity ID (must be a URI) of the lcoal SAML requester (or service provider)."));
@@ -109,13 +115,7 @@ public class SAMLSPProperties extends PropertiesHelper
 		META.put(ACCEPTED_NAME_FORMATS, new PropertyMD().setList(false).setCategory(verificator).setDescription(
 				"If defined then specifies what SAML name formatd are accepted from IdP. " +
 				"Useful when the property " + IDP_REQUESTED_NAME_FORMAT + " is undefined for at least one IdP. "));
-		META.put(TRANSLATION_PROFILE, new PropertyMD().setMandatory().setCategory(verificator).setDescription("Name of a translation" +
-				" profile, which will be used to map remotely obtained attributes and identity" +
-				" to the local counterparts. The profile should at least map the remote identity."));
 		
-		META.put(REGISTRATION_FORM, new PropertyMD().setCategory(webRetrieval).setDescription(
-				"Name of a registration form to be shown for a remotely authenticated principal who " +
-				"has no local account. If unset such users will be denied."));
 		META.put(DISPLAY_NAME, new PropertyMD("SAML authentication").setCategory(webRetrieval).setDescription(
 				"Name of the SAML authentication GUI component"));
 	}

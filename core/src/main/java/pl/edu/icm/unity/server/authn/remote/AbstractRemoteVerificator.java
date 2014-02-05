@@ -10,7 +10,6 @@ import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.AbstractVerificator;
@@ -40,7 +39,6 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 {
 	private TranslationProfileManagement profileManagement;
 	private AttributesManagement attrMan;
-	private TranslationProfile translationProfile;
 	
 	public AbstractRemoteVerificator(String name, String description, String exchangeId, 
 			TranslationProfileManagement profileManagement, AttributesManagement attrMan)
@@ -50,13 +48,6 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 		this.attrMan = attrMan;
 	}
 
-	protected void setTranslationProfile(String profile) throws EngineException
-	{
-		translationProfile = profileManagement.listProfiles().get(profile);
-		if (translationProfile == null)
-			throw new WrongArgumentException("The translation profile " + profile + " is unknown");
-	}
-	
 	/**
 	 * This method is calling {@link #processRemoteInput(RemotelyAuthenticatedInput)} and then
 	 * {@link #assembleAuthenticationResult(RemotelyAuthenticatedContext)}.
@@ -67,12 +58,13 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 	 * @return
 	 * @throws EngineException 
 	 */
-	protected AuthenticationResult getResult(RemotelyAuthenticatedInput input) throws AuthenticationException
+	protected AuthenticationResult getResult(RemotelyAuthenticatedInput input, String profile) 
+			throws AuthenticationException
 	{
 		RemotelyAuthenticatedContext context;
 		try
 		{
-			context = processRemoteInput(input);
+			context = processRemoteInput(input, profile);
 		} catch (EngineException e)
 		{
 			throw new AuthenticationException("The mapping of the remtely authenticated " +
@@ -126,9 +118,10 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 	 * @return
 	 * @throws EngineException
 	 */
-	protected final RemotelyAuthenticatedContext processRemoteInput(RemotelyAuthenticatedInput input) 
-			throws EngineException
+	protected final RemotelyAuthenticatedContext processRemoteInput(RemotelyAuthenticatedInput input, 
+			String profile)	throws EngineException
 	{
+		TranslationProfile translationProfile = profileManagement.listProfiles().get(profile);
 		translationProfile.translate(input);
 	
 		RemotelyAuthenticatedContext ret = new RemotelyAuthenticatedContext(input.getIdpName());

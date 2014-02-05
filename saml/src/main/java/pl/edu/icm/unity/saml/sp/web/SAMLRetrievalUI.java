@@ -59,7 +59,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private URL baseAddress;
 	private String baseContext;
 	private AuthenticationResultCallback callback;
-	private String registrationFormForUnknown;
 	
 	private String selectedIdp;
 	private Label messageLabel;
@@ -76,8 +75,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		this.baseAddress = baseAddress;
 		this.baseContext = baseContext;
 		this.samlContextManagement = samlContextManagement;
-		this.registrationFormForUnknown = credentialExchange.getSamlValidatorSettings().getValue(
-				SAMLSPProperties.REGISTRATION_FORM);
 	}
 
 	@Override
@@ -256,9 +253,15 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		String servletPath = VaadinServlet.getCurrent().getServletContext().getContextPath() + 
 				VaadinServletService.getCurrentServletRequest().getServletPath();
 		String identityProviderURL = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_ADDRESS);
-		String groupAttribute = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE);
+		String groupAttribute = samlProperties.getValue(
+				idpKey + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE);
+		String registrationFormForUnknown = samlProperties.getValue(
+				idpKey + SAMLSPProperties.IDP_REGISTRATION_FORM);
+		String translationProfile = samlProperties.getValue(
+				idpKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE);
 		context.setRequest(request.xmlText(), request.getAuthnRequest().getID(), responseUrl,
-				requestBinding, identityProviderURL, servletPath, groupAttribute);
+				requestBinding, identityProviderURL, servletPath, groupAttribute, 
+				registrationFormForUnknown, translationProfile);
 		
 		
 		Page.getCurrent().open(servletPath + RedirectRequestHandler.PATH, null);
@@ -295,9 +298,9 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			{
 				showError(null);
 			} else if (authnResult.getStatus() == Status.unknownRemotePrincipal && 
-					registrationFormForUnknown != null) 
+					authnContext.getRegistrationFormForUnknown() != null) 
 			{
-				authnResult.setFormForUnknownPrincipal(registrationFormForUnknown);
+				authnResult.setFormForUnknownPrincipal(authnContext.getRegistrationFormForUnknown());
 				showError(null);
 			} else
 			{

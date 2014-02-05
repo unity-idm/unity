@@ -83,16 +83,12 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 			Properties properties = new Properties();
 			properties.load(new StringReader(source));
 			samlProperties = new SAMLSPProperties(properties, pkiMan);
-			setTranslationProfile(samlProperties.getValue(SAMLSPProperties.TRANSLATION_PROFILE));
 		} catch(ConfigurationException e)
 		{
 			throw new InternalException("Invalid configuration of the SAML verificator", e);
 		} catch (IOException e)
 		{
 			throw new InternalException("Invalid configuration of the SAML verificator(?)", e);
-		} catch (EngineException e)
-		{
-			throw new InternalException("Problem with the translation profile of the SAML verificator", e);
 		}
 	}
 
@@ -170,7 +166,7 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 				context.getGroupAttribute());
 		try
 		{
-			return getResult(input);
+			return getResult(input, context.getTranslationProfile());
 		} catch (EngineException e)
 		{
 			throw new AuthenticationException("Problem retrieving the contents of the SAML data", e);

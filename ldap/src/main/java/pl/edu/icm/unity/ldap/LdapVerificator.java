@@ -35,6 +35,7 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 	private LdapClient client;
 	private LdapClientConfiguration clientConfiguration;
 	private PKIManagement pkiManagement;
+	private String translationProfile;
 	
 	public LdapVerificator(String name, String description, 
 			TranslationProfileManagement profileManagement, AttributesManagement attrMan,
@@ -67,7 +68,7 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 			Properties properties = new Properties();
 			properties.load(new StringReader(source));
 			ldapProperties = new LdapProperties(properties);
-			setTranslationProfile(ldapProperties.getValue(LdapProperties.TRANSLATION_PROFILE));
+			translationProfile = ldapProperties.getValue(LdapProperties.TRANSLATION_PROFILE);
 			clientConfiguration = new LdapClientConfiguration(ldapProperties, pkiManagement);
 		} catch(ConfigurationException e)
 		{
@@ -75,9 +76,6 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 		} catch (IOException e)
 		{
 			throw new InternalException("Invalid configuration of the LDAP verificator(?)", e);
-		} catch (EngineException e)
-		{
-			throw new InternalException("Problem with the translation profile of the LDAP verificator", e);
 		}
 	}
 
@@ -89,7 +87,7 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 		try
 		{
 			input = client.bindAndSearch(username, password, clientConfiguration);
-			return getResult(input);
+			return getResult(input, translationProfile);
 		} catch (LdapAuthenticationException e)
 		{
 			return new AuthenticationResult(Status.deny, null, null);
