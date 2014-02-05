@@ -79,6 +79,11 @@ public interface VaadinAuthentication extends BindingAuthn
 		 * @return image for the presentation in the user interface. Can be null.
 		 */
 		public Resource getImage();
+		
+		/**
+		 * Called after login was cancelled or finished, so the component can clear its state. 
+		 */
+		public void clear();
 	}
 		
 	/**

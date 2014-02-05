@@ -12,7 +12,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 
 /**
- * Implements handling of cancelation of authentication in the context of SAML processing.
+ * Implements handling of cancellation of authentication in the context of SAML processing.
  *  
  * @author K. Benedyczak
  */

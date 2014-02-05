@@ -87,8 +87,9 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 	{
 		IdentityTaV remoteIdentityMapped = remoteContext.getPrimaryIdentity();
 		if (remoteIdentityMapped == null)
-			return new AuthenticationResult(Status.deny, remoteContext, null);
-
+			throw new AuthenticationException("The remotely authenticated principal " +
+					"was not mapped to a local representation.");
+		
 		try
 		{
 			long resolved = identityResolver.resolveIdentity(remoteIdentityMapped.getValue(), 

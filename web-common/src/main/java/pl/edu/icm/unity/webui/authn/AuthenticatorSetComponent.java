@@ -64,7 +64,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 	private ExecutorsService execService;
 	private String clientIp;
 	
-	public AuthenticatorSetComponent(Map<String, VaadinAuthenticationUI> authenticators,
+	public AuthenticatorSetComponent(final Map<String, VaadinAuthenticationUI> authenticators,
 			AuthenticatorSet set, UnityMessageSource msg, AuthenticationProcessor authnProcessor,
 			InsecureRegistrationFormLauncher formLauncher, ExecutorsService execService,
 			final CancelHandler cancelHandler)
@@ -146,6 +146,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 				@Override
 				public void buttonClick(ClickEvent event)
 				{
+					clearAuthenticators(authenticators);
 					cancelHandler.onCancel();
 				}
 			});
@@ -161,6 +162,14 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 	{
 		progress.setVisible(inProgress);
 		cancelButton.setVisible(inProgress);
+	}
+	
+	private void clearAuthenticators(Map<String, VaadinAuthenticationUI> authenticators)
+	{
+		for (VaadinAuthenticationUI vaadinAuth: authenticators.values())
+			vaadinAuth.clear();
+		if (usernameComponent != null)
+			usernameComponent.clear();
 	}
 	
 	private class LoginButtonListener implements ClickListener
@@ -277,7 +286,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 				this.results.clear();
 				authenticateButton.setEnabled(true);
 				authnDone = true;
-
+				clearAuthenticators(authenticators);
 				try
 				{
 					authnProcessor.processResults(results, clientIp);
@@ -353,6 +362,11 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		public void setFocus()
 		{
 			username.focus();
+		}
+		
+		public void clear()
+		{
+			username.setValue("");
 		}
 	}
 

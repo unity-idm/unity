@@ -244,6 +244,12 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		{
 			//do nothing
 		}
+
+		@Override
+		public void clear()
+		{
+			passwordField.setValue("");
+		}
 	}
 }
 

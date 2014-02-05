@@ -215,6 +215,13 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 		{
 			//nop
 		}
+
+		@Override
+		public void clear()
+		{
+			//nop
+			
+		}
 	}	
 }
 

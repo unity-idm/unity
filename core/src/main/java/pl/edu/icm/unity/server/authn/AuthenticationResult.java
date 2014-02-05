@@ -32,7 +32,7 @@ public class AuthenticationResult
 		 * registered locally. 
 		 */
 		unknownRemotePrincipal, 
-		
+
 		/**
 		 * Everything OK
 		 */

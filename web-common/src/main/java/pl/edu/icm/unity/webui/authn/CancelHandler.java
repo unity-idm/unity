@@ -4,8 +4,11 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
+import pl.edu.icm.unity.webui.UnityVaadinServlet;
+
 /**
- * The implementation is invoked by authentication page, when user clicks cancel.
+ * The implementation of this interface can be given to the {@link UnityVaadinServlet}.
+ * Its method is invoked by authentication page, when user clicks cancel.
  * 
  * @author K. Benedyczak
  */

@@ -402,4 +402,10 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	{
 		return null;
 	}
+
+	@Override
+	public void clear()
+	{
+		//nop
+	}
 }
