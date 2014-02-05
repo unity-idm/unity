@@ -17,7 +17,8 @@ public class MockEndpointFactory implements EndpointFactory
 {
 	public static final String NAME = "Mock Endpoint";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(
-			NAME, "This is mock endpoint for tests", Collections.singleton("web"));
+			NAME, "This is mock endpoint for tests", Collections.singleton("web"),
+			Collections.singletonMap("endPaths", "descEndPaths"));
 	
 	@Override
 	public EndpointTypeDescription getDescription()

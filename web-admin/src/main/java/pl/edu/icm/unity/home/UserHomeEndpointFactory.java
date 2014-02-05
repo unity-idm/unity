@@ -4,7 +4,9 @@
  */
 package pl.edu.icm.unity.home;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +39,10 @@ public class UserHomeEndpointFactory implements EndpointFactory
 		
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
+		Map<String,String> paths=new HashMap<String, String>();
+		paths.put(SERVLET_PATH,"User home endpoint");
 		description = new EndpointTypeDescription(NAME, 
-				"User-oriented account management web interface", supportedAuthn);
+				"User-oriented account management web interface", supportedAuthn,paths);
 	}
 	
 	@Override

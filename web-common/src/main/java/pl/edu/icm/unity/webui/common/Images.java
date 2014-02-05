@@ -55,7 +55,10 @@ public enum Images
 	key		(I.P + "16/key.png"),
 	attributes	(I.P + "16/three_tags.png"),
 	warn		(I.P + "16/warn.png"),
-	error		(I.P + "16/error.png");
+	error		(I.P + "16/error.png"),
+	zoomin          (I.P + "16/zoom_in.png"),
+	zoomout         (I.P + "16/zoom_out.png"),
+	transfer        (I.P + "16/transfer.png");
 	
 	
 	private final String classpath;

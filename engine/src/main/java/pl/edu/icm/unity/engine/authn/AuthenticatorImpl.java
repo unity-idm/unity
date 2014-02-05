@@ -88,7 +88,7 @@ public class AuthenticatorImpl
 	{
 		retrieval.setSerializedConfiguration(rConfiguration);
 		instanceDescription.setRetrievalJsonConfiguration(rConfiguration);
-		setVerificatorConfiguration(vConfiguration);
+		setVerificatorConfiguration(vConfiguration);	
 	}
 	
 	public void setCredentialName(String credential)
