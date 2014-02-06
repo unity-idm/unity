@@ -61,7 +61,7 @@ public class ImportExport
 		File ret = createExportFile();
 
 		JsonFactory jsonF = new JsonFactory();
-		JsonGenerator jg = jsonF.createJsonGenerator(ret, JsonEncoding.UTF8);
+		JsonGenerator jg = jsonF.createGenerator(ret, JsonEncoding.UTF8);
 		jg.useDefaultPrettyPrinter();
 		
 		jg.writeStartObject();
@@ -120,7 +120,7 @@ public class ImportExport
 	public void importDB(File from, SqlSession sql) throws JsonParseException, IOException, EngineException
 	{
 		JsonFactory jsonF = new JsonFactory();
-		JsonParser jp = jsonF.createJsonParser(from);
+		JsonParser jp = jsonF.createParser(from);
 		JsonUtils.nextExpect(jp, JsonToken.START_OBJECT);
 		
 		loadHeader(jp);

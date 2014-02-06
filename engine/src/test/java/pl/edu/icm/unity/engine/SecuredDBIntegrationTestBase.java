@@ -30,7 +30,7 @@ import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.ServerManagement;
-import pl.edu.icm.unity.server.authn.IdentityResolver;
+import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.DescribedObject;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;

@@ -87,7 +87,7 @@ public interface AuthenticationManagement
 			throws EngineException;
 
 	/**
-	 * Updated a definitions of a credential. 
+	 * Updates a definition of a credential. 
 	 * @param updated updated data. The existing one is matched by name.
 	 * @param desiredCredState The desired credential state to be applied to entities which 
 	 * have this credential currently set. If value is 'correct', 

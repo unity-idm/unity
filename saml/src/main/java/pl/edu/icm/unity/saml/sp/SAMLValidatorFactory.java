@@ -14,8 +14,8 @@ import eu.unicore.samly2.validators.ReplayAttackChecker;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.SharedEndpointManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
 

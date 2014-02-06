@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.server.authn;
 
+import pl.edu.icm.unity.server.api.internal.IdentityResolver;
+
 /**
  * Abstract {@link CredentialVerificator} with a common boilerplate code.
  * @author K. Benedyczak

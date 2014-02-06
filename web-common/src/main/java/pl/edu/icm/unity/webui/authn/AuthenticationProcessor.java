@@ -15,9 +15,9 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesInternalProcessing;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessorUtil;

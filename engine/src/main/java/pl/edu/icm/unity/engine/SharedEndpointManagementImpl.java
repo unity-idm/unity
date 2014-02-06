@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.JettyServer;
-import pl.edu.icm.unity.server.api.SharedEndpointManagement;
+import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
 import pl.edu.icm.unity.server.utils.Log;
 
 

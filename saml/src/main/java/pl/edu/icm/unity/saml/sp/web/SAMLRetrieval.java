@@ -8,8 +8,8 @@ import java.net.URL;
 
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
-import pl.edu.icm.unity.server.api.SharedEndpointManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
+import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;

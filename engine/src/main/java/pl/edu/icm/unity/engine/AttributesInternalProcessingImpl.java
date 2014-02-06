@@ -16,7 +16,7 @@ import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.engine.internal.AttributesHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesInternalProcessing;
+import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;

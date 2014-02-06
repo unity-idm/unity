@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.generic.authn.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.db.generic.cred.CredentialDB;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.authn.IdentityResolver;
+import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;

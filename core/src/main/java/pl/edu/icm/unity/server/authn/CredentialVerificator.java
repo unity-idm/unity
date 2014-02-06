@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.server.authn;
 
+import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.types.DescribedObject;
 import pl.edu.icm.unity.types.JsonSerializable;
 

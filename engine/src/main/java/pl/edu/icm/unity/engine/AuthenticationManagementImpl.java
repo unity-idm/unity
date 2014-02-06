@@ -31,7 +31,7 @@ import pl.edu.icm.unity.engine.internal.EngineHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.authn.IdentityResolver;
+import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;

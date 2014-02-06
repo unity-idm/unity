@@ -5,11 +5,11 @@
 package pl.edu.icm.unity.engine.authn;
 
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.CredentialRetrievalFactory;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
-import pl.edu.icm.unity.server.authn.IdentityResolver;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
