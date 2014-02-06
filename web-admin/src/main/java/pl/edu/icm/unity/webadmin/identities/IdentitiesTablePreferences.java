@@ -20,7 +20,6 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.vaadin.ui.CheckBox;
 
 /**
  * User's preferences for the IdentitiesTable .
