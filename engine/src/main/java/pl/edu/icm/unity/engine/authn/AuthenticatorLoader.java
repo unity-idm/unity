@@ -62,18 +62,19 @@ public class AuthenticatorLoader
 	public AuthenticatorImpl getAuthenticatorNoCheck(AuthenticatorInstance authnInstance, SqlSession sql) 
 			throws EngineException
 	{
-		AuthenticatorImpl authenticator = new AuthenticatorImpl(identityResolver, authReg, 
-				authnInstance.getId());
-		authenticator.setAuthenticatorInstance(authnInstance);
-		String localCredential = authenticator.getAuthenticatorInstance().getLocalCredentialName(); 
+		String localCredential = authnInstance.getLocalCredentialName();
+		
 		if (localCredential != null)
 		{
 			CredentialDefinition credDef = credDB.get(localCredential, sql);
 			CredentialHolder credential = new CredentialHolder(credDef, localCredReg);
-			authenticator.setVerificatorConfiguration(credential.getCredentialDefinition().
-					getJsonConfiguration());
-		}
-		return authenticator;
+			String localCredentialConfig = credential.getCredentialDefinition().
+					getJsonConfiguration();
+			return new AuthenticatorImpl(identityResolver, authReg,	authnInstance.getId(), 
+					authnInstance, localCredentialConfig);
+		} else
+			return new AuthenticatorImpl(identityResolver, authReg, 
+				authnInstance.getId(), authnInstance);
 	}
 	
 	public List<Map<String, BindingAuthn>> getAuthenticators(List<AuthenticatorSet> authn, SqlSession sql) 

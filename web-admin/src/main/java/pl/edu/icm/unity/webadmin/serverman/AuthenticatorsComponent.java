@@ -175,7 +175,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 
 	private void reloadAuthenticators()
 	{
-		log.info("Reloading Authenticators");
+		log.info("Reloading all authenticators");
 		try
 		{
 			config.reloadIfChanged();
@@ -193,8 +193,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		} catch (EngineException e)
 		{
 			log.error("Cannot load authenticators", e);
-			ErrorPopup.showError(msg,
-					msg.getMessage("Authenticators.cannotLoadList"), e);
+			ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotLoadList"), e);
 			return;
 		}
 		
@@ -203,7 +202,6 @@ public class AuthenticatorsComponent extends VerticalLayout
 		for (AuthenticatorInstance ai : authenticators)
 		{
 			existing.put(ai.getId(), ai);
-
 		}
 		Map<String, AuthenticatorInstance> toRemove = new HashMap<>(existing);
 		Set<String> authenticatorsList = config.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
@@ -213,13 +211,11 @@ public class AuthenticatorsComponent extends VerticalLayout
 					+ UnityServerConfiguration.AUTHENTICATOR_NAME);
 			String type = config.getValue(authenticatorKey
 					+ UnityServerConfiguration.AUTHENTICATOR_TYPE);
-			File vConfigFile = config
-					.getFileValue(authenticatorKey
+			File vConfigFile = config.getFileValue(authenticatorKey
 							+ UnityServerConfiguration.AUTHENTICATOR_VERIFICATOR_CONFIG,
 							false);
 			File rConfigFile = config.getFileValue(authenticatorKey
-					+ UnityServerConfiguration.AUTHENTICATOR_RETRIEVAL_CONFIG,
-					false);
+					+ UnityServerConfiguration.AUTHENTICATOR_RETRIEVAL_CONFIG, false);
 			String credential = config.getValue(authenticatorKey
 					+ UnityServerConfiguration.AUTHENTICATOR_CREDENTIAL);
 
@@ -260,7 +256,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 				try
 				{
 					authMan.updateAuthenticator(name, vJsonConfiguration,
-							rJsonConfiguration);
+							rJsonConfiguration, credential);
 				} catch (EngineException e)
 				{
 					log.error("Cannot update authenticator", e);

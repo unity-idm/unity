@@ -104,22 +104,24 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			String jsonRetrievalConfig, String credentialName) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		AuthenticatorImpl authenticator = new AuthenticatorImpl(identityResolver, authReg, id, typeId, 
-				jsonRetrievalConfig, jsonVerificatorConfig);
 		SqlSession sql = db.getSqlSession(true);
+		AuthenticatorImpl authenticator;
 		try
 		{
-			if (authenticator.getAuthenticatorInstance().getTypeDescription().isLocal())
+			if (credentialName != null)
 			{
 				CredentialDefinition credentialDef = credentialDB.get(credentialName, sql);
 				CredentialHolder credential = new CredentialHolder(credentialDef, localCredReg);
-				String verificationMethod = authenticator.getAuthenticatorInstance().
-						getTypeDescription().getVerificationMethod();
-				if (!credential.getCredentialDefinition().getTypeId().equals(verificationMethod))
-					throw new IllegalCredentialException("The local credential " + credentialName + 
-							"is of different type then the credential suported by the " +
-							"authenticator, which is " + verificationMethod);
-				authenticator.setCredentialName(credentialName);
+				String credentialConfiguration = credential.getCredentialDefinition().getJsonConfiguration();
+				authenticator = new AuthenticatorImpl(identityResolver, authReg, id, typeId, 
+						jsonRetrievalConfig, credentialName, credentialConfiguration);
+				
+				verifyIfLocalCredentialMatchesVerificator(authenticator, credential, 
+						credentialName);
+			} else
+			{
+				authenticator = new AuthenticatorImpl(identityResolver, authReg, id, typeId, 
+						jsonRetrievalConfig, jsonVerificatorConfig);
 			}
 			authenticatorDB.insert(authenticator.getAuthenticatorInstance().getId(), 
 					authenticator.getAuthenticatorInstance(), sql);
@@ -150,14 +152,23 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 
 	@Override
 	public void updateAuthenticator(String id, String jsonVerificatorConfig,
-			String jsonRetrievalConfig) throws EngineException
+			String jsonRetrievalConfig, String localCredential) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
 			AuthenticatorImpl current = authenticatorLoader.getAuthenticator(id, sql);
-			current.setConfiguration(jsonRetrievalConfig, jsonVerificatorConfig);
+			if (localCredential != null)
+			{
+				CredentialDefinition credentialDef = credentialDB.get(localCredential, sql);
+				CredentialHolder credential = new CredentialHolder(credentialDef, localCredReg);
+				jsonVerificatorConfig = credential.getCredentialDefinition().getJsonConfiguration();
+				verifyIfLocalCredentialMatchesVerificator(current, credential, 
+						localCredential);
+			}
+			
+			current.updateConfiguration(jsonRetrievalConfig, jsonVerificatorConfig, localCredential);
 			authenticatorDB.update(id, current.getAuthenticatorInstance(), sql);
 			sql.commit();
 		} finally
@@ -167,6 +178,17 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 		endpointsUpdater.updateEndpoints();
 	}
 
+	private void verifyIfLocalCredentialMatchesVerificator(AuthenticatorImpl authenticator,
+			CredentialHolder credential, String requestedLocalCredential) throws IllegalCredentialException
+	{
+		String verificationMethod = authenticator.getAuthenticatorInstance().
+				getTypeDescription().getVerificationMethod();
+		if (!credential.getCredentialDefinition().getTypeId().equals(verificationMethod))
+			throw new IllegalCredentialException("The local credential " + requestedLocalCredential + 
+					"is of different type then the credential suported by the " +
+					"authenticator, which is " + verificationMethod);
+	}
+	
 	@Override
 	public void removeAuthenticator(String id) throws EngineException
 	{

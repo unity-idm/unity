@@ -55,10 +55,11 @@ public interface AuthenticationManagement
 	 * @param id
 	 * @param jsonVerificatorConfig configuration of verificator as JSON string
 	 * @param jsonRetrievalConfig configuration of retrieval as JSON string
+	 * @param localCredential name of local credential in case of local authenticator
 	 * @throws EngineException
 	 */
 	public void updateAuthenticator(String id, String jsonVerificatorConfig,
-			String jsonRetrievalConfig) throws EngineException;
+			String jsonRetrievalConfig, String localCredential) throws EngineException;
 	
 	/**
 	 * Removes an existing authenticator. The authenticator must not be used by any of the endpoints,

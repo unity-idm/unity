@@ -102,7 +102,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		assertEquals("8", authInstanceR.getVerificatorJsonConfiguration());
 		
 		//update authenticator
-		authnMan.updateAuthenticator("auth1", "9", "b");
+		authnMan.updateAuthenticator("auth1", "9", "b", "credential1");
 
 		auths = authnMan.getAuthenticators("web");
 		assertEquals(1, auths.size());

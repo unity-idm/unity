@@ -16,15 +16,23 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 
 /**
- * Internal representation of an authenticator, which is a composition of {@link CredentialRetrieval},
+ * Internal representation of an authenticator, which is a composition of {@link CredentialRetrieval} and
  * {@link CredentialVerificator}, configured.
  * <p>
- * Instantiation is quite complex:
- * either a one arg constructor is called, then state initialized with 
- * {@link AuthenticatorImpl#setAuthenticatorInstance(AuthenticatorInstance)}.
- * Otherwise a multiarg constructor is called to initialize the object completely and it may be followed by a 
- * {@link #setCredentialName(String)} to set a local credential name if the authenticator is local
- * 
+ * Authenticator can be local or remote, depending on the associated verificator type (local or remote).
+ * <p>
+ * Local authenticator is special as it has an associated local credential. Its verificator uses the associated 
+ * credential's configuration internally, but it is not advertised to the outside world, via the
+ * {@link AuthenticatorInstance} interface.
+ * <p>
+ * Instantiation can be done in two scenarios, each in two variants:
+ * <ul>
+ * <li>either a constructor is called with a state loaded previously from persisted storage and provided in    
+ * {@link AuthenticatorImpl#setAuthenticatorInstance(AuthenticatorInstance)}. If the authenticator is local, 
+ * then the local credential must be separately given.
+ * <li> Otherwise a full constructor is called to initialize the object completely. In case of a local authenticator
+ * a local credential name and its configuration must be provided.
+ * </ul>
  * @author K. Benedyczak
  */
 public class AuthenticatorImpl
@@ -36,7 +44,25 @@ public class AuthenticatorImpl
 	private IdentityResolver identitiesResolver;
 	
 	/**
-	 * For initial object creation. Verificator configuration is only required for remote verificators.
+	 * For initial object creation in case of local authenticator.
+	 * @param reg
+	 * @param typeId
+	 * @param configuration
+	 * @throws WrongArgumentException 
+	 */
+	public AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, 
+			String name, String typeId, String rConfiguration, String localCredentialName, 
+			String localCredentialconfiguration) throws WrongArgumentException
+	{
+		this(identitiesResolver, reg, name);
+		AuthenticatorTypeDescription authDesc = authRegistry.getAuthenticatorsById(typeId);
+		if (authDesc == null)
+			throw new WrongArgumentException("The authenticator type " + typeId + " is not known");
+		createCoworkers(authDesc, rConfiguration, localCredentialconfiguration, localCredentialName);
+	}
+	
+	/**
+	 * For initial object creation in case of remote authenticator.
 	 * @param reg
 	 * @param typeId
 	 * @param configuration
@@ -50,22 +76,50 @@ public class AuthenticatorImpl
 		AuthenticatorTypeDescription authDesc = authRegistry.getAuthenticatorsById(typeId);
 		if (authDesc == null)
 			throw new WrongArgumentException("The authenticator type " + typeId + " is not known");
-		createCoworkers(authDesc, rConfiguration, vConfiguration);
+		createCoworkers(authDesc, rConfiguration, vConfiguration, null);
+	}	
+	
+	/**
+	 * Used when the state is initialized from persisted storage, for the remote authenticators.
+	 * @param identitiesResolver coworker
+	 * @param reg coworker
+	 * @param name authenticator name
+	 * @param deserialized deserialized state
+	 */
+	public AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, String name,
+			AuthenticatorInstance deserialized)
+	{
+		this(identitiesResolver, reg, name);
+		createCoworkers(deserialized.getTypeDescription(), deserialized.getRetrievalJsonConfiguration(),
+				deserialized.getVerificatorJsonConfiguration(), null);
 	}
 	
 	/**
-	 * For cases when object state should be initialized from serialized form
-	 * @param reg
+	 * Used when the state is initialized from persisted storage, for the local authenticators.
+	 * @param identitiesResolver coworker
+	 * @param reg coworker
+	 * @param name authenticator name
+	 * @param deserialized deserialized state
+	 * @param localCredentialConfiguration configuration of the local credential associated with the validator
 	 */
-	public AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, String name)
+	public AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, String name,
+			AuthenticatorInstance deserialized, String localCredentialConfiguration)
+	{
+		this(identitiesResolver, reg, name);
+		createCoworkers(deserialized.getTypeDescription(), deserialized.getRetrievalJsonConfiguration(),
+				localCredentialConfiguration, deserialized.getLocalCredentialName());
+	}
+	
+	private AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, String name)
 	{
 		this.authRegistry = reg;
 		this.instanceDescription = new AuthenticatorInstance();
 		this.instanceDescription.setId(name);
 		this.identitiesResolver = identitiesResolver;
-	}
+	}	
 	
-	private void createCoworkers(AuthenticatorTypeDescription authDesc, String rConfiguration, String vConfiguration)
+	private void createCoworkers(AuthenticatorTypeDescription authDesc, String rConfiguration, 
+			String vConfiguration, String localCredential)
 	{
 		CredentialRetrievalFactory retrievalFact = authRegistry.getCredentialRetrievalFactory(
 				authDesc.getRetrievalMethod());
@@ -73,55 +127,36 @@ public class AuthenticatorImpl
 				authDesc.getVerificationMethod());
 		verificator = verificatorFact.newInstance();
 		verificator.setIdentityResolver(identitiesResolver);
-		if (vConfiguration != null)
-			verificator.setSerializedConfiguration(vConfiguration);
 		retrieval = retrievalFact.newInstance();
-		retrieval.setSerializedConfiguration(rConfiguration);
 		retrieval.setCredentialExchange(verificator);
-		
-		instanceDescription.setRetrievalJsonConfiguration(rConfiguration);
-		instanceDescription.setVerificatorJsonConfiguration(vConfiguration);
+		updateConfiguration(rConfiguration, vConfiguration, localCredential);
 		instanceDescription.setTypeDescription(authDesc);
 	}
 	
-	public void setConfiguration(String rConfiguration, String vConfiguration)
+	/**
+	 * Updates the current configuration of the authenticator. 
+	 * For local verificators the verificator configuration is only set for the underlying verificator, it is not
+	 * exposed in the instanceDescription. 
+	 * @param rConfiguration
+	 * @param vConfiguration
+	 */
+	public void updateConfiguration(String rConfiguration, String vConfiguration, String localCredential)
 	{
 		retrieval.setSerializedConfiguration(rConfiguration);
 		instanceDescription.setRetrievalJsonConfiguration(rConfiguration);
-		setVerificatorConfiguration(vConfiguration);	
-	}
-	
-	public void setCredentialName(String credential)
-	{
-		if (verificator instanceof LocalCredentialVerificator)
+		verificator.setSerializedConfiguration(vConfiguration);
+		if (!(verificator instanceof LocalCredentialVerificator))
 		{
-			((LocalCredentialVerificator)verificator).setCredentialName(credential);
-			instanceDescription.setLocalCredentialName(credential);
+			instanceDescription.setVerificatorJsonConfiguration(vConfiguration);
+		} else 
+		{
+			instanceDescription.setVerificatorJsonConfiguration(null);
+			((LocalCredentialVerificator)verificator).setCredentialName(localCredential);
+			instanceDescription.setLocalCredentialName(localCredential);
 		}
 	}
 	
-	/**
-	 * Local verificators has configuration provided by a credential definition, the 
-	 * configuration for the authenticator is ignored. It must be set via this method
-	 * @param configuration
-	 */
-	public void setVerificatorConfiguration(String vConfiguration)
-	{
-		verificator.setSerializedConfiguration(vConfiguration);
-		instanceDescription.setVerificatorJsonConfiguration(vConfiguration);
-	}
 	
-	/**
-	 * Sets {@link AuthenticatorInstance} loaded from persisted storage
-	 * @param deserialized
-	 */
-	public void setAuthenticatorInstance(AuthenticatorInstance deserialized)
-	{
-		createCoworkers(deserialized.getTypeDescription(), deserialized.getRetrievalJsonConfiguration(),
-				deserialized.getVerificatorJsonConfiguration());
-		setCredentialName(deserialized.getLocalCredentialName());
-	}
-
 	public AuthenticatorInstance getAuthenticatorInstance()
 	{
 		return instanceDescription;
