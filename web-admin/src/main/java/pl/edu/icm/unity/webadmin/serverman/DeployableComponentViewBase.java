@@ -21,7 +21,6 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
@@ -44,7 +43,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 	
 	protected UnityServerConfiguration config;
 	protected UnityMessageSource msg;
-	protected GridLayout header;
+	protected HorizontalLayout header;
 	protected FormLayout content;
 	protected HorizontalLayout footer;
 	protected Button showHideContentButton;
@@ -68,9 +67,9 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 	{
 		VerticalLayout main = new VerticalLayout();
 
-		header = new GridLayout(10, 1);
+		header = new HorizontalLayout();
 		header.setSpacing(true);
-		header.setColumnExpandRatio(2, 0);
+		header.setWidth(100, Unit.PERCENTAGE);
 		
 		main.addComponent(header);
 		
@@ -98,7 +97,6 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		showHideContentButton.addStyleName(Reindeer.BUTTON_LINK);
 		showHideContentButton.addClickListener(new ClickListener()
 		{
-
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
@@ -126,12 +124,10 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		reloadButton.setDescription(msg.getMessage("DeployableComponentBase.reload"));
 		reloadButton.addClickListener(new ClickListener()
 		{
-
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
 				reload();
-
 			}
 		});
 
@@ -142,23 +138,18 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		undeplyButton.setDescription(msg.getMessage("DeployableComponentBase.undeploy"));
 		undeplyButton.addClickListener(new ClickListener()
 		{
-
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
 				new ConfirmDialog(msg, msg.getMessage("DeployableComponentBase.unDeployQuestion"),
 						new ConfirmDialog.Callback()
-
 						{
-
 							@Override
 							public void onConfirm()
 							{
-
 								undeploy();
 							}
 						}).show();
-
 			}
 		});
 
@@ -169,13 +160,10 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		deployButton.setDescription(msg.getMessage("DeployableComponentBase.deploy"));
 		deployButton.addClickListener(new ClickListener()
 		{
-
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-
 				deploy();
-
 			}
 		});
 
@@ -202,11 +190,9 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 			if (content.isVisible())
 			{
 				showHideContentButton.setIcon(Images.zoomout.getResource());
-
 			} else
 			{
 				showHideContentButton.setIcon(Images.zoomin.getResource());
-
 			}
 
 			undeplyButton.setVisible(true);
@@ -238,49 +224,41 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		header.addComponent(showHideContentButton);
 		header.setComponentAlignment(showHideContentButton, Alignment.BOTTOM_LEFT);
 
-		HorizontalLayout nameFieldLayout = new HorizontalLayout();
-		HorizontalLayout h=new HorizontalLayout();
-		h.setSpacing(true);
-		h.setMargin(false);
-		Label val=new Label(name);
-		h.addComponents(val);
-		nameFieldLayout.setMargin(false);
-		nameFieldLayout.setWidth(500, Unit.PIXELS);	
-		nameFieldLayout.addComponents(h);
-		header.addComponent(nameFieldLayout);
-		header.setComponentAlignment(nameFieldLayout, Alignment.BOTTOM_CENTER);
-
-		Label statusLabel = new Label(msg.getMessage("DeployableComponentBase.status") + ":");
+		Label val = new Label(name);
+//		val.setWidth(40, Unit.PERCENTAGE);
+		header.addComponent(val);
+		header.setExpandRatio(val, 1);
+		header.setComponentAlignment(val, Alignment.BOTTOM_LEFT);
+		
+		Label statusLabel = new Label(msg.getMessage("DeployableComponentBase.status"));
 		statusLabel.addStyleName(Styles.bold.toString());
-		header.addComponent(statusLabel);
-		header.setComponentAlignment(statusLabel, Alignment.BOTTOM_CENTER);
+		//header.setComponentAlignment(statusLabel, Alignment.BOTTOM_CENTER);
 
-		Image statusImage = new Image();
+		Image statusIcon = new Image();
 		if (status.equals(Status.deployed.toString()))
 		{
-			statusImage.setSource(Images.ok.getResource());
-			statusImage.setDescription(msg.getMessage("DeployableComponentBase.deployed"));
+			statusIcon.setSource(Images.ok.getResource());
+			statusIcon.setDescription(msg.getMessage("DeployableComponentBase.deployed"));
 		} else if (status.equals(Status.undeployed.toString()))
 		{
-
-			statusImage.setSource(Images.error.getResource());
-			statusImage.setDescription(msg.getMessage("DeployableComponentBase.undeployed"));
+			statusIcon.setSource(Images.error.getResource());
+			statusIcon.setDescription(msg.getMessage("DeployableComponentBase.undeployed"));
 		}
-		header.addComponent(statusImage);
+		HorizontalLayout statusBar = new HorizontalLayout(statusLabel, statusIcon);
+		statusBar.setSpacing(true);
+		header.addComponent(statusBar);
+		header.setExpandRatio(statusBar, 2);
+		header.setComponentAlignment(statusBar, Alignment.BOTTOM_LEFT);
+		
+		//Label spacer = new Label();
+		//spacer.setWidth(10, Unit.EM);
+		//header.addComponent(spacer);
 
-		Label spacer = new Label();
-		spacer.setWidth(30, Unit.PIXELS);
-		header.addComponent(spacer);
-
-		header.addComponent(reloadButton);
-		header.setComponentAlignment(reloadButton, Alignment.BOTTOM_LEFT);
-
-		header.addComponent(undeplyButton);
-		header.setComponentAlignment(undeplyButton, Alignment.BOTTOM_LEFT);
-
-		header.addComponent(deployButton);
-		header.setComponentAlignment(deployButton, Alignment.BOTTOM_LEFT);
-
+		HorizontalLayout toolbar = new HorizontalLayout(reloadButton, undeplyButton, deployButton);
+		toolbar.setSpacing(true);
+		header.addComponent(toolbar);
+		header.setExpandRatio(toolbar, 1);
+		header.setComponentAlignment(toolbar, Alignment.BOTTOM_RIGHT);
 	}	
 
 	protected boolean reloadConfig()
