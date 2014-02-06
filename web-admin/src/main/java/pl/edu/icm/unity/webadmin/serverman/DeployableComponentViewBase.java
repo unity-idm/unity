@@ -225,14 +225,12 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		header.setComponentAlignment(showHideContentButton, Alignment.BOTTOM_LEFT);
 
 		Label val = new Label(name);
-//		val.setWidth(40, Unit.PERCENTAGE);
 		header.addComponent(val);
 		header.setExpandRatio(val, 1);
 		header.setComponentAlignment(val, Alignment.BOTTOM_LEFT);
 		
 		Label statusLabel = new Label(msg.getMessage("DeployableComponentBase.status"));
 		statusLabel.addStyleName(Styles.bold.toString());
-		//header.setComponentAlignment(statusLabel, Alignment.BOTTOM_CENTER);
 
 		Image statusIcon = new Image();
 		if (status.equals(Status.deployed.toString()))
@@ -250,10 +248,6 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		header.setExpandRatio(statusBar, 2);
 		header.setComponentAlignment(statusBar, Alignment.BOTTOM_LEFT);
 		
-		//Label spacer = new Label();
-		//spacer.setWidth(10, Unit.EM);
-		//header.addComponent(spacer);
-
 		HorizontalLayout toolbar = new HorizontalLayout(reloadButton, undeplyButton, deployButton);
 		toolbar.setSpacing(true);
 		header.addComponent(toolbar);
