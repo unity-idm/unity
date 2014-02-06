@@ -99,7 +99,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		AuthenticatorInstance authInstanceR = auths.iterator().next();
 		assertEquals("auth1", authInstanceR.getId());
 		assertEquals("bbb", authInstanceR.getRetrievalJsonConfiguration());
-		assertEquals("8", authInstanceR.getVerificatorJsonConfiguration());
+		assertNull(authInstanceR.getVerificatorJsonConfiguration());
 		
 		//update authenticator
 		authnMan.updateAuthenticator("auth1", "9", "b", "credential1");
@@ -109,7 +109,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		authInstanceR = auths.iterator().next();
 		assertEquals("auth1", authInstanceR.getId());
 		assertEquals("b", authInstanceR.getRetrievalJsonConfiguration());
-		assertEquals("9", authInstanceR.getVerificatorJsonConfiguration());
+		assertNull(authInstanceR.getVerificatorJsonConfiguration());
 		
 		//create endpoint
 		List<EndpointTypeDescription> endpointTypes = endpointMan.getEndpointTypes();
