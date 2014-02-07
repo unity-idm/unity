@@ -255,7 +255,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 					e);
 			return false;
 		}
-		log.info("Update " + id + " endpoint");
+		
 		try
 		{
 			endpointMan.updateEndpoint(endpoint.getId(), description, endpointAuthn,

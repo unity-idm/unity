@@ -231,7 +231,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		{
 			log.error("Cannot add authenticator", e);
 			ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotDeploy",
-					authenticator.getId()), e);
+					name), e);
 			return false;
 		}
 		
@@ -310,7 +310,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 			log.error("Cannot update authenticator", e);
 			ErrorPopup.showError(msg, msg.getMessage(
 					"Authenticators.cannotDeploy",
-					authenticator.getId()), e);
+					name), e);
 			return false;
 		}
 

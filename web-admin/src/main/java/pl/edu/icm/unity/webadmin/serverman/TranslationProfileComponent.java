@@ -123,7 +123,6 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 		if (!super.reloadConfig())
 			return;
 		
-		log.info("Add " + translationProfile.getName() + "translation profile");
 		boolean added = false;
 		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
 		for (String profileFile : profileFiles)
@@ -169,6 +168,7 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 
 	private boolean addTranslationProfile(TranslationProfile tp)
 	{
+		log.info("Add " + tp.getName() + "translation profile");
 		try
 		{
 			profilesMan.addProfile(tp);
