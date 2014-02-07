@@ -267,7 +267,7 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 			log.error("Cannot update translation profile", e);
 			ErrorPopup.showError(msg, msg.getMessage(
 					"TranslationProfiles.cannotUpdate",
-					translationProfile.getName()), e);
+					tp.getName()), e);
 			return false;
 		}
 
@@ -276,7 +276,7 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 			Map<String, TranslationProfile> existing = profilesMan.listProfiles();
 			for (TranslationProfile tr : existing.values())
 			{
-				if (tr.getName().equals(translationProfile.getName()))
+				if (tr.getName().equals(tp.getName()))
 				{
 					this.translationProfile = tr;
 				}
