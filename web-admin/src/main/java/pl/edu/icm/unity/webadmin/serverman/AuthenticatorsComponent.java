@@ -4,15 +4,12 @@
  */
 package pl.edu.icm.unity.webadmin.serverman;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -30,10 +27,10 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -52,6 +49,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 	private UnityServerConfiguration config;
 	private AuthenticationManagement authMan;
 	private VerticalLayout content;
+	private Map<String,AuthenticatorComponent> authenticatorComponents;
 
 	@Autowired
 	public AuthenticatorsComponent(UnityMessageSource msg, UnityServerConfiguration config,
@@ -61,6 +59,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		this.msg = msg;
 		this.config = config;
 		this.authMan = authMan;
+		this.authenticatorComponents = new TreeMap<String, AuthenticatorComponent>();
 		initUI();
 	}
 
@@ -101,8 +100,9 @@ public class AuthenticatorsComponent extends VerticalLayout
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
+				
 				reloadAuthenticators();
-				updateContent();
+				
 
 			}
 		});
@@ -126,6 +126,8 @@ public class AuthenticatorsComponent extends VerticalLayout
 	private void updateContent()
 	{
 		content.removeAllComponents();
+		authenticatorComponents.clear();
+		
 		try
 		{
 			config.reloadIfChanged();
@@ -152,7 +154,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		for (AuthenticatorInstance ai : authenticators)
 		{
 			existing.add(ai.getId());
-			content.addComponent(new AuthenticatorComponent(authMan, ai, config,
+			authenticatorComponents.put(ai.getId(), new AuthenticatorComponent(authMan, ai, config,
 					msg, DeployableComponentViewBase.Status.deployed.toString()));
 
 		}
@@ -165,126 +167,43 @@ public class AuthenticatorsComponent extends VerticalLayout
 			if (!existing.contains(name))
 			{
 				AuthenticatorInstance au = new AuthenticatorInstance();
-				au.setId(name);
-				content.addComponent(new AuthenticatorComponent(authMan, au,config, msg,
+				au.setId(name);			
+				authenticatorComponents.put(name ,new AuthenticatorComponent(authMan, au, config, msg,
 						DeployableComponentViewBase.Status.undeployed.toString()));
 			}
 		}
+		
+		
+		for (AuthenticatorComponent auth : authenticatorComponents.values())
+		{
+			content.addComponent(auth);
+		}
+		
+		
+		
 
 	}
 
 	private void reloadAuthenticators()
 	{
+		updateContent();
 		log.info("Reloading all authenticators");
-		try
+		
+		for (AuthenticatorComponent authComp : authenticatorComponents.values())
 		{
-			config.reloadIfChanged();
-		} catch (Exception e)
-		{
-			log.error("Cannot reload configuration", e);
-			ErrorPopup.showError(msg, msg.getMessage("Configuration.cannotReloadConfig"), e);
-			return;
-		}
+			if (authComp.getStatus().equals(DeployableComponentViewBase.Status.deployed.toString()))
+			{
+				authComp.reload();
+			} else if (authComp.getStatus().equals(DeployableComponentViewBase.Status.undeployed.toString()))
+			{
+				authComp.deploy();
+			}
 
-		Collection<AuthenticatorInstance> authenticators;
-		try
-		{
-			authenticators = authMan.getAuthenticators(null);
-		} catch (EngineException e)
-		{
-			log.error("Cannot load authenticators", e);
-			ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotLoadList"), e);
-			return;
 		}
 		
-		Map<String, AuthenticatorInstance> existing = new HashMap<String, AuthenticatorInstance>();
-
-		for (AuthenticatorInstance ai : authenticators)
-		{
-			existing.put(ai.getId(), ai);
-		}
-		Map<String, AuthenticatorInstance> toRemove = new HashMap<>(existing);
-		Set<String> authenticatorsList = config.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
-		for (String authenticatorKey : authenticatorsList)
-		{
-			String name = config.getValue(authenticatorKey
-					+ UnityServerConfiguration.AUTHENTICATOR_NAME);
-			String type = config.getValue(authenticatorKey
-					+ UnityServerConfiguration.AUTHENTICATOR_TYPE);
-			File vConfigFile = config.getFileValue(authenticatorKey
-							+ UnityServerConfiguration.AUTHENTICATOR_VERIFICATOR_CONFIG,
-							false);
-			File rConfigFile = config.getFileValue(authenticatorKey
-					+ UnityServerConfiguration.AUTHENTICATOR_RETRIEVAL_CONFIG, false);
-			String credential = config.getValue(authenticatorKey
-					+ UnityServerConfiguration.AUTHENTICATOR_CREDENTIAL);
-
-			String vJsonConfiguration = null;
-			String rJsonConfiguration = null;
-			try
-			{
-				vJsonConfiguration = vConfigFile == null ? null : FileUtils
-						.readFileToString(vConfigFile);
-				rJsonConfiguration = FileUtils.readFileToString(rConfigFile);
-			} catch (IOException e)
-			{
-				log.error("Cannot read json file", e);
-				ErrorPopup.showError(msg,
-						msg.getMessage("Authenticators.cannotReadJsonConfig"), e);
-				return;
-			}
-
-			if (!existing.containsKey(name))
-			{
-				log.info("Add " + name + " [" + type + "] authenticator");
-				try
-				{
-					authMan.createAuthenticator(name, type, vJsonConfiguration,
-							rJsonConfiguration, credential);
-				} catch (EngineException e)
-				{
-					log.error("Cannot add authenticator", e);
-					ErrorPopup.showError(msg,
-							msg.getMessage("Authenticators.cannotDeploy",name),
-							e);
-					return;
-				}
-
-			} else
-			{
-				log.info("Update " + name + " [" + type + "] authenticator");
-				try
-				{
-					authMan.updateAuthenticator(name, vJsonConfiguration,
-							rJsonConfiguration, credential);
-				} catch (EngineException e)
-				{
-					log.error("Cannot update authenticator", e);
-					ErrorPopup.showError(msg, msg
-							.getMessage("Authenticators.cannotUpdate",name),
-							e);
-					return;
-				}
-
-			}
-			toRemove.remove(name);
-
-		}
-
-		for (String auth : toRemove.keySet())
-		{
-			try
-			{
-				log.info("Remove " + auth + " authenticator");
-				authMan.removeAuthenticator(auth);
-			} catch (Exception e)
-			{
-				log.error("Cannot remove authenticator", e);
-				ErrorPopup.showError(msg,
-						msg.getMessage("Authenticators.cannotUndeploy",auth), e);
-				return;
-			}
-		}
-
+	
+	
+	
+	
 	}
 }

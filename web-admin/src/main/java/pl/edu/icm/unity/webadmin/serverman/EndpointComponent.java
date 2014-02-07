@@ -59,7 +59,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		setStatus(status);
 	}
 
-	protected void undeploy()
+	public void undeploy()
 	{
 		if (!super.reloadConfig())
 			return;
@@ -99,7 +99,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 
 	}
 
-	protected void deploy()
+	public void deploy()
 	{
 		if (!super.reloadConfig())
 			return;
@@ -112,55 +112,8 @@ public class EndpointComponent extends DeployableComponentViewBase
 			if (config.getValue(endpointKey + UnityServerConfiguration.ENDPOINT_NAME)
 					.equals(endpoint.getId()))
 			{
-				String description = config.getValue(endpointKey
-						+ UnityServerConfiguration.ENDPOINT_DESCRIPTION);
-				File configFile = config.getFileValue(endpointKey
-						+ UnityServerConfiguration.ENDPOINT_CONFIGURATION,
-						false);
-				String authenticatorsSpec = config.getValue(endpointKey
-						+ UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
-				String type = config.getValue(endpointKey
-						+ UnityServerConfiguration.ENDPOINT_TYPE);
-				String address = config.getValue(endpointKey
-						+ UnityServerConfiguration.ENDPOINT_ADDRESS);
-
-				String[] authenticatorSets = authenticatorsSpec.split(";");
-				List<AuthenticatorSet> endpointAuthn = new ArrayList<AuthenticatorSet>();
-				for (String authenticatorSet : authenticatorSets)
-				{
-					Set<String> endpointAuthnSet = new HashSet<String>();
-					String[] authenticators = authenticatorSet.split(",");
-					for (String a : authenticators)
-						endpointAuthnSet.add(a.trim());
-					endpointAuthn.add(new AuthenticatorSet(endpointAuthnSet));
-				}
-
-				String jsonConfiguration;
-				try
-				{
-					jsonConfiguration = FileUtils.readFileToString(configFile);
-				} catch (IOException e)
-				{
-					log.error("Cannot read json file", e);
-					ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotReadJsonConfig"), e);
-					return;
-				}
-
-				try
-				{
-					this.endpoint = endpointMan.deploy(type, endpoint.getId(),
-							address, description, endpointAuthn,
-							jsonConfiguration);
-				} catch (EngineException e)
-				{
-					log.error("Cannot deploy endpoint", e);
-					ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotDeploy",
-									endpoint.getId()), e);
-					return;
-				}
-				setStatus(Status.deployed.toString());
-				added = true;
-
+				added = deployEndpoint(endpointKey, endpoint.getId());
+	
 			}
 		}
 
@@ -172,11 +125,63 @@ public class EndpointComponent extends DeployableComponentViewBase
 			setVisible(false);
 			return;
 
+		}else
+		{
+			setStatus(Status.deployed.toString());	
 		}
 
 	}
 
-	protected void reload()
+	private boolean deployEndpoint(String endpointKey, String id)
+	{
+		String description = config.getValue(endpointKey
+				+ UnityServerConfiguration.ENDPOINT_DESCRIPTION);
+		File configFile = config.getFileValue(endpointKey
+				+ UnityServerConfiguration.ENDPOINT_CONFIGURATION, false);
+		String authenticatorsSpec = config.getValue(endpointKey
+				+ UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
+		String type = config.getValue(endpointKey + UnityServerConfiguration.ENDPOINT_TYPE);
+		String address = config.getValue(endpointKey
+				+ UnityServerConfiguration.ENDPOINT_ADDRESS);
+
+		String[] authenticatorSets = authenticatorsSpec.split(";");
+		List<AuthenticatorSet> endpointAuthn = new ArrayList<AuthenticatorSet>();
+		for (String authenticatorSet : authenticatorSets)
+		{
+			Set<String> endpointAuthnSet = new HashSet<String>();
+			String[] authenticators = authenticatorSet.split(",");
+			for (String a : authenticators)
+				endpointAuthnSet.add(a.trim());
+			endpointAuthn.add(new AuthenticatorSet(endpointAuthnSet));
+		}
+
+		String jsonConfiguration;
+		try
+		{
+			jsonConfiguration = FileUtils.readFileToString(configFile);
+		} catch (IOException e)
+		{
+			log.error("Cannot read json file", e);
+			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotReadJsonConfig"),
+					e);
+			return false;
+		}
+
+		try
+		{
+			this.endpoint = endpointMan.deploy(type, id, address, description,
+					endpointAuthn, jsonConfiguration);
+		} catch (EngineException e)
+		{
+			log.error("Cannot deploy endpoint", e);
+			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotDeploy", id), e);
+			return false;
+		}
+
+		return true;
+	}
+
+	public void reload()
 	{
 		if (!super.reloadConfig())
 			return;
@@ -190,65 +195,8 @@ public class EndpointComponent extends DeployableComponentViewBase
 			if (config.getValue(endpointKey + UnityServerConfiguration.ENDPOINT_NAME)
 					.equals(endpoint.getId()))
 			{
-				String description = config.getValue(endpointKey
-						+ UnityServerConfiguration.ENDPOINT_DESCRIPTION);
-				File configFile = config.getFileValue(endpointKey
-						+ UnityServerConfiguration.ENDPOINT_CONFIGURATION,
-						false);
-				String authenticatorsSpec = config.getValue(endpointKey
-						+ UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
-
-				String[] authenticatorSets = authenticatorsSpec.split(";");
-				List<AuthenticatorSet> endpointAuthn = new ArrayList<AuthenticatorSet>();
-				for (String authenticatorSet : authenticatorSets)
-				{
-					Set<String> endpointAuthnSet = new HashSet<String>();
-					String[] authenticators = authenticatorSet.split(",");
-					for (String a : authenticators)
-						endpointAuthnSet.add(a.trim());
-					endpointAuthn.add(new AuthenticatorSet(endpointAuthnSet));
-				}
-
-				String jsonConfiguration;
-				try
-				{
-					jsonConfiguration = FileUtils.readFileToString(configFile);
-				} catch (IOException e)
-				{
-					log.error("Cannot read json file", e);
-					ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotReadJsonConfig"), e);
-					return;
-				}
-				log.info("Update " + endpoint.getId() + " endpoint");
-				try
-				{
-					endpointMan.updateEndpoint(endpoint.getId(), description,
-							endpointAuthn, jsonConfiguration);
-				} catch (EngineException e)
-				{
-					log.error("Cannot update endpoint", e);
-					ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotUpdate",
-									endpoint.getId()), e);
-					return;
-				}
-
-				updated = true;
-				try
-				{
-					for (EndpointDescription en : endpointMan.getEndpoints())
-					{
-						if (en.getId().equals(endpoint.getId()))
-						{
-							this.endpoint = en;
-						}
-					}
-				} catch (EngineException e)
-				{
-					log.error("Cannot load endpoints", e);
-					ErrorPopup.showError(msg, msg.getMessage("error"),
-							msg.getMessage("Endpoints.cannotLoadList"));
-				}
-				setStatus(Status.deployed.toString());
+				updated = reloadEndpoint(endpointKey, endpoint.getId());
+				
 
 			}
 		}
@@ -269,7 +217,75 @@ public class EndpointComponent extends DeployableComponentViewBase
 				}
 			}).show();
 
+		}else
+		{
+			setStatus(Status.deployed.toString());
 		}
+	
+	}
+
+	private boolean reloadEndpoint(String endpointKey, String id)
+	{
+		String description = config.getValue(endpointKey
+				+ UnityServerConfiguration.ENDPOINT_DESCRIPTION);
+		File configFile = config.getFileValue(endpointKey
+				+ UnityServerConfiguration.ENDPOINT_CONFIGURATION, false);
+		String authenticatorsSpec = config.getValue(endpointKey
+				+ UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
+
+		String[] authenticatorSets = authenticatorsSpec.split(";");
+		List<AuthenticatorSet> endpointAuthn = new ArrayList<AuthenticatorSet>();
+		for (String authenticatorSet : authenticatorSets)
+		{
+			Set<String> endpointAuthnSet = new HashSet<String>();
+			String[] authenticators = authenticatorSet.split(",");
+			for (String a : authenticators)
+				endpointAuthnSet.add(a.trim());
+			endpointAuthn.add(new AuthenticatorSet(endpointAuthnSet));
+		}
+
+		String jsonConfiguration;
+		try
+		{
+			jsonConfiguration = FileUtils.readFileToString(configFile);
+		} catch (IOException e)
+		{
+			log.error("Cannot read json file", e);
+			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotReadJsonConfig"),
+					e);
+			return false;
+		}
+		log.info("Update " + id + " endpoint");
+		try
+		{
+			endpointMan.updateEndpoint(endpoint.getId(), description, endpointAuthn,
+					jsonConfiguration);
+		} catch (EngineException e)
+		{
+			log.error("Cannot update endpoint", e);
+			ErrorPopup.showError(msg,
+					msg.getMessage("Endpoints.cannotUpdate", id),
+					e);
+			return false;
+		}
+
+		try
+		{
+			for (EndpointDescription en : endpointMan.getEndpoints())
+			{
+				if (en.getId().equals(id))
+				{
+					this.endpoint = en;
+				}
+			}
+		} catch (EngineException e)
+		{
+			log.error("Cannot load endpoints", e);
+			ErrorPopup.showError(msg, msg.getMessage("error"),
+					msg.getMessage("Endpoints.cannotLoadList"));
+			return false;
+		}
+		return true;
 	}
 
 	protected void updateHeader()

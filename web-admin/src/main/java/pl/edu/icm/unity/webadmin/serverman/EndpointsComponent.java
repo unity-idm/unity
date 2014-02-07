@@ -7,7 +7,9 @@ package pl.edu.icm.unity.webadmin.serverman;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,8 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.webui.common.ErrorComponent;
+import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -54,6 +58,7 @@ public class EndpointsComponent extends VerticalLayout
 	private VerticalLayout content;
 	private UnityServerConfiguration config;
 	private NetworkServer networkServer;
+	private Map<String, EndpointComponent> endpointComponents;
 
 	@Autowired
 	public EndpointsComponent(UnityMessageSource msg, EndpointManagement endpointMan,
@@ -65,6 +70,7 @@ public class EndpointsComponent extends VerticalLayout
 		this.msg = msg;
 		this.endpointMan = endpointMan;
 		this.networkServer = networkServer;
+		this.endpointComponents = new TreeMap<String, EndpointComponent>();
 		initUI();
 	}
 
@@ -94,10 +100,24 @@ public class EndpointsComponent extends VerticalLayout
 		});
 		refreshViewButton.setDescription(msg.getMessage("Endpoints.refreshList"));
 		
-		h.addComponent(listCaption);
-		h.addComponent(new Label(" "));
-		h.addComponent(refreshViewButton);
-
+		HorizontalLayout ch = new HorizontalLayout();
+		ch.setSpacing(true);
+		ch.addComponent(listCaption);
+		ch.addComponent(new Label(" "));
+		ch.addComponent(refreshViewButton);
+		h.addComponent(ch);
+		h.setExpandRatio(ch, 1);
+		
+		Label sp = new Label();
+		h.addComponent(sp);
+		h.setExpandRatio(sp, 2);	
+		
+		ErrorComponent warningC = new ErrorComponent();
+		warningC.setMessage(msg.getMessage("Endpoints.reloadWarning"), Level.warning);
+		h.addComponent(warningC);
+		h.setExpandRatio(warningC, 1);
+		
+		h.setSizeFull();
 		addComponent(h);
 
 		content = new VerticalLayout();
@@ -109,13 +129,11 @@ public class EndpointsComponent extends VerticalLayout
 
 	}
 
-	
-
-	
 
 	private void updateContent()
 	{
-		
+		content.removeAllComponents();
+		endpointComponents.clear();
 		try
 		{
 			config.reloadIfChanged();
@@ -127,8 +145,6 @@ public class EndpointsComponent extends VerticalLayout
 					e);
 			return;
 		}
-
-		content.removeAllComponents();
 
 		List<EndpointDescription> endpoints = null;
 		try
@@ -145,9 +161,8 @@ public class EndpointsComponent extends VerticalLayout
 		List<String> existing = new ArrayList<>();
 		for (EndpointDescription endpointDesc : endpoints)
 		{
-
-			content.addComponent(new EndpointComponent(endpointMan, networkServer,
-					endpointDesc, config, msg,
+			endpointComponents.put(endpointDesc.getId(), new EndpointComponent(
+					endpointMan, networkServer, endpointDesc, config, msg,
 					DeployableComponentViewBase.Status.deployed.toString()));
 			existing.add(endpointDesc.getId());
 		}
@@ -155,23 +170,28 @@ public class EndpointsComponent extends VerticalLayout
 		Set<String> endpointsList = config
 				.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
 		for (String endpointKey : endpointsList)
-		{
-			if (!existing.contains(config.getValue(endpointKey
-					+ UnityServerConfiguration.ENDPOINT_NAME)))
-			{
-				String name = config.getValue(endpointKey
-						+ UnityServerConfiguration.ENDPOINT_NAME);
-				String description = config.getValue(endpointKey
-						+ UnityServerConfiguration.ENDPOINT_DESCRIPTION);
-				EndpointDescription en = new EndpointDescription();
-				en.setId(name);
-				en.setDescription(description);
-				content.addComponent(new EndpointComponent(endpointMan,
-						networkServer, en, config, msg,
-						DeployableComponentViewBase.Status.undeployed
-								.toString()));
-			}
+		{	String name = config.getValue(endpointKey
+				+ UnityServerConfiguration.ENDPOINT_NAME);
+			if (existing.contains(name))
+				continue;
+			
+			String description = config.getValue(endpointKey
+					+ UnityServerConfiguration.ENDPOINT_DESCRIPTION);
+			EndpointDescription en = new EndpointDescription();
+			en.setId(name);
+			en.setDescription(description);
+			endpointComponents.put(en.getId(), new EndpointComponent(endpointMan,
+					networkServer, en, config, msg,
+					DeployableComponentViewBase.Status.undeployed.toString()));
+			
 		}
+		
+		
+		for (EndpointComponent endpoint : endpointComponents.values())
+		{
+			content.addComponent(endpoint);
+		}
+		
 	}
 
 }

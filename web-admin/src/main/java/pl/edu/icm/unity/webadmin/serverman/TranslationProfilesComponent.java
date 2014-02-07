@@ -6,9 +6,9 @@ package pl.edu.icm.unity.webadmin.serverman;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -56,6 +56,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 	private TranslationActionsRegistry tactionsRegistry;
 	private ObjectMapper jsonMapper;
 	private VerticalLayout content;
+	private Map<String,TranslationProfileComponent> translationProfileComponents;
 
 		
 	@Autowired
@@ -69,6 +70,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		this.profilesMan = profilesMan;
 		this.tactionsRegistry = tactionsRegistry;
 		this.jsonMapper = jsonMapper;
+		this.translationProfileComponents = new TreeMap<String, TranslationProfileComponent>();
 		initUI();
 	}
 
@@ -111,7 +113,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			public void buttonClick(ClickEvent event)
 			{
 				reloadTranslationProfile();
-				updateContent();
+				
 
 			}
 		});
@@ -138,6 +140,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 	private void updateContent()
 	{
 		content.removeAllComponents();
+		translationProfileComponents.clear();
 		try
 		{
 			config.reloadIfChanged();
@@ -159,11 +162,14 @@ public class TranslationProfilesComponent extends VerticalLayout
 			return;
 		}
 		
-		for(TranslationProfile profile:existing.values())
+		for (TranslationProfile profile : existing.values())
 		{
-			content.addComponent(new TranslationProfileComponent(profilesMan,
-					tactionsRegistry, jsonMapper, profile, config, msg,
-					DeployableComponentViewBase.Status.deployed.toString()));
+			translationProfileComponents.put(
+					profile.getName(),
+					new TranslationProfileComponent(profilesMan,
+							tactionsRegistry, jsonMapper, profile,
+							config, msg,
+							DeployableComponentViewBase.Status.deployed.toString()));
 		}
 		
 		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
@@ -186,13 +192,20 @@ public class TranslationProfilesComponent extends VerticalLayout
 
 			if (!existing.containsKey(tp.getName()))
 			{
-				content.addComponent(new TranslationProfileComponent(profilesMan,
-						tactionsRegistry, jsonMapper, tp, config, msg,
-						DeployableComponentViewBase.Status.undeployed.toString()));
-
+				translationProfileComponents.put(
+						tp.getName(),
+						new TranslationProfileComponent(profilesMan,
+								tactionsRegistry, jsonMapper, tp,
+								config, msg,
+								DeployableComponentViewBase.Status.undeployed.toString()));
 			}
 		}
 		
+		
+		for (TranslationProfileComponent tp : translationProfileComponents.values())
+		{
+			content.addComponent(tp);
+		}
 		
 		
 	}
@@ -200,98 +213,21 @@ public class TranslationProfilesComponent extends VerticalLayout
 
 	private void reloadTranslationProfile()
 	{	log.info("Reloading all translation profiles");
-		try
+		updateContent();
+
+		for (TranslationProfileComponent tpComp : translationProfileComponents.values())
 		{
-			config.reloadIfChanged();
-		} catch (Exception e)
-		{	
-			log.error("Cannot reload configuration",e);
-			ErrorPopup.showError(msg,
-					msg.getMessage("Configuration.cannotReloadConfig"), e);
-			return;
-		}
-		Map<String, TranslationProfile> existing;
-		try
-		{
-			existing = profilesMan.listProfiles();
-		} catch (EngineException e)
-		{	
-			log.error("Cannot load translation profiles",e);
-			ErrorPopup.showError(msg,
-					msg.getMessage("TranslationProfiles.cannotLoadList"),
-					e);
-			return;
-		}
-		Map<String, TranslationProfile> toRemove = new HashMap<>(existing);
-		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
-		for (String profileFile : profileFiles)
-		{
-			String json;
-			try
+			if (tpComp.getStatus().equals(
+					DeployableComponentViewBase.Status.deployed.toString()))
 			{
-				json = FileUtils.readFileToString(new File(profileFile));
-			} catch (IOException e)
+				tpComp.reload();
+			} else if (tpComp.getStatus().equals(
+					DeployableComponentViewBase.Status.undeployed.toString()))
 			{
-				log.error("Cannot read json file",e);
-				ErrorPopup.showError(msg,
-						msg.getMessage("TranslationProfiles.cannotReadJsonConfig"),
-						e);
-				return;
-			}
-			TranslationProfile tp = new TranslationProfile(json, jsonMapper,tactionsRegistry);
-
-			if (existing.containsKey(tp.getName()))
-			{
-				try
-				{
-					log.info("Update " + tp.getName() + " translation profile");
-					profilesMan.updateProfile(tp);
-				} catch (EngineException e)
-				{
-					log.error("Cannot update translation",e);
-					ErrorPopup.showError(msg,
-							msg.getMessage("TranslationProfiles.cannotUpdate", tp.getName()),
-							e);
-					return;
-				}
-
-			} else
-			{
-				try
-				{	
-					log.info("Add " + tp.getName() + " translation profile");
-					profilesMan.addProfile(tp);
-				} catch (EngineException e)
-				{
-					log.error("Cannot add translation profile", e);
-					ErrorPopup.showError(msg,
-							msg.getMessage("TranslationProfiles.cannotDeploy", tp.getName()),
-							e);
-					return;
-				}
-
-			}
-			toRemove.remove(tp.getName());
-
-		}
-
-		for (String tp : toRemove.keySet())
-		{
-			try
-			{	
-				log.info("Remove " + tp + " translation profile");
-				profilesMan.removeProfile(tp);
-			} catch (Exception e)
-			{
-				log.error("Cannot remove translation profile", e);
-				ErrorPopup.showError(msg,
-						msg.getMessage("TranslationProfiles.cannotUndeploy", tp),
-						e);
-				return;
+				tpComp.deploy();
 			}
 
 		}
-
 	}
 	
 	

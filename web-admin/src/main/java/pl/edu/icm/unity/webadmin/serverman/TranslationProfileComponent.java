@@ -66,7 +66,7 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 	}
 
 	@Override
-	protected void undeploy()
+	public void undeploy()
 	{
 		if (!super.reloadConfig())
 			return;
@@ -118,7 +118,7 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 	}
 
 	@Override
-	protected void deploy()
+	public void deploy()
 	{
 		if (!super.reloadConfig())
 			return;
@@ -142,39 +142,8 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 			
 			if (tp.getName().equals(translationProfile.getName()))
 			{
-				try
-				{
-					profilesMan.addProfile(tp);
-				} catch (EngineException e)
-				{
-					log.error("Cannot add translation profile", e);
-					ErrorPopup.showError(msg, msg.getMessage(
-							"TranslationProfiles.cannotDeploy",
-							translationProfile.getName()), e);
-					return;
-				}
-
-				Map<String, TranslationProfile> existing;
-				try
-				{
-					existing = profilesMan.listProfiles();
-				} catch (EngineException e)
-				{
-					log.error("Cannot load translation profiles", e);
-					ErrorPopup.showError(msg, msg.getMessage("TranslationProfiles.cannotLoadList"), e);
-					return;
-				}
-
-				for (TranslationProfile tr : existing.values())
-				{
-					if (tr.getName().equals(translationProfile.getName()))
-					{
-						this.translationProfile = tr;
-					}
-				}
-
-				setStatus(Status.deployed.toString());
-				added = true;
+				
+				added = addTranslationProfile(tp);
 
 			}
 
@@ -190,12 +159,53 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 			setVisible(false);
 			return;
 
+		} else
+		{
+			setStatus(Status.deployed.toString());
 		}
+		
 
 	}
 
+	private boolean addTranslationProfile(TranslationProfile tp)
+	{
+		try
+		{
+			profilesMan.addProfile(tp);
+		} catch (EngineException e)
+		{
+			log.error("Cannot add translation profile", e);
+			ErrorPopup.showError(msg, msg.getMessage(
+					"TranslationProfiles.cannotDeploy",
+					tp.getName()), e);
+			return false;
+		}
+
+		Map<String, TranslationProfile> existing;
+		try
+		{
+			existing = profilesMan.listProfiles();
+		} catch (EngineException e)
+		{
+			log.error("Cannot load translation profiles", e);
+			ErrorPopup.showError(msg,
+					msg.getMessage("TranslationProfiles.cannotLoadList"), e);
+			return false;
+		}
+
+		for (TranslationProfile tr : existing.values())
+		{
+			if (tr.getName().equals(tp.getName()))
+			{
+				this.translationProfile = tr;
+			}
+		}
+
+		return true;
+	}
+
 	@Override
-	protected void reload()
+	public void reload()
 	{
 		if (!super.reloadConfig())
 			return;
@@ -219,39 +229,7 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 
 			if (tp.getName().equals(translationProfile.getName()))
 			{
-				try
-				{
-					log.info("Update " + tp.getName() + " translation profile");
-					profilesMan.updateProfile(tp);
-				} catch (EngineException e)
-				{
-					log.error("Cannot update translation profile", e);
-					ErrorPopup.showError(msg, msg.getMessage("TranslationProfiles.cannotUpdate",
-							translationProfile.getName()), e);
-					return;
-				}
-
-				try
-				{
-					Map<String, TranslationProfile> existing = profilesMan
-							.listProfiles();
-					for (TranslationProfile tr : existing.values())
-					{
-						if (tr.getName().equals(translationProfile.getName()))
-						{
-							this.translationProfile = tr;
-						}
-					}
-				} catch (EngineException e)
-				{
-					log.error("Cannot load translation profiles", e);
-					ErrorPopup.showError(msg, msg.getMessage("TranslationProfiles.cannotLoadList"), e);
-					return;
-				}
-
-				setStatus(Status.deployed.toString());
-				updated = true;
-
+				updated = reloadTranslationProfile(tp);
 			}
 
 		}
@@ -272,7 +250,45 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 				}
 			}).show();
 
+		} else
+		{
+			setStatus(Status.deployed.toString());
 		}
+	}
+
+	private boolean reloadTranslationProfile(TranslationProfile tp)
+	{
+		try
+		{
+			log.info("Update " + tp.getName() + " translation profile");
+			profilesMan.updateProfile(tp);
+		} catch (EngineException e)
+		{
+			log.error("Cannot update translation profile", e);
+			ErrorPopup.showError(msg, msg.getMessage(
+					"TranslationProfiles.cannotUpdate",
+					translationProfile.getName()), e);
+			return false;
+		}
+
+		try
+		{
+			Map<String, TranslationProfile> existing = profilesMan.listProfiles();
+			for (TranslationProfile tr : existing.values())
+			{
+				if (tr.getName().equals(translationProfile.getName()))
+				{
+					this.translationProfile = tr;
+				}
+			}
+		} catch (EngineException e)
+		{
+			log.error("Cannot load translation profiles", e);
+			ErrorPopup.showError(msg,
+					msg.getMessage("TranslationProfiles.cannotLoadList"), e);
+			return false;
+		}
+		return true;
 	}
 
 	@Override

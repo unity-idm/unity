@@ -173,47 +173,40 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 
 	protected abstract void updateHeader();
 
-	protected abstract void deploy();
+	public abstract void deploy();
 	
-	protected abstract void undeploy();
+	public abstract void undeploy();
 	
-	protected abstract void reload();
+	public abstract void reload();
 
+	public String getStatus()
+	{
+		return status;
+	}
+	
 	protected void setStatus(String status)
 	{
+		this.status = status;
 		if (status.equals(Status.deployed.toString()))
-		{
-			this.status = status;
-			updateHeader();
-			updateContent();
+		{	
 			showHideContentButton.setEnabled(true);
-			if (content.isVisible())
-			{
-				showHideContentButton.setIcon(Images.zoomout.getResource());
-			} else
-			{
-				showHideContentButton.setIcon(Images.zoomin.getResource());
-			}
-
-			undeplyButton.setVisible(true);
-			reloadButton.setVisible(true);
-			deployButton.setVisible(false);
-
+			
 		} else if (status.equals(Status.undeployed.toString()))
 		{
-			this.status = status;
-			updateHeader();
 			showHideContentButton.setEnabled(false);
-			showHideContentButton.setIcon(Images.zoomin.getResource());
-			content.removeAllComponents();
 			content.setVisible(false);
-			undeplyButton.setVisible(false);
-			reloadButton.setVisible(false);
-			deployButton.setVisible(true);
-
+						
 		}
+		
+		showHideContentButton.setIcon(content.isVisible() ? Images.zoomout.getResource()
+				: Images.zoomin.getResource());
+		updateContent();
+		updateHeader();
 		footer.setVisible(content.isVisible());
 		separator.setVisible(!content.isVisible());
+		deployButton.setVisible(!showHideContentButton.isEnabled());
+		undeplyButton.setVisible(!deployButton.isVisible());
+		reloadButton.setVisible(!deployButton.isVisible());
 
 	}
 

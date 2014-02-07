@@ -118,7 +118,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 	}
 
 	@Override
-	protected void undeploy()
+	public void undeploy()
 	{
 		if (!super.reloadConfig())
 			return;
@@ -160,7 +160,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 	}
 
 	@Override
-	protected void deploy()
+	public void deploy()
 	{
 		if (!super.reloadConfig())
 			return;
@@ -172,10 +172,11 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		{
 
 			String name = config.getValue(authenticatorKey + UnityServerConfiguration.AUTHENTICATOR_NAME);
-			if (!authenticator.getId().equals(name))
-				continue;
-			addAuthenticator(authenticatorKey, name);
-			added = true;
+			if (authenticator.getId().equals(name))
+			{
+				added = addAuthenticator(authenticatorKey, name);
+			}	
+			
 		}
 
 		if (!added)
@@ -187,11 +188,14 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 			setVisible(false);
 			return;
 
+		}else
+		{
+			setStatus(Status.deployed.toString());
 		}
 
 	}
 
-	private void addAuthenticator(String authenticatorKey, String name)
+	private boolean addAuthenticator(String authenticatorKey, String name)
 	{
 		String type = config.getValue(authenticatorKey 
 				+ UnityServerConfiguration.AUTHENTICATOR_TYPE);
@@ -216,7 +220,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		{
 			log.error("Cannot read json file", e);
 			ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotReadJsonConfig"), e);
-			return;
+			return false;
 		}
 
 		try
@@ -228,13 +232,14 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 			log.error("Cannot add authenticator", e);
 			ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotDeploy",
 					authenticator.getId()), e);
-			return;
+			return false;
 		}
-		setStatus(Status.deployed.toString());
+		
+		return true;
 	}
 	
 	@Override
-	protected void reload()
+	public void reload()
 	{
 		if (!super.reloadConfig())
 			return;
@@ -246,10 +251,12 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		{
 			String name = config.getValue(authenticatorKey
 					+ UnityServerConfiguration.AUTHENTICATOR_NAME);
-			if (!authenticator.getId().equals(name))
-				continue;
-			reloadAuthenticator(authenticatorKey, name);
-			updated = true;
+			if (authenticator.getId().equals(name))
+			{
+				updated = reloadAuthenticator(authenticatorKey, name);
+			}
+			
+			
 		}
 
 		if (!updated)
@@ -263,10 +270,13 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 					undeploy();
 				}
 			}).show();
+		}else 
+		{
+			setStatus(Status.deployed.toString());
 		}
 	}
 	
-	private void reloadAuthenticator(String authenticatorKey, String name)
+	private boolean reloadAuthenticator(String authenticatorKey, String name)
 	{
 		File vConfigFile = config.getFileValue(authenticatorKey
 				+ UnityServerConfiguration.AUTHENTICATOR_VERIFICATOR_CONFIG,
@@ -289,7 +299,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		{
 			log.error("Cannot read json file", e);
 			ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotReadJsonConfig"), e);
-			return;
+			return false;
 		}
 
 		try
@@ -301,14 +311,14 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 			ErrorPopup.showError(msg, msg.getMessage(
 					"Authenticators.cannotDeploy",
 					authenticator.getId()), e);
-			return;
+			return false;
 		}
 
 		try
 		{
 			for (AuthenticatorInstance au : authMan.getAuthenticators(null))
 			{
-				if (au.getId().equals(authenticator.getId()))
+				if (au.getId().equals(name))
 				{
 					this.authenticator = au;
 				}
@@ -318,8 +328,9 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 			log.error("Cannot load authenticators", e);
 			ErrorPopup.showError(msg,msg.getMessage("error"),
 					msg.getMessage("Authenticators.cannotLoadList"));
+			return false;
 		}
+		return true;
 
-		setStatus(Status.deployed.toString());
 	}
 }
