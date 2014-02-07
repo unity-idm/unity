@@ -238,15 +238,11 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 			new ConfirmDialog(msg, msg.getMessage(
 					"TranslationProfiles.unDeployWhenRemoved",
 					translationProfile.getName()), new ConfirmDialog.Callback()
-
 			{
-
 				@Override
 				public void onConfirm()
 				{
-
 					undeploy();
-
 				}
 			}).show();
 
@@ -298,7 +294,6 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 
 		if (status.equals(Status.deployed.toString()))
 		{
-
 			addFieldToContent(msg.getMessage("TranslationProfiles.description"),
 					translationProfile.getDescription());
 			addFieldToContent(msg.getMessage("TranslationProfiles.rules"), "");
@@ -326,8 +321,6 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 				
 				content.addComponent(rulesL);
 			}
-			
-
 		}
 	}
 

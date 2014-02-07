@@ -65,7 +65,6 @@ public class AuthenticatorsComponent extends VerticalLayout
 
 	private void initUI()
 	{
-
 		setCaption(msg.getMessage("Authenticators.caption"));
 
 		HorizontalLayout h = new HorizontalLayout();
@@ -85,7 +84,6 @@ public class AuthenticatorsComponent extends VerticalLayout
 			public void buttonClick(ClickEvent event)
 			{
 				updateContent();
-
 			}
 		});
 		refreshViewButton.setDescription(msg.getMessage("Authenticators.refreshList"));
@@ -100,10 +98,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				
 				reloadAuthenticators();
-				
-
 			}
 		});
 		reloadAllButton.setDescription(msg.getMessage("Authenticators.reloadAll"));
@@ -120,7 +115,6 @@ public class AuthenticatorsComponent extends VerticalLayout
 		addComponent(content);
 
 		updateContent();
-
 	}
 
 	private void updateContent()
@@ -156,7 +150,6 @@ public class AuthenticatorsComponent extends VerticalLayout
 			existing.add(ai.getId());
 			authenticatorComponents.put(ai.getId(), new AuthenticatorComponent(authMan, ai, config,
 					msg, DeployableComponentViewBase.Status.deployed.toString()));
-
 		}
 
 		Set<String> authenticatorsList = config.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
@@ -178,10 +171,6 @@ public class AuthenticatorsComponent extends VerticalLayout
 		{
 			content.addComponent(auth);
 		}
-		
-		
-		
-
 	}
 
 	private void reloadAuthenticators()
@@ -198,12 +187,6 @@ public class AuthenticatorsComponent extends VerticalLayout
 			{
 				authComp.deploy();
 			}
-
 		}
-		
-	
-	
-	
-	
 	}
 }

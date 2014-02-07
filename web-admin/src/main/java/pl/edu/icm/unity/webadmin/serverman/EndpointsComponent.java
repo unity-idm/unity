@@ -90,12 +90,10 @@ public class EndpointsComponent extends VerticalLayout
 		refreshViewButton.addStyleName(Styles.toolbarButton.toString());
 		refreshViewButton.addClickListener(new Button.ClickListener()
 		{
-
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
 				updateContent();
-
 			}
 		});
 		refreshViewButton.setDescription(msg.getMessage("Endpoints.refreshList"));
@@ -126,7 +124,6 @@ public class EndpointsComponent extends VerticalLayout
 		addComponent(content);
 
 		updateContent();
-
 	}
 
 
@@ -185,7 +182,6 @@ public class EndpointsComponent extends VerticalLayout
 					DeployableComponentViewBase.Status.undeployed.toString()));
 			
 		}
-		
 		
 		for (EndpointComponent endpoint : endpointComponents.values())
 		{

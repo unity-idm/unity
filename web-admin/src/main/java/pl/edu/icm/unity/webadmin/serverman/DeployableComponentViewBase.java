@@ -30,7 +30,7 @@ import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Represent base view of server deployable component.
- * Contains header,collapsible content and buttons to callapse/expand and deploy/undeploy/reload
+ * Contains header, collapsible content and buttons to collapse/expand and deploy/undeploy/reload
  * 
  * @author P. Piernik
  *
@@ -207,7 +207,6 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		deployButton.setVisible(!showHideContentButton.isEnabled());
 		undeplyButton.setVisible(!deployButton.isVisible());
 		reloadButton.setVisible(!deployButton.isVisible());
-
 	}
 
 	protected void updateHeader(String name)

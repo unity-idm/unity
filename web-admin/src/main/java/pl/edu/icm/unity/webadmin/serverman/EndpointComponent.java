@@ -196,8 +196,6 @@ public class EndpointComponent extends DeployableComponentViewBase
 					.equals(endpoint.getId()))
 			{
 				updated = reloadEndpoint(endpointKey, endpoint.getId());
-				
-
 			}
 		}
 
@@ -205,15 +203,11 @@ public class EndpointComponent extends DeployableComponentViewBase
 		{
 			new ConfirmDialog(msg, msg.getMessage("Endpoints.unDeployWhenRemoved",
 					endpoint.getId()), new ConfirmDialog.Callback()
-
 			{
-
 				@Override
 				public void onConfirm()
 				{
-
 					undeploy();
-
 				}
 			}).show();
 
@@ -221,7 +215,6 @@ public class EndpointComponent extends DeployableComponentViewBase
 		{
 			setStatus(Status.deployed.toString());
 		}
-	
 	}
 
 	private boolean reloadEndpoint(String endpointKey, String id)
