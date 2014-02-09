@@ -78,6 +78,9 @@
 			<groupId>eu.unicore.security</groupId>
 			<artifactId>securityLibrary</artifactId>
 		</dependency>
-		
+		<dependency>
+			<groupId>eu.unicore.security</groupId>
+			<artifactId>SAMLMetadataTypes</artifactId>
+		</dependency>
 	</dependencies>
 </project>

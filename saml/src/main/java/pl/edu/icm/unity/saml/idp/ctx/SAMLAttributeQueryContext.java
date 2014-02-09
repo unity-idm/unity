@@ -8,7 +8,7 @@
 
 package pl.edu.icm.unity.saml.idp.ctx;
 
-import pl.edu.icm.unity.saml.idp.SamlProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 
 import xmlbeans.org.oasis.saml2.protocol.AttributeQueryDocument;
 import xmlbeans.org.oasis.saml2.protocol.AttributeQueryType;
@@ -20,7 +20,7 @@ import xmlbeans.org.oasis.saml2.protocol.AttributeQueryType;
  */
 public class SAMLAttributeQueryContext extends SAMLAssertionResponseContext<AttributeQueryDocument, AttributeQueryType>
 {
-	public SAMLAttributeQueryContext(AttributeQueryDocument reqDoc, SamlProperties samlConfiguration)
+	public SAMLAttributeQueryContext(AttributeQueryDocument reqDoc, SamlIdpProperties samlConfiguration)
 	{
 		super(reqDoc, reqDoc.getAttributeQuery(), samlConfiguration);
 	}

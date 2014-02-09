@@ -15,14 +15,19 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 
+import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.util.configuration.ConfigurationException;
 
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
-import pl.edu.icm.unity.saml.idp.SamlProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
 import pl.edu.icm.unity.saml.idp.web.filter.SamlGuardFilter;
 import pl.edu.icm.unity.saml.idp.web.filter.SamlParseServlet;
+import pl.edu.icm.unity.saml.metadata.MetadataProvider;
+import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
+import pl.edu.icm.unity.saml.metadata.MetadataServlet;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityVaadinServlet;
@@ -30,6 +35,7 @@ import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
+import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 
 /**
  * Extends a simple {@link VaadinEndpoint} with configuration of SAML authn filter. Also SAML configuration
@@ -39,19 +45,24 @@ import pl.edu.icm.unity.webui.authn.CancelHandler;
  */
 public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 {
-	protected SamlProperties samlProperties;
+	protected SamlIdpProperties samlProperties;
 	protected FreemarkerHandler freemarkerHandler;
 	protected PKIManagement pkiManagement;
+	protected ExecutorsService executorsService;
 	protected String samlConsumerPath;
+	protected String samlMetadataPath;
 	
 	public SamlAuthVaadinEndpoint(EndpointTypeDescription type, ApplicationContext applicationContext,
 			FreemarkerHandler freemarkerHandler, Class<?> uiClass, String samlUiServletPath, 
-			PKIManagement pkiManagement, String samlConsumerPath)
+			PKIManagement pkiManagement, ExecutorsService executorsService, 
+			String samlConsumerPath, String samlMetadataPath)
 	{
 		super(type, applicationContext, uiClass.getSimpleName(), samlUiServletPath);
 		this.freemarkerHandler = freemarkerHandler;
 		this.pkiManagement = pkiManagement;
+		this.executorsService = executorsService;
 		this.samlConsumerPath = samlConsumerPath;
+		this.samlMetadataPath = samlMetadataPath;
 	}
 	
 	@Override
@@ -60,7 +71,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		super.setSerializedConfiguration(properties);
 		try
 		{
-			samlProperties = new SamlProperties(this.properties, pkiManagement);
+			samlProperties = new SamlIdpProperties(this.properties, pkiManagement);
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("Can't initialize the SAML Web IdP endpoint's configuration", e);
@@ -75,9 +86,9 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 
 		String endpointURL = getServletUrl(samlConsumerPath);
 		String uiURL = getServletUrl(servletPath);
-		Filter samlGuardFilter = new SamlGuardFilter(samlConsumerPath, servletPath, 
-				new ErrorHandler(freemarkerHandler));
-		context.addFilter(new FilterHolder(samlGuardFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
+		Filter samlGuardFilter = new SamlGuardFilter(servletPath, new ErrorHandler(freemarkerHandler));
+		context.addFilter(new FilterHolder(samlGuardFilter), servletPath + "/*", 
+				EnumSet.of(DispatcherType.REQUEST));
 		
 		Servlet samlParseServlet = getSamlParseServlet(endpointURL, uiURL);
 		ServletHolder samlParseHolder = createServletHolder(samlParseServlet);
@@ -104,6 +115,11 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 				description, authenticators, registrationConfiguration, genericEndpointProperties);
 		context.addServlet(createVaadinServletHolder(theServlet), servletPath + "/*");
 		
+		if (samlProperties.getBooleanValue(SamlIdpProperties.PUBLISH_METADATA))
+		{
+			Servlet metadataServlet = getMetadataServlet(endpointURL);
+			context.addServlet(createServletHolder(metadataServlet), samlMetadataPath + "/*");
+		}
 		return context;
 	}
 	
@@ -111,5 +127,21 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	{
 		return new SamlParseServlet(samlProperties, 
 				endpointURL, uiUrl, new ErrorHandler(freemarkerHandler));
+	}
+	
+	protected Servlet getMetadataServlet(String samlEndpointURL)
+	{
+		EndpointType ssoPost = EndpointType.Factory.newInstance();
+		ssoPost.setLocation(samlEndpointURL);
+		ssoPost.setBinding(SAMLConstants.BINDING_HTTP_POST);
+		EndpointType ssoRedirect = EndpointType.Factory.newInstance();
+		ssoRedirect.setLocation(samlEndpointURL);
+		ssoRedirect.setBinding(SAMLConstants.BINDING_HTTP_REDIRECT);
+
+		EndpointType[] endpoints = new EndpointType[] {ssoPost, ssoRedirect};
+		
+		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(samlProperties, 
+				executorsService, endpoints, null);
+		return new MetadataServlet(provider);
 	}
 }

@@ -13,6 +13,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import eu.unicore.samly2.SAMLBindings;
@@ -22,7 +23,6 @@ import eu.unicore.samly2.trust.StrictSamlTrustChecker;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
-import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 
@@ -30,7 +30,7 @@ import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
  * Configuration of a SAML requester (or SAML SP).
  * @author K. Benedyczak
  */
-public class SAMLSPProperties extends PropertiesHelper
+public class SAMLSPProperties extends SamlProperties
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, SAMLSPProperties.class);
 	
@@ -118,6 +118,8 @@ public class SAMLSPProperties extends PropertiesHelper
 		
 		META.put(DISPLAY_NAME, new PropertyMD("SAML authentication").setCategory(webRetrieval).setDescription(
 				"Name of the SAML authentication GUI component"));
+		
+		META.putAll(SamlProperties.defaults);
 	}
 	
 	private PKIManagement pkiManagement;

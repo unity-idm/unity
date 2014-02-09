@@ -24,8 +24,8 @@ import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.AttributeFilters;
 import pl.edu.icm.unity.saml.idp.GroupChooser;
 import pl.edu.icm.unity.saml.idp.SamlAttributeMapper;
-import pl.edu.icm.unity.saml.idp.SamlProperties;
-import pl.edu.icm.unity.saml.idp.SamlProperties.GroupsSelection;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties.GroupsSelection;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAssertionResponseContext;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -121,10 +121,10 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 
 	private Attribute<String> createGroupAttribute(Collection<String> allGroups)
 	{
-		GroupsSelection mode = samlConfiguration.getEnumValue(SamlProperties.GROUP_SELECTION, 
-				SamlProperties.GroupsSelection.class);
+		GroupsSelection mode = samlConfiguration.getEnumValue(SamlIdpProperties.GROUP_SELECTION, 
+				SamlIdpProperties.GroupsSelection.class);
 		
-		String attributeName = samlConfiguration.getValue(SamlProperties.GROUP_ATTRIBUTE);
+		String attributeName = samlConfiguration.getValue(SamlIdpProperties.GROUP_ATTRIBUTE);
 		List<String> values = new ArrayList<String>();
 		switch(mode)
 		{
@@ -153,7 +153,7 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 
 	public String getConfiguredGroupAttribute()
 	{
-		return samlConfiguration.getValue(SamlProperties.GROUP_ATTRIBUTE); 
+		return samlConfiguration.getValue(SamlIdpProperties.GROUP_ATTRIBUTE); 
 	}
 	
 	public String getChosenGroup()
@@ -181,7 +181,7 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		if (attributes.size() == 0)
 			return null;
 		Assertion assertion = new Assertion();
-		assertion.setIssuer(samlConfiguration.getValue(SamlProperties.ISSUER_URI), 
+		assertion.setIssuer(samlConfiguration.getValue(SamlIdpProperties.ISSUER_URI), 
 				SAMLConstants.NFORMAT_ENTITY);
 		assertion.setSubject(authenticatedOne);
 		

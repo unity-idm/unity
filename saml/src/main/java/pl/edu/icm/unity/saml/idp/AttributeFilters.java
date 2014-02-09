@@ -26,16 +26,16 @@ public class AttributeFilters
 	private List<AttributeFilter> filters;
 	private Map<String, AttributeFilter> cache;
 	
-	public AttributeFilters(SamlProperties config)
+	public AttributeFilters(SamlIdpProperties config)
 	{
 		cache = new WeakHashMap<String, AttributeFilters.AttributeFilter>();
-		Set<String> keys = config.getStructuredListKeys(SamlProperties.ATTRIBUTE_FILTER);
+		Set<String> keys = config.getStructuredListKeys(SamlIdpProperties.ATTRIBUTE_FILTER);
 		filters = new ArrayList<AttributeFilters.AttributeFilter>(keys.size());
 		for (String key: keys)
 		{
-			String target = config.getValue(key+SamlProperties.ATTRIBUTE_FILTER_TARGET);
-			List<String> excludes = config.getListOfValues(key+SamlProperties.ATTRIBUTE_FILTER_EXCLUDE);
-			List<String> includes = config.getListOfValues(key+SamlProperties.ATTRIBUTE_FILTER_INCLUDE);
+			String target = config.getValue(key+SamlIdpProperties.ATTRIBUTE_FILTER_TARGET);
+			List<String> excludes = config.getListOfValues(key+SamlIdpProperties.ATTRIBUTE_FILTER_EXCLUDE);
+			List<String> includes = config.getListOfValues(key+SamlIdpProperties.ATTRIBUTE_FILTER_INCLUDE);
 			AttributeFilter filter = new AttributeFilter(target, includes, excludes);
 			if (target == null)
 			{

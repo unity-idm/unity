@@ -15,7 +15,7 @@ import eu.unicore.samly2.elements.Subject;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.proto.AssertionResponse;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.SamlProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -119,7 +119,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 	{
 		AuthnContextType authContext = setupAuthnContext();
 		Assertion assertion = new Assertion();
-		assertion.setIssuer(samlConfiguration.getValue(SamlProperties.ISSUER_URI), 
+		assertion.setIssuer(samlConfiguration.getValue(SamlIdpProperties.ISSUER_URI), 
 				SAMLConstants.NFORMAT_ENTITY);
 		assertion.setSubject(authenticatedOne);
 		assertion.addAuthStatement(getAuthnTime(), authContext);

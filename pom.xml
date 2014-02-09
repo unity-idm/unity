@@ -230,6 +230,11 @@
 			</dependency>
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
+				<artifactId>SAMLMetadataTypes</artifactId>
+				<version>1.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>eu.unicore.security</groupId>
 				<artifactId>secutils-cxf</artifactId>
 				<version>1.0.1</version>
 				<scope>test</scope>

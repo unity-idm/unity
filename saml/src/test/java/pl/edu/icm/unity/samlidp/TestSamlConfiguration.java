@@ -13,7 +13,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import static org.junit.Assert.*;
-import static pl.edu.icm.unity.saml.idp.SamlProperties.*;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.*;
 
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.saml.idp.AttributeFilters;
 import pl.edu.icm.unity.saml.idp.GroupChooser;
-import pl.edu.icm.unity.saml.idp.SamlProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -47,7 +47,7 @@ public class TestSamlConfiguration
 		p.setProperty(P+GROUP_PFX+"2."+GROUP, "/");
 		p.setProperty(P+DEFAULT_GROUP, "/def");
 		p.setProperty(P+CREDENTIAL, "MAIN");
-		SamlProperties cfg = new SamlProperties(p, getPKIManagement());
+		SamlIdpProperties cfg = new SamlIdpProperties(p, getPKIManagement());
 		
 		GroupChooser chooser = cfg.getGroupChooser();
 		assertEquals("/some/gr", chooser.chooseGroup("http://sp.org1"));
@@ -76,7 +76,7 @@ public class TestSamlConfiguration
 
 		p.setProperty(P+DEFAULT_GROUP, "/");
 		p.setProperty(P+CREDENTIAL, "MAIN");
-		SamlProperties cfg = new SamlProperties(p, getPKIManagement());
+		SamlIdpProperties cfg = new SamlIdpProperties(p, getPKIManagement());
 		
 		AttributeFilters filter = cfg.getAttributeFilter();
 		

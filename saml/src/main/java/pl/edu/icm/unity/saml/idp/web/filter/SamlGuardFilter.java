@@ -22,7 +22,6 @@ import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.web.EopException;
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 
 /**
  * Filter which is invoked prior to authentication. 
@@ -46,14 +45,12 @@ public class SamlGuardFilter implements Filter
 	 * when an existing auth is in progress. 
 	 */
 	public static final String REQ_FORCE = "force";
-	protected String samlConsumerPath;
 	protected String samlUiPath;
 	protected ErrorHandler errorHandler;
 
-	public SamlGuardFilter(String samlConsumerPath, String samlUiPath, ErrorHandler errorHandler)
+	public SamlGuardFilter(String samlUiPath, ErrorHandler errorHandler)
 	{
 		super();
-		this.samlConsumerPath = samlConsumerPath;
 		this.errorHandler = errorHandler;
 		this.samlUiPath = samlUiPath;
 	}
@@ -81,44 +78,21 @@ public class SamlGuardFilter implements Filter
 		HttpSession session = request.getSession();
 		SAMLAuthnContext context = (SAMLAuthnContext) session.getAttribute(SESSION_SAML_CONTEXT); 
 
-		if (!AuthenticationFilter.hasPathPrefix(request.getServletPath(), samlConsumerPath))
+		if (context == null)
 		{
-			if (context == null)
-			{
-				if (log.isDebugEnabled())
-					log.debug("Request to SAML post-processing address, without SAML context: " 
-							+ request.getRequestURI());
-				errorHandler.showErrorPage(new SAMLProcessingException("No SAML context"), 
-						(HttpServletResponse) response);
-				return;
-			} else
-			{
-				if (log.isTraceEnabled())
-					log.trace("Request to SAML post-processing address, with SAML context: " 
-							+ request.getRequestURI());
-				chain.doFilter(request, response);
-				return;
-			}
+			if (log.isDebugEnabled())
+				log.debug("Request to SAML post-processing address, without SAML context: " 
+						+ request.getRequestURI());
+			errorHandler.showErrorPage(new SAMLProcessingException("No SAML context"), 
+					(HttpServletResponse) response);
+			return;
 		} else
 		{
+			if (log.isTraceEnabled())
+				log.trace("Request to SAML post-processing address, with SAML context: " 
+						+ request.getRequestURI());
 			chain.doFilter(request, response);
-/*
-			if (context == null)
-			{
-				if (log.isTraceEnabled())
-					log.trace("Request to SAML consumer address, without SAML context, proceeding: " 
-							+ request.getRequestURI());
-				chain.doFilter(request, response);
-				return;
-			} else
-			{
-				if (log.isTraceEnabled())
-					log.trace("Request to SAML consumer address, with SAML context, redirecting to UI: " 
-							+ request.getRequestURI());
-				request.getRequestDispatcher(samlUiPath).forward(request, response);
-				return;
-			}
-			*/
+			return;
 		}
 	}
 	

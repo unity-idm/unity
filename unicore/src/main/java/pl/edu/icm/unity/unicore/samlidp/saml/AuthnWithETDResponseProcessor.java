@@ -19,7 +19,7 @@ import eu.unicore.security.etd.ETDApi;
 import eu.unicore.security.etd.ETDImpl;
 import eu.unicore.security.etd.TrustDelegation;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.SamlProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -82,7 +82,7 @@ public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 	{
 		ETDApi etdEngine = new ETDImpl();
 		X509Credential issuerCredential = samlConfiguration.getSamlIssuerCredential(); 
-		String issuerName = samlConfiguration.getValue(SamlProperties.ISSUER_URI); 
+		String issuerName = samlConfiguration.getValue(SamlIdpProperties.ISSUER_URI); 
 		String custodianDN = X500NameUtils.getPortableRFC2253Form(custodian);
 		NameIDType receiver = context.getRequest().getIssuer();
 		String receiverDN = X500NameUtils.getPortableRFC2253Form(receiver.getStringValue());

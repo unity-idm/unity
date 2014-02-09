@@ -1,0 +1,63 @@
+/*
+ * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+package pl.edu.icm.unity.saml.metadata;
+
+import java.io.File;
+import java.io.IOException;
+
+import pl.edu.icm.unity.saml.SamlProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.server.utils.ExecutorsService;
+import xmlbeans.org.oasis.saml2.metadata.EndpointType;
+import eu.unicore.util.configuration.ConfigurationException;
+
+/**
+ * Utility class simplifying creation of {@link MetadataProvider}s.
+ * @author K. Benedyczak
+ */
+public class MetadataProviderFactory
+{
+	/**
+	 * @param samlProperties
+	 * @param executorsService
+	 * @param endpoints
+	 * @return metadata of the IDP
+	 */
+	public static MetadataProvider newIdpInstance(SamlIdpProperties samlProperties, 
+			ExecutorsService executorsService, EndpointType[] ssoEndpoints, 
+			EndpointType[] attributeQueryEndpoints)
+	{
+		MetadataProvider metaProvider;
+		File metadataFile = samlProperties.getFileValue(SamlProperties.METADATA_SOURCE, false);
+		if (metadataFile == null)
+		{
+			metaProvider = new IdpMetadataGenerator(samlProperties, ssoEndpoints, attributeQueryEndpoints);
+		} else
+		{
+			try
+			{
+				metaProvider = new FileMetadataProvider(executorsService, metadataFile);
+			} catch (IOException e)
+			{
+				throw new ConfigurationException("Can't initialize metadata provider, " +
+						"problem loading metadata", e);
+			}
+		}
+		
+		if (samlProperties.getBooleanValue(SamlProperties.SIGN_METADATA))
+		{
+			try
+			{
+				metaProvider = new MetadataSigner(metaProvider, 
+						samlProperties.getSamlIssuerCredential());
+			} catch (Exception e)
+			{
+				throw new ConfigurationException("Can't initialize metadata provider, " +
+						"problem signing metadata", e);
+			}
+		}
+		return metaProvider;
+	}
+}

@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 
 import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.SamlProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.web.EopException;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
@@ -26,7 +26,7 @@ import pl.edu.icm.unity.unicore.samlidp.saml.WebAuthWithETDRequestValidator;
  */
 public class SamlETDParseServlet extends SamlParseServlet
 {
-	public SamlETDParseServlet(SamlProperties samlConfig, String endpointAddress,
+	public SamlETDParseServlet(SamlIdpProperties samlConfig, String endpointAddress,
 			String samlUiServletPath, ErrorHandler errorHandler)
 	{
 		super(samlConfig, endpointAddress, samlUiServletPath, errorHandler);

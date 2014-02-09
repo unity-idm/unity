@@ -12,12 +12,14 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
+import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.ws.authn.CXFAuthentication;
@@ -38,12 +40,13 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 	private AttributesManagement attributesMan;
 	private PreferencesManagement preferencesMan;
 	private PKIManagement pkiManagement;
+	private ExecutorsService executorsService;
 	
 	
 	@Autowired
 	public SamlUnicoreIdPSoapEndpointFactory(UnityMessageSource msg, IdentitiesManagement identitiesMan,
 			AttributesManagement attributesMan, PreferencesManagement preferencesMan,
-			PKIManagement pkiManagement)
+			PKIManagement pkiManagement, ExecutorsService executorsService)
 	{
 		super();
 		this.msg = msg;
@@ -51,11 +54,14 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 		this.attributesMan = attributesMan;
 		this.preferencesMan = preferencesMan;
 		this.pkiManagement = pkiManagement;
+		this.executorsService = executorsService;
 
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(CXFAuthentication.NAME);
 		Map<String,String> paths=new HashMap<String, String>();
 		paths.put(SERVLET_PATH,"SAML 2 UNICORE identity provider web endpoint");
+		paths.put(SamlIdPSoapEndpointFactory.METADATA_SERVLET_PATH, 
+				"Metadata of the SAML 2 identity provider web endpoint");
 		description = new EndpointTypeDescription(NAME, 
 				"SAML 2 UNICORE identity provider web endpoint", supportedAuthn,paths);
 	}
@@ -69,7 +75,8 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new SamlUnicoreSoapEndpoint(msg, getDescription(), SERVLET_PATH, identitiesMan, 
-				attributesMan, preferencesMan, pkiManagement);
+		return new SamlUnicoreSoapEndpoint(msg, getDescription(), SERVLET_PATH, 
+				SamlIdPSoapEndpointFactory.METADATA_SERVLET_PATH, identitiesMan, 
+				attributesMan, preferencesMan, pkiManagement, executorsService);
 	}
 }

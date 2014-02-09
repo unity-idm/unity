@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 
@@ -42,18 +43,17 @@ import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
-import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 
 /**
- * Properties-based configuration of SAML endpoints. 
- * Maybe this will be rewritten to use JSON. But this is not strongly required.
+ * Properties-based configuration of SAML IdP endpoint.
+ *  
  * @author K. Benedyczak
  */
-public class SamlProperties extends PropertiesHelper
+public class SamlIdpProperties extends SamlProperties
 {
-	private static final Logger log = Log.getLogger(SamlProperties.LOG_PFX, SamlProperties.class);
+	private static final Logger log = Log.getLogger(SamlIdpProperties.LOG_PFX, SamlIdpProperties.class);
 	public enum RequestAcceptancePolicy {all, validSigner, strict};
 	public enum ResponseSigningPolicy {always, never, asRequest};
 	public enum GroupsSelection {none, all, single, subgroups};
@@ -71,9 +71,6 @@ public class SamlProperties extends PropertiesHelper
 	public static final String DEF_ATTR_ASSERTION_VALIDITY = "validityPeriod";
 	public static final String SAML_REQUEST_VALIDITY = "requestValidityPeriod";
 	public static final String ISSUER_URI = "issuerURI";
-	//public static final String AUTHN_ENDPOINT_URI = "authEndpointURI";
-	//public static final String ASSERTION_ENDPOINT_URI = "assertionEndpointURI";
-	//public static final String NAMEMAP_ENDPOINT_URI = "nameMapEndpointURI";
 	public static final String SP_ACCEPT_POLICY = "spAcceptPolicy";
 	public static final String ALLOWED_URI_SP = "acceptedUriSP.";
 	public static final String ALLOWED_DN_SP = "acceptedDNSP.";
@@ -130,15 +127,7 @@ public class SamlProperties extends PropertiesHelper
 		defaults.put(DEF_ATTR_ASSERTION_VALIDITY, new PropertyMD("14400").setPositive().setCategory(samlCat).
 				setDescription("Controls the maximum validity period of an attribute assertion returned to client (in seconds). It is inserted whenever query is compliant with 'SAML V2.0 Deployment Profiles for X.509 Subjects', what usually is the case."));
 		defaults.put(ISSUER_URI, new PropertyMD().setCategory(samlCat).setMandatory().
-				setDescription("This property controls the server's URI which is inserted into SAML responses (the Issuer field). It should be a unique URI which identifies the server. The best approach is to use the server's URL . If absent the server will try to autogenerate one."));
-/*
-		defaults.put(AUTHN_ENDPOINT_URI, new PropertyMD().setCategory(samlCat).
-				setDescription("This property controls the server's URL of its authentication provider endpoint. It is used to check if requests are properly addressed. If not specified manually it will be set to issuerURI concatenated with '/UVOSAuthenticationService'"));
-		defaults.put(ASSERTION_ENDPOINT_URI, new PropertyMD().setCategory(samlCat).
-				setDescription("This property controls the server's URL of its assertion query endpoint. It is used to check if requests are properly addressed. If not specified manually it will be set to issuerURI concatenated with '/UVOSAssertionQueryService'"));
-		defaults.put(NAMEMAP_ENDPOINT_URI, new PropertyMD().setCategory(samlCat).
-				setDescription("This property controls the server's URL of its name id map endpoint. It is used to check if requests are properly addressed. If not specified manually it will be set to issuerURI concatenated with '/UVOSNameIdMappingService'"));
-*/
+				setDescription("This property controls the server's URI which is inserted into SAML responses (the Issuer field). It should be a unique URI which identifies the server. The best approach is to use the server's URL. If absent the server will try to autogenerate one."));
 		defaults.put(SP_ACCEPT_POLICY, new PropertyMD(RequestAcceptancePolicy.all).setCategory(samlCat).
 				setDescription("Controls which requests are authorized. All accepts all, validSigner accepts all requests which are signed with a trusted certificate, finally strict allows only requests signed by one of the enumerated issuers."));
 		defaults.put(ALLOWED_DN_SP, new PropertyMD().setList(true).setCategory(samlCat).
@@ -153,6 +142,7 @@ public class SamlProperties extends PropertiesHelper
 						"if the Service Provider accept policy requires so."));
 		defaults.put(CREDENTIAL, new PropertyMD().setMandatory().setCategory(samlCat).
 				setDescription("SAML IdP credential name, which is used to sign responses."));
+		defaults.putAll(SamlProperties.defaults);
 	}
 
 	private boolean signRespNever;
@@ -168,7 +158,7 @@ public class SamlProperties extends PropertiesHelper
 	private PKIManagement pkiManagement;
 	
 	
-	public SamlProperties(Properties src, PKIManagement pkiManagement) throws ConfigurationException, IOException
+	public SamlIdpProperties(Properties src, PKIManagement pkiManagement) throws ConfigurationException, IOException
 	{
 		super(P, src, defaults, log);
 		this.pkiManagement = pkiManagement;
@@ -185,7 +175,7 @@ public class SamlProperties extends PropertiesHelper
 	
 	private void init()
 	{
-		ResponseSigningPolicy repPolicy = getEnumValue(SamlProperties.SIGN_RESPONSE, ResponseSigningPolicy.class);
+		ResponseSigningPolicy repPolicy = getEnumValue(SamlIdpProperties.SIGN_RESPONSE, ResponseSigningPolicy.class);
 		signRespAlways = signRespNever = false;
 		if (repPolicy == ResponseSigningPolicy.always)
 			signRespAlways = true;
@@ -205,7 +195,7 @@ public class SamlProperties extends PropertiesHelper
 		} else
 		{
 			authnTrustChecker = new StrictSamlTrustChecker();
-			List<String> allowedSpecs = getListOfValues(SamlProperties.ALLOWED_URI_SP);
+			List<String> allowedSpecs = getListOfValues(SamlIdpProperties.ALLOWED_URI_SP);
 			for (String allowedSpec: allowedSpecs)
 			{
 				String[] parsed = allowedSpec.split("\\s+", 3);
@@ -225,7 +215,7 @@ public class SamlProperties extends PropertiesHelper
 				log.debug("SP authorized to submit authentication requests: " + parsed[0]);
 			}
 
-			List<String> allowedByDnSpecs = getListOfValues(SamlProperties.ALLOWED_DN_SP);
+			List<String> allowedByDnSpecs = getListOfValues(SamlIdpProperties.ALLOWED_DN_SP);
 			for (String allowedByDn: allowedByDnSpecs)
 			{
 				String allowed;
@@ -249,7 +239,7 @@ public class SamlProperties extends PropertiesHelper
 		else
 			soapTrustChecker = new AcceptingSamlTrustChecker();
 		replayChecker = new ReplayAttackChecker();
-		requestValidity = getLongValue(SamlProperties.SAML_REQUEST_VALIDITY)*1000;
+		requestValidity = getLongValue(SamlIdpProperties.SAML_REQUEST_VALIDITY)*1000;
 		
 		groupChooser = new GroupChooser(this);
 		attributeFilter = new AttributeFilters(this);

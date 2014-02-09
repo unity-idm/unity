@@ -13,7 +13,7 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.idp.SamlProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
@@ -45,14 +45,14 @@ import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 public class SAMLAuthnImpl implements SAMLAuthnInterface
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLAuthnImpl.class);
-	protected SamlProperties samlProperties;
+	protected SamlIdpProperties samlProperties;
 	protected String endpointAddress;
 	protected IdentitiesManagement identitiesMan;
 	protected AttributesManagement attributesMan;
 	protected PreferencesManagement preferencesMan;
 	
 
-	public SAMLAuthnImpl(SamlProperties samlProperties, String endpointAddress,
+	public SAMLAuthnImpl(SamlIdpProperties samlProperties, String endpointAddress,
 			IdentitiesManagement identitiesMan, AttributesManagement attributesMan,
 			PreferencesManagement preferencesMan)
 	{

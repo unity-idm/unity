@@ -10,7 +10,7 @@ package pl.edu.icm.unity.saml.idp.ctx;
 
 import java.util.Date;
 
-import pl.edu.icm.unity.saml.idp.SamlProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
@@ -25,7 +25,7 @@ public class SAMLAuthnContext extends SAMLAssertionResponseContext<AuthnRequestD
 	private String relayState;
 	private Date creationTs;
 	
-	public SAMLAuthnContext(AuthnRequestDocument reqDoc, SamlProperties samlConfiguration)
+	public SAMLAuthnContext(AuthnRequestDocument reqDoc, SamlIdpProperties samlConfiguration)
 	{
 		super(reqDoc, reqDoc.getAuthnRequest(), samlConfiguration);
 		creationTs = new Date();
@@ -48,7 +48,7 @@ public class SAMLAuthnContext extends SAMLAssertionResponseContext<AuthnRequestD
 	
 	public boolean isExpired()
 	{
-		long timeout = 1000L*samlConfiguration.getIntValue(SamlProperties.AUTHENTICATION_TIMEOUT);
+		long timeout = 1000L*samlConfiguration.getIntValue(SamlIdpProperties.AUTHENTICATION_TIMEOUT);
 		return System.currentTimeMillis() > timeout+creationTs.getTime();
 	}
 }
