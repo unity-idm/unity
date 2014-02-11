@@ -77,6 +77,7 @@ public class SamlParseServlet extends HttpServlet
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
 	{
+		log.trace("Received GET request to the SAML IdP endpoint");
 		processSamlRequest(request, response);
 	}
 
@@ -88,6 +89,7 @@ public class SamlParseServlet extends HttpServlet
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
 	{
+		log.trace("Received POST request to the SAML IdP endpoint");
 		processSamlRequest(request, response);
 	}
 
@@ -155,6 +157,8 @@ public class SamlParseServlet extends HttpServlet
 		try
 		{
 			AuthnRequestDocument samlRequest = parse(request);
+			if (log.isTraceEnabled())
+				log.trace("Parsed SAML request:\n" + samlRequest.xmlText());
 			context = createSamlContext(request, samlRequest);
 			validate(context, response);
 		} catch (SAMLProcessingException e)

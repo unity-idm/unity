@@ -277,9 +277,13 @@ public class SamlIdpProperties extends SamlProperties
 	
 	private void initPki() throws EngineException
 	{
-		if (getEnumValue(SP_ACCEPT_POLICY, RequestAcceptancePolicy.class) != RequestAcceptancePolicy.all)
+		RequestAcceptancePolicy policy = getEnumValue(SP_ACCEPT_POLICY, RequestAcceptancePolicy.class); 
+		if (policy == RequestAcceptancePolicy.validSigner)
 		{
 			String validator = getValue(TRUSTSTORE);
+			if (validator == null)
+				throw new ConfigurationException("The SAML truststore must be defined for " +
+						"the selected SP acceptance policy " + policy);
 			if (!pkiManagement.getValidatorNames().contains(validator))
 				throw new ConfigurationException("The SAML truststore " + validator + " is unknown");
 			trustedValidator = pkiManagement.getValidator(validator);

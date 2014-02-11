@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.xmlbeans.XmlObject;
 
@@ -234,7 +235,7 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		SubjectConfirmationType subConf = SubjectConfirmationType.Factory.newInstance();
 		subConf.setMethod(SAMLConstants.CONFIRMATION_SENDER_VOUCHES);
 		SubjectConfirmationDataType confData = subConf.addNewSubjectConfirmationData();
-		Calendar validity = Calendar.getInstance();
+		Calendar validity = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		validity.setTimeInMillis(authnTime.getTimeInMillis()+samlConfiguration.getRequestValidity());
 		confData.setNotOnOrAfter(validity);
 		requested.setSubjectConfirmationArray(new SubjectConfirmationType[] {subConf});

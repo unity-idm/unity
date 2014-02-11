@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
+import java.util.TimeZone;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.Assertion;
@@ -40,7 +41,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 {
 	public AuthnResponseProcessor(SAMLAuthnContext context)
 	{
-		this(context, Calendar.getInstance());
+		this(context, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 	}
 	
 	public AuthnResponseProcessor(SAMLAuthnContext context, Calendar authnTime)
@@ -107,7 +108,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		subConf.setMethod(SAMLConstants.CONFIRMATION_BEARER);
 		SubjectConfirmationDataType confData = subConf.addNewSubjectConfirmationData();
 		confData.setInResponseTo(context.getRequest().getID());
-		Calendar validity = Calendar.getInstance();
+		Calendar validity = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		validity.setTimeInMillis(getAuthnTime().getTimeInMillis()+samlConfiguration.getRequestValidity());
 		confData.setNotOnOrAfter(validity);
 		String consumerServiceURL = context.getRequest().getAssertionConsumerServiceURL();

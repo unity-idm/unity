@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlObject;
@@ -40,7 +41,7 @@ public class AttributeQueryResponseProcessor extends BaseResponseProcessor<Attri
 {
 	public AttributeQueryResponseProcessor(SAMLAttributeQueryContext context)
 	{
-		this(context, Calendar.getInstance());
+		this(context, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 	}
 	
 	public AttributeQueryResponseProcessor(SAMLAttributeQueryContext context, Calendar authnTime)

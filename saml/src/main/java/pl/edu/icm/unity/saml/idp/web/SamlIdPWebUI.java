@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -168,7 +169,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	protected void appInit(VaadinRequest request)
 	{
 		SAMLAuthnContext samlCtx = SamlResponseHandler.getContext();
-		samlProcessor = new AuthnResponseProcessor(samlCtx, Calendar.getInstance());
+		samlProcessor = new AuthnResponseProcessor(samlCtx, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		samlResponseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor, 
 				getMyAddress());
 		

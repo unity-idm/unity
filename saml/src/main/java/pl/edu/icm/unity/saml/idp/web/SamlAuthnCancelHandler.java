@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.idp.web;
 
 import java.util.Calendar;
+import java.util.TimeZone;
 
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
@@ -31,7 +32,7 @@ public class SamlAuthnCancelHandler implements CancelHandler
 	public void onCancel()
 	{
 		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(SamlResponseHandler.getContext(), 
-				Calendar.getInstance());
+				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		SamlResponseHandler responseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor, address);
 		AuthenticationException ea = new AuthenticationException("Authentication was declined");
 		try
