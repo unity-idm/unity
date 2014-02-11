@@ -24,7 +24,7 @@ import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -46,7 +46,6 @@ import com.vaadin.ui.themes.Reindeer;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class TranslationProfilesComponent extends VerticalLayout
 {
-	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			TranslationProfilesComponent.class);
 	
@@ -64,7 +63,6 @@ public class TranslationProfilesComponent extends VerticalLayout
 			UnityServerConfiguration config, TranslationProfileManagement profilesMan,
 			TranslationActionsRegistry tactionsRegistry, ObjectMapper jsonMapper)
 	{
-		
 		this.msg = msg;
 		this.config = config;
 		this.profilesMan = profilesMan;
@@ -96,7 +94,6 @@ public class TranslationProfilesComponent extends VerticalLayout
 			public void buttonClick(ClickEvent event)
 			{
 				updateContent();
-
 			}
 		});
 		refreshViewButton.setDescription(msg.getMessage("TranslationProfiles.refreshList"));
@@ -108,13 +105,10 @@ public class TranslationProfilesComponent extends VerticalLayout
 		reloadAllButton.addStyleName(Styles.toolbarButton.toString());
 		reloadAllButton.addClickListener(new Button.ClickListener()
 		{
-
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
 				reloadTranslationProfile();
-				
-
 			}
 		});
 		reloadAllButton.setDescription(msg.getMessage("TranslationProfiles.reloadAll"));
@@ -132,8 +126,6 @@ public class TranslationProfilesComponent extends VerticalLayout
 		addComponent(content);
 
 		updateContent();
-		
-		
 	}
 	
 	
@@ -146,9 +138,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			config.reloadIfChanged();
 		} catch (Exception e)
 		{
-			log.error("Cannot reload configuration", e);
-			ErrorPopup.showError(msg,
-					msg.getMessage("Configuration.cannotReloadConfig"), e);
+			setError(msg.getMessage("Configuration.cannotReloadConfig"), e);
 			return;
 		}
 		Map<String, TranslationProfile> existing;
@@ -156,9 +146,8 @@ public class TranslationProfilesComponent extends VerticalLayout
 		{
 			existing = profilesMan.listProfiles();
 		} catch (EngineException e)
-		{	
-			log.error("Cannot load translation profiles", e);
-			ErrorPopup.showError(msg, msg.getMessage("TranslationProfiles.cannotLoadList"), e);
+		{
+			setError(msg.getMessage("TranslationProfiles.cannotLoadList"), e);
 			return;
 		}
 		
@@ -181,10 +170,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 				json = FileUtils.readFileToString(new File(profileFile));
 			} catch (IOException e)
 			{
-				log.error("Cannot read json file",e);
-				ErrorPopup.showError(msg,
-						msg.getMessage("TranslationProfiles.cannotReadJsonConfig"),
-						e);
+				setError(msg.getMessage("TranslationProfiles.cannotReadJsonConfig"), e);
 				return;
 			}
 			TranslationProfile tp = new TranslationProfile(json, jsonMapper,
@@ -210,6 +196,14 @@ public class TranslationProfilesComponent extends VerticalLayout
 		
 	}
 
+	private void setError(String message, Exception error)
+	{
+		content.removeAllComponents();
+		translationProfileComponents.clear();
+		ErrorComponent ec = new ErrorComponent();
+		ec.setError(message, error);
+		content.addComponent(ec);
+	}
 
 	private void reloadTranslationProfile()
 	{	log.info("Reloading all translation profiles");

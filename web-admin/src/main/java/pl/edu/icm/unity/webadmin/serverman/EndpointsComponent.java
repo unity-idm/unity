@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -23,13 +22,11 @@ import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -50,9 +47,6 @@ import com.vaadin.ui.themes.Reindeer;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class EndpointsComponent extends VerticalLayout
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
-			EndpointsComponent.class);
-
 	private UnityMessageSource msg;
 	private EndpointManagement endpointMan;
 	private VerticalLayout content;
@@ -136,10 +130,7 @@ public class EndpointsComponent extends VerticalLayout
 			config.reloadIfChanged();
 		} catch (Exception e)
 		{
-			log.error("Cannot reload configuration", e);
-			ErrorPopup.showError(msg, msg
-					.getMessage("DeployableComponentBase.cannotReloadConfig"),
-					e);
+			setError(msg.getMessage("DeployableComponentBase.cannotReloadConfig"), e);
 			return;
 		}
 
@@ -149,9 +140,7 @@ public class EndpointsComponent extends VerticalLayout
 			endpoints = endpointMan.getEndpoints();
 		} catch (EngineException e)
 		{
-			log.error("Cannot load endpoints", e);
-			ErrorPopup.showError(msg, msg.getMessage("error"),
-					msg.getMessage("Endpoints.cannotLoadList"));
+			setError(msg.getMessage("Endpoints.cannotLoadList"), e);
 			return;
 		}
 
@@ -190,4 +179,13 @@ public class EndpointsComponent extends VerticalLayout
 		
 	}
 
+
+	private void setError(String message, Exception error)
+	{
+		content.removeAllComponents();
+		endpointComponents.clear();
+		ErrorComponent ec = new ErrorComponent();
+		ec.setError(message, error);
+		content.addComponent(ec);
+	}
 }

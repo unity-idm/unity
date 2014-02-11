@@ -22,7 +22,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -127,8 +127,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 			config.reloadIfChanged();
 		} catch (Exception e)
 		{
-			log.error("Cannot reload configuration", e);
-			ErrorPopup.showError(msg, msg.getMessage("Configuration.cannotReloadConfig"), e);
+			setError(msg.getMessage("Configuration.cannotReloadConfig"), e);
 			return;
 		}
 
@@ -138,9 +137,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 			authenticators = authMan.getAuthenticators(null);
 		} catch (EngineException e)
 		{
-			log.error("Cannot load authenticators", e);
-			ErrorPopup.showError(msg,
-					msg.getMessage("Authenticators.cannotLoadList"), e);
+			setError(msg.getMessage("Authenticators.cannotLoadList"), e);
 			return;
 		}
 		Set<String> existing = new HashSet<String>();
@@ -173,6 +170,16 @@ public class AuthenticatorsComponent extends VerticalLayout
 		}
 	}
 
+
+	private void setError(String message, Exception error)
+	{
+		content.removeAllComponents();
+		authenticatorComponents.clear();
+		ErrorComponent ec = new ErrorComponent();
+		ec.setError(message, error);
+		content.addComponent(ec);
+	}
+	
 	private void reloadAuthenticators()
 	{
 		updateContent();
