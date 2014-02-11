@@ -8,10 +8,7 @@
 
 package pl.edu.icm.unity.saml.idp;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
@@ -31,11 +28,10 @@ import pl.edu.icm.unity.server.utils.Log;
 
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.X509Credential;
-import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
-import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.trust.AcceptingSamlTrustChecker;
+import eu.unicore.samly2.trust.EnumeratedTrustChecker;
 import eu.unicore.samly2.trust.PKISamlTrustChecker;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.trust.StrictSamlTrustChecker;
@@ -54,7 +50,7 @@ import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 public class SamlIdpProperties extends SamlProperties
 {
 	private static final Logger log = Log.getLogger(SamlIdpProperties.LOG_PFX, SamlIdpProperties.class);
-	public enum RequestAcceptancePolicy {all, validSigner, strict};
+	public enum RequestAcceptancePolicy {all, validSigner, validRequester, strict};
 	public enum ResponseSigningPolicy {always, never, asRequest};
 	public enum GroupsSelection {none, all, single, subgroups};
 	
@@ -129,13 +125,25 @@ public class SamlIdpProperties extends SamlProperties
 		defaults.put(ISSUER_URI, new PropertyMD().setCategory(samlCat).setMandatory().
 				setDescription("This property controls the server's URI which is inserted into SAML responses (the Issuer field). It should be a unique URI which identifies the server. The best approach is to use the server's URL. If absent the server will try to autogenerate one."));
 		defaults.put(SP_ACCEPT_POLICY, new PropertyMD(RequestAcceptancePolicy.all).setCategory(samlCat).
-				setDescription("Controls which requests are authorized. All accepts all, validSigner accepts all requests which are signed with a trusted certificate, finally strict allows only requests signed by one of the enumerated issuers."));
+				setDescription("Controls which requests are authorized. +all+ accepts all, +validSigner+ " +
+				"accepts all requests which are signed with a trusted certificate, " +
+				"+validRequester+ accepts all requests (even unsigned) which are issued by a known " +
+				"entity with a fixed response address, " +
+				"finally +strict+ allows only requests signed by one of the enumerated issuers."));
 		defaults.put(ALLOWED_DN_SP, new PropertyMD().setList(true).setCategory(samlCat).
-				setDescription("List of Service Providers which are allowed to redirect its clients for authentication and retrieval of ETDs and users attributes from this server. This property is used to configure SPs which use DN SAML identifiers as UNICORE portals. " +
-						"Each value must be a path to a file with certificate (in PEM format) of the SP."));
+				setDescription("List of Service Providers which are allowed to redirect its clients for " +
+				"authentication and retrieval of attributes from this server. This property is " +
+				"used to configure SPs which use DN SAML identifiers as UNICORE portals. " +
+				"Each value must be a name of a certificate of a SP."));
 		defaults.put(ALLOWED_URI_SP, new PropertyMD().setList(true).setCategory(samlCat).
-				setDescription("List of Service Providers which are allowed to redirect its clients for authentication and retrieval of ETDs and users attributes from this server. This property is used to configure SPs which use URI SAML identifiers as Shibboleth SP. " +
-						"Each entry must contain two space separated tokens. The first token must be a URI of SAML service provider. The second token must be a path to a file with certificate (in PEM format) of the SP."));
+				setDescription("List of Service Providers which are allowed to redirect its clients " +
+				"for authentication and retrieval of attributes from this server. This property is " +
+				"used to configure SPs which use URI SAML identifiers as Shibboleth SP. " +
+				"Each entry must contain two space separated tokens. The first token must be " +
+				"a URI of SAML service provider. The second token depends on an acceptance policy used." +
+				"For the +" + RequestAcceptancePolicy.strict + "+ it must be a name of a SP certificate. " +
+				"For the +" + RequestAcceptancePolicy.validRequester + "+ " + 
+				"it must be an address of a SP endpoint where the response should be sent."));
 
 		defaults.put(TRUSTSTORE, new PropertyMD().setCategory(samlCat).
 				setDescription("Truststore name to setup SAML trust settings. The truststore is used to verify request signature issuer, " +
@@ -192,7 +200,7 @@ public class SamlIdpProperties extends SamlProperties
 		{
 			authnTrustChecker = new PKISamlTrustChecker(trustedValidator);
 			log.debug("All SPs using a valid certificate will be authorized to submit authentication requests");
-		} else
+		} else if (spPolicy == RequestAcceptancePolicy.strict)
 		{
 			authnTrustChecker = new StrictSamlTrustChecker();
 			List<String> allowedSpecs = getListOfValues(SamlIdpProperties.ALLOWED_URI_SP);
@@ -201,16 +209,16 @@ public class SamlIdpProperties extends SamlProperties
 				String[] parsed = allowedSpec.split("\\s+", 3);
 				if (parsed.length != 2)
 					throw new ConfigurationException("Invalid specification of allowed Service " +
-							"Provider, must have three elements: " + Arrays.toString(parsed));
+							"Provider, must have two elements: " + Arrays.toString(parsed));
 				try
 				{
-					InputStream is = new BufferedInputStream(new FileInputStream(parsed[1]));
-					X509Certificate cert = CertificateUtils.loadCertificate(is, Encoding.PEM);
+					X509Certificate cert = pkiManagement.getCertificate(parsed[1]);
 					((StrictSamlTrustChecker)authnTrustChecker).addTrustedIssuer(
 							parsed[0], SAMLConstants.NFORMAT_ENTITY, cert.getPublicKey());
-				} catch (IOException e)
+				} catch (EngineException e)
 				{
-					throw new ConfigurationException("Can't load certificate of trusted issuer from " + parsed[1], e);
+					throw new ConfigurationException("Can't set certificate of trusted " +
+							"issuer named " + parsed[1], e);
 				}
 				log.debug("SP authorized to submit authentication requests: " + parsed[0]);
 			}
@@ -221,19 +229,34 @@ public class SamlIdpProperties extends SamlProperties
 				String allowed;
 				try
 				{
-					InputStream is = new BufferedInputStream(new FileInputStream(allowedByDn));
-					X509Certificate cert = CertificateUtils.loadCertificate(is, Encoding.PEM);
+					X509Certificate cert = pkiManagement.getCertificate(allowedByDn); 
 					allowed = cert.getSubjectX500Principal().getName();
-					is.close();
 					((StrictSamlTrustChecker)authnTrustChecker).addTrustedIssuer(
 							allowed, SAMLConstants.NFORMAT_ENTITY, cert.getPublicKey());
-				} catch (IOException e)
+				} catch (EngineException e)
 				{
 					throw new ConfigurationException("Can't load certificate of trusted issuer from " + allowedByDn, e);
 				}
 				log.debug("SP authorized to submit authentication requests: " + X500NameUtils.getReadableForm(allowed));
 			}
+		} else
+		{
+			EnumeratedTrustChecker authnTrustChecker = new EnumeratedTrustChecker();
+			this.authnTrustChecker = authnTrustChecker;
+			
+			List<String> allowedSpecs = getListOfValues(SamlIdpProperties.ALLOWED_URI_SP);
+			for (String allowedSpec: allowedSpecs)
+			{
+				String[] parsed = allowedSpec.split("\\s+", 3);
+				if (parsed.length != 2)
+					throw new ConfigurationException("Invalid specification of allowed Service " +
+							"Provider, must have two elements: " + Arrays.toString(parsed));
+				authnTrustChecker.addTrustedIssuer(parsed[0], parsed[1]);
+				log.debug("SP authorized to submit authentication requests: " + parsed[0]);
+			}
 		}
+		
+		
 		if (trustedValidator != null)
 			soapTrustChecker = new PKISamlTrustChecker(trustedValidator, true);
 		else

@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.saml.validator;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLResponderException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
@@ -21,10 +24,9 @@ import xmlbeans.org.oasis.saml2.protocol.NameIDPolicyType;
  * <ul>
  * <li> subject must not be set
  * <li> requestedAuthnContext must not be set
- * <li> assertionConsumerServiceIndex must not be set
- * <li> AttributeconsumingServiceIndex must not be set
- * <li> AttributeConsumingServiceURL must be set. This is because it is the only mean currently to set 
- * the mandatory receiver when producing an answer.
+ * <li> AssertionConsumerServiceIndex must not be set
+ * <li> AttributeConsumingServiceIndex must not be set
+ * <li> AssertionConsumingServiceURL must be set if it is not configured.
  * </ul>
  * This class is binding transparent, it can be used as a base for binding specific validators.
  * 
@@ -32,12 +34,24 @@ import xmlbeans.org.oasis.saml2.protocol.NameIDPolicyType;
  */
 public class UnityAuthnRequestValidator extends SSOAuthnRequestValidator
 {
+	protected Set<String> knownRequesters;
+	
 	public UnityAuthnRequestValidator(String consumerEndpointUri, SamlTrustChecker trustChecker,
 			long requestValidity, ReplayAttackChecker replayChecker)
 	{
 		super(consumerEndpointUri, trustChecker, requestValidity, replayChecker);
+		knownRequesters = new HashSet<>();
 	}
 
+	/**
+	 * Adds a new known requester, for which we have a response URL defined out of bands.
+	 * @param requesterName
+	 */
+	public void addKnownRequester(String requesterName)
+	{
+		knownRequesters.add(requesterName);
+	}
+	
 	@Override
 	public void validate(AuthnRequestDocument authenticationRequestDoc) throws SAMLServerException
 	{
@@ -61,16 +75,17 @@ public class UnityAuthnRequestValidator extends SSOAuthnRequestValidator
 			throw new SAMLResponderException(SAMLConstants.SubStatus.STATUS2_REQUEST_UNSUPP,
 					"This implementation doesn't support authn " +
 					"requests with AssertionConsumerServiceIndex set.");
-		//4 - AttributeconsumingServiceIndex
+		//4 - AttributeConsumingServiceIndex
 		if (req.isSetAttributeConsumingServiceIndex())
 			throw new SAMLResponderException(SAMLConstants.SubStatus.STATUS2_REQUEST_UNSUPP,
 					"This implementation doesn't support authn " +
 					"requests with AttributeConsumingServiceIndex set.");
-		//5 - AttributeConsumingServiceURL mandatory
-		if (!req.isSetAssertionConsumerServiceURL())
+		//5 - AssertionConsumingServiceURL mandatory if we don't know the requester
+		if (!req.isSetAssertionConsumerServiceURL() && !knownRequesters.contains(
+				req.getIssuer().getStringValue()))
 			throw new SAMLResponderException(SAMLConstants.SubStatus.STATUS2_REQUEST_UNSUPP,
-					"This implementation doesn't support authn " +
-					"requests without AttributeConsumingServiceURL.");
+					"AssertionConsumingServiceURL is not set and the requester's " +
+					"response endpoint is not configured.");
 	}
 	
 
