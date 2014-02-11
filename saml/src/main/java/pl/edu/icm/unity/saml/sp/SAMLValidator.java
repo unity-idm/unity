@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml.sp;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -28,6 +29,10 @@ import eu.unicore.samly2.validators.SSOAuthnResponseValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.saml.SamlProperties;
+import pl.edu.icm.unity.saml.metadata.MetadataProvider;
+import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
+import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
@@ -38,8 +43,10 @@ import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.utils.ExecutorsService;
 import xmlbeans.org.oasis.saml2.assertion.AssertionDocument;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
@@ -52,13 +59,21 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 	private SAMLSPProperties samlProperties;
 	private PKIManagement pkiMan;
 	private ReplayAttackChecker replayAttackChecker;
+	private MultiMetadataServlet metadataServlet;
+	private ExecutorsService executorsService;
+	private String responseConsumerAddress;
 	
 	public SAMLValidator(String name, String description, TranslationProfileManagement profileManagement, 
-			AttributesManagement attrMan, PKIManagement pkiMan, ReplayAttackChecker replayAttackChecker)
+			AttributesManagement attrMan, PKIManagement pkiMan, ReplayAttackChecker replayAttackChecker,
+			ExecutorsService executorsService, MultiMetadataServlet metadataServlet,
+			URL baseAddress, String baseContext)
 	{
 		super(name, description, SAMLExchange.ID, profileManagement, attrMan);
 		this.pkiMan = pkiMan;
 		this.replayAttackChecker = replayAttackChecker;
+		this.metadataServlet = metadataServlet;
+		this.executorsService = executorsService;
+		this.responseConsumerAddress = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
 	}
 
 	@Override
@@ -90,10 +105,35 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 		{
 			throw new InternalException("Invalid configuration of the SAML verificator(?)", e);
 		}
+		
+		if (samlProperties.getBooleanValue(SamlProperties.PUBLISH_METADATA))
+			exposeMetadata();
 	}
 
+	private void exposeMetadata()
+	{
+		String metaPath = samlProperties.getValue(SAMLSPProperties.METADATA_PATH);
+		IndexedEndpointType consumerEndpoint = IndexedEndpointType.Factory.newInstance();
+		consumerEndpoint.setIndex(1);
+		consumerEndpoint.setBinding(SAMLConstants.BINDING_HTTP_POST);
+		consumerEndpoint.setLocation(responseConsumerAddress);
+		consumerEndpoint.setIsDefault(true);
+
+		IndexedEndpointType consumerEndpoint2 = IndexedEndpointType.Factory.newInstance();
+		consumerEndpoint2.setIndex(2);
+		consumerEndpoint2.setBinding(SAMLConstants.BINDING_HTTP_REDIRECT);
+		consumerEndpoint2.setLocation(responseConsumerAddress);
+		consumerEndpoint2.setIsDefault(false);
+
+		IndexedEndpointType[] assertionConsumerEndpoints = new IndexedEndpointType[] {consumerEndpoint,
+				consumerEndpoint2};
+		MetadataProvider provider = MetadataProviderFactory.newSPInstance(samlProperties, 
+				executorsService, assertionConsumerEndpoints);
+		metadataServlet.addProvider("/" + metaPath, provider);
+	}
+	
 	@Override
-	public AuthnRequestDocument createSAMLRequest(String idpKey, String returnURL) throws InternalException
+	public AuthnRequestDocument createSAMLRequest(String idpKey) throws InternalException
 	{
 		boolean sign = samlProperties.getBooleanValue(idpKey + SAMLSPProperties.IDP_SIGN_REQUEST);
 		String requestrId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
@@ -105,14 +145,13 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 		if (requestedNameFormat != null)
 			request.setFormat(requestedNameFormat);
 		request.getXMLBean().setDestination(identityProviderURL);
-		request.getXMLBean().setAssertionConsumerServiceURL(returnURL);
+		request.getXMLBean().setAssertionConsumerServiceURL(responseConsumerAddress);
 
 		if (sign)
 		{
 			try
 			{
-				X509Credential credential = pkiMan.getCredential(
-						samlProperties.getValue(SAMLSPProperties.CREDENTIAL));
+				X509Credential credential = samlProperties.getRequesterCredential();
 				request.sign(credential.getKey(), credential.getCertificateChain());
 			} catch (Exception e)
 			{
@@ -148,7 +187,7 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 		}
 		
 		SSOAuthnResponseValidator validator = new SSOAuthnResponseValidator(
-				consumerSamlName, context.getSpUrl(), 
+				consumerSamlName, responseConsumerAddress, 
 				context.getRequestId(), AssertionValidator.DEFAULT_VALIDITY_GRACE_PERIOD, 
 				samlTrustChecker, replayAttackChecker, 
 				SAMLBindings.valueOf(context.getResponseBinding().toString()));

@@ -9,8 +9,11 @@ import java.io.IOException;
 
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
+import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
+import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
 
 /**
@@ -23,7 +26,7 @@ public class MetadataProviderFactory
 	 * @param samlProperties
 	 * @param executorsService
 	 * @param endpoints
-	 * @return metadata of the IDP
+	 * @return metadata of an IDP
 	 */
 	public static MetadataProvider newIdpInstance(SamlIdpProperties samlProperties, 
 			ExecutorsService executorsService, EndpointType[] ssoEndpoints, 
@@ -45,13 +48,47 @@ public class MetadataProviderFactory
 						"problem loading metadata", e);
 			}
 		}
+		return addSigner(metaProvider, samlProperties, samlProperties.getSamlIssuerCredential());
+	}
+	
+	/**
+	 * @param samlProperties
+	 * @param executorsService
+	 * @param endpoints
+	 * @return metadata of a SP
+	 */
+	public static MetadataProvider newSPInstance(SAMLSPProperties samlProperties, 
+			ExecutorsService executorsService, IndexedEndpointType[] assertionConsumerEndpoints)
+	{
+		MetadataProvider metaProvider;
+		File metadataFile = samlProperties.getFileValue(SamlProperties.METADATA_SOURCE, false);
+		if (metadataFile == null)
+		{
+			metaProvider = new SPMetadataGenerator(samlProperties, assertionConsumerEndpoints);
+		} else
+		{
+			try
+			{
+				metaProvider = new FileMetadataProvider(executorsService, metadataFile);
+			} catch (IOException e)
+			{
+				throw new ConfigurationException("Can't initialize metadata provider, " +
+						"problem loading metadata", e);
+			}
+		}
 		
+		return addSigner(metaProvider, samlProperties, samlProperties.getRequesterCredential());
+	}
+
+	
+	private static MetadataProvider addSigner(MetadataProvider metaProvider, SamlProperties samlProperties,
+			X509Credential credential)
+	{
 		if (samlProperties.getBooleanValue(SamlProperties.SIGN_METADATA))
 		{
 			try
 			{
-				metaProvider = new MetadataSigner(metaProvider, 
-						samlProperties.getSamlIssuerCredential());
+				metaProvider = new MetadataSigner(metaProvider, credential);
 			} catch (Exception e)
 			{
 				throw new ConfigurationException("Can't initialize metadata provider, " +

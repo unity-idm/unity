@@ -6,6 +6,7 @@ package pl.edu.icm.unity.saml.metadata;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -25,6 +26,7 @@ public class FileMetadataProvider implements MetadataProvider
 {
 	private Logger log = Log.getLogger(Log.U_SERVER_SAML, FileMetadataProvider.class);
 	private File file;
+	private Date lastModification;
 	private ScheduledExecutorService scheduler;
 	private EntityDescriptorDocument document;
 	
@@ -40,7 +42,11 @@ public class FileMetadataProvider implements MetadataProvider
 			{
 				try
 				{
-					load();
+					if (file.lastModified() > lastModification.getTime())
+					{
+						log.info("Metadata file modification detected, reloading " + file);
+						load();
+					}
 				} catch (IOException e)
 				{
 					log.error("Can not load the metadata from the configured file " + file, e);
@@ -54,6 +60,7 @@ public class FileMetadataProvider implements MetadataProvider
 		try
 		{
 			document = EntityDescriptorDocument.Factory.parse(file);
+			lastModification = new Date();
 		} catch (Exception e)
 		{
 			throw new IOException("Metadata file can not be loaded", e);
@@ -66,4 +73,9 @@ public class FileMetadataProvider implements MetadataProvider
 		return document;
 	}
 
+	@Override
+	public synchronized Date getLastmodification()
+	{
+		return lastModification;
+	}
 }

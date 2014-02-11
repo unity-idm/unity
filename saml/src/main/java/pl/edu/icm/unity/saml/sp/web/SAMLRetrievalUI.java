@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
-import java.net.URL;
 import java.util.Collection;
 import java.util.Set;
 
@@ -12,7 +11,6 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
-import pl.edu.icm.unity.saml.sp.SAMLResponseConsumerServlet;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.Binding;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
@@ -56,8 +54,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLRetrievalUI.class);
 	private UnityMessageSource msg;
 	private SAMLExchange credentialExchange;
-	private URL baseAddress;
-	private String baseContext;
 	private AuthenticationResultCallback callback;
 	
 	private String selectedIdp;
@@ -67,13 +63,11 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private SamlContextManagement samlContextManagement;
 	
 	
-	public SAMLRetrievalUI(UnityMessageSource msg, SAMLExchange credentialExchange, URL baseAddress,
-			String baseContext, SamlContextManagement samlContextManagement)
+	public SAMLRetrievalUI(UnityMessageSource msg, SAMLExchange credentialExchange, 
+			SamlContextManagement samlContextManagement)
 	{
 		this.msg = msg;
 		this.credentialExchange = credentialExchange;
-		this.baseAddress = baseAddress;
-		this.baseContext = baseContext;
 		this.samlContextManagement = samlContextManagement;
 	}
 
@@ -236,11 +230,10 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		switchInProgress(context);
 		
 		SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
-		String responseUrl = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
 		AuthnRequestDocument request;
 		try
 		{
-			request = credentialExchange.createSAMLRequest(idpKey, responseUrl);
+			request = credentialExchange.createSAMLRequest(idpKey);
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage("WebSAMLRetrieval.configurationError"), e);
@@ -259,7 +252,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 				idpKey + SAMLSPProperties.IDP_REGISTRATION_FORM);
 		String translationProfile = samlProperties.getValue(
 				idpKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE);
-		context.setRequest(request.xmlText(), request.getAuthnRequest().getID(), responseUrl,
+		context.setRequest(request.xmlText(), request.getAuthnRequest().getID(), 
 				requestBinding, identityProviderURL, servletPath, groupAttribute, 
 				registrationFormForUnknown, translationProfile);
 		

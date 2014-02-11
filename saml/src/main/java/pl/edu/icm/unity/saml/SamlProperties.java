@@ -31,13 +31,12 @@ public abstract class SamlProperties extends PropertiesHelper
 	public static final String PUBLISH_METADATA = "publishMetadata";
 	public static final String SIGN_METADATA = "signMetadata";
 	public static final String METADATA_SOURCE = "metadataSource";
-
+	
+	public static final DocumentationCategory samlCat = new DocumentationCategory("SAML metadata settings", "6");
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
 	
 	static
 	{
-		DocumentationCategory samlCat = new DocumentationCategory("SAML metadata settings", "6");
-
 		defaults.put(PUBLISH_METADATA, new PropertyMD("true").setCategory(samlCat).
 				setDescription("Controls whether the SAML Metadata should be published under /metadata path."));
 		defaults.put(SIGN_METADATA, new PropertyMD("false").setCategory(samlCat).

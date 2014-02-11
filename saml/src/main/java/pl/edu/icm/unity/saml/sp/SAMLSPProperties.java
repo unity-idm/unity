@@ -16,6 +16,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
+import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.trust.SamlTrustChecker;
@@ -50,6 +51,7 @@ public class SAMLSPProperties extends SamlProperties
 	public static final String CREDENTIAL = "requesterCredential";
 	public static final String ACCEPTED_NAME_FORMATS = "acceptedNameFormats.";
 	public static final String DISPLAY_NAME = "displayName";
+	public static final String METADATA_PATH = "metadataPath";
 	
 	public static final String IDP_PREFIX = "remoteIdp.";
 	public static final String IDP_NAME = "name";
@@ -112,6 +114,9 @@ public class SAMLSPProperties extends SamlProperties
 				"SAML entity ID (must be a URI) of the lcoal SAML requester (or service provider)."));
 		META.put(CREDENTIAL, new PropertyMD().setCategory(verificator).setDescription(
 				"Local credential, used to sign requests. If signing is disabled it is not used."));
+		META.put(METADATA_PATH, new PropertyMD().setCategory(SamlProperties.samlCat).setDescription(
+				"Last element of the URL, under which the SAML metadata should be published for this SAML authenticator." +
+				"Used only if metadata publication is enabled."));
 		META.put(ACCEPTED_NAME_FORMATS, new PropertyMD().setList(false).setCategory(verificator).setDescription(
 				"If defined then specifies what SAML name formatd are accepted from IdP. " +
 				"Useful when the property " + IDP_REQUESTED_NAME_FORMAT + " is undefined for at least one IdP. "));
@@ -161,11 +166,29 @@ public class SAMLSPProperties extends SamlProperties
 		}
 		//test drive
 		getTrustChecker();
+		
+		if (getBooleanValue(PUBLISH_METADATA) && !isSet(METADATA_PATH))
+			throw new ConfigurationException("Metadata path " + getKeyDescription(METADATA_PATH) + 
+					" must be set if metadata publication is enabled.");
 	}
 	
 	public Properties getProperties()
 	{
 		return properties;
+	}
+	
+	public X509Credential getRequesterCredential()
+	{
+		String credential = getValue(SAMLSPProperties.CREDENTIAL);
+		if (credential == null)
+			return null;
+		try
+		{
+			return pkiManagement.getCredential(credential);
+		} catch (EngineException e)
+		{
+			return null;
+		}
 	}
 	
 	public SamlTrustChecker getTrustChecker() throws ConfigurationException

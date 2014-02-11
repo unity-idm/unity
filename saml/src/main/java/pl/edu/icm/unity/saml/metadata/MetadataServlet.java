@@ -12,6 +12,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
+import pl.edu.icm.unity.server.utils.Log;
+
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
 
 /**
@@ -21,6 +25,7 @@ import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
  */
 public class MetadataServlet extends HttpServlet
 {
+	private static Logger log = Log.getLogger(Log.U_SERVER_SAML, MetadataServlet.class);
 	private MetadataProvider metaProvider;
 	
 	public MetadataServlet(MetadataProvider metaProvider)
@@ -28,12 +33,32 @@ public class MetadataServlet extends HttpServlet
 		this.metaProvider = metaProvider;
 	}
 	
+	protected MetadataServlet()
+	{
+	}
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException
 	{
+		serveMetadata(metaProvider, req, resp);
+	}
+	
+	protected void serveMetadata(MetadataProvider metaProvider,
+			HttpServletRequest req, HttpServletResponse resp) throws IOException
+	{
 		resp.setContentType("application/samlmetadata+xml");
-		EntityDescriptorDocument meta = metaProvider.getMetadata();
+		EntityDescriptorDocument meta;
+		try
+		{
+			meta = metaProvider.getMetadata();
+		} catch (Exception e)
+		{
+			log.error("Problem generating SAML metadata document.", e);
+			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
+					"Problem occured when generating metadata.");
+			return;
+		}
 		PrintWriter writer = resp.getWriter();
 		writer.write(meta.xmlText());
 		writer.flush();

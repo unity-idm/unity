@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.saml.metadata;
 
+import java.util.Date;
+
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
 
 /**
@@ -12,5 +14,6 @@ import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
  */
 public interface MetadataProvider
 {
-	public EntityDescriptorDocument getMetadata();
+	public EntityDescriptorDocument getMetadata() throws Exception;
+	public Date getLastmodification();
 }

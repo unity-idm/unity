@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.saml.metadata;
 
-import org.apache.xmlbeans.XmlException;
+import java.util.Date;
+
 import org.w3c.dom.Document;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLUtils;
 import eu.unicore.samly2.trust.SamlTrustChecker;
-import eu.unicore.security.dsig.DSigException;
 import eu.unicore.security.dsig.DigSignatureUtil;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
 
@@ -21,10 +21,21 @@ import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
  */
 public class MetadataSigner implements MetadataProvider
 {
+	private MetadataProvider wrappedProvider;
+	private X509Credential credential;
 	private EntityDescriptorDocument metadata;
+	private Date lastUpdate;
 	
-	public MetadataSigner(MetadataProvider wrappedProvider, X509Credential credential) throws DSigException
+	public MetadataSigner(MetadataProvider wrappedProvider, X509Credential credential) throws Exception
 	{
+		this.wrappedProvider = wrappedProvider;
+		this.credential = credential;
+		update();
+	}
+
+	private void update() throws Exception
+	{
+		lastUpdate = wrappedProvider.getLastmodification();
 		metadata = wrappedProvider.getMetadata();
 		
 		String id = SAMLUtils.genID("unity-");
@@ -35,16 +46,18 @@ public class MetadataSigner implements MetadataProvider
 				credential.getCertificateChain(), docToSign, docToSign.getFirstChild().getFirstChild(), 
 				SamlTrustChecker.PROTOCOL_ID_QNAME);
 	}
+	
+	@Override
+	public EntityDescriptorDocument getMetadata() throws Exception
+	{
+		if (lastUpdate.before(wrappedProvider.getLastmodification()))
+			update();
+		return EntityDescriptorDocument.Factory.parse(metadata.xmlText());
+	}
 
 	@Override
-	public EntityDescriptorDocument getMetadata()
+	public Date getLastmodification()
 	{
-		try
-		{
-			return EntityDescriptorDocument.Factory.parse(metadata.xmlText());
-		} catch (XmlException e)
-		{
-			throw new RuntimeException("Can't re-parse metadata?", e);
-		}
+		return wrappedProvider.getLastmodification();
 	}
 }

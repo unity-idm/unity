@@ -6,6 +6,7 @@ package pl.edu.icm.unity.saml.metadata;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.util.Date;
 
 import org.apache.xmlbeans.XmlBase64Binary;
 import org.apache.xmlbeans.XmlException;
@@ -34,6 +35,7 @@ import xmlbeans.org.w3.x2000.x09.xmldsig.KeyInfoType;
  */
 public class IdpMetadataGenerator implements MetadataProvider
 {
+	private Date generationDate;
 	private SamlIdpProperties samlConfig;
 	private EntityDescriptorDocument document;
 	private EndpointType[] ssoEndpoints;
@@ -62,6 +64,7 @@ public class IdpMetadataGenerator implements MetadataProvider
 	
 	private void generateMetadata()
 	{
+		generationDate = new Date();
 		document = EntityDescriptorDocument.Factory.newInstance(new XmlOptions().setSavePrettyPrint());
 		
 		EntityDescriptorType meta = document.addNewEntityDescriptor();
@@ -123,6 +126,12 @@ public class IdpMetadataGenerator implements MetadataProvider
 					"representation for insertion in SAML metadata", e);
 		}
 		keyDescriptor.setUse(KeyTypes.SIGNING);
+	}
+
+	@Override
+	public Date getLastmodification()
+	{
+		return generationDate;
 	}
 }
 

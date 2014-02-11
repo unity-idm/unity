@@ -21,7 +21,6 @@ public class RemoteAuthnContext implements Serializable
 	private String relayState;
 	private String request;
 	private String requestId;
-	private String spUrl;
 	private String idpUrl;
 	private Binding requestBinding;
 	private Binding responseBinding;
@@ -57,13 +56,12 @@ public class RemoteAuthnContext implements Serializable
 	{
 		return request;
 	}
-	public synchronized void setRequest(String request, String requestId, String spUrl,
+	public synchronized void setRequest(String request, String requestId,
 			Binding requestBinding, String idpUrl, String returnUrl, String groupAttribute,
 			String registartionFormForUnknown, String translationProfile)
 	{
 		this.request = request;
 		this.requestId = requestId;
-		this.spUrl = spUrl;
 		this.requestBinding = requestBinding;
 		this.idpUrl = idpUrl;
 		this.returnUrl = returnUrl;
@@ -98,11 +96,6 @@ public class RemoteAuthnContext implements Serializable
 	{
 		return requestId;
 	}
-	public synchronized String getSpUrl()
-	{
-		return spUrl;
-	}
-
 	public synchronized String getGroupAttribute()
 	{
 		return groupAttribute;
