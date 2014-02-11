@@ -70,6 +70,9 @@ public class ErrorHandler
 	{
 		String serviceUrl = samlCtx.getRequestDocument().getAuthnRequest().getAssertionConsumerServiceURL();
 		if (serviceUrl == null)
+			serviceUrl = samlCtx.getSamlConfiguration().getReturnAddressForRequester(
+					samlCtx.getRequest().getIssuer());
+		if (serviceUrl == null)
 			throw new SAMLProcessingException("No return URL in the SAML request. " +
 					"Can't return the SAML error response.", error);
 

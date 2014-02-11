@@ -89,6 +89,9 @@ public class SamlResponseHandler
 			
 			SAMLAuthnContext samlCtx = getContext();
 			String serviceUrl = samlCtx.getRequestDocument().getAuthnRequest().getAssertionConsumerServiceURL();
+			if (serviceUrl == null)
+				serviceUrl = samlCtx.getSamlConfiguration().getReturnAddressForRequester(
+						samlCtx.getRequest().getIssuer());
 			Map<String, String> data = new HashMap<String, String>();
 			data.put("SAMLResponse", encodedAssertion);
 			data.put("samlService", serviceUrl);

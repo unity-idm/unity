@@ -111,6 +111,9 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		validity.setTimeInMillis(getAuthnTime().getTimeInMillis()+samlConfiguration.getRequestValidity());
 		confData.setNotOnOrAfter(validity);
 		String consumerServiceURL = context.getRequest().getAssertionConsumerServiceURL();
+		if (consumerServiceURL == null)
+			consumerServiceURL = samlConfiguration.getReturnAddressForRequester(
+					context.getRequest().getIssuer());
 		confData.setRecipient(consumerServiceURL);
 		requested.setSubjectConfirmationArray(new SubjectConfirmationType[] {subConf});
 	}

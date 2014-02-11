@@ -205,7 +205,9 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	{
 		String samlRequester = samlCtx.getRequest().getIssuer().getStringValue();
 		String returnAddress = samlCtx.getRequest().getAssertionConsumerServiceURL();
-		
+		if (returnAddress == null)
+			returnAddress = samlCtx.getSamlConfiguration().getReturnAddressForRequester(
+					samlCtx.getRequest().getIssuer());
 		Label info1 = new Label(msg.getMessage("SamlIdPWebUI.info1"));
 		info1.setStyleName(Reindeer.LABEL_H1);
 		Label info1Id = new Label(msg.getMessage("SamlIdPWebUI.info1Id", samlRequester));

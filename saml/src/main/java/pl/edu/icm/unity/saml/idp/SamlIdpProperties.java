@@ -12,19 +12,20 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
+import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.X509Credential;
@@ -68,8 +69,11 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String SAML_REQUEST_VALIDITY = "requestValidityPeriod";
 	public static final String ISSUER_URI = "issuerURI";
 	public static final String SP_ACCEPT_POLICY = "spAcceptPolicy";
-	public static final String ALLOWED_URI_SP = "acceptedUriSP.";
-	public static final String ALLOWED_DN_SP = "acceptedDNSP.";
+	public static final String ALLOWED_SP = "acceptedSP.";
+	public static final String ALLOWED_SP_DN = "dn";
+	public static final String ALLOWED_SP_ENTITY = "entity";
+	public static final String ALLOWED_SP_RETURN_URL = "returnURL";
+	public static final String ALLOWED_SP_CERT = "certificate";
 	
 	public static final String GROUP_PFX = "groupMapping.";
 	public static final String GROUP_TARGET = "serviceProvider";
@@ -124,26 +128,28 @@ public class SamlIdpProperties extends SamlProperties
 				setDescription("Controls the maximum validity period of an attribute assertion returned to client (in seconds). It is inserted whenever query is compliant with 'SAML V2.0 Deployment Profiles for X.509 Subjects', what usually is the case."));
 		defaults.put(ISSUER_URI, new PropertyMD().setCategory(samlCat).setMandatory().
 				setDescription("This property controls the server's URI which is inserted into SAML responses (the Issuer field). It should be a unique URI which identifies the server. The best approach is to use the server's URL. If absent the server will try to autogenerate one."));
+		
 		defaults.put(SP_ACCEPT_POLICY, new PropertyMD(RequestAcceptancePolicy.all).setCategory(samlCat).
 				setDescription("Controls which requests are authorized. +all+ accepts all, +validSigner+ " +
 				"accepts all requests which are signed with a trusted certificate, " +
 				"+validRequester+ accepts all requests (even unsigned) which are issued by a known " +
 				"entity with a fixed response address, " +
 				"finally +strict+ allows only requests signed by one of the enumerated issuers."));
-		defaults.put(ALLOWED_DN_SP, new PropertyMD().setList(true).setCategory(samlCat).
-				setDescription("List of Service Providers which are allowed to redirect its clients for " +
-				"authentication and retrieval of attributes from this server. This property is " +
-				"used to configure SPs which use DN SAML identifiers as UNICORE portals. " +
-				"Each value must be a name of a certificate of a SP."));
-		defaults.put(ALLOWED_URI_SP, new PropertyMD().setList(true).setCategory(samlCat).
-				setDescription("List of Service Providers which are allowed to redirect its clients " +
-				"for authentication and retrieval of attributes from this server. This property is " +
-				"used to configure SPs which use URI SAML identifiers as Shibboleth SP. " +
-				"Each entry must contain two space separated tokens. The first token must be " +
-				"a URI of SAML service provider. The second token depends on an acceptance policy used." +
-				"For the +" + RequestAcceptancePolicy.strict + "+ it must be a name of a SP certificate. " +
-				"For the +" + RequestAcceptancePolicy.validRequester + "+ " + 
-				"it must be an address of a SP endpoint where the response should be sent."));
+		defaults.put(ALLOWED_SP, new PropertyMD().setStructuredList(false).setCategory(samlCat).
+				setDescription("List of entries defining allowed Service Providers (clients). Used " +
+				"only for +validRequester+ and +strict+ acceptance policies."));
+		defaults.put(ALLOWED_SP_DN, new PropertyMD().setStructuredListEntry(ALLOWED_SP).setCategory(samlCat).
+				setDescription("Rarely useful: for SPs which use DN SAML identifiers as UNICORE portal. " +
+				"Typically " + ALLOWED_SP_ENTITY + " is used instead. " +
+				"Value must be the X.500 DN of the trusted SP."));
+		defaults.put(ALLOWED_SP_ENTITY, new PropertyMD().setStructuredListEntry(ALLOWED_SP).setCategory(samlCat).
+				setDescription("Entity ID (typically an URI) of a trusted SAML requester (SP)."));
+		defaults.put(ALLOWED_SP_CERT, new PropertyMD().setStructuredListEntry(ALLOWED_SP).setCategory(samlCat).
+				setDescription("Certificate of the SP. Used only when acceptance policy is +strict+."));
+		defaults.put(ALLOWED_SP_RETURN_URL, new PropertyMD().setStructuredListEntry(ALLOWED_SP).setCategory(samlCat).
+				setDescription("Response consumer address of the SP. Mandatory when acceptance " +
+				"policy is +validRequester+, optional otherwise as SAML requesters may send this address" +
+				"with a request."));
 
 		defaults.put(TRUSTSTORE, new PropertyMD().setCategory(samlCat).
 				setDescription("Truststore name to setup SAML trust settings. The truststore is used to verify request signature issuer, " +
@@ -203,56 +209,56 @@ public class SamlIdpProperties extends SamlProperties
 		} else if (spPolicy == RequestAcceptancePolicy.strict)
 		{
 			authnTrustChecker = new StrictSamlTrustChecker();
-			List<String> allowedSpecs = getListOfValues(SamlIdpProperties.ALLOWED_URI_SP);
-			for (String allowedSpec: allowedSpecs)
+			Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP);
+			for (String allowedKey: allowedKeys)
 			{
-				String[] parsed = allowedSpec.split("\\s+", 3);
-				if (parsed.length != 2)
+				String certificate = getValue(allowedKey + ALLOWED_SP_CERT);
+				if (certificate == null)
 					throw new ConfigurationException("Invalid specification of allowed Service " +
-							"Provider, must have two elements: " + Arrays.toString(parsed));
+							"Provider " + allowedKey + " must have the certificate defined.");
+				String type = SAMLConstants.NFORMAT_ENTITY;
+				String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
+				if (name == null)
+				{
+					name = getValue(allowedKey + ALLOWED_SP_DN);
+					type = SAMLConstants.NFORMAT_DN;
+				}
+				if (name == null)
+					throw new ConfigurationException("Invalid specification of allowed Service " +
+							"Provider " + allowedKey + ", neither Entity ID nor DN is set.");
 				try
 				{
-					X509Certificate cert = pkiManagement.getCertificate(parsed[1]);
+					X509Certificate cert = pkiManagement.getCertificate(certificate);
 					((StrictSamlTrustChecker)authnTrustChecker).addTrustedIssuer(
-							parsed[0], SAMLConstants.NFORMAT_ENTITY, cert.getPublicKey());
+							name, type, cert.getPublicKey());
 				} catch (EngineException e)
 				{
 					throw new ConfigurationException("Can't set certificate of trusted " +
-							"issuer named " + parsed[1], e);
+							"issuer named " + certificate, e);
 				}
-				log.debug("SP authorized to submit authentication requests: " + parsed[0]);
-			}
-
-			List<String> allowedByDnSpecs = getListOfValues(SamlIdpProperties.ALLOWED_DN_SP);
-			for (String allowedByDn: allowedByDnSpecs)
-			{
-				String allowed;
-				try
-				{
-					X509Certificate cert = pkiManagement.getCertificate(allowedByDn); 
-					allowed = cert.getSubjectX500Principal().getName();
-					((StrictSamlTrustChecker)authnTrustChecker).addTrustedIssuer(
-							allowed, SAMLConstants.NFORMAT_ENTITY, cert.getPublicKey());
-				} catch (EngineException e)
-				{
-					throw new ConfigurationException("Can't load certificate of trusted issuer from " + allowedByDn, e);
-				}
-				log.debug("SP authorized to submit authentication requests: " + X500NameUtils.getReadableForm(allowed));
+				log.debug("SP authorized to submit authentication requests: " + name);
 			}
 		} else
 		{
 			EnumeratedTrustChecker authnTrustChecker = new EnumeratedTrustChecker();
 			this.authnTrustChecker = authnTrustChecker;
 			
-			List<String> allowedSpecs = getListOfValues(SamlIdpProperties.ALLOWED_URI_SP);
-			for (String allowedSpec: allowedSpecs)
+			Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP);
+			for (String allowedKey: allowedKeys)
 			{
-				String[] parsed = allowedSpec.split("\\s+", 3);
-				if (parsed.length != 2)
+				String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
+				if (name == null)
+					name = getValue(allowedKey + ALLOWED_SP_DN);
+				if (name == null)
 					throw new ConfigurationException("Invalid specification of allowed Service " +
-							"Provider, must have two elements: " + Arrays.toString(parsed));
-				authnTrustChecker.addTrustedIssuer(parsed[0], parsed[1]);
-				log.debug("SP authorized to submit authentication requests: " + parsed[0]);
+							"Provider " + allowedKey + ", neither Entity ID nor DN is set.");
+				
+				String returnAddress = getValue(allowedKey + ALLOWED_SP_RETURN_URL);
+				if (returnAddress == null)
+					throw new ConfigurationException("Invalid specification of allowed Service " +
+						"Provider " + allowedKey + ", return address is not set.");
+				authnTrustChecker.addTrustedIssuer(name, returnAddress);
+				log.debug("SP authorized to submit authentication requests: " + name);
 			}
 		}
 		
@@ -268,7 +274,7 @@ public class SamlIdpProperties extends SamlProperties
 		attributeFilter = new AttributeFilters(this);
 		attributesMapper = new DefaultSamlAttributesMapper();
 	}
-
+	
 	private void initPki() throws EngineException
 	{
 		if (getEnumValue(SP_ACCEPT_POLICY, RequestAcceptancePolicy.class) != RequestAcceptancePolicy.all)
@@ -305,7 +311,49 @@ public class SamlIdpProperties extends SamlProperties
 	{
 		return authnTrustChecker;
 	}
+	
+	public void configureKnownRequesters(UnityAuthnRequestValidator validator)
+	{
+		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP);
+		for (String allowedKey: allowedKeys)
+		{
+			String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
+			if (name == null)
+				continue;
+			if (!isSet(allowedKey + ALLOWED_SP_RETURN_URL))
+				continue;
+			validator.addKnownRequester(name);
+		}
+	}
 
+	public String getReturnAddressForRequester(NameIDType requester)
+	{
+		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP);
+		boolean dnName = requester.getFormat() != null && requester.getFormat().equals(
+				SAMLConstants.NFORMAT_DN); 
+		for (String allowedKey: allowedKeys)
+		{
+			if (dnName)
+			{
+				String name = getValue(allowedKey + ALLOWED_SP_DN);
+				if (name == null)
+					continue;
+				if (!X500NameUtils.equal(name, requester.getStringValue()))
+					continue;
+			} else
+			{
+				String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
+				if (name == null)
+					continue;
+				if (!name.equals(requester.getStringValue()))
+					continue;
+			}
+			
+			return getValue(allowedKey + ALLOWED_SP_RETURN_URL);
+		}
+		return null;
+	}
+	
 	public SamlTrustChecker getSoapTrustChecker()
 	{
 		return soapTrustChecker;

@@ -221,7 +221,7 @@ public class SamlParseServlet extends HttpServlet
 		WebAuthRequestValidator validator = new WebAuthRequestValidator(endpointAddress, 
 				samlConfig.getAuthnTrustChecker(), samlConfig.getRequestValidity(), 
 				samlConfig.getReplayChecker());
-		
+		samlConfig.configureKnownRequesters(validator);
 		try
 		{
 			validator.validate(context.getRequestDocument());

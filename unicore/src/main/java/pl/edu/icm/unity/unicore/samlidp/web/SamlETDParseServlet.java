@@ -39,7 +39,8 @@ public class SamlETDParseServlet extends SamlParseServlet
 		WebAuthWithETDRequestValidator validator = new WebAuthWithETDRequestValidator(endpointAddress, 
 				samlConfig.getAuthnTrustChecker(), samlConfig.getRequestValidity(), 
 				samlConfig.getReplayChecker());
-		
+		samlConfig.configureKnownRequesters(validator);
+
 		try
 		{
 			validator.validate(context.getRequestDocument());
