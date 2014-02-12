@@ -185,7 +185,26 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		assertion.setIssuer(samlConfiguration.getValue(SamlIdpProperties.ISSUER_URI), 
 				SAMLConstants.NFORMAT_ENTITY);
 		assertion.setSubject(authenticatedOne);
-		
+
+		if (!addAttributesToAssertion(assertion, attributes))
+			return null;
+		signAssertion(assertion);
+		return assertion;
+	}
+
+	/**
+	 * Add attributes to an assertion. Do nothing when the attributes list is empty. 
+	 * The attributes are filtered using {@link #filterRequested(List)}, which by default does nothing.
+	 * @param authenticatedOne
+	 * @param attributes
+	 * @return whether any attributes were added
+	 * @throws SAMLProcessingException
+	 */
+	protected boolean addAttributesToAssertion(Assertion assertion, Collection<Attribute<?>> attributes) 
+			throws SAMLProcessingException
+	{
+		if (attributes.size() == 0)
+			return false;
 		SamlAttributeMapper mapper = samlConfiguration.getAttributesMapper();
 		List<AttributeType> converted = new ArrayList<AttributeType>(attributes.size());
 		for (Attribute<?> attribute: attributes)
@@ -195,11 +214,10 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		}
 		filterRequested(converted);
 		if (converted.size() == 0)
-			return null;
+			return false;
 		for (AttributeType a: converted)
 			assertion.addAttribute(a);
-		signAssertion(assertion);
-		return assertion;
+		return true;
 	}
 
 	/**

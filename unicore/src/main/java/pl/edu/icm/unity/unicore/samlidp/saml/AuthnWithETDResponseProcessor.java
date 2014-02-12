@@ -7,6 +7,8 @@ package pl.edu.icm.unity.unicore.samlidp.saml;
 import java.util.Calendar;
 import java.util.Collection;
 
+import org.apache.log4j.Logger;
+
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
@@ -22,6 +24,7 @@ import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Identity;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -36,6 +39,8 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
  */
 public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 {
+	private static Logger log = Log.getLogger(Log.U_SERVER_SAML, AuthnWithETDResponseProcessor.class);
+	
 	public AuthnWithETDResponseProcessor(SAMLAuthnContext context)
 	{
 		super(context);
@@ -58,8 +63,13 @@ public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 		
 		SubjectType authenticatedOne = establishSubject(authenticatedIdentity);
 
+		if (samlConfiguration.getBooleanValue(SamlIdpProperties.RETURN_SINGLE_ASSERTION))
+			log.info("The " + SamlIdpProperties.RETURN_SINGLE_ASSERTION + 
+					" = true setting is ignored for UNICORE IdP. " +
+					"Set it to false to disable this message");
+		
 		AssertionResponse resp = getOKResponseDocument();
-		resp.addAssertion(createAuthenticationAssertion(authenticatedOne));
+		resp.addAssertion(createAuthenticationAssertion(authenticatedOne, null));
 
 		if (attributes != null)
 		{

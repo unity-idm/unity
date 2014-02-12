@@ -80,8 +80,15 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		SubjectType authenticatedOne = establishSubject(authenticatedIdentity);
 
 		AssertionResponse resp = getOKResponseDocument();
-		resp.addAssertion(createAuthenticationAssertion(authenticatedOne));
-		if (attributes != null)
+		
+		boolean returnSingleAssertion = samlConfiguration.getBooleanValue(
+				SamlIdpProperties.RETURN_SINGLE_ASSERTION);
+		if (returnSingleAssertion)
+			resp.addAssertion(createAuthenticationAssertion(authenticatedOne, attributes));
+		else
+			resp.addAssertion(createAuthenticationAssertion(authenticatedOne, null));
+		
+		if (attributes != null && !returnSingleAssertion)
 		{
 			SubjectType attributeAssertionSubject = cloneSubject(authenticatedOne);
 			setSenderVouchesSubjectConfirmation(attributeAssertionSubject);
@@ -119,7 +126,8 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		requested.setSubjectConfirmationArray(new SubjectConfirmationType[] {subConf});
 	}
 
-	protected Assertion createAuthenticationAssertion(SubjectType authenticatedOne) throws SAMLProcessingException
+	protected Assertion createAuthenticationAssertion(SubjectType authenticatedOne, 
+			Collection<Attribute<?>> attributes) throws SAMLProcessingException
 	{
 		AuthnContextType authContext = setupAuthnContext();
 		Assertion assertion = new Assertion();
@@ -129,6 +137,9 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		assertion.addAuthStatement(getAuthnTime(), authContext);
 		assertion.setAudienceRestriction(new String[] {context.getRequest().getIssuer().getStringValue()});
 
+		if (attributes != null)
+			addAttributesToAssertion(assertion, attributes);
+		
 		signAssertion(assertion);
 		return assertion;
 	}
