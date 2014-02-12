@@ -4,14 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
-import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.VerticalLayout;
-
-import pl.edu.icm.unity.notifications.TemplatesStore;
+import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -29,6 +22,13 @@ import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
+import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.VerticalLayout;
+
 /**
  * Read only UI displaying a {@link RegistrationForm}.
  * 
@@ -38,7 +38,7 @@ public class RegistrationFormViewer extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private AttributeHandlerRegistry attrHandlerRegistry;
-	private TemplatesStore templatesStore;
+	private MessageTemplateManagement msgTempMan;
 	
 	private TabSheet tabs;
 	
@@ -68,11 +68,11 @@ public class RegistrationFormViewer extends VerticalLayout
 	private ListOfElements<AttributeClassAssignment> attributeClassAssignments;
 	
 	public RegistrationFormViewer(UnityMessageSource msg, AttributeHandlerRegistry attrHandlerRegistry,
-			TemplatesStore templatesStore)
+			MessageTemplateManagement msgTempMan)
 	{
 		this.msg = msg;
 		this.attrHandlerRegistry = attrHandlerRegistry;
-		this.templatesStore = templatesStore;
+		this.msgTempMan = msgTempMan;
 		initUI();
 	}
 	
@@ -334,13 +334,13 @@ public class RegistrationFormViewer extends VerticalLayout
 		adminsNotificationGroup.setCaption(msg.getMessage("RegistrationFormViewer.adminsNotificationsGroup"));
 		
 		submittedTemplate = new TemplateViewer(msg.getMessage("RegistrationFormViewer.submittedTemplate"),
-				templatesStore, msg);
+				msgTempMan, msg);
 		updatedTemplate = new TemplateViewer(msg.getMessage("RegistrationFormViewer.updatedTemplate"),
-				templatesStore, msg);
+				msgTempMan, msg);
 		rejectedTemplate = new TemplateViewer(msg.getMessage("RegistrationFormViewer.rejectedTemplate"),
-				templatesStore, msg);
+				msgTempMan, msg);
 		acceptedTemplate = new TemplateViewer(msg.getMessage("RegistrationFormViewer.acceptedTemplate"),
-				templatesStore, msg);
+				msgTempMan, msg);
 		
 		main.addComponents(name, description, publiclyAvailable, channel, adminsNotificationGroup,
 				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate);

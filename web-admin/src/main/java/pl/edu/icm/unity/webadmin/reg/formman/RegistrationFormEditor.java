@@ -7,28 +7,18 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import com.vaadin.ui.AbstractTextField;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
-
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.notifications.TemplatesStore;
+import pl.edu.icm.unity.notifications.MessageTemplate;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -61,6 +51,17 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.attributes.SelectableAttributeEditor;
 
+import com.vaadin.ui.AbstractTextField;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
+
 /**
  * Allows to edit a registration form. Can be configured to edit an existing form (name is fixed)
  * or to create a new one (name can be chosen).
@@ -72,7 +73,7 @@ public class RegistrationFormEditor extends VerticalLayout
 	private UnityMessageSource msg;
 	private GroupsManagement groupsMan;
 	private NotificationsManagement notificationsMan;
-	private TemplatesStore templatesStore;
+	private MessageTemplateManagement msgTempMan;
 	private AuthenticationManagement authenticationMan;
 	private AttributeHandlerRegistry attrHandlerRegistry;
 	private List<IdentityType> identityTypes;
@@ -110,28 +111,31 @@ public class RegistrationFormEditor extends VerticalLayout
 	private ListOfEmbeddedElements<String> groupAssignments;
 	private ListOfEmbeddedElements<AttributeClassAssignment> attributeClassAssignments;
 	
-	public RegistrationFormEditor(UnityMessageSource msg, 
-			GroupsManagement groupsMan, NotificationsManagement notificationsMan,
-			UnityServerConfiguration cfg, IdentitiesManagement identitiesMan,
-			AttributesManagement attributeMan, AuthenticationManagement authenticationMan,
+	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
+			NotificationsManagement notificationsMan,
+			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
+			AttributesManagement attributeMan,
+			AuthenticationManagement authenticationMan,
 			AttributeHandlerRegistry attrHandlerRegistry) throws EngineException
 	{
-		this(msg, groupsMan, notificationsMan, cfg, identitiesMan, attributeMan, authenticationMan, 
+		this(msg, groupsMan, notificationsMan, msgTempMan, identitiesMan, attributeMan, authenticationMan, 
 				attrHandlerRegistry, null);
 	}
 
-	public RegistrationFormEditor(UnityMessageSource msg, 
-			GroupsManagement groupsMan, NotificationsManagement notificationsMan,
-			UnityServerConfiguration cfg, IdentitiesManagement identitiesMan,
-			AttributesManagement attributeMan, AuthenticationManagement authenticationMan,
-			AttributeHandlerRegistry attrHandlerRegistry, RegistrationForm toEdit) throws EngineException
+	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
+			NotificationsManagement notificationsMan,
+			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
+			AttributesManagement attributeMan,
+			AuthenticationManagement authenticationMan,
+			AttributeHandlerRegistry attrHandlerRegistry, RegistrationForm toEdit)
+			throws EngineException
 	{
 		super();
 		editMode = toEdit != null;
 		this.msg = msg;
 		this.groupsMan = groupsMan;
 		this.notificationsMan = notificationsMan;
-		this.templatesStore = cfg.getTemplatesStore();
+		this.msgTempMan = msgTempMan;
 		this.authenticationMan = authenticationMan;
 		this.attrHandlerRegistry = attrHandlerRegistry;
 		identityTypes = identitiesMan.getIdentityTypes(); 
@@ -239,8 +243,8 @@ public class RegistrationFormEditor extends VerticalLayout
 		updatedTemplate = new ComboBox(msg.getMessage("RegistrationFormViewer.updatedTemplate"));
 		rejectedTemplate = new ComboBox(msg.getMessage("RegistrationFormViewer.rejectedTemplate"));
 		acceptedTemplate = new ComboBox(msg.getMessage("RegistrationFormViewer.acceptedTemplate"));
-		Set<String> templateIds = templatesStore.getTemplateIds();
-		for (String template: templateIds)
+		Map<String, MessageTemplate> templates= msgTempMan.listTemplates();
+		for (String template: templates.keySet())
 		{
 			submittedTemplate.addItem(template);
 			updatedTemplate.addItem(template);

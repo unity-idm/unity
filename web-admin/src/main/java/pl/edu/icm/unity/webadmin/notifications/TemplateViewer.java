@@ -4,9 +4,11 @@
  */
 package pl.edu.icm.unity.webadmin.notifications;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.notifications.NotificationTemplate;
-import pl.edu.icm.unity.notifications.TemplatesStore;
+import pl.edu.icm.unity.notifications.MessageTemplate;
+import pl.edu.icm.unity.notifications.MessageTemplate.Message;
+import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 import com.vaadin.ui.CustomComponent;
@@ -22,15 +24,15 @@ import com.vaadin.ui.VerticalLayout;
 public class TemplateViewer extends CustomComponent
 {
 	private UnityMessageSource msg;
-	private TemplatesStore store;
+	private MessageTemplateManagement msgTempMan;
 	private Label name;
 	private TextArea contents;
 	private Label notSet;
 	
-	public TemplateViewer(String caption, TemplatesStore store, UnityMessageSource msg)
+	public TemplateViewer(String caption, MessageTemplateManagement msgTempMan, UnityMessageSource msg)
 	{
 		this.msg = msg;
-		this.store = store;
+		this.msgTempMan = msgTempMan;
 		initUI(caption);
 	}
 	
@@ -67,13 +69,14 @@ public class TemplateViewer extends CustomComponent
 		
 		try
 		{
-			NotificationTemplate templateC = store.getTemplate(template);
+			MessageTemplate templateC = msgTempMan.getTemplate(template);
+			Message templateMsg = templateC.getRawMessage();
 			String contentsS = msg.getMessage("TemplateViewer.subject") + ": " +
-					templateC.getRawSubject() + "\n\n" + templateC.getRawBody(); 
+					templateMsg.getSubject() + "\n\n" + templateMsg.getBody(); 
 			contents.setReadOnly(false);
 			contents.setValue(contentsS);
 			contents.setReadOnly(true);
-		} catch (WrongArgumentException e)
+		} catch (EngineException e)
 		{
 			contents.setValue(msg.getMessage("TemplateViewer.errorMissingTemplate", template));
 		}

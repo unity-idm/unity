@@ -26,12 +26,13 @@ import pl.edu.icm.unity.engine.internal.AttributesHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.notifications.MessageTemplate;
+import pl.edu.icm.unity.notifications.MessageTemplate.Message;
 import pl.edu.icm.unity.notifications.NotificationChannelInstance;
 import pl.edu.icm.unity.notifications.NotificationFacility;
 import pl.edu.icm.unity.notifications.NotificationProducer;
 import pl.edu.icm.unity.notifications.NotificationStatus;
-import pl.edu.icm.unity.notifications.NotificationTemplate;
-import pl.edu.icm.unity.notifications.TemplatesStore;
+import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.registries.NotificationFacilitiesRegistry;
 import pl.edu.icm.unity.server.utils.CacheProvider;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -53,14 +54,14 @@ public class NotificationProducerImpl implements NotificationProducer
 	private Ehcache channelsCache;
 	private NotificationFacilitiesRegistry facilitiesRegistry;
 	private NotificationChannelDB channelDB;
-	private TemplatesStore templateStore;
+	private MessageTemplateManagement msgTemplMan;
 	private DBGroups dbGroups;
 	
 	@Autowired
 	public NotificationProducerImpl(AttributesHelper attributesHelper, DBSessionManager db,
 			CacheProvider cacheProvider, UnityServerConfiguration serverConfig,
 			NotificationFacilitiesRegistry facilitiesRegistry, NotificationChannelDB channelDB,
-			DBGroups dbGroups)
+			DBGroups dbGroups, MessageTemplateManagement msgTemplMan)
 	{
 		this.attributesHelper = attributesHelper;
 		this.db = db;
@@ -68,7 +69,7 @@ public class NotificationProducerImpl implements NotificationProducer
 		initCache(cacheProvider.getManager());
 		this.facilitiesRegistry = facilitiesRegistry;
 		this.channelDB = channelDB;
-		templateStore = serverConfig.getTemplatesStore();
+		this.msgTemplMan = msgTemplMan;
 	}
 
 	private void initCache(CacheManager cacheManager)
@@ -138,8 +139,9 @@ public class NotificationProducerImpl implements NotificationProducer
 			String channelName, String templateId, Map<String, String> params)
 			throws EngineException
 	{
-		NotificationTemplate template = templateStore.getTemplate(templateId);
-		return sendNotification(recipient, channelName, template.getSubject(params), template.getBody(params));
+		MessageTemplate template = msgTemplMan.getTemplate(templateId);
+		Message templateMsg = template.getMessage(params);
+		return sendNotification(recipient, channelName, templateMsg.getSubject(), templateMsg.getBody());
 	}
 
 	@Override
@@ -148,9 +150,10 @@ public class NotificationProducerImpl implements NotificationProducer
 	{
 		if (templateId == null)
 			return;
-		NotificationTemplate template = templateStore.getTemplate(templateId);
-		String subject = template.getSubject(params);
-		String body = template.getBody(params);
+		MessageTemplate template = msgTemplMan.getTemplate(templateId);
+		Message templateMsg = template.getMessage(params);
+		String subject = templateMsg.getSubject();
+		String body = templateMsg.getBody();
 		GroupContents contents;
 		SqlSession sql = db.getSqlSession(true);
 		try
@@ -195,8 +198,9 @@ public class NotificationProducerImpl implements NotificationProducer
 		{
 			db.releaseSqlSession(sql);
 		}
-		NotificationTemplate template = templateStore.getTemplate(templateId);
-		return channel.sendNotification(recipientAddress, template.getSubject(params), template.getBody(params));
+		MessageTemplate template = msgTemplMan.getTemplate(templateId);
+		Message templateMsg = template.getMessage(params);
+		return channel.sendNotification(recipientAddress, templateMsg.getSubject(), templateMsg.getBody());
 	}
 
 	

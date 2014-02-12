@@ -27,14 +27,14 @@ import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
  *  
  * @author K. Benedyczak
  */
-public class TemplatesStore
+public class TemplatesStoreR
 {
 	private Properties properties;
 	private Locale defaultLocale;
-	private Map<String, NotificationTemplate> cachedTemplates;
+	private Map<String, MessageTemplate> cachedTemplates;
 	private Set<String> templateKeys;
 	
-	public TemplatesStore(Properties properties, Locale defaultLocale)
+	public TemplatesStoreR(Properties properties, Locale defaultLocale)
 	{
 		this.properties = properties;
 		this.defaultLocale = defaultLocale;
@@ -48,9 +48,9 @@ public class TemplatesStore
 		}
 	}
 	
-	public NotificationTemplate getTemplate(String id) throws WrongArgumentException
+	public MessageTemplate getTemplate(String id) throws WrongArgumentException
 	{
-		NotificationTemplate ret = cachedTemplates.get(id);
+		MessageTemplate ret = cachedTemplates.get(id);
 		if (ret != null)
 			return ret;
 		ret = loadTemplate(id);
@@ -63,7 +63,7 @@ public class TemplatesStore
 		return new HashSet<>(templateKeys);
 	}
 	
-	private NotificationTemplate loadTemplate(String id) throws WrongArgumentException
+	private MessageTemplate loadTemplate(String id) throws WrongArgumentException
 	{
 		String body = properties.getProperty(id+".body");
 		String subject = properties.getProperty(id+".subject");
@@ -81,7 +81,8 @@ public class TemplatesStore
 			processKey(key, id+".body.", subjects);
 			processKey(key, id+".subject.", subjects);
 		}
-		return new NotificationTemplate(bodies, subjects, defaultLocale);
+		//return new MessageTemplate(bodies, subjects, defaultLocale);
+		return null;
 	}
 	
 	private void processKey(String key, String pfx, Map<Locale, String> map)

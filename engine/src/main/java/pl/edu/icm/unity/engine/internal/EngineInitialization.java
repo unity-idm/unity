@@ -12,7 +12,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -26,7 +28,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.unicore.util.configuration.ConfigurationException;
-
+import eu.unicore.util.configuration.FilePropertiesHelper;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
@@ -38,10 +40,14 @@ import pl.edu.icm.unity.engine.notifications.EmailFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.notifications.MessageTemplate;
+import pl.edu.icm.unity.notifications.MessageTemplate.Message;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
@@ -134,6 +140,10 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	@Qualifier("insecure")
 	private TranslationProfileManagement profilesManagement;
+	@Autowired
+	@Qualifier("insecure")
+	private MessageTemplateManagement msgTemplatesManagement;
+	
 	
 	
 	private long endpointsLoadTime;
@@ -205,10 +215,109 @@ public class EngineInitialization extends LifecycleBase
 		initializeAuthenticators();
 		initializeEndpoints();
 		initializeNotifications();
+		initializeMsgTemplates();
 		runInitializers();
 	}
 	
 	
+	private void initializeMsgTemplates()
+	{
+		Map<String, MessageTemplate> existingTemplates;
+		try
+		{
+			existingTemplates = msgTemplatesManagement.listTemplates();
+		} catch (EngineException e)
+		{
+			throw new InternalException("Can't load existing message templates list", e);
+		}
+		File file = config.getFileValue(UnityServerConfiguration.TEMPLATES_CONF, false);
+		
+		Properties props = null;
+		try
+		{
+			props = FilePropertiesHelper.load(file);
+		} catch (IOException e)
+		{
+			throw new InternalException("Can't load message templates config file", e);
+		}
+		
+		Set<String> templateKeys = new HashSet<>();
+		for (Object keyO: props.keySet())
+		{
+			String key = (String) keyO;
+			if (key.contains("."))
+				templateKeys.add(key.substring(0, key.indexOf('.')));
+		}	
+		
+		for(String key:templateKeys)
+		{
+			try
+			{
+				loadTemplate(props, key);
+			} catch (WrongArgumentException e)
+			{
+				//TODO
+			}
+		}
+		
+	}
+	
+	private MessageTemplate loadTemplate(Properties properties, String id) throws WrongArgumentException
+	{
+		String body = properties.getProperty(id+".body");
+		String subject = properties.getProperty(id+".subject");
+		if (body == null || subject == null)
+			throw new WrongArgumentException("There is no template for this id");
+//		Map<Locale, String> bodies = new HashMap<>();
+//		bodies.put(defaultLocale, body);
+//		Map<Locale, String> subjects = new HashMap<>();
+//		subjects.put(defaultLocale, subject);
+		
+		Map<Locale, Message> msgList = new HashMap<Locale, Message>();
+		Message tempMsg = new Message(subject, body);
+		msgList.put(config.getDefaultLocale(), tempMsg);
+		
+		Set<Object> keys = properties.keySet();
+		for (Object keyO: keys)
+		{
+			
+			String key = (String) keyO;
+			String pfx = id+".body.";
+			if (key.startsWith(pfx))
+			{
+				String locale = key.substring(pfx.length());
+				Locale l = UnityServerConfiguration.safeLocaleDecode(locale);	
+				if(msgList.containsKey(l))
+				{
+					msgList.get(l).setBody(properties.getProperty(key));
+				}else
+				{
+					msgList.put(l, new Message("", properties.getProperty(key)));
+				}
+				
+			}
+			
+			pfx = id+".subject.";
+			if (key.startsWith(pfx))
+			{
+				String locale = key.substring(pfx.length());
+				Locale l = UnityServerConfiguration.safeLocaleDecode(locale);	
+				if(msgList.containsKey(l))
+				{
+					msgList.get(l).setSubject(properties.getProperty(key));
+				}else
+				{
+					msgList.put(l, new Message(properties.getProperty(key),""));
+				}
+				
+			}
+		
+		}
+		return new MessageTemplate(id,msgList,config.getDefaultLocale(),null);
+		
+	}
+		
+
 	private void initializeIdentityTypes()
 	{
 		log.info("Checking if all identity types are defined");
