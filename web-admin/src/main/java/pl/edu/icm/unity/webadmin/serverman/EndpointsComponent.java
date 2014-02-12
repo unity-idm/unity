@@ -106,8 +106,7 @@ public class EndpointsComponent extends VerticalLayout
 		
 		ErrorComponent warningC = new ErrorComponent();
 		warningC.setMessage(msg.getMessage("Endpoints.reloadWarning"), Level.warning);
-		h.addComponent(warningC);
-		h.setExpandRatio(warningC, 1);
+		addComponent(warningC);
 		
 		h.setSizeFull();
 		addComponent(h);

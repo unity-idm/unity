@@ -62,6 +62,7 @@ public class ErrorComponent extends FormLayout
 	{
 		Label errorL = new Label();
 		errorL.setStyleName(Styles.italic.toString());
+		errorL.setContentMode(ContentMode.HTML);
 		errorL.setIcon(Images.warn32.getResource());
 		
 		errorL.setValue(warning);
