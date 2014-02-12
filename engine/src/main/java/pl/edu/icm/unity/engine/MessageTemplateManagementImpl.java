@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine;
 import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
@@ -26,6 +27,16 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 	private DBSessionManager db;
 	private AuthorizationManager authz;
 	private MessageTemplateDB mtDB;
+	
+	
+	@Autowired
+	public MessageTemplateManagementImpl(DBSessionManager db, AuthorizationManager authz,
+			MessageTemplateDB mtDB)
+	{
+		this.db = db;
+		this.authz = authz;
+		this.mtDB = mtDB;
+	}
 	
 	@Override
 	public void addTemplate(MessageTemplate toAdd) throws EngineException

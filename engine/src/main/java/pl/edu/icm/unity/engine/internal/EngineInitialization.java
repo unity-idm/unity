@@ -253,10 +253,15 @@ public class EngineInitialization extends LifecycleBase
 		{
 			try
 			{
-				loadTemplate(props, key);
+				MessageTemplate templ = loadTemplate(props, key);
+				msgTemplatesManagement.addTemplate(templ);
 			} catch (WrongArgumentException e)
 			{
 				//TODO
+			} catch (EngineException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		

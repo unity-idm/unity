@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.eclipse.jetty.util.log.Log;
+
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -65,8 +67,8 @@ public class MessageTemplate extends DescribedObjectImpl
 			{
 				ObjectNode jsonMsg = (ObjectNode) messagesA.get(i);
 				Message msg = new Message(jsonMsg.get("subject").asText(), jsonMsg.get("body").asText());
-				Locale l = UnityServerConfiguration.safeLocaleDecode(jsonMsg.get("subject").asText());
-				messagesByLocale.put(l, msg);	
+				Locale l = UnityServerConfiguration.safeLocaleDecode(jsonMsg.get("locale").asText());
+				messagesByLocale.put(l, msg);
 			}
 		} catch (Exception e)
 		{

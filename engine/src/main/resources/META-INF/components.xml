@@ -12,6 +12,7 @@
 	<bean id="proxyBuilder" class="pl.edu.icm.unity.engine.events.EventProxyBuilder"/>
 	<bean id="proxyBuilder2" class="pl.edu.icm.unity.engine.events.EventProxyBuilderSystem"/>
 	<bean id="proxyBuilder3" class="pl.edu.icm.unity.engine.events.EventProxyBuilderHL"/>
+	<bean id="proxyBuilder4" class="pl.edu.icm.unity.engine.events.EventProxyBuilderHL2"/>
 	<bean class="pl.edu.icm.unity.engine.events.EventProcessor"/>
 	
 	<!-- Proxied beans which are the ultimate implementation of the core interface. Proxies
@@ -26,8 +27,8 @@
 	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getAuthenticationManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getNotificationsManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder3" factory-method="getTranslationProfileManagementInstance"/>
-	<bean primary="true" factory-bean="proxyBuilder3" factory-method="getMessageTemplateManagementInstance"/>
-    
+    <bean primary="true" factory-bean="proxyBuilder4" factory-method="getMessageTemplateManagementInstance"/> 
+	 
 
 	<!-- The real implementation, with a real authorization module injected. However those beans are plain,
 	are not generating any events. -->	
@@ -64,7 +65,7 @@
 	<bean primary="false" class="pl.edu.icm.unity.engine.MessageTemplateManagementImpl">
 		<qualifier value="plain"/>
 	</bean>
-			
+	
 	<!-- Those beans are the same as the 'primary' beans above, but do not perform authorization. 
 	Must be used with qualifier. -->
 	<bean primary="false" class="pl.edu.icm.unity.engine.GroupsManagementImpl">
@@ -132,7 +133,7 @@
 	<bean class="pl.edu.icm.unity.sysattrs.SystemAttributeTypes"/>
 	<bean class="pl.edu.icm.unity.utils.DemoContentInitializer"/>
 	
-	<bean class="pl.edu.icm.unity.engine.notifications.NotificationProducerImpl"/>
+	<bean class="pl.edu.icm.unity.engine.notifications.NotificationProducerImpl"/> 
 	<bean class="pl.edu.icm.unity.engine.notifications.EmailFacility"/>
 
 	<bean class="pl.edu.icm.unity.engine.authn.AuthenticatorLoader"/>
