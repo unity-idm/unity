@@ -4,9 +4,11 @@
  */
 package pl.edu.icm.unity.webadmin;
 
+import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Link;
 import com.vaadin.ui.themes.Reindeer;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -33,11 +35,24 @@ public class AdminTopHeader extends TopHeader
 	@Override
 	protected void addButtons(HorizontalLayout loggedPanel)
 	{
+		Link supportB = createSupportButton();
+		loggedPanel.addComponent(supportB);		
+		
 		Button switchView = createSwitchButton();
 		loggedPanel.addComponent(switchView);
 
 		Button logout = createLogoutButton();
 		loggedPanel.addComponent(logout);
+	}
+
+	protected Link createSupportButton()
+	{
+		Link support = new Link();
+		support.setResource(new ExternalResource("http://unity-idm.eu/site/support"));
+		support.setTargetName("_blank");
+		support.setDescription(msg.getMessage("AdminTopHeader.toSupport"));
+		support.setIcon(Images.support32.getResource());
+		return support;
 	}
 	
 	protected Button createSwitchButton()
