@@ -12,7 +12,7 @@
 	<bean id="proxyBuilder" class="pl.edu.icm.unity.engine.events.EventProxyBuilder"/>
 	<bean id="proxyBuilder2" class="pl.edu.icm.unity.engine.events.EventProxyBuilderSystem"/>
 	<bean id="proxyBuilder3" class="pl.edu.icm.unity.engine.events.EventProxyBuilderHL"/>
-	<bean id="proxyBuilder4" class="pl.edu.icm.unity.engine.events.EventProxyBuilderHL2"/>
+	<bean id="proxyBuilder4" class="pl.edu.icm.unity.engine.events.EventProxyBuilderFL"/>
 	<bean class="pl.edu.icm.unity.engine.events.EventProcessor"/>
 	
 	<!-- Proxied beans which are the ultimate implementation of the core interface. Proxies

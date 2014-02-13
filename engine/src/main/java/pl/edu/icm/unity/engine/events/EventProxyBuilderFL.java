@@ -19,9 +19,9 @@ import pl.edu.icm.unity.server.api.TranslationProfileManagement;
  *   
  * @author K. Benedyczak
  */
-public class EventProxyBuilderHL2
+public class EventProxyBuilderFL
 {
-	private static final ClassLoader classLoader = EventProxyBuilderHL2.class.getClassLoader();
+	private static final ClassLoader classLoader = EventProxyBuilderFL.class.getClassLoader();
 	
 	@Autowired @Qualifier("plain")
 	private MessageTemplateManagement msgTempMan;

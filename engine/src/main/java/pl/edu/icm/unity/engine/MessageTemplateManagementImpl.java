@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
@@ -104,19 +105,44 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 
 	@Override
 	public MessageTemplate getTemplate(String name) throws EngineException
-	{
-		MessageTemplate template;
+	{	
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			template = mtDB.get(name, sql);
+			MessageTemplate template = mtDB.get(name, sql);
 			sql.commit();
+			return template;
 		} finally
 		{
 			db.releaseSqlSession(sql);
 		}
-		return template;
+		
+	}
+
+	@Override
+	public Map<String, MessageTemplate> getCompatibleTemplates(String templateConsumer) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		SqlSession sql = db.getSqlSession(false);
+		try
+		{
+			Map<String, MessageTemplate> all = mtDB.getAllAsMap(sql);
+			Map<String, MessageTemplate> ret = new HashMap<String, MessageTemplate>(all);
+			for (MessageTemplate m : all.values())
+			{
+				if (!m.getConsumer().equals(templateConsumer))
+				{
+					ret.remove(m.getName());
+				}
+			}
+			sql.commit();
+			return ret;
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
+		
 	}
 
 }

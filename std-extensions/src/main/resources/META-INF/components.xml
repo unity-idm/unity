@@ -35,5 +35,10 @@
 	<bean class="pl.edu.icm.unity.stdext.tactions.UpdateGroupsActionFactory"/>
 	
 	<bean class="pl.edu.icm.unity.stdext.mconsumers.PassowordResetMsgConsumer"/>
+	<bean class="pl.edu.icm.unity.stdext.mconsumers.SubmitFormMsgConsumer"/>
+	<bean class="pl.edu.icm.unity.stdext.mconsumers.AcceptFormMsgConsumer"/>
+	<bean class="pl.edu.icm.unity.stdext.mconsumers.RejectFormMsgConsumer"/>
+	<bean class="pl.edu.icm.unity.stdext.mconsumers.UpdateFormMsgConsumer"/>
+	
 	
 </beans>

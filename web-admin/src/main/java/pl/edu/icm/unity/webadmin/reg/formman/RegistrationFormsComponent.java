@@ -60,7 +60,6 @@ public class RegistrationFormsComponent extends VerticalLayout
 	private AuthenticationManagement authenticationMan;
 	private MessageTemplateManagement msgTempMan;
 	private IdentitiesManagement identitiesMan;
-	private UnityServerConfiguration serverCfg;
 	private AttributesManagement attributeMan;
 	private AttributeHandlerRegistry attrHandlerRegistry;
 	private EventsBus bus;

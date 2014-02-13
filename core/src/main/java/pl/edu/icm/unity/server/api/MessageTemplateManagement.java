@@ -25,4 +25,8 @@ public interface MessageTemplateManagement
 	public Map<String, MessageTemplate> listTemplates() throws EngineException;
 	
 	public MessageTemplate getTemplate(String name) throws EngineException;
+	
+	public Map<String, MessageTemplate> getCompatibleTemplates(String templateConsumer)
+			throws EngineException;
+
 }

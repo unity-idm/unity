@@ -19,12 +19,12 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
  * 
  */
 @Component
-public class PassowordResetMsgConsumer implements MessageTemplateConsumer
+public abstract class BaseFormMsgConsumer implements MessageTemplateConsumer
 {
-	private UnityMessageSource msg;
+	protected UnityMessageSource msg;
 
 	@Autowired
-	public PassowordResetMsgConsumer(UnityMessageSource msg)
+	public BaseFormMsgConsumer(UnityMessageSource msg)
 	{
 		this.msg = msg;
 	}
@@ -32,21 +32,27 @@ public class PassowordResetMsgConsumer implements MessageTemplateConsumer
 	@Override
 	public String getDescription()
 	{
-		return msg.getMessage("MessageTemplateConsumer.PasswordReset.desc");
+		return "";
 	}
 
 	@Override
 	public String getName()
 	{
-		return "passwordResetCode";
+		return "";
 	}
 
 	@Override
 	public Map<String, String> getVariables()
 	{
 		Map<String, String> vars = new HashMap<String, String>();
-		vars.put("user", msg.getMessage("MessageTemplateConsumer.PasswordReset.var.user"));
-		vars.put("code", msg.getMessage("MessageTemplateConsumer.PasswordReset.var.code"));
+		vars.put("formName",
+				msg.getMessage("MessageTemplateConsumer.BaseForm.var.formName"));
+		vars.put("requestId",
+				msg.getMessage("MessageTemplateConsumer.BaseForm.var.requestId"));
+		vars.put("publicComment", msg
+				.getMessage("MessageTemplateConsumer.BaseForm.var.publicComment"));
+		vars.put("internalComment", msg
+				.getMessage("MessageTemplateConsumer.BaseForm.var.internalComment"));
 		return vars;
 	}
 

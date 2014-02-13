@@ -8,11 +8,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.eclipse.jetty.util.log.Log;
-
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.DescribedObjectImpl;
 
@@ -36,16 +33,15 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class MessageTemplate extends DescribedObjectImpl
 {
 	private Map<Locale, Message> messagesByLocale;
-	private Locale defaultLocale;
-	private MessageTemplateConsumer consumer;
+	private String consumer;
 
-	public MessageTemplate(String name, Map<Locale, Message> messagesByLocale,
-			Locale defaultLocale, MessageTemplateConsumer consumer)
+	public MessageTemplate(String name, String description,
+			Map<Locale, Message> messagesByLocale, String consumer)
 	{
 		this.messagesByLocale = messagesByLocale;
-		this.defaultLocale = defaultLocale;
 		this.consumer = consumer;
 		setName(name);
+		setDescription(description);
 	}
 	
 	public MessageTemplate(String json, ObjectMapper jsonMapper, MessageTemplateConsumersRegistry registry)
@@ -61,6 +57,7 @@ public class MessageTemplate extends DescribedObjectImpl
 			ObjectNode root = (ObjectNode) jsonMapper.readTree(json);
 			setName(root.get("name").asText());
 			setDescription(root.get("description").asText());
+			setConsumer(root.get("consumer").asText());
 			ArrayNode messagesA = (ArrayNode) root.get("messages");
 			messagesByLocale = new HashMap<Locale, MessageTemplate.Message>();
 			for (int i=0; i<messagesA.size(); i++)
@@ -76,7 +73,7 @@ public class MessageTemplate extends DescribedObjectImpl
 		}
 
 	}
-	
+
 	public String toJson(ObjectMapper jsonMapper)
 	{
 		try
@@ -84,6 +81,7 @@ public class MessageTemplate extends DescribedObjectImpl
 			ObjectNode root = jsonMapper.createObjectNode();
 			root.put("name", getName());
 			root.put("description", getDescription());
+			root.put("consumer", getConsumer());
 			ArrayNode jsonMessages = root.putArray("messages");
 			
 			for (Map.Entry<Locale, Message> msg: messagesByLocale.entrySet())
@@ -102,7 +100,13 @@ public class MessageTemplate extends DescribedObjectImpl
 		
 	}
 
-	public MessageTemplateConsumer getConsumer()
+	private void setConsumer(String consumer)
+	{
+		this.consumer = consumer;
+		
+	}
+	
+	public String getConsumer()
 	{
 		return this.consumer;
 	}
@@ -119,8 +123,8 @@ public class MessageTemplate extends DescribedObjectImpl
 	
 	private Message getMsg(Map<Locale, Message> messagesByLocale, Map<String, String> params)
 	{
-		Locale loc = UnityMessageSource.getLocale(defaultLocale);
-		Message msg = messagesByLocale.get(loc);
+	//	Locale loc = UnityMessageSource.getLocale(defaultLocale);
+		Message msg = messagesByLocale.get(new Locale(""));
 		for (Map.Entry<String, String> paramE: params.entrySet())
 		{
 			msg.setSubject(msg.getSubject().replace("${"+paramE.getKey()+"}", paramE.getValue()));
@@ -159,8 +163,6 @@ public class MessageTemplate extends DescribedObjectImpl
 		{
 			this.subject = subject;
 			this.body = body;
-		}
-		
-		
+		}	
 	}
 }

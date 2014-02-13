@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.webadmin.notifications;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.notifications.MessageTemplate;
 import pl.edu.icm.unity.notifications.MessageTemplate.Message;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
@@ -71,7 +70,7 @@ public class TemplateViewer extends CustomComponent
 		{
 			MessageTemplate templateC = msgTempMan.getTemplate(template);
 			Message templateMsg = templateC.getRawMessage();
-			String contentsS = msg.getMessage("TemplateViewer.subject") + ": " +
+			String contentsS = msg.getMessage("TemplateViewer.subject") + " " +
 					templateMsg.getSubject() + "\n\n" + templateMsg.getBody(); 
 			contents.setReadOnly(false);
 			contents.setValue(contentsS);

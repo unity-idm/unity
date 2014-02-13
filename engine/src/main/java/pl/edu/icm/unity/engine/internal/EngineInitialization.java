@@ -251,17 +251,20 @@ public class EngineInitialization extends LifecycleBase
 		
 		for(String key:templateKeys)
 		{
+			if (existingTemplates.keySet().contains(key))
+			{
+				continue;
+			}
 			try
 			{
-				MessageTemplate templ = loadTemplate(props, key);
-				msgTemplatesManagement.addTemplate(templ);
+					MessageTemplate templ = loadTemplate(props, key);
+					msgTemplatesManagement.addTemplate(templ);
 			} catch (WrongArgumentException e)
 			{
-				//TODO
+				log.error("Template with id " + key + "not exists", e);
 			} catch (EngineException e)
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("Cannot add template " + key, e);
 			}
 		}
 		
@@ -271,16 +274,15 @@ public class EngineInitialization extends LifecycleBase
 	{
 		String body = properties.getProperty(id+".body");
 		String subject = properties.getProperty(id+".subject");
+		String consumer = properties.getProperty(id+".consumer", "");
+		String description = properties.getProperty(id+".description", "");
+		
 		if (body == null || subject == null)
 			throw new WrongArgumentException("There is no template for this id");
-//		Map<Locale, String> bodies = new HashMap<>();
-//		bodies.put(defaultLocale, body);
-//		Map<Locale, String> subjects = new HashMap<>();
-//		subjects.put(defaultLocale, subject);
 		
 		Map<Locale, Message> msgList = new HashMap<Locale, Message>();
 		Message tempMsg = new Message(subject, body);
-		msgList.put(config.getDefaultLocale(), tempMsg);
+		msgList.put(new Locale(""), tempMsg);
 		
 		Set<Object> keys = properties.keySet();
 		for (Object keyO: keys)
@@ -318,11 +320,10 @@ public class EngineInitialization extends LifecycleBase
 			}
 		
 		}
-		return new MessageTemplate(id,msgList,config.getDefaultLocale(),null);
+		return new MessageTemplate(id, description, msgList, consumer);
 		
 	}
-		
-
+	
 	private void initializeIdentityTypes()
 	{
 		log.info("Checking if all identity types are defined");

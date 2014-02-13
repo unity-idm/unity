@@ -40,6 +40,7 @@ import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
@@ -239,18 +240,14 @@ public class RegistrationFormEditor extends VerticalLayout
 		adminsNotificationGroup.setInput("/", true, true);
 		this.groups = adminsNotificationGroup.getGroups();
 		
-		submittedTemplate = new ComboBox(msg.getMessage("RegistrationFormViewer.submittedTemplate"));
-		updatedTemplate = new ComboBox(msg.getMessage("RegistrationFormViewer.updatedTemplate"));
-		rejectedTemplate = new ComboBox(msg.getMessage("RegistrationFormViewer.rejectedTemplate"));
-		acceptedTemplate = new ComboBox(msg.getMessage("RegistrationFormViewer.acceptedTemplate"));
-		Map<String, MessageTemplate> templates= msgTempMan.listTemplates();
-		for (String template: templates.keySet())
-		{
-			submittedTemplate.addItem(template);
-			updatedTemplate.addItem(template);
-			rejectedTemplate.addItem(template);
-			acceptedTemplate.addItem(template);
-		}
+		submittedTemplate = getComboTemplates("SubmitForm");
+		submittedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.submittedTemplate"));
+		updatedTemplate = getComboTemplates("UpdateForm");
+		updatedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.updatedTemplate"));
+		rejectedTemplate = getComboTemplates("RejectForm");
+		rejectedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.rejectedTemplate"));
+		acceptedTemplate = getComboTemplates("AcceptForm");
+		acceptedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.acceptedTemplate"));
 		
 		main.addComponents(name, description, publiclyAvailable, channel, adminsNotificationGroup,
 				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate);
@@ -267,6 +264,29 @@ public class RegistrationFormEditor extends VerticalLayout
 			rejectedTemplate.setValue(notCfg.getRejectedTemplate());
 			acceptedTemplate.setValue(notCfg.getAcceptedTemplate());
 		}
+	}
+	
+	private ComboBox getComboTemplates(String consumer)
+	{
+		ComboBox combo = new ComboBox();
+		Map<String, MessageTemplate> templates = null;
+		try
+		{
+			templates = msgTempMan
+					.getCompatibleTemplates(consumer);
+		} catch (EngineException e)
+		{
+			ErrorPopup.showError(msg,msg.getMessage("error"), msg.getMessage(
+					"RegistrationFormEditor.cannotLoadTemplates", consumer));
+		}
+		if (templates != null)
+		{
+			for (String template : templates.keySet())
+			{
+				combo.addItem(template);
+			}
+		}
+		return combo;
 	}
 	
 	private void initCollectedTab(RegistrationForm toEdit)
