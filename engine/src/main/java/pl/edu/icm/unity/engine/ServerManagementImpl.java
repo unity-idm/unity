@@ -171,6 +171,7 @@ public class ServerManagementImpl implements ServerManagement
 	@Override
 	public String loadConfigurationFile(String path) throws EngineException
 	{       
+		authz.checkAuthorization(AuthzCapability.maintenance);
 		File f = new File(path);
 		try
 		{
