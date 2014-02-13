@@ -37,4 +37,9 @@ public interface ServerManagement
 	 */
 	public void importDb(File from, boolean resetIndexes) throws EngineException;
 	
+	/**
+	 * Reload configuration file if changed
+	 * @throws EngineException
+	 */
+	public void reloadConfig() throws EngineException;
 }

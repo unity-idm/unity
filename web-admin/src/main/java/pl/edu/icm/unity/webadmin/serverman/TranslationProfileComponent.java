@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationRule;
@@ -45,12 +46,12 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 	private ObjectMapper jsonMapper;
 	private TranslationProfile translationProfile;
 
-	public TranslationProfileComponent(TranslationProfileManagement profilesMan,
+	public TranslationProfileComponent(TranslationProfileManagement profilesMan, ServerManagement serverMan,
 			TranslationActionsRegistry tactionsRegistry, ObjectMapper jsonMapper,
 			TranslationProfile translationProfile, UnityServerConfiguration config,
 			UnityMessageSource msg, String status)
 	{
-		super(config, msg, status);
+		super(config, serverMan, msg, status);
 		this.tactionsRegistry = tactionsRegistry;
 		this.jsonMapper = jsonMapper;
 		this.profilesMan = profilesMan;
@@ -86,26 +87,10 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 		}
 
 		boolean inConfig = false;
-		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
-		for (String profileFile : profileFiles)
+		TranslationProfile tp = searchTranslationProfile(translationProfile.getName());
+		if(tp !=null)
 		{
-			String json;
-			try
-			{
-				json = FileUtils.readFileToString(new File(profileFile));
-			} catch (IOException e)
-			{
-				log.error("Cannot read json file", e);
-				ErrorPopup.showError(msg,msg.getMessage("TranslationProfiles.cannotReadJsonConfig"), e);
-				return;
-			}
-			TranslationProfile tp = new TranslationProfile(json, jsonMapper,
-					tactionsRegistry);
-
-			if (tp.getName().equals(translationProfile.getName()))
-			{
-				inConfig = true;
-			}
+			inConfig = true;
 		}
 
 		if (inConfig)
@@ -124,30 +109,13 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 			return;
 		
 		boolean added = false;
-		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
-		for (String profileFile : profileFiles)
+		TranslationProfile tp = searchTranslationProfile(translationProfile.getName());
+		if(tp != null)
 		{
-			String json;
-			try
-			{
-				json = FileUtils.readFileToString(new File(profileFile));
-			} catch (IOException e)
-			{
-				log.error("Cannot read json file", e);
-				ErrorPopup.showError(msg, msg.getMessage("TranslationProfiles.cannotReadJsonConfig"), e);
-				return;
-			}
-			TranslationProfile tp = new TranslationProfile(json, jsonMapper, tactionsRegistry);
-			
-			if (tp.getName().equals(translationProfile.getName()))
-			{
-				
-				added = addTranslationProfile(tp);
-
-			}
-
+			added = addTranslationProfile(tp);
 		}
-
+			
+		
 		if (!added)
 		{
 			ErrorPopup.showError(msg, msg.getMessage(
@@ -205,33 +173,16 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 	}
 
 	@Override
-	public void reload()
+	public void reload(boolean showSuccess)
 	{
 		if (!super.reloadConfig())
 			return;
 		log.info("Reload " + translationProfile.getName() + " translation profile");
 		boolean updated = false;
-		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
-		for (String profileFile : profileFiles)
+		TranslationProfile tp = searchTranslationProfile(translationProfile.getName());
+		if(tp != null)
 		{
-			String json;
-			try
-			{
-				json = FileUtils.readFileToString(new File(profileFile));
-			} catch (IOException e)
-			{
-				log.error("Cannot read json file", e);
-				ErrorPopup.showError(msg, msg.getMessage("TranslationProfiles.cannotReadJsonConfig"), e);
-				return;
-			}
-			TranslationProfile tp = new TranslationProfile(json, jsonMapper,
-					tactionsRegistry);
-
-			if (tp.getName().equals(translationProfile.getName()))
-			{
-				updated = reloadTranslationProfile(tp);
-			}
-
+			updated = reloadTranslationProfile(tp);
 		}
 		if (!updated)
 		{
@@ -249,7 +200,41 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 		} else
 		{
 			setStatus(Status.deployed.toString());
+			if (showSuccess)
+			{
+				ErrorPopup.showNotice(msg, "", msg.getMessage(
+						"TranslationProfiles.reloadSuccess", tp.getName()));
+			}
 		}
+	}
+	
+	
+	private TranslationProfile searchTranslationProfile(String name)
+	{
+		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
+		for (String profileFile : profileFiles)
+		{
+			String json;
+			try
+			{
+				json = FileUtils.readFileToString(new File(profileFile));
+			} catch (IOException e)
+			{
+				log.error("Cannot read json file", e);
+				ErrorPopup.showError(msg, msg.getMessage("TranslationProfiles.cannotReadJsonConfig"), e);
+				return null;
+			}
+			TranslationProfile tp = new TranslationProfile(json, jsonMapper,
+					tactionsRegistry);
+
+			if (tp.getName().equals(name))
+			{
+				return tp;
+			}
+
+		}
+		return null;
+		
 	}
 
 	private boolean reloadTranslationProfile(TranslationProfile tp)

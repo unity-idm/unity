@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
+import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
@@ -49,6 +50,7 @@ public class EndpointsComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private EndpointManagement endpointMan;
+	private ServerManagement serverMan;
 	private VerticalLayout content;
 	private UnityServerConfiguration config;
 	private NetworkServer networkServer;
@@ -56,13 +58,15 @@ public class EndpointsComponent extends VerticalLayout
 
 	@Autowired
 	public EndpointsComponent(UnityMessageSource msg, EndpointManagement endpointMan,
-			AuthenticationManagement authMan, TranslationProfileManagement profilesMan,
+			AuthenticationManagement authMan, ServerManagement serverMan,
+			TranslationProfileManagement profilesMan,
 			TranslationActionsRegistry tactionsRegistry, ObjectMapper jsonMapper,
 			UnityServerConfiguration config, NetworkServer networkServer)
 	{
 		this.config = config;
 		this.msg = msg;
 		this.endpointMan = endpointMan;
+		this.serverMan = serverMan;
 		this.networkServer = networkServer;
 		this.endpointComponents = new TreeMap<String, EndpointComponent>();
 		initUI();
@@ -126,10 +130,10 @@ public class EndpointsComponent extends VerticalLayout
 		endpointComponents.clear();
 		try
 		{
-			config.reloadIfChanged();
+			serverMan.reloadConfig();
 		} catch (Exception e)
 		{
-			setError(msg.getMessage("DeployableComponentBase.cannotReloadConfig"), e);
+			setError(msg.getMessage("Configuration.cannotReloadConfig"), e);
 			return;
 		}
 
@@ -147,7 +151,7 @@ public class EndpointsComponent extends VerticalLayout
 		for (EndpointDescription endpointDesc : endpoints)
 		{
 			endpointComponents.put(endpointDesc.getId(), new EndpointComponent(
-					endpointMan, networkServer, endpointDesc, config, msg,
+					endpointMan, serverMan, networkServer, endpointDesc, config, msg,
 					DeployableComponentViewBase.Status.deployed.toString()));
 			existing.add(endpointDesc.getId());
 		}
@@ -165,7 +169,7 @@ public class EndpointsComponent extends VerticalLayout
 			EndpointDescription en = new EndpointDescription();
 			en.setId(name);
 			en.setDescription(description);
-			endpointComponents.put(en.getId(), new EndpointComponent(endpointMan,
+			endpointComponents.put(en.getId(), new EndpointComponent(endpointMan, serverMan,
 					networkServer, en, config, msg,
 					DeployableComponentViewBase.Status.undeployed.toString()));
 			

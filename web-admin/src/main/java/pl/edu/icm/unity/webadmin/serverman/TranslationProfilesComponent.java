@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
@@ -52,6 +53,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 	private UnityMessageSource msg;
 	private UnityServerConfiguration config;
 	private TranslationProfileManagement profilesMan;
+	private ServerManagement serverMan;
 	private TranslationActionsRegistry tactionsRegistry;
 	private ObjectMapper jsonMapper;
 	private VerticalLayout content;
@@ -61,11 +63,13 @@ public class TranslationProfilesComponent extends VerticalLayout
 	@Autowired
 	public TranslationProfilesComponent(UnityMessageSource msg,
 			UnityServerConfiguration config, TranslationProfileManagement profilesMan,
-			TranslationActionsRegistry tactionsRegistry, ObjectMapper jsonMapper)
+			ServerManagement serverMan, TranslationActionsRegistry tactionsRegistry,
+			ObjectMapper jsonMapper)
 	{
 		this.msg = msg;
 		this.config = config;
 		this.profilesMan = profilesMan;
+		this.serverMan = serverMan;
 		this.tactionsRegistry = tactionsRegistry;
 		this.jsonMapper = jsonMapper;
 		this.translationProfileComponents = new TreeMap<String, TranslationProfileComponent>();
@@ -135,7 +139,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		translationProfileComponents.clear();
 		try
 		{
-			config.reloadIfChanged();
+			serverMan.reloadConfig();
 		} catch (Exception e)
 		{
 			setError(msg.getMessage("Configuration.cannotReloadConfig"), e);
@@ -155,7 +159,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		{
 			translationProfileComponents.put(
 					profile.getName(),
-					new TranslationProfileComponent(profilesMan,
+					new TranslationProfileComponent(profilesMan, serverMan,
 							tactionsRegistry, jsonMapper, profile,
 							config, msg,
 							DeployableComponentViewBase.Status.deployed.toString()));
@@ -180,7 +184,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			{
 				translationProfileComponents.put(
 						tp.getName(),
-						new TranslationProfileComponent(profilesMan,
+						new TranslationProfileComponent(profilesMan, serverMan,
 								tactionsRegistry, jsonMapper, tp,
 								config, msg,
 								DeployableComponentViewBase.Status.undeployed.toString()));
@@ -214,7 +218,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			if (tpComp.getStatus().equals(
 					DeployableComponentViewBase.Status.deployed.toString()))
 			{
-				tpComp.reload();
+				tpComp.reload(false);
 			} else if (tpComp.getStatus().equals(
 					DeployableComponentViewBase.Status.undeployed.toString()))
 			{

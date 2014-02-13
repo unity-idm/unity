@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -48,17 +49,19 @@ public class AuthenticatorsComponent extends VerticalLayout
 	private UnityMessageSource msg;
 	private UnityServerConfiguration config;
 	private AuthenticationManagement authMan;
+	private ServerManagement serverMan;
 	private VerticalLayout content;
 	private Map<String,AuthenticatorComponent> authenticatorComponents;
 
 	@Autowired
 	public AuthenticatorsComponent(UnityMessageSource msg, UnityServerConfiguration config,
-			AuthenticationManagement authMan)
+			AuthenticationManagement authMan, ServerManagement serverMan)
 	{
 
 		this.msg = msg;
 		this.config = config;
 		this.authMan = authMan;
+		this.serverMan = serverMan;
 		this.authenticatorComponents = new TreeMap<String, AuthenticatorComponent>();
 		initUI();
 	}
@@ -124,7 +127,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		
 		try
 		{
-			config.reloadIfChanged();
+			serverMan.reloadConfig();
 		} catch (Exception e)
 		{
 			setError(msg.getMessage("Configuration.cannotReloadConfig"), e);
@@ -145,7 +148,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		for (AuthenticatorInstance ai : authenticators)
 		{
 			existing.add(ai.getId());
-			authenticatorComponents.put(ai.getId(), new AuthenticatorComponent(authMan, ai, config,
+			authenticatorComponents.put(ai.getId(), new AuthenticatorComponent(authMan, serverMan, ai, config,
 					msg, DeployableComponentViewBase.Status.deployed.toString()));
 		}
 
@@ -158,7 +161,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 			{
 				AuthenticatorInstance au = new AuthenticatorInstance();
 				au.setId(name);			
-				authenticatorComponents.put(name ,new AuthenticatorComponent(authMan, au, config, msg,
+				authenticatorComponents.put(name ,new AuthenticatorComponent(authMan, serverMan, au, config, msg,
 						DeployableComponentViewBase.Status.undeployed.toString()));
 			}
 		}
@@ -189,7 +192,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		{
 			if (authComp.getStatus().equals(DeployableComponentViewBase.Status.deployed.toString()))
 			{
-				authComp.reload();
+				authComp.reload(false);
 			} else if (authComp.getStatus().equals(DeployableComponentViewBase.Status.undeployed.toString()))
 			{
 				authComp.deploy();

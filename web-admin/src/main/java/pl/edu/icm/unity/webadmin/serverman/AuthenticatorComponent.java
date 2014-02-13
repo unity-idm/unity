@@ -6,6 +6,8 @@ package pl.edu.icm.unity.webadmin.serverman;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -38,14 +41,14 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			AuthenticatorComponent.class);
 
-	AuthenticatorInstance authenticator;
-	AuthenticationManagement authMan;
+	private AuthenticatorInstance authenticator;
+	private AuthenticationManagement authMan;
 
-	public AuthenticatorComponent(AuthenticationManagement authMan,
+	public AuthenticatorComponent(AuthenticationManagement authMan, ServerManagement serverMan,
 			AuthenticatorInstance authenticator, UnityServerConfiguration config,
 			UnityMessageSource msg, String status)
 	{
-		super(config, msg, status);
+		super(config, serverMan , msg, status);
 		this.authenticator = authenticator;
 		this.authMan = authMan;
 		setStatus(status);
@@ -84,37 +87,27 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		{
 			addFieldToContent(msg.getMessage("Authenticators.localCredential"), cr);
 		}
+		
+		addConfigPanel(msg.getMessage("Authenticators.verificatorJsonConfiguration"), authenticator.getVerificatorJsonConfiguration());
+		addConfigPanel(msg.getMessage("Authenticators.retrievalJsonConfiguration"), authenticator.getRetrievalJsonConfiguration());
+		
 
-		String ver = authenticator.getVerificatorJsonConfiguration();
-		if (ver != null && !ver.isEmpty())
+	}
+	
+	
+	private void addConfigPanel(String capion ,String val)
+	{
+		if (val != null && !val.isEmpty())
 		{
-
-			addFieldToContent(msg.getMessage("Authenticators.verificatorJsonConfiguration"), "");
+			addFieldToContent(capion, "");
 			Panel p = new Panel();
 			p.setWidth(500, Unit.PIXELS);
 			p.setHeight(150, Unit.PIXELS);
-			Label val = new Label(ver, ContentMode.PREFORMATTED);
-			val.setSizeUndefined();
-			p.setContent(val);
+			Label valL = new Label(val, ContentMode.PREFORMATTED);
+			valL.setSizeUndefined();
+			p.setContent(valL);
 			content.addComponent(p);
-
 		}
-
-		String ret = authenticator.getRetrievalJsonConfiguration();
-		if (ret != null && !ret.isEmpty())
-		{
-
-			addFieldToContent(msg.getMessage("Authenticators.retrievalJsonConfiguration"), "");
-			Panel p = new Panel();
-			p.setWidth(500, Unit.PIXELS);
-			p.setHeight(150, Unit.PIXELS);
-			Label val = new Label(ret, ContentMode.PREFORMATTED);
-			val.setSizeUndefined();
-			p.setContent(val);
-			content.addComponent(p);
-
-		}
-
 	}
 
 	@Override
@@ -194,39 +187,52 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		}
 
 	}
-
-	private boolean addAuthenticator(String authenticatorKey, String name)
+	
+	private Map<String, String> loadAuthenticatorConfig(String authenticatorKey, String name)
 	{
-		String type = config.getValue(authenticatorKey 
-				+ UnityServerConfiguration.AUTHENTICATOR_TYPE);
+		Map<String, String> ret = new HashMap<String, String>();
+		
+		ret.put("type", config.getValue(authenticatorKey 
+				+ UnityServerConfiguration.AUTHENTICATOR_TYPE));
+		ret.put("credential", config.getValue(authenticatorKey
+				+ UnityServerConfiguration.AUTHENTICATOR_CREDENTIAL));
+		
+		
 		File vConfigFile = config.getFileValue(authenticatorKey
 				+ UnityServerConfiguration.AUTHENTICATOR_VERIFICATOR_CONFIG,
 				false);
 		File rConfigFile = config.getFileValue(authenticatorKey
 				+ UnityServerConfiguration.AUTHENTICATOR_RETRIEVAL_CONFIG,
 				false);
-		String credential = config.getValue(authenticatorKey
-				+ UnityServerConfiguration.AUTHENTICATOR_CREDENTIAL);
-
-		String vJsonConfiguration = null;
-		String rJsonConfiguration = null;
 		try
 		{
-			vJsonConfiguration = vConfigFile == null ? null : FileUtils
+			String vJsonConfiguration = vConfigFile == null ? null : FileUtils
 					.readFileToString(vConfigFile);
-			rJsonConfiguration = FileUtils
+			String rJsonConfiguration = FileUtils
 					.readFileToString(rConfigFile);
+			
+			ret.put("vJsonConfiguration", vJsonConfiguration);
+			ret.put("rJsonConfiguration", rJsonConfiguration);
+			
 		} catch (IOException e)
 		{
 			log.error("Cannot read json file", e);
 			ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotReadJsonConfig"), e);
-			return false;
+			return null;
 		}
+		
+		return ret;
+	}
+	
 
+	private boolean addAuthenticator(String authenticatorKey, String name)
+	{
+		
+		Map<String, String> data = loadAuthenticatorConfig(authenticatorKey, name);
 		try
 		{
-			this.authenticator = authMan.createAuthenticator(name, type, vJsonConfiguration,
-					rJsonConfiguration, credential);
+			this.authenticator = authMan.createAuthenticator(name, data.get("type"), data.get("vJsonConfiguration"),
+					data.get("rJsonConfiguration"), data.get("credential"));
 		} catch (EngineException e)
 		{
 			log.error("Cannot add authenticator", e);
@@ -239,7 +245,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 	}
 	
 	@Override
-	public void reload()
+	public void reload(boolean showSuccess)
 	{
 		if (!super.reloadConfig())
 			return;
@@ -273,38 +279,22 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		}else 
 		{
 			setStatus(Status.deployed.toString());
+			if (showSuccess)
+			{
+				ErrorPopup.showNotice(msg, "", msg.getMessage(
+						"Authenticators.reloadSuccess", authenticator.getId()));
+			}
 		}
 	}
 	
 	private boolean reloadAuthenticator(String authenticatorKey, String name)
 	{
-		File vConfigFile = config.getFileValue(authenticatorKey
-				+ UnityServerConfiguration.AUTHENTICATOR_VERIFICATOR_CONFIG,
-				false);
-		File rConfigFile = config.getFileValue(authenticatorKey
-				+ UnityServerConfiguration.AUTHENTICATOR_RETRIEVAL_CONFIG,
-				false);
-		String localCredential = config.getValue(authenticatorKey
-				+ UnityServerConfiguration.AUTHENTICATOR_CREDENTIAL);
-
-		String vJsonConfiguration = null;
-		String rJsonConfiguration = null;
+		
+		Map<String, String> data = loadAuthenticatorConfig(authenticatorKey, name);
 		try
 		{
-			vJsonConfiguration = vConfigFile == null ? null : FileUtils
-					.readFileToString(vConfigFile);
-			rJsonConfiguration = FileUtils
-					.readFileToString(rConfigFile);
-		} catch (IOException e)
-		{
-			log.error("Cannot read json file", e);
-			ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotReadJsonConfig"), e);
-			return false;
-		}
-
-		try
-		{
-			authMan.updateAuthenticator(name, vJsonConfiguration, rJsonConfiguration, localCredential);
+			authMan.updateAuthenticator(name, data.get("vJsonConfiguration"),
+					data.get("rJsonConfiguration"), data.get("credential"));
 		} catch (EngineException e)
 		{
 			log.error("Cannot update authenticator", e);

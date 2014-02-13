@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.serverman;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -42,6 +43,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 	public static enum Status {deployed, undeployed};
 	
 	protected UnityServerConfiguration config;
+	protected ServerManagement serverMan;
 	protected UnityMessageSource msg;
 	protected HorizontalLayout header;
 	protected FormLayout content;
@@ -53,11 +55,12 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 	protected String status;
 	protected Label separator;
 
-	public DeployableComponentViewBase(UnityServerConfiguration config, UnityMessageSource msg,
-			String status)
+	public DeployableComponentViewBase(UnityServerConfiguration config,
+			ServerManagement serverMan, UnityMessageSource msg, String status)
 	{
 
 		this.config = config;
+		this.serverMan = serverMan;
 		this.msg = msg;
 		initUI();
 
@@ -126,8 +129,8 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		{
 			@Override
 			public void buttonClick(ClickEvent event)
-			{
-				reload();
+			{	
+				reload(true);	
 			}
 		});
 
@@ -177,7 +180,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 	
 	public abstract void undeploy();
 	
-	public abstract void reload();
+	public abstract void reload(boolean showSuccess);
 
 	public String getStatus()
 	{
@@ -251,7 +254,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 	{
 		try
 		{
-			config.reloadIfChanged();
+			serverMan.reloadConfig();
 		} catch (Exception e)
 		{
 			log.error("Cannot reload configuration", e);
