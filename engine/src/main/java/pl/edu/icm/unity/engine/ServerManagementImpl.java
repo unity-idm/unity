@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -164,5 +165,19 @@ public class ServerManagementImpl implements ServerManagement
 			throw new InternalException("Error reading configuration file", e);
 		}
 		
+	}
+
+
+	@Override
+	public String loadConfigurationFile(String path) throws EngineException
+	{       
+		File f = new File(path);
+		try
+		{
+			return FileUtils.readFileToString(f);
+		} catch (IOException e)
+		{
+			throw new InternalException("Error loading configuration file " + path, e);
+		}
 	}
 }

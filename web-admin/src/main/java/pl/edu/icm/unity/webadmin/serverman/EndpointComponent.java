@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.serverman;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -65,7 +62,9 @@ public class EndpointComponent extends DeployableComponentViewBase
 	public void undeploy()
 	{
 		if (!super.reloadConfig())
+		{
 			return;
+		}
 
 		log.info("Undeploy " + endpoint.getId() + " endpoint");
 		try
@@ -106,7 +105,9 @@ public class EndpointComponent extends DeployableComponentViewBase
 	public void deploy()
 	{
 		if (!super.reloadConfig())
+		{
 			return;
+		}
 		
 		log.info("Deploy " + endpoint.getId() + " endpoint");
 		boolean added = false;
@@ -139,8 +140,11 @@ public class EndpointComponent extends DeployableComponentViewBase
 	private boolean deployEndpoint(String endpointKey, String id)
 	{
 		Map<String, String> data = loadEndpointConfig(endpointKey, id);
-		if(data == null)
-			return false;	
+		if (data == null)
+		{
+			return false;
+		}
+		
 		try
 		{
 			this.endpoint = endpointMan.deploy(data.get("type"), id, data.get("address"), data.get("description"),
@@ -159,10 +163,10 @@ public class EndpointComponent extends DeployableComponentViewBase
 	public void reload(boolean showSuccess)
 	{
 		if (!super.reloadConfig())
+		{
 			return;
-		
-		
-		
+		}
+	
 		log.info("Reload " + endpoint.getId() + " endpoint");
 		boolean updated = false;
 		Set<String> endpointsList = config
@@ -219,39 +223,13 @@ public class EndpointComponent extends DeployableComponentViewBase
 		return endpointAuthn;
 	}
 	
-	private Map<String, String> loadEndpointConfig(String endpointKey, String name)
-	{
-		Map<String, String> ret = new HashMap<String, String>();
-		ret.put("description", config.getValue(endpointKey
-				+ UnityServerConfiguration.ENDPOINT_DESCRIPTION));
-		ret.put("authenticatorsSpec", config.getValue(endpointKey
-				+ UnityServerConfiguration.ENDPOINT_AUTHENTICATORS));
-		ret.put("type",config.getValue(endpointKey
-						+ UnityServerConfiguration.ENDPOINT_TYPE));
-		ret.put("address",config.getValue(endpointKey
-						+ UnityServerConfiguration.ENDPOINT_ADDRESS));
-		File configFile = config.getFileValue(endpointKey
-				+ UnityServerConfiguration.ENDPOINT_CONFIGURATION, false);
-		try
-		{
-			String jsonConfiguration = FileUtils.readFileToString(configFile);
-			ret.put("jsonConfiguration", jsonConfiguration);
-		} catch (IOException e)
-		{
-			log.error("Cannot read json file", e);
-			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotReadJsonConfig"),
-					e);
-			return null;
-		}
-		return ret;
-		
-	}
-	
 	private boolean reloadEndpoint(String endpointKey, String id)
 	{
 		Map<String, String> data = loadEndpointConfig(endpointKey, id);
-		if(data == null)
-			return false;	
+		if (data == null)
+		{
+			return false;		
+		}
 		
 		try
 		{
@@ -363,5 +341,32 @@ public class EndpointComponent extends DeployableComponentViewBase
 			addField(au, String.valueOf(i), auth.toString());
 		}
 		content.addComponent(au);
+	}
+	
+	private Map<String, String> loadEndpointConfig(String endpointKey, String name)
+	{
+		Map<String, String> ret = new HashMap<String, String>();
+		ret.put("description", config.getValue(endpointKey
+				+ UnityServerConfiguration.ENDPOINT_DESCRIPTION));
+		ret.put("authenticatorsSpec", config.getValue(endpointKey
+				+ UnityServerConfiguration.ENDPOINT_AUTHENTICATORS));
+		ret.put("type",config.getValue(endpointKey
+						+ UnityServerConfiguration.ENDPOINT_TYPE));
+		ret.put("address",config.getValue(endpointKey
+				+ UnityServerConfiguration.ENDPOINT_ADDRESS));
+		try
+		{
+			String jsonConfiguration = serverMan.loadConfigurationFile(config.getValue(endpointKey
+					                           + UnityServerConfiguration.ENDPOINT_CONFIGURATION));
+			ret.put("jsonConfiguration", jsonConfiguration);
+		} catch (EngineException e)
+		{
+			log.error("Cannot read json file", e);
+			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotReadJsonConfig"),
+					e);
+			return null;
+		}
+		return ret;
+		
 	}
 }

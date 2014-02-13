@@ -4,12 +4,9 @@
  */
 package pl.edu.icm.unity.webadmin.serverman;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -83,7 +80,6 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 					"TranslationProfiles.cannotUndeploy",
 					translationProfile.getName()), e);
 			return;
-
 		}
 
 		boolean inConfig = false;
@@ -106,15 +102,16 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 	public void deploy()
 	{
 		if (!super.reloadConfig())
+		{
 			return;
+		}
 		
 		boolean added = false;
 		TranslationProfile tp = searchTranslationProfile(translationProfile.getName());
-		if(tp != null)
+		if (tp == null)
 		{
 			added = addTranslationProfile(tp);
 		}
-			
 		
 		if (!added)
 		{
@@ -125,7 +122,6 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 					translationProfile.getName()));
 			setVisible(false);
 			return;
-
 		} else
 		{
 			setStatus(Status.deployed.toString());
@@ -176,11 +172,14 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 	public void reload(boolean showSuccess)
 	{
 		if (!super.reloadConfig())
+		{
 			return;
+		}
+		
 		log.info("Reload " + translationProfile.getName() + " translation profile");
 		boolean updated = false;
 		TranslationProfile tp = searchTranslationProfile(translationProfile.getName());
-		if(tp != null)
+		if (tp != null)
 		{
 			updated = reloadTranslationProfile(tp);
 		}
@@ -206,35 +205,6 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 						"TranslationProfiles.reloadSuccess", tp.getName()));
 			}
 		}
-	}
-	
-	
-	private TranslationProfile searchTranslationProfile(String name)
-	{
-		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
-		for (String profileFile : profileFiles)
-		{
-			String json;
-			try
-			{
-				json = FileUtils.readFileToString(new File(profileFile));
-			} catch (IOException e)
-			{
-				log.error("Cannot read json file", e);
-				ErrorPopup.showError(msg, msg.getMessage("TranslationProfiles.cannotReadJsonConfig"), e);
-				return null;
-			}
-			TranslationProfile tp = new TranslationProfile(json, jsonMapper,
-					tactionsRegistry);
-
-			if (tp.getName().equals(name))
-			{
-				return tp;
-			}
-
-		}
-		return null;
-		
 	}
 
 	private boolean reloadTranslationProfile(TranslationProfile tp)
@@ -308,5 +278,31 @@ class TranslationProfileComponent extends DeployableComponentViewBase
 			}
 		}
 	}
+	
+	private TranslationProfile searchTranslationProfile(String name)
+	{
+		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
+		for (String profileFile : profileFiles)
+		{
+			String json;
+			try
+			{
+				json = serverMan.loadConfigurationFile(profileFile);
+			} catch (EngineException e)
+			{
+				log.error("Cannot read json file", e);
+				ErrorPopup.showError(msg, msg.getMessage("TranslationProfiles.cannotReadJsonConfig"), e);
+				return null;
+			}
+			TranslationProfile tp = new TranslationProfile(json, jsonMapper,
+					tactionsRegistry);
 
+			if (tp.getName().equals(name))
+			{
+				return tp;
+			}
+
+		}
+		return null;	
+	}
 }
