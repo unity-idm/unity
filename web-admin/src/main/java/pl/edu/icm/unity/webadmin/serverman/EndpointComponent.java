@@ -65,32 +65,19 @@ public class EndpointComponent extends DeployableComponentViewBase
 		{
 			return;
 		}
-
-		log.info("Undeploy " + endpoint.getId() + " endpoint");
+		String id = endpoint.getId();
+		log.info("Undeploy " + id + " endpoint");
 		try
 		{
-			endpointMan.undeploy(endpoint.getId());
+			endpointMan.undeploy(id);
 		} catch (EngineException e)
 		{
 			log.error("Cannot undeploy endpoint", e);
-			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotUndeploy",
-					endpoint.getId()), e);
+			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotUndeploy", id), e);
 			return;
-
 		}
 
-		boolean inConfig = false;
-		Set<String> endpointsList = config.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
-		for (String endpointKey : endpointsList)
-		{
-			if (config.getValue(endpointKey + UnityServerConfiguration.ENDPOINT_NAME)
-					.equals(endpoint.getId()))
-			{
-				inConfig = true;
-			}
-		}
-
-		if (inConfig)
+		if (getEndpointConfig(id) != null)
 		{
 			setStatus(Status.undeployed.toString());
 		} else
@@ -107,25 +94,13 @@ public class EndpointComponent extends DeployableComponentViewBase
 		{
 			return;
 		}
-		
-		log.info("Deploy " + endpoint.getId() + " endpoint");
-		boolean added = false;
-		Set<String> endpointsList = config.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
-		for (String endpointKey : endpointsList)
-		{
-			if (config.getValue(endpointKey + UnityServerConfiguration.ENDPOINT_NAME)
-					.equals(endpoint.getId()))
-			{
-				added = deployEndpoint(endpointKey, endpoint.getId());
-	
-			}
-		}
-
-		if (!added)
+		String id = endpoint.getId();
+		log.info("Deploy " + id + " endpoint");
+		if (!deployEndpoint(id))
 		{
 			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotDeploy",
 					endpoint.getId()), msg.getMessage(
-					"Endpoints.cannotDeployRemovedConfig", endpoint.getId()));
+					"Endpoints.cannotDeployRemovedConfig", id));
 			setVisible(false);
 			return;
 
@@ -136,9 +111,9 @@ public class EndpointComponent extends DeployableComponentViewBase
 
 	}
 
-	private boolean deployEndpoint(String endpointKey, String id)
+	private boolean deployEndpoint(String id)
 	{
-		Map<String, String> data = loadEndpointConfig(endpointKey, id);
+		Map<String, String> data = getEndpointConfig(id);
 		if (data == null)
 		{
 			return false;
@@ -165,26 +140,13 @@ public class EndpointComponent extends DeployableComponentViewBase
 		{
 			return;
 		}
-	
-		log.info("Reload " + endpoint.getId() + " endpoint");
-		boolean updated = false;
-		Set<String> endpointsList = config
-				.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
-		
-		for (String endpointKey : endpointsList)
-		{
-			if (config.getValue(endpointKey + UnityServerConfiguration.ENDPOINT_NAME)
-					.equals(endpoint.getId()))
-			{
-				updated = reloadEndpoint(endpointKey, endpoint.getId());
-				break;
-			}
-		}
 
-		if (!updated)
+		String id = endpoint.getId();
+		log.info("Reload " + id + " endpoint");
+		if (!reloadEndpoint(id))
 		{
 			new ConfirmDialog(msg, msg.getMessage("Endpoints.unDeployWhenRemoved",
-					endpoint.getId()), new ConfirmDialog.Callback()
+					id), new ConfirmDialog.Callback()
 			{
 				@Override
 				public void onConfirm()
@@ -199,7 +161,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 			if (showSuccess)
 			{
 				ErrorPopup.showNotice(msg, "", msg.getMessage(
-						"Endpoints.reloadSuccess", endpoint.getId()));
+						"Endpoints.reloadSuccess", id));
 			}
 			
 		}
@@ -223,9 +185,9 @@ public class EndpointComponent extends DeployableComponentViewBase
 		return endpointAuthn;
 	}
 	
-	private boolean reloadEndpoint(String endpointKey, String id)
+	private boolean reloadEndpoint(String id)
 	{
-		Map<String, String> data = loadEndpointConfig(endpointKey, id);
+		Map<String, String> data = getEndpointConfig(id);
 		if (data == null)
 		{
 			return false;		
@@ -251,7 +213,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		{
 			for (EndpointDescription en : endpointMan.getEndpoints())
 			{
-				if (en.getId().equals(id))
+				if (id.equals(en.getId()))
 				{
 					this.endpoint = en;
 				}
@@ -343,8 +305,24 @@ public class EndpointComponent extends DeployableComponentViewBase
 		content.addComponent(au);
 	}
 	
-	private Map<String, String> loadEndpointConfig(String endpointKey, String name)
+	private Map<String, String> getEndpointConfig(String name)
 	{
+		String endpointKey = null;
+		Set<String> endpointsList = config.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
+		for (String endpoint: endpointsList)
+		{
+
+			String cname = config.getValue(endpoint + UnityServerConfiguration.ENDPOINT_NAME);
+			if (name.equals(cname))
+			{
+				endpointKey = endpoint;
+			}	
+		}
+		if (endpointKey == null)
+		{
+			return null;
+		}
+		
 		Map<String, String> ret = new HashMap<String, String>();
 		ret.put("description", config.getValue(endpointKey
 				+ UnityServerConfiguration.ENDPOINT_DESCRIPTION));

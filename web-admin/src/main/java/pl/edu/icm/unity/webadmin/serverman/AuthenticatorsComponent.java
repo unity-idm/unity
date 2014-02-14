@@ -24,6 +24,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
+import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -198,5 +199,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 				authComp.deploy();
 			}
 		}
+		ErrorPopup.showNotice(msg, "", msg.getMessage(
+				"Authenticators.reloaded"));
 	}
 }
