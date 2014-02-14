@@ -44,7 +44,7 @@ public interface ServerManagement
 	public void reloadConfig() throws EngineException;
 	
 	/**
-	 * Load cofiguration file 
+	 * Load configuration file 
 	 * @throws EngineException
 	 */
 	public String loadConfigurationFile(String path) throws EngineException;

@@ -88,7 +88,6 @@ public class EndpointComponent extends DeployableComponentViewBase
 			{
 				inConfig = true;
 			}
-
 		}
 
 		if (inConfig)
@@ -178,6 +177,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 					.equals(endpoint.getId()))
 			{
 				updated = reloadEndpoint(endpointKey, endpoint.getId());
+				break;
 			}
 		}
 
