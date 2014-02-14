@@ -114,34 +114,20 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		{
 			return;
 		}
-
-		log.info("Remove " + authenticator.getId() + " authenticator");
+		String id = authenticator.getId();
+		log.info("Remove " + id + " authenticator");
 		try
 		{
 			authMan.removeAuthenticator(authenticator.getId());
 		} catch (Exception e)
 		{
 			log.error("Cannot remove authenticator", e);
-			ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotUndeploy",
-					authenticator.getId()), e);
+			ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotUndeploy", id), e);
 			return;
 
 		}
 
-		boolean inConfig = false;
-		Set<String> authenticatorsList = config
-				.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
-		for (String authenticatorKey : authenticatorsList)
-		{
-			if (config.getValue(authenticatorKey + UnityServerConfiguration.AUTHENTICATOR_NAME)
-					.equals(authenticator.getId()))
-			{
-				inConfig = true;
-			}
-
-		}
-
-		if (inConfig)
+		if (getAuthenticatorConfig(id) !=null)
 		{
 			setStatus(Status.undeployed.toString());
 		} else
@@ -157,27 +143,13 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		{
 			return;
 		}
-		
-		log.info("Add " + authenticator.getId() + "authenticator");
-		boolean added = false;
-		Set<String> authenticatorsList = config.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
-		for (String authenticatorKey: authenticatorsList)
+		String id = authenticator.getId();
+		log.info("Add " + id + "authenticator");
+		if (!addAuthenticator(id))
 		{
-
-			String name = config.getValue(authenticatorKey + UnityServerConfiguration.AUTHENTICATOR_NAME);
-			if (authenticator.getId().equals(name))
-			{
-				added = addAuthenticator(authenticatorKey, name);
-			}	
-			
-		}
-
-		if (!added)
-		{
-			ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotDeploy",
-					authenticator.getId()), msg.getMessage(
-					"Authenticators.cannotDeployRemovedConfig",
-					authenticator.getId()));
+			ErrorPopup.showError(msg,
+					msg.getMessage("Authenticators.cannotDeploy", id),
+					msg.getMessage("Authenticators.cannotDeployRemovedConfig", id));
 			setVisible(false);
 			return;
 
@@ -187,9 +159,9 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		}
 	}
 	
-	private boolean addAuthenticator(String authenticatorKey, String name)
+	private boolean addAuthenticator(String name)
 	{	
-		Map<String, String> data = loadAuthenticatorConfig(authenticatorKey, name);
+		Map<String, String> data = getAuthenticatorConfig(name);
 		if (data == null)
 		{
 			return false;
@@ -216,26 +188,12 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		{
 			return;
 		}
-		
-		log.info("Reload " + authenticator.getId() + " authenticator");
-		boolean updated = false;
-		Set<String> authenticatorsList = config.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
-		for (String authenticatorKey : authenticatorsList)
-		{
-			String name = config.getValue(authenticatorKey
-					+ UnityServerConfiguration.AUTHENTICATOR_NAME);
-			if (authenticator.getId().equals(name))
-			{
-				updated = reloadAuthenticator(authenticatorKey, name);
-			}
-			
-			
-		}
-
-		if (!updated)
+		String id = authenticator.getId();
+		log.info("Reload " + id + " authenticator");
+		if (!reloadAuthenticator(id))
 		{
 			new ConfirmDialog(msg, msg.getMessage("Authenticators.unDeployWhenRemoved",
-					authenticator.getId()), new ConfirmDialog.Callback()
+					id), new ConfirmDialog.Callback()
 			{
 				@Override
 				public void onConfirm()
@@ -249,14 +207,14 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 			if (showSuccess)
 			{
 				ErrorPopup.showNotice(msg, "", msg.getMessage(
-						"Authenticators.reloadSuccess", authenticator.getId()));
+						"Authenticators.reloadSuccess", id));
 			}
 		}
 	}
 	
-	private boolean reloadAuthenticator(String authenticatorKey, String name)
+	private boolean reloadAuthenticator(String name)
 	{
-		Map<String, String> data = loadAuthenticatorConfig(authenticatorKey, name);
+		Map<String, String> data = getAuthenticatorConfig(name);
 		if (data == null)
 		{
 			return false;
@@ -294,10 +252,24 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		return true;
 	}
 	
-	private Map<String, String> loadAuthenticatorConfig(String authenticatorKey, String name)
+	private Map<String, String> getAuthenticatorConfig(String name)
 	{
+		String authenticatorKey = null;
+		Set<String> authenticatorsList = config.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
+		for (String authenticator: authenticatorsList)
+		{
+
+			String cname = config.getValue(authenticator + UnityServerConfiguration.AUTHENTICATOR_NAME);
+			if (name.equals(cname))
+			{
+				authenticatorKey = authenticator;
+			}	
+		}
+		if (authenticatorKey == null)
+		{
+			return null;
+		}
 		Map<String, String> ret = new HashMap<String, String>();
-		
 		ret.put("type", config.getValue(authenticatorKey 
 				+ UnityServerConfiguration.AUTHENTICATOR_TYPE));
 		ret.put("credential", config.getValue(authenticatorKey
