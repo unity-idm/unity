@@ -5,6 +5,10 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<context:annotation-config/>
+	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
+		<property name="bundle" value="pl/edu/icm/unity/stdext/messages/messages"/>
+	</bean>
+	
 	<bean class="pl.edu.icm.unity.stdext.utils.InitializerCommon"/>
 	
 	<bean class="pl.edu.icm.unity.stdext.identity.PersistentIdentity"/>

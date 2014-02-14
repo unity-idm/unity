@@ -37,6 +37,7 @@
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.serverman.EndpointsComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.serverman.AuthenticatorsComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.serverman.TranslationProfilesComponent"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.messagetemplates.MessageTemplatesComponent"/>
 	
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormsComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.reqman.RequestsComponent"/>

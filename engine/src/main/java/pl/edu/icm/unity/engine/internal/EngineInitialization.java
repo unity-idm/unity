@@ -280,9 +280,9 @@ public class EngineInitialization extends LifecycleBase
 		if (body == null || subject == null)
 			throw new WrongArgumentException("There is no template for this id");
 		
-		Map<Locale, Message> msgList = new HashMap<Locale, Message>();
+		Map<String, Message> msgList = new HashMap<String, Message>();
 		Message tempMsg = new Message(subject, body);
-		msgList.put(new Locale(""), tempMsg);
+		msgList.put(" ", tempMsg);
 		
 		Set<Object> keys = properties.keySet();
 		for (Object keyO: keys)
@@ -293,13 +293,12 @@ public class EngineInitialization extends LifecycleBase
 			if (key.startsWith(pfx))
 			{
 				String locale = key.substring(pfx.length());
-				Locale l = UnityServerConfiguration.safeLocaleDecode(locale);	
-				if(msgList.containsKey(l))
+				if(msgList.containsKey(locale))
 				{
-					msgList.get(l).setBody(properties.getProperty(key));
+					msgList.get(locale).setBody(properties.getProperty(key));
 				}else
 				{
-					msgList.put(l, new Message("", properties.getProperty(key)));
+					msgList.put(locale, new Message("", properties.getProperty(key)));
 				}
 				
 			}
@@ -308,13 +307,12 @@ public class EngineInitialization extends LifecycleBase
 			if (key.startsWith(pfx))
 			{
 				String locale = key.substring(pfx.length());
-				Locale l = UnityServerConfiguration.safeLocaleDecode(locale);	
-				if(msgList.containsKey(l))
+				if(msgList.containsKey(locale))
 				{
-					msgList.get(l).setSubject(properties.getProperty(key));
+					msgList.get(locale).setSubject(properties.getProperty(key));
 				}else
 				{
-					msgList.put(l, new Message(properties.getProperty(key),""));
+					msgList.put(locale, new Message(properties.getProperty(key),""));
 				}
 				
 			}

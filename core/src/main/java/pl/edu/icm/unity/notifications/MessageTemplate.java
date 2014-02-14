@@ -32,11 +32,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class MessageTemplate extends DescribedObjectImpl
 {
-	private Map<Locale, Message> messagesByLocale;
+	private Map<String, Message> messagesByLocale;
 	private String consumer;
 
 	public MessageTemplate(String name, String description,
-			Map<Locale, Message> messagesByLocale, String consumer)
+			Map<String, Message> messagesByLocale, String consumer)
 	{
 		this.messagesByLocale = messagesByLocale;
 		this.consumer = consumer;
@@ -59,12 +59,12 @@ public class MessageTemplate extends DescribedObjectImpl
 			setDescription(root.get("description").asText());
 			setConsumer(root.get("consumer").asText());
 			ArrayNode messagesA = (ArrayNode) root.get("messages");
-			messagesByLocale = new HashMap<Locale, MessageTemplate.Message>();
+			messagesByLocale = new HashMap<String, MessageTemplate.Message>();
 			for (int i=0; i<messagesA.size(); i++)
 			{
 				ObjectNode jsonMsg = (ObjectNode) messagesA.get(i);
 				Message msg = new Message(jsonMsg.get("subject").asText(), jsonMsg.get("body").asText());
-				Locale l = UnityServerConfiguration.safeLocaleDecode(jsonMsg.get("locale").asText());
+				String l = jsonMsg.get("locale").asText();
 				messagesByLocale.put(l, msg);
 			}
 		} catch (Exception e)
@@ -84,7 +84,7 @@ public class MessageTemplate extends DescribedObjectImpl
 			root.put("consumer", getConsumer());
 			ArrayNode jsonMessages = root.putArray("messages");
 			
-			for (Map.Entry<Locale, Message> msg: messagesByLocale.entrySet())
+			for (Map.Entry<String, Message> msg: messagesByLocale.entrySet())
 			{
 				ObjectNode jsonMsg = jsonMessages.addObject();
 				jsonMsg.put("locale", msg.getKey().toString());
@@ -121,10 +121,10 @@ public class MessageTemplate extends DescribedObjectImpl
 		return getMsg(messagesByLocale, new HashMap<String, String>(0));
 	}
 	
-	private Message getMsg(Map<Locale, Message> messagesByLocale, Map<String, String> params)
+	private Message getMsg(Map<String, Message> messagesByLocale, Map<String, String> params)
 	{
 	//	Locale loc = UnityMessageSource.getLocale(defaultLocale);
-		Message msg = messagesByLocale.get(new Locale(""));
+		Message msg = messagesByLocale.get("");
 		for (Map.Entry<String, String> paramE: params.entrySet())
 		{
 			msg.setSubject(msg.getSubject().replace("${"+paramE.getKey()+"}", paramE.getValue()));
@@ -133,6 +133,10 @@ public class MessageTemplate extends DescribedObjectImpl
 		return msg;
 	}
 	
+	public Map<String, Message> getAllMessages()
+	{
+		return messagesByLocale;
+	}
 		
 	public static class Message
 	{
