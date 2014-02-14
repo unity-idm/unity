@@ -4,12 +4,17 @@
  */
 package pl.edu.icm.unity.webadmin.messagetemplates;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import pl.edu.icm.unity.notifications.MessageTemplate;
 import pl.edu.icm.unity.notifications.MessageTemplate.Message;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 
+import com.vaadin.ui.AbstractTextField;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
@@ -25,8 +30,8 @@ public class MessageTemplateViewer extends CustomComponent
 	private Label name;
 	private Label description;
 	private Label consumer;
-	private FormLayout messages;
-	VerticalLayout main;
+	private List<Component> messages;
+	private FormLayout main;
 	
 
 	public MessageTemplateViewer(UnityMessageSource msg)
@@ -37,18 +42,15 @@ public class MessageTemplateViewer extends CustomComponent
 
 	private void initUI()
 	{
-		main = new VerticalLayout();
-		FormLayout formLayout = new FormLayout();
+		messages = new ArrayList<Component>();
+		main = new FormLayout();
 		name = new Label();
 		name.setCaption(msg.getMessage("MessageTemplateViewer.name") + ":");
 		description = new Label();
 		description.setCaption(msg.getMessage("MessageTemplateViewer.description") + ":");
 		consumer = new Label();
 		consumer.setCaption(msg.getMessage("MessageTemplateViewer.consumer") + ":");
-		formLayout.addComponents(name, description, consumer);
-		messages = new FormLayout();		
-		main.addComponent(formLayout);
-		main.addComponent(messages);
+		main.addComponents(name, description, consumer);		
 		main.setSizeFull();
 		setCompositionRoot(main);		
 	}
@@ -68,22 +70,29 @@ public class MessageTemplateViewer extends CustomComponent
 		for (Map.Entry<String, Message> entry : template.getAllMessages().entrySet())
 		{
 			
-			Label subject = new Label();
-			subject .setCaption(msg.getMessage("MessageTemplateViewer.subject")  + ":");
-			subject .setValue(entry.getValue().getSubject());
-			Label body = new Label();
+			AbstractTextField subject = new DescriptionTextArea();
+			subject.setCaption(msg.getMessage("MessageTemplateViewer.subject")  + ":");
+			subject.setValue(entry.getValue().getSubject());
+			subject.setReadOnly(true);
+			subject.setId("subject");
+			AbstractTextField body = new DescriptionTextArea();
 			body.setCaption(msg.getMessage("MessageTemplateViewer.body")  + ":");
 			body.setValue(entry.getValue().getBody());
-			
+			body.setReadOnly(true);
+			body.setId("body");
 			String lcle = entry.getKey().toString();
-			if (!lcle.equals(" "))
+			if (!lcle.equals(""))
 			{
 				Label locale = new Label();
 				locale.setCaption(msg.getMessage("MessageTemplateViewer.locale") + ":");
 				locale.setValue(lcle);
-				messages.addComponent(locale);
+				messages.add(locale);
+				main.addComponent(locale);
+
 			}
-			messages.addComponents(subject, body);
+			messages.add(subject);
+			messages.add(body);
+			main.addComponents(subject, body);
 
 		}
 
@@ -94,7 +103,11 @@ public class MessageTemplateViewer extends CustomComponent
 		name.setValue("");
 		description.setValue("");
 		consumer.setValue("");
-		messages.removeAllComponents();
+		for (Component c : messages)
+		{
+			main.removeComponent(c);
+		}
+		messages.clear();
 	}
 
 }

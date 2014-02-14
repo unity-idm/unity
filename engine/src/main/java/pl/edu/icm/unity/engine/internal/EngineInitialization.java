@@ -282,17 +282,18 @@ public class EngineInitialization extends LifecycleBase
 		
 		Map<String, Message> msgList = new HashMap<String, Message>();
 		Message tempMsg = new Message(subject, body);
-		msgList.put(" ", tempMsg);
+		msgList.put("", tempMsg);
 		
 		Set<Object> keys = properties.keySet();
 		for (Object keyO: keys)
 		{
 			
 			String key = (String) keyO;
-			String pfx = id+".body.";
+			String pfx = id + ".body.";
+			String locale;
 			if (key.startsWith(pfx))
-			{
-				String locale = key.substring(pfx.length());
+			{       
+				locale = key.substring(pfx.length());
 				if(msgList.containsKey(locale))
 				{
 					msgList.get(locale).setBody(properties.getProperty(key));
@@ -302,11 +303,10 @@ public class EngineInitialization extends LifecycleBase
 				}
 				
 			}
-			
-			pfx = id+".subject.";
+			pfx = id + ".subject.";
 			if (key.startsWith(pfx))
 			{
-				String locale = key.substring(pfx.length());
+				locale = key.substring(pfx.length());
 				if(msgList.containsKey(locale))
 				{
 					msgList.get(locale).setSubject(properties.getProperty(key));

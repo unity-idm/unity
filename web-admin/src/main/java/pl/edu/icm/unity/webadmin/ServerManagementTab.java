@@ -36,7 +36,7 @@ public class ServerManagementTab  extends VerticalLayout
 	{
 		super();
 		this.msg = msg;
-		this.tabs = new MainTabPanel(eComponent, aComponent, tComponent, ieComponent, msgComponent);
+		this.tabs = new MainTabPanel(eComponent, aComponent, tComponent, msgComponent, ieComponent);
 		this.tabs.setStyleName(Reindeer.TABSHEET_MINIMAL);
 		initUI();
 	}

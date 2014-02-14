@@ -34,7 +34,7 @@ public class SubmitFormMsgConsumer extends BaseFormMsgConsumer
 	@Override
 	public String getName()
 	{
-		return "submitForm";
+		return "SubmitForm";
 	}
 
 	@Override

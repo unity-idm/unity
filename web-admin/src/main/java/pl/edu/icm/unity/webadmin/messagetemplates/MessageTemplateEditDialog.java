@@ -16,7 +16,7 @@ import com.vaadin.ui.VerticalLayout;
 
 
 /**
- * Responsible for message templates management
+ * Responsible for message template edit
  * @author P. Piernik
  *
  */
@@ -31,7 +31,7 @@ public class MessageTemplateEditDialog extends AbstractDialog
 		this.editor = editor;
 		this.callback = callback;
 		setWidth(50, Unit.PERCENTAGE);
-		setHeight(55, Unit.PERCENTAGE);
+		setHeight(85, Unit.PERCENTAGE);
 	}
 
 	@Override

@@ -16,10 +16,13 @@ import pl.edu.icm.unity.notifications.MessageTemplateConsumer;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.event.FieldEvents.FocusEvent;
+import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -30,6 +33,11 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
+/**
+ * Component to edit or add message template
+ * @author P. Piernik
+ *
+ */
 public class MessageTemplateEditor extends VerticalLayout
 {
 	private UnityMessageSource msg;
@@ -41,8 +49,8 @@ public class MessageTemplateEditor extends VerticalLayout
 	private ComboBox consumer;
 	private Label consumerDescription;
 	private boolean editMode;
-	private HorizontalLayout buttonsSub;
-	private HorizontalLayout buttonsBody;
+	private HorizontalLayout buttons;
+	private boolean editSubject;
 
 	public MessageTemplateEditor(UnityMessageSource msg,
 			MessageTemplateConsumersRegistry registry, MessageTemplate toEdit)
@@ -58,21 +66,14 @@ public class MessageTemplateEditor extends VerticalLayout
 	private void initUI(MessageTemplate toEdit)
 	{
 		
-		buttonsSub = new HorizontalLayout();
-		buttonsBody = new HorizontalLayout();
+		buttons = new HorizontalLayout();
 		FormLayout main = new FormLayout();
 		setWidth(100, Unit.PERCENTAGE);
 		setHeight(100, Unit.PERCENTAGE);
 		setSpacing(true);
 		name = new RequiredTextField(msg);
-		if (editMode)
-		{
-			name.setValue(toEdit.getName());
-			name.setReadOnly(true);
-		} else
-			name.setValue(msg.getMessage("MessageTemplatesEditor.defaultName"));
-
 		name.setCaption(msg.getMessage("MessageTemplatesEditor.name"));
+		name.setSizeFull();
 		description = new DescriptionTextArea(
 				msg.getMessage("MessageTemplatesEditor.description"));
 		consumer = new ComboBox(msg.getMessage("MessageTemplatesEditor.consumer"));
@@ -88,17 +89,30 @@ public class MessageTemplateEditor extends VerticalLayout
 		body = new DescriptionTextArea(
 				msg.getMessage("MessageTemplatesEditor.body"));
 		
-		if (editMode)
+		editSubject = true;
+		subject.addFocusListener(new FocusListener()
 		{
-			consumer.setValue(toEdit.getConsumer());
-			description.setValue(toEdit.getDescription());
-			System.out.println(toEdit.getAllMessages().keySet());
-			subject.setValue(toEdit.getAllMessages().get(" ").getSubject());
-			body.setValue(toEdit.getAllMessages().get(" ").getBody());
-			setConsumerDesc();
-		}
-
+			
+			@Override
+			public void focus(FocusEvent event)
+			{
+				editSubject = true;
+				
+			}
+		});
+		subject.setImmediate(true);
 		
+		body.addFocusListener(new FocusListener()
+		{
+			
+			@Override
+			public void focus(FocusEvent event)
+			{
+				editSubject = false;
+				
+			}
+		});
+		body.setImmediate(true);
 		
 		consumer.addValueChangeListener(new ValueChangeListener()
 		{
@@ -113,8 +127,22 @@ public class MessageTemplateEditor extends VerticalLayout
 		});
 		consumer.setImmediate(true);
 		
+		if (editMode)
+		{
+			consumer.setValue(toEdit.getConsumer());
+			description.setValue(toEdit.getDescription());
+			if (toEdit.getAllMessages().get("") != null)
+			{
+				subject.setValue(toEdit.getAllMessages().get("").getSubject());
+				body.setValue(toEdit.getAllMessages().get("").getBody());		
+			}
+			setConsumerDesc();
+			name.setValue(toEdit.getName());
+			name.setReadOnly(true);
+		} else
+			name.setValue(msg.getMessage("MessageTemplatesEditor.defaultName"));
 		
-		main.addComponents(name, description, consumer, consumerDescription, buttonsSub, subject, buttonsBody ,body);
+		main.addComponents(name, description, consumer, consumerDescription, buttons, subject, body);
 		main.setSizeFull();
 		addComponent(main);
 	}
@@ -123,33 +151,39 @@ public class MessageTemplateEditor extends VerticalLayout
 	{
 		String n = name.getValue();
 		String desc = description.getValue();
-		String cons = consumer.getValue().toString();
-		
+		String cons = null;
+		if (consumer.getValue() != null)
+		{
+			 cons = consumer.getValue().toString();	
+		}
 		Map<String, Message> m = new HashMap<String, Message>();
 		Message ms = new Message(subject.getValue(), body.getValue());
-		m.put(" ", ms);
-
+		m.put("", ms);
 		return new MessageTemplate(n, desc, m, cons);
-
 	}
 	
 	private void setConsumerDesc()
 	{
+		if (consumer.getValue() == null)
+		{
+			return;
+		}
 		try
 		{
-			MessageTemplateConsumer con = registry.getByName(
-					consumer.getValue().toString());
+
+			MessageTemplateConsumer con = registry.getByName(consumer.getValue()
+					.toString());
 			consumerDescription.setValue(con.getDescription());
-			updateVarButtons(con, subject, buttonsSub);
-			updateVarButtons(con, body, buttonsBody);
+			updateVarButtons(con);
+
 		} catch (IllegalTypeException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
+			ErrorPopup.showError(msg,
+					msg.getMessage("MessageTemplatesEditor.errorConsumers"), e);
+		}
 	}
 	
-	private void updateVarButtons(MessageTemplateConsumer consumer, final AbstractTextField field, HorizontalLayout buttons)
+	private void updateVarButtons(MessageTemplateConsumer consumer)
 	{
 		buttons.removeAllComponents();
 		for (Map.Entry<String, String> var:consumer.getVariables().entrySet())
@@ -164,12 +198,13 @@ public class MessageTemplateEditor extends VerticalLayout
 				@Override
 				public void buttonClick(ClickEvent event)
 				{
-					String val = field.getValue();
-					int l = val.length();
-					String s = val.substring(0,field.getCursorPosition());
-					String f = val.substring(field.getCursorPosition());
-					field.setValue(s + "{" +b.getCaption() + "}" + f);
-					
+					if(editSubject)
+					{
+						addVar(subject, b.getCaption());
+					}else
+					{
+						addVar(body, b.getCaption());
+					}		
 				}
 			});		
 			buttons.addComponent(b);
@@ -178,6 +213,12 @@ public class MessageTemplateEditor extends VerticalLayout
 		
 	}
 	
-	
+	private void addVar(AbstractTextField f,String val)
+	{
+		String v = f.getValue();
+		String st = v.substring(0,f.getCursorPosition());
+		String fi = v.substring(f.getCursorPosition());
+		f.setValue(st + "{" + val + "}" + fi);
+	}
 
 }
