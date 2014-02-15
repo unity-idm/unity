@@ -54,7 +54,7 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
  * Binding irrelevant SAML logic: creation of a SAML authentication request and verification of the answer.
  * @author K. Benedyczak
  */
-public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExchange
+public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLExchange
 {
 	private SAMLSPProperties samlProperties;
 	private PKIManagement pkiMan;
@@ -63,7 +63,7 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 	private ExecutorsService executorsService;
 	private String responseConsumerAddress;
 	
-	public SAMLValidator(String name, String description, TranslationProfileManagement profileManagement, 
+	public SAMLVerificator(String name, String description, TranslationProfileManagement profileManagement, 
 			AttributesManagement attrMan, PKIManagement pkiMan, ReplayAttackChecker replayAttackChecker,
 			ExecutorsService executorsService, MultiMetadataServlet metadataServlet,
 			URL baseAddress, String baseContext)
