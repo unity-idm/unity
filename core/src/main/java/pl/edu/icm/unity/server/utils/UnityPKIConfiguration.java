@@ -48,12 +48,12 @@ public class UnityPKIConfiguration extends PropertiesHelper
 				setDescription("List of credentials. The subkey defines the credential name."));
 		
 		for (Map.Entry<String, PropertyMD> e: CredentialProperties.META.entrySet())
-			defaults.put(e.getKey(), e.getValue().setStructuredListEntry(CREDENTIALS));
+			defaults.put(e.getKey(), e.getValue().setStructuredListEntry(CREDENTIALS).setHidden());
 		
 		defaults.put(TRUSTSTORES, new PropertyMD().setStructuredList(false).
-				setDescription("List of truststores. The subkey deefines the truststore name."));
+				setDescription("List of truststores. The subkey defines the truststore name."));
 		for (Map.Entry<String, PropertyMD> e: TruststoreProperties.META.entrySet())
-			defaults.put(e.getKey(), e.getValue().setStructuredListEntry(TRUSTSTORES));
+			defaults.put(e.getKey(), e.getValue().setStructuredListEntry(TRUSTSTORES).setHidden());
 		
 		defaults.put(CERTIFICATES, new PropertyMD().setStructuredList(false).
 				setDescription("List of certificates."));

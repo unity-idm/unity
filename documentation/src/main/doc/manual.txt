@@ -1,7 +1,7 @@
 Unity Manual
 ============
 Unity Team <unity-idm-discuss@lists.sourceforge.net>
-:revnumber: 1.0.0
+:revnumber: 1.1.0
 :numbered:
 :toc: left
 :linkcss:
@@ -11,6 +11,8 @@ Unity Team <unity-idm-discuss@lists.sourceforge.net>
 include::introduction.txt[]
 
 include::installation.txt[]
+
+include::update.txt[]
 
 include::configuration.txt[]
 

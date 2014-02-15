@@ -68,8 +68,11 @@ public class AsciidoctorFormatter implements HelpFormatter
 		Set<DocumentationCategory> catsSet = new TreeSet<DocumentationCategory>(keysInCats.keySet());
 		for (DocumentationCategory cat: catsSet)
 		{
+			String formattedCategory = formatCategory(keysInCats.get(cat), pfx, metadata);
+			if (formattedCategory.length() == 0)
+				continue;	
 			ret.append("4+^e| --- " + cat.getName() + " ---");
-			ret.append(formatCategory(keysInCats.get(cat), pfx, metadata));
+			ret.append(formattedCategory);
 		}
 		ret.append("|=====================================================================\n");
 		return ret.toString();

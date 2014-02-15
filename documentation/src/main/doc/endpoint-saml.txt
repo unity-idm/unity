@@ -3,18 +3,22 @@
 
 Endpoint type:: +SAMLWebIdP+
 Binding:: Web (Vaadin)
-Exposed paths:: +/saml2idp-web+
+Exposed paths:: +/saml2idp-web+, +/metadata+
 
-This endpoint exposes the SAML 2 authentication interface, implementing the SSO profile
-of the SAML HTTP-POST binding. If you do not plan to use SOAP clients, this endpoint can be safely disabled.
+This endpoint exposes the SAML 2 authentication interface, implementing the SSO profile with the support for 
+the SAML HTTP-POST and HTTP-Redirect bindings.
 
 The endpoint first authenticates the redirected client, then presents a confirmation screen
-where a user can review and alter returned information and after acceptance redirects the user 
+where a user can review and alter a returned information and, after acceptance, redirects the user 
 to the SAML Service Provider with a SAML response.
 
-The options of the endpoint (besides the standard ones for the binding) are:
+The metadata related features and configuration is the same as in the case of remote SAML authenticator 
+(<<saml-metadata>>) with the exception that the metadata is published under the endpoint's address with 
+the constant +/metadata+ suffix.
 
-include::ref-samlProperties.txt[]
+The options of the endpoint (besides the standard options for all Web endpoints) are:
+
+include::ref-samlIdPProperties.txt[]
 
 
 [[endp-ws-saml]]
@@ -22,29 +26,30 @@ include::ref-samlProperties.txt[]
 
 Endpoint type:: +SAMLSoapIdP+
 Binding:: Web Service (CXF)
-Exposed paths:: +/saml2idp-soap+
+Exposed paths:: +/saml2idp-soap+, +/metadata+
 
 This endpoint exposes the SAML 2 authentication interface, exposing the functionality of the 
 Attribute Query and Authentication SAML protocols over the SAML SOAP binding.
 
-The SAML options are the same as in the case of the <<endp-web-saml>>.
+The SAML options and metadata notes are the same as in the case of the <<endp-web-saml>>.
+
 
 [[endp-web-unicore]]
 === UNICORE Web SAML SSO endpoint
 
 Endpoint type:: +SAMLUnicoreWebIdP+
 Binding:: Web (Vaadin)
-Exposed paths:: +/saml2unicoreIdp-web+
+Exposed paths:: +/saml2unicoreIdp-web+, +metadata+
 
 This endpoint is a slightly enhanced <<endp-web-saml>>, with the UNICORE 7 Grid middleware support.
-It is useful for UNICORE portal SAML authentication, if you don't integrate Unity with UNICORE portal 
+It is useful for UNICORE portal SAML authentication, so if you don't integrate UNICORE portal with Unity 
 don't use this endpoint.
 
 The endpoint is configured in the same way as the <<endp-web-saml>>, the only functional difference is  
-that it allow to generate and return UNICORE 7 trust delegations make for the relaying party.
+that it allow to generate and return UNICORE 7 trust delegations made for the relaying party.
 
 Only the users with the X.500 identity (among others identities) may use this endpoint. However neither 
-authentication with certificate nor possession of a X.509 certificate is not required.
+authentication with certificate nor possession of a X.509 certificate is required.
 
 
 [[endp-ws-unicore]]
@@ -52,14 +57,14 @@ authentication with certificate nor possession of a X.509 certificate is not req
 
 Endpoint type:: +SAMLUnicoreSoapIdP+
 Binding:: Web Service (CXF)
-Exposed paths:: +/saml2unicoreidp-soap+
+Exposed paths:: +/saml2unicoreidp-soap+, +metadata+
 
-This endpoint is a slightly enhanced <<endp-ws-saml>>, with the UNICORE 7 Grid middleware support.
-It is useful for UNICORE standalone client (e.g. UCC) SAML authentication, if you don't integrate Unity with 
-UNICORE don't use this endpoint.
+This endpoint is a slightly enhanced version of <<endp-ws-saml>>, with the UNICORE 7 Grid middleware support.
+It is useful for UNICORE standalone client (e.g. UCC) SAML authentication, if you don't integrate UNICORE with 
+Unity this endpoint is useless.
 
 The endpoint is configured in the same way as the <<endp-ws-saml>>, the only functional difference is  
-that it generates and return UNICORE 7 trust delegations make for the client.
+that it generates and return UNICORE 7 trust delegations made for the client.
 
 Only the users with the X.500 identity (among others identities) may use this endpoint. However neither 
-authentication with certificate nor possession of a X.509 certificate is not required.
+authentication with certificate nor possession of a X.509 certificate is required.

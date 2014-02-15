@@ -16,7 +16,8 @@ The most important features of the Web Admin UI are:
 * Full attribute control (_Contents management tab_).
 * Management of registration forms, possibility to fill them instantly from the Web Admin UI and to manage
 the received requests (_Registrations management tab_).
-* Possibility to create and load database dumps  (_Server management tab_).
+* Possibility to create and load database dumps and to browse and trigger reconfiguration of 
+endpoints, authenticators and translation profiles (_Server management tab_).
 
 We hope that the UI is easy to use, therefore we limit the description to the following 
 screenshot with some hints. In case of troubles please let us know through the mailing list, 

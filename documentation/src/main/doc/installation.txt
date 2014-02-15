@@ -61,43 +61,6 @@ Stopping the server is simple as well:
 $> unity-idm-server-stop
 ----
 
-
-=== Update
-
-When using the +.tar.gz+ the update can be conveniently performed on a single machine, in a safe way: 
-
-. Install the updated version in a separate directory as in the case of a fresh installation.
-. Configure it with the settings of the running instance, however change the port to any other which is free. 
-. Apply any required changes in configuration, e.g. to enable new features of the updated version.
-. Create a dump of the server state on the running instance.
-. Start the new instance (next to the old one).
-. Load the dumped state to the new instance and test it.
-. If everything is all right stop it and change its port to the correct port used by the old service.
-. If needed, create an another, up-to-date dump of the old service state and stop it.
-. Start the new service and load the latest dump.
-. If needed reconfigure startup scripts to start the updated service, as well as update the +PATH+ variable to use
-new Unity binaries location. It is a good practice to have a symbolic link to the actual Unity installation directory
-that is used in the +PATH+ and startup scripts. Then it is possible to simply change its target to the updated 
-service directory.
-
-The above procedure is long but allows for a detailed testing of the service before rolling it out into production.
-Of course if you want to be quick and unsafe, you can skip the testing phase.
-
-If using the RPM installation method, the safe test drive of the updated system can be only performed with a help
-of an additional machine: install the updated version there first, upload the dump of the old instance and test it.
-If everything is all right then the actual update may take place: 
-
-. Create a dump of the database state.
-. Stop the old service.
-. Update the RPM using platform tools (usually +yum+).
-. Check if any configuration files needs to be updated (search for +.rpmnew+ files in /etc/unity-idm).
-. Start the new service.
-
-[NOTE] 
-The database dump can be created and loaded from the Web Admin UI, from the _Server maintenance_ tab.
-
-
-
 [id=quick_start]
 === Crucial facts to know before the first start
 
@@ -107,9 +70,10 @@ play around but before going into any real usage some reconfiguration is mandato
 
 Here we list the most important facts about the default configuration:
 
-- The server is configured to run on +localhost+ address on the port +2443+.
+- The server is configured to run on +localhost+ address on the port +2443+. Also the advertised address is localhost.
+All of those parameters need an update before going into production.
 - The server uses an insecure credential (its private key is well known) issued by an insecure CA, which is the only
-one trusted CA.
+one trusted CA. A real credential and truststore should be used for production.
 - The server uses an embedded H2 database. Its performance is fine, however it is not recommended in production 
 deployments where DB backups and high availability may easily become an requirement.
 - The server should be started by an unprivileged user. It is not required in case of using 

@@ -37,8 +37,8 @@
 [cols="<1,^1,<2", options="header"]
 |===
 |Feature 						| Status 						| Notes
-|SAML 2, Web SSO binding		| icon:check[role="green"]		| Full metadata support is missing
-|SAML 2, SOAP binding			| icon:check[role="green"]		| Full metadata support is missing
+|SAML 2, Web SSO profile		| icon:check[role="green"]		| 
+|SAML 2, SOAP binding			| icon:check[role="green"]		| 
 |Web admin interface			| icon:check[role="green"]		|
 |REST admin interface			| icon:exclamation[role="red"]	| Not yet available
 |Web user profile management	| icon:check[role="green"]		| Available however more functionality is required
@@ -57,7 +57,7 @@
 |===
 |Feature 						| Status 						| Notes
 |LDAP							| icon:check[role="green"]		|
-|SAML 2, Web SSO binding		| icon:exclamation[role="red"]	| Not yet available
+|SAML 2, Web SSO profile		| icon:check[role="green"]		|
 |OpenID 2						| icon:exclamation[role="red"]	| Not yet available
 |OAuth 1						| icon:exclamation[role="red"]	| Not yet available
 |OAuth 2						| icon:exclamation[role="red"]	| Not yet available
@@ -84,6 +84,8 @@
 |Feature 						| Status 						| Notes
 |User name						| icon:check[role="green"]		|
 |X.500 distinguished name (DN)	| icon:check[role="green"]		|
+|Persistent, anonymous id		| icon:check[role="green"]		|
+|Transient, anonymous id		| icon:exclamation[role="red"]	| Not yet available
 |URI							| icon:exclamation[role="red"]	| Not yet available
 |Other types					| icon:exclamation[role="red"]	| Not yet available
 |===
