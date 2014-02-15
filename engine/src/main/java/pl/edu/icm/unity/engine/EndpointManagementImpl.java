@@ -147,7 +147,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	@Override
 	public List<EndpointDescription> getEndpoints() throws AuthorizationException
 	{
-		authz.checkAuthorization(AuthzCapability.readInfo);
+		authz.checkAuthorization(AuthzCapability.maintenance);
 		List<WebAppEndpointInstance> endpoints = httpServer.getDeployedEndpoints();
 		List<EndpointDescription> ret = new ArrayList<EndpointDescription>(endpoints.size());
 		for (WebAppEndpointInstance endpI: endpoints)
