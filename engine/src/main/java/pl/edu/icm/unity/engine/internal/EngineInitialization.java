@@ -5,7 +5,12 @@
 package pl.edu.icm.unity.engine.internal;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -48,6 +54,7 @@ import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.FileWatcher;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.ServerInitializer;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -206,6 +213,7 @@ public class EngineInitialization extends LifecycleBase
 		initializeEndpoints();
 		initializeNotifications();
 		runInitializers();
+		startLogConfigurationMonitoring();
 	}
 	
 	
@@ -615,13 +623,60 @@ public class EngineInitialization extends LifecycleBase
 		}
 	}
 
+	private void startLogConfigurationMonitoring()
+	{
+		final String logConfig = System.getProperty("log4j.configuration");
+		if (logConfig == null)
+		{
+			log.warn("No log configuration file set.");
+			return;
+		}
+		Runnable r = new Runnable()
+		{
+			public void run()
+			{
+				try
+				{
+					reConfigureLog4j(logConfig);
+				} catch (MalformedURLException me)
+				{
+					throw new RuntimeException(me);
+				}
+			}
+		};
+		try
+		{
+			File logProperties = logConfig.startsWith("file:") ? new File(new URI(logConfig))
+					: new File(logConfig);
+			FileWatcher fw = new FileWatcher(logProperties, r);
+			final int DELAY = 7;
+			executors.getService().scheduleWithFixedDelay(fw, DELAY, DELAY, TimeUnit.SECONDS);
+			log.info("Started logging subsystem configuration file monitoring with " + 
+					DELAY + "s interval.");
+		} catch (URISyntaxException e)
+		{
+			log.warn("Logging configuration file is not a valid URI: '"+logConfig+"'", e);
+		} catch (FileNotFoundException e)
+		{
+			log.warn("Logging configuration file '"+logConfig+"' not found.");
+		}
+	}
+
+	/**
+	 * Re-configure log4j from the named properties file.
+	 */
+	private void reConfigureLog4j(String logConfig) throws MalformedURLException
+	{
+		log.info("Logging subsystem configuration file was modified, re-configuring logging.");
+		if (logConfig.startsWith("file:"))
+		{
+			PropertyConfigurator.configure(new URL(logConfig));
+		} else
+		{
+			PropertyConfigurator.configure(logConfig);
+		}
+	}
 }
-
-
-
-
-
-
 
 
 
