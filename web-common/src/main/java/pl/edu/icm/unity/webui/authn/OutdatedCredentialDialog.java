@@ -73,8 +73,8 @@ public class OutdatedCredentialDialog extends AbstractDialog
 	@Override
 	protected void onCancel()
 	{
-		AuthenticationProcessor.softLogout();
 		close();
+		AuthenticationProcessor.logoutAndRefresh();
 	}
 	
 	private void afterCredentialUpdate(final boolean changed)

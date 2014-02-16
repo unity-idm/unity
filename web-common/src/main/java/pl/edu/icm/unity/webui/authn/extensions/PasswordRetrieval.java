@@ -24,6 +24,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
@@ -205,7 +206,8 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 				return authenticationResult;
 			} catch (Exception e)
 			{
-				if (!(e instanceof IllegalCredentialException))
+				if (!(e instanceof IllegalCredentialException) && 
+						!(e instanceof IllegalIdentityValueException))
 					log.warn("Password verificator has thrown an exception", e);
 				passwordField.setComponentError(new UserError(
 						msg.getMessage("WebPasswordRetrieval.wrongPassword")));
