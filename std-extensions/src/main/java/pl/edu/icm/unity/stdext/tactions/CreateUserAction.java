@@ -84,7 +84,7 @@ public class CreateUserAction extends AbstractTranslationAction
 			try
 			{
 				Entity found = idsMan.getEntity(new EntityParam(checked.idParam));
-				if (existing != null && existing.getId() != found.getId())
+				if (existing != null && !existing.getId().equals(found.getId()))
 				{
 					log.info("Identity was mapped to two different entities: " + 
 							existing + " and " + found + ". Skipping.");
