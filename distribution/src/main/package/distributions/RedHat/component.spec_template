@@ -17,6 +17,9 @@ Unity is a complete identity and federation management solution. This package
 provides a self-contained Unity server. 
 
 %changelog
+* Mon Feb 17 2014 Krzysztof Benedyczak:
+- Updated etc structure.
+
 * Mon Dec 23 2013 Krzysztof Benedyczak:
 - Initial RPM packaging.
 
@@ -33,10 +36,10 @@ provides a self-contained Unity server.
 #
 %attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.conf"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.json"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.properties"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.p12"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.jks"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/authenticators/*"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/endpoints/*"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/pki/*"
 
 %attr(755, root, root) "/etc/rc.d/init.d/unity-idm-server"
 
