@@ -41,7 +41,17 @@ The database dump can be created and loaded from the Web Admin UI, from the _Ser
 
 ==== From 1.0.0 to 1.1.0
 
-In version 1.1.0 a centralized configuration of credentials and truststores was introduced.
+In the 1.1.0 version three important changes of configuration subsystem were introduced.
+
+The first change is a new mandatory option which needs to be added to the main configuration file. 
+
+ unityServer.core.httpServer.advertisedHost=unity.example.com
+ 
+The value of this option should contain an external/official address (IP is also allowed) of the server.
+This option is important whenever server listens on many interfaces (+0.0.0.0+ address) or is behind proxies,
+DNAT solutions etc.
+
+In the version 1.1.0 a centralized configuration of credentials and truststores was introduced.
 Therefore all of the credentials and truststores are now configured in a single file and referenced
 by name in other files. Configuration should be updated as follows:
 
