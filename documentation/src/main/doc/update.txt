@@ -7,6 +7,7 @@ When using the +.tar.gz+ the update can be conveniently performed on a single ma
 
 . Install the updated version in a separate directory as in the case of a fresh installation.
 . Configure it with the settings of the running instance, however change the port to any other which is free. 
+If using a database server as MySQL, be sure to use another, clean database.
 . Apply any required changes in configuration, e.g. to enable new features of the updated version.
 . Create a dump of the server state on the running instance.
 . Start the new instance (next to the old one).
@@ -30,10 +31,16 @@ If everything is all right then the actual update may take place:
 . Stop the old service.
 . Update the RPM using platform tools (usually +yum+).
 . Check if any configuration files needs to be updated (search for +.rpmnew+ files in /etc/unity-idm).
+. Reconfigure the service to use a new, clean database or clean all the data from the existing one. In case of the
+embedded database it is needed to remove the files +/var/lib/unity-idm/data/unitydb\.*+. 
 . Start the new service.
 
 [NOTE] 
 The database dump can be created and loaded from the Web Admin UI, from the _Server maintenance_ tab.
+
+[NOTE] 
+If you plan to clean the database instead of configuring a new one it is always good to have a copy in case an 
+emergency downgrade. 
 
 
 [[ver-update]]
