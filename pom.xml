@@ -18,7 +18,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<scm.base>scm:git:https://git.assembla.com/unity-public.git</scm.base>
+		<scm.base>scm:git:git@git.assembla.com:unity-public.git</scm.base>
 		<jetty.version>8.1.14.v20131031</jetty.version>
 		<slf4j.version>1.7.6</slf4j.version>
 		<spring.version>4.0.1.RELEASE</spring.version>
