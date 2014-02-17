@@ -2,85 +2,78 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.messagetemplates;
+package pl.edu.icm.unity.webadmin.msgtemplate;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-import pl.edu.icm.unity.notifications.MessageTemplate;
-import pl.edu.icm.unity.notifications.MessageTemplate.Message;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
+import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 
 import com.vaadin.ui.AbstractTextField;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
 /**
+ * Simple component allowing to view all information about message template.
  * @author P. Piernik
  * 
  */
-public class MessageTemplateViewer extends CustomComponent
-{
-	private UnityMessageSource msg;
-	private Label name;
+public class MessageTemplateViewer extends SimpleMessageTemplateViewer
+{	
 	private Label description;
 	private Label consumer;
-	private List<Component> messages;
-	private FormLayout main;
-	
 
-	public MessageTemplateViewer(UnityMessageSource msg)
+	public MessageTemplateViewer(String caption, UnityMessageSource msg,
+			MessageTemplateManagement msgTempMan)
 	{
-		this.msg = msg;
-		initUI();
+		super(caption, msg, msgTempMan);
+		initUI(caption);
 	}
 
-	private void initUI()
-	{
-		messages = new ArrayList<Component>();
-		main = new FormLayout();
-		name = new Label();
-		name.setCaption(msg.getMessage("MessageTemplateViewer.name") + ":");
+	protected void initUI(String caption)
+	{	
+		super.initUI(caption);
+		main.setSpacing(true);
+		main.setMargin(true);
 		description = new Label();
 		description.setCaption(msg.getMessage("MessageTemplateViewer.description") + ":");
 		consumer = new Label();
 		consumer.setCaption(msg.getMessage("MessageTemplateViewer.consumer") + ":");
-		main.addComponents(name, description, consumer);		
-		main.setSizeFull();
-		setCompositionRoot(main);		
+		main.addComponent(consumer, 1);	
+		main.addComponent(description, 1);
+		
 	}
 
-	public void setInput(MessageTemplate template)
-	{
+	public void setTemplateInput(MessageTemplate template)
+	{       notSet.setVisible(false);
 		setEmpty();
 		if (template == null)
 		{
-			main.setVisible(false);
+			main.setVisible(false);	
 			return;
 		}
 		main.setVisible(true);
 		name.setValue(template.getName());
 		description.setValue(template.getDescription());
-		consumer.setValue(template.getConsumer());
+		String cons = template.getConsumer();
+		if (cons != null)
+		{
+			consumer.setValue(template.getConsumer());
+		}
 		for (Map.Entry<String, Message> entry : template.getAllMessages().entrySet())
 		{
-			
 			AbstractTextField subject = new DescriptionTextArea();
 			subject.setCaption(msg.getMessage("MessageTemplateViewer.subject")  + ":");
 			subject.setValue(entry.getValue().getSubject());
 			subject.setReadOnly(true);
-			subject.setId("subject");
 			AbstractTextField body = new DescriptionTextArea();
 			body.setCaption(msg.getMessage("MessageTemplateViewer.body")  + ":");
 			body.setValue(entry.getValue().getBody());
 			body.setReadOnly(true);
-			body.setId("body");
 			String lcle = entry.getKey().toString();
+//		 	For future, full support to locale. 
 			if (!lcle.equals(""))
 			{
 				Label locale = new Label();
@@ -98,16 +91,12 @@ public class MessageTemplateViewer extends CustomComponent
 
 	}
 
-	private void setEmpty()
+	protected void setEmpty()
 	{
-		name.setValue("");
+		super.setEmpty();
 		description.setValue("");
 		consumer.setValue("");
-		for (Component c : messages)
-		{
-			main.removeComponent(c);
-		}
-		messages.clear();
+		
 	}
 
 }

@@ -3,16 +3,16 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webadmin.messagetemplates;
+package pl.edu.icm.unity.webadmin.msgtemplate;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.notifications.MessageTemplate;
-import pl.edu.icm.unity.notifications.MessageTemplate.Message;
-import pl.edu.icm.unity.notifications.MessageTemplateConsumer;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateConsumer;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
@@ -50,7 +50,7 @@ public class MessageTemplateEditor extends VerticalLayout
 	private Label consumerDescription;
 	private boolean editMode;
 	private HorizontalLayout buttons;
-	private boolean editSubject;
+	private boolean subjectEdited;
 
 	public MessageTemplateEditor(UnityMessageSource msg,
 			MessageTemplateConsumersRegistry registry, MessageTemplate toEdit)
@@ -66,82 +66,85 @@ public class MessageTemplateEditor extends VerticalLayout
 	private void initUI(MessageTemplate toEdit)
 	{
 		
-		buttons = new HorizontalLayout();
-		FormLayout main = new FormLayout();
 		setWidth(100, Unit.PERCENTAGE);
 		setHeight(100, Unit.PERCENTAGE);
 		setSpacing(true);
+			
+		buttons = new HorizontalLayout();
+		buttons.setSpacing(false);
+		buttons.setMargin(false);
 		name = new RequiredTextField(msg);
-		name.setCaption(msg.getMessage("MessageTemplatesEditor.name"));
+		name.setCaption(msg.getMessage("MessageTemplatesEditor.name") + ":");
 		name.setSizeFull();
 		description = new DescriptionTextArea(
-				msg.getMessage("MessageTemplatesEditor.description"));
-		consumer = new ComboBox(msg.getMessage("MessageTemplatesEditor.consumer"));
+				msg.getMessage("MessageTemplatesEditor.description") + ":");
+		consumer = new ComboBox(msg.getMessage("MessageTemplatesEditor.consumer") + ":");
+		consumer.setImmediate(true);
+		consumer.setRequired(true);
 		Collection<MessageTemplateConsumer> consumers = registry.getAll();
 		for (MessageTemplateConsumer c : consumers)
 		{
 			consumer.addItem(c.getName());
 		}
 		consumerDescription = new Label();
+	
 		
 		subject = new DescriptionTextArea(
-				msg.getMessage("MessageTemplatesEditor.subject"));
-		body = new DescriptionTextArea(
-				msg.getMessage("MessageTemplatesEditor.body"));
-		
-		editSubject = true;
-		subject.addFocusListener(new FocusListener()
-		{
-			
-			@Override
-			public void focus(FocusEvent event)
-			{
-				editSubject = true;
-				
-			}
-		});
+				msg.getMessage("MessageTemplatesEditor.subject") + ":");
 		subject.setImmediate(true);
-		
-		body.addFocusListener(new FocusListener()
-		{
-			
+		subject.setRequired(true);
+		body = new DescriptionTextArea(
+				msg.getMessage("MessageTemplatesEditor.body") + ":");
+		body.setImmediate(true);
+		body.setRequired(true);
+		subjectEdited = true;
+		subject.addFocusListener(new FocusListener()
+		{	
 			@Override
 			public void focus(FocusEvent event)
 			{
-				editSubject = false;
+				subjectEdited = true;
 				
 			}
 		});
-		body.setImmediate(true);
+		body.addFocusListener(new FocusListener()
+		{	
+			@Override
+			public void focus(FocusEvent event)
+			{
+				subjectEdited = false;
+				
+			}
+		});
 		
 		consumer.addValueChangeListener(new ValueChangeListener()
 		{
-
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				setConsumerDesc();
+				setMessageConsumerDesc();
 			}
 
 			
 		});
-		consumer.setImmediate(true);
-		
+			
 		if (editMode)
-		{
-			consumer.setValue(toEdit.getConsumer());
-			description.setValue(toEdit.getDescription());
-			if (toEdit.getAllMessages().get("") != null)
-			{
-				subject.setValue(toEdit.getAllMessages().get("").getSubject());
-				body.setValue(toEdit.getAllMessages().get("").getBody());		
-			}
-			setConsumerDesc();
+		{	
 			name.setValue(toEdit.getName());
 			name.setReadOnly(true);
+			consumer.setValue(toEdit.getConsumer());
+			description.setValue(toEdit.getDescription());
+			Message ms = toEdit.getAllMessages().get("");
+			if (ms != null)
+			{
+				subject.setValue(ms.getSubject());
+				body.setValue(ms.getBody());		
+			}
+			setMessageConsumerDesc();	
 		} else
 			name.setValue(msg.getMessage("MessageTemplatesEditor.defaultName"));
 		
+		FormLayout main = new FormLayout();
 		main.addComponents(name, description, consumer, consumerDescription, buttons, subject, body);
 		main.setSizeFull();
 		addComponent(main);
@@ -158,11 +161,12 @@ public class MessageTemplateEditor extends VerticalLayout
 		}
 		Map<String, Message> m = new HashMap<String, Message>();
 		Message ms = new Message(subject.getValue(), body.getValue());
+//	 	Using empty locale!
 		m.put("", ms);
 		return new MessageTemplate(n, desc, m, cons);
 	}
 	
-	private void setConsumerDesc()
+	private void setMessageConsumerDesc()
 	{
 		if (consumer.getValue() == null)
 		{
@@ -170,7 +174,6 @@ public class MessageTemplateEditor extends VerticalLayout
 		}
 		try
 		{
-
 			MessageTemplateConsumer con = registry.getByName(consumer.getValue()
 					.toString());
 			consumerDescription.setValue(con.getDescription());
@@ -193,12 +196,11 @@ public class MessageTemplateEditor extends VerticalLayout
 			b.setCaption(var.getKey());
 			b.setDescription(var.getValue());
 			b.addClickListener(new Button.ClickListener()
-			{
-				
+			{		
 				@Override
 				public void buttonClick(ClickEvent event)
 				{
-					if(editSubject)
+					if(subjectEdited)
 					{
 						addVar(subject, b.getCaption());
 					}else
@@ -218,7 +220,7 @@ public class MessageTemplateEditor extends VerticalLayout
 		String v = f.getValue();
 		String st = v.substring(0,f.getCursorPosition());
 		String fi = v.substring(f.getCursorPosition());
-		f.setValue(st + "{" + val + "}" + fi);
+		f.setValue(st + "${" + val + "}" + fi);
 	}
 
 }

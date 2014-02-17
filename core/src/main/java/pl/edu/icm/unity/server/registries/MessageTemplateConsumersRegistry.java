@@ -9,7 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.notifications.MessageTemplateConsumer;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateConsumer;
 
 /**
  * Maintains a {@link MessageTemplateConsumer}s.

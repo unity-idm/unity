@@ -3,9 +3,9 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webadmin.messagetemplates;
+package pl.edu.icm.unity.webadmin.msgtemplate;
 
-import pl.edu.icm.unity.notifications.MessageTemplate;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 

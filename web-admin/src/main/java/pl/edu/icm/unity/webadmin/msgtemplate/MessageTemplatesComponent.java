@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webadmin.messagetemplates;
+package pl.edu.icm.unity.webadmin.msgtemplate;
 
 import java.util.Collection;
 
@@ -12,7 +12,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.notifications.MessageTemplate;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -72,8 +72,8 @@ public class MessageTemplatesComponent extends VerticalLayout
 				});
 		
 		table.setWidth(90, Unit.PERCENTAGE);
-		viewer = new MessageTemplateViewer(msg);
-		viewer.setInput(null);
+		viewer = new MessageTemplateViewer(null, msg, msgTempMan);
+		viewer.setTemplateInput(null);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
 			
@@ -84,7 +84,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 				if (item!=null)
 				{
 					MessageTemplate template = item.getElement();
-					viewer.setInput(template);
+					viewer.setTemplateInput(template);
 				}else
 				{
 					viewer.setInput(null);
@@ -118,6 +118,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 		{
 			Collection<MessageTemplate> templates = msgTempMan.listTemplates().values();
 			table.setInput(templates);
+			viewer.setTemplateInput(null);
 			removeAllComponents();
 			addComponent(main);
 		} catch (Exception e)

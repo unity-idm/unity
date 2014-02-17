@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.notifications.MessageTemplate;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -71,6 +71,11 @@ import com.vaadin.ui.themes.Reindeer;
  */
 public class RegistrationFormEditor extends VerticalLayout
 {
+	private static final String SUBMIT_CONSUMER = "SubmitForm";
+	private static final  String UPDATE_CONSUMER = "UpdateForm";
+	private static final  String REJECT_CONSUMER = "RejectForm";
+	private static final String ACCEPT_CONSUMER = "AcceptForm";
+	
 	private UnityMessageSource msg;
 	private GroupsManagement groupsMan;
 	private NotificationsManagement notificationsMan;
@@ -240,13 +245,13 @@ public class RegistrationFormEditor extends VerticalLayout
 		adminsNotificationGroup.setInput("/", true, true);
 		this.groups = adminsNotificationGroup.getGroups();
 		
-		submittedTemplate = getComboTemplates("SubmitForm");
+		submittedTemplate = getComboTemplates(SUBMIT_CONSUMER);
 		submittedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.submittedTemplate"));
-		updatedTemplate = getComboTemplates("UpdateForm");
+		updatedTemplate = getComboTemplates(UPDATE_CONSUMER);
 		updatedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.updatedTemplate"));
-		rejectedTemplate = getComboTemplates("RejectForm");
+		rejectedTemplate = getComboTemplates(REJECT_CONSUMER);
 		rejectedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.rejectedTemplate"));
-		acceptedTemplate = getComboTemplates("AcceptForm");
+		acceptedTemplate = getComboTemplates(ACCEPT_CONSUMER);
 		acceptedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.acceptedTemplate"));
 		
 		main.addComponents(name, description, publiclyAvailable, channel, adminsNotificationGroup,

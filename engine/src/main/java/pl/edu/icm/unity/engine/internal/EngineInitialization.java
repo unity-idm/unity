@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -25,10 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.configuration.FilePropertiesHelper;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
@@ -41,8 +36,8 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.notifications.MessageTemplate;
-import pl.edu.icm.unity.notifications.MessageTemplate.Message;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
@@ -78,6 +73,11 @@ import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.utils.LifecycleBase;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.configuration.FilePropertiesHelper;
 
 /**
  * Responsible for loading the initial state from database and starting background processes.
@@ -283,41 +283,41 @@ public class EngineInitialization extends LifecycleBase
 		Map<String, Message> msgList = new HashMap<String, Message>();
 		Message tempMsg = new Message(subject, body);
 		msgList.put("", tempMsg);
-		
-		Set<Object> keys = properties.keySet();
-		for (Object keyO: keys)
-		{
-			
-			String key = (String) keyO;
-			String pfx = id + ".body.";
-			String locale;
-			if (key.startsWith(pfx))
-			{       
-				locale = key.substring(pfx.length());
-				if(msgList.containsKey(locale))
-				{
-					msgList.get(locale).setBody(properties.getProperty(key));
-				}else
-				{
-					msgList.put(locale, new Message("", properties.getProperty(key)));
-				}
-				
-			}
-			pfx = id + ".subject.";
-			if (key.startsWith(pfx))
-			{
-				locale = key.substring(pfx.length());
-				if(msgList.containsKey(locale))
-				{
-					msgList.get(locale).setSubject(properties.getProperty(key));
-				}else
-				{
-					msgList.put(locale, new Message(properties.getProperty(key),""));
-				}
-				
-			}
-		
-		}
+//		For future, support to read all locales. 
+//		Set<Object> keys = properties.keySet();
+//		for (Object keyO: keys)
+//		{
+//			
+//			String key = (String) keyO;
+//			String pfx = id + ".body.";
+//			String locale;
+//			if (key.startsWith(pfx))
+//			{       
+//				locale = key.substring(pfx.length());
+//				if(msgList.containsKey(locale))
+//				{
+//					msgList.get(locale).setBody(properties.getProperty(key));
+//				}else
+//				{
+//					msgList.put(locale, new Message("", properties.getProperty(key)));
+//				}
+//				
+//			}
+//			pfx = id + ".subject.";
+//			if (key.startsWith(pfx))
+//			{
+//				locale = key.substring(pfx.length());
+//				if(msgList.containsKey(locale))
+//				{
+//					msgList.get(locale).setSubject(properties.getProperty(key));
+//				}else
+//				{
+//					msgList.put(locale, new Message(properties.getProperty(key),""));
+//				}
+//				
+//			}
+//		
+//		}
 		return new MessageTemplate(id, description, msgList, consumer);
 		
 	}

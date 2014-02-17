@@ -15,7 +15,7 @@ import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.notifications.MessageTemplate;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 
 /**

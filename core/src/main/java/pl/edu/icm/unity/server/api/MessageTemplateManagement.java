@@ -7,7 +7,7 @@ package pl.edu.icm.unity.server.api;
 import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.notifications.MessageTemplate;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 
 /**
  * This interface allows clients to manipulate message templates.

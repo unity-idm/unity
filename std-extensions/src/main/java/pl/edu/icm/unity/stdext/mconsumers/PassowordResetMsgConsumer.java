@@ -10,7 +10,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.notifications.MessageTemplateConsumer;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateConsumer;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 /**

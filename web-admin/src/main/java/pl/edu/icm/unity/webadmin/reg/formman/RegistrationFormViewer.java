@@ -17,7 +17,7 @@ import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
-import pl.edu.icm.unity.webadmin.notifications.TemplateViewer;
+import pl.edu.icm.unity.webadmin.msgtemplate.SimpleMessageTemplateViewer;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -45,10 +45,10 @@ public class RegistrationFormViewer extends VerticalLayout
 	private Label name;
 	private DescriptionTextArea description;
 	private Label publiclyAvailable;
-	private TemplateViewer submittedTemplate;
-	private TemplateViewer updatedTemplate;
-	private TemplateViewer rejectedTemplate;
-	private TemplateViewer acceptedTemplate;
+	private SimpleMessageTemplateViewer submittedTemplate;
+	private SimpleMessageTemplateViewer updatedTemplate;
+	private SimpleMessageTemplateViewer rejectedTemplate;
+	private SimpleMessageTemplateViewer acceptedTemplate;
 	private Label channel;
 	private Label adminsNotificationGroup;
 	
@@ -333,14 +333,14 @@ public class RegistrationFormViewer extends VerticalLayout
 		adminsNotificationGroup = new Label();
 		adminsNotificationGroup.setCaption(msg.getMessage("RegistrationFormViewer.adminsNotificationsGroup"));
 		
-		submittedTemplate = new TemplateViewer(msg.getMessage("RegistrationFormViewer.submittedTemplate"),
-				msgTempMan, msg);
-		updatedTemplate = new TemplateViewer(msg.getMessage("RegistrationFormViewer.updatedTemplate"),
-				msgTempMan, msg);
-		rejectedTemplate = new TemplateViewer(msg.getMessage("RegistrationFormViewer.rejectedTemplate"),
-				msgTempMan, msg);
-		acceptedTemplate = new TemplateViewer(msg.getMessage("RegistrationFormViewer.acceptedTemplate"),
-				msgTempMan, msg);
+		submittedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.submittedTemplate"),
+				msg, msgTempMan);
+		updatedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.updatedTemplate"),
+				msg, msgTempMan);
+		rejectedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.rejectedTemplate"),
+				msg, msgTempMan);
+		acceptedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.acceptedTemplate"),
+				msg, msgTempMan);
 		
 		main.addComponents(name, description, publiclyAvailable, channel, adminsNotificationGroup,
 				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate);

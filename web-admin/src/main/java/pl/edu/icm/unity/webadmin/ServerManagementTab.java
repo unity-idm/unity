@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webadmin.messagetemplates.MessageTemplatesComponent;
+import pl.edu.icm.unity.webadmin.msgtemplate.MessageTemplatesComponent;
 import pl.edu.icm.unity.webadmin.serverman.AuthenticatorsComponent;
 import pl.edu.icm.unity.webadmin.serverman.EndpointsComponent;
 import pl.edu.icm.unity.webadmin.serverman.ImportExportComponent;

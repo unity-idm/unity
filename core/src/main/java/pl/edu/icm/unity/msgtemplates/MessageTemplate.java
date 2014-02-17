@@ -2,15 +2,12 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.notifications;
+package pl.edu.icm.unity.msgtemplates;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.DescribedObjectImpl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,13 +41,13 @@ public class MessageTemplate extends DescribedObjectImpl
 		setDescription(description);
 	}
 	
-	public MessageTemplate(String json, ObjectMapper jsonMapper, MessageTemplateConsumersRegistry registry)
+	public MessageTemplate(String json, ObjectMapper jsonMapper)
 	{
-		fromJson(json, jsonMapper, registry);
+		fromJson(json, jsonMapper);
 	}
 	
 
-	private void fromJson(String json, ObjectMapper jsonMapper, MessageTemplateConsumersRegistry registry)
+	private void fromJson(String json, ObjectMapper jsonMapper)
 	{
 		try
 		{
@@ -123,12 +120,13 @@ public class MessageTemplate extends DescribedObjectImpl
 	
 	private Message getMsg(Map<String, Message> messagesByLocale, Map<String, String> params)
 	{
+	// 	Using empty locale!
 	//	Locale loc = UnityMessageSource.getLocale(defaultLocale);
 		Message msg = messagesByLocale.get("");
 		for (Map.Entry<String, String> paramE: params.entrySet())
 		{
-			msg.setSubject(msg.getSubject().replace("${"+paramE.getKey()+"}", paramE.getValue()));
-		        msg.setBody(msg.getBody().replace("${"+paramE.getKey()+"}", paramE.getValue()));
+			msg.setSubject(msg.getSubject().replace("${" + paramE.getKey() + "}", paramE.getValue()));
+		        msg.setBody(msg.getBody().replace("${" + paramE.getKey() + "}", paramE.getValue()));
 		}
 		return msg;
 	}
@@ -137,11 +135,22 @@ public class MessageTemplate extends DescribedObjectImpl
 	{
 		return messagesByLocale;
 	}
+	
+	public void setAllMessages(Map<String, Message> messages)
+	{
+		this.messagesByLocale = messages;
+	}
 		
 	public static class Message
 	{
 		String body;
 		String subject;
+		
+		public Message(String subject, String body)
+		{
+			this.subject = subject;
+			this.body = body;
+		}	
 		
 		public void setBody(String body)
 		{
@@ -162,11 +171,5 @@ public class MessageTemplate extends DescribedObjectImpl
 		{
 			return subject;
 		}
-
-		public Message(String subject, String body)
-		{
-			this.subject = subject;
-			this.body = body;
-		}	
 	}
 }

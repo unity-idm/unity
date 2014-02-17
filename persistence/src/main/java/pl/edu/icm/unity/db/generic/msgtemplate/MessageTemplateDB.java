@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.generic.DependencyNotificationManager;
 import pl.edu.icm.unity.db.generic.GenericObjectsDB;
-import pl.edu.icm.unity.notifications.MessageTemplate;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 
 /**
  * Easy to use interface to {@link MessageTemplate} storage.
