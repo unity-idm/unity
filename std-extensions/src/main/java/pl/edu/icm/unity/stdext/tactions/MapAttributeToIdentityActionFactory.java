@@ -4,12 +4,14 @@
  */
 package pl.edu.icm.unity.stdext.tactions;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 /**
  * Factory for {@link MapAttributeToIdentityAction}.
@@ -20,15 +22,13 @@ import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory
 public class MapAttributeToIdentityActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "mapAttributeToIdentity";
+	private UnityMessageSource msg;
 	
-	private static final ActionParameterDesc[] PARAMS = {
-		new ActionParameterDesc(true, "attribute", 
-				"Value of attribute with this name will be used as a new identity value.", 20),
-		new ActionParameterDesc(true, "identityType", 
-				"A unity name of identity type to be used for the newly created identity.", 20),
-		new ActionParameterDesc(true, "credentialRequirement", "Credential requirement to be used " +
-				"for the identity in case a new entity is created from it.", 20)
-	};
+	@Autowired
+	public MapAttributeToIdentityActionFactory(UnityMessageSource msg)
+	{
+		this.msg = msg;
+	}
 	
 	@Override
 	public String getName()
@@ -39,13 +39,28 @@ public class MapAttributeToIdentityActionFactory implements TranslationActionFac
 	@Override
 	public String getDescription()
 	{
-		return "Maps a remote attribute to a local identity with a given type.";
+		return msg.getMessage("TranslationAction.mapAttributeToIdentity.desc");
 	}
 
 	@Override
 	public ActionParameterDesc[] getParameters()
 	{
-		return PARAMS;
+		return new ActionParameterDesc[] {
+				new ActionParameterDesc(
+						true,
+						msg.getMessage("TranslationAction.mapAttributeToIdentity.param.1.name"),
+						msg.getMessage("TranslationAction.mapAttributeToIdentity.param.1.desc"),
+						20),
+				new ActionParameterDesc(
+						true,
+						msg.getMessage("TranslationAction.mapAttributeToIdentity.param.2.name"),
+						msg.getMessage("TranslationAction.mapAttributeToIdentity.param.2.desc"),
+						20),
+				new ActionParameterDesc(
+						true,
+						msg.getMessage("TranslationAction.mapAttributeToIdentity.param.3.name"),
+						msg.getMessage("TranslationAction.mapAttributeToIdentity.param.3.desc"),
+						20) };
 	}
 
 	@Override

@@ -29,12 +29,11 @@ public class MessageTemplateViewer extends SimpleMessageTemplateViewer
 			MessageTemplateManagement msgTempMan)
 	{
 		super(caption, msg, msgTempMan);
-		initUI(caption);
+		initUI();
 	}
 
-	protected void initUI(String caption)
+	protected void initUI()
 	{	
-		super.initUI(caption);
 		main.setSpacing(true);
 		main.setMargin(true);
 		description = new Label();
@@ -47,7 +46,8 @@ public class MessageTemplateViewer extends SimpleMessageTemplateViewer
 	}
 
 	public void setTemplateInput(MessageTemplate template)
-	{       notSet.setVisible(false);
+	{   
+		notSet.setVisible(false);
 		setEmpty();
 		if (template == null)
 		{

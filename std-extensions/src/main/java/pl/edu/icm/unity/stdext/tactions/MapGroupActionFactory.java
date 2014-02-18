@@ -4,12 +4,14 @@
  */
 package pl.edu.icm.unity.stdext.tactions;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 /**
  * Factory for {@link MapGroupAction}.
@@ -20,13 +22,13 @@ import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory
 public class MapGroupActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "mapGroup";
-	
-	private static final ActionParameterDesc[] PARAMS = {
-		new ActionParameterDesc(true, "replaced", 
-				"Groups which have a name matching this regular expression will be mapped.", 20),
-		new ActionParameterDesc(true, "replacement", 
-				"A unity name of a group, may contain references to regexp groups from the first parameter.", 20)
-	};
+	private UnityMessageSource msg;
+		
+	@Autowired
+	public MapGroupActionFactory(UnityMessageSource msg)
+	{
+		this.msg = msg;
+	}
 	
 	@Override
 	public String getName()
@@ -37,13 +39,23 @@ public class MapGroupActionFactory implements TranslationActionFactory
 	@Override
 	public String getDescription()
 	{
-		return "Maps a remote group to a local group.";
+		return msg.getMessage("TranslationAction.mapGroup.desc");
 	}
 
 	@Override
 	public ActionParameterDesc[] getParameters()
 	{
-		return PARAMS;
+		return new ActionParameterDesc[] {
+				new ActionParameterDesc(
+						true,
+						msg.getMessage("TranslationAction.mapGroup.param.1.name"),
+						msg.getMessage("TranslationAction.mapGroup.param.1.desc"),
+						20),
+				new ActionParameterDesc(
+						true,
+						msg.getMessage("TranslationAction.mapGroup.param.2.name"),
+						msg.getMessage("TranslationAction.mapGroup.param.2.desc"),
+						20)};
 	}
 
 	@Override

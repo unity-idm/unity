@@ -36,7 +36,7 @@
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.serverman.ImportExportComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.serverman.EndpointsComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.serverman.AuthenticatorsComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.serverman.TranslationProfilesComponent"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.tprofile.TranslationProfilesComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.msgtemplate.MessageTemplatesComponent"/>
 	
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormsComponent"/>

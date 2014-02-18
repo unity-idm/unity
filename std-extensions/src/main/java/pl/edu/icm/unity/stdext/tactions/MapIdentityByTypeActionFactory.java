@@ -4,12 +4,14 @@
  */
 package pl.edu.icm.unity.stdext.tactions;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 /**
  * Factory for {@link MapAttributeToIdentityAction}.
@@ -20,15 +22,13 @@ import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory
 public class MapIdentityByTypeActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "mapIdentityByType";
+	private UnityMessageSource msg;
 	
-	private static final ActionParameterDesc[] PARAMS = {
-		new ActionParameterDesc(true, "sourceIdentityType", 
-				"Identity type to be mapped.", 20),
-		new ActionParameterDesc(true, "targetIdentityType", 
-				"Target unity name of identity type to be used instead of the original one.", 20),
-		new ActionParameterDesc(true, "credentialRequirement", "Credential requirement to be used " +
-				"for the identity in case a new entity is created from it.", 20)
-	};
+	@Autowired
+	public MapIdentityByTypeActionFactory(UnityMessageSource msg)
+	{
+		this.msg = msg;
+	}
 	
 	@Override
 	public String getName()
@@ -39,13 +39,28 @@ public class MapIdentityByTypeActionFactory implements TranslationActionFactory
 	@Override
 	public String getDescription()
 	{
-		return "Maps a remote identity by type to a local identity with a new type.";
+		return msg.getMessage("TranslationAction.mapIdentityByType.desc");
 	}
 
 	@Override
 	public ActionParameterDesc[] getParameters()
 	{
-		return PARAMS;
+		return new ActionParameterDesc[] {
+				new ActionParameterDesc(
+						true,
+						msg.getMessage("TranslationAction.mapIdentityByType.param.1.name"),
+						msg.getMessage("TranslationAction.mapIdentityByType.param.1.desc"),
+						20),
+				new ActionParameterDesc(
+						true,
+						msg.getMessage("TranslationAction.mapIdentityByType.param.2.name"),
+						msg.getMessage("TranslationAction.mapIdentityByType.param.2.desc"),
+						20),
+				new ActionParameterDesc(
+						true,
+						msg.getMessage("TranslationAction.mapIdentityByType.param.3.name"),
+						msg.getMessage("TranslationAction.mapIdentityByType.param.3.desc"),
+						20) };
 	}
 
 	@Override

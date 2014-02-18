@@ -14,6 +14,7 @@ import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 /**
  * Factory for {@link UpdateGroupsAction}
@@ -24,19 +25,15 @@ import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory
 public class UpdateGroupsActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "updateGroups";
-	
-	private static final ActionParameterDesc[] PARAMS = {
-		new ActionParameterDesc(true, "groups", 
-				"Regular expression selecting the groups to which the client should be added.", 20)
-	};
-	
+	private UnityMessageSource msg;
 	private GroupsManagement groupsMan;
 	private IdentitiesManagement idsMan;
 
 	@Autowired
 	public UpdateGroupsActionFactory(@Qualifier("insecure") GroupsManagement groupsMan, 
-			@Qualifier("insecure") IdentitiesManagement idsMan)
+			@Qualifier("insecure") IdentitiesManagement idsMan, UnityMessageSource msg)
 	{
+		this.msg = msg;
 		this.groupsMan = groupsMan;
 		this.idsMan = idsMan;
 	}
@@ -50,15 +47,15 @@ public class UpdateGroupsActionFactory implements TranslationActionFactory
 	@Override
 	public String getDescription()
 	{
-		return "Adds the client to the groups which were provided by the remote IdP. Only groups that " +
-				"has been previously mapped to the unity group are considered (other are ignored)." +
-				" A subset of all groups can be selected with parameter.";
+		return msg.getMessage("TranslationAction.updateGroups.desc");
 	}
 
 	@Override
 	public ActionParameterDesc[] getParameters()
 	{
-		return PARAMS;
+		return new ActionParameterDesc[] { new ActionParameterDesc(true,
+				msg.getMessage("TranslationAction.updateGroups.param.1.name"),
+				msg.getMessage("TranslationAction.updateGroups.param.1.desc"), 20) };
 	}
 
 	@Override

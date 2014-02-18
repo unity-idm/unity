@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webadmin.msgtemplate;
+package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.Collection;
 
@@ -12,9 +12,9 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.server.api.MessageTemplateManagement;
-import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
+import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
+import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -41,53 +41,52 @@ import com.vaadin.ui.VerticalLayout;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class MessageTemplatesComponent extends VerticalLayout
+public class TranslationProfilesComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
-	private MessageTemplateManagement msgTempMan;
-	private GenericElementsTable<MessageTemplate> table;
-	private MessageTemplateViewer viewer;
+	private TranslationProfileManagement profileMan;
+	private GenericElementsTable<TranslationProfile> table;
+	private TranslationProfileViewer viewer;
 	private com.vaadin.ui.Component main;
-	private MessageTemplateConsumersRegistry consumersRegistry;
+	private TranslationActionsRegistry tc;
 	
 	@Autowired
-	public MessageTemplatesComponent(UnityMessageSource msg,
-			MessageTemplateManagement msgTempMan,
-			MessageTemplateConsumersRegistry consumersRegistry)
+	public TranslationProfilesComponent(UnityMessageSource msg,
+			TranslationProfileManagement profileMan,
+			TranslationActionsRegistry tc)
 	{
 		this.msg = msg;
-		this.msgTempMan = msgTempMan;
-		this.consumersRegistry = consumersRegistry;
+		this.profileMan = profileMan;
+		this.tc = tc;
 		
 		HorizontalLayout hl = new HorizontalLayout();
-		setCaption(msg.getMessage("MessageTemplatesComponent.capion"));
-		table = new GenericElementsTable<MessageTemplate>(msg.getMessage("MessageTemplatesComponent.templatesTable"),
-				MessageTemplate.class,new GenericElementsTable.NameProvider<MessageTemplate>()
+		setCaption(msg.getMessage("TranslationProfilesComponent.capion"));
+		table = new GenericElementsTable<TranslationProfile>(msg.getMessage("TranslationProfilesComponent.profilesTable"),
+				TranslationProfile.class,new GenericElementsTable.NameProvider<TranslationProfile>()
 				{
 					@Override
-					public Label toRepresentation(MessageTemplate element)
+					public Label toRepresentation(TranslationProfile element)
 					{
 						return new Label(element.getName());
 					}
 				});
 		
 		table.setWidth(90, Unit.PERCENTAGE);
-		viewer = new MessageTemplateViewer(null, msg, msgTempMan);
-		viewer.setTemplateInput(null);
+		viewer = new TranslationProfileViewer(msg);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
 			
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				GenericItem<MessageTemplate> item = (GenericItem<MessageTemplate>)table.getValue();
+				GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>)table.getValue();
 				if (item!=null)
 				{
-					MessageTemplate template = item.getElement();
-					viewer.setTemplateInput(template);
+					TranslationProfile profile = item.getElement();
+					viewer.setInput(profile);
 				}else
 				{
-					viewer.setTemplateInput(null);
+					viewer.setInput(null);
 				}
 			}
 		});
@@ -116,59 +115,59 @@ public class MessageTemplatesComponent extends VerticalLayout
 	{
 		try
 		{
-			Collection<MessageTemplate> templates = msgTempMan.listTemplates().values();
-			table.setInput(templates);
-			viewer.setTemplateInput(null);
+			Collection<TranslationProfile> profiles = profileMan.listProfiles().values();
+			table.setInput(profiles);
+			viewer.setInput(null);
 			removeAllComponents();
 			addComponent(main);
 		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent();
-			error.setError(msg.getMessage("MessageTemplatesComponent.errorGetTemplates"), e);
+			error.setError(msg.getMessage("TranslationProfilesComponent.errorGetProfiles"), e);
 			removeAllComponents();
 			addComponent(error);
 		}
 		
 	}
 	
-	private boolean updateTemplate(MessageTemplate updatedTemplate)
+	private boolean updateProfile(TranslationProfile updatedProfile)
 	{
 		try
 		{
-			msgTempMan.updateTemplate(updatedTemplate);
+			profileMan.updateProfile(updatedProfile);
 			refresh();
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("MessageTemplatesComponent.errorUpdate"), e);
+			ErrorPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorUpdate"), e);
+			return false;
+		}
+	}
+		
+	private boolean addProfile(TranslationProfile profile)
+	{
+		try
+		{
+			profileMan.addProfile(profile);
+			refresh();
+			return true;
+		} catch (Exception e)
+		{
+			ErrorPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorAdd"), e);
 			return false;
 		}
 	}
 	
-	private boolean addTemplate(MessageTemplate template)
+	private boolean removeProfile(String name)
 	{
 		try
 		{
-			msgTempMan.addTemplate(template);
+			profileMan.removeProfile(name);
 			refresh();
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("MessageTemplatesComponent.errorAdd"), e);
-			return false;
-		}
-	}
-	
-	private boolean removeTemplate(String name)
-	{
-		try
-		{
-			msgTempMan.removeTemplate(name);
-			refresh();
-			return true;
-		} catch (Exception e)
-		{
-			ErrorPopup.showError(msg, msg.getMessage("MessageTemplatesComponent.errorRemove"), e);
+			ErrorPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorRemove"), e);
 			return false;
 		}
 	}
@@ -177,7 +176,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 	{
 		public RefreshActionHandler()
 		{
-			super(msg.getMessage("MessageTemplatesComponent.refreshAction"), Images.refresh.getResource());
+			super(msg.getMessage("TranslationProfilesComponent.refreshAction"), Images.refresh.getResource());
 			setNeedsTarget(false);
 		}
 
@@ -192,24 +191,24 @@ public class MessageTemplatesComponent extends VerticalLayout
 	{
 		public AddActionHandler()
 		{
-			super(msg.getMessage("MessageTemplatesComponent.addAction"), Images.add.getResource());
+			super(msg.getMessage("TranslationProfilesComponent.addAction"), Images.add.getResource());
 			setNeedsTarget(false);
 		}
 
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			MessageTemplateEditor editor;
+			TranslationProfileEditor editor;
 			
-			editor = new MessageTemplateEditor(msg, consumersRegistry, null);
+			editor = new TranslationProfileEditor(msg, tc, null);
 			
-			MessageTemplateEditDialog dialog = new MessageTemplateEditDialog(msg, 
-					msg.getMessage("MessageTemplatesComponent.addAction"), new MessageTemplateEditDialog.Callback()
+			TranslationProfileEditDialog dialog = new TranslationProfileEditDialog(msg, 
+					msg.getMessage("TranslationProfilesComponent.addAction"), new TranslationProfileEditDialog.Callback()
 					{
 						@Override
-						public boolean newTemplate(MessageTemplate template)
+						public boolean newProfile(TranslationProfile profile)
 						{
-							return addTemplate(template);
+							return addProfile(profile);
 						}
 					}, editor);
 			dialog.show();
@@ -220,25 +219,25 @@ public class MessageTemplatesComponent extends VerticalLayout
 	{
 		public EditActionHandler()
 		{
-			super(msg.getMessage("MessageTemplatesComponent.editAction"), Images.edit.getResource());
+			super(msg.getMessage("TranslationProfilesComponent.editAction"), Images.edit.getResource());
 		}
 
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
 			@SuppressWarnings("unchecked")
-			GenericItem<MessageTemplate> item = (GenericItem<MessageTemplate>) target;
-			MessageTemplateEditor editor;
+			GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>) target;
+			TranslationProfileEditor editor;
 			
-			editor = new MessageTemplateEditor(msg, consumersRegistry, item.getElement());
+			editor = new TranslationProfileEditor(msg, tc, item.getElement());
 			
-			MessageTemplateEditDialog dialog = new MessageTemplateEditDialog(msg, 
-					msg.getMessage("MessageTemplatesComponent.editAction"), new MessageTemplateEditDialog.Callback()
+			TranslationProfileEditDialog dialog = new TranslationProfileEditDialog(msg, 
+					msg.getMessage("TranslationProfilesComponent.editAction"), new TranslationProfileEditDialog.Callback()
 					{
 						@Override
-						public boolean newTemplate(MessageTemplate template)
+						public boolean newProfile(TranslationProfile profile)
 						{
-							return updateTemplate(template);
+							return updateProfile(profile);
 						}
 					}, editor);
 			dialog.show();
@@ -249,7 +248,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 	{
 		public DeleteActionHandler()
 		{
-			super(msg.getMessage("MessageTemplatesComponent.deleteAction"),
+			super(msg.getMessage("TranslationProfilesComponent.deleteAction"),
 					Images.delete.getResource());
 		}
 
@@ -257,24 +256,20 @@ public class MessageTemplatesComponent extends VerticalLayout
 		public void handleAction(Object sender, Object target)
 		{
 			@SuppressWarnings("unchecked")
-			GenericItem<MessageTemplate> item = (GenericItem<MessageTemplate>) target;
-			final MessageTemplate template = item.getElement();
+			GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>) target;
+			final TranslationProfile profile = item.getElement();
 			new ConfirmDialog(msg, msg.getMessage(
-					"MessageTemplatesComponent.confirmDelete",
-					template.getName()), new ConfirmDialog.Callback()
+					"TranslationProfilesComponent.confirmDelete",
+					profile.getName()), new ConfirmDialog.Callback()
 			{
 
 				@Override
 				public void onConfirm()
 				{
-					removeTemplate(template.getName());
+					removeProfile(profile.getName());
 
 				}
 			}).show();
 		}
 	}
-	
-	
-	
-	
 }

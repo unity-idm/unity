@@ -15,7 +15,6 @@ import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -25,13 +24,12 @@ import com.vaadin.ui.VerticalLayout;
  * @author P. Piernik
  *
  */
-public class SimpleMessageTemplateViewer extends CustomComponent
+public class SimpleMessageTemplateViewer extends VerticalLayout
 {
 
 	protected UnityMessageSource msg;
 	protected MessageTemplateManagement msgTempMan;
 	protected List<Component> messages;
-	protected VerticalLayout mainWrapper;
 	protected FormLayout main;
 	protected Label notSet;
 	protected Label name;
@@ -40,6 +38,7 @@ public class SimpleMessageTemplateViewer extends CustomComponent
 	public SimpleMessageTemplateViewer(String caption, UnityMessageSource msg,
 			MessageTemplateManagement msgTempMan)
 	{
+		super();
 		this.msg = msg;
 		this.msgTempMan = msgTempMan;
 		initUI(caption);
@@ -55,7 +54,6 @@ public class SimpleMessageTemplateViewer extends CustomComponent
 		}
 		messages = new ArrayList<Component>();
 		main = new FormLayout();
-		mainWrapper = new VerticalLayout();
 		name = new Label();
 		name.setCaption(msg.getMessage("MessageTemplateViewer.name") + ":");
 		main.addComponent(name);
@@ -64,9 +62,9 @@ public class SimpleMessageTemplateViewer extends CustomComponent
 		main.setSpacing(false);
 		notSet = new Label(msg.getMessage("MessageTemplateViewer.notSet"));
 		notSet.setVisible(false);
-		mainWrapper.addComponents(notSet, main);
-		mainWrapper.setSizeFull();
-		setCompositionRoot(mainWrapper);		
+		addComponents(notSet, main);
+		setSizeFull();
+				
 	}
 	
 	public void setInput(String template)
@@ -80,7 +78,7 @@ public class SimpleMessageTemplateViewer extends CustomComponent
 		}
 		notSet.setVisible(false);
 		main.setVisible(true);
-		name.setValue(template);;
+		name.setValue(template);
 		try
 		{
 			MessageTemplate templateC = msgTempMan.getTemplate(template);

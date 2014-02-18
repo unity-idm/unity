@@ -14,7 +14,7 @@ import pl.edu.icm.unity.webadmin.msgtemplate.MessageTemplatesComponent;
 import pl.edu.icm.unity.webadmin.serverman.AuthenticatorsComponent;
 import pl.edu.icm.unity.webadmin.serverman.EndpointsComponent;
 import pl.edu.icm.unity.webadmin.serverman.ImportExportComponent;
-import pl.edu.icm.unity.webadmin.serverman.TranslationProfilesComponent;
+import pl.edu.icm.unity.webadmin.tprofile.TranslationProfilesComponent;
 
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;

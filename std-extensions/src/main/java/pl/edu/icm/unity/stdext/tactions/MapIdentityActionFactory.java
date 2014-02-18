@@ -4,12 +4,14 @@
  */
 package pl.edu.icm.unity.stdext.tactions;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 /**
  * Factory for {@link MapIdentityAction}.
@@ -20,16 +22,13 @@ import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory
 public class MapIdentityActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "mapIdentity";
+	private UnityMessageSource msg;
 	
-	private static final ActionParameterDesc[] PARAMS = {
-		new ActionParameterDesc(true, "replaced", 
-				"Identities which have a name matching this regular expression will be mapped.", 20),
-		new ActionParameterDesc(true, "replacement", 
-				"A unity name of an identity, may contain references to regexp groups from the first parameter.", 20),
-		new ActionParameterDesc(true, "credential requirement", 
-				"Credential requirement that should be used for the identity, what is useful (and required) if the " +
-				"identity is going to be automatically created (later on, if missing and configured so).", 20)
-	};
+	@Autowired
+	public MapIdentityActionFactory(UnityMessageSource msg)
+	{
+		this.msg = msg;
+	}
 	
 	@Override
 	public String getName()
@@ -40,13 +39,28 @@ public class MapIdentityActionFactory implements TranslationActionFactory
 	@Override
 	public String getDescription()
 	{
-		return "Maps a remote identity to a local one.";
+		return msg.getMessage("TranslationAction.mapIdentity.desc");
 	}
 
 	@Override
 	public ActionParameterDesc[] getParameters()
 	{
-		return PARAMS;
+		return new ActionParameterDesc[] {
+				new ActionParameterDesc(
+						true,
+						msg.getMessage("TranslationAction.mapIdentity.param.1.name"),
+						msg.getMessage("TranslationAction.mapIdentity.param.1.desc"),
+						20),
+				new ActionParameterDesc(
+						true,
+						msg.getMessage("TranslationAction.mapIdentity.param.2.name"),
+						msg.getMessage("TranslationAction.mapIdentity.param.2.desc"),
+						20),
+				new ActionParameterDesc(
+						true,
+						msg.getMessage("TranslationAction.mapIdentity.param.3.name"),
+						msg.getMessage("TranslationAction.mapIdentity.param.3.desc"),
+						20) };
 	}
 
 	@Override

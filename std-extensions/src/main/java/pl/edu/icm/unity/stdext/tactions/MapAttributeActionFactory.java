@@ -4,12 +4,14 @@
  */
 package pl.edu.icm.unity.stdext.tactions;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 /**
  * Factory for {@link MapAttributeAction}.
@@ -20,14 +22,14 @@ import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory
 public class MapAttributeActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "mapAttribute";
+	private UnityMessageSource msg;
 	
-	private static final ActionParameterDesc[] PARAMS = {
-		new ActionParameterDesc(true, "replaced", 
-				"Attributes which have a name matching this regular expression will be mapped.", 20),
-		new ActionParameterDesc(true, "replacement", 
-				"A unity name of an attribute, may contain references to regexp groups from the first parameter.", 20),
-		new ActionParameterDesc(true, "group", "A target local group of the mapped attribute.", 20)
-	};
+	
+	@Autowired
+	public MapAttributeActionFactory(UnityMessageSource msg)
+	{
+		this.msg = msg;
+	}
 	
 	@Override
 	public String getName()
@@ -38,13 +40,28 @@ public class MapAttributeActionFactory implements TranslationActionFactory
 	@Override
 	public String getDescription()
 	{
-		return "Maps a remote attribute to a local attribute setting its group. The attribute name is changed to the new one.";
+		return msg.getMessage("TranslationAction.mapAttribute.desc");
 	}
 
 	@Override
 	public ActionParameterDesc[] getParameters()
 	{
-		return PARAMS;
+		return  new ActionParameterDesc[] {
+				new ActionParameterDesc(
+						true,
+						msg.getMessage("TranslationAction.mapAttribute.param.1.name"),
+						msg.getMessage("TranslationAction.mapAttribute.param.1.desc"),
+						20),
+				new ActionParameterDesc(
+						true,
+						msg.getMessage("TranslationAction.mapAttribute.param.2.name"),
+						msg.getMessage("TranslationAction.mapAttribute.param.2.desc"),
+						20),
+				new ActionParameterDesc(
+						true,
+						msg.getMessage("TranslationAction.mapAttribute.param.3.name"),
+						msg.getMessage("TranslationAction.mapAttribute.param.3.desc"),
+						20) };
 	}
 
 	@Override

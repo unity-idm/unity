@@ -13,6 +13,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 /**
  * Factory for {@link UpdateAttributesAction}
@@ -23,19 +24,13 @@ import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory
 public class UpdateAttributesActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "updateAttributes";
-	
-	private static final ActionParameterDesc[] PARAMS = {
-		new ActionParameterDesc(true, "pattern", 
-				"Regular expression describing which attributes should be updated", 20),
-		new ActionParameterDesc(true, "valuesOnly", 
-				"If true, then only the values of already existing attributes will be updated.", 10)
-	};
-	
 	private AttributesManagement attrsMan;
-
+	private UnityMessageSource msg;
+	
 	@Autowired
-	public UpdateAttributesActionFactory(@Qualifier("insecure") AttributesManagement attrsMan)
+	public UpdateAttributesActionFactory(@Qualifier("insecure") AttributesManagement attrsMan, UnityMessageSource msg)
 	{
+		this.msg = msg;
 		this.attrsMan = attrsMan;
 	}
 	
@@ -48,16 +43,23 @@ public class UpdateAttributesActionFactory implements TranslationActionFactory
 	@Override
 	public String getDescription()
 	{
-		return "Updates selected attributes of the client. Only attributes that has been previously mapped " +
-				"to local name and have assigned group scope can be updated (other are ignored)." +
-				" Can work in two modes: either all attributes are added/updated or only the values " +
-				"are updated for those attributes which are already present locally.";
+		return msg.getMessage("TranslationAction.updateAttributes.desc");
 	}
 
 	@Override
 	public ActionParameterDesc[] getParameters()
 	{
-		return PARAMS;
+		return new ActionParameterDesc[] {
+				new ActionParameterDesc(
+						true,
+						msg.getMessage("TranslationAction.updateAttributes.param.1.name"),
+						msg.getMessage("TranslationAction.updateAttributes.param.1.desc"),
+						20),
+				new ActionParameterDesc(
+						true,
+						msg.getMessage("TranslationAction.updateAttributes.param.2.name"),
+						msg.getMessage("TranslationAction.updateAttributes.param.2.desc"),
+						10) };
 	}
 
 	@Override
