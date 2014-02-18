@@ -5,9 +5,13 @@
 
 package pl.edu.icm.unity.webadmin.tprofile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webadmin.tprofile.RuleComponent.Callback;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 
@@ -27,6 +31,8 @@ public class TranslationProfileEditor extends VerticalLayout
 	private boolean editMode;
 	private AbstractTextField name;
 	private DescriptionTextArea description;
+	private FormLayout rulesL;
+	private List<RuleComponent> rules;
 	
 	public TranslationProfileEditor(UnityMessageSource msg,
 			TranslationActionsRegistry registry, TranslationProfile toEdit)
@@ -35,6 +41,7 @@ public class TranslationProfileEditor extends VerticalLayout
 		editMode = toEdit != null;
 		this.msg = msg;
 		this.registry = registry;
+		this.rules = new ArrayList<RuleComponent>();
 		initUI(toEdit);
 
 	}
@@ -63,10 +70,40 @@ public class TranslationProfileEditor extends VerticalLayout
 		} else
 			name.setValue(msg.getMessage("MessageTemplatesEditor.defaultName"));
 		
+		
+		for (int i = 0; i < 2; i++)
+		{
+
+			final RuleComponent r = new RuleComponent(msg, registry, new Callback()
+			{
+
+				@Override
+				public boolean moveUP(RuleComponent rule)
+				{
+					rules.set(0, rule);
+					refreshRules();
+					return true;
+				}
+			});
+			rules.add(r);
+		}
+		rulesL = new FormLayout();
+		rulesL.setImmediate(true);
+		refreshRules();
 		FormLayout main = new FormLayout();
-		main.addComponents(name, description);
+		main.addComponents(name, description,rulesL);
 		main.setSizeFull();
 		addComponent(main);
+	}
+
+	protected void refreshRules()
+	{
+		rulesL.removeAllComponents();
+		for(RuleComponent r:rules)
+		{
+			rulesL.addComponent(r);
+		}
+		
 	}
 
 	public TranslationProfile getProfile()
@@ -78,5 +115,6 @@ public class TranslationProfileEditor extends VerticalLayout
 		//return new MessageTemplate(n, desc, m, cons);
 		return null;
 	}
+	
 	
 }
