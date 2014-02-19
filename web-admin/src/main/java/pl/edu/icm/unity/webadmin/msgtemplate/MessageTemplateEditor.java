@@ -11,8 +11,8 @@ import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.msgtemplates.MessageTemplateConsumer;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateConsumer;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
@@ -30,7 +30,6 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -38,7 +37,7 @@ import com.vaadin.ui.themes.Reindeer;
  * @author P. Piernik
  *
  */
-public class MessageTemplateEditor extends VerticalLayout
+public class MessageTemplateEditor extends FormLayout
 {
 	private UnityMessageSource msg;
 	private MessageTemplateConsumersRegistry registry;
@@ -65,11 +64,6 @@ public class MessageTemplateEditor extends VerticalLayout
 
 	private void initUI(MessageTemplate toEdit)
 	{
-		
-		setWidth(100, Unit.PERCENTAGE);
-		setHeight(100, Unit.PERCENTAGE);
-		setSpacing(true);
-			
 		buttons = new HorizontalLayout();
 		buttons.setSpacing(false);
 		buttons.setMargin(false);
@@ -144,10 +138,10 @@ public class MessageTemplateEditor extends VerticalLayout
 		} else
 			name.setValue(msg.getMessage("MessageTemplatesEditor.defaultName"));
 		
-		FormLayout main = new FormLayout();
-		main.addComponents(name, description, consumer, consumerDescription, buttons, subject, body);
-		main.setSizeFull();
-		addComponent(main);
+		addComponents(name, description, consumer, consumerDescription, buttons, subject, body);
+		setSizeFull();
+		setSpacing(true);
+		
 	}
 
 	public MessageTemplate getTemplate()

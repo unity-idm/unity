@@ -19,6 +19,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 
 import com.vaadin.ui.AbstractTextField;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Button.ClickEvent;
@@ -40,7 +41,7 @@ public class TranslationProfileEditor extends VerticalLayout
 	private boolean editMode;
 	private AbstractTextField name;
 	private DescriptionTextArea description;
-	private FormLayout rulesL;
+	private FormLayout rulesLayout;
 	private List<RuleComponent> rules;
 	
 	public TranslationProfileEditor(UnityMessageSource msg,
@@ -56,23 +57,17 @@ public class TranslationProfileEditor extends VerticalLayout
 	}
 
 	private void initUI(TranslationProfile toEdit)
-	{
-		
-		setWidth(100, Unit.PERCENTAGE);
-		setHeight(100, Unit.PERCENTAGE);
-		setSpacing(true);
-		
-		rulesL = new FormLayout();
-		rulesL.setImmediate(true);
-		rulesL.setSpacing(false);
-		rulesL.setMargin(false);
+	{	
+		rulesLayout = new FormLayout();
+		rulesLayout.setImmediate(true);
+		rulesLayout.setSpacing(false);
+		rulesLayout.setMargin(false);
 		
 		name = new RequiredTextField(msg);
 		name.setCaption(msg.getMessage("TranslationProfileEditor.name") + ":");
 		name.setSizeFull();
 		description = new DescriptionTextArea(
 				msg.getMessage("TranslationProfileEditor.description") + ":");
-		
 		
 		if (editMode)
 		{	
@@ -85,11 +80,14 @@ public class TranslationProfileEditor extends VerticalLayout
 				
 			}
 		} else
+		{
 			name.setValue(msg.getMessage("TranslationProfileEditor.defaultName"));
+			addRuleComponent(null, true);
+		}
 		
 		
 		HorizontalLayout hl = new HorizontalLayout();
-		hl.setMargin(false);
+		hl.setSpacing(true);
 		Button addRule = new Button();
 		addRule.setDescription(msg.getMessage("TranslationProfileEditor.newRule"));
 		addRule.setIcon(Images.add.getResource());
@@ -108,12 +106,17 @@ public class TranslationProfileEditor extends VerticalLayout
 		Label t = new Label(msg.getMessage("TranslationProfileEditor.rules") + ":");
 		hl.addComponents(t, addRule);
 		
-		
-		refreshRules();
 		FormLayout main = new FormLayout();
-		main.addComponents(name, description, hl,rulesL);
+		main.addComponents(name, description);
 		main.setSizeFull();
-		addComponent(main);
+		
+		VerticalLayout wrapper = new VerticalLayout();
+		wrapper.addComponents(main, hl, rulesLayout);
+		wrapper.setMargin(false);
+		wrapper.setSpacing(false);
+		
+		addComponents(wrapper);
+		refreshRules();	
 	}
 
 	
@@ -178,7 +181,7 @@ public class TranslationProfileEditor extends VerticalLayout
 	
 	protected void refreshRules()
 	{
-		rulesL.removeAllComponents();
+		rulesLayout.removeAllComponents();
 		if (rules.size() == 0)
 			return;
 		
@@ -189,12 +192,11 @@ public class TranslationProfileEditor extends VerticalLayout
 		}
 		
 		rules.get(0).setUpVisible(false);
-		rules.get(rules.size()-1).setDownVisible(false);
-		
+		rules.get(rules.size()-1).setDownVisible(false);		
 		
 		for(RuleComponent r:rules)
 		{
-			rulesL.addComponent(r);
+			rulesLayout.addComponent(r);
 		}
 		
 		
@@ -209,7 +211,7 @@ public class TranslationProfileEditor extends VerticalLayout
 		{
 			if(!validated)
 				continue;
-			validated = cr.validateCondition();
+			validated = cr.validateRule();
 		}
 		
 		if (!validated)
@@ -222,7 +224,11 @@ public class TranslationProfileEditor extends VerticalLayout
 
 		for (RuleComponent cr : rules)
 		{
-			trules.add(cr.getRule());
+			TranslationRule r = cr.getRule();
+			if (r != null){
+				trules.add(r);
+			}
+			
 		}
 
 		TranslationProfile profile = new TranslationProfile(n, trules);

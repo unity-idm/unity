@@ -1,5 +1,7 @@
 package pl.edu.icm.unity.webadmin.tprofile;
 
+import java.util.ArrayList;
+
 import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -14,6 +16,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -24,10 +27,12 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
-public class RuleComponent extends FormLayout
+public class RuleComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private TranslationActionsRegistry tc;
@@ -37,6 +42,7 @@ public class RuleComponent extends FormLayout
 	private Callback callback;
 	private Button up;
 	private Button down;
+	private Label actionParams;
 	private boolean editMode;
 	
 	
@@ -45,14 +51,12 @@ public class RuleComponent extends FormLayout
 		this.callback = callback;
 		this.msg = msg;
 		this.tc = tc;
-		editMode = toEdit != null;
-		
+		editMode = toEdit != null;	
 		initUI(toEdit);
 	}
 
 	private void initUI(TranslationRule toEdit)
 	{
-		
 		up = new Button();
 		up.setDescription(msg.getMessage("TranslationProfileEditor.moveUp"));
 		up.setIcon(Images.upArrow.getResource());
@@ -73,8 +77,7 @@ public class RuleComponent extends FormLayout
 		down.setIcon(Images.downArrow.getResource());
 		down.addStyleName(Reindeer.BUTTON_SMALL);
 		down.addClickListener(new Button.ClickListener()
-		{
-			
+		{	
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
@@ -89,7 +92,6 @@ public class RuleComponent extends FormLayout
 		remove.addStyleName(Reindeer.BUTTON_SMALL);
 		remove.addClickListener(new Button.ClickListener()
 		{
-			
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
@@ -101,10 +103,19 @@ public class RuleComponent extends FormLayout
 		HorizontalLayout toolbar = new HorizontalLayout();
 		toolbar.setSpacing(false);
 		toolbar.setMargin(false);
-		toolbar.addComponents(up, down, remove);
+		HorizontalLayout buttonWrapper = new HorizontalLayout();
+		buttonWrapper.setSpacing(false);
+		buttonWrapper.setMargin(false);
+		
+		Label space = new Label();
+		buttonWrapper.addComponents(space ,up, down, remove);
+		toolbar.addComponents(space, buttonWrapper);
+		toolbar.setExpandRatio(space,2);
+		toolbar.setExpandRatio(buttonWrapper, 1);
+		toolbar.setWidth(100, Unit.PERCENTAGE);	
 		
 		paramsL = new FormLayout();
-		paramsL.setMargin(false);
+	//	paramsL.setMargin(false);
 		paramsL.setSpacing(false);
 		condition = new RequiredTextField(msg);
 		condition.setCaption(msg.getMessage("TranslationProfileEditor.ruleCondition") + ":");
@@ -150,6 +161,7 @@ public class RuleComponent extends FormLayout
 		{
 			actions.addItem(a.getName());
 		}
+		actions.setRequired(true);
 		actions.setImmediate(true);	
 		actions.addValueChangeListener(new ValueChangeListener()
 		{
@@ -168,20 +180,31 @@ public class RuleComponent extends FormLayout
 				
 			}
 		});
+			
+		Label separator = new Label();
+		separator.addStyleName(Styles.horizontalLine.toString());
+		
+		actionParams = new Label();
+		actionParams.setCaption(msg.getMessage("TranslationProfileEditor.actionParameters") + ":");
+		FormLayout main = new FormLayout();
+		main.setSpacing(false);
+		main.setMargin(false);
+		main.addComponents(condition, actions, actionParams);		
+			
+		addComponents(separator, toolbar, main, paramsL);	
+		setSpacing(false);
+		setMargin(false);
 		
 		if (editMode)
 		{	
 			condition.setValue(toEdit.getCondition().getCondition());
 			actions.setValue(toEdit.getAction().getName());		
 			setParams(actions.getValue().toString(), toEdit.getAction().getParameters());
+		}else
+		{
+			actionParams.setVisible(false);
 		}
 		
-		
-		
-		
-		
-		
-		addComponents(toolbar, condition, actions, paramsL);	
 	}
 	
 	private void setParams(String action,String[] values)
@@ -190,7 +213,8 @@ public class RuleComponent extends FormLayout
 		
 		if (action == null)
 		{
-			return;
+			actionParams.setVisible(false);
+			return;			
 		}
 		try
 		{
@@ -204,6 +228,7 @@ public class RuleComponent extends FormLayout
 				{
 					p.setValue(values[i]);
 				}
+				p.setRequired(params[i].isMandatory());
 
 				paramsL.addComponent(p);
 
@@ -214,24 +239,39 @@ public class RuleComponent extends FormLayout
 					msg.getMessage("TranslationProfileEditor.errorGetActions"),
 					e);
 		}
+		
+		actionParams.setVisible(paramsL.getComponentCount() != 0);
+		
+		
 	}
 	
 	
 	public TranslationRule getRule()
 	{
+		String ac = (String) actions.getValue();
+		if (ac == null)
+			return null;
+		
 		TranslationActionFactory f = null;
 		TranslationAction action = null;
 		try
 		{
-
+			
+			
 			f = tc.getByName(actions.getValue().toString());
-			String[] params = new String[paramsL.getComponentCount()];
+			ArrayList<String> params = new ArrayList<String>();
 			for (int i = 0; i < paramsL.getComponentCount(); i++)
 			{
 				AbstractTextField tc = (AbstractTextField) paramsL.getComponent(i);
-				params[i] = tc.getValue().toString();
+				String val = tc.getValue();
+				if (!val.isEmpty())
+				{
+					params.add(val);
+				}
 			}
-			action = f.getInstance(params);
+			String[] wrapper = new String[params.size()];
+			params.toArray(wrapper);
+			action = f.getInstance(wrapper);
 
 		} catch (EngineException e)
 		{
@@ -258,11 +298,17 @@ public class RuleComponent extends FormLayout
         	down.setVisible(v);
         }
         
-        public boolean validateCondition()
+        public boolean validateRule()
         {
         	try
         	{
+        		for (int i = 0; i < paramsL.getComponentCount(); i++)
+			{
+				AbstractTextField tc = (AbstractTextField) paramsL.getComponent(i);
+				tc.validate();
+			}
         		condition.validate();
+        		actions.validate();
         	}catch (Exception e)
         	{
         		return false;

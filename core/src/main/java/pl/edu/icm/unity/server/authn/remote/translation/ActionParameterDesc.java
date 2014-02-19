@@ -10,23 +10,23 @@ package pl.edu.icm.unity.server.authn.remote.translation;
  */
 public class ActionParameterDesc
 {
-	private boolean manadtory;
+	private boolean mandatory;
 	private String name;
 	private String description;
 	private int typicalSize;
 	
-	public ActionParameterDesc(boolean manadtory, String name, String description,
+	public ActionParameterDesc(boolean mandatory, String name, String description,
 			int typicalSize)
 	{
-		this.manadtory = manadtory;
+		this.mandatory = mandatory;
 		this.name = name;
 		this.description = description;
 		this.typicalSize = typicalSize;
 	}
 
-	public boolean isManadtory()
+	public boolean isMandatory()
 	{
-		return manadtory;
+		return mandatory;
 	}
 
 	public String getName()
