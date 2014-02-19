@@ -58,7 +58,9 @@ public enum Images
 	error		(I.P + "16/error.png"),
 	zoomin          (I.P + "16/zoom_in.png"),
 	zoomout         (I.P + "16/zoom_out.png"),
-	transfer        (I.P + "16/transfer.png");
+	transfer        (I.P + "16/transfer.png"),
+	upArrow         (I.P + "16/up.png"),
+	downArrow       (I.P + "16/down.png");
 	
 	
 	private final String classpath;

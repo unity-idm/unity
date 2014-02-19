@@ -66,6 +66,6 @@ public class MapIdentityByTypeActionFactory implements TranslationActionFactory
 	@Override
 	public TranslationAction getInstance(String... parameters) throws EngineException
 	{
-		return new MapAttributeToIdentityAction(parameters);
+		return new MapIdentityByTypeAction(parameters);
 	}
 }
