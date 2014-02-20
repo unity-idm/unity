@@ -60,7 +60,8 @@ public enum Images
 	zoomout         (I.P + "16/zoom_out.png"),
 	transfer        (I.P + "16/transfer.png"),
 	upArrow         (I.P + "16/up.png"),
-	downArrow       (I.P + "16/down.png");
+	downArrow       (I.P + "16/down.png"),
+	help       	(I.P + "16/help.png");
 	
 	
 	private final String classpath;

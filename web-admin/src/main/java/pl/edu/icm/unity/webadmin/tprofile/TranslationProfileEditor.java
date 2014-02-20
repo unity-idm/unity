@@ -19,20 +19,20 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 
 import com.vaadin.ui.AbstractTextField;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Component to edit or add translation profile
+ * 
  * @author P. Piernik
- *
+ * 
  */
 public class TranslationProfileEditor extends VerticalLayout
 {
@@ -43,49 +43,46 @@ public class TranslationProfileEditor extends VerticalLayout
 	private DescriptionTextArea description;
 	private FormLayout rulesLayout;
 	private List<RuleComponent> rules;
-	
 	public TranslationProfileEditor(UnityMessageSource msg,
 			TranslationActionsRegistry registry, TranslationProfile toEdit)
 	{
 		super();
-		editMode = toEdit != null;
 		this.msg = msg;
 		this.registry = registry;
 		this.rules = new ArrayList<RuleComponent>();
+		editMode = toEdit != null;
 		initUI(toEdit);
-
 	}
 
 	private void initUI(TranslationProfile toEdit)
-	{	
+	{
 		rulesLayout = new FormLayout();
 		rulesLayout.setImmediate(true);
 		rulesLayout.setSpacing(false);
 		rulesLayout.setMargin(false);
-		
+
 		name = new RequiredTextField(msg);
 		name.setCaption(msg.getMessage("TranslationProfileEditor.name") + ":");
 		name.setSizeFull();
 		description = new DescriptionTextArea(
 				msg.getMessage("TranslationProfileEditor.description") + ":");
-		
+
 		if (editMode)
-		{	
+		{
 			name.setValue(toEdit.getName());
 			name.setReadOnly(true);
 			description.setValue(toEdit.getDescription());
-			for (TranslationRule trule:toEdit.getRules())
-			{ 
-				addRuleComponent(trule, false);
-				
+			for (TranslationRule trule : toEdit.getRules())
+			{
+				addRuleComponent(trule);
+
 			}
 		} else
 		{
 			name.setValue(msg.getMessage("TranslationProfileEditor.defaultName"));
-			addRuleComponent(null, true);
+			addRuleComponent(null);
 		}
-		
-		
+
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.setSpacing(true);
 		Button addRule = new Button();
@@ -94,35 +91,34 @@ public class TranslationProfileEditor extends VerticalLayout
 		addRule.addStyleName(Reindeer.BUTTON_SMALL);
 		addRule.addClickListener(new ClickListener()
 		{
-			
+
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				addRuleComponent(null, true);
-				
+				addRuleComponent(null);
+
 			}
 		});
-		
+
 		Label t = new Label(msg.getMessage("TranslationProfileEditor.rules") + ":");
 		hl.addComponents(t, addRule);
-		
+
 		FormLayout main = new FormLayout();
 		main.addComponents(name, description);
 		main.setSizeFull();
-		
+
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.addComponents(main, hl, rulesLayout);
 		wrapper.setMargin(false);
 		wrapper.setSpacing(false);
-		
+
 		addComponents(wrapper);
-		refreshRules();	
+		refreshRules();
 	}
 
-	
-	private void addRuleComponent(TranslationRule trule, boolean toStart)
+	private void addRuleComponent(TranslationRule trule)
 	{
-		final RuleComponent r = new RuleComponent(msg, registry, trule, new Callback()
+		RuleComponent r = new RuleComponent(msg, registry, trule, new Callback()
 		{
 
 			@Override
@@ -159,7 +155,7 @@ public class TranslationProfileEditor extends VerticalLayout
 				return true;
 			}
 		});
-		if (toStart)
+		if (trule == null)
 		{
 			rules.add(0, r);
 		}
@@ -169,39 +165,32 @@ public class TranslationProfileEditor extends VerticalLayout
 			rules.add(r);
 		}
 		refreshRules();
-
 	}
-	
-	
+
 	private int getRulePosition(RuleComponent toCheck)
 	{
 		return rules.indexOf(toCheck);
-		
 	}
-	
+
 	protected void refreshRules()
 	{
 		rulesLayout.removeAllComponents();
 		if (rules.size() == 0)
 			return;
-		
-		for(RuleComponent r:rules)
+
+		for (RuleComponent r : rules)
 		{
 			r.setUpVisible(true);
 			r.setDownVisible(true);
 		}
-		
+
 		rules.get(0).setUpVisible(false);
-		rules.get(rules.size()-1).setDownVisible(false);		
-		
-		for(RuleComponent r:rules)
+		rules.get(rules.size() - 1).setDownVisible(false);
+
+		for (RuleComponent r : rules)
 		{
 			rulesLayout.addComponent(r);
 		}
-		
-		
-		
-		
 	}
 
 	public TranslationProfile getProfile()
@@ -209,33 +198,28 @@ public class TranslationProfileEditor extends VerticalLayout
 		boolean validated = true;
 		for (RuleComponent cr : rules)
 		{
-			if(!validated)
+			if (!validated)
 				continue;
 			validated = cr.validateRule();
 		}
-		
+
 		if (!validated)
 			return null;
-		
+
 		String n = name.getValue();
 		String desc = description.getValue();
-
 		List<TranslationRule> trules = new ArrayList<TranslationRule>();
-
 		for (RuleComponent cr : rules)
 		{
 			TranslationRule r = cr.getRule();
-			if (r != null){
+			if (r != null)
+			{
 				trules.add(r);
 			}
-			
-		}
 
+		}
 		TranslationProfile profile = new TranslationProfile(n, trules);
 		profile.setDescription(desc);
-
 		return profile;
-
 	}
-	
 }
