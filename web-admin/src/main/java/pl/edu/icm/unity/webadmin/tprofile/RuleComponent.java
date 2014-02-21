@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
@@ -54,7 +53,9 @@ public class RuleComponent extends VerticalLayout
 	private FormLayout paramsList;
 	private Callback callback;
 	private Button up;
+	private Button top;
 	private Button down;
+	private Button bottom;
 	private Label actionParams;
 	private boolean editMode;
 	private Image helpAction;
@@ -74,7 +75,8 @@ public class RuleComponent extends VerticalLayout
 		up = new Button();
 		up.setDescription(msg.getMessage("TranslationProfileEditor.moveUp"));
 		up.setIcon(Images.upArrow.getResource());
-		up.addStyleName(Reindeer.BUTTON_SMALL);
+		up.addStyleName(Reindeer.BUTTON_LINK);
+		up.addStyleName(Styles.toolbarButton.toString());
 		up.addClickListener(new Button.ClickListener()
 		{
 
@@ -85,11 +87,28 @@ public class RuleComponent extends VerticalLayout
 
 			}
 		});
+		
+		top = new Button();
+		top.setDescription(msg.getMessage("TranslationProfileEditor.moveTop"));
+		top.setIcon(Images.topArrow.getResource());
+		top.addStyleName(Reindeer.BUTTON_LINK);
+		top.addStyleName(Styles.toolbarButton.toString());
+		top.addClickListener(new Button.ClickListener()
+		{
+
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				callback.moveTop(RuleComponent.this);
+
+			}
+		});
 
 		down = new Button();
-		down.setDescription(msg.getMessage("TranslationProfileEditor.moveDown"));
+		down.setDescription(msg.getMessage("TranslationProfileEditor.moveTop"));
 		down.setIcon(Images.downArrow.getResource());
-		down.addStyleName(Reindeer.BUTTON_SMALL);
+		down.addStyleName(Reindeer.BUTTON_LINK);
+		down.addStyleName(Styles.toolbarButton.toString());
 		down.addClickListener(new Button.ClickListener()
 		{
 			@Override
@@ -99,11 +118,27 @@ public class RuleComponent extends VerticalLayout
 
 			}
 		});
+		bottom = new Button();
+		bottom.setDescription(msg.getMessage("TranslationProfileEditor.moveBottom"));
+		bottom.setIcon(Images.bottomArrow.getResource());
+		bottom.addStyleName(Reindeer.BUTTON_LINK);
+		bottom.addStyleName(Styles.toolbarButton.toString());
+		bottom.addClickListener(new Button.ClickListener()
+		{
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				callback.moveBottom(RuleComponent.this);
+
+			}
+		});
+		
 
 		Button remove = new Button();
 		remove.setDescription(msg.getMessage("TranslationProfileEditor.remove"));
 		remove.setIcon(Images.delete.getResource());
-		remove.addStyleName(Reindeer.BUTTON_SMALL);
+		remove.addStyleName(Reindeer.BUTTON_LINK);
+		remove.addStyleName(Styles.toolbarButton.toString());
 		remove.addClickListener(new Button.ClickListener()
 		{
 			@Override
@@ -122,7 +157,7 @@ public class RuleComponent extends VerticalLayout
 		buttonWrapper.setMargin(false);
 
 		Label space = new Label();
-		buttonWrapper.addComponents(space, up, down, remove);
+		buttonWrapper.addComponents(space, up, top, down, bottom, remove);
 		toolbar.addComponents(space, buttonWrapper);
 		toolbar.setExpandRatio(space, 2);
 		toolbar.setExpandRatio(buttonWrapper, 1);
@@ -334,6 +369,21 @@ public class RuleComponent extends VerticalLayout
 	{
 		down.setVisible(v);
 	}
+	
+	public void setTopVisible(boolean v)
+	{
+		top.setVisible(v);
+	}
+
+	public void setBottomVisible(boolean v)
+	{
+		bottom.setVisible(v);
+	}
+	
+	public void setFocus()
+	{
+		condition.focus();
+	}
 
 	public boolean validateRule()
 	{
@@ -356,10 +406,10 @@ public class RuleComponent extends VerticalLayout
 	public interface Callback
 	{
 		public boolean moveUp(RuleComponent rule);
-
 		public boolean moveDown(RuleComponent rule);
-
 		public boolean remove(RuleComponent rule);
+		public boolean moveTop(RuleComponent rule);
+		public boolean moveBottom(RuleComponent rule);
 	}
 
 }

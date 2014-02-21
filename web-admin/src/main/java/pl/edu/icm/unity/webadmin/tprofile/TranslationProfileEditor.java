@@ -17,7 +17,9 @@ import pl.edu.icm.unity.webadmin.tprofile.RuleComponent.Callback;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.Styles;
 
+import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -88,15 +90,14 @@ public class TranslationProfileEditor extends VerticalLayout
 		Button addRule = new Button();
 		addRule.setDescription(msg.getMessage("TranslationProfileEditor.newRule"));
 		addRule.setIcon(Images.add.getResource());
-		addRule.addStyleName(Reindeer.BUTTON_SMALL);
+		addRule.addStyleName(Reindeer.BUTTON_LINK);
+		addRule.addStyleName(Styles.toolbarButton.toString());
 		addRule.addClickListener(new ClickListener()
 		{
-
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
 				addRuleComponent(null);
-
 			}
 		});
 
@@ -154,16 +155,34 @@ public class TranslationProfileEditor extends VerticalLayout
 				refreshRules();
 				return true;
 			}
+
+			@Override
+			public boolean moveTop(RuleComponent rule)
+			{
+				int position = getRulePosition(rule);
+				rules.remove(position);
+				rules.add(0, rule);
+				refreshRules();
+				return true;
+			}
+
+			@Override
+			public boolean moveBottom(RuleComponent rule)
+			{
+				int position = getRulePosition(rule);
+				rules.remove(position);
+				rules.add(rule);
+				refreshRules();
+				return true;
+			}
 		});
+		
+		rules.add(r);
 		if (trule == null)
-		{
-			rules.add(0, r);
+		{			
+			r.setFocus();
 		}
 
-		else
-		{
-			rules.add(r);
-		}
 		refreshRules();
 	}
 
@@ -182,11 +201,20 @@ public class TranslationProfileEditor extends VerticalLayout
 		{
 			r.setUpVisible(true);
 			r.setDownVisible(true);
+			if (rules.size() > 2)
+			{
+				r.setTopVisible(true);
+				r.setBottomVisible(true);
+			}else
+			{
+				r.setTopVisible(false);
+				r.setBottomVisible(false);
+			}	
 		}
-
 		rules.get(0).setUpVisible(false);
+		rules.get(0).setTopVisible(false);
 		rules.get(rules.size() - 1).setDownVisible(false);
-
+		rules.get(rules.size() - 1).setBottomVisible(false);		
 		for (RuleComponent r : rules)
 		{
 			rulesLayout.addComponent(r);
@@ -202,10 +230,15 @@ public class TranslationProfileEditor extends VerticalLayout
 				continue;
 			validated = cr.validateRule();
 		}
-
 		if (!validated)
 			return null;
-
+		try
+		{
+			name.validate();
+		} catch (InvalidValueException e)
+		{
+			return null;
+		}
 		String n = name.getValue();
 		String desc = description.getValue();
 		List<TranslationRule> trules = new ArrayList<TranslationRule>();

@@ -60,7 +60,9 @@ public enum Images
 	zoomout         (I.P + "16/zoom_out.png"),
 	transfer        (I.P + "16/transfer.png"),
 	upArrow         (I.P + "16/up.png"),
+	topArrow	(I.P + "16/topArrow.png"),
 	downArrow       (I.P + "16/down.png"),
+	bottomArrow	(I.P + "16/bottomArrow.png"),
 	help       	(I.P + "16/help.png");
 	
 	
