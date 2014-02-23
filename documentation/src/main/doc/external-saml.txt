@@ -65,7 +65,8 @@ by creating and distributing such data out of bands, but Unity also allows to:
 - Sign the metadata, both the generated or manually provided, before it is published.
 
 Configuration reference provides the Metadata related settings. The metadata of an authenticator is published 
-under the path +/unitygw/saml-sp-metadata/NAME+, where name is configurable and used to distinguish the metadata of 
+under the path +/unitygw/saml-sp-metadata/NAME+, where +NAME+ is configurable with the 
++unity.saml.requester.requesterCredential+ property and is used to distinguish the metadata of 
 different SAML authenticators (as it is possible to configure more then one).
 
  
