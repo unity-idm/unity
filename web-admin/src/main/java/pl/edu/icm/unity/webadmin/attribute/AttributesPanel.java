@@ -415,6 +415,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 		{
 			List<AttributeType> allowed = new ArrayList<>(attributeTypes.size());
 			for (AttributeType at: attributeTypes.values())
+			{
+				if (at.isInstanceImmutable())
+					continue;
 				if (acHelper.isAllowed(at.getName()))
 				{
 					boolean used = false;
@@ -427,6 +430,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 					if (!used)
 						allowed.add(at);
 				}
+			}
 			
 			if (allowed.isEmpty())
 			{
