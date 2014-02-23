@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +33,6 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.unicore.util.configuration.ConfigurationException;
-
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
@@ -288,21 +288,9 @@ public class EngineInitialization extends LifecycleBase
 			{
 				log.info("Database contains no users, adding the admin user and the " +
 						"default credential settings");
-				CredentialDefinition credDef = new CredentialDefinition(PasswordVerificatorFactory.NAME,
-						DEFAULT_CREDENTIAL, "Default password credential with typical security settings.");
-				credDef.setJsonConfiguration("{\"minLength\": 1," +
-						"\"historySize\": 1," +
-						"\"minClassesNum\": 1," +
-						"\"denySequences\": false," +
-						"\"maxAge\": 30758400000}");
-				authnManagement.addCredentialDefinition(credDef);
 				
-				CredentialRequirements crDef = new CredentialRequirements(DEFAULT_CREDENTIAL_REQUIREMENT, 
-						"Default password credential requirement", 
-						Collections.singleton(credDef.getName()));
-				authnManagement.addCredentialRequirement(crDef);
-
-
+				CredentialDefinition credDef = createDefaultAdminCredential();
+				CredentialRequirements crDef = createDefaultAdminCredReq(credDef.getName());
 				
 				Identity adminId = idManagement.addEntity(admin, crDef.getName(), EntityState.valid, false);
 				
@@ -324,6 +312,60 @@ public class EngineInitialization extends LifecycleBase
 		{
 			throw new InternalException("Initialization problem when creating admin user", e);
 		}
+	}
+	
+	private CredentialDefinition createDefaultAdminCredential() throws EngineException
+	{
+		Collection<CredentialDefinition> existingCreds = 
+				authnManagement.getCredentialDefinitions();
+		String adminCredName = DEFAULT_CREDENTIAL;
+		Iterator<CredentialDefinition> credIt = existingCreds.iterator();
+		int i=1;
+		while (credIt.hasNext())
+		{
+			CredentialDefinition cred = credIt.next();
+			if (cred.getName().equals(adminCredName))
+			{
+				adminCredName = DEFAULT_CREDENTIAL + "_" + i;
+				i++;
+				credIt = existingCreds.iterator();
+			}
+		}
+		
+		CredentialDefinition credDef = new CredentialDefinition(PasswordVerificatorFactory.NAME,
+				adminCredName, "Default password credential with typical security settings.");
+		credDef.setJsonConfiguration("{\"minLength\": 1," +
+				"\"historySize\": 1," +
+				"\"minClassesNum\": 1," +
+				"\"denySequences\": false," +
+				"\"maxAge\": 30758400000}");
+		authnManagement.addCredentialDefinition(credDef);
+		return credDef;
+	}
+	
+	private CredentialRequirements createDefaultAdminCredReq(String credName) throws EngineException
+	{
+		Collection<CredentialRequirements> existingCRs = 
+				authnManagement.getCredentialRequirements();
+		String adminCredRName = DEFAULT_CREDENTIAL_REQUIREMENT;
+		Iterator<CredentialRequirements> credRIt = existingCRs.iterator();
+		int i=1;
+		while (credRIt.hasNext())
+		{
+			CredentialRequirements cr = credRIt.next();
+			if (cr.getName().equals(adminCredRName))
+			{
+				adminCredRName = DEFAULT_CREDENTIAL_REQUIREMENT + "_" + i;
+				i++;
+				credRIt = existingCRs.iterator();
+			}
+		}
+		
+		CredentialRequirements crDef = new CredentialRequirements(adminCredRName, 
+				"Default password credential requirement", 
+				Collections.singleton(credName));
+		authnManagement.addCredentialRequirement(crDef);
+		return crDef;
 	}
 	
 	private void initializeEndpoints()

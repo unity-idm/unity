@@ -50,6 +50,8 @@ public class TemplatesStore
 	
 	public NotificationTemplate getTemplate(String id) throws WrongArgumentException
 	{
+		if (id == null)
+			throw new WrongArgumentException("Template ID can not be null");
 		NotificationTemplate ret = cachedTemplates.get(id);
 		if (ret != null)
 			return ret;

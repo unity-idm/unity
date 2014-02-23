@@ -237,10 +237,14 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			sql.commit();
 			
 			RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-			notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(), 
+			if (notificationsCfg.getChannel() != null && notificationsCfg.getSubmittedTemplate() != null
+					&& notificationsCfg.getAdminsNotificationGroup() != null)
+			{
+				notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(), 
 					notificationsCfg.getChannel(), 
 					notificationsCfg.getSubmittedTemplate(),
 					getBaseNotificationParams(form.getName(), requestFull.getRequestId()));
+			}
 			return requestFull.getRequestId();
 		} finally
 		{
@@ -727,7 +731,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			AdminComment publicComment, AdminComment internalComment,
 			RegistrationFormNotifications notificationsCfg, SqlSession sql) throws EngineException
 	{
-		if (notificationsCfg.getChannel() == null)
+		if (notificationsCfg.getChannel() == null || templateId == null)
 			return;
 		Map<String, String> notifyParams = getBaseNotificationParams(formId, requestId);
 		notifyParams.put(VAR_PUB_COMMENT, publicComment == null ? "" : publicComment.getContents());
@@ -742,11 +746,14 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 						notifyParams);
 		}
 		
-		notifyParams.put(VAR_INTERNAL_COMMENT, internalComment == null ? "" : internalComment.getContents());
-		notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(), 
+		if (notificationsCfg.getAdminsNotificationGroup() != null)
+		{
+			notifyParams.put(VAR_INTERNAL_COMMENT, internalComment == null ? "" : internalComment.getContents());
+			notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(), 
 				notificationsCfg.getChannel(), 
 				templateId,
 				notifyParams);
+		}
 	}
 	
 	private String getRequesterAddress(RegistrationRequestState currentRequest, 
