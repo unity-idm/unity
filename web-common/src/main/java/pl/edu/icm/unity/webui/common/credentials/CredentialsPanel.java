@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.Log;
@@ -234,8 +235,7 @@ public class CredentialsPanel extends VerticalLayout
 			entity = idsMan.getEntity(new EntityParam(entityId));
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.getEntityError"), e);
-			throw e;
+			throw new InternalException(msg.getMessage("CredentialChangeDialog.getEntityError"), e);
 		}
 		
 		CredentialInfo ci = entity.getCredentialInfo();
@@ -251,15 +251,14 @@ public class CredentialsPanel extends VerticalLayout
 			
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.cantGetCredReqs"), e);
-			throw e;
+			throw new InternalException(msg.getMessage("CredentialChangeDialog.cantGetCredReqs"), e);
 		}
 		
 		if (credReq == null)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.noCredReqDef"), "");
-			log.fatal("Can not find credential requirement information, for the one set for the entity: " + credReqId);
-			throw new IllegalStateException("");
+			log.fatal("Can not find credential requirement information, for the one set for the entity: " 
+					+ credReqId);
+			throw new InternalException(msg.getMessage("CredentialChangeDialog.noCredReqDef"));
 		}
 		
 		try
@@ -267,8 +266,7 @@ public class CredentialsPanel extends VerticalLayout
 			allCreds = authnMan.getCredentialDefinitions();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.cantGetCredDefs"), e);
-			throw e;
+			throw new InternalException(msg.getMessage("CredentialChangeDialog.cantGetCredDefs"), e);
 		}
 		
 		credentials = new HashMap<String, CredentialDefinition>();
@@ -280,8 +278,7 @@ public class CredentialsPanel extends VerticalLayout
 		}
 		if (credentials.size() == 0)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"), msg.getMessage("CredentialChangeDialog.noCredentials"));
-			throw new IllegalStateException();
+			throw new InternalException(msg.getMessage("CredentialChangeDialog.noCredentials"));
 		}
 	}
 }

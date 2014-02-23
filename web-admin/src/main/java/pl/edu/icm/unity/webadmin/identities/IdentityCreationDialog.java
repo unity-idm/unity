@@ -13,6 +13,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Panel;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -57,7 +58,7 @@ public class IdentityCreationDialog extends AbstractDialog
 
 	
 	@Override
-	protected FormLayout getContents()
+	protected FormLayout getContents() throws EngineException
 	{
 		identityType = new ComboBox(msg.getMessage("IdentityCreation.idType"));
 		Set<String> supportedTypes = identityEditorReg.getSupportedTypes();

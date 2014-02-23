@@ -17,6 +17,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
@@ -74,7 +75,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 	}
 
 	@Override
-	protected FormLayout getContents()
+	protected FormLayout getContents() throws EngineException
 	{
 		FormLayout main = super.getContents();
 	
@@ -85,7 +86,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		{
 			ErrorPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("EntityCreation.cantGetAttrTypes"));
-			throw new IllegalStateException();
+			throw e1;
 		}
 		
 		addToGroup = new CheckBox(msg.getMessage("EntityCreation.addToGroup", initialGroup));
@@ -102,13 +103,13 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		{
 			ErrorPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("EntityCreation.cantGetcredReq"));
-			throw new IllegalStateException();
+			throw e;
 		}
 		if (credReqs.isEmpty())
 		{
 			ErrorPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("EntityCreation.credReqMissing"));
-			throw new IllegalStateException();
+			throw new IllegalCredentialException(msg.getMessage("EntityCreation.credReqMissing"));
 		}
 		for (CredentialRequirements cr: credReqs)
 		{

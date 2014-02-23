@@ -31,6 +31,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webadmin.preferences.PreferencesComponent;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
+import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.bigtab.BigTabPanel;
@@ -83,7 +84,10 @@ public class UserAccountComponent extends VerticalLayout
 		} catch (Exception e)
 		{
 			log.error("Error when creating user information view", e);
-			ErrorPopup.showError(msg, msg.getMessage("error"), e);
+			ErrorComponent errorC = new ErrorComponent();
+			errorC.setError(msg.getMessage("error") + ": " + ErrorPopup.getHumanMessage(e));
+			tabPanel.addTab("UserHomeUI.accountInfoLabel", "UserHomeUI.accountInfoDesc", 
+					Images.info64.getResource(), errorC);
 		}
 		
 		try
@@ -92,13 +96,17 @@ public class UserAccountComponent extends VerticalLayout
 					authnMan, idsMan, credEditorReg);
 			tabPanel.addTab("UserHomeUI.credentialsLabel", "UserHomeUI.credentialsDesc", 
 					Images.key64.getResource(), credentialsPanel);
-		} catch (AuthorizationException e)
-		{
-			//OK - rather shouldn't happen but the user is not authorized to even see the credentials.
 		} catch (Exception e)
 		{
-			log.error("Error when creating credentials view", e);
-			ErrorPopup.showError(msg, msg.getMessage("error"), e);
+			if (!(e instanceof AuthorizationException || 
+					(e.getCause() != null && e.getCause() instanceof AuthorizationException)))
+			{
+				log.error("Error when creating credentials view", e);
+				ErrorComponent errorC = new ErrorComponent();
+				errorC.setError(msg.getMessage("error") + ": " + ErrorPopup.getHumanMessage(e));
+				tabPanel.addTab("UserHomeUI.credentialsLabel", "UserHomeUI.credentialsDesc", 
+					Images.key64.getResource(), errorC);
+			}
 		}
 
 		PreferencesComponent preferencesComponent = new PreferencesComponent(msg, registry, prefMan, endpMan);
