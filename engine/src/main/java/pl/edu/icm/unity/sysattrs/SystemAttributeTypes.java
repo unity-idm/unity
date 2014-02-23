@@ -64,7 +64,10 @@ public class SystemAttributeTypes
 		Set<String> vals = authz.getRoleNames();
 		AttributeType authorizationAt = new AttributeType(AUTHORIZATION_ROLE, new EnumAttributeSyntax(vals));
 		authorizationAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
-		authorizationAt.setDescription("Defines what operations are allowed for the bearer.");
+		authorizationAt.setDescription("Defines what operations are allowed for the bearer. "
+				+ "The attribute of this type defines the access in the group where it is defined and "
+				+ "in all subgroups. In subgroup it can be redefined to grant more access."
+				+ " Roles:\n" + authz.getRolesDescription());
 		authorizationAt.setMinElements(1);
 		authorizationAt.setMaxElements(10);
 		authorizationAt.setUniqueValues(true);

@@ -535,7 +535,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			String attributeTypeId) throws EngineException
 	{
 		Collection<AttributeExt<?>> ret = getAllAttributesInternal(entity, true, groupPath, attributeTypeId, 
-				AuthzCapability.read, false);
+				new AuthzCapability[] {AuthzCapability.read}, false);
 		filterLocal(ret);
 		return ret;
 	}
@@ -550,13 +550,14 @@ public class AttributesManagementImpl implements AttributesManagement
 		try
 		{
 			return getAllAttributesInternal(entity, effective, groupPath, attributeTypeId, 
-					AuthzCapability.attributeModify, true);
+					new AuthzCapability[] {AuthzCapability.readHidden, AuthzCapability.read}, true);
 		} catch (AuthorizationException e)
 		{
 			if (allowDegrade)
 			{
 				Collection<AttributeExt<?>> ret = getAllAttributesInternal(entity, effective, 
-						groupPath, attributeTypeId, AuthzCapability.read, false);
+						groupPath, attributeTypeId, 
+						new AuthzCapability[] {AuthzCapability.read}, false);
 				filterLocal(ret);
 				return ret;
 			} else
@@ -577,7 +578,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	}
 	
 	private Collection<AttributeExt<?>> getAllAttributesInternal(EntityParam entity, boolean effective, String groupPath,
-			String attributeTypeName, AuthzCapability requiredCapability, boolean allowDisabled) throws EngineException
+			String attributeTypeName, AuthzCapability[] requiredCapability, boolean allowDisabled) throws EngineException
 	{
 		entity.validateInitialization();
 		SqlSession sql = db.getSqlSession(true);
