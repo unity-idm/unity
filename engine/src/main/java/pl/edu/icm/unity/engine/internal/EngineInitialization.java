@@ -489,7 +489,7 @@ public class EngineInitialization extends LifecycleBase
 
 			
 			String vJsonConfiguration = vConfigFile == null ? null : FileUtils.readFileToString(vConfigFile);
-			String rJsonConfiguration = FileUtils.readFileToString(rConfigFile);
+			String rJsonConfiguration = rConfigFile == null ? null : FileUtils.readFileToString(rConfigFile);
 			
 			if (!existing.containsKey(name))
 			{

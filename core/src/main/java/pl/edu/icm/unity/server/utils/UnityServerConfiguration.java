@@ -168,7 +168,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("For local authenticator the name of the local credential associated with it."));
 		defaults.put(AUTHENTICATOR_VERIFICATOR_CONFIG, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setCategory(initAuthnCat).
 				setDescription("Authenticator configuration file of the verificator"));
-		defaults.put(AUTHENTICATOR_RETRIEVAL_CONFIG, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setMandatory().setCategory(initAuthnCat).
+		defaults.put(AUTHENTICATOR_RETRIEVAL_CONFIG, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setCategory(initAuthnCat).
 				setDescription("Authenticator configuration file of the retrieval"));
 
 		defaults.put(CREDENTIALS, new PropertyMD().setStructuredList(true).setCategory(initCredCat).

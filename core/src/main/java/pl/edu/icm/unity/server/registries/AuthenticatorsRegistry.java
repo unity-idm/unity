@@ -115,4 +115,10 @@ public class AuthenticatorsRegistry
 			ret.addAll(authenticatorsByBinding.get(binding));
 		return ret;
 	}
+	
+	public Set<String> getAuthenticatorTypes()
+	{
+		return new HashSet<String>(authenticatorsById.keySet());
+	}
+	
 }
