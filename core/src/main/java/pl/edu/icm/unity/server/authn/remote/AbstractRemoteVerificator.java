@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
@@ -123,6 +124,9 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 			String profile)	throws EngineException
 	{
 		TranslationProfile translationProfile = profileManagement.listProfiles().get(profile);
+		if (translationProfile == null)
+			throw new ConfigurationException("The translation profile '" + profile + 
+					"' configured for the authenticator does not exist");
 		translationProfile.translate(input);
 	
 		RemotelyAuthenticatedContext ret = new RemotelyAuthenticatedContext(input.getIdpName());

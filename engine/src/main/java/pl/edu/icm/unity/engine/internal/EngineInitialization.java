@@ -636,10 +636,10 @@ public class EngineInitialization extends LifecycleBase
 						profileFile, e);
 			}
 			TranslationProfile tp = new TranslationProfile(json, jsonMapper, tactionsRegistry);
-			log.info(" - loaded translation profile: " + tp.getName() + " from " + profileFile);
 			try
 			{
 				profilesManagement.addProfile(tp);
+				log.info(" - loaded translation profile: " + tp.getName() + " from " + profileFile);
 			} catch (EngineException e)
 			{
 				throw new InternalException("Can't install the configured translation profile " 
