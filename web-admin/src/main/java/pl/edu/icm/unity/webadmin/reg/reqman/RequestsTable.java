@@ -56,7 +56,7 @@ public class RequestsTable extends CustomComponent
 		requestsTable.setSelectable(true);
 		requestsTable.setMultiSelect(false);
 		requestsTable.setContainerDataSource(tableContainer);
-		requestsTable.setVisibleColumns(new String[] {"form", "requestId", "submitTime", "status", 
+		requestsTable.setVisibleColumns(new Object[] {"form", "requestId", "submitTime", "status", 
 				"requestedIdentity"});
 		requestsTable.setColumnHeaders(new String[] {
 				msg.getMessage("RegistrationRequest.form"),

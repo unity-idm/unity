@@ -36,6 +36,7 @@ import com.vaadin.server.SessionInitEvent;
 import com.vaadin.server.SessionInitListener;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
+import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.VaadinServletService;
 import com.vaadin.server.VaadinSession;
@@ -100,7 +101,7 @@ public class UnityVaadinServlet extends VaadinServlet
 		Map<Class<?>, Object> saved = new HashMap<Class<?>, Object>();
 		saved.put(UI.class, UI.getCurrent());
 		saved.put(VaadinSession.class, VaadinSession.getCurrent());
-		saved.put(VaadinServlet.class, VaadinServlet.getCurrent());
+		saved.put(VaadinService.class, VaadinService.getCurrent());
 		saved.put(VaadinRequest.class, CurrentInstance.get(VaadinRequest.class));
 		saved.put(VaadinResponse.class, CurrentInstance.get(VaadinResponse.class));
 		return saved;
@@ -116,9 +117,9 @@ public class UnityVaadinServlet extends VaadinServlet
 		if (session != null)
 			VaadinSession.setCurrent(session);
 		
-		VaadinServlet servlet = (VaadinServlet) saved.get(VaadinServlet.class);
-		if (servlet != null)
-			VaadinServlet.setCurrent(servlet);
+		VaadinService service = (VaadinService) saved.get(VaadinService.class);
+		if (service != null)
+			VaadinService.setCurrent(service);
 
 		VaadinRequest request = (VaadinRequest) saved.get(VaadinRequest.class);
 		if (request != null)
@@ -206,6 +207,7 @@ public class UnityVaadinServlet extends VaadinServlet
 	
 	@Override
 	protected VaadinServletService createServletService(DeploymentConfiguration deploymentConfiguration) 
+			throws ServiceException 
 	{
 		final VaadinServletService service = super.createServletService(deploymentConfiguration);
 

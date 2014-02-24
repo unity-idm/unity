@@ -11,8 +11,10 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 
+import com.vaadin.annotations.Push;
 import com.vaadin.server.DefaultErrorHandler;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.shared.communication.PushMode;
 import com.vaadin.ui.UI;
 
 /**
@@ -20,6 +22,7 @@ import com.vaadin.ui.UI;
  * Currently proper error handling of unchecked exceptions.
  * @author K. Benedyczak
  */
+@Push(PushMode.MANUAL)
 public abstract class UnityUIBase extends UI implements UnityWebUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UnityUIBase.class);

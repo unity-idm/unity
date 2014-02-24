@@ -159,10 +159,23 @@ public class AuthenticationProcessor
 	public static void logout()
 	{
 		VaadinSession vs = VaadinSession.getCurrent();
-		WrappedSession s = vs.getSession();
+		final WrappedSession s = vs.getSession();
 		Page p = Page.getCurrent();
 		URI currentLocation = p.getLocation();
-		s.invalidate();
+		//FIXME - workaround for the Vaadin bug http://dev.vaadin.com/ticket/12346
+		// when the bug is fixed session should be invalidated in the current thread.
+		// the workaround is ugly - it is possible that the 'logout' thread completes after we return answer
+		// -> then user is logged out but no effect is visible automatically.
+		Thread logoutThread = new Thread()
+		{
+			@Override
+			public void run()
+			{
+				s.invalidate();
+			}
+		};
+		logoutThread.setPriority(Thread.MAX_PRIORITY);
+		logoutThread.start();
 		p.setLocation(currentLocation);
 	}
 	

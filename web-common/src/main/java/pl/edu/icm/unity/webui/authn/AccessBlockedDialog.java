@@ -5,13 +5,12 @@
 package pl.edu.icm.unity.webui.authn;
 
 import com.vaadin.server.VaadinService;
-import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.ProgressIndicator;
+import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
@@ -66,22 +65,21 @@ public class AccessBlockedDialog extends Window
 		Label info = new Label(msg.getMessage("AccessBlockedDialog.info"));
 		info.addStyleName(Styles.textLarge.toString());
 		info.addStyleName(Styles.bold.toString());
-		ProgressIndicator progress = new ProgressIndicator(0);
+		ProgressBar progress = new ProgressBar(0);
 		String ip = VaadinService.getCurrentRequest().getRemoteAddr();		
 		UnsuccessfulAuthenticationCounter counter = AuthenticationProcessor.getLoginCounter();
 		int initial = getRemainingBlockedTime(counter, ip);
 		progress.setCaption(msg.getMessage("AccessBlockedDialog.remaining", initial));
-		progress.setPollingInterval(1000);
 		progress.setWidth(300, Unit.PIXELS);
 		vl.addComponents(info, progress);
 		vl.setComponentAlignment(progress, Alignment.MIDDLE_CENTER);
 
 		main.addComponent(vl);
 		setContent(main);
-		UI.getCurrent().addWindow(this);
+		UI ui = UI.getCurrent();
+		ui.addWindow(this);
 		
-		execService.getService().submit(new WaiterThread(initial, progress, ip, counter,
-				VaadinSession.getCurrent()));
+		execService.getService().submit(new WaiterThread(initial, progress, ip, counter, ui));
 	}
 	
 	private int getRemainingBlockedTime(UnsuccessfulAuthenticationCounter counter, String ip)
@@ -92,19 +90,19 @@ public class AccessBlockedDialog extends Window
 	private class WaiterThread extends UIBgThread
 	{
 		private int initial;
-		private ProgressIndicator progress;
+		private ProgressBar progress;
 		private String ip;
 		private UnsuccessfulAuthenticationCounter counter;
-		private VaadinSession session;
+		private UI ui;
 		
-		public WaiterThread(int initial, ProgressIndicator progress, String ip, 
-				UnsuccessfulAuthenticationCounter counter, VaadinSession session)
+		public WaiterThread(int initial, ProgressBar progress, String ip, 
+				UnsuccessfulAuthenticationCounter counter, UI ui)
 		{
 			this.initial = initial;
 			this.progress = progress;
 			this.ip = ip;
 			this.counter = counter;
-			this.session = session;
+			this.ui = ui;
 		}
 		
 		@Override
@@ -113,15 +111,18 @@ public class AccessBlockedDialog extends Window
 			int remaining;
 			while ((remaining = getRemainingBlockedTime(counter, ip)) > 0)
 			{
-				session.lock();
-				try
+				final int remainingF = remaining; 
+				ui.accessSynchronously(new Runnable()
 				{
-					progress.setCaption(msg.getMessage("AccessBlockedDialog.remaining", remaining));
-					progress.setValue(1-(remaining/(float)initial));
-				} finally
-				{
-					session.unlock();
-				}
+					@Override
+					public void run()
+					{
+						progress.setCaption(msg.getMessage("AccessBlockedDialog.remaining", 
+								remainingF));
+						progress.setValue(1-(remainingF/(float)initial));
+						ui.push();
+					}
+				});
 				try
 				{
 					Thread.sleep(500);
@@ -130,14 +131,15 @@ public class AccessBlockedDialog extends Window
 					//ignore
 				}
 			}
-			session.lock();
-			try
+			ui.accessSynchronously(new Runnable()
 			{
-				close();
-			} finally
-			{
-				session.unlock();
-			}
+				@Override
+				public void run()
+				{
+					close();
+					ui.push();
+				}
+			});
 		}
 	}
 }
