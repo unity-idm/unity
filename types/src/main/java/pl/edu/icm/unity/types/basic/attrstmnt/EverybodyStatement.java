@@ -62,6 +62,9 @@ public class EverybodyStatement extends AttributeStatement
 			Map<String, Map<String, AttributeExt<?>>> directedAttributesByGroup,
 			Set<String> allGroups)
 	{
+		String ourGroup = assignedAttribute.getGroupPath();
+		if (!allGroups.contains(ourGroup))
+			return null;
 		return assignedAttribute;
 	}
 }

@@ -563,6 +563,47 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 
 	}	
 	
+	@Test
+	public void testCopyFromSubgroup() throws Exception
+	{
+		setupMockAuthn();
+		
+		AttributeType at = createSimpleAT("a1");
+		attrsMan.addAttributeType(at);
+		AttributeType at1 = createSimpleAT("a2");
+		at1.setMaxElements(Integer.MAX_VALUE);
+		attrsMan.addAttributeType(at1);
+		
+		groupA = new Group("/A");
+		groupsMan.addGroup(groupA);
+		
+		groupAB = new Group("/A/B");
+		groupsMan.addGroup(groupAB);
+
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi", true), "crMock", 
+				EntityState.disabled, false);
+		entity = new EntityParam(id);
+		groupsMan.addMemberFromParent("/A", entity);
+		
+		// added to /A for all having an "a1" attribute in /A/B. 
+		AttributeStatement statement1 = new CopySubgroupAttributeStatement(
+				new StringAttribute("a1", "/A/B", AttributeVisibility.local), 
+				ConflictResolution.skip);
+		Group groupR = groupsMan.getContents("/A", GroupContents.METADATA).getGroup();
+		groupR.setAttributeStatements(new AttributeStatement[] {statement1});
+		groupsMan.updateGroup("/A", groupR);
+		
+		AttributeStatement statement2 = new EverybodyStatement(
+				new StringAttribute("a1", "/A/B", AttributeVisibility.local, "value"), 
+				ConflictResolution.skip);
+		Group groupR2 = groupsMan.getContents("/A/B", GroupContents.METADATA).getGroup();
+		groupR2.setAttributeStatements(new AttributeStatement[] {statement2});
+		groupsMan.updateGroup("/A/B", groupR2);
+		
+		Collection<AttributeExt<?>> aRet = attrsMan.getAllAttributes(entity, true, "/A", "a1", false);
+		assertEquals(aRet.toString(), 0, aRet.size());
+	}
+	
 	private void setupStateForConditions() throws Exception
 	{
 		setupMockAuthn();
