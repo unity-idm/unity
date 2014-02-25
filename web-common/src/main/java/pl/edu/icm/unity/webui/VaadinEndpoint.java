@@ -137,6 +137,8 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		boolean productionMode = genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.PRODUCTION_MODE);
 		holder.setInitParameter("heartbeatInterval", String.valueOf(sessionTimeout/4));
 		holder.setInitParameter(PRODUCTION_MODE_PARAM, String.valueOf(productionMode));
+		holder.setInitParameter("org.atmosphere.cpr.broadcasterCacheClass", 
+				"org.atmosphere.cache.UUIDBroadcasterCache");
 		return holder;
 	}
 
