@@ -214,6 +214,14 @@ public class AttributesPanel extends HorizontalSplitPanel
 		acHelper = new AttributeClassHelper(knownClasses, assignedClasses);
 	}
 	
+	private void reloadAttributes() throws EngineException
+	{
+		Collection<AttributeExt<?>> attributesCol = attributesManagement.getAllAttributes(
+				owner, true, groupPath, null, true);
+		this.attributes = new ArrayList<AttributeExt<?>>(attributesCol.size());
+		this.attributes.addAll(attributesCol);
+	}
+	
 	private void updateAttributes() throws EngineException
 	{
 		refreshAttributeTypes();
@@ -286,7 +294,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		try
 		{
 			attributesManagement.removeAttribute(owner, toRemove.getGroupPath(), toRemove.getName());
-			attributes.remove(toRemove);
+			reloadAttributes();
 			updateAttributes();
 			bus.fireEvent(new AttributeChangedEvent(toRemove.getGroupPath(), toRemove.getName()));
 		} catch (Exception e)
@@ -295,13 +303,12 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private boolean addAttribute(Attribute<?> attribute)
 	{
 		try
 		{
 			attributesManagement.setAttribute(owner, attribute, false);
-			attributes.add(new AttributeExt(attribute, true));
+			reloadAttributes();
 			updateAttributes();
 			bus.fireEvent(new AttributeChangedEvent(attribute.getGroupPath(), attribute.getName()));
 			return true;
@@ -327,6 +334,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 					
 			}
 			bus.fireEvent(new AttributeChangedEvent(attribute.getGroupPath(), attribute.getName()));
+			reloadAttributes();
 			updateAttributes();
 			return true;
 		} catch (Exception e)
@@ -421,8 +429,8 @@ public class AttributesPanel extends HorizontalSplitPanel
 				if (acHelper.isAllowed(at.getName()))
 				{
 					boolean used = false;
-					for (Attribute<?> a: attributes)
-						if (a.getName().equals(at.getName()))
+					for (AttributeExt<?> a: attributes)
+						if (a.isDirect() && a.getName().equals(at.getName()))
 						{
 							used = true;
 							break;
