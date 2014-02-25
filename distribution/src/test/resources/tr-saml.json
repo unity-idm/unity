@@ -45,7 +45,7 @@
 
 		{
 			"condition": {
-				"conditionValue": "true"
+				"conditionValue": "false"
 			},
 			"action": {
 				"name": "createUser",
@@ -57,7 +57,7 @@
 
 		{
 			"condition": {
-				"conditionValue": "true"
+				"conditionValue": "false"
 			},
 			"action": {
 				"name": "updateGroups",
