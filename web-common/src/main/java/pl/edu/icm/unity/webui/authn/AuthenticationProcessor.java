@@ -124,6 +124,7 @@ public class AuthenticationProcessor
 			throw new AuthenticationException("AuthenticationProcessor.authnInternalError");
 		}
 		WrappedSession session = vss.getSession();
+		log.debug("Setting logged user session attribute on " + session + " to " + authenticatedEntity);
 		session.setAttribute(WebSession.USER_SESSION_KEY, authenticatedEntity);
 		return session;
 	}

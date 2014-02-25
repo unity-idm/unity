@@ -38,7 +38,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.ProgressIndicator;
+import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
@@ -53,7 +53,7 @@ import com.vaadin.ui.Upload.SucceededEvent;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ImportExportComponent extends VerticalLayout
 {
-	private static final int MAX_SIZE = 10000000;
+	private static final int MAX_SIZE = 50000000;
 	private final UnityMessageSource msg;
 	private final ServerManagement serverManagement;
 	private final UnityServerConfiguration serverConfig;
@@ -125,15 +125,12 @@ public class ImportExportComponent extends VerticalLayout
 
 		Label info = new Label(msg.getMessage("ImportExport.uploadInfo"));
 		Label fileUploaded = new Label(msg.getMessage("ImportExport.noFileUploaded"));
-		ProgressIndicator progress = new ProgressIndicator();
+		ProgressBar progress = new ProgressBar();
 		progress.setVisible(false);
 		Upload upload = new Upload();
 		upload.setCaption(msg.getMessage("ImportExport.uploadCaption"));
 		uploader = new DumpUploader(upload, progress, fileUploaded);
-		upload.setReceiver(uploader);
-		upload.addSucceededListener(uploader);
-		upload.addStartedListener(uploader);
-		upload.addProgressListener(uploader);
+		uploader.register();
 
 		Button importDump = new Button(msg.getMessage("ImportExport.import"));
 		importDump.addClickListener(new ClickListener()
@@ -210,7 +207,7 @@ public class ImportExportComponent extends VerticalLayout
 
 		private boolean blocked = false;
 
-		public DumpUploader(Upload upload, ProgressIndicator progress, Label info)
+		public DumpUploader(Upload upload, ProgressBar progress, Label info)
 		{
 			super(upload, progress);
 			this.info = info;
@@ -220,9 +217,11 @@ public class ImportExportComponent extends VerticalLayout
 		public synchronized void uploadSucceeded(SucceededEvent event)
 		{
 			super.uploadSucceeded(event);
-			if (!fos.isOverflow())
+			if (!fos.isOverflow() && fos.getLength() > 0)
 				info.setValue(msg.getMessage("ImportExport.dumpUploaded",
 						new Date()));
+			else if (fos.getLength() == 0)
+				info.setValue(msg.getMessage("ImportExport.uploadFileEmpty"));
 			else
 				info.setValue(msg.getMessage("ImportExport.uploadFileTooBig"));
 			setUploading(false);

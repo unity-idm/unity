@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui;
 
+import java.util.Stack;
+
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.server.utils.Log;
@@ -22,13 +24,15 @@ import com.vaadin.ui.UI;
  * Currently proper error handling of unchecked exceptions.
  * @author K. Benedyczak
  */
-@Push(PushMode.MANUAL)
+@Push(value=PushMode.DISABLED)
 public abstract class UnityUIBase extends UI implements UnityWebUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UnityUIBase.class);
 	
 	protected UnityMessageSource msg;
 	protected CancelHandler cancelHandler;
+	
+	private Stack<Integer> pollings = new Stack<>();
 	
 	public UnityUIBase(UnityMessageSource msg)
 	{
@@ -48,6 +52,37 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	public void setCancelHandler(CancelHandler handler)
 	{
 		this.cancelHandler = handler;
+	}
+	
+	/**
+	 * This method is overriden to ensure that multiple components can individually manipulate poll intervals.
+	 * If multiple pollings are turned on then the interval is set to a smallest value. What's more the polling
+	 * is stopped only when all registered pollings are removed. The stack used is not really needed - 
+	 * we could use counter.
+	 * @param interval
+	 */
+	@Override
+	public void setPollInterval(int interval)
+	{
+		System.out.println("Set Poll wrapped " + interval);
+		if (interval < 0)
+		{
+			pollings.pop();
+			if (pollings.isEmpty())
+			{
+				System.out.println("Poll disabled");
+				super.setPollInterval(-1);
+			}
+		} else
+		{
+			pollings.push(interval);
+			int currentPoll = super.getPollInterval();
+			if (currentPoll < 0 || currentPoll > interval)
+			{
+				System.out.println("Poll enabled");
+				super.setPollInterval(interval);
+			}
+		}
 	}
 	
 	/**

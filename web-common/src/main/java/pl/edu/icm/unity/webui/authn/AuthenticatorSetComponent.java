@@ -36,7 +36,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.ProgressIndicator;
+import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
@@ -58,7 +58,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 	private AuthenticationResultCallbackImpl authnResultCallback;
 	private Button authenticateButton;
 	private Button cancelButton;
-	private ProgressIndicator progress;
+	private ProgressBar progress;
 	private UsernameComponent usernameComponent;
 	private InsecureRegistrationFormLauncher formLauncher;
 	private ExecutorsService execService;
@@ -94,7 +94,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		HorizontalLayout authnProgressHL = new HorizontalLayout();
 		authnProgressHL.setSpacing(true);
 		
-		progress = new ProgressIndicator();
+		progress = new ProgressBar();
 		progress.setIndeterminate(true);
 		progress.setCaption(msg.getMessage("AuthenticationUI.authnInProgress"));
 		cancelButton = new Button(msg.getMessage("cancel"));

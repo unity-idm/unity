@@ -51,6 +51,9 @@ public abstract class UIBgThread implements Runnable
 			CurrentInstance.clearAll();
 		}
 	}
-	
+
+	/**
+	 * Long running operation. If the operation is going to access the UI components it must do it in UI.access().
+	 */
 	public abstract void safeRun();
 }

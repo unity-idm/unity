@@ -277,7 +277,8 @@ public class IdentitiesTable extends TreeTable
 
 		
 		if (preferences != null && preferences.getColumnSettings().size() > 0)
-		{       String[] scol = new String[preferences.getColumnSettings().size()];
+		{       
+			Object[] scol = new String[preferences.getColumnSettings().size()];
 
 			for (Map.Entry<String, IdentitiesTablePreferences.ColumnSettings> entry : 
 				preferences.getColumnSettings().entrySet())

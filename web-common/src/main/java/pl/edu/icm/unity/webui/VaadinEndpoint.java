@@ -125,6 +125,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	{
 		ServletHolder holder = new ServletHolder(servlet);
 		holder.setInitParameter("closeIdleSessions", "true");
+		holder.setAsyncSupported(true);
 		int sessionTimeout = genericEndpointProperties.getIntValue(VaadinEndpointProperties.SESSION_TIMEOUT);
 		holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(sessionTimeout));
 		return holder;

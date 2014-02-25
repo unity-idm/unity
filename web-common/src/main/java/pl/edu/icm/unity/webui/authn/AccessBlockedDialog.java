@@ -79,6 +79,7 @@ public class AccessBlockedDialog extends Window
 		UI ui = UI.getCurrent();
 		ui.addWindow(this);
 		
+		ui.setPollInterval(1000);
 		execService.getService().submit(new WaiterThread(initial, progress, ip, counter, ui));
 	}
 	
@@ -120,7 +121,6 @@ public class AccessBlockedDialog extends Window
 						progress.setCaption(msg.getMessage("AccessBlockedDialog.remaining", 
 								remainingF));
 						progress.setValue(1-(remainingF/(float)initial));
-						ui.push();
 					}
 				});
 				try
@@ -136,8 +136,8 @@ public class AccessBlockedDialog extends Window
 				@Override
 				public void run()
 				{
+					ui.setPollInterval(-1);
 					close();
-					ui.push();
 				}
 			});
 		}
