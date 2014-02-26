@@ -5,9 +5,12 @@
 
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
@@ -23,8 +26,12 @@ import pl.edu.icm.unity.webui.common.RequiredTextField;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.data.Validator.InvalidValueException;
+import com.vaadin.data.Validator;
 import com.vaadin.event.FieldEvents.FocusEvent;
 import com.vaadin.event.FieldEvents.FocusListener;
+import com.vaadin.server.ErrorMessage;
+import com.vaadin.server.ErrorMessage.ErrorLevel;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -91,12 +98,43 @@ public class MessageTemplateEditor extends FormLayout
 		subject.setWidth(100, Unit.PERCENTAGE);
 		subject.setValidationVisible(false);
 		subject.setRows(1);
-		body = new RequiredTextArea(
-				msg.getMessage("MessageTemplatesEditor.body") + ":", msg);
+		subject.addValidator(new Validator()
+		{
+			@Override
+			public void validate(Object value) throws InvalidValueException
+			{
+				if (!validateVar(subject.getValue()))
+				{
+
+					throw new InvalidValueException(
+							msg.getMessage("MessageTemplatesEditor.errorVars"));
+				}
+			}
+		});
+
+		body = new RequiredTextArea(msg.getMessage("MessageTemplatesEditor.body") + ":",
+				msg);
 		body.setImmediate(true);
 		body.setRows(10);
 		body.setWidth(100, Unit.PERCENTAGE);
 		body.setValidationVisible(false);
+		body.addValidator(new Validator()
+		{
+			@Override
+			public void validate(Object value) throws InvalidValueException
+			{
+				if (!validateVar(body.getValue()))
+				{
+					throw new InvalidValueException(
+							msg.getMessage("MessageTemplatesEditor.errorVars"));
+				}
+			}
+		});
+			
+		
+		
+		
+		
 		subjectEdited = true;
 		subject.addFocusListener(new FocusListener()
 		{	
@@ -155,6 +193,42 @@ public class MessageTemplateEditor extends FormLayout
 		
 		
 	}
+	
+	private boolean validateVar(String text)
+	{
+		ArrayList<String> usedField = new ArrayList<String>();
+		Pattern pattern = Pattern.compile("\\$\\{[a-zA-Z0-9]*\\}");
+		String c = (String) consumer.getValue();
+		if (c == null)
+			return false;
+		MessageTemplateConsumer con = null;
+		try
+		{
+			con = registry.getByName(c);
+		} catch (IllegalTypeException e)
+		{
+			return false;
+		}
+		String b = (String) text;
+		Matcher matcher = pattern.matcher(b);
+		while (matcher.find())
+		{
+			usedField.add(b.substring(matcher.start() + 2,
+					matcher.end() - 1));
+
+		}
+		boolean val = true;
+		for (String f : usedField)
+		{
+			if (!con.getVariables().keySet().contains(f))
+			{
+				val = false;
+				break;
+			}
+		}
+		return val;
+	}
+	
 
 	public MessageTemplate getTemplate()
 	{
@@ -238,6 +312,7 @@ public class MessageTemplateEditor extends FormLayout
 		subject.setValidationVisible(true);
 		body.setValidationVisible(true);
 		return name.isValid() && consumer.isValid() && subject.isValid() && body.isValid();
+		
 	}
 
 }

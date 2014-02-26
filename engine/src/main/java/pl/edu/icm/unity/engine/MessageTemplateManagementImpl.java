@@ -4,8 +4,11 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +55,7 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 		{
 			throw new IllegalArgumentException("The consumer is unknown");
 		}
+		
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
