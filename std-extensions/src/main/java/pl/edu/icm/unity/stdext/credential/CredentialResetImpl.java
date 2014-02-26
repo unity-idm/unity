@@ -42,7 +42,7 @@ public class CredentialResetImpl implements CredentialReset
 	private static final int MAX_RESENDS = 3;
 	private static final long MAX_CODE_VALIDITY = 30*3600;
 	
-	public static final String PASSWORD_RESET_TPL = "passwordResetCode";
+	public static final String PASSWORD_RESET_TPL = "PasswordResetCode";
 	public static final String CODE_VAR = "code";
 	public static final String USER_VAR = "username";
 	

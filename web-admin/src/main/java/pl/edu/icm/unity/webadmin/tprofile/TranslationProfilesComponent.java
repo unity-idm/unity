@@ -118,6 +118,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			Collection<TranslationProfile> profiles = profileMan.listProfiles().values();
 			table.setInput(profiles);
 			viewer.setInput(null);
+			table.select(null);
 			removeAllComponents();
 			addComponent(main);
 		} catch (Exception e)

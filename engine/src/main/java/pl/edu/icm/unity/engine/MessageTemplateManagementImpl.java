@@ -16,7 +16,9 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateConsumer;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
+import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 
 /**
  * Implementation of {@link MessageTemplateManagement}
@@ -28,21 +30,28 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 	private DBSessionManager db;
 	private AuthorizationManager authz;
 	private MessageTemplateDB mtDB;
+	private MessageTemplateConsumersRegistry registry;
 	
 	
 	@Autowired
 	public MessageTemplateManagementImpl(DBSessionManager db, AuthorizationManager authz,
-			MessageTemplateDB mtDB)
+			MessageTemplateDB mtDB, MessageTemplateConsumersRegistry registry)
 	{
 		this.db = db;
 		this.authz = authz;
 		this.mtDB = mtDB;
+		this.registry = registry;
 	}
 	
 	@Override
 	public void addTemplate(MessageTemplate toAdd) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+		MessageTemplateConsumer con = registry.getByName(toAdd.getConsumer());
+		if (con == null)
+		{
+			throw new IllegalArgumentException("The consumer is unknown");
+		}
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -75,6 +84,11 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 	public void updateTemplate(MessageTemplate updated) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+		MessageTemplateConsumer con = registry.getByName(updated.getConsumer());
+		if (con == null)
+		{
+			throw new IllegalArgumentException("The consumer is unknown");
+		}
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{

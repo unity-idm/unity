@@ -19,6 +19,7 @@ import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.RequiredComboBox;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -186,33 +187,16 @@ public class RuleComponent extends VerticalLayout
 
 			}
 		});
-
-		condition.addValueChangeListener(new ValueChangeListener()
-		{
-
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				try
-				{
-					condition.validate();
-					
-				} catch (Exception e)
-				{
-
-				}
-
-			}
-		});
+		condition.setValidationVisible(false);
 		condition.setImmediate(true);
 
-		actions = new ComboBox(msg.getMessage("TranslationProfileEditor.ruleAction") + ":");
+		actions = new RequiredComboBox(msg.getMessage("TranslationProfileEditor.ruleAction") + ":", msg);
 		for (TranslationActionFactory a : tc.getAll())
 		{
 			actions.addItem(a.getName());
 		}
-		actions.setRequired(true);
 		actions.setImmediate(true);
+		actions.setValidationVisible(false);
 		actions.addValueChangeListener(new ValueChangeListener()
 		{
 
@@ -291,13 +275,21 @@ public class RuleComponent extends VerticalLayout
 		ActionParameterDesc[] params = factory.getParameters();	
 		for (int i = 0; i < params.length; i++)
 		{
-			AbstractTextField p = new TextField(params[i].getName() + ":");
+			AbstractTextField p = null;
+			if (params[i].isMandatory())
+			{
+				p = new RequiredTextField(params[i].getName() + ":", msg);
+				p.setValidationVisible(false);
+
+			} else
+			{
+				p = new TextField(params[i].getName() + ":");
+			}
 			p.setDescription(params[i].getDescription());
 			if (values != null && values[i] != null)
 			{
 				p.setValue(values[i]);
-			}
-			p.setRequired(params[i].isMandatory());
+			}		
 			paramsList.addComponent(p);
 
 		}
@@ -387,20 +379,32 @@ public class RuleComponent extends VerticalLayout
 
 	public boolean validateRule()
 	{
-		try
+		int nval = 0;
+		for (int i = 0; i < paramsList.getComponentCount(); i++)
 		{
-			for (int i = 0; i < paramsList.getComponentCount(); i++)
+			AbstractTextField tc = (AbstractTextField) paramsList.getComponent(i);
+			tc.setValidationVisible(true);
+			if (!tc.isValid())
 			{
-				AbstractTextField tc = (AbstractTextField) paramsList.getComponent(i);
-				tc.validate();
+				nval++;
 			}
-			condition.validate();
-			actions.validate();
-		} catch (Exception e)
-		{
-			return false;
+
 		}
-		return true;
+
+		condition.setValidationVisible(true);
+		if (!condition.isValid())
+		{
+			nval++;
+		}
+
+		actions.setValidationVisible(true);
+		if (!actions.isValid())
+		{
+			nval++;
+		}
+
+		return nval == 0;
+
 	}
 
 	public interface Callback

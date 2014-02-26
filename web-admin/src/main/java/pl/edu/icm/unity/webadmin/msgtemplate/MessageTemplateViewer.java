@@ -6,14 +6,17 @@ package pl.edu.icm.unity.webadmin.msgtemplate;
 
 import java.util.Map;
 
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateConsumer;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
+import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 
-import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.TextArea;
 
 /**
  * Simple component allowing to view all information about message template.
@@ -22,13 +25,15 @@ import com.vaadin.ui.Label;
  */
 public class MessageTemplateViewer extends SimpleMessageTemplateViewer
 {	
-	private Label description;
-	private Label consumer;
+	private DescriptionTextArea description;
+	private DescriptionTextArea consumer;
+	private MessageTemplateConsumersRegistry registry;
 
 	public MessageTemplateViewer(String caption, UnityMessageSource msg,
-			MessageTemplateManagement msgTempMan)
+			MessageTemplateManagement msgTempMan, MessageTemplateConsumersRegistry registry)
 	{
 		super(caption, msg, msgTempMan);
+		this.registry = registry;
 		initUI();
 	}
 
@@ -36,10 +41,12 @@ public class MessageTemplateViewer extends SimpleMessageTemplateViewer
 	{	
 		main.setSpacing(true);
 		main.setMargin(true);
-		description = new Label();
+		description = new DescriptionTextArea();
 		description.setCaption(msg.getMessage("MessageTemplateViewer.description") + ":");
-		consumer = new Label();
+		description.setReadOnly(true);
+		consumer = new DescriptionTextArea();
 		consumer.setCaption(msg.getMessage("MessageTemplateViewer.consumer") + ":");
+		consumer.setReadOnly(true);
 		main.addComponent(consumer, 1);	
 		main.addComponent(description, 1);
 		
@@ -57,21 +64,32 @@ public class MessageTemplateViewer extends SimpleMessageTemplateViewer
 		main.setVisible(true);
 		name.setValue(template.getName());
 		description.setValue(template.getDescription());
+		description.setRows(template.getDescription().split("\n").length);
 		String cons = template.getConsumer();
 		if (cons != null)
 		{
-			consumer.setValue(template.getConsumer());
+			try
+			{
+				MessageTemplateConsumer cn = registry.getByName(cons);
+				consumer.setValue(template.getConsumer() + " - " + cn.getDescription());
+			} catch (IllegalTypeException e)
+			{
+				consumer.setValue(template.getConsumer());
+			}
+			
 		}
 		for (Map.Entry<String, Message> entry : template.getAllMessages().entrySet())
 		{
-			AbstractTextField subject = new DescriptionTextArea();
+			TextArea subject = new DescriptionTextArea();
 			subject.setCaption(msg.getMessage("MessageTemplateViewer.subject")  + ":");
 			subject.setValue(entry.getValue().getSubject());
 			subject.setReadOnly(true);
-			AbstractTextField body = new DescriptionTextArea();
+			subject.setRows(2);
+			TextArea body = new DescriptionTextArea();
 			body.setCaption(msg.getMessage("MessageTemplateViewer.body")  + ":");
 			body.setValue(entry.getValue().getBody());
 			body.setReadOnly(true);
+			body.setRows(entry.getValue().getBody().split("\n").length);
 			String lcle = entry.getKey().toString();
 //		 	For future, full support to locale. 
 			if (!lcle.equals(""))

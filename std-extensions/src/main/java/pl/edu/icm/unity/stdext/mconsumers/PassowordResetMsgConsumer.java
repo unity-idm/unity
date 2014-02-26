@@ -38,7 +38,7 @@ public class PassowordResetMsgConsumer implements MessageTemplateConsumer
 	@Override
 	public String getName()
 	{
-		return "passwordResetCode";
+		return "PasswordResetCode";
 	}
 
 	@Override

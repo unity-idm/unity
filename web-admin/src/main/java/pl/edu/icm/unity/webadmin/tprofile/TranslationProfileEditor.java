@@ -19,7 +19,6 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.Styles;
 
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -66,6 +65,7 @@ public class TranslationProfileEditor extends VerticalLayout
 		name = new RequiredTextField(msg);
 		name.setCaption(msg.getMessage("TranslationProfileEditor.name") + ":");
 		name.setSizeFull();
+		name.setValidationVisible(false);
 		description = new DescriptionTextArea(
 				msg.getMessage("TranslationProfileEditor.description") + ":");
 
@@ -223,19 +223,16 @@ public class TranslationProfileEditor extends VerticalLayout
 
 	public TranslationProfile getProfile()
 	{
-		boolean validated = true;
+		int nvalidr= 0;
 		for (RuleComponent cr : rules)
 		{
-			if (!validated)
-				continue;
-			validated = cr.validateRule();
-		}
-		if (!validated)
-			return null;
-		try
-		{
-			name.validate();
-		} catch (InvalidValueException e)
+			if (!cr.validateRule())
+			{
+				nvalidr++;
+			}
+		}	
+		name.setValidationVisible(true);
+		if (!(name.isValid() && nvalidr == 0))
 		{
 			return null;
 		}

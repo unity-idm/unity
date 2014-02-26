@@ -72,7 +72,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 				});
 		
 		table.setWidth(90, Unit.PERCENTAGE);
-		viewer = new MessageTemplateViewer(null, msg, msgTempMan);
+		viewer = new MessageTemplateViewer(null, msg, msgTempMan, consumersRegistry);
 		viewer.setTemplateInput(null);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
@@ -119,6 +119,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 			Collection<MessageTemplate> templates = msgTempMan.listTemplates().values();
 			table.setInput(templates);
 			viewer.setTemplateInput(null);
+			table.select(null);
 			removeAllComponents();
 			addComponent(main);
 		} catch (Exception e)

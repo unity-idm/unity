@@ -47,6 +47,8 @@ public class MessageTemplateEditDialog extends AbstractDialog
 	protected void onConfirm()
 	{
 		MessageTemplate template = editor.getTemplate();
+		if (template == null)
+			return;
 		if (callback.newTemplate(template))
 			close();
 	}

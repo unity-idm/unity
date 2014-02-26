@@ -17,6 +17,8 @@ import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.RequiredComboBox;
+import pl.edu.icm.unity.webui.common.RequiredTextArea;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -29,7 +31,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -42,11 +44,11 @@ public class MessageTemplateEditor extends FormLayout
 	private UnityMessageSource msg;
 	private MessageTemplateConsumersRegistry registry;
 	private AbstractTextField name;
-	private DescriptionTextArea description;
-	private AbstractTextField subject;
-	private DescriptionTextArea body;
+	private TextArea description;
+	private TextArea subject;
+	private TextArea body;
 	private ComboBox consumer;
-	private Label consumerDescription;
+	private TextArea consumerDescription;
 	private boolean editMode;
 	private HorizontalLayout buttons;
 	private boolean subjectEdited;
@@ -70,27 +72,31 @@ public class MessageTemplateEditor extends FormLayout
 		name = new RequiredTextField(msg);
 		name.setCaption(msg.getMessage("MessageTemplatesEditor.name") + ":");
 		name.setSizeFull();
+		name.setValidationVisible(false);
 		description = new DescriptionTextArea(
 				msg.getMessage("MessageTemplatesEditor.description") + ":");
-		consumer = new ComboBox(msg.getMessage("MessageTemplatesEditor.consumer") + ":");
+		consumer = new RequiredComboBox(msg.getMessage("MessageTemplatesEditor.consumer") + ":", msg);
 		consumer.setImmediate(true);
-		consumer.setRequired(true);
+		consumer.setValidationVisible(false);
 		Collection<MessageTemplateConsumer> consumers = registry.getAll();
 		for (MessageTemplateConsumer c : consumers)
 		{
 			consumer.addItem(c.getName());
 		}
-		consumerDescription = new Label();
-	
-		
-		subject = new DescriptionTextArea(
-				msg.getMessage("MessageTemplatesEditor.subject") + ":");
+		consumerDescription = new DescriptionTextArea();
+		consumerDescription.setReadOnly(true);
+		subject = new RequiredTextArea(
+				msg.getMessage("MessageTemplatesEditor.subject") + ":", msg);
 		subject.setImmediate(true);
-		subject.setRequired(true);
-		body = new DescriptionTextArea(
-				msg.getMessage("MessageTemplatesEditor.body") + ":");
+		subject.setWidth(100, Unit.PERCENTAGE);
+		subject.setValidationVisible(false);
+		subject.setRows(1);
+		body = new RequiredTextArea(
+				msg.getMessage("MessageTemplatesEditor.body") + ":", msg);
 		body.setImmediate(true);
-		body.setRequired(true);
+		body.setRows(10);
+		body.setWidth(100, Unit.PERCENTAGE);
+		body.setValidationVisible(false);
 		subjectEdited = true;
 		subject.addFocusListener(new FocusListener()
 		{	
@@ -109,8 +115,7 @@ public class MessageTemplateEditor extends FormLayout
 				subjectEdited = false;
 				
 			}
-		});
-		
+		});	
 		consumer.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
@@ -132,20 +137,29 @@ public class MessageTemplateEditor extends FormLayout
 			if (ms != null)
 			{
 				subject.setValue(ms.getSubject());
-				body.setValue(ms.getBody());		
+				body.setValue(ms.getBody());
 			}
 			setMessageConsumerDesc();	
 		} else
 			name.setValue(msg.getMessage("MessageTemplatesEditor.defaultName"));
 		
 		addComponents(name, description, consumer, consumerDescription, buttons, subject, body);
+		setExpandRatio(name, 1.0f);
+		setExpandRatio(description, 1.0f);
+		setExpandRatio(consumerDescription, 1.0f);
+		setExpandRatio(buttons, 1.0f);
+		setExpandRatio(subject, 1.0f);
+		setExpandRatio(body, 1.0f);	
 		setSizeFull();
 		setSpacing(true);
+		
 		
 	}
 
 	public MessageTemplate getTemplate()
 	{
+		if (!validate())
+			return null;
 		String n = name.getValue();
 		String desc = description.getValue();
 		String cons = null;
@@ -215,6 +229,15 @@ public class MessageTemplateEditor extends FormLayout
 		String st = v.substring(0,f.getCursorPosition());
 		String fi = v.substring(f.getCursorPosition());
 		f.setValue(st + "${" + val + "}" + fi);
+	}
+	
+	private boolean validate()
+	{
+		name.setValidationVisible(true);
+		consumer.setValidationVisible(true);
+		subject.setValidationVisible(true);
+		body.setValidationVisible(true);
+		return name.isValid() && consumer.isValid() && subject.isValid() && body.isValid();
 	}
 
 }
