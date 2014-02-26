@@ -4,11 +4,8 @@
  */
 package pl.edu.icm.unity.engine;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +16,9 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateConsumer;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 
@@ -50,12 +49,7 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 	public void addTemplate(MessageTemplate toAdd) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		MessageTemplateConsumer con = registry.getByName(toAdd.getConsumer());
-		if (con == null)
-		{
-			throw new IllegalArgumentException("The consumer is unknown");
-		}
-		
+		validateMessageTemplate(toAdd);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -88,11 +82,7 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 	public void updateTemplate(MessageTemplate updated) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		MessageTemplateConsumer con = registry.getByName(updated.getConsumer());
-		if (con == null)
-		{
-			throw new IllegalArgumentException("The consumer is unknown");
-		}
+		validateMessageTemplate(updated);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -162,5 +152,23 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 		}
 		
 	}
-
+	
+	private void validateMessageTemplate(MessageTemplate toValidate)
+			throws EngineException
+	{
+		MessageTemplateConsumer con = registry.getByName(toValidate.getConsumer());
+		if (con == null)
+		{
+			throw new IllegalArgumentException("The consumer is unknown");
+		}
+		MessageTemplateValidator validator = new MessageTemplateValidator(con);
+		for (Message t : toValidate.getAllMessages().values())
+		{
+			if (!validator.validateText(t.getSubject()) && !validator.validateText(t.getBody()))
+			{
+				throw new IllegalArgumentException(
+						"The vars used in subject or body are not proper");
+			}
+		}
+	}
 }
