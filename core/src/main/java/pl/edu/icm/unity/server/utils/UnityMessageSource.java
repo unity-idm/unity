@@ -57,8 +57,15 @@ public class UnityMessageSource extends ResourceBundleMessageSource
 	}
 	
 	public static Locale getLocale(Locale fallback)
-	{
-		InvocationContext ctx = InvocationContext.getCurrent();
+	{	
+		InvocationContext ctx = null;
+		try
+		{
+			ctx = InvocationContext.getCurrent();
+		} catch (Exception e)
+		{
+			return fallback;
+		}
 		Locale ret = ctx.getLocale();
 		if (ret == null)
 			return fallback;

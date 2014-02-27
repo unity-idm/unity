@@ -54,7 +54,7 @@ public class MessageTemplateEditor extends FormLayout
 	private boolean editMode;
 	private HorizontalLayout buttons;
 	private boolean subjectEdited;
-	private MessageTemplateValidatorUI validator;
+	private MessageValidator validator;
 
 	public MessageTemplateEditor(UnityMessageSource msg,
 			MessageTemplateConsumersRegistry registry, MessageTemplate toEdit)
@@ -101,8 +101,7 @@ public class MessageTemplateEditor extends FormLayout
 		body.setRows(10);
 		body.setWidth(100, Unit.PERCENTAGE);
 		body.setValidationVisible(false);
-		validator = new MessageTemplateValidatorUI(null, msg);
-
+		validator = new MessageValidator(null, msg);
 		subject.addValidator(validator);
 		body.addValidator(validator);
 		subjectEdited = true;
@@ -143,6 +142,7 @@ public class MessageTemplateEditor extends FormLayout
 			name.setReadOnly(true);
 			consumer.setValue(toEdit.getConsumer());
 			description.setValue(toEdit.getDescription());
+			// Using empty locale!
 			Message ms = toEdit.getAllMessages().get("");
 			if (ms != null)
 			{
@@ -172,11 +172,7 @@ public class MessageTemplateEditor extends FormLayout
 			return null;
 		String n = name.getValue();
 		String desc = description.getValue();
-		String cons = null;
-		if (consumer.getValue() != null)
-		{
-			cons = consumer.getValue().toString();
-		}
+		String cons = getConsumer().getName();
 		Map<String, Message> m = new HashMap<String, Message>();
 		Message ms = new Message(subject.getValue(), body.getValue());
 		// Using empty locale!
@@ -186,22 +182,11 @@ public class MessageTemplateEditor extends FormLayout
 
 	private void setMessageConsumerDesc()
 	{
-		if (consumer.getValue() == null)
-		{
+		MessageTemplateConsumer consumer = getConsumer();
+		if (consumer == null)
 			return;
-		}
-		try
-		{
-			MessageTemplateConsumer con = registry.getByName(consumer.getValue()
-					.toString());
-			consumerDescription.setValue(con.getDescription());
-			updateVarButtons(con);
-
-		} catch (IllegalTypeException e)
-		{
-			ErrorPopup.showError(msg,
-					msg.getMessage("MessageTemplatesEditor.errorConsumers"), e);
-		}
+		consumerDescription.setValue(consumer.getDescription());
+		updateVarButtons(consumer);
 	}
 
 	private void updateVarButtons(MessageTemplateConsumer consumer)
@@ -232,18 +217,23 @@ public class MessageTemplateEditor extends FormLayout
 
 	}
 
-	private void updateValidator()
+	private MessageTemplateConsumer getConsumer()
 	{
+
 		String c = (String) consumer.getValue();
 		if (c == null)
-			return;
+			return null;
+		MessageTemplateConsumer consumer = null;
 		try
 		{
-			validator.setConsumer(registry.getByName(c));
+			consumer = registry.getByName(c);
 		} catch (IllegalTypeException e)
 		{
-			return;
+			ErrorPopup.showError(msg,
+					msg.getMessage("MessageTemplatesEditor.errorConsumers"), e);
+			return null;
 		}
+		return consumer;
 	}
 
 	private void addVar(AbstractTextField f, String val)
@@ -252,6 +242,13 @@ public class MessageTemplateEditor extends FormLayout
 		String st = v.substring(0, f.getCursorPosition());
 		String fi = v.substring(f.getCursorPosition());
 		f.setValue(st + "${" + val + "}" + fi);
+	}
+
+	private void updateValidator()
+	{
+		MessageTemplateConsumer c = getConsumer();
+		if (c != null)
+			validator.setConsumer(c);
 	}
 
 	private boolean validate()
@@ -266,13 +263,11 @@ public class MessageTemplateEditor extends FormLayout
 
 	}
 
-	private class MessageTemplateValidatorUI extends MessageTemplateValidator implements
-			Validator
+	private class MessageValidator extends MessageTemplateValidator implements Validator
 	{
 		private UnityMessageSource msg;
 
-		public MessageTemplateValidatorUI(MessageTemplateConsumer consumer,
-				UnityMessageSource msg)
+		public MessageValidator(MessageTemplateConsumer consumer, UnityMessageSource msg)
 		{
 			super(consumer);
 			this.msg = msg;

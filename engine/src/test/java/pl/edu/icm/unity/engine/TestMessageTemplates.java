@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import org.junit.Test;
@@ -14,8 +13,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 public class TestMessageTemplates extends DBIntegrationTestBase
 {
@@ -57,7 +54,7 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 	}
 	
 	@Test
-	public void testValidation() 
+	public void testValidationConsumer() 
 	{
 		Map<String, Message> imsg = new HashMap<String, Message>();
 		imsg.put("", new Message("stest", "btest"));
@@ -69,6 +66,26 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 		{
 			return;
 		}
-		fail("InvalidArgumentException not throw.");
+		
+		fail("WrongArgumentException not throw.");
+	
+	}
+	
+	@Test
+	public void testValidationMessage() 
+	{
+		Map<String, Message> imsg = new HashMap<String, Message>();
+		imsg.put("", new Message("stest${code}", "btest"));
+		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg, "RejectForm");
+		try
+		{
+			msgTempMan.addTemplate(template);
+		} catch (EngineException e)
+		{
+			return;
+		}
+		
+		fail("WrongArgumentException not throw.");
+	
 	}
 }

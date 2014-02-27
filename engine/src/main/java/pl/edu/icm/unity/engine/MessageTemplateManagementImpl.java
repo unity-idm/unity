@@ -15,6 +15,7 @@ import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateConsumer;
@@ -159,15 +160,16 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 		MessageTemplateConsumer con = registry.getByName(toValidate.getConsumer());
 		if (con == null)
 		{
-			throw new IllegalArgumentException("The consumer is unknown");
+			throw new WrongArgumentException("The consumer is unknown");
 		}
 		MessageTemplateValidator validator = new MessageTemplateValidator(con);
 		for (Message t : toValidate.getAllMessages().values())
 		{
-			if (!validator.validateText(t.getSubject()) && !validator.validateText(t.getBody()))
+			if (!(validator.validateText(t.getSubject()) && validator.validateText(t
+					.getBody())))
 			{
-				throw new IllegalArgumentException(
-						"The vars used in subject or body are not proper");
+				throw new WrongArgumentException(
+						"The vars used in subject or body are not compatible with consumer");
 			}
 		}
 	}

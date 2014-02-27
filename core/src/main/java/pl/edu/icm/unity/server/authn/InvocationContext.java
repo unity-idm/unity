@@ -31,15 +31,11 @@ public class InvocationContext implements Serializable
 		threadLocal.set(context);
 	}
 	
-	public static InvocationContext getCurrent() //throws InternalException
+	public static InvocationContext getCurrent() throws InternalException
 	{
 		InvocationContext ret = threadLocal.get();
 		if (ret == null)
-		{
-		//	throw new InternalException("The current call has no invocation context set");
-			ret = new InvocationContext();
-		}
-		
+			throw new InternalException("The current call has no invocation context set");
 		return ret;
 	}
 

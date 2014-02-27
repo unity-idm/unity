@@ -5,8 +5,11 @@
 package pl.edu.icm.unity.msgtemplates;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
 
 /**
  * 
@@ -19,7 +22,7 @@ import java.util.regex.Pattern;
 public class MessageTemplateValidator
 {
 	protected MessageTemplateConsumer consumer;
-	
+
 	public MessageTemplateValidator(MessageTemplateConsumer consumer)
 	{
 		this.consumer = consumer;
@@ -30,7 +33,24 @@ public class MessageTemplateValidator
 		this.consumer = consumer;
 
 	}
-	
+
+	public boolean validateMessages(MessageTemplateConsumer consumer,
+			Map<String, Message> messages)
+	{
+		this.consumer = consumer;
+		return validateMessages(messages);
+	}
+
+	public boolean validateMessages(Map<String, Message> messages)
+	{
+		for (Message m : messages.values())
+		{
+			if (!(validateText(m.getSubject()) && validateText(m.getBody())))
+				return false;
+		}
+		return true;
+	}
+
 	public boolean validateText(String text)
 	{
 		ArrayList<String> usedField = new ArrayList<String>();
@@ -38,7 +58,7 @@ public class MessageTemplateValidator
 
 		if (consumer == null)
 			return false;
-		
+
 		String b = (String) text;
 		Matcher matcher = pattern.matcher(b);
 		while (matcher.find())
