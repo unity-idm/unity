@@ -151,7 +151,6 @@ public class UnityVaadinServlet extends VaadinServlet
 		InvocationContext ctx = setEmptyInvocationContext();
 		setAuthenticationContext(request, ctx);
 		setLocale(request, ctx);
-		getService().addSessionInitListener(new VaadinSessionInit());
 		try
 		{
 			super.service(request, response);
@@ -223,22 +222,15 @@ public class UnityVaadinServlet extends VaadinServlet
 				String timeout = properties.getProperty(VaadinEndpoint.SESSION_TIMEOUT_PARAM);
 				if (timeout != null)
 					event.getSession().getSession().setMaxInactiveInterval(Integer.parseInt(timeout));
+
+				if (WebSession.getCurrent() == null)
+				{
+					WebSession webSession = new WebSession(new EventsBus());
+					WebSession.setCurrent(webSession);
+				}			
 			}
 		});
 
 		return service;
-	}
-	
-	private static class VaadinSessionInit implements SessionInitListener
-	{
-		@Override
-		public void sessionInit(SessionInitEvent event) throws ServiceException
-		{
-			if (WebSession.getCurrent() == null)
-			{
-				WebSession webSession = new WebSession(new EventsBus());
-				WebSession.setCurrent(webSession);
-			}			
-		}
 	}
 }
