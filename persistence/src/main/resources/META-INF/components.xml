@@ -16,6 +16,7 @@
 	<bean class="pl.edu.icm.unity.db.DBAttributes"/>
 	<bean class="pl.edu.icm.unity.db.AttributeStatementProcessor"/>
 	<bean class="pl.edu.icm.unity.db.DBGeneric"/>
+	<bean class="pl.edu.icm.unity.db.DBTokens"/>
 	<bean class="pl.edu.icm.unity.db.DBShared"/>
 	<bean class="pl.edu.icm.unity.db.DBEvents"/>
 
