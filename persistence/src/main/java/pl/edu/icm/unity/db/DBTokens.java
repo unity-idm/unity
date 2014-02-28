@@ -72,11 +72,15 @@ public class DBTokens
 		mapper.updateToken(updated);
 	}
 	
-	public TokenBean getTokenById(String type, String id, SqlSession sqlMap)
+	public TokenBean getTokenById(String type, String id, SqlSession sqlMap) throws WrongArgumentException
 	{
 		TokensMapper mapper = sqlMap.getMapper(TokensMapper.class);
 		TokenBean toSelect = new TokenBean(id, type);
-		return mapper.selectTokenById(toSelect);
+		TokenBean ret = mapper.selectTokenById(toSelect);
+		if (ret == null)
+			throw new WrongArgumentException("The token " + id 
+					+ " doesn't exist");
+		return ret;
 	}
 	
 	public List<TokenBean> getOwnedTokens(String type, long entity, SqlSession sqlMap)

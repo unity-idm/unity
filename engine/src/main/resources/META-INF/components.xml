@@ -116,6 +116,7 @@
 	<bean class="pl.edu.icm.unity.engine.internal.CredentialHelperImpl"/>
 	<bean class="pl.edu.icm.unity.engine.internal.AttributeStatementsCleaner"/>
 	<bean class="pl.edu.icm.unity.engine.internal.NotificationsManagementCore"/>
+	<bean class="pl.edu.icm.unity.engine.internal.TokensManagementImpl"/>
 	
 	<bean primary="true" class="pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl"/>
 	<bean primary="false" name="noauthz" class="pl.edu.icm.unity.engine.authz.InternalNoAuthzImpl"/>

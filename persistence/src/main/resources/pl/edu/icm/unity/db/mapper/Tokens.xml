@@ -13,7 +13,7 @@
 		<result property="contents" column="CONTENTS"/>
 	</resultMap>
 
-	<insert id="insertObject" parameterType="TokenB" useGeneratedKeys="true" keyProperty="id">
+	<insert id="insertToken" parameterType="TokenB" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO TOKENS(NAME, CONTENTS, TYPE, ENTITY_ID, CREATED, EXPIRES) 
 			VALUES (#{name}, #{contents}, #{type}, #{owner}, #{created}, #{expires})
 	</insert>
@@ -23,15 +23,15 @@
 	</delete>
 
 	<update id="updateToken" parameterType="TokenB">
-		UPDATE TOKENS SET CONTENTS=#{contents}, EXPIRES=#{expires} WHERE NAME=#{name} AND TYPE=#{type}  
+		UPDATE TOKENS SET CONTENTS=#{contents} WHERE NAME=#{name} AND TYPE=#{type}  
 	</update>
 	
 	<select id="selectTokenById" parameterType="TokenB" resultMap="tokenResult">
-		SELECT * FROM TOKENS WHERE NAME=#{name} AND TYPE = #{value}
+		SELECT * FROM TOKENS WHERE NAME=#{name} AND TYPE = #{type}
 	</select>
 
 	<select id="selectTokensByOwner" parameterType="TokenB" resultMap="tokenResult">
-		SELECT  * FROM TOKENS WHERE ENTITY_ID=#{owner} AND TYPE = #{value}
+		SELECT  * FROM TOKENS WHERE ENTITY_ID=#{owner} AND TYPE = #{type}
 	</select>
 
 	<select id="selectExpiredTokens" resultMap="tokenResult">

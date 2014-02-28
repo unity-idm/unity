@@ -1,43 +1,47 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.db.model;
+package pl.edu.icm.unity.server.api.internal;
 
 import java.util.Date;
 
-public class TokenBean extends BaseBean
+/**
+ * Generic token. See {@link TokensManagement}.
+ * 
+ * @author K. Benedyczak
+ */
+public class Token
 {
 	private String type;
+	private String value;
 	private long owner;
 	private Date created;
 	private Date expires;
+	private byte[] contents;
 
-	public TokenBean()
+	public Token(String type, String value, long owner)
 	{
-		super();
-	}
-	public TokenBean(String name, String type)
-	{
-		super(name, null);
 		this.type = type;
-	}
-	public TokenBean(String name, byte[] contents, String type, long owner, Date created)
-	{
-		super(name, contents);
-		this.type = type;
+		this.value = value;
 		this.owner = owner;
-		this.created = created;
 	}
 
 	public String getType()
 	{
 		return type;
 	}
-
 	public void setType(String type)
 	{
 		this.type = type;
+	}
+	public String getValue()
+	{
+		return value;
+	}
+	public void setValue(String value)
+	{
+		this.value = value;
 	}
 	public long getOwner()
 	{
@@ -63,9 +67,12 @@ public class TokenBean extends BaseBean
 	{
 		this.expires = expires;
 	}
-	
-	public boolean isExpired()
+	public byte[] getContents()
 	{
-		return expires != null ? new Date().after(expires) : false;
+		return contents;
+	}
+	public void setContents(byte[] contents)
+	{
+		this.contents = contents;
 	}
 }
