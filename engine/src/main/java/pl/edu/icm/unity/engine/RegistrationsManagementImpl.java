@@ -497,6 +497,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			if (attrP == null)
 				continue;
 			Attribute<?> attr = attrP.getAttribute();
+			if (attr == null)
+				throw new WrongArgumentException("Attribute no " + i + " is null.");
 			AttributeRegistrationParam regParam = form.getAttributeParams().get(i);
 			if (!regParam.getAttributeType().equals(attr.getName()))
 				throw new WrongArgumentException("Attribute " + 
@@ -506,7 +508,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				throw new WrongArgumentException("Attribute " + 
 						attr.getName() + " in group " + attr.getGroupPath() + 
 						" is not allowed for this form");
-			AttributeValueChecker.validate(attr, atMap.get(attr.getName()));
+			AttributeType at = atMap.get(attr.getName());
+			if (at == null)
+				throw new WrongArgumentException("Attribute of the form " + attr.getName() + 
+						" does not exist anymore");
+			AttributeValueChecker.validate(attr, at);
 		}
 	}
 
@@ -520,6 +526,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			IdentityParam idParam = requestedIds.get(i);
 			if (idParam == null)
 				continue;
+			if (idParam.getTypeId() == null || idParam.getValue() == null)
+				throw new WrongArgumentException("Identity nr " + i + " contains null values");
 			if (!form.getIdentityParams().get(i).getIdentityType().equals(idParam.getTypeId()))
 				throw new WrongArgumentException("Identity nr " + i + " must be of " 
 						+ idParam.getTypeId() + " type");
