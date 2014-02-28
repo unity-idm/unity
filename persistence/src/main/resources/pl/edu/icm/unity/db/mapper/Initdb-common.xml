@@ -94,6 +94,22 @@ CREATE TABLE VAR_BIG_OBJECTS(
 		UNIQUE(NAME, TYPE)
 		<include refid="tableOpts"/>		
 	</update>
+
+	<sql id="sql-initTokensTable">
+CREATE TABLE TOKENS(
+		<include refid="defaultColsBlob"/>
+		TYPE VARCHAR(100),
+		ENTITY_ID INTEGER NOT NULL,
+		CREATED DATETIME NOT NULL,
+		EXPIRE DATETIME,
+		UNIQUE(NAME, TYPE),
+		FOREIGN KEY (ENTITY_ID) REFERENCES ENTITIES(ID) ON DELETE CASCADE,
+		<include refid="tableOpts"/>
+	</sql>
+
+	<update id="initdb-11">
+		<include refid="sql-initTokensTable"/>
+	</update>
 	
 	<update id="initdb-99">
 CREATE TABLE UVOS_FLAG(
@@ -102,7 +118,14 @@ CREATE TABLE UVOS_FLAG(
 	</update>
 
 	<insert id="initVersion">
-INSERT INTO UVOS_FLAG (VAL) VALUES ('2_0_0');
+INSERT INTO UVOS_FLAG (VAL) VALUES ('2_1_0');
 	</insert>
+	
+	<update id="updateSchema-020100-01">
+		<include refid="sql-initTokensTable"/>
+	</update>
+	<update id="updateSchema-020100-02">
+UPDATE UVOS_FLAG SET VAL='2_1_0';
+	</update>
 	
 </mapper>

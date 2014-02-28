@@ -12,69 +12,75 @@
 		DROP TABLE IF EXISTS UVOS_FLAG;
 	</update>
 	<update id="cleardb-01">
-		DROP TABLE IF EXISTS VAR_BIG_OBJECTS;
+		DROP TABLE IF EXISTS TOKENS;
 	</update>
 	<update id="cleardb-02">
-		DROP TABLE IF EXISTS VAR_OBJECTS;
+		DROP TABLE IF EXISTS VAR_BIG_OBJECTS;
 	</update>
 	<update id="cleardb-03">
-		DROP TABLE IF EXISTS GROUP_LINKS;
+		DROP TABLE IF EXISTS VAR_OBJECTS;
 	</update>
 	<update id="cleardb-04">
-		DROP TABLE IF EXISTS GROUP_ENTITIES;
+		DROP TABLE IF EXISTS GROUP_LINKS;
 	</update>
 	<update id="cleardb-05">
-		DROP TABLE IF EXISTS ATTRIBUTES;
+		DROP TABLE IF EXISTS GROUP_ENTITIES;
 	</update>
 	<update id="cleardb-06">
-		DROP TABLE IF EXISTS GROUPS;
+		DROP TABLE IF EXISTS ATTRIBUTES;
 	</update>
 	<update id="cleardb-07">
-		DROP TABLE IF EXISTS IDENTITIES;
+		DROP TABLE IF EXISTS GROUPS;
 	</update>
 	<update id="cleardb-08">
-		DROP TABLE IF EXISTS ENTITIES;
+		DROP TABLE IF EXISTS IDENTITIES;
 	</update>
 	<update id="cleardb-09">
-		DROP TABLE IF EXISTS IDENTITY_TYPES;
+		DROP TABLE IF EXISTS ENTITIES;
 	</update>
 	<update id="cleardb-10">
+		DROP TABLE IF EXISTS IDENTITY_TYPES;
+	</update>
+	<update id="cleardb-11">
 		DROP TABLE IF EXISTS ATTRIBUTE_TYPES;
 	</update>
-	
+		
 	<select id="getDBVersion" resultType="String">
 		select VAL from UVOS_FLAG 
 	</select>
 	
 	
 	<delete id="deletedb-00">
-		DELETE FROM VAR_BIG_OBJECTS;
+		DELETE FROM TOKENS;
 	</delete>
 	<delete id="deletedb-01">
-		DELETE FROM VAR_OBJECTS;
+		DELETE FROM VAR_BIG_OBJECTS;
 	</delete>
 	<delete id="deletedb-02">
-		DELETE FROM GROUP_LINKS;
+		DELETE FROM VAR_OBJECTS;
 	</delete>
 	<delete id="deletedb-03">
-		DELETE FROM GROUP_ENTITIES;
+		DELETE FROM GROUP_LINKS;
 	</delete>
 	<delete id="deletedb-04">
-		DELETE FROM ATTRIBUTES;
+		DELETE FROM GROUP_ENTITIES;
 	</delete>
 	<delete id="deletedb-05">
-		DELETE FROM GROUPS;
+		DELETE FROM ATTRIBUTES;
 	</delete>
 	<delete id="deletedb-06">
-		DELETE FROM IDENTITIES;
+		DELETE FROM GROUPS;
 	</delete>
 	<delete id="deletedb-07">
-		DELETE FROM ENTITIES;
+		DELETE FROM IDENTITIES;
 	</delete>
 	<delete id="deletedb-08">
-		DELETE FROM IDENTITY_TYPES;
+		DELETE FROM ENTITIES;
 	</delete>
 	<delete id="deletedb-09">
+		DELETE FROM IDENTITY_TYPES;
+	</delete>
+	<delete id="deletedb-10">
 		DELETE FROM ATTRIBUTE_TYPES;
 	</delete>
 </mapper>
