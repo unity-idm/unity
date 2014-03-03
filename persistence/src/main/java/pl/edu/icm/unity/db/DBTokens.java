@@ -32,7 +32,7 @@ public class DBTokens
 		this.limits = db.getDBLimits();
 	}
 
-	public long addToken(String id, String type, byte[] contents, long entityId, Date expires,
+	public long addToken(String id, String type, byte[] contents, long entityId, Date created, Date expires,
 			SqlSession sqlMap) throws WrongArgumentException
 	{
 		limits.checkNameLimit(id);
@@ -41,7 +41,7 @@ public class DBTokens
 			contents = new byte[0];
 		limits.checkContentsLimit(contents);
 		
-		TokenBean toAdd = new TokenBean(id, contents, type, entityId, new Date());
+		TokenBean toAdd = new TokenBean(id, contents, type, entityId, created);
 		toAdd.setExpires(expires);
 		TokensMapper mapper = sqlMap.getMapper(TokensMapper.class);
 		checkExists(toAdd, mapper, false);
@@ -58,18 +58,27 @@ public class DBTokens
 		mapper.deleteToken(param);
 	}
 	
-	public void updateToken(String id, String type, byte[] contents, SqlSession sqlMap) 
+	public void updateToken(String id, String type, Date expires, byte[] contents, SqlSession sqlMap) 
 			throws WrongArgumentException
 	{
 		limits.checkNameLimit(id);
-		if (contents == null)
-			contents = new byte[0];
 		limits.checkContentsLimit(contents);
 		TokensMapper mapper = sqlMap.getMapper(TokensMapper.class);
 		TokenBean updated = new TokenBean(id, type);
 		updated.setContents(contents);
+		updated.setExpires(expires);
 		checkExists(updated, mapper, true);
-		mapper.updateToken(updated);
+		
+		if (expires != null && contents != null)
+		{
+			mapper.updateToken(updated);
+		} else
+		{
+			if (contents != null)
+				mapper.updateTokenContents(updated);
+			if (expires != null)
+				mapper.updateTokenExpiration(updated);
+		}
 	}
 	
 	public TokenBean getTokenById(String type, String id, SqlSession sqlMap) throws WrongArgumentException

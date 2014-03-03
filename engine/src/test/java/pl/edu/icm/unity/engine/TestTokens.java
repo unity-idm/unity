@@ -38,9 +38,9 @@ public class TestTokens extends DBIntegrationTestBase
 
 		byte[] c = new byte[] {'a'};
 		
-		tokensMan.addToken("t", "123", ep, c, new Date(System.currentTimeMillis()+100));
+		tokensMan.addToken("t", "123", ep, c, new Date(), new Date(System.currentTimeMillis()+100));
 		Date exp = new Date(System.currentTimeMillis()+100000);
-		tokensMan.addToken("t", "1234", ep, c, exp);
+		tokensMan.addToken("t", "1234", ep, c, new Date(), exp);
 		List<Token> tokens = tokensMan.getOwnedTokens("t", ep);
 		assertEquals(2, tokens.size());
 		Thread.sleep(101);
@@ -54,7 +54,7 @@ public class TestTokens extends DBIntegrationTestBase
 		assertNotNull(token.getCreated());
 		assertEquals(exp, token.getExpires());
 		
-		tokensMan.updateToken("t", "1234", new byte[] {'b'});
+		tokensMan.updateToken("t", "1234", null, new byte[] {'b'});
 		token = tokensMan.getTokenById("t", "1234");
 		assertEquals("t", token.getType());
 		assertEquals("1234", token.getValue());

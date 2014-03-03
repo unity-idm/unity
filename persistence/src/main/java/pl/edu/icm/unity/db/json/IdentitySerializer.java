@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
@@ -20,7 +21,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 @Component
 public class IdentitySerializer
 {
-	private ObjectMapper mapper = new ObjectMapper();
+	private ObjectMapper mapper = Constants.MAPPER;
 	
 	/**
 	 * @param src

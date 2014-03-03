@@ -22,21 +22,54 @@ import pl.edu.icm.unity.types.basic.EntityParam;
  *  <li> can contain additional, type specific data
  * </ul>
  * Tokens are used by both engine and endpoint extension modules.
- *  
+ * <p>
+ * As this is a low level interface it allows for external transaction steering. All the methods allow for 
+ * passing an additional transaction parameter. If it is null then a transaction boundary is set to the method 
+ * invocation. Otherwise the method is bound to the session object passed. The session object itself is managed with
+ * *TokenTransaction methods. 
  * @author K. Benedyczak
  */
 public interface TokensManagement
 {
 	/**
+	 * @return object of the token related transaction 
+	 */
+	Object startTokenTransaction();
+	
+	void commitTokenTransaction(Object transaction);
+	
+	void closeTokenTransaction(Object transaction);
+	
+	/**
 	 * Adds a new token
+	 * Transactional.
 	 * @param token
 	 * @throws WrongArgumentException
 	 * @throws IllegalTypeException 
 	 * @throws IllegalIdentityValueException 
 	 */
-	void addToken(String type, String value, EntityParam owner, byte[] contents, Date expires) 
+	void addToken(String type, String value, EntityParam owner, byte[] contents, Date created, Date expires, 
+			Object transaction) 
 			throws WrongArgumentException, IllegalIdentityValueException, IllegalTypeException;
 	
+	/**
+	 * Adds a new token
+	 * @throws WrongArgumentException
+	 * @throws IllegalTypeException 
+	 * @throws IllegalIdentityValueException 
+	 */
+	void addToken(String type, String value, EntityParam owner, byte[] contents, Date created, Date expires) 
+			throws WrongArgumentException, IllegalIdentityValueException, IllegalTypeException;
+
+	/**
+	 * Removes the token
+	 * Transactional.
+	 * @param type
+	 * @param value
+	 * @throws WrongArgumentException
+	 */
+	void removeToken(String type, String value, Object transaction) throws WrongArgumentException;
+
 	/**
 	 * Removes the token
 	 * @param type
@@ -46,17 +79,40 @@ public interface TokensManagement
 	void removeToken(String type, String value) throws WrongArgumentException;
 	
 	/**
-	 * Update the token. Only contents can be updated - the type and value are used to look up 
+	 * Update the token. Only contents and expiration time can be updated - the type and value are used to look up 
+	 * a token for update.
+	 * Transactional.
+	 * @param type
+	 * @param value
+	 * @param expires if null -> leave unchanged
+	 * @param contents if null -> leave unchanged
+	 * @throws WrongArgumentException
+	 */
+	void updateToken(String type, String value, Date expires, byte[] contents, Object transaction) throws WrongArgumentException;
+
+	/**
+	 * Update the token. Only contents and expiration time can be updated - the type and value are used to look up 
 	 * a token for update.
 	 * @param type
 	 * @param value
-	 * @param contents
+	 * @param expires if null -> leave unchanged
+	 * @param contents if null -> leave unchanged
 	 * @throws WrongArgumentException
 	 */
-	void updateToken(String type, String value, byte[] contents) throws WrongArgumentException;
+	void updateToken(String type, String value, Date expires, byte[] contents) throws WrongArgumentException;
 	
 	/**
 	 * Returns a specified token 
+	 * @param type
+	 * @param value
+	 * @return
+	 * @throws WrongArgumentException 
+	 */
+	Token getTokenById(String type, String value, Object transaction) throws WrongArgumentException;
+
+	/**
+	 * Returns a specified token 
+	 * Transactional.
 	 * @param type
 	 * @param value
 	 * @return
@@ -66,6 +122,18 @@ public interface TokensManagement
 	
 	/**
 	 * Returns all tokens of the entity
+	 * @param type
+	 * @param entity
+	 * @return
+	 * @throws IllegalTypeException 
+	 * @throws IllegalIdentityValueException 
+	 */
+	List<Token> getOwnedTokens(String type, EntityParam entity, Object transaction) 
+			throws IllegalIdentityValueException, IllegalTypeException;
+
+	/**
+	 * Returns all tokens of the entity.
+	 * Transactional.
 	 * @param type
 	 * @param entity
 	 * @return

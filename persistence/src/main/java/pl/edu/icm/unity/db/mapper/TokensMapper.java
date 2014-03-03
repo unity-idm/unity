@@ -17,6 +17,8 @@ public interface TokensMapper
 	public int insertToken(TokenBean toAdd);
 	public void deleteToken(TokenBean toRemove);
 	public void updateToken(TokenBean updated);
+	public void updateTokenExpiration(TokenBean updated);
+	public void updateTokenContents(TokenBean updated);
 	public TokenBean selectTokenById(TokenBean toSelect);
 	public List<TokenBean> selectTokensByOwner(TokenBean toSelect);
 	public List<TokenBean> selectExpiredTokens();

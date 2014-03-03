@@ -23,6 +23,12 @@
 	</delete>
 
 	<update id="updateToken" parameterType="TokenB">
+		UPDATE TOKENS SET EXPIRES=#{expires}, CONTENTS=#{contents} WHERE NAME=#{name} AND TYPE=#{type}  
+	</update>
+	<update id="updateTokenExpiration" parameterType="TokenB">
+		UPDATE TOKENS SET EXPIRES=#{expires} WHERE NAME=#{name} AND TYPE=#{type}  
+	</update>
+	<update id="updateTokenContents" parameterType="TokenB">
 		UPDATE TOKENS SET CONTENTS=#{contents} WHERE NAME=#{name} AND TYPE=#{type}  
 	</update>
 	
