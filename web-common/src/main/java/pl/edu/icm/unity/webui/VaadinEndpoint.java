@@ -23,7 +23,6 @@ import org.springframework.context.ApplicationContext;
 import com.vaadin.server.VaadinServlet;
 
 import eu.unicore.util.configuration.ConfigurationException;
-
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
@@ -62,6 +61,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		this.uiBeanName = uiBeanName;
 		this.servletPath = servletPath;
 	}
+	
 
 	@Override
 	public String getSerializedConfiguration()
@@ -108,14 +108,14 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 
 		authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticators, 
-				registrationConfiguration, genericEndpointProperties);
+				registrationConfiguration);
 		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet);
 		authnServletHolder.setInitParameter("closeIdleSessions", "true");
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
 		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
-				description, authenticators, registrationConfiguration, genericEndpointProperties);
+				description, authenticators, registrationConfiguration);
 		context.addServlet(createVaadinServletHolder(theServlet), servletPath + "/*");
 
 		return context;

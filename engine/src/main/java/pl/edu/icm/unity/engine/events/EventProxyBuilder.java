@@ -13,6 +13,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.RealmsManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 
 /**
@@ -34,6 +35,8 @@ public class EventProxyBuilder
 	private PreferencesManagement prefMan;
 	@Autowired @Qualifier("plain")
 	private RegistrationsManagement regMan;
+	@Autowired @Qualifier("plain")
+	private RealmsManagement realmMan;
 	
 	@Autowired
 	private EventProcessor eventProcessor;
@@ -77,5 +80,13 @@ public class EventProxyBuilder
 				new Class[] {RegistrationsManagement.class}, 
 				new EventDecoratingHandler(regMan, eventProcessor, 
 						RegistrationsManagement.class.getSimpleName()));
+	}
+
+	public RealmsManagement getRealmsManagementInstance()
+	{
+		return (RealmsManagement) Proxy.newProxyInstance(classLoader, 
+				new Class[] {RealmsManagement.class}, 
+				new EventDecoratingHandler(realmMan, eventProcessor, 
+						RealmsManagement.class.getSimpleName()));
 	}
 }

@@ -28,13 +28,13 @@ import eu.unicore.security.etd.TrustDelegation;
 import eu.unicore.security.wsutil.samlclient.AuthnResponseAssertions;
 import eu.unicore.security.wsutil.samlclient.SAMLAuthnClient;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
-
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -71,10 +71,13 @@ public class TestSoapETD extends DBIntegrationTestBase
 		{
 			setupMockAuthn();
 			createUsers();
-
+			AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
+					10, 100, -1, 600);
+			realmsMan.addRealm(realm);
 			List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
 			authnCfg.add(new AuthenticatorSet(Collections.singleton("Acert")));
-			endpointMan.deploy(SamlUnicoreIdPSoapEndpointFactory.NAME, "endpoint1", "/saml", "desc", authnCfg, SAML_ENDP_CFG);
+			endpointMan.deploy(SamlUnicoreIdPSoapEndpointFactory.NAME, "endpoint1", "/saml", "desc",
+					authnCfg, SAML_ENDP_CFG, realm.getName());
 			List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 			assertEquals(1, endpoints.size());
 

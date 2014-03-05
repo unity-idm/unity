@@ -21,6 +21,7 @@
 	<bean primary="true" factory-bean="proxyBuilder" factory-method="getIdentitiesManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder" factory-method="getPreferencesManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder" factory-method="getRegistrationsManagementInstance"/>
+	<bean primary="true" factory-bean="proxyBuilder" factory-method="getRealmsManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getServerManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getEndpointsManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getAuthenticationManagementInstance"/>
@@ -57,6 +58,9 @@
 		<qualifier value="plain"/>
 	</bean>
 	<bean primary="false" class="pl.edu.icm.unity.engine.TranslationProfileManagementImpl">
+		<qualifier value="plain"/>
+	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.RealmsManagementImpl">
 		<qualifier value="plain"/>
 	</bean>
 			
@@ -102,7 +106,11 @@
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-
+	<bean primary="false" class="pl.edu.icm.unity.engine.RealmsManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	
 	<!-- Currently simplistic -->
 	<bean class="pl.edu.icm.unity.engine.PKIManagementImpl"/>
 	<bean class="pl.edu.icm.unity.engine.SharedEndpointManagementImpl"/>

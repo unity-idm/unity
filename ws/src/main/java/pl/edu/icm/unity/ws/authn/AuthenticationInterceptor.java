@@ -28,7 +28,7 @@ import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.ws.CXFEndpointProperties;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
 /**
  * Performs a final authentication, basing on the endpoint's configuration.
@@ -44,14 +44,13 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	
 	
 	public AuthenticationInterceptor(UnityMessageSource msg, List<Map<String, BindingAuthn>> authenticators,
-			CXFEndpointProperties config)
+			AuthenticationRealm realm)
 	{
 		super(Phase.PRE_INVOKE);
 		this.msg = msg;
 		this.authenticators = authenticators;
-		int blockAfter = config.getIntValue(CXFEndpointProperties.BLOCK_AFTER_UNSUCCESSFUL);
-		int blockFor = config.getIntValue(CXFEndpointProperties.BLOCK_FOR) * 1000;
-		this.unsuccessfulAuthenticationCounter = new UnsuccessfulAuthenticationCounter(blockAfter, blockFor);
+		this.unsuccessfulAuthenticationCounter = new UnsuccessfulAuthenticationCounter(
+				realm.getBlockAfterUnsuccessfulLogins(), realm.getBlockFor()*1000);
 	}
 
 	@Override

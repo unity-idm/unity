@@ -26,6 +26,7 @@ import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -58,13 +59,11 @@ public class UnityVaadinServlet extends VaadinServlet
 	private transient List<Map<String, BindingAuthn>> authenticators;
 	private transient CancelHandler cancelHandler;
 	private transient EndpointRegistrationConfiguration registrationConfiguration;
-	private transient VaadinEndpointProperties vaadinEndpointProperties;
 	
 	public UnityVaadinServlet(ApplicationContext applicationContext, String uiBeanName,
 			EndpointDescription description,
 			List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration registrationConfiguration,
-			VaadinEndpointProperties vaadinEndpointProperties)
+			EndpointRegistrationConfiguration registrationConfiguration)
 	{
 		super();
 		this.applicationContext = applicationContext;
@@ -73,7 +72,6 @@ public class UnityVaadinServlet extends VaadinServlet
 		this.authenticators = authenticators;
 		this.config = applicationContext.getBean(UnityServerConfiguration.class);
 		this.registrationConfiguration = registrationConfiguration;
-		this.vaadinEndpointProperties = vaadinEndpointProperties;
 	}
 	
 	@Override
@@ -86,11 +84,10 @@ public class UnityVaadinServlet extends VaadinServlet
 		Object counter = getServletContext().getAttribute(UnsuccessfulAuthenticationCounter.class.getName());
 		if (counter == null)
 		{
-			int blockAfter = vaadinEndpointProperties.getIntValue(
-					VaadinEndpointProperties.BLOCK_AFTER_UNSUCCESSFUL);
-			int blockFor = vaadinEndpointProperties.getIntValue(VaadinEndpointProperties.BLOCK_FOR) * 1000;
+			AuthenticationRealm realm = description.getRealm();
 			getServletContext().setAttribute(UnsuccessfulAuthenticationCounter.class.getName(),
-					new UnsuccessfulAuthenticationCounter(blockAfter, blockFor));
+					new UnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(),
+							realm.getBlockFor()*1000));
 		}
 		
 	}

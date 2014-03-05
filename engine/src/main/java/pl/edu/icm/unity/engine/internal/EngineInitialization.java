@@ -415,7 +415,7 @@ public class EngineInitialization extends LifecycleBase
 			{
 				log.info(" - " + endpoint.getId() + ": " + endpoint.getType().getName() + 
 						" " + endpoint.getDescription() + " at " + 
-						endpoint.getContextAddress());
+						endpoint.getContextAddress() + " in realm " + endpoint.getRealm());
 			}
 		} catch (Exception e)
 		{
@@ -437,6 +437,7 @@ public class EngineInitialization extends LifecycleBase
 			String address = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_ADDRESS);
 			String name = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_NAME);
 			String authenticatorsSpec = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
+			String realmName = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_REALM);
 			
 			String[] authenticatorSets = authenticatorsSpec.split(";");
 			List<AuthenticatorSet> endpointAuthn = new ArrayList<AuthenticatorSet>();
@@ -451,7 +452,8 @@ public class EngineInitialization extends LifecycleBase
 			
 			String jsonConfiguration = FileUtils.readFileToString(configFile);
 
-			endpointManager.deploy(type, name, address, description, endpointAuthn, jsonConfiguration);
+			endpointManager.deploy(type, name, address, description, endpointAuthn, realmName, 
+					jsonConfiguration);
 			log.info(" - " + name + ": " + type + " " + description);
 		}
 	}

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -24,10 +25,13 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.JettyServer;
+import pl.edu.icm.unity.server.api.RealmsManagement;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.registries.EndpointFactoriesRegistry;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 /**
@@ -41,15 +45,17 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 	private EndpointFactoriesRegistry endpointFactoriesReg;
 	private JettyServer httpServer;
 	private AuthenticatorLoader authnLoader;
+	private RealmsManagement realmsManagement;
 	
 	@Autowired
 	public EndpointHandler(ObjectMapper jsonMapper, EndpointFactoriesRegistry endpointFactoriesReg,
-			JettyServer httpServer, AuthenticatorLoader authnLoader)
+			JettyServer httpServer, AuthenticatorLoader authnLoader, RealmsManagement realmsManagement)
 	{
 		super(jsonMapper, ENDPOINT_OBJECT_TYPE, EndpointInstance.class);
 		this.endpointFactoriesReg = endpointFactoriesReg;
 		this.httpServer = httpServer;
 		this.authnLoader = authnLoader;
+		this.realmsManagement = realmsManagement;
 	}
 
 	@Override
@@ -59,9 +65,15 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 		{
 			EndpointDescription desc = endpoint.getEndpointDescription();
 			String state = endpoint.getSerializedConfiguration();
-			String jsonDesc = jsonMapper.writeValueAsString(desc);
 			ObjectNode root = jsonMapper.createObjectNode();
-			root.put("description", jsonDesc);
+			ObjectNode descNode = root.putObject("description");
+			String authenticators = jsonMapper.writeValueAsString(desc.getAuthenticatorSets());
+			descNode.put("authenticatorSets", authenticators);
+			descNode.put("contextAddress", desc.getContextAddress());
+			descNode.put("description", desc.getDescription());
+			descNode.put("id", desc.getId());
+			descNode.put("realmName", desc.getRealm().getName());
+			descNode.put("typeName", desc.getType().getName());
 			root.put("state", state);
 			byte[] serialized = jsonMapper.writeValueAsBytes(root);
 			return new GenericObjectBean(endpoint.getEndpointDescription().getId(), 
@@ -81,17 +93,32 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 			if (factory == null)
 				throw new IllegalArgumentException("Endpoint type " + blob.getSubType() + " is unknown");
 			JsonNode root = jsonMapper.readTree(blob.getContents());
-			String descriptionJson = root.get("description").asText();
+			ObjectNode descriptionJson = (ObjectNode) root.get("description");
 			String state = root.get("state").asText();
-			EndpointDescription description = jsonMapper.readValue(descriptionJson, 
-					EndpointDescription.class);
+			EndpointDescription description = new EndpointDescription();
+			
+			List<AuthenticatorSet> aSet = jsonMapper.readValue(
+					descriptionJson.get("authenticatorSets").asText(), 
+					new TypeReference<List<AuthenticatorSet>>() {});
+			description.setAuthenticatorSets(aSet);
+			description.setContextAddress(descriptionJson.get("contextAddress").asText());
+			if (descriptionJson.has("description"))
+				description.setDescription(descriptionJson.get("description").asText());
+			description.setId(descriptionJson.get("id").asText());
+			
+			AuthenticationRealm realm = descriptionJson.has("realmName") ? 
+					realmsManagement.getRealm(descriptionJson.get("realmName").asText()) :
+					realmsManagement.getDefaultRealm();
+				
+			description.setRealm(realm);
+			description.setType(factory.getDescription());
 
 			EndpointInstance instance = factory.newInstance();
 			List<Map<String, BindingAuthn>> authenticators = 
 					authnLoader.getAuthenticators(description.getAuthenticatorSets(), sql);
 			instance.initialize(blob.getName(), httpServer.getAdvertisedAddress(),
 					description.getContextAddress(), description.getDescription(), 
-					description.getAuthenticatorSets(), authenticators, state);
+					description.getAuthenticatorSets(), authenticators, realm, state);
 			return instance;
 		} catch (JsonProcessingException e)
 		{

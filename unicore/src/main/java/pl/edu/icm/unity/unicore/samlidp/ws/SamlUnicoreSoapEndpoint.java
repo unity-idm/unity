@@ -30,7 +30,8 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 			AttributesManagement attributesMan, PreferencesManagement preferencesMan,
 			PKIManagement pkiManagement, ExecutorsService executorsService)
 	{
-		super(msg, type, servletPath, metadataServletPath, identitiesMan, attributesMan, preferencesMan, 
+		super(msg, type, servletPath, metadataServletPath, 
+				identitiesMan, attributesMan, preferencesMan, 
 				pkiManagement, executorsService);
 	}
 

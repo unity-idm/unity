@@ -25,7 +25,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.notifications.TemplatesStore;
-
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -57,6 +56,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String PKI_CONF = "pkiConfigFile";
 	public static final String THREAD_POOL_SIZE = "threadPoolSize";
 	public static final String RECREATE_ENDPOINTS_ON_STARTUP = "recreateEndpointsOnStartup";
+	
 	public static final String ENDPOINTS = "endpoints.";
 	public static final String ENDPOINT_DESCRIPTION = "endpointDescription";
 	public static final String ENDPOINT_TYPE = "endpointType";
@@ -64,11 +64,19 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String ENDPOINT_ADDRESS = "contextPath";
 	public static final String ENDPOINT_NAME = "endpointName";	
 	public static final String ENDPOINT_AUTHENTICATORS = "endpointAuthenticators";
+	public static final String ENDPOINT_REALM = "endpointRealm";
+	
 	public static final String INITIALIZERS = "initializers.";
 	public static final String UPDATE_INTERVAL = "asyncStateUpdateInterval";
 	public static final String WORKSPACE_DIRECTORY = "workspaceDirectory";
 	public static final String MAIN_CREDENTIAL = "credential";
 	public static final String MAIN_TRUSTSTORE = "truststore";
+	
+	public static final String REALMS = "realms.";
+	public static final String REALM_NAME = "realmName";
+	public static final String REALM_BLOCK_AFTER_UNSUCCESSFUL = "blockAfterUnsuccessfulLogins";
+	public static final String REALM_BLOCK_FOR = "blockFor";
+	public static final String REALM_REMEMBER_ME = "enableRememberMeFor";
 	
 	public static final String AUTHENTICATORS = "authenticators.";
 	public static final String AUTHENTICATOR_NAME = "authenticatorName";
@@ -157,6 +165,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("Endpoint name"));
 		defaults.put(ENDPOINT_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(initEndpointsCat).
 				setDescription("Endpoint authenticator names: each set is separated with ';' and particular authenticators in each set with ','."));
+		defaults.put(ENDPOINT_REALM, new PropertyMD().setMandatory().setStructuredListEntry(ENDPOINTS).
+				setDescription("Authentication realm name, to which this endpoint belongs."));
 
 		defaults.put(AUTHENTICATORS, new PropertyMD().setStructuredList(true).setCategory(initAuthnCat).
 				setDescription("List of initially enabled authenticators"));
@@ -171,6 +181,25 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		defaults.put(AUTHENTICATOR_RETRIEVAL_CONFIG, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setCategory(initAuthnCat).
 				setDescription("Authenticator configuration file of the retrieval"));
 
+		defaults.put(REALMS, new PropertyMD().setStructuredList(false).
+				setDescription("List of authentication realm definitions."));
+		defaults.put(REALM_NAME, new PropertyMD().setMandatory().setStructuredListEntry(REALMS).
+				setDescription("Defines the realm's name. Must contain only alphanumeric letters, "
+						+ "and can not exceed 20 characters."));
+		defaults.put(REALM_BLOCK_AFTER_UNSUCCESSFUL, new PropertyMD("5").setPositive().setStructuredListEntry(REALMS).
+				setDescription("Defines maximum number of unsuccessful logins before the access is temporarely blocked for a client."));
+		defaults.put(REALM_BLOCK_FOR, new PropertyMD("60").setPositive().setStructuredListEntry(REALMS).
+				setDescription("Defines for how long (in seconds) the access should be blocked for the" +
+						"client reaching the limit of unsuccessful logins."));
+		defaults.put(REALM_REMEMBER_ME, new PropertyMD().setInt().setPositive().setStructuredListEntry(REALMS).
+				setDescription("(web endpoints only) If defined, the realm authentication will allow for "
+						+ "remeberinging the user's login even after session is lost due "
+						+ "to expiration or browser closing. The period of time to remember the login "
+						+ "will be equal to the number of days as given to this option. "
+						+ "IMPORTANT! This is an insecure option. Use it only for realms "
+						+ "containing only endpoints with low security requirements."));
+
+		
 		defaults.put(CREDENTIALS, new PropertyMD().setStructuredList(true).setCategory(initCredCat).
 				setDescription("List of initially defined credentials"));
 		defaults.put(CREDENTIAL_NAME, new PropertyMD().setStructuredListEntry(CREDENTIALS).setMandatory().setCategory(initCredCat).

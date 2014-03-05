@@ -12,14 +12,15 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
+import static org.junit.Assert.*;
 import pl.edu.icm.unity.engine.mock.MockEndpoint;
 import pl.edu.icm.unity.engine.mock.MockEndpointFactory;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
@@ -41,6 +42,9 @@ public class TestAuthentication extends DBIntegrationTestBase
 	{
 		//create credential requirement and an identity with it 
 		super.setupMockAuthn();
+		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
+				10, 10, -1, 600);
+		realmsMan.addRealm(realm);
 		
 		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=foo", false), 
 				"crMock", EntityState.valid, false);
@@ -52,7 +56,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		
 		AuthenticatorSet authSet = new AuthenticatorSet(Collections.singleton("auth1"));
 		endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "/foo", "desc", 
-				Collections.singletonList(authSet), "");
+				Collections.singletonList(authSet), "", realm.getName());
 
 		//set wrong password 
 		EntityParam entityP = new EntityParam(id);
@@ -77,6 +81,9 @@ public class TestAuthentication extends DBIntegrationTestBase
 	{
 		//create credential definition
 		super.setupMockAuthn();
+		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
+				10, 10, -1, 600);
+		realmsMan.addRealm(realm);
 
 		//get authn types
 		Collection<AuthenticatorTypeDescription> authTypes = authnMan.getAuthenticatorTypes("web");
@@ -116,13 +123,15 @@ public class TestAuthentication extends DBIntegrationTestBase
 		assertEquals(1, endpointTypes.size());
 		EndpointTypeDescription type = endpointTypes.get(0);
 		
-		endpointMan.deploy(type.getName(), "endpoint1", "/foo", "desc", new ArrayList<AuthenticatorSet>(), "");
+		endpointMan.deploy(type.getName(), "endpoint1", "/foo", "desc", new ArrayList<AuthenticatorSet>(), "", 
+				realm.getName());
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 
 		//and assign the authenticator to it
 		AuthenticatorSet authSet = new AuthenticatorSet(Collections.singleton("auth1"));
-		endpointMan.updateEndpoint(endpoints.get(0).getId(), "ada", Collections.singletonList(authSet), "");
+		endpointMan.updateEndpoint(endpoints.get(0).getId(), "ada", Collections.singletonList(authSet), "", 
+				realm.getName());
 
 		//check if is returned
 		List<AuthenticatorSet> authSets = endpointMan.getEndpoints().get(0).getAuthenticatorSets();
@@ -137,7 +146,8 @@ public class TestAuthentication extends DBIntegrationTestBase
 		} catch (IllegalArgumentException e) {}
 		
 		//remove it from endpoint
-		endpointMan.updateEndpoint(endpoints.get(0).getId(), "ada", new ArrayList<AuthenticatorSet>(), "");
+		endpointMan.updateEndpoint(endpoints.get(0).getId(), "ada", new ArrayList<AuthenticatorSet>(), "",
+				realm.getName());
 		
 		//remove again
 		authnMan.removeAuthenticator(authInstance.getId());

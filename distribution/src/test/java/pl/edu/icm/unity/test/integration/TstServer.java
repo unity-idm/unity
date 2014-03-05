@@ -16,7 +16,7 @@ public class TstServer
 {
 	public static void main(String... args) throws IOException 
 	{
-		FileUtils.deleteDirectory(new File("target/data"));
+		//FileUtils.deleteDirectory(new File("target/data"));
 		UnityApplication.main(new String[] {"src/test/resources/unityServer.conf"});
 	}
 }
