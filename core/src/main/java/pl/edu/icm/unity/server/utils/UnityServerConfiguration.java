@@ -10,6 +10,8 @@ package pl.edu.icm.unity.server.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,8 +77,10 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	
 	public static final String REALMS = "realms.";
 	public static final String REALM_NAME = "realmName";
+	public static final String REALM_DESCRIPTION = "realmDescription";
 	public static final String REALM_BLOCK_AFTER_UNSUCCESSFUL = "blockAfterUnsuccessfulLogins";
 	public static final String REALM_BLOCK_FOR = "blockFor";
+	public static final String REALM_MAX_INACTIVITY = "maxInactivity";
 	public static final String REALM_REMEMBER_ME = "enableRememberMeFor";
 	
 	public static final String AUTHENTICATORS = "authenticators.";
@@ -186,13 +191,17 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		defaults.put(REALM_NAME, new PropertyMD().setMandatory().setStructuredListEntry(REALMS).
 				setDescription("Defines the realm's name. Must contain only alphanumeric letters, "
 						+ "and can not exceed 20 characters."));
+		defaults.put(REALM_DESCRIPTION, new PropertyMD().setStructuredListEntry(REALMS).
+				setDescription("Realm's description."));
 		defaults.put(REALM_BLOCK_AFTER_UNSUCCESSFUL, new PropertyMD("5").setPositive().setStructuredListEntry(REALMS).
 				setDescription("Defines maximum number of unsuccessful logins before the access is temporarely blocked for a client."));
 		defaults.put(REALM_BLOCK_FOR, new PropertyMD("60").setPositive().setStructuredListEntry(REALMS).
 				setDescription("Defines for how long (in seconds) the access should be blocked for the" +
 						"client reaching the limit of unsuccessful logins."));
-		defaults.put(REALM_REMEMBER_ME, new PropertyMD().setInt().setPositive().setStructuredListEntry(REALMS).
-				setDescription("(web endpoints only) If defined, the realm authentication will allow for "
+		defaults.put(REALM_MAX_INACTIVITY, new PropertyMD("1800").setPositive().setStructuredListEntry(REALMS).
+				setDescription("Defines after what time of inactivity the login session is terminated (in seconds)."));
+		defaults.put(REALM_REMEMBER_ME, new PropertyMD("-1").setStructuredListEntry(REALMS).
+				setDescription("(web endpoints only) If set to positive number, the realm authentication will allow for "
 						+ "remeberinging the user's login even after session is lost due "
 						+ "to expiration or browser closing. The period of time to remember the login "
 						+ "will be equal to the number of days as given to this option. "
@@ -246,10 +255,30 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		if (!isLocaleSupported(defaultLocale))
 			throw new ConfigurationException("The default locale is not among enabled ones.");
 		templatesStore = loadTemplatesStore();
+
+		checkRealmNames();
 		
 		File workspace = new File(getValue(WORKSPACE_DIRECTORY));
 		if (!workspace.exists())
 			workspace.mkdirs();
+	}
+	
+	private void checkRealmNames()
+	{
+		Set<String> realmKeys = getStructuredListKeys(UnityServerConfiguration.REALMS);
+		for (String realmKey: realmKeys)
+		{
+			String name = getValue(realmKey+REALM_NAME);
+			if (name.length() > 20)
+				throw new ConfigurationException("Realm name is longer then 20 characters: " + name);
+			CharsetEncoder encoder = Charset.forName("US-ASCII").newEncoder();
+			if (!encoder.canEncode(name))
+				throw new ConfigurationException("Realm name is not ASCII: " + name);
+			for (char c: name.toCharArray())
+				if (!Character.isLetterOrDigit(c))
+					throw new ConfigurationException("Realm name must have only "
+							+ "digits and letters: " + name);
+		}
 	}
 	
 	private static String getConfigurationFile(Environment env, ConfigurationLocationProvider locProvider)

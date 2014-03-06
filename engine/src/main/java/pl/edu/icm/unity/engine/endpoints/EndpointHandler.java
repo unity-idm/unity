@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -49,7 +50,8 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 	
 	@Autowired
 	public EndpointHandler(ObjectMapper jsonMapper, EndpointFactoriesRegistry endpointFactoriesReg,
-			JettyServer httpServer, AuthenticatorLoader authnLoader, RealmsManagement realmsManagement)
+			JettyServer httpServer, AuthenticatorLoader authnLoader, 
+			@Qualifier("insecure") RealmsManagement realmsManagement)
 	{
 		super(jsonMapper, ENDPOINT_OBJECT_TYPE, EndpointInstance.class);
 		this.endpointFactoriesReg = endpointFactoriesReg;

@@ -49,6 +49,7 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
+import pl.edu.icm.unity.server.api.RealmsManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
@@ -64,6 +65,7 @@ import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -133,6 +135,9 @@ public class EngineInitialization extends LifecycleBase
 	private NotificationsManagement notManagement;
 	@Autowired
 	private List<ServerInitializer> initializers;
+	@Autowired
+	@Qualifier("insecure")
+	private RealmsManagement realmManagement;
 	
 	@Autowired
 	private TranslationActionsRegistry tactionsRegistry;
@@ -215,7 +220,6 @@ public class EngineInitialization extends LifecycleBase
 		runInitializers();
 		startLogConfigurationMonitoring();
 	}
-	
 	
 	private void initializeIdentityTypes()
 	{
@@ -370,43 +374,63 @@ public class EngineInitialization extends LifecycleBase
 	
 	private void initializeEndpoints()
 	{
-		if (config.getBooleanValue(UnityServerConfiguration.RECREATE_ENDPOINTS_ON_STARTUP))
-		{
-			try
-			{
-				log.info("Removing all persisted endpoints");
-				internalEndpointManager.removeAllPersistedEndpoints();
-			} catch (EngineException e)
-			{
-				log.fatal("Can't remove endpoints which are stored in database", e);
-				throw new InternalException("Can't restore endpoints which are stored in database", e);
-			}
-		}
-		
 		try
 		{
-			log.info("Loading all persisted endpoints");
-			internalEndpointManager.loadPersistedEndpoints();
+			log.info("Removing all persisted endpoints");
+			internalEndpointManager.removeAllPersistedEndpoints();
 		} catch (EngineException e)
 		{
-			log.fatal("Can't restore endpoints which are stored in database", e);
+			log.fatal("Can't remove endpoints which are stored in database", e);
 			throw new InternalException("Can't restore endpoints which are stored in database", e);
 		}
-		
-		//check for cold start - if so, we should load endpoints from configuration
+
 		try
 		{
-			if (endpointManager.getEndpoints().size() == 0)
+			log.info("Removing all persisted realms");
+			Collection<AuthenticationRealm> realms = realmManagement.getRealms();
+			for (AuthenticationRealm ar: realms)
+				realmManagement.removeRealm(ar.getName());
+		} catch (EngineException e)
+		{
+			log.fatal("Can't remove realms which are stored in database", e);
+			throw new InternalException("Can't remove realms which are stored in database", e);
+		}
+		
+		try
+		{
+			log.info("Loading configured realms");
+			Set<String> realmKeys = config.getStructuredListKeys(UnityServerConfiguration.REALMS);
+			for (String realmKey: realmKeys)
 			{
-				loadEndpointsFromConfiguration();
+				String name = config.getValue(realmKey+UnityServerConfiguration.REALM_NAME);
+				String description = config.getValue(realmKey+
+						UnityServerConfiguration.REALM_DESCRIPTION);
+				int blockAfter = config.getIntValue(realmKey+
+						UnityServerConfiguration.REALM_BLOCK_AFTER_UNSUCCESSFUL);
+				int blockFor = config.getIntValue(realmKey+UnityServerConfiguration.REALM_BLOCK_FOR);
+				int remeberMe = config.getIntValue(realmKey+
+						UnityServerConfiguration.REALM_REMEMBER_ME);
+				int maxInactive = config.getIntValue(realmKey+
+						UnityServerConfiguration.REALM_MAX_INACTIVITY);
+				
+				realmManagement.addRealm(new AuthenticationRealm(name, description, blockAfter, 
+						blockFor, remeberMe, maxInactive));
 			}
+		} catch (EngineException e)
+		{
+			log.fatal("Can't add realms which are defined in configuration", e);
+			throw new InternalException("Can't add realms which are defined in configuration", e);
+		}
+		
+		try
+		{
+			loadEndpointsFromConfiguration();
 		} catch (Exception e)
 		{
 			log.fatal("Can't load endpoints which are configured", e);
 			throw new InternalException("Can't load endpoints which are configured", e);
 		}
 		
-
 		try
 		{
 			List<EndpointDescription> endpoints = endpointManager.getEndpoints();
@@ -415,14 +439,14 @@ public class EngineInitialization extends LifecycleBase
 			{
 				log.info(" - " + endpoint.getId() + ": " + endpoint.getType().getName() + 
 						" " + endpoint.getDescription() + " at " + 
-						endpoint.getContextAddress() + " in realm " + endpoint.getRealm());
+						endpoint.getContextAddress() + " in realm " + 
+						endpoint.getRealm().getName());
 			}
 		} catch (Exception e)
 		{
 			log.fatal("Can't list loaded endpoints", e);
 			throw new InternalException("Can't list loaded endpoints", e);
-		}
-		endpointsLoadTime = System.currentTimeMillis();
+		}		endpointsLoadTime = System.currentTimeMillis();
 	}
 	
 	private void loadEndpointsFromConfiguration() throws IOException, EngineException
@@ -452,8 +476,8 @@ public class EngineInitialization extends LifecycleBase
 			
 			String jsonConfiguration = FileUtils.readFileToString(configFile);
 
-			endpointManager.deploy(type, name, address, description, endpointAuthn, realmName, 
-					jsonConfiguration);
+			endpointManager.deploy(type, name, address, description, endpointAuthn, 
+					jsonConfiguration, realmName);
 			log.info(" - " + name + ": " + type + " " + description);
 		}
 	}
