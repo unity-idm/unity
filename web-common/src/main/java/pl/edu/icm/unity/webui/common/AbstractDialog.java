@@ -105,7 +105,10 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		{
 			Component cc = components.next();
 			if (cc instanceof AbstractField)
-				return (AbstractField<?>) cc;
+			{
+				if (!((AbstractField<?>)cc).isReadOnly())
+					return (AbstractField<?>) cc;
+			}
 			if (cc instanceof ComponentContainer)
 				return getFocussedComponentRec(cc);
 		}

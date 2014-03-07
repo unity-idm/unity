@@ -98,7 +98,7 @@ public class MessageTemplateEditor extends FormLayout
 		body = new RequiredTextArea(msg.getMessage("MessageTemplatesEditor.body") + ":",
 				msg);
 		body.setImmediate(true);
-		body.setRows(10);
+		body.setRows(12);
 		body.setWidth(100, Unit.PERCENTAGE);
 		body.setValidationVisible(false);
 		validator = new MessageValidator(null, msg);
@@ -155,13 +155,6 @@ public class MessageTemplateEditor extends FormLayout
 
 		addComponents(name, description, consumer, consumerDescription, buttons, subject,
 				body);
-		setExpandRatio(name, 1.0f);
-		setExpandRatio(description, 1.0f);
-		setExpandRatio(consumerDescription, 1.0f);
-		setExpandRatio(buttons, 1.0f);
-		setExpandRatio(subject, 1.0f);
-		setExpandRatio(body, 1.0f);
-		setSizeFull();
 		setSpacing(true);
 
 	}
