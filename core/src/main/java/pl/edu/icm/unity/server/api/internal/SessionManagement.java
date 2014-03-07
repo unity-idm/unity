@@ -4,9 +4,11 @@
  */
 package pl.edu.icm.unity.server.api.internal;
 
-import java.util.Date;
+import java.util.Map;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
  * Internal login sessions management
@@ -23,22 +25,20 @@ public interface SessionManagement
 	String createSession(LoginSession session);
 	
 	/**
-	 * Updates the expiration time of the session.
+	 * Updates the extra attributes of the session. Update is done via callback to enable transactional access.
 	 * @param id
-	 * @param newExpires
 	 * @throws WrongArgumentException 
 	 */
-	void updateSessionExpirtaion(String id, Date newExpires) throws WrongArgumentException;
-	
-	/**
-	 * Updates the extra attributes of the session. Set the value to null to remove the attribute.
-	 * @param id
-	 * @param attributeKey
-	 * @param attributeValue
-	 * @throws WrongArgumentException 
-	 */
-	void updateSessionAttributes(String id, String attributeKey, String attributeValue) 
+	void updateSessionAttributes(String id, AttributeUpdater updater) 
 			throws WrongArgumentException;
+
+	/**
+	 * Updates the lastUsed timestamp of a session. The implementation may delay this action if the 
+	 * previous update happened recently.
+	 * @param id
+	 * @throws WrongArgumentException 
+	 */
+	void updateSessionActivity(String id) throws WrongArgumentException;
 
 	/**
 	 * Removes a given session. Missing session is silently ignored.
@@ -52,4 +52,24 @@ public interface SessionManagement
 	 * @throws WrongArgumentException 
 	 */
 	LoginSession getSession(String id) throws WrongArgumentException;
+	
+	/**
+	 * Tries to find a session owned by a given entity in a given realm.
+	 * @param owner
+	 * @param realm
+	 * @return
+	 * @throws WrongArgumentException
+	 * @throws EngineException 
+	 */
+	LoginSession getOwnedSession(EntityParam owner, String realm) throws WrongArgumentException, EngineException;
+	
+	/**
+	 * Callback interface. Implementation can update the attributes. It should return quickly as 
+	 * it is invoked inside of a DB transaction.
+	 * @author K. Benedyczak
+	 */
+	interface AttributeUpdater
+	{
+		public void updateAttributes(Map<String, String> sessionAttributes);
+	}
 }

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine;
 import static org.junit.Assert.*;
 
 import java.util.Date;
+import java.util.Map;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.api.internal.SessionManagement.AttributeUpdater;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -33,24 +35,25 @@ public class TestSessions extends DBIntegrationTestBase
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				EntityState.valid, false);
 
-		LoginSession s = new LoginSession(null, new Date(), null, id.getEntityId(), "test"); 
+		LoginSession s = new LoginSession(null, new Date(), null, 1000, id.getEntityId(), "test"); 
 		String sesId = sessionMan.createSession(s);
 		s.setId(sesId);
 		LoginSession ret = sessionMan.getSession(sesId);
 		testEquals(s, ret);
 		
-		sessionMan.updateSessionAttributes(sesId, "a1", "a1Val");
-		sessionMan.updateSessionAttributes(sesId, "a2", "a2Val");
-		
+		sessionMan.updateSessionAttributes(sesId, new AttributeUpdater()
+		{
+			@Override
+			public void updateAttributes(Map<String, String> sessionAttributes)
+			{
+				sessionAttributes.put("a1", "a1Val");
+				sessionAttributes.put("a2", "a2Val");
+			}
+		});
+				
 		s.getSessionData().put("a1", "a1Val");
 		s.getSessionData().put("a2", "a2Val");
 		ret = sessionMan.getSession(sesId);
-		testEquals(s, ret);
-		
-		long expire = System.currentTimeMillis() + 5000;
-		sessionMan.updateSessionExpirtaion(sesId, new Date(expire));
-		ret = sessionMan.getSession(sesId);
-		s.setExpires(new Date(expire));
 		testEquals(s, ret);
 		
 		sessionMan.removeSession(sesId);
@@ -70,6 +73,8 @@ public class TestSessions extends DBIntegrationTestBase
 		assertEquals(s.getId(), ret.getId());
 		assertEquals(s.getEntityId(), ret.getEntityId());
 		assertEquals(s.getExpires(), ret.getExpires());
+		assertEquals(s.getLastUsed(), ret.getLastUsed());
+		assertEquals(s.getMaxInactivity(), ret.getMaxInactivity());
 		assertEquals(s.getRealm(), ret.getRealm());
 		assertEquals(s.getStarted(), ret.getStarted());
 		assertEquals(s.getSessionData(), ret.getSessionData());
