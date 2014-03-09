@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.server.api.internal;
 
+import java.util.Date;
 import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -24,10 +25,12 @@ public interface SessionManagement
 	 * @param realm
 	 * @param label used only when a new session is created
 	 * @param outdatedCredential used only if a new session is created
+	 * @param absoluteExpiration can be null or absolute expiration time (then session is not closed after 
+	 * inactive timeout).
 	 * @return
 	 */
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, 
-			String label, boolean outdatedCredential);
+			String label, boolean outdatedCredential, Date absoluteExpiration);
 	
 	/**
 	 * Updates the extra attributes of the session. Update is done via callback to enable transactional access.

@@ -130,7 +130,6 @@ public class AuthenticationFilter implements Filter
 		if (session == null)
 			session = httpRequest.getSession(true);
 		session.setAttribute(WebSession.USER_SESSION_KEY, ls);
-		AuthenticationProcessor.setupSessionCookie(sessionCookie, ls.getId(), httpResponse);
 		sessionBinder.bindHttpSession(session, ls);
 		
 		gotoResource(httpRequest, response, chain);

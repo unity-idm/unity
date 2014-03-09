@@ -58,7 +58,7 @@ public class SessionManagementImpl implements SessionManagement
 
 	@Override
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
-			boolean outdatedCredential)
+			boolean outdatedCredential, Date absoluteExpiration)
 	{
 		Object transaction = tokensManagement.startTokenTransaction();
 		try
@@ -87,7 +87,7 @@ public class SessionManagementImpl implements SessionManagement
 			}
 			
 			LoginSession ret = createSession(loggedEntity, realm, entityLabel, outdatedCredential,
-					transaction);
+					absoluteExpiration, transaction);
 			tokensManagement.commitTokenTransaction(transaction);
 			if (log.isDebugEnabled())
 				log.debug("Created a new session " + ret.getId() + " for logged entity "
@@ -100,11 +100,12 @@ public class SessionManagementImpl implements SessionManagement
 	}
 	
 	private LoginSession createSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
-			boolean outdatedCredential, Object transaction)
+			boolean outdatedCredential, Date absoluteExpiration, Object transaction)
 	{
 		UUID randomid = UUID.randomUUID();
 		String id = randomid.toString();
-		LoginSession ls = new LoginSession(id, new Date(), realm.getMaxInactivity()*1000, loggedEntity, 
+		LoginSession ls = new LoginSession(id, new Date(), absoluteExpiration,
+				realm.getMaxInactivity()*1000, loggedEntity, 
 				realm.getName());
 		ls.setUsedOutdatedCredential(outdatedCredential);
 		ls.setEntityLabel(entityLabel);
@@ -229,6 +230,8 @@ public class SessionManagementImpl implements SessionManagement
 			long now = System.currentTimeMillis();
 			for (Token t: tokens)
 			{
+				if (t.getExpires() != null)
+					continue;
 				LoginSession session = token2session(t);
 				long inactiveFor = now - session.getLastUsed().getTime(); 
 				if (inactiveFor > session.getMaxInactivity())

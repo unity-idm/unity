@@ -37,12 +37,12 @@ public class TestSessions extends DBIntegrationTestBase
 
 		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, -1, 100);
 		AuthenticationRealm realm2 = new AuthenticationRealm("test2", "", 3, 33, -1, 100);
-		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", false);
+		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", false, null);
 		LoginSession ret = sessionMan.getSession(s.getId());
 		testEquals(s, ret);
-		LoginSession s2 = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", false);
+		LoginSession s2 = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", false, null);
 		testEquals(s, s2);
-		LoginSession s3 = sessionMan.getCreateSession(id.getEntityId(), realm2, "u1", false);
+		LoginSession s3 = sessionMan.getCreateSession(id.getEntityId(), realm2, "u1", false, null);
 		assertNotEquals(s.getId(), s3.getId());
 		
 		sessionMan.updateSessionAttributes(s.getId(), new AttributeUpdater()

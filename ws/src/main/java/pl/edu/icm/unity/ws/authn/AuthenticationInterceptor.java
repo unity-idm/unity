@@ -108,7 +108,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		unsuccessfulAuthenticationCounter.successfulAttempt(ip);
 		
 		LoginSession ls = sessionMan.getCreateSession(client.getEntityId(), realm, 
-				"", client.isUsedOutdatedCredential());
+				"", client.isUsedOutdatedCredential(), null);
 		ctx.setLoginSession(ls);
 		ctx.addAuthenticatedIdentities(client.getAuthenticatedWith());
 	}

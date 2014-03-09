@@ -47,7 +47,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 				EngineInitialization.DEFAULT_CREDENTIAL);
 		InvocationContext virtualAdmin = new InvocationContext();
 		LoginSession ls = sessionMan.getCreateSession(entity.getEntityId(), getDefaultRealm(),
-				user, outdated);
+				user, outdated, null);
 		virtualAdmin.setLoginSession(ls);
 		virtualAdmin.setLocale(Locale.ENGLISH);
 		//override for tests: it can happen that existing session is returned, therefore old state of cred is

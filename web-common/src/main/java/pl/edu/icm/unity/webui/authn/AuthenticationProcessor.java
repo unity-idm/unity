@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.authn;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
@@ -86,8 +87,8 @@ public class AuthenticationProcessor
 		this.sessionBinder = sessionBinder;
 	}
 
-	public void processResults(List<AuthenticationResult> results, String clientIp, AuthenticationRealm realm) 
-			throws AuthenticationException
+	public void processResults(List<AuthenticationResult> results, String clientIp, AuthenticationRealm realm,
+			boolean rememberMe) throws AuthenticationException
 	{
 		UnsuccessfulAuthenticationCounter counter = getLoginCounter();
 		AuthenticatedEntity logInfo;
@@ -100,7 +101,7 @@ public class AuthenticationProcessor
 				counter.unsuccessfulAttempt(clientIp);
 			throw e;
 		}
-		WrappedSession session = logged(logInfo, realm);
+		WrappedSession session = logged(logInfo, realm, rememberMe);
 
 		if (logInfo.isUsedOutdatedCredential())
 		{
@@ -135,13 +136,16 @@ public class AuthenticationProcessor
 		dialog.show();
 	}
 	
-	private WrappedSession logged(AuthenticatedEntity authenticatedEntity, AuthenticationRealm realm) 
-			throws AuthenticationException
+	private WrappedSession logged(AuthenticatedEntity authenticatedEntity, AuthenticationRealm realm, 
+			boolean rememberMe) throws AuthenticationException
 	{
 		long entityId = authenticatedEntity.getEntityId();
 		String label = getLabel(entityId);
+		Date absoluteExpiration = (realm.getAllowForRememberMeDays() > 0 && rememberMe) ? 
+				new Date(System.currentTimeMillis()+getAbsoluteSessionTTL(realm)) : null;
 		LoginSession ls = sessionMan.getCreateSession(entityId, realm, 
-				label, authenticatedEntity.isUsedOutdatedCredential());
+				label, authenticatedEntity.isUsedOutdatedCredential(), 
+				absoluteExpiration);
 		VaadinSession vss = VaadinSession.getCurrent();
 		if (vss == null)
 		{
@@ -162,7 +166,8 @@ public class AuthenticationProcessor
 		HttpSession httpSession = ((HttpServletRequest)servletRequest.getRequest()).getSession();
 		
 		sessionBinder.bindHttpSession(httpSession, ls);
-		setupSessionCookie(getSessionCookieName(realm.getName()), ls.getId(), servletResponse);
+		setupSessionCookie(getSessionCookieName(realm.getName()), ls.getId(), servletResponse, rememberMe,
+				realm);
 		
 		InvocationContext.getCurrent().addAuthenticatedIdentities(authenticatedEntity.getAuthenticatedWith());
 		
@@ -174,16 +179,21 @@ public class AuthenticationProcessor
 		return UNITY_SESSION_COOKIE_PFX+realmName;
 	}
 	
-	public static void setupSessionCookie(String cookieName, String sessionId, HttpServletResponse servletResponse)
+	private static int getAbsoluteSessionTTL(AuthenticationRealm realm)
+	{
+		return 3600*24*realm.getAllowForRememberMeDays();
+	}
+	
+	private static void setupSessionCookie(String cookieName, String sessionId, 
+			HttpServletResponse servletResponse, boolean rememberMe, AuthenticationRealm realm)
 	{
 		Cookie unitySessionCookie = new Cookie(cookieName, sessionId);
 		unitySessionCookie.setPath("/");
 		unitySessionCookie.setSecure(true);
-		//TODO - here we need to also check whether the user selected a checkbox
-//		if (realm.getAllowForRememberMeDays() > 0)
-//		{
-//			unitySessionCookie.setMaxAge(3600*24*realm.getAllowForRememberMeDays());
-//		}
+		if (rememberMe && realm.getAllowForRememberMeDays() > 0)
+		{
+			unitySessionCookie.setMaxAge(getAbsoluteSessionTTL(realm));
+		}
 		servletResponse.addCookie(unitySessionCookie);
 	}
 	
