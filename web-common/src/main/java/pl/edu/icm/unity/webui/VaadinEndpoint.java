@@ -115,32 +115,54 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticators, 
 				registrationConfiguration);
-		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet);
+		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true);
 		authnServletHolder.setInitParameter("closeIdleSessions", "true");
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
 		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
 				description, authenticators, registrationConfiguration);
-		context.addServlet(createVaadinServletHolder(theServlet), servletPath + "/*");
+		context.addServlet(createVaadinServletHolder(theServlet, false), servletPath + "/*");
 
 		return context;
 	}
 
-	protected ServletHolder createServletHolder(Servlet servlet)
+	protected int getHeartbeatInterval(int sessionTimeout)
+	{
+		return (sessionTimeout < 20) ? (sessionTimeout/2) : 10;
+	}
+	
+	protected ServletHolder createServletHolder(Servlet servlet, boolean unrestrictedSessionTime)
 	{
 		ServletHolder holder = new ServletHolder(servlet);
-		holder.setInitParameter("closeIdleSessions", "true");
-		int sessionTimeout = genericEndpointProperties.getIntValue(VaadinEndpointProperties.SESSION_TIMEOUT);
-		holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(sessionTimeout));
+		if (unrestrictedSessionTime)
+		{
+			holder.setInitParameter("closeIdleSessions", "false");
+			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(-1));
+		} else
+		{
+			holder.setInitParameter("closeIdleSessions", "true");
+			int sessionTimeout = description.getRealm().getMaxInactivity();
+			int heartBeat = getHeartbeatInterval(sessionTimeout);
+			if (sessionTimeout > heartBeat + 10)
+			{
+				sessionTimeout = sessionTimeout - heartBeat - 5;
+			} else
+			{
+				sessionTimeout -= 5;
+				if (sessionTimeout < 5)
+					sessionTimeout = 5;
+			}
+			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(sessionTimeout));
+		}
 		return holder;
 	}
 	
-	protected ServletHolder createVaadinServletHolder(VaadinServlet servlet)
+	protected ServletHolder createVaadinServletHolder(VaadinServlet servlet, boolean unrestrictedSessionTime)
 	{
-		ServletHolder holder = createServletHolder(servlet);
-		int sessionTimeout = genericEndpointProperties.getIntValue(VaadinEndpointProperties.SESSION_TIMEOUT);
-		int heartBeat = (sessionTimeout < 10) ? sessionTimeout : 10;
+		ServletHolder holder = createServletHolder(servlet, unrestrictedSessionTime);
+		int sessionTimeout = description.getRealm().getMaxInactivity();
+		int heartBeat = getHeartbeatInterval(sessionTimeout);
 			
 		boolean productionMode = genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.PRODUCTION_MODE);
 		holder.setInitParameter("heartbeatInterval", String.valueOf(heartBeat));

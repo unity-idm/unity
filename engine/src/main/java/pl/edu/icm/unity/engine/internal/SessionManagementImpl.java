@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
+import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -33,9 +36,10 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 public class SessionManagementImpl implements SessionManagement
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, SessionManagementImpl.class);
-	public static final long DB_ACTIVITY_WRITE_DELAY = 5000;
+	public static final long DB_ACTIVITY_WRITE_DELAY = 3000;
 	public static final String SESSION_TOKEN_TYPE = "session";
 	private TokensManagement tokensManagement;
+	private LoginToHttpSessionBinder sessionBinder;
 	
 	/**
 	 * map of timestamps indexed by session ids, when the last activity update was written to DB.
@@ -43,9 +47,13 @@ public class SessionManagementImpl implements SessionManagement
 	private Map<String, Long> recentUsageUpdates = new WeakHashMap<>();
 	
 	@Autowired
-	public SessionManagementImpl(TokensManagement tokensManagement)
+	public SessionManagementImpl(TokensManagement tokensManagement, ExecutorsService execService,
+			LoginToHttpSessionBinder sessionBinder)
 	{
 		this.tokensManagement = tokensManagement;
+		this.sessionBinder = sessionBinder;
+		execService.getService().scheduleWithFixedDelay(new TerminateInactiveSessions(), 
+				20, 30, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -61,6 +69,11 @@ public class SessionManagementImpl implements SessionManagement
 						realm.getName(), transaction);
 				if (ret != null)
 				{
+					ret.setLastUsed(new Date());
+					byte[] contents = ret.getTokenContents();
+					tokensManagement.updateToken(SESSION_TOKEN_TYPE, ret.getId(), null, 
+							contents, transaction);
+					
 					if (log.isTraceEnabled())
 						log.trace("Using existing session " + ret.getId() + " for logged entity "
 							+ ret.getEntityId() + " in realm " + realm.getName());
@@ -91,7 +104,7 @@ public class SessionManagementImpl implements SessionManagement
 	{
 		UUID randomid = UUID.randomUUID();
 		String id = randomid.toString();
-		LoginSession ls = new LoginSession(id, new Date(), realm.getMaxInactivity(), loggedEntity, 
+		LoginSession ls = new LoginSession(id, new Date(), realm.getMaxInactivity()*1000, loggedEntity, 
 				realm.getName());
 		ls.setUsedOutdatedCredential(outdatedCredential);
 		ls.setEntityLabel(entityLabel);
@@ -130,9 +143,12 @@ public class SessionManagementImpl implements SessionManagement
 	@Override
 	public void removeSession(String id)
 	{
+		sessionBinder.removeLoginSession(id);
 		try
 		{
 			tokensManagement.removeToken(SESSION_TOKEN_TYPE, id, null);
+			if (log.isDebugEnabled())
+				log.debug("Removed session with id " + id);
 		} catch (WrongArgumentException e)
 		{
 			//not found - ok
@@ -189,6 +205,7 @@ public class SessionManagementImpl implements SessionManagement
 			byte[] contents = session.getTokenContents();
 			tokensManagement.updateToken(SESSION_TOKEN_TYPE, id, null, contents, transaction);
 			tokensManagement.commitTokenTransaction(transaction);
+			log.trace("Updated in db session activity timestamp for " + id);
 			recentUsageUpdates.put(id, System.currentTimeMillis());
 		} finally
 		{
@@ -201,5 +218,32 @@ public class SessionManagementImpl implements SessionManagement
 		LoginSession session = new LoginSession();
 		session.deserialize(token);
 		return session;
+	}
+	
+	private class TerminateInactiveSessions implements Runnable
+	{
+		@Override
+		public void run()
+		{
+			List<Token> tokens = tokensManagement.getAllTokens(SESSION_TOKEN_TYPE);
+			long now = System.currentTimeMillis();
+			for (Token t: tokens)
+			{
+				LoginSession session = token2session(t);
+				long inactiveFor = now - session.getLastUsed().getTime(); 
+				if (inactiveFor > session.getMaxInactivity())
+				{
+					log.debug("Expiring login session " + session + " inactive for: " + 
+							inactiveFor);
+					try
+					{
+						removeSession(session.getId());
+					} catch (Exception e)
+					{
+						log.error("Can't expire the session " + session, e);
+					}
+				}
+			}
+		}
 	}
 }

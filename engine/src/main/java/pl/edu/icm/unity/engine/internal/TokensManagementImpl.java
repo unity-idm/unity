@@ -267,4 +267,26 @@ public class TokensManagementImpl implements TokensManagement
 	{
 		return getOwnedTokens(type, entity, null);
 	}
+
+	@Override
+	public List<Token> getAllTokens(String type)
+	{
+		SqlSession sql = db.getSqlSession(true);
+		List<Token> ret;
+		try
+		{
+			List<TokenBean> tokens = dbTokens.getTokens(type, sql);
+			ret = new ArrayList<>(tokens.size());
+			for (TokenBean t: tokens)
+			{
+				Token tt = convert(t);
+				ret.add(tt);
+			}
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
+		return ret;
+	}
 }

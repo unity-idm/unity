@@ -32,9 +32,9 @@ public class LoginToHttpSessionBinder
 	private Map<String, Collection<HttpSessionWrapper>> bindings = 
 			new HashMap<String, Collection<HttpSessionWrapper>>(1000);
 	
-	public synchronized void removeLoginSession(LoginSession toRemove)
+	public synchronized void removeLoginSession(String toRemove)
 	{
-		Collection<HttpSessionWrapper> httpSessions = bindings.remove(toRemove.getId());
+		Collection<HttpSessionWrapper> httpSessions = bindings.remove(toRemove);
 		if (httpSessions != null)
 		{
 			for (HttpSessionWrapper sw: httpSessions)

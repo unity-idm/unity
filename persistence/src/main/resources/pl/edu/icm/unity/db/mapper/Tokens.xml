@@ -40,6 +40,10 @@
 		SELECT  * FROM TOKENS WHERE ENTITY_ID=#{owner} AND TYPE = #{type}
 	</select>
 
+	<select id="selectTokensByType" parameterType="string" resultMap="tokenResult">
+		SELECT  * FROM TOKENS WHERE TYPE = #{value}
+	</select>
+
 	<select id="selectExpiredTokens" resultMap="tokenResult">
 		SELECT * FROM TOKENS WHERE EXPIRES &lt; NOW()
 	</select>

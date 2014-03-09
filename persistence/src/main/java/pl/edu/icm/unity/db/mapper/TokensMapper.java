@@ -21,5 +21,6 @@ public interface TokensMapper
 	public void updateTokenContents(TokenBean updated);
 	public TokenBean selectTokenById(TokenBean toSelect);
 	public List<TokenBean> selectTokensByOwner(TokenBean toSelect);
+	public List<TokenBean> selectTokensByType(String type);
 	public List<TokenBean> selectExpiredTokens();
 }

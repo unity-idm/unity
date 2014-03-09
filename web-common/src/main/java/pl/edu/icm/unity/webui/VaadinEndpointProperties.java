@@ -27,7 +27,6 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.endpoint.web.";
 	
-	public static final String SESSION_TIMEOUT = "sessionTimeout";
 	public static final String PRODUCTION_MODE = "productionMode";
 	public static final String ENABLE_REGISTRATION = "enableRegistration";
 	public static final String ENABLED_REGISTRATION_FORMS = "enabledRegistrationForms.";
@@ -37,8 +36,6 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	
 	static
 	{
-		META.put(SESSION_TIMEOUT, new PropertyMD("600").setPositive().
-				setDescription("Defines maximum validity period (in seconds) of a web session."));
 		META.put(PRODUCTION_MODE, new PropertyMD("true").setHidden().
 				setDescription("Controls wether Vaadin should work in production mode or in debug mode (false)."));
 		META.put(ENABLE_REGISTRATION, new PropertyMD("false").

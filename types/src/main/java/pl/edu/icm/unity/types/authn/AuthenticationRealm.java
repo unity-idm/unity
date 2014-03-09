@@ -28,6 +28,7 @@ public class AuthenticationRealm extends DescribedObjectImpl
 		this.blockAfterUnsuccessfulLogins = blockAfterUnsuccessfulLogins;
 		this.blockFor = blockFor;
 		this.allowForRememberMeDays = allowForRememberMeDays;
+		this.maxInactivity = maxInactivity;
 	}
 
 	public int getBlockAfterUnsuccessfulLogins()

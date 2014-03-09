@@ -143,6 +143,13 @@ public interface TokensManagement
 	List<Token> getOwnedTokens(String type, EntityParam entity) 
 			throws IllegalIdentityValueException, IllegalTypeException;
 	
+
+	/**
+	 * @param type
+	 * @return all tokens of a given type
+	 */
+	List<Token> getAllTokens(String type); 
+	
 	/**
 	 * Adds a new listenr which is notified about expired tokens of a specified type 
 	 * @param listener

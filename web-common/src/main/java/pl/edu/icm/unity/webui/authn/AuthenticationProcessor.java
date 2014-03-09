@@ -196,7 +196,7 @@ public class AuthenticationProcessor
 			throw new AuthenticationException("AuthenticationProcessor.authnInternalError");
 		}
 		String origURL = getOriginalURL(session);
-		
+		ui.getSession().close();
 		ui.getPage().open(origURL, "");
 	}
 	
@@ -219,7 +219,6 @@ public class AuthenticationProcessor
 	{
 		InvocationContext invocationContext = InvocationContext.getCurrent();
 		LoginSession ls = invocationContext.getLoginSession();
-		sessionBinder.removeLoginSession(ls);
 		sessionMan.removeSession(ls.getId());
 	}
 	

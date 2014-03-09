@@ -100,6 +100,12 @@ public class DBTokens
 		toSelect.setType(type);
 		return mapper.selectTokensByOwner(toSelect);
 	}
+
+	public List<TokenBean> getTokens(String type, SqlSession sqlMap)
+	{
+		TokensMapper mapper = sqlMap.getMapper(TokensMapper.class);
+		return mapper.selectTokensByType(type);
+	}
 	
 	public List<TokenBean> getExpiredTokens(SqlSession sqlMap)
 	{

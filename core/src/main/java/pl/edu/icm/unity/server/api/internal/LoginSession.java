@@ -226,4 +226,10 @@ public class LoginSession
 			throw new InternalException("Can't perform JSON serialization", e);
 		}
 	}
+	
+	@Override
+	public String toString()
+	{
+		return id + "@" + realm + " of " + entityId;
+	}
 }

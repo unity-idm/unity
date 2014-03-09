@@ -92,7 +92,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 				EnumSet.of(DispatcherType.REQUEST));
 		
 		Servlet samlParseServlet = getSamlParseServlet(endpointURL, uiURL);
-		ServletHolder samlParseHolder = createServletHolder(samlParseServlet);
+		ServletHolder samlParseHolder = createServletHolder(samlParseServlet, true);
 		context.addServlet(samlParseHolder, samlConsumerPath + "/*");
 		
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
@@ -112,18 +112,18 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 				description.getContextAddress()+AUTHENTICATION_PATH);
 		authenticationServlet.setCancelHandler(cancelHandler);
 		
-		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet); 
+		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true); 
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
 		UnityVaadinServlet theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
 				description, authenticators, registrationConfiguration);
-		context.addServlet(createVaadinServletHolder(theServlet), servletPath + "/*");
+		context.addServlet(createVaadinServletHolder(theServlet, false), servletPath + "/*");
 		
 		if (samlProperties.getBooleanValue(SamlIdpProperties.PUBLISH_METADATA))
 		{
 			Servlet metadataServlet = getMetadataServlet(endpointURL);
-			context.addServlet(createServletHolder(metadataServlet), samlMetadataPath + "/*");
+			context.addServlet(createServletHolder(metadataServlet, true), samlMetadataPath + "/*");
 		}
 		return context;
 	}

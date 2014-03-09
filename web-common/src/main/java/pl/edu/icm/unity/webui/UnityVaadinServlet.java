@@ -31,10 +31,14 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 
+import com.vaadin.server.CustomizedSystemMessages;
 import com.vaadin.server.DeploymentConfiguration;
 import com.vaadin.server.ServiceException;
 import com.vaadin.server.SessionInitEvent;
 import com.vaadin.server.SessionInitListener;
+import com.vaadin.server.SystemMessages;
+import com.vaadin.server.SystemMessagesInfo;
+import com.vaadin.server.SystemMessagesProvider;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinServlet;
@@ -90,6 +94,26 @@ public class UnityVaadinServlet extends VaadinServlet
 							realm.getBlockFor()*1000));
 		}
 		
+		SystemMessagesProvider msgProvider = new SystemMessagesProvider() 
+		{
+			@Override 
+			public SystemMessages getSystemMessages(
+					SystemMessagesInfo systemMessagesInfo) {
+				CustomizedSystemMessages messages =
+						new CustomizedSystemMessages();
+				messages.setCommunicationErrorCaption("It seems that your login session is no longer available");
+				messages.setCommunicationErrorMessage("This happens most often due to "
+						+ "prolonged inactivity. You have to log in again.");
+				messages.setCommunicationErrorNotificationEnabled(true);
+				messages.setCommunicationErrorURL(null);
+				
+				messages.setSessionExpiredCaption("Session expiration");
+				messages.setSessionExpiredMessage("Your login session will expire in few seconds.");
+				messages.setSessionExpiredURL(null);
+				return messages;
+			}
+		}; 
+		getService().setSystemMessagesProvider(msgProvider);
 	}
 	
 	private Map<Class<?>, Object> saveThreadLocalState()

@@ -19,6 +19,8 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
+import com.vaadin.shared.ApplicationConstants;
+
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
@@ -62,7 +64,6 @@ public class AuthenticationFilter implements Filter
 	{
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
-		
 		String servletPath = httpRequest.getServletPath();
 		if (!hasPathPrefix(servletPath, protectedPath))
 		{
@@ -75,10 +76,27 @@ public class AuthenticationFilter implements Filter
 		HttpSession session = httpRequest.getSession(false);
 		String sessionId = getUnitySessionIdFromCookie(httpRequest);
 		
-		if (session != null && session.getAttribute(WebSession.USER_SESSION_KEY) != null)
+		if (session != null)
 		{
-			gotoResource(httpRequest, response, chain);
-			return;
+			LoginSession ls = (LoginSession) session.getAttribute(WebSession.USER_SESSION_KEY);
+			if (ls != null)
+			{
+				try
+				{
+					if (!hasPathPrefix(httpRequest.getPathInfo(), 
+							ApplicationConstants.HEARTBEAT_PATH + '/'))
+					{
+						log.trace("Update session activity for " + sessionId);
+						sessionMan.updateSessionActivity(sessionId);
+					}
+				} catch (WrongArgumentException e)
+				{
+					log.debug("Can't update session activity ts for " + sessionId + 
+							" - expired(?)");
+				}
+				gotoResource(httpRequest, response, chain);
+				return;
+			}
 		}
 
 		if (sessionId == null)
