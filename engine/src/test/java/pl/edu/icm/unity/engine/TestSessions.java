@@ -6,7 +6,6 @@ package pl.edu.icm.unity.engine;
 
 import static org.junit.Assert.*;
 
-import java.util.Date;
 import java.util.Map;
 
 import org.junit.Test;
@@ -19,6 +18,7 @@ import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.SessionManagement.AttributeUpdater;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
@@ -35,13 +35,17 @@ public class TestSessions extends DBIntegrationTestBase
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				EntityState.valid, false);
 
-		LoginSession s = new LoginSession(null, new Date(), null, 1000, id.getEntityId(), "test"); 
-		String sesId = sessionMan.createSession(s);
-		s.setId(sesId);
-		LoginSession ret = sessionMan.getSession(sesId);
+		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, -1, 100);
+		AuthenticationRealm realm2 = new AuthenticationRealm("test2", "", 3, 33, -1, 100);
+		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", false);
+		LoginSession ret = sessionMan.getSession(s.getId());
 		testEquals(s, ret);
+		LoginSession s2 = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", false);
+		testEquals(s, s2);
+		LoginSession s3 = sessionMan.getCreateSession(id.getEntityId(), realm2, "u1", false);
+		assertNotEquals(s.getId(), s3.getId());
 		
-		sessionMan.updateSessionAttributes(sesId, new AttributeUpdater()
+		sessionMan.updateSessionAttributes(s.getId(), new AttributeUpdater()
 		{
 			@Override
 			public void updateAttributes(Map<String, String> sessionAttributes)
@@ -53,19 +57,21 @@ public class TestSessions extends DBIntegrationTestBase
 				
 		s.getSessionData().put("a1", "a1Val");
 		s.getSessionData().put("a2", "a2Val");
-		ret = sessionMan.getSession(sesId);
+		ret = sessionMan.getSession(s.getId());
 		testEquals(s, ret);
 		
-		sessionMan.removeSession(sesId);
+		sessionMan.removeSession(s.getId());
 		
 		try
 		{
-			sessionMan.getSession(sesId);
+			sessionMan.getSession(s.getId());
 			fail("Session was not removed");
 		} catch (WrongArgumentException e)
 		{
 			//OK
 		}
+		
+		sessionMan.removeSession(s3.getId());
 	}
 	
 	private void testEquals(LoginSession s, LoginSession ret)

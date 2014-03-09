@@ -18,6 +18,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
+import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.TopHeader;
 
 import com.vaadin.annotations.Theme;
@@ -39,14 +40,17 @@ public class UserHomeUI extends UnityUIBase implements UnityWebUI
 
 	private UserAccountComponent userAccount;
 	private EndpointDescription endpointDescription;
+	private AuthenticationProcessor authnProcessor;
 
 
 
 	@Autowired
-	public UserHomeUI(UnityMessageSource msg, UserAccountComponent userAccountComponent)
+	public UserHomeUI(UnityMessageSource msg, UserAccountComponent userAccountComponent,
+			AuthenticationProcessor authnProcessor)
 	{
 		super(msg);
 		this.userAccount = userAccountComponent;
+		this.authnProcessor = authnProcessor;
 	}
 
 	@Override
@@ -61,7 +65,7 @@ public class UserHomeUI extends UnityUIBase implements UnityWebUI
 	protected void appInit(VaadinRequest request)
 	{
 		VerticalLayout contents = new VerticalLayout();
-		TopHeader header = new TopHeader(endpointDescription.getId(), msg);
+		TopHeader header = new TopHeader(endpointDescription.getId(), authnProcessor, msg);
 		contents.addComponent(header);
 
 		userAccount.setWidth(80, Unit.PERCENTAGE);

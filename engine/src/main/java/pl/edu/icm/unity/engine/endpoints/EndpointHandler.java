@@ -86,6 +86,14 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 		}
 	}
 
+	private AuthenticationRealm getDefaultRealm()
+	{
+		return new AuthenticationRealm("DEFAULT_AUTHN_REALM", 
+				"This ralm is set for endpoints which were deployed in "
+				+ "server version without realms support. Please use a regular realm instead.", 
+				5, 10, -1, 30*60);
+	}
+
 	@Override
 	public EndpointInstance fromBlob(GenericObjectBean blob, SqlSession sql)
 	{
@@ -110,7 +118,7 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 			
 			AuthenticationRealm realm = descriptionJson.has("realmName") ? 
 					realmsManagement.getRealm(descriptionJson.get("realmName").asText()) :
-					realmsManagement.getDefaultRealm();
+					getDefaultRealm();
 				
 			description.setRealm(realm);
 			description.setType(factory.getDescription());

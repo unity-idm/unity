@@ -115,7 +115,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		for (int i=0; i<components.length; i++)
 			components[i] = new AuthenticatorSetComponent(authenticators.get(i), 
 					description.getAuthenticatorSets().get(i), msg, authnProcessor, 
-					formLauncher, execService, cancelHandler);
+					formLauncher, execService, cancelHandler, description.getRealm());
 		Button registrationButton = buildRegistrationButton();
 		Component all = buildAllSetsUI(registrationButton, components);
 		

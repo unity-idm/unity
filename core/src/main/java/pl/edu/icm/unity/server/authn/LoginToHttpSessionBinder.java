@@ -32,11 +32,6 @@ public class LoginToHttpSessionBinder
 	private Map<String, Collection<HttpSessionWrapper>> bindings = 
 			new HashMap<String, Collection<HttpSessionWrapper>>(1000);
 	
-	public synchronized void registerLoginSession(LoginSession toRegister)
-	{
-		bindings.put(toRegister.getId(), new HashSet<HttpSessionWrapper>());
-	}
-	
 	public synchronized void removeLoginSession(LoginSession toRemove)
 	{
 		Collection<HttpSessionWrapper> httpSessions = bindings.remove(toRemove.getId());
@@ -50,6 +45,11 @@ public class LoginToHttpSessionBinder
 	public synchronized void bindHttpSession(HttpSession session, LoginSession owning)
 	{
 		Collection<HttpSessionWrapper> httpSessions = bindings.get(owning.getId());
+		if (httpSessions == null)
+		{
+			httpSessions = new HashSet<HttpSessionWrapper>();
+			bindings.put(owning.getId(), httpSessions);
+		}
 		HttpSessionWrapper wrapper = new HttpSessionWrapper(session, owning.getId());
 		httpSessions.add(wrapper);
 	}

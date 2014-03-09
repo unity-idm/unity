@@ -24,7 +24,7 @@ import pl.edu.icm.unity.saml.idp.web.SamlResponseHandler;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -85,7 +85,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	
 	private SamlPreferencesWithETD getPreferencesWithETD() throws EngineException
 	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		EntityParam entity = new EntityParam(ae.getEntityId());
 		String raw = preferencesMan.getPreference(entity, SamlPreferencesWithETD.ID);
 		SamlPreferencesWithETD ret = new SamlPreferencesWithETD();

@@ -29,6 +29,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
@@ -49,12 +50,15 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 	private Map<Class<?>, Object> services; 
 	protected Properties properties;
 	protected CXFEndpointProperties genericEndpointProperties;
+	protected SessionManagement sessionMan;
 	
-	public CXFEndpoint(UnityMessageSource msg, EndpointTypeDescription type, String servletPath)
+	public CXFEndpoint(UnityMessageSource msg, SessionManagement sessionMan, 
+			EndpointTypeDescription type, String servletPath)
 	{
 		super(type);
 		this.msg = msg;
 		this.servletPath = servletPath;
+		this.sessionMan = sessionMan;
 		services = new HashMap<Class<?>, Object>();
 	}
 	@Override
@@ -109,7 +113,7 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 	{
 		outInterceptors.add(new XmlBeansNsHackOutHandler());
 		AuthenticationRealm realm = description.getRealm();
-		inInterceptors.add(new AuthenticationInterceptor(msg, authenticators, realm));
+		inInterceptors.add(new AuthenticationInterceptor(msg, authenticators, realm, sessionMan));
 		installAuthnInterceptors(inInterceptors);
 	}
 	

@@ -18,6 +18,7 @@ import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
@@ -63,16 +64,18 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 	private InsecureRegistrationFormLauncher formLauncher;
 	private ExecutorsService execService;
 	private String clientIp;
+	private AuthenticationRealm realm;
 	
 	public AuthenticatorSetComponent(final Map<String, VaadinAuthenticationUI> authenticators,
 			AuthenticatorSet set, UnityMessageSource msg, AuthenticationProcessor authnProcessor,
 			InsecureRegistrationFormLauncher formLauncher, ExecutorsService execService,
-			final CancelHandler cancelHandler)
+			final CancelHandler cancelHandler, AuthenticationRealm realm)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
 		this.formLauncher = formLauncher;
 		this.execService = execService;
+		this.realm = realm;
 		boolean needCommonUsername = false;
 		setSpacing(true);
 		setMargin(true);
@@ -289,7 +292,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 				clearAuthenticators(authenticators);
 				try
 				{
-					authnProcessor.processResults(results, clientIp);
+					authnProcessor.processResults(results, clientIp, realm);
 				} catch (UnknownRemoteUserException e)
 				{
 					if (e.getFormForUser() != null)

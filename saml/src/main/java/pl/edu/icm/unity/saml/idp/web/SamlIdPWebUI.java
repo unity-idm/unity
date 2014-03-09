@@ -29,7 +29,7 @@ import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
@@ -130,14 +130,14 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	
 	protected Entity getAuthenticatedEntity() throws EngineException
 	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		return identitiesMan.getEntity(new EntityParam(ae.getEntityId()));
 	}
 	
 	protected Map<String, Attribute<?>> getAttributes(AuthnResponseProcessor processor) 
 			throws EngineException
 	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		EntityParam entity = new EntityParam(ae.getEntityId());
 		Collection<String> allGroups = identitiesMan.getGroups(entity);
 		Collection<AttributeExt<?>> allAttribtues = attributesMan.getAttributes(

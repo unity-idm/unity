@@ -17,7 +17,6 @@ import org.springframework.context.ApplicationContext;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.util.configuration.ConfigurationException;
-
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
@@ -27,6 +26,8 @@ import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataServlet;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
@@ -94,8 +95,12 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		ServletHolder samlParseHolder = createServletHolder(samlParseServlet);
 		context.addServlet(samlParseHolder, samlConsumerPath + "/*");
 		
+		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
+		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
+		
 		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
-				description.getContextAddress()+AUTHENTICATION_PATH);
+				description.getContextAddress()+AUTHENTICATION_PATH,
+				description.getRealm().getName(), sessionMan, sessionBinder);
 		context.addFilter(new FilterHolder(authnFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
 		
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();

@@ -50,8 +50,6 @@ public class TestRealms extends DBIntegrationTestBase
 		realmsMan.removeRealm(r.getName());
 		
 		assertEquals(0, realmsMan.getRealms().size());
-		
-		assertNotNull(realmsMan.getDefaultRealm());
 	}
 }
 

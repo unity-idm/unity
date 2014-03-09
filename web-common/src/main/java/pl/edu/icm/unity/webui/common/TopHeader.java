@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
@@ -23,11 +23,13 @@ import com.vaadin.ui.themes.Reindeer;
 public class TopHeader extends TopHeaderLight
 {
 	protected UnityMessageSource msg;
+	protected AuthenticationProcessor authnProcessor;
 	
-	public TopHeader(String title, UnityMessageSource msg)
+	public TopHeader(String title, AuthenticationProcessor authnProcessor, UnityMessageSource msg)
 	{
 		super(title, msg);
 		this.msg = msg;
+		this.authnProcessor = authnProcessor;
 		
 		HorizontalLayout loggedPanel = new HorizontalLayout();
 		loggedPanel.setSizeUndefined();
@@ -41,7 +43,7 @@ public class TopHeader extends TopHeaderLight
 	
 	protected void addLoggedInfo(HorizontalLayout loggedPanel)
 	{
-		AuthenticatedEntity entity = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession entity = InvocationContext.getCurrent().getLoginSession();
 		String label = entity.getEntityLabel() == null ? "" : entity.getEntityLabel();
 		Label loggedEntity = new Label(msg.getMessage("MainHeader.loggedAs", label,
 				entity.getEntityId()));
@@ -69,7 +71,7 @@ public class TopHeader extends TopHeaderLight
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				AuthenticationProcessor.logout();
+				authnProcessor.logout();
 			}
 		});
 		return logout;

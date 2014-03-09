@@ -23,6 +23,8 @@ import org.springframework.context.ApplicationContext;
 import com.vaadin.server.VaadinServlet;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
@@ -100,8 +102,12 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath(description.getContextAddress());
 		
+		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
+		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
+		
 		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
-				description.getContextAddress()+AUTHENTICATION_PATH);
+				description.getContextAddress()+AUTHENTICATION_PATH, description.getRealm().getName(),
+				sessionMan, sessionBinder);
 		context.addFilter(new FilterHolder(authnFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
 
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
@@ -134,8 +140,10 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	{
 		ServletHolder holder = createServletHolder(servlet);
 		int sessionTimeout = genericEndpointProperties.getIntValue(VaadinEndpointProperties.SESSION_TIMEOUT);
+		int heartBeat = (sessionTimeout < 10) ? sessionTimeout : 10;
+			
 		boolean productionMode = genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.PRODUCTION_MODE);
-		holder.setInitParameter("heartbeatInterval", String.valueOf(sessionTimeout/4));
+		holder.setInitParameter("heartbeatInterval", String.valueOf(heartBeat));
 		holder.setInitParameter(PRODUCTION_MODE_PARAM, String.valueOf(productionMode));
 		return holder;
 	}

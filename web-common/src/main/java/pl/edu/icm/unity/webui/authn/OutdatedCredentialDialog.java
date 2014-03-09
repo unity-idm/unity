@@ -11,7 +11,7 @@ import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -30,9 +30,11 @@ public class OutdatedCredentialDialog extends AbstractDialog
 	private AuthenticationManagement authnMan;
 	private IdentitiesManagement idsMan;
 	private CredentialEditorRegistry credEditorReg;
+	private AuthenticationProcessor authnProcessor;
 	
 	public OutdatedCredentialDialog(UnityMessageSource msg, AuthenticationManagement authnMan,
-			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg)
+			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg,
+			AuthenticationProcessor authnProcessor)
 	{
 		super(msg, msg.getMessage("OutdatedCredentialDialog.caption"), 
 				msg.getMessage("OutdatedCredentialDialog.accept"), 
@@ -40,6 +42,7 @@ public class OutdatedCredentialDialog extends AbstractDialog
 		this.authnMan = authnMan;
 		this.idsMan = idsMan;
 		this.credEditorReg = credEditorReg;
+		this.authnProcessor = authnProcessor;
 		this.defaultSizeUndfined = true;
 	}
 
@@ -53,9 +56,9 @@ public class OutdatedCredentialDialog extends AbstractDialog
 	protected void onConfirm()
 	{
 		WrappedSession vss = VaadinSession.getCurrent().getSession();
-		AuthenticatedEntity ae = (AuthenticatedEntity) vss.getAttribute(WebSession.USER_SESSION_KEY);
+		LoginSession ls = (LoginSession) vss.getAttribute(WebSession.USER_SESSION_KEY);
 		CredentialsChangeDialog dialog = new CredentialsChangeDialog(msg, 
-				ae.getEntityId(), 
+				ls.getEntityId(), 
 				authnMan, 
 				idsMan, 
 				credEditorReg, 
@@ -74,7 +77,7 @@ public class OutdatedCredentialDialog extends AbstractDialog
 	protected void onCancel()
 	{
 		close();
-		AuthenticationProcessor.logoutAndRefresh();
+		authnProcessor.logoutAndRefresh();
 	}
 	
 	private void afterCredentialUpdate(final boolean changed)

@@ -21,7 +21,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.context.ApplicationContext;
 
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
@@ -169,10 +169,10 @@ public class UnityVaadinServlet extends VaadinServlet
 		HttpSession session = request.getSession(false);
 		if (session != null)
 		{
-			AuthenticatedEntity ae = (AuthenticatedEntity) session.getAttribute(
+			LoginSession ls = (LoginSession) session.getAttribute(
 					WebSession.USER_SESSION_KEY);
-			if (ae != null)
-				ctx.setAuthenticatedEntity(ae);
+			if (ls != null)
+				ctx.setLoginSession(ls);
 		}
 	}
 	

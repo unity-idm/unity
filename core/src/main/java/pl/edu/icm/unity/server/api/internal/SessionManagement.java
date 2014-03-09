@@ -8,6 +8,7 @@ import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
@@ -17,12 +18,16 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 public interface SessionManagement
 {
 	/**
-	 * Creates a new session. The session id is established automatically and it is ignored even if 
-	 * set in the parameter.
-	 * @param session
-	 * @return the new session's id
+	 * Tries to find a session for the entity in the given realm. If the session is not found then a new session
+	 * is established.
+	 * @param loggedEntity
+	 * @param realm
+	 * @param label used only when a new session is created
+	 * @param outdatedCredential used only if a new session is created
+	 * @return
 	 */
-	String createSession(LoginSession session);
+	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, 
+			String label, boolean outdatedCredential);
 	
 	/**
 	 * Updates the extra attributes of the session. Update is done via callback to enable transactional access.

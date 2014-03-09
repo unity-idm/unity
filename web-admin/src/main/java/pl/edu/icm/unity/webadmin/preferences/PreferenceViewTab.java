@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webadmin.preferences;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -52,7 +52,7 @@ public class PreferenceViewTab extends VerticalLayout
 		this.preferenceHandler = preferenceHandler;
 		this.prefMan = prefMan;
 		
-		AuthenticatedEntity entity = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession entity = InvocationContext.getCurrent().getLoginSession();
 		entityParam = new EntityParam(entity.getEntityId());
 		init();
 	}

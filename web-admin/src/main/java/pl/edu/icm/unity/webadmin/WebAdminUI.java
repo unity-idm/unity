@@ -20,6 +20,7 @@ import pl.edu.icm.unity.webadmin.AdminTopHeader.ViewSwitchCallback;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
+import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
@@ -43,6 +44,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 	private SchemaManagementTab schemaManagement;
 	private ServerManagementTab serverManagement;
 	private UserAccountComponent userAccount;
+	private AuthenticationProcessor authnProcessor;
 	
 	private MainTabPanel tabPanel;
 	private EndpointDescription endpointDescription;
@@ -50,7 +52,8 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 	@Autowired
 	public WebAdminUI(UnityMessageSource msg, ContentsManagementTab contentsManagement,
 			SchemaManagementTab schemaManagement, RegistrationsManagementTab registrationsManagement,
-			UserAccountComponent userAccount, ServerManagementTab serverManagement)
+			UserAccountComponent userAccount, ServerManagementTab serverManagement,
+			AuthenticationProcessor authnProcessor)
 	{
 		super(msg);
 		this.contentsManagement = contentsManagement;
@@ -58,6 +61,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 		this.userAccount = userAccount;
 		this.serverManagement = serverManagement;
 		this.registrationsManagement = registrationsManagement;
+		this.authnProcessor = authnProcessor;
 	}
 	
 	@Override
@@ -76,7 +80,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 		final VerticalLayout mainWrapper = new VerticalLayout();
 		mainWrapper.setSizeFull();
 
-		AdminTopHeader header = new AdminTopHeader(endpointDescription.getId(), msg, 
+		AdminTopHeader header = new AdminTopHeader(endpointDescription.getId(), authnProcessor, msg, 
 				new ViewSwitchCallback()
 				{
 					@Override

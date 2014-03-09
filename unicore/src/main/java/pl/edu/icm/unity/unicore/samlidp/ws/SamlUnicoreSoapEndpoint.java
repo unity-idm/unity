@@ -12,6 +12,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -28,11 +29,11 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 	public SamlUnicoreSoapEndpoint(UnityMessageSource msg, EndpointTypeDescription type,
 			String servletPath, String metadataServletPath, IdentitiesManagement identitiesMan,
 			AttributesManagement attributesMan, PreferencesManagement preferencesMan,
-			PKIManagement pkiManagement, ExecutorsService executorsService)
+			PKIManagement pkiManagement, ExecutorsService executorsService, SessionManagement sessionMan)
 	{
 		super(msg, type, servletPath, metadataServletPath, 
 				identitiesMan, attributesMan, preferencesMan, 
-				pkiManagement, executorsService);
+				pkiManagement, executorsService, sessionMan);
 	}
 
 

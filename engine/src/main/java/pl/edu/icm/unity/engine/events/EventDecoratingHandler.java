@@ -9,7 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
 
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.events.Event;
 
@@ -36,7 +36,7 @@ public class EventDecoratingHandler implements InvocationHandler
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
 	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		Long invoker = ae == null ? null : ae.getEntityId();
 		try
 		{

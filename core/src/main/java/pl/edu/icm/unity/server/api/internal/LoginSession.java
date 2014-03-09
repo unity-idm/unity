@@ -6,7 +6,14 @@ package pl.edu.icm.unity.server.api.internal;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.InternalException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Represents login session. Session expiration can be stored in two ways: either
@@ -28,6 +35,9 @@ public class LoginSession
 	private long maxInactivity;
 	private long entityId;
 	private String realm;
+	private boolean usedOutdatedCredential;
+	private String entityLabel;
+	
 	private Map<String, String> sessionData = new HashMap<String, String>();
 
 	public LoginSession()
@@ -135,5 +145,85 @@ public class LoginSession
 	public void setMaxInactivity(long maxInactivity)
 	{
 		this.maxInactivity = maxInactivity;
+	}
+
+	public boolean isUsedOutdatedCredential()
+	{
+		return usedOutdatedCredential;
+	}
+
+	public void setUsedOutdatedCredential(boolean usedOutdatedCredential)
+	{
+		this.usedOutdatedCredential = usedOutdatedCredential;
+	}
+
+	public String getEntityLabel()
+	{
+		return entityLabel;
+	}
+
+	public void setEntityLabel(String entityLabel)
+	{
+		this.entityLabel = entityLabel;
+	}
+	
+	public void deserialize(Token token)
+	{
+		ObjectNode main;
+		try
+		{
+			main = Constants.MAPPER.readValue(token.getContents(), ObjectNode.class);
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't perform JSON deserialization", e);
+		}
+
+		String realm = main.get("realm").asText();
+		long maxInactive = main.get("maxInactivity").asLong();
+		long lastUsed = main.get("lastUsed").asLong();
+		String entityLabel = main.get("entityLabel").asText();
+		boolean outdatedCred = main.get("usedOutdatedCredential").asBoolean();
+		
+		setId(token.getValue());
+		setStarted(token.getCreated());
+		setExpires(token.getExpires());
+		setMaxInactivity(maxInactive);
+		setEntityId(token.getOwner());
+		setRealm(realm);
+		setLastUsed(new Date(lastUsed));
+		setEntityLabel(entityLabel);
+		setUsedOutdatedCredential(outdatedCred);
+		
+		Map<String, String> attrs = new HashMap<String, String>(); 
+		ObjectNode attrsJson = (ObjectNode) main.get("attributes");
+		Iterator<String> fNames = attrsJson.fieldNames();
+		while (fNames.hasNext())
+		{
+			String attrName = fNames.next();
+			attrs.put(attrName, attrsJson.get(attrName).asText());
+		}
+		setSessionData(attrs);
+	}
+	
+	public byte[] getTokenContents()
+	{
+		ObjectNode main = Constants.MAPPER.createObjectNode();
+		main.put("realm", getRealm());
+		main.put("maxInactivity", getMaxInactivity());
+		main.put("lastUsed", getLastUsed().getTime());
+		main.put("usedOutdatedCredential", isUsedOutdatedCredential());
+		main.put("entityLabel", getEntityLabel());
+		
+		ObjectNode attrsJson = main.putObject("attributes");
+		for (Map.Entry<String, String> a: getSessionData().entrySet())
+			attrsJson.put(a.getKey(), a.getValue());
+
+		try
+		{
+			return Constants.MAPPER.writeValueAsBytes(main);
+		} catch (JsonProcessingException e)
+		{
+			throw new InternalException("Can't perform JSON serialization", e);
+		}
 	}
 }

@@ -19,6 +19,8 @@ import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessorUtil;
@@ -41,16 +43,19 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	private UnityMessageSource msg;
 	protected List<Map<String, BindingAuthn>> authenticators;
 	protected UnsuccessfulAuthenticationCounter unsuccessfulAuthenticationCounter;
-	
+	protected SessionManagement sessionMan;
+	protected AuthenticationRealm realm;
 	
 	public AuthenticationInterceptor(UnityMessageSource msg, List<Map<String, BindingAuthn>> authenticators,
-			AuthenticationRealm realm)
+			AuthenticationRealm realm, SessionManagement sessionManagement)
 	{
 		super(Phase.PRE_INVOKE);
 		this.msg = msg;
+		this.realm = realm;
 		this.authenticators = authenticators;
 		this.unsuccessfulAuthenticationCounter = new UnsuccessfulAuthenticationCounter(
 				realm.getBlockAfterUnsuccessfulLogins(), realm.getBlockFor()*1000);
+		this.sessionMan = sessionManagement;
 	}
 
 	@Override
@@ -67,9 +72,9 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		InvocationContext ctx = new InvocationContext(); 
 		InvocationContext.setCurrent(ctx);
 		AuthenticationException firstError = null;
+		AuthenticatedEntity client = null;
 		for (Map<String, BindingAuthn> authenticatorSet: authenticators)
 		{
-			AuthenticatedEntity client;
 			try
 			{
 				client = processAuthnSet(authnCache, authenticatorSet);
@@ -82,10 +87,8 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 					firstError = new AuthenticationException(msg.getMessage(e.getMessage()));
 				continue;
 			}
-			ctx.setAuthenticatedEntity(client);
 			break;
 		}
-		AuthenticatedEntity client = ctx.getAuthenticatedEntity();
 		if (client == null)
 		{
 			log.info("Authentication failed for client");
@@ -93,11 +96,21 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 			throw new Fault(firstError == null ? new Exception("Authentication failed") : firstError);
 		} else
 		{
-			if (log.isDebugEnabled())
-				log.debug("Client was successfully authenticated: [" + 
-						client.getEntityId() + "] " + client.getAuthenticatedWith().toString());
-			unsuccessfulAuthenticationCounter.successfulAttempt(ip);
+			authnSuccess(client, ip, ctx);
 		}
+	}
+	
+	private void authnSuccess(AuthenticatedEntity client, String ip, InvocationContext ctx)
+	{
+		if (log.isDebugEnabled())
+			log.debug("Client was successfully authenticated: [" + 
+					client.getEntityId() + "] " + client.getAuthenticatedWith().toString());
+		unsuccessfulAuthenticationCounter.successfulAttempt(ip);
+		
+		LoginSession ls = sessionMan.getCreateSession(client.getEntityId(), realm, 
+				"", client.isUsedOutdatedCredential());
+		ctx.setLoginSession(ls);
+		ctx.addAuthenticatedIdentities(client.getAuthenticatedWith());
 	}
 	
 	private AuthenticatedEntity processAuthnSet(Map<String, AuthenticationResult> authnCache,

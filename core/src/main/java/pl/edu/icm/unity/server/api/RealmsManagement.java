@@ -19,15 +19,40 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
  */
 public interface RealmsManagement
 {
+	/**
+	 * Creates a new realm
+	 * @param realm
+	 * @throws EngineException
+	 */
 	void addRealm(AuthenticationRealm realm) throws EngineException;
 	
+	/**
+	 * Returns a realm by name
+	 * @param name
+	 * @return
+	 * @throws WrongArgumentException
+	 * @throws EngineException
+	 */
 	AuthenticationRealm getRealm(String name) throws WrongArgumentException, EngineException;
 	
+	/**
+	 * Returns all defined realms
+	 * @return
+	 * @throws EngineException
+	 */
 	Collection<AuthenticationRealm> getRealms() throws EngineException;
 	
-	AuthenticationRealm getDefaultRealm();
-	
+	/**
+	 * Update realm
+	 * @param realm
+	 * @throws EngineException
+	 */
 	void updateRealm(AuthenticationRealm realm) throws EngineException;
 	
+	/**
+	 * Remove realm
+	 * @param name
+	 * @throws EngineException
+	 */
 	void removeRealm(String name) throws EngineException;
 }

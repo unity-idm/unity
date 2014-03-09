@@ -95,15 +95,6 @@ public class RealmsManagementImpl implements RealmsManagement
 	}
 
 	@Override
-	public AuthenticationRealm getDefaultRealm()
-	{
-		return new AuthenticationRealm("DEFAULT AUTHENTICATION REALM", 
-				"This ralm is set for endpoints which were deployed in "
-				+ "server version without realms support. Please use a regular realm instead.", 
-				5, 10, -1, 30*60);
-	}
-
-	@Override
 	public void updateRealm(AuthenticationRealm realm) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);

@@ -23,7 +23,7 @@ public class MockWSImpl implements MockWSSEI
 	{
 		log.info("Got request to the mock WS");
 		InvocationContext ctx = InvocationContext.getCurrent();
-		String ret = ctx.getAuthenticatedEntity().getAuthenticatedWith().toString();
+		String ret = ctx.getAuthenticatedIdentities().toString();
 		log.info("Returning: " + ret);
 		NameIDDocument rr = NameIDDocument.Factory.newInstance();
 		rr.addNewNameID().setStringValue(ret);
