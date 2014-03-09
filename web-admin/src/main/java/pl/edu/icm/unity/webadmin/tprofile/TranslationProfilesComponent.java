@@ -72,7 +72,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 				});
 		
 		table.setWidth(90, Unit.PERCENTAGE);
-		viewer = new TranslationProfileViewer(msg);
+		viewer = new TranslationProfileViewer(msg, tc);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
 			

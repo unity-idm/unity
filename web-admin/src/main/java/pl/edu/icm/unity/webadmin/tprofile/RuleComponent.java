@@ -168,7 +168,7 @@ public class RuleComponent extends VerticalLayout
 		paramsList.setSpacing(false);
 
 		condition = new RequiredTextField(msg);
-		condition.setCaption(msg.getMessage("TranslationProfileEditor.ruleCondition") + ":");
+		condition.setCaption(msg.getMessage("TranslationProfileEditor.ruleCondition"));
 		condition.addValidator(new AbstractStringValidator(msg
 				.getMessage("TranslationProfileEditor.conditionValidationFalse"))
 		{
@@ -190,13 +190,14 @@ public class RuleComponent extends VerticalLayout
 		condition.setValidationVisible(false);
 		condition.setImmediate(true);
 
-		actions = new RequiredComboBox(msg.getMessage("TranslationProfileEditor.ruleAction") + ":", msg);
+		actions = new RequiredComboBox(msg.getMessage("TranslationProfileEditor.ruleAction"), msg);
 		for (TranslationActionFactory a : tc.getAll())
 		{
 			actions.addItem(a.getName());
 		}
 		actions.setImmediate(true);
 		actions.setValidationVisible(false);
+		actions.setNullSelectionAllowed(false);
 		actions.addValueChangeListener(new ValueChangeListener()
 		{
 
@@ -214,13 +215,9 @@ public class RuleComponent extends VerticalLayout
 
 		FormLayout help = new FormLayout();
 		helpAction = new Image("", Images.help.getResource());
-		helpAction.setDescription(msg
-				.getMessage("TranslationProfileEditor.helpEmptyAction"));
-
+		helpAction.setDescription(msg.getMessage("TranslationProfileEditor.helpEmptyAction"));
 		Image helpCondition = new Image("", Images.help.getResource());
-		helpCondition.setDescription(msg
-				.getMessage("TranslationProfileEditor.helpCondition"));
-
+		helpCondition.setDescription(msg.getMessage("TranslationProfileEditor.helpCondition"));
 		help.addComponents(helpCondition, helpAction);
 		help.setComponentAlignment(helpCondition, Alignment.TOP_LEFT);
 		help.setComponentAlignment(helpAction, Alignment.BOTTOM_LEFT);
@@ -230,7 +227,7 @@ public class RuleComponent extends VerticalLayout
 		wrapper.setSpacing(false);
 		wrapper.setMargin(false);
 		actionParams = new Label();
-		actionParams.setCaption(msg.getMessage("TranslationProfileEditor.actionParameters") + ":");
+		actionParams.setCaption(msg.getMessage("TranslationProfileEditor.actionParameters"));
 		FormLayout main = new FormLayout();
 		main.setSpacing(true);
 		main.setMargin(false);
@@ -249,6 +246,10 @@ public class RuleComponent extends VerticalLayout
 		} else
 		{
 			actionParams.setVisible(false);
+			if (actions.size() > 0)
+			{
+				actions.setValue(actions.getItemIds().toArray()[0]);
+			}
 		}
 
 	}

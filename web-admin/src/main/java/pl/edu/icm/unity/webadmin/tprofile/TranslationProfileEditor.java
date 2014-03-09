@@ -63,11 +63,11 @@ public class TranslationProfileEditor extends VerticalLayout
 		rulesLayout.setMargin(false);
 
 		name = new RequiredTextField(msg);
-		name.setCaption(msg.getMessage("TranslationProfileEditor.name") + ":");
+		name.setCaption(msg.getMessage("TranslationProfileEditor.name"));
 		name.setSizeFull();
 		name.setValidationVisible(false);
 		description = new DescriptionTextArea(
-				msg.getMessage("TranslationProfileEditor.description") + ":");
+				msg.getMessage("TranslationProfileEditor.description"));
 
 		if (editMode)
 		{
@@ -101,7 +101,7 @@ public class TranslationProfileEditor extends VerticalLayout
 			}
 		});
 
-		Label t = new Label(msg.getMessage("TranslationProfileEditor.rules") + ":");
+		Label t = new Label(msg.getMessage("TranslationProfileEditor.rules"));
 		hl.addComponents(t, addRule);
 
 		FormLayout main = new FormLayout();

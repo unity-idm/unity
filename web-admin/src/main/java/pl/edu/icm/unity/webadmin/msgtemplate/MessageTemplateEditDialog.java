@@ -53,6 +53,13 @@ public class MessageTemplateEditDialog extends AbstractDialog
 			close();
 	}
 	
+	@Override
+	public void show()
+	{
+		super.show();
+		unbindEnterShortcut();
+	}
+	
 	public interface Callback
 	{
 		public boolean newTemplate(MessageTemplate template);

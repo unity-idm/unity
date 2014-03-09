@@ -26,7 +26,7 @@ import com.vaadin.ui.TextArea;
 public class MessageTemplateViewer extends SimpleMessageTemplateViewer
 {	
 	private DescriptionTextArea description;
-	private DescriptionTextArea consumer;
+	private Label consumer;
 	private MessageTemplateConsumersRegistry registry;
 
 	public MessageTemplateViewer(String caption, UnityMessageSource msg,
@@ -42,10 +42,10 @@ public class MessageTemplateViewer extends SimpleMessageTemplateViewer
 		main.setSpacing(true);
 		main.setMargin(true);
 		description = new DescriptionTextArea();
-		description.setCaption(msg.getMessage("MessageTemplateViewer.description") + ":");
+		description.setCaption(msg.getMessage("MessageTemplateViewer.description"));
 		description.setReadOnly(true);
-		consumer = new DescriptionTextArea();
-		consumer.setCaption(msg.getMessage("MessageTemplateViewer.consumer") + ":");
+		consumer = new Label();
+		consumer.setCaption(msg.getMessage("MessageTemplateViewer.consumer"));
 		consumer.setReadOnly(true);
 		main.addComponent(consumer, 1);	
 		main.addComponent(description, 1);
@@ -81,12 +81,12 @@ public class MessageTemplateViewer extends SimpleMessageTemplateViewer
 		for (Map.Entry<String, Message> entry : template.getAllMessages().entrySet())
 		{
 			TextArea subject = new DescriptionTextArea();
-			subject.setCaption(msg.getMessage("MessageTemplateViewer.subject")  + ":");
+			subject.setCaption(msg.getMessage("MessageTemplateViewer.subject"));
 			subject.setValue(entry.getValue().getSubject());
 			subject.setReadOnly(true);
 			subject.setRows(2);
 			TextArea body = new DescriptionTextArea();
-			body.setCaption(msg.getMessage("MessageTemplateViewer.body")  + ":");
+			body.setCaption(msg.getMessage("MessageTemplateViewer.body"));
 			body.setValue(entry.getValue().getBody());
 			body.setReadOnly(true);
 			body.setRows(entry.getValue().getBody().split("\n").length);
@@ -95,7 +95,7 @@ public class MessageTemplateViewer extends SimpleMessageTemplateViewer
 			if (!lcle.equals(""))
 			{
 				Label locale = new Label();
-				locale.setCaption(msg.getMessage("MessageTemplateViewer.locale") + ":");
+				locale.setCaption(msg.getMessage("MessageTemplateViewer.locale"));
 				locale.setValue(lcle);
 				messages.add(locale);
 				main.addComponent(locale);

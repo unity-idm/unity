@@ -221,12 +221,17 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	
 	public void close()
 	{
-		if (enterButton != null)
-			enterButton.removeClickShortcut();
+		unbindEnterShortcut();
 		if (escapeButton != null)
 			escapeButton.removeClickShortcut();
 		if (getParent() != null)
 			((UI) getParent()).removeWindow(this);
+	}
+	
+	public void unbindEnterShortcut()
+	{
+		if (enterButton != null)
+			enterButton.removeClickShortcut();	
 	}
 	
 	public void buttonClick(ClickEvent event) {

@@ -32,6 +32,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -50,7 +51,7 @@ public class MessageTemplateEditor extends FormLayout
 	private TextArea subject;
 	private TextArea body;
 	private ComboBox consumer;
-	private TextArea consumerDescription;
+	private Label consumerDescription;
 	private boolean editMode;
 	private HorizontalLayout buttons;
 	private boolean subjectEdited;
@@ -73,32 +74,30 @@ public class MessageTemplateEditor extends FormLayout
 		buttons.setSpacing(false);
 		buttons.setMargin(false);
 		name = new RequiredTextField(msg);
-		name.setCaption(msg.getMessage("MessageTemplatesEditor.name") + ":");
+		name.setCaption(msg.getMessage("MessageTemplatesEditor.name"));
 		name.setSizeFull();
 		name.setValidationVisible(false);
 		description = new DescriptionTextArea(
-				msg.getMessage("MessageTemplatesEditor.description") + ":");
-		consumer = new RequiredComboBox(msg.getMessage("MessageTemplatesEditor.consumer")
-				+ ":", msg);
+				msg.getMessage("MessageTemplatesEditor.description"));
+		consumer = new RequiredComboBox(msg.getMessage("MessageTemplatesEditor.consumer"), msg);
 		consumer.setImmediate(true);
 		consumer.setValidationVisible(false);
+		consumer.setNullSelectionAllowed(false);
 		Collection<MessageTemplateConsumer> consumers = registry.getAll();
 		for (MessageTemplateConsumer c : consumers)
 		{
 			consumer.addItem(c.getName());
 		}
-		consumerDescription = new DescriptionTextArea();
+		consumerDescription = new Label();
 		consumerDescription.setReadOnly(true);
-		subject = new RequiredTextArea(msg.getMessage("MessageTemplatesEditor.subject")
-				+ ":", msg);
+		subject = new RequiredTextArea(msg.getMessage("MessageTemplatesEditor.subject"), msg);
 		subject.setImmediate(true);
 		subject.setWidth(100, Unit.PERCENTAGE);
 		subject.setValidationVisible(false);
 		subject.setRows(1);
-		body = new RequiredTextArea(msg.getMessage("MessageTemplatesEditor.body") + ":",
-				msg);
+		body = new RequiredTextArea(msg.getMessage("MessageTemplatesEditor.body"), msg);
 		body.setImmediate(true);
-		body.setRows(12);
+		body.setRows(17);
 		body.setWidth(100, Unit.PERCENTAGE);
 		body.setValidationVisible(false);
 		validator = new MessageValidator(null, msg);
@@ -151,12 +150,17 @@ public class MessageTemplateEditor extends FormLayout
 			}
 			setMessageConsumerDesc();
 		} else
+		{
 			name.setValue(msg.getMessage("MessageTemplatesEditor.defaultName"));
+			if (consumer.size() > 0)
+			{
+				consumer.setValue(consumer.getItemIds().toArray()[0]);
+			}
+		}
 
 		addComponents(name, description, consumer, consumerDescription, buttons, subject,
 				body);
 		setSpacing(true);
-
 	}
 
 	public MessageTemplate getTemplate()

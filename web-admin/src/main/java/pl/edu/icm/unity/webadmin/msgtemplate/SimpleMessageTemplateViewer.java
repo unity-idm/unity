@@ -55,7 +55,7 @@ public class SimpleMessageTemplateViewer extends VerticalLayout
 		messages = new ArrayList<Component>();
 		main = new FormLayout();
 		name = new Label();
-		name.setCaption(msg.getMessage("MessageTemplateViewer.name") + ":");
+		name.setCaption(msg.getMessage("MessageTemplateViewer.name"));
 		main.addComponent(name);
 		main.setSizeFull();
 		main.setMargin(false);
@@ -84,11 +84,11 @@ public class SimpleMessageTemplateViewer extends VerticalLayout
 			MessageTemplate templateC = msgTempMan.getTemplate(template);
 			
 			AbstractTextField subject = new DescriptionTextArea();
-			subject.setCaption(msg.getMessage("MessageTemplateViewer.subject")  + ":");
+			subject.setCaption(msg.getMessage("MessageTemplateViewer.subject"));
 			subject.setValue(templateC.getRawMessage().getSubject().trim());
 			subject.setReadOnly(true);
 			AbstractTextField body = new DescriptionTextArea();
-			body.setCaption(msg.getMessage("MessageTemplateViewer.body")  + ":");
+			body.setCaption(msg.getMessage("MessageTemplateViewer.body"));
 			body.setValue(templateC.getRawMessage().getBody().trim());
 			body.setReadOnly(true);
 			main.addComponents(subject, body);

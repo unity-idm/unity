@@ -53,6 +53,12 @@ public class TranslationProfileEditDialog extends AbstractDialog
 		if (callback.newProfile(profile))
 			close();
 	}
+	@Override
+	public void show()
+	{
+		super.show();
+		unbindEnterShortcut();
+	}
 	
 	public interface Callback
 	{
