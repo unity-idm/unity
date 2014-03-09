@@ -10,8 +10,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
+import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlObject;
 
 import eu.emi.security.authn.x509.X509Credential;
@@ -20,7 +22,7 @@ import eu.unicore.samly2.assertion.Assertion;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.proto.AssertionResponse;
 import eu.unicore.security.dsig.DSigException;
-
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.AttributeFilters;
 import pl.edu.icm.unity.saml.idp.GroupChooser;
@@ -28,10 +30,15 @@ import pl.edu.icm.unity.saml.idp.SamlAttributeMapper;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties.GroupsSelection;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAssertionResponseContext;
+import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
+import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -51,6 +58,8 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 public abstract class BaseResponseProcessor<T extends XmlObject, C extends RequestAbstractType> 
 	extends StatusResponseProcessor<T, C>
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, BaseResponseProcessor.class);
+	
 	private String chosenGroup;
 	private Calendar authnTime;
 	
@@ -185,7 +194,26 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		assertion.setIssuer(samlConfiguration.getValue(SamlIdpProperties.ISSUER_URI), 
 				SAMLConstants.NFORMAT_ENTITY);
 		assertion.setSubject(authenticatedOne);
-		
+
+		if (!addAttributesToAssertion(assertion, attributes))
+			return null;
+		signAssertion(assertion);
+		return assertion;
+	}
+
+	/**
+	 * Add attributes to an assertion. Do nothing when the attributes list is empty. 
+	 * The attributes are filtered using {@link #filterRequested(List)}, which by default does nothing.
+	 * @param authenticatedOne
+	 * @param attributes
+	 * @return whether any attributes were added
+	 * @throws SAMLProcessingException
+	 */
+	protected boolean addAttributesToAssertion(Assertion assertion, Collection<Attribute<?>> attributes) 
+			throws SAMLProcessingException
+	{
+		if (attributes.size() == 0)
+			return false;
 		SamlAttributeMapper mapper = samlConfiguration.getAttributesMapper();
 		List<AttributeType> converted = new ArrayList<AttributeType>(attributes.size());
 		for (Attribute<?> attribute: attributes)
@@ -195,11 +223,10 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		}
 		filterRequested(converted);
 		if (converted.size() == 0)
-			return null;
+			return false;
 		for (AttributeType a: converted)
 			assertion.addAttribute(a);
-		signAssertion(assertion);
-		return assertion;
+		return true;
 	}
 
 	/**
@@ -240,5 +267,25 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		confData.setNotOnOrAfter(validity);
 		requested.setSubjectConfirmationArray(new SubjectConfirmationType[] {subConf});
 		return requested;
+	}
+	
+	public static Collection<Attribute<?>> getAttributes(EntityParam entity, 
+			BaseResponseProcessor<? extends XmlObject, ? extends RequestAbstractType> processor, 
+			SPSettings preferences, 
+			AttributesManagement attributesMan, IdentitiesManagement identitiesMan) throws EngineException
+	{
+		Collection<String> allGroups = identitiesMan.getGroups(entity);
+		Collection<AttributeExt<?>> allAttribtues = attributesMan.getAttributes(
+				entity, processor.getChosenGroup(), null);
+		if (log.isTraceEnabled())
+			log.trace("Attributes to be returned (before postprocessing): " + 
+					allAttribtues + "\nGroups: " + allGroups);
+		Map<String, Attribute<?>> all = processor.prepareReleasedAttributes(allAttribtues, allGroups);
+		Set<String> hidden = preferences.getHiddenAttribtues();
+		for (String hiddenA: hidden)
+			all.remove(hiddenA);
+		if (log.isDebugEnabled())
+			log.debug("Processed attributes to be returned: " + all.values());
+		return all.values();
 	}
 }

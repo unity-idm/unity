@@ -68,6 +68,7 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String DEF_ATTR_ASSERTION_VALIDITY = "validityPeriod";
 	public static final String SAML_REQUEST_VALIDITY = "requestValidityPeriod";
 	public static final String ISSUER_URI = "issuerURI";
+	public static final String RETURN_SINGLE_ASSERTION = "returnSingleAssertion";
 	public static final String SP_ACCEPT_POLICY = "spAcceptPolicy";
 	public static final String ALLOWED_SP = "acceptedSP.";
 	public static final String ALLOWED_SP_DN = "dn";
@@ -128,6 +129,8 @@ public class SamlIdpProperties extends SamlProperties
 				setDescription("Controls the maximum validity period of an attribute assertion returned to client (in seconds). It is inserted whenever query is compliant with 'SAML V2.0 Deployment Profiles for X.509 Subjects', what usually is the case."));
 		defaults.put(ISSUER_URI, new PropertyMD().setCategory(samlCat).setMandatory().
 				setDescription("This property controls the server's URI which is inserted into SAML responses (the Issuer field). It should be a unique URI which identifies the server. The best approach is to use the server's URL. If absent the server will try to autogenerate one."));
+		defaults.put(RETURN_SINGLE_ASSERTION, new PropertyMD("true").setCategory(samlCat).
+				setDescription("If true then a single SAML assertion is returned what provides a better interoperability with 3rd party solutions. If false then attributes are returned in a separate assertion, what is required by certain consumers as UNICORE."));
 		
 		defaults.put(SP_ACCEPT_POLICY, new PropertyMD(RequestAcceptancePolicy.all).setCategory(samlCat).
 				setDescription("Controls which requests are authorized. +all+ accepts all, +validSigner+ " +

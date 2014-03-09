@@ -116,7 +116,7 @@ public class SAMLSPProperties extends SamlProperties
 				"Local credential, used to sign requests. If signing is disabled it is not used."));
 		META.put(METADATA_PATH, new PropertyMD().setCategory(SamlProperties.samlCat).setDescription(
 				"Last element of the URL, under which the SAML metadata should be published for this SAML authenticator." +
-				"Used only if metadata publication is enabled."));
+				"Used only if metadata publication is enabled. See the SAML Metadata section for more details."));
 		META.put(ACCEPTED_NAME_FORMATS, new PropertyMD().setList(false).setCategory(verificator).setDescription(
 				"If defined then specifies what SAML name formatd are accepted from IdP. " +
 				"Useful when the property " + IDP_REQUESTED_NAME_FORMAT + " is undefined for at least one IdP. "));

@@ -237,10 +237,14 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			sql.commit();
 			
 			RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-			notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(), 
+			if (notificationsCfg.getChannel() != null && notificationsCfg.getSubmittedTemplate() != null
+					&& notificationsCfg.getAdminsNotificationGroup() != null)
+			{
+				notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(), 
 					notificationsCfg.getChannel(), 
 					notificationsCfg.getSubmittedTemplate(),
 					getBaseNotificationParams(form.getName(), requestFull.getRequestId()));
+			}
 			return requestFull.getRequestId();
 		} finally
 		{
@@ -493,6 +497,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			if (attrP == null)
 				continue;
 			Attribute<?> attr = attrP.getAttribute();
+			if (attr == null)
+				throw new WrongArgumentException("Attribute no " + i + " is null.");
 			AttributeRegistrationParam regParam = form.getAttributeParams().get(i);
 			if (!regParam.getAttributeType().equals(attr.getName()))
 				throw new WrongArgumentException("Attribute " + 
@@ -502,7 +508,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				throw new WrongArgumentException("Attribute " + 
 						attr.getName() + " in group " + attr.getGroupPath() + 
 						" is not allowed for this form");
-			AttributeValueChecker.validate(attr, atMap.get(attr.getName()));
+			AttributeType at = atMap.get(attr.getName());
+			if (at == null)
+				throw new WrongArgumentException("Attribute of the form " + attr.getName() + 
+						" does not exist anymore");
+			AttributeValueChecker.validate(attr, at);
 		}
 	}
 
@@ -516,6 +526,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			IdentityParam idParam = requestedIds.get(i);
 			if (idParam == null)
 				continue;
+			if (idParam.getTypeId() == null || idParam.getValue() == null)
+				throw new WrongArgumentException("Identity nr " + i + " contains null values");
 			if (!form.getIdentityParams().get(i).getIdentityType().equals(idParam.getTypeId()))
 				throw new WrongArgumentException("Identity nr " + i + " must be of " 
 						+ idParam.getTypeId() + " type");
@@ -727,7 +739,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			AdminComment publicComment, AdminComment internalComment,
 			RegistrationFormNotifications notificationsCfg, SqlSession sql) throws EngineException
 	{
-		if (notificationsCfg.getChannel() == null)
+		if (notificationsCfg.getChannel() == null || templateId == null)
 			return;
 		Map<String, String> notifyParams = getBaseNotificationParams(formId, requestId);
 		notifyParams.put(VAR_PUB_COMMENT, publicComment == null ? "" : publicComment.getContents());
@@ -742,11 +754,14 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 						notifyParams);
 		}
 		
-		notifyParams.put(VAR_INTERNAL_COMMENT, internalComment == null ? "" : internalComment.getContents());
-		notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(), 
+		if (notificationsCfg.getAdminsNotificationGroup() != null)
+		{
+			notifyParams.put(VAR_INTERNAL_COMMENT, internalComment == null ? "" : internalComment.getContents());
+			notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(), 
 				notificationsCfg.getChannel(), 
 				templateId,
 				notifyParams);
+		}
 	}
 	
 	private String getRequesterAddress(RegistrationRequestState currentRequest, 

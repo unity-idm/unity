@@ -13,6 +13,8 @@ import com.vaadin.server.Resource;
  */
 public enum Images
 {
+	logo		(I.PB + "logo.png"),
+	
 	info64		(I.PH + "64/bullet_info.png"),
 	key64		(I.PH + "64/key.png"),
 	settings64	(I.PH + "64/settings.png"),
@@ -27,6 +29,7 @@ public enum Images
 	info32		(I.P + "32/information.png"),
 	toAdmin32	(I.P + "32/manager.png"),
 	toProfile32	(I.P + "32/personal.png"),
+	support32	(I.P + "32/support.png"),
 
 	
 	refresh		(I.P + "16/reload.png"),
@@ -85,6 +88,7 @@ public enum Images
 	private static interface I
 	{
 		public static final String P = "/pl/edu/icm/unity/webui/img/standard/";
+		public static final String PB = "/pl/edu/icm/unity/webui/img/other/";
 		public static final String PH = "/pl/edu/icm/unity/webui/img/hand/";
 	}
 }

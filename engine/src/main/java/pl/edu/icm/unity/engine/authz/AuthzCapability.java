@@ -37,9 +37,14 @@ public enum AuthzCapability {
 	attributeModify,
 
 	/**
+	 * Reading of hidden (local) attributes
+	 */
+	readHidden,
+	
+	/**
 	 * Reading of groups, identities, entities and attributes
 	 */
-	read, 
+	read,
 
 	/**
 	 * Reading of system information, not related to the actual contents: endpoints, authenticators, 

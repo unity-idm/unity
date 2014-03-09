@@ -22,6 +22,11 @@ public interface AuthorizationManager
 	public Set<String> getRoleNames();
 
 	/**
+	 * @return Description of all the roles
+	 */
+	public String getRolesDescription();
+	
+	/**
 	 * As {@link #checkAuthorization(boolean, Group, AuthzCapability...)} with the first argument
 	 * false and the second being the root group.
 	 * @param group

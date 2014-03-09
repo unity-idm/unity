@@ -4,7 +4,9 @@
  */
 package pl.edu.icm.unity.webadmin.identities;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
@@ -16,6 +18,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 
 /**
  * Allows to choose an attribute type to be added as identities table column.
@@ -44,7 +47,6 @@ public class AddAttributeColumnDialog extends AbstractDialog
 	{
 		Label info = new Label(msg.getMessage("AddAttributeColumnDialog.info"));
 		Label info2 = new Label(msg.getMessage("AddAttributeColumnDialog.info2"));
-		attributeType = new ComboBox(msg.getMessage("AddAttributeColumnDialog.attribute"));
 		Collection<AttributeType> attrTypes;
 		try
 		{
@@ -55,15 +57,14 @@ public class AddAttributeColumnDialog extends AbstractDialog
 					msg.getMessage("AddAttributeColumnDialog.cantGetAttrTypes"));
 			throw new IllegalStateException();
 		}
-		String sel = null;
+		List<AttributeType> filtered = new ArrayList<>(attrTypes.size());
 		for (AttributeType at: attrTypes)
 		{
-			attributeType.addItem(at.getName());
-			if (sel == null)
-				sel = at.getName();
+			if (!at.isInstanceImmutable())
+				filtered.add(at);
 		}
-		if (sel != null)
-			attributeType.select(sel);
+		attributeType = new AttributeSelectionComboBox(msg.getMessage("AddAttributeColumnDialog.attribute"),
+				filtered);
 		attributeType.setNullSelectionAllowed(false);
 		
 		useRootGroup = new CheckBox(msg.getMessage("AddAttributeColumnDialog.useRootGroup"), true);

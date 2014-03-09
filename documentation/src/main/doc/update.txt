@@ -1,25 +1,113 @@
-== Version specific update instructions
+== Update
 
-=== From 1.0.0 to 1.1.0
+This section covers a general update procedure. Make sure to read version specific update instruction too: 
+<<ver-update>>.
 
-In version 1.1.0 a centralized configuration of credentials and truststores was introduced.
+When using the +.tar.gz+ the update can be conveniently performed on a single machine, in a safe way: 
+
+. Install the updated version in a separate directory as in the case of a fresh installation.
+. Configure it with the settings of the running instance, however change the port to any other which is free. 
+If using a database server as MySQL, be sure to use another, clean database.
+. Apply any required changes in configuration, e.g. to enable new features of the updated version.
+. Create a dump of the server state on the running instance.
+. Start the new instance (next to the old one).
+. Load the dumped state to the new instance and test it.
+. If everything is all right stop it and change its port to the correct port used by the old service.
+. If needed, create an another, up-to-date dump of the old service state and stop it.
+. Start the new service and load the latest dump.
+. If needed reconfigure startup scripts to start the updated service, as well as update the +PATH+ variable to use
+new Unity binaries location. It is a good practice to have a symbolic link to the actual Unity installation directory
+that is used in the +PATH+ and startup scripts. Then it is possible to simply change its target to the updated 
+service directory.
+
+The above procedure is long but allows for a detailed testing of the service before rolling it out into production.
+Of course if you want to be quick and unsafe, you can skip the testing phase.
+
+If using the RPM installation method, the safe test drive of the updated system can be only performed with a help
+of an additional machine: install the updated version there first, upload the dump of the old instance and test it.
+If everything is all right then the actual update may take place: 
+
+. Create a dump of the database state.
+. Stop the old service.
+. Update the RPM using platform tools (usually +yum+).
+. Check if any configuration files needs to be updated (search for +.rpmnew+ files in /etc/unity-idm).
+. Reconfigure the service to use a new, clean database or clean all the data from the existing one. In case of the
+embedded database it is needed to remove the files +/var/lib/unity-idm/data/unitydb\.*+. 
+. Start the new service.
+
+[NOTE] 
+The database dump can be created and loaded from the Web Admin UI, from the _Server maintenance_ tab.
+
+[NOTE] 
+If you plan to clean the database instead of configuring a new one it is always good to have a copy in case an 
+emergency downgrade. 
+
+
+[[ver-update]]
+=== Version specific update instructions
+
+==== From 1.0.0 to 1.1.0
+
+In the 1.1.0 version three important changes of configuration subsystem were introduced.
+
+The first change is a new mandatory option which needs to be added to the main configuration file. 
+
+ unityServer.core.httpServer.advertisedHost=unity.example.com
+ 
+The value of this option should contain an external/official address (IP is also allowed) of the server.
+This option is important whenever server listens on many interfaces (+0.0.0.0+ address) or is behind proxies,
+DNAT solutions etc.
+
+In the version 1.1.0 a centralized configuration of credentials and truststores was introduced.
 Therefore all of the credentials and truststores are now configured in a single file and referenced
 by name in other files. Configuration should be updated as follows:
 
-# [Mandatory for the RPM installations; recommended for tar.gz installations] 
-A new property should be added to the main configuration file +unityServer.conf+, specifying the location
-of the +pki.properties+ file. Typically +unityServer.core.pkiConfigFile=/etc/unity-idm/pki.properties+ 
-(RPM installation) or +unityServer.core.pkiConfigFile=conf/pki.properties+ (tar.gz installation, this value is also
-the default one).
-# All distinct credentials and truststores used in the configuration should be identified. The possible locations are
-enumerated below:
-## base server credential and truststore used in the main config file,
-## each SAML endpoint typically have both the credential and truststore defined,
-## the LDAP credential using SSL mode can have a truststore defined.
-# For each distinct truststore and keystore an name must be chosen, and the configuration of the credential/truststore
-must be copied to the +pki.properties+ file mentioned in the previous point. The syntax is described in the manual.
-# Finally in each place where the original configuration of the credential or truststore was provided directly,
-it should be removed and replaced with a single option referencing the globally defined credential/truststore. This
-option key (the last part) is respectively +.credential+ or +.truststore+.
+. [Mandatory for the RPM installations; recommended for tar.gz installations] 
+ A new property should be added to the main configuration file +unityServer.conf+, specifying the location
+ of the +pki.properties+ file. Typically +unityServer.core.pkiConfigFile=/etc/unity-idm/pki.properties+ 
+ (RPM installation) or +unityServer.core.pkiConfigFile=conf/pki.properties+ (tar.gz installation, this value is also
+ the default one).
+. All distinct credentials and truststores used in the configuration should be identified. The possible locations are
+ enumerated below:
+.. base server credential and truststore used in the main configuration file,
+.. each SAML endpoint typically have both the credential and truststore defined,
+.. the LDAP authenticator using SSL mode can have a truststore defined.
+. For each distinct truststore and keystore an name must be chosen, and the configuration of the credential/truststore
+ must be copied to the +pki.properties+ file mentioned in the previous point. The syntax is described in the manual.
+. Finally in each place where the original configuration of the credential or truststore was provided directly,
+ it should be removed and replaced with a single option referencing the globally defined credential/truststore. This
+ option key (the last part) is respectively +.credential+ or +.truststore+.
 
+
+Another configuration format change introduced in 1.1.0 version is located in configuration of (all) SAML 
+endpoints. Besides few new options, the trust settings were changed to facilitate a more rich set of settings.
+
+The update should be performed with the following rules:
+
+Each entry +unity.saml.acceptedUriSP+ should be removed and replaced with a new +unity.saml.acceptedSP.+ entry.
+The trusted service provider certificate should be defined in +pki.properties+ and only referenced. 
+For instance the following setting:
  
+ unity.saml.acceptedUriSP.SP_1=http://sp.example.com/ /certs/sp.pem
+
+should be replaced with:
+ 
+ unity.saml.acceptedSP.SP_1.entity=http://sp.example.com/
+ unity.saml.acceptedSP.SP_1.certificate=SP1_CERT
+
+where +SP1_CERT+ should be defined in +pki.properties+ as follows:
+
+ unity.pki.certificates.SP_1.certificateFile=/certs/sp.pem
+ 
+In the similar way the the +unity.saml.acceptedDNSP.+ entries should be updated:
+
+ unity.saml.acceptedDNSP.SP_2=/certs/sp.pem
+
+should be replaced with:
+
+ unity.saml.acceptedSP.SP_2.dn=CN=SP2,O=Example,C=AU
+ unity.saml.acceptedSP.SP_2.certificate=SP2_CERT
+
+where +dn+ is a distinguished name of the Service Provider using X.500 name to identify itself.
+
+  

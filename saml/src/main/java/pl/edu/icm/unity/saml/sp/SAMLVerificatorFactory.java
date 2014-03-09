@@ -25,12 +25,12 @@ import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 
 /**
- * Factory of {@link SAMLValidator}s.
+ * Factory of {@link SAMLVerificator}s.
  * It also installs the {@link SAMLResponseConsumerServlet}.
  * @author K. Benedyczak
  */
 @Component
-public class SAMLValidatorFactory implements CredentialVerificatorFactory
+public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 {
 	public static final String NAME = "saml2";
 	public static final String METADATA_SERVLET_PATH = "/saml-sp-metadata";
@@ -45,7 +45,7 @@ public class SAMLValidatorFactory implements CredentialVerificatorFactory
 	private String baseContext;
 	
 	@Autowired
-	public SAMLValidatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement,
+	public SAMLVerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement,
 			@Qualifier("insecure") AttributesManagement attrMan, 
 			PKIManagement pkiMan, ReplayAttackChecker replayAttackChecker,
 			SharedEndpointManagement sharedEndpointManagement, SamlContextManagement contextManagement,
@@ -83,7 +83,7 @@ public class SAMLValidatorFactory implements CredentialVerificatorFactory
 	@Override
 	public CredentialVerificator newInstance()
 	{
-		return new SAMLValidator(NAME, getDescription(), profileManagement, attrMan, pkiMan, 
+		return new SAMLVerificator(NAME, getDescription(), profileManagement, attrMan, pkiMan, 
 				replayAttackChecker, executorsService, metadataServlet,
 				baseAddress, baseContext);
 	}

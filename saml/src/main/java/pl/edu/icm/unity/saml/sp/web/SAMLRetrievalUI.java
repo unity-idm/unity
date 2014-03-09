@@ -272,14 +272,15 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		showError(null);
 		try
 		{
+			String reason = null;
+			Exception savedException = null;
 			try
 			{
 				authnResult = credentialExchange.verifySAMLResponse(authnContext);
 			} catch (AuthenticationException e)
 			{
-				log.warn("SAML response verification or processing failed", e);
-				String reason = ErrorPopup.getHumanMessage(e, "<br>");
-				showErrorDetail(msg.getMessage("WebSAMLRetrieval.authnFailedDetailInfo", reason));
+				savedException = e;
+				reason = ErrorPopup.getHumanMessage(e, "<br>");
 				authnResult = e.getResult();
 			} catch (Exception e)
 			{
@@ -290,18 +291,27 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			if (authnResult.getStatus() == Status.success)
 			{
 				showError(null);
+				breakLogin(false);
 			} else if (authnResult.getStatus() == Status.unknownRemotePrincipal && 
 					authnContext.getRegistrationFormForUnknown() != null) 
 			{
+				log.debug("There is a registration form to show for the unknown user: " + 
+						authnContext.getRegistrationFormForUnknown());
 				authnResult.setFormForUnknownPrincipal(authnContext.getRegistrationFormForUnknown());
 				showError(null);
+				breakLogin(true);
 			} else
 			{
+				if (savedException != null)
+					log.warn("SAML response verification or processing failed", savedException);
+				else
+					log.warn("SAML response verification or processing failed");
+				if (reason != null)
+					showErrorDetail(msg.getMessage("WebSAMLRetrieval.authnFailedDetailInfo", reason));
 				showError(msg.getMessage("WebSAMLRetrieval.authnFailedError"));
+				breakLogin(false);
 			}
 
-			
-			breakLogin(false);
 		} finally
 		{
 			session.unlock();

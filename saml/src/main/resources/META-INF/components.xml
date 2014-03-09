@@ -18,7 +18,7 @@
 	
 	<bean class="eu.unicore.samly2.validators.ReplayAttackChecker"/>
 	<bean class="pl.edu.icm.unity.saml.sp.SamlContextManagement"/>
-	<bean class="pl.edu.icm.unity.saml.sp.SAMLValidatorFactory"/>
+	<bean class="pl.edu.icm.unity.saml.sp.SAMLVerificatorFactory"/>
 	<bean class="pl.edu.icm.unity.saml.sp.web.SAMLRetrievalFactory"/>
 	
 	

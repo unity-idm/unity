@@ -51,4 +51,10 @@ public class InternalNoAuthzImpl implements AuthorizationManager
 	{
 		return false;
 	}
+
+	@Override
+	public String getRolesDescription()
+	{
+		return "";
+	}
 }

@@ -258,8 +258,8 @@ public class AttributeStatementProcessor
 		if (ret == null)
 			return;
 		
-		
-		if (collectedAttributes.containsKey(ret.getName()))
+		AttributeExt<?> existing = collectedAttributes.get(ret.getName());
+		if (existing != null)
 		{
 			ConflictResolution resolution = statement.getConflictResolution();
 			switch (resolution)
@@ -267,7 +267,8 @@ public class AttributeStatementProcessor
 			case skip:
 				return;
 			case overwrite:
-				collectedAttributes.put(ret.getName(), new AttributeExt(ret, false));
+				if (!existing.isDirect())
+					collectedAttributes.put(ret.getName(), new AttributeExt(ret, false));
 				return;
 			case merge:
 				try
@@ -276,7 +277,6 @@ public class AttributeStatementProcessor
 					AttributeType at = attrResolver.resolveAttributeTypeBean(atb);
 					if (at.getMaxElements() == Integer.MAX_VALUE)
 					{
-						AttributeExt<?> existing = collectedAttributes.get(ret.getName());
 						((List)existing.getValues()).addAll(ret.getValues());
 					}
 				} catch (EngineException e)

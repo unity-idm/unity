@@ -27,7 +27,6 @@ import eu.unicore.samly2.validators.AssertionValidator;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.samly2.validators.SSOAuthnResponseValidator;
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
@@ -54,7 +53,7 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
  * Binding irrelevant SAML logic: creation of a SAML authentication request and verification of the answer.
  * @author K. Benedyczak
  */
-public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExchange
+public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLExchange
 {
 	private SAMLSPProperties samlProperties;
 	private PKIManagement pkiMan;
@@ -63,7 +62,7 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 	private ExecutorsService executorsService;
 	private String responseConsumerAddress;
 	
-	public SAMLValidator(String name, String description, TranslationProfileManagement profileManagement, 
+	public SAMLVerificator(String name, String description, TranslationProfileManagement profileManagement, 
 			AttributesManagement attrMan, PKIManagement pkiMan, ReplayAttackChecker replayAttackChecker,
 			ExecutorsService executorsService, MultiMetadataServlet metadataServlet,
 			URL baseAddress, String baseContext)
@@ -203,13 +202,8 @@ public class SAMLValidator extends AbstractRemoteVerificator implements SAMLExch
 
 		RemotelyAuthenticatedInput input = convertAssertion(responseDocument, validator, 
 				context.getGroupAttribute());
-		try
-		{
-			return getResult(input, context.getTranslationProfile());
-		} catch (EngineException e)
-		{
-			throw new AuthenticationException("Problem retrieving the contents of the SAML data", e);
-		}
+
+		return getResult(input, context.getTranslationProfile());
 	}
 	
 	private RemotelyAuthenticatedInput convertAssertion(ResponseDocument responseDocument,

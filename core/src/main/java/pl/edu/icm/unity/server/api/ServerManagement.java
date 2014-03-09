@@ -37,4 +37,15 @@ public interface ServerManagement
 	 */
 	public void importDb(File from, boolean resetIndexes) throws EngineException;
 	
+	/**
+	 * Reload main configuration file if changed
+	 * @throws EngineException
+	 */
+	public void reloadConfig() throws EngineException;
+	
+	/**
+	 * Load configuration file 
+	 * @throws EngineException
+	 */
+	public String loadConfigurationFile(String path) throws EngineException;
 }

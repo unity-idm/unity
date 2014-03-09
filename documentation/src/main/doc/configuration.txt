@@ -1,17 +1,31 @@
 [id=configuration]
 == General server configuration
 
-The server uses two main configuration files: +conf/unityServer.conf+ and +conf/log4j.properties+. To change 
-their default locations one needs to edit startup scripts. 
+The server uses two main configuration files: +conf/unityServer.conf+ and +conf/log4j.properties+. 
+There is also a third one, +conf/startup.properties+, which allows for controlling low level Java VM options
+(as memory or JVM executable) and for changing the location of the main configuration files mentioned above. 
 
 The +conf/log4j.properties+ file configures the logging of the server. This is described in the section <<logging>>.
 
-The +conf/unityServer.conf+ file is the main server configuration file. All other additional configuration files are defined 
-in it.
+The +conf/unityServer.conf+ file is the main server configuration file. All other additional configuration
+files are defined in it.
 
-[NOTE]
-Currently the configuration is read only at startup so after any change a restart is required. 
-We plan to deliver a better tooling, so the most common configuration updates won't require the restart.
+Configuration files are loaded at startup. Most of the files (all except of the logging and mail settings) are
+quite strictly verified - in case of misconfiguration, syntax errors, or spelling mistakes server prints a loud
+error message in log file and (if the error is critical) does not start.
+
+Configuration updates at runtime are handled as follows:
+
+ * +conf/log4j.properties+ file is automatically reloaded after it is modified (with few seconds latency). 
+ It is recorded in the log file.
+ * No other file is automatically reloaded after modification. However,
+ * configuration of authenticators, endpoints and translation profiles can be reloaded from the Web Admin UI 
+ (in the Server Management tab). It is possible to remove, add or reconfigure existing elements.
+ * Reconfiguration of the remaining options from the main configuration file, PKI settings and message templates
+ requires server restart. 
+ * Note however that the +directory+ and +openssl+ truststores which can be configured in PKI settings 
+ allows for automatic updates of their content when trusted certificates or CRLs are added or removed.
+ 
   
 The table showing all the options is quite long, so here we provide a description of the most important parts
 of the configuration: 
@@ -19,14 +33,17 @@ of the configuration:
  * The general server settings (it is always good to review them) include:
  ** The initial admin username and password. After the server is initialized and admin account(s) are 
  set up those options may be removed and used only in emergency case (i.e. when the last admin user remove itself).
- ** Location of the files with configuration of the e-mail subsystem and message templates. More information on this topic
- is included in the subsection <<notifications>>.
+ ** Location of the files with configuration of the e-mail subsystem and message templates.
+ More information on this topic is included in the subsection <<notifications>>.
+ ** Location of Public Key Infrastructure (PKI) configuration file. This is documented separately in the 
+ subsection <<pki>>.
  ** Database configuration which is described in the section <<db-conf>>.
  ** Loaders of example contents, which are useful for a quick start.
  ** Configuration of enabled languages.
- * HTTP server settings, where there are two important settings: hostname and port where the server listens. The rest is fairly advanced.
- * Server trust settings and the server credential, mostly used for SSL. This is documented separately in the subsections
-<<server_trust>> and <<server_cred>>.
+ ** Selection of the server main truststore and credential, mostly used for SSL. 
+ * HTTP server settings, where there are three important settings: hostname and port where the server listens and
+ the advertised address, which should be an address or IP via which the server should be reached from Internet. 
+ The remaining options of the HTTP server are fairly advanced.
  * Definitions of various artifacts of the server to be loaded: credentials, credential requirements, authenticators, 
 endpoints and translation profiles. Note that the credentials and credential requirements can be also managed more
 conveniently with the Web Admin UI.
@@ -55,13 +72,34 @@ always handled by the H2 database engine, so only the database storage location 
 
 include::ref-dbProperties.txt[]
 
+
+[[pki]]
+=== PKI settings
+
+Unity uses a centralized management of all Public Key Infrastructure (PKI) settings in a file defined in 
+the main configuration. By default the configuration file is called +pki.properties+.
+
+In the file three types of objects can be defined: PKI credentials (i.e. pairs consisting of an 
+X.509 certificate and an associated private key), truststores (sets of trusted CA certificates with many additional 
+settings as CRLs) and individual certificates of external entities.
+
+It is possible to define many objects of each type. For instance one can define two credentials: one for 
+SSL server and another one for the SAML IdP endpoint to sign issued SAML assertions.
+
+All of the artifacts are named and the names are used in other parts of the Unity configuration to refer to 
+a configure instance. The main configuration reference is presented below. The subsequent sections cover in more
+details the configuration of truststores and credentials which can be configured in many different ways. 
+
+include::ref-pkiProperties.txt[]
+
+
 [[server_trust]]
-=== PKI/X.509 trust settings
+==== PKI/X.509 trust settings
 
 Public Key Infrastructure (PKI) trust settings are used to validate certificates, i.e. to check if the certificate
 are not faked. This is performed, in the first place when a connection with a remote peer is initiated over 
-the network, using the SSL (or TLS) protocol. Additionally certificate validation can happen in few other situations, e.g. when checking digital signatures 
-of various sensitive pieces of data.
+the network, using the SSL (or TLS) protocol. Additionally certificate validation can happen in few other 
+situations, e.g. when checking digital signatures of various sensitive pieces of data.
 
 Certificates validation is primarily configured using a set of initially trusted certificates of so called 
 Certificate Authorities (CAs). Those trusted certificates are also known as _trust anchors_ and their collection
@@ -69,12 +107,6 @@ is called a _trust store_.
 
 Except of _trust anchors_ validation mechanism can use additional input for checking if a certificate being checked 
 was not revoked and if its subject is in a permitted namespace.
-
-[NOTE]
-In this section we refer to the configuration of the general trust store of the server, which is used
-to setup its network connection. However several subsystems allow for configuring their separate
-trust stores (e.g. the LDAP callout may use a different trust store to verify LDAP server certificate).
-In all the cases the configuration is the same, however the properties prefix may vary.    
 
 Unity allows for different types of trust stores. All of them are configured using a set of properties.
 
@@ -84,8 +116,9 @@ Unity allows for different types of trust stores. All of them are configured usi
  should be stored in a single file or when compatibility with other Java solutions is desired.   
  - _OpenSSL trust store_ - allows to use a directory with CA certificates stored in PEM format, under precisely
  defined names: the CA certificates, CRLs, signing policy files and namespaces files are named 
- +<hash>.0+, +<hash>.r0+, +<hash>.signing_policy+ and +<hash>.namespaces+. The hash must be generated using the +openssl+ tool
- from a trusted certificate. This format is used by many well known servers, Linux distributions often provide tools
+ +<hash>.0+, +<hash>.r0+, +<hash>.signing_policy+ and +<hash>.namespaces+. 
+ The hash must be generated using the +openssl+ tool from a trusted certificate. 
+ This format is used by many well known servers, Linux distributions often provide tools
  to help in trust store management. Therefore this format is suggested if reuse of the truststore is needed.
  - _Directory trust store_ - the most flexible and convenient option, suggested for all remaining cases. It allows
  administrators to use a list of wildcard expressions, concrete paths of files or even URLs to remote files 
@@ -94,7 +127,8 @@ Unity allows for different types of trust stores. All of them are configured usi
  
 In all cases trust stores can be (and by default are) configured to be automatically refreshed. 
  
-The following table provides a reference to settings of all of the trust stores.
+The following table provides a reference to settings of all of the trust stores. Note that the prefix of the
++pki.properties+ is not shown in the table.
 
 include::sec-ref-trustProperties.txt[]
 
@@ -102,37 +136,37 @@ include::sec-ref-trustProperties.txt[]
 
 Directory trust store, with a minimal set of options:
 
- unityServer.core.truststore.type=directory
- unityServer.core.truststore.directoryLocations.1=/trust/dir/*.pem
- unityServer.core.truststore.crlLocations=/trust/dir/*.crl
+ unity.pki.truststores.MAIN.type=directory
+ unity.pki.truststores.MAIN.directoryLocations.1=/trust/dir/*.pem
+ unity.pki.truststores.MAIN.crlLocations=/trust/dir/*.crl
  
 Directory trust store, with a complete set of options:
 
- unityServer.core.truststore.type=directory
- unityServer.core.truststore.allowProxy=DENY
- unityServer.core.truststore.updateInterval=1234
- unityServer.core.truststore.directoryLocations.1=/trust/dir/*.pem
- unityServer.core.truststore.directoryLocations.2=http://caserver/ca.pem
- unityServer.core.truststore.directoryEncoding=PEM
- unityServer.core.truststore.directoryConnectionTimeout=100
- unityServer.core.truststore.directoryDiskCachePath=/tmp
- unityServer.core.truststore.crlLocations.1=/trust/dir/*.crl
- unityServer.core.truststore.crlLocations.2=http://caserver/crl.pem
- unityServer.core.truststore.crlUpdateInterval=400
- unityServer.core.truststore.crlMode=REQUIRE
- unityServer.core.truststore.crlConnectionTimeout=200
- unityServer.core.truststore.crlDiskCachePath=/tmp
+ unity.pki.truststores.MAIN.type=directory
+ unity.pki.truststores.MAIN.allowProxy=DENY
+ unity.pki.truststores.MAIN.updateInterval=1234
+ unity.pki.truststores.MAIN.directoryLocations.1=/trust/dir/*.pem
+ unity.pki.truststores.MAIN.directoryLocations.2=http://caserver/ca.pem
+ unity.pki.truststores.MAIN.directoryEncoding=PEM
+ unity.pki.truststores.MAIN.directoryConnectionTimeout=100
+ unity.pki.truststores.MAIN.directoryDiskCachePath=/tmp
+ unity.pki.truststores.MAIN.crlLocations.1=/trust/dir/*.crl
+ unity.pki.truststores.MAIN.crlLocations.2=http://caserver/crl.pem
+ unity.pki.truststores.MAIN.crlUpdateInterval=400
+ unity.pki.truststores.MAIN.crlMode=REQUIRE
+ unity.pki.truststores.MAIN.crlConnectionTimeout=200
+ unity.pki.truststores.MAIN.crlDiskCachePath=/tmp
 
 Java keystore used as a trust store:
 
- unityServer.core.truststore.type=keystore
- unityServer.core.truststore.keystorePath=src/test/resources/certs/truststore.jks
- unityServer.core.truststore.keystoreFormat=JKS
- unityServer.core.truststore.keystorePassword=xxxxxx
+ unity.pki.truststores.MAIN.type=keystore
+ unity.pki.truststores.MAIN.keystorePath=/trust/truststore.jks
+ unity.pki.truststores.MAIN.keystoreFormat=JKS
+ unity.pki.truststores.MAIN.keystorePassword=xxxxxx
 
 
 [[server_cred]]
-=== Configuring the PKI credential
+==== Configuring the PKI credential
 
 Unity uses private key and a corresponding certificate (called together as a _credential_) 
 to identify itself to its clients during TLS connection and sometimes to digitally sign returned documents. 
@@ -144,7 +178,7 @@ Do not confuse the _PKI credential_ used by the server to identify itself with t
 entities handled in the Unity's database.
 
 [NOTE]
-For production usage, Unity should use a certificate issued by a well trusted certificate authority.
+For production usage, Unity should use a certificate issued by a globally trusted certificate authority.
 
 Credentials might be provided in several formats:
 
@@ -154,10 +188,11 @@ Credentials might be provided in several formats:
  - or even from a single file, with PEM-encoded certificates and private key (in any order).  
 
 The following table list all parameters which allows for configuring the credential.
-Note that nearly all options are optional. If not defined, the format is guessed.
-However some credential formats require additional settings. For instance if using _der_ format
-the _keyPath_ is mandatory as you need two DER files: one with certificate and one with the key (and
-the latter path can not be guessed). 
+Note that nearly all settings are optional. If not defined, the format is guessed.
+However, some credential formats require additional settings. For instance, if using the _der_ format,
+the _keyPath_ is mandatory as you need two DER files: one with a certificate and one with a key (and
+the latter path can not be guessed). Note that the prefix of the +pki.properties+ configuration is not 
+shown in the table.
 
 include::sec-ref-credProperties.txt[]
 
@@ -165,15 +200,15 @@ include::sec-ref-credProperties.txt[]
 
 Credential as a pair of DER files:
 
- unityServer.core.credential.format=der
- unityServer.core.credential.password=SOME PASS
- unityServer.core.credential.path=/etc/credentials/cert-1.der
- unityServer.core.credential.keyPath=/etc/credentials/pk-1.der
+ unity.pki.credentials.MAIN.format=der
+ unity.pki.credentials.MAIN.password=SOME PASS
+ unity.pki.credentials.MAIN.path=/etc/credentials/cert-1.der
+ unity.pki.credentials.MAIN.keyPath=/etc/credentials/pk-1.der
 
 Credential as a JKS file (credential type can be autodetected in almost every case):
 
- unityServer.core.credential.path=/etc/credentials/server1.jks
- unityServer.core.credential.password=xxxxxx
+ unity.pki.credentials.MAIN.path=/etc/credentials/server1.jks
+ unity.pki.credentials.MAIN.password=xxxxxx
 
 
 [[cfg-authenticators]]
@@ -207,7 +242,7 @@ unityServer.core.authenticators.2.localCredential=secured password
 unityServer.core.authenticators.2.retrievalConfigurationFile=conf/passwordRetrieval-config.json
 -----  
 
-The name of the authenticator is an arbitrary unique string. The type is the most important part:
+The name of the authenticator is an arbitrary, unique string. The type is the most important part:
 it defines the name of the credential verificator and retrieval, both names must be separated with the string
 +with+. The following table lists allowed credential verificators and retrievals. Any combination can be used,
 assuming the same credential is exchanged.
@@ -218,6 +253,7 @@ assuming the same credential is exchanged.
 |password			| Password 			| Local verificator.
 |ldap				| Password			| External verificator, uses LDAP.
 |certificate		| X.509 certificate | Local verificator.
+|saml2				| SAML assertions 	| External verificator, interacts via associated retrieval with a remote SAML IdP.
 |==== 
 
 [cols="m,n,n,n", options="header"]
@@ -227,6 +263,7 @@ assuming the same credential is exchanged.
 |web-certificate	| X.509 certificate	| Web (Vaadin) 			| Uses client-authenticated TLS/SSL certificate
 |cxf-httpbasic		| Password			| Web Service (CXF stack)| Uses HTTP BASIC submitted password
 |cxf-certificate	| X.509 certificate	| Web Service (CXF stack)| Uses client-authenticated TLS/SSL certificate
+|web-saml2			| SAML assertions	| Web (Vaadin) 			| Allows to choose remote SAML IdP, redirects the user to authenticate there and collects the received authentication data.
 |==== 
 
 Both credential verificator and credential retrieval can require a separate configuration in external files, 

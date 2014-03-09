@@ -5,8 +5,6 @@
 package pl.edu.icm.unity.saml.idp.ws;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.cxf.interceptor.Fault;
 import org.apache.log4j.Logger;
@@ -17,13 +15,13 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAttributeQueryContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AttributeQueryResponseProcessor;
+import pl.edu.icm.unity.saml.idp.processor.BaseResponseProcessor;
 import pl.edu.icm.unity.saml.validator.UnityAttributeQueryValidator;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -65,6 +63,8 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 	@Override
 	public ResponseDocument attributeQuery(AttributeQueryDocument query)
 	{
+		if (log.isTraceEnabled())
+			log.trace("Received SAML AttributeQuery: " + query.xmlText());
 		SAMLAttributeQueryContext context = new SAMLAttributeQueryContext(query, samlProperties);
 		try
 		{
@@ -90,6 +90,8 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 			SAMLServerException convertedException = processor.convert2SAMLError(e, null, true);
 			respDoc = processor.getErrorResponse(convertedException);
 		}
+		if (log.isTraceEnabled())
+			log.trace("Returning SAML Response: " + respDoc.xmlText());
 		return respDoc;
 	}
 
@@ -114,18 +116,10 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 	protected Collection<Attribute<?>> getAttributes(IdentityTaV subjectId, 
 			AttributeQueryResponseProcessor processor, SPSettings preferences) throws EngineException
 	{
-		EntityParam entity = new EntityParam(subjectId);
-		Collection<String> allGroups = identitiesMan.getGroups(entity);
-		Collection<AttributeExt<?>> allAttribtues = attributesMan.getAttributes(
-				entity, processor.getChosenGroup(), null);
-		Map<String, Attribute<?>> all = processor.prepareReleasedAttributes(allAttribtues, allGroups);
-		Set<String> hidden = preferences.getHiddenAttribtues();
-		for (String hiddenA: hidden)
-			all.remove(hiddenA);
-		return all.values();
+		return BaseResponseProcessor.getAttributes(new EntityParam(subjectId), processor, 
+				preferences, attributesMan, identitiesMan);
 	}
 
-	
 	protected void validate(SAMLAttributeQueryContext context) throws SAMLServerException
 	{
 		UnityAttributeQueryValidator validator = new UnityAttributeQueryValidator(endpointAddress, 

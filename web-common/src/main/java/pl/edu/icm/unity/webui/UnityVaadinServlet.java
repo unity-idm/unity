@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -33,8 +34,13 @@ import com.vaadin.server.DeploymentConfiguration;
 import com.vaadin.server.ServiceException;
 import com.vaadin.server.SessionInitEvent;
 import com.vaadin.server.SessionInitListener;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.VaadinServletService;
+import com.vaadin.server.VaadinSession;
+import com.vaadin.ui.UI;
+import com.vaadin.util.CurrentInstance;
 
 
 /**
@@ -73,7 +79,10 @@ public class UnityVaadinServlet extends VaadinServlet
 	@Override
 	public void init(ServletConfig config) throws ServletException
 	{
+		Map<Class<?>, Object> saved = saveThreadLocalState();
 		super.init(config);
+		restoreThreadLocalState(saved);
+		
 		Object counter = getServletContext().getAttribute(UnsuccessfulAuthenticationCounter.class.getName());
 		if (counter == null)
 		{
@@ -84,6 +93,40 @@ public class UnityVaadinServlet extends VaadinServlet
 					new UnsuccessfulAuthenticationCounter(blockAfter, blockFor));
 		}
 		
+	}
+	
+	private Map<Class<?>, Object> saveThreadLocalState()
+	{
+		Map<Class<?>, Object> saved = new HashMap<Class<?>, Object>();
+		saved.put(UI.class, UI.getCurrent());
+		saved.put(VaadinSession.class, VaadinSession.getCurrent());
+		saved.put(VaadinServlet.class, VaadinServlet.getCurrent());
+		saved.put(VaadinRequest.class, CurrentInstance.get(VaadinRequest.class));
+		saved.put(VaadinResponse.class, CurrentInstance.get(VaadinResponse.class));
+		return saved;
+	}
+	
+	private void restoreThreadLocalState(Map<Class<?>, Object> saved)
+	{
+		UI ui = (UI) saved.get(UI.class);
+		if (ui != null)
+			UI.setCurrent(ui);
+		
+		VaadinSession session = (VaadinSession) saved.get(VaadinSession.class);
+		if (session != null)
+			VaadinSession.setCurrent(session);
+		
+		VaadinServlet servlet = (VaadinServlet) saved.get(VaadinServlet.class);
+		if (servlet != null)
+			VaadinServlet.setCurrent(servlet);
+
+		VaadinRequest request = (VaadinRequest) saved.get(VaadinRequest.class);
+		if (request != null)
+			CurrentInstance.set(VaadinRequest.class, request);
+		
+		VaadinResponse response = (VaadinResponse) saved.get(VaadinResponse.class);
+		if (response != null)
+			CurrentInstance.set(VaadinResponse.class, response);
 	}
 	
 	public synchronized void updateAuthenticators(List<Map<String, BindingAuthn>> authenticators)
@@ -108,7 +151,6 @@ public class UnityVaadinServlet extends VaadinServlet
 		InvocationContext ctx = setEmptyInvocationContext();
 		setAuthenticationContext(request, ctx);
 		setLocale(request, ctx);
-		getService().addSessionInitListener(new VaadinSessionInit());
 		try
 		{
 			super.service(request, response);
@@ -180,22 +222,15 @@ public class UnityVaadinServlet extends VaadinServlet
 				String timeout = properties.getProperty(VaadinEndpoint.SESSION_TIMEOUT_PARAM);
 				if (timeout != null)
 					event.getSession().getSession().setMaxInactiveInterval(Integer.parseInt(timeout));
+
+				if (WebSession.getCurrent() == null)
+				{
+					WebSession webSession = new WebSession(new EventsBus());
+					WebSession.setCurrent(webSession);
+				}			
 			}
 		});
 
 		return service;
-	}
-	
-	private static class VaadinSessionInit implements SessionInitListener
-	{
-		@Override
-		public void sessionInit(SessionInitEvent event) throws ServiceException
-		{
-			if (WebSession.getCurrent() == null)
-			{
-				WebSession webSession = new WebSession(new EventsBus());
-				WebSession.setCurrent(webSession);
-			}			
-		}
 	}
 }

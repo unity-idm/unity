@@ -167,16 +167,23 @@ public class AuthenticationProcessor
 	}
 	
 	/**
-	 * Doesn't destroy the session, instead only clears information about logged user, so authN screen should be shown.
+	 * Destroys the session and opens the original address again.
 	 */
-	public static void softLogout()
+	public static void logoutAndRefresh()
 	{
 		VaadinSession vs = VaadinSession.getCurrent();
 		WrappedSession s = vs.getSession();
-		s.removeAttribute(WebSession.USER_SESSION_KEY);
 		Page p = Page.getCurrent();
-		URI currentLocation = p.getLocation();
-		p.setLocation(currentLocation);
+		String originalAddress;
+		try
+		{
+			originalAddress = getOriginalURL(s);
+		} catch (AuthenticationException e1)
+		{
+			originalAddress = p.getLocation().toString(); 
+		}
+		s.invalidate();
+		p.setLocation(originalAddress);
 	}
 	
 	public static UnsuccessfulAuthenticationCounter getLoginCounter()

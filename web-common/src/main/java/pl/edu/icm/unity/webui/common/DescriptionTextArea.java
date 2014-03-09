@@ -8,6 +8,7 @@ import com.vaadin.ui.TextArea;
 
 /**
  * {@link TextArea} specialization with settings common for description areas.
+ * If it has an empty string set as a value, the component becomes automatically invisible (and vice versa).
  * @author K. Benedyczak
  */
 public class DescriptionTextArea extends TextArea
@@ -29,7 +30,7 @@ public class DescriptionTextArea extends TextArea
 	 */
 	public DescriptionTextArea(boolean readOnly, String initialValue)
 	{
-		setWordwrap(false);
+		setWordwrap(true);
 		setWidth(100, Unit.PERCENTAGE);
 		setValue(initialValue);
 		setReadOnly(readOnly);
@@ -53,7 +54,7 @@ public class DescriptionTextArea extends TextArea
 	public DescriptionTextArea(String caption, boolean readOnly, String initialValue)
 	{
 		super(caption);
-		setWordwrap(false);
+		setWordwrap(true);
 		setWidth(100, Unit.PERCENTAGE);
 		setValue(initialValue);
 		setReadOnly(readOnly);
@@ -77,5 +78,9 @@ public class DescriptionTextArea extends TextArea
 			setRows(4);
 		if (ro)
 			setReadOnly(true);
+		if (value.equals(""))
+			setVisible(false);
+		else
+			setVisible(true);
 	}
 }

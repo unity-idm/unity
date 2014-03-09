@@ -137,7 +137,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	public Collection<AuthenticatorInstance> getAuthenticators(String bindingId)
 			throws EngineException
 	{
-		authz.checkAuthorization(AuthzCapability.readInfo);
+		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{

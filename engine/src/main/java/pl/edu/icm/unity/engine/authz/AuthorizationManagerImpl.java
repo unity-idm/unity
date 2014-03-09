@@ -5,8 +5,8 @@
 package pl.edu.icm.unity.engine.authz;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,7 +39,7 @@ import pl.edu.icm.unity.types.basic.Group;
 @Primary
 public class AuthorizationManagerImpl implements AuthorizationManager
 {
-	private Map<String, AuthzRole> roles = new HashMap<String, AuthzRole>(); 
+	private Map<String, AuthzRole> roles = new LinkedHashMap<String, AuthzRole>(); 
 
 	private DBSessionManager db;
 	private DBAttributes dbAttributes;
@@ -48,7 +48,8 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	 */
 	public static final String SYSTEM_MANAGER_ROLE = "System Manager";
 
-	public static final String CONTENTS_MANAGER_ROLE = "Contents Manager";
+	public static final String CONTENTS_MANAGER_ROLE = "Contents Manager";  
+	public static final String PRIVILEGED_INSPECTOR_ROLE = "Privileged Inspector";
 	public static final String INSPECTOR_ROLE = "Inspector";
 	public static final String USER_ROLE = "Regular User";
 	public static final String ANONYMOUS_ROLE = "Anonymous User";
@@ -73,22 +74,33 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 					AuthzCapability.groupModify,
 					AuthzCapability.identityModify,
 					AuthzCapability.credentialModify,
+					AuthzCapability.readHidden,
 					AuthzCapability.read,
 					AuthzCapability.readInfo
 				}));
 
 		setupRole(new RoleImpl(CONTENTS_MANAGER_ROLE, "Allows for performing all management operations related" +
-				"to groups, entities and attributes. Also allows for reading information about " +
+				" to groups, entities and attributes. Also allows for reading information about " +
 				"hidden attributes.", 
 				new AuthzCapability[] {
 					AuthzCapability.attributeModify, 
 					AuthzCapability.groupModify,
 					AuthzCapability.identityModify,
 					AuthzCapability.credentialModify,
+					AuthzCapability.readHidden,
 					AuthzCapability.read,
 					AuthzCapability.readInfo
 				}));
 
+		setupRole(new RoleImpl(PRIVILEGED_INSPECTOR_ROLE, "Allows for reading entities, groups and attributes,"
+				+ " including the attributes visible locally only. " +
+				"No modifications are possible", 
+				new AuthzCapability[] {
+					AuthzCapability.readHidden,
+					AuthzCapability.read,
+					AuthzCapability.readInfo
+				}));
+		
 		setupRole(new RoleImpl(INSPECTOR_ROLE, "Allows for reading entities, groups and attributes. " +
 				"No modifications are possible", 
 				new AuthzCapability[] {
@@ -129,6 +141,17 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		return roles.keySet();
 	}
 
+	@Override
+	public String getRolesDescription()
+	{
+		StringBuilder ret = new StringBuilder();
+		for (AuthzRole role: roles.values())
+		{
+			ret.append(role.getName()).append(" - ").append(role.getDescription()).append("\n");
+		}
+		return ret.toString();
+	}
+	
 	@Override
 	public void checkAuthorization(AuthzCapability... requiredCapabilities) throws AuthorizationException
 	{

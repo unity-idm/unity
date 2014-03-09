@@ -75,7 +75,8 @@ public class AuthenticatorImpl
 		this(identitiesResolver, reg, name);
 		AuthenticatorTypeDescription authDesc = authRegistry.getAuthenticatorsById(typeId);
 		if (authDesc == null)
-			throw new WrongArgumentException("The authenticator type " + typeId + " is not known");
+			throw new WrongArgumentException("The authenticator type '" + typeId + "' is invalid. "
+					+ "Valid authenticator types are: " + authRegistry.getAuthenticatorTypes());
 		createCoworkers(authDesc, rConfiguration, vConfiguration, null);
 	}	
 	
@@ -142,6 +143,8 @@ public class AuthenticatorImpl
 	 */
 	public void updateConfiguration(String rConfiguration, String vConfiguration, String localCredential)
 	{
+		if (rConfiguration == null)
+			rConfiguration = "";
 		retrieval.setSerializedConfiguration(rConfiguration);
 		instanceDescription.setRetrievalJsonConfiguration(rConfiguration);
 		verificator.setSerializedConfiguration(vConfiguration);

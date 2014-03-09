@@ -373,41 +373,65 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	public void testConflictResolution() throws Exception
 	{
 		setupStateForConditions();
-	
-		// skip
-		AttributeStatement statement1 = new EverybodyStatement(
+		// overwrite direct (-> should skip)
+		AttributeStatement statement0 = new EverybodyStatement(
 				new StringAttribute("a1", "/A/B", AttributeVisibility.local, "updated"), 
-				ConflictResolution.skip);
-		groupAB.setAttributeStatements(new AttributeStatement[] {statement1});
+				ConflictResolution.overwrite);
+		groupAB.setAttributeStatements(new AttributeStatement[] {statement0});
 		groupsMan.updateGroup("/A/B", groupAB);
 		Collection<AttributeExt<?>> aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a1", false);
 		assertEquals(1, aRet.size());
 		assertEquals(1, aRet.iterator().next().getValues().size());
 		assertEquals("va1", aRet.iterator().next().getValues().get(0));
+	
+		// skip
+		AttributeStatement statement1 = new EverybodyStatement(
+				new StringAttribute("a2", "/A/B", AttributeVisibility.local, "base"), 
+				ConflictResolution.skip);
+		groupAB.setAttributeStatements(new AttributeStatement[] {statement1});
+		groupsMan.updateGroup("/A/B", groupAB);
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a2", false);
+		assertEquals(1, aRet.size());
+		assertEquals(1, aRet.iterator().next().getValues().size());
+		assertEquals("base", aRet.iterator().next().getValues().get(0));
+		
+		//skip x2
+		AttributeStatement statement11 = new EverybodyStatement(
+				new StringAttribute("a2", "/A/B", AttributeVisibility.local, "updated"), 
+				ConflictResolution.skip);
+		groupAB.setAttributeStatements(new AttributeStatement[] {statement1, statement11});
+		groupsMan.updateGroup("/A/B", groupAB);
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a2", false);
+		assertEquals(1, aRet.size());
+		assertEquals(1, aRet.iterator().next().getValues().size());
+		assertEquals("base", aRet.iterator().next().getValues().get(0));
 
 		// skip and then overwrite
 		AttributeStatement statement2 = new EverybodyStatement(
-				new StringAttribute("a1", "/A/B", AttributeVisibility.local, "updated2"), 
+				new StringAttribute("a2", "/A/B", AttributeVisibility.local, "updated2"), 
 				ConflictResolution.overwrite);
-		groupAB.setAttributeStatements(new AttributeStatement[] {statement1, statement2});
+		groupAB.setAttributeStatements(new AttributeStatement[] {statement1, statement11, statement2});
 		groupsMan.updateGroup("/A/B", groupAB);
 		
-		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a1", false);
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a2", false);
 		assertEquals(1, aRet.size());
 		assertEquals(1, aRet.iterator().next().getValues().size());
 		assertEquals("updated2", aRet.iterator().next().getValues().get(0));
 		
 		// skip, overwrite, merge which should skip
-		AttributeStatement statement3 = new EverybodyStatement(
-				new StringAttribute("a1", "/A/B", AttributeVisibility.local, "merge"), 
+		AttributeStatement statement31 = new EverybodyStatement(
+				new StringAttribute("a1", "/A/D", AttributeVisibility.local, "base"), 
 				ConflictResolution.merge);
-		groupAB.setAttributeStatements(new AttributeStatement[] {statement1, statement2, statement3});
-		groupsMan.updateGroup("/A/B", groupAB);
+		AttributeStatement statement32 = new EverybodyStatement(
+				new StringAttribute("a1", "/A/D", AttributeVisibility.local, "merge"), 
+				ConflictResolution.merge);
+		groupAD.setAttributeStatements(new AttributeStatement[] {statement31, statement32});
+		groupsMan.updateGroup("/A/D", groupAD);
 		
-		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a1", false);
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/D", "a1", false);
 		assertEquals(1, aRet.size());
 		assertEquals(1, aRet.iterator().next().getValues().size());
-		assertEquals("updated2", aRet.iterator().next().getValues().get(0));
+		assertEquals("base", aRet.iterator().next().getValues().get(0));
 
 
 		//add two rules to test merge working
@@ -417,8 +441,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		AttributeStatement statement5 = new EverybodyStatement(
 				new StringAttribute("a2", "/A/B", AttributeVisibility.local, "merge2"), 
 				ConflictResolution.merge);
-		groupAB.setAttributeStatements(new AttributeStatement[] {statement1, statement2, statement3,
-				statement4, statement5});
+		groupAB.setAttributeStatements(new AttributeStatement[] {statement4, statement5});
 		groupsMan.updateGroup("/A/B", groupAB);
 
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a2", false);
@@ -562,6 +585,47 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		} catch (IllegalAttributeTypeException e) {}
 
 	}	
+	
+	@Test
+	public void testCopyFromSubgroup() throws Exception
+	{
+		setupMockAuthn();
+		
+		AttributeType at = createSimpleAT("a1");
+		attrsMan.addAttributeType(at);
+		AttributeType at1 = createSimpleAT("a2");
+		at1.setMaxElements(Integer.MAX_VALUE);
+		attrsMan.addAttributeType(at1);
+		
+		groupA = new Group("/A");
+		groupsMan.addGroup(groupA);
+		
+		groupAB = new Group("/A/B");
+		groupsMan.addGroup(groupAB);
+
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi", true), "crMock", 
+				EntityState.disabled, false);
+		entity = new EntityParam(id);
+		groupsMan.addMemberFromParent("/A", entity);
+		
+		// added to /A for all having an "a1" attribute in /A/B. 
+		AttributeStatement statement1 = new CopySubgroupAttributeStatement(
+				new StringAttribute("a1", "/A/B", AttributeVisibility.local), 
+				ConflictResolution.skip);
+		Group groupR = groupsMan.getContents("/A", GroupContents.METADATA).getGroup();
+		groupR.setAttributeStatements(new AttributeStatement[] {statement1});
+		groupsMan.updateGroup("/A", groupR);
+		
+		AttributeStatement statement2 = new EverybodyStatement(
+				new StringAttribute("a1", "/A/B", AttributeVisibility.local, "value"), 
+				ConflictResolution.skip);
+		Group groupR2 = groupsMan.getContents("/A/B", GroupContents.METADATA).getGroup();
+		groupR2.setAttributeStatements(new AttributeStatement[] {statement2});
+		groupsMan.updateGroup("/A/B", groupR2);
+		
+		Collection<AttributeExt<?>> aRet = attrsMan.getAllAttributes(entity, true, "/A", "a1", false);
+		assertEquals(aRet.toString(), 0, aRet.size());
+	}
 	
 	private void setupStateForConditions() throws Exception
 	{

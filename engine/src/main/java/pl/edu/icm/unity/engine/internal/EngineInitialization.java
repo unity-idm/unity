@@ -5,12 +5,18 @@
 package pl.edu.icm.unity.engine.internal;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -20,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -49,6 +56,7 @@ import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.FileWatcher;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.ServerInitializer;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -217,6 +225,7 @@ public class EngineInitialization extends LifecycleBase
 		initializeNotifications();
 		initializeMsgTemplates();
 		runInitializers();
+		startLogConfigurationMonitoring();
 	}
 	
 	
@@ -393,21 +402,9 @@ public class EngineInitialization extends LifecycleBase
 			{
 				log.info("Database contains no users, adding the admin user and the " +
 						"default credential settings");
-				CredentialDefinition credDef = new CredentialDefinition(PasswordVerificatorFactory.NAME,
-						DEFAULT_CREDENTIAL, "Default password credential with typical security settings.");
-				credDef.setJsonConfiguration("{\"minLength\": 1," +
-						"\"historySize\": 1," +
-						"\"minClassesNum\": 1," +
-						"\"denySequences\": false," +
-						"\"maxAge\": 30758400000}");
-				authnManagement.addCredentialDefinition(credDef);
 				
-				CredentialRequirements crDef = new CredentialRequirements(DEFAULT_CREDENTIAL_REQUIREMENT, 
-						"Default password credential requirement", 
-						Collections.singleton(credDef.getName()));
-				authnManagement.addCredentialRequirement(crDef);
-
-
+				CredentialDefinition credDef = createDefaultAdminCredential();
+				CredentialRequirements crDef = createDefaultAdminCredReq(credDef.getName());
 				
 				Identity adminId = idManagement.addEntity(admin, crDef.getName(), EntityState.valid, false);
 				
@@ -429,6 +426,60 @@ public class EngineInitialization extends LifecycleBase
 		{
 			throw new InternalException("Initialization problem when creating admin user", e);
 		}
+	}
+	
+	private CredentialDefinition createDefaultAdminCredential() throws EngineException
+	{
+		Collection<CredentialDefinition> existingCreds = 
+				authnManagement.getCredentialDefinitions();
+		String adminCredName = DEFAULT_CREDENTIAL;
+		Iterator<CredentialDefinition> credIt = existingCreds.iterator();
+		int i=1;
+		while (credIt.hasNext())
+		{
+			CredentialDefinition cred = credIt.next();
+			if (cred.getName().equals(adminCredName))
+			{
+				adminCredName = DEFAULT_CREDENTIAL + "_" + i;
+				i++;
+				credIt = existingCreds.iterator();
+			}
+		}
+		
+		CredentialDefinition credDef = new CredentialDefinition(PasswordVerificatorFactory.NAME,
+				adminCredName, "Default password credential with typical security settings.");
+		credDef.setJsonConfiguration("{\"minLength\": 1," +
+				"\"historySize\": 1," +
+				"\"minClassesNum\": 1," +
+				"\"denySequences\": false," +
+				"\"maxAge\": 30758400000}");
+		authnManagement.addCredentialDefinition(credDef);
+		return credDef;
+	}
+	
+	private CredentialRequirements createDefaultAdminCredReq(String credName) throws EngineException
+	{
+		Collection<CredentialRequirements> existingCRs = 
+				authnManagement.getCredentialRequirements();
+		String adminCredRName = DEFAULT_CREDENTIAL_REQUIREMENT;
+		Iterator<CredentialRequirements> credRIt = existingCRs.iterator();
+		int i=1;
+		while (credRIt.hasNext())
+		{
+			CredentialRequirements cr = credRIt.next();
+			if (cr.getName().equals(adminCredRName))
+			{
+				adminCredRName = DEFAULT_CREDENTIAL_REQUIREMENT + "_" + i;
+				i++;
+				credRIt = existingCRs.iterator();
+			}
+		}
+		
+		CredentialRequirements crDef = new CredentialRequirements(adminCredRName, 
+				"Default password credential requirement", 
+				Collections.singleton(credName));
+		authnManagement.addCredentialRequirement(crDef);
+		return crDef;
 	}
 	
 	private void initializeEndpoints()
@@ -552,7 +603,7 @@ public class EngineInitialization extends LifecycleBase
 
 			
 			String vJsonConfiguration = vConfigFile == null ? null : FileUtils.readFileToString(vConfigFile);
-			String rJsonConfiguration = FileUtils.readFileToString(rConfigFile);
+			String rJsonConfiguration = rConfigFile == null ? null : FileUtils.readFileToString(rConfigFile);
 			
 			if (!existing.containsKey(name))
 			{
@@ -699,10 +750,10 @@ public class EngineInitialization extends LifecycleBase
 						profileFile, e);
 			}
 			TranslationProfile tp = new TranslationProfile(json, jsonMapper, tactionsRegistry);
-			log.info(" - loaded translation profile: " + tp.getName() + " from " + profileFile);
 			try
 			{
 				profilesManagement.addProfile(tp);
+				log.info(" - loaded translation profile: " + tp.getName() + " from " + profileFile);
 			} catch (EngineException e)
 			{
 				throw new InternalException("Can't install the configured translation profile " 
@@ -728,13 +779,60 @@ public class EngineInitialization extends LifecycleBase
 		}
 	}
 
+	private void startLogConfigurationMonitoring()
+	{
+		final String logConfig = System.getProperty("log4j.configuration");
+		if (logConfig == null)
+		{
+			log.warn("No log configuration file set.");
+			return;
+		}
+		Runnable r = new Runnable()
+		{
+			public void run()
+			{
+				try
+				{
+					reConfigureLog4j(logConfig);
+				} catch (MalformedURLException me)
+				{
+					throw new RuntimeException(me);
+				}
+			}
+		};
+		try
+		{
+			File logProperties = logConfig.startsWith("file:") ? new File(new URI(logConfig))
+					: new File(logConfig);
+			FileWatcher fw = new FileWatcher(logProperties, r);
+			final int DELAY = 7;
+			executors.getService().scheduleWithFixedDelay(fw, DELAY, DELAY, TimeUnit.SECONDS);
+			log.info("Started logging subsystem configuration file monitoring with " + 
+					DELAY + "s interval.");
+		} catch (URISyntaxException e)
+		{
+			log.warn("Logging configuration file is not a valid URI: '"+logConfig+"'", e);
+		} catch (FileNotFoundException e)
+		{
+			log.warn("Logging configuration file '"+logConfig+"' not found.");
+		}
+	}
+
+	/**
+	 * Re-configure log4j from the named properties file.
+	 */
+	private void reConfigureLog4j(String logConfig) throws MalformedURLException
+	{
+		log.info("Logging subsystem configuration file was modified, re-configuring logging.");
+		if (logConfig.startsWith("file:"))
+		{
+			PropertyConfigurator.configure(new URL(logConfig));
+		} else
+		{
+			PropertyConfigurator.configure(logConfig);
+		}
+	}
 }
-
-
-
-
-
-
 
 
 

@@ -2,13 +2,13 @@
 [[external-idps]]
 == Integration of 3rd party Identity Providers
 
-Unity can use external services to authenticate its own clients. This way Unity can act as 
-authentication hub (many authentication options are offered in a single place) and as a 
+Unity can use external services to authenticate its own clients. This way Unity can act as an
+authentication hub (many authentication options are offered in a single place) and as an 
 authentication bridge (Unity client can use different authentication protocol then the 
 protocol of the upstream IdP).
 
 Data from external IdPs is accessed in a protocol specific way. The configuration of this
-part is described in following subsections. After the protocol specific part, a common process 
+part is described in the following subsections. After the protocol specific part, a common process 
 for all external IdP types take place: translation of the obtained data to the internal Unity 
 representation. This "mapping" can handle both semantical and syntactical differences of the 
 identity-related information. It is configured with so called _translation profiles_.
@@ -115,3 +115,5 @@ without any identity change (the original identity is replaced with itself) and 
 
 
 include::external-ldap.txt[]
+
+include::external-saml.txt[]

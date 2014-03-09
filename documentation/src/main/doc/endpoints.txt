@@ -41,11 +41,11 @@ the endpoint allows for choosing between two authentication methods: one will us
 As it was mentioned there are options which are common for all endpoints with the same binding.
 Those options are presented here, the endpoint sections later on do not contain them.  
  
-For the Web Service CXF binding the common options are:
+For the Web Service (CXF) binding the common options are:
 include::ref-cxfEndpointProperties.txt[]
 
 
-Options for all Web Vaadin endpoints are:
+Options for all Web (Vaadin) endpoints are:
 include::ref-vaadinEndpointProperties.txt[]
 
 

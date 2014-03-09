@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -29,6 +30,7 @@ import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.EntityState;
@@ -68,6 +70,8 @@ import com.vaadin.ui.TreeTable;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class IdentitiesTable extends TreeTable
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesTable.class);
+	
 	enum BaseColumnId {entity, type, identity, status, local, credReq};
 	public static final String ATTR_COL_PREFIX = "a::";
 	public static final String ATTR_ROOT_COL_PREFIX = ATTR_COL_PREFIX + "root::";
@@ -247,7 +251,7 @@ public class IdentitiesTable extends TreeTable
 
 	}
 
-	public void loadPreferences()
+	private void loadPreferences()
 	{
 
 		IdentitiesTablePreferences preferences = null;
@@ -256,8 +260,7 @@ public class IdentitiesTable extends TreeTable
 			preferences = IdentitiesTablePreferences.getPreferences(preferencesMan);
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"),
-					msg.getMessage("Identities.cannotLoadPrefernces"));
+			log.debug("Can not load preferences for identities table", e);
 			return;
 		}
 		groupByEntity=preferences.getGroupByEntitiesSetting();

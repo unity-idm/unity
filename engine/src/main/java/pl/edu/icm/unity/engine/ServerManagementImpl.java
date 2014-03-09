@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.InitDB;
 import pl.edu.icm.unity.db.export.ImportExport;
@@ -27,6 +29,7 @@ import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 
 /**
  * Implementation of general maintenance.
@@ -42,11 +45,12 @@ public class ServerManagementImpl implements ServerManagement
 	private EngineInitialization engineInit;
 	private JettyServer httpServer;
 	private AuthorizationManager authz;
+	private UnityServerConfiguration config;
 	
 	@Autowired
 	public ServerManagementImpl(DBSessionManager db, ImportExport dbDump, InitDB initDb,
 			EngineInitialization engineInit, JettyServer httpServer,
-			AuthorizationManager authz, ExecutorsService executorsService)
+			AuthorizationManager authz, ExecutorsService executorsService,UnityServerConfiguration config)
 	{
 		this.db = db;
 		this.dbDump = dbDump;
@@ -54,6 +58,7 @@ public class ServerManagementImpl implements ServerManagement
 		this.engineInit = engineInit;
 		this.httpServer = httpServer;
 		this.authz = authz;
+		this.config = config;
 		executorsService.getService().scheduleWithFixedDelay(new ClenupDumpsTask(), 20, 60, TimeUnit.SECONDS);
 	}
 
@@ -142,6 +147,38 @@ public class ServerManagementImpl implements ServerManagement
 					continue;
 				}
 			}
+		}
+	}
+
+	@Override
+	public void reloadConfig() throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		try
+		{
+			config.reloadIfChanged();
+		} catch (ConfigurationException e)
+		{
+			throw new InternalException("Error in configuration file", e);
+		} catch (IOException e)
+		{
+			throw new InternalException("Error reading configuration file", e);
+		}
+		
+	}
+
+
+	@Override
+	public String loadConfigurationFile(String path) throws EngineException
+	{       
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		File f = new File(path);
+		try
+		{
+			return FileUtils.readFileToString(f);
+		} catch (IOException e)
+		{
+			throw new InternalException("Error loading configuration file " + path, e);
 		}
 	}
 }
