@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import java.beans.ParameterDescriptor;
-
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;

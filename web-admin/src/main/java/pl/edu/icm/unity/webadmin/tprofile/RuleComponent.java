@@ -318,8 +318,7 @@ public class RuleComponent extends VerticalLayout
 		params.toArray(wrapper);
 		TranslationAction action = null;
 		try
-		{
-			
+		{			
 			action = factory.getInstance(wrapper);
 
 		} catch (EngineException e)
