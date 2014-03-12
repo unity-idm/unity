@@ -18,7 +18,8 @@ import eu.unicore.samly2.proto.AssertionResponse;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
-import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
+import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
+import pl.edu.icm.unity.stdext.identity.TransientIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -66,6 +67,19 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_UNKNOWN_PRINCIPIAL,
 				"There is no identity of the requested '" + samlFormat + 
 				"' SAML identity format for the authenticated principial.");			
+	}
+	
+	public boolean isIdentityCreationAllowed()
+	{
+		NameIDPolicyType nameIdPolicy = context.getRequest().getNameIDPolicy();
+		if (nameIdPolicy == null)
+			return true;
+		return nameIdPolicy.getAllowCreate();
+	}
+	
+	public String getIdentityTarget()
+	{
+		return context.getRequest().getIssuer().getStringValue();
 	}
 	
 	public ResponseDocument processAuthnRequest(Identity authenticatedIdentity) 
@@ -179,10 +193,13 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		if (samlIdFormat.equals(SAMLConstants.NFORMAT_PERSISTENT) || 
 				samlIdFormat.equals(SAMLConstants.NFORMAT_UNSPEC))
 		{
-			return PersistentIdentity.ID;
+			return TargetedPersistentIdentity.ID;
 		} else if (samlIdFormat.equals(SAMLConstants.NFORMAT_DN))
 		{
 			return X500Identity.ID;
+		} else if (samlIdFormat.equals(SAMLConstants.NFORMAT_TRANSIENT))
+		{
+			return TransientIdentity.ID;
 		} else
 		{
 			throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_INVALID_NAMEID_POLICY,

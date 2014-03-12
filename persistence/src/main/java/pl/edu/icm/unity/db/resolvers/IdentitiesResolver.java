@@ -15,6 +15,8 @@ import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.IdentityBean;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -85,8 +87,9 @@ public class IdentitiesResolver
 			return idBean.getEntityId();
 		}
 	}
-	
-	public Identity resolveIdentityBean(IdentityBean idB, IdentitiesMapper mapper) throws IllegalTypeException
+
+	public Identity resolveIdentityBeanNoExternalize(IdentityBean idB, IdentitiesMapper mapper) 
+			throws IllegalTypeException
 	{
 		BaseBean identityTypeB = mapper.getIdentityTypeById(idB.getTypeId());
 		if (identityTypeB == null)
@@ -98,5 +101,56 @@ public class IdentitiesResolver
 		ret.setEntityId(idB.getEntityId());
 		idSerializer.fromJson(idB.getContents(), ret);
 		return ret;
+	}
+	
+	public Identity resolveIdentityBean(IdentityBean idB, IdentitiesMapper mapper, String target, 
+			boolean allowCreate) throws IllegalTypeException
+	{
+		Identity ret = resolveIdentityBeanNoExternalize(idB, mapper);
+		IdentityTypeDefinition idTypeImpl = ret.getType().getIdentityTypeProvider();
+		
+		String realm = null;
+		try
+		{
+			InvocationContext context = InvocationContext.getCurrent();
+			if (context.getLoginSession() != null)
+				realm = context.getLoginSession().getRealm();
+		} catch (InternalException e)
+		{
+			//OK
+		}
+		
+		String externalizedValue = idTypeImpl.toExternalForm(realm, target, ret.getValue());
+		if (externalizedValue != null)
+		{
+			ret.setValue(externalizedValue);
+			return ret;
+		}
+		
+		if (allowCreate)
+		{
+			try
+			{
+				String updated = idTypeImpl.createNewIdentity(realm, target, ret.getValue());
+				if (updated != null)
+				{
+					ret.setValue(updated);
+					idB.setContents(idSerializer.toJson(ret));
+					mapper.updateIdentity(idB);
+				}
+				
+				externalizedValue = idTypeImpl.toExternalForm(realm, target, ret.getValue());
+				if (externalizedValue != null)
+				{
+					ret.setValue(externalizedValue);
+					return ret;
+				}
+				return null;
+			} catch (IllegalTypeException e)
+			{
+				return null;
+			}
+		}
+		return null;
 	}
 }

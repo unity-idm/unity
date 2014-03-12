@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
- * See LICENCE file for licensing information.
+ * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.stdext.identity;
 
@@ -11,24 +11,37 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
- * Identity type definition holding a persistent id. It is associated with each and every entity. 
- * Can not be removed, without removing the whole containing entity.
+ * Identity type which creates a different but persistent identifier for each target.
+ *  
  * @author K. Benedyczak
  */
 @Component
-public class PersistentIdentity extends AbstractIdentityTypeProvider
+public class TargetedPersistentIdentity extends AbstractIdentityTypeProvider
 {
-	public static final String ID = "persistent";
+	static final Logger log = Log.getLogger(Log.U_SERVER, TargetedPersistentIdentity.class);
+	public static final String ID = "targetedPersistent";
 	private static final List<Attribute<?>> empty = Collections.unmodifiableList(new ArrayList<Attribute<?>>(0));
+	private ObjectMapper mapper;
 	
+	@Autowired
+	public TargetedPersistentIdentity(ObjectMapper mapper)
+	{
+		this.mapper = mapper;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -44,7 +57,7 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	@Override
 	public String getDefaultDescription()
 	{
-		return "Persistent id";
+		return "Targeted persistent id";
 	}
 
 	/**
@@ -103,22 +116,38 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	@Override
 	public String toExternalForm(String realm, String target, String inDbValue)
 	{
-		return inDbValue;
+		if (realm == null || target == null || inDbValue == null)
+			return null;
+		StringTargetedIdsModel db = new StringTargetedIdsModel(mapper, inDbValue);
+		return db.getIdentity(realm, target);
 	}
 
 	@Override
 	public String createNewIdentity(String realm, String target, String inDbValue)
+			throws IllegalTypeException
 	{
-		return inDbValue == null ? UUID.randomUUID().toString() : inDbValue;
+		if (realm == null || target == null)
+			throw new IllegalTypeException("Identity can be created only when target is defined");
+		StringTargetedIdsModel db = new StringTargetedIdsModel(mapper, inDbValue);
+		db.addIdentity(realm, target, UUID.randomUUID().toString());
+		return db.serialize();
 	}
 
 	@Override
 	public String resetIdentity(String realm, String target, String inDbValue)
 			throws IllegalTypeException
 	{
-		if (realm != null || target != null)
-			throw new IllegalTypeException("This identity type is not targeted and "
-					+ "can be only reset globally.");
-		return null;
+		if (inDbValue == null || (realm == null && target == null))
+			return null;
+
+		StringTargetedIdsModel db = new StringTargetedIdsModel(mapper, inDbValue);
+		db.resetIdentities(realm, target);
+		return db.serialize();
 	}
 }
+
+
+
+
+
+

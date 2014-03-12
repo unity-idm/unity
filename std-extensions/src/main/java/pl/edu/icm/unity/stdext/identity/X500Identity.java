@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import eu.emi.security.authn.x509.helpers.JavaAndBCStyle;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
-
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -29,7 +28,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
  * @author K. Benedyczak
  */
 @Component
-public class X500Identity extends AbstractIdentityTypeProvider
+public class X500Identity extends AbstractStaticIdentityTypeProvider
 {
 	public static final String ID = "x500Name";
 
@@ -161,9 +160,8 @@ public class X500Identity extends AbstractIdentityTypeProvider
 	}
 
 	@Override
-	public boolean isSystem()
+	public boolean isDynamic()
 	{
 		return false;
 	}
-
 }

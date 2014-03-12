@@ -25,7 +25,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
  * @author K. Benedyczak
  */
 @Component
-public class UsernameIdentity extends AbstractIdentityTypeProvider
+public class UsernameIdentity extends AbstractStaticIdentityTypeProvider
 {
 	public static final String ID = "userName";
 	private static Set<AttributeType> EXTRACTED;
@@ -111,9 +111,8 @@ public class UsernameIdentity extends AbstractIdentityTypeProvider
 	}
 
 	@Override
-	public boolean isSystem()
+	public boolean isDynamic()
 	{
 		return false;
 	}
-
 }

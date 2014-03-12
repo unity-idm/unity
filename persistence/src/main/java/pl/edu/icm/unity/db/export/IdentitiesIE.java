@@ -78,8 +78,8 @@ public class IdentitiesIE extends AbstractIE
 			
 			JsonUtils.nextExpect(input, JsonToken.END_OBJECT);
 			
-			Identity identity = idResolver.resolveIdentityBean(bean, mapper);
-			dbIdentities.insertIdentity(identity, bean.getEntityId(), sql);
+			Identity identity = idResolver.resolveIdentityBeanNoExternalize(bean, mapper);
+			dbIdentities.insertIdentity(identity, bean.getEntityId(), true, sql);
 		}
 		JsonUtils.expect(input, JsonToken.END_ARRAY);
 	}
@@ -89,7 +89,7 @@ public class IdentitiesIE extends AbstractIE
 	{
 		super.serializeBaseBeanToJson(jg, bean);
 		jg.writeNumberField("entityId", bean.getEntityId());
-		Identity id = idResolver.resolveIdentityBean(bean, mapper);
+		Identity id = idResolver.resolveIdentityBeanNoExternalize(bean, mapper);
 		jg.writeStringField("typeName", id.getTypeId());
 	}
 }

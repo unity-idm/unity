@@ -104,7 +104,8 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 	{
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		Entity authenticatedEntity = identitiesMan.getEntity(
-				new EntityParam(ae.getEntityId()));
+				new EntityParam(ae.getEntityId()), samlProcessor.getIdentityTarget(),
+				samlProcessor.isIdentityCreationAllowed());
 		List<Identity> validIdentities = samlProcessor.getCompatibleIdentities(authenticatedEntity);
 		if (validIdentities.size() > 0)
 		{

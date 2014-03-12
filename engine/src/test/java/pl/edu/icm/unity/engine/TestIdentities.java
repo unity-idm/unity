@@ -19,6 +19,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
+import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.EntityState;
@@ -40,8 +41,9 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void testSyntaxes() throws Exception
 	{
 		List<IdentityType> idTypes = idsMan.getIdentityTypes();
-		assertEquals(3, idTypes.size());
+		assertEquals(4, idTypes.size());
 		assertNotNull(getIdentityTypeByName(idTypes, PersistentIdentity.ID));
+		assertNotNull(getIdentityTypeByName(idTypes, TargetedPersistentIdentity.ID));
 		assertNotNull(getIdentityTypeByName(idTypes, X500Identity.ID));
 		assertNotNull(getIdentityTypeByName(idTypes, UsernameIdentity.ID));
 		
@@ -102,6 +104,68 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertEquals(0, updated.getExtractedAttributes().size());
 	}
 
+	@Test
+	public void testDynamic() throws Exception
+	{
+		setupMockAuthn();
+		setupAdmin();
+
+		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi", true);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		assertNotNull(id.getEntityId());
+		assertEquals("CN=golbi", id.getValue());
+		assertEquals(true, id.isLocal());
+		
+		EntityParam entityParam = new EntityParam(id.getEntityId());
+		
+		Entity e1 = idsMan.getEntity(entityParam, null, false);
+		assertEquals(1, e1.getIdentities().length);
+		assertEquals(X500Identity.ID, e1.getIdentities()[0].getTypeId());
+		
+		Entity e2 = idsMan.getEntity(entityParam, null, true);
+		assertEquals(2, e2.getIdentities().length);
+		assertNotNull(getByType(e2, X500Identity.ID));
+		assertTrue(getByType(e2, PersistentIdentity.ID).getValue().length() > 0);
+		
+		Entity e3 = idsMan.getEntity(entityParam, "target1", true);
+		assertEquals(3, e3.getIdentities().length);
+		assertNotNull(getByType(e3, X500Identity.ID));
+		assertTrue(getByType(e3, PersistentIdentity.ID).getValue().length() > 0);
+		assertTrue(getByType(e3, TargetedPersistentIdentity.ID).getValue().length() > 0);
+		
+		Entity e4 = idsMan.getEntity(entityParam, "target2", true);
+		assertEquals(3, e4.getIdentities().length);
+		assertNotNull(getByType(e4, X500Identity.ID));
+		assertTrue(getByType(e4, PersistentIdentity.ID).getValue().length() > 0);
+		assertTrue(getByType(e4, TargetedPersistentIdentity.ID).getValue().length() > 0);
+
+		assertNotEquals(getByType(e3, TargetedPersistentIdentity.ID).getValue(), 
+				getByType(e4, TargetedPersistentIdentity.ID).getValue());
+		assertEquals(getByType(e3, PersistentIdentity.ID).getValue(), 
+				getByType(e4, PersistentIdentity.ID).getValue());
+		assertEquals(getByType(e2, PersistentIdentity.ID).getValue(), 
+				getByType(e4, PersistentIdentity.ID).getValue());
+		
+		
+		IdentityParam idParam2 = new IdentityParam(X500Identity.ID, "CN=golbi2", true);
+		Identity id2 = idsMan.addEntity(idParam2, "crMock", EntityState.valid, false);
+		EntityParam entityParam2 = new EntityParam(id2.getEntityId());
+
+		Entity e5 = idsMan.getEntity(entityParam2);
+		assertEquals(2, e5.getIdentities().length);
+		assertNotNull(getByType(e5, X500Identity.ID));
+		assertTrue(getByType(e5, PersistentIdentity.ID).getValue().length() > 0);
+	}
+	
+	private Identity getByType(Entity e, String type)
+	{
+		for (Identity id: e.getIdentities())
+			if (id.getTypeId().equals(type))
+				return id;
+		fail("No such type");
+		return null;
+	}
+	
 	@Test
 	public void testCreate() throws Exception
 	{

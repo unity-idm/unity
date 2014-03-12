@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 
 /**
  * Implementation defined identity type. 
@@ -27,9 +28,10 @@ public interface IdentityTypeDefinition
 	public String getDefaultDescription();
 	
 	/**
-	 * @return if true then the identity type is special, and can not be neither created or removed manually.
+	 * @return if true then the identity type is dynamic, and can not be neither created or removed manually.
+	 * Dynamic identities are created automatically.
 	 */
-	public boolean isSystem();
+	public boolean isDynamic();
 	
 	/**
 	 * 
@@ -80,5 +82,39 @@ public interface IdentityTypeDefinition
 	 * @return full String representation
 	 */
 	public String toString(String from);
+	
+	/**
+	 * Converts the in-DB representation to external form. The implementation may perform arbitrary modifications:
+	 * from none to produce a totally new version.
+	 * @param realm authentication realm identifier or null if no realm is defined
+	 * @param target null or an identifier of a receiver of the identity.
+	 * @param inDbValue the in-db representation
+	 * @return null if no identity should be returned or an external version of identity.
+	 */
+	public String toExternalForm(String realm, String target, String inDbValue);
+	
+	/**
+	 * Tries to create a new identity. 
+	 * @param realm authentication realm identifier or null if no realm is defined
+	 * @param target null or the receiver of the created identity
+	 * @param inDbValue the current data of the identity.
+	 * @return null if the inDbValue was unchanged or an updated version 
+	 * of the inDbValue that should be written to the DB. 
+	 * @throws IllegalTypeException if the creation failed
+	 */
+	public String createNewIdentity(String realm, String target, String inDbValue) 
+			throws IllegalTypeException;
+	
+	/**
+	 * Tries to reset a dynamic identity. Optionally the reset may be done only for a specified realm and target. 
+	 * @param realm authentication realm identifier or null if no realm filtering shall be done
+	 * @param target the receiver of the identity to be reset or null if no target filtering should be done
+	 * @param inDbValue the current data of the identity.
+	 * @return an updated version of the inDbValue that should be written to the DB. 
+	 * @throws IllegalTypeException if the reset failed
+	 */
+	public String resetIdentity(String realm, String target, String inDbValue) 
+			throws IllegalTypeException;
+	
 }
 

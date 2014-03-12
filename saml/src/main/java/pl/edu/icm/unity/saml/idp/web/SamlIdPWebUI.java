@@ -128,10 +128,10 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		this.endpointDescription = description;
 	}
 	
-	protected Entity getAuthenticatedEntity() throws EngineException
+	protected Entity getAuthenticatedEntity(String target, boolean allowCreate) throws EngineException
 	{
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		return identitiesMan.getEntity(new EntityParam(ae.getEntityId()));
+		return identitiesMan.getEntity(new EntityParam(ae.getEntityId()), target, allowCreate);
 	}
 	
 	protected Map<String, Attribute<?>> getAttributes(AuthnResponseProcessor processor) 
@@ -256,7 +256,8 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	
 	protected void createIdentityPart(VerticalLayout contents) throws EngineException, SAMLRequesterException
 	{
-		Entity authenticatedEntity = getAuthenticatedEntity();
+		Entity authenticatedEntity = getAuthenticatedEntity(samlProcessor.getIdentityTarget(),
+				samlProcessor.isIdentityCreationAllowed());
 		validIdentities = samlProcessor.getCompatibleIdentities(authenticatedEntity);
 		selectedIdentity = validIdentities.get(0);
 		if (validIdentities.size() == 1)

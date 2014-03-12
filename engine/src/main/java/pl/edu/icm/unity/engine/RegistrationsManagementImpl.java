@@ -395,7 +395,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			IdentityParam idParam = identities.get(i);
 			if (idParam == null)
 				continue;
-			dbIdentities.insertIdentity(idParam, initial.getEntityId(), sql);
+			dbIdentities.insertIdentity(idParam, initial.getEntityId(), false, sql);
 		}
 
 		Set<String> sortedGroups = new TreeSet<>();

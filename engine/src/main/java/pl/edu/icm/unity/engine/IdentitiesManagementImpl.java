@@ -187,7 +187,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		{
 			long entityId = idResolver.getEntityId(parentEntity, sqlMap);
 			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
-			Identity ret = dbIdentities.insertIdentity(toAdd, entityId, sqlMap);
+			Identity ret = dbIdentities.insertIdentity(toAdd, entityId, false, sqlMap);
 			if (extractAttributes)
 				engineHelper.extractAttributes(ret, sqlMap);
 			sqlMap.commit();
@@ -219,6 +219,33 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		}
 	}
 
+
+	@Override
+	public void resetIdentity(EntityParam toReset, String typeIdToReset,
+			String realm, String target) throws EngineException
+	{
+		toReset.validateInitialization();
+		if (typeIdToReset == null)
+			throw new IllegalIdentityValueException("Identity type can not be null");
+		IdentityTypeDefinition idType = idTypesRegistry.getByName(typeIdToReset);
+		if (!idType.isDynamic())
+			throw new IllegalIdentityValueException("Identity type " + typeIdToReset + 
+					" is not dynamic and can not be reset");
+		
+		SqlSession sqlMap = db.getSqlSession(true);
+		try
+		{
+			long entityId = idResolver.getEntityId(toReset, sqlMap);
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
+			dbIdentities.resetIdentityForEntity(entityId, typeIdToReset, realm, target, sqlMap);
+			sqlMap.commit();
+		} finally
+		{
+			db.releaseSqlSession(sqlMap);
+		}
+	}
+
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -268,13 +295,21 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	@Override
 	public Entity getEntity(EntityParam entity) throws EngineException
 	{
+		return getEntity(entity, null, true);
+	}
+
+	@Override
+	public Entity getEntity(EntityParam entity, String target, boolean allowCreate)
+			throws EngineException
+	{
 		entity.validateInitialization();
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
 			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
-			Identity[] identities = dbIdentities.getIdentitiesForEntity(entityId, sqlMap);
+			Identity[] identities = dbIdentities.getIdentitiesForEntity(entityId, target, allowCreate, 
+					sqlMap);
 			CredentialInfo credInfo = getCredentialInfo(entityId, sqlMap);
 			EntityState theState = dbIdentities.getEntityStatus(entityId, sqlMap);
 			Entity ret = new Entity(entityId, identities, theState, credInfo);
@@ -285,7 +320,8 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			db.releaseSqlSession(sqlMap);
 		}
 	}
-
+	
+	
 	/**
 	 * {@inheritDoc}
 	 */

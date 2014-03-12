@@ -81,6 +81,19 @@ public interface IdentitiesManagement
 	public void removeIdentity(IdentityTaV toRemove) throws EngineException;
 
 	/**
+	 * Reset a possibly targeted value of a dynamic identity. For the identities which are fixed this method 
+	 * throws an exception. 
+	 * <p>
+	 * @param entity subject
+	 * @param typeIdToReset which id type should be reset, must be dynamic
+	 * @param realm if null then all realms should be cleared
+	 * @param target if null then all targets should be cleared
+	 * @throws EngineException
+	 */
+	public void resetIdentity(EntityParam entity, String typeIdToReset, 
+			String realm, String target) throws EngineException;
+
+	/**
 	 * Deletes entity.
 	 * <p>
 	 * @param toRemove
@@ -104,6 +117,16 @@ public interface IdentitiesManagement
 	 * @throws EngineException
 	 */
 	public Entity getEntity(EntityParam entity) throws EngineException;
+
+	/**
+	 * Returns information about an entity along with its all identities.
+	 * This version supports dynamic identities as it allows for specifying a receiver of the information 
+	 * and whether it is allowed to establish a new identifier.
+	 * @param entity
+	 * @return
+	 * @throws EngineException
+	 */
+	public Entity getEntity(EntityParam entity, String target, boolean allowCreate) throws EngineException;
 	
 	/**
 	 * Changes {@link CredentialRequirements} of an entity. 

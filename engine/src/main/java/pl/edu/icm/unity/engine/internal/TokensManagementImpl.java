@@ -122,10 +122,10 @@ public class TokensManagementImpl implements TokensManagement
 		try
 		{
 			TokenBean token = dbTokens.getTokenById(type, value, sql);
-			if (token.isExpired())
-				throw new WrongArgumentException("There is no such token");
 			if (transaction == null)
 				sql.commit();
+			if (token.isExpired())
+				throw new WrongArgumentException("There is no such token");
 			return convert(token);
 		} finally
 		{

@@ -31,7 +31,8 @@ public class IdentitySerializer
 	{
 		ObjectNode main = mapper.createObjectNode();
 		main.put("local", src.isLocal());
-		main.put("value", src.getValue());
+		if (src.getValue() != null)
+			main.put("value", src.getValue());
 		try
 		{
 			return mapper.writeValueAsBytes(main);
@@ -60,6 +61,9 @@ public class IdentitySerializer
 		}
 
 		target.setLocal(main.get("local").asBoolean());
-		target.setValue(main.get("value").asText());
+		if (main.has("value"))
+			target.setValue(main.get("value").asText());
+		else
+			target.setValue(null);
 	}
 }
