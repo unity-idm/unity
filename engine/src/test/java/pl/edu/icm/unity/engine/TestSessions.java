@@ -60,7 +60,7 @@ public class TestSessions extends DBIntegrationTestBase
 		ret = sessionMan.getSession(s.getId());
 		testEquals(s, ret);
 		
-		sessionMan.removeSession(s.getId());
+		sessionMan.removeSession(s.getId(), false);
 		
 		try
 		{
@@ -71,7 +71,7 @@ public class TestSessions extends DBIntegrationTestBase
 			//OK
 		}
 		
-		sessionMan.removeSession(s3.getId());
+		sessionMan.removeSession(s3.getId(), false);
 	}
 	
 	private void testEquals(LoginSession s, LoginSession ret)

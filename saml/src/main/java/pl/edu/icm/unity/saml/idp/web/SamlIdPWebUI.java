@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -44,7 +43,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
-import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
@@ -56,10 +55,7 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 import com.vaadin.annotations.Theme;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -96,6 +92,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	protected FreemarkerHandler freemarkerHandler;
 	protected AttributeHandlerRegistry handlersRegistry;
 	protected PreferencesManagement preferencesMan;
+	protected AuthenticationProcessor authnProcessor;
 	
 	protected AuthnResponseProcessor samlProcessor;
 	protected SamlResponseHandler samlResponseHandler;
@@ -109,7 +106,8 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	@Autowired
 	public SamlIdPWebUI(UnityMessageSource msg, IdentitiesManagement identitiesMan,
 			AttributesManagement attributesMan, FreemarkerHandler freemarkerHandler,
-			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan)
+			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
+			AuthenticationProcessor authnProcessor)
 	{
 		super(msg);
 		this.msg = msg;
@@ -118,6 +116,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		this.attributesMan = attributesMan;
 		this.handlersRegistry = handlersRegistry;
 		this.preferencesMan = preferencesMan;
+		this.authnProcessor = authnProcessor;
 	}
 
 	@Override
@@ -358,11 +357,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				WrappedSession ws = VaadinSession.getCurrent().getSession();
-				ws.removeAttribute(WebSession.USER_SESSION_KEY);
-				Page page = Page.getCurrent();
-				URI myUri = page.getLocation();
-				page.open(myUri.toASCIIString(), null);
+				authnProcessor.logoutAndRefresh(true);
 			}
 		});
 		buttons.addComponents(confirmB, declineB, reloginB);

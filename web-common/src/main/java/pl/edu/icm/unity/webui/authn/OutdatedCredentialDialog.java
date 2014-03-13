@@ -77,7 +77,7 @@ public class OutdatedCredentialDialog extends AbstractDialog
 	protected void onCancel()
 	{
 		close();
-		authnProcessor.logoutAndRefresh();
+		authnProcessor.logoutAndRefresh(true);
 	}
 	
 	private void afterCredentialUpdate(final boolean changed)

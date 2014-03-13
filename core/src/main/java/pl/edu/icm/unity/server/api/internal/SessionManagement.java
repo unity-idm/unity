@@ -51,8 +51,10 @@ public interface SessionManagement
 	/**
 	 * Removes a given session. Missing session is silently ignored.
 	 * @param id
+	 * @param soft  if true then only the login data is removed from the HTTP session. Otherwise the whole
+	 * session is invalidated
 	 */
-	void removeSession(String id);
+	void removeSession(String id, boolean soft);
 	
 	/**
 	 * @param id

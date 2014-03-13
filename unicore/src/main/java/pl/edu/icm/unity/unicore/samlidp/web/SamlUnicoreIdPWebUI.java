@@ -34,6 +34,7 @@ import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
 import pl.edu.icm.unity.unicore.samlidp.saml.AuthnWithETDResponseProcessor;
 import pl.edu.icm.unity.webui.UnityWebUI;
+import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -70,9 +71,11 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	@Autowired
 	public SamlUnicoreIdPWebUI(UnityMessageSource msg, IdentitiesManagement identitiesMan,
 			AttributesManagement attributesMan, FreemarkerHandler freemarkerHandler,
-			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan)
+			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
+			AuthenticationProcessor authnProcessor)
 	{
-		super(msg, identitiesMan, attributesMan, freemarkerHandler, handlersRegistry, preferencesMan);
+		super(msg, identitiesMan, attributesMan, freemarkerHandler, handlersRegistry, preferencesMan,
+				authnProcessor);
 	}
 
 	@Override

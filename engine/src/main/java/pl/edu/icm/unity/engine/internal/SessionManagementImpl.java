@@ -142,9 +142,9 @@ public class SessionManagementImpl implements SessionManagement
 	}
 
 	@Override
-	public void removeSession(String id)
+	public void removeSession(String id, boolean soft)
 	{
-		sessionBinder.removeLoginSession(id);
+		sessionBinder.removeLoginSession(id, soft);
 		try
 		{
 			tokensManagement.removeToken(SESSION_TOKEN_TYPE, id, null);
@@ -240,7 +240,7 @@ public class SessionManagementImpl implements SessionManagement
 							inactiveFor);
 					try
 					{
-						removeSession(session.getId());
+						removeSession(session.getId(), false);
 					} catch (Exception e)
 					{
 						log.error("Can't expire the session " + session, e);

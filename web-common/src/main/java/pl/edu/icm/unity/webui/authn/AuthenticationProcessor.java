@@ -225,25 +225,33 @@ public class AuthenticationProcessor
 		return origURL;
 	}
 	
-	private void destroySession()
+	private void destroySession(boolean soft)
 	{
 		InvocationContext invocationContext = InvocationContext.getCurrent();
 		LoginSession ls = invocationContext.getLoginSession();
-		sessionMan.removeSession(ls.getId());
+		sessionMan.removeSession(ls.getId(), soft);
 	}
 	
 	public void logout()
 	{
 		Page p = Page.getCurrent();
 		URI currentLocation = p.getLocation();
-		destroySession();
+		destroySession(false);
+		p.setLocation(currentLocation);
+	}
+
+	public void logout(boolean soft)
+	{
+		Page p = Page.getCurrent();
+		URI currentLocation = p.getLocation();
+		destroySession(soft);
 		p.setLocation(currentLocation);
 	}
 	
 	/**
 	 * Destroys the session and opens the original address again.
 	 */
-	public void logoutAndRefresh()
+	public void logoutAndRefresh(boolean soft)
 	{
 		VaadinSession vs = VaadinSession.getCurrent();
 		WrappedSession s = vs.getSession();
@@ -256,7 +264,7 @@ public class AuthenticationProcessor
 		{
 			originalAddress = p.getLocation().toString(); 
 		}
-		destroySession();
+		destroySession(soft);
 		p.setLocation(originalAddress);
 	}
 	

@@ -29,16 +29,30 @@ import pl.edu.icm.unity.server.api.internal.LoginSession;
 @Component
 public class LoginToHttpSessionBinder
 {
+	public static final String USER_SESSION_KEY = "pl.edu.icm.unity.web.WebSession";
+	
 	private Map<String, Collection<HttpSessionWrapper>> bindings = 
 			new HashMap<String, Collection<HttpSessionWrapper>>(1000);
 	
-	public synchronized void removeLoginSession(String toRemove)
+	/**
+	 * @param toRemove
+	 * @param soft if true then only the login data is removed from the HTTP session. Otherwise the whole
+	 * session is invalidated 
+	 */
+	public synchronized void removeLoginSession(String toRemove, boolean soft)
 	{
 		Collection<HttpSessionWrapper> httpSessions = bindings.remove(toRemove);
 		if (httpSessions != null)
 		{
 			for (HttpSessionWrapper sw: httpSessions)
-				sw.session.invalidate();
+			{
+				if (!soft)
+					sw.session.invalidate();
+				else
+				{
+					sw.session.removeAttribute(USER_SESSION_KEY);
+				}
+			}
 		}
 	}
 	
