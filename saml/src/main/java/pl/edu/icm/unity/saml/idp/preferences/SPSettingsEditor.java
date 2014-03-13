@@ -91,7 +91,8 @@ public class SPSettingsEditor extends FormLayout
 		{
 			IndexedContainer idContainer = ((IndexedContainer)identity.getContainerDataSource());
 			Identity id = identities[idContainer.indexOfId(identityV)];
-			ret.setSelectedIdentity(id.getComparableValue());
+			if (!id.getType().getIdentityTypeProvider().isDynamic())
+				ret.setSelectedIdentity(id.getComparableValue());
 		}
 		
 		Set<String> hiddenAttrs = getHidden();

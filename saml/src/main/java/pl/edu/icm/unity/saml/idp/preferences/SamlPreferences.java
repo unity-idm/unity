@@ -69,7 +69,8 @@ public class SamlPreferences implements JsonSerializable
 		ArrayNode hN = main.withArray("hidden");
 		for (String h: what.hiddenAttribtues)
 			hN.add(h);
-		main.put("selectedIdentity", what.selectedIdentity);
+		if (what.selectedIdentity != null)
+			main.put("selectedIdentity", what.selectedIdentity);
 		return main;
 	}
 	
@@ -112,11 +113,13 @@ public class SamlPreferences implements JsonSerializable
 		for (int i=0; i<hiddenA.size(); i++)
 			hidden.add(hiddenA.get(i).asText());
 		ret.setHiddenAttribtues(hidden);
-		ret.setSelectedIdentity(from.get("selectedIdentity").asText());
+		if (from.has("selectedIdentity"))
+			ret.setSelectedIdentity(from.get("selectedIdentity").asText());
 		return ret;
 	}
 
-	public static void initPreferencesGeneric(PreferencesManagement preferencesMan, JsonSerializable toInit, String id) throws EngineException
+	public static void initPreferencesGeneric(PreferencesManagement preferencesMan, JsonSerializable toInit, String id) 
+			throws EngineException
 	{
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		EntityParam entity = new EntityParam(ae.getEntityId());

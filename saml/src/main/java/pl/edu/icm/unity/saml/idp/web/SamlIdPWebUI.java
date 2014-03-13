@@ -454,7 +454,8 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 				hidden.add(SamlPreferences.SYMBOLIC_GROUP_ATTR);
 		}
 		settings.setHiddenAttribtues(hidden);
-		settings.setSelectedIdentity(selectedIdentity.getComparableValue());
+		if (!selectedIdentity.getType().getIdentityTypeProvider().isDynamic())
+			settings.setSelectedIdentity(selectedIdentity.getComparableValue());
 		preferences.setSPSettings(reqIssuer, settings);
 	}
 	
