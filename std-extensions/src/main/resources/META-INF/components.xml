@@ -12,6 +12,7 @@
 	<bean class="pl.edu.icm.unity.stdext.identity.UsernameIdentity"/>
 	<bean class="pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity"/>
 	<bean class="pl.edu.icm.unity.stdext.identity.TransientIdentity"/>
+	<bean class="pl.edu.icm.unity.stdext.identity.IdentifierIdentity"/>
 	
 	<bean class="pl.edu.icm.unity.stdext.attr.StringAttributeSyntaxFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.attr.EnumAttributeSyntaxFactory"/>
