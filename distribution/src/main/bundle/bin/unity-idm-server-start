@@ -26,7 +26,15 @@ export CLASSPATH=$CP
 
 PWD="`pwd`"
 cd "$BASE_DIR"
-nohup $JAVA ${MEM} ${OPTS} ${DEFS} pl.edu.icm.unity.server.UnityApplication ${PARAM} >& "$STARTLOG" &
+
+RUN_COMMAND="$JAVA ${MEM} ${OPTS} ${DEFS} pl.edu.icm.unity.server.UnityApplication ${PARAM}"
+if [ "${AUTHBIND}" ]
+then
+        nohup "${AUTHBIND}" --deep ${RUN_COMMAND} >& "$STARTLOG" &
+else
+        nohup ${RUN_COMMAND} >& "$STARTLOG" &
+fi
+
 cd "$PWD"
  
 echo $! > "$PID"

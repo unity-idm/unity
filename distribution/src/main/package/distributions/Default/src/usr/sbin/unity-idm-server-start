@@ -17,6 +17,12 @@ CP=.$(find "$LIB" -name '*.jar' -exec printf ":{}" \;)
 
 export CLASSPATH=$CP
 
-nohup $JAVA ${MEM} ${OPTS} ${DEFS} pl.edu.icm.unity.server.UnityApplication ${PARAM} >& "$STARTLOG" &
- 
+RUN_COMMAND="$JAVA ${MEM} ${OPTS} ${DEFS} pl.edu.icm.unity.server.UnityApplication ${PARAM}"
+if [ "${AUTHBIND}" ]
+then
+        nohup "${AUTHBIND}" --deep ${RUN_COMMAND} >& "$STARTLOG" &
+else
+        nohup ${RUN_COMMAND} >& "$STARTLOG" &
+fi
+
 echo $! > "$PID"
