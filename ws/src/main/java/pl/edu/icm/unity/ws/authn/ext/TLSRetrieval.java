@@ -78,7 +78,7 @@ public class TLSRetrieval implements CredentialRetrieval, CXFAuthentication
 	/**
 	 * @return null if not available, authenticated certificates othwerwise.
 	 */
-	private X509Certificate[] getTLSCertificates()
+	public static X509Certificate[] getTLSCertificates()
 	{
 		Message message = PhaseInterceptorChain.getCurrentMessage();
 		if (message == null)

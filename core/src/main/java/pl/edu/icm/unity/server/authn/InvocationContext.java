@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.Locale;
 
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 
 /**
@@ -25,6 +26,16 @@ public class InvocationContext implements Serializable
 
 	private AuthenticatedEntity authenticatedEntity;
 	private Locale locale;
+	private IdentityTaV tlsIdentity; 
+	
+	/**
+	 * @param tlsIdentity TLS client-authenticated identity (of X500 type) or null if there is no TLS 
+	 * client connection context or it is not client authenticated.
+	 */
+	public InvocationContext(IdentityTaV tlsIdentity)
+	{
+		setTlsIdentity(tlsIdentity);
+	}
 	
 	public static void setCurrent(InvocationContext context)
 	{
@@ -60,5 +71,22 @@ public class InvocationContext implements Serializable
 	public void setLocale(Locale locale)
 	{
 		this.locale = locale;
+	}
+
+	/**
+	 * @return the TLS authenticated identity if available or null
+	 */
+	public IdentityTaV getTlsIdentity()
+	{
+		return tlsIdentity;
+	}
+
+	/**
+	 * Sets a TLS authenticated identity.
+	 * @param tlsIdentity
+	 */
+	public void setTlsIdentity(IdentityTaV tlsIdentity)
+	{
+		this.tlsIdentity = tlsIdentity;
 	}
 }

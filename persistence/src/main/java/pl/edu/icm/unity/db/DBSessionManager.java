@@ -56,7 +56,6 @@ public class DBSessionManager implements SessionManager
 		sqlMapFactory = loadMybatis(config);
 	}
 	
-	@SuppressWarnings("resource") //reader is closed by MyBatis
 	private SqlSessionFactory loadMybatis(DBConfiguration config) throws IOException
 	{
 		String mapFile = config.getFileValueAsString(DBConfiguration.DBCONFIG_FILE, false);

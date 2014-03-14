@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.ws.authn;
 
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +29,10 @@ import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.ws.CXFEndpointProperties;
+import pl.edu.icm.unity.ws.authn.ext.TLSRetrieval;
 
 /**
  * Performs a final authentication, basing on the endpoint's configuration.
@@ -65,7 +69,10 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		}
 		
 		Map<String, AuthenticationResult> authnCache = new HashMap<String, AuthenticationResult>();
-		InvocationContext ctx = new InvocationContext(); 
+		X509Certificate[] clientCert = TLSRetrieval.getTLSCertificates();
+		IdentityTaV tlsId = (clientCert == null) ? null : new IdentityTaV(X500Identity.ID, 
+				clientCert[0].getSubjectX500Principal().getName());
+		InvocationContext ctx = new InvocationContext(tlsId); 
 		InvocationContext.setCurrent(ctx);
 		AuthenticationException firstError = null;
 		for (Map<String, BindingAuthn> authenticatorSet: authenticators)

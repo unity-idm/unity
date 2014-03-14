@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.security.cert.X509Certificate;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -26,6 +27,8 @@ import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -148,7 +151,7 @@ public class UnityVaadinServlet extends VaadinServlet
 	protected void service(HttpServletRequest request, HttpServletResponse response) 
 			throws ServletException, IOException 
 	{
-		InvocationContext ctx = setEmptyInvocationContext();
+		InvocationContext ctx = setEmptyInvocationContext(request);
 		setAuthenticationContext(request, ctx);
 		setLocale(request, ctx);
 		try
@@ -160,9 +163,13 @@ public class UnityVaadinServlet extends VaadinServlet
 		}
 	}
 	
-	private InvocationContext setEmptyInvocationContext()
+	private InvocationContext setEmptyInvocationContext(HttpServletRequest request)
 	{
-		InvocationContext context = new InvocationContext();
+		X509Certificate[] clientCert = (X509Certificate[]) request.getAttribute(
+				"javax.servlet.request.X509Certificate");
+		IdentityTaV tlsId = (clientCert == null) ? null : new IdentityTaV(X500Identity.ID, 
+				clientCert[0].getSubjectX500Principal().getName());
+		InvocationContext context = new InvocationContext(tlsId);
 		InvocationContext.setCurrent(context);
 		return context;
 	}

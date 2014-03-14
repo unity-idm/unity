@@ -39,7 +39,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	{
 		EntityWithCredential entity = identityResolver.resolveIdentity(user, new String[] {UsernameIdentity.ID}, 
 				EngineInitialization.DEFAULT_CREDENTIAL);
-		InvocationContext virtualAdmin = new InvocationContext();
+		InvocationContext virtualAdmin = new InvocationContext(null);
 		virtualAdmin.setAuthenticatedEntity(new AuthenticatedEntity(entity.getEntityId(), user, outdated));
 		virtualAdmin.setLocale(Locale.ENGLISH);
 		InvocationContext.setCurrent(virtualAdmin);
