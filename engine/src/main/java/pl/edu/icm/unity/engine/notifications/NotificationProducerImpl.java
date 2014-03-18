@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
 import pl.edu.icm.unity.db.generic.notify.NotificationChannelDB;
 import pl.edu.icm.unity.db.generic.notify.NotificationChannelHandler;
 import pl.edu.icm.unity.engine.internal.AttributesHelper;
@@ -32,10 +33,8 @@ import pl.edu.icm.unity.notifications.NotificationChannelInstance;
 import pl.edu.icm.unity.notifications.NotificationFacility;
 import pl.edu.icm.unity.notifications.NotificationProducer;
 import pl.edu.icm.unity.notifications.NotificationStatus;
-import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.registries.NotificationFacilitiesRegistry;
 import pl.edu.icm.unity.server.utils.CacheProvider;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -54,14 +53,14 @@ public class NotificationProducerImpl implements NotificationProducer
 	private Ehcache channelsCache;
 	private NotificationFacilitiesRegistry facilitiesRegistry;
 	private NotificationChannelDB channelDB;
-	private MessageTemplateManagement msgTemplMan;
 	private DBGroups dbGroups;
+	private MessageTemplateDB mtDB;
 	
 	@Autowired
 	public NotificationProducerImpl(AttributesHelper attributesHelper, DBSessionManager db,
-			CacheProvider cacheProvider, UnityServerConfiguration serverConfig,
+			CacheProvider cacheProvider, 
 			NotificationFacilitiesRegistry facilitiesRegistry, NotificationChannelDB channelDB,
-			DBGroups dbGroups, MessageTemplateManagement msgTemplMan)
+			DBGroups dbGroups, MessageTemplateDB mtDB)
 	{
 		this.attributesHelper = attributesHelper;
 		this.db = db;
@@ -69,7 +68,7 @@ public class NotificationProducerImpl implements NotificationProducer
 		initCache(cacheProvider.getManager());
 		this.facilitiesRegistry = facilitiesRegistry;
 		this.channelDB = channelDB;
-		this.msgTemplMan = msgTemplMan;
+		this.mtDB = mtDB;
 	}
 
 	private void initCache(CacheManager cacheManager)
@@ -81,27 +80,6 @@ public class NotificationProducerImpl implements NotificationProducer
 		PersistenceConfiguration persistCfg = new PersistenceConfiguration();
 		persistCfg.setStrategy("none");
 		config.persistence(persistCfg);
-	}
-	
-	private Future<NotificationStatus> sendNotification(EntityParam recipient, String channelName, 
-			String msgSubject, String message) throws EngineException
-	{
-		recipient.validateInitialization();
-		NotificationChannelInstance channel;
-		String recipientAddress;
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			channel = loadChannel(channelName, sql);
-			NotificationFacility facility = facilitiesRegistry.getByName(channel.getFacilityId());
-			recipientAddress = getAddressForEntity(recipient, facility.getRecipientAddressMetadataKey(), sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
-
-		return channel.sendNotification(recipientAddress, msgSubject, message);
 	}
 	
 	private NotificationChannelInstance loadChannel(String channelName, SqlSession sql) throws EngineException
@@ -139,26 +117,43 @@ public class NotificationProducerImpl implements NotificationProducer
 			String channelName, String templateId, Map<String, String> params)
 			throws EngineException
 	{
-		MessageTemplate template = msgTemplMan.getTemplate(templateId);
-		Message templateMsg = template.getMessage(params);
-		return sendNotification(recipient, channelName, templateMsg.getSubject(), templateMsg.getBody());
-	}
+		recipient.validateInitialization();
 
+		MessageTemplate template;
+		NotificationChannelInstance channel;
+		String recipientAddress;
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			template = mtDB.get(templateId, sql);
+			channel = loadChannel(channelName, sql);
+			NotificationFacility facility = facilitiesRegistry.getByName(channel.getFacilityId());
+			recipientAddress = getAddressForEntity(recipient, facility.getRecipientAddressMetadataKey(), sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
+
+		Message templateMsg = template.getMessage(params);
+		return channel.sendNotification(recipientAddress, templateMsg.getSubject(), templateMsg.getBody());
+	}
+	
 	@Override
 	public void sendNotificationToGroup(String group, String channelName,
 			String templateId, Map<String, String> params) throws EngineException
 	{
 		if (templateId == null)
 			return;
-		MessageTemplate template = msgTemplMan.getTemplate(templateId);
-		Message templateMsg = template.getMessage(params);
-		String subject = templateMsg.getSubject();
-		String body = templateMsg.getBody();
-		GroupContents contents;
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			contents = dbGroups.getContents(group, GroupContents.MEMBERS, sql);
+			MessageTemplate template = mtDB.get(templateId, sql);
+			Message templateMsg = template.getMessage(params);
+			String subject = templateMsg.getSubject();
+			String body = templateMsg.getBody();
+
+			GroupContents contents = dbGroups.getContents(group, GroupContents.MEMBERS, sql);
 
 			List<Long> entities = contents.getMembers();
 			NotificationChannelInstance channel = loadChannel(channelName, sql);
@@ -189,16 +184,17 @@ public class NotificationProducerImpl implements NotificationProducer
 			throws EngineException
 	{
 		NotificationChannelInstance channel;
+		MessageTemplate template;
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
 			channel = loadChannel(channelName, sql);
+			template = mtDB.get(templateId, sql);
 			sql.commit();
 		} finally
 		{
 			db.releaseSqlSession(sql);
 		}
-		MessageTemplate template = msgTemplMan.getTemplate(templateId);
 		Message templateMsg = template.getMessage(params);
 		return channel.sendNotification(recipientAddress, templateMsg.getSubject(), templateMsg.getBody());
 	}

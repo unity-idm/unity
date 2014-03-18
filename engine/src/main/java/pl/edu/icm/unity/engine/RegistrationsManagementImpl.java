@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.registration;
+package pl.edu.icm.unity.engine;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +26,7 @@ import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
 import pl.edu.icm.unity.db.generic.cred.CredentialDB;
 import pl.edu.icm.unity.db.generic.credreq.CredentialRequirementDB;
+import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
@@ -43,6 +44,12 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.BaseRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.RegistrationWithCommentsTemplateDef;
+import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
@@ -91,6 +98,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private DBAttributes dbAttributes;
 	private DBIdentities dbIdentities;
 	private DBGroups dbGroups;
+	private MessageTemplateDB msgTplDB;
 	
 	private GroupResolver groupsResolver;
 	private IdentityTypesRegistry identityTypesRegistry;
@@ -108,7 +116,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			GroupResolver groupsResolver, IdentityTypesRegistry identityTypesRegistry,
 			LocalCredentialsRegistry authnRegistry, AuthorizationManager authz,
 			EngineHelper engineHelper, AttributesHelper attributesHelper,
-			NotificationProducerImpl notificationProducer)
+			NotificationProducerImpl notificationProducer, MessageTemplateDB msgTplDB)
 	{
 		this.db = db;
 		this.formsDB = formsDB;
@@ -126,6 +134,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		this.engineHelper = engineHelper;
 		this.attributesHelper = attributesHelper;
 		this.notificationProducer = notificationProducer;
+		this.msgTplDB = msgTplDB;
 	}
 
 	@Override
@@ -701,9 +710,18 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (form.getInitialEntityState() == null)
 			throw new WrongArgumentException("Initial entity state must be set in the form.");
 		
-		if (form.getNotificationsConfiguration() == null)
+		RegistrationFormNotifications notCfg = form.getNotificationsConfiguration();
+		if (notCfg == null)
 			throw new WrongArgumentException("NotificationsConfiguration must be set in the form.");
-		
+		checkTemplate(notCfg.getAcceptedTemplate(), AcceptRegistrationTemplateDef.NAME,
+				sql, "accepted registration request");
+		checkTemplate(notCfg.getRejectedTemplate(), RejectRegistrationTemplateDef.NAME,
+				sql, "rejected registration request");
+		checkTemplate(notCfg.getSubmittedTemplate(), SubmitRegistrationTemplateDef.NAME,
+				sql, "submitted registration request");
+		checkTemplate(notCfg.getUpdatedTemplate(), UpdateRegistrationTemplateDef.NAME,
+				sql, "updated registration request");
+
 		if (form.getAgreements() != null)
 		{
 			for (AgreementRegistrationParam o: form.getAgreements())
@@ -711,6 +729,18 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				if (o.getText() == null || o.getText().isEmpty())
 					throw new WrongArgumentException("Agreement text must not be empty.");
 			}
+		}
+	}
+	
+	private void checkTemplate(String tpl, String compatibleDef, SqlSession sql, String purpose) throws EngineException
+	{
+		if (tpl != null)
+		{
+			if (!msgTplDB.exists(tpl, sql))
+				throw new WrongArgumentException("Form has an unknown message template " + tpl);
+			if (!compatibleDef.equals(msgTplDB.get(tpl, sql).getConsumer()))
+				throw new WrongArgumentException("Template " + tpl + 
+						" is not suitable as the " + purpose + " template");
 		}
 	}
 	

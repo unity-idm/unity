@@ -7,7 +7,7 @@
  */
 
 /**
- * Registration subsystem management
+ * Common code related to registrations handling
  * @author K. Benedyczak
  */
-package pl.edu.icm.unity.engine.registration;
+package pl.edu.icm.unity.server.api.registration;

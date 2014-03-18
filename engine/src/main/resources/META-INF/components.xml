@@ -61,7 +61,7 @@
 	<bean primary="false" class="pl.edu.icm.unity.engine.NotificationsManagementImpl">
 		<qualifier value="plain"/>
 	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.registration.RegistrationsManagementImpl">
+	<bean primary="false" class="pl.edu.icm.unity.engine.RegistrationsManagementImpl">
 		<qualifier value="plain"/>
 	</bean>
 	<bean primary="false" class="pl.edu.icm.unity.engine.TranslationProfileManagementImpl">
@@ -105,7 +105,7 @@
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.registration.RegistrationsManagementImpl">
+	<bean primary="false" class="pl.edu.icm.unity.engine.RegistrationsManagementImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
@@ -147,9 +147,5 @@
 	<bean class="pl.edu.icm.unity.engine.endpoints.EndpointHandler"/>
 	<bean class="pl.edu.icm.unity.engine.endpoints.EndpointDB"/>
 	<bean class="pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement"/>
-	
-	<bean class="pl.edu.icm.unity.engine.registration.AcceptRegistrationTemplateDef"/>
-	<bean class="pl.edu.icm.unity.engine.registration.RejectRegistrationTemplateDef"/>
-	<bean class="pl.edu.icm.unity.engine.registration.SubmitRegistrationTemplateDef"/>
-	<bean class="pl.edu.icm.unity.engine.registration.UpdateRegistrationTemplateDef"/>
+
 </beans>

@@ -7,17 +7,19 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
+import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.EntityState;
@@ -37,10 +39,10 @@ import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
+import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
@@ -71,11 +73,6 @@ import com.vaadin.ui.themes.Reindeer;
  */
 public class RegistrationFormEditor extends VerticalLayout
 {
-	private static final String SUBMIT_CONSUMER = "SubmitForm";
-	private static final  String UPDATE_CONSUMER = "UpdateForm";
-	private static final  String REJECT_CONSUMER = "RejectForm";
-	private static final String ACCEPT_CONSUMER = "AcceptForm";
-	
 	private UnityMessageSource msg;
 	private GroupsManagement groupsMan;
 	private NotificationsManagement notificationsMan;
@@ -245,13 +242,14 @@ public class RegistrationFormEditor extends VerticalLayout
 		adminsNotificationGroup.setInput("/", true, true);
 		this.groups = adminsNotificationGroup.getGroups();
 		
-		submittedTemplate = getComboTemplates(SUBMIT_CONSUMER);
+		
+		submittedTemplate = new CompatibleTemplatesComboBox(SubmitRegistrationTemplateDef.NAME, msgTempMan);
 		submittedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.submittedTemplate"));
-		updatedTemplate = getComboTemplates(UPDATE_CONSUMER);
+		updatedTemplate =  new CompatibleTemplatesComboBox(UpdateRegistrationTemplateDef.NAME, msgTempMan);
 		updatedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.updatedTemplate"));
-		rejectedTemplate = getComboTemplates(REJECT_CONSUMER);
+		rejectedTemplate =  new CompatibleTemplatesComboBox(RejectRegistrationTemplateDef.NAME, msgTempMan);
 		rejectedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.rejectedTemplate"));
-		acceptedTemplate = getComboTemplates(ACCEPT_CONSUMER);
+		acceptedTemplate =  new CompatibleTemplatesComboBox(AcceptRegistrationTemplateDef.NAME, msgTempMan);
 		acceptedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.acceptedTemplate"));
 		
 		main.addComponents(name, description, publiclyAvailable, channel, adminsNotificationGroup,
@@ -269,29 +267,6 @@ public class RegistrationFormEditor extends VerticalLayout
 			rejectedTemplate.setValue(notCfg.getRejectedTemplate());
 			acceptedTemplate.setValue(notCfg.getAcceptedTemplate());
 		}
-	}
-	
-	private ComboBox getComboTemplates(String consumer)
-	{
-		ComboBox combo = new ComboBox();
-		Map<String, MessageTemplate> templates = null;
-		try
-		{
-			templates = msgTempMan
-					.getCompatibleTemplates(consumer);
-		} catch (EngineException e)
-		{
-			ErrorPopup.showError(msg,msg.getMessage("error"), msg.getMessage(
-					"RegistrationFormEditor.cannotLoadTemplates", consumer));
-		}
-		if (templates != null)
-		{
-			for (String template : templates.keySet())
-			{
-				combo.addItem(template);
-			}
-		}
-		return combo;
 	}
 	
 	private void initCollectedTab(RegistrationForm toEdit)
