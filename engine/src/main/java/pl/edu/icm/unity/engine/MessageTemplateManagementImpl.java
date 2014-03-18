@@ -158,8 +158,6 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 			throws EngineException
 	{
 		MessageTemplateDefinition con = registry.getByName(toValidate.getConsumer());
-		if (con == null)
-			throw new WrongArgumentException("The consumer '" + toValidate.getConsumer() + "' is unknown");
 		try
 		{
 			MessageTemplateValidator.validateMessages(con, toValidate.getAllMessages());

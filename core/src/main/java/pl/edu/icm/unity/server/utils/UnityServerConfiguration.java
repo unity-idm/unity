@@ -114,7 +114,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		defaults.put(MAIL_CONF, new PropertyMD().setPath().setCategory(mainCat).
 				setDescription("A configuration file for the mail notification subsystem."));
 		defaults.put(TEMPLATES_CONF, new PropertyMD("conf/msgTemplates.properties").setPath().setCategory(mainCat).
-				setDescription("A file with the default message templates."));
+				setDescription("A file with the initial message templates. You can have this file empty and manage the templates via the Admin UI."));
 		defaults.put(PKI_CONF, new PropertyMD("conf/pki.properties").setPath().setCategory(mainCat).
 				setDescription("A file with the configuration of the PKI: credentials and truststores."));
 		defaults.put(RECREATE_ENDPOINTS_ON_STARTUP, new PropertyMD("true").setCategory(mainCat).
