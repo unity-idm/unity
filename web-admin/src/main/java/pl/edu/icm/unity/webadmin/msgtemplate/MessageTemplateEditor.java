@@ -11,8 +11,9 @@ import java.util.Map;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
-import pl.edu.icm.unity.msgtemplates.MessageTemplateConsumer;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator.IllegalVariablesException;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
@@ -83,8 +84,8 @@ public class MessageTemplateEditor extends FormLayout
 		consumer.setImmediate(true);
 		consumer.setValidationVisible(false);
 		consumer.setNullSelectionAllowed(false);
-		Collection<MessageTemplateConsumer> consumers = registry.getAll();
-		for (MessageTemplateConsumer c : consumers)
+		Collection<MessageTemplateDefinition> consumers = registry.getAll();
+		for (MessageTemplateDefinition c : consumers)
 		{
 			consumer.addItem(c.getName());
 		}
@@ -100,7 +101,7 @@ public class MessageTemplateEditor extends FormLayout
 		body.setRows(17);
 		body.setWidth(100, Unit.PERCENTAGE);
 		body.setValidationVisible(false);
-		validator = new MessageValidator(null, msg);
+		validator = new MessageValidator(null);
 		subject.addValidator(validator);
 		body.addValidator(validator);
 		subjectEdited = true;
@@ -110,7 +111,6 @@ public class MessageTemplateEditor extends FormLayout
 			public void focus(FocusEvent event)
 			{
 				subjectEdited = true;
-
 			}
 		});
 		body.addFocusListener(new FocusListener()
@@ -119,7 +119,6 @@ public class MessageTemplateEditor extends FormLayout
 			public void focus(FocusEvent event)
 			{
 				subjectEdited = false;
-
 			}
 		});
 		consumer.addValueChangeListener(new ValueChangeListener()
@@ -179,14 +178,14 @@ public class MessageTemplateEditor extends FormLayout
 
 	private void setMessageConsumerDesc()
 	{
-		MessageTemplateConsumer consumer = getConsumer();
+		MessageTemplateDefinition consumer = getConsumer();
 		if (consumer == null)
 			return;
-		consumerDescription.setValue(consumer.getDescription());
+		consumerDescription.setValue(msg.getMessage(consumer.getDescriptionKey()));
 		updateVarButtons(consumer);
 	}
 
-	private void updateVarButtons(MessageTemplateConsumer consumer)
+	private void updateVarButtons(MessageTemplateDefinition consumer)
 	{
 		buttons.removeAllComponents();
 		for (Map.Entry<String, String> var : consumer.getVariables().entrySet())
@@ -194,7 +193,7 @@ public class MessageTemplateEditor extends FormLayout
 			final Button b = new Button();
 			b.addStyleName(Reindeer.BUTTON_SMALL);
 			b.setCaption(var.getKey());
-			b.setDescription(var.getValue());
+			b.setDescription(msg.getMessage(var.getValue()));
 			b.addClickListener(new Button.ClickListener()
 			{
 				@Override
@@ -214,13 +213,11 @@ public class MessageTemplateEditor extends FormLayout
 
 	}
 
-	private MessageTemplateConsumer getConsumer()
+	private MessageTemplateDefinition getConsumer()
 	{
 
 		String c = (String) consumer.getValue();
-		if (c == null)
-			return null;
-		MessageTemplateConsumer consumer = null;
+		MessageTemplateDefinition consumer = null;
 		try
 		{
 			consumer = registry.getByName(c);
@@ -243,7 +240,7 @@ public class MessageTemplateEditor extends FormLayout
 
 	private void updateValidator()
 	{
-		MessageTemplateConsumer c = getConsumer();
+		MessageTemplateDefinition c = getConsumer();
 		if (c != null)
 			validator.setConsumer(c);
 	}
@@ -260,31 +257,31 @@ public class MessageTemplateEditor extends FormLayout
 
 	}
 
-	private class MessageValidator extends MessageTemplateValidator implements Validator
+	private class MessageValidator implements Validator
 	{
-		private UnityMessageSource msg;
-
-		public MessageValidator(MessageTemplateConsumer consumer, UnityMessageSource msg)
+		private MessageTemplateDefinition c;
+		
+		public MessageValidator(MessageTemplateDefinition c)
 		{
-			super(consumer);
-			this.msg = msg;
+			this.c = c;
 		}
 
-		public void setConsumer(MessageTemplateConsumer consumer)
+		public void setConsumer(MessageTemplateDefinition c)
 		{
-			this.consumer = consumer;
-
+			this.c = c;
 		}
 
 		@Override
 		public void validate(Object value) throws InvalidValueException
 		{
-			if (!validateText(value.toString()))
+			try
 			{
-				throw new InvalidValueException(
-						msg.getMessage("MessageTemplatesEditor.errorVars"));
+				MessageTemplateValidator.validateText(c, value.toString());
+			} catch (IllegalVariablesException e)
+			{
+				throw new InvalidValueException(msg.getMessage("MessageTemplatesEditor.errorVars", 
+						e.getUnknown().toString()));
 			}
 		}
 	}
-
 }

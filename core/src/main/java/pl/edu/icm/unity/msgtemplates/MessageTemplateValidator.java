@@ -5,59 +5,55 @@
 package pl.edu.icm.unity.msgtemplates;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
 
 /**
- * 
- * Validator helper
+ * Helper: checks if given message or text has only variables supported by a template consumer. 
  * 
  * @author P. Piernik
- * 
  */
-
 public class MessageTemplateValidator
 {
-	protected MessageTemplateConsumer consumer;
-
-	public MessageTemplateValidator(MessageTemplateConsumer consumer)
+	/**
+	 * Validates a set of {@link Message}s
+	 * @param consumer
+	 * @param message
+	 * @return
+	 * @throws WrongArgumentException 
+	 */
+	public static void validateMessages(MessageTemplateDefinition consumer, Map<String, Message> messages) 
+			throws IllegalVariablesException
 	{
-		this.consumer = consumer;
+		for (Message message: messages.values())
+			validateMessage(consumer, message);
+	}
+	
+	/**
+	 * Validates a single {@link Message}
+	 * @param consumer
+	 * @param message
+	 * @return
+	 * @throws WrongArgumentException 
+	 */
+	public static void validateMessage(MessageTemplateDefinition consumer, Message message) 
+			throws IllegalVariablesException
+	{
+		validateText(consumer, message.getSubject());
+		validateText(consumer, message.getBody());
 	}
 
-	public void setConsumer(MessageTemplateConsumer consumer)
-	{
-		this.consumer = consumer;
-
-	}
-
-	public boolean validateMessages(MessageTemplateConsumer consumer,
-			Map<String, Message> messages)
-	{
-		this.consumer = consumer;
-		return validateMessages(messages);
-	}
-
-	public boolean validateMessages(Map<String, Message> messages)
-	{
-		for (Message m : messages.values())
-		{
-			if (!(validateText(m.getSubject()) && validateText(m.getBody())))
-				return false;
-		}
-		return true;
-	}
-
-	public boolean validateText(String text)
+	public static void validateText(MessageTemplateDefinition consumer, String text) throws IllegalVariablesException
 	{
 		ArrayList<String> usedField = new ArrayList<String>();
 		Pattern pattern = Pattern.compile("\\$\\{[a-zA-Z0-9]*\\}");
-
-		if (consumer == null)
-			return false;
 
 		String b = (String) text;
 		Matcher matcher = pattern.matcher(b);
@@ -66,16 +62,29 @@ public class MessageTemplateValidator
 			usedField.add(b.substring(matcher.start() + 2, matcher.end() - 1));
 
 		}
-		boolean val = true;
+		Set<String> knownVariables = consumer.getVariables().keySet();
+		Set<String> unknown = new HashSet<String>();
 		for (String f : usedField)
 		{
-			if (!consumer.getVariables().keySet().contains(f))
-			{
-				val = false;
-				break;
-			}
+			if (!knownVariables.contains(f))
+				unknown.add(f);
 		}
-		return val;
+		if (!unknown.isEmpty())
+			throw new IllegalVariablesException(unknown);
 	}
+	
+	public static class IllegalVariablesException extends Exception
+	{
+		private Collection<String> unknown;
 
+		public IllegalVariablesException(Collection<String> unknown)
+		{
+			this.unknown = unknown;
+		}
+
+		public Collection<String> getUnknown()
+		{
+			return unknown;
+		}
+	}
 }

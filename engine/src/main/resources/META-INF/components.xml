@@ -5,6 +5,11 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<context:annotation-config/>
+	
+	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
+		<property name="bundle" value="pl/edu/icm/unity/engine/messages/messages"/>
+	</bean>
+	
 	<bean class="pl.edu.icm.unity.server.JettyServer"/>
 	<bean class="pl.edu.icm.unity.server.UnityApplication$InnerServerLifecycle"/>
 	<bean class="pl.edu.icm.unity.server.UnityApplication$ShutdownFinished"/>
@@ -56,7 +61,7 @@
 	<bean primary="false" class="pl.edu.icm.unity.engine.NotificationsManagementImpl">
 		<qualifier value="plain"/>
 	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.RegistrationsManagementImpl">
+	<bean primary="false" class="pl.edu.icm.unity.engine.registration.RegistrationsManagementImpl">
 		<qualifier value="plain"/>
 	</bean>
 	<bean primary="false" class="pl.edu.icm.unity.engine.TranslationProfileManagementImpl">
@@ -100,7 +105,7 @@
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.RegistrationsManagementImpl">
+	<bean primary="false" class="pl.edu.icm.unity.engine.registration.RegistrationsManagementImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
@@ -142,4 +147,9 @@
 	<bean class="pl.edu.icm.unity.engine.endpoints.EndpointHandler"/>
 	<bean class="pl.edu.icm.unity.engine.endpoints.EndpointDB"/>
 	<bean class="pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement"/>
+	
+	<bean class="pl.edu.icm.unity.engine.registration.AcceptRegistrationTemplateDef"/>
+	<bean class="pl.edu.icm.unity.engine.registration.RejectRegistrationTemplateDef"/>
+	<bean class="pl.edu.icm.unity.engine.registration.SubmitRegistrationTemplateDef"/>
+	<bean class="pl.edu.icm.unity.engine.registration.UpdateRegistrationTemplateDef"/>
 </beans>

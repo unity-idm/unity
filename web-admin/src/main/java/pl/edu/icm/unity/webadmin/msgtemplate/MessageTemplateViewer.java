@@ -9,7 +9,7 @@ import java.util.Map;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
-import pl.edu.icm.unity.msgtemplates.MessageTemplateConsumer;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -70,8 +70,8 @@ public class MessageTemplateViewer extends SimpleMessageTemplateViewer
 		{
 			try
 			{
-				MessageTemplateConsumer cn = registry.getByName(cons);
-				consumer.setValue(template.getConsumer() + " - " + cn.getDescription());
+				MessageTemplateDefinition cn = registry.getByName(cons);
+				consumer.setValue(msg.getMessage(cn.getDescriptionKey()));
 			} catch (IllegalTypeException e)
 			{
 				consumer.setValue(template.getConsumer());

@@ -17,9 +17,9 @@ import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
-import pl.edu.icm.unity.msgtemplates.MessageTemplateConsumer;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator.IllegalVariablesException;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 
@@ -116,7 +116,7 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 	public MessageTemplate getTemplate(String name) throws EngineException
 	{	
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
+		SqlSession sql = db.getSqlSession(false);
 		try
 		{
 			MessageTemplate template = mtDB.get(name, sql);
@@ -157,20 +157,15 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 	private void validateMessageTemplate(MessageTemplate toValidate)
 			throws EngineException
 	{
-		MessageTemplateConsumer con = registry.getByName(toValidate.getConsumer());
+		MessageTemplateDefinition con = registry.getByName(toValidate.getConsumer());
 		if (con == null)
+			throw new WrongArgumentException("The consumer '" + toValidate.getConsumer() + "' is unknown");
+		try
 		{
-			throw new WrongArgumentException("The consumer is unknown");
-		}
-		MessageTemplateValidator validator = new MessageTemplateValidator(con);
-		for (Message t : toValidate.getAllMessages().values())
+			MessageTemplateValidator.validateMessages(con, toValidate.getAllMessages());
+		} catch (IllegalVariablesException e)
 		{
-			if (!(validator.validateText(t.getSubject()) && validator.validateText(t
-					.getBody())))
-			{
-				throw new WrongArgumentException(
-						"The vars used in subject or body are not compatible with consumer");
-			}
+			throw new WrongArgumentException("The following variables are unknown: " + e.getUnknown());
 		}
 	}
 }

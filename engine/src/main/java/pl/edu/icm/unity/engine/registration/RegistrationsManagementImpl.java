@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine;
+package pl.edu.icm.unity.engine.registration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,11 +82,6 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 @Component
 public class RegistrationsManagementImpl implements RegistrationsManagement
 {
-	public static final String VAR_FORM = "formName";
-	public static final String VAR_REQUEST = "requestId";
-	public static final String VAR_PUB_COMMENT = "publicComment";
-	public static final String VAR_INTERNAL_COMMENT = "internalComment";
-	
 	private DBSessionManager db;
 	private RegistrationFormDB formsDB;
 	private RegistrationRequestDB requestDB;
@@ -722,8 +717,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private Map<String, String> getBaseNotificationParams(String formId, String requestId)
 	{
 		Map<String, String> ret = new HashMap<>();
-		ret.put(VAR_FORM, formId);
-		ret.put(VAR_REQUEST, requestId);
+		ret.put(BaseRegistrationTemplateDef.FORM_NAME, formId);
+		ret.put(BaseRegistrationTemplateDef.REQUEST_ID, requestId);
 		return ret;
 	}
 	
@@ -742,8 +737,9 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (notificationsCfg.getChannel() == null || templateId == null)
 			return;
 		Map<String, String> notifyParams = getBaseNotificationParams(formId, requestId);
-		notifyParams.put(VAR_PUB_COMMENT, publicComment == null ? "" : publicComment.getContents());
-		notifyParams.put(VAR_INTERNAL_COMMENT, "");
+		notifyParams.put(RegistrationWithCommentsTemplateDef.PUBLIC_COMMENT, 
+				publicComment == null ? "" : publicComment.getContents());
+		notifyParams.put(RegistrationWithCommentsTemplateDef.INTERNAL_COMMENT, "");
 		String requesterAddress = getRequesterAddress(currentRequest, notificationsCfg, sql);
 		if (requesterAddress != null)
 		{
@@ -756,7 +752,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		
 		if (notificationsCfg.getAdminsNotificationGroup() != null)
 		{
-			notifyParams.put(VAR_INTERNAL_COMMENT, internalComment == null ? "" : internalComment.getContents());
+			notifyParams.put(RegistrationWithCommentsTemplateDef.INTERNAL_COMMENT, 
+					internalComment == null ? "" : internalComment.getContents());
 			notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(), 
 				notificationsCfg.getChannel(), 
 				templateId,

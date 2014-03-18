@@ -87,7 +87,6 @@ public class MessageTemplate extends DescribedObjectImpl
 				jsonMsg.put("locale", msg.getKey().toString());
 				jsonMsg.put("subject", msg.getValue().getSubject());
 				jsonMsg.put("body", msg.getValue().getBody());
-				
 			}
 			return jsonMapper.writeValueAsString(root);
 		} catch (JsonProcessingException e)
