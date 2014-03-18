@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
-import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 
 /**
  * Java dynamic proxy builder, decorating wrapped objects with event generation. This is the same as 

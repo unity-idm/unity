@@ -79,6 +79,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
+				@SuppressWarnings("unchecked")
 				GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>)table.getValue();
 				if (item!=null)
 				{

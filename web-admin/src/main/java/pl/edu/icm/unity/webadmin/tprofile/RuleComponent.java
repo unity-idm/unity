@@ -106,7 +106,7 @@ public class RuleComponent extends VerticalLayout
 		});
 
 		down = new Button();
-		down.setDescription(msg.getMessage("TranslationProfileEditor.moveTop"));
+		down.setDescription(msg.getMessage("TranslationProfileEditor.moveDown"));
 		down.setIcon(Images.downArrow.getResource());
 		down.addStyleName(Reindeer.BUTTON_LINK);
 		down.addStyleName(Styles.toolbarButton.toString());

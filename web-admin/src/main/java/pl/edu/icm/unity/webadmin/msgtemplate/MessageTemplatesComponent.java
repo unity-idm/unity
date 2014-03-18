@@ -80,6 +80,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
+				@SuppressWarnings("unchecked")
 				GenericItem<MessageTemplate> item = (GenericItem<MessageTemplate>)table.getValue();
 				if (item!=null)
 				{
