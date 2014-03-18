@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SubmitRegistrationTemplateDef extends BaseRegistrationTemplateDef
 {
-	public static final String NAME = "SubmitForm";
+	public static final String NAME = "RegistrationRequestSubmitted";
 	
 	public SubmitRegistrationTemplateDef()
 	{

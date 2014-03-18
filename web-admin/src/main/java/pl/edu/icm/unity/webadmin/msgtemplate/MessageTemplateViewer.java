@@ -80,16 +80,13 @@ public class MessageTemplateViewer extends SimpleMessageTemplateViewer
 		}
 		for (Map.Entry<String, Message> entry : template.getAllMessages().entrySet())
 		{
-			TextArea subject = new DescriptionTextArea();
+			Label subject = new Label(entry.getValue().getSubject());
 			subject.setCaption(msg.getMessage("MessageTemplateViewer.subject"));
-			subject.setValue(entry.getValue().getSubject());
-			subject.setReadOnly(true);
-			subject.setRows(2);
 			TextArea body = new DescriptionTextArea();
 			body.setCaption(msg.getMessage("MessageTemplateViewer.body"));
 			body.setValue(entry.getValue().getBody());
 			body.setReadOnly(true);
-			body.setRows(entry.getValue().getBody().split("\n").length);
+			body.setRows(entry.getValue().getBody().split("\n").length + 1);
 			String lcle = entry.getKey().toString();
 //		 	For future, full support to locale. 
 			if (!lcle.equals(""))
@@ -104,9 +101,7 @@ public class MessageTemplateViewer extends SimpleMessageTemplateViewer
 			messages.add(subject);
 			messages.add(body);
 			main.addComponents(subject, body);
-
 		}
-
 	}
 
 	protected void setEmpty()

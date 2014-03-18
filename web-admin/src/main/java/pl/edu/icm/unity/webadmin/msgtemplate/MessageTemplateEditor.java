@@ -49,7 +49,7 @@ public class MessageTemplateEditor extends FormLayout
 	private MessageTemplateConsumersRegistry registry;
 	private AbstractTextField name;
 	private TextArea description;
-	private TextArea subject;
+	private RequiredTextField subject;
 	private TextArea body;
 	private ComboBox consumer;
 	private Label consumerDescription;
@@ -91,11 +91,10 @@ public class MessageTemplateEditor extends FormLayout
 		}
 		consumerDescription = new Label();
 		consumerDescription.setReadOnly(true);
-		subject = new RequiredTextArea(msg.getMessage("MessageTemplatesEditor.subject"), msg);
+		subject = new RequiredTextField(msg.getMessage("MessageTemplatesEditor.subject"), msg);
 		subject.setImmediate(true);
 		subject.setWidth(100, Unit.PERCENTAGE);
 		subject.setValidationVisible(false);
-		subject.setRows(1);
 		body = new RequiredTextArea(msg.getMessage("MessageTemplatesEditor.body"), msg);
 		body.setImmediate(true);
 		body.setRows(17);

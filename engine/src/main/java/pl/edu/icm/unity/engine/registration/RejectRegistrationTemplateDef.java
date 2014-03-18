@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RejectRegistrationTemplateDef extends RegistrationWithCommentsTemplateDef
 {
-	public static final String NAME = "RejectForm";
+	public static final String NAME = "RegistrationRequestRejected";
 	
 	public RejectRegistrationTemplateDef()
 	{

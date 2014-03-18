@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UpdateRegistrationTemplateDef extends RegistrationWithCommentsTemplateDef
 {
-	public static final String NAME = "UpdateForm";
+	public static final String NAME = "RegistrationRequestUpdated";
 	
 	public UpdateRegistrationTemplateDef()
 	{
