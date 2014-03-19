@@ -16,10 +16,10 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditDialog.Callback;
 import pl.edu.icm.unity.webui.WebSession;
@@ -29,10 +29,10 @@ import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
+import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Toolbar;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.registration.RegistrationFormChangedEvent;
 
@@ -57,8 +57,8 @@ public class RegistrationFormsComponent extends VerticalLayout
 	private GroupsManagement groupsMan;
 	private NotificationsManagement notificationsMan;
 	private AuthenticationManagement authenticationMan;
+	private MessageTemplateManagement msgTempMan;
 	private IdentitiesManagement identitiesMan;
-	private UnityServerConfiguration serverCfg;
 	private AttributesManagement attributeMan;
 	private AttributeHandlerRegistry attrHandlerRegistry;
 	private EventsBus bus;
@@ -73,7 +73,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 	public RegistrationFormsComponent(UnityMessageSource msg, RegistrationsManagement registrationsManagement,
 			AttributeHandlerRegistry attrHandlersRegistry, GroupsManagement groupsMan, 
 			NotificationsManagement notificationsMan,
-			UnityServerConfiguration cfg, IdentitiesManagement identitiesMan,
+			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan, AuthenticationManagement authenticationMan,
 			AttributeHandlerRegistry attrHandlerRegistry)
 	{
@@ -83,7 +83,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 		this.notificationsMan = notificationsMan;
 		this.authenticationMan = authenticationMan;
 		this.identitiesMan = identitiesMan;
-		this.serverCfg = cfg;
+		this.msgTempMan = msgTempMan;
 		this.attributeMan = attributeMan;
 		this.attrHandlerRegistry = attrHandlerRegistry;
 		this.bus = WebSession.getCurrent().getEventBus();
@@ -100,7 +100,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 					}
 				});
 		table.setWidth(90, Unit.PERCENTAGE);
-		viewer = new RegistrationFormViewer(msg, attrHandlersRegistry, serverCfg.getTemplatesStore());
+		viewer = new RegistrationFormViewer(msg, attrHandlersRegistry, msgTempMan);
 		viewer.setInput(null);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
@@ -232,7 +232,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			try
 			{
 				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
-						serverCfg, identitiesMan, attributeMan, authenticationMan,
+						msgTempMan, identitiesMan, attributeMan, authenticationMan,
 						attrHandlerRegistry);
 			} catch (EngineException e)
 			{
@@ -269,7 +269,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			try
 			{
 				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
-						serverCfg, identitiesMan, attributeMan, authenticationMan,
+						msgTempMan, identitiesMan, attributeMan, authenticationMan,
 						attrHandlerRegistry, item.getElement());
 			} catch (EngineException e)
 			{

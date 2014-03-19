@@ -20,7 +20,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.notifications.NotificationStatus;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.stdext.credential.CredentialResetImpl;
+import pl.edu.icm.unity.stdext.credential.PasswordResetTemplateDef;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -60,12 +60,12 @@ public class TestNotifications extends DBIntegrationTestBase
 		initCommon.initializeCommonAttributeTypes();
 
 		Map<String, String> params = new HashMap<String, String>();
-		params.put(CredentialResetImpl.CODE_VAR, "AAAA");
-		params.put(CredentialResetImpl.USER_VAR, "some user");
+		params.put(PasswordResetTemplateDef.VAR_CODE, "AAAA");
+		params.put(PasswordResetTemplateDef.VAR_USER, "some user");
 		
 		try
 		{
-			notProducer.sendNotification(admin, "ch1", CredentialResetImpl.PASSWORD_RESET_TPL, params);
+			notProducer.sendNotification(admin, "ch1", PasswordResetTemplateDef.NAME, params);
 			fail("Managed to send email for an entity without email attribute");
 		} catch(IllegalIdentityValueException e){}
 
@@ -73,7 +73,7 @@ public class TestNotifications extends DBIntegrationTestBase
 				"/", AttributeVisibility.full, destinationAddress);
 		attrsMan.setAttribute(admin, emailA, false);
 		Future<NotificationStatus> statusFuture = notProducer.sendNotification(admin, "ch1", 
-				CredentialResetImpl.PASSWORD_RESET_TPL, params);
+				PasswordResetTemplateDef.NAME, params);
 		NotificationStatus status = statusFuture.get();
 		if (!status.isSuccessful())
 			status.getProblem().printStackTrace();

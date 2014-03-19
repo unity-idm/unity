@@ -21,15 +21,6 @@ public class MapAttributeToIdentityActionFactory implements TranslationActionFac
 {
 	public static final String NAME = "mapAttributeToIdentity";
 	
-	private static final ActionParameterDesc[] PARAMS = {
-		new ActionParameterDesc(true, "attribute", 
-				"Value of attribute with this name will be used as a new identity value.", 20),
-		new ActionParameterDesc(true, "identityType", 
-				"A unity name of identity type to be used for the newly created identity.", 20),
-		new ActionParameterDesc(true, "credentialRequirement", "Credential requirement to be used " +
-				"for the identity in case a new entity is created from it.", 20)
-	};
-	
 	@Override
 	public String getName()
 	{
@@ -37,15 +28,30 @@ public class MapAttributeToIdentityActionFactory implements TranslationActionFac
 	}
 
 	@Override
-	public String getDescription()
+	public String getDescriptionKey()
 	{
-		return "Maps a remote attribute to a local identity with a given type.";
+		return "TranslationAction.mapAttributeToIdentity.desc";
 	}
 
 	@Override
 	public ActionParameterDesc[] getParameters()
 	{
-		return PARAMS;
+		return new ActionParameterDesc[] {
+				new ActionParameterDesc(
+						true,
+						"attribute",
+						"TranslationAction.mapAttributeToIdentity.param.attribute.desc",
+						20),
+				new ActionParameterDesc(
+						true,
+						"identityType",
+						"TranslationAction.mapAttributeToIdentity.param.identityType.desc",
+						20),
+				new ActionParameterDesc(
+						true,
+						"credentialRequirement",
+						"TranslationAction.mapAttributeToIdentity.param.credentialRequirement.desc",
+						20) };
 	}
 
 	@Override

@@ -24,12 +24,6 @@ import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory
 public class UpdateGroupsActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "updateGroups";
-	
-	private static final ActionParameterDesc[] PARAMS = {
-		new ActionParameterDesc(true, "groups", 
-				"Regular expression selecting the groups to which the client should be added.", 20)
-	};
-	
 	private GroupsManagement groupsMan;
 	private IdentitiesManagement idsMan;
 
@@ -48,17 +42,17 @@ public class UpdateGroupsActionFactory implements TranslationActionFactory
 	}
 
 	@Override
-	public String getDescription()
+	public String getDescriptionKey()
 	{
-		return "Adds the client to the groups which were provided by the remote IdP. Only groups that " +
-				"has been previously mapped to the unity group are considered (other are ignored)." +
-				" A subset of all groups can be selected with parameter.";
+		return "TranslationAction.updateGroups.desc";
 	}
 
 	@Override
 	public ActionParameterDesc[] getParameters()
 	{
-		return PARAMS;
+		return new ActionParameterDesc[] { new ActionParameterDesc(true,
+				"groups",
+				"TranslationAction.updateGroups.param.groups.desc", 20) };
 	}
 
 	@Override

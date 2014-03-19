@@ -4,14 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
-import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.VerticalLayout;
-
-import pl.edu.icm.unity.notifications.TemplatesStore;
+import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -24,10 +17,17 @@ import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
-import pl.edu.icm.unity.webadmin.notifications.TemplateViewer;
+import pl.edu.icm.unity.webadmin.msgtemplate.SimpleMessageTemplateViewer;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+
+import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Read only UI displaying a {@link RegistrationForm}.
@@ -38,17 +38,17 @@ public class RegistrationFormViewer extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private AttributeHandlerRegistry attrHandlerRegistry;
-	private TemplatesStore templatesStore;
+	private MessageTemplateManagement msgTempMan;
 	
 	private TabSheet tabs;
 	
 	private Label name;
 	private DescriptionTextArea description;
 	private Label publiclyAvailable;
-	private TemplateViewer submittedTemplate;
-	private TemplateViewer updatedTemplate;
-	private TemplateViewer rejectedTemplate;
-	private TemplateViewer acceptedTemplate;
+	private SimpleMessageTemplateViewer submittedTemplate;
+	private SimpleMessageTemplateViewer updatedTemplate;
+	private SimpleMessageTemplateViewer rejectedTemplate;
+	private SimpleMessageTemplateViewer acceptedTemplate;
 	private Label channel;
 	private Label adminsNotificationGroup;
 	
@@ -68,11 +68,11 @@ public class RegistrationFormViewer extends VerticalLayout
 	private ListOfElements<AttributeClassAssignment> attributeClassAssignments;
 	
 	public RegistrationFormViewer(UnityMessageSource msg, AttributeHandlerRegistry attrHandlerRegistry,
-			TemplatesStore templatesStore)
+			MessageTemplateManagement msgTempMan)
 	{
 		this.msg = msg;
 		this.attrHandlerRegistry = attrHandlerRegistry;
-		this.templatesStore = templatesStore;
+		this.msgTempMan = msgTempMan;
 		initUI();
 	}
 	
@@ -333,14 +333,14 @@ public class RegistrationFormViewer extends VerticalLayout
 		adminsNotificationGroup = new Label();
 		adminsNotificationGroup.setCaption(msg.getMessage("RegistrationFormViewer.adminsNotificationsGroup"));
 		
-		submittedTemplate = new TemplateViewer(msg.getMessage("RegistrationFormViewer.submittedTemplate"),
-				templatesStore, msg);
-		updatedTemplate = new TemplateViewer(msg.getMessage("RegistrationFormViewer.updatedTemplate"),
-				templatesStore, msg);
-		rejectedTemplate = new TemplateViewer(msg.getMessage("RegistrationFormViewer.rejectedTemplate"),
-				templatesStore, msg);
-		acceptedTemplate = new TemplateViewer(msg.getMessage("RegistrationFormViewer.acceptedTemplate"),
-				templatesStore, msg);
+		submittedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.submittedTemplate"),
+				msg, msgTempMan);
+		updatedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.updatedTemplate"),
+				msg, msgTempMan);
+		rejectedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.rejectedTemplate"),
+				msg, msgTempMan);
+		acceptedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.acceptedTemplate"),
+				msg, msgTempMan);
 		
 		main.addComponents(name, description, publiclyAvailable, channel, adminsNotificationGroup,
 				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate);

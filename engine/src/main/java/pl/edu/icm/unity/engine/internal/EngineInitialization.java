@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -30,9 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
@@ -44,10 +42,14 @@ import pl.edu.icm.unity.engine.notifications.EmailFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.RealmsManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
@@ -81,6 +83,11 @@ import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.utils.LifecycleBase;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.configuration.FilePropertiesHelper;
 
 /**
  * Responsible for loading the initial state from database and starting background processes.
@@ -146,6 +153,10 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	@Qualifier("insecure")
 	private TranslationProfileManagement profilesManagement;
+	@Autowired
+	@Qualifier("insecure")
+	private MessageTemplateManagement msgTemplatesManagement;
+	
 	
 	
 	private long endpointsLoadTime;
@@ -217,8 +228,75 @@ public class EngineInitialization extends LifecycleBase
 		initializeAuthenticators();
 		initializeEndpoints();
 		initializeNotifications();
+		initializeMsgTemplates();
 		runInitializers();
 		startLogConfigurationMonitoring();
+	}
+	
+	private void initializeMsgTemplates()
+	{
+		Map<String, MessageTemplate> existingTemplates;
+		try
+		{
+			existingTemplates = msgTemplatesManagement.listTemplates();
+		} catch (EngineException e)
+		{
+			throw new InternalException("Can't load existing message templates list", e);
+		}
+		File file = config.getFileValue(UnityServerConfiguration.TEMPLATES_CONF, false);
+		
+		Properties props = null;
+		try
+		{
+			props = FilePropertiesHelper.load(file);
+		} catch (IOException e)
+		{
+			throw new InternalException("Can't load message templates config file", e);
+		}
+		
+		Set<String> templateKeys = new HashSet<>();
+		for (Object keyO: props.keySet())
+		{
+			String key = (String) keyO;
+			if (key.contains("."))
+				templateKeys.add(key.substring(0, key.indexOf('.')));
+		}	
+		
+		for(String key:templateKeys)
+		{
+			if (existingTemplates.keySet().contains(key))
+			{
+				continue;
+			}
+			try
+			{
+					MessageTemplate templ = loadTemplate(props, key);
+					msgTemplatesManagement.addTemplate(templ);
+			} catch (WrongArgumentException e)
+			{
+				log.error("Template with id " + key + "not exists", e);
+			} catch (EngineException e)
+			{
+				log.error("Cannot add template " + key, e);
+			}
+		}
+		
+	}
+	
+	private MessageTemplate loadTemplate(Properties properties, String id) throws WrongArgumentException
+	{
+		String body = properties.getProperty(id+".body");
+		String subject = properties.getProperty(id+".subject");
+		String consumer = properties.getProperty(id+".consumer", "");
+		String description = properties.getProperty(id+".description", "");
+		
+		if (body == null || subject == null)
+			throw new WrongArgumentException("There is no template for this id");
+		
+		Map<String, Message> msgList = new HashMap<String, Message>();
+		Message tempMsg = new Message(subject, body);
+		msgList.put("", tempMsg);
+		return new MessageTemplate(id, description, msgList, consumer);
 	}
 	
 	private void initializeIdentityTypes()

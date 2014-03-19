@@ -4,16 +4,17 @@
  */
 package pl.edu.icm.unity.webadmin;
 
-import org.springframework.context.annotation.Scope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webadmin.msgtemplate.MessageTemplatesComponent;
 import pl.edu.icm.unity.webadmin.serverman.AuthenticatorsComponent;
 import pl.edu.icm.unity.webadmin.serverman.EndpointsComponent;
 import pl.edu.icm.unity.webadmin.serverman.ImportExportComponent;
-import pl.edu.icm.unity.webadmin.serverman.TranslationProfilesComponent;
+import pl.edu.icm.unity.webadmin.tprofile.TranslationProfilesComponent;
 
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
@@ -31,11 +32,11 @@ public class ServerManagementTab  extends VerticalLayout
 	private MainTabPanel tabs;
 
 	@Autowired
-	public ServerManagementTab(UnityMessageSource msg, ImportExportComponent ieComponent,EndpointsComponent eComponent,AuthenticatorsComponent aComponent,TranslationProfilesComponent tComponent)
+	public ServerManagementTab(UnityMessageSource msg, ImportExportComponent ieComponent,EndpointsComponent eComponent,AuthenticatorsComponent aComponent,TranslationProfilesComponent tComponent, MessageTemplatesComponent msgComponent)
 	{
 		super();
 		this.msg = msg;
-		this.tabs = new MainTabPanel(eComponent,aComponent,tComponent,ieComponent);
+		this.tabs = new MainTabPanel(eComponent, aComponent, tComponent, msgComponent, ieComponent);
 		this.tabs.setStyleName(Reindeer.TABSHEET_MINIMAL);
 		initUI();
 	}

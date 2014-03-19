@@ -27,7 +27,6 @@ import org.springframework.core.env.CommandLinePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.notifications.TemplatesStore;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -129,7 +128,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		defaults.put(MAIL_CONF, new PropertyMD().setPath().setCategory(mainCat).
 				setDescription("A configuration file for the mail notification subsystem."));
 		defaults.put(TEMPLATES_CONF, new PropertyMD("conf/msgTemplates.properties").setPath().setCategory(mainCat).
-				setDescription("A file with the default message templates."));
+				setDescription("A file with the initial message templates. You can have this file empty and manage the templates via the Admin UI."));
 		defaults.put(PKI_CONF, new PropertyMD("conf/pki.properties").setPath().setCategory(mainCat).
 				setDescription("A file with the configuration of the PKI: credentials and truststores."));
 		defaults.put(RECREATE_ENDPOINTS_ON_STARTUP, new PropertyMD("true").setCategory(mainCat).
@@ -241,7 +240,6 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	private UnityPKIConfiguration pkiConf;
 	private Map<String, Locale> enabledLocales;
 	private Locale defaultLocale;
-	private TemplatesStore templatesStore;
 	
 	@Autowired
 	public UnityServerConfiguration(Environment env, ConfigurationLocationProvider locProvider) throws ConfigurationException, IOException
@@ -254,7 +252,6 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		defaultLocale = safeLocaleDecode(getValue(DEFAULT_LOCALE));
 		if (!isLocaleSupported(defaultLocale))
 			throw new ConfigurationException("The default locale is not among enabled ones.");
-		templatesStore = loadTemplatesStore();
 
 		checkRealmNames();
 		
@@ -294,14 +291,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		log.debug("Using configuration file: " + configFile);
 		return configFile;
 	}
-	
-	private TemplatesStore loadTemplatesStore() throws IOException
-	{
-		File file = getFileValue(TEMPLATES_CONF, false);
-		Properties props = FilePropertiesHelper.load(file);
-		return new TemplatesStore(props, getDefaultLocale());
-	}
-	
+		
 	/**
 	 * @return map with enabled locales. Key is the user-friendly label. 
 	 */
@@ -366,11 +356,6 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public Map<String, Locale> getEnabledLocales()
 	{
 		return enabledLocales;
-	}
-	
-	public TemplatesStore getTemplatesStore()
-	{
-		return templatesStore;
 	}
 
 	public UnityPKIConfiguration getPKIConfiguration()

@@ -22,8 +22,14 @@
 	<bean class="pl.edu.icm.unity.server.registries.AttributeMetadataProvidersRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.NotificationFacilitiesRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.TranslationActionsRegistry"/>
+	<bean class="pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry"/>
 
 	<bean class="pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder"/>
+
+	<bean class="pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef"/>
+	<bean class="pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef"/>
+	<bean class="pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef"/>
+	<bean class="pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef"/>
 	
 	<beans profile="production">
 		<bean class="pl.edu.icm.unity.server.utils.DefaultConfigurationLocation"/>

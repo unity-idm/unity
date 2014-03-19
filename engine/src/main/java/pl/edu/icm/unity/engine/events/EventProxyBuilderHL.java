@@ -9,6 +9,7 @@ import java.lang.reflect.Proxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 
 /**
@@ -24,6 +25,8 @@ public class EventProxyBuilderHL
 	
 	@Autowired @Qualifier("plain")
 	private TranslationProfileManagement tprofileMan;
+	@Autowired @Qualifier("plain")
+	private MessageTemplateManagement msgTempMan;
 	
 	@Autowired
 	private EventProcessor eventProcessor;
@@ -36,4 +39,13 @@ public class EventProxyBuilderHL
 				new EventDecoratingHandler(tprofileMan, eventProcessor, 
 						TranslationProfileManagement.class.getSimpleName()));
 	}
+	
+	public MessageTemplateManagement getMessageTemplateManagementInstance()
+	{
+		return (MessageTemplateManagement) Proxy.newProxyInstance(classLoader, 
+				new Class[] {MessageTemplateManagement.class}, 
+				new EventDecoratingHandler(msgTempMan, eventProcessor, 
+						MessageTemplateManagement.class.getSimpleName()));
+	}
+	
 }

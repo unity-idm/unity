@@ -53,6 +53,8 @@
 	<bean class="pl.edu.icm.unity.db.generic.tprofile.TranslationProfileHandler"/>
 	<bean class="pl.edu.icm.unity.db.generic.realm.RealmDB"/>
 	<bean class="pl.edu.icm.unity.db.generic.realm.RealmHandler"/>
+	<bean class="pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB"/>
+	<bean class="pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateHandler"/>
 
 	<bean class="pl.edu.icm.unity.db.export.ImportExport"/>
 	<bean class="pl.edu.icm.unity.db.export.AttributeTypesIE"/>

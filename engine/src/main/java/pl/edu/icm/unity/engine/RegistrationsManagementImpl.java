@@ -26,6 +26,7 @@ import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
 import pl.edu.icm.unity.db.generic.cred.CredentialDB;
 import pl.edu.icm.unity.db.generic.credreq.CredentialRequirementDB;
+import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
@@ -44,6 +45,12 @@ import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.BaseRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.RegistrationWithCommentsTemplateDef;
+import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
@@ -82,11 +89,6 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 @Component
 public class RegistrationsManagementImpl implements RegistrationsManagement
 {
-	public static final String VAR_FORM = "formName";
-	public static final String VAR_REQUEST = "requestId";
-	public static final String VAR_PUB_COMMENT = "publicComment";
-	public static final String VAR_INTERNAL_COMMENT = "internalComment";
-	
 	private DBSessionManager db;
 	private RegistrationFormDB formsDB;
 	private RegistrationRequestDB requestDB;
@@ -96,6 +98,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private DBAttributes dbAttributes;
 	private DBIdentities dbIdentities;
 	private DBGroups dbGroups;
+	private MessageTemplateDB msgTplDB;
 	
 	private GroupResolver groupsResolver;
 	private IdentityTypesRegistry identityTypesRegistry;
@@ -113,7 +116,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			GroupResolver groupsResolver, IdentityTypesRegistry identityTypesRegistry,
 			LocalCredentialsRegistry authnRegistry, AuthorizationManager authz,
 			EngineHelper engineHelper, AttributesHelper attributesHelper,
-			NotificationProducerImpl notificationProducer)
+			NotificationProducerImpl notificationProducer, MessageTemplateDB msgTplDB)
 	{
 		this.db = db;
 		this.formsDB = formsDB;
@@ -131,6 +134,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		this.engineHelper = engineHelper;
 		this.attributesHelper = attributesHelper;
 		this.notificationProducer = notificationProducer;
+		this.msgTplDB = msgTplDB;
 	}
 
 	@Override
@@ -706,9 +710,18 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (form.getInitialEntityState() == null)
 			throw new WrongArgumentException("Initial entity state must be set in the form.");
 		
-		if (form.getNotificationsConfiguration() == null)
+		RegistrationFormNotifications notCfg = form.getNotificationsConfiguration();
+		if (notCfg == null)
 			throw new WrongArgumentException("NotificationsConfiguration must be set in the form.");
-		
+		checkTemplate(notCfg.getAcceptedTemplate(), AcceptRegistrationTemplateDef.NAME,
+				sql, "accepted registration request");
+		checkTemplate(notCfg.getRejectedTemplate(), RejectRegistrationTemplateDef.NAME,
+				sql, "rejected registration request");
+		checkTemplate(notCfg.getSubmittedTemplate(), SubmitRegistrationTemplateDef.NAME,
+				sql, "submitted registration request");
+		checkTemplate(notCfg.getUpdatedTemplate(), UpdateRegistrationTemplateDef.NAME,
+				sql, "updated registration request");
+
 		if (form.getAgreements() != null)
 		{
 			for (AgreementRegistrationParam o: form.getAgreements())
@@ -719,11 +732,23 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		}
 	}
 	
+	private void checkTemplate(String tpl, String compatibleDef, SqlSession sql, String purpose) throws EngineException
+	{
+		if (tpl != null)
+		{
+			if (!msgTplDB.exists(tpl, sql))
+				throw new WrongArgumentException("Form has an unknown message template " + tpl);
+			if (!compatibleDef.equals(msgTplDB.get(tpl, sql).getConsumer()))
+				throw new WrongArgumentException("Template " + tpl + 
+						" is not suitable as the " + purpose + " template");
+		}
+	}
+	
 	private Map<String, String> getBaseNotificationParams(String formId, String requestId)
 	{
 		Map<String, String> ret = new HashMap<>();
-		ret.put(VAR_FORM, formId);
-		ret.put(VAR_REQUEST, requestId);
+		ret.put(BaseRegistrationTemplateDef.FORM_NAME, formId);
+		ret.put(BaseRegistrationTemplateDef.REQUEST_ID, requestId);
 		return ret;
 	}
 	
@@ -742,8 +767,9 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (notificationsCfg.getChannel() == null || templateId == null)
 			return;
 		Map<String, String> notifyParams = getBaseNotificationParams(formId, requestId);
-		notifyParams.put(VAR_PUB_COMMENT, publicComment == null ? "" : publicComment.getContents());
-		notifyParams.put(VAR_INTERNAL_COMMENT, "");
+		notifyParams.put(RegistrationWithCommentsTemplateDef.PUBLIC_COMMENT, 
+				publicComment == null ? "" : publicComment.getContents());
+		notifyParams.put(RegistrationWithCommentsTemplateDef.INTERNAL_COMMENT, "");
 		String requesterAddress = getRequesterAddress(currentRequest, notificationsCfg, sql);
 		if (requesterAddress != null)
 		{
@@ -756,7 +782,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		
 		if (notificationsCfg.getAdminsNotificationGroup() != null)
 		{
-			notifyParams.put(VAR_INTERNAL_COMMENT, internalComment == null ? "" : internalComment.getContents());
+			notifyParams.put(RegistrationWithCommentsTemplateDef.INTERNAL_COMMENT, 
+					internalComment == null ? "" : internalComment.getContents());
 			notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(), 
 				notificationsCfg.getChannel(), 
 				templateId,

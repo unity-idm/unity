@@ -21,13 +21,6 @@ public class MapGroupActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "mapGroup";
 	
-	private static final ActionParameterDesc[] PARAMS = {
-		new ActionParameterDesc(true, "replaced", 
-				"Groups which have a name matching this regular expression will be mapped.", 20),
-		new ActionParameterDesc(true, "replacement", 
-				"A unity name of a group, may contain references to regexp groups from the first parameter.", 20)
-	};
-	
 	@Override
 	public String getName()
 	{
@@ -35,15 +28,25 @@ public class MapGroupActionFactory implements TranslationActionFactory
 	}
 
 	@Override
-	public String getDescription()
+	public String getDescriptionKey()
 	{
-		return "Maps a remote group to a local group.";
+		return "TranslationAction.mapGroup.desc";
 	}
 
 	@Override
 	public ActionParameterDesc[] getParameters()
 	{
-		return PARAMS;
+		return new ActionParameterDesc[] {
+				new ActionParameterDesc(
+						true,
+						"replaced",
+						"TranslationAction.mapGroup.param.replaced.desc",
+						20),
+				new ActionParameterDesc(
+						true,
+						"replacement",
+						"TranslationAction.mapGroup.param.replacement.desc",
+						20)};
 	}
 
 	@Override
