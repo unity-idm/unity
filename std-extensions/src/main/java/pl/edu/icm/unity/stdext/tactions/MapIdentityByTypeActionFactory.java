@@ -4,14 +4,12 @@
  */
 package pl.edu.icm.unity.stdext.tactions;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 /**
  * Factory for {@link MapAttributeToIdentityAction}.
@@ -22,13 +20,6 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 public class MapIdentityByTypeActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "mapIdentityByType";
-	private UnityMessageSource msg;
-	
-	@Autowired
-	public MapIdentityByTypeActionFactory(UnityMessageSource msg)
-	{
-		this.msg = msg;
-	}
 	
 	@Override
 	public String getName()
@@ -37,9 +28,9 @@ public class MapIdentityByTypeActionFactory implements TranslationActionFactory
 	}
 
 	@Override
-	public String getDescription()
+	public String getDescriptionKey()
 	{
-		return msg.getMessage("TranslationAction.mapIdentityByType.desc");
+		return "TranslationAction.mapIdentityByType.desc";
 	}
 
 	@Override
@@ -48,18 +39,18 @@ public class MapIdentityByTypeActionFactory implements TranslationActionFactory
 		return new ActionParameterDesc[] {
 				new ActionParameterDesc(
 						true,
-						msg.getMessage("TranslationAction.mapIdentityByType.param.1.name"),
-						msg.getMessage("TranslationAction.mapIdentityByType.param.1.desc"),
+						"sourceIdentityType",
+						"TranslationAction.mapIdentityByType.param.sourceIdentityType.desc",
 						20),
 				new ActionParameterDesc(
 						true,
-						msg.getMessage("TranslationAction.mapIdentityByType.param.2.name"),
-						msg.getMessage("TranslationAction.mapIdentityByType.param.2.desc"),
+						"targetIdentityType",
+						"TranslationAction.mapIdentityByType.param.targetIdentityType.desc",
 						20),
 				new ActionParameterDesc(
 						true,
-						msg.getMessage("TranslationAction.mapIdentityByType.param.3.name"),
-						msg.getMessage("TranslationAction.mapIdentityByType.param.3.desc"),
+						"credentialRequirement",
+						"TranslationAction.mapIdentityByType.param.credentialRequirement.desc",
 						20) };
 	}
 

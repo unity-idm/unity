@@ -14,7 +14,6 @@ import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 /**
  * Factory for {@link CreateUserAction}
@@ -25,17 +24,16 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 public class CreateUserActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "createUser";
-	private UnityMessageSource msg;
+	
 	private AttributesManagement attrsMan;
 	private IdentitiesManagement idsMan;
 
 	@Autowired
 	public CreateUserActionFactory(@Qualifier("insecure") AttributesManagement attrsMan, 
-			@Qualifier("insecure") IdentitiesManagement idsMan, UnityMessageSource msg)
+			@Qualifier("insecure") IdentitiesManagement idsMan)
 	{
 		this.attrsMan = attrsMan;
 		this.idsMan = idsMan;
-		this.msg = msg;
 	}
 	
 	@Override
@@ -45,17 +43,17 @@ public class CreateUserActionFactory implements TranslationActionFactory
 	}
 
 	@Override
-	public String getDescription()
+	public String getDescriptionKey()
 	{
-		return msg.getMessage("TranslationAction.createUser.desc");
+		return "TranslationAction.createUser.desc";
 	}
 
 	@Override
 	public ActionParameterDesc[] getParameters()
 	{
 		return new ActionParameterDesc[] { new ActionParameterDesc(true,
-				msg.getMessage("TranslationAction.createUser.param.1.name"),
-				msg.getMessage("TranslationAction.createUser.param.1.desc"), 20) };
+				"with attributes",
+				"TranslationAction.createUser.param.withAttributes.desc", 20) };
 	}
 
 	@Override

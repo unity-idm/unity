@@ -12,7 +12,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
  */
 public interface TranslationActionFactory
 {
-	public String getDescription();
+	public String getDescriptionKey();
 	public String getName();
 	public ActionParameterDesc[] getParameters();
 	

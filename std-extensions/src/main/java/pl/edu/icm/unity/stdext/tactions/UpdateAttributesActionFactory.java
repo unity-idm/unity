@@ -13,7 +13,6 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 /**
  * Factory for {@link UpdateAttributesAction}
@@ -25,12 +24,10 @@ public class UpdateAttributesActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "updateAttributes";
 	private AttributesManagement attrsMan;
-	private UnityMessageSource msg;
 	
 	@Autowired
-	public UpdateAttributesActionFactory(@Qualifier("insecure") AttributesManagement attrsMan, UnityMessageSource msg)
+	public UpdateAttributesActionFactory(@Qualifier("insecure") AttributesManagement attrsMan)
 	{
-		this.msg = msg;
 		this.attrsMan = attrsMan;
 	}
 	
@@ -41,9 +38,9 @@ public class UpdateAttributesActionFactory implements TranslationActionFactory
 	}
 
 	@Override
-	public String getDescription()
+	public String getDescriptionKey()
 	{
-		return msg.getMessage("TranslationAction.updateAttributes.desc");
+		return "TranslationAction.updateAttributes.desc";
 	}
 
 	@Override
@@ -52,13 +49,13 @@ public class UpdateAttributesActionFactory implements TranslationActionFactory
 		return new ActionParameterDesc[] {
 				new ActionParameterDesc(
 						true,
-						msg.getMessage("TranslationAction.updateAttributes.param.1.name"),
-						msg.getMessage("TranslationAction.updateAttributes.param.1.desc"),
+						"pattern",
+						"TranslationAction.updateAttributes.param.pattern.desc",
 						20),
 				new ActionParameterDesc(
 						true,
-						msg.getMessage("TranslationAction.updateAttributes.param.2.name"),
-						msg.getMessage("TranslationAction.updateAttributes.param.2.desc"),
+						"valuesOnly",
+						"TranslationAction.updateAttributes.param.valuesOnly.desc",
 						10) };
 	}
 

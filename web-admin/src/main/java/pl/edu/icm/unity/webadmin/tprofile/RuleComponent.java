@@ -272,7 +272,7 @@ public class RuleComponent extends VerticalLayout
 			return;
 		}
 		
-		helpAction.setDescription(factory.getDescription());
+		helpAction.setDescription(msg.getMessage(factory.getDescriptionKey()));
 		ActionParameterDesc[] params = factory.getParameters();	
 		for (int i = 0; i < params.length; i++)
 		{
@@ -286,7 +286,7 @@ public class RuleComponent extends VerticalLayout
 			{
 				p = new TextField(params[i].getName() + ":");
 			}
-			p.setDescription(params[i].getDescription());
+			p.setDescription(msg.getMessage(params[i].getDescriptionKey()));
 			if (values != null && values[i] != null)
 			{
 				p.setValue(values[i]);

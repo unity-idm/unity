@@ -4,14 +4,12 @@
  */
 package pl.edu.icm.unity.stdext.tactions;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 /**
  * Factory for {@link MapIdentityAction}.
@@ -22,13 +20,6 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 public class MapIdentityActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "mapIdentity";
-	private UnityMessageSource msg;
-	
-	@Autowired
-	public MapIdentityActionFactory(UnityMessageSource msg)
-	{
-		this.msg = msg;
-	}
 	
 	@Override
 	public String getName()
@@ -37,9 +28,9 @@ public class MapIdentityActionFactory implements TranslationActionFactory
 	}
 
 	@Override
-	public String getDescription()
+	public String getDescriptionKey()
 	{
-		return msg.getMessage("TranslationAction.mapIdentity.desc");
+		return "TranslationAction.mapIdentity.desc";
 	}
 
 	@Override
@@ -48,18 +39,18 @@ public class MapIdentityActionFactory implements TranslationActionFactory
 		return new ActionParameterDesc[] {
 				new ActionParameterDesc(
 						true,
-						msg.getMessage("TranslationAction.mapIdentity.param.1.name"),
-						msg.getMessage("TranslationAction.mapIdentity.param.1.desc"),
+						"replaced",
+						"TranslationAction.mapIdentity.param.replaced.desc",
 						20),
 				new ActionParameterDesc(
 						true,
-						msg.getMessage("TranslationAction.mapIdentity.param.2.name"),
-						msg.getMessage("TranslationAction.mapIdentity.param.2.desc"),
+						"replacement",
+						"TranslationAction.mapIdentity.param.replacement.desc",
 						20),
 				new ActionParameterDesc(
 						true,
-						msg.getMessage("TranslationAction.mapIdentity.param.3.name"),
-						msg.getMessage("TranslationAction.mapIdentity.param.3.desc"),
+						"credential requirement",
+						"TranslationAction.mapIdentity.param.credentialRequirement.desc",
 						20) };
 	}
 

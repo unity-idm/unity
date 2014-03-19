@@ -14,7 +14,6 @@ import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 /**
  * Factory for {@link UpdateGroupsAction}
@@ -25,15 +24,13 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 public class UpdateGroupsActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "updateGroups";
-	private UnityMessageSource msg;
 	private GroupsManagement groupsMan;
 	private IdentitiesManagement idsMan;
 
 	@Autowired
 	public UpdateGroupsActionFactory(@Qualifier("insecure") GroupsManagement groupsMan, 
-			@Qualifier("insecure") IdentitiesManagement idsMan, UnityMessageSource msg)
+			@Qualifier("insecure") IdentitiesManagement idsMan)
 	{
-		this.msg = msg;
 		this.groupsMan = groupsMan;
 		this.idsMan = idsMan;
 	}
@@ -45,17 +42,17 @@ public class UpdateGroupsActionFactory implements TranslationActionFactory
 	}
 
 	@Override
-	public String getDescription()
+	public String getDescriptionKey()
 	{
-		return msg.getMessage("TranslationAction.updateGroups.desc");
+		return "TranslationAction.updateGroups.desc";
 	}
 
 	@Override
 	public ActionParameterDesc[] getParameters()
 	{
 		return new ActionParameterDesc[] { new ActionParameterDesc(true,
-				msg.getMessage("TranslationAction.updateGroups.param.1.name"),
-				msg.getMessage("TranslationAction.updateGroups.param.1.desc"), 20) };
+				"groups",
+				"TranslationAction.updateGroups.param.groups.desc", 20) };
 	}
 
 	@Override
