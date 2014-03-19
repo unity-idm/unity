@@ -229,7 +229,10 @@ public class AuthenticationProcessor
 	{
 		InvocationContext invocationContext = InvocationContext.getCurrent();
 		LoginSession ls = invocationContext.getLoginSession();
-		sessionMan.removeSession(ls.getId(), soft);
+		if (ls != null)
+			sessionMan.removeSession(ls.getId(), soft);
+		else
+			throw new IllegalStateException("There is no login session");
 	}
 	
 	public void logout()

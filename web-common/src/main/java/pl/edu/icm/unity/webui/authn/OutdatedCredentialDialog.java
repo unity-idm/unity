@@ -93,6 +93,7 @@ public class OutdatedCredentialDialog extends AbstractDialog
 			protected void onConfirm()
 			{
 				OutdatedCredentialDialog.this.onCancel();
+				close();
 			}
 			
 			@Override

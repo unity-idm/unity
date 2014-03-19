@@ -49,9 +49,7 @@ public class LoginToHttpSessionBinder
 				if (!soft)
 					sw.session.invalidate();
 				else
-				{
 					sw.session.removeAttribute(USER_SESSION_KEY);
-				}
 			}
 		}
 	}
