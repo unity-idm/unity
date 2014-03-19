@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.authn.credreset;
 
+import org.apache.log4j.Logger;
+
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
@@ -16,6 +18,7 @@ import com.vaadin.ui.Button.ClickEvent;
 
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
 import pl.edu.icm.unity.server.authn.CredentialReset;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
@@ -32,6 +35,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
  */
 public class CredentialReset3Dialog extends AbstractDialog
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, CredentialReset3Dialog.class);
 	private UnityMessageSource msg;
 	private CredentialReset backend;
 	private String username;
@@ -69,6 +73,7 @@ public class CredentialReset3Dialog extends AbstractDialog
 			ErrorPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("CredentialReset.resetNotPossible"));
 			CredentialResetStateVariable.reset();
+			log.debug("Credential reset e-mail notification failed", e);
 			throw e;
 		}
 		
@@ -89,6 +94,7 @@ public class CredentialReset3Dialog extends AbstractDialog
 					resend.setEnabled(false);
 				} catch (Exception e)
 				{
+					log.debug("Credential reset e-mail notification failed", e);
 					ErrorPopup.showError(msg, msg.getMessage("error"),
 							msg.getMessage("CredentialReset.resetNotPossible"));
 					onCancel();

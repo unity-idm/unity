@@ -170,9 +170,9 @@ public class CredentialResetImpl implements CredentialReset
 		Map<String, String> params = new HashMap<>();
 		params.put(PasswordResetTemplateDef.VAR_CODE, codeSent);
 		params.put(PasswordResetTemplateDef.VAR_USER, subject.getIdentity().getValue());
-		//FIXME - we need to have a setting for the actual message tempalte
+		String msgTemplate = settings.getSecurityCodeMsgTemplate();
 		notificationProducer.sendNotification(subject, UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL, 
-					PasswordResetTemplateDef.NAME, params);
+					msgTemplate, params);
 	}
 
 

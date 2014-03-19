@@ -23,6 +23,7 @@ public class CredentialResetSettings
 	private boolean requireSecurityQuestion = true;
 	private int codeLength = 4;
 	private List<String> questions = new ArrayList<>();
+	private String securityCodeMsgTemplate;
 	
 	public CredentialResetSettings()
 	{
@@ -78,6 +79,16 @@ public class CredentialResetSettings
 		this.questions = questions;
 	}
 
+	public String getSecurityCodeMsgTemplate()
+	{
+		return securityCodeMsgTemplate;
+	}
+
+	public void setSecurityCodeMsgTemplate(String securityCodeMsgTemplate)
+	{
+		this.securityCodeMsgTemplate = securityCodeMsgTemplate;
+	}
+
 	public void serializeTo(ObjectNode node)
 	{
 		node.put("enable", enabled);
@@ -89,6 +100,7 @@ public class CredentialResetSettings
 		ArrayNode questionsNode = node.putArray("questions");
 		for (String question: questions)
 			questionsNode.add(question);
+		node.put("securityCodeMsgTemplate", securityCodeMsgTemplate);
 	}
 	
 	public void deserializeFrom(ObjectNode node)
@@ -105,5 +117,10 @@ public class CredentialResetSettings
 					"if questions are required");
 		for (int i=0; i<questionsNode.size(); i++)
 			this.questions.add(questionsNode.get(i).asText());
+		
+		if (node.has("securityCodeMsgTemplate") && !node.get("securityCodeMsgTemplate").isNull())
+			securityCodeMsgTemplate = node.get("securityCodeMsgTemplate").asText();
+		else
+			securityCodeMsgTemplate = "PasswordResetCode"; //backwards compatibility
 	}
 }

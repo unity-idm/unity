@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -19,9 +20,15 @@ import com.vaadin.ui.ComboBox;
 public class CompatibleTemplatesComboBox extends ComboBox
 {
 	public CompatibleTemplatesComboBox(String definitionName, MessageTemplateManagement msgTplMan) 
-			throws EngineException
 	{
-		Map<String, MessageTemplate> templates = msgTplMan.getCompatibleTemplates(definitionName);
+		Map<String, MessageTemplate> templates;
+		try
+		{
+			templates = msgTplMan.getCompatibleTemplates(definitionName);
+		} catch (EngineException e)
+		{
+			templates = new HashMap<>();
+		}
 		for (String key: templates.keySet())
 		{
 			addItem(key);
