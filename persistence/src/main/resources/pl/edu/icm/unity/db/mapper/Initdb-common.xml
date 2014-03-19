@@ -12,7 +12,7 @@
 	<update id="initdb-02">
 CREATE TABLE ATTRIBUTE_TYPES(
 		<include refid="defaultColsMemU"/>,
-		VALUE_SYNTAX_ID VARCHAR(64),
+		VALUE_SYNTAX_ID VARCHAR(64)
 		<include refid="tableOpts"/>
 	</update>
 
@@ -28,13 +28,13 @@ CREATE TABLE IDENTITIES(
 		TYPE_ID INTEGER,
 		ENTITY_ID INTEGER NOT NULL,
 		FOREIGN KEY (TYPE_ID) REFERENCES IDENTITY_TYPES(ID),
-		FOREIGN KEY (ENTITY_ID) REFERENCES ENTITIES(ID) ON DELETE CASCADE,
+		FOREIGN KEY (ENTITY_ID) REFERENCES ENTITIES(ID) ON DELETE CASCADE
 		<include refid="tableOpts"/>
 	</update>
 
 	<update id="initdb-05">
 CREATE TABLE GROUPS(
-		<include refid="defaultColsBlob"/>
+		<include refid="defaultColsBlob"/>,
 		PARENT_ID INTEGER,
 		FOREIGN KEY (PARENT_ID) REFERENCES GROUPS(ID) ON DELETE CASCADE,
 		UNIQUE(PARENT_ID, NAME)	
@@ -47,8 +47,7 @@ CREATE TABLE ATTRIBUTES(
 		TYPE_ID INTEGER NOT NULL,
 		ENTITY_ID INTEGER NOT NULL,
 		GROUP_ID INTEGER NOT NULL,
-		VALUES MEDIUMBLOB,
-		
+		`VALUES` MEDIUMBLOB,
 		FOREIGN KEY (ENTITY_ID) REFERENCES ENTITIES(ID) ON DELETE CASCADE,	
 		FOREIGN KEY (TYPE_ID) REFERENCES ATTRIBUTE_TYPES(ID) ON DELETE CASCADE,
 		FOREIGN KEY (GROUP_ID) REFERENCES GROUPS(ID) ON DELETE CASCADE	
@@ -77,9 +76,9 @@ CREATE TABLE GROUP_LINKS(
 
 	<update id="initdb-09">
 CREATE TABLE VAR_OBJECTS(
-		<include refid="defaultColsMem"/>
+		<include refid="defaultColsMem"/>,
 		TYPE VARCHAR(100),
-		<include refid="subTypeCol"/>
+		<include refid="subTypeCol"/>,
 		LAST_UPDATE TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 		UNIQUE(NAME, TYPE)
 		<include refid="tableOpts"/>		
@@ -87,9 +86,9 @@ CREATE TABLE VAR_OBJECTS(
 
 	<update id="initdb-10">
 CREATE TABLE VAR_BIG_OBJECTS(
-		<include refid="defaultColsBlob"/>
+		<include refid="defaultColsBlob"/>,
 		TYPE VARCHAR(100),
-		<include refid="subTypeCol"/>
+		<include refid="subTypeCol"/>,
 		LAST_UPDATE TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 		UNIQUE(NAME, TYPE)
 		<include refid="tableOpts"/>		
@@ -97,13 +96,13 @@ CREATE TABLE VAR_BIG_OBJECTS(
 
 	<sql id="sql-initTokensTable">
 CREATE TABLE TOKENS(
-		<include refid="defaultColsBlob"/>
+		<include refid="defaultColsBlob"/>,
 		TYPE VARCHAR(100),
 		ENTITY_ID INTEGER NOT NULL,
 		CREATED DATETIME NOT NULL,
 		EXPIRES DATETIME,
 		UNIQUE(NAME, TYPE),
-		FOREIGN KEY (ENTITY_ID) REFERENCES ENTITIES(ID) ON DELETE CASCADE,
+		FOREIGN KEY (ENTITY_ID) REFERENCES ENTITIES(ID) ON DELETE CASCADE
 		<include refid="tableOpts"/>
 	</sql>
 

@@ -72,6 +72,33 @@ always handled by the H2 database engine, so only the database storage location 
 
 include::ref-dbProperties.txt[]
 
+==== MySQL setup
+
+The setup of MySQL requires creation of a database with a separate user which is able to connect to the database.
+In mysql console (when logged with admin privileges) execute:
+ 
+ CREATE DATABASE unitydb;
+ GRANT ALL PRIVILEGES ON unitydb.* to 'unity'@'localhost' IDENTIFIED BY 'unitypass';
+ 
+using the desired database name, username and password. If the database is on a different host then the Unity instance,
+change to localhost to a proper host of Unity installation or use +%+ to allow connections from any host.  
+
+Test if the connection works with:
+
+ mysql -p -u unity unitydb
+
+and give the password.
+
+Unity server will setup all tables automatically on startup.
+
+To configure Unity to use the database change the database JDBC URI as well as add the username, password and dialect:
+ 
+----
+unityServer.db.jdbcUrl=jdbc:mysql://localhost/unitydb
+unityServer.db.dialect=mysql
+unityServer.db.password=unitypass
+unityServer.db.username=unity
+----
 
 [[pki]]
 === PKI settings

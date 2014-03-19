@@ -6,19 +6,19 @@
 	<sql id="defaultColsBlob">
 		ID INTEGER PRIMARY KEY AUTO_INCREMENT,
 		NAME VARCHAR(200),
-		CONTENTS MEDIUMBLOB,
+		CONTENTS MEDIUMBLOB
 	</sql>
 	<sql id="defaultColsMem">
 		ID INTEGER PRIMARY KEY AUTO_INCREMENT,
 		NAME VARCHAR(200),
-		CONTENTS VARBINARY(60000),
+		CONTENTS VARBINARY(60000)
 	</sql>
 	<sql id="defaultColsMemU">
-		<include refid="defaultColsMem"/>
+		<include refid="defaultColsMem"/>,
 		UNIQUE(NAME)
 	</sql>
 	<sql id="subTypeCol">
-		SUB_TYPE VARCHAR(200),
+		SUB_TYPE VARCHAR(200)
 	</sql>
 	<sql id="tableOpts">
 		);
