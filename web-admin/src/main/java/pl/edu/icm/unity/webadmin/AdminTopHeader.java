@@ -12,6 +12,7 @@ import com.vaadin.ui.Link;
 import com.vaadin.ui.themes.Reindeer;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.TopHeader;
 
@@ -26,9 +27,10 @@ public class AdminTopHeader extends TopHeader
 	private Button switchView;
 	private ViewSwitchCallback callback;
 	
-	public AdminTopHeader(String title, UnityMessageSource msg, ViewSwitchCallback callback)
+	public AdminTopHeader(String title, AuthenticationProcessor authnProcessor, UnityMessageSource msg, 
+			ViewSwitchCallback callback)
 	{
-		super(title, msg);
+		super(title, authnProcessor, msg);
 		this.callback = callback;
 	}
 

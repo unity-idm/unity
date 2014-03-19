@@ -20,7 +20,6 @@ import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.security.wsutil.client.WSClientFactory;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
-
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
@@ -28,6 +27,7 @@ import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -48,6 +48,9 @@ public class TestWSCore extends DBIntegrationTestBase
 	{
 		setupMockAuthn();
 		createUsers();
+		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
+				5, 1, -1, 600);
+		realmsMan.addRealm(realm);
 		
 		List<EndpointTypeDescription> endpointTypes = endpointMan.getEndpointTypes();
 		assertEquals(1, endpointTypes.size());
@@ -55,7 +58,7 @@ public class TestWSCore extends DBIntegrationTestBase
 
 		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
 		authnCfg.add(new AuthenticatorSet(Collections.singleton("Apass")));
-		endpointMan.deploy(type.getName(), "endpoint1", "/mock", "desc", authnCfg, "");
+		endpointMan.deploy(type.getName(), "endpoint1", "/mock", "desc", authnCfg, "", realm.getName());
 
 		httpServer.start();
 		
@@ -119,6 +122,9 @@ public class TestWSCore extends DBIntegrationTestBase
 			//ok
 		}
 		
+//		Thread.sleep(1100);
+//		//reset
+//		wsProxyOK.getAuthenticatedUser();
 	}
 	
 	@Test
@@ -126,6 +132,9 @@ public class TestWSCore extends DBIntegrationTestBase
 	{
 		setupMockAuthn();
 		createUsers();
+		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
+				10, 100, -1, 600);
+		realmsMan.addRealm(realm);
 		
 		List<EndpointTypeDescription> endpointTypes = endpointMan.getEndpointTypes();
 		assertEquals(1, endpointTypes.size());
@@ -134,7 +143,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
 		authnCfg.add(new AuthenticatorSet(Collections.singleton("Apass")));
 		authnCfg.add(new AuthenticatorSet(Collections.singleton("Acert")));
-		endpointMan.deploy(type.getName(), "endpoint1", "/mock", "desc", authnCfg, "");
+		endpointMan.deploy(type.getName(), "endpoint1", "/mock", "desc", authnCfg, "", realm.getName());
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 
@@ -203,7 +212,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		setC.add("Apass");
 		setC.add("Acert");
 		authnCfg2.add(new AuthenticatorSet(setC));
-		endpointMan.deploy(type.getName(), "endpoint2", "/mock2", "desc", authnCfg2, "");
+		endpointMan.deploy(type.getName(), "endpoint2", "/mock2", "desc", authnCfg2, "", realm.getName());
 		
 		clientCfg.setSslAuthn(true);
 		clientCfg.setHttpAuthn(true);

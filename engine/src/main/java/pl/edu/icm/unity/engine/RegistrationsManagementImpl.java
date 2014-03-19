@@ -43,8 +43,8 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
@@ -285,7 +285,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				currentRequest.setRequest(finalRequest);
 			}
 			InvocationContext authnCtx = InvocationContext.getCurrent();
-			AuthenticatedEntity client = authnCtx.getAuthenticatedEntity();
+			LoginSession client = authnCtx.getLoginSession();
 			AdminComment publicComment = null;
 			AdminComment internalComment = null;
 			if (publicCommentStr != null)
@@ -395,7 +395,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			IdentityParam idParam = identities.get(i);
 			if (idParam == null)
 				continue;
-			dbIdentities.insertIdentity(idParam, initial.getEntityId(), sql);
+			dbIdentities.insertIdentity(idParam, initial.getEntityId(), false, sql);
 		}
 
 		Set<String> sortedGroups = new TreeSet<>();

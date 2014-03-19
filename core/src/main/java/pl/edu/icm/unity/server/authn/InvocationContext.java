@@ -5,10 +5,14 @@
 package pl.edu.icm.unity.server.authn;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 
 
 /**
@@ -24,10 +28,11 @@ public class InvocationContext implements Serializable
 
 	private static ThreadLocal<InvocationContext> threadLocal = new ThreadLocal<InvocationContext>();
 
-	private AuthenticatedEntity authenticatedEntity;
+	private LoginSession loginSession;
 	private Locale locale;
 	private IdentityTaV tlsIdentity; 
-	
+	private Set<String> authenticatedIdentities = new LinkedHashSet<>();	
+
 	/**
 	 * @param tlsIdentity TLS client-authenticated identity (of X500 type) or null if there is no TLS 
 	 * client connection context or it is not client authenticated.
@@ -50,14 +55,14 @@ public class InvocationContext implements Serializable
 		return ret;
 	}
 
-	public AuthenticatedEntity getAuthenticatedEntity()
+	public LoginSession getLoginSession()
 	{
-		return authenticatedEntity;
+		return loginSession;
 	}
 
-	public void setAuthenticatedEntity(AuthenticatedEntity authenticatedEntity)
+	public void setLoginSession(LoginSession loginSession)
 	{
-		this.authenticatedEntity = authenticatedEntity;
+		this.loginSession = loginSession;
 	}
 
 	/**
@@ -88,5 +93,15 @@ public class InvocationContext implements Serializable
 	public void setTlsIdentity(IdentityTaV tlsIdentity)
 	{
 		this.tlsIdentity = tlsIdentity;
+	}
+
+	public Set<String> getAuthenticatedIdentities()
+	{
+		return authenticatedIdentities;
+	}
+
+	public void addAuthenticatedIdentities(Collection<String> identity)
+	{
+		this.authenticatedIdentities.addAll(identity);
 	}
 }

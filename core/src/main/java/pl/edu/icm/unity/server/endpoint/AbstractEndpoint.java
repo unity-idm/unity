@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -32,12 +33,13 @@ public abstract class AbstractEndpoint implements EndpointInstance
 	@Override
 	public synchronized void initialize(String id, URL baseUrl, String contextAddress, String description, 
 			List<AuthenticatorSet> authenticatorsInfo, List<Map<String, BindingAuthn>> authenticators,
-			String serializedConfiguration)
+			AuthenticationRealm realm, String serializedConfiguration)
 	{
 		this.description.setId(id);
 		this.description.setDescription(description);
 		this.description.setContextAddress(contextAddress);
 		this.description.setAuthenticatorSets(authenticatorsInfo);
+		this.description.setRealm(realm);
 		this.authenticators = authenticators;
 		this.baseUrl = baseUrl;
 		setSerializedConfiguration(serializedConfiguration);

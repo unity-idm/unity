@@ -30,7 +30,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 @Component
 public class DB
 {
-	public static final String DB_VERSION = "2_0_0";
+	public static final String DB_VERSION = "2_1_0";
 	
 	private DBLimits limits;
 	private DBLimits localLimits;
@@ -59,8 +59,8 @@ public class DB
 		}
 		if (!actualDbVersion.equals(DB.DB_VERSION))
 			throw new InternalException("The database is initialized with " +
-				"wrong schema. It is of UVOS version: " + actualDbVersion + 
-				" while you are using now UVOS version:" + DB.DB_VERSION);
+				"wrong schema. It is of version: " + actualDbVersion + 
+				" while you are using now version:" + DB.DB_VERSION);
 	}
 	
 	public DBLimits getDBLimits()

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.db.generic.realm.RealmDB;
 import pl.edu.icm.unity.engine.authn.AuthenticatorLoader;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
@@ -31,6 +32,7 @@ import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.registries.EndpointFactoriesRegistry;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -50,13 +52,14 @@ public class EndpointManagementImpl implements EndpointManagement
 	private EndpointsUpdater endpointsUpdater;
 	private AuthorizationManager authz;
 	private EndpointDB endpointDB;
+	private RealmDB realmDB;
 	
 	@Autowired
 	public EndpointManagementImpl(EndpointFactoriesRegistry endpointFactoriesReg,
 			DBSessionManager db, AuthenticatorLoader authnLoader,
 			JettyServer httpServer, InternalEndpointManagement internalManagement,
 			EndpointsUpdater endpointsUpdater, AuthorizationManager authz,
-			EndpointDB endpointDB)
+			EndpointDB endpointDB, RealmDB realmDB)
 	{
 		this.endpointFactoriesReg = endpointFactoriesReg;
 		this.db = db;
@@ -66,6 +69,7 @@ public class EndpointManagementImpl implements EndpointManagement
 		this.endpointsUpdater = endpointsUpdater;
 		this.authz = authz;
 		this.endpointDB = endpointDB;
+		this.realmDB = realmDB;
 	}
 
 
@@ -89,17 +93,17 @@ public class EndpointManagementImpl implements EndpointManagement
 	 */
 	@Override
 	public EndpointDescription deploy(String typeId, String endpointName, String address, String description,
-			List<AuthenticatorSet> authn, String jsonConfiguration) throws EngineException 
+			List<AuthenticatorSet> authn, String jsonConfiguration, String realm) throws EngineException 
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		synchronized(internalManagement)
 		{
-			return deployInt(typeId, endpointName, address, description, authn, jsonConfiguration);
+			return deployInt(typeId, endpointName, address, description, authn, realm, jsonConfiguration);
 		}
 	}
 
 	private EndpointDescription deployInt(String typeId, String endpointName, String address, String description,
-			List<AuthenticatorSet> authenticatorsInfo, String jsonConfiguration) throws EngineException 
+			List<AuthenticatorSet> authenticatorsInfo, String realmName, String jsonConfiguration) throws EngineException 
 	{
 		EndpointFactory factory = endpointFactoriesReg.getById(typeId);
 		if (factory == null)
@@ -114,8 +118,10 @@ public class EndpointManagementImpl implements EndpointManagement
 			List<Map<String, BindingAuthn>> authenticators = authnLoader.getAuthenticators(
 					authenticatorsInfo, sql);
 			verifyAuthenticators(authenticators, factory.getDescription().getSupportedBindings());
+			AuthenticationRealm realm = realmDB.get(realmName, sql);
 			instance.initialize(endpointName, httpServer.getAdvertisedAddress(), 
-					address, description, authenticatorsInfo, authenticators, jsonConfiguration);
+					address, description, authenticatorsInfo, authenticators, 
+					realm, jsonConfiguration);
 
 			endpointDB.insert(endpointName, instance, sql);
 			httpServer.deployEndpoint((WebAppEndpointInstance) instance);
@@ -184,12 +190,12 @@ public class EndpointManagementImpl implements EndpointManagement
 	
 	@Override
 	public void updateEndpoint(String id, String description, List<AuthenticatorSet> authn,
-			String jsonConfiguration) throws EngineException
+			String jsonConfiguration, String realm) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		synchronized(internalManagement)
 		{
-			updateEndpointInt(id, description, jsonConfiguration, authn);
+			updateEndpointInt(id, description, jsonConfiguration, authn, realm);
 		}
 	}
 
@@ -206,7 +212,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	 * @throws EngineException
 	 */
 	private void updateEndpointInt(String id, String description, String jsonConfiguration, 
-			List<AuthenticatorSet> authn) throws EngineException
+			List<AuthenticatorSet> authn, String realmName) throws EngineException
 	{
 		SqlSession sql = db.getSqlSession(true);
 		try
@@ -232,10 +238,10 @@ public class EndpointManagementImpl implements EndpointManagement
 				newAuthn = instance.getEndpointDescription().getAuthenticatorSets();
 				authenticators = authnLoader.getAuthenticators(newAuthn, sql);
 			}
-
+			AuthenticationRealm realm = realmDB.get(realmName, sql);
 			newInstance.initialize(id, httpServer.getAdvertisedAddress(), 
 					instance.getEndpointDescription().getContextAddress(), 
-					newDesc, newAuthn, authenticators, jsonConf);
+					newDesc, newAuthn, authenticators, realm, jsonConf);
 			
 			endpointDB.update(id, newInstance, sql);
 			sql.commit();				

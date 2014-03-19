@@ -21,6 +21,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -46,9 +47,9 @@ public class SamlSoapEndpoint extends CXFEndpoint
 			String servletPath,  String metadataPath,
 			IdentitiesManagement identitiesMan, AttributesManagement attributesMan,
 			PreferencesManagement preferencesMan, PKIManagement pkiManagement, 
-			ExecutorsService executorsService)
+			ExecutorsService executorsService, SessionManagement sessionMan)
 	{
-		super(msg, type, servletPath);
+		super(msg, sessionMan, type, servletPath);
 		this.identitiesMan = identitiesMan;
 		this.attributesMan = attributesMan;
 		this.preferencesMan = preferencesMan;

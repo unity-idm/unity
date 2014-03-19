@@ -15,8 +15,10 @@ import pl.edu.icm.unity.db.generic.DependencyChangeListener;
 import pl.edu.icm.unity.db.generic.DependencyNotificationManager;
 import pl.edu.icm.unity.db.generic.GenericObjectsDB;
 import pl.edu.icm.unity.db.generic.authn.AuthenticatorInstanceHandler;
+import pl.edu.icm.unity.db.generic.realm.RealmHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 
@@ -37,6 +39,7 @@ public class EndpointDB extends GenericObjectsDB<EndpointInstance>
 		super(handler, dbGeneric, notificationManager, EndpointInstance.class,
 				"endpoint");
 		notificationManager.addListener(new AuthenticatorChangeListener());
+		notificationManager.addListener(new RealmChangeListener());
 	}
 	
 	
@@ -77,4 +80,42 @@ public class EndpointDB extends GenericObjectsDB<EndpointInstance>
 			}
 		}
 	}
+
+	/**
+	 * Listens for AuthenticationRealm removals. If the realm is used by any of endpoints an exception
+	 * is thrown.
+	 * @author K. Benedyczak
+	 */
+	private class RealmChangeListener implements DependencyChangeListener<AuthenticationRealm>
+	{
+		@Override
+		public String getDependencyObjectType()
+		{
+			return RealmHandler.REALM_OBJECT_TYPE;
+		}
+
+		@Override
+		public void preAdd(AuthenticationRealm newObject, SqlSession sql) throws EngineException { }
+
+		@Override
+		public void preUpdate(AuthenticationRealm oldObject,
+				AuthenticationRealm updatedObject, SqlSession sql) throws EngineException {}
+
+		@Override
+		public void preRemove(AuthenticationRealm removedObject, SqlSession sql)
+				throws EngineException
+		{
+			List<EndpointInstance> endpoints = getAll(sql);
+			for (EndpointInstance instance: endpoints)
+			{
+				String used = instance.getEndpointDescription().getRealm().getName();
+				if (removedObject.getName().equals(used))
+					throw new IllegalArgumentException("The realm " + 
+							removedObject.getName() + 
+							" is used by the endpoint " + 
+							instance.getEndpointDescription().getId());
+			}
+		}
+	}
+
 }

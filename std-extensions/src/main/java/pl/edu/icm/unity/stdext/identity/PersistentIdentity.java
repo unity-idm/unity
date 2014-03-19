@@ -14,6 +14,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
@@ -27,11 +28,6 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 {
 	public static final String ID = "persistent";
 	private static final List<Attribute<?>> empty = Collections.unmodifiableList(new ArrayList<Attribute<?>>(0));
-	
-	public static String getNewId()
-	{
-		return UUID.randomUUID().toString();
-	}
 	
 	/**
 	 * {@inheritDoc}
@@ -66,6 +62,9 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	@Override
 	public void validate(String value) throws IllegalIdentityValueException
 	{
+		if (value != null)
+			throw new IllegalIdentityValueException("Only null identity value is allowed "
+					+ "for dynamic identity type");
 	}
 
 	/**
@@ -96,8 +95,30 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	}
 
 	@Override
-	public boolean isSystem()
+	public boolean isDynamic()
 	{
 		return true;
+	}
+	
+	@Override
+	public String toExternalForm(String realm, String target, String inDbValue)
+	{
+		return inDbValue;
+	}
+
+	@Override
+	public String createNewIdentity(String realm, String target, String inDbValue)
+	{
+		return inDbValue == null ? UUID.randomUUID().toString() : inDbValue;
+	}
+
+	@Override
+	public String resetIdentity(String realm, String target, String inDbValue)
+			throws IllegalTypeException
+	{
+		if (realm != null || target != null)
+			throw new IllegalTypeException("This identity type is not targeted and "
+					+ "can be only reset globally.");
+		return null;
 	}
 }

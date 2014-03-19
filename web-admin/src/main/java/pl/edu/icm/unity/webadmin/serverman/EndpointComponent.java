@@ -121,8 +121,9 @@ public class EndpointComponent extends DeployableComponentViewBase
 		
 		try
 		{
-			this.endpoint = endpointMan.deploy(data.get("type"), id, data.get("address"), data.get("description"),
-					getEndpointAuth(data.get("authenticatorsSpec")), data.get("jsonConfiguration"));
+			this.endpoint = endpointMan.deploy(data.get("type"), id, data.get("address"), 
+					data.get("description"), getEndpointAuth(data.get("authenticatorsSpec")), 
+					data.get("jsonConfiguration"), data.get("realm"));
 		} catch (EngineException e)
 		{
 			log.error("Cannot deploy endpoint", e);
@@ -197,7 +198,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		{
 			endpointMan.updateEndpoint(id, data.get("description"),
 					getEndpointAuth(data.get("authenticatorsSpec")),
-					data.get("jsonConfiguration"));
+					data.get("jsonConfiguration"), data.get("realm"));
 				
 			
 		} catch (Exception e)
@@ -332,6 +333,8 @@ public class EndpointComponent extends DeployableComponentViewBase
 						+ UnityServerConfiguration.ENDPOINT_TYPE));
 		ret.put("address",config.getValue(endpointKey
 				+ UnityServerConfiguration.ENDPOINT_ADDRESS));
+		ret.put("realm",config.getValue(endpointKey
+				+ UnityServerConfiguration.ENDPOINT_REALM));
 		try
 		{
 			String jsonConfiguration = serverMan.loadConfigurationFile(config.getValue(endpointKey

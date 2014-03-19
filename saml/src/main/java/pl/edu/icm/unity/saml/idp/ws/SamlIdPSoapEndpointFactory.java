@@ -16,6 +16,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
@@ -41,12 +42,13 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 	private PreferencesManagement preferencesMan;
 	private PKIManagement pkiManagement;
 	private ExecutorsService executorsService;
+	private SessionManagement sessionMan;
 	
 	
 	@Autowired
 	public SamlIdPSoapEndpointFactory(UnityMessageSource msg, IdentitiesManagement identitiesMan,
 			AttributesManagement attributesMan, PreferencesManagement preferencesMan,
-			PKIManagement pkiManagement, ExecutorsService executorsService)
+			PKIManagement pkiManagement, ExecutorsService executorsService, SessionManagement sessionMan)
 	{
 		super();
 		this.msg = msg;
@@ -55,7 +57,8 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 		this.preferencesMan = preferencesMan;
 		this.pkiManagement = pkiManagement;
 		this.executorsService = executorsService;
-
+		this.sessionMan = sessionMan;
+		
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(CXFAuthentication.NAME);
 		Map<String,String> paths = new HashMap<String, String>();
@@ -75,7 +78,7 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new SamlSoapEndpoint(msg, getDescription(), SERVLET_PATH, METADATA_SERVLET_PATH, identitiesMan, 
-				attributesMan, preferencesMan, pkiManagement, executorsService);
+				attributesMan, preferencesMan, pkiManagement, executorsService, sessionMan);
 	}
 
 }

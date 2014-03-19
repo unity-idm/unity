@@ -6,6 +6,7 @@ package pl.edu.icm.unity.db;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,7 +126,7 @@ public class DBIdentities
 	 * @throws IllegalTypeException 
 	 * @throws IllegalArgumentException 
 	 */
-	public Identity insertIdentity(IdentityParam toAdd, Long entityId, SqlSession sqlMap) 
+	public Identity insertIdentity(IdentityParam toAdd, Long entityId, boolean allowSystem, SqlSession sqlMap) 
 			throws IllegalIdentityValueException, IllegalTypeException, WrongArgumentException
 	{
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
@@ -133,12 +134,16 @@ public class DBIdentities
 		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(toAdd.getTypeId());
 		if (idTypeDef == null)
 			throw new IllegalIdentityValueException("The identity type is unknown");
+		if (idTypeDef.isDynamic() && !allowSystem)
+			throw new IllegalIdentityValueException("The identity type " + idTypeDef.getId() + 
+					" is created automatically and can not be added manually");
 		BaseBean identityTypeB = mapper.getIdentityTypeByName(idTypeDef.getId());
 		if (identityTypeB == null)
 			throw new InternalException("The identity type id is not stored in the database: " + 
 					idTypeDef.getId());
 		idTypeDef.validate(toAdd.getValue());
-		String cmpVal = IdentitiesResolver.getComparableIdentityValue(toAdd, idTypeDef);
+		String cmpVal = idTypeDef.isDynamic() ? UUID.randomUUID().toString() : 
+			IdentitiesResolver.getComparableIdentityValue(toAdd, idTypeDef);
 		if (mapper.getIdentityByName(cmpVal) != null)
 			throw new IllegalIdentityValueException("The identity with this value is already present");
 		limits.checkNameLimit(cmpVal);
@@ -162,17 +167,41 @@ public class DBIdentities
 	}
 
 	
-	public Identity[] getIdentitiesForEntity(long entityId, SqlSession sqlMap) 
+	public Identity[] getIdentitiesForEntity(long entityId, String target, boolean allowCreate, SqlSession sqlMap) 
 			throws IllegalTypeException
 	{
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
 		List<IdentityBean> rawRet = mapper.getIdentitiesByEntity(entityId);
-		Identity[] identities = new Identity[rawRet.size()];
-		for (int i=0; i<identities.length; i++)
-			identities[i] = idResolver.resolveIdentityBean(rawRet.get(i), mapper);
-		return identities;
+		List<Identity> ret = new ArrayList<Identity>(rawRet.size());
+		for (int i=0; i<rawRet.size(); i++)
+		{
+			Identity id = idResolver.resolveIdentityBean(rawRet.get(i), mapper, target, allowCreate);
+			if (id != null)
+				ret.add(id);
+		}
+		return ret.toArray(new Identity[ret.size()]);
 	}
 
+	public void resetIdentityForEntity(long entityId, String type, String realm, String target, SqlSession sqlMap) 
+			throws IllegalTypeException
+	{
+		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
+		List<IdentityBean> rawRet = mapper.getIdentitiesByEntity(entityId);
+		for (IdentityBean idBean: rawRet)
+		{
+			Identity id = idResolver.resolveIdentityBeanNoExternalize(idBean, mapper);
+			if (id.getTypeId().equals(type))
+			{
+				IdentityTypeDefinition idTypeImpl = id.getType().getIdentityTypeProvider();
+				String updated = idTypeImpl.resetIdentity(realm, target, id.getValue());
+				id.setValue(updated);
+				idBean.setContents(idSerializer.toJson(id));
+				mapper.updateIdentity(idBean);
+				return;
+			}
+		}
+		throw new IllegalTypeException("The " + type + " is not defined for the entity");
+	}
 	
 	public EntityState getEntityStatus(long entityId, SqlSession sqlMap) 
 			throws IllegalIdentityValueException, IllegalTypeException
@@ -198,7 +227,7 @@ public class DBIdentities
 		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(toRemove.getTypeId());
 		if (idTypeDef == null)
 			throw new IllegalIdentityValueException("The identity type is unknown");
-		if (idTypeDef.isSystem())
+		if (idTypeDef.isDynamic())
 			throw new IllegalIdentityValueException("The system identity can not be removed without removing the containing entity.");
 		
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);

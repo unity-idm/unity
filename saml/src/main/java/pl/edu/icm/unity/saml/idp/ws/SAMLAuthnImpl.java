@@ -21,7 +21,7 @@ import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -102,9 +102,10 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 	protected Identity getIdentity(AuthnResponseProcessor samlProcessor, SPSettings preferences) 
 			throws EngineException, SAMLRequesterException
 	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		Entity authenticatedEntity = identitiesMan.getEntity(
-				new EntityParam(ae.getEntityId()));
+				new EntityParam(ae.getEntityId()), samlProcessor.getIdentityTarget(),
+				samlProcessor.isIdentityCreationAllowed());
 		List<Identity> validIdentities = samlProcessor.getCompatibleIdentities(authenticatedEntity);
 		if (validIdentities.size() > 0)
 		{
@@ -122,7 +123,7 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 	protected Collection<Attribute<?>> getAttributes(AuthnResponseProcessor processor, SPSettings preferences) 
 			throws EngineException
 	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		
 		return BaseResponseProcessor.getAttributes(new EntityParam(ae.getEntityId()), processor, preferences, 
 				attributesMan, identitiesMan);

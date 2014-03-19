@@ -22,6 +22,8 @@
 	<bean class="pl.edu.icm.unity.server.registries.AttributeMetadataProvidersRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.NotificationFacilitiesRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.TranslationActionsRegistry"/>
+
+	<bean class="pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder"/>
 	
 	<beans profile="production">
 		<bean class="pl.edu.icm.unity.server.utils.DefaultConfigurationLocation"/>

@@ -1,0 +1,78 @@
+/*
+ * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+package pl.edu.icm.unity.server.api.internal;
+
+import java.util.Date;
+
+/**
+ * Generic token. See {@link TokensManagement}.
+ * 
+ * @author K. Benedyczak
+ */
+public class Token
+{
+	private String type;
+	private String value;
+	private long owner;
+	private Date created;
+	private Date expires;
+	private byte[] contents;
+
+	public Token(String type, String value, long owner)
+	{
+		this.type = type;
+		this.value = value;
+		this.owner = owner;
+	}
+
+	public String getType()
+	{
+		return type;
+	}
+	public void setType(String type)
+	{
+		this.type = type;
+	}
+	public String getValue()
+	{
+		return value;
+	}
+	public void setValue(String value)
+	{
+		this.value = value;
+	}
+	public long getOwner()
+	{
+		return owner;
+	}
+	public void setOwner(long owner)
+	{
+		this.owner = owner;
+	}
+	public Date getCreated()
+	{
+		return created;
+	}
+	public void setCreated(Date created)
+	{
+		this.created = created;
+	}
+	public Date getExpires()
+	{
+		return expires;
+	}
+	public void setExpires(Date expires)
+	{
+		this.expires = expires;
+	}
+	public byte[] getContents()
+	{
+		return contents;
+	}
+	public void setContents(byte[] contents)
+	{
+		this.contents = contents;
+	}
+}

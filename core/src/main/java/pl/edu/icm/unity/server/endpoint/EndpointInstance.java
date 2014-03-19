@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import pl.edu.icm.unity.types.JsonSerializable;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
@@ -37,7 +38,7 @@ public interface EndpointInstance
 	 */
 	public void initialize(String id, URL baseAddress, String contextAddress, String description, 
 			List<AuthenticatorSet> authenticatorsInfo, List<Map<String, BindingAuthn>> authenticators,
-			String serializedConfiguration);
+			AuthenticationRealm realm, String serializedConfiguration);
 
 	public EndpointDescription getEndpointDescription();
 	

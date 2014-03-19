@@ -11,24 +11,30 @@ import java.util.List;
 
 import org.junit.Test;
 
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 public class TestEndpoints extends DBIntegrationTestBase
-{
+{	
 	@Test
 	public void testEndpoints() throws Exception
 	{
+		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
+				10, 10, -1, 600);
+		realmsMan.addRealm(realm);
+		
 		List<EndpointTypeDescription> endpointTypes = endpointMan.getEndpointTypes();
 		assertEquals(1, endpointTypes.size());
 		EndpointTypeDescription type = endpointTypes.get(0);
 		
-		endpointMan.deploy(type.getName(), "endpoint1", "/foo", "desc", new ArrayList<AuthenticatorSet>(), "");
+		endpointMan.deploy(type.getName(), "endpoint1", "/foo", "desc", new ArrayList<AuthenticatorSet>(), "",
+				realm.getName());
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 
-		endpointMan.updateEndpoint(endpoints.get(0).getId(), "ada", null, null);
+		endpointMan.updateEndpoint(endpoints.get(0).getId(), "ada", null, null, realm.getName());
 		endpoints = endpointMan.getEndpoints();
 		assertEquals("ada", endpoints.get(0).getDescription());
 
@@ -39,12 +45,14 @@ public class TestEndpoints extends DBIntegrationTestBase
 		
 		//test initial loading from DB: create, remove from the server, load
 		
-		endpointMan.deploy(type.getName(), "endpoint1", "/foo", "desc", new ArrayList<AuthenticatorSet>(), "");
-		endpointMan.deploy(type.getName(), "endpoint2", "/foo2", "desc", new ArrayList<AuthenticatorSet>(), "");
+		endpointMan.deploy(type.getName(), "endpoint1", "/foo", "desc", new ArrayList<AuthenticatorSet>(), "",
+				realm.getName());
+		endpointMan.deploy(type.getName(), "endpoint2", "/foo2", "desc", new ArrayList<AuthenticatorSet>(), "",
+				realm.getName());
 		endpoints = endpointMan.getEndpoints();
 		assertEquals(2, endpoints.size());
-		endpointMan.updateEndpoint(endpoints.get(0).getId(), "endp1", null, null);
-		endpointMan.updateEndpoint(endpoints.get(1).getId(), "endp2", null, null);
+		endpointMan.updateEndpoint(endpoints.get(0).getId(), "endp1", null, null, realm.getName());
+		endpointMan.updateEndpoint(endpoints.get(1).getId(), "endp2", null, null, realm.getName());
 
 		httpServer.undeployEndpoint(endpoints.get(0).getId());
 		httpServer.undeployEndpoint(endpoints.get(1).getId());

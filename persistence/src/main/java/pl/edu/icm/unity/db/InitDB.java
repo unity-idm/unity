@@ -35,6 +35,7 @@ import pl.edu.icm.unity.server.utils.Log;
 public class InitDB
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InitDB.class);
+	private final String UPDATE_SCHEMA_PFX = "updateSchema-";
 
 	private DBSessionManager db;
 	private LocalDBSessionManager localDb;
@@ -60,16 +61,30 @@ public class InitDB
 	
 	public void initIfNeeded() throws FileNotFoundException, IOException, InternalException
 	{
+		String dbVersion;
 		SqlSession session = db.getSqlSession(false);
 		try
 		{
-			session.selectOne("getDBVersion");
+			dbVersion = session.selectOne("getDBVersion");
 			db.releaseSqlSession(session);
 			log.info("Database initialized, skipping creation");
 		} catch (PersistenceException e)
 		{
 			db.releaseSqlSession(session);
 			initDB();
+			return;
+		}
+		
+		long dbVersionOfDB = dbVersion2Long(dbVersion);
+		long dbVersionOfSoftware = dbVersion2Long(DB.DB_VERSION);
+		if (dbVersionOfDB > dbVersionOfSoftware)
+		{
+			throw new InternalException("The database schema version " + dbVersion + 
+					" is newer then supported by this version of the server. "
+					+ "Please upgrade the server software.");
+		} else if (dbVersionOfDB < dbVersionOfSoftware)
+		{
+			updateSchema(dbVersionOfDB);
 		}
 	}
 	
@@ -126,5 +141,37 @@ public class InitDB
 		{
 			db.releaseSqlSession(session);		
 		}
+	}
+	
+	private long dbVersion2Long(String version)
+	{
+		String[] components = version.split("_");
+		return Integer.parseInt(components[0])*10000 + Integer.parseInt(components[1])*100 + 
+				Integer.parseInt(components[2]);
+	}
+	
+	private void updateSchema(long currentVersion)
+	{
+		log.info("Updating DB schema to the actual version");
+		Collection<String> ops = new TreeSet<String>(db.getMyBatisConfiguration().getMappedStatementNames());
+		SqlSession session = db.getSqlSession(ExecutorType.BATCH, true);
+		try
+		{
+			for (String name: ops)
+			{
+				if (!name.startsWith(UPDATE_SCHEMA_PFX))
+					continue;
+				
+				String[] version = name.substring(UPDATE_SCHEMA_PFX.length()).split("-");
+				Long schemaVersion = Long.parseLong(version[0]);
+				if (schemaVersion > currentVersion)
+					session.update(name);
+			}
+			session.commit();
+		} finally
+		{
+			db.releaseSqlSession(session);
+		}
+		log.info("Updated DB schema to the actual version " + DB.DB_VERSION);
 	}
 }

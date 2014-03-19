@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
@@ -20,7 +21,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 @Component
 public class IdentitySerializer
 {
-	private ObjectMapper mapper = new ObjectMapper();
+	private ObjectMapper mapper = Constants.MAPPER;
 	
 	/**
 	 * @param src
@@ -30,7 +31,8 @@ public class IdentitySerializer
 	{
 		ObjectNode main = mapper.createObjectNode();
 		main.put("local", src.isLocal());
-		main.put("value", src.getValue());
+		if (src.getValue() != null)
+			main.put("value", src.getValue());
 		try
 		{
 			return mapper.writeValueAsBytes(main);
@@ -59,6 +61,9 @@ public class IdentitySerializer
 		}
 
 		target.setLocal(main.get("local").asBoolean());
-		target.setValue(main.get("value").asText());
+		if (main.has("value"))
+			target.setValue(main.get("value").asText());
+		else
+			target.setValue(null);
 	}
 }

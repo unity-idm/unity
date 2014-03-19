@@ -28,7 +28,7 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -571,9 +571,9 @@ public class IdentitiesTable extends TreeTable
 	
 	private void removeEntity(long entityId)
 	{
-		AuthenticatedEntity entity = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession entity = InvocationContext.getCurrent().getLoginSession();
 		
-		if (entityId == entity.getEntityId().longValue())
+		if (entityId == entity.getEntityId())
 		{
 			ErrorPopup.showError(msg, msg.getMessage("error"), msg.getMessage("Identities.notRemovingLoggedUser"));
 			return;

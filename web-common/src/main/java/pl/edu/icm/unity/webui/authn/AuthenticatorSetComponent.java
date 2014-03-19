@@ -18,6 +18,7 @@ import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
@@ -34,6 +35,7 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressIndicator;
@@ -58,21 +60,24 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 	private AuthenticationResultCallbackImpl authnResultCallback;
 	private Button authenticateButton;
 	private Button cancelButton;
+	private CheckBox rememberMe;
 	private ProgressIndicator progress;
 	private UsernameComponent usernameComponent;
 	private InsecureRegistrationFormLauncher formLauncher;
 	private ExecutorsService execService;
 	private String clientIp;
+	private AuthenticationRealm realm;
 	
 	public AuthenticatorSetComponent(final Map<String, VaadinAuthenticationUI> authenticators,
 			AuthenticatorSet set, UnityMessageSource msg, AuthenticationProcessor authnProcessor,
 			InsecureRegistrationFormLauncher formLauncher, ExecutorsService execService,
-			final CancelHandler cancelHandler)
+			final CancelHandler cancelHandler, AuthenticationRealm realm)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
 		this.formLauncher = formLauncher;
 		this.execService = execService;
+		this.realm = realm;
 		boolean needCommonUsername = false;
 		setSpacing(true);
 		setMargin(true);
@@ -112,6 +117,10 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		
 		authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
 		authenticateButton.setId("AuthenticationUI.authnenticateButton");
+		
+		rememberMe = new CheckBox(msg.getMessage("AuthenticationUI.rememberMe", 
+				realm.getAllowForRememberMeDays()));
+		
 		usernameComponent = null;
 		if (needCommonUsername)
 		{
@@ -154,6 +163,8 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		}
 		
 		addComponent(authnProgressHL);
+		if (realm.getAllowForRememberMeDays() > 0)
+			addComponent(rememberMe);
 		addComponent(buttons);
 		setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 	}
@@ -289,7 +300,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 				clearAuthenticators(authenticators);
 				try
 				{
-					authnProcessor.processResults(results, clientIp);
+					authnProcessor.processResults(results, clientIp, realm, rememberMe.getValue());
 				} catch (UnknownRemoteUserException e)
 				{
 					if (e.getFormForUser() != null)

@@ -24,7 +24,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.GroupUtils;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -146,7 +146,7 @@ public class GroupsTree extends Tree
 
 	private void setupAccessibleRoots() throws EngineException
 	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		Collection<String> groups = identitiesMan.getGroups(
 				new EntityParam(ae.getEntityId()));
 		List<String> accessibleGroups = new ArrayList<String>(groups.size());
