@@ -124,6 +124,10 @@
 									<directory>src/main/doc</directory>
 									<filtering>true</filtering>
 								</resource>
+								<resource>
+									<directory>src/main/saml-howto</directory>
+									<filtering>true</filtering>
+								</resource>
 							</resources>
 						</configuration>
 					</execution>
@@ -184,6 +188,21 @@
 								<argument>-D</argument>
 								<argument>${project.reporting.outputDirectory}</argument>
 								<argument>target/workspace/manual.txt</argument>
+							</arguments>
+						</configuration>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>asciidoctor-samlhowto</id>
+						<phase>pre-site</phase>
+						<configuration>
+							<executable>asciidoctor</executable>
+							<arguments>
+								<argument>-D</argument>
+								<argument>${project.reporting.outputDirectory}</argument>
+								<argument>target/workspace/saml-howto.txt</argument>
 							</arguments>
 						</configuration>
 						<goals>

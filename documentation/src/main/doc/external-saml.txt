@@ -1,3 +1,4 @@
+[[external-saml]]
 === External SAML IdP
 
 External SAML authentication module allows for authenticating the Unity's client with the external

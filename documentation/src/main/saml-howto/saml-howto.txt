@@ -1,0 +1,460 @@
+Unity SAML HowTo
+================
+Unity Team <unity-idm-discuss@lists.sourceforge.net>
+:revnumber: 1.0.0
+:numbered:
+:toc: left
+:linkcss:
+:iconsdir: ./icons
+:icons: font
+
+[NOTE]
+======
+This SAML HowTo can serve as a good example of how Unity works in general. That said, reading it
+will help when integrating other protocols (as an external LDAP authentication) too.
+======
+
+== Introduction
+
+This HowTo provides a step-by-step guide on configuring SAML 2 based authentication in Unity. A basic familiarity
+with SAML is needed to understand this document. The  
+http://en.wikipedia.org/wiki/SAML_2.0[Wikipedia article on SAML 2] and the official 
+http://docs.oasis-open.org/security/saml/Post2.0/sstc-saml-tech-overview-2.0.html[SAML overview]
+provide more then enough of information.
+
+SAML can be used in two ways:
+
+* By Unity clients to get information from Unity, e.g. a web application may request 
+to authenticate its web browser user in Unity. In this case Unity acts as an Identity Provider (IdP) in 
+the SAML terminology. This functionality is enabled by a _SAML endpoint_, which must be configured in Unity.
+* By Unity itself to delegate authentication to a 3rd party SAML Identity Provider (IdP). In this case Unity acts
+as Service Provider in the SAML terminology (from the perspective of the 3rd party IdP). This functionality is
+enabled by configuring a _SAML authenticator_ in Unity and attaching it to one or more of Unity endpoints.
+
+Both scenarios are presented in a slightly simplified form in the diagrams:
+
+image::./figures/saml-usecases.png[alt="Unity acting as SAML IdP and as SAML SP",align="center",scaledwidth="50%"]
+
+Of course it is possible to deploy both scenarios together, to use Unity as a service which either 
+enrich/transform information about users from upstream IdPs or which provides a common gateway to multiple SAML 
+federations, typically unifying their contents.  
+
+
+=== Interoperability
+
+Unity was successfully tested against:
+
+* *Shibboleth IdP* 2.4 using  Unity as SP
+* *Shibboleth SP* 2.5 using Unity as IdP
+* *SimpleSAMLPhp* 0.11 using Unity as IdP and as SP 
+* *Unity* - you can use another Unity instance (or even the same instance - for testing) both as an IdP or as an SP.
+
+Of course any other SAML 2 compliant service should be also able to work with Unity.
+
+=== Limitations aka what is not supported in Unity YET
+
+As of version 1.2.0 of Unity there are several restrictions related to SAML integration. 
+We enumerate here the most important ones:
+
+. Encryption in SAML must be turned off (both in case of identifiers and assertions). This will be improved in future,
+however note that typically this feature is not used anyway, as assertions are sent over a secure HTTPS channels.
+. Discovery Service functionality is not supported in Unity yet. This will be improved in upcoming versions. Currently
+when using upstream SAML IdPs, Unity must have all of them enumerated.
+. While Unity fully supports publishing SAML metadata (of each SAML endpoint and of each SAML authenticator), it is not
+yet possible to configure Unity from SAML metadata of remote service. It will be also improved in future.   
+. Single Logout functionality is not supported in Unity yet. This SAML sub-protocol will be also enabled in future.
+
+
+== Using Unity as SAML IdP: configuring SAML endpoints
+
+To enable SAML IdP functionality, one of Unity SAML endpoints must be configured: either the SAML Web endpoint or 
+the SAML SAOP (Web Service) endpoint. The first one is the typical choice, for authentication of Web browser users
+of Web applications. The latter is used by command line programs, agents or desktop applications, which support
+SAML directly, without having to use a standard Web browser as intermediary. In the following text the SAML Web endpoint
+will be configured.
+
+=== Step 1: Prepare SAML endpoint configuration
+
+There is a couple of SAML specific options that need to be set:
+
+* _SAML issuer_ (+unity.saml.issuerURI+) is a unique name of your IdP in SAML domain 
+(often called as a federation). You can choose any
+URI as a value, but it is suggested to use a URL of your endpoint, or something related as an URI of your endpoint 
+SAML metadata. 
+* _Credential_ (+unity.saml.credential+) is used to sign SAML assertions and responses (if configured). 
+Typically the credential is the same
+credential which is used by the Unity HTTPS server, but you can configure a separate one. The credentials are 
+configured in +pki.properties+ file, in SAML endpoint only a name of credential configured there is used.
+* _Base group_: (+unity.saml.defaultGroup+ and +unity.saml.groupMapping.*+) SAML, by default does not support 
+group scoped attributes and the majority of SAML consumers won't understand the Unity concept of an attribute 
+being defined in a particular group. Therefore Unity group must be selected and only the attributes defined in
+this group will be exposed to the clients. For this purpose a single group can be used or different groups 
+can be configured on a per-SP basis.
+* _Exposing group membership_ (+unity.saml.groupAttribute+ and +unity.saml.groupSelection+) often it is needed 
+to inform Unity clients about the groups that the authenticated user is member of. 
+Such information is returned in an SAML attribute which is generated on the fly.
+The name of such attribute must be specified and optionally it can be controlled whether to expose information about 
+all groups membership or whether to limit it.  
+* _SP acceptance settings_ control who is authorized to act as an SP, i.e. to query the endpoint and 
+receive SAML assertions. Unity supports several trust models: from fully open to models where each SP needs 
+to be enumerated. Choice of the trust model is controlled with the +unity.saml.spAcceptPolicy+ property.
+The most popular way to control this trust in the SAML world is to use one type of such enumeration 
+(+validRequester+): each SP name must be provided along with an URL where responses for this SP should be sent.  
+Note that this is somehow implicit authorization: actually everybody can pretend to be the trusted SP, 
+but the response is always sent to a fixed address of a genuine trusted SP. If a better protection is required,
+then the +strict+ policy can be used: then all requests must be signed, and the trusted certificates are 
+enumerated in configuration.
+
+The following example shows a typical configuration, with three trusted SPs:
+----
+unity.saml.issuerURI=https://unity.example.com/saml-idp/metadata
+unity.saml.credential=MAIN
+unity.saml.defaultGroup=/A
+unity.saml.groupAttribute=groups
+unity.saml.groupSelection=all
+
+unity.saml.spAcceptPolicy=validRequester
+unity.saml.acceptedSP.1.entity=https://shibboleth-sp.example.com/shibboleth
+unity.saml.acceptedSP.1.returnURL=https://shibboleth-sp.example.com/Shibboleth.sso/SAML2/POST
+
+unity.saml.acceptedSP.2.entity=https://simplesamlphp-sp.example.com:8080/\
+simplesaml/module.php/saml/sp/metadata.php/default-sp
+unity.saml.acceptedSP.2.returnURL=https://simplesamlphp-sp.example.com:8080/\
+simplesaml/module.php/saml/sp/saml2-acs.php/default-sp
+
+unity.saml.acceptedSP.3.entity=https://unity.example.com/unitygw/saml-sp-metadata/metadata1
+unity.saml.acceptedSP.3.returnURL=https://unity.example.com/unitygw/spSAMLResponseConsumer
+----
+
+Reference documentation on all the options can be found in the  
+<<manual.txt#endp-web-saml,Unity documentation>>.
+
+=== Step 2: Expose the SAML endpoint
+
+To enable the endpoint its unique base path must be established. In the following example the +/saml-idp+ 
+will be used for this purpose. What is more a Unity authentication realm must be chosen (or created), to which
+the SAML endpoint will belong to. The authentication realm defines general security settings as 
+login session duration. As this is rather advanced topic we will use the default +defaultRealm+. Finally 
+authentication of the endpoint needs to be defined, by selecting authenticators which should be enabled.
+
+The example configuration of an endpoint in the +unityServer.conf+ follows:
+
+----
+unityServer.core.endpoints.2.endpointType=SAMLWebIdP
+unityServer.core.endpoints.2.endpointConfigurationFile=conf/endpoints/saml-webidp.properties
+unityServer.core.endpoints.2.contextPath=/saml-idp
+unityServer.core.endpoints.2.endpointName=UNITY SAML web authentication
+unityServer.core.endpoints.2.endpointRealm=defaultRealm
+unityServer.core.endpoints.2.endpointAuthenticators=pwdWeb1
+----
+
+We have assumed that the endpoint's configuration created in the previous step is available in the 
++endpoints/saml-webidp.properties+. The endpoint's name is a simple string used in the UI presented to the 
+users being authenticated. Finally the endpoint will allow to authenticate with a single authenticator +pwdWeb1+.
+
+The endpoint configured in such a way will be accessible with two URLs:
+
+* https://unity-server-public-address/saml-idp/metadata -> Metadata of the SAML IdP
+* https://unity-server-public-address/saml-idp/saml2idp-web -> URL which should be used by the SAML SPs to 
+redirect the clients for authentication to.
+ 
+
+=== Step 3: Configure a remote SAML SP to use Unity as IdP 
+
+To configure the Unity as IdP for a SP typically SAML metadata is needed or a list of parameters, including in 
+the first place the IdP endpoint URL and its certificate. The preceeding section defines their values.
+
+Here we provide shortened information on Shibboleth SP and SimpleSAMLPhp settings.
+
+==== Shibboleth SP
+
+Shibboleth SP is configured using SAML metadata. You can configure Unity IdP in several ways: 
+via the Shibboleth Discovery Service (together with many others IdPs), configure automatic Metadata download 
+from Unity's metadata URL or to download the Unity's metadata manually and configure Shibboleth to use it.
+
+For the last, simplest option store the metadata in a file (e.g. 
++/etc/shibboleth/metadata/unity-idp.xml+) and inform Shibboleth about it by adding the following entry to the 
++/etc/shibboleth/shibboleth2.xml+ file:
+
+----
+    <MetadataProvider type="XML" file="/etc/shibboleth/metadata/unity-idp.xml"/>
+----
+
+==== SimpleSAMLPhp
+
+After enabling the SP functionality, add the following to the +metadata/saml20-idp-remote.php+ file:
+----
+ $metadata['https://unity.example.com/saml-idp/metadata'] = array (
+  'entityid' => 'https://unity.example.com/saml-idp/metadata',
+  'SingleSignOnService' => 
+  array (
+    0 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+      'Location' => 'https://unity.example.com/saml-idp/saml2idp-web',
+    ),
+    1 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+      'Location' => 'https://unity.example.com/saml-idp/saml2idp-web',
+    ),
+  ),
+  'ArtifactResolutionService' => 
+  array (
+  ),
+  'keys' => 
+  array (
+    0 => 
+    array (
+      'encryption' => false,
+      'signing' => true,
+      'type' => 'X509Certificate',
+      'X509Certificate' => 'MIICizCCAfS ...the Base 64 encoded certificate of Unity IdP endpoint...',
+    ),
+  ),
+);
+----
+
+=== Who can authenticate with SAML?
+
+The SAML requesters (SPs) who can query the SAML IdP endpoint in Unity are configured with the 
++unity.saml.spAcceptPolicy+ what was described above. Also the user who is actually authenticating her or himself
+must fulfill two obvious conditions, which are important to remember:
+
+. Must be a member of a group configured for a SP. For instance a user who is not a member of the +/A+ group 
+won't be able to authenticate with SAML when using the example configuration above. Note that this is also true
+for users authenticating with remote IdP to Unity: then the translation profile must add the remotely authenticated
+user to the group used by SAML IdP endpoint.
+. Must have a sufficient Unity authorization role, i.e. at least the _Regular User_ role. Users who have no 
+Unity role defined or an _Anonymous User_ role won't be able to be authenticated in the most of cases.
+. Must have a Unity identity which is being requested by the client. The most popular transient and persistent
+identity types are generated on the fly, but in case when a specific identity type is requested (e.g. X500 name)
+such identity must be defined for the user.  
+
+=== Advanced options
+
+==== Filtering attributes
+
+By default all attributes of an authenticated user, which are not marked as local in their attribute type definition 
+(see Schema management->Attribute types) are exposed and which are defined in the group configured for the endpoint 
+are exposed. 
+
+The user is able to hide some of the attributes (for privacy reasons) when authenticating with SAML.
+
+What is more it is possible to filter attributes on the endpoint level. Check the documentation of 
++unity.saml.attributeFilter.*+ for details.
+
+==== Custom SAML metadata
+
+By default Unity endpoint will publish an automatically generated SAML metadata. It is possible to publish a custom
+metadata document instead (use the +unity.saml.metadataSource+ property). What is more Unity can automatically sign
+the Metadata, also the custom one (+unity.saml.signMetadata=true+). 
+
+==== Targeted identities and authentication realms
+
+The most popular identity formats (i.e. the format in which authenticated principal name or pseudonym is provided
+to the SP) in SAML are:
+* transient format which should be different for each login session of a user
+* persistent formats which should be the same for each login session of a user
+
+Both formats are _targeted_, i.e. each SP should get different values of identities in such formats, 
+for privacy reasons. Also should not allow for being associated with the actual person.
+
+Unity automatically generates and supports both formats. There is one fact to note about the relation of those 
+identities to authentication realms: all endpoints in a single authentication realm will share the targets 
+(i.e. the SPs). That is if we have two SAML endpoints E1 and E2 are defined (even of different types: web and soap) 
+in a single authentication realm and a SAML SP A will query the E1 first and then the E2 then the same identity will
+be returned by both endpoints. Contrary if E2 will be in another realm, then even the persistent identity for the
+same SP will be different then the one generated by the E1. 
+
+
+
+
+
+== Using remote SAML IdPs for authentication
+
+=== Step 1: Create a translation profile
+
+Translation profile is used to convert and unify the information retrieved from the remote service (SAML IdP in 
+our case) to a Unity representation. The profile should at least establish a Unity identity of the remotely 
+authenticated principal and optionally can assign some attributes or groups. Translation profiles are
+configured in the Admin UI (Server management->Translation profiles) and are documented 
+<<manual.txt#external-idps,here>>.
+
+If the mapped user is already present in the Unity database, then the authentication is successful. If the mapped user
+is not present:
+
+* It can be added automatically (using the mapped information), what is configured in the translation profile itself.
+* It can have a registration form presented to provide additional data about itself. The registration 
+form can be prefilled with the information retrieved from the remote IdP.
+* It can be denied, what is the default behavior.
+
+Creation of a translation profile is a complex task as is fully dependent on precise data provided by the remote IdP.
+It is a good practice to create a simple (even empty) translation profile, perform all the subsequent SAML 
+integration tasks and then experiment. By setting the following logging level in the +log4j.properties+:
+
+ log4j.logger.unity.server.externaltranslation=DEBUG
+
+Unity will present a detailed information on what was received from the remote IdP and on all 
+operations performed by the translation profile.
+ 
+In the SAML case the identity is typically provided in one of 3 ways:
+
+* as a transient identifier: then some of the attributes (e.g. email) profile must be mapped to Unity identity, 
+as the transient identifier is volatile and therefore not suitable as an identity
+* as a persistent identifier: it can be directly mapped to Unity identity, preferably it should be of 
++identifier+ type.
+* as an e-mail, X.500 DN or custom identifier: those can be mapped to Unity identity directly using any of the 
+preferred identity types.
+
+Below we present an example of translation profile, that maps +uid+ attribute to unity identity, maps one 
+additional attribute +cn+ as Unity's +cn+ attribute (i.e. there is no attribute name change) in the '/' group
+and finally the mapped user is create if doesn't exist yet.
+
+[cols="10%n,15%m,m,m", options="header"]
+|====
+|Rule no 	|Condition 	|Action 					|Action arguments
+|1			|true 		|mapAttributeToIdentity		|uid, userName, Password requirement
+|2			|true		|mapAttribute				|cn, cn, /
+|3			|true		|createUser					|true
+|====
+
+=== Step 2: Create SAML authenticator
+
+The SAML authenticator configuration must be provided in a separate properties file. The configuration consists
+of two parts: common settings and definitions of all enabled SAML IdPs.
+
+The common part should define at least:  
+
+* _SAML identity of the requester_ (+unity.saml.requester.requesterEntityId+) 
+is a unique name of Unity authenticator acting as SP in SAML domain (often called as a federation). You can choose any
+URI as a value, but it is suggested to use some URL related to Unity, preferably the URL of SAML metadata of the 
+authenticator.
+* _Metadata publication path_ (+unity.saml.requester.metadataPath+) is a path under which metadata is published
+for the authenticator. As in Unity authenticators have no address, there is a special shared pseudo-endpoint available
+at the fixed location +/unitygw+ where cross-cutting functionality is exposed. The metadata will be published under 
+the path +/unitygw/ saml-sp-metadata/NAME+, where the NAME must be defined.
+* _Displayed name_ (+unity.saml.requester.displayName+) is used to distinguish the authenticator from others in the UI.
+
+The rest of configuration is defined per SP:
+
+* _Displayed name of a SP_ (+unity.saml.requester.remoteIdp.X.name+) is used in the authentication UI.
+* _Address of a SP_ (+unity.saml.requester.remoteIdp.X.address+) the remote IdP endpoint's URL
+* _SAML Identifier of the IdP_ (+unity.saml.requester.remoteIdp.X.samlId+)
+* _Certificate of the IdP_ (+unity.saml.requester.remoteIdp.X.certificate+) is used to verify the signature 
+of the response. Only the name is configured, the actual certificate must be defined in the +pki.properties+ file.
+* _Requested identity format_ (+unity.saml.requester.remoteIdp.X.requestedNameFormat+) if the format which should be
+requested for the IdP. It is especially important when SAML identity is mapped to Unity identity directly. 
+* _Translation profile_ (+unity.saml.requester.remoteIdp.X.translationProfile+), which is used to translate received
+information to Unity's representation, as described in the preceding section.
+
+The following example defines three remote IdPs:
+----
+unity.saml.requester.requesterEntityId=https://unity.example.com/unitygw/saml-sp-metadata/metadata1
+unity.saml.requester.metadataPath=metadata1
+
+unity.saml.requester.displayName=Remote SAML authentication
+https://simplesamlphp-sp.example.com:8080/\
+simplesaml/module.php/saml/sp/metadata.php/default-sp
+
+unity.saml.requester.remoteIdp.1.name=Simple SAMLPHP based IdP
+unity.saml.requester.remoteIdp.1.address=https://simplesamlphp-idp.example.com:8080/\
+simplesaml/saml2/idp/SSOService.php
+unity.saml.requester.remoteIdp.1.samlId=https://simplesamlphp-idp.example.com:8080/\
+simplesaml/saml2/idp/metadata.php
+unity.saml.requester.remoteIdp.1.certificate=SIMPLESAMLPHP1
+unity.saml.requester.remoteIdp.1.groupMembershipAttribute=urn:oid:1.3.6.1.4.1.5923.1.1.1.1
+unity.saml.requester.remoteIdp.1.requestedNameFormat=urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+unity.saml.requester.remoteIdp.1.translationProfile=samlProfile
+
+unity.saml.requester.remoteIdp.2.name=Shibboleth IdP
+unity.saml.requester.remoteIdp.2.address=https://shibboleth-idp.example.com:8080/\
+idp/profile/SAML2/Redirect/SSO
+unity.saml.requester.remoteIdp.2.samlId=https://shibboleth-idp.example.com:8080/idp/shibboleth
+unity.saml.requester.remoteIdp.2.certificate=SHIB_IDP
+unity.saml.requester.remoteIdp.2.requestedNameFormat=urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+unity.saml.requester.remoteIdp.2.translationProfile=samlProfile
+
+unity.saml.requester.remoteIdp.3.name=Unity IdP
+unity.saml.requester.remoteIdp.3.address=https://unity.example.com/saml-idp/saml2idp-web
+unity.saml.requester.remoteIdp.3.samlId=https://unity.example.com/saml-idp/metadata
+unity.saml.requester.remoteIdp.3.certificate=MAIN
+unity.saml.requester.remoteIdp.3.requestedNameFormat=urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+unity.saml.requester.remoteIdp.3.translationProfile=samlProfile
+----
+
+The detailed reference of all possible options is given in the <<manual.txt#external-saml,Unity documentation>>.
+
+When SAML authenticator's configuration is ready, the authenticator must be defined in the +unityServer.conf+:
+
+----
+unityServer.core.authenticators.7.authenticatorName=samlWeb
+unityServer.core.authenticators.7.authenticatorType=saml2 with web-saml2
+unityServer.core.authenticators.7.verificatorConfigurationFile=conf/authenticators/remoteSamlAuth.properties
+----
+
+To enable it the server must be restarted, or authenticators must be reloaded in the 
+Server management -> Authenticators panel of the Admin UI.
+
+=== Step 3: Bind SAML authenticator to an endpoint
+
+To bind the SAML authenticator to an endpoint, its name must be added to its authenticators list. For instance
+the following configuration will allow for authenticating to the endpoint either with the above defined SAML
+authenticator or with +pwdWeb+ authenticator:
+
+----
+unityServer.core.endpoints.X.endpointAuthenticators=pwdWeb;samlWeb
+----
+
+The same authenticator can be added to several endpoints. 
+
+To apply the authenticators change, the server must be restarted, or the changed endpoint must be reloaded in the 
+Server management -> Endpoints panel of the Admin UI.
+
+
+=== Step 4: Configure a remote SAML IdP to accept Unity acting as SP 
+
+This part is highly IdP specific. Some of the IdPs require to have the SAML metadata of the Unity SP provided.
+Other will require to provide its SAML name and response return URL, which is 
+https://unity.example.com/unitygw/spSAMLResponseConsumer (for all SAML authenticators).
+
+As an example configuration of Shibboleth IdP and SimpleSAMLPhp is presented below.
+
+==== Shibboleth IdP
+
+Shibboleth IdP is configured using SAML metadata. You can authorize Unity SP by  
+configuring automatic Metadata download from Unity's metadata URL or by downloading the Unity's metadata manually 
+and configuring Shibboleth to use it.
+
+For the latter, simplest option store the metadata in a file (e.g. 
++SHIB_INSTALL/metadata/unity-sp.xml+) and inform Shibboleth about it by adding the following entry to the 
++SHIB_INSTALL/conf/relying-party.xml+ file:
+
+----
+<MetadataProvider xsi:type="FilesystemMetadataProvider" xmlns="urn:mace:shibboleth:2.0:metadata"
+            id="UnityMetadata"
+            metadataFile="SHIB_INSTALL/metadata/unity-sp.xml" />
+----
+
+in the +<metadata:MetadataProvider id="ShibbolethMetadata" xsi:type="metadata:ChainingMetadataProvider">+ element.
+
+==== SimpleSAMLPhp
+
+The simplest way to allow Unity to query SimpleSAMLPhp is to add the following snippet to the 
++metadata/saml20-sp-remote.php+ file:
+
+----
+$metadata['https://unity.example.com/unitygw/saml-sp-metadata/metadata1'] = array (
+  'AssertionConsumerService' =>
+  array (
+    0 =>
+    array (
+      'index' => 0,
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+      'Location' => 'https://unity.example.com/unitygw/spSAMLResponseConsumer',
+    ),
+  ),
+);
+----
+
+Of course IdP functionality must be enabled in SimpleSAMLPhp.

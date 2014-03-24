@@ -25,6 +25,49 @@ we will provide more details.
 
 image::./figures/contentsMan-comments.png[alt="Unity Web Admin UI",align="center",scaledwidth="50%"]
 
+=== Authorization
+
+Unity offers a simple but quite powerful authorization control of its own access. It is controlled by a designated
+attribute: +sys:AuthorizationRole+. The attribute is of enumeration type, and the type can not be changed.
+
+By assigning this attribute to entities, those entities are granted some roles and therefore are authorized to perform 
+certain operations in Unity. The detailed information on what is allowed for each role holder is provided 
+in attribute type description (see Schema Management->Attribute Types). The two most important roles are:
+
+ . +System manager+ who is authorized to perform all actions and
+ . +Regular user+ who can perform all the typical operations reserved for users, i.e. read information about itself.
+
+[NOTE]
+===========
+It is possible to create an entity without assigning any authorization role. Such entity will be present in the system,
+but won't be able to perform besides authentication. It won't be even allowed to read its own attributes.
+===========
+
+[NOTE]
+===========
+A good approach is to define an attribute statement assigning a default authorization role (e.g. +Regular User+
+or +Anonymous User+) to all members of the '/' group.
+===========
+
+The +sys:AuthorizationRole+ is typically assigned in the root ('/') group. However, Unity also supports
+authorization on the group level: all Unity operations which operate on a particular group (e.g. read attributes in 
+a group, add a member to a group, read group members, create a subgroup, etc) are using the +sys:AuthorizationRole+
+attribute which is defined for the user performing the operation in the group in question or in the closest parent 
+where it is defined. Example:
+
+====
+User _Joe_ is a member of +/Faculty/Staff+ group (therefore it is also a member of +/Faculty+) and no other groups. 
+He has the +sys:AuthorizationRole=System Manager+ attribute defined in the +/Faculty/Staff+ group. What's more he has 
++sys:AuthorizationRole=Anonymous User+ defined in '/' group and  +sys:AuthorizationRole=Regular User+ attribute
+in the +/Faculty+ group.
+
+_Joe_ tries to add an attribute to an entity representing _Ann_, in the group +/Faculty/Students+. As he is not a member
+of this group he has no authorization role defined there. The next group to check is +/Faculty+, 
+where he has the authorization role defined (+Regular User+). The role doesn't allow for managing attributes 
+so the operation will fail. However _Joe_ can modify attributes of any entity in the  +/Faculty/Staff+ 
+group as he has +System Manager+ role there.
+====  
+ 
 
 === Registration forms
 
