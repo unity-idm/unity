@@ -125,6 +125,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 		
 		if (VaadinService.getCurrentResponse() != null && VaadinService.getCurrentRequest() != null)
 		{
+			log.debug("HTTP context action will be invoked immediately");
 			vs.lock();
 			try
 			{
@@ -137,6 +138,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 		}
 			
 		WrappedSession ws = vs.getSession();
+		log.debug("HTTP context action will be queued");
 		synchronized (ws)
 		{
 			@SuppressWarnings("unchecked")

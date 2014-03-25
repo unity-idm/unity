@@ -21,6 +21,7 @@ import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
@@ -153,22 +154,30 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	{
 		if (!registrationConfiguration.isShowRegistrationOption())
 			return null;
-		Button register = new Button(msg.getMessage("RegistrationFormChooserDialog.register"));
-		register.addStyleName(Reindeer.BUTTON_LINK);
 		if (registrationConfiguration.getEnabledForms().size() > 0)
 			formsChooser.setAllowedForms(registrationConfiguration.getEnabledForms());
 		formsChooser.initUI();
+		if (formsChooser.getDisplayedForms().size() == 0)
+			return null;
+		
+		Button register = new Button(msg.getMessage("RegistrationFormChooserDialog.register"));
+		register.addStyleName(Reindeer.BUTTON_LINK);
 		
 		final AbstractDialog dialog;
 		if (formsChooser.getDisplayedForms().size() == 1)
 		{
+			RegistrationForm form = formsChooser.getDisplayedForms().get(0);
 			try
 			{
-				dialog = formLauncher.getDialog(formsChooser.getDisplayedForms().get(0), 
-						new RemotelyAuthenticatedContext("--none--"));
+				dialog = formLauncher.getDialog(form, new RemotelyAuthenticatedContext("--none--"));
 			} catch (EngineException e)
 			{
-				log.error("Can't initialize registration form dialog", e);
+				log.info("Can't initialize registration form '" + form.getName() + "' UI. "
+						+ "It can be fine in some cases, but often means "
+						+ "that the form should not be marked "
+						+ "as public or its configuration is invalid: " + e.toString());
+				if (log.isDebugEnabled())
+					log.debug("Deatils: ", e);
 				return null;
 			}
 		} else
