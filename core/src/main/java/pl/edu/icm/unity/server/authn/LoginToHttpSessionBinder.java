@@ -13,9 +13,11 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionBindingListener;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.utils.Log;
 
 /**
  * Helper class, works as application singleton. Maintains an association of Unity's {@link LoginSession}s
@@ -29,6 +31,7 @@ import pl.edu.icm.unity.server.api.internal.LoginSession;
 @Component
 public class LoginToHttpSessionBinder
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, LoginToHttpSessionBinder.class);
 	public static final String USER_SESSION_KEY = "pl.edu.icm.unity.web.WebSession";
 	
 	private Map<String, Collection<HttpSessionWrapper>> bindings = 
@@ -47,9 +50,16 @@ public class LoginToHttpSessionBinder
 			for (HttpSessionWrapper sw: httpSessions)
 			{
 				if (!soft)
+				{
+					log.debug("Invalidating HTTP session " + sw.session.getId()
+							+ " of login session " + sw.loginSessionId);
 					sw.session.invalidate();
-				else
+				} else
+				{
+					log.debug("Removing logged session " + sw.loginSessionId +
+							" from HTTP session " + sw.session.getId());
 					sw.session.removeAttribute(USER_SESSION_KEY);
+				}
 			}
 		}
 	}
@@ -64,6 +74,8 @@ public class LoginToHttpSessionBinder
 		}
 		HttpSessionWrapper wrapper = new HttpSessionWrapper(session, owning.getId());
 		httpSessions.add(wrapper);
+		//to receive unbound event when the session is invalidated
+		session.setAttribute(HttpSessionWrapper.class.getName(), wrapper);
 	}
 	
 	private synchronized void unbindHttpSession(HttpSessionWrapper session, String owning)
@@ -93,6 +105,7 @@ public class LoginToHttpSessionBinder
 		@Override
 		public void valueUnbound(HttpSessionBindingEvent event)
 		{
+			log.trace("Value unbound for session " + loginSessionId);
 			unbindHttpSession(this, loginSessionId);
 		}
 	}

@@ -154,14 +154,7 @@ public class AuthenticationProcessor
 		WrappedSession session = vss.getSession();
 		session.setAttribute(WebSession.USER_SESSION_KEY, ls);
 		
-//		VaadinServletResponse servletResponse = (VaadinServletResponse) VaadinService.getCurrentResponse();
 		HttpSession httpSession = ((WrappedHttpSession) vss.getSession()).getHttpSession();
-//		if (servletResponse == null)
-//		{
-//			log.error("BUG: Can't get VaadinServletResponse");
-//			throw new AuthenticationException("AuthenticationProcessor.authnInternalError");
-//		}
-		
 		sessionBinder.bindHttpSession(httpSession, ls);
 	
 		//we can be called from a bg thread. To set a cookie we need a HTTP request/response.
