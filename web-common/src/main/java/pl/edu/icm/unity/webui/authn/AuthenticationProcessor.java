@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -38,12 +37,12 @@ import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinService;
-import com.vaadin.server.VaadinServletRequest;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedHttpSession;
@@ -136,14 +135,14 @@ public class AuthenticationProcessor
 		dialog.show();
 	}
 	
-	private WrappedSession logged(AuthenticatedEntity authenticatedEntity, AuthenticationRealm realm, 
-			boolean rememberMe) throws AuthenticationException
+	private WrappedSession logged(AuthenticatedEntity authenticatedEntity, final AuthenticationRealm realm, 
+			final boolean rememberMe) throws AuthenticationException
 	{
 		long entityId = authenticatedEntity.getEntityId();
 		String label = getLabel(entityId);
 		Date absoluteExpiration = (realm.getAllowForRememberMeDays() > 0 && rememberMe) ? 
 				new Date(System.currentTimeMillis()+getAbsoluteSessionTTL(realm)) : null;
-		LoginSession ls = sessionMan.getCreateSession(entityId, realm, 
+		final LoginSession ls = sessionMan.getCreateSession(entityId, realm, 
 				label, authenticatedEntity.isUsedOutdatedCredential(), 
 				absoluteExpiration);
 		VaadinSession vss = VaadinSession.getCurrent();
@@ -155,19 +154,29 @@ public class AuthenticationProcessor
 		WrappedSession session = vss.getSession();
 		session.setAttribute(WebSession.USER_SESSION_KEY, ls);
 		
-		VaadinServletRequest servletRequest = (VaadinServletRequest) VaadinService.getCurrentRequest();
-		VaadinServletResponse servletResponse = (VaadinServletResponse) VaadinService.getCurrentResponse();
-		if (servletRequest == null || servletResponse == null)
-		{
-			log.error("BUG: Can't get VaadinServletRequest/Response");
-			throw new AuthenticationException("AuthenticationProcessor.authnInternalError");
-		}
-		
-		HttpSession httpSession = ((HttpServletRequest)servletRequest.getRequest()).getSession();
+//		VaadinServletResponse servletResponse = (VaadinServletResponse) VaadinService.getCurrentResponse();
+		HttpSession httpSession = ((WrappedHttpSession) vss.getSession()).getHttpSession();
+//		if (servletResponse == null)
+//		{
+//			log.error("BUG: Can't get VaadinServletResponse");
+//			throw new AuthenticationException("AuthenticationProcessor.authnInternalError");
+//		}
 		
 		sessionBinder.bindHttpSession(httpSession, ls);
-		setupSessionCookie(getSessionCookieName(realm.getName()), ls.getId(), servletResponse, rememberMe,
-				realm);
+	
+		//we can be called from a bg thread. To set a cookie we need a HTTP request/response.
+		UnityUIBase.addHttpContextAction(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				VaadinServletResponse servletResponse = 
+						(VaadinServletResponse) VaadinService.getCurrentResponse();
+				setupSessionCookie(getSessionCookieName(realm.getName()), 
+						ls.getId(), servletResponse, rememberMe,
+						realm);
+			}
+		});
 		
 		InvocationContext.getCurrent().addAuthenticatedIdentities(authenticatedEntity.getAuthenticatedWith());
 		
@@ -183,6 +192,9 @@ public class AuthenticationProcessor
 	{
 		return 3600*24*realm.getAllowForRememberMeDays();
 	}
+	
+
+	
 	
 	private static void setupSessionCookie(String cookieName, String sessionId, 
 			HttpServletResponse servletResponse, boolean rememberMe, AuthenticationRealm realm)

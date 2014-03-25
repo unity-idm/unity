@@ -11,7 +11,8 @@ import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 
 /**
- * Holds information stored in the HTTP session.
+ * Holds Unity-related information attached to the {@link VaadinSession}, i.e. each instance of this class
+ * is stored per one Vaadin application per each HTTP session.
  * @author K. Benedyczak
  */
 public class WebSession
@@ -21,6 +22,7 @@ public class WebSession
 	 * with authenticated user is stored in the HTTP session.
 	 */
 	public static final String USER_SESSION_KEY = LoginToHttpSessionBinder.USER_SESSION_KEY;
+	public static final String ACTIONS_LIST_KEY = WebSession.class.getName()+".actionsList";
 	
 	private EventsBus eventBus;
 	
