@@ -32,8 +32,11 @@ import pl.edu.icm.unity.server.utils.Log;
 public class LoginToHttpSessionBinder
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, LoginToHttpSessionBinder.class);
+	/**
+	 * Under this key the {@link LoginSession} id is stored in the HTTP session.
+	 */
 	public static final String USER_SESSION_KEY = "pl.edu.icm.unity.web.WebSession";
-	
+
 	private Map<String, Collection<HttpSessionWrapper>> bindings = 
 			new HashMap<String, Collection<HttpSessionWrapper>>(1000);
 	
@@ -72,10 +75,12 @@ public class LoginToHttpSessionBinder
 			httpSessions = new HashSet<HttpSessionWrapper>();
 			bindings.put(owning.getId(), httpSessions);
 		}
+		log.debug("Binding HTTP session " + session.getId() + " to login session " + owning.getId());
 		HttpSessionWrapper wrapper = new HttpSessionWrapper(session, owning.getId());
 		httpSessions.add(wrapper);
 		//to receive unbound event when the session is invalidated
 		session.setAttribute(HttpSessionWrapper.class.getName(), wrapper);
+		session.setAttribute(USER_SESSION_KEY, owning);
 	}
 	
 	private synchronized void unbindHttpSession(HttpSessionWrapper session, String owning)

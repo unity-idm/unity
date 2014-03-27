@@ -74,8 +74,8 @@ public class SessionManagementImpl implements SessionManagement
 					tokensManagement.updateToken(SESSION_TOKEN_TYPE, ret.getId(), null, 
 							contents, transaction);
 					
-					if (log.isTraceEnabled())
-						log.trace("Using existing session " + ret.getId() + " for logged entity "
+					if (log.isDebugEnabled())
+						log.debug("Using existing session " + ret.getId() + " for logged entity "
 							+ ret.getEntityId() + " in realm " + realm.getName());
 					tokensManagement.commitTokenTransaction(transaction);
 					return ret;

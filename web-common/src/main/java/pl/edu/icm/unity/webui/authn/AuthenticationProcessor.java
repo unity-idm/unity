@@ -38,7 +38,6 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.UnityUIBase;
-import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 import com.vaadin.server.Page;
@@ -152,12 +151,11 @@ public class AuthenticationProcessor
 			throw new AuthenticationException("AuthenticationProcessor.authnInternalError");
 		}
 		WrappedSession session = vss.getSession();
-		session.setAttribute(WebSession.USER_SESSION_KEY, ls);
 		
-		HttpSession httpSession = ((WrappedHttpSession) vss.getSession()).getHttpSession();
-		sessionBinder.bindHttpSession(httpSession, ls);
+		final HttpSession httpSession = ((WrappedHttpSession) vss.getSession()).getHttpSession();
 	
-		//we can be called from a bg thread. To set a cookie we need a HTTP request/response.
+		sessionBinder.bindHttpSession(httpSession, ls);
+		//we can be called from a bg thread. To set a cookie & manipulate session we need a HTTP request/response.
 		UnityUIBase.addHttpContextAction(new Runnable()
 		{
 			@Override

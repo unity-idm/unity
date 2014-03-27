@@ -12,8 +12,8 @@ import com.vaadin.ui.Label;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog.Callback;
@@ -56,7 +56,7 @@ public class OutdatedCredentialDialog extends AbstractDialog
 	protected void onConfirm()
 	{
 		WrappedSession vss = VaadinSession.getCurrent().getSession();
-		LoginSession ls = (LoginSession) vss.getAttribute(WebSession.USER_SESSION_KEY);
+		LoginSession ls = (LoginSession) vss.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
 		CredentialsChangeDialog dialog = new CredentialsChangeDialog(msg, 
 				ls.getEntityId(), 
 				authnMan, 

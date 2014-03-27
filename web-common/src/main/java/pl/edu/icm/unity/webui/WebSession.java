@@ -6,8 +6,6 @@ package pl.edu.icm.unity.webui;
 
 import com.vaadin.server.VaadinSession;
 
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 
 /**
@@ -17,13 +15,6 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
  */
 public class WebSession
 {
-	/**
-	 * Under this key, the object {@link LoginSession} 
-	 * with authenticated user is stored in the HTTP session.
-	 */
-	public static final String USER_SESSION_KEY = LoginToHttpSessionBinder.USER_SESSION_KEY;
-	public static final String ACTIONS_LIST_KEY = WebSession.class.getName()+".actionsList";
-	
 	private EventsBus eventBus;
 	
 	public static WebSession getCurrent()

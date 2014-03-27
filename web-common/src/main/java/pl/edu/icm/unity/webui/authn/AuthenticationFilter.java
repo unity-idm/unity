@@ -27,7 +27,6 @@ import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.webui.WebSession;
 
 /**
  * Servlet filter redirecting unauthenticated requests to the protected addresses,
@@ -73,33 +72,37 @@ public class AuthenticationFilter implements Filter
 			return;
 		}
 
-		HttpSession session = httpRequest.getSession(false);
-		String sessionId = getUnitySessionIdFromCookie(httpRequest);
+		HttpSession httpSession = httpRequest.getSession(false);
+		String loginSessionId;
 		
-		if (session != null)
+		if (httpSession != null)
 		{
-			LoginSession ls = (LoginSession) session.getAttribute(WebSession.USER_SESSION_KEY);
-			if (ls != null)
+			LoginSession loginSession = (LoginSession) httpSession.getAttribute(
+					LoginToHttpSessionBinder.USER_SESSION_KEY);
+			if (loginSession != null)
 			{
+				loginSessionId = loginSession.getId();
 				try
 				{
 					if (!hasPathPrefix(httpRequest.getPathInfo(), 
 							ApplicationConstants.HEARTBEAT_PATH + '/'))
 					{
-						log.trace("Update session activity for " + sessionId);
-						sessionMan.updateSessionActivity(sessionId);
+						log.trace("Update session activity for " + loginSessionId);
+						sessionMan.updateSessionActivity(loginSessionId);
 					}
+					gotoResource(httpRequest, response, chain);
+					return;
 				} catch (WrongArgumentException e)
 				{
-					log.debug("Can't update session activity ts for " + sessionId + 
-							" - expired(?)");
+					log.debug("Can't update session activity ts for " + loginSessionId + 
+							" - expired(?), HTTP session " + httpSession.getId(), e);
 				}
-				gotoResource(httpRequest, response, chain);
-				return;
 			}
 		}
 
-		if (sessionId == null)
+		loginSessionId = getUnitySessionIdFromCookie(httpRequest);
+		
+		if (loginSessionId == null)
 		{
 			gotoAuthn(httpRequest, httpResponse);
 			return;
@@ -119,7 +122,7 @@ public class AuthenticationFilter implements Filter
 		LoginSession ls;
 		try
 		{
-			ls = sessionMan.getSession(sessionId);
+			ls = sessionMan.getSession(loginSessionId);
 		} catch (WrongArgumentException e)
 		{
 			dosGauard.unsuccessfulAttempt(clientIp);
@@ -127,10 +130,10 @@ public class AuthenticationFilter implements Filter
 			return;
 		}
 		dosGauard.successfulAttempt(clientIp);
-		if (session == null)
-			session = httpRequest.getSession(true);
-		session.setAttribute(WebSession.USER_SESSION_KEY, ls);
-		sessionBinder.bindHttpSession(session, ls);
+		if (httpSession == null)
+			httpSession = httpRequest.getSession(true);
+
+		sessionBinder.bindHttpSession(httpSession, ls);
 		
 		gotoResource(httpRequest, response, chain);
 	}

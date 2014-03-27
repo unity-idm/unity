@@ -230,6 +230,6 @@ public class LoginSession
 	@Override
 	public String toString()
 	{
-		return id + "@" + realm + " of " + entityId;
+		return id + "@" + realm + " of entity " + entityId;
 	}
 }

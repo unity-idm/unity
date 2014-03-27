@@ -32,6 +32,12 @@ import com.vaadin.ui.UI;
  */
 public abstract class UnityUIBase extends UI implements UnityWebUI
 {
+	/**
+	 * Under this key a {@link Queue} of Runnables is stored. The runnables are run by the 
+	 * {@link RequestsContextQueueHandler}.
+	 */
+	public static final String ACTIONS_LIST_KEY = "pl.edu.icm.unity.web.WebSession.actionsList";
+	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UnityUIBase.class);
 	
 	protected UnityMessageSource msg;
@@ -142,11 +148,11 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 		synchronized (ws)
 		{
 			@SuppressWarnings("unchecked")
-			Queue<Runnable> actions = (Queue<Runnable>) ws.getAttribute(WebSession.ACTIONS_LIST_KEY);
+			Queue<Runnable> actions = (Queue<Runnable>) ws.getAttribute(ACTIONS_LIST_KEY);
 			if (actions == null)
 			{
 				actions = new LinkedList<Runnable>();
-				ws.setAttribute(WebSession.ACTIONS_LIST_KEY, actions);
+				ws.setAttribute(ACTIONS_LIST_KEY, actions);
 			}
 			actions.add(action);
 		}
@@ -158,7 +164,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 		synchronized(ws)
 		{
 			@SuppressWarnings("unchecked")
-			Queue<Runnable> actions = (Queue<Runnable>) ws.getAttribute(WebSession.ACTIONS_LIST_KEY);
+			Queue<Runnable> actions = (Queue<Runnable>) ws.getAttribute(ACTIONS_LIST_KEY);
 			Queue<Runnable> ret = actions == null ? new ArrayDeque<Runnable>() 
 					: new ArrayDeque<Runnable>(actions);
 			if (actions != null)

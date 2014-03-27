@@ -24,6 +24,7 @@ import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -201,7 +202,7 @@ public class UnityVaadinServlet extends VaadinServlet
 		if (session != null)
 		{
 			LoginSession ls = (LoginSession) session.getAttribute(
-					WebSession.USER_SESSION_KEY);
+					LoginToHttpSessionBinder.USER_SESSION_KEY);
 			if (ls != null)
 				ctx.setLoginSession(ls);
 		}
