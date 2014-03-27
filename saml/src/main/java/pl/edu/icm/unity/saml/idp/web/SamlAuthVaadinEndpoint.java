@@ -100,7 +100,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		
 		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
 				description.getContextAddress()+AUTHENTICATION_PATH,
-				description.getRealm().getName(), sessionMan, sessionBinder);
+				description.getRealm(), sessionMan, sessionBinder);
 		context.addFilter(new FilterHolder(authnFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
 		
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();

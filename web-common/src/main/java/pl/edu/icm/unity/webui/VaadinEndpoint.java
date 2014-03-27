@@ -15,6 +15,7 @@ import java.util.Properties;
 import javax.servlet.DispatcherType;
 import javax.servlet.Servlet;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -29,6 +30,7 @@ import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
@@ -41,6 +43,8 @@ import pl.edu.icm.unity.webui.authn.AuthenticationUI;
  */
 public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointInstance
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, VaadinEndpoint.class);
+	public static final int DEFAULT_HEARTBEAT = 10;
 	public static final String AUTHENTICATION_PATH = "/authentication";
 	public static final String VAADIN_RESOURCES = "/VAADIN/*";
 	public static final String SESSION_TIMEOUT_PARAM = "session-timeout";
@@ -106,7 +110,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		
 		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
-				description.getContextAddress()+AUTHENTICATION_PATH, description.getRealm().getName(),
+				description.getContextAddress()+AUTHENTICATION_PATH, description.getRealm(),
 				sessionMan, sessionBinder);
 		context.addFilter(new FilterHolder(authnFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
 
@@ -129,9 +133,19 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 
 	protected int getHeartbeatInterval(int sessionTimeout)
 	{
-		return (sessionTimeout < 20) ? (sessionTimeout/2) : 10;
+		if (sessionTimeout >= 2*DEFAULT_HEARTBEAT) 
+			return DEFAULT_HEARTBEAT;
+		return sessionTimeout/2;
 	}
 	
+	/**
+	 * Sets HTTP session timeout. If set, then it is set to less then the realm's login session timeout.
+	 * the delta is computed in such way that vaadin is able to send at least one heart beat after the 
+	 * HTTP/vaadin session expires, but before the login session expires.
+	 * @param servlet
+	 * @param unrestrictedSessionTime
+	 * @return
+	 */
 	protected ServletHolder createServletHolder(Servlet servlet, boolean unrestrictedSessionTime)
 	{
 		ServletHolder holder = new ServletHolder(servlet);
@@ -144,15 +158,9 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 			holder.setInitParameter("closeIdleSessions", "true");
 			int sessionTimeout = description.getRealm().getMaxInactivity();
 			int heartBeat = getHeartbeatInterval(sessionTimeout);
-			if (sessionTimeout > heartBeat + 10)
-			{
-				sessionTimeout = sessionTimeout - heartBeat - 5;
-			} else
-			{
-				sessionTimeout -= 5;
-				if (sessionTimeout < 5)
-					sessionTimeout = 5;
-			}
+			sessionTimeout = sessionTimeout - heartBeat - heartBeat/2;
+			if (sessionTimeout < 2)
+				sessionTimeout = 2;
 			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(sessionTimeout));
 		}
 		return holder;
@@ -163,6 +171,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		ServletHolder holder = createServletHolder(servlet, unrestrictedSessionTime);
 		int sessionTimeout = description.getRealm().getMaxInactivity();
 		int heartBeat = getHeartbeatInterval(sessionTimeout);
+		log.debug("Servlet " + servlet.toString() + " - heartBeat=" +heartBeat);
 			
 		boolean productionMode = genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.PRODUCTION_MODE);
 		holder.setInitParameter("heartbeatInterval", String.valueOf(heartBeat));

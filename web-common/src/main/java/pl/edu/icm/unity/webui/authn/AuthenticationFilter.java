@@ -27,6 +27,7 @@ import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
 /**
  * Servlet filter redirecting unauthenticated requests to the protected addresses,
@@ -46,13 +47,14 @@ public class AuthenticationFilter implements Filter
 	private LoginToHttpSessionBinder sessionBinder;
 	
 	
-	public AuthenticationFilter(String protectedPath, String authnServletPath, String realmName,
+	public AuthenticationFilter(String protectedPath, String authnServletPath, AuthenticationRealm realm,
 			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder)
 	{
 		this.protectedPath = protectedPath;
 		this.authnServletPath = authnServletPath;
-		dosGauard = new UnsuccessfulAuthenticationCounter(20, 3*60000);
-		sessionCookie = AuthenticationProcessor.getSessionCookieName(realmName);
+		dosGauard = new UnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), 
+				realm.getBlockFor()*1000);
+		sessionCookie = AuthenticationProcessor.getSessionCookieName(realm.getName());
 		this.sessionMan = sessionMan;
 		this.sessionBinder = sessionBinder;
 	}
@@ -64,7 +66,8 @@ public class AuthenticationFilter implements Filter
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		String servletPath = httpRequest.getServletPath();
-		if (!hasPathPrefix(servletPath, protectedPath))
+		if (!hasPathPrefix(servletPath, protectedPath) || hasPathPrefix(httpRequest.getPathInfo(), 
+				ApplicationConstants.HEARTBEAT_PATH + '/'))
 		{
 			if (log.isTraceEnabled())
 				log.trace("Request to not protected address: " + httpRequest.getRequestURI());
@@ -125,7 +128,10 @@ public class AuthenticationFilter implements Filter
 			ls = sessionMan.getSession(loginSessionId);
 		} catch (WrongArgumentException e)
 		{
+			log.trace("Got request with invalid login session id " + loginSessionId + " to " +
+					httpRequest.getRequestURI() );
 			dosGauard.unsuccessfulAttempt(clientIp);
+			clearSessionCookie(httpResponse);
 			gotoAuthn(httpRequest, httpResponse);
 			return;
 		}
@@ -166,6 +172,14 @@ public class AuthenticationFilter implements Filter
 		return null;
 	}
 	
+	private void clearSessionCookie(HttpServletResponse response)
+	{
+		Cookie unitySessionCookie = new Cookie(sessionCookie, "");
+		unitySessionCookie.setPath("/");
+		unitySessionCookie.setSecure(true);
+		unitySessionCookie.setMaxAge(0);
+		response.addCookie(unitySessionCookie);
+	}
 	
 	public static boolean hasPathPrefix(String pathInfo , String prefix) {
 

@@ -493,6 +493,10 @@ public class EngineInitialization extends LifecycleBase
 				
 				realmManagement.addRealm(new AuthenticationRealm(name, description, blockAfter, 
 						blockFor, remeberMe, maxInactive));
+				description = description == null ? "" : description;
+				log.info(" - " + name + ": " + description + " [blockAfter " + 
+						blockAfter + ", blockFor " + blockFor + 
+						", rememberMe " + remeberMe + ", maxInactive " + maxInactive);
 			}
 		} catch (EngineException e)
 		{
