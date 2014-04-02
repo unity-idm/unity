@@ -116,7 +116,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		DocumentationCategory initCredCat = new DocumentationCategory("Content initializers: credentials", "2");
 		DocumentationCategory initCredReqCat = new DocumentationCategory("Content initializers: credential requirements", "3");
 		DocumentationCategory initAuthnCat = new DocumentationCategory("Content initializers: authenticators", "4");
-		DocumentationCategory initEndpointsCat = new DocumentationCategory("Content initializers: endpoints", "5");
+		DocumentationCategory initRealmCat = new DocumentationCategory("Content initializers: authentication realms", "5");
+		DocumentationCategory initEndpointsCat = new DocumentationCategory("Content initializers: endpoints", "6");
 		DocumentationCategory otherCat = new DocumentationCategory("Other", "8");
 		
 		defaults.put(ENABLED_LOCALES, new PropertyMD().setList(true).setCategory(mainCat).
@@ -169,7 +170,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("Endpoint name"));
 		defaults.put(ENDPOINT_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(initEndpointsCat).
 				setDescription("Endpoint authenticator names: each set is separated with ';' and particular authenticators in each set with ','."));
-		defaults.put(ENDPOINT_REALM, new PropertyMD().setMandatory().setStructuredListEntry(ENDPOINTS).
+		defaults.put(ENDPOINT_REALM, new PropertyMD().setMandatory().setStructuredListEntry(ENDPOINTS).setCategory(initEndpointsCat).
 				setDescription("Authentication realm name, to which this endpoint belongs."));
 
 		defaults.put(AUTHENTICATORS, new PropertyMD().setStructuredList(true).setCategory(initAuthnCat).
@@ -185,21 +186,23 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		defaults.put(AUTHENTICATOR_RETRIEVAL_CONFIG, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setCategory(initAuthnCat).
 				setDescription("Authenticator configuration file of the retrieval"));
 
-		defaults.put(REALMS, new PropertyMD().setStructuredList(false).
+		defaults.put(REALMS, new PropertyMD().setStructuredList(false).setCategory(initRealmCat).
 				setDescription("List of authentication realm definitions."));
-		defaults.put(REALM_NAME, new PropertyMD().setMandatory().setStructuredListEntry(REALMS).
+		defaults.put(REALM_NAME, new PropertyMD().setMandatory().setStructuredListEntry(REALMS).setCategory(initRealmCat).
 				setDescription("Defines the realm's name. Must contain only alphanumeric letters, "
 						+ "and can not exceed 20 characters."));
-		defaults.put(REALM_DESCRIPTION, new PropertyMD().setStructuredListEntry(REALMS).
+		defaults.put(REALM_DESCRIPTION, new PropertyMD().setStructuredListEntry(REALMS).setCategory(initRealmCat).
 				setDescription("Realm's description."));
-		defaults.put(REALM_BLOCK_AFTER_UNSUCCESSFUL, new PropertyMD("5").setPositive().setStructuredListEntry(REALMS).
+		defaults.put(REALM_BLOCK_AFTER_UNSUCCESSFUL, new PropertyMD("5").setPositive().setStructuredListEntry(REALMS).setCategory(initRealmCat).
 				setDescription("Defines maximum number of unsuccessful logins before the access is temporarely blocked for a client."));
-		defaults.put(REALM_BLOCK_FOR, new PropertyMD("60").setPositive().setStructuredListEntry(REALMS).
+		defaults.put(REALM_BLOCK_FOR, new PropertyMD("60").setPositive().setStructuredListEntry(REALMS).setCategory(initRealmCat).
 				setDescription("Defines for how long (in seconds) the access should be blocked for the" +
 						"client reaching the limit of unsuccessful logins."));
-		defaults.put(REALM_MAX_INACTIVITY, new PropertyMD("1800").setPositive().setStructuredListEntry(REALMS).
-				setDescription("Defines after what time of inactivity the login session is terminated (in seconds)."));
-		defaults.put(REALM_REMEMBER_ME, new PropertyMD("-1").setStructuredListEntry(REALMS).
+		defaults.put(REALM_MAX_INACTIVITY, new PropertyMD("1800").setPositive().setStructuredListEntry(REALMS).setCategory(initRealmCat).
+				setDescription("Defines after what time of inactivity the login session is terminated (in seconds). "
+						+ "Note: the HTTP sessions (if applicable for endpoint) will be couple of seconds "
+						+ "shorter to allow for login session expiration warning."));
+		defaults.put(REALM_REMEMBER_ME, new PropertyMD("-1").setStructuredListEntry(REALMS).setCategory(initRealmCat).
 				setDescription("(web endpoints only) If set to positive number, the realm authentication will allow for "
 						+ "remeberinging the user's login even after session is lost due "
 						+ "to expiration or browser closing. The period of time to remember the login "
