@@ -1,3 +1,4 @@
+[id=introduction]
 == What (for) is Unity?
 
 In short Unity is a *complete solution for identity, federation and inter-federation management*.
@@ -115,7 +116,7 @@ image::./figures/local.png[alt="Powerful, built-in Unity identity management sub
 
 
 [glossary]
-=== General Unity concepts
+=== Glossary: General Unity concepts
 
 Below a glossary of key terms which are used throughout this manual is presented.
 
@@ -124,6 +125,11 @@ Endpoint::
  Each endpoint type can be deployed multiple times, with different configuration. A deployed and configured endpoint type
  is called an _endpoint instance_ or just an _endpoint_ for short. Examples: Web Admin UI is an endpoint type providing 
  web browser management access; SAML SOAP authentication is enabled by another endpoint.
+
+Authenticator::
+ It is a configured authentication component which can perform a full authentication using a single credential 
+ with a well defined way to obtain it from the principal being authenticated. Authenticators are associated 
+ with endpoints. 
 
 Entity::
  Entity is used to describe a principal that can try to authenticate using Unity, have assigned attributes etc.
@@ -180,3 +186,5 @@ Upstream or remote IdP::
  the authenticated user (besides the fact that the user correctly authenticated with as a given identity). Unity is
  able to make use of this information: translate it and insert to the local database. This is done with _translation profiles_.
 
+Translation Profile::
+ See the above point.

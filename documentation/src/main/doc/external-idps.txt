@@ -7,6 +7,9 @@ authentication hub (many authentication options are offered in a single place) a
 authentication bridge (Unity client can use different authentication protocol then the 
 protocol of the upstream IdP).
 
+_External IdPs are configured as specialize authenticators which outsource credential verification to 
+the upstream service. So this section treats about the configuration of external authenticators._
+
 Data from external IdPs is accessed in a protocol specific way. The configuration of this
 part is described in the following subsections. After the protocol specific part, a common process 
 for all external IdP types take place: translation of the obtained data to the internal Unity 
@@ -17,48 +20,21 @@ identity-related information. It is configured with so called _translation profi
 
 Translation profile is a named, ordered list of conditional rules. The rules are used to 
 modify the remotely obtained data and/or to perform automatic modifications of the Unity's 
-database. For instance translation profile can change remote attribute 'height' value from
-inches to centimeters and insert a remotely authenticated user to the local database (to the correct group)
+database. For instance translation profile can change remote attribute 'size' name to
+'width' and insert a remotely authenticated user to the local database (to the correct group)
 if the user is not yet there.
 
-Translation profile is associated with a remote authenticator in its configuration. 
-The definition of the profile itself is given in a separate JSON file and the list 
-of profile files is specified in the Unity main configuration file.
+Translation profile is associated with a remote authenticator in its configuration.  
+The definition of the profiles is done with the Admin UI (Server management->Translation profiles).
 
 Translation profile (both conditions and rules) operate on a data structure which is initially
 filled by the protocol specific component. The structure can contain:
- * Identity (or identities) authenticated by the remote IdP.
- * External attributes encoded with a list of string values.
- * Groups assigned by the remote IdP.
+
+. Identity (or identities) authenticated by the remote IdP.
+. External attributes encoded with a list of string values.
+. Groups assigned by the remote IdP.
  
 What data is actually returned is dependent on the protocol, upstream server and callout configuration.
-
-
-The overall syntax of the translation profile file is as follows:
-
-----
-{
-	"name": "PROFILE NAME",
-	"description": "PROFILE DESCRIPTION",
-	"rules": [
-		{
-			"condition": {
-				"conditionValue": "RULE CONDITION"
-			}, 
-			"action": {
-				"name": "ACTION NAME",
-				"parameters": [
-					ACTION-PARAM1,
-					ASTION-PARAM2,
-					...
-				]
-			}			
-		},
-		
-        ... OTHER RULES ...
-    ]
-}
-----
 
 The rule condition is given as a MVEL expression language. The documentation can be found here 
 http://mvel.codehaus.org/Language+Guide+for+2.0 and the quick start is here
@@ -67,8 +43,9 @@ The context of the expression language contains three map objects named +identit
 +groups+ and +attributes+, indexed with identity, group and attribute names respectively. 
 
 For instance the following condition tests whether the authenticated user name is +john+.
+
 ----
-"conditionValue": "identities[\"john\"] != null"
+identities[\"john\"] != null
 ----  
 
 The actions and their arguments are documented in the following table. Where argument is ended with _RE_
@@ -98,19 +75,8 @@ without any identity change (the original identity is replaced with itself) and 
 +PasswordOnly+ credential requirement. 
 
 ----
-        {
-			"condition": {
-				"conditionValue": "true"
-			}, 
-			"action": {
-				"name": "mapIdentity",
-				"parameters": [
-					"(.*)",
-					"$1",
-					"PasswordOnly"
-				]
-			}			
-		}
+condition: true
+action: mapIdentity ((.*), $1, PasswordOnly)
 ----
 
 

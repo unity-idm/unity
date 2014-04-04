@@ -12,6 +12,8 @@ include::introduction.txt[]
 
 include::installation.txt[]
 
+include::quickstart.txt[]
+
 include::update.txt[]
 
 include::configuration.txt[]

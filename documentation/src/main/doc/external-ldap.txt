@@ -1,5 +1,8 @@
 === LDAP 
 
+Credential verificator name:: +ldap+
+Compatible credentials:: +password+
+
 LDAP based authentication allows for outsourcing credential verification to a server 
 talking with the LDAP protocol, as OpenLDAP or Active Directory.
 
@@ -7,7 +10,17 @@ To configure LDAP authentication a server address must be provided as well as so
 regarding the LDAP directory schema. The amount of options varies depending on the amount of 
 information that should be retrieved from LDAP. 
 
-Let's consider an (complex) example:
+The typical authenticator's configuration will look as follows:
+
+----
+unityServer.core.authenticators.x.authenticatorName=ldapWeb
+unityServer.core.authenticators.x.authenticatorType=ldap with web-password
+unityServer.core.authenticators.x.verificatorConfigurationFile=conf/authenticators/ldap.properties
+unityServer.core.authenticators.x.retrievalConfigurationFile=conf/authenticators/passwordRetrieval-ldap.json
+----
+
+Let's consider an (complex) example of a configuration of the LDAP verificator 
+in file +conf/authenticators/ldap.properties+:
 
 ----
 ldap.servers.1=localhost

@@ -115,6 +115,7 @@ where +dn+ is a distinguished name of the Service Provider using X.500 name to i
 
 The version 1.2.0 introduces a new important concept: authentication realms. This new feature requires 
 several configuration updates:
+
 . Desired authentication realms should be planned (see authentication realms documentation) and configured in 
  the main configuration file +unityServer.conf+. 
 . The former endpoint specific options: +unity.endpoint.ws.blockFor+, +unity.endpoint.ws.blockAfterUnsuccessfulLogins+
