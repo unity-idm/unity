@@ -30,7 +30,7 @@
 <form action="${samlService}" method="post">
 	<div>
 	<#if RelayState??>
-		<input type="hidden" name="RelayState" value="${RelayState}"/>
+		<input type="hidden" name="RelayState" value="${RelayState?url}"/>
 	</#if>
 
 	<input type="hidden" name="SAMLResponse" value="${SAMLResponse}"/>
