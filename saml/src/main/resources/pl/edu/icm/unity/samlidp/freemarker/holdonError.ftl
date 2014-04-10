@@ -26,7 +26,7 @@ function forceContinue()
     </div>
 	<div>
 	<#if RelayState??>
-		<input type="hidden" name="RelayState" value="${RelayState?url}"/>
+		<input type="hidden" name="RelayState" value="${RelayState?url('UTF-8')}"/>
 	</#if>
 
 	<input type="hidden" name="SAMLRequest" value="${originalRequest}"/>
