@@ -56,18 +56,18 @@ public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 			DelegationRestrictions restrictions) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
-		boolean etdMode = checkX500Issuer(getContext().getRequest().getIssuer()) && 
-				SAMLConstants.NFORMAT_DN.equals(getRequestedFormat());
-		if (!etdMode)
-			return super.processAuthnRequest(authenticatedIdentity, attributes);
-		
-		SubjectType authenticatedOne = establishSubject(authenticatedIdentity);
-
 		if (samlConfiguration.getBooleanValue(SamlIdpProperties.RETURN_SINGLE_ASSERTION))
 			log.info("The " + SamlIdpProperties.RETURN_SINGLE_ASSERTION + 
 					" = true setting is ignored for UNICORE IdP. " +
 					"Set it to false to disable this message");
 		
+		boolean etdMode = checkX500Issuer(getContext().getRequest().getIssuer()) && 
+				SAMLConstants.NFORMAT_DN.equals(getRequestedFormat());
+		if (!etdMode)
+			return super.processAuthnRequest(authenticatedIdentity, attributes, false);
+		
+		SubjectType authenticatedOne = establishSubject(authenticatedIdentity);
+
 		AssertionResponse resp = getOKResponseDocument();
 		resp.addAssertion(createAuthenticationAssertion(authenticatedOne, null));
 

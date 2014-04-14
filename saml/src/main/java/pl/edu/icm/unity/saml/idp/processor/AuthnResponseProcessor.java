@@ -91,12 +91,19 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 	public ResponseDocument processAuthnRequest(Identity authenticatedIdentity, Collection<Attribute<?>> attributes) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
+		boolean returnSingleAssertion = samlConfiguration.getBooleanValue(
+				SamlIdpProperties.RETURN_SINGLE_ASSERTION);
+		return processAuthnRequest(authenticatedIdentity, attributes, returnSingleAssertion);
+	}
+	
+	protected ResponseDocument processAuthnRequest(Identity authenticatedIdentity, 
+			Collection<Attribute<?>> attributes, boolean returnSingleAssertion) 
+			throws SAMLRequesterException, SAMLProcessingException
+	{
 		SubjectType authenticatedOne = establishSubject(authenticatedIdentity);
 
 		AssertionResponse resp = getOKResponseDocument();
 		
-		boolean returnSingleAssertion = samlConfiguration.getBooleanValue(
-				SamlIdpProperties.RETURN_SINGLE_ASSERTION);
 		if (returnSingleAssertion)
 			resp.addAssertion(createAuthenticationAssertion(authenticatedOne, attributes));
 		else
@@ -112,7 +119,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		}
 		return resp.getXMLBeanDoc();
 	}
-
+	
 	protected SubjectType establishSubject(Identity authenticatedIdentity)
 	{
 		String format = getRequestedFormat();
