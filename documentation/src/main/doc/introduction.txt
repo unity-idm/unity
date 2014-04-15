@@ -131,6 +131,11 @@ Authenticator::
  with a well defined way to obtain it from the principal being authenticated. Authenticators are associated 
  with endpoints. 
 
+Authentication Realm::
+ It is a simple group of endpoints, which share login sessions. Client logged to one of realm's endpoints
+ is immediately logged to all other endpoints of the realm. Authentication realms are used to control login session
+ settings.  
+
 Entity::
  Entity is used to describe a principal that can try to authenticate using Unity, have assigned attributes etc.
  In practice it is a user or software agent. We can say that in the first place, Unity is a tool to manage and authenticate entities.

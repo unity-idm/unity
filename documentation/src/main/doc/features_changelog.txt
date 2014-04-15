@@ -84,9 +84,10 @@
 |Feature 						| Status 						| Notes
 |User name						| icon:check[role="green"]		|
 |X.500 distinguished name (DN)	| icon:check[role="green"]		|
-|Persistent, anonymous id		| icon:check[role="green"]		|
-|Transient, anonymous id		| icon:exclamation[role="red"]	| Not yet available
-|URI							| icon:exclamation[role="red"]	| Not yet available
+|Persistent (anonymous)		    | icon:check[role="green"]		|
+|Persistent,targeted (anonymous)| icon:check[role="green"]		|
+|Transient,targeted (anonymous)	| icon:check[role="green"]		|
+|Opaque identifier				| icon:check[role="green"]		|
 |Other types					| icon:exclamation[role="red"]	| Not yet available
 |===
 
