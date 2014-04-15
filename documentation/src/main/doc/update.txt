@@ -135,3 +135,7 @@ This setting controls the intended purpose of the template - what determines the
 The currently possible values are: +PasswordResetCode+, +RegistrationRequestSubmitted+, +RegistrationRequestUpdated+, 
 +RegistrationRequestAccepted+ and +RegistrationRequestRejected+.  
 
+Note: translation profiles and templates are not preserved automatically during upgrade. Therefore the easiest way to
+preserve them is to edit the templates in the new Admin UI tab (in Server management) and to load the old translation
+profiles from the +unityServer.conf+. After that translation profiles can be edited from the Admin UI, and their 
+configuration files can be dropped.
