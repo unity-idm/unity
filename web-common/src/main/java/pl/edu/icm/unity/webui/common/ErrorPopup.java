@@ -56,8 +56,7 @@ public class ErrorPopup
 		if (log.isDebugEnabled())
 		{
 			log.debug("Error popup showed an error to the user: " + message);
-			if(e != null) 
-				log.debug("What's more there was an exception attached which caused an error:", e);
+			log.debug("What's more there was an exception attached which caused an error:", e);
 		}
 		showError(msg, message, description);
 	}

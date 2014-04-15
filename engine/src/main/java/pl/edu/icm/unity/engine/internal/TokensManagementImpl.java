@@ -192,7 +192,7 @@ public class TokensManagementImpl implements TokensManagement
 			for (TokenBean t: tokens)
 			{
 				List<TokenExpirationListener> l = listeners.get(t.getType());
-				if (t != null)
+				if (l != null)
 				{
 					Token tt = convert(t);
 					for (TokenExpirationListener listener: l)
