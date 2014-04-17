@@ -5,8 +5,6 @@
 package pl.edu.icm.unity.ws;
 
 import java.io.ByteArrayInputStream;
-import java.io.CharArrayWriter;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -48,7 +46,6 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 	protected UnityMessageSource msg;
 	protected String servletPath;
 	private Map<Class<?>, Object> services; 
-	protected Properties properties;
 	protected CXFEndpointProperties genericEndpointProperties;
 	protected SessionManagement sessionMan;
 	
@@ -61,20 +58,7 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 		this.sessionMan = sessionMan;
 		services = new HashMap<Class<?>, Object>();
 	}
-	@Override
-	public String getSerializedConfiguration()
-	{
-		CharArrayWriter writer = new CharArrayWriter();
-		try
-		{
-			properties.store(writer, "");
-		} catch (IOException e)
-		{
-			throw new IllegalStateException("Can not serialize endpoint's configuration", e);
-		}
-		return writer.toString();
-	}
-
+	
 	@Override
 	public void setSerializedConfiguration(String cfg)
 	{
@@ -85,7 +69,8 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 			genericEndpointProperties = new CXFEndpointProperties(properties);
 		} catch (Exception e)
 		{
-			throw new ConfigurationException("Can't initialize the the generic IdP endpoint's configuration", e);
+			throw new ConfigurationException("Can't initialize the the generic Web Service"
+					+ " endpoint's configuration", e);
 		}
 	}
 

@@ -5,8 +5,6 @@
 package pl.edu.icm.unity.webui;
 
 import java.io.ByteArrayInputStream;
-import java.io.CharArrayWriter;
-import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +50,6 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	protected ApplicationContext applicationContext;
 	protected String uiBeanName;
 	protected String servletPath;
-	protected Properties properties;
 	protected VaadinEndpointProperties genericEndpointProperties;
 
 	protected ServletContextHandler context = null;
@@ -67,21 +64,6 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		this.uiBeanName = uiBeanName;
 		this.servletPath = servletPath;
 	}
-	
-
-	@Override
-	public String getSerializedConfiguration()
-	{
-		CharArrayWriter writer = new CharArrayWriter();
-		try
-		{
-			properties.store(writer, "");
-		} catch (IOException e)
-		{
-			throw new IllegalStateException("Can not serialize endpoint's configuration", e);
-		}
-		return writer.toString();
-	}
 
 	@Override
 	public void setSerializedConfiguration(String cfg)
@@ -93,7 +75,8 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 			genericEndpointProperties = new VaadinEndpointProperties(properties);
 		} catch (Exception e)
 		{
-			throw new ConfigurationException("Can't initialize the the generic IdP endpoint's configuration", e);
+			throw new ConfigurationException("Can't initialize the the generic web"
+					+ " endpoint's configuration", e);
 		}
 	}
 
