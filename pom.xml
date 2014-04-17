@@ -23,7 +23,7 @@
 		<slf4j.version>1.7.6</slf4j.version>
 		<spring.version>4.0.1.RELEASE</spring.version>
 		<vaadin.version>7.0.7</vaadin.version>
-		<cxf.version>2.7.8</cxf.version>
+		<cxf.version>2.7.11</cxf.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -318,6 +318,11 @@
 			<dependency>
 				<groupId>org.apache.cxf</groupId>
 				<artifactId>cxf-rt-transports-http</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-frontend-jaxrs</artifactId>
 				<version>${cxf.version}</version>
 			</dependency>
 			<dependency>
