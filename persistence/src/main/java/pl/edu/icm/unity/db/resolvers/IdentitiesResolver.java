@@ -127,7 +127,7 @@ public class IdentitiesResolver
 			return ret;
 		}
 		
-		if (allowCreate)
+		if (allowCreate && idTypeImpl.isDynamic())
 		{
 			try
 			{

@@ -15,14 +15,11 @@ import java.util.TimeZone;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlObject;
 
-import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.Assertion;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.proto.AssertionResponse;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAttributeQueryContext;
-import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
-import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
@@ -49,21 +46,12 @@ public class AttributeQueryResponseProcessor extends BaseResponseProcessor<Attri
 		super(context, authnTime);
 	}
 
-	public IdentityTaV getSubjectsIdentity()
+	public IdentityTaV getSubjectsIdentity() throws SAMLRequesterException
 	{
 		NameIDType subject = context.getRequest().getSubject().getNameID();
 		String nFormat = subject.getFormat();
 		String nContents = subject.getStringValue();
-		if (nFormat == null || nFormat.equals(SAMLConstants.NFORMAT_ENTITY))
-		{
-			return new IdentityTaV(PersistentIdentity.ID, nContents);
-		}
-		if (nFormat.equals(SAMLConstants.NFORMAT_DN))
-		{
-			return new IdentityTaV(X500Identity.ID, nContents);
-		}
-		throw new IllegalStateException("Unsupported subject format, which passed request validation - " +
-				"it's a bug. " + nFormat + " :: " + nContents);
+		return new IdentityTaV(getUnityIdentityFormat(nFormat), nContents);
 	}
 	
 	public ResponseDocument processAtributeRequest(Collection<Attribute<?>> attributes) 

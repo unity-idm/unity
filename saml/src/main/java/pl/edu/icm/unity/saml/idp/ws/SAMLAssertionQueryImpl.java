@@ -30,6 +30,7 @@ import xmlbeans.org.oasis.saml2.protocol.AttributeQueryDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnQueryDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthzDecisionQueryDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.exceptions.SAMLResponderException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
@@ -75,15 +76,19 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 			throw new Fault(e1);
 		}
 		AttributeQueryResponseProcessor processor = new AttributeQueryResponseProcessor(context);
-		IdentityTaV subjectId = processor.getSubjectsIdentity();
 		ResponseDocument respDoc;
 		try
 		{
+			IdentityTaV subjectId = processor.getSubjectsIdentity();
 			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan);
 			NameIDType reqIssuer = query.getAttributeQuery().getIssuer();
 			SPSettings spPreferences = preferences.getSPSettings(reqIssuer);
 			Collection<Attribute<?>> attributes = getAttributes(subjectId, processor, spPreferences);
 			respDoc = processor.processAtributeRequest(attributes);
+		} catch (SAMLRequesterException e1)
+		{
+			log.debug("Throwing SAML fault, caused by processing exception", e1);
+			respDoc = processor.getErrorResponse(e1);
 		} catch (Exception e)
 		{
 			log.debug("Throwing SAML fault, caused by processing exception", e);
