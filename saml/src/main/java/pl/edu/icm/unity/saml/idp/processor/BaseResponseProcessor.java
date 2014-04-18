@@ -317,4 +317,9 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 					samlIdFormat + " is not supported by this service.");
 		}
 	}
+	
+	public String getIdentityTarget()
+	{
+		return context.getRequest().getIssuer().getStringValue();
+	}
 }

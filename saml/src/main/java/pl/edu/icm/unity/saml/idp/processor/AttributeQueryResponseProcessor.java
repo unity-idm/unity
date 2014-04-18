@@ -49,9 +49,10 @@ public class AttributeQueryResponseProcessor extends BaseResponseProcessor<Attri
 	public IdentityTaV getSubjectsIdentity() throws SAMLRequesterException
 	{
 		NameIDType subject = context.getRequest().getSubject().getNameID();
+		String target = getIdentityTarget();
 		String nFormat = subject.getFormat();
 		String nContents = subject.getStringValue();
-		return new IdentityTaV(getUnityIdentityFormat(nFormat), nContents);
+		return new IdentityTaV(getUnityIdentityFormat(nFormat), nContents, target);
 	}
 	
 	public ResponseDocument processAtributeRequest(Collection<Attribute<?>> attributes) 

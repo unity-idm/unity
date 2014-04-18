@@ -10,6 +10,8 @@ import pl.edu.icm.unity.types.InitializationValidator;
 
 /**
  * Represents an identity type and value. This class is useful to address existing identity as a parameter.
+ * <p>
+ * Optionally a target can be set. Then the identity can be resolved for the specified receiver.
  * 
  * @author K. Benedyczak
  */
@@ -17,6 +19,8 @@ public class IdentityTaV implements InitializationValidator
 {
 	private String typeId;
 	protected String value;
+	protected String target;
+	
 	
 	public IdentityTaV()
 	{
@@ -26,6 +30,12 @@ public class IdentityTaV implements InitializationValidator
 	{
 		this.typeId = type;
 		this.value = value;
+	}
+
+	public IdentityTaV(String type, String value, String target) 
+	{
+		this(type, value);
+		this.target = target;
 	}
 
 	public String getValue()
@@ -46,6 +56,16 @@ public class IdentityTaV implements InitializationValidator
 	public void setValue(String value)
 	{
 		this.value = value;
+	}
+
+	public String getTarget()
+	{
+		return target;
+	}
+
+	public void setTarget(String target)
+	{
+		this.target = target;
 	}
 
 	@Override
@@ -70,6 +90,7 @@ public class IdentityTaV implements InitializationValidator
 	{
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((target == null) ? 0 : target.hashCode());
 		result = prime * result + ((typeId == null) ? 0 : typeId.hashCode());
 		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		return result;
@@ -85,6 +106,12 @@ public class IdentityTaV implements InitializationValidator
 		if (getClass() != obj.getClass())
 			return false;
 		IdentityTaV other = (IdentityTaV) obj;
+		if (target == null)
+		{
+			if (other.target != null)
+				return false;
+		} else if (!target.equals(other.target))
+			return false;
 		if (typeId == null)
 		{
 			if (other.typeId != null)
