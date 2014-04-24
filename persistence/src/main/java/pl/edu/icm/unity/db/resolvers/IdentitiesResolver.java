@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.db.resolvers;
 
-import java.util.List;
-
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,11 +15,12 @@ import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.IdentityBean;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.IdentityRepresentation;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
@@ -55,20 +54,18 @@ public class IdentitiesResolver
 		return it;
 	}
 	
-	public static String getComparableIdentityValue(IdentityTaV id, IdentityTypeDefinition idType)
+	private static String toInDBIdentityValue(String typeName, String comparableTypeSpecificValue)
 	{
-		return idType.getId() + "::" + idType.getComparableValue(id.getValue());
-	}
-
-	public String getComparableIdentityValue(IdentityTaV id) 
-			throws IllegalIdentityValueException, IllegalTypeException
-	{
-		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(id.getTypeId());
-		if (idTypeDef == null)
-			throw new IllegalIdentityValueException("The identity type is unknown");
-		return getComparableIdentityValue(id, idTypeDef);
+		return typeName + "::" + comparableTypeSpecificValue;
 	}
 	
+	public static String getComparableIdentityValue(IdentityTaV id, IdentityTypeDefinition idType)
+			throws IllegalIdentityValueException
+	{
+		return toInDBIdentityValue(idType.getId(), idType.getComparableValue(id.getValue(), id.getRealm(), 
+				id.getTarget()));
+	}
+
 	/**
 	 * Algorithm is as follows:
 	 * 1) if entity param has entity id set then this id is returned after checking that it is valid
@@ -100,27 +97,22 @@ public class IdentitiesResolver
 			IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(idtavParam.getTypeId());
 			if (idTypeDef == null)
 				throw new IllegalIdentityValueException("The identity type is unknown");
-			String cmpVal = getComparableIdentityValue(idtavParam, idTypeDef);
-			IdentityBean idBean = mapper.getIdentityByName(cmpVal);
-			if (idBean == null)
+			
+			String inDBIdentityValue;
+			if (idTypeDef.isTargeted())
 			{
-				if (idTypeDef.isDynamic() && idtavParam.getTarget() != null)
-				{
-					//TODO - only matching by type
-					List<IdentityBean> allIds = mapper.getIdentities();
-					String realm = getRealm();
-					String target = idtavParam.getTarget();
-					String toFind = idTypeDef.getComparableValue();
-					for (IdentityBean idb: allIds)
-					{
-						Identity id = resolveIdentityBeanNoExternalize(idb, mapper);
-						String externalizedValue = idTypeDef.toExternalForm(realm, target, 
-								id.getValue());
-						if (idTypeDef.getComparableValue(externalizedValue)
-					}
-				}
-				throw new IllegalIdentityValueException("The entity id is invalid");
+				if (idtavParam.getTarget() == null)
+					throw new IllegalIdentityValueException("The target is mandatory "
+							+ "for identity type " + idtavParam.getTypeId());
+				inDBIdentityValue = getComparableIdentityValue(idtavParam, idTypeDef);
+			} else
+			{
+				inDBIdentityValue = getComparableIdentityValue(idtavParam, idTypeDef);
 			}
+
+			IdentityBean idBean = mapper.getIdentityByName(inDBIdentityValue);
+			if (idBean == null)
+				throw new IllegalIdentityValueException("The entity id is invalid");
 			return idBean.getEntityId();
 		}
 	}
@@ -140,59 +132,83 @@ public class IdentitiesResolver
 		return ret;
 	}
 	
-	private String getRealm()
+	public Identity resolveIdentityBean(IdentityBean idB, IdentitiesMapper mapper, String target) 
+			throws IllegalTypeException
 	{
-		try
-		{
-			InvocationContext context = InvocationContext.getCurrent();
-			if (context.getLoginSession() != null)
-				return context.getLoginSession().getRealm();
-		} catch (InternalException e)
-		{
-			//OK
-		}
-		return null;
+		Identity ret = resolveIdentityBeanNoContext(idB, mapper);
+		IdentityTypeDefinition idTypeImpl = ret.getType().getIdentityTypeProvider();
+		
+		String realm = InvocationContext.safeGetRealm();
+		
+		if (idTypeImpl.isTargeted() && (realm == null || target == null))
+			return null;
+		if (target != null && ret.getTarget() != null && !ret.getTarget().equals(target))
+			return null;
+		if (realm != null && ret.getRealm() != null && !ret.getRealm().equals(realm))
+			return null;
+		
+		return ret;
 	}
 	
-	public Identity resolveIdentityBean(IdentityBean idB, IdentitiesMapper mapper, String target, 
-			boolean allowCreate) throws IllegalTypeException
+	/**
+	 * Resolves Identity from a bean, using its target and realm. I.e. this method works for all beans always
+	 * regardless of the invocation context.
+	 * @param idB
+	 * @param mapper
+	 * @return
+	 * @throws IllegalTypeException
+	 */
+	public Identity resolveIdentityBeanNoContext(IdentityBean idB, IdentitiesMapper mapper) 
+			throws IllegalTypeException
 	{
 		Identity ret = resolveIdentityBeanNoExternalize(idB, mapper);
 		IdentityTypeDefinition idTypeImpl = ret.getType().getIdentityTypeProvider();
 		
-		String realm = getRealm();
-		
-		String externalizedValue = idTypeImpl.toExternalForm(realm, target, ret.getValue());
+		String externalizedValue = idTypeImpl.toExternalFormNoContext(ret.getValue(), idB.getName());
 		if (externalizedValue != null)
 		{
 			ret.setValue(externalizedValue);
 			return ret;
 		}
-		
-		if (allowCreate && idTypeImpl.isDynamic())
-		{
-			try
-			{
-				String updated = idTypeImpl.createNewIdentity(realm, target, ret.getValue());
-				if (updated != null)
-				{
-					ret.setValue(updated);
-					idB.setContents(idSerializer.toJson(ret));
-					mapper.updateIdentity(idB);
-				}
-				
-				externalizedValue = idTypeImpl.toExternalForm(realm, target, ret.getValue());
-				if (externalizedValue != null)
-				{
-					ret.setValue(externalizedValue);
-					return ret;
-				}
-				return null;
-			} catch (IllegalTypeException e)
-			{
-				return null;
-			}
-		}
 		return null;
+	}
+	
+	
+	
+	public Identity createDynamicIdentity(IdentityTypeDefinition idTypeImpl, long entityId, 
+			IdentitiesMapper mapper, String target)
+	{
+		String realm = InvocationContext.safeGetRealm();
+		
+		if (idTypeImpl.isTargeted() && (realm == null || target == null))
+			return null;
+		try
+		{
+			IdentityRepresentation newId = idTypeImpl.createNewIdentity(realm, target, null);
+			IdentityBean newIdBean = new IdentityBean();
+			newIdBean.setEntityId(entityId);
+			newIdBean.setName(toInDBIdentityValue(idTypeImpl.getId(), newId.getComparableValue()));
+			long typeId = mapper.getIdentityTypeByName(idTypeImpl.getId()).getId();
+			newIdBean.setTypeId(typeId);
+			IdentityParam idParam = new IdentityParam();
+			idParam.setLocal(true);
+			idParam.setValue(newId.getContents());
+			idParam.setRealm(realm);
+			idParam.setTarget(target);
+			newIdBean.setContents(idSerializer.toJson(idParam));
+			mapper.insertIdentity(newIdBean);
+			
+			String externalizedValue = idTypeImpl.toExternalForm(realm, target, newId.getContents(), 
+					newIdBean.getName());
+			Identity ret = resolveIdentityBeanNoExternalize(newIdBean, mapper);
+			ret.setValue(externalizedValue);
+			return ret;
+		} catch (IllegalTypeException e)
+		{
+			return null;
+		} catch (IllegalIdentityValueException e)
+		{
+			return null;
+		}
 	}
 }

@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.server.registries;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,15 +22,28 @@ import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 @Component
 public class IdentityTypesRegistry extends TypesRegistryBase<IdentityTypeDefinition>
 {
+	private Collection<IdentityTypeDefinition> dynamic;
+	
 	@Autowired
 	public IdentityTypesRegistry(List<IdentityTypeDefinition> typeElements)
 	{
 		super(typeElements);
+		dynamic = Collections.unmodifiableList(new ArrayList<IdentityTypeDefinition>());
+		for (IdentityTypeDefinition id: getAll())
+		{
+			if (id.isDynamic())
+				dynamic.add(id);
+		}
 	}
 
 	@Override
 	protected String getId(IdentityTypeDefinition from)
 	{
 		return from.getId();
+	}
+	
+	public Collection<IdentityTypeDefinition> getDynamic()
+	{
+		return dynamic;
 	}
 }

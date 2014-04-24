@@ -83,5 +83,10 @@ public class SessionIdentityModel
 			this.lastUsage = lastUsage;
 		}
 		
+		public boolean isExpired()
+		{
+			long now = System.currentTimeMillis();
+			return absoluteTTL < now || relativeTTL < now-lastUsage;
+		}
 	}
 }

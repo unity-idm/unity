@@ -55,6 +55,23 @@ public class InvocationContext implements Serializable
 		return ret;
 	}
 
+	/**
+	 * @return current authentication realm's name or null if undefined/unknown.
+	 */
+	public static String safeGetRealm()
+	{
+		try
+		{
+			InvocationContext context = InvocationContext.getCurrent();
+			if (context.getLoginSession() != null)
+				return context.getLoginSession().getRealm();
+		} catch (InternalException e)
+		{
+			//OK
+		}
+		return null;
+	}
+	
 	public LoginSession getLoginSession()
 	{
 		return loginSession;

@@ -10,21 +10,19 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.types.basic.IdentityRepresentation;
 
 public class TestTransientIdentity
 {
 	@Test
-	public void test() throws IllegalTypeException, InterruptedException
+	public void test() throws IllegalTypeException, InterruptedException, IllegalIdentityValueException
 	{
 		TransientIdentity tested = new TransientIdentity(Constants.MAPPER);
 		
-		tested.resetIdentity(null, null, null);
-		tested.resetIdentity("", "", null);
-		tested.resetIdentity("", null, null);
-		tested.resetIdentity(null, "", null);
 		InvocationContext ctx = new InvocationContext(null);
 		InvocationContext.setCurrent(ctx);
 		
@@ -32,48 +30,36 @@ public class TestTransientIdentity
 				50, 1, "r1");
 		ctx.setLoginSession(ls);
 		
-		String inDb = tested.createNewIdentity("r1", "t1", null);
-		String ext1 = tested.toExternalForm("r1", "t1", inDb);
-		Assert.assertNotNull(tested.toExternalForm("r1", "t1", inDb));
-		Assert.assertNull(tested.toExternalForm("r2", "t1", inDb));
-		Assert.assertNull(tested.toExternalForm("r1", "t2", inDb));
+		IdentityRepresentation inDb = tested.createNewIdentity("r1", "t1", null);
+		tested.toExternalForm("r1", "t1", inDb.getContents(), inDb.getComparableValue());
+		try
+		{
+			tested.toExternalForm("r2", "t1", inDb.getContents(), inDb.getComparableValue());
+		} catch (IllegalIdentityValueException e)
+		{
+			//OK
+		}
+		try
+		{
+			tested.toExternalForm("r1", "t2", inDb.getContents(), inDb.getComparableValue());
+		} catch (IllegalIdentityValueException e)
+		{
+			//OK
+		}
 		
-		String inDb2 = tested.createNewIdentity("r2", "t1", inDb);
-		String inDb3 = tested.createNewIdentity("r2", "t2", inDb2);
-		
-		Assert.assertNotNull(tested.toExternalForm("r1", "t1", inDb3));
-		Assert.assertNotNull(tested.toExternalForm("r2", "t1", inDb3));
-		Assert.assertNotNull(tested.toExternalForm("r2", "t2", inDb3));
-		
-		String inDb4 = tested.resetIdentity("r2", "t2", inDb3);
-		Assert.assertNotNull(tested.toExternalForm("r1", "t1", inDb4));
-		Assert.assertNotNull(tested.toExternalForm("r2", "t1", inDb4));
-		Assert.assertNull(tested.toExternalForm("r2", "t2", inDb4));
-		
-		String inDb5 = tested.resetIdentity(null, "t1", inDb3);
-		Assert.assertNull(tested.toExternalForm("r1", "t1", inDb5));
-		Assert.assertNull(tested.toExternalForm("r2", "t1", inDb5));
-		Assert.assertNotNull(tested.toExternalForm("r2", "t2", inDb5));
-
-		String inDb6 = tested.resetIdentity("r2", null, inDb3);
-		Assert.assertNotNull(tested.toExternalForm("r1", "t1", inDb6));
-		Assert.assertNull(tested.toExternalForm("r2", "t1", inDb6));
-		Assert.assertNull(tested.toExternalForm("r2", "t2", inDb6));
+		IdentityRepresentation inDb2 = tested.createNewIdentity("r1", "t1", "test");
+		Assert.assertEquals("test",
+				tested.toExternalForm("r1", "t1", inDb2.getContents(), inDb2.getComparableValue()));
 		
 		LoginSession ls2 = new LoginSession("2", new Date(), 30, 1, "r1");
 		ctx.setLoginSession(ls2);
 		
-		String inDb21 = tested.createNewIdentity("r1", "t1", inDb);
-		String ext2 = tested.toExternalForm("r1", "t1", inDb21);
-		Assert.assertNotEquals(ext2, ext1);
+		IdentityRepresentation inDb21 = tested.createNewIdentity("r1", "t1", "test");
+		Assert.assertNotEquals(inDb2.getComparableValue(), inDb21.getComparableValue());
 
 		ctx.setLoginSession(ls);
-		Assert.assertEquals(tested.toExternalForm("r1", "t1", inDb21), ext1);
 		
-		//This test to work would need to remove the min 24h expiration
-//		ctx.setLoginSession(ls2);
-//		Thread.sleep(301);
-//		String inDb22 = tested.createNewIdentity("r1", "t3", inDb21);
-//		Assert.assertNull(tested.toExternalForm("r1", "t1", inDb22));
+		IdentityRepresentation inDb22 = tested.createNewIdentity("r1", "t1", "test");
+		Assert.assertEquals(inDb2.getComparableValue(), inDb22.getComparableValue());
 	}
 }

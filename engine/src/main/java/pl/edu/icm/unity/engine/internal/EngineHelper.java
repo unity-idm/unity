@@ -31,12 +31,9 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
@@ -72,14 +69,12 @@ public class EngineHelper
 	private LocalCredentialsRegistry authReg;
 	private CredentialDB credentialDB;
 	private CredentialRequirementDB credentialRequirementDB;
-	private IdentityTypesRegistry idTypesRegistry;
 
 	
 	@Autowired
 	public EngineHelper(DBAttributes dbAttributes, DBIdentities dbIdentities,
 			AttributeClassDB acDB, DBGroups dbGroups, LocalCredentialsRegistry authReg,
-			CredentialDB credentialDB, CredentialRequirementDB credentialRequirementDB,
-			IdentityTypesRegistry idTypesRegistry)
+			CredentialDB credentialDB, CredentialRequirementDB credentialRequirementDB)
 	{
 		this.dbAttributes = dbAttributes;
 		this.dbIdentities = dbIdentities;
@@ -88,7 +83,6 @@ public class EngineHelper
 		this.authReg = authReg;
 		this.credentialDB = credentialDB;
 		this.credentialRequirementDB = credentialRequirementDB;
-		this.idTypesRegistry = idTypesRegistry;
 	}
 
 	public void setEntityCredentialRequirements(long entityId, String credReqId, SqlSession sqlMap) 
@@ -205,8 +199,6 @@ public class EngineHelper
 		Identity ret = dbIdentities.insertIdentity(toAdd, null, false, sqlMap);
 		long entityId = ret.getEntityId();
 
-		addSystemIdentities(entityId, sqlMap);
-		
 		dbIdentities.setEntityStatus(entityId, initialState, sqlMap);
 		dbGroups.addMemberFromParent("/", new EntityParam(ret.getEntityId()), sqlMap);
 		setEntityCredentialRequirements(entityId, credReqId, sqlMap);
@@ -216,18 +208,6 @@ public class EngineHelper
 		if (extractAttributes)
 			extractAttributes(ret, sqlMap);
 		return ret;
-	}
-	
-	private void addSystemIdentities(long entityId, SqlSession sqlMap) 
-			throws IllegalIdentityValueException, IllegalTypeException, WrongArgumentException
-	{
-		for (IdentityTypeDefinition idDef: idTypesRegistry.getAll())
-		{
-			if (!idDef.isDynamic())
-				continue;
-			IdentityParam persistent = new IdentityParam(idDef.getId(), null, true);
-			dbIdentities.insertIdentity(persistent, entityId, true, sqlMap);
-		}
 	}
 	
 	public void extractAttributes(Identity from, SqlSession sql)

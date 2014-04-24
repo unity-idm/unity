@@ -215,6 +215,30 @@ public class EngineInitialization extends LifecycleBase
 		//the cleaner is just a cleaner. No need to call it very often.
 		executors.getService().scheduleWithFixedDelay(attributeStatementsUpdater, 
 				interval*10, interval*10, TimeUnit.SECONDS);
+		
+		
+		Runnable expiredIdentitiesCleaner = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				SqlSession sqlMap = db.getSqlSession(true);
+				try
+				{
+					log.debug("Clearing expired identities");
+					dbIdentities.removeExpiredIdentities(sqlMap);
+					sqlMap.commit();
+				} catch (Exception e)
+				{
+					log.error("Can't clean expired identities", e);
+				} finally
+				{
+					db.releaseSqlSession(sqlMap);
+				}
+			}
+		};
+		executors.getService().scheduleWithFixedDelay(expiredIdentitiesCleaner, 
+				interval*100, interval*100, TimeUnit.SECONDS);
 	}
 	
 	public void initializeDatabaseContents()

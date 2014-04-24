@@ -14,9 +14,9 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.IdentityRepresentation;
 
 /**
  * Identity type definition holding a persistent id. It is associated with each and every entity. 
@@ -68,7 +68,7 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getComparableValue(String from)
+	public String getComparableValue(String from, String realm, String target)
 	{
 		return from;
 	}
@@ -98,24 +98,33 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	}
 	
 	@Override
-	public String toExternalForm(String realm, String target, String inDbValue)
+	public String toExternalForm(String realm, String target, String inDbValue, String comparableValue)
 	{
 		return inDbValue;
 	}
 
 	@Override
-	public String createNewIdentity(String realm, String target, String inDbValue)
+	public IdentityRepresentation createNewIdentity(String realm, String target, String inDbValue)
 	{
-		return inDbValue == null ? UUID.randomUUID().toString() : inDbValue;
+		String value = inDbValue == null ? UUID.randomUUID().toString() : inDbValue;
+		return new IdentityRepresentation(value, value);
 	}
 
 	@Override
-	public String resetIdentity(String realm, String target, String inDbValue)
-			throws IllegalTypeException
+	public boolean isTargeted()
 	{
-		if (realm != null || target != null)
-			throw new IllegalTypeException("This identity type is not targeted and "
-					+ "can be only reset globally.");
-		return null;
+		return false;
+	}
+
+	@Override
+	public String toExternalFormNoContext(String inDbValue, String comparableValue)
+	{
+		return inDbValue;
+	}
+
+	@Override
+	public boolean isExpired(IdentityRepresentation representation)
+	{
+		return false;
 	}
 }

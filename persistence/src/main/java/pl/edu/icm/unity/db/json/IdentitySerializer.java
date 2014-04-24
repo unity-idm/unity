@@ -33,6 +33,8 @@ public class IdentitySerializer
 		main.put("local", src.isLocal());
 		if (src.getValue() != null)
 			main.put("value", src.getValue());
+		if (src.getRealm() != null)
+			main.put("realm", src.getRealm());
 		try
 		{
 			return mapper.writeValueAsBytes(main);
@@ -63,7 +65,10 @@ public class IdentitySerializer
 		target.setLocal(main.get("local").asBoolean());
 		if (main.has("value"))
 			target.setValue(main.get("value").asText());
-		else
-			target.setValue(null);
+		if (main.has("realm"))
+			target.setRealm(main.get("realm").asText());
+		if (main.has("target"))
+			target.setTarget(main.get("target").asText());
+		
 	}
 }

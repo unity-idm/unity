@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.objenesis.instantiator.perc.PercSerializationInstantiator;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -139,26 +138,25 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	}
 	
 	@Override
-	public String toExternalForm(String realm, String target, String inDbValue)
+	public String toExternalForm(String realm, String target, String inDbValue, String comparableValue) 
+			throws IllegalIdentityValueException
 	{
 		if (realm == null || target == null || inDbValue == null)
-			return null;
+			throw new IllegalIdentityValueException("No enough arguments");
 		LoginSession ls;
 		try
 		{
 			InvocationContext ctx = InvocationContext.getCurrent();
 			ls = ctx.getLoginSession();
 			if (ls == null)
-				return null;
+				throw new IllegalIdentityValueException("No login session");
 		} catch (Exception e)
 		{
-			return null;
+			throw new IllegalIdentityValueException("Error getting invocation context", e);
 		}
 
-		String[] parsed = Escaper.decode(inDbValue);
-		if (parsed[0].equals(realm) && parsed[1].equals(target) && parsed[2].equals(ls.getId()))
-			return parsed[3];
-		return null;
+		String[] parsed = Escaper.decode(comparableValue);
+		return parsed[3];
 	}
 
 	@Override
@@ -193,10 +191,21 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 		
 		SessionIdentityModel model = new SessionIdentityModel(mapper, representation.getContents());
 		PerSessionEntry info = model.getEntry();
-		if (info.)
-		return false;
+		return info.isExpired();
 	}
 
+	@Override
+	public boolean isTargeted()
+	{
+		return true;
+	}
+
+	@Override
+	public String toExternalFormNoContext(String inDbValue, String comparableValue)
+	{
+		String[] split = Escaper.decode(comparableValue);
+		return split[3];
+	}
 }
 
 
