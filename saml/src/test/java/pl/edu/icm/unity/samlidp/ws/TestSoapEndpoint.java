@@ -129,7 +129,7 @@ public class TestSoapEndpoint extends DBIntegrationTestBase
 		AttributeAssertionParser a = attrClient.getAssertion(
 				new NameID(persistentTargetedId, SAMLConstants.NFORMAT_PERSISTENT),
 				localIssuer);
-		assertEquals(1, a.getAttributes().size());
+		assertEquals(3, a.getAttributes().size());
 	}
 	
 	@Test

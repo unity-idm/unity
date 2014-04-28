@@ -28,12 +28,13 @@ public class IdentityTypesRegistry extends TypesRegistryBase<IdentityTypeDefinit
 	public IdentityTypesRegistry(List<IdentityTypeDefinition> typeElements)
 	{
 		super(typeElements);
-		dynamic = Collections.unmodifiableList(new ArrayList<IdentityTypeDefinition>());
+		dynamic = new ArrayList<IdentityTypeDefinition>();
 		for (IdentityTypeDefinition id: getAll())
 		{
 			if (id.isDynamic())
 				dynamic.add(id);
 		}
+		dynamic = Collections.unmodifiableList((List<? extends IdentityTypeDefinition>)dynamic);
 	}
 
 	@Override

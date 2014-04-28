@@ -39,6 +39,7 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
@@ -454,7 +455,8 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 				hidden.add(SamlPreferences.SYMBOLIC_GROUP_ATTR);
 		}
 		settings.setHiddenAttribtues(hidden);
-		if (!selectedIdentity.getType().getIdentityTypeProvider().isDynamic())
+		IdentityTypeDefinition idType = selectedIdentity.getType().getIdentityTypeProvider();
+		if (!idType.isDynamic() && !idType.isTargeted())
 			settings.setSelectedIdentity(selectedIdentity.getComparableValue());
 		preferences.setSPSettings(reqIssuer, settings);
 	}

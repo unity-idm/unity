@@ -35,6 +35,8 @@ public class IdentitySerializer
 			main.put("value", src.getValue());
 		if (src.getRealm() != null)
 			main.put("realm", src.getRealm());
+		if (src.getTarget() != null)
+			main.put("target", src.getTarget());
 		try
 		{
 			return mapper.writeValueAsBytes(main);

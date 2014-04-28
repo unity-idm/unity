@@ -145,6 +145,8 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertTrue(getByType(e4, TargetedPersistentIdentity.ID).getValue().length() > 0);
 		assertTrue(getByType(e4, TransientIdentity.ID).getValue().length() > 0);
 
+		assertNotEquals(getByType(e3, TransientIdentity.ID).getValue(), 
+				getByType(e4, TransientIdentity.ID).getValue());
 		assertNotEquals(getByType(e3, TargetedPersistentIdentity.ID).getValue(), 
 				getByType(e4, TargetedPersistentIdentity.ID).getValue());
 		assertEquals(getByType(e3, PersistentIdentity.ID).getValue(), 
@@ -171,6 +173,15 @@ public class TestIdentities extends DBIntegrationTestBase
 		fail("No such type");
 		return null;
 	}
+
+	private Identity getByName(Entity e, String type, String name)
+	{
+		for (Identity id: e.getIdentities())
+			if (id.getTypeId().equals(type) && id.getValue().equals(name))
+				return id;
+		fail("No such type");
+		return null;
+	}
 	
 	@Test
 	public void testCreate() throws Exception
@@ -190,9 +201,10 @@ public class TestIdentities extends DBIntegrationTestBase
 		
 		Entity entity = idsMan.getEntity(new EntityParam(id2));
 		assertEquals(3, entity.getIdentities().length);
-		assertEquals(id, entity.getIdentities()[0]);
-		assertEquals(PersistentIdentity.ID, entity.getIdentities()[1].getTypeId());
-		assertEquals(id2, entity.getIdentities()[2]);
+		assertEquals(id, getByName(entity, X500Identity.ID, "CN=golbi"));
+		Identity retP = getByType(entity, PersistentIdentity.ID);
+		Identity retDn = getByName(entity, X500Identity.ID, "CN=golbi2");
+		assertEquals(id2, retDn);
 		assertEquals(id.getEntityId(), entity.getId());
 		
 		idsMan.setEntityStatus(new EntityParam(entity.getId()), EntityState.disabled);
@@ -244,12 +256,13 @@ public class TestIdentities extends DBIntegrationTestBase
 		idsMan.removeIdentity(id);
 		entity = idsMan.getEntity(new EntityParam(id2));
 		assertEquals(2, entity.getIdentities().length);
-		assertEquals(id2, entity.getIdentities()[1]);
+		Identity retdnp = getByName(entity, X500Identity.ID, "CN=golbi2");
+		assertEquals(id2, retdnp);
 		assertEquals(id2.getEntityId(), entity.getId());
 		
 		try
 		{
-			idsMan.removeIdentity(entity.getIdentities()[0]);
+			idsMan.removeIdentity(retP);
 			fail("Managed to remove persistent identity");
 		} catch (IllegalIdentityValueException e) {}
 		

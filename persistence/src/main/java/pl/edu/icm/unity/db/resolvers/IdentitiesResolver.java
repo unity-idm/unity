@@ -136,6 +136,8 @@ public class IdentitiesResolver
 			throws IllegalTypeException
 	{
 		Identity ret = resolveIdentityBeanNoContext(idB, mapper);
+		if (ret == null)
+			return null;
 		IdentityTypeDefinition idTypeImpl = ret.getType().getIdentityTypeProvider();
 		
 		String realm = InvocationContext.safeGetRealm();
