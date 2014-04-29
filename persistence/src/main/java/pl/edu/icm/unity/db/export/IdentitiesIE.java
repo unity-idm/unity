@@ -5,6 +5,8 @@
 package pl.edu.icm.unity.db.export;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
@@ -24,6 +26,8 @@ import pl.edu.icm.unity.db.model.IdentityBean;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
+import pl.edu.icm.unity.stdext.identity.TransientIdentity;
 import pl.edu.icm.unity.types.basic.Identity;
 
 /**
@@ -60,8 +64,9 @@ public class IdentitiesIE extends AbstractIE
 		jg.writeEndArray();
 	}
 	
-	public void deserialize(SqlSession sql, JsonParser input) throws IOException, EngineException
+	public void deserialize(SqlSession sql, JsonParser input, DumpHeader header) throws IOException, EngineException
 	{
+		
 		IdentitiesMapper mapper = sql.getMapper(IdentitiesMapper.class);
 		JsonUtils.expect(input, JsonToken.START_ARRAY);
 		while(input.nextToken() == JsonToken.START_OBJECT)
@@ -78,8 +83,18 @@ public class IdentitiesIE extends AbstractIE
 			
 			JsonUtils.nextExpect(input, JsonToken.END_OBJECT);
 			
-			Identity identity = idResolver.resolveIdentityBeanNoExternalize(bean, mapper);
-			dbIdentities.insertIdentity(identity, bean.getEntityId(), true, sql);
+			List<IdentityBean> toAdd;
+			if (header.getVersionMajor() == 1 && header.getVersionMinor() < 1)
+				toAdd = update0To1(bean, type);
+			else
+				toAdd = Collections.singletonList(bean);
+			
+			
+			for (IdentityBean beanI: toAdd)
+			{
+				Identity identity = idResolver.resolveIdentityBeanNoExternalize(beanI, mapper);
+				dbIdentities.insertIdentity(identity, beanI.getEntityId(), true, sql);
+			}
 		}
 		JsonUtils.expect(input, JsonToken.END_ARRAY);
 	}
@@ -91,5 +106,26 @@ public class IdentitiesIE extends AbstractIE
 		jg.writeNumberField("entityId", bean.getEntityId());
 		Identity id = idResolver.resolveIdentityBeanNoExternalize(bean, mapper);
 		jg.writeStringField("typeName", id.getTypeId());
+	}
+	
+	/**
+	 * Performs an update of identity in pre 1.1 format. As multiple identities may be created a list is returned.
+	 * Algorithm:
+	 * <ul>
+	 * <li> transient identities and targeted persistent are dropped
+	 * <li> all other are unchanged 
+	 * </ul>
+	 * 
+	 * @param input
+	 * @return
+	 * @throws IllegalTypeException 
+	 */
+	private List<IdentityBean> update0To1(IdentityBean input, String typeName) throws IllegalTypeException
+	{
+		List<IdentityBean> ret = new ArrayList<>();
+		if (TransientIdentity.ID.equals(typeName) || TargetedPersistentIdentity.ID.equals(typeName))
+			return ret;
+		ret.add(input);
+		return ret;
 	}
 }

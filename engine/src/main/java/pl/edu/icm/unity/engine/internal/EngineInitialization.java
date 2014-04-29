@@ -31,10 +31,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.db.ContentsUpdater;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.db.InitDB;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.endpoints.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
@@ -111,6 +113,10 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private UnityServerConfiguration config;
 	@Autowired
+	private ContentsUpdater contentsUpdater;
+	@Autowired
+	private InitDB initDB;
+	@Autowired
 	private DBSessionManager db;
 	@Autowired
 	private DBAttributes dbAttributes;
@@ -165,6 +171,7 @@ public class EngineInitialization extends LifecycleBase
 	@Override
 	public void start()
 	{
+		updateDatabase();
 		initializeDatabaseContents();
 		initializeBackgroundTasks();
 		super.start();
@@ -176,7 +183,18 @@ public class EngineInitialization extends LifecycleBase
 		return ENGINE_INITIALIZATION_MOMENT;
 	}
 
-	public void initializeBackgroundTasks()
+	private void updateDatabase()
+	{
+		try
+		{
+			initDB.updateContents(contentsUpdater);
+		} catch (Exception e)
+		{
+			throw new InternalException("Update of the database contents failed", e);
+		}
+	}
+	
+	private void initializeBackgroundTasks()
 	{
 		Runnable endpointsUpdater = new Runnable()
 		{

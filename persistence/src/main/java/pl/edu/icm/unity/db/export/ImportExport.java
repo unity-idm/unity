@@ -66,7 +66,7 @@ public class ImportExport
 		
 		jg.writeStartObject();
 		jg.writeNumberField("versionMajor", 1);
-		jg.writeNumberField("versionMinor", 0);
+		jg.writeNumberField("versionMinor", 1);
 		jg.writeNumberField("timestamp", System.currentTimeMillis());
 
 		jg.writeObjectFieldStart("contents");
@@ -123,7 +123,7 @@ public class ImportExport
 		JsonParser jp = jsonF.createParser(from);
 		JsonUtils.nextExpect(jp, JsonToken.START_OBJECT);
 		
-		loadHeader(jp);
+		DumpHeader header = loadHeader(jp);
 		
 		JsonUtils.nextExpect(jp, "contents");
 		
@@ -137,7 +137,7 @@ public class ImportExport
 		entitiesIE.deserialize(sql, jp);
 
 		JsonUtils.nextExpect(jp, "identities");
-		identitiesIE.deserialize(sql, jp);
+		identitiesIE.deserialize(sql, jp, header);
 
 		JsonUtils.nextExpect(jp, "groups");
 		groupsIE.deserialize(sql, jp);

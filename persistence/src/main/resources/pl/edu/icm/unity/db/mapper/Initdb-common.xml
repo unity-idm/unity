@@ -117,7 +117,7 @@ CREATE TABLE UVOS_FLAG(
 	</update>
 
 	<insert id="initVersion">
-INSERT INTO UVOS_FLAG (VAL) VALUES ('2_1_0');
+INSERT INTO UVOS_FLAG (VAL) VALUES ('2_1_1');
 	</insert>
 	
 	<update id="updateSchema-020100-01">
@@ -125,6 +125,9 @@ INSERT INTO UVOS_FLAG (VAL) VALUES ('2_1_0');
 	</update>
 	<update id="updateSchema-020100-02">
 UPDATE UVOS_FLAG SET VAL='2_1_0';
+	</update>
+	<update id="updateSchema-020101-01">
+UPDATE UVOS_FLAG SET VAL='2_1_1';
 	</update>
 	
 </mapper>

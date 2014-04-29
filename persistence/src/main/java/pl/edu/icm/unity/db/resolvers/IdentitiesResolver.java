@@ -54,6 +54,14 @@ public class IdentitiesResolver
 		return it;
 	}
 	
+	public IdentityType resolveIdentityType(long id, IdentitiesMapper mapper) throws IllegalTypeException
+	{
+		BaseBean identityTypeB = mapper.getIdentityTypeById(id);
+		if (identityTypeB == null)
+			throw new IllegalTypeException("The identity type " + id + " is unknown");
+		return resolveIdentityType(identityTypeB);
+	}
+	
 	private static String toInDBIdentityValue(String typeName, String comparableTypeSpecificValue)
 	{
 		return typeName + "::" + comparableTypeSpecificValue;
@@ -120,10 +128,7 @@ public class IdentitiesResolver
 	public Identity resolveIdentityBeanNoExternalize(IdentityBean idB, IdentitiesMapper mapper) 
 			throws IllegalTypeException
 	{
-		BaseBean identityTypeB = mapper.getIdentityTypeById(idB.getTypeId());
-		if (identityTypeB == null)
-			throw new IllegalTypeException("The identity type " + idB.getTypeId() + " is unknown");
-		IdentityType idType = resolveIdentityType(identityTypeB);
+		IdentityType idType = resolveIdentityType(idB.getTypeId(), mapper);
 		Identity ret = new Identity();
 		ret.setType(idType);
 		ret.setTypeId(idType.getIdentityTypeProvider().getId());

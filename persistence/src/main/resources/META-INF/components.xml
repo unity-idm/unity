@@ -10,6 +10,7 @@
 	<bean class="pl.edu.icm.unity.db.DBSessionManager"/>
 	<bean class="pl.edu.icm.unity.db.LocalDBSessionManager"/>
 	<bean class="pl.edu.icm.unity.db.InitDB"/>
+	<bean class="pl.edu.icm.unity.db.ContentsUpdater"/>
 
 	<bean class="pl.edu.icm.unity.db.DBGroups"/>
 	<bean class="pl.edu.icm.unity.db.DBIdentities"/>

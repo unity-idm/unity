@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.db.resolvers.GroupResolver;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.utils.Log;
 
@@ -41,10 +42,12 @@ public class InitDB
 	private LocalDBSessionManager localDb;
 
 	@Autowired
-	public InitDB(DBSessionManager db, LocalDBSessionManager localDb)
+	public InitDB(DBSessionManager db, LocalDBSessionManager localDb) 
+			throws FileNotFoundException, InternalException, IOException, EngineException
 	{
 		this.db = db;
 		this.localDb = localDb;
+		initIfNeeded();
 	}
 
 	/**
@@ -59,7 +62,7 @@ public class InitDB
 		initDB();
 	}
 	
-	public void initIfNeeded() throws FileNotFoundException, IOException, InternalException
+	public void initIfNeeded() throws FileNotFoundException, IOException, InternalException, EngineException
 	{
 		String dbVersion;
 		SqlSession session = db.getSqlSession(false);
@@ -143,7 +146,7 @@ public class InitDB
 		}
 	}
 	
-	private long dbVersion2Long(String version)
+	public static long dbVersion2Long(String version)
 	{
 		String[] components = version.split("_");
 		return Integer.parseInt(components[0])*10000 + Integer.parseInt(components[1])*100 + 
@@ -173,5 +176,27 @@ public class InitDB
 			db.releaseSqlSession(session);
 		}
 		log.info("Updated DB schema to the actual version " + DB.DB_VERSION);
+	}
+
+	
+	public void updateContents(ContentsUpdater contentsUpdater) throws IOException, EngineException
+	{
+		SqlSession session = db.getSqlSession(true);
+		try
+		{
+			String dbVersion = session.selectOne("getDBVersion");
+			long dbVersionOfDB = dbVersion2Long(dbVersion);
+			long dbVersionOfSoftware = dbVersion2Long(DB.DB_VERSION);
+			if (dbVersionOfDB < dbVersionOfSoftware)
+			{
+				log.info("Updating DB contents to the actual version");
+				contentsUpdater.update(dbVersionOfDB, session);
+				session.commit();
+				log.info("Updated DB contents to the actual version " + DB.DB_VERSION);
+			}
+		} finally
+		{
+			db.releaseSqlSession(session);
+		}
 	}
 }
