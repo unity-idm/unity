@@ -38,6 +38,7 @@ public class InitDB
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InitDB.class);
 	private final String UPDATE_SCHEMA_PFX = "updateSchema-";
 
+	private long dbVersionAtServerStarup;
 	private DBSessionManager db;
 	private LocalDBSessionManager localDb;
 
@@ -47,7 +48,6 @@ public class InitDB
 	{
 		this.db = db;
 		this.localDb = localDb;
-		initIfNeeded();
 	}
 
 	/**
@@ -78,16 +78,16 @@ public class InitDB
 			return;
 		}
 		
-		long dbVersionOfDB = dbVersion2Long(dbVersion);
+		dbVersionAtServerStarup = dbVersion2Long(dbVersion);
 		long dbVersionOfSoftware = dbVersion2Long(DB.DB_VERSION);
-		if (dbVersionOfDB > dbVersionOfSoftware)
+		if (dbVersionAtServerStarup > dbVersionOfSoftware)
 		{
 			throw new InternalException("The database schema version " + dbVersion + 
 					" is newer then supported by this version of the server. "
 					+ "Please upgrade the server software.");
-		} else if (dbVersionOfDB < dbVersionOfSoftware)
+		} else if (dbVersionAtServerStarup < dbVersionOfSoftware)
 		{
-			updateSchema(dbVersionOfDB);
+			updateSchema(dbVersionAtServerStarup);
 		}
 	}
 	
@@ -184,13 +184,11 @@ public class InitDB
 		SqlSession session = db.getSqlSession(true);
 		try
 		{
-			String dbVersion = session.selectOne("getDBVersion");
-			long dbVersionOfDB = dbVersion2Long(dbVersion);
 			long dbVersionOfSoftware = dbVersion2Long(DB.DB_VERSION);
-			if (dbVersionOfDB < dbVersionOfSoftware)
+			if (dbVersionAtServerStarup < dbVersionOfSoftware)
 			{
 				log.info("Updating DB contents to the actual version");
-				contentsUpdater.update(dbVersionOfDB, session);
+				contentsUpdater.update(dbVersionAtServerStarup, session);
 				session.commit();
 				log.info("Updated DB contents to the actual version " + DB.DB_VERSION);
 			}

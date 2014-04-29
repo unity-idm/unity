@@ -190,6 +190,9 @@ public class EngineInitialization extends LifecycleBase
 			initDB.updateContents(contentsUpdater);
 		} catch (Exception e)
 		{
+			log.fatal("Update of database contents failded. You have to:\n1) Restore DB from backup\n"
+					+ "2) Use the previous version of Unity\n"
+					+ "3) Report this problem with the exception following this message to the Unity support mailing list"); 
 			throw new InternalException("Update of the database contents failed", e);
 		}
 	}

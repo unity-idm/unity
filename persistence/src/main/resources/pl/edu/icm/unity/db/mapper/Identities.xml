@@ -74,6 +74,10 @@
 		DELETE FROM IDENTITIES WHERE NAME = #{value}
 	</delete>
 
+	<delete id="deleteAllIdentities">
+		DELETE FROM IDENTITIES
+	</delete>
+
 	<delete id="deleteEntity" parameterType="long">
 		DELETE FROM ENTITIES WHERE ID = #{value}
 	</delete>

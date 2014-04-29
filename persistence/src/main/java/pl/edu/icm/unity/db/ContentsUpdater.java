@@ -6,7 +6,6 @@ package pl.edu.icm.unity.db;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
@@ -19,7 +18,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import pl.edu.icm.unity.db.export.DumpHeader;
 import pl.edu.icm.unity.db.export.IdentitiesIE;
 import pl.edu.icm.unity.db.mapper.IdentitiesMapper;
-import pl.edu.icm.unity.db.model.IdentityBean;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.utils.Log;
 
@@ -62,13 +60,13 @@ public class ContentsUpdater
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(102400);
 		JsonGenerator jg = jsonF.createGenerator(baos);
 		identitiesIE.serialize(sql, jg);
-		
+		jg.close();
+		String contents = baos.toString();
 		IdentitiesMapper mapper = sql.getMapper(IdentitiesMapper.class);
-		List<IdentityBean> allIds = mapper.getIdentities();
-		for (IdentityBean idB: allIds)
-			mapper.deleteIdentity(idB.getName());
+		mapper.deleteAllIdentities();
 		
-		JsonParser jp = jsonF.createParser(baos.toByteArray());
+		JsonParser jp = jsonF.createParser(contents);
+		jp.nextToken();
 		DumpHeader fakeHeader = new DumpHeader();
 		fakeHeader.setVersionMajor(1);
 		fakeHeader.setVersionMinor(0);
