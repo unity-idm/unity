@@ -36,6 +36,8 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
+import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.TransientIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -311,7 +313,16 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		} else if (samlIdFormat.equals(SAMLConstants.NFORMAT_TRANSIENT))
 		{
 			return TransientIdentity.ID;
+		} else 
+//FIXME remove 			
+		if (samlIdFormat.equals("unity:persistent"))
+		{
+			return PersistentIdentity.ID;
+		} else if (samlIdFormat.equals("unity:identifier"))
+		{
+			return IdentifierIdentity.ID;
 		} else
+//FIXME remove end
 		{
 			throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_INVALID_NAMEID_POLICY,
 					samlIdFormat + " is not supported by this service.");
