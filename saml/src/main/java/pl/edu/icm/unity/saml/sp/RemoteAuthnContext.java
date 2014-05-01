@@ -5,20 +5,17 @@
 package pl.edu.icm.unity.saml.sp;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.concurrent.ThreadLocalRandom;
 
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.Binding;
+import pl.edu.icm.unity.server.utils.RemoteAuthnState;
 
 
 /**
  * Context of a remote SAML authentication. Stored in HTTP session. Basically thread safe.
  * @author K. Benedyczak
  */
-public class RemoteAuthnContext implements Serializable
+public class RemoteAuthnContext extends RemoteAuthnState implements Serializable
 {
-	private Date creationTime;
-	private String relayState;
 	private String request;
 	private String requestId;
 	private String idpUrl;
@@ -31,27 +28,11 @@ public class RemoteAuthnContext implements Serializable
 	private String translationProfile;
 
 
-	public RemoteAuthnContext()
-	{
-		this.relayState = String.valueOf(ThreadLocalRandom.current().nextLong()) + 
-				String.valueOf(ThreadLocalRandom.current().nextLong());
-		this.creationTime = new Date();
-	}
-
 	public synchronized String getReturnUrl()
 	{
 		return returnUrl;
 	}
 
-	public synchronized Date getCreationTime()
-	{
-		return creationTime;
-	}
-
-	public synchronized String getRelayState()
-	{
-		return relayState;
-	}
 	public synchronized String getRequest()
 	{
 		return request;

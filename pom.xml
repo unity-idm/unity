@@ -24,7 +24,7 @@
 		<spring.version>4.0.1.RELEASE</spring.version>
 		<vaadin.version>7.0.7</vaadin.version>
 		<cxf.version>2.7.8</cxf.version>
-
+		<oltu.version>1.0.0</oltu.version>
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
@@ -344,6 +344,16 @@
 				<groupId>org.mvel</groupId>
 				<artifactId>mvel2</artifactId>
 				<version>2.1.9.Final</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.oltu.oauth2</groupId>
+				<artifactId>org.apache.oltu.oauth2.client</artifactId>
+				<version>${oltu.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.oltu.oauth2</groupId>
+				<artifactId>org.apache.oltu.oauth2.httpclient4</artifactId>
+				<version>${oltu.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
