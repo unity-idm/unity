@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.oauth.client;
 
-import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
-import org.apache.oltu.oauth2.client.response.OAuthAuthzResponse;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 
+import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 
@@ -20,6 +19,6 @@ public interface OAuthExchange extends CredentialExchange
 	public static final String ID = "OAuth2 exchange";
 	
 	OAuthClientProperties getSettings();
-	OAuthClientRequest createRequest() throws OAuthSystemException;
-	AuthenticationResult verifyOAuthAuthzResponse(OAuthAuthzResponse oar);
+	OAuthContext createRequest(String providerKey) throws OAuthSystemException;
+	AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context) throws AuthenticationException;
 }
