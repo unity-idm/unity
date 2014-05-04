@@ -4,103 +4,92 @@
  */
 package pl.edu.icm.unity.oauth.client;
 
-import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
-import org.apache.oltu.oauth2.client.response.OAuthAuthzResponse;
-import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
+import java.net.URI;
+
+import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 
 import pl.edu.icm.unity.server.utils.RemoteAuthnState;
 
 /**
  * OAuth specific state associated with one remote login pipeline.
+ * <p>
+ * This class is thread safe.
  * @author K. Benedyczak
  */
 public class OAuthContext extends RemoteAuthnState
 {
-	private OAuthClientRequest request;
-	private OAuthAuthzResponse authzResponse;
-	private OAuthProblemException error;
-	private String registrationFormForUnknown;
+	private AuthenticationRequest request;
+	private URI requestURI;
+	private String authzCode;
+	private String errorCode;
+	private String errorDescription;
 	private String returnUrl;
-	private String clientId;
-	private String clientSecret;
-	private String tokenEndpoint;
-	private String profileEndpoint;
-	private boolean nonJsonMode;
+	private String providerConfigKey;
 
-	public OAuthClientRequest getRequest()
+	public void setRequest(AuthenticationRequest request, URI requestURI, String providerConfigKey)
+	{
+		this.request = request;
+		this.requestURI = requestURI;
+		this.providerConfigKey = providerConfigKey;
+	}
+
+	public synchronized boolean isAnswerPresent()
+	{
+		return errorCode != null || authzCode != null;
+	}
+	
+	public synchronized String getProviderConfigKey()
+	{
+		return providerConfigKey;
+	}
+
+	public synchronized AuthenticationRequest getRequest()
 	{
 		return request;
 	}
 
-	public void setRequest(OAuthClientRequest request, String registrationFormForUnknown, String clientId,
-			String clientSecret, String tokenEndpoint, String profileEndpoint, boolean nonJsonMode)
+	public synchronized URI getRequestURI()
 	{
-		this.request = request;
-		this.registrationFormForUnknown = registrationFormForUnknown;
-		this.clientId = clientId;
-		this.clientSecret = clientSecret;
-		this.tokenEndpoint = tokenEndpoint;
-		this.nonJsonMode = nonJsonMode;
-		this.profileEndpoint = profileEndpoint;
+		return requestURI;
 	}
 
-	public OAuthAuthzResponse getAuthzResponse()
+	public synchronized String getAuthzCode()
 	{
-		return authzResponse;
+		return authzCode;
 	}
 
-	public void setAuthzResponse(OAuthAuthzResponse authzResponse)
+	public synchronized void setAuthzCode(String authzCode)
 	{
-		this.authzResponse = authzResponse;
+		this.authzCode = authzCode;
 	}
 
-	public String getRegistrationFormForUnknown()
-	{
-		return registrationFormForUnknown;
-	}
-
-	public String getReturnUrl()
+	public synchronized String getReturnUrl()
 	{
 		return returnUrl;
 	}
 
-	public void setReturnUrl(String returnUrl)
+	public synchronized void setReturnUrl(String returnUrl)
 	{
 		this.returnUrl = returnUrl;
 	}
 
-	public String getClientId()
+	public synchronized String getErrorCode()
 	{
-		return clientId;
+		return errorCode;
 	}
 
-	public String getClientSecret()
+	public synchronized void setErrorCode(String errorCode)
 	{
-		return clientSecret;
+		this.errorCode = errorCode;
 	}
 
-	public String getTokenEndpoint()
+	public synchronized String getErrorDescription()
 	{
-		return tokenEndpoint;
+		return errorDescription;
 	}
 
-	public boolean isNonJsonMode()
+	public synchronized void setErrorDescription(String errorDescription)
 	{
-		return nonJsonMode;
-	}
-
-	public OAuthProblemException getError()
-	{
-		return error;
-	}
-
-	public void setError(OAuthProblemException error)
-	{
-		this.error = error;
-	}
-
-	public String getProfileEndpoint()
-	{
-		return profileEndpoint;
+		this.errorDescription = errorDescription;
 	}
 }

@@ -315,17 +315,18 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 				log.error("Runtime error during OAuth2 response processing or principal mapping", e);
 				authnResult = new AuthenticationResult(Status.deny, null);
 			}
-
+			String regFormForUnknown = credentialExchange.getSettings().getValue(
+					authnContext.getProviderConfigKey() + OAuthClientProperties.REGISTRATION_FORM);
 			if (authnResult.getStatus() == Status.success)
 			{
 				showError(null);
 				breakLogin(false);
 			} else if (authnResult.getStatus() == Status.unknownRemotePrincipal && 
-					authnContext.getRegistrationFormForUnknown() != null) 
+					regFormForUnknown != null) 
 			{
 				log.debug("There is a registration form to show for the unknown user: " + 
-						authnContext.getRegistrationFormForUnknown());
-				authnResult.setFormForUnknownPrincipal(authnContext.getRegistrationFormForUnknown());
+						regFormForUnknown);
+				authnResult.setFormForUnknownPrincipal(regFormForUnknown);
 				showError(null);
 				breakLogin(true);
 			} else
@@ -368,7 +369,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		{
 			while (!isStopped())
 			{
-				if (context.getAuthzResponse() == null)
+				if (!context.isAnswerPresent())
 				{
 					execService.schedule(this, 100, TimeUnit.MILLISECONDS);
 				} else

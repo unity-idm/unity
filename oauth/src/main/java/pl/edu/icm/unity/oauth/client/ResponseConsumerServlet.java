@@ -12,8 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.apache.oltu.oauth2.client.response.OAuthAuthzResponse;
-import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.utils.Log;
@@ -39,19 +37,7 @@ public class ResponseConsumerServlet extends HttpServlet
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException
 	{
-		OAuthAuthzResponse oar = null;
-		OAuthProblemException error = null;
-		String state;
-		try
-		{
-			oar = OAuthAuthzResponse.oauthCodeAuthzResponse(req);
-			state = oar.getState();
-		} catch (OAuthProblemException e)
-		{
-			log.debug("Got a request to the OAuth response consumer endpoint with error response", e);
-			state = e.getState();
-			error = e;
-		}
+		String state = req.getParameter("state");		
 		
 		if (state == null)
 		{
@@ -73,8 +59,15 @@ public class ResponseConsumerServlet extends HttpServlet
 			return;
 		}
 		
-		context.setAuthzResponse(oar);
-		context.setError(error);
+		String error = req.getParameter("error");
+		if (error != null)
+		{
+			String desc = req.getParameter("error_description");
+			log.debug("Got error OAuth response: " + error);
+			context.setErrorCode(error);
+			context.setErrorDescription(desc);
+		}
+		
 		resp.sendRedirect(context.getReturnUrl());
 	}
 }

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.client;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -35,14 +36,14 @@ public class OAuthClientProperties extends PropertiesHelper
 	public static final String PROVIDER_LOCATION = "authEndpoint";
 	public static final String ACCESS_TOKEN_ENDPOINT = "accessTokenEndpoint";
 	public static final String PROFILE_ENDPOINT = "profileEndpoint";
-	public static final String NON_JSON_MODE = "nonJsonMode";
 	public static final String PROVIDER_NAME = "name";
 	public static final String CLIENT_ID = "clientId";
 	public static final String CLIENT_SECRET = "clientSecret";
 	public static final String SCOPES = "scopes";
 	public static final String OPENID_CONNECT = "openIdConnect";
-	public static final String PARAMS = "extraParams.";
+	public static final String OPENID_DISCOVERY = "openIdConnectDiscoveryEndpoint";
 	public static final String REGISTRATION_FORM = "registrationFormForUnknown";
+	public static final String TRANSLATION_PROFILE = "translationProfile";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
@@ -73,32 +74,36 @@ public class OAuthClientProperties extends PropertiesHelper
 		META.put(SCOPES, new PropertyMD().setStructuredListEntry(PROVIDERS).
 				setDescription("Space separated list of authorization scopes to "
 				+ "be requested"));
-		META.put(NON_JSON_MODE, new PropertyMD("false").setStructuredListEntry(PROVIDERS).
-				setDescription("If set to true, the answer to the OAuth Access Token endpoint "
-						+ "is expected to be encoded in response parameters, "
-						+ "not in JSON format which is the standard OAuth way. "
-						+ "This is used for instance by FB."));
 		META.put(OPENID_CONNECT, new PropertyMD("false").setStructuredListEntry(PROVIDERS).
 				setDescription("If set to true, then the provider is treated as OpenID "
 						+ "Connect 1.0 provider. For such providers specifying " + 
 						PROFILE_ENDPOINT + " is not mandatory as the basic user information "
-						+ "is retrieved together with access token. However the verification"
-						+ ""));
+						+ "is retrieved together with access token. However the " 
+						+ "discovery endpoint must be set"));
+		META.put(OPENID_DISCOVERY, new PropertyMD().setStructuredListEntry(PROVIDERS).
+				setDescription("OpenID Connect Discovery endpoint address, relevant (and required) "
+						+ "only when OpenID Connect mode is turned on."));
 		META.put(REGISTRATION_FORM, new PropertyMD().setStructuredListEntry(PROVIDERS).
 				setDescription("Registration form to be shown for the locally unknown users which "
 						+ "were successfuly authenticated remotely."));
-		META.put(PARAMS, new PropertyMD().setList(false).setStructuredListEntry(PROVIDERS).
-				setDescription("List of additional parameters to be included in "
-				+ "authorization request. Values should be in the 'name=value' format"));
-		
+		META.put(TRANSLATION_PROFILE, new PropertyMD().setStructuredListEntry(PROVIDERS).
+				setDescription("Translation profile which will be used to map received user "
+						+ "information to a local representation."));
 	}
 	
 	public OAuthClientProperties(Properties properties) throws ConfigurationException
 	{
 		super(P, properties, META, log);
-		//TODO - validation!!
+		Set<String> keys = getStructuredListKeys(PROVIDERS);
+		for (String key: keys)
+			validateProvider(key);
 	}
 
+	private void validateProvider(String key)
+	{
+		
+	}
+	
 	public Properties getProperties()
 	{
 		return properties;

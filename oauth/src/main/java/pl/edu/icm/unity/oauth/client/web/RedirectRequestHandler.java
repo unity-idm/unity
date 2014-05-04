@@ -54,7 +54,7 @@ public class RedirectRequestHandler implements RequestHandler
 		VaadinServletResponse rr = (VaadinServletResponse) response;
 		response.setHeader("Cache-Control","no-cache,no-store");
 		response.setHeader("Pragma","no-cache");
-		String redirectURL = context.getRequest().getLocationUri();
+		String redirectURL = context.getRequestURI().toString();
 		if (log.isDebugEnabled())
 		{
 			log.debug("Starting OAuth redirection to OAuth provider " + redirectURL);

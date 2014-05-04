@@ -346,19 +346,9 @@
 				<version>2.1.9.Final</version>
 			</dependency>
 			<dependency>
-				<groupId>org.apache.oltu.oauth2</groupId>
-				<artifactId>org.apache.oltu.oauth2.client</artifactId>
-				<version>${oltu.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.oltu.oauth2</groupId>
-				<artifactId>org.apache.oltu.oauth2.httpclient4</artifactId>
-				<version>${oltu.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.oltu.oauth2</groupId>
-				<artifactId>org.apache.oltu.oauth2.openidconnect</artifactId>
-				<version>${oltu.version}</version>
+				<groupId>com.nimbusds</groupId>
+				<artifactId>oauth2-oidc-sdk</artifactId>
+				<version>3.1</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
