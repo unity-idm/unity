@@ -32,7 +32,6 @@ import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
-import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.OIDCAccessTokenResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
@@ -136,7 +135,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				new ClientID(clientId),
 				new URI(responseConsumerAddress),
 				new State(context.getRelayState()),
-				new Nonce());
+				null);
 
 		
 		context.setRequest(req, req.toURI(), providerKey);
