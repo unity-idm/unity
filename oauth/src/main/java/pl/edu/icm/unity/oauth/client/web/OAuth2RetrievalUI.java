@@ -296,12 +296,14 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	 */
 	private void onAuthzAnswer(OAuthContext authnContext)
 	{
+		log.debug("RetrievalUI received OAuth response");
 		VaadinSession session = VaadinSession.getCurrent();
 		session.lock();
 		AuthenticationResult authnResult;
 		showError(null);
 		try
 		{
+			log.debug("RetrievalUI will validate OAuth response");
 			String reason = null;
 			Exception savedException = null;
 			try
@@ -343,7 +345,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 				showError(msg.getMessage("OAuth2Retrieval.authnFailedError"));
 				breakLogin(false);
 			}
-
 		} finally
 		{
 			session.unlock();

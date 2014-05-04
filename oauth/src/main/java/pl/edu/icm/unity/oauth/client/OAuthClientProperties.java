@@ -24,7 +24,7 @@ import eu.unicore.util.configuration.PropertyMD;
  */
 public class OAuthClientProperties extends PropertiesHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthClientProperties.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, OAuthClientProperties.class);
 	
 	@DocumentationReferencePrefix
 	public static final String P = "unity.oauth2.client.";
@@ -68,7 +68,7 @@ public class OAuthClientProperties extends PropertiesHelper
 		META.put(CLIENT_ID, new PropertyMD().setStructuredListEntry(PROVIDERS).
 				setDescription("Client identifier, obtained during Unity's "
 				+ "registration at the provider"));
-		META.put(CLIENT_SECRET, new PropertyMD().setStructuredListEntry(PROVIDERS).
+		META.put(CLIENT_SECRET, new PropertyMD().setStructuredListEntry(PROVIDERS).setSecret().
 				setDescription("Client secret, obtained during Unity's "
 				+ "registration at the provider"));
 		META.put(SCOPES, new PropertyMD().setStructuredListEntry(PROVIDERS).

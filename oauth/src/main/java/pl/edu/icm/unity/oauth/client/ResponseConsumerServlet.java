@@ -17,7 +17,8 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.utils.Log;
 
 /**
- * Awaits OAuth responses and handles them.
+ * Awaits OAuth responses and handles them. The responses have their state extracted and OAuthn context 
+ * is matched by it. If found then processing is redirected to the return URL associated with the context. 
  * 
  * @author K. Benedyczak
  */
@@ -68,6 +69,9 @@ public class ResponseConsumerServlet extends HttpServlet
 			context.setErrorDescription(desc);
 		}
 		
+		
+		log.debug("Received OAuth response with valid state " + state + ", redirecting to " + 
+				context.getReturnUrl());
 		resp.sendRedirect(context.getReturnUrl());
 	}
 }
