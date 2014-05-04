@@ -209,8 +209,13 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				clientAuthn,
 				authzCodeGrant);
 		HTTPRequest httpRequest = request.toHTTPRequest(); 
-		log.trace("Exchanging authorization code for access token with request: " + httpRequest.getURL() + 
-				"?" + httpRequest.getQuery());
+		if (log.isTraceEnabled())
+		{
+			String notSecretQuery = httpRequest.getQuery().replaceFirst(
+					"client_secret=[^&]*", "client_secret=xxxxxx");
+			log.trace("Exchanging authorization code for access token with request to: " + httpRequest.getURL() + 
+				"?" + notSecretQuery);
+		}
 		HTTPResponse response = httpRequest.send();
 		
 		log.debug("Received answer: " + response.getStatusCode());
@@ -252,6 +257,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			fetchOpenIdUserInfo(accessToken, userInfoEndpoint, ret);
 		}
 		
+		log.debug("Received the following attributes from the OAuth provider: " + ret);
+		
 		return ret;
 	}
 	
@@ -279,7 +286,12 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	{
 		Map<String, Object> claims = claimSet.getAllClaims();
 		for (Map.Entry<String, Object> claim: claims.entrySet())
-			attributes.put(claim.getKey(), claim.getValue().toString());
+		{
+			if (claim.getValue() != null)
+				attributes.put(claim.getKey(), claim.getValue().toString());
+			else
+				attributes.put(claim.getKey(), "");
+		}
 	}
 	
 	private Map<String, String> getUserInfoWithPlainOAuth2(OAuthContext context) 
