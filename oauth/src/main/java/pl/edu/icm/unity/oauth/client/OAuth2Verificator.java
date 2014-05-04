@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
+import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
@@ -271,11 +272,13 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		if (uiResponse instanceof UserInfoErrorResponse)
 		{
 			UserInfoErrorResponse errorResp = (UserInfoErrorResponse) uiResponse;
+			ErrorObject errorObj = errorResp.getErrorObject();
+			String code = errorObj.getCode();
+			String errorDesc = errorObj.getDescription() != null ? 
+					(" " + errorObj.getDescription()) : ""; 
 			throw new AuthenticationException("Authentication was successful, but an error "
 					+ "occurred during user information endpoint query: " + 
-					errorResp.getErrorObject().getCode() +  
-					(errorResp.getErrorObject().getDescription() != null ? 
-							" " + errorResp.getErrorObject().getDescription() : ""));
+					code + errorDesc);
 		}
 		UserInfoSuccessResponse uiResponseS = (UserInfoSuccessResponse) uiResponse;
 		ReadOnlyJWTClaimsSet claimSet = uiResponseS.getUserInfoJWT().getJWTClaimsSet();
