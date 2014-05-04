@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
@@ -40,6 +41,7 @@ import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoSuccessResponse;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -276,8 +278,16 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 					code);
 		}
 		UserInfoSuccessResponse uiResponseS = (UserInfoSuccessResponse) uiResponse;
-		ReadOnlyJWTClaimsSet claimSet = uiResponseS.getUserInfoJWT().getJWTClaimsSet();
-		toAttributes(claimSet, ret);
+		if (uiResponseS.getUserInfoJWT() != null)
+		{
+			ReadOnlyJWTClaimsSet claimSet = uiResponseS.getUserInfoJWT().getJWTClaimsSet();
+			toAttributes(claimSet, ret);
+		} else
+		{
+			UserInfo ui = uiResponseS.getUserInfo();
+			JWTClaimsSet claimSet = ui.toJWTClaimsSet();
+			toAttributes(claimSet, ret);
+		}
 	}
 	
 	private void toAttributes(ReadOnlyJWTClaimsSet claimSet, Map<String, String> attributes)
