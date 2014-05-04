@@ -67,6 +67,9 @@ public class ResponseConsumerServlet extends HttpServlet
 			log.debug("Got error OAuth response: " + error);
 			context.setErrorCode(error);
 			context.setErrorDescription(desc);
+		} else
+		{
+			context.setAuthzCode(req.getParameter("code"));
 		}
 		
 		
