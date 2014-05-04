@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.client;
 import java.net.URL;
 
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +35,7 @@ public class OAuth2VerificatorFactory implements CredentialVerificatorFactory
 	private String baseContext;
 	private OAuthContextsManagement contextManagement;
 	
+	@Autowired
 	public OAuth2VerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement,
 			@Qualifier("insecure") AttributesManagement attrMan, NetworkServer jettyServer,
 			SharedEndpointManagement sharedEndpointManagement,
