@@ -51,6 +51,8 @@ import pl.edu.icm.unity.webui.common.UIBgThread;
 public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuth2RetrievalUI.class);
+	private static final long RECHECK_DELAY = 200;
+	
 	private UnityMessageSource msg;
 	private OAuthExchange credentialExchange;
 	private ScheduledExecutorService execService;
@@ -231,7 +233,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			if (responseWaitingRunnable != null)
 				responseWaitingRunnable.forceStop();
 			responseWaitingRunnable = new ResponseWaitingRunnable(context);
-			execService.schedule(responseWaitingRunnable, 100, TimeUnit.MILLISECONDS);
+			execService.schedule(responseWaitingRunnable, RECHECK_DELAY, TimeUnit.MILLISECONDS);
 		} else
 		{
 			if (responseWaitingRunnable != null)
@@ -367,16 +369,14 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 		public void safeRun()
 		{
-			while (!isStopped())
+			if (isStopped())
+				return;
+			if (!context.isAnswerPresent())
 			{
-				if (!context.isAnswerPresent())
-				{
-					execService.schedule(this, 100, TimeUnit.MILLISECONDS);
-				} else
-				{
-					onAuthzAnswer(context);
-					break;
-				}
+				execService.schedule(this, RECHECK_DELAY, TimeUnit.MILLISECONDS);
+			} else
+			{
+				onAuthzAnswer(context);
 			}
 		}
 		
