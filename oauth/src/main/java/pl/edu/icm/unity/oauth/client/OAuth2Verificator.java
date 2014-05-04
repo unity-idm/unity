@@ -26,7 +26,7 @@ import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
-import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
+import com.nimbusds.oauth2.sdk.auth.ClientSecretPost;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
@@ -197,7 +197,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				OAuthClientProperties.CLIENT_SECRET);
 		String tokenEndpoint = config.getValue(context.getProviderConfigKey() + 
 				OAuthClientProperties.ACCESS_TOKEN_ENDPOINT);
-		ClientAuthentication clientAuthn = new ClientSecretBasic(
+		//TODO - should be configurable
+		ClientAuthentication clientAuthn = new ClientSecretPost(
 				new ClientID(clientId), 
 				new Secret(clientSecret));
 		AuthorizationCodeGrant authzCodeGrant = new AuthorizationCodeGrant(
