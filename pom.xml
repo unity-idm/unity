@@ -51,6 +51,7 @@
 		<module>saml</module>
 		<module>unicore</module>
 		<module>ldap</module>
+		<module>oauth</module>
 		<module>distribution</module>
 	</modules>
 
