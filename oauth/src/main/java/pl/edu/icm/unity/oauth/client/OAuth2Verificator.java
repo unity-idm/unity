@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
@@ -26,6 +28,7 @@ import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.Secret;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
@@ -48,6 +51,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.utils.Log;
 
 
 /**
@@ -58,6 +62,7 @@ import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
  */
 public class OAuth2Verificator extends AbstractRemoteVerificator implements OAuthExchange
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuth2Verificator.class);
 	private OAuthClientProperties config;
 	private String responseConsumerAddress;
 	private OAuthContextsManagement contextManagement;
@@ -202,8 +207,16 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				new URI(tokenEndpoint),
 				clientAuthn,
 				authzCodeGrant);
-
-		HTTPResponse response = request.toHTTPRequest().send();
+		HTTPRequest httpRequest = request.toHTTPRequest(); 
+		log.trace("Exchanging authorization code for access token with request: " + httpRequest.getURL() + 
+				"?" + httpRequest.getQuery());
+		HTTPResponse response = httpRequest.send();
+		
+		log.debug("Received answer: " + response.getStatusCode());
+		if (response.getStatusCode() != 200)
+			log.debug("Error received. Contents: " + response.getContent());
+		else
+			log.trace("Received token: " + response.getContent());
 		return response;
 	}
 	
