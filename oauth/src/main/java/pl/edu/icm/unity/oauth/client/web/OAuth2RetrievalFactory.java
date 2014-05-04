@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
  * @author K. Benedyczak
  */
 @Component
-public class OAuthh2RetrievalFactory implements CredentialRetrievalFactory
+public class OAuth2RetrievalFactory implements CredentialRetrievalFactory
 {
 	public static final String NAME = "web-oauth2";
 	
