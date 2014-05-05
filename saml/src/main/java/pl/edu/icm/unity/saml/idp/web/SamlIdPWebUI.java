@@ -142,7 +142,8 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		Collection<String> allGroups = identitiesMan.getGroups(entity);
 		Collection<AttributeExt<?>> allAttribtues = attributesMan.getAttributes(
 				entity, processor.getChosenGroup(), null);
-		return processor.prepareReleasedAttributes(allAttribtues, allGroups);
+		Entity fullEntity = identitiesMan.getEntity(entity);
+		return processor.prepareReleasedAttributes(allAttribtues, allGroups, fullEntity);
 	}
 	
 	

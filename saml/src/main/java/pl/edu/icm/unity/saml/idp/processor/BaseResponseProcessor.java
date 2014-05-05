@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.idp.processor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,8 +45,10 @@ import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.Identity;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationDataType;
@@ -118,12 +121,14 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	 * @return
 	 */
 	public Map<String, Attribute<?>> prepareReleasedAttributes(Collection<AttributeExt<?>> allAttribtues, 
-			Collection<String> allGroups)
+			Collection<String> allGroups, Entity entity)
 	{
 		Map<String, Attribute<?>> ret = new HashMap<String, Attribute<?>>();
 		Attribute<?> groupAttr = createGroupAttribute(allGroups);
 		if (groupAttr != null)
 			ret.put(groupAttr.getName(), groupAttr);
+		addIdentityAttributes(entity, ret);
+		
 		AttributeFilters filter = samlConfiguration.getAttributeFilter();
 		filter.filter(allAttribtues, getRequestIssuer());
 		
@@ -135,6 +140,30 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		return ret;
 	}
 
+	private void addIdentityAttributes(Entity entity, Map<String, Attribute<?>> ret)
+	{
+		for (Identity identity: entity.getIdentities())
+		{
+			if (identity.getType().getIdentityTypeProvider().isTargeted())
+				continue;
+			String name = "unity:identity:" + identity.getTypeId();
+			
+			StringAttribute sa = (StringAttribute) ret.get(name);
+			if (sa != null)
+			{
+				List<String> newValues = new ArrayList<String>(sa.getValues());
+				newValues.add(identity.getValue());
+				sa.setValues(newValues);
+			} else
+			{
+				sa = new StringAttribute(name, 
+						"/", AttributeVisibility.full, identity.getValue());
+				ret.put(sa.getName(), sa);
+			}
+		}
+	}
+	
+	
 	private Attribute<String> createGroupAttribute(Collection<String> allGroups)
 	{
 		GroupsSelection mode = samlConfiguration.getEnumValue(SamlIdpProperties.GROUP_SELECTION, 
@@ -283,10 +312,13 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		Collection<String> allGroups = identitiesMan.getGroups(entity);
 		Collection<AttributeExt<?>> allAttribtues = attributesMan.getAttributes(
 				entity, processor.getChosenGroup(), null);
+		Entity fullEntity = identitiesMan.getEntity(entity);
 		if (log.isTraceEnabled())
 			log.trace("Attributes to be returned (before postprocessing): " + 
-					allAttribtues + "\nGroups: " + allGroups);
-		Map<String, Attribute<?>> all = processor.prepareReleasedAttributes(allAttribtues, allGroups);
+					allAttribtues + "\nGroups: " + allGroups + "\nIdentities: " + 
+					Arrays.toString(fullEntity.getIdentities()));
+		Map<String, Attribute<?>> all = processor.prepareReleasedAttributes(allAttribtues, allGroups, 
+				fullEntity);
 		Set<String> hidden = preferences.getHiddenAttribtues();
 		for (String hiddenA: hidden)
 			all.remove(hiddenA);

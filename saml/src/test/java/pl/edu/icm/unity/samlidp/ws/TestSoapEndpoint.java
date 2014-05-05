@@ -121,7 +121,7 @@ public class TestSoapEndpoint extends DBIntegrationTestBase
 		AuthnResponseAssertions resp = authnClient.authenticate(SAMLConstants.NFORMAT_PERSISTENT, 
 				localIssuer, "http://somehost/consumer");
 		
-		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 3);
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 5);
 		String persistentTargetedId = resp.getAuthNAssertions().get(0).getSubjectName();
 		System.out.println("Targeted persistent id: " + persistentTargetedId);
 
@@ -129,7 +129,7 @@ public class TestSoapEndpoint extends DBIntegrationTestBase
 		AttributeAssertionParser a = attrClient.getAssertion(
 				new NameID(persistentTargetedId, SAMLConstants.NFORMAT_PERSISTENT),
 				localIssuer);
-		assertEquals(3, a.getAttributes().size());
+		assertEquals(5, a.getAttributes().size());
 	}
 	
 	@Test
@@ -157,7 +157,7 @@ public class TestSoapEndpoint extends DBIntegrationTestBase
 		AuthnResponseAssertions resp = client.authenticate(SAMLConstants.NFORMAT_PERSISTENT, 
 				localIssuer, "http://somehost/consumer");
 		
-		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 3);
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 5);
 		
 		clientCfg.setHttpPassword("wrong");
 		client = new SAMLAuthnClient(authnWSUrl, clientCfg);
@@ -183,7 +183,7 @@ public class TestSoapEndpoint extends DBIntegrationTestBase
 		clientCfg.setSslAuthn(true);
 		client = new SAMLAuthnClient(authnWSUrl, clientCfg);
 		resp = client.authenticate(SAMLConstants.NFORMAT_DN, localIssuer, "http://somehost/consumer");
-		checkAuthnResponse(resp, SAMLConstants.NFORMAT_DN, 4);
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_DN, 7);
 		
 		//both, both ok, the first configured, i.e. the password should be used.
 		clientCfg.setSslAuthn(true);
@@ -191,7 +191,7 @@ public class TestSoapEndpoint extends DBIntegrationTestBase
 		clientCfg.setHttpPassword("mockPassword1");
 		client = new SAMLAuthnClient(authnWSUrl, clientCfg);
 		resp = client.authenticate(localIssuer, "http://somehost/consumer");
-		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 3);
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 5);
 		
 		//both but password wrong so TLS should be used.
 		clientCfg.setSslAuthn(true);
@@ -199,7 +199,7 @@ public class TestSoapEndpoint extends DBIntegrationTestBase
 		clientCfg.setHttpPassword("wrong");
 		client = new SAMLAuthnClient(authnWSUrl, clientCfg);
 		resp = client.authenticate(localIssuer, "http://somehost/consumer");
-		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 4);
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 7);
 	}
 
 	
@@ -230,7 +230,7 @@ public class TestSoapEndpoint extends DBIntegrationTestBase
 		SAMLAttributeQueryClient client = new SAMLAttributeQueryClient(attrWSUrl, clientCfg);
 		AttributeAssertionParser a = client.getAssertion(new NameID("CN=Test UVOS,O=UNICORE,C=EU", SAMLConstants.NFORMAT_DN),
 				localIssuer);
-		assertEquals(4, a.getAttributes().size());
+		assertEquals(7, a.getAttributes().size()); //3 identities, 1 group, 3 plain attributes
 		ParsedAttribute a1 = a.getAttribute("stringA");
 		assertNotNull(a1);
 		assertEquals(0, a1.getStringValues().size());
