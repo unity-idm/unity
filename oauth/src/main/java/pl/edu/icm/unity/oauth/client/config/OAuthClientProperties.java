@@ -76,19 +76,19 @@ public class OAuthClientProperties extends PropertiesHelper
 		switch (providerType)
 		{
 		case google:
-			providers.put(key, new GoogleProviderProperties(properties, key));
+			providers.put(key, new GoogleProviderProperties(properties, P+key));
 			break;
 		case facebook:
-			providers.put(key, new FacebookProviderProperties(properties, key));
+			providers.put(key, new FacebookProviderProperties(properties, P+key));
 			break;
 		case dropbox:
-			providers.put(key, new DropboxProviderProperties(properties, key));
+			providers.put(key, new DropboxProviderProperties(properties, P+key));
 			break;
 		case github:
-			providers.put(key, new GitHubProviderProperties(properties, key));
+			providers.put(key, new GitHubProviderProperties(properties, P+key));
 			break;
 		case custom:
-			providers.put(key, new CustomProviderProperties(properties, key));
+			providers.put(key, new CustomProviderProperties(properties, P+key));
 		}
 	}
 	
