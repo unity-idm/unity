@@ -282,7 +282,8 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 							+ UnityServerConfiguration.AUTHENTICATOR_RETRIEVAL_CONFIG);
 			String vJsonConfiguration = vConfigFile == null ? null : serverMan
 					.loadConfigurationFile(vConfigFile);
-			String rJsonConfiguration = serverMan.loadConfigurationFile(rConfigFile);
+			String rJsonConfiguration = rConfigFile == null ? null : serverMan
+					.loadConfigurationFile(rConfigFile);
 			ret.put("vJsonConfiguration", vJsonConfiguration);
 			ret.put("rJsonConfiguration", rJsonConfiguration);
 
