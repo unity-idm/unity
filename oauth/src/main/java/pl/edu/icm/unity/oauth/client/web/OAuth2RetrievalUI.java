@@ -27,10 +27,11 @@ import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
-import pl.edu.icm.unity.oauth.client.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthContextsManagement;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
@@ -100,7 +101,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			idpChooser.setImmediate(true);
 			for (String idpKey: idps)
 			{
-				String name = clientProperties.getValue(idpKey+OAuthClientProperties.PROVIDER_NAME);
+				String name = clientProperties.getProvider(idpKey).getValue(
+						CustomProviderProperties.PROVIDER_NAME);
 				idpChooser.addItem(idpKey);
 				idpChooser.setItemCaption(idpKey, name);
 			}
@@ -118,7 +120,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		} else
 		{
 			String idpKey = idps.iterator().next();
-			String name = clientProperties.getValue(idpKey+OAuthClientProperties.PROVIDER_NAME);
+			String name = clientProperties.getProvider(idpKey).getValue(
+					CustomProviderProperties.PROVIDER_NAME);
 			Label selectedIdp = new Label(msg.getMessage("OAuth2Retrieval.selectedProvider", name));
 			ret.addComponent(selectedIdp);
 		}
@@ -319,8 +322,9 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 				log.error("Runtime error during OAuth2 response processing or principal mapping", e);
 				authnResult = new AuthenticationResult(Status.deny, null);
 			}
-			String regFormForUnknown = credentialExchange.getSettings().getValue(
-					authnContext.getProviderConfigKey() + OAuthClientProperties.REGISTRATION_FORM);
+			CustomProviderProperties providerProps = credentialExchange.getSettings().getProvider(
+					authnContext.getProviderConfigKey()); 
+			String regFormForUnknown = providerProps.getValue(CustomProviderProperties.REGISTRATION_FORM);
 			if (authnResult.getStatus() == Status.success)
 			{
 				showError(null);

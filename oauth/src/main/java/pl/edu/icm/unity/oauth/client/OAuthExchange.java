@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 
 import com.nimbusds.oauth2.sdk.SerializeException;
 
+import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialExchange;

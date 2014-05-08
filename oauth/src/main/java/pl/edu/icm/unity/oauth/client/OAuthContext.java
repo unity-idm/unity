@@ -6,7 +6,7 @@ package pl.edu.icm.unity.oauth.client;
 
 import java.net.URI;
 
-import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
+import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 
 import pl.edu.icm.unity.server.utils.RemoteAuthnState;
 
@@ -18,7 +18,7 @@ import pl.edu.icm.unity.server.utils.RemoteAuthnState;
  */
 public class OAuthContext extends RemoteAuthnState
 {
-	private AuthenticationRequest request;
+	private AuthorizationRequest request;
 	private URI requestURI;
 	private String authzCode;
 	private String errorCode;
@@ -26,7 +26,7 @@ public class OAuthContext extends RemoteAuthnState
 	private String returnUrl;
 	private String providerConfigKey;
 
-	public void setRequest(AuthenticationRequest request, URI requestURI, String providerConfigKey)
+	public void setRequest(AuthorizationRequest request, URI requestURI, String providerConfigKey)
 	{
 		this.request = request;
 		this.requestURI = requestURI;
@@ -43,7 +43,7 @@ public class OAuthContext extends RemoteAuthnState
 		return providerConfigKey;
 	}
 
-	public synchronized AuthenticationRequest getRequest()
+	public synchronized AuthorizationRequest getRequest()
 	{
 		return request;
 	}
