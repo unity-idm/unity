@@ -35,20 +35,27 @@ import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Toolbar;
 
+import com.vaadin.data.Container;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.data.util.filter.Or;
+import com.vaadin.data.util.filter.SimpleStringFilter;
+import com.vaadin.event.FieldEvents.TextChangeEvent;
+import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -67,10 +74,11 @@ public class IdentitiesComponent extends Panel
 	private GroupsManagement groupsManagement;
 	private IdentitiesTable identitiesTable;
 	private HorizontalLayout filtersBar;
+	private Or simpleFilter;
 	
 	@Autowired
-	public IdentitiesComponent(UnityMessageSource msg, GroupsManagement groupsManagement,
-			final AttributesManagement attrsMan, IdentitiesTable identitiesTable)
+	public IdentitiesComponent(final UnityMessageSource msg, GroupsManagement groupsManagement,
+			final AttributesManagement attrsMan, final IdentitiesTable identitiesTable)
 	{
 		this.msg = msg;
 		this.groupsManagement = groupsManagement;
@@ -172,13 +180,57 @@ public class IdentitiesComponent extends Panel
 				
 			}
 		});
-			
+		HorizontalLayout searchWrapper = new HorizontalLayout();
+		searchWrapper.setSpacing(false);
+		searchWrapper.setMargin(false);
+		
+		FormLayout searchToolbar = new FormLayout();
+		searchToolbar.setSpacing(false);
+		searchToolbar.setMargin(false);
+		
+		final TextField searchText = new TextField(
+				msg.getMessage("Identities.searchCaption"));
+		searchToolbar.addComponent(searchText);
+		searchWrapper.addComponent(searchToolbar);
+		
+		searchText.setImmediate(true);
+		searchText.addTextChangeListener(new TextChangeListener()
+		{
+			@Override
+			public void textChange(TextChangeEvent event)
+			{
+				Collection<?> props = IdentitiesComponent.this.identitiesTable
+						.getContainerPropertyIds();
+				ArrayList<Container.Filter> filters = new ArrayList<Container.Filter>();
+				String text = event.getText();
+				if (simpleFilter != null)
+					identitiesTable.removeFilter(simpleFilter);
+				if (text.isEmpty())
+					return;
+				for (Object colIdRaw : props)
+				{
+					String colId = (String) colIdRaw;
+					if (IdentitiesComponent.this.identitiesTable.isColumnCollapsed(colId))
+						continue;
+					Filter filter = new SimpleStringFilter(colId, text, true,
+							false);
+					filters.add(filter);
+				}
+				if (filters.size() < 1)
+					return;
+				Filter[] orFillters = filters.toArray(new Filter[filters.size()]);
+				simpleFilter = new Or(orFillters);
+				identitiesTable.addFilter(simpleFilter);
+			}
+		});
+
 		Label spacer = new Label();
 		spacer.setSizeFull();
+		toolbar.addSeparator();
 		toolbar.addActionHandlers(identitiesTable.getActionHandlers());
 		toolbar.addSeparator();
-		toolbar.addButtons(addFilter, addAttributes, removeAttributes,savePreferences);
-		topBar.addComponents(mode, spacer, toolbar);
+		toolbar.addButtons(addFilter, addAttributes, removeAttributes, savePreferences);
+		topBar.addComponents(mode, spacer, searchWrapper, toolbar);
 		topBar.setExpandRatio(spacer, 2f);
 		topBar.setWidth(100, Unit.PERCENTAGE);
 		
