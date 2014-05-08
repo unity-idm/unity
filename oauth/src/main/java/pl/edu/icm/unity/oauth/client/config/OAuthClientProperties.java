@@ -48,7 +48,7 @@ public class OAuthClientProperties extends PropertiesHelper
 		META.put(PROVIDERS, new PropertyMD().setStructuredList(false).setMandatory().
 				setDescription("Prefix, under which the available oauth providers are defined."));
 		
-		META.put(PROVIDER_TYPE, new PropertyMD(Providers.custom).setStructuredListEntry(PROVIDERS).setMandatory().
+		META.put(PROVIDER_TYPE, new PropertyMD(Providers.custom).setStructuredListEntry(PROVIDERS).
 				setDescription("Type of provider. Either a well known provider type can be specified"
 						+ " or 'custom'. In the first case only few additional settings are required: "
 						+ "client id, secret and translation profile. Other settings as scope "
