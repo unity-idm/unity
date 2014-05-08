@@ -45,7 +45,7 @@ public class OAuthClientProperties extends PropertiesHelper
 		META.put(DISPLAY_NAME, new PropertyMD("OAuth2 authentication").setDescription("Name of this authentication "
 				+ "option to be displayed in the web interface"));
 		
-		META.put(PROVIDERS, new PropertyMD().setStructuredList(false).setMandatory().
+		META.put(PROVIDERS, new PropertyMD().setStructuredList(false).setCanHaveSubkeys().setMandatory().
 				setDescription("Prefix, under which the available oauth providers are defined."));
 		
 		META.put(PROVIDER_TYPE, new PropertyMD(Providers.custom).setStructuredListEntry(PROVIDERS).
