@@ -54,7 +54,10 @@ public class OAuthClientProperties extends PropertiesHelper
 						+ "client id, secret and translation profile. Other settings as scope "
 						+ "can be additionally set to fine tune the remote authentication. "
 						+ "In the latter 'custom' case all mandatory options must be set."));
-		
+		for (Map.Entry<String, PropertyMD> e: CustomProviderProperties.META.entrySet())
+		{
+			META.put(e.getKey(), e.getValue().setHidden().setStructuredListEntry(PROVIDERS));
+		}
 	}
 	
 	private Map<String, CustomProviderProperties> providers = new HashMap<String, CustomProviderProperties>();
