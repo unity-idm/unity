@@ -20,6 +20,8 @@ import java.util.Set;
 import net.minidev.json.JSONObject;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.util.MultiMap;
+import org.eclipse.jetty.util.UrlEncoded;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
@@ -56,6 +58,7 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.server.api.AttributesManagement;
@@ -427,9 +430,29 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		ClientAuthnMode selectedMethod = providerCfg.getEnumValue(CustomProviderProperties.CLIENT_AUTHN_MODE, 
 					ClientAuthnMode.class);
 		HTTPResponse response = retrieveAccessTokenGeneric(context, tokenEndpoint, selectedMethod);
-		AccessTokenResponse atResponse = AccessTokenResponse.parse(response);
-		BearerAccessToken accessToken = extractAccessToken(atResponse);
+		
+		AccessTokenFormat accessTokenFormat = providerCfg.getEnumValue(CustomProviderProperties.ACCESS_TOKEN_FORMAT, 
+				AccessTokenFormat.class);
 
+		BearerAccessToken accessToken;
+		if (accessTokenFormat == AccessTokenFormat.standard)
+		{
+			AccessTokenResponse atResponse = AccessTokenResponse.parse(response);
+			accessToken = extractAccessToken(atResponse);
+		} else
+		{
+			if (response.getStatusCode() != 200)
+				throw new AuthenticationException("Exchange of authorization code for access "
+						+ "token failed: " + response.getContent());
+			MultiMap<String> map = new MultiMap<String>();
+			UrlEncoded.decodeTo(response.getContent(), map, "UTF-8");
+			String accessTokenVal = map.getString("access_token");
+			String lifetimeStr = map.getString("expires");
+			if (accessTokenVal == null || lifetimeStr == null)
+				throw new AuthenticationException("Access token answer received doesn't contain "
+						+ "'access_token' or 'expires' parameters.");
+			accessToken = new BearerAccessToken(accessTokenVal, Long.parseLong(lifetimeStr), null);
+		}
 		Map<String, String> ret = new HashMap<String, String>();
 		String userInfoEndpoint = providerCfg.getValue(CustomProviderProperties.PROFILE_ENDPOINT);
 		if (userInfoEndpoint != null)

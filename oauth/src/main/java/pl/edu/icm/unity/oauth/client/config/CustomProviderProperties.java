@@ -27,6 +27,7 @@ public class CustomProviderProperties extends PropertiesHelper
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, CustomProviderProperties.class);
 	
 	public enum ClientAuthnMode {secretPost, secretBasic};
+	public enum AccessTokenFormat {standard, httpParams};
 	
 	@DocumentationReferencePrefix
 	public static final String P = "unity.oauth2.client.CLIENT_ID.";
@@ -40,6 +41,7 @@ public class CustomProviderProperties extends PropertiesHelper
 	public static final String CLIENT_SECRET = "clientSecret";
 	public static final String CLIENT_AUTHN_MODE = "clientAuthenticationMode";
 	public static final String SCOPES = "scopes";
+	public static final String ACCESS_TOKEN_FORMAT = "accessTokenFormat";
 	public static final String OPENID_CONNECT = "openIdConnect";
 	public static final String OPENID_DISCOVERY = "openIdConnectDiscoveryEndpoint";
 	public static final String REGISTRATION_FORM = "registrationFormForUnknown";
@@ -83,6 +85,9 @@ public class CustomProviderProperties extends PropertiesHelper
 				setDescription("Space separated list of authorization scopes to be requested. "
 						+ "Most often required if in non OpenID Connect mode, otherwise has a default "
 						+ "value of 'openid email'"));
+		META.put(ACCESS_TOKEN_FORMAT, new PropertyMD(AccessTokenFormat.standard).
+				setDescription("Some providers (Facebook) use legacy format of a response to "
+						+ "the access token query. Non standard format can be set here."));
 		META.put(OPENID_CONNECT, new PropertyMD("false").
 				setDescription("If set to true, then the provider is treated as OpenID "
 						+ "Connect 1.0 provider. For such providers specifying " + 
