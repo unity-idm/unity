@@ -4,8 +4,10 @@
  */
 package pl.edu.icm.unity.oauth.client;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 
+import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.SerializeException;
 
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
@@ -22,6 +24,6 @@ public interface OAuthExchange extends CredentialExchange
 	public static final String ID = "OAuth2 exchange";
 	
 	OAuthClientProperties getSettings();
-	OAuthContext createRequest(String providerKey) throws URISyntaxException, SerializeException;
+	OAuthContext createRequest(String providerKey) throws URISyntaxException, SerializeException, ParseException, IOException;
 	AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context) throws AuthenticationException;
 }

@@ -139,11 +139,13 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	}
 
 	@Override
-	public OAuthContext createRequest(String providerKey) throws URISyntaxException, SerializeException
+	public OAuthContext createRequest(String providerKey) throws URISyntaxException, SerializeException, 
+		ParseException, IOException
 	{
 		CustomProviderProperties providerCfg = config.getProvider(providerKey); 
 		String clientId = providerCfg.getValue(CustomProviderProperties.CLIENT_ID);
 		String authzEndpoint = providerCfg.getValue(CustomProviderProperties.PROVIDER_LOCATION);
+		
 		String scopes = providerCfg.getValue(CustomProviderProperties.SCOPES);
 		boolean openidMode = providerCfg.getBooleanValue(CustomProviderProperties.OPENID_CONNECT);
 
@@ -151,6 +153,15 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		AuthorizationRequest req;
 		if (openidMode)
 		{
+			if (authzEndpoint == null)
+			{
+				String discoveryEndpoint = providerCfg.getValue(CustomProviderProperties.OPENID_DISCOVERY);
+				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(discoveryEndpoint);
+				if (providerMeta.getAuthorizationEndpointURI() == null)
+					throw new ConfigurationException("The authorization endpoint address is not set and"
+							+ " it is not available in the discovered OpenID Provider metadata.");
+				authzEndpoint = providerMeta.getAuthorizationEndpointURI().toString();
+			}
 			req = new AuthenticationRequest(
 				new URI(authzEndpoint),
 				new ResponseType(ResponseType.Value.CODE),
@@ -272,17 +283,20 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
 		String discoveryEndpoint = providerCfg.getValue(CustomProviderProperties.OPENID_DISCOVERY);
 		OIDCProviderMetadata providerMeta = metadataManager.getMetadata(discoveryEndpoint);
-		String tokenEndpoint = providerMeta.getTokenEndpointURI() != null ? 
-				providerMeta.getTokenEndpointURI().toString() : 
-				providerCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
-		ClientAuthnMode selectedMethod = null;
-		List<ClientAuthenticationMethod> supportedMethods = providerMeta.getTokenEndpointAuthMethods();
-		if (supportedMethods == null || supportedMethods.size() == 0)
+		String tokenEndpoint = providerCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
+		if (tokenEndpoint == null)
 		{
-			selectedMethod = providerCfg.getEnumValue(CustomProviderProperties.CLIENT_AUTHN_MODE, 
-					ClientAuthnMode.class);
-		} else
+			if (providerMeta.getTokenEndpointURI() != null)
+				tokenEndpoint = providerMeta.getTokenEndpointURI().toString();
+			else
+				throw new AuthenticationException("The access token endpoint is not provided in provider's metadata"
+						+ " and it is not configured manually");
+		}
+		ClientAuthnMode selectedMethod = providerCfg.getEnumValue(CustomProviderProperties.CLIENT_AUTHN_MODE, 
+				ClientAuthnMode.class);
+		if (selectedMethod == null)
 		{
+			List<ClientAuthenticationMethod> supportedMethods = providerMeta.getTokenEndpointAuthMethods();
 			for (ClientAuthenticationMethod sm: supportedMethods)
 			{
 				if ("client_secret_post".equals(sm.getValue()))
@@ -307,7 +321,10 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		Map<String, String> ret = new HashMap<String, String>();
 		toAttributes(acResponse.getIDToken().getJWTClaimsSet(), ret);
 		
-		URI userInfoEndpoint = providerMeta.getUserInfoEndpointURI();
+		String userInfoEndpointStr = providerCfg.getValue(CustomProviderProperties.PROFILE_ENDPOINT);
+		URI userInfoEndpoint = userInfoEndpointStr == null ? providerMeta.getUserInfoEndpointURI() : 
+			new URI(userInfoEndpointStr);
+
 		if (userInfoEndpoint != null)
 		{
 			fetchOpenIdUserInfo(accessToken, userInfoEndpoint, ret);
