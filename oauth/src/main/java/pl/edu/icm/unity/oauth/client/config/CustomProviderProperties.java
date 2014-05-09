@@ -10,6 +10,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.server.utils.Log;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
@@ -29,7 +30,8 @@ public class CustomProviderProperties extends PropertiesHelper
 	
 	@DocumentationReferencePrefix
 	public static final String P = "unity.oauth2.client.CLIENT_ID.";
-
+	
+	public static final String PROVIDER_TYPE = "type";
 	public static final String PROVIDER_LOCATION = "authEndpoint";
 	public static final String ACCESS_TOKEN_ENDPOINT = "accessTokenEndpoint";
 	public static final String PROFILE_ENDPOINT = "profileEndpoint";
@@ -48,8 +50,17 @@ public class CustomProviderProperties extends PropertiesHelper
 	
 	static 
 	{
-		META.put(PROVIDER_LOCATION, new PropertyMD().setMandatory().
-				setDescription("Location (URL) of OAuth2 provider's authorization endpoint."));
+		
+		META.put(PROVIDER_TYPE, new PropertyMD(Providers.custom).
+				setDescription("Type of provider. Either a well known provider type can be specified"
+						+ " or 'custom'. In the first case only few additional settings are required: "
+						+ "client id, secret and translation profile. Other settings as scope "
+						+ "can be additionally set to fine tune the remote authentication. "
+						+ "In the latter 'custom' case all mandatory options must be set."));
+		META.put(PROVIDER_LOCATION, new PropertyMD().
+				setDescription("Location (URL) of OAuth2 provider's authorization endpoint. "
+						+ "It is mandatory for non OpenID Connect providers, in whose case "
+						+ "the endopint can be discovered."));
 		META.put(ACCESS_TOKEN_ENDPOINT, new PropertyMD().
 				setDescription("Location (URL) of OAuth2 provider's access token endpoint. "
 						+ "In case of OpenID Connect mode can be discovered, otherwise mandatory."));
@@ -103,6 +114,9 @@ public class CustomProviderProperties extends PropertiesHelper
 			
 		} else
 		{
+			if (!isSet(PROVIDER_LOCATION))
+				throw new ConfigurationException(getKeyDescription(PROVIDER_LOCATION) + 
+						" is mandatory in non OpenID Connect mode");
 			if (!isSet(ACCESS_TOKEN_ENDPOINT))
 				throw new ConfigurationException(getKeyDescription(ACCESS_TOKEN_ENDPOINT) + 
 						" is mandatory in non OpenID Connect mode");

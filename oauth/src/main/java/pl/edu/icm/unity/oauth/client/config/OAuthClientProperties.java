@@ -34,8 +34,7 @@ public class OAuthClientProperties extends PropertiesHelper
 	public static final String DISPLAY_NAME = "displayName";
 	
 	public static final String PROVIDERS = "providers.";
-	
-	public static final String PROVIDER_TYPE = "type";
+
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
@@ -47,17 +46,7 @@ public class OAuthClientProperties extends PropertiesHelper
 		
 		META.put(PROVIDERS, new PropertyMD().setStructuredList(false).setCanHaveSubkeys().setMandatory().
 				setDescription("Prefix, under which the available oauth providers are defined."));
-		
-		META.put(PROVIDER_TYPE, new PropertyMD(Providers.custom).setStructuredListEntry(PROVIDERS).
-				setDescription("Type of provider. Either a well known provider type can be specified"
-						+ " or 'custom'. In the first case only few additional settings are required: "
-						+ "client id, secret and translation profile. Other settings as scope "
-						+ "can be additionally set to fine tune the remote authentication. "
-						+ "In the latter 'custom' case all mandatory options must be set."));
-		for (Map.Entry<String, PropertyMD> e: CustomProviderProperties.META.entrySet())
-		{
-			META.put(e.getKey(), e.getValue().setHidden().setStructuredListEntry(PROVIDERS));
-		}
+
 	}
 	
 	private Map<String, CustomProviderProperties> providers = new HashMap<String, CustomProviderProperties>();
@@ -72,7 +61,7 @@ public class OAuthClientProperties extends PropertiesHelper
 
 	private void setupProvider(String key)
 	{
-		Providers providerType = getEnumValue(key+PROVIDER_TYPE, Providers.class);
+		Providers providerType = getEnumValue(key+CustomProviderProperties.PROVIDER_TYPE, Providers.class);
 		switch (providerType)
 		{
 		case google:
