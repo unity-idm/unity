@@ -47,8 +47,8 @@ public class OAuthClientProperties extends PropertiesHelper
 		META.put(PROVIDERS, new PropertyMD().setStructuredList(false).setCanHaveSubkeys().setMandatory().
 				setDescription("Prefix, under which the available oauth providers are defined."));
 
-		META.put(CustomProviderProperties.PROVIDER_TYPE, 
-				CustomProviderProperties.META.get(CustomProviderProperties.PROVIDER_TYPE).setHidden());
+		META.put(CustomProviderProperties.PROVIDER_TYPE, new PropertyMD(Providers.custom).setHidden().
+				setStructuredListEntry(PROVIDERS));
 	}
 	
 	private Map<String, CustomProviderProperties> providers = new HashMap<String, CustomProviderProperties>();
