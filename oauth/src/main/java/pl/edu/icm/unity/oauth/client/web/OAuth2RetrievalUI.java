@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.client.web;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
@@ -11,8 +12,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.server.ExternalResource;
+import com.vaadin.server.FileResource;
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
@@ -21,10 +22,13 @@ import com.vaadin.server.VaadinServletService;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
 import pl.edu.icm.unity.oauth.client.OAuthContext;
@@ -63,6 +67,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 	private ResponseWaitingRunnable responseWaitingRunnable;
 	private String selectedProvider;
+	private Button selectedButton;
 	private Label messageLabel;
 	private Label errorDetailLabel;
 	
@@ -94,40 +99,59 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		title.addStyleName(Reindeer.LABEL_H2);
 		ret.addComponent(title);
 		
+		Label subtitle = new Label(msg.getMessage("OAuth2Retrieval.selectProvider"));
+		ret.addComponent(subtitle);
+		
 		Set<String> idps = clientProperties.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
-		if (idps.size() > 1)
+		
+		HorizontalLayout providersL = new HorizontalLayout();
+		providersL.setSpacing(true);
+		ret.addComponent(providersL);
+
+		boolean first = true;
+		for (String idpKey: idps)
 		{
-			OptionGroup idpChooser = new OptionGroup(msg.getMessage("OAuth2Retrieval.selectProvider"));
-			idpChooser.setImmediate(true);
-			for (String idpKey: idps)
+			Button providerB = new Button();
+			providerB.setImmediate(true);
+			providerB.setStyleName(Reindeer.BUTTON_LINK);
+			if (first)
 			{
-				String name = clientProperties.getProvider(idpKey).getValue(
-						CustomProviderProperties.PROVIDER_NAME);
-				idpChooser.addItem(idpKey);
-				idpChooser.setItemCaption(idpKey, name);
+				selectedProvider = idpKey;
+				selectedButton = providerB;
+				selectedButton.addStyleName(Styles.selectedButton.toString());
+				first = false;
 			}
-			idpChooser.select(idps.iterator().next());
-			idpChooser.setNullSelectionAllowed(false);
-			idpChooser.addValueChangeListener(new ValueChangeListener()
+			
+			CustomProviderProperties providerProps = clientProperties.getProvider(idpKey);
+			String name = providerProps.getValue(CustomProviderProperties.PROVIDER_NAME);
+			String logoURL = providerProps.getValue(CustomProviderProperties.ICON_URL);
+			String logoFile = providerProps.getValue(CustomProviderProperties.ICON_FILE);
+			
+			if (logoURL != null)
+			{
+				ExternalResource iconR = new ExternalResource(logoURL);
+				providerB.setIcon(iconR);
+			} else if (logoFile != null)
+			{
+				FileResource iconR = new FileResource(new File(logoFile));
+				providerB.setIcon(iconR);
+			} else
+				providerB.setCaption(name);
+			
+			providersL.addComponent(providerB);
+			providerB.setData(idpKey);
+			providerB.addClickListener(new ClickListener()
 			{
 				@Override
-				public void valueChange(ValueChangeEvent event)
+				public void buttonClick(ClickEvent event)
 				{
-					selectedProvider = (String) event.getProperty().getValue();
+					selectedProvider = (String) event.getButton().getData();
+					selectedButton.removeStyleName(Styles.selectedButton.toString());
+					event.getButton().addStyleName(Styles.selectedButton.toString());
+					selectedButton = event.getButton();
 				}
 			});
-			ret.addComponent(idpChooser);
-		} else
-		{
-			String idpKey = idps.iterator().next();
-			String name = clientProperties.getProvider(idpKey).getValue(
-					CustomProviderProperties.PROVIDER_NAME);
-			Label selectedIdp = new Label(msg.getMessage("OAuth2Retrieval.selectedProvider", name));
-			ret.addComponent(selectedIdp);
 		}
-		
-		selectedProvider = idps.iterator().next();
-		
 		messageLabel = new Label();
 		messageLabel.setContentMode(ContentMode.HTML);
 		messageLabel.addStyleName(Styles.error.toString());
