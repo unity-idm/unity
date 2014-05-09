@@ -47,7 +47,7 @@ public class SAMLRetrievalFactory implements CredentialRetrievalFactory
 	@Override
 	public String getDescription()
 	{
-		return "WebPasswordRetrievalFactory.desc";
+		return "WebSAMLRetrievalFactory.desc";
 	}
 
 	@Override

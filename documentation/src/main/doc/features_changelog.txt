@@ -42,10 +42,9 @@
 |Web admin interface			| icon:check[role="green"]		|
 |REST admin interface			| icon:exclamation[role="red"]	| Not yet available
 |Web user profile management	| icon:check[role="green"]		| Available however more functionality is required
-|SAML 2, Web binding + UNICORE profile | icon:check[role="green"]		|
-|SAML 2, SOAP binding + UNICORE profile	| icon:check[role="green"]		|
-|OpenID 2						| icon:exclamation[role="red"]	| Not yet available
-|OAuth 1						| icon:exclamation[role="red"]	| Not yet available
+|SAML 2, Web binding + UNICORE profile | icon:check[role="green"]	|
+|SAML 2, SOAP binding + UNICORE profile	| icon:check[role="green"]	|
+|OpenID Connect					| icon:exclamation[role="red"]	| Not yet available
 |OAuth 2						| icon:exclamation[role="red"]	| Not yet available
 |Other access protocols			| icon:exclamation[role="red"]	| Not yet available
 |===
@@ -58,9 +57,10 @@
 |Feature 						| Status 						| Notes
 |LDAP							| icon:check[role="green"]		|
 |SAML 2, Web SSO profile		| icon:check[role="green"]		|
+|OAuth 2						| icon:check[role="green"]		| Tested with Facebook and Microsoft Live 
+|OpenID Connect					| icon:check[role="green"]		| Tested with Google
 |OpenID 2						| icon:exclamation[role="red"]	| Not yet available
 |OAuth 1						| icon:exclamation[role="red"]	| Not yet available
-|OAuth 2						| icon:exclamation[role="red"]	| Not yet available
 |Other remote authentication protocols	| icon:exclamation[role="red"]	| Not yet available
 |===
 

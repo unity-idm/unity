@@ -90,6 +90,11 @@
 			<artifactId>unity-server-ldap</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-oauth</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
