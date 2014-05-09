@@ -445,7 +445,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				throw new AuthenticationException("Exchange of authorization code for access "
 						+ "token failed: " + response.getContent());
 			MultiMap<String> map = new MultiMap<String>();
-			UrlEncoded.decodeTo(response.getContent(), map, "UTF-8");
+			UrlEncoded.decodeTo(response.getContent().trim(), map, "UTF-8");
 			String accessTokenVal = map.getString("access_token");
 			String lifetimeStr = map.getString("expires");
 			if (accessTokenVal == null || lifetimeStr == null)
