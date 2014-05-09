@@ -292,28 +292,9 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				throw new AuthenticationException("The access token endpoint is not provided in provider's metadata"
 						+ " and it is not configured manually");
 		}
-		ClientAuthnMode selectedMethod = providerCfg.getEnumValue(CustomProviderProperties.CLIENT_AUTHN_MODE, 
-				ClientAuthnMode.class);
-		if (selectedMethod == null)
-		{
-			List<ClientAuthenticationMethod> supportedMethods = providerMeta.getTokenEndpointAuthMethods();
-			for (ClientAuthenticationMethod sm: supportedMethods)
-			{
-				if ("client_secret_post".equals(sm.getValue()))
-				{
-					selectedMethod = ClientAuthnMode.secretPost;
-					break;
-				} else if ("client_secret_basic".equals(sm.getValue()))
-				{
-					selectedMethod = ClientAuthnMode.secretBasic;
-					break;
-				}
-			}					
-			if (selectedMethod == null)
-				throw new AuthenticationException("Client authentication metods supported by"
-						+ " the provider (" + supportedMethods + ") do not include "
-						+ "any of methods supported by Unity.");
-		}
+		
+		ClientAuthnMode selectedMethod = establishOpenIDAuthnMode(providerMeta, providerCfg);
+		
 		HTTPResponse response = retrieveAccessTokenGeneric(context, tokenEndpoint, selectedMethod);
 		OIDCAccessTokenResponse acResponse = OIDCAccessTokenResponse.parse(response);
 		BearerAccessToken accessToken = extractAccessToken(acResponse);
@@ -333,6 +314,40 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		log.debug("Received the following attributes from the OAuth provider: " + ret);
 		
 		return ret;
+	}
+	
+	private ClientAuthnMode establishOpenIDAuthnMode(OIDCProviderMetadata providerMeta,
+			CustomProviderProperties providerCfg) throws AuthenticationException
+	{
+		ClientAuthnMode selectedMethod = null;
+		if (providerCfg.isSet(CustomProviderProperties.CLIENT_AUTHN_MODE))
+		{
+			selectedMethod = providerCfg.getEnumValue(CustomProviderProperties.CLIENT_AUTHN_MODE, 
+					ClientAuthnMode.class);
+		} else
+		{
+			List<ClientAuthenticationMethod> supportedMethods = providerMeta.getTokenEndpointAuthMethods();
+			if (supportedMethods != null)
+			{
+				for (ClientAuthenticationMethod sm: supportedMethods)
+				{
+					if (ClientAuthenticationMethod.CLIENT_SECRET_POST.equals(sm.getValue()))
+					{
+						selectedMethod = ClientAuthnMode.secretPost;
+						break;
+					} else if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC.equals(sm.getValue()))
+					{
+						selectedMethod = ClientAuthnMode.secretBasic;
+						break;
+					}
+				}
+			}
+			if (selectedMethod == null)
+				throw new AuthenticationException("Client authentication metods supported by"
+						+ " the provider (" + supportedMethods + ") do not include "
+						+ "any of methods supported by Unity.");
+		}
+		return selectedMethod;
 	}
 	
 	private void fetchOpenIdUserInfo(BearerAccessToken accessToken, URI userInfoEndpoint, Map<String, String> ret) 
