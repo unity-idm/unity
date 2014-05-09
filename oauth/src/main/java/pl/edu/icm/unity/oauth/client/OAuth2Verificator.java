@@ -331,11 +331,11 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			{
 				for (ClientAuthenticationMethod sm: supportedMethods)
 				{
-					if (ClientAuthenticationMethod.CLIENT_SECRET_POST.equals(sm.getValue()))
+					if (ClientAuthenticationMethod.CLIENT_SECRET_POST.equals(sm))
 					{
 						selectedMethod = ClientAuthnMode.secretPost;
 						break;
-					} else if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC.equals(sm.getValue()))
+					} else if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC.equals(sm))
 					{
 						selectedMethod = ClientAuthnMode.secretBasic;
 						break;
