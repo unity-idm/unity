@@ -397,6 +397,9 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 					+ "but there was a problem fetching user's profile information: " + 
 					resp.getContent());
 		}
+		if (log.isTraceEnabled())
+			log.trace("Received user's profile:\n" + resp.getContent());
+
 		if (!"application/json".equals(resp.getContentType().getBaseType().toString()))
 			throw new AuthenticationException("Authentication was successful "
 					+ "but there was a problem fetching user's profile information. "
@@ -406,7 +409,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		
 		for (Entry<String, Object> entry: profile.entrySet())
 		{
-			ret.put(entry.getKey(), entry.getValue().toString());
+			if (entry.getValue() != null)
+				ret.put(entry.getKey(), entry.getValue().toString());
 		}
 	}
 	

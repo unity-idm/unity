@@ -24,7 +24,7 @@ public class DropboxProviderProperties extends CustomProviderProperties
 	{
 		properties.setProperty(prefix + PROVIDER_NAME, "Dropbox");
 		properties.setProperty(prefix + PROVIDER_LOCATION, "https://www.dropbox.com/1/oauth2/authorize");
-		properties.setProperty(prefix + CLIENT_AUTHN_MODE, "secretBasic");
+		properties.setProperty(prefix + CLIENT_AUTHN_MODE, ClientAuthnMode.secretBasic.toString());
 		properties.setProperty(prefix + ACCESS_TOKEN_ENDPOINT, "https://api.dropbox.com/1/oauth2/token");
 		properties.setProperty(prefix + PROFILE_ENDPOINT, "https://api.dropbox.com/1/account/info");
 		return properties;

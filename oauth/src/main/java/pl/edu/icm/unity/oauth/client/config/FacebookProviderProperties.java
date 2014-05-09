@@ -24,7 +24,7 @@ public class FacebookProviderProperties extends CustomProviderProperties
 	{
 		properties.setProperty(prefix + PROVIDER_NAME, "Facebook");
 		properties.setProperty(prefix + PROVIDER_LOCATION, "https://www.facebook.com/dialog/oauth");
-		properties.setProperty(prefix + CLIENT_AUTHN_MODE, "secretPost");
+		properties.setProperty(prefix + CLIENT_AUTHN_MODE, ClientAuthnMode.secretPost.toString());
 		properties.setProperty(prefix + ACCESS_TOKEN_ENDPOINT, "https://graph.facebook.com/oauth/access_token");
 		properties.setProperty(prefix + PROFILE_ENDPOINT, "https://graph.facebook.com/me/");
 		properties.setProperty(prefix + SCOPES, "email");

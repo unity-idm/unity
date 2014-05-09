@@ -24,7 +24,7 @@ public class GitHubProviderProperties extends CustomProviderProperties
 	{
 		properties.setProperty(prefix + PROVIDER_NAME, "GitHub");
 		properties.setProperty(prefix + PROVIDER_LOCATION, "https://github.com/login/oauth/authorize");
-		properties.setProperty(prefix + CLIENT_AUTHN_MODE, "secretPost");
+		properties.setProperty(prefix + CLIENT_AUTHN_MODE, ClientAuthnMode.secretPost.toString());
 		properties.setProperty(prefix + ACCESS_TOKEN_ENDPOINT, "https://github.com/login/oauth/access_token");
 		properties.setProperty(prefix + PROFILE_ENDPOINT, "https://api.github.com/user");
 		properties.setProperty(prefix + SCOPES, "user:email");

@@ -26,7 +26,7 @@ public class OAuthClientProperties extends PropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, OAuthClientProperties.class);
 	
-	public enum Providers {custom, google, facebook, dropbox, github};
+	public enum Providers {custom, google, facebook, dropbox, github, microsoft};
 	
 	@DocumentationReferencePrefix
 	public static final String P = "unity.oauth2.client.";
@@ -77,6 +77,9 @@ public class OAuthClientProperties extends PropertiesHelper
 			break;
 		case github:
 			providers.put(key, new GitHubProviderProperties(properties, P+key));
+			break;
+		case microsoft:
+			providers.put(key, new MicrosoftProviderProperties(properties, P+key));
 			break;
 		case custom:
 			providers.put(key, new CustomProviderProperties(properties, P+key));
