@@ -70,7 +70,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 						return new Label(element.getName());
 					}
 				});
-		
+		table.setMultiSelect(true);
 		table.setWidth(90, Unit.PERCENTAGE);
 		viewer = new MessageTemplateViewer(null, msg, msgTempMan, consumersRegistry);
 		viewer.setTemplateInput(null);
@@ -81,12 +81,20 @@ public class MessageTemplatesComponent extends VerticalLayout
 			public void valueChange(ValueChangeEvent event)
 			{
 				@SuppressWarnings("unchecked")
-				GenericItem<MessageTemplate> item = (GenericItem<MessageTemplate>)table.getValue();
-				if (item!=null)
+				Collection<GenericItem<MessageTemplate>> items = (Collection<GenericItem<MessageTemplate>>)table.getValue();
+				if (items.size() > 1 || items.isEmpty())
 				{
+					viewer.setTemplateInput(null);
+					return;
+				
+				}	
+				GenericItem<MessageTemplate> item = items.iterator().next();	
+				if (item != null)
+				{
+					
 					MessageTemplate template = item.getElement();
 					viewer.setTemplateInput(template);
-				}else
+				} else
 				{
 					viewer.setTemplateInput(null);
 				}
@@ -120,7 +128,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 			Collection<MessageTemplate> templates = msgTempMan.listTemplates().values();
 			table.setInput(templates);
 			viewer.setTemplateInput(null);
-			table.select(null);
+		//	table.select(null);
 			removeAllComponents();
 			addComponent(main);
 		} catch (Exception e)
@@ -229,7 +237,8 @@ public class MessageTemplatesComponent extends VerticalLayout
 		public void handleAction(Object sender, final Object target)
 		{
 			@SuppressWarnings("unchecked")
-			GenericItem<MessageTemplate> item = (GenericItem<MessageTemplate>) target;
+			Collection<GenericItem<MessageTemplate>> items = (Collection<GenericItem<MessageTemplate>>)target;
+			GenericItem<MessageTemplate> item = items.iterator().next();
 			MessageTemplateEditor editor;
 			
 			editor = new MessageTemplateEditor(msg, consumersRegistry, item.getElement());
@@ -253,26 +262,30 @@ public class MessageTemplatesComponent extends VerticalLayout
 		{
 			super(msg.getMessage("MessageTemplatesComponent.deleteAction"),
 					Images.delete.getResource());
+			setMultiTarget(true);
 		}
 
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
 			@SuppressWarnings("unchecked")
-			GenericItem<MessageTemplate> item = (GenericItem<MessageTemplate>) target;
-			final MessageTemplate template = item.getElement();
-			new ConfirmDialog(msg, msg.getMessage(
-					"MessageTemplatesComponent.confirmDelete",
-					template.getName()), new ConfirmDialog.Callback()
+			Collection<GenericItem<MessageTemplate>> items = (Collection<GenericItem<MessageTemplate>>)target;
+			for (GenericItem<MessageTemplate> item : items)
 			{
-
-				@Override
-				public void onConfirm()
+				final MessageTemplate template = item.getElement();
+				new ConfirmDialog(msg, msg.getMessage(
+						"MessageTemplatesComponent.confirmDelete",
+						template.getName()), new ConfirmDialog.Callback()
 				{
-					removeTemplate(template.getName());
 
-				}
-			}).show();
+					@Override
+					public void onConfirm()
+					{
+						removeTemplate(template.getName());
+
+					}
+				}).show();
+			}
 		}
 	}
 	

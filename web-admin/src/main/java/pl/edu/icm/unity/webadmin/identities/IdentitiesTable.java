@@ -130,7 +130,7 @@ public class IdentitiesTable extends TreeTable
 		setColumnHeader(BaseColumnId.credReq.toString(), msg.getMessage("Identities.credReq"));
 		
 		setSelectable(true);
-		setMultiSelect(false);
+		setMultiSelect(true);
 		setColumnReorderingAllowed(true);
 		setColumnCollapsingAllowed(true);
 		setColumnCollapsible(BaseColumnId.entity.toString(), false);
@@ -166,7 +166,10 @@ public class IdentitiesTable extends TreeTable
 			@Override
 			public void valueChange(com.vaadin.data.Property.ValueChangeEvent event)
 			{
-				Object selected = getValue();
+				Collection<?> nodes = (Collection<?>) getValue();
+				Object selected = null;
+				if (nodes != null && !nodes.isEmpty())
+					selected = nodes.iterator().next();
 				if (selected == null)
 				{
 					IdentitiesTable.this.selected = null;
@@ -632,22 +635,34 @@ public class IdentitiesTable extends TreeTable
 		{
 			super(msg.getMessage("Identities.removeFromGroupAction"), 
 					Images.delete.getResource());
+			setMultiTarget(true);
 		}
 
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
-			new ConfirmDialog(msg, msg.getMessage("Identities.confirmRemoveFromGroup", entity, group),
-					new ConfirmDialog.Callback()
+			Collection<?> nodes = (Collection<?>) target;		
+			HashMap<Long,EntityWithLabel> toRemove = new HashMap<Long,EntityWithLabel>();
+			for (Object node : nodes)
 			{
-				@Override
-				public void onConfirm()
-				{
-					removeFromGroup(entity.getEntity().getId());
-				}
-			}).show();
+				EntityWithLabel entity = node instanceof IdentityWithEntity ? ((IdentityWithEntity) node)
+						.getEntityWithLabel() : ((EntityWithLabel) node);
+				toRemove.put(entity.getEntity().getId(), entity);
+			}
+
+			for (final EntityWithLabel en : toRemove.values()) 
+			{
+				new ConfirmDialog(msg, msg.getMessage(
+						"Identities.confirmRemoveFromGroup", en, group),
+						new ConfirmDialog.Callback()
+						{
+							@Override
+							public void onConfirm()
+							{
+								removeFromGroup(en.getEntity().getId());
+							}
+						}).show();
+			}
 		}
 	}
 
@@ -686,8 +701,10 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
+			Collection<?> nodes = (Collection<?>) target;
+			Object node = nodes.iterator().next();
+			final EntityWithLabel entity = node instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) node).getEntityWithLabel() : ((EntityWithLabel)node);
 			new IdentityCreationDialog(msg, entity.getEntity().getId(), identitiesMan,  
 					identityEditorReg, new IdentityCreationDialog.Callback()
 					{
@@ -706,22 +723,36 @@ public class IdentitiesTable extends TreeTable
 		{
 			super(msg.getMessage("Identities.deleteEntityAction"), 
 					Images.deleteEntity.getResource());
+			setMultiTarget(true);
 		}
 
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
-			new ConfirmDialog(msg, msg.getMessage("Identities.confirmEntityDelete", entity),
-					new ConfirmDialog.Callback()
+			Collection<?> nodes = (Collection<?>) target;		
+			HashMap<Long,EntityWithLabel> toRemove = new HashMap<Long,EntityWithLabel>();
+			for (Object node : nodes)
 			{
-				@Override
-				public void onConfirm()
-				{
-					removeEntity(entity.getEntity().getId());
-				}
-			}).show();
+				EntityWithLabel entity = node instanceof IdentityWithEntity ? ((IdentityWithEntity) node)
+						.getEntityWithLabel() : ((EntityWithLabel) node);
+				toRemove.put(entity.getEntity().getId(), entity);
+			}
+
+			for (final EntityWithLabel entity : toRemove.values())
+			{
+
+				new ConfirmDialog(msg, msg.getMessage(
+						"Identities.confirmEntityDelete", entity),
+						new ConfirmDialog.Callback()
+						{
+							@Override
+							public void onConfirm()
+							{
+								removeEntity(entity.getEntity()
+										.getId());
+							}
+						}).show();
+			}
 		}
 	}
 
@@ -732,29 +763,49 @@ public class IdentitiesTable extends TreeTable
 		{
 			super(msg.getMessage("Identities.deleteIdentityAction"), 
 					Images.deleteIdentity.getResource());
+			setMultiTarget(true);
 		}
 		
 		@Override
 		public Action[] getActions(Object target, Object sender)
 		{
-			if (target != null && !(target instanceof IdentityWithEntity))
+			if(target == null)
 				return EMPTY;
+			if (target instanceof Collection<?>)
+			{
+				Collection<?> t = (Collection<?>) target;
+				for (Object ta : t)
+				{
+					if (ta != null && !(ta instanceof IdentityWithEntity))
+						return EMPTY;
+				}
+			} else
+			{
+				if (!(target instanceof IdentityWithEntity))
+					return EMPTY;
+			}
+				
 			return super.getActions(target, sender);
 		}
 		
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final IdentityWithEntity node = (IdentityWithEntity) target;
-			new ConfirmDialog(msg, msg.getMessage("Identities.confirmIdentityDelete", node.identity),
-					new ConfirmDialog.Callback()
+			@SuppressWarnings("unchecked")
+			Collection<IdentityWithEntity> nodes = (Collection<IdentityWithEntity>) target;		
+			for (final IdentityWithEntity node : nodes)
 			{
-				@Override
-				public void onConfirm()
-				{
-					removeIdentity(node.identity);
-				}
-			}).show();
+				new ConfirmDialog(msg, msg.getMessage(
+						"Identities.confirmIdentityDelete", node.identity),
+						new ConfirmDialog.Callback()
+						{
+							@Override
+							public void onConfirm()
+							{
+								removeIdentity(node.identity);
+							}
+						}).show();
+			}
 		}
 	}
 
@@ -769,8 +820,10 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
+			Collection<?> nodes = (Collection<?>) target;
+			Object node = nodes.iterator().next();
+			final EntityWithLabel entity = node instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) node).getEntityWithLabel() : ((EntityWithLabel)node);
 			EntityState currentState = data.get(entity.getEntity().getId()).getEntity().getState();
 			new ChangeEntityStateDialog(msg, entity, currentState, new ChangeEntityStateDialog.Callback()
 			{
@@ -794,8 +847,10 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
+			Collection<?> nodes = (Collection<?>) target;
+			Object node = nodes.iterator().next();
+			final EntityWithLabel entity = node instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) node).getEntityWithLabel() : ((EntityWithLabel)node);
 			IdentitiesAndAttributes info = data.get(entity.getEntity().getId());
 			String currentCredId = info.getEntity().getCredentialInfo().getCredentialRequirementId();
 			new CredentialRequirementDialog(msg, entity, currentCredId,
@@ -821,8 +876,10 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
+			Collection<?> nodes = (Collection<?>) target;
+			Object node = nodes.iterator().next();
+			final EntityWithLabel entity = node instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) node).getEntityWithLabel() : ((EntityWithLabel)node);
 			new CredentialsChangeDialog(msg, entity.getEntity().getId(), authnMan, identitiesMan,
 					credEditorsRegistry, new CredentialsChangeDialog.Callback()
 					{
@@ -879,8 +936,10 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
+			Collection<?> nodes = (Collection<?>) target;
+			Object node = nodes.iterator().next();
+			final EntityWithLabel entity = node instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) node).getEntityWithLabel() : ((EntityWithLabel)node);
 			showEntityDetails(entity);
 		}
 	}
@@ -896,8 +955,10 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
+			Collection<?> nodes = (Collection<?>) target;
+			Object node = nodes.iterator().next();
+			final EntityWithLabel entity = node instanceof IdentityWithEntity ? 
+					((IdentityWithEntity) node).getEntityWithLabel() : ((EntityWithLabel)node);
 			EntityAttributesClassesDialog dialog = new EntityAttributesClassesDialog(msg, group, 
 					entity, attrMan, groupsMan, new EntityAttributesClassesDialog.Callback()
 					{
