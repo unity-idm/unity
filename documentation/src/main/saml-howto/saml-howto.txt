@@ -218,8 +218,8 @@ After enabling the SP functionality, add the following to the +metadata/saml20-i
 === Who can authenticate with SAML?
 
 The SAML requesters (SPs) who can query the SAML IdP endpoint in Unity are configured with the 
-+unity.saml.spAcceptPolicy+ what was described above. Also the user who is actually authenticating her or himself
-must fulfill two obvious conditions, which are important to remember:
++unity.saml.spAcceptPolicy+ what was described above. Also the user who is actually authenticating her- or himself
+must fulfill the following conditions:
 
 . Must be a member of a group configured for a SP. For instance a user who is not a member of the +/A+ group 
 won't be able to authenticate with SAML when using the example configuration above. Note that this is also true
@@ -254,6 +254,7 @@ the Metadata, also the custom one (+unity.saml.signMetadata=true+).
 
 The most popular identity formats (i.e. the format in which authenticated principal name or pseudonym is provided
 to the SP) in SAML are:
+
 * transient format which should be different for each login session of a user
 * persistent formats which should be the same for each login session of a user
 
