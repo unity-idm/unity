@@ -238,6 +238,16 @@ Credential as a JKS file (credential type can be autodetected in almost every ca
  unity.pki.credentials.MAIN.path=/etc/credentials/server1.jks
  unity.pki.credentials.MAIN.password=xxxxxx
 
+==== Configuring 3rd party certificates
+
+Some Unity subsystems require an access to a 3rd party service certificate, e.g. to check a digital signature
+issued by such service. The configuration of such 'standalone' certificates is done as follows:
+
+ unity.pki.certificates.SOME-SERVICE-CERT.certificateFile=/etc/credentials/someServiceCert.pem
+ 
+The certificate must be stored in a PEM file. The above configuration defines a certificate, which can be used in 
+all Unity subsystems with the simple name +SOME-SERVICE-CERT+. 
+  
 
 [[cfg-authenticators]]
 === Authenticators
