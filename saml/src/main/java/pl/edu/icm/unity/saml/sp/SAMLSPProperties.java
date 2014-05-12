@@ -35,6 +35,7 @@ public class SAMLSPProperties extends SamlProperties
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, SAMLSPProperties.class);
 	
+	public static final String ECP_KEY = "ECP.";
 	/**
 	 * Note: it is intended that {@link SAMLBindings} is not used here: we want to have only the 
 	 * supported bindings here. However the names here must be exactly the same as in {@link SAMLBindings}.

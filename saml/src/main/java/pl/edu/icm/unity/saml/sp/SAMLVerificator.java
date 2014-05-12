@@ -19,15 +19,14 @@ import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.AttributeAssertionParser;
 import eu.unicore.samly2.attrprofile.ParsedAttribute;
-import eu.unicore.samly2.elements.NameID;
 import eu.unicore.samly2.exceptions.SAMLValidationException;
-import eu.unicore.samly2.proto.AuthnRequest;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.AssertionValidator;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.samly2.validators.SSOAuthnResponseValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.saml.SAMLHelper;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
@@ -135,29 +134,12 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	public AuthnRequestDocument createSAMLRequest(String idpKey) throws InternalException
 	{
 		boolean sign = samlProperties.getBooleanValue(idpKey + SAMLSPProperties.IDP_SIGN_REQUEST);
-		String requestrId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
+		String requesterId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
 		String identityProviderURL = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_ADDRESS);
 		String requestedNameFormat = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_REQUESTED_NAME_FORMAT);
-		NameID issuer = new NameID(requestrId, SAMLConstants.NFORMAT_ENTITY);
-		AuthnRequest request = new AuthnRequest(issuer.getXBean());
-		
-		if (requestedNameFormat != null)
-			request.setFormat(requestedNameFormat);
-		request.getXMLBean().setDestination(identityProviderURL);
-		request.getXMLBean().setAssertionConsumerServiceURL(responseConsumerAddress);
-
-		if (sign)
-		{
-			try
-			{
-				X509Credential credential = samlProperties.getRequesterCredential();
-				request.sign(credential.getKey(), credential.getCertificateChain());
-			} catch (Exception e)
-			{
-				throw new InternalException("Can't sign request", e);
-			}
-		}
-		return request.getXMLBeanDoc();
+		X509Credential credential = sign ? samlProperties.getRequesterCredential() : null;
+		return SAMLHelper.createSAMLRequest(responseConsumerAddress, sign, requesterId, identityProviderURL,
+				requestedNameFormat, credential);
 	}
 
 	@Override

@@ -1,0 +1,21 @@
+<!-- configure java package names -->
+<xb:config xmlns:xb="http://www.bea.com/2002/09/xbean/config">
+
+	<!-- Those are imported from outside, samlTypes of SecurityFramework. -->
+    <xb:namespace uri="urn:oasis:names:tc:SAML:2.0:assertion">
+        <xb:package>xmlbeans.org.oasis.saml2.assertion</xb:package>
+    </xb:namespace>
+	<xb:namespace uri="urn:oasis:names:tc:SAML:2.0:protocol">
+        <xb:package>xmlbeans.org.oasis.saml2.protocol</xb:package>
+    </xb:namespace>
+
+    <xb:namespace uri="http://schemas.xmlsoap.org/soap/envelope/">
+        <xb:package>pl.edu.icm.unity.saml.xmlbeans.soap</xb:package>
+    </xb:namespace>
+    <xb:namespace uri="urn:liberty:paos:2003-08">
+        <xb:package>pl.edu.icm.unity.saml.xmlbeans.paos</xb:package>
+    </xb:namespace>
+    <xb:namespace uri="urn:oasis:names:tc:SAML:2.0:profiles:SSO:ecp">
+        <xb:package>pl.edu.icm.unity.saml.xmlbeans.ecp</xb:package>
+    </xb:namespace>
+</xb:config>
