@@ -11,7 +11,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.utils.Log;
@@ -170,7 +169,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		{
 			this.authenticator = authMan.createAuthenticator(name, data.get("type"), data.get("vJsonConfiguration"),
 					data.get("rJsonConfiguration"), data.get("credential"));
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			log.error("Cannot add authenticator", e);
 			ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotDeploy",
@@ -224,7 +223,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		{
 			authMan.updateAuthenticator(name, data.get("vJsonConfiguration"),
 					data.get("rJsonConfiguration"), data.get("credential"));
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			log.error("Cannot update authenticator", e);
 			ErrorPopup.showError(msg, msg.getMessage(
@@ -242,7 +241,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 					this.authenticator = au;
 				}
 			}
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			log.error("Cannot load authenticators", e);
 			ErrorPopup.showError(msg,msg.getMessage("error"),
@@ -287,7 +286,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 			ret.put("vJsonConfiguration", vJsonConfiguration);
 			ret.put("rJsonConfiguration", rJsonConfiguration);
 
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			log.error("Cannot read json file", e);
 			ErrorPopup.showError(msg,
