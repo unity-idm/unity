@@ -74,7 +74,7 @@ public class IdentitiesComponent extends Panel
 	private GroupsManagement groupsManagement;
 	private IdentitiesTable identitiesTable;
 	private HorizontalLayout filtersBar;
-	private Or simpleFilter;
+	private Or fastSearchFilter;
 	
 	@Autowired
 	public IdentitiesComponent(final UnityMessageSource msg, GroupsManagement groupsManagement,
@@ -202,25 +202,24 @@ public class IdentitiesComponent extends Panel
 				Collection<?> props = IdentitiesComponent.this.identitiesTable
 						.getContainerPropertyIds();
 				ArrayList<Container.Filter> filters = new ArrayList<Container.Filter>();
-				String text = event.getText();
-				if (simpleFilter != null)
-					identitiesTable.removeFilter(simpleFilter);
-				if (text.isEmpty())
+				String searchText = event.getText();
+				if (fastSearchFilter != null)
+					identitiesTable.removeFilter(fastSearchFilter);
+				if (searchText.isEmpty())
 					return;
 				for (Object colIdRaw : props)
 				{
 					String colId = (String) colIdRaw;
 					if (IdentitiesComponent.this.identitiesTable.isColumnCollapsed(colId))
 						continue;
-					Filter filter = new SimpleStringFilter(colId, text, true,
-							false);
+					Filter filter = new SimpleStringFilter(colId, searchText, true, false);
 					filters.add(filter);
 				}
 				if (filters.size() < 1)
 					return;
 				Filter[] orFillters = filters.toArray(new Filter[filters.size()]);
-				simpleFilter = new Or(orFillters);
-				identitiesTable.addFilter(simpleFilter);
+				fastSearchFilter = new Or(orFillters);
+				identitiesTable.addFilter(fastSearchFilter);
 			}
 		});
 
