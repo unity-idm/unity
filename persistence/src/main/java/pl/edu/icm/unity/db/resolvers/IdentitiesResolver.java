@@ -200,8 +200,11 @@ public class IdentitiesResolver
 			IdentityParam idParam = new IdentityParam();
 			idParam.setLocal(true);
 			idParam.setValue(newId.getContents());
-			idParam.setRealm(realm);
-			idParam.setTarget(target);
+			if (idTypeImpl.isTargeted())
+			{
+				idParam.setRealm(realm);
+				idParam.setTarget(target);
+			}
 			newIdBean.setContents(idSerializer.toJson(idParam));
 			mapper.insertIdentity(newIdBean);
 			
