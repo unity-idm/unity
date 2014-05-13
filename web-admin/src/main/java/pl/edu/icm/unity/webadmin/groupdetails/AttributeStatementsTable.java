@@ -117,14 +117,15 @@ public class AttributeStatementsTable extends Table
 				{
 					check = true;
 					break;
-				}
-					
+				}					
 			}
 			if (!check)
+			{
 				attributeStatements[i] = s;
-			
-			else
+			} else
+			{
 				i--;
+			}
 		}
 		updateGroup(attributeStatements);
 	}
@@ -257,8 +258,7 @@ public class AttributeStatementsTable extends Table
 			} else 
 			{
 				items =  new ArrayList<AttributeStatement>();
-				items.add((AttributeStatement) target);
-				
+				items.add((AttributeStatement) target);	
 			}		
 			new ConfirmDialog(msg, msg.getMessage("AttributeStatements.confirmDelete"),
 					new ConfirmDialog.Callback()

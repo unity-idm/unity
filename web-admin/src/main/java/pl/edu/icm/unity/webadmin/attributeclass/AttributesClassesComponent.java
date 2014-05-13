@@ -81,7 +81,6 @@ public class AttributesClassesComponent  extends VerticalLayout
 				{
 					viewer.setInput(null, allACs);
 					return;
-
 				}
 				GenericItem<String> item = items.iterator().next();	
 				if (item != null)
@@ -225,7 +224,6 @@ public class AttributesClassesComponent  extends VerticalLayout
 			final Collection<GenericItem<String>> items;
 			if (target instanceof Collection<?>)
 			{
-
 				items = (Collection<GenericItem<String>>) target;
 			} else
 			{

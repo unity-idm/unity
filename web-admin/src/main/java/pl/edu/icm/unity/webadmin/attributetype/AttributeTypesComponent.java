@@ -100,8 +100,7 @@ public class AttributeTypesComponent extends VerticalLayout
 				if (items.size() > 1 || items.isEmpty())
 				{
 					viewer.setInput(null, null, AttributeTypesComponent.this.attrMetaHandlerRegistry);
-					return;
-				
+					return;		
 				}	
 				GenericItem<AttributeType> item = items.iterator().next();	
 				if (item != null)
@@ -263,7 +262,7 @@ public class AttributeTypesComponent extends VerticalLayout
 					if (at.isTypeImmutable())
 						return EMPTY;
 				}
-			}else
+			} else
 			{
 				@SuppressWarnings("unchecked")
 				AttributeType at = ((GenericItem<AttributeType>) target).getElement();
@@ -327,9 +326,7 @@ public class AttributeTypesComponent extends VerticalLayout
 				items.addAll((Collection<GenericItem<AttributeType>>) target);
 			} else 
 			{
-		
-				items.add((GenericItem<AttributeType>) target);
-				
+				items.add((GenericItem<AttributeType>) target);	
 			}			
 			String confirmText = "";
 			for (GenericItem<AttributeType> item : items)

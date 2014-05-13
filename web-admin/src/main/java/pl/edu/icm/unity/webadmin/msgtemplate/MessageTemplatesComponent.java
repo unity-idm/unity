@@ -86,13 +86,11 @@ public class MessageTemplatesComponent extends VerticalLayout
 				if (items.size() > 1 || items.isEmpty())
 				{
 					viewer.setTemplateInput(null);
-					return;
-				
+					return;	
 				}	
 				GenericItem<MessageTemplate> item = items.iterator().next();	
 				if (item != null)
 				{
-					
 					MessageTemplate template = item.getElement();
 					viewer.setTemplateInput(template);
 				} else
@@ -129,7 +127,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 			Collection<MessageTemplate> templates = msgTempMan.listTemplates().values();
 			table.setInput(templates);
 			viewer.setTemplateInput(null);
-		//	table.select(null);
+			//table.select(null);
 			removeAllComponents();
 			addComponent(main);
 		} catch (Exception e)
@@ -239,9 +237,9 @@ public class MessageTemplatesComponent extends VerticalLayout
 			if (target instanceof Collection<?>)
 			{
 				@SuppressWarnings("unchecked")
-				Collection<GenericItem<MessageTemplate>> items = (Collection<GenericItem<MessageTemplate>>)target;
+				Collection<GenericItem<MessageTemplate>> items = (Collection<GenericItem<MessageTemplate>>) target;
 				item = items.iterator().next();
-			}else
+			} else
 			{
 				item = (GenericItem<MessageTemplate>) target;
 			}
@@ -276,15 +274,13 @@ public class MessageTemplatesComponent extends VerticalLayout
 		{
 			final Collection<GenericItem<MessageTemplate>> items;
 			if (target instanceof Collection<?>)
-			{
-				
+			{	
 				items = (Collection<GenericItem<MessageTemplate>>) target;
-			}else
+			} else
 			{
 				items = new ArrayList<GenericItem<MessageTemplate>>();
 				items.add((GenericItem<MessageTemplate>) target);
-			}
-			
+			}	
 			String confirmText = "";
 			for (GenericItem<MessageTemplate> item : items)
 			{
@@ -292,7 +288,6 @@ public class MessageTemplatesComponent extends VerticalLayout
 				confirmText += item.getElement().getName();
 			}
 			confirmText = confirmText.substring(2);
-
 			new ConfirmDialog(msg, msg.getMessage(
 					"MessageTemplatesComponent.confirmDelete", confirmText),
 					new ConfirmDialog.Callback()

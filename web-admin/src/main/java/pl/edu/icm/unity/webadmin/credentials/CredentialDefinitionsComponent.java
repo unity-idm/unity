@@ -93,7 +93,6 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 				{
 					viewer.setInput(null, null);
 					return;
-
 				}	
 				GenericItem<CredentialDefinition> item = items.iterator().next();
 				if (item != null)
@@ -247,7 +246,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 				@SuppressWarnings("unchecked")
 				Collection<GenericItem<CredentialDefinition>> items = (Collection<GenericItem<CredentialDefinition>>)target;
 				item = items.iterator().next();
-			}else
+			} else
 			{
 				item = (GenericItem<CredentialDefinition>) target;
 			}
@@ -290,9 +289,8 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 			final Collection<GenericItem<CredentialDefinition>> items;
 			if (target instanceof Collection<?>)
 			{
-				
 				items = (Collection<GenericItem<CredentialDefinition>>) target;
-			}else
+			} else
 			{
 				items = new ArrayList<GenericItem<CredentialDefinition>>();
 				items.add((GenericItem<CredentialDefinition>) target);

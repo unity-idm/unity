@@ -720,9 +720,7 @@ public class IdentitiesTable extends TreeTable
 				nodes.addAll((Collection<?>) target);
 			} else 
 			{
-		
-				nodes.add(target);
-				
+				nodes.add(target);	
 			}		
 			final HashMap<Long, EntityWithLabel> toRemove = new HashMap<Long, EntityWithLabel>();
 			for (Object node : nodes)
@@ -736,7 +734,6 @@ public class IdentitiesTable extends TreeTable
 			{
 				confirmText += ", ";
 				confirmText += entity;
-
 			}
 			confirmText = confirmText.substring(2);
 			new ConfirmDialog(msg, msg.getMessage("Identities.confirmRemoveFromGroup",
@@ -840,9 +837,7 @@ public class IdentitiesTable extends TreeTable
 				nodes.addAll((Collection<?>) target);
 			} else 
 			{
-		
-				nodes.add(target);
-				
+				nodes.add(target);	
 			}
 			final HashMap<Long, EntityWithLabel> toRemove = new HashMap<Long, EntityWithLabel>();
 			for (Object node : nodes)
@@ -856,7 +851,6 @@ public class IdentitiesTable extends TreeTable
 			{
 				confirmText += ", ";
 				confirmText += entity;
-
 			}
 			confirmText = confirmText.substring(2);
 			new ConfirmDialog(msg, msg.getMessage("Identities.confirmEntityDelete",
@@ -915,16 +909,13 @@ public class IdentitiesTable extends TreeTable
 				nodes.addAll((Collection<IdentityWithEntity>) target);
 			} else 
 			{
-		
-				nodes.add((IdentityWithEntity) target);
-				
+				nodes.add((IdentityWithEntity) target);	
 			}	
 			String confirmText = "";
 			for (IdentityWithEntity node : nodes)
 			{
 				confirmText += ", ";
 				confirmText += node.identity;
-
 			}
 			confirmText = confirmText.substring(2);
 			new ConfirmDialog(msg, msg.getMessage("Identities.confirmIdentityDelete",

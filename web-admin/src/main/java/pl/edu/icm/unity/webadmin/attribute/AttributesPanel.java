@@ -445,9 +445,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 				items.addAll((Collection<AttributeItem>) target);
 			} else 
 			{
-		
-				items.add((AttributeItem) target);
-				
+				items.add((AttributeItem) target);		
 			}		
 			String confirmText = "";
 			for (AttributeItem item : items)
@@ -543,7 +541,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			{
 				Collection<AttributeItem> items = (Collection<AttributeItem>) target;
 				attribute = items.iterator().next().getAttribute();
-			}else
+			} else
 			{
 				attribute = ((AttributeItem) target).getAttribute();
 			}

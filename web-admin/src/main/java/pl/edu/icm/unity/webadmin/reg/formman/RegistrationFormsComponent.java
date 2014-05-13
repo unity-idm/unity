@@ -115,7 +115,6 @@ public class RegistrationFormsComponent extends VerticalLayout
 				{
 					viewer.setInput(null);
 					return;
-
 				}
 				GenericItem<RegistrationForm> item = items.iterator().next();	
 				if (item != null)
@@ -278,7 +277,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 				@SuppressWarnings("unchecked")
 				Collection<GenericItem<RegistrationForm>> items = (Collection<GenericItem<RegistrationForm>>)target;
 				item = items.iterator().next();
-			}else
+			} else
 			{
 				item = (GenericItem<RegistrationForm>) target;
 			}
@@ -335,7 +334,6 @@ public class RegistrationFormsComponent extends VerticalLayout
 				confirmText += item.getElement().getName();
 			}
 			confirmText = confirmText.substring(2);
-
 			new ConfirmWithOptionDialog(msg, msg.getMessage("RegistrationFormsComponent.confirmDelete", 
 					confirmText),
 					msg.getMessage("RegistrationFormsComponent.dropRequests"),

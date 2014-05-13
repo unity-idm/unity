@@ -87,7 +87,6 @@ public class TranslationProfilesComponent extends VerticalLayout
 				{
 					viewer.setInput(null);
 					return;
-				
 				}	
 				GenericItem<TranslationProfile> item = items.iterator().next();	
 				if (item!=null)
@@ -128,7 +127,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			Collection<TranslationProfile> profiles = profileMan.listProfiles().values();
 			table.setInput(profiles);
 			viewer.setInput(null);
-			table.select(null);
+			//table.select(null);
 			removeAllComponents();
 			addComponent(main);
 		} catch (Exception e)
@@ -240,7 +239,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 				@SuppressWarnings("unchecked")
 				Collection<GenericItem<TranslationProfile>> items = (Collection<GenericItem<TranslationProfile>>)target;
 				item = items.iterator().next();
-			}else
+			} else
 			{
 				item = (GenericItem<TranslationProfile>) target;
 			}
@@ -273,10 +272,9 @@ public class TranslationProfilesComponent extends VerticalLayout
 		{
 			final Collection<GenericItem<TranslationProfile>> items;
 			if (target instanceof Collection<?>)
-			{
-				
+			{	
 				items = (Collection<GenericItem<TranslationProfile>>) target;
-			}else
+			} else
 			{
 				items = new ArrayList<GenericItem<TranslationProfile>>();
 				items.add((GenericItem<TranslationProfile>) target);
@@ -287,8 +285,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 				confirmText += ", ";
 				confirmText += item.getElement().getName();
 			}
-			confirmText = confirmText.substring(2);
-				
+			confirmText = confirmText.substring(2);		
 			new ConfirmDialog(msg, msg.getMessage(
 					"TranslationProfilesComponent.confirmDelete",
 					confirmText), new ConfirmDialog.Callback()
