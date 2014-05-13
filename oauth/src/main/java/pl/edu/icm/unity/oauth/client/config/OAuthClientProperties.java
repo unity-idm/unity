@@ -32,6 +32,7 @@ public class OAuthClientProperties extends PropertiesHelper
 	public static final String P = "unity.oauth2.client.";
 
 	public static final String DISPLAY_NAME = "displayName";
+	public static final String PROVIDERS_IN_ROW = "providersInRow";
 	
 	public static final String PROVIDERS = "providers.";
 
@@ -43,6 +44,8 @@ public class OAuthClientProperties extends PropertiesHelper
 	{
 		META.put(DISPLAY_NAME, new PropertyMD("OAuth2 authentication").setDescription("Name of this authentication "
 				+ "option to be displayed in the web interface"));
+		META.put(PROVIDERS_IN_ROW, new PropertyMD("3").setPositive().setDescription("How many providers should be displayed "
+				+ "in a single row on the provider selection screen. Relevant only if you define multiple providers."));
 		
 		META.put(PROVIDERS, new PropertyMD().setStructuredList(false).setCanHaveSubkeys().setMandatory().
 				setDescription("Prefix, under which the available oauth providers are defined."));

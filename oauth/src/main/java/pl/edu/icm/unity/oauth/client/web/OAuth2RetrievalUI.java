@@ -22,6 +22,7 @@ import com.vaadin.server.VaadinServletService;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
@@ -104,22 +105,33 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		
 		Set<String> idps = clientProperties.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
 		
-		HorizontalLayout providersL = new HorizontalLayout();
-		providersL.setSpacing(true);
-		ret.addComponent(providersL);
+		VerticalLayout providersChoice = new VerticalLayout();
+		providersChoice.setSpacing(true);
+		ret.addComponent(providersChoice);
 
-		boolean first = true;
+		int perRow = clientProperties.getIntValue(OAuthClientProperties.PROVIDERS_IN_ROW);
+
+		int current = 0;
+		HorizontalLayout providersL = null;
 		for (String idpKey: idps)
 		{
+			if ((current % perRow) == 0)
+			{
+				providersL = new HorizontalLayout();
+				providersL.setSpacing(true);
+				providersChoice.addComponent(providersL);
+				providersL.addStyleName(Styles.verticalMargins10.toString());
+			}
+			
 			Button providerB = new Button();
 			providerB.setImmediate(true);
 			providerB.setStyleName(Reindeer.BUTTON_LINK);
-			if (first)
+			providerB.addStyleName(Styles.horizontalMargins10.toString());
+			if (current == 0)
 			{
 				selectedProvider = idpKey;
 				selectedButton = providerB;
 				selectedButton.addStyleName(Styles.selectedButton.toString());
-				first = false;
 			}
 			
 			CustomProviderProperties providerProps = clientProperties.getProvider(idpKey);
@@ -139,6 +151,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 				providerB.setCaption(name);
 			
 			providersL.addComponent(providerB);
+			providersL.setComponentAlignment(providerB, Alignment.MIDDLE_LEFT);
 			providerB.setData(idpKey);
 			providerB.addClickListener(new ClickListener()
 			{
@@ -151,6 +164,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 					selectedButton = event.getButton();
 				}
 			});
+			current++;
 		}
 		messageLabel = new Label();
 		messageLabel.setContentMode(ContentMode.HTML);
