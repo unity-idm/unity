@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.webadmin.tprofile;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 					}
 				});
 		
+		table.setMultiSelect(true);
 		table.setWidth(90, Unit.PERCENTAGE);
 		viewer = new TranslationProfileViewer(msg, tc);
 		table.addValueChangeListener(new ValueChangeListener()
@@ -80,7 +82,14 @@ public class TranslationProfilesComponent extends VerticalLayout
 			public void valueChange(ValueChangeEvent event)
 			{
 				@SuppressWarnings("unchecked")
-				GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>)table.getValue();
+				Collection<GenericItem<TranslationProfile>> items = (Collection<GenericItem<TranslationProfile>>)table.getValue();
+				if (items.size() > 1 || items.isEmpty())
+				{
+					viewer.setInput(null);
+					return;
+				
+				}	
+				GenericItem<TranslationProfile> item = items.iterator().next();	
 				if (item!=null)
 				{
 					TranslationProfile profile = item.getElement();
@@ -201,9 +210,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		public void handleAction(Object sender, final Object target)
 		{
 			TranslationProfileEditor editor;
-			
-			editor = new TranslationProfileEditor(msg, tc, null);
-			
+			editor = new TranslationProfileEditor(msg, tc, null);	
 			TranslationProfileEditDialog dialog = new TranslationProfileEditDialog(msg, 
 					msg.getMessage("TranslationProfilesComponent.addAction"), new TranslationProfileEditDialog.Callback()
 					{
@@ -227,12 +234,18 @@ public class TranslationProfilesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			@SuppressWarnings("unchecked")
-			GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>) target;
+			GenericItem<TranslationProfile> item;
+			if (target instanceof Collection<?>)
+			{
+				@SuppressWarnings("unchecked")
+				Collection<GenericItem<TranslationProfile>> items = (Collection<GenericItem<TranslationProfile>>)target;
+				item = items.iterator().next();
+			}else
+			{
+				item = (GenericItem<TranslationProfile>) target;
+			}
 			TranslationProfileEditor editor;
-			
-			editor = new TranslationProfileEditor(msg, tc, item.getElement());
-			
+			editor = new TranslationProfileEditor(msg, tc, item.getElement());	
 			TranslationProfileEditDialog dialog = new TranslationProfileEditDialog(msg, 
 					msg.getMessage("TranslationProfilesComponent.editAction"), new TranslationProfileEditDialog.Callback()
 					{
@@ -252,23 +265,42 @@ public class TranslationProfilesComponent extends VerticalLayout
 		{
 			super(msg.getMessage("TranslationProfilesComponent.deleteAction"),
 					Images.delete.getResource());
+			setMultiTarget(true);
 		}
 
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			@SuppressWarnings("unchecked")
-			GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>) target;
-			final TranslationProfile profile = item.getElement();
+			final Collection<GenericItem<TranslationProfile>> items;
+			if (target instanceof Collection<?>)
+			{
+				
+				items = (Collection<GenericItem<TranslationProfile>>) target;
+			}else
+			{
+				items = new ArrayList<GenericItem<TranslationProfile>>();
+				items.add((GenericItem<TranslationProfile>) target);
+			}
+			String confirmText = "";
+			for (GenericItem<TranslationProfile> item : items)
+			{
+				confirmText += ", ";
+				confirmText += item.getElement().getName();
+			}
+			confirmText = confirmText.substring(2);
+				
 			new ConfirmDialog(msg, msg.getMessage(
 					"TranslationProfilesComponent.confirmDelete",
-					profile.getName()), new ConfirmDialog.Callback()
+					confirmText), new ConfirmDialog.Callback()
 			{
 
 				@Override
 				public void onConfirm()
 				{
-					removeProfile(profile.getName());
+					for (GenericItem<TranslationProfile> item : items)
+					{
+						removeProfile(item.getElement().getName());
+					}
 
 				}
 			}).show();

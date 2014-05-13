@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -209,10 +210,8 @@ public class MessageTemplatesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			MessageTemplateEditor editor;
-			
-			editor = new MessageTemplateEditor(msg, consumersRegistry, null);
-			
+			MessageTemplateEditor editor;			
+			editor = new MessageTemplateEditor(msg, consumersRegistry, null);		
 			MessageTemplateEditDialog dialog = new MessageTemplateEditDialog(msg, 
 					msg.getMessage("MessageTemplatesComponent.addAction"), new MessageTemplateEditDialog.Callback()
 					{
@@ -236,9 +235,16 @@ public class MessageTemplatesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			@SuppressWarnings("unchecked")
-			Collection<GenericItem<MessageTemplate>> items = (Collection<GenericItem<MessageTemplate>>)target;
-			GenericItem<MessageTemplate> item = items.iterator().next();
+			GenericItem<MessageTemplate> item;
+			if (target instanceof Collection<?>)
+			{
+				@SuppressWarnings("unchecked")
+				Collection<GenericItem<MessageTemplate>> items = (Collection<GenericItem<MessageTemplate>>)target;
+				item = items.iterator().next();
+			}else
+			{
+				item = (GenericItem<MessageTemplate>) target;
+			}
 			MessageTemplateEditor editor;
 			
 			editor = new MessageTemplateEditor(msg, consumersRegistry, item.getElement());
@@ -268,24 +274,40 @@ public class MessageTemplatesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			@SuppressWarnings("unchecked")
-			Collection<GenericItem<MessageTemplate>> items = (Collection<GenericItem<MessageTemplate>>)target;
+			final Collection<GenericItem<MessageTemplate>> items;
+			if (target instanceof Collection<?>)
+			{
+				
+				items = (Collection<GenericItem<MessageTemplate>>) target;
+			}else
+			{
+				items = new ArrayList<GenericItem<MessageTemplate>>();
+				items.add((GenericItem<MessageTemplate>) target);
+			}
+			
+			String confirmText = "";
 			for (GenericItem<MessageTemplate> item : items)
 			{
-				final MessageTemplate template = item.getElement();
-				new ConfirmDialog(msg, msg.getMessage(
-						"MessageTemplatesComponent.confirmDelete",
-						template.getName()), new ConfirmDialog.Callback()
-				{
-
-					@Override
-					public void onConfirm()
-					{
-						removeTemplate(template.getName());
-
-					}
-				}).show();
+				confirmText += ", ";
+				confirmText += item.getElement().getName();
 			}
+			confirmText = confirmText.substring(2);
+
+			new ConfirmDialog(msg, msg.getMessage(
+					"MessageTemplatesComponent.confirmDelete", confirmText),
+					new ConfirmDialog.Callback()
+					{
+
+						@Override
+						public void onConfirm()
+						{
+							for (GenericItem<MessageTemplate> item : items)
+							{
+								removeTemplate(item.getElement().getName());
+							}
+						}
+					}).show();
+			
 		}
 	}
 	
