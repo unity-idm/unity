@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,6 +102,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 					}
 				});
 		table.setWidth(90, Unit.PERCENTAGE);
+		table.setMultiSelect(true);
 		viewer = new RegistrationFormViewer(msg, attrHandlersRegistry, msgTempMan);
 		viewer.setInput(null);
 		table.addValueChangeListener(new ValueChangeListener()
@@ -107,8 +110,14 @@ public class RegistrationFormsComponent extends VerticalLayout
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				@SuppressWarnings("unchecked")
-				GenericItem<RegistrationForm> item = (GenericItem<RegistrationForm>)table.getValue();
+				Collection<GenericItem<RegistrationForm>> items = (Collection<GenericItem<RegistrationForm>>) table.getValue();
+				if (items.size() > 1 || items.isEmpty())
+				{
+					viewer.setInput(null);
+					return;
+
+				}
+				GenericItem<RegistrationForm> item = items.iterator().next();	
 				if (item != null)
 				{
 					RegistrationForm form = item.getElement();
@@ -263,8 +272,16 @@ public class RegistrationFormsComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			@SuppressWarnings("unchecked")
-			GenericItem<RegistrationForm> item = (GenericItem<RegistrationForm>) target;
+			GenericItem<RegistrationForm> item;
+			if (target instanceof Collection<?>)
+			{
+				@SuppressWarnings("unchecked")
+				Collection<GenericItem<RegistrationForm>> items = (Collection<GenericItem<RegistrationForm>>)target;
+				item = items.iterator().next();
+			}else
+			{
+				item = (GenericItem<RegistrationForm>) target;
+			}
 			RegistrationFormEditor editor;
 			try
 			{
@@ -295,23 +312,43 @@ public class RegistrationFormsComponent extends VerticalLayout
 		{
 			super(msg.getMessage("RegistrationFormsComponent.deleteAction"), 
 					Images.delete.getResource());
+			setMultiTarget(true);
 		}
 		
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			@SuppressWarnings("unchecked")
-			GenericItem<RegistrationForm> item = (GenericItem<RegistrationForm>)target;
-			final RegistrationForm form = item.getElement();
+			final Collection<GenericItem<RegistrationForm>> items;
+			if (target instanceof Collection<?>)
+			{
+
+				items = (Collection<GenericItem<RegistrationForm>>) target;
+			} else
+			{
+				items = new ArrayList<GenericItem<RegistrationForm>>();
+				items.add((GenericItem<RegistrationForm>) target);
+			}
+			String confirmText = "";
+			for (GenericItem<RegistrationForm> item : items)
+			{
+				confirmText += ", ";
+				confirmText += item.getElement().getName();
+			}
+			confirmText = confirmText.substring(2);
+
 			new ConfirmWithOptionDialog(msg, msg.getMessage("RegistrationFormsComponent.confirmDelete", 
-					form.getName()),
+					confirmText),
 					msg.getMessage("RegistrationFormsComponent.dropRequests"),
 					new ConfirmWithOptionDialog.Callback()
 			{
 				@Override
 				public void onConfirm(boolean dropRequests)
 				{
-					removeForm(form.getName(), dropRequests);
+							for (GenericItem<RegistrationForm> item : items)
+							{
+								removeForm(item.getElement().getName(),
+										dropRequests);
+							}
 				}
 			}).show();
 		}

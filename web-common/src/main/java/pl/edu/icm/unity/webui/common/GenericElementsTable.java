@@ -16,7 +16,7 @@ import com.vaadin.ui.Table;
 
 /**
  * 1-column table with arbitrary objects. 
- * Allows for sorting, disable multiselect, uses {@link BeanItemContainer}.
+ * Allows for sorting and default disable multiselect, uses {@link BeanItemContainer}.
  * The value is obtaned either via toString() method of the content item or via a given implementation 
  * of {@link NameProvider}.
  * @author K. Benedyczak

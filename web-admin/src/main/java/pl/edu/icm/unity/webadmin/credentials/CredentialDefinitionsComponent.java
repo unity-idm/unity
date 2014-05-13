@@ -4,19 +4,13 @@
  */
 package pl.edu.icm.unity.webadmin.credentials;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -30,12 +24,19 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
+import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Toolbar;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Provides {@link CredentialDefinition} management UI
@@ -69,6 +70,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 	private void init()
 	{
 		setCaption(msg.getMessage("CredentialDefinitions.caption"));
+		viewer = new CredentialDefinitionViewer(msg);
 		table =  new GenericElementsTable<CredentialDefinition>(
 				msg.getMessage("CredentialDefinitions.credentialDefinitionsHeader"), 
 				CredentialDefinition.class, new GenericElementsTable.NameProvider<CredentialDefinition>()
@@ -79,13 +81,21 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 						return element.getName();
 					}
 				});
+		table.setMultiSelect(true);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
 				@SuppressWarnings("unchecked")
-				GenericItem<CredentialDefinition> item = (GenericItem<CredentialDefinition>)table.getValue();
+				Collection<GenericItem<CredentialDefinition>> items = (Collection<GenericItem<CredentialDefinition>>) table.getValue();
+				if (items.size() > 1 || items.isEmpty())
+				{
+					viewer.setInput(null, null);
+					return;
+
+				}	
+				GenericItem<CredentialDefinition> item = items.iterator().next();
 				if (item != null)
 				{
 					CredentialDefinition cd = item.getElement();
@@ -106,7 +116,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		
-		viewer = new CredentialDefinitionViewer(msg);
+		
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.addComponents(tableWithToolbar, viewer);
 		hl.setSizeFull();
@@ -231,8 +241,16 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			@SuppressWarnings("unchecked")
-			GenericItem<CredentialDefinition> item = (GenericItem<CredentialDefinition>)target;
+			GenericItem<CredentialDefinition> item;
+			if (target instanceof Collection<?>)
+			{
+				@SuppressWarnings("unchecked")
+				Collection<GenericItem<CredentialDefinition>> items = (Collection<GenericItem<CredentialDefinition>>)target;
+				item = items.iterator().next();
+			}else
+			{
+				item = (GenericItem<CredentialDefinition>) target;
+			}
 			CredentialDefinition cr = item.getElement();
 			CredentialDefinition crClone = new CredentialDefinition();
 			crClone.setDescription(cr.getDescription());
@@ -263,23 +281,42 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		{
 			super(msg.getMessage("CredentialDefinitions.deleteAction"), 
 					Images.delete.getResource());
+			setMultiTarget(true);
 		}
 		
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			@SuppressWarnings("unchecked")
-			GenericItem<CredentialDefinition> item = (GenericItem<CredentialDefinition>)target;
-			final CredentialDefinition cd = item.getElement();
-			new ConfirmDialog(msg, msg.getMessage("CredentialDefinitions.confirmDelete", cd.getName()),
-					new ConfirmDialog.Callback()
+			final Collection<GenericItem<CredentialDefinition>> items;
+			if (target instanceof Collection<?>)
 			{
-				@Override
-				public void onConfirm()
-				{
-					removeCD(cd.getName());
-				}
-			}).show();
+				
+				items = (Collection<GenericItem<CredentialDefinition>>) target;
+			}else
+			{
+				items = new ArrayList<GenericItem<CredentialDefinition>>();
+				items.add((GenericItem<CredentialDefinition>) target);
+			}
+			String confirmText = "";
+			for (GenericItem<CredentialDefinition> item : items)
+			{
+				confirmText += ", ";
+				confirmText += item.getElement().getName();
+			}
+			confirmText = confirmText.substring(2);		
+			new ConfirmDialog(msg, msg.getMessage("CredentialDefinitions.confirmDelete", confirmText),
+					new ConfirmDialog.Callback()
+					{
+						@Override
+						public void onConfirm()
+						{
+							for (GenericItem<CredentialDefinition> item : items)
+							{
+								removeCD(item.getElement()
+										.getName());
+							}
+						}
+					}).show();
 		}
 	}
 }

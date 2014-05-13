@@ -6,7 +6,6 @@ package pl.edu.icm.unity.webui.common;
 
 import java.util.Collection;
 
-import com.google.gwt.thirdparty.guava.common.collect.SetMultimap;
 import com.vaadin.event.Action;
 import com.vaadin.event.Action.Handler;
 import com.vaadin.server.Resource;
@@ -67,13 +66,11 @@ public abstract class SingleActionHandler implements Handler
 
 		} else
 		{
-			if (target instanceof Collection<?>)
+			if (target instanceof Collection<?> && needsTarget)
 			{
 				Collection<?> t = (Collection<?>) target;
-				if (t.isEmpty() && needsTarget)
-					return EMPTY;
-				if (t.size() > 1 && !multiTarget && needsTarget)
-					return EMPTY;
+				if (t.isEmpty() || (t.size() > 1 && !multiTarget))
+					return EMPTY;		
 			}
 		}	
 		return action;

@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.credreq;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -66,6 +67,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 	private void init()
 	{
 		setCaption(msg.getMessage("CredentialRequirements.caption"));
+		viewer = new CredentialRequirementViewer(msg);
 		table =  new GenericElementsTable<CredentialRequirements>(
 				msg.getMessage("CredentialRequirements.credentialRequirementsHeader"), 
 				CredentialRequirements.class, new GenericElementsTable.NameProvider<CredentialRequirements>()
@@ -81,8 +83,14 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				@SuppressWarnings("unchecked")
-				GenericItem<CredentialRequirements> item = (GenericItem<CredentialRequirements>)table.getValue();
+				Collection<GenericItem<CredentialRequirements>> items = (Collection<GenericItem<CredentialRequirements>>) table.getValue();
+				if (items.size() > 1 || items.isEmpty())
+				{
+					viewer.setInput(null);
+					return;
+
+				}	
+				GenericItem<CredentialRequirements> item = items.iterator().next();	
 				if (item != null)
 				{
 					CredentialRequirements at = item.getElement();
@@ -96,12 +104,12 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		table.addActionHandler(new EditActionHandler());
 		table.addActionHandler(new DeleteActionHandler());
 		table.setWidth(90, Unit.PERCENTAGE);
+		table.setMultiSelect(true);
 		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
 		toolbar.addActionHandlers(table.getActionHandlers());
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		
-		viewer = new CredentialRequirementViewer(msg);
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.addComponents(tableWithToolbar, viewer);
 		hl.setSizeFull();
@@ -253,11 +261,19 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			Collection<CredentialDefinition> allCredentials = getCredentials();
+			Collection<CredentialDefinition> allCredentials = getCredentials();	
 			if (allCredentials == null)
 				return;
-			@SuppressWarnings("unchecked")
-			GenericItem<CredentialRequirements> item = (GenericItem<CredentialRequirements>)target;
+			GenericItem<CredentialRequirements> item;
+			if (target instanceof Collection<?>)
+			{
+				@SuppressWarnings("unchecked")
+				Collection<GenericItem<CredentialRequirements>> items = (Collection<GenericItem<CredentialRequirements>>)target;
+				item = items.iterator().next();
+			}else
+			{
+				item = (GenericItem<CredentialRequirements>) target;
+			}		
 			CredentialRequirements cr = item.getElement();
 			CredentialRequirements crClone = new CredentialRequirements();
 			crClone.setDescription(cr.getDescription());
@@ -284,22 +300,40 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		{
 			super(msg.getMessage("CredentialRequirements.deleteAction"), 
 					Images.delete.getResource());
+			setMultiTarget(true);
 		}
 		
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			@SuppressWarnings("unchecked")
-			GenericItem<CredentialRequirements> item = (GenericItem<CredentialRequirements>)target;
-			final CredentialRequirements at = item.getElement();
+			final Collection<GenericItem<CredentialRequirements>> items;
+			if (target instanceof Collection<?>)
+			{
+				
+				items = (Collection<GenericItem<CredentialRequirements>>) target;
+			}else
+			{
+				items = new ArrayList<GenericItem<CredentialRequirements>>();
+				items.add((GenericItem<CredentialRequirements>) target);
+			}
+			HashSet<String> removed = new HashSet<String>();
+			String confirmText = "";
+			for (GenericItem<CredentialRequirements> item : items)
+			{
+				removed.add(item.getElement().getName());
+				
+			}			
 			Collection<CredentialRequirements> allCRs = getCredentialRequirements();
-			new CredentialRequirementRemovalDialog(msg, at.getName(), allCRs, 
+			new CredentialRequirementRemovalDialog(msg, removed, allCRs, 
 					new CredentialRequirementRemovalDialog.Callback()
 			{
 				@Override
 				public void onConfirm(String replacementCR)
 				{
-					removeCR(at.getName(), replacementCR);
+					for (GenericItem<CredentialRequirements> item : items)
+					{
+						removeCR(item.getElement().getName(), replacementCR);
+					}
 				}
 			}).show();
 		}
