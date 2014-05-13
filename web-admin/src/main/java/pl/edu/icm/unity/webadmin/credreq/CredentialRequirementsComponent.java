@@ -315,7 +315,6 @@ public class CredentialRequirementsComponent extends VerticalLayout
 				items.add((GenericItem<CredentialRequirements>) target);
 			}
 			HashSet<String> removed = new HashSet<String>();
-			String confirmText = "";
 			for (GenericItem<CredentialRequirements> item : items)
 			{
 				removed.add(item.getElement().getName());
