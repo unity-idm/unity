@@ -393,14 +393,11 @@ public class AttributesPanel extends HorizontalSplitPanel
 				{
 					if (checkAttributeImm((AttributeItem) item))
 						return EMPTY;
-
 				}
 			} else
 			{
-
 				if (checkAttributeImm((AttributeItem) target))
 					return EMPTY;
-				return EMPTY;
 			}
 			return super.getActions(target, sender);
 		}

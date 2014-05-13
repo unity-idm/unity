@@ -114,7 +114,11 @@ public class AttributeStatementsTable extends Table
 			for (AttributeStatement st : removedStatements)
 			{
 				if (st.equals(s))
+				{
 					check = true;
+					break;
+				}
+					
 			}
 			if (!check)
 				attributeStatements[i] = s;
