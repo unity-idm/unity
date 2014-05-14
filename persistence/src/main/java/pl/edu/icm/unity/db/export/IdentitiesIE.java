@@ -140,6 +140,8 @@ public class IdentitiesIE extends AbstractIE
 				if (name.startsWith(PFX))
 					name = name.substring(PFX.length());
 				node.put("value", name);
+				node.remove("target");
+				node.remove("realm");
 				byte[] cont2 = jsonMapper.writeValueAsBytes(node);
 				input.setContents(cont2);
 				ret.add(input);
