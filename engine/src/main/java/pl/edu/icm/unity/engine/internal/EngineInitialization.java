@@ -766,15 +766,13 @@ public class EngineInitialization extends LifecycleBase
 	private void initializeTranslationProfiles()
 	{
 		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
-		log.info("Removing old translation profiles");
+		Map<String, TranslationProfile> existingProfiles;
 		try
 		{
-			Map<String, TranslationProfile> existingProfiles = profilesManagement.listProfiles();
-			for (String pr: existingProfiles.keySet())
-				profilesManagement.removeProfile(pr);
-		} catch (EngineException e)
+			existingProfiles = profilesManagement.listProfiles();
+		} catch (EngineException e1)
 		{
-			throw new InternalException("Can't wipe existing translation profiles", e);
+			throw new InternalException("Can't list the existing translation profiles", e1);
 		}
 		log.info("Loading configured translation profiles");
 		for (String profileFile: profileFiles)
@@ -791,8 +789,17 @@ public class EngineInitialization extends LifecycleBase
 			TranslationProfile tp = new TranslationProfile(json, jsonMapper, tactionsRegistry);
 			try
 			{
-				profilesManagement.addProfile(tp);
-				log.info(" - loaded translation profile: " + tp.getName() + " from " + profileFile);
+				if (existingProfiles.containsKey(tp.getName()))
+				{
+					log.info(" - updated the in-DB translation profile : " + tp.getName() + 
+							" with file definition: " + profileFile);
+					profilesManagement.updateProfile(tp);	
+				} else
+				{
+					profilesManagement.addProfile(tp);
+					log.info(" - loaded translation profile: " + tp.getName() + 
+							" from file: " + profileFile);
+				}
 			} catch (EngineException e)
 			{
 				throw new InternalException("Can't install the configured translation profile " 
