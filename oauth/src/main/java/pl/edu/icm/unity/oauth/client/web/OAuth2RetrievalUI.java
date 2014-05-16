@@ -374,7 +374,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 						regFormForUnknown);
 				authnResult.setFormForUnknownPrincipal(regFormForUnknown);
 				showError(null);
-				breakLogin(true);
+				breakLogin(false);
 			} else
 			{
 				if (savedException != null)

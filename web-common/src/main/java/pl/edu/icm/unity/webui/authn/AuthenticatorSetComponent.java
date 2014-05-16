@@ -254,6 +254,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		@Override
 		public synchronized void setAuthenticationResult(AuthenticationResult result)
 		{
+			log.trace("Received authentication result nr " + (results.size() + 1));
 			results.add(result);
 			if (results.size() == numberOfAuthenticators)
 				authnDone();
@@ -268,13 +269,21 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		public synchronized void authenticationCancelled(boolean signalAuthenticators)
 		{
 			this.results.clear();
-			authenticateButton.setEnabled(true);
-			showAuthnProgress(false);
-			authnDone = true;
-			if (signalAuthenticators)
+			VaadinSession session = VaadinSession.getCurrent();
+			session.lock();
+			try
 			{
-				for (VaadinAuthenticationUI vaadinAuth: authenticators.values())
-					vaadinAuth.cancelAuthentication();
+				authenticateButton.setEnabled(true);
+				showAuthnProgress(false);
+				authnDone = true;
+				if (signalAuthenticators)
+				{
+					for (VaadinAuthenticationUI vaadinAuth: authenticators.values())
+						vaadinAuth.cancelAuthentication();
+				}
+			} finally
+			{
+				session.unlock();
 			}
 		}
 		
