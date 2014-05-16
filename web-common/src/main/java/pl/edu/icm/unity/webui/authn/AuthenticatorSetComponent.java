@@ -319,7 +319,6 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 						log.trace("Authentication successful, user unknown, "
 								+ "showing registration form");
 						showRegistration(e);
-						return;
 					} else
 					{
 						log.trace("Authentication successful, user unknown, "
