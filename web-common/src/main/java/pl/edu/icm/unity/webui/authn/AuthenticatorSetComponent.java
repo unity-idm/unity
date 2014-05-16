@@ -171,6 +171,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 
 	private void showAuthnProgress(boolean inProgress)
 	{
+		log.trace("Authn progress visible: " + inProgress);
 		progress.setVisible(inProgress);
 		cancelButton.setVisible(inProgress);
 	}
@@ -291,6 +292,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		{
 			VaadinSession session = VaadinSession.getCurrent();
 			session.lock();
+			log.trace("Authentication completed, starting processing.");
 			try
 			{
 				List<AuthenticationResult> results = new ArrayList<>(this.results);
@@ -305,14 +307,19 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 				{
 					if (e.getFormForUser() != null)
 					{
+						log.trace("Authentication successful, user unknown, "
+								+ "showing registration form");
 						showRegistration(e);
 						return;
 					} else
 					{
+						log.trace("Authentication successful, user unknown, "
+								+ "no registration form");
 						handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"));
 					}
 				} catch (AuthenticationException e)
 				{
+					log.trace("Authentication failed ", e);
 					handleError(msg.getMessage(e.getMessage()));
 				}
 				showAuthnProgress(false);
