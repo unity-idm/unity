@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.InvocationContext;
@@ -43,6 +44,12 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	
 	protected void setupUserContext(String user, boolean outdated) throws Exception
 	{
+		setupUserContext(sessionMan, identityResolver, user, outdated);
+	}
+
+	public static void setupUserContext(SessionManagement sessionMan, IdentityResolver identityResolver,
+			String user, boolean outdated) throws Exception
+	{
 		EntityWithCredential entity = identityResolver.resolveIdentity(user, new String[] {UsernameIdentity.ID}, 
 				EngineInitialization.DEFAULT_CREDENTIAL);
 		InvocationContext virtualAdmin = new InvocationContext(null);
@@ -56,7 +63,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 		InvocationContext.setCurrent(virtualAdmin);
 	}
 	
-	private AuthenticationRealm getDefaultRealm()
+	private static AuthenticationRealm getDefaultRealm()
 	{
 		return new AuthenticationRealm("DEFAULT_AUTHN_REALM", 
 				"For tests", 5, 10, -1, 30*60);

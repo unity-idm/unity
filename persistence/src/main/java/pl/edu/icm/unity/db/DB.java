@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.mapper.InitdbMapper;
 import pl.edu.icm.unity.db.model.DBLimits;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 
 
@@ -30,14 +31,14 @@ import pl.edu.icm.unity.exceptions.InternalException;
 @Component
 public class DB
 {
-	public static final String DB_VERSION = "2_1_0";
+	public static final String DB_VERSION = "2_1_1";
 	
 	private DBLimits limits;
 	private DBLimits localLimits;
 
 	@Autowired
 	public DB(DBSessionManager sessionMan, LocalDBSessionManager localSessionMan, InitDB initDB) 
-			throws InternalException, IOException
+			throws InternalException, IOException, EngineException
 	{
 		initDB.initIfNeeded();
 		verifyDBVersion(sessionMan);

@@ -27,6 +27,9 @@ public enum Styles
 	verticalLine("u-verticalLine"),
 	horizontalLine("u-horizontalLine"),
 	header("u-header"),
+	selectedButton("u-selectedButton"),
+	horizontalMargins10("u-horizontalMargins10"),
+	verticalMargins10("u-verticalMargins10"),
 	captionBold("bold");
 	
 	

@@ -37,7 +37,7 @@ public enum AuthzCapability {
 	attributeModify,
 
 	/**
-	 * Reading of hidden (local) attributes
+	 * Reading of hidden (local) attributes or internally stored identities
 	 */
 	readHidden,
 	

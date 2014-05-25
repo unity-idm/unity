@@ -34,6 +34,13 @@ public interface IdentityTypeDefinition
 	public boolean isDynamic();
 	
 	/**
+	 * @return if true then identities of this type are targeted, i.e. can have a different value 
+	 * for each and every receiver (target). This implies that the authentication realm and target are mandatory
+	 * parameters for the methods as e.g. the {@link #getComparableValue(String, String, String)}.
+	 */
+	public boolean isTargeted();
+	
+	/**
 	 * 
 	 * @return set of attribute types that can be extracted from the identity of this type.
 	 * It can be assumed that at least name, description and syntax are set. The attribute types from this 
@@ -50,11 +57,15 @@ public interface IdentityTypeDefinition
 	
 	/**
 	 * Comparable value must be guaranteed to be unique for the type, i.e. if two
-	 * values are the same (case sensitive), then the identities represent the same principal. 
-	 * @param from
-	 * @return
+	 * values are the same (case sensitive), then the identities represent the same principal.
+	 * @param from mandatory raw identity value
+	 * @param realm realm value, can be null
+	 * @param target target for which the identity is going to be used, can be null
+	 * @return comparable value of the string
+	 * @throws IllegalIdentityValueException if some parameters are null and the implementation 
+	 * requires them to create a comparable value.
 	 */
-	public String getComparableValue(String from);
+	public String getComparableValue(String from, String realm, String target) throws IllegalIdentityValueException;
 	
 	/**
 	 * Extract provided attributes.
@@ -84,37 +95,41 @@ public interface IdentityTypeDefinition
 	public String toString(String from);
 	
 	/**
-	 * Converts the in-DB representation to external form. The implementation may perform arbitrary modifications:
-	 * from none to produce a totally new version.
+	 * Converts the in-DB representation to external form. The implementation may perform arbitrary modifications
+	 * of the inDbValue.
 	 * @param realm authentication realm identifier or null if no realm is defined
 	 * @param target null or an identifier of a receiver of the identity.
 	 * @param inDbValue the in-db representation
-	 * @return null if no identity should be returned or an external version of identity.
+	 * @return 
+	 * @throws IllegalIdentityValueException 
 	 */
-	public String toExternalForm(String realm, String target, String inDbValue);
+	public String toExternalForm(String realm, String target, String inDbValue, String comparableValue) 
+			throws IllegalIdentityValueException;
+
+	/**
+	 * Converts the in-DB representation to the external form. The implementation must not use any 
+	 * context information, ignore target or realm.
+	 * @param inDbValue the in-db representation
+	 * @return identity value in external form
+	 */
+	public String toExternalFormNoContext(String inDbValue, String comparableValue);
 	
 	/**
 	 * Tries to create a new identity. 
 	 * @param realm authentication realm identifier or null if no realm is defined
 	 * @param target null or the receiver of the created identity
-	 * @param inDbValue the current data of the identity.
-	 * @return null if the inDbValue was unchanged or an updated version 
-	 * of the inDbValue that should be written to the DB. 
+	 * @param value externally provided value or null if the implementation is expected to create the value dynamically.
+	 * @return new representation of identity to be stored in database
 	 * @throws IllegalTypeException if the creation failed
 	 */
-	public String createNewIdentity(String realm, String target, String inDbValue) 
+	public IdentityRepresentation createNewIdentity(String realm, String target, String value) 
 			throws IllegalTypeException;
 	
 	/**
-	 * Tries to reset a dynamic identity. Optionally the reset may be done only for a specified realm and target. 
-	 * @param realm authentication realm identifier or null if no realm filtering shall be done
-	 * @param target the receiver of the identity to be reset or null if no target filtering should be done
-	 * @param inDbValue the current data of the identity.
-	 * @return an updated version of the inDbValue that should be written to the DB. 
-	 * @throws IllegalTypeException if the reset failed
+	 * Checks if the identity is expired. 
+	 * @param representation in db representation of the identity
+	 * @return true if expired, false otherwise 
 	 */
-	public String resetIdentity(String realm, String target, String inDbValue) 
-			throws IllegalTypeException;
-	
+	public boolean isExpired(IdentityRepresentation representation); 
 }
 

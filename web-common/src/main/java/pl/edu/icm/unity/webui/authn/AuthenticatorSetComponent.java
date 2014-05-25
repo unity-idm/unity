@@ -171,6 +171,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 
 	private void showAuthnProgress(boolean inProgress)
 	{
+		log.trace("Authn progress visible: " + inProgress);
 		progress.setVisible(inProgress);
 		cancelButton.setVisible(inProgress);
 	}
@@ -253,6 +254,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		@Override
 		public synchronized void setAuthenticationResult(AuthenticationResult result)
 		{
+			log.trace("Received authentication result nr " + (results.size() + 1));
 			results.add(result);
 			if (results.size() == numberOfAuthenticators)
 				authnDone();
@@ -267,13 +269,21 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		public synchronized void authenticationCancelled(boolean signalAuthenticators)
 		{
 			this.results.clear();
-			authenticateButton.setEnabled(true);
-			showAuthnProgress(false);
-			authnDone = true;
-			if (signalAuthenticators)
+			VaadinSession session = VaadinSession.getCurrent();
+			session.lock();
+			try
 			{
-				for (VaadinAuthenticationUI vaadinAuth: authenticators.values())
-					vaadinAuth.cancelAuthentication();
+				authenticateButton.setEnabled(true);
+				showAuthnProgress(false);
+				authnDone = true;
+				if (signalAuthenticators)
+				{
+					for (VaadinAuthenticationUI vaadinAuth: authenticators.values())
+						vaadinAuth.cancelAuthentication();
+				}
+			} finally
+			{
+				session.unlock();
 			}
 		}
 		
@@ -291,6 +301,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		{
 			VaadinSession session = VaadinSession.getCurrent();
 			session.lock();
+			log.trace("Authentication completed, starting processing.");
 			try
 			{
 				List<AuthenticationResult> results = new ArrayList<>(this.results);
@@ -305,14 +316,18 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 				{
 					if (e.getFormForUser() != null)
 					{
+						log.trace("Authentication successful, user unknown, "
+								+ "showing registration form");
 						showRegistration(e);
-						return;
 					} else
 					{
+						log.trace("Authentication successful, user unknown, "
+								+ "no registration form");
 						handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"));
 					}
 				} catch (AuthenticationException e)
 				{
+					log.trace("Authentication failed ", e);
 					handleError(msg.getMessage(e.getMessage()));
 				}
 				showAuthnProgress(false);

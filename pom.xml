@@ -24,7 +24,7 @@
 		<spring.version>4.0.1.RELEASE</spring.version>
 		<vaadin.version>7.0.7</vaadin.version>
 		<cxf.version>2.7.11</cxf.version>
-
+		<oltu.version>1.0.0</oltu.version>
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
@@ -51,6 +51,7 @@
 		<module>saml</module>
 		<module>unicore</module>
 		<module>ldap</module>
+		<module>oauth</module>
 		<module>distribution</module>
 	</modules>
 
@@ -226,7 +227,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>4.0.1</version>
+				<version>4.0.2-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>pl.edu.icm.saml</groupId>
@@ -354,6 +355,11 @@
 		 		<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
 				<version>4.2.4</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nimbusds</groupId>
+				<artifactId>oauth2-oidc-sdk</artifactId>
+				<version>3.1</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

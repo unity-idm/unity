@@ -289,15 +289,33 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Entity getEntity(EntityParam entity) throws EngineException
 	{
 		return getEntity(entity, null, true);
 	}
-
+	
+	@Override
+	public Entity getEntityNoContext(EntityParam entity) throws EngineException
+	{
+		entity.validateInitialization();
+		SqlSession sqlMap = db.getSqlSession(true);
+		try
+		{
+			long entityId = idResolver.getEntityId(entity, sqlMap);
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.readHidden);
+			Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
+			CredentialInfo credInfo = getCredentialInfo(entityId, sqlMap);
+			EntityState theState = dbIdentities.getEntityStatus(entityId, sqlMap);
+			Entity ret = new Entity(entityId, identities, theState, credInfo);
+			sqlMap.commit();
+			return ret;
+		} finally
+		{
+			db.releaseSqlSession(sqlMap);
+		}
+	}
+	
 	@Override
 	public Entity getEntity(EntityParam entity, String target, boolean allowCreate)
 			throws EngineException

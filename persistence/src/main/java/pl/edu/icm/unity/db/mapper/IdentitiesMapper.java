@@ -31,6 +31,7 @@ public interface IdentitiesMapper
 	public void insertIdentity(IdentityBean arg);
 	public void updateIdentity(IdentityBean arg);
 	public void deleteIdentity(String cmpVal);
+	public void deleteAllIdentities();
 	public IdentityBean getIdentityByName(String name);
 	public List<IdentityBean> getIdentities();
 	public List<IdentityBean> getIdentitiesByEntity(long entityId);

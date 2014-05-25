@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.idp.processor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import org.apache.xmlbeans.XmlObject;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.Assertion;
+import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.proto.AssertionResponse;
 import eu.unicore.security.dsig.DSigException;
@@ -35,11 +37,18 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
+import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
+import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
+import pl.edu.icm.unity.stdext.identity.TransientIdentity;
+import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.Identity;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationDataType;
@@ -112,12 +121,14 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	 * @return
 	 */
 	public Map<String, Attribute<?>> prepareReleasedAttributes(Collection<AttributeExt<?>> allAttribtues, 
-			Collection<String> allGroups)
+			Collection<String> allGroups, Entity entity)
 	{
 		Map<String, Attribute<?>> ret = new HashMap<String, Attribute<?>>();
 		Attribute<?> groupAttr = createGroupAttribute(allGroups);
 		if (groupAttr != null)
 			ret.put(groupAttr.getName(), groupAttr);
+		addIdentityAttributes(entity, ret);
+		
 		AttributeFilters filter = samlConfiguration.getAttributeFilter();
 		filter.filter(allAttribtues, getRequestIssuer());
 		
@@ -129,6 +140,30 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		return ret;
 	}
 
+	private void addIdentityAttributes(Entity entity, Map<String, Attribute<?>> ret)
+	{
+		for (Identity identity: entity.getIdentities())
+		{
+			if (identity.getType().getIdentityTypeProvider().isTargeted())
+				continue;
+			String name = "unity:identity:" + identity.getTypeId();
+			
+			StringAttribute sa = (StringAttribute) ret.get(name);
+			if (sa != null)
+			{
+				List<String> newValues = new ArrayList<String>(sa.getValues());
+				newValues.add(identity.getValue());
+				sa.setValues(newValues);
+			} else
+			{
+				sa = new StringAttribute(name, 
+						"/", AttributeVisibility.full, identity.getValue());
+				ret.put(sa.getName(), sa);
+			}
+		}
+	}
+	
+	
 	private Attribute<String> createGroupAttribute(Collection<String> allGroups)
 	{
 		GroupsSelection mode = samlConfiguration.getEnumValue(SamlIdpProperties.GROUP_SELECTION, 
@@ -277,15 +312,57 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		Collection<String> allGroups = identitiesMan.getGroups(entity);
 		Collection<AttributeExt<?>> allAttribtues = attributesMan.getAttributes(
 				entity, processor.getChosenGroup(), null);
+		Entity fullEntity = identitiesMan.getEntity(entity);
 		if (log.isTraceEnabled())
 			log.trace("Attributes to be returned (before postprocessing): " + 
-					allAttribtues + "\nGroups: " + allGroups);
-		Map<String, Attribute<?>> all = processor.prepareReleasedAttributes(allAttribtues, allGroups);
+					allAttribtues + "\nGroups: " + allGroups + "\nIdentities: " + 
+					Arrays.toString(fullEntity.getIdentities()));
+		Map<String, Attribute<?>> all = processor.prepareReleasedAttributes(allAttribtues, allGroups, 
+				fullEntity);
 		Set<String> hidden = preferences.getHiddenAttribtues();
 		for (String hiddenA: hidden)
 			all.remove(hiddenA);
 		if (log.isDebugEnabled())
 			log.debug("Processed attributes to be returned: " + all.values());
 		return all.values();
+	}
+	
+	/**
+	 * Converts SAML identity format to Unity identity format
+	 * @param samlIdFormat
+	 * @return
+	 * @throws SAMLRequesterException
+	 */
+	protected String getUnityIdentityFormat(String samlIdFormat) throws SAMLRequesterException
+	{
+		if (samlIdFormat.equals(SAMLConstants.NFORMAT_PERSISTENT) || 
+				samlIdFormat.equals(SAMLConstants.NFORMAT_UNSPEC))
+		{
+			return TargetedPersistentIdentity.ID;
+		} else if (samlIdFormat.equals(SAMLConstants.NFORMAT_DN))
+		{
+			return X500Identity.ID;
+		} else if (samlIdFormat.equals(SAMLConstants.NFORMAT_TRANSIENT))
+		{
+			return TransientIdentity.ID;
+		} else 
+//FIXME remove 			
+		if (samlIdFormat.equals("unity:persistent"))
+		{
+			return PersistentIdentity.ID;
+		} else if (samlIdFormat.equals("unity:identifier"))
+		{
+			return IdentifierIdentity.ID;
+		} else
+//FIXME remove end
+		{
+			throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_INVALID_NAMEID_POLICY,
+					samlIdFormat + " is not supported by this service.");
+		}
+	}
+	
+	public String getIdentityTarget()
+	{
+		return context.getRequest().getIssuer().getStringValue();
 	}
 }

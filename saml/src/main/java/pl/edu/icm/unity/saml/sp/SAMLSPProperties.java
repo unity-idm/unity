@@ -172,11 +172,6 @@ public class SAMLSPProperties extends SamlProperties
 					" must be set if metadata publication is enabled.");
 	}
 	
-	public Properties getProperties()
-	{
-		return properties;
-	}
-	
 	public X509Credential getRequesterCredential()
 	{
 		String credential = getValue(SAMLSPProperties.CREDENTIAL);

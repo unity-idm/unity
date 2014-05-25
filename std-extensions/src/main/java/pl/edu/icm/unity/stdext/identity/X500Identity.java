@@ -123,7 +123,7 @@ public class X500Identity extends AbstractStaticIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getComparableValue(String from)
+	public String getComparableValue(String from, String realm, String target)
 	{
 		return X500NameUtils.getComparableForm(from);
 	}

@@ -5,10 +5,12 @@
 package pl.edu.icm.unity.db;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
+import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,9 +27,11 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.IdentityRepresentation;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
@@ -39,6 +43,7 @@ import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 @Component
 public class DBIdentities
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, DBIdentities.class);
 	private DBLimits limits;
 	private IdentitySerializer idSerializer;
 	private EntitySerializer entitySerializer;
@@ -142,8 +147,18 @@ public class DBIdentities
 			throw new InternalException("The identity type id is not stored in the database: " + 
 					idTypeDef.getId());
 		idTypeDef.validate(toAdd.getValue());
-		String cmpVal = idTypeDef.isDynamic() ? UUID.randomUUID().toString() : 
-			IdentitiesResolver.getComparableIdentityValue(toAdd, idTypeDef);
+		if (idTypeDef.isTargeted())
+		{
+			if (toAdd.getTarget() == null || toAdd.getRealm() == null)
+				throw new IllegalIdentityValueException("The identity target and realm are required "
+						+ "for identity type " + idTypeDef.getId());
+		} else
+		{
+			if (toAdd.getTarget() != null || toAdd.getRealm() != null)
+				throw new IllegalIdentityValueException("The identity target and realm must not be set "
+						+ "for identity type " + idTypeDef.getId());
+		}
+		String cmpVal = IdentitiesResolver.getComparableIdentityValue(toAdd, idTypeDef);
 		if (mapper.getIdentityByName(cmpVal) != null)
 			throw new IllegalIdentityValueException("The identity with this value is already present");
 		limits.checkNameLimit(cmpVal);
@@ -163,7 +178,8 @@ public class DBIdentities
 		mapper.insertIdentity(idB);
 		
 		IdentityType idType = idResolver.resolveIdentityType(identityTypeB);
-		return new Identity(idType, toAdd.getValue(), entityId, toAdd.isLocal());
+		return new Identity(idType, toAdd.getValue(), entityId, toAdd.isLocal(), 
+				toAdd.getRealm(), toAdd.getTarget());
 	}
 
 	
@@ -173,15 +189,79 @@ public class DBIdentities
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
 		List<IdentityBean> rawRet = mapper.getIdentitiesByEntity(entityId);
 		List<Identity> ret = new ArrayList<Identity>(rawRet.size());
+		Set<String> presentTypes = new HashSet<String>();
 		for (int i=0; i<rawRet.size(); i++)
 		{
-			Identity id = idResolver.resolveIdentityBean(rawRet.get(i), mapper, target, allowCreate);
+			Identity id = idResolver.resolveIdentityBean(rawRet.get(i), mapper, target);
+			if (id != null)
+			{
+				ret.add(id);
+				presentTypes.add(id.getTypeId());
+			}
+		}
+		if (allowCreate)
+			addDynamic(entityId, presentTypes, ret, target, mapper);
+		return ret.toArray(new Identity[ret.size()]);
+	}
+
+	public Identity[] getIdentitiesForEntityNoContext(long entityId, SqlSession sqlMap) 
+			throws IllegalTypeException
+	{
+		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
+		List<IdentityBean> rawRet = mapper.getIdentitiesByEntity(entityId);
+		List<Identity> ret = new ArrayList<Identity>(rawRet.size());
+		for (int i=0; i<rawRet.size(); i++)
+		{
+			Identity id = idResolver.resolveIdentityBeanNoContext(rawRet.get(i), mapper);
 			if (id != null)
 				ret.add(id);
 		}
 		return ret.toArray(new Identity[ret.size()]);
 	}
-
+	
+	public void removeExpiredIdentities(SqlSession sqlMap)
+	{
+		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
+		List<IdentityBean> rawRet = mapper.getIdentities();
+		for (IdentityBean identityBean: rawRet)
+		{
+			Identity resolved;
+			try
+			{
+				resolved = idResolver.resolveIdentityBeanNoExternalize(identityBean, mapper);
+			} catch (IllegalTypeException e)
+			{
+				log.error("Can't resolve an identity stored in DB", e);
+				continue;
+			}
+			IdentityRepresentation idRepresentation = new IdentityRepresentation(identityBean.getName(), 
+					resolved.getValue());
+			if (resolved.getType().getIdentityTypeProvider().isExpired(idRepresentation))
+			{
+				log.debug("Removing expired identity " + resolved);
+				mapper.deleteIdentity(identityBean.getName());
+			}
+		}
+	}
+	
+	/**
+	 * Creates dynamic identities which are currently absent for the entity.
+	 */
+	private void addDynamic(long entityId, Set<String> presentTypes, List<Identity> ret, String target, 
+			IdentitiesMapper mapper)
+	{
+		for (IdentityTypeDefinition idType: idTypesRegistry.getDynamic())
+		{
+			if (presentTypes.contains(idType.getId()))
+				continue;
+			if (idType.isTargeted() && target == null)
+				continue;
+			Identity added = idResolver.createDynamicIdentity(idType, entityId, mapper, target);
+			if (added != null)
+				ret.add(added);
+		}
+	}
+	
 	public void resetIdentityForEntity(long entityId, String type, String realm, String target, SqlSession sqlMap) 
 			throws IllegalTypeException
 	{
@@ -193,11 +273,13 @@ public class DBIdentities
 			if (id.getTypeId().equals(type))
 			{
 				IdentityTypeDefinition idTypeImpl = id.getType().getIdentityTypeProvider();
-				String updated = idTypeImpl.resetIdentity(realm, target, id.getValue());
-				id.setValue(updated);
-				idBean.setContents(idSerializer.toJson(id));
-				mapper.updateIdentity(idBean);
-				return;
+				if (!idTypeImpl.isDynamic())
+					throw new IllegalTypeException("Reset is possible for dynamic identity types only");
+				if (realm != null && !realm.equals(id.getRealm()))
+					continue;
+				if (target != null && !target.equals(id.getTarget()))
+					continue;
+				mapper.deleteIdentity(idBean.getName());
 			}
 		}
 		throw new IllegalTypeException("The " + type + " is not defined for the entity");
@@ -222,16 +304,18 @@ public class DBIdentities
 		mapper.updateEntity(bean);
 	}
 	
-	public void removeIdentity(IdentityTaV toRemove, SqlSession sqlMap) throws IllegalIdentityValueException, IllegalTypeException
+	public void removeIdentity(IdentityTaV toRemove, SqlSession sqlMap) throws IllegalIdentityValueException, 
+		IllegalTypeException
 	{
 		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(toRemove.getTypeId());
 		if (idTypeDef == null)
 			throw new IllegalIdentityValueException("The identity type is unknown");
 		if (idTypeDef.isDynamic())
-			throw new IllegalIdentityValueException("The system identity can not be removed without removing the containing entity.");
+			throw new IllegalIdentityValueException("The dynamic identity can not be removed "
+					+ "without removing the containing entity.");
 		
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
-		String cmpVal = idResolver.getComparableIdentityValue(toRemove);
+		String cmpVal = IdentitiesResolver.getComparableIdentityValue(toRemove, idTypeDef);
 		IdentityBean idBean = mapper.getIdentityByName(cmpVal); 
 		if (idBean == null)
 			throw new IllegalIdentityValueException("The identity does not exist");
