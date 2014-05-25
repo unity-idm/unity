@@ -11,7 +11,7 @@ import pl.edu.icm.unity.server.utils.RemoteAuthnState;
 
 
 /**
- * Context of a remote SAML authentication. Stored in HTTP session. Basically thread safe.
+ * Context of a remote SAML authentication. Basically thread safe.
  * @author K. Benedyczak
  */
 public class RemoteAuthnContext extends RemoteAuthnState implements Serializable

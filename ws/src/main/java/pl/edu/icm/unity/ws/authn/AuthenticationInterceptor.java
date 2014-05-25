@@ -129,9 +129,14 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 			AuthenticationResult result = authnCache.get(authenticator.getKey());
 			if (result == null)
 			{
+				log.trace("Processing authenticator " + authenticator.getKey());
 				CXFAuthentication myAuth = (CXFAuthentication) authenticator.getValue();
 				result = myAuth.getAuthenticationResult();
 				authnCache.put(authenticator.getKey(), result);
+				log.trace("Authenticator " + authenticator.getKey() + " returned " + result);
+			} else
+			{
+				log.trace("Using cached result of " + authenticator.getKey() + ": " + result);
 			}
 			setResult.add(result);
 		}

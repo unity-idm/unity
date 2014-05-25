@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.xmlbeans.XmlException;
@@ -17,16 +15,11 @@ import org.apache.xmlbeans.XmlException;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.assertion.AttributeAssertionParser;
-import eu.unicore.samly2.attrprofile.ParsedAttribute;
-import eu.unicore.samly2.exceptions.SAMLValidationException;
-import eu.unicore.samly2.trust.SamlTrustChecker;
-import eu.unicore.samly2.validators.AssertionValidator;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
-import eu.unicore.samly2.validators.SSOAuthnResponseValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SAMLHelper;
+import pl.edu.icm.unity.saml.SAMLResponseValidatorUtil;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
@@ -37,13 +30,8 @@ import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
-import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
-import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
-import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
-import xmlbeans.org.oasis.saml2.assertion.AssertionDocument;
-import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
@@ -56,10 +44,10 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 {
 	private SAMLSPProperties samlProperties;
 	private PKIManagement pkiMan;
-	private ReplayAttackChecker replayAttackChecker;
 	private MultiMetadataServlet metadataServlet;
 	private ExecutorsService executorsService;
 	private String responseConsumerAddress;
+	private SAMLResponseValidatorUtil responseValidatorUtil;
 	
 	public SAMLVerificator(String name, String description, TranslationProfileManagement profileManagement, 
 			AttributesManagement attrMan, PKIManagement pkiMan, ReplayAttackChecker replayAttackChecker,
@@ -68,10 +56,11 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	{
 		super(name, description, SAMLExchange.ID, profileManagement, attrMan);
 		this.pkiMan = pkiMan;
-		this.replayAttackChecker = replayAttackChecker;
 		this.metadataServlet = metadataServlet;
 		this.executorsService = executorsService;
 		this.responseConsumerAddress = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
+		this.responseValidatorUtil = new SAMLResponseValidatorUtil(samlProperties, 
+				replayAttackChecker, baseContext);
 	}
 
 	@Override
@@ -133,10 +122,10 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	@Override
 	public AuthnRequestDocument createSAMLRequest(String idpKey) throws InternalException
 	{
-		boolean sign = samlProperties.getBooleanValue(idpKey + SAMLSPProperties.IDP_SIGN_REQUEST);
+		boolean sign = samlProperties.isSignRequest(idpKey);
 		String requesterId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
 		String identityProviderURL = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_ADDRESS);
-		String requestedNameFormat = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_REQUESTED_NAME_FORMAT);
+		String requestedNameFormat = samlProperties.getRequestedNameFormat(idpKey);
 		X509Credential credential = sign ? samlProperties.getRequesterCredential() : null;
 		return SAMLHelper.createSAMLRequest(responseConsumerAddress, sign, requesterId, identityProviderURL,
 				requestedNameFormat, credential);
@@ -155,106 +144,12 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 					"XML data is corrupted", e);
 		}
 		
-		String consumerSamlName = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
 		
-		SamlTrustChecker samlTrustChecker;
-		try
-		{
-			samlTrustChecker = samlProperties.getTrustChecker();
-		} catch (ConfigurationException e1)
-		{
-			throw new AuthenticationException("The SAML response can not be verified - " +
-					"there is an internal configuration error", e1);
-		}
-		
-		SSOAuthnResponseValidator validator = new SSOAuthnResponseValidator(
-				consumerSamlName, responseConsumerAddress, 
-				context.getRequestId(), AssertionValidator.DEFAULT_VALIDITY_GRACE_PERIOD, 
-				samlTrustChecker, replayAttackChecker, 
-				SAMLBindings.valueOf(context.getResponseBinding().toString()));
-		
-		try
-		{
-			validator.validate(responseDocument);
-		} catch (SAMLValidationException e)
-		{
-			throw new AuthenticationException("The SAML response is either invalid or is issued " +
-					"by an untrusted identity provider.", e);
-		}
-
-		RemotelyAuthenticatedInput input = convertAssertion(responseDocument, validator, 
+		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDocument, 
+				context.getRequestId(), 
+				SAMLBindings.valueOf(context.getResponseBinding().toString()), 
 				context.getGroupAttribute());
-
 		return getResult(input, context.getTranslationProfile());
-	}
-	
-	private RemotelyAuthenticatedInput convertAssertion(ResponseDocument responseDocument,
-			SSOAuthnResponseValidator validator, String groupA) throws AuthenticationException
-	{
-		NameIDType issuer = responseDocument.getResponse().getIssuer();
-		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput(issuer.getStringValue());
-		
-		input.setIdentities(getAuthenticatedIdentities(validator));
-		List<RemoteAttribute> remoteAttributes = getAttributes(validator);
-		input.setAttributes(remoteAttributes);
-		input.setGroups(getGroups(remoteAttributes, groupA));
-		
-		return input;
-	}
-	
-	private List<RemoteIdentity> getAuthenticatedIdentities(SSOAuthnResponseValidator validator)
-	{
-		List<AssertionDocument> authnAssertions = validator.getAuthNAssertions();
-		List<RemoteIdentity> ret = new ArrayList<>(authnAssertions.size());
-		for (int i=0; i<authnAssertions.size(); i++)
-		{
-			NameIDType samlName = authnAssertions.get(i).getAssertion().getSubject().getNameID();
-			ret.add(new RemoteIdentity(samlName.getStringValue(), samlName.getFormat()));
-		}
-		return ret;
-	}
-	
-	private List<RemoteAttribute> getAttributes(SSOAuthnResponseValidator validator) throws AuthenticationException
-	{
-		List<AssertionDocument> assertions = validator.getOtherAssertions();
-		List<RemoteAttribute> ret = new ArrayList<>(assertions.size());
-		for (AssertionDocument assertion: assertions)
-		{
-			AttributeAssertionParser parser = new AttributeAssertionParser(assertion);
-			List<ParsedAttribute> parsedAttrs;
-			try
-			{
-				parsedAttrs = parser.getAttributes();
-			} catch (SAMLValidationException e)
-			{
-				throw new AuthenticationException("Problem retrieving attributes from the SAML data", e);
-			}
-			for (ParsedAttribute pa: parsedAttrs)
-			{
-				List<String> strValues = pa.getStringValues();
-				ret.add(new RemoteAttribute(pa.getName(), 
-						(Object[]) strValues.toArray(new String[strValues.size()])));
-			}
-		}
-		return ret;
-	}
-	
-	private List<RemoteGroupMembership> getGroups(List<RemoteAttribute> remoteAttributes, String groupA)
-	{
-		List<RemoteGroupMembership> ret = new ArrayList<>();
-		if (groupA == null)
-			return ret;
-		for (RemoteAttribute ra: remoteAttributes)
-		{
-			if (ra.getName().equals(groupA))
-			{
-				for (Object value: ra.getValues())
-				{
-					ret.add(new RemoteGroupMembership((String) value));
-				}
-			}
-		}
-		return ret;
 	}
 	
 	@Override

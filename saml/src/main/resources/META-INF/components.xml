@@ -10,6 +10,7 @@
 	</bean>		
 
 	<bean class="pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory"/>
+	<bean class="pl.edu.icm.unity.saml.ecp.ECPEndpointFactory"/>
 	
 	<bean class="pl.edu.icm.unity.saml.idp.FreemarkerHandler"/>	
 	<bean class="pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory"/>
@@ -18,6 +19,7 @@
 	
 	<bean class="eu.unicore.samly2.validators.ReplayAttackChecker"/>
 	<bean class="pl.edu.icm.unity.saml.sp.SamlContextManagement"/>
+	<bean class="pl.edu.icm.unity.saml.ecp.ECPContextManagement"/>
 	<bean class="pl.edu.icm.unity.saml.sp.SAMLVerificatorFactory"/>
 	<bean class="pl.edu.icm.unity.saml.sp.web.SAMLRetrievalFactory"/>
 	

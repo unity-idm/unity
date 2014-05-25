@@ -35,7 +35,6 @@ public class SAMLSPProperties extends SamlProperties
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, SAMLSPProperties.class);
 	
-	public static final String ECP_KEY = "ECP.";
 	/**
 	 * Note: it is intended that {@link SAMLBindings} is not used here: we want to have only the 
 	 * supported bindings here. However the names here must be exactly the same as in {@link SAMLBindings}.
@@ -53,6 +52,9 @@ public class SAMLSPProperties extends SamlProperties
 	public static final String ACCEPTED_NAME_FORMATS = "acceptedNameFormats.";
 	public static final String DISPLAY_NAME = "displayName";
 	public static final String METADATA_PATH = "metadataPath";
+	
+	public static final String DEF_SIGN_REQUEST = "defaultSignRequest";
+	public static final String DEF_REQUESTED_NAME_FORMAT = "defaultRequestedNameFormat";
 	
 	public static final String IDP_PREFIX = "remoteIdp.";
 	public static final String IDP_NAME = "name";
@@ -121,6 +123,12 @@ public class SAMLSPProperties extends SamlProperties
 		META.put(ACCEPTED_NAME_FORMATS, new PropertyMD().setList(false).setCategory(verificator).setDescription(
 				"If defined then specifies what SAML name formatd are accepted from IdP. " +
 				"Useful when the property " + IDP_REQUESTED_NAME_FORMAT + " is undefined for at least one IdP. "));
+
+		META.put(DEF_SIGN_REQUEST, new PropertyMD("false").setCategory(common).setDescription(
+				"Default setting of request signing. Used for those IdPs, for which the setting is not set explicitly."));
+		META.put(DEF_REQUESTED_NAME_FORMAT, new PropertyMD().setCategory(common).setDescription(
+				"Default setting of requested identity format. Used for those IdPs, for which the setting is not set explicitly."));
+
 		
 		META.put(DISPLAY_NAME, new PropertyMD("SAML authentication").setCategory(webRetrieval).setDescription(
 				"Name of the SAML authentication GUI component"));
@@ -138,7 +146,7 @@ public class SAMLSPProperties extends SamlProperties
 		boolean sign = false;
 		for (String idpKey: idpKeys)
 		{
-			boolean s = getBooleanValue(idpKey+IDP_SIGN_REQUEST);  
+			boolean s = isSignRequest(idpKey);  
 			sign |= s;
 			if (s && getEnumValue(idpKey+IDP_BINDING, Binding.class) == Binding.HTTP_REDIRECT)
 			{
@@ -207,5 +215,19 @@ public class SAMLSPProperties extends SamlProperties
 			trustChecker.addTrustedIssuer(idpId, SAMLConstants.NFORMAT_ENTITY, idpCert.getPublicKey());
 		}
 		return trustChecker;
+	}
+	
+	public boolean isSignRequest(String idpKey)
+	{
+		return isSet(idpKey + IDP_SIGN_REQUEST) ? 
+				getBooleanValue(idpKey + IDP_SIGN_REQUEST) : 
+				getBooleanValue(idpKey + DEF_SIGN_REQUEST);
+	}
+	
+	public String getRequestedNameFormat(String idpKey)
+	{
+		return isSet(idpKey + IDP_REQUESTED_NAME_FORMAT) ? 
+				getValue(idpKey + IDP_REQUESTED_NAME_FORMAT) : 
+				getValue(idpKey + DEF_REQUESTED_NAME_FORMAT);
 	}
 }

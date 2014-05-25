@@ -62,12 +62,17 @@ public class HttpBasicRetrieval implements CredentialRetrieval, CXFAuthenticatio
 	{
 		HTTPAuthNTokens authnTokens = getHTTPCredentials();
 		if (authnTokens == null)
+		{
+			log.trace("No HTTP BASIC auth header was found");
 			return new AuthenticationResult(Status.notApplicable, null);
+		}
+		log.trace("HTTP BASIC auth header found");
 		try
 		{
 			return credentialExchange.checkPassword(authnTokens.getUserName(), authnTokens.getPasswd());
 		} catch (Exception e)
 		{
+			log.trace("HTTP BASIC credential is invalid");
 			return new AuthenticationResult(Status.deny, null);
 		}
 	}
