@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -69,9 +70,10 @@ public class TestRESTCore extends DBIntegrationTestBase
 		clientCfg.setHttpAuthn(true);
 
 		HttpClient client = HttpUtils.createClient("https://localhost:53456", clientCfg);
-
+		HttpHost host = new HttpHost("localhost", 53456, "https");
+		
 		HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
-		HttpResponse response = client.execute(get);
+		HttpResponse response = client.execute(host, get);
 		System.out.println(EntityUtils.toString(response.getEntity()));
 	}
 	

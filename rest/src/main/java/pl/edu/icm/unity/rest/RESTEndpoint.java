@@ -11,10 +11,13 @@ import java.util.Properties;
 
 import javax.ws.rs.core.Application;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.jaxrs.JAXRSBindingFactory;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
-import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet;
+import org.apache.cxf.jaxrs.utils.ResourceUtils;
+import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
@@ -62,32 +65,36 @@ public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEnd
 
 	protected abstract Application getApplication();
 
-	private void deployResources()
+	private void deployResources(Bus bus)
 	{
-		JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
-		sf.setApplication(getApplication());
-		sf.setAddress("/");
-		BindingFactoryManager manager = sf.getBus().getExtension(BindingFactoryManager.class);
+		JAXRSServerFactoryBean sf = ResourceUtils.createApplication(getApplication(), false);
+		sf.setBus(bus);
+		
 		JAXRSBindingFactory factory = new JAXRSBindingFactory();
-		factory.setBus(sf.getBus());
+		factory.setBus(bus);
+		
+		BindingFactoryManager manager = bus.getExtension(BindingFactoryManager.class);
 		manager.registerBindingFactory(JAXRSBindingFactory.JAXRS_BINDING_ID, factory);
+		
 		sf.create();
 	}
 	
 	@Override
 	public ServletContextHandler getServletContextHandler()
 	{
-		CXFNonSpringJaxrsServlet cxf = new CXFNonSpringJaxrsServlet();
-		
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
 		context.setContextPath(description.getContextAddress());
 		
-		ServletHolder servlet = new ServletHolder(cxf);
+		CXFNonSpringServlet cxfServlet = new CXFNonSpringServlet();
+		Bus bus = BusFactory.newInstance().createBus();
+		cxfServlet.setBus(bus);
+		
+		ServletHolder servlet = new ServletHolder(cxfServlet);
 		servlet.setName("services");
 		servlet.setForcedPath("services");
 		context.addServlet(servlet, servletPath + "/*");
 		
-		deployResources();
+		deployResources(bus);
 		return context;
 	}
 	

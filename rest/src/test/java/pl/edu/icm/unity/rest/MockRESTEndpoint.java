@@ -31,20 +31,22 @@ public class MockRESTEndpoint extends RESTEndpoint
 	}
 
 	@ApplicationPath("/test")
-	private static class JAXRSProvider extends Application
+	public static class JAXRSProvider extends Application
 	{
+		private MockResource res = new MockResource();
+		
 		@Override 
 		public Set<Object> getSingletons() 
 		{
 			HashSet<Object> ret = new HashSet<>();
-			ret.add(new MockResource());
+			ret.add(res);
 			return ret;
 		}
 	}
 	
 	@Path("/r1/")
 	@Produces("text/plain")
-	private static class MockResource
+	public static class MockResource
 	{
 		@GET
 		public String getDate() 
