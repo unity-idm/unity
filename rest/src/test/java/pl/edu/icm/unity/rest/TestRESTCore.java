@@ -74,6 +74,7 @@ public class TestRESTCore extends DBIntegrationTestBase
 		
 		HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
 		HttpResponse response = client.execute(host, get);
+		assertEquals(response.getStatusLine().toString(), 200, response.getStatusLine().getStatusCode());
 		System.out.println(EntityUtils.toString(response.getEntity()));
 	}
 	

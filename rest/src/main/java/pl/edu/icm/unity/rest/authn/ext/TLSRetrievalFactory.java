@@ -2,24 +2,24 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.ws.authn.ext;
+package pl.edu.icm.unity.rest.authn.ext;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.CredentialRetrievalFactory;
-import pl.edu.icm.unity.stdext.credential.PasswordExchange;
-import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
+import pl.edu.icm.unity.stdext.credential.CertificateExchange;
 
 /**
- * Factory of {@link HttpBasicRetrieval}
+ * Factory of {@link TLSRetrieval}
  * @author K. Benedyczak
  */
 @Component
-public class HttpBasicRetrievalFactory implements CredentialRetrievalFactory
+public class TLSRetrievalFactory implements CredentialRetrievalFactory
 {
-	public static final String NAME = "cxf-httpbasic";
+	public static final String NAME = "rest-certificate";
 	
 	@Override
 	public String getName()
@@ -30,24 +30,24 @@ public class HttpBasicRetrievalFactory implements CredentialRetrievalFactory
 	@Override
 	public String getDescription()
 	{
-		return "CXFHttpBasicRetrievalFactory.desc";
+		return "CXFTLSRetrievalFactory.desc";
 	}
 
 	@Override
 	public CredentialRetrieval newInstance()
 	{
-		return new HttpBasicRetrieval();
+		return new TLSRetrieval();
 	}
 
 	@Override
 	public String getSupportedBinding()
 	{
-		return WebServiceAuthentication.NAME;
+		return JAXRSAuthentication.NAME;
 	}
 
 	@Override
 	public boolean isCredentialExchangeSupported(CredentialExchange e)
 	{
-		return e instanceof PasswordExchange;
+		return e instanceof CertificateExchange;
 	}
 }

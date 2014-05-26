@@ -6,11 +6,14 @@ package pl.edu.icm.unity.rest;
 
 import java.util.Collections;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 @Component
@@ -22,6 +25,11 @@ public class MockRESTEndpointFactory implements EndpointFactory
 			NAME, "This is mock RESTful endpoint for tests", 
 			Collections.singleton(JAXRSAuthentication.NAME),
 			Collections.singletonMap(SERVLET_PATH, "Test endpoint"));
+	@Autowired
+	private UnityMessageSource msg;
+	
+	@Autowired
+	private SessionManagement sessionMan;
 	
 	@Override
 	public EndpointTypeDescription getDescription()
@@ -32,7 +40,7 @@ public class MockRESTEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new MockRESTEndpoint(TYPE, SERVLET_PATH);
+		return new MockRESTEndpoint(msg, sessionMan, TYPE, SERVLET_PATH);
 	}
 
 }

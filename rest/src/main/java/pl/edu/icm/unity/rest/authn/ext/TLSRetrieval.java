@@ -5,15 +5,12 @@
 package pl.edu.icm.unity.rest.authn.ext;
 
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 
 /**
- * Credential retrieval using username and password from the HTTP Basic Authn.
- * <p>
- * Real implementation in parent class, here we only report a unique name.
+ * Retrieves certificate from the TLS
  * @author K. Benedyczak
  */
-public class HttpBasicRetrieval extends HttpBasicRetrievalBase implements CredentialRetrieval, JAXRSAuthentication
+public class TLSRetrieval extends TLSRetrievalBase implements JAXRSAuthentication
 {
 	@Override
 	public String getBindingName()

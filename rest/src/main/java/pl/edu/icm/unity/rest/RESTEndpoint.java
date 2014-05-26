@@ -5,26 +5,37 @@
 package pl.edu.icm.unity.rest;
 
 import java.io.ByteArrayInputStream;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.JAXRSBindingFactory;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.utils.ResourceUtils;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
+import pl.edu.icm.unity.rest.authn.CXFAuthentication;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 /**
@@ -41,11 +52,16 @@ public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEnd
 {
 	protected RESTEndpointProperties genericEndpointProperties;
 	protected String servletPath;
+	protected SessionManagement sessionMan;
+	protected UnityMessageSource msg;
 	
-	public RESTEndpoint(EndpointTypeDescription type, String servletPath)
+	public RESTEndpoint(UnityMessageSource msg, SessionManagement sessionMan, 
+			EndpointTypeDescription type, String servletPath)
 	{
 		super(type);
 		this.servletPath = servletPath;
+		this.msg = msg;
+		this.sessionMan = sessionMan;
 	}
 
 	@Override
@@ -76,7 +92,10 @@ public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEnd
 		BindingFactoryManager manager = bus.getExtension(BindingFactoryManager.class);
 		manager.registerBindingFactory(JAXRSBindingFactory.JAXRS_BINDING_ID, factory);
 		
-		sf.create();
+		Server server = sf.create();
+		
+		Endpoint cxfEndpoint = server.getEndpoint();
+		addInterceptors(cxfEndpoint.getInInterceptors(), cxfEndpoint.getOutInterceptors());
 	}
 	
 	@Override
@@ -102,7 +121,34 @@ public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEnd
 	public void updateAuthenticators(List<Map<String, BindingAuthn>> authenticators)
 			throws UnsupportedOperationException
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException();
+	}
+	
+	private void addInterceptors(List<Interceptor<? extends Message>> inInterceptors,
+			List<Interceptor<? extends Message>> outInterceptors)
+	{
+		AuthenticationRealm realm = description.getRealm();
+		inInterceptors.add(new AuthenticationInterceptor(msg, authenticators, realm, sessionMan));
+		installAuthnInterceptors(authenticators, inInterceptors);
+	}
+
+	public static void installAuthnInterceptors(List<Map<String, BindingAuthn>> authenticators,
+			List<Interceptor<? extends Message>> interceptors)
+	{
+		Set<String> added = new HashSet<String>();
+		for (Map<String, BindingAuthn> authenticatorSet: authenticators)
+		{
+			for (Map.Entry<String, BindingAuthn> authenticator: authenticatorSet.entrySet())
+			{
+				if (!added.contains(authenticator.getKey()))
+				{
+					CXFAuthentication a = (CXFAuthentication) authenticator.getValue();
+					Interceptor<? extends Message> in = a.getInterceptor();
+					if (in != null)
+						interceptors.add(in);
+					added.add(authenticator.getKey());
+				}
+			}
+		}
 	}
 }

@@ -14,13 +14,16 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
 
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 public class MockRESTEndpoint extends RESTEndpoint
 {
-	public MockRESTEndpoint(EndpointTypeDescription type, String servletPath)
+	public MockRESTEndpoint(UnityMessageSource msg, SessionManagement sessionMan, 
+			EndpointTypeDescription type, String servletPath)
 	{
-		super(type, servletPath);
+		super(msg, sessionMan, type, servletPath);
 	}
 
 
