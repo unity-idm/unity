@@ -17,12 +17,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
-
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.types.JsonSerializable;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -70,7 +69,8 @@ public class SamlPreferences implements JsonSerializable
 		ArrayNode hN = main.withArray("hidden");
 		for (String h: what.hiddenAttribtues)
 			hN.add(h);
-		main.put("selectedIdentity", what.selectedIdentity);
+		if (what.selectedIdentity != null)
+			main.put("selectedIdentity", what.selectedIdentity);
 		return main;
 	}
 	
@@ -113,13 +113,15 @@ public class SamlPreferences implements JsonSerializable
 		for (int i=0; i<hiddenA.size(); i++)
 			hidden.add(hiddenA.get(i).asText());
 		ret.setHiddenAttribtues(hidden);
-		ret.setSelectedIdentity(from.get("selectedIdentity").asText());
+		if (from.has("selectedIdentity"))
+			ret.setSelectedIdentity(from.get("selectedIdentity").asText());
 		return ret;
 	}
 
-	public static void initPreferencesGeneric(PreferencesManagement preferencesMan, JsonSerializable toInit, String id) throws EngineException
+	public static void initPreferencesGeneric(PreferencesManagement preferencesMan, JsonSerializable toInit, String id) 
+			throws EngineException
 	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		EntityParam entity = new EntityParam(ae.getEntityId());
 		String raw = preferencesMan.getPreference(entity, id);
 		toInit.setSerializedConfiguration(raw);
@@ -128,7 +130,7 @@ public class SamlPreferences implements JsonSerializable
 	public static void savePreferencesGeneric(PreferencesManagement preferencesMan, JsonSerializable preferences, String id) 
 			throws EngineException
 	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		EntityParam entity = new EntityParam(ae.getEntityId());
 		preferencesMan.setPreference(entity, id, preferences.getSerializedConfiguration());
 	}

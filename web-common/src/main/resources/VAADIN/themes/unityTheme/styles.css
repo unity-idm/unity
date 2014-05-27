@@ -109,3 +109,17 @@
 .v-caption-bold {
   font-weight: bold;
 }
+
+.u-selectedButton {
+	box-shadow: 0px 0px 9px #888;
+}
+
+.u-horizontalMargins10 {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+.u-verticalMargins10 {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}

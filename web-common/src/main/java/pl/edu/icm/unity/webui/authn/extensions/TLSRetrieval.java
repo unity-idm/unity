@@ -96,6 +96,15 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 	}
 
 	
+	public static X509Certificate[] getTLSCertificate()
+	{
+		HttpServletRequest request = VaadinServletService.getCurrentServletRequest();
+		if (request == null)
+			return null;
+		return (X509Certificate[]) request.getAttribute(
+				"javax.servlet.request.X509Certificate");
+	} 
+	
 	private class TLSRetrievalUI implements VaadinAuthenticationUI
 	{
 		private TLSAuthnComponent component;
@@ -167,16 +176,6 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 		public Resource getImage()
 		{
 			return null;
-		}
-
-
-		private X509Certificate[] getTLSCertificate()
-		{
-			HttpServletRequest request = VaadinServletService.getCurrentServletRequest();
-			if (request == null)
-				return null;
-			return (X509Certificate[]) request.getAttribute(
-					"javax.servlet.request.X509Certificate");
 		}
 
 		@SuppressWarnings("serial")

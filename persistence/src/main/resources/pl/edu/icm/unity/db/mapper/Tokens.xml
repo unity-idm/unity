@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.db.mapper.TokensMapper">
+
+	<resultMap id="tokenResult" type="TokenB">
+		<result property="id" column="ID"/>
+		<result property="name" column="NAME"/>
+		<result property="type" column="TYPE"/>
+		<result property="owner" column="ENTITY_ID"/>
+		<result property="expires" column="EXPIRES"/>
+		<result property="created" column="CREATED"/>
+		<result property="contents" column="CONTENTS"/>
+	</resultMap>
+
+	<insert id="insertToken" parameterType="TokenB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO TOKENS(NAME, CONTENTS, TYPE, ENTITY_ID, CREATED, EXPIRES) 
+			VALUES (#{name}, #{contents}, #{type}, #{owner}, #{created}, #{expires})
+	</insert>
+
+	<delete id="deleteToken" parameterType="TokenB">
+		DELETE FROM TOKENS WHERE NAME = #{name} AND TYPE = #{type}
+	</delete>
+
+	<update id="updateToken" parameterType="TokenB">
+		UPDATE TOKENS SET EXPIRES=#{expires}, CONTENTS=#{contents} WHERE NAME=#{name} AND TYPE=#{type}  
+	</update>
+	<update id="updateTokenExpiration" parameterType="TokenB">
+		UPDATE TOKENS SET EXPIRES=#{expires} WHERE NAME=#{name} AND TYPE=#{type}  
+	</update>
+	<update id="updateTokenContents" parameterType="TokenB">
+		UPDATE TOKENS SET CONTENTS=#{contents} WHERE NAME=#{name} AND TYPE=#{type}  
+	</update>
+	
+	<select id="selectTokenById" parameterType="TokenB" resultMap="tokenResult">
+		SELECT * FROM TOKENS WHERE NAME=#{name} AND TYPE = #{type}
+	</select>
+
+	<select id="selectTokensByOwner" parameterType="TokenB" resultMap="tokenResult">
+		SELECT  * FROM TOKENS WHERE ENTITY_ID=#{owner} AND TYPE = #{type}
+	</select>
+
+	<select id="selectTokensByType" parameterType="string" resultMap="tokenResult">
+		SELECT  * FROM TOKENS WHERE TYPE = #{value}
+	</select>
+
+	<select id="selectExpiredTokens" resultMap="tokenResult">
+		SELECT * FROM TOKENS WHERE EXPIRES &lt; NOW()
+	</select>
+</mapper>

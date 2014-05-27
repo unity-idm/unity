@@ -87,14 +87,15 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 		try
 		{
 			input = client.bindAndSearch(username, password, clientConfiguration);
-			return getResult(input, translationProfile);
 		} catch (LdapAuthenticationException e)
 		{
 			return new AuthenticationResult(Status.deny, null, null);
 		} catch (Exception e)
 		{
 			throw new AuthenticationException("Problem when authenticating against the LDAP server", e);
-		} 
+		}
+
+		return getResult(input, translationProfile);
 	}
 
 	@Override

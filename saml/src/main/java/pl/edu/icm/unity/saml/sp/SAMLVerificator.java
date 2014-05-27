@@ -27,7 +27,6 @@ import eu.unicore.samly2.validators.AssertionValidator;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.samly2.validators.SSOAuthnResponseValidator;
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
@@ -203,13 +202,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 
 		RemotelyAuthenticatedInput input = convertAssertion(responseDocument, validator, 
 				context.getGroupAttribute());
-		try
-		{
-			return getResult(input, context.getTranslationProfile());
-		} catch (EngineException e)
-		{
-			throw new AuthenticationException("Problem retrieving the contents of the SAML data", e);
-		}
+
+		return getResult(input, context.getTranslationProfile());
 	}
 	
 	private RemotelyAuthenticatedInput convertAssertion(ResponseDocument responseDocument,

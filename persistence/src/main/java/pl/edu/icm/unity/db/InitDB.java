@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.db.resolvers.GroupResolver;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.utils.Log;
 
@@ -35,12 +36,15 @@ import pl.edu.icm.unity.server.utils.Log;
 public class InitDB
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InitDB.class);
+	private final String UPDATE_SCHEMA_PFX = "updateSchema-";
 
+	private long dbVersionAtServerStarup;
 	private DBSessionManager db;
 	private LocalDBSessionManager localDb;
 
 	@Autowired
-	public InitDB(DBSessionManager db, LocalDBSessionManager localDb)
+	public InitDB(DBSessionManager db, LocalDBSessionManager localDb) 
+			throws FileNotFoundException, InternalException, IOException, EngineException
 	{
 		this.db = db;
 		this.localDb = localDb;
@@ -58,18 +62,32 @@ public class InitDB
 		initDB();
 	}
 	
-	public void initIfNeeded() throws FileNotFoundException, IOException, InternalException
+	public void initIfNeeded() throws FileNotFoundException, IOException, InternalException, EngineException
 	{
+		String dbVersion;
 		SqlSession session = db.getSqlSession(false);
 		try
 		{
-			session.selectOne("getDBVersion");
+			dbVersion = session.selectOne("getDBVersion");
 			db.releaseSqlSession(session);
 			log.info("Database initialized, skipping creation");
 		} catch (PersistenceException e)
 		{
 			db.releaseSqlSession(session);
 			initDB();
+			return;
+		}
+		
+		dbVersionAtServerStarup = dbVersion2Long(dbVersion);
+		long dbVersionOfSoftware = dbVersion2Long(DB.DB_VERSION);
+		if (dbVersionAtServerStarup > dbVersionOfSoftware)
+		{
+			throw new InternalException("The database schema version " + dbVersion + 
+					" is newer then supported by this version of the server. "
+					+ "Please upgrade the server software.");
+		} else if (dbVersionAtServerStarup < dbVersionOfSoftware)
+		{
+			updateSchema(dbVersionAtServerStarup);
 		}
 	}
 	
@@ -125,6 +143,58 @@ public class InitDB
 		} finally
 		{
 			db.releaseSqlSession(session);		
+		}
+	}
+	
+	public static long dbVersion2Long(String version)
+	{
+		String[] components = version.split("_");
+		return Integer.parseInt(components[0])*10000 + Integer.parseInt(components[1])*100 + 
+				Integer.parseInt(components[2]);
+	}
+	
+	private void updateSchema(long currentVersion)
+	{
+		log.info("Updating DB schema to the actual version");
+		Collection<String> ops = new TreeSet<String>(db.getMyBatisConfiguration().getMappedStatementNames());
+		SqlSession session = db.getSqlSession(ExecutorType.BATCH, true);
+		try
+		{
+			for (String name: ops)
+			{
+				if (!name.startsWith(UPDATE_SCHEMA_PFX))
+					continue;
+				
+				String[] version = name.substring(UPDATE_SCHEMA_PFX.length()).split("-");
+				Long schemaVersion = Long.parseLong(version[0]);
+				if (schemaVersion > currentVersion)
+					session.update(name);
+			}
+			session.commit();
+		} finally
+		{
+			db.releaseSqlSession(session);
+		}
+		log.info("Updated DB schema to the actual version " + DB.DB_VERSION);
+	}
+
+	
+	public void updateContents(ContentsUpdater contentsUpdater) throws IOException, EngineException
+	{
+		SqlSession session = db.getSqlSession(true);
+		try
+		{
+			long dbVersionOfSoftware = dbVersion2Long(DB.DB_VERSION);
+			if (dbVersionAtServerStarup < dbVersionOfSoftware)
+			{
+				log.info("Updating DB contents to the actual version");
+				contentsUpdater.update(dbVersionAtServerStarup, session);
+				session.commit();
+				log.info("Updated DB contents to the actual version " + DB.DB_VERSION);
+			}
+		} finally
+		{
+			db.releaseSqlSession(session);
 		}
 	}
 }

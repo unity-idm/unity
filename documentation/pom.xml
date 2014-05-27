@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>pl.edu.icm.unity</groupId>
 		<artifactId>unity-server-parent</artifactId>
-		<version>1.1.1-SNAPSHOT</version>
+		<version>1.3.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -58,6 +58,11 @@
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-saml</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-oauth</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -124,6 +129,10 @@
 									<directory>src/main/doc</directory>
 									<filtering>true</filtering>
 								</resource>
+								<resource>
+									<directory>src/main/saml-howto</directory>
+									<filtering>true</filtering>
+								</resource>
 							</resources>
 						</configuration>
 					</execution>
@@ -168,6 +177,8 @@
 								<argument>pl.edu.icm.unity.webui.VaadinEndpointProperties|ref-vaadinEndpointProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.saml.idp.SamlIdpProperties|ref-samlIdPProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.saml.sp.SAMLSPProperties|ref-samlSPProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.oauth.client.config.OAuthClientProperties|ref-oauthClientProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.oauth.client.config.CustomProviderProperties|ref-oauthProviderProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.db.DBConfiguration|ref-dbProperties.txt|</argument>
 							</arguments>
 						</configuration>
@@ -184,6 +195,21 @@
 								<argument>-D</argument>
 								<argument>${project.reporting.outputDirectory}</argument>
 								<argument>target/workspace/manual.txt</argument>
+							</arguments>
+						</configuration>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>asciidoctor-samlhowto</id>
+						<phase>pre-site</phase>
+						<configuration>
+							<executable>asciidoctor</executable>
+							<arguments>
+								<argument>-D</argument>
+								<argument>${project.reporting.outputDirectory}</argument>
+								<argument>target/workspace/saml-howto.txt</argument>
 							</arguments>
 						</configuration>
 						<goals>

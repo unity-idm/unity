@@ -1,3 +1,4 @@
+[id=installation]
 == Installation and operation manual
 
 === Prerequisites
@@ -61,47 +62,28 @@ Stopping the server is simple as well:
 $> unity-idm-server-stop
 ----
 
-[id=quick_start]
-=== Crucial facts to know before the first start
 
-Unity server can be started right after installation. By default the server is configured to listen on the localhost 
-(loopback) network interface and uses _absolutely insecure credentials_ for the TLS protocol. Therefore you can 
-play around but before going into any real usage some reconfiguration is mandatory.
+=== Notes on redundant installations
 
-Here we list the most important facts about the default configuration:
+It is possible to install Unity in a High Availability (HA) setup. The Unity HA is realized _on the database level_,
+and currently it is only supported when using MySQL. 
 
-- The server is configured to run on +localhost+ address on the port +2443+. Also the advertised address is localhost.
-All of those parameters need an update before going into production.
-- The server uses an insecure credential (its private key is well known) issued by an insecure CA, which is the only
-one trusted CA. A real credential and truststore should be used for production.
-- The server uses an embedded H2 database. Its performance is fine, however it is not recommended in production 
-deployments where DB backups and high availability may easily become an requirement.
-- The server should be started by an unprivileged user. It is not required in case of using 
-the system initialization scripts installed with RPM, which can be run by root 
-(the user will be automatically changed to +unity-idm+).
+When configuring the system some precautions must be made:
 
+. In general only a single instance should be responsible for loading the initial state of the system (endpoints, 
+authenticators etc). Otherwise the servers might have problems during startup and it is hard to keep multiple 
+configurations the same. It is good to set +unityServer.core.recreateEndpointsOnStartup=false+ on the 'slave' nodes.
+. All instances should use the same +unityServer.core.httpServer.advertisedHost+ value. At the same time DNS 
+entry of the value should be switched when a primary service is detected to be down.
 
-==== The first and subsequent startups
+Please note that several runtime features of the system are propagated to other nodes with some latency.
+For instance a removal of an endpoint on one instance will be reflected in the shared database immediately, however
+other Unity instances will catch up and undeploy the endpoint with some delay.
 
-During the startup the server checks if it needs to initialize the various subsystems. This initialization takes place
-during the first start after installation and also after the Unity database is deleted.
+If the server is being managed with two instances simultaneously the 'Refresh' buttons are more then handy: 
+the UI state is not updated automatically.
 
-. If the database is empty the tables are automatically created. There is no need to invoke any database initialization 
-scripts. The database is populated with the mandatory system contents.
-. If there is no configured admin user in the database, this user is created, using the configured credentials.
-The default admin user credential is automatically set to the _outdated_ state, what causes a necessity to change it 
-immediately after the first login. 
-. Subsequently the data structures defined in configuration files are loaded to the database. 
-This functionality is provided to be able to manage of those parts of the 
-Unity engine data/configuration which doesn't have management GUI (yet). In general those are low-level, rarely changed
-artifacts as endpoints or authenticators.
-. Finally the configured content initializers are run. Those initializers are useful to load the default contents
-for various use-cases.
-
-The distribution is set up to load demo contents. If you don't need it - remove it from the configuration 
-(see below how).
-
-
-
-
-  
+Finally note about login sessions: login sessions are shared between Unity instances, while HTTP sessions are not.
+Therefore if the web browser is logged to one instance's endpoint and then the browser is directed to another the
+session should be preserved (assuming that the browser has the same DNS address associated with both instances
+as it is suggested above). The same applies to the logout operation.  

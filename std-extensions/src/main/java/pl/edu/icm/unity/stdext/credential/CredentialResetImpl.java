@@ -42,10 +42,6 @@ public class CredentialResetImpl implements CredentialReset
 	private static final int MAX_RESENDS = 3;
 	private static final long MAX_CODE_VALIDITY = 30*3600;
 	
-	public static final String PASSWORD_RESET_TPL = "passwordResetCode";
-	public static final String CODE_VAR = "code";
-	public static final String USER_VAR = "username";
-	
 	private static final char[] CHARS_POOL = {'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 
 			'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L',
 			'Z', 'X', 'C', 'V', 'B', 'N', 'M', 
@@ -172,10 +168,11 @@ public class CredentialResetImpl implements CredentialReset
 			createCode();
 
 		Map<String, String> params = new HashMap<>();
-		params.put(CODE_VAR, codeSent);
-		params.put(USER_VAR, subject.getIdentity().getValue());
+		params.put(PasswordResetTemplateDef.VAR_CODE, codeSent);
+		params.put(PasswordResetTemplateDef.VAR_USER, subject.getIdentity().getValue());
+		String msgTemplate = settings.getSecurityCodeMsgTemplate();
 		notificationProducer.sendNotification(subject, UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL, 
-					PASSWORD_RESET_TPL, params);
+					msgTemplate, params);
 	}
 
 

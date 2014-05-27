@@ -21,14 +21,6 @@ public class MapAttributeActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "mapAttribute";
 	
-	private static final ActionParameterDesc[] PARAMS = {
-		new ActionParameterDesc(true, "replaced", 
-				"Attributes which have a name matching this regular expression will be mapped.", 20),
-		new ActionParameterDesc(true, "replacement", 
-				"A unity name of an attribute, may contain references to regexp groups from the first parameter.", 20),
-		new ActionParameterDesc(true, "group", "A target local group of the mapped attribute.", 20)
-	};
-	
 	@Override
 	public String getName()
 	{
@@ -36,15 +28,30 @@ public class MapAttributeActionFactory implements TranslationActionFactory
 	}
 
 	@Override
-	public String getDescription()
+	public String getDescriptionKey()
 	{
-		return "Maps a remote attribute to a local attribute setting its group. The attribute name is changed to the new one.";
+		return "TranslationAction.mapAttribute.desc";
 	}
 
 	@Override
 	public ActionParameterDesc[] getParameters()
 	{
-		return PARAMS;
+		return  new ActionParameterDesc[] {
+				new ActionParameterDesc(
+						true,
+						"replaced",
+						"TranslationAction.mapAttribute.param.replaced.desc",
+						20),
+				new ActionParameterDesc(
+						true,
+						"replacement",
+						"TranslationAction.mapAttribute.param.replacement.desc",
+						20),
+				new ActionParameterDesc(
+						true,
+						"group",
+						"TranslationAction.mapAttribute.param.group.desc",
+						20) };
 	}
 
 	@Override

@@ -19,8 +19,14 @@ import pl.edu.icm.unity.db.generic.GenericObjectsDB;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassHandler;
 import pl.edu.icm.unity.db.generic.cred.CredentialHandler;
 import pl.edu.icm.unity.db.generic.credreq.CredentialRequirementHandler;
+import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -33,6 +39,7 @@ import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 
 /**
  * Easy access to {@link RegistrationForm} storage.
@@ -52,6 +59,7 @@ public class RegistrationFormDB extends GenericObjectsDB<RegistrationForm>
 		notificationManager.addListener(new ACChangeListener());
 		notificationManager.addListener(new GroupChangeListener());
 		notificationManager.addListener(new AttributeTypeChangeListener());
+		notificationManager.addListener(new MessageTemplateChangeListener());
 	}
 	
 	private class CredentialChangeListener implements DependencyChangeListener<CredentialDefinition>
@@ -77,7 +85,7 @@ public class RegistrationFormDB extends GenericObjectsDB<RegistrationForm>
 			{
 				for (CredentialRegistrationParam crParam: form.getCredentialParams())
 					if (removedObject.getName().equals(crParam.getCredentialName()))
-						throw new IllegalCredentialException("The credential is used by a registration form " 
+						throw new SchemaConsistencyException("The credential is used by a registration form " 
 							+ form.getName());
 			}
 		}
@@ -105,7 +113,7 @@ public class RegistrationFormDB extends GenericObjectsDB<RegistrationForm>
 			for (RegistrationForm form: forms)
 			{
 				if (removedObject.getName().equals(form.getCredentialRequirementAssignment()))
-					throw new IllegalCredentialException("The credential requirement is used by a registration form " 
+					throw new SchemaConsistencyException("The credential requirement is used by a registration form " 
 							+ form.getName());
 			}
 		}
@@ -134,7 +142,8 @@ public class RegistrationFormDB extends GenericObjectsDB<RegistrationForm>
 			{
 				for (AttributeClassAssignment ac: form.getAttributeClassAssignments())
 					if (removedObject.getName().equals(ac.getAcName()))
-						throw new IllegalCredentialException("The attribute class is used by a registration form " 
+						throw new SchemaConsistencyException(
+							"The attribute class is used by a registration form " 
 							+ form.getName());
 			}
 		}
@@ -163,24 +172,24 @@ public class RegistrationFormDB extends GenericObjectsDB<RegistrationForm>
 			{
 				for (String group: form.getGroupAssignments())
 					if (group.startsWith(removedObject.toString()))
-						throw new IllegalCredentialException("The group is used by a registration form " 
+						throw new SchemaConsistencyException("The group is used by a registration form " 
 							+ form.getName());
 				for (GroupRegistrationParam group: form.getGroupParams())
 					if (group.getGroupPath().startsWith(removedObject.toString()))
-						throw new IllegalCredentialException("The group is used by a registration form " 
+						throw new SchemaConsistencyException("The group is used by a registration form " 
 							+ form.getName());
 				for (Attribute<?> attr: form.getAttributeAssignments())
 					if (attr.getGroupPath().startsWith(removedObject.toString()))
-						throw new IllegalCredentialException("The group is used by an attribute in registration form " 
+						throw new SchemaConsistencyException("The group is used by an attribute in registration form " 
 							+ form.getName());
 				for (AttributeRegistrationParam attr: form.getAttributeParams())
 					if (attr.getGroup().startsWith(removedObject.toString()))
-						throw new IllegalCredentialException("The group is used by an attribute in registration form " 
+						throw new SchemaConsistencyException("The group is used by an attribute in registration form " 
 							+ form.getName());
 				if (form.getNotificationsConfiguration() != null && 
 						removedObject.toString().equals(form.getNotificationsConfiguration().
 								getAdminsNotificationGroup()))
-					throw new IllegalCredentialException("The group is used as administrators notification group in registration form " 
+					throw new SchemaConsistencyException("The group is used as administrators notification group in registration form " 
 							+ form.getName());
 			}
 		}
@@ -225,13 +234,86 @@ public class RegistrationFormDB extends GenericObjectsDB<RegistrationForm>
 			{
 				for (Attribute<?> attr: form.getAttributeAssignments())
 					if (attr.getName().equals(removedObject.getName()))
-						throw new IllegalCredentialException("The attribute type is used by an attribute in registration form " 
+						throw new SchemaConsistencyException("The attribute type is used by an attribute in registration form " 
 							+ form.getName());
 				for (AttributeRegistrationParam attr: form.getAttributeParams())
 					if (attr.getAttributeType().equals(removedObject.getName()))
-						throw new IllegalCredentialException("The attribute type is used by an attribute in registration form " 
+						throw new SchemaConsistencyException("The attribute type is used by an attribute in registration form " 
 							+ form.getName());
 			}
 		}
 	}
+	
+	
+	private class MessageTemplateChangeListener implements DependencyChangeListener<MessageTemplate>
+	{
+		@Override
+		public String getDependencyObjectType()
+		{
+			return MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE;
+		}
+
+		@Override
+		public void preAdd(MessageTemplate newObject, SqlSession sql) throws EngineException { }
+		@Override
+		public void preUpdate(MessageTemplate oldObject,
+				MessageTemplate updatedObject, SqlSession sql) throws EngineException 
+		{
+			List<RegistrationForm> forms = getAll(sql);
+			for (RegistrationForm form: forms)
+			{
+				RegistrationFormNotifications notCfg = form.getNotificationsConfiguration();
+				if (oldObject.getName().equals(notCfg.getAcceptedTemplate()) && 
+						!updatedObject.getConsumer().equals(AcceptRegistrationTemplateDef.NAME))
+				{
+					throw new SchemaConsistencyException("The message template is used by a registration form " 
+							+ form.getName() + " and the template's type change would render the template incompatible with it");
+				}
+				if (oldObject.getName().equals(notCfg.getRejectedTemplate()) && 
+						!updatedObject.getConsumer().equals(RejectRegistrationTemplateDef.NAME))
+				{
+					throw new SchemaConsistencyException("The message template is used by a registration form " 
+							+ form.getName() + " and the template's type change would render the template incompatible with it");
+				}
+				if (oldObject.getName().equals(notCfg.getSubmittedTemplate()) && 
+						!updatedObject.getConsumer().equals(SubmitRegistrationTemplateDef.NAME))
+				{
+					throw new SchemaConsistencyException("The message template is used by a registration form " 
+							+ form.getName() + " and the template's type change would render the template incompatible with it");
+				}
+				if (oldObject.getName().equals(notCfg.getUpdatedTemplate()) && 
+						!updatedObject.getConsumer().equals(UpdateRegistrationTemplateDef.NAME))
+				{
+					throw new SchemaConsistencyException("The message template is used by a registration form " 
+							+ form.getName() + " and the template's type change would render the template incompatible with it");
+				}
+			}
+			
+		}
+
+		@Override
+		public void preRemove(MessageTemplate removedObject, SqlSession sql)
+				throws EngineException
+		{
+			List<RegistrationForm> forms = getAll(sql);
+			for (RegistrationForm form: forms)
+			{
+				RegistrationFormNotifications notCfg = form.getNotificationsConfiguration();
+				if (removedObject.getName().equals(notCfg.getAcceptedTemplate()))
+					throw new SchemaConsistencyException("The message template is used by a registration form " 
+							+ form.getName());
+				if (removedObject.getName().equals(notCfg.getRejectedTemplate()))
+					throw new SchemaConsistencyException("The message template is used by a registration form " 
+							+ form.getName());
+				if (removedObject.getName().equals(notCfg.getSubmittedTemplate()))
+					throw new SchemaConsistencyException("The message template is used by a registration form " 
+							+ form.getName());
+				if (removedObject.getName().equals(notCfg.getUpdatedTemplate()))
+					throw new SchemaConsistencyException("The message template is used by a registration form " 
+							+ form.getName());
+			}
+		}
+	}
+
+
 }

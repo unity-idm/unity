@@ -9,12 +9,14 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.apache.xml.security.utils.Base64;
 
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.filter.SamlGuardFilter;
+import pl.edu.icm.unity.server.utils.Log;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 import com.vaadin.server.Page;
@@ -33,6 +35,7 @@ import eu.unicore.samly2.exceptions.SAMLServerException;
  */
 public class SamlResponseHandler
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlResponseHandler.class);
 	protected FreemarkerHandler freemarkerHandler;
 	protected AuthnResponseProcessor samlProcessor;
 	protected String thisAddress;
@@ -99,7 +102,17 @@ public class SamlResponseHandler
 				data.put("error", error.getE().getMessage());
 			if (samlCtx.getRelayState() != null)
 				data.put("RelayState", samlCtx.getRelayState());
-			
+
+			if (log.isTraceEnabled())
+			{
+				log.trace("About to send SAML response to " + serviceUrl + 
+						", unencoded form:\n" + assertion);
+				if (error != null)
+					log.trace("Error information: " + error.getE().getMessage());
+				if (samlCtx.getRelayState() != null)
+					log.trace("RelayState: " + samlCtx.getRelayState());
+			}
+
 			cleanContext();
 			if (error!= null && error.isDestroySession())
 				session.getSession().invalidate();

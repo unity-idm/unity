@@ -10,12 +10,14 @@
 	<bean class="pl.edu.icm.unity.db.DBSessionManager"/>
 	<bean class="pl.edu.icm.unity.db.LocalDBSessionManager"/>
 	<bean class="pl.edu.icm.unity.db.InitDB"/>
+	<bean class="pl.edu.icm.unity.db.ContentsUpdater"/>
 
 	<bean class="pl.edu.icm.unity.db.DBGroups"/>
 	<bean class="pl.edu.icm.unity.db.DBIdentities"/>
 	<bean class="pl.edu.icm.unity.db.DBAttributes"/>
 	<bean class="pl.edu.icm.unity.db.AttributeStatementProcessor"/>
 	<bean class="pl.edu.icm.unity.db.DBGeneric"/>
+	<bean class="pl.edu.icm.unity.db.DBTokens"/>
 	<bean class="pl.edu.icm.unity.db.DBShared"/>
 	<bean class="pl.edu.icm.unity.db.DBEvents"/>
 
@@ -50,6 +52,10 @@
 	<bean class="pl.edu.icm.unity.db.generic.reg.RegistrationRequestHandler"/>
 	<bean class="pl.edu.icm.unity.db.generic.tprofile.TranslationProfileDB"/>
 	<bean class="pl.edu.icm.unity.db.generic.tprofile.TranslationProfileHandler"/>
+	<bean class="pl.edu.icm.unity.db.generic.realm.RealmDB"/>
+	<bean class="pl.edu.icm.unity.db.generic.realm.RealmHandler"/>
+	<bean class="pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB"/>
+	<bean class="pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateHandler"/>
 
 	<bean class="pl.edu.icm.unity.db.export.ImportExport"/>
 	<bean class="pl.edu.icm.unity.db.export.AttributeTypesIE"/>

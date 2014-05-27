@@ -12,7 +12,7 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.types.JsonSerializable;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -118,7 +118,7 @@ public class IdentitiesTablePreferences implements JsonSerializable
 	public static void initPreferencesGeneric(PreferencesManagement preferencesMan,
 			JsonSerializable toInit, String id) throws EngineException
 	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		EntityParam entity = new EntityParam(ae.getEntityId());
 		String raw = preferencesMan.getPreference(entity, id);
 		toInit.setSerializedConfiguration(raw);
@@ -127,7 +127,7 @@ public class IdentitiesTablePreferences implements JsonSerializable
 	public static void savePreferencesGeneric(PreferencesManagement preferencesMan,
 			JsonSerializable preferences, String id) throws EngineException
 	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		EntityParam entity = new EntityParam(ae.getEntityId());
 		preferencesMan.setPreference(entity, id, preferences.getSerializedConfiguration());
 	}

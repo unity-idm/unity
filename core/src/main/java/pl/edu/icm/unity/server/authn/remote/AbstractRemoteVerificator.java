@@ -130,9 +130,9 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 		translationProfile.translate(input);
 	
 		RemotelyAuthenticatedContext ret = new RemotelyAuthenticatedContext(input.getIdpName());
-		ret.setAttributes(extractAttributes(input));
-		ret.setIdentities(extractIdentities(input));
-		ret.setGroups(extractGroups(input));
+		ret.addAttributes(extractAttributes(input));
+		ret.addIdentities(extractIdentities(input));
+		ret.addGroups(extractGroups(input));
 		ret.setPrimaryIdentity(extractPrimaryIdentity(input));
 		return ret;
 	}

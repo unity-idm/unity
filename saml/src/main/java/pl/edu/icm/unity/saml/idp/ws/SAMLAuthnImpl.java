@@ -6,8 +6,6 @@ package pl.edu.icm.unity.saml.idp.ws;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.cxf.interceptor.Fault;
 import org.apache.log4j.Logger;
@@ -18,15 +16,15 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.saml.idp.processor.BaseResponseProcessor;
 import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -66,6 +64,8 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 	@Override
 	public ResponseDocument authnRequest(AuthnRequestDocument reqDoc)
 	{
+		if (log.isTraceEnabled())
+			log.trace("Received SAML AuthnRequest: " + reqDoc.xmlText());
 		SAMLAuthnContext context = new SAMLAuthnContext(reqDoc, samlProperties);
 		try
 		{
@@ -85,6 +85,7 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 			SPSettings spPreferences = preferences.getSPSettings(samlRequester);
 
 			Identity selectedIdentity = getIdentity(samlProcessor, spPreferences);
+			log.debug("Authentication of " + selectedIdentity);
 			Collection<Attribute<?>> attributes = getAttributes(samlProcessor, spPreferences);
 			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes);
 		} catch (Exception e)
@@ -93,15 +94,18 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 			SAMLServerException convertedException = samlProcessor.convert2SAMLError(e, null, true);
 			respDoc = samlProcessor.getErrorResponse(convertedException);
 		}
+		if (log.isTraceEnabled())
+			log.trace("Returning SAML Response: " + respDoc.xmlText());
 		return respDoc;
 	}
 
 	protected Identity getIdentity(AuthnResponseProcessor samlProcessor, SPSettings preferences) 
 			throws EngineException, SAMLRequesterException
 	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		Entity authenticatedEntity = identitiesMan.getEntity(
-				new EntityParam(ae.getEntityId()));
+				new EntityParam(ae.getEntityId()), samlProcessor.getIdentityTarget(),
+				samlProcessor.isIdentityCreationAllowed());
 		List<Identity> validIdentities = samlProcessor.getCompatibleIdentities(authenticatedEntity);
 		if (validIdentities.size() > 0)
 		{
@@ -119,16 +123,10 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 	protected Collection<Attribute<?>> getAttributes(AuthnResponseProcessor processor, SPSettings preferences) 
 			throws EngineException
 	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
-		EntityParam entity = new EntityParam(ae.getEntityId());
-		Collection<String> allGroups = identitiesMan.getGroups(entity);
-		Collection<AttributeExt<?>> allAttribtues = attributesMan.getAttributes(
-				entity, processor.getChosenGroup(), null);
-		Map<String, Attribute<?>> all = processor.prepareReleasedAttributes(allAttribtues, allGroups);
-		Set<String> hidden = preferences.getHiddenAttribtues();
-		for (String hiddenA: hidden)
-			all.remove(hiddenA);
-		return all.values();
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
+		
+		return BaseResponseProcessor.getAttributes(new EntityParam(ae.getEntityId()), processor, preferences, 
+				attributesMan, identitiesMan);
 	}
 
 	

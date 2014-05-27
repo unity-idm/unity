@@ -37,7 +37,6 @@ import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -197,15 +196,9 @@ public class EngineHelper
 	{
 		checkGroupAttributeClassesConsistency(attributes, "/", sqlMap);
 		
-		Identity ret = dbIdentities.insertIdentity(toAdd, null, sqlMap);
+		Identity ret = dbIdentities.insertIdentity(toAdd, null, false, sqlMap);
 		long entityId = ret.getEntityId();
-		if (!PersistentIdentity.ID.equals(toAdd.getTypeId()))
-		{
-			IdentityParam persistent = new IdentityParam(PersistentIdentity.ID, 
-					PersistentIdentity.getNewId(), true);
-			dbIdentities.insertIdentity(persistent, entityId, sqlMap);
-		}
-		
+
 		dbIdentities.setEntityStatus(entityId, initialState, sqlMap);
 		dbGroups.addMemberFromParent("/", new EntityParam(ret.getEntityId()), sqlMap);
 		setEntityCredentialRequirements(entityId, credReqId, sqlMap);

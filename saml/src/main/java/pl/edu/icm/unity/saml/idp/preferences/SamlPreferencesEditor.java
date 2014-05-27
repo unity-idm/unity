@@ -17,7 +17,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -63,7 +63,7 @@ public class SamlPreferencesEditor implements PreferencesEditor
 
 	protected void initStateData() throws EngineException
 	{
-		AuthenticatedEntity auth = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession auth = InvocationContext.getCurrent().getLoginSession();
 		EntityParam entParam = new EntityParam(auth.getEntityId());
 		identities = idsMan.getEntity(entParam).getIdentities();
 		atTypes = atsMan.getAttributeTypes();

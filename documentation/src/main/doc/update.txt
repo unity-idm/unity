@@ -111,3 +111,31 @@ should be replaced with:
 where +dn+ is a distinguished name of the Service Provider using X.500 name to identify itself.
 
   
+==== From 1.1.0 to 1.2.0
+
+The version 1.2.0 introduces a new important concept: authentication realms. This new feature requires 
+several configuration updates:
+
+. Desired authentication realms should be planned (see authentication realms documentation) and configured in 
+ the main configuration file +unityServer.conf+. 
+. The former endpoint specific options: +unity.endpoint.ws.blockFor+, +unity.endpoint.ws.blockAfterUnsuccessfulLogins+
+(both for web service endpoints), +unity.endpoint.web .blockAfterUnsuccessfulLogins+,
++unity.endpoint.web.blockFor+ and +unity.endpoint.web.sessionTimeout+ (web endpoints) are to be removed from
+endpoint configuration files. Those settings are controlled on the realm level now.
+. Finally appropriate realm should be assigned to endpoints. This is performed in the +unityServer.conf+, with
+the per-endpoint property +unityServer.core.endpoints.X.endpointRealm+.
+
+Note that endpoints must be reloaded. The endpoints which were not reloaded will belong to a single, 
+default authentication realm.
+
+Another change introduced in the version 1.2.0 is the finalized message templates handling with 
+management feature in the Admin UI. The configuration of message templates from the configuration file is deprecated. 
+It can be still used, however each template must have an additional setting: +TEMPLATE_NAME.consumer+. 
+This setting controls the intended purpose of the template - what determines the available template variables. 
+The currently possible values are: +PasswordResetCode+, +RegistrationRequestSubmitted+, +RegistrationRequestUpdated+, 
++RegistrationRequestAccepted+ and +RegistrationRequestRejected+.  
+
+Note: translation profiles and templates are not preserved automatically during upgrade. Therefore the easiest way to
+preserve them is to edit the templates in the new Admin UI tab (in Server management) and to load the old translation
+profiles from the +unityServer.conf+. After that translation profiles can be edited from the Admin UI, and their 
+configuration files can be dropped.

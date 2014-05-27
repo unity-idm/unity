@@ -10,6 +10,8 @@ package pl.edu.icm.unity.server.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -17,14 +19,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.CommandLinePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-
-import pl.edu.icm.unity.notifications.TemplatesStore;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
@@ -57,6 +58,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String PKI_CONF = "pkiConfigFile";
 	public static final String THREAD_POOL_SIZE = "threadPoolSize";
 	public static final String RECREATE_ENDPOINTS_ON_STARTUP = "recreateEndpointsOnStartup";
+	
 	public static final String ENDPOINTS = "endpoints.";
 	public static final String ENDPOINT_DESCRIPTION = "endpointDescription";
 	public static final String ENDPOINT_TYPE = "endpointType";
@@ -64,11 +66,21 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String ENDPOINT_ADDRESS = "contextPath";
 	public static final String ENDPOINT_NAME = "endpointName";	
 	public static final String ENDPOINT_AUTHENTICATORS = "endpointAuthenticators";
+	public static final String ENDPOINT_REALM = "endpointRealm";
+	
 	public static final String INITIALIZERS = "initializers.";
 	public static final String UPDATE_INTERVAL = "asyncStateUpdateInterval";
 	public static final String WORKSPACE_DIRECTORY = "workspaceDirectory";
 	public static final String MAIN_CREDENTIAL = "credential";
 	public static final String MAIN_TRUSTSTORE = "truststore";
+	
+	public static final String REALMS = "realms.";
+	public static final String REALM_NAME = "realmName";
+	public static final String REALM_DESCRIPTION = "realmDescription";
+	public static final String REALM_BLOCK_AFTER_UNSUCCESSFUL = "blockAfterUnsuccessfulLogins";
+	public static final String REALM_BLOCK_FOR = "blockFor";
+	public static final String REALM_MAX_INACTIVITY = "maxInactivity";
+	public static final String REALM_REMEMBER_ME = "enableRememberMeFor";
 	
 	public static final String AUTHENTICATORS = "authenticators.";
 	public static final String AUTHENTICATOR_NAME = "authenticatorName";
@@ -104,7 +116,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		DocumentationCategory initCredCat = new DocumentationCategory("Content initializers: credentials", "2");
 		DocumentationCategory initCredReqCat = new DocumentationCategory("Content initializers: credential requirements", "3");
 		DocumentationCategory initAuthnCat = new DocumentationCategory("Content initializers: authenticators", "4");
-		DocumentationCategory initEndpointsCat = new DocumentationCategory("Content initializers: endpoints", "5");
+		DocumentationCategory initRealmCat = new DocumentationCategory("Content initializers: authentication realms", "5");
+		DocumentationCategory initEndpointsCat = new DocumentationCategory("Content initializers: endpoints", "6");
 		DocumentationCategory otherCat = new DocumentationCategory("Other", "8");
 		
 		defaults.put(ENABLED_LOCALES, new PropertyMD().setList(true).setCategory(mainCat).
@@ -116,7 +129,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		defaults.put(MAIL_CONF, new PropertyMD().setPath().setCategory(mainCat).
 				setDescription("A configuration file for the mail notification subsystem."));
 		defaults.put(TEMPLATES_CONF, new PropertyMD("conf/msgTemplates.properties").setPath().setCategory(mainCat).
-				setDescription("A file with the default message templates."));
+				setDescription("A file with the initial message templates. You can have this file empty and manage the templates via the Admin UI."));
 		defaults.put(PKI_CONF, new PropertyMD("conf/pki.properties").setPath().setCategory(mainCat).
 				setDescription("A file with the configuration of the PKI: credentials and truststores."));
 		defaults.put(RECREATE_ENDPOINTS_ON_STARTUP, new PropertyMD("true").setCategory(mainCat).
@@ -157,6 +170,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("Endpoint name"));
 		defaults.put(ENDPOINT_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(initEndpointsCat).
 				setDescription("Endpoint authenticator names: each set is separated with ';' and particular authenticators in each set with ','."));
+		defaults.put(ENDPOINT_REALM, new PropertyMD().setMandatory().setStructuredListEntry(ENDPOINTS).setCategory(initEndpointsCat).
+				setDescription("Authentication realm name, to which this endpoint belongs."));
 
 		defaults.put(AUTHENTICATORS, new PropertyMD().setStructuredList(true).setCategory(initAuthnCat).
 				setDescription("List of initially enabled authenticators"));
@@ -171,6 +186,31 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		defaults.put(AUTHENTICATOR_RETRIEVAL_CONFIG, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setCategory(initAuthnCat).
 				setDescription("Authenticator configuration file of the retrieval"));
 
+		defaults.put(REALMS, new PropertyMD().setStructuredList(false).setCategory(initRealmCat).
+				setDescription("List of authentication realm definitions."));
+		defaults.put(REALM_NAME, new PropertyMD().setMandatory().setStructuredListEntry(REALMS).setCategory(initRealmCat).
+				setDescription("Defines the realm's name. Must contain only alphanumeric letters, "
+						+ "and can not exceed 20 characters."));
+		defaults.put(REALM_DESCRIPTION, new PropertyMD().setStructuredListEntry(REALMS).setCategory(initRealmCat).
+				setDescription("Realm's description."));
+		defaults.put(REALM_BLOCK_AFTER_UNSUCCESSFUL, new PropertyMD("5").setPositive().setStructuredListEntry(REALMS).setCategory(initRealmCat).
+				setDescription("Defines maximum number of unsuccessful logins before the access is temporarely blocked for a client."));
+		defaults.put(REALM_BLOCK_FOR, new PropertyMD("60").setPositive().setStructuredListEntry(REALMS).setCategory(initRealmCat).
+				setDescription("Defines for how long (in seconds) the access should be blocked for the" +
+						"client reaching the limit of unsuccessful logins."));
+		defaults.put(REALM_MAX_INACTIVITY, new PropertyMD("1800").setPositive().setStructuredListEntry(REALMS).setCategory(initRealmCat).
+				setDescription("Defines after what time of inactivity the login session is terminated (in seconds). "
+						+ "Note: the HTTP sessions (if applicable for endpoint) will be couple of seconds "
+						+ "shorter to allow for login session expiration warning."));
+		defaults.put(REALM_REMEMBER_ME, new PropertyMD("-1").setStructuredListEntry(REALMS).setCategory(initRealmCat).
+				setDescription("(web endpoints only) If set to positive number, the realm authentication will allow for "
+						+ "remeberinging the user's login even after session is lost due "
+						+ "to expiration or browser closing. The period of time to remember the login "
+						+ "will be equal to the number of days as given to this option. "
+						+ "IMPORTANT! This is an insecure option. Use it only for realms "
+						+ "containing only endpoints with low security requirements."));
+
+		
 		defaults.put(CREDENTIALS, new PropertyMD().setStructuredList(true).setCategory(initCredCat).
 				setDescription("List of initially defined credentials"));
 		defaults.put(CREDENTIAL_NAME, new PropertyMD().setStructuredListEntry(CREDENTIALS).setMandatory().setCategory(initCredCat).
@@ -203,7 +243,6 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	private UnityPKIConfiguration pkiConf;
 	private Map<String, Locale> enabledLocales;
 	private Locale defaultLocale;
-	private TemplatesStore templatesStore;
 	
 	@Autowired
 	public UnityServerConfiguration(Environment env, ConfigurationLocationProvider locProvider) throws ConfigurationException, IOException
@@ -216,11 +255,30 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		defaultLocale = safeLocaleDecode(getValue(DEFAULT_LOCALE));
 		if (!isLocaleSupported(defaultLocale))
 			throw new ConfigurationException("The default locale is not among enabled ones.");
-		templatesStore = loadTemplatesStore();
+
+		checkRealmNames();
 		
 		File workspace = new File(getValue(WORKSPACE_DIRECTORY));
 		if (!workspace.exists())
 			workspace.mkdirs();
+	}
+	
+	private void checkRealmNames()
+	{
+		Set<String> realmKeys = getStructuredListKeys(UnityServerConfiguration.REALMS);
+		for (String realmKey: realmKeys)
+		{
+			String name = getValue(realmKey+REALM_NAME);
+			if (name.length() > 20)
+				throw new ConfigurationException("Realm name is longer then 20 characters: " + name);
+			CharsetEncoder encoder = Charset.forName("US-ASCII").newEncoder();
+			if (!encoder.canEncode(name))
+				throw new ConfigurationException("Realm name is not ASCII: " + name);
+			for (char c: name.toCharArray())
+				if (!Character.isLetterOrDigit(c))
+					throw new ConfigurationException("Realm name must have only "
+							+ "digits and letters: " + name);
+		}
 	}
 	
 	private static String getConfigurationFile(Environment env, ConfigurationLocationProvider locProvider)
@@ -236,14 +294,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		log.debug("Using configuration file: " + configFile);
 		return configFile;
 	}
-	
-	private TemplatesStore loadTemplatesStore() throws IOException
-	{
-		File file = getFileValue(TEMPLATES_CONF, false);
-		Properties props = FilePropertiesHelper.load(file);
-		return new TemplatesStore(props, getDefaultLocale());
-	}
-	
+		
 	/**
 	 * @return map with enabled locales. Key is the user-friendly label. 
 	 */
@@ -308,11 +359,6 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public Map<String, Locale> getEnabledLocales()
 	{
 		return enabledLocales;
-	}
-	
-	public TemplatesStore getTemplatesStore()
-	{
-		return templatesStore;
 	}
 
 	public UnityPKIConfiguration getPKIConfiguration()

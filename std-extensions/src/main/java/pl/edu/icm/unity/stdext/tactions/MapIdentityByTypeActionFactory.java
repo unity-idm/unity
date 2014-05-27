@@ -21,15 +21,6 @@ public class MapIdentityByTypeActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "mapIdentityByType";
 	
-	private static final ActionParameterDesc[] PARAMS = {
-		new ActionParameterDesc(true, "sourceIdentityType", 
-				"Identity type to be mapped.", 20),
-		new ActionParameterDesc(true, "targetIdentityType", 
-				"Target unity name of identity type to be used instead of the original one.", 20),
-		new ActionParameterDesc(true, "credentialRequirement", "Credential requirement to be used " +
-				"for the identity in case a new entity is created from it.", 20)
-	};
-	
 	@Override
 	public String getName()
 	{
@@ -37,20 +28,35 @@ public class MapIdentityByTypeActionFactory implements TranslationActionFactory
 	}
 
 	@Override
-	public String getDescription()
+	public String getDescriptionKey()
 	{
-		return "Maps a remote identity by type to a local identity with a new type.";
+		return "TranslationAction.mapIdentityByType.desc";
 	}
 
 	@Override
 	public ActionParameterDesc[] getParameters()
 	{
-		return PARAMS;
+		return new ActionParameterDesc[] {
+				new ActionParameterDesc(
+						true,
+						"sourceIdentityType",
+						"TranslationAction.mapIdentityByType.param.sourceIdentityType.desc",
+						20),
+				new ActionParameterDesc(
+						true,
+						"targetIdentityType",
+						"TranslationAction.mapIdentityByType.param.targetIdentityType.desc",
+						20),
+				new ActionParameterDesc(
+						true,
+						"credentialRequirement",
+						"TranslationAction.mapIdentityByType.param.credentialRequirement.desc",
+						20) };
 	}
 
 	@Override
 	public TranslationAction getInstance(String... parameters) throws EngineException
 	{
-		return new MapAttributeToIdentityAction(parameters);
+		return new MapIdentityByTypeAction(parameters);
 	}
 }

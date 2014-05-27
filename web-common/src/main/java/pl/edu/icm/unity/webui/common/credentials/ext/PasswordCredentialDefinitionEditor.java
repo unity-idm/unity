@@ -19,6 +19,7 @@ import com.vaadin.ui.Slider;
 
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
@@ -35,6 +36,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	private static final double MS_IN_MONTH = 3600000L*24L*30.41;
 	private static final int MAX_MONTHS = 48;
 	private UnityMessageSource msg;
+	private MessageTemplateManagement msgTplMan;
 	private Slider minLength;
 	private Slider minClasses;
 	private CheckBox denySequences;
@@ -43,9 +45,10 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	private Slider historySize;
 	private CredentialResetSettingsEditor resetSettings;
 	
-	public PasswordCredentialDefinitionEditor(UnityMessageSource msg)
+	public PasswordCredentialDefinitionEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan)
 	{
 		this.msg = msg;
+		this.msgTplMan = msgTplMan;
 	}
 
 
@@ -66,7 +69,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		Label maxAge = new Label();
 		maxAge.setCaption(msg.getMessage("PasswordDefinitionEditor.maxAgeRo"));
 		
-		CredentialResetSettingsEditor viewer = new CredentialResetSettingsEditor(msg, 
+		CredentialResetSettingsEditor viewer = new CredentialResetSettingsEditor(msg, msgTplMan,
 				helper.getPasswordResetSettings());
 		
 		FormLayout form = new FormLayout(minLength, minClasses, denySequences, historySize, maxAge);
@@ -125,7 +128,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		if (credentialDefinitionConfiguration != null)
 			helper.setSerializedConfiguration(credentialDefinitionConfiguration);
 		initUIState(helper);
-		resetSettings = new CredentialResetSettingsEditor(msg, helper.getPasswordResetSettings());
+		resetSettings = new CredentialResetSettingsEditor(msg, msgTplMan, helper.getPasswordResetSettings());
 		resetSettings.addEditorToLayout(form);
 				
 		return form;

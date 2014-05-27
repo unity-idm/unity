@@ -18,6 +18,7 @@ import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
@@ -34,6 +35,7 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressBar;
@@ -59,20 +61,23 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 	private Button authenticateButton;
 	private Button cancelButton;
 	private ProgressBar progress;
+	private CheckBox rememberMe;
 	private UsernameComponent usernameComponent;
 	private InsecureRegistrationFormLauncher formLauncher;
 	private ExecutorsService execService;
 	private String clientIp;
+	private AuthenticationRealm realm;
 	
 	public AuthenticatorSetComponent(final Map<String, VaadinAuthenticationUI> authenticators,
 			AuthenticatorSet set, UnityMessageSource msg, AuthenticationProcessor authnProcessor,
 			InsecureRegistrationFormLauncher formLauncher, ExecutorsService execService,
-			final CancelHandler cancelHandler)
+			final CancelHandler cancelHandler, AuthenticationRealm realm)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
 		this.formLauncher = formLauncher;
 		this.execService = execService;
+		this.realm = realm;
 		boolean needCommonUsername = false;
 		setSpacing(true);
 		setMargin(true);
@@ -112,6 +117,10 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		
 		authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
 		authenticateButton.setId("AuthenticationUI.authnenticateButton");
+		
+		rememberMe = new CheckBox(msg.getMessage("AuthenticationUI.rememberMe", 
+				realm.getAllowForRememberMeDays()));
+		
 		usernameComponent = null;
 		if (needCommonUsername)
 		{
@@ -154,12 +163,15 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		}
 		
 		addComponent(authnProgressHL);
+		if (realm.getAllowForRememberMeDays() > 0)
+			addComponent(rememberMe);
 		addComponent(buttons);
 		setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 	}
 
 	private void showAuthnProgress(boolean inProgress)
 	{
+		log.trace("Authn progress visible: " + inProgress);
 		progress.setVisible(inProgress);
 		cancelButton.setVisible(inProgress);
 	}
@@ -242,6 +254,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		@Override
 		public synchronized void setAuthenticationResult(AuthenticationResult result)
 		{
+			log.trace("Received authentication result nr " + (results.size() + 1));
 			results.add(result);
 			if (results.size() == numberOfAuthenticators)
 				authnDone();
@@ -256,13 +269,21 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		public synchronized void authenticationCancelled(boolean signalAuthenticators)
 		{
 			this.results.clear();
-			authenticateButton.setEnabled(true);
-			showAuthnProgress(false);
-			authnDone = true;
-			if (signalAuthenticators)
+			VaadinSession session = VaadinSession.getCurrent();
+			session.lock();
+			try
 			{
-				for (VaadinAuthenticationUI vaadinAuth: authenticators.values())
-					vaadinAuth.cancelAuthentication();
+				authenticateButton.setEnabled(true);
+				showAuthnProgress(false);
+				authnDone = true;
+				if (signalAuthenticators)
+				{
+					for (VaadinAuthenticationUI vaadinAuth: authenticators.values())
+						vaadinAuth.cancelAuthentication();
+				}
+			} finally
+			{
+				session.unlock();
 			}
 		}
 		
@@ -280,6 +301,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		{
 			VaadinSession session = VaadinSession.getCurrent();
 			session.lock();
+			log.trace("Authentication completed, starting processing.");
 			try
 			{
 				List<AuthenticationResult> results = new ArrayList<>(this.results);
@@ -289,19 +311,23 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 				clearAuthenticators(authenticators);
 				try
 				{
-					authnProcessor.processResults(results, clientIp);
+					authnProcessor.processResults(results, clientIp, realm, rememberMe.getValue());
 				} catch (UnknownRemoteUserException e)
 				{
 					if (e.getFormForUser() != null)
 					{
+						log.trace("Authentication successful, user unknown, "
+								+ "showing registration form");
 						showRegistration(e);
-						return;
 					} else
 					{
+						log.trace("Authentication successful, user unknown, "
+								+ "no registration form");
 						handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"));
 					}
 				} catch (AuthenticationException e)
 				{
+					log.trace("Authentication failed ", e);
 					handleError(msg.getMessage(e.getMessage()));
 				}
 				showAuthnProgress(false);

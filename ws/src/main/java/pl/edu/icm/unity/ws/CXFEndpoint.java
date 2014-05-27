@@ -23,16 +23,18 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.apache.cxf.xmlbeans.XmlBeansDataBinding;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import eu.unicore.util.configuration.ConfigurationException;
-
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.ws.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.ws.authn.CXFAuthentication;
@@ -48,12 +50,15 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 	private Map<Class<?>, Object> services; 
 	protected Properties properties;
 	protected CXFEndpointProperties genericEndpointProperties;
+	protected SessionManagement sessionMan;
 	
-	public CXFEndpoint(UnityMessageSource msg, EndpointTypeDescription type, String servletPath)
+	public CXFEndpoint(UnityMessageSource msg, SessionManagement sessionMan, 
+			EndpointTypeDescription type, String servletPath)
 	{
 		super(type);
 		this.msg = msg;
 		this.servletPath = servletPath;
+		this.sessionMan = sessionMan;
 		services = new HashMap<Class<?>, Object>();
 	}
 	@Override
@@ -107,7 +112,8 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 			List<Interceptor<? extends Message>> outInterceptors)
 	{
 		outInterceptors.add(new XmlBeansNsHackOutHandler());
-		inInterceptors.add(new AuthenticationInterceptor(msg, authenticators, genericEndpointProperties));
+		AuthenticationRealm realm = description.getRealm();
+		inInterceptors.add(new AuthenticationInterceptor(msg, authenticators, realm, sessionMan));
 		installAuthnInterceptors(inInterceptors);
 	}
 	
@@ -120,7 +126,7 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 		
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath(description.getContextAddress());
-		UnityCXFServlet cxfServlet = new UnityCXFServlet(genericEndpointProperties);
+		CXFNonSpringServlet cxfServlet = new CXFNonSpringServlet();
 		Bus bus = BusFactory.newInstance().createBus();
 		cxfServlet.setBus(bus);
 		ServletHolder holder = new ServletHolder(cxfServlet);

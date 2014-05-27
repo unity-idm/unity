@@ -8,7 +8,9 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.junit.Before;
+
 import static org.junit.Assert.*;
+
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,6 +30,7 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.RealmsManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
@@ -78,6 +81,8 @@ public abstract class SecuredDBIntegrationTestBase
 	protected SystemAttributeTypes systemAttributeTypes;
 	@Autowired
 	protected AttributeStatementsCleaner statementsCleaner;
+	@Autowired
+	protected RealmsManagement realmsMan;
 	
 	@Before
 	public void clear() throws EngineException

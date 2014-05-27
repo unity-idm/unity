@@ -249,18 +249,24 @@ public class SamlIdpProperties extends SamlProperties
 			Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP);
 			for (String allowedKey: allowedKeys)
 			{
-				String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
-				if (name == null)
-					name = getValue(allowedKey + ALLOWED_SP_DN);
-				if (name == null)
-					throw new ConfigurationException("Invalid specification of allowed Service " +
-							"Provider " + allowedKey + ", neither Entity ID nor DN is set.");
-				
 				String returnAddress = getValue(allowedKey + ALLOWED_SP_RETURN_URL);
 				if (returnAddress == null)
 					throw new ConfigurationException("Invalid specification of allowed Service " +
 						"Provider " + allowedKey + ", return address is not set.");
-				authnTrustChecker.addTrustedIssuer(name, returnAddress);
+				
+				String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
+				if (name != null)
+					authnTrustChecker.addTrustedIssuer(name, returnAddress);	
+				else
+				{
+					name = getValue(allowedKey + ALLOWED_SP_DN);
+					if (name == null)
+						throw new ConfigurationException("Invalid specification of allowed Service " +
+							"Provider " + allowedKey + ", neither Entity ID nor DN is set.");
+					authnTrustChecker.addTrustedDNIssuer(name, returnAddress);
+				}
+
+				
 				log.debug("SP authorized to submit authentication requests: " + name);
 			}
 		}

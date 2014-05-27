@@ -19,10 +19,11 @@ Configuration updates at runtime are handled as follows:
  * +conf/log4j.properties+ file is automatically reloaded after it is modified (with few seconds latency). 
  It is recorded in the log file.
  * No other file is automatically reloaded after modification. However,
- * configuration of authenticators, endpoints and translation profiles can be reloaded from the Web Admin UI 
+ * configuration of authenticators and endpoints can be reloaded from the Web Admin UI 
  (in the Server Management tab). It is possible to remove, add or reconfigure existing elements.
- * Reconfiguration of the remaining options from the main configuration file, PKI settings and message templates
- requires server restart. 
+ * Reconfiguration of the remaining options from the main configuration file and PKI settings 
+ requires server restart. Note that most of the features configured in the files can be managed at runtime
+ from the Web Admin UI.
  * Note however that the +directory+ and +openssl+ truststores which can be configured in PKI settings 
  allows for automatic updates of their content when trusted certificates or CRLs are added or removed.
  
@@ -45,8 +46,8 @@ of the configuration:
  the advertised address, which should be an address or IP via which the server should be reached from Internet. 
  The remaining options of the HTTP server are fairly advanced.
  * Definitions of various artifacts of the server to be loaded: credentials, credential requirements, authenticators, 
-endpoints and translation profiles. Note that the credentials and credential requirements can be also managed more
-conveniently with the Web Admin UI.
+endpoints and translation profiles. Note that the credentials, credential requirements and translation profiles 
+can be also managed more conveniently with the Web Admin UI.
 The configuration of authenticators and endpoints is described in the subsection <<cfg-authenticators>>
 and the translation profiles are covered in <<external-idps>>. 
 
@@ -72,6 +73,33 @@ always handled by the H2 database engine, so only the database storage location 
 
 include::ref-dbProperties.txt[]
 
+==== MySQL setup
+
+The setup of MySQL requires creation of a database with a separate user which is able to connect to the database.
+In mysql console (when logged with admin privileges) execute:
+ 
+ CREATE DATABASE unitydb;
+ GRANT ALL PRIVILEGES ON unitydb.* to 'unity'@'localhost' IDENTIFIED BY 'unitypass';
+ 
+using the desired database name, username and password. If the database is on a different host then the Unity instance,
+change to localhost to a proper host of Unity installation or use +%+ to allow connections from any host.  
+
+Test if the connection works with:
+
+ mysql -p -u unity unitydb
+
+and give the password.
+
+Unity server will setup all tables automatically on startup.
+
+To configure Unity to use the database change the database JDBC URI as well as add the username, password and dialect:
+ 
+----
+unityServer.db.jdbcUrl=jdbc:mysql://localhost/unitydb
+unityServer.db.dialect=mysql
+unityServer.db.password=unitypass
+unityServer.db.username=unity
+----
 
 [[pki]]
 === PKI settings
@@ -266,6 +294,18 @@ assuming the same credential is exchanged.
 |web-saml2			| SAML assertions	| Web (Vaadin) 			| Allows to choose remote SAML IdP, redirects the user to authenticate there and collects the received authentication data.
 |==== 
 
+Examples of some of the allowed combinations:
+ 
+ password with web-password
+ password with cxf-httpbasic
+ ldap with cxf-basic
+ certificate with web-certificate
+ certificate with cxf-certificate
+ 
+But for instance the combination +ldap with web-saml2+ is illegal: ldap verificator uses different exchange 
+(Password) then web-saml2. Note that this is logical: LDAP server can not be used to verify a SAML assertion obtained
+from some remote SAML IdP.
+
 Both credential verificator and credential retrieval can require a separate configuration in external files, 
 in the example only the credential retrieval has it configured. Finally all local verificators must be
 associated with the existing local credential (the _secured password_ in the example).
@@ -307,8 +347,10 @@ by removing or commenting the e-mail configuration property in the main configur
 If enabled it is configured in a separate properties file. The default file provides a detailed information
 on the available options so should be easy to edit.
 
-The actual contents of the messages being sent is governed by the _templates configuration file_. 
-Currently a template is a named pair of two strings: title and message body. What's more the template
+The actual contents of the messages being sent is governed by the _message templates_. Message templates are
+configured using Admin UI (Server management->Message templates). It is also possible to configure them with
+configuration file (by default +msgTemplates.properties+), but this is much more difficult and not suggested.  
+Currently a template is a named pair of two pieces of text: subject (title) and message body. What's more the template
 can contain several variables which must be formated as:
 
 ----
@@ -316,10 +358,44 @@ ${VARIABLE_NAME}
 ----
 
 Variables are replaced dynamically with concrete values when a message is prepared to be sent. Naturally
-each subsystem sending messages provides different variables. The example configuration file
-contains default forms for all currently implemented notifications with variables included so it should 
-be easy to update them.
+each subsystem sending messages provides different variables. Therefore each template must be associated with 
+a concrete subsystem. This is performed in the template edit screen. The list of available variables for each 
+subsystem is also provided there.  
 
+=== Authentication realms and login sessions
+
+Unity uses _authenticaiton realms_ to manage shared configuration of login sessions for endpoints. Each endpoint 
+must be associated with exactly one authentication realm. 
+
+In authentication realm configuration session expiration and blocking of brute force attacks are defined. It is also
+possible to enable 'remember me' feature, which is rather insecure as the user must not use it from public computers: 
+
+----
+unityServer.core.realms.1.realmName=lowSecurityRealm
+unityServer.core.realms.1.blockAfterUnsuccessfulLogins=10
+unityServer.core.realms.1.blockFor=30
+unityServer.core.realms.1.maxInactivity=3600
+unityServer.core.realms.1.enableRememberMeFor=3
+----
+
+Association of an endpoint with authentication realm is given in the main endpoint's configuration in 
++unityServer.conf+:
+
+----
+unityServer.core.endpoints.N.endpointRealm=lowSecurityRealm
+---- 
+
+Please note that several properties of authentication realms are supported only on web endpoints, as for instance
+web service (SOAP) endpoints do not use sessions. Still it is important to understand that even for those endpoints
+the fact whether the endpoint is or is not in the same authentication realm as other endpoint can be significant.
+The most important case is with all targeted tokens and identities which are generated by Unity. Let's consider
+an example. 
+
+Two SAML endpoints A (Web) and B (SOAP) are in the same authentication realm R1, while the third endpoint C (SOAP)
+is in realm R2. If a service provider asks a client to to authenticate it via A endpoint and receives a transient 
+(targeted) identity, this identity will be also valid for the queries to the endpoint B as both are in the same realm,
+sharing the session context of the logged user. At the same time this transient identity won't be available at 
+endpoint C. 
 
 
 [id="logging"]

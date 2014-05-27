@@ -20,7 +20,6 @@ import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.security.wsutil.client.WSClientFactory;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
-
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
@@ -28,6 +27,7 @@ import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -48,6 +48,9 @@ public class TestWSCore extends DBIntegrationTestBase
 	{
 		setupMockAuthn();
 		createUsers();
+		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
+				5, 1, -1, 600);
+		realmsMan.addRealm(realm);
 		
 		List<EndpointTypeDescription> endpointTypes = endpointMan.getEndpointTypes();
 		assertEquals(1, endpointTypes.size());
@@ -55,7 +58,7 @@ public class TestWSCore extends DBIntegrationTestBase
 
 		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
 		authnCfg.add(new AuthenticatorSet(Collections.singleton("Apass")));
-		endpointMan.deploy(type.getName(), "endpoint1", "/mock", "desc", authnCfg, "");
+		endpointMan.deploy(type.getName(), "endpoint1", "/mock", "desc", authnCfg, "", realm.getName());
 
 		httpServer.start();
 		
@@ -71,11 +74,11 @@ public class TestWSCore extends DBIntegrationTestBase
 		clientCfg.setSslAuthn(false);
 		clientCfg.setHttpAuthn(true);
 		WSClientFactory factoryBad = new WSClientFactory(clientCfg);
-		MockWSSEI wsProxyBad = factoryBad.createPlainWSProxy(MockWSSEI.class, "https://localhost:2443/mock"+
+		MockWSSEI wsProxyBad = factoryBad.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
 		clientCfg.setHttpPassword("mockPassword1");
 		WSClientFactory factoryOK = new WSClientFactory(clientCfg);
-		MockWSSEI wsProxyOK = factoryOK.createPlainWSProxy(MockWSSEI.class, "https://localhost:2443/mock"+
+		MockWSSEI wsProxyOK = factoryOK.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
 
 		wsProxyOK.getAuthenticatedUser();
@@ -119,6 +122,9 @@ public class TestWSCore extends DBIntegrationTestBase
 			//ok
 		}
 		
+//		Thread.sleep(1100);
+//		//reset
+//		wsProxyOK.getAuthenticatedUser();
 	}
 	
 	@Test
@@ -126,6 +132,9 @@ public class TestWSCore extends DBIntegrationTestBase
 	{
 		setupMockAuthn();
 		createUsers();
+		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
+				10, 100, -1, 600);
+		realmsMan.addRealm(realm);
 		
 		List<EndpointTypeDescription> endpointTypes = endpointMan.getEndpointTypes();
 		assertEquals(1, endpointTypes.size());
@@ -134,7 +143,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
 		authnCfg.add(new AuthenticatorSet(Collections.singleton("Apass")));
 		authnCfg.add(new AuthenticatorSet(Collections.singleton("Acert")));
-		endpointMan.deploy(type.getName(), "endpoint1", "/mock", "desc", authnCfg, "");
+		endpointMan.deploy(type.getName(), "endpoint1", "/mock", "desc", authnCfg, "", realm.getName());
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 
@@ -153,7 +162,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		clientCfg.setSslAuthn(false);
 		clientCfg.setHttpAuthn(true);
 		WSClientFactory factory = new WSClientFactory(clientCfg);
-		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:2443/mock"+
+		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
 		NameIDDocument ret = wsProxy.getAuthenticatedUser();
 		assertEquals("[user1]", ret.getNameID().getStringValue());
@@ -162,7 +171,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		{
 			clientCfg.setHttpPassword("wrong");
 			factory = new WSClientFactory(clientCfg);
-			wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:2443/mock"+
+			wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 					MockWSEndpointFactory.SERVLET_PATH);
 			NameIDDocument retDoc = wsProxy.getAuthenticatedUser();
 			fail("Managed to authenticate with wrong password: " + retDoc.xmlText());
@@ -174,7 +183,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		clientCfg.setSslAuthn(true);
 		clientCfg.setHttpAuthn(false);
 		factory = new WSClientFactory(clientCfg);
-		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:2443/mock"+
+		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
 		ret = wsProxy.getAuthenticatedUser();
 		assertEquals("[CN=Test UVOS,O=UNICORE,C=EU]", ret.getNameID().getStringValue());
@@ -183,7 +192,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		clientCfg.setHttpAuthn(true);
 		clientCfg.setHttpPassword("wrong");
 		factory = new WSClientFactory(clientCfg);
-		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:2443/mock"+
+		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
 		ret = wsProxy.getAuthenticatedUser();
 		assertEquals("[CN=Test UVOS,O=UNICORE,C=EU]", ret.getNameID().getStringValue());
@@ -192,7 +201,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		clientCfg.setHttpAuthn(true);
 		clientCfg.setHttpPassword("mockPassword1");
 		factory = new WSClientFactory(clientCfg);
-		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:2443/mock"+
+		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
 		ret = wsProxy.getAuthenticatedUser();
 		assertEquals("[user1]", ret.getNameID().getStringValue());
@@ -203,14 +212,14 @@ public class TestWSCore extends DBIntegrationTestBase
 		setC.add("Apass");
 		setC.add("Acert");
 		authnCfg2.add(new AuthenticatorSet(setC));
-		endpointMan.deploy(type.getName(), "endpoint2", "/mock2", "desc", authnCfg2, "");
+		endpointMan.deploy(type.getName(), "endpoint2", "/mock2", "desc", authnCfg2, "", realm.getName());
 		
 		clientCfg.setSslAuthn(true);
 		clientCfg.setHttpAuthn(true);
 		clientCfg.setHttpUser("user2");
 		clientCfg.setHttpPassword("mockPassword2");
 		factory = new WSClientFactory(clientCfg);
-		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:2443/mock2"+
+		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock2"+
 				MockWSEndpointFactory.SERVLET_PATH);
 		ret = wsProxy.getAuthenticatedUser();
 		assertEquals("[user2, CN=Test UVOS,O=UNICORE,C=EU]", ret.getNameID().getStringValue());
@@ -219,7 +228,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		{
 			clientCfg.setSslAuthn(false);
 			factory = new WSClientFactory(clientCfg);
-			wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:2443/mock2"+
+			wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock2"+
 					MockWSEndpointFactory.SERVLET_PATH);
 			wsProxy.getAuthenticatedUser();
 			fail("Managed to authenticate with single cred when 2 req");
@@ -233,7 +242,7 @@ public class TestWSCore extends DBIntegrationTestBase
 			clientCfg.setSslAuthn(true);
 			clientCfg.setHttpAuthn(false);
 			factory = new WSClientFactory(clientCfg);
-			wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:2443/mock2"+
+			wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock2"+
 					MockWSEndpointFactory.SERVLET_PATH);
 			wsProxy.getAuthenticatedUser();
 			fail("Managed to authenticate with single cred when 2 req");

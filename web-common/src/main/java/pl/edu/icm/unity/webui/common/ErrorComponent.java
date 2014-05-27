@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.common;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.server.utils.Log;
 
 import com.vaadin.shared.ui.label.ContentMode;
@@ -36,8 +37,11 @@ public class ErrorComponent extends FormLayout
 		errorL.setIcon(Images.error32.getResource());
 		errorL.setValue(description + ": " + ErrorPopup.getHumanMessage(error));
 		errorL.setContentMode(ContentMode.HTML);
-		log.debug("Error component initialized with the error with exception. Description: " + description, 
-				error);
+		if (error instanceof AuthorizationException)
+			log.debug("Error component initialized with the authZ error: " + description);
+		else
+			log.debug("Error component initialized with the error with exception. Description: " + description, 
+					error);
 		addCommon(errorL);
 	}
 

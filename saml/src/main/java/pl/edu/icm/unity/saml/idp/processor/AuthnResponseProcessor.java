@@ -18,8 +18,6 @@ import eu.unicore.samly2.proto.AssertionResponse;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
-import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
-import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -68,6 +66,14 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 				"' SAML identity format for the authenticated principial.");			
 	}
 	
+	public boolean isIdentityCreationAllowed()
+	{
+		NameIDPolicyType nameIdPolicy = context.getRequest().getNameIDPolicy();
+		if (nameIdPolicy == null)
+			return true;
+		return nameIdPolicy.getAllowCreate();
+	}
+	
 	public ResponseDocument processAuthnRequest(Identity authenticatedIdentity) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
@@ -77,12 +83,19 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 	public ResponseDocument processAuthnRequest(Identity authenticatedIdentity, Collection<Attribute<?>> attributes) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
+		boolean returnSingleAssertion = samlConfiguration.getBooleanValue(
+				SamlIdpProperties.RETURN_SINGLE_ASSERTION);
+		return processAuthnRequest(authenticatedIdentity, attributes, returnSingleAssertion);
+	}
+	
+	protected ResponseDocument processAuthnRequest(Identity authenticatedIdentity, 
+			Collection<Attribute<?>> attributes, boolean returnSingleAssertion) 
+			throws SAMLRequesterException, SAMLProcessingException
+	{
 		SubjectType authenticatedOne = establishSubject(authenticatedIdentity);
 
 		AssertionResponse resp = getOKResponseDocument();
 		
-		boolean returnSingleAssertion = samlConfiguration.getBooleanValue(
-				SamlIdpProperties.RETURN_SINGLE_ASSERTION);
 		if (returnSingleAssertion)
 			resp.addAssertion(createAuthenticationAssertion(authenticatedOne, attributes));
 		else
@@ -98,7 +111,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		}
 		return resp.getXMLBeanDoc();
 	}
-
+	
 	protected SubjectType establishSubject(Identity authenticatedIdentity)
 	{
 		String format = getRequestedFormat();
@@ -172,21 +185,5 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		if (requestedFormat == null)
 			return SAMLConstants.NFORMAT_UNSPEC;
 		return requestedFormat;
-	}
-	
-	protected String getUnityIdentityFormat(String samlIdFormat) throws SAMLRequesterException
-	{
-		if (samlIdFormat.equals(SAMLConstants.NFORMAT_PERSISTENT) || 
-				samlIdFormat.equals(SAMLConstants.NFORMAT_UNSPEC))
-		{
-			return PersistentIdentity.ID;
-		} else if (samlIdFormat.equals(SAMLConstants.NFORMAT_DN))
-		{
-			return X500Identity.ID;
-		} else
-		{
-			throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_INVALID_NAMEID_POLICY,
-					samlIdFormat + " is not supported by this service.");
-		}
-	}
+	}	
 }

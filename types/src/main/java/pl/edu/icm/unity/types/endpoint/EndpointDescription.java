@@ -6,6 +6,7 @@ package pl.edu.icm.unity.types.endpoint;
 
 import java.util.List;
 
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 
 /**
@@ -18,6 +19,7 @@ public class EndpointDescription
 	private String id;
 	private String contextAddress;
 	private String description;
+	private AuthenticationRealm realm;
 	private EndpointTypeDescription type;
 	private List<AuthenticatorSet> authenticatorSets;
 
@@ -60,5 +62,13 @@ public class EndpointDescription
 	public void setContextAddress(String contextAddress)
 	{
 		this.contextAddress = contextAddress;
+	}
+	public AuthenticationRealm getRealm()
+	{
+		return realm;
+	}
+	public void setRealm(AuthenticationRealm realm)
+	{
+		this.realm = realm;
 	}
 }

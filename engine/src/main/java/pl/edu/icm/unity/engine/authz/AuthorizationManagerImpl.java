@@ -23,7 +23,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -181,7 +181,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	{
 		Group group = groupPath == null ? new Group("/") : new Group(groupPath);
 		InvocationContext authnCtx = InvocationContext.getCurrent();
-		AuthenticatedEntity client = authnCtx.getAuthenticatedEntity();
+		LoginSession client = authnCtx.getLoginSession();
 
 		if (client == null)
 			throw new AuthorizationException("Access is denied. The client is not authenticated.");
@@ -218,7 +218,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	public boolean isSelf(long subject)
 	{
 		InvocationContext authnCtx = InvocationContext.getCurrent();
-		return authnCtx.getAuthenticatedEntity().getEntityId() == subject;
+		return authnCtx.getLoginSession().getEntityId() == subject;
 	}
 	
 	

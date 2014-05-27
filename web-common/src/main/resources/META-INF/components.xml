@@ -19,6 +19,7 @@
 	<bean class="pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry"/>
 	<bean class="pl.edu.icm.unity.webui.common.identities.ext.UsernameIdentityEditorFactory"/>
 	<bean class="pl.edu.icm.unity.webui.common.identities.ext.X500IdentityEditorFactory"/>
+	<bean class="pl.edu.icm.unity.webui.common.identities.ext.IdentifierIdentityEditorFactory"/>
 
 	<bean class="pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry"/>
 	<bean class="pl.edu.icm.unity.webui.common.credentials.ext.CertificateCredentialEditorFactory"/>

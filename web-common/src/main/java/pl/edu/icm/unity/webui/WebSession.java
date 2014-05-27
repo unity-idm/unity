@@ -6,21 +6,15 @@ package pl.edu.icm.unity.webui;
 
 import com.vaadin.server.VaadinSession;
 
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 
 /**
- * Holds information stored in the HTTP session.
+ * Holds Unity-related information attached to the {@link VaadinSession}, i.e. each instance of this class
+ * is stored per one Vaadin application per each HTTP session.
  * @author K. Benedyczak
  */
 public class WebSession
 {
-	/**
-	 * Under this key, the object {@link AuthenticatedEntity} 
-	 * with authenticated user is stored in the session.
-	 */
-	public static final String USER_SESSION_KEY = WebSession.class.getName();
-	
 	private EventsBus eventBus;
 	
 	public static WebSession getCurrent()

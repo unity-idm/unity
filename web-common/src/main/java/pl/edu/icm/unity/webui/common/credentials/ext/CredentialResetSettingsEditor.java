@@ -8,12 +8,16 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Slider;
 
+import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.authn.CredentialResetSettings;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.stdext.credential.PasswordResetTemplateDef;
+import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.ListOfElements.RemoveHandler;
@@ -33,17 +37,21 @@ public class CredentialResetSettingsEditor
 	private CheckBox requireEmailConfirmation;
 	private CheckBox requireQuestionConfirmation;
 	private TextFieldWithButton questionAdder;
+	private ComboBox codeMessageTemplate;
 	private ListOfElements<String> questions;
+	private MessageTemplateManagement msgTplMan;
 	
-	public CredentialResetSettingsEditor(UnityMessageSource msg)
+	public CredentialResetSettingsEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan)
 	{
-		this(msg, new CredentialResetSettings());
+		this(msg, msgTplMan, new CredentialResetSettings());
 	}
 	
-	public CredentialResetSettingsEditor(UnityMessageSource msg, CredentialResetSettings initial)
+	public CredentialResetSettingsEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan,
+			CredentialResetSettings initial)
 	{
 		this.msg = msg;
 		this.initial = initial;
+		this.msgTplMan = msgTplMan;
 	}
 	
 	public void addViewerToLayout(FormLayout parent)
@@ -59,11 +67,14 @@ public class CredentialResetSettingsEditor
 		Label requireEmailConfirmation = new Label(initial.isRequireEmailConfirmation() ? 
 				msg.getMessage("yes") : msg.getMessage("no"));
 		requireEmailConfirmation.setCaption(msg.getMessage("CredentialResetSettings.requireEmailConfirmation"));
+		Label codeTemplate = new Label(initial.getSecurityCodeMsgTemplate());
+		codeTemplate.setCaption(msg.getMessage("CredentialResetSettings.messageTemplate"));
+		
 		Label requireQuestionConfirmation = new Label(initial.isRequireSecurityQuestion() ? 
 				msg.getMessage("yes") : msg.getMessage("no"));
 		requireQuestionConfirmation.setCaption(msg.getMessage(
 				"CredentialResetSettings.requireQuestionConfirmation"));
-		parent.addComponents(codeLength, requireEmailConfirmation, requireQuestionConfirmation);
+		parent.addComponents(codeLength, requireEmailConfirmation, codeTemplate, requireQuestionConfirmation);
 		
 		if (!initial.isRequireSecurityQuestion())
 			return;
@@ -80,7 +91,7 @@ public class CredentialResetSettingsEditor
 		initUI();
 		setValue(initial);		
 		parent.addComponents(enable, codeLength, requireEmailConfirmation, 
-				requireQuestionConfirmation, questionAdder, questions);
+				codeMessageTemplate, requireQuestionConfirmation, questionAdder, questions);
 	}
 	
 	private void initUI()
@@ -101,8 +112,21 @@ public class CredentialResetSettingsEditor
 		
 		requireEmailConfirmation = new CheckBox(
 				msg.getMessage("CredentialResetSettings.requireEmailConfirmation"));
+		requireEmailConfirmation.setImmediate(true);
+		requireEmailConfirmation.addValueChangeListener(new ValueChangeListener()
+		{
+			@Override
+			public void valueChange(ValueChangeEvent event)
+			{
+				boolean state = requireEmailConfirmation.getValue();
+				codeMessageTemplate.setEnabled(state);
+			}
+		});
 		requireQuestionConfirmation = new CheckBox(
 				msg.getMessage("CredentialResetSettings.requireQuestionConfirmation"));
+		
+		codeMessageTemplate = new CompatibleTemplatesComboBox(PasswordResetTemplateDef.NAME, msgTplMan);
+		codeMessageTemplate.setCaption(msg.getMessage("CredentialResetSettings.messageTemplate"));
 		
 		requireQuestionConfirmation.setImmediate(true);
 		requireQuestionConfirmation.addValueChangeListener(new ValueChangeListener()
@@ -159,6 +183,7 @@ public class CredentialResetSettingsEditor
 		codeLength.setEnabled(how);
 		requireEmailConfirmation.setEnabled(how);
 		requireQuestionConfirmation.setEnabled(how);
+		codeMessageTemplate.setEnabled(how);
 		if (how)
 		{
 			boolean state = requireQuestionConfirmation.getValue();
@@ -180,6 +205,7 @@ public class CredentialResetSettingsEditor
 		requireQuestionConfirmation.setValue(initial.isRequireEmailConfirmation());
 		for (String question: initial.getQuestions())
 			questions.addEntry(question);
+		codeMessageTemplate.setValue(initial.getSecurityCodeMsgTemplate());
 		setEnabled(initial.isEnabled());
 	}
 	
@@ -191,6 +217,8 @@ public class CredentialResetSettingsEditor
 		ret.setRequireEmailConfirmation(requireEmailConfirmation.getValue());
 		ret.setRequireSecurityQuestion(requireQuestionConfirmation.getValue());
 		ret.setQuestions(questions.getElements());
+		if (codeMessageTemplate.getValue() != null)
+			ret.setSecurityCodeMsgTemplate(codeMessageTemplate.getValue().toString());
 		return ret;
 	}
 	

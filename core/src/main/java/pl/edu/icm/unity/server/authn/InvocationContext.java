@@ -5,9 +5,14 @@
 package pl.edu.icm.unity.server.authn;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 
 
 /**
@@ -23,8 +28,19 @@ public class InvocationContext implements Serializable
 
 	private static ThreadLocal<InvocationContext> threadLocal = new ThreadLocal<InvocationContext>();
 
-	private AuthenticatedEntity authenticatedEntity;
+	private LoginSession loginSession;
 	private Locale locale;
+	private IdentityTaV tlsIdentity; 
+	private Set<String> authenticatedIdentities = new LinkedHashSet<>();	
+
+	/**
+	 * @param tlsIdentity TLS client-authenticated identity (of X500 type) or null if there is no TLS 
+	 * client connection context or it is not client authenticated.
+	 */
+	public InvocationContext(IdentityTaV tlsIdentity)
+	{
+		setTlsIdentity(tlsIdentity);
+	}
 	
 	public static void setCurrent(InvocationContext context)
 	{
@@ -39,14 +55,31 @@ public class InvocationContext implements Serializable
 		return ret;
 	}
 
-	public AuthenticatedEntity getAuthenticatedEntity()
+	/**
+	 * @return current authentication realm's name or null if undefined/unknown.
+	 */
+	public static String safeGetRealm()
 	{
-		return authenticatedEntity;
+		try
+		{
+			InvocationContext context = InvocationContext.getCurrent();
+			if (context.getLoginSession() != null)
+				return context.getLoginSession().getRealm();
+		} catch (InternalException e)
+		{
+			//OK
+		}
+		return null;
+	}
+	
+	public LoginSession getLoginSession()
+	{
+		return loginSession;
 	}
 
-	public void setAuthenticatedEntity(AuthenticatedEntity authenticatedEntity)
+	public void setLoginSession(LoginSession loginSession)
 	{
-		this.authenticatedEntity = authenticatedEntity;
+		this.loginSession = loginSession;
 	}
 
 	/**
@@ -60,5 +93,32 @@ public class InvocationContext implements Serializable
 	public void setLocale(Locale locale)
 	{
 		this.locale = locale;
+	}
+
+	/**
+	 * @return the TLS authenticated identity if available or null
+	 */
+	public IdentityTaV getTlsIdentity()
+	{
+		return tlsIdentity;
+	}
+
+	/**
+	 * Sets a TLS authenticated identity.
+	 * @param tlsIdentity
+	 */
+	public void setTlsIdentity(IdentityTaV tlsIdentity)
+	{
+		this.tlsIdentity = tlsIdentity;
+	}
+
+	public Set<String> getAuthenticatedIdentities()
+	{
+		return authenticatedIdentities;
+	}
+
+	public void addAuthenticatedIdentities(Collection<String> identity)
+	{
+		this.authenticatedIdentities.addAll(identity);
 	}
 }

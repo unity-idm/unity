@@ -25,12 +25,6 @@ public class CreateUserActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "createUser";
 	
-	private static final ActionParameterDesc[] PARAMS = {
-		new ActionParameterDesc(true, "with attributes", 
-				"If true then also all previously mapped attributes in the '/' group will be assigned " +
-				"to the created entity (important if there are mandatory attributes in '/' attribute class).", 20)
-	};
-	
 	private AttributesManagement attrsMan;
 	private IdentitiesManagement idsMan;
 
@@ -49,15 +43,17 @@ public class CreateUserActionFactory implements TranslationActionFactory
 	}
 
 	@Override
-	public String getDescription()
+	public String getDescriptionKey()
 	{
-		return "Creates a new local entity if the remotely mapped identity is not present locally.";
+		return "TranslationAction.createUser.desc";
 	}
 
 	@Override
 	public ActionParameterDesc[] getParameters()
 	{
-		return PARAMS;
+		return new ActionParameterDesc[] { new ActionParameterDesc(true,
+				"with attributes",
+				"TranslationAction.createUser.param.withAttributes.desc", 20) };
 	}
 
 	@Override

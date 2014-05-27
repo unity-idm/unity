@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -30,13 +31,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.db.ContentsUpdater;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.db.InitDB;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.endpoints.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
@@ -44,11 +44,16 @@ import pl.edu.icm.unity.engine.notifications.EmailFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
+import pl.edu.icm.unity.server.api.RealmsManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
@@ -64,6 +69,7 @@ import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -79,6 +85,11 @@ import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.utils.LifecycleBase;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.configuration.FilePropertiesHelper;
 
 /**
  * Responsible for loading the initial state from database and starting background processes.
@@ -101,6 +112,10 @@ public class EngineInitialization extends LifecycleBase
 	private EndpointManagement endpointManager;
 	@Autowired
 	private UnityServerConfiguration config;
+	@Autowired
+	private ContentsUpdater contentsUpdater;
+	@Autowired
+	private InitDB initDB;
 	@Autowired
 	private DBSessionManager db;
 	@Autowired
@@ -133,6 +148,9 @@ public class EngineInitialization extends LifecycleBase
 	private NotificationsManagement notManagement;
 	@Autowired
 	private List<ServerInitializer> initializers;
+	@Autowired
+	@Qualifier("insecure")
+	private RealmsManagement realmManagement;
 	
 	@Autowired
 	private TranslationActionsRegistry tactionsRegistry;
@@ -141,6 +159,10 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	@Qualifier("insecure")
 	private TranslationProfileManagement profilesManagement;
+	@Autowired
+	@Qualifier("insecure")
+	private MessageTemplateManagement msgTemplatesManagement;
+	
 	
 	
 	private long endpointsLoadTime;
@@ -149,6 +171,7 @@ public class EngineInitialization extends LifecycleBase
 	@Override
 	public void start()
 	{
+		updateDatabase();
 		initializeDatabaseContents();
 		initializeBackgroundTasks();
 		super.start();
@@ -160,7 +183,21 @@ public class EngineInitialization extends LifecycleBase
 		return ENGINE_INITIALIZATION_MOMENT;
 	}
 
-	public void initializeBackgroundTasks()
+	private void updateDatabase()
+	{
+		try
+		{
+			initDB.updateContents(contentsUpdater);
+		} catch (Exception e)
+		{
+			log.fatal("Update of database contents failded. You have to:\n1) Restore DB from backup\n"
+					+ "2) Use the previous version of Unity\n"
+					+ "3) Report this problem with the exception following this message to the Unity support mailing list"); 
+			throw new InternalException("Update of the database contents failed", e);
+		}
+	}
+	
+	private void initializeBackgroundTasks()
 	{
 		Runnable endpointsUpdater = new Runnable()
 		{
@@ -199,6 +236,30 @@ public class EngineInitialization extends LifecycleBase
 		//the cleaner is just a cleaner. No need to call it very often.
 		executors.getService().scheduleWithFixedDelay(attributeStatementsUpdater, 
 				interval*10, interval*10, TimeUnit.SECONDS);
+		
+		
+		Runnable expiredIdentitiesCleaner = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				SqlSession sqlMap = db.getSqlSession(true);
+				try
+				{
+					log.debug("Clearing expired identities");
+					dbIdentities.removeExpiredIdentities(sqlMap);
+					sqlMap.commit();
+				} catch (Exception e)
+				{
+					log.error("Can't clean expired identities", e);
+				} finally
+				{
+					db.releaseSqlSession(sqlMap);
+				}
+			}
+		};
+		executors.getService().scheduleWithFixedDelay(expiredIdentitiesCleaner, 
+				interval*100, interval*100, TimeUnit.SECONDS);
 	}
 	
 	public void initializeDatabaseContents()
@@ -212,10 +273,76 @@ public class EngineInitialization extends LifecycleBase
 		initializeAuthenticators();
 		initializeEndpoints();
 		initializeNotifications();
+		initializeMsgTemplates();
 		runInitializers();
 		startLogConfigurationMonitoring();
 	}
 	
+	private void initializeMsgTemplates()
+	{
+		Map<String, MessageTemplate> existingTemplates;
+		try
+		{
+			existingTemplates = msgTemplatesManagement.listTemplates();
+		} catch (EngineException e)
+		{
+			throw new InternalException("Can't load existing message templates list", e);
+		}
+		File file = config.getFileValue(UnityServerConfiguration.TEMPLATES_CONF, false);
+		
+		Properties props = null;
+		try
+		{
+			props = FilePropertiesHelper.load(file);
+		} catch (IOException e)
+		{
+			throw new InternalException("Can't load message templates config file", e);
+		}
+		
+		Set<String> templateKeys = new HashSet<>();
+		for (Object keyO: props.keySet())
+		{
+			String key = (String) keyO;
+			if (key.contains("."))
+				templateKeys.add(key.substring(0, key.indexOf('.')));
+		}	
+		
+		for(String key:templateKeys)
+		{
+			if (existingTemplates.keySet().contains(key))
+			{
+				continue;
+			}
+			try
+			{
+					MessageTemplate templ = loadTemplate(props, key);
+					msgTemplatesManagement.addTemplate(templ);
+			} catch (WrongArgumentException e)
+			{
+				log.error("Template with id " + key + "not exists", e);
+			} catch (EngineException e)
+			{
+				log.error("Cannot add template " + key, e);
+			}
+		}
+		
+	}
+	
+	private MessageTemplate loadTemplate(Properties properties, String id) throws WrongArgumentException
+	{
+		String body = properties.getProperty(id+".body");
+		String subject = properties.getProperty(id+".subject");
+		String consumer = properties.getProperty(id+".consumer", "");
+		String description = properties.getProperty(id+".description", "");
+		
+		if (body == null || subject == null)
+			throw new WrongArgumentException("There is no template for this id");
+		
+		Map<String, Message> msgList = new HashMap<String, Message>();
+		Message tempMsg = new Message(subject, body);
+		msgList.put("", tempMsg);
+		return new MessageTemplate(id, description, msgList, consumer);
+	}
 	
 	private void initializeIdentityTypes()
 	{
@@ -370,43 +497,67 @@ public class EngineInitialization extends LifecycleBase
 	
 	private void initializeEndpoints()
 	{
-		if (config.getBooleanValue(UnityServerConfiguration.RECREATE_ENDPOINTS_ON_STARTUP))
-		{
-			try
-			{
-				log.info("Removing all persisted endpoints");
-				internalEndpointManager.removeAllPersistedEndpoints();
-			} catch (EngineException e)
-			{
-				log.fatal("Can't remove endpoints which are stored in database", e);
-				throw new InternalException("Can't restore endpoints which are stored in database", e);
-			}
-		}
-		
 		try
 		{
-			log.info("Loading all persisted endpoints");
-			internalEndpointManager.loadPersistedEndpoints();
+			log.info("Removing all persisted endpoints");
+			internalEndpointManager.removeAllPersistedEndpoints();
 		} catch (EngineException e)
 		{
-			log.fatal("Can't restore endpoints which are stored in database", e);
+			log.fatal("Can't remove endpoints which are stored in database", e);
 			throw new InternalException("Can't restore endpoints which are stored in database", e);
 		}
-		
-		//check for cold start - if so, we should load endpoints from configuration
+
 		try
 		{
-			if (endpointManager.getEndpoints().size() == 0)
+			log.info("Removing all persisted realms");
+			Collection<AuthenticationRealm> realms = realmManagement.getRealms();
+			for (AuthenticationRealm ar: realms)
+				realmManagement.removeRealm(ar.getName());
+		} catch (EngineException e)
+		{
+			log.fatal("Can't remove realms which are stored in database", e);
+			throw new InternalException("Can't remove realms which are stored in database", e);
+		}
+		
+		try
+		{
+			log.info("Loading configured realms");
+			Set<String> realmKeys = config.getStructuredListKeys(UnityServerConfiguration.REALMS);
+			for (String realmKey: realmKeys)
 			{
-				loadEndpointsFromConfiguration();
+				String name = config.getValue(realmKey+UnityServerConfiguration.REALM_NAME);
+				String description = config.getValue(realmKey+
+						UnityServerConfiguration.REALM_DESCRIPTION);
+				int blockAfter = config.getIntValue(realmKey+
+						UnityServerConfiguration.REALM_BLOCK_AFTER_UNSUCCESSFUL);
+				int blockFor = config.getIntValue(realmKey+UnityServerConfiguration.REALM_BLOCK_FOR);
+				int remeberMe = config.getIntValue(realmKey+
+						UnityServerConfiguration.REALM_REMEMBER_ME);
+				int maxInactive = config.getIntValue(realmKey+
+						UnityServerConfiguration.REALM_MAX_INACTIVITY);
+				
+				realmManagement.addRealm(new AuthenticationRealm(name, description, blockAfter, 
+						blockFor, remeberMe, maxInactive));
+				description = description == null ? "" : description;
+				log.info(" - " + name + ": " + description + " [blockAfter " + 
+						blockAfter + ", blockFor " + blockFor + 
+						", rememberMe " + remeberMe + ", maxInactive " + maxInactive);
 			}
+		} catch (EngineException e)
+		{
+			log.fatal("Can't add realms which are defined in configuration", e);
+			throw new InternalException("Can't add realms which are defined in configuration", e);
+		}
+		
+		try
+		{
+			loadEndpointsFromConfiguration();
 		} catch (Exception e)
 		{
 			log.fatal("Can't load endpoints which are configured", e);
 			throw new InternalException("Can't load endpoints which are configured", e);
 		}
 		
-
 		try
 		{
 			List<EndpointDescription> endpoints = endpointManager.getEndpoints();
@@ -415,14 +566,14 @@ public class EngineInitialization extends LifecycleBase
 			{
 				log.info(" - " + endpoint.getId() + ": " + endpoint.getType().getName() + 
 						" " + endpoint.getDescription() + " at " + 
-						endpoint.getContextAddress());
+						endpoint.getContextAddress() + " in realm " + 
+						endpoint.getRealm().getName());
 			}
 		} catch (Exception e)
 		{
 			log.fatal("Can't list loaded endpoints", e);
 			throw new InternalException("Can't list loaded endpoints", e);
-		}
-		endpointsLoadTime = System.currentTimeMillis();
+		}		endpointsLoadTime = System.currentTimeMillis();
 	}
 	
 	private void loadEndpointsFromConfiguration() throws IOException, EngineException
@@ -437,6 +588,7 @@ public class EngineInitialization extends LifecycleBase
 			String address = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_ADDRESS);
 			String name = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_NAME);
 			String authenticatorsSpec = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
+			String realmName = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_REALM);
 			
 			String[] authenticatorSets = authenticatorsSpec.split(";");
 			List<AuthenticatorSet> endpointAuthn = new ArrayList<AuthenticatorSet>();
@@ -451,7 +603,8 @@ public class EngineInitialization extends LifecycleBase
 			
 			String jsonConfiguration = FileUtils.readFileToString(configFile);
 
-			endpointManager.deploy(type, name, address, description, endpointAuthn, jsonConfiguration);
+			endpointManager.deploy(type, name, address, description, endpointAuthn, 
+					jsonConfiguration, realmName);
 			log.info(" - " + name + ": " + type + " " + description);
 		}
 	}
@@ -613,15 +766,13 @@ public class EngineInitialization extends LifecycleBase
 	private void initializeTranslationProfiles()
 	{
 		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
-		log.info("Removing old translation profiles");
+		Map<String, TranslationProfile> existingProfiles;
 		try
 		{
-			Map<String, TranslationProfile> existingProfiles = profilesManagement.listProfiles();
-			for (String pr: existingProfiles.keySet())
-				profilesManagement.removeProfile(pr);
-		} catch (EngineException e)
+			existingProfiles = profilesManagement.listProfiles();
+		} catch (EngineException e1)
 		{
-			throw new InternalException("Can't wipe existing translation profiles", e);
+			throw new InternalException("Can't list the existing translation profiles", e1);
 		}
 		log.info("Loading configured translation profiles");
 		for (String profileFile: profileFiles)
@@ -638,8 +789,17 @@ public class EngineInitialization extends LifecycleBase
 			TranslationProfile tp = new TranslationProfile(json, jsonMapper, tactionsRegistry);
 			try
 			{
-				profilesManagement.addProfile(tp);
-				log.info(" - loaded translation profile: " + tp.getName() + " from " + profileFile);
+				if (existingProfiles.containsKey(tp.getName()))
+				{
+					log.info(" - updated the in-DB translation profile : " + tp.getName() + 
+							" with file definition: " + profileFile);
+					profilesManagement.updateProfile(tp);	
+				} else
+				{
+					profilesManagement.addProfile(tp);
+					log.info(" - loaded translation profile: " + tp.getName() + 
+							" from file: " + profileFile);
+				}
 			} catch (EngineException e)
 			{
 				throw new InternalException("Can't install the configured translation profile " 

@@ -4,28 +4,45 @@
  */
 package pl.edu.icm.unity.webui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.security.cert.X509Certificate;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.context.ApplicationContext;
 
+import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 
+import com.vaadin.server.CustomizedSystemMessages;
 import com.vaadin.server.DeploymentConfiguration;
 import com.vaadin.server.ServiceException;
 import com.vaadin.server.SessionInitEvent;
 import com.vaadin.server.SessionInitListener;
+import com.vaadin.server.SystemMessages;
+import com.vaadin.server.SystemMessagesInfo;
+import com.vaadin.server.SystemMessagesProvider;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinService;
@@ -51,13 +68,11 @@ public class UnityVaadinServlet extends VaadinServlet
 	private transient List<Map<String, BindingAuthn>> authenticators;
 	private transient CancelHandler cancelHandler;
 	private transient EndpointRegistrationConfiguration registrationConfiguration;
-	private transient VaadinEndpointProperties vaadinEndpointProperties;
 	
 	public UnityVaadinServlet(ApplicationContext applicationContext, String uiBeanName,
 			EndpointDescription description,
 			List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration registrationConfiguration,
-			VaadinEndpointProperties vaadinEndpointProperties)
+			EndpointRegistrationConfiguration registrationConfiguration)
 	{
 		super();
 		this.applicationContext = applicationContext;
@@ -66,7 +81,6 @@ public class UnityVaadinServlet extends VaadinServlet
 		this.authenticators = authenticators;
 		this.config = applicationContext.getBean(UnityServerConfiguration.class);
 		this.registrationConfiguration = registrationConfiguration;
-		this.vaadinEndpointProperties = vaadinEndpointProperties;
 	}
 	
 	@Override
@@ -79,13 +93,32 @@ public class UnityVaadinServlet extends VaadinServlet
 		Object counter = getServletContext().getAttribute(UnsuccessfulAuthenticationCounter.class.getName());
 		if (counter == null)
 		{
-			int blockAfter = vaadinEndpointProperties.getIntValue(
-					VaadinEndpointProperties.BLOCK_AFTER_UNSUCCESSFUL);
-			int blockFor = vaadinEndpointProperties.getIntValue(VaadinEndpointProperties.BLOCK_FOR) * 1000;
+			AuthenticationRealm realm = description.getRealm();
 			getServletContext().setAttribute(UnsuccessfulAuthenticationCounter.class.getName(),
-					new UnsuccessfulAuthenticationCounter(blockAfter, blockFor));
+					new UnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(),
+							realm.getBlockFor()*1000));
 		}
 		
+		SystemMessagesProvider msgProvider = new SystemMessagesProvider() 
+		{
+			@Override 
+			public SystemMessages getSystemMessages(
+					SystemMessagesInfo systemMessagesInfo) {
+				CustomizedSystemMessages messages =
+						new CustomizedSystemMessages();
+				messages.setCommunicationErrorCaption("It seems that your login session is no longer available");
+				messages.setCommunicationErrorMessage("This happens most often due to "
+						+ "prolonged inactivity. You have to log in again.");
+				messages.setCommunicationErrorNotificationEnabled(true);
+				messages.setCommunicationErrorURL(null);
+				
+				messages.setSessionExpiredCaption("Session expiration");
+				messages.setSessionExpiredMessage("Your login session will expire in few seconds.");
+				messages.setSessionExpiredURL(null);
+				return messages;
+			}
+		}; 
+		getService().setSystemMessagesProvider(msgProvider);
 	}
 	
 	private Map<Class<?>, Object> saveThreadLocalState()
@@ -93,7 +126,7 @@ public class UnityVaadinServlet extends VaadinServlet
 		Map<Class<?>, Object> saved = new HashMap<Class<?>, Object>();
 		saved.put(UI.class, UI.getCurrent());
 		saved.put(VaadinSession.class, VaadinSession.getCurrent());
-		saved.put(VaadinService.class, VaadinService.getCurrent());
+		saved.put(VaadinServlet.class, VaadinServlet.getCurrent());
 		saved.put(VaadinRequest.class, CurrentInstance.get(VaadinRequest.class));
 		saved.put(VaadinResponse.class, CurrentInstance.get(VaadinResponse.class));
 		return saved;
@@ -138,13 +171,74 @@ public class UnityVaadinServlet extends VaadinServlet
 	}
 	
 	@Override
+	protected void service(HttpServletRequest request, HttpServletResponse response) 
+			throws ServletException, IOException 
+	{
+		InvocationContext ctx = setEmptyInvocationContext(request);
+		setAuthenticationContext(request, ctx);
+		setLocale(request, ctx);
+		try
+		{
+			super.service(request, response);
+		} finally 
+		{
+			InvocationContext.setCurrent(null);
+		}
+	}
+	
+	private InvocationContext setEmptyInvocationContext(HttpServletRequest request)
+	{
+		X509Certificate[] clientCert = (X509Certificate[]) request.getAttribute(
+				"javax.servlet.request.X509Certificate");
+		IdentityTaV tlsId = (clientCert == null) ? null : new IdentityTaV(X500Identity.ID, 
+				clientCert[0].getSubjectX500Principal().getName());
+		InvocationContext context = new InvocationContext(tlsId);
+		InvocationContext.setCurrent(context);
+		return context;
+	}
+	
+	private void setAuthenticationContext(HttpServletRequest request, InvocationContext ctx)
+	{
+		HttpSession session = request.getSession(false);
+		if (session != null)
+		{
+			LoginSession ls = (LoginSession) session.getAttribute(
+					LoginToHttpSessionBinder.USER_SESSION_KEY);
+			if (ls != null)
+				ctx.setLoginSession(ls);
+		}
+	}
+	
+	/**
+	 * Sets locale in invocation context. If there is cookie with selected and still supported
+	 * locale then it is used. Otherwise a default locale is set.
+	 * @param request
+	 */
+	private void setLocale(HttpServletRequest request, InvocationContext context)
+	{
+		Cookie[] cookies = request.getCookies();
+		for (Cookie cookie: cookies)
+		{
+			if (LANGUAGE_COOKIE.equals(cookie.getName()))
+			{
+				String value = cookie.getValue();
+				Locale locale = UnityServerConfiguration.safeLocaleDecode(value);
+				if (config.isLocaleSupported(locale))
+					context.setLocale(locale);
+				else
+					context.setLocale(config.getDefaultLocale());
+				return;
+			}
+		}
+		context.setLocale(config.getDefaultLocale());
+	}
+	
+	@Override
 	protected VaadinServletService createServletService(DeploymentConfiguration deploymentConfiguration) 
 			throws ServiceException 
 	{
-		final UnityVaadinServletService service = new UnityVaadinServletService(config, 
-				this, deploymentConfiguration);
-		service.init();
-		
+		final VaadinServletService service = super.createServletService(deploymentConfiguration);
+
 		service.addSessionInitListener(new SessionInitListener()
 		{
 			@Override
@@ -159,12 +253,12 @@ public class UnityVaadinServlet extends VaadinServlet
 				String timeout = properties.getProperty(VaadinEndpoint.SESSION_TIMEOUT_PARAM);
 				if (timeout != null)
 					event.getSession().getSession().setMaxInactiveInterval(Integer.parseInt(timeout));
-				
+
 				if (WebSession.getCurrent() == null)
 				{
 					WebSession webSession = new WebSession(new EventsBus());
 					WebSession.setCurrent(webSession);
-				}
+				}			
 			}
 		});
 

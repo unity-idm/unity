@@ -5,11 +5,18 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<context:annotation-config/>
+	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
+		<property name="bundle" value="pl/edu/icm/unity/stdext/messages/messages"/>
+	</bean>
+	
 	<bean class="pl.edu.icm.unity.stdext.utils.InitializerCommon"/>
 	
 	<bean class="pl.edu.icm.unity.stdext.identity.PersistentIdentity"/>
 	<bean class="pl.edu.icm.unity.stdext.identity.X500Identity"/>
 	<bean class="pl.edu.icm.unity.stdext.identity.UsernameIdentity"/>
+	<bean class="pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity"/>
+	<bean class="pl.edu.icm.unity.stdext.identity.TransientIdentity"/>
+	<bean class="pl.edu.icm.unity.stdext.identity.IdentifierIdentity"/>
 	
 	<bean class="pl.edu.icm.unity.stdext.attr.StringAttributeSyntaxFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.attr.EnumAttributeSyntaxFactory"/>
@@ -20,6 +27,7 @@
 	<bean class="pl.edu.icm.unity.stdext.attr.StandardLDAPConverter"/>
 	
 	<bean class="pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.credential.PasswordResetTemplateDef"/>
 	<bean class="pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory"/>
 	
 	<bean class="pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider"/>
@@ -33,4 +41,6 @@
 	<bean class="pl.edu.icm.unity.stdext.tactions.MapIdentityByTypeActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.UpdateAttributesActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.UpdateGroupsActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.tactions.AddGroupActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.tactions.AddAttributeActionFactory"/>
 </beans>

@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -29,7 +28,7 @@ import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
@@ -40,11 +39,12 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
-import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
@@ -56,10 +56,7 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 import com.vaadin.annotations.Theme;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -96,6 +93,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	protected FreemarkerHandler freemarkerHandler;
 	protected AttributeHandlerRegistry handlersRegistry;
 	protected PreferencesManagement preferencesMan;
+	protected AuthenticationProcessor authnProcessor;
 	
 	protected AuthnResponseProcessor samlProcessor;
 	protected SamlResponseHandler samlResponseHandler;
@@ -109,7 +107,8 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	@Autowired
 	public SamlIdPWebUI(UnityMessageSource msg, IdentitiesManagement identitiesMan,
 			AttributesManagement attributesMan, FreemarkerHandler freemarkerHandler,
-			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan)
+			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
+			AuthenticationProcessor authnProcessor)
 	{
 		super(msg);
 		this.msg = msg;
@@ -118,6 +117,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		this.attributesMan = attributesMan;
 		this.handlersRegistry = handlersRegistry;
 		this.preferencesMan = preferencesMan;
+		this.authnProcessor = authnProcessor;
 	}
 
 	@Override
@@ -128,21 +128,22 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		this.endpointDescription = description;
 	}
 	
-	protected Entity getAuthenticatedEntity() throws EngineException
+	protected Entity getAuthenticatedEntity(String target, boolean allowCreate) throws EngineException
 	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
-		return identitiesMan.getEntity(new EntityParam(ae.getEntityId()));
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
+		return identitiesMan.getEntity(new EntityParam(ae.getEntityId()), target, allowCreate);
 	}
 	
 	protected Map<String, Attribute<?>> getAttributes(AuthnResponseProcessor processor) 
 			throws EngineException
 	{
-		AuthenticatedEntity ae = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		EntityParam entity = new EntityParam(ae.getEntityId());
 		Collection<String> allGroups = identitiesMan.getGroups(entity);
 		Collection<AttributeExt<?>> allAttribtues = attributesMan.getAttributes(
 				entity, processor.getChosenGroup(), null);
-		return processor.prepareReleasedAttributes(allAttribtues, allGroups);
+		Entity fullEntity = identitiesMan.getEntity(entity);
+		return processor.prepareReleasedAttributes(allAttribtues, allGroups, fullEntity);
 	}
 	
 	
@@ -256,7 +257,8 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	
 	protected void createIdentityPart(VerticalLayout contents) throws EngineException, SAMLRequesterException
 	{
-		Entity authenticatedEntity = getAuthenticatedEntity();
+		Entity authenticatedEntity = getAuthenticatedEntity(samlProcessor.getIdentityTarget(),
+				samlProcessor.isIdentityCreationAllowed());
 		validIdentities = samlProcessor.getCompatibleIdentities(authenticatedEntity);
 		selectedIdentity = validIdentities.get(0);
 		if (validIdentities.size() == 1)
@@ -357,11 +359,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				WrappedSession ws = VaadinSession.getCurrent().getSession();
-				ws.removeAttribute(WebSession.USER_SESSION_KEY);
-				Page page = Page.getCurrent();
-				URI myUri = page.getLocation();
-				page.open(myUri.toASCIIString(), null);
+				authnProcessor.logoutAndRefresh(true);
 			}
 		});
 		buttons.addComponents(confirmB, declineB, reloginB);
@@ -458,7 +456,9 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 				hidden.add(SamlPreferences.SYMBOLIC_GROUP_ATTR);
 		}
 		settings.setHiddenAttribtues(hidden);
-		settings.setSelectedIdentity(selectedIdentity.getComparableValue());
+		IdentityTypeDefinition idType = selectedIdentity.getType().getIdentityTypeProvider();
+		if (!idType.isDynamic() && !idType.isTargeted())
+			settings.setSelectedIdentity(selectedIdentity.getComparableValue());
 		preferences.setSPSettings(reqIssuer, settings);
 	}
 	

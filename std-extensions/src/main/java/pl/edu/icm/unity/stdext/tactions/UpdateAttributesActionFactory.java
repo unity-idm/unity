@@ -23,16 +23,8 @@ import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory
 public class UpdateAttributesActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "updateAttributes";
-	
-	private static final ActionParameterDesc[] PARAMS = {
-		new ActionParameterDesc(true, "pattern", 
-				"Regular expression describing which attributes should be updated", 20),
-		new ActionParameterDesc(true, "valuesOnly", 
-				"If true, then only the values of already existing attributes will be updated.", 10)
-	};
-	
 	private AttributesManagement attrsMan;
-
+	
 	@Autowired
 	public UpdateAttributesActionFactory(@Qualifier("insecure") AttributesManagement attrsMan)
 	{
@@ -46,18 +38,25 @@ public class UpdateAttributesActionFactory implements TranslationActionFactory
 	}
 
 	@Override
-	public String getDescription()
+	public String getDescriptionKey()
 	{
-		return "Updates selected attributes of the client. Only attributes that has been previously mapped " +
-				"to local name and have assigned group scope can be updated (other are ignored)." +
-				" Can work in two modes: either all attributes are added/updated or only the values " +
-				"are updated for those attributes which are already present locally.";
+		return "TranslationAction.updateAttributes.desc";
 	}
 
 	@Override
 	public ActionParameterDesc[] getParameters()
 	{
-		return PARAMS;
+		return new ActionParameterDesc[] {
+				new ActionParameterDesc(
+						true,
+						"pattern",
+						"TranslationAction.updateAttributes.param.pattern.desc",
+						20),
+				new ActionParameterDesc(
+						true,
+						"valuesOnly",
+						"TranslationAction.updateAttributes.param.valuesOnly.desc",
+						10) };
 	}
 
 	@Override

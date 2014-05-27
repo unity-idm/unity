@@ -21,7 +21,7 @@ import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -70,7 +70,7 @@ public class UserAccountComponent extends VerticalLayout
 		addComponent(tabPanel);
 		setExpandRatio(tabPanel, 1.0f);
 
-		AuthenticatedEntity theUser = InvocationContext.getCurrent().getAuthenticatedEntity();
+		LoginSession theUser = InvocationContext.getCurrent().getLoginSession();
 
 		
 		try

@@ -11,7 +11,7 @@ import com.vaadin.ui.TextField;
 
 /**
  * Extension of {@link TextField} with a one change: the field is required 
- * and the exclamation mark is shown for all empty fields except for the intial rendering. 
+ * and the exclamation mark is shown for all empty fields except for the initial rendering. 
  * @author K. Benedyczak
  */
 public class RequiredTextField extends TextField

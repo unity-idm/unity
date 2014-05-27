@@ -10,6 +10,7 @@ import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.Log;
 
 import com.vaadin.server.VaadinSession;
+import com.vaadin.ui.UI;
 import com.vaadin.util.CurrentInstance;
 
 /**
@@ -25,12 +26,28 @@ public abstract class UIBgThread implements Runnable
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UIBgThread.class);
 	private VaadinSession session;
 	private InvocationContext unityContext;
+	private UI ui;
 
 	
 	public UIBgThread()
 	{
 		unityContext = InvocationContext.getCurrent();
 		session = VaadinSession.getCurrent();
+		ui = UI.getCurrent();
+		
+		if (ui == null || session == null || unityContext == null)
+		{
+			//we need a stack trace
+			try
+			{
+				throw new IllegalStateException();
+			} catch (Exception e)
+			{
+				log.error("UI BG thread created with UI=" + ui +
+						" session=" + session +
+						" context=" + unityContext, e);
+			}
+		}
 	}
 	
 	@Override
@@ -40,11 +57,12 @@ public abstract class UIBgThread implements Runnable
 		{
 			VaadinSession.setCurrent(session);
 			InvocationContext.setCurrent(unityContext);
+			UI.setCurrent(ui);
 			
 			safeRun();
 		} catch (Exception e)
 		{
-			log.error("Background action action failed", e);
+			log.error("Background action failed", e);
 		} finally
 		{
 			InvocationContext.setCurrent(null);

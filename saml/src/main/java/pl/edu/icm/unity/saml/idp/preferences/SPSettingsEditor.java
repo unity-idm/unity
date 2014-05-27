@@ -14,6 +14,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -91,7 +92,9 @@ public class SPSettingsEditor extends FormLayout
 		{
 			IndexedContainer idContainer = ((IndexedContainer)identity.getContainerDataSource());
 			Identity id = identities[idContainer.indexOfId(identityV)];
-			ret.setSelectedIdentity(id.getComparableValue());
+			IdentityTypeDefinition idType = id.getType().getIdentityTypeProvider();
+			if (!idType.isDynamic() && !idType.isTargeted())
+				ret.setSelectedIdentity(id.getComparableValue());
 		}
 		
 		Set<String> hiddenAttrs = getHidden();

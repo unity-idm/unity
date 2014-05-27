@@ -7,6 +7,8 @@ package pl.edu.icm.unity.server.authn.remote;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
@@ -27,30 +29,39 @@ public class RemotelyAuthenticatedContext
 	public RemotelyAuthenticatedContext(String remoteIdPName)
 	{
 		this.remoteIdPName = remoteIdPName;
+		try
+		{
+			InvocationContext ctx = InvocationContext.getCurrent();
+			if (ctx.getTlsIdentity() != null)
+				identities.add(ctx.getTlsIdentity());
+		} catch (InternalException e)
+		{
+			//OK
+		}
 	}
 	public Collection<IdentityTaV> getIdentities()
 	{
 		return identities;
 	}
-	public void setIdentities(Collection<IdentityTaV> identities)
+	public void addIdentities(Collection<IdentityTaV> identities)
 	{
-		this.identities = identities;
+		this.identities.addAll(identities);
 	}
 	public Collection<Attribute<?>> getAttributes()
 	{
 		return attributes;
 	}
-	public void setAttributes(Collection<Attribute<?>> attributes)
+	public void addAttributes(Collection<Attribute<?>> attributes)
 	{
-		this.attributes = attributes;
+		this.attributes.addAll(attributes);
 	}
 	public Collection<String> getGroups()
 	{
 		return groups;
 	}
-	public void setGroups(Collection<String> groups)
+	public void addGroups(Collection<String> groups)
 	{
-		this.groups = groups;
+		this.groups.addAll(groups);
 	}
 	public IdentityTaV getPrimaryIdentity()
 	{
