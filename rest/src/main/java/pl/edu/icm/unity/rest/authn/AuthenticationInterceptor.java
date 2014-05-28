@@ -76,7 +76,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		X509Certificate[] clientCert = TLSRetrieval.getTLSCertificates();
 		IdentityTaV tlsId = (clientCert == null) ? null : new IdentityTaV(X500Identity.ID, 
 				clientCert[0].getSubjectX500Principal().getName());
-		InvocationContext ctx = new InvocationContext(tlsId); 
+		InvocationContext ctx = new InvocationContext(tlsId, realm); 
 		InvocationContext.setCurrent(ctx);
 		AuthenticationException firstError = null;
 		AuthenticatedEntity client = null;

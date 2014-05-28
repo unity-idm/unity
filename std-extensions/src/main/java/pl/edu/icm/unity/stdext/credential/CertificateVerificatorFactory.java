@@ -10,7 +10,7 @@ import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
 
 /**
- * Produces verificators of passwords.
+ * Produces verificators of certificates.
  * @author K. Benedyczak
  */
 @Component

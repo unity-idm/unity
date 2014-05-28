@@ -9,10 +9,12 @@
 	<bean class="pl.edu.icm.unity.rest.authn.ext.HttpBasicRetrievalFactory"/>
 	<bean class="pl.edu.icm.unity.rest.authn.ext.TLSRetrievalFactory"/>
 
-	<!-- 
+	<bean class="pl.edu.icm.unity.rest.jwt.authn.JWTVerificatorFactory"/>
+	<bean class="pl.edu.icm.unity.rest.jwt.authn.JWTRetrievalFactory"/>
+
+	<bean class="pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpointFactory"/>
+
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
 		<property name="bundle" value="pl/edu/icm/unity/rest/messages/messages"/>
 	</bean>
-	
-	 -->
 </beans>

@@ -23,7 +23,7 @@ public class TestTransientIdentity
 	{
 		TransientIdentity tested = new TransientIdentity(Constants.MAPPER);
 		
-		InvocationContext ctx = new InvocationContext(null);
+		InvocationContext ctx = new InvocationContext(null, null);
 		InvocationContext.setCurrent(ctx);
 		
 		LoginSession ls = new LoginSession("1", new Date(), new Date(System.currentTimeMillis()+1000), 

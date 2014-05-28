@@ -25,7 +25,8 @@ public interface IdentityResolver
 	 * entity has not the disabled authentication state.
 	 * @param identity raw identity value
 	 * @param identityTypes what are the types of the identity, in the preference order
-	 * @param credentialName what credential should be provided in the returned object
+	 * @param credentialName what credential should be provided in the returned object. Can be null - then no
+	 * credential is set in the returned object.
 	 * @return the entity info with the credential value
 	 * @throws IllegalIdentityValueException if the given identity is not present in the db
 	 * @throws IllegalGroupValueException 
