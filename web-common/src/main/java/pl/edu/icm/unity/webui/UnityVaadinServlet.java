@@ -191,7 +191,7 @@ public class UnityVaadinServlet extends VaadinServlet
 				"javax.servlet.request.X509Certificate");
 		IdentityTaV tlsId = (clientCert == null) ? null : new IdentityTaV(X500Identity.ID, 
 				clientCert[0].getSubjectX500Principal().getName());
-		InvocationContext context = new InvocationContext(tlsId);
+		InvocationContext context = new InvocationContext(tlsId, description.getRealm());
 		InvocationContext.setCurrent(context);
 		return context;
 	}

@@ -91,7 +91,6 @@ public class IdentitiesIE extends AbstractIE
 			else
 				toAdd = Collections.singletonList(bean);
 			
-			
 			for (IdentityBean beanI: toAdd)
 			{
 				Identity identity = idResolver.resolveIdentityBeanNoExternalize(beanI, mapper);
@@ -128,6 +127,8 @@ public class IdentitiesIE extends AbstractIE
 		List<IdentityBean> ret = new ArrayList<>();
 		if (TransientIdentity.ID.equals(typeName) || TargetedPersistentIdentity.ID.equals(typeName))
 			return ret;
+		
+		final String PFX = "persistent::"; 
 		if (PersistentIdentity.ID.equals(typeName))
 		{
 			try
@@ -135,7 +136,12 @@ public class IdentitiesIE extends AbstractIE
 				byte[] cont = input.getContents();
 				ObjectMapper jsonMapper = new ObjectMapper();
 				ObjectNode node = (ObjectNode) jsonMapper.readTree(cont);
-				node.put("value", input.getName());
+				String name = input.getName();
+				if (name.startsWith(PFX))
+					name = name.substring(PFX.length());
+				node.put("value", name);
+				node.remove("target");
+				node.remove("realm");
 				byte[] cont2 = jsonMapper.writeValueAsBytes(node);
 				input.setContents(cont2);
 				ret.add(input);

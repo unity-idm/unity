@@ -299,7 +299,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 						authnContext.getRegistrationFormForUnknown());
 				authnResult.setFormForUnknownPrincipal(authnContext.getRegistrationFormForUnknown());
 				showError(null);
-				breakLogin(true);
+				breakLogin(false);
 			} else
 			{
 				if (savedException != null)

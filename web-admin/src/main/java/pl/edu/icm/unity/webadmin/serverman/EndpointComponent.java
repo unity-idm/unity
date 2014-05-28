@@ -14,7 +14,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
@@ -70,7 +69,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		try
 		{
 			endpointMan.undeploy(id);
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			log.error("Cannot undeploy endpoint", e);
 			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotUndeploy", id), e);
@@ -124,7 +123,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 			this.endpoint = endpointMan.deploy(data.get("type"), id, data.get("address"), 
 					data.get("description"), getEndpointAuth(data.get("authenticatorsSpec")), 
 					data.get("jsonConfiguration"), data.get("realm"));
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			log.error("Cannot deploy endpoint", e);
 			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotDeploy", id), e);
@@ -219,7 +218,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 					this.endpoint = en;
 				}
 			}
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			log.error("Cannot load endpoints", e);
 			ErrorPopup.showError(msg, msg.getMessage("error"),
@@ -340,7 +339,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 			String jsonConfiguration = serverMan.loadConfigurationFile(config.getValue(endpointKey
 					                           + UnityServerConfiguration.ENDPOINT_CONFIGURATION));
 			ret.put("jsonConfiguration", jsonConfiguration);
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			log.error("Cannot read json file", e);
 			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotReadJsonConfig"),

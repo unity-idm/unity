@@ -11,7 +11,7 @@
 <#if samlError?? >
 	Problem occurred during authentication process.  
 	<br/><br/>
-	The error is: ${samlError}
+	The error is: ${samlError?xhtml}
 	<p>
 	You will be automatically redirected in 5s back to the service which requested 
 	authentication, with the above information.
@@ -30,7 +30,7 @@
 <form action="${samlService}" method="post">
 	<div>
 	<#if RelayState??>
-		<input type="hidden" name="RelayState" value="${RelayState?url('UTF-8')}"/>
+		<input type="hidden" name="RelayState" value="${RelayState?xhtml}"/>
 	</#if>
 
 	<input type="hidden" name="SAMLResponse" value="${SAMLResponse}"/>

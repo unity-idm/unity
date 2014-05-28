@@ -80,9 +80,6 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	@Override
 	public void validate(String value) throws IllegalIdentityValueException
 	{
-		if (value != null)
-			throw new IllegalIdentityValueException("Only null identity value is allowed "
-					+ "for dynamic identity type");
 	}
 
 	/**
