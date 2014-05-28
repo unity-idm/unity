@@ -35,7 +35,6 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.ws.mock.MockWSEndpointFactory;
 import pl.edu.icm.unity.ws.mock.MockWSSEI;
 import xmlbeans.org.oasis.saml2.assertion.NameIDDocument;
@@ -52,13 +51,9 @@ public class TestWSCore extends DBIntegrationTestBase
 				5, 1, -1, 600);
 		realmsMan.addRealm(realm);
 		
-		List<EndpointTypeDescription> endpointTypes = endpointMan.getEndpointTypes();
-		assertEquals(1, endpointTypes.size());
-		EndpointTypeDescription type = endpointTypes.get(0);
-
 		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
 		authnCfg.add(new AuthenticatorSet(Collections.singleton("Apass")));
-		endpointMan.deploy(type.getName(), "endpoint1", "/mock", "desc", authnCfg, "", realm.getName());
+		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", "/mock", "desc", authnCfg, "", realm.getName());
 
 		httpServer.start();
 		
@@ -136,14 +131,11 @@ public class TestWSCore extends DBIntegrationTestBase
 				10, 100, -1, 600);
 		realmsMan.addRealm(realm);
 		
-		List<EndpointTypeDescription> endpointTypes = endpointMan.getEndpointTypes();
-		assertEquals(1, endpointTypes.size());
-		EndpointTypeDescription type = endpointTypes.get(0);
-
+		
 		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
 		authnCfg.add(new AuthenticatorSet(Collections.singleton("Apass")));
 		authnCfg.add(new AuthenticatorSet(Collections.singleton("Acert")));
-		endpointMan.deploy(type.getName(), "endpoint1", "/mock", "desc", authnCfg, "", realm.getName());
+		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", "/mock", "desc", authnCfg, "", realm.getName());
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 
@@ -212,7 +204,8 @@ public class TestWSCore extends DBIntegrationTestBase
 		setC.add("Apass");
 		setC.add("Acert");
 		authnCfg2.add(new AuthenticatorSet(setC));
-		endpointMan.deploy(type.getName(), "endpoint2", "/mock2", "desc", authnCfg2, "", realm.getName());
+		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint2", "/mock2", "desc",
+				authnCfg2, "", realm.getName());
 		
 		clientCfg.setSslAuthn(true);
 		clientCfg.setHttpAuthn(true);
