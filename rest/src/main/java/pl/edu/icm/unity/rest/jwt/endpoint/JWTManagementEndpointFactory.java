@@ -27,7 +27,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 @Component
 public class JWTManagementEndpointFactory implements EndpointFactory
 {
-	public static final String NAME = "JWT Authentication Management Endpoint";
+	public static final String NAME = "JWTMan";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(
 			NAME, "A RESTful endpoint allowing for management of tokens (issuing, refreshing) "
 					+ "which are subsequently used to authenticate to Unity by "

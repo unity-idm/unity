@@ -76,6 +76,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-rest</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>eu.unicore.security</groupId>
 			<artifactId>securityLibrary</artifactId>
 		</dependency>
@@ -180,6 +185,7 @@
 								<argument>pl.edu.icm.unity.oauth.client.config.OAuthClientProperties|ref-oauthClientProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.client.config.CustomProviderProperties|ref-oauthProviderProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.db.DBConfiguration|ref-dbProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties|ref-JWTManProperties.txt|</argument>
 							</arguments>
 						</configuration>
 						<goals>

@@ -282,6 +282,7 @@ assuming the same credential is exchanged.
 |ldap				| Password			| External verificator, uses LDAP.
 |certificate		| X.509 certificate | Local verificator.
 |saml2				| SAML assertions 	| External verificator, interacts via associated retrieval with a remote SAML IdP.
+|jwt				| JWT			 	| Local verificator, not bound to any local credential. Validated tokens are self contained.
 |==== 
 
 [cols="m,n,n,n", options="header"]
@@ -289,9 +290,13 @@ assuming the same credential is exchanged.
 |Retrieval			| Exchanges			| Compatible binding 	| Description 
 |web-password		| Password			| Web (Vaadin) 			| Uses textfield to collect a password
 |web-certificate	| X.509 certificate	| Web (Vaadin) 			| Uses client-authenticated TLS/SSL certificate
+|web-saml2			| SAML assertions	| Web (Vaadin) 			| Allows to choose remote SAML IdP, redirects the user to authenticate there and collects the received authentication data.
 |cxf-httpbasic		| Password			| Web Service (CXF stack)| Uses HTTP BASIC submitted password
 |cxf-certificate	| X.509 certificate	| Web Service (CXF stack)| Uses client-authenticated TLS/SSL certificate
-|web-saml2			| SAML assertions	| Web (Vaadin) 			| Allows to choose remote SAML IdP, redirects the user to authenticate there and collects the received authentication data.
+|cxf-jwt			| JWT				| Web Service (CXF stack)| Uses HTTP Bearer JWT tokens 
+|rest-httpbasic		| Password			| RESTful (CXF stack)	| Uses HTTP BASIC submitted password
+|rest-certificate	| X.509 certificate	| RESTful (CXF stack)	| Uses client-authenticated TLS/SSL certificate
+|rest-jwt			| JWT				| RESTful (CXF stack)	| Uses HTTP Bearer JWT tokens 
 |==== 
 
 Examples of some of the allowed combinations:
@@ -311,8 +316,9 @@ in the example only the credential retrieval has it configured. Finally all loca
 associated with the existing local credential (the _secured password_ in the example).
 
 Configuration of external verificators is covered in the section <<external-idps>>. Configuration
-of retrievals and local verificators is either not needed or trivial. 
-Currently only the +web-password+ allows for it, offering two options:
+of retrievals and local verificators is either not needed or trivial. The allowed options follow. 
+
+The +web-password+ retrieval offers two options:
 
 ----
 {
@@ -325,6 +331,8 @@ Name is used in the web interface. The registration form parameter is used only 
 retrieval is used with a remote authenticator: then the given registration form is presented
 automatically to the users who properly authenticated against the upstream IdP but doesn't have 
 a local account. 
+
+The +jwt+ verificator must be configured in the very same properties format as the <<endp-rest-jwt>> uses. 
 
 
 === HTTP server settings
