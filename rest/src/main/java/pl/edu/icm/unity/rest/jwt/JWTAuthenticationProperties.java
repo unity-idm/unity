@@ -47,6 +47,11 @@ public class JWTAuthenticationProperties extends PropertiesHelper
 		super(PREFIX, properties, META, log);
 	}
 	
+	public JWTAuthenticationProperties(String customPrefix, Properties properties) throws ConfigurationException
+	{
+		super(customPrefix, properties, META, log);
+	}
+	
 	public Properties getProperties()
 	{
 		return properties;

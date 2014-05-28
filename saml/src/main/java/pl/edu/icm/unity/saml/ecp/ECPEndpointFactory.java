@@ -16,10 +16,13 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -43,13 +46,18 @@ public class ECPEndpointFactory implements EndpointFactory
 	private IdentityResolver identityResolver;
 	private TranslationProfileManagement profileManagement;
 	private AttributesManagement attrMan;
+	private TokensManagement tokensMan;
+	private IdentitiesManagement identitiesMan;
+	private SessionManagement sessionMan;
 	
 	@Autowired
 	public ECPEndpointFactory(PKIManagement pkiManagement, NetworkServer jettyServer,
 			ECPContextManagement samlContextManagement,
 			ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
 			@Qualifier("insecure") TranslationProfileManagement profileManagement, 
-			@Qualifier("insecure") AttributesManagement attrMan)
+			@Qualifier("insecure") AttributesManagement attrMan,
+			TokensManagement tokensMan, IdentitiesManagement identitiesMan,
+			SessionManagement sessionMan)
 	{
 		this.pkiManagement = pkiManagement;
 		this.baseAddress = jettyServer.getAdvertisedAddress();
@@ -58,6 +66,9 @@ public class ECPEndpointFactory implements EndpointFactory
 		this.identityResolver = identityResolver;
 		this.profileManagement = profileManagement;
 		this.attrMan = attrMan;
+		this.tokensMan = tokensMan;
+		this.identitiesMan = identitiesMan;
+		this.sessionMan = sessionMan;
 		Set<String> supportedAuthn = new HashSet<String>();
 		Map<String,String> paths = new HashMap<String, String>();
 		paths.put(SERVLET_PATH, "SAML 2 ECP authentication endpoint");
@@ -76,7 +87,8 @@ public class ECPEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new ECPEndpoint(description, SERVLET_PATH, pkiManagement, samlContextManagement, baseAddress,
-				replayAttackChecker, identityResolver, profileManagement, attrMan);
+				replayAttackChecker, identityResolver, profileManagement, attrMan, tokensMan, 
+				identitiesMan, sessionMan);
 	}
 
 }

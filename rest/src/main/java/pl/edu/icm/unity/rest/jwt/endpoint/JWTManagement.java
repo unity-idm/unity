@@ -73,8 +73,13 @@ public class JWTManagement
 	@Produces("application/jwt")
 	public String generate()
 	{
-		X509Credential signingCred = getCredential();
 		EntityParam entityId = getCurrentEntity();
+		return generate(entityId);
+	}
+
+	public String generate(EntityParam entityId)
+	{
+		X509Credential signingCred = getCredential();
 		String persistentId = getClientsPersistentId(entityId);
 		return generateCommon(signingCred, persistentId, entityId);
 	}

@@ -40,9 +40,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpUtils;
+import pl.edu.icm.unity.rest.jwt.JWTUtils;
 import pl.edu.icm.unity.saml.ecp.ECPConstants;
 import pl.edu.icm.unity.saml.ecp.ECPEndpointFactory;
 import pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory;
@@ -51,6 +54,7 @@ import pl.edu.icm.unity.saml.xmlbeans.soap.Envelope;
 import pl.edu.icm.unity.saml.xmlbeans.soap.EnvelopeDocument;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Header;
 import pl.edu.icm.unity.samlidp.AbstractTestIdpBase;
+import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationCondition;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
@@ -67,10 +71,14 @@ public class TestECP extends AbstractTestIdpBase
 			"unity.saml.requester.remoteIdp.1.address=http://localhost:52443/\n" +
 			"unity.saml.requester.remoteIdp.1.samlId=http://example-saml-idp.org\n" +
 			"unity.saml.requester.remoteIdp.1.certificate=MAIN\n" +
-			"unity.saml.requester.remoteIdp.1.translationProfile=testP\n";
+			"unity.saml.requester.remoteIdp.1.translationProfile=testP\n" + 
+			"unity.saml.requester.jwt.credential=MAIN\n" +
+			"unity.saml.requester.jwt.tokenTtl=10\n";
 	
 	@Autowired
 	private TranslationProfileManagement profilesMan;
+	@Autowired
+	private PKIManagement pkiMan;
 	
 	@Before
 	public void setup()
@@ -135,12 +143,15 @@ public class TestECP extends AbstractTestIdpBase
 		HttpClient httpclient = HttpUtils.createClient(ecpUrl, clientCfg);
 		HttpResponse response = httpclient.execute(httpPost);
 		Assert.assertEquals(HttpServletResponse.SC_OK, response.getStatusLine().getStatusCode());
-		
+		Assert.assertTrue(response.getFirstHeader("Content-Type").getValue().startsWith("application/jwt"));
 		HttpEntity entity = response.getEntity();
 		if (entity != null) 
 		{
 			String resp = EntityUtils.toString(entity);
 			System.out.println(resp);
+			ReadOnlyJWTClaimsSet claims = JWTUtils.parseAndValidate(resp, pkiMan.getCredential("MAIN"));
+			System.out.println("GOT:\n" + claims.toJSONObject().toJSONString());
+			Assert.assertTrue(claims.getIssuer().contains("https://localhost:52443"));
 		} else
 			Assert.fail("No HTTP response");
 	}

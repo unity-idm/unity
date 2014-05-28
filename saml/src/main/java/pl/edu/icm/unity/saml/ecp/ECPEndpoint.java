@@ -17,11 +17,13 @@ import org.eclipse.jetty.servlet.ServletHolder;
 
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
@@ -34,7 +36,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInstance
 {
 	private Properties properties;
-	private SAMLSPProperties samlProperties;
+	private SAMLECPProperties samlProperties;
 	private String servletPath;
 	private PKIManagement pkiManagement;
 	private ECPContextManagement samlContextManagement;
@@ -43,11 +45,15 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 	private IdentityResolver identityResolver;
 	private TranslationProfileManagement profileManagement;
 	private AttributesManagement attrMan;
+	private TokensManagement tokensMan;
+	private IdentitiesManagement identitiesMan;
+	private SessionManagement sessionMan;
 	
 	public ECPEndpoint(EndpointTypeDescription type, String servletPath, PKIManagement pkiManagement,
 			ECPContextManagement samlContextManagement, URL baseAddress, 
 			ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
-			TranslationProfileManagement profileManagement, AttributesManagement attrMan)
+			TranslationProfileManagement profileManagement, AttributesManagement attrMan,
+			TokensManagement tokensMan, IdentitiesManagement identitiesMan, SessionManagement sessionMan)
 	{
 		super(type);
 		this.pkiManagement = pkiManagement;
@@ -58,6 +64,9 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 		this.identityResolver = identityResolver;
 		this.profileManagement = profileManagement;
 		this.attrMan = attrMan;
+		this.tokensMan = tokensMan;
+		this.identitiesMan = identitiesMan;
+		this.sessionMan = sessionMan;
 	}
 
 	@Override
@@ -67,7 +76,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 		try
 		{
 			properties.load(new ByteArrayInputStream(serializedState.getBytes()));
-			samlProperties = new SAMLSPProperties(properties, pkiManagement);
+			samlProperties = new SAMLECPProperties(properties, pkiManagement);
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("Can't initialize the SAML ECP" +
@@ -95,7 +104,9 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 		String endpointAddress = baseAddress.toExternalForm() + description.getContextAddress() +
 				servletPath;
 		ECPServlet ecpServlet = new ECPServlet(samlProperties, samlContextManagement, endpointAddress, 
-				replayAttackChecker, identityResolver, profileManagement, attrMan);
+				replayAttackChecker, identityResolver, profileManagement, attrMan,
+				tokensMan, pkiManagement, identitiesMan, sessionMan, 
+				description.getRealm(), baseAddress.toExternalForm());
 		
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
 		context.setContextPath(description.getContextAddress());
