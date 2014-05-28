@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
+import pl.edu.icm.unity.saml.ecp.SAMLECPProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import eu.emi.security.authn.x509.X509Credential;
@@ -132,6 +133,8 @@ public class SAMLSPProperties extends SamlProperties
 		
 		META.put(DISPLAY_NAME, new PropertyMD("SAML authentication").setCategory(webRetrieval).setDescription(
 				"Name of the SAML authentication GUI component"));
+		
+		META.put(SAMLECPProperties.JWT_P, new PropertyMD().setCanHaveSubkeys().setHidden());
 		
 		META.putAll(SamlProperties.defaults);
 	}

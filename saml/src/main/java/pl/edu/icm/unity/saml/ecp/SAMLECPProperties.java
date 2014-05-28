@@ -22,7 +22,7 @@ import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
  */
 public class SAMLECPProperties extends SAMLSPProperties
 {
-	private static final String JWT_P = "jwt.";
+	public static final String JWT_P = "jwt.";
 	
 	static
 	{
@@ -30,7 +30,11 @@ public class SAMLECPProperties extends SAMLSPProperties
 				"JWT generation specific settings", "04");
 
 		for (Map.Entry<String, PropertyMD> entry: JWTAuthenticationProperties.META.entrySet())
+		{
+			if (entry.getKey().equals(JWT_P))
+				continue;
 			META.put(JWT_P + entry.getKey(), entry.getValue().setCategory(jwt));
+		}
 	}
 	
 	public SAMLECPProperties(Properties properties, PKIManagement pkiMan) throws ConfigurationException
