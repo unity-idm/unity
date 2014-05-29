@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.server.api;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 
 
@@ -52,6 +53,12 @@ public class MockAttributeSyntax implements AttributeValueSyntax<String> {
 
 	@Override
 	public String deserialize(byte[] raw)
+	{
+		return null;
+	}
+
+	@Override
+	public Object serializeSimple(String value) throws InternalException
 	{
 		return null;
 	}

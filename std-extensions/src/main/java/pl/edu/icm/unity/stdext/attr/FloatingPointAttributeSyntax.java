@@ -126,4 +126,10 @@ public class FloatingPointAttributeSyntax implements AttributeValueSyntax<Double
 			throw new WrongArgumentException("Maximum must not be less then the minimum");
 		this.max = max;
 	}
+
+	@Override
+	public Object serializeSimple(Double value) throws InternalException
+	{
+		return value;
+	}
 }

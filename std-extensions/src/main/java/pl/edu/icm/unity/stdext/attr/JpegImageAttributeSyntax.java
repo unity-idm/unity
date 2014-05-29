@@ -229,6 +229,12 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 			return size;
 		}
 	}
+
+	@Override
+	public Object serializeSimple(BufferedImage value) throws InternalException
+	{
+		return serialize(value);
+	}
 }
 
 

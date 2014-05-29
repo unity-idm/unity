@@ -6,6 +6,8 @@ package pl.edu.icm.unity.restadm;
 
 import static org.junit.Assert.assertEquals;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,32 +28,111 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpUtils;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.stdext.attr.EnumAttribute;
+import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
+import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.IntegerAttribute;
+import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.JpegImageAttribute;
+import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 public class TestQuery extends DBIntegrationTestBase
 {
+	private ObjectMapper m = new ObjectMapper();
+	
+	{
+		m.enable(SerializationFeature.INDENT_OUTPUT);
+	}
+	
 	@Test
 	public void testQuery() throws Exception
 	{
+
 		setupPasswordAuthn();
 		createUsernameUser("System Manager");
 		deployEndpoint();
+		long e = createTestContents();
 		
 		DefaultHttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
 		BasicHttpContext localcontext = getClientContext(client, host);
 
-		HttpGet get = new HttpGet("/restadm/entity/1/groups");
-		HttpResponse response = client.execute(host, get, localcontext);
+		HttpGet getGroups = new HttpGet("/restadm/entity/"+e+"/groups");
+		HttpResponse response = client.execute(host, getGroups, localcontext);
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
 		System.out.println("User's groups:\n" + contents);
+		
+		HttpGet getEntity = new HttpGet("/restadm/entity/"+e);
+		response = client.execute(host, getEntity, localcontext);
+		contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		System.out.println("User's info:\n" + formatJson(contents));
+		
+		HttpGet getGroupContents = new HttpGet("/restadm/group/example%2Fsub");
+		response = client.execute(host, getGroupContents, localcontext);
+		contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		System.out.println("Group's /example/sub contents:\n" + formatJson(contents));
+
+		HttpGet getAttributes = new HttpGet("/restadm/entity/" + e + "/attributes?group=%2Fexample");
+		response = client.execute(host, getAttributes, localcontext);
+		contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		System.out.println("Attributes in /example:\n" + formatJson(contents));
+		
+	}
+	
+	protected long createTestContents() throws Exception
+	{
+		groupsMan.addGroup(new Group("/example"));
+		groupsMan.addGroup(new Group("/example/sub"));
+		Identity id = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tested", true), "cr-pass", 
+				EntityState.valid, false);
+		EntityParam e = new EntityParam(id);
+		groupsMan.addMemberFromParent("/example", e);
+		groupsMan.addMemberFromParent("/example/sub", e);
+		
+		attrsMan.addAttributeType(new AttributeType("stringA", new StringAttributeSyntax()));
+		attrsMan.addAttributeType(new AttributeType("intA", new IntegerAttributeSyntax()));
+		attrsMan.addAttributeType(new AttributeType("floatA", new FloatingPointAttributeSyntax()));
+		attrsMan.addAttributeType(new AttributeType("enumA", new EnumAttributeSyntax("V1", "V2")));
+		attrsMan.addAttributeType(new AttributeType("jpegA", new JpegImageAttributeSyntax()));
+		
+		attrsMan.setAttribute(e, new StringAttribute("stringA", "/example", 
+				AttributeVisibility.full, "value"), false);
+		attrsMan.setAttribute(e, new IntegerAttribute("intA", "/example", 
+				AttributeVisibility.full, 12), false);
+		attrsMan.setAttribute(e, new FloatingPointAttribute("floatA", "/example", 
+				AttributeVisibility.full, 12.9), false);
+		attrsMan.setAttribute(e, new JpegImageAttribute("jpegA", "/example", AttributeVisibility.full, 
+				new BufferedImage(100, 50, BufferedImage.TYPE_INT_ARGB)), false);
+		attrsMan.setAttribute(e, new EnumAttribute("enumA", "/example", 
+				AttributeVisibility.full, "V1"), false);
+		return id.getEntityId();
 	}
 	
 	protected void deployEndpoint() throws Exception
@@ -99,5 +180,11 @@ public class TestQuery extends DBIntegrationTestBase
 		super.setupPasswordAuthn();
 		authnMan.createAuthenticator("ApassREST", "password with rest-httpbasic", 
 				null, "", "credential1");
+	}
+	
+	public String formatJson(String contents) throws JsonProcessingException, IOException
+	{
+		JsonNode n = m.readTree(contents);
+		return m.writeValueAsString(n);
 	}
 }
