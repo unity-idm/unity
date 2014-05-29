@@ -88,7 +88,7 @@ public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEnd
 		
 		JAXRSBindingFactory factory = new JAXRSBindingFactory();
 		factory.setBus(bus);
-		
+
 		BindingFactoryManager manager = bus.getExtension(BindingFactoryManager.class);
 		manager.registerBindingFactory(JAXRSBindingFactory.JAXRS_BINDING_ID, factory);
 		

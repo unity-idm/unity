@@ -37,8 +37,8 @@ public class TestJWTAuthentication extends TestRESTBase
 	@Test
 	public void testJWT() throws Exception
 	{
-		setupMockAuthn();
-		createUsers();
+		setupPasswordAuthn();
+		createUsernameUser("Regular User");
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
 				10, 100, -1, 600);
 		realmsMan.addRealm(realm);
@@ -46,7 +46,7 @@ public class TestJWTAuthentication extends TestRESTBase
 		authnMan.createAuthenticator("Ajwt", "jwt with rest-jwt", JWT_CONFIG, null, null);
 		
 		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
-		authnCfg.add(new AuthenticatorSet(Collections.singleton("Apass")));
+		authnCfg.add(new AuthenticatorSet(Collections.singleton(AUTHENTICATOR_REST_PASS)));
 		authnCfg.add(new AuthenticatorSet(Collections.singleton("Ajwt")));
 		endpointMan.deploy(JWTManagementEndpointFactory.NAME, 
 				"jwtMan", "/jwt", "desc", authnCfg, JWT_CONFIG, realm.getName());

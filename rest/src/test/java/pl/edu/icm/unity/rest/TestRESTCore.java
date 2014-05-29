@@ -33,14 +33,14 @@ public class TestRESTCore extends TestRESTBase
 	@Test
 	public void test() throws Exception
 	{
-		setupMockAuthn();
-		createUsers();
+		setupPasswordAuthn();
+		createUsernameUser("Regular User");
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
 				10, 100, -1, 600);
 		realmsMan.addRealm(realm);
 		
 		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
-		authnCfg.add(new AuthenticatorSet(Collections.singleton("Apass")));
+		authnCfg.add(new AuthenticatorSet(Collections.singleton(AUTHENTICATOR_REST_PASS)));
 		endpointMan.deploy(MockRESTEndpointFactory.NAME, 
 				"endpoint1", "/mock", "desc", authnCfg, "", realm.getName());
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
