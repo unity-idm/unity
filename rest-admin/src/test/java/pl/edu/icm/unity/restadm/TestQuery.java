@@ -80,25 +80,25 @@ public class TestQuery extends DBIntegrationTestBase
 		HttpHost host = new HttpHost("localhost", 53456, "https");
 		BasicHttpContext localcontext = getClientContext(client, host);
 
-		HttpGet getGroups = new HttpGet("/restadm/entity/"+e+"/groups");
+		HttpGet getGroups = new HttpGet("/restadm/v1/entity/"+e+"/groups");
 		HttpResponse response = client.execute(host, getGroups, localcontext);
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
 		System.out.println("User's groups:\n" + contents);
 		
-		HttpGet getEntity = new HttpGet("/restadm/entity/"+e);
+		HttpGet getEntity = new HttpGet("/restadm/v1/entity/"+e);
 		response = client.execute(host, getEntity, localcontext);
 		contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
 		System.out.println("User's info:\n" + formatJson(contents));
 		
-		HttpGet getGroupContents = new HttpGet("/restadm/group/example%2Fsub");
+		HttpGet getGroupContents = new HttpGet("/restadm/v1/group/example%2Fsub");
 		response = client.execute(host, getGroupContents, localcontext);
 		contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
 		System.out.println("Group's /example/sub contents:\n" + formatJson(contents));
 
-		HttpGet getAttributes = new HttpGet("/restadm/entity/" + e + "/attributes?group=%2Fexample");
+		HttpGet getAttributes = new HttpGet("/restadm/v1/entity/" + e + "/attributes?group=%2Fexample");
 		response = client.execute(host, getAttributes, localcontext);
 		contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());

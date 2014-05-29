@@ -27,10 +27,11 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 public class RESTAdminEndpointFactory implements EndpointFactory
 {
 	public static final String NAME = "RESTAdmin";
+	public static final String V1_PATH = "/v1";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(
 			NAME, "A RESTful endpoint exposing Unity management API.", 
 			Collections.singleton(JAXRSAuthentication.NAME),
-			Collections.singletonMap("", "The REST management base path"));
+			Collections.singletonMap(V1_PATH, "The REST management base path"));
 	
 	@Autowired
 	private UnityMessageSource msg;

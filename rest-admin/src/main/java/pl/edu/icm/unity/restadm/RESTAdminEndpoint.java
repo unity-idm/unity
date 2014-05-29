@@ -12,7 +12,8 @@ import javax.ws.rs.core.Application;
 
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.restadm.exception.EngineExceptionMapper;
-import pl.edu.icm.unity.restadm.exception.RuntimeExceptionMapper;
+import pl.edu.icm.unity.restadm.exception.InternalExceptionMapper;
+import pl.edu.icm.unity.restadm.exception.NPEExceptionMapper;
 import pl.edu.icm.unity.restadm.exception.JSONExceptionMapper;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -57,7 +58,8 @@ public class RESTAdminEndpoint extends RESTEndpoint
 			HashSet<Object> ret = new HashSet<>();
 			ret.add(new RESTAdmin(identitiesMan, groupsMan, attributesMan));
 			ret.add(new EngineExceptionMapper());
-			ret.add(new RuntimeExceptionMapper());
+			ret.add(new NPEExceptionMapper());
+			ret.add(new InternalExceptionMapper());
 			ret.add(new JSONExceptionMapper());
 			return ret;
 		}

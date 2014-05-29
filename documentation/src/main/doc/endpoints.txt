@@ -58,6 +58,7 @@ include::endpoint-saml.txt[]
 
 include::endpoint-jwt.txt[]
 
+include::endpoint-restadmin.txt[]
 
 
 

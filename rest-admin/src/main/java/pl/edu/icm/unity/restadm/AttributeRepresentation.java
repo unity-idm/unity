@@ -23,6 +23,7 @@ public class AttributeRepresentation
 	private String name;
 	private String groupPath;
 	private AttributeVisibility visibility;
+	private String syntax;
 	
 	@SuppressWarnings("unchecked")
 	public AttributeRepresentation(AttributeExt<?> orig)
@@ -39,6 +40,12 @@ public class AttributeRepresentation
 		this.name = orig.getName();
 		this.groupPath = orig.getGroupPath();
 		this.visibility = orig.getVisibility();
+		this.syntax = orig.getAttributeSyntax().getValueSyntaxId();
+	}
+
+	public String getSyntax()
+	{
+		return syntax;
 	}
 
 	public List<Object> getValues()

@@ -14,17 +14,17 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.server.utils.Log;
 
 /**
- * Maps InternalException to HTTP error responses. No details are exposed to the client.
+ * Maps NullPointerException to HTTP error responses. No details are exposed to the client.
  * @author K. Benedyczak
  */
 @Provider
-public class RuntimeExceptionMapper implements ExceptionMapper<RuntimeException>
+public class NPEExceptionMapper implements ExceptionMapper<NullPointerException>
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, RuntimeExceptionMapper.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, NPEExceptionMapper.class);
 	
-	public Response toResponse(RuntimeException ex)
+	public Response toResponse(NullPointerException ex)
 	{
-		log.error("Runtime error during RESTful API invocation", ex);
+		log.error("NullPointerException error during RESTful API invocation", ex);
 		return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 	}
 }
