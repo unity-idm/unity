@@ -24,7 +24,6 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.UIBgThread;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -32,6 +31,7 @@ import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.VaadinServletService;
 import com.vaadin.server.VaadinSession;
@@ -59,7 +59,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private String selectedIdp;
 	private Label messageLabel;
 	private Label errorDetailLabel;
-	private ResponseWaitingThread waitingThread;
 	private SamlContextManagement samlContextManagement;
 	
 	
@@ -131,8 +130,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		errorDetailLabel.setVisible(false);
 		ret.addComponents(messageLabel, errorDetailLabel);
 
-		checkInProgress();
-		
 		return ret;
 	}
 
@@ -144,34 +141,14 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		for (RequestHandler rh: requestHandlers)
 		{
 			if (rh instanceof RedirectRequestHandler)
+			{
 				redirectInstalled = true;
+				break;
+			}
+			
 		}
 		if (!redirectInstalled)
 			session.addRequestHandler(new RedirectRequestHandler());
-	}
-	
-	private synchronized void switchInProgress(RemoteAuthnContext context)
-	{
-		boolean inProgress = context != null;
-		if (inProgress)
-		{
-			if (waitingThread != null)
-				waitingThread.forceStop();
-			waitingThread = new ResponseWaitingThread(context);
-			new Thread(waitingThread).start();
-		} else
-		{
-			if (waitingThread != null)
-				waitingThread.forceStop();
-		}
-	}
-	
-	private void checkInProgress()
-	{
-		WrappedSession session = VaadinSession.getCurrent().getSession();
-		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
-				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
-		switchInProgress(context);
 	}
 	
 	private void breakLogin(boolean invokeCancel)
@@ -184,7 +161,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			session.removeAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 			samlContextManagement.removeAuthnContext(context.getRelayState());
 		}
-		switchInProgress(null);
 		if (invokeCancel)
 			this.callback.cancelAuthentication();
 	}
@@ -219,7 +195,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 		if (context != null)
 		{
-			switchInProgress(context);
 			ErrorPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("WebSAMLRetrieval.loginInProgressError"));
 			return;
@@ -227,7 +202,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		context = new RemoteAuthnContext();
 		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
 		samlContextManagement.addAuthnContext(context);
-		switchInProgress(context);
 		
 		SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
 		AuthnRequestDocument request;
@@ -343,48 +317,22 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	}
 
 	/**
-	 * Waits for the SAML answer which should appear in the session's {@link RemoteAuthnContext}. 
-	 * @author K. Benedyczak
+	 * {@inheritDoc}
 	 */
-	private class ResponseWaitingThread extends UIBgThread
+	@Override
+	public void refresh(VaadinRequest request) 
 	{
-		private RemoteAuthnContext context;
-		private boolean stop = false;
-		
-		public ResponseWaitingThread(RemoteAuthnContext context)
+		WrappedSession session = request.getWrappedSession();
+		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
+				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
+		if (context.getResponse() == null)
 		{
-			this.context = context;
-		}
-
-		public void safeRun()
+			// TODO: determine what needs to be done in this case
+			showError(msg.getMessage("WebSAMLRetrieval.authnFailedError"));
+			log.error("If we are here it means something goes wrong");
+		} else 
 		{
-			while (!isStopped())
-			{
-				if (context.getResponse() == null)
-				{
-					try
-					{
-						Thread.sleep(100);
-					} catch (InterruptedException e)
-					{
-						//ok
-					}
-				} else
-				{
-					onSamlAnswer(context);
-					break;
-				}
-			}
-		}
-		
-		public synchronized void forceStop()
-		{
-			stop = true;
-		}
-		
-		private synchronized boolean isStopped()
-		{
-			return stop;
+			onSamlAnswer(context);
 		}
 	}
 	

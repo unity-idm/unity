@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
@@ -21,7 +22,6 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
 import eu.unicore.util.configuration.ConfigurationException;
-
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -251,6 +251,12 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		public void clear()
 		{
 			passwordField.setValue("");
+		}
+
+		@Override
+		public void refresh(VaadinRequest request) 
+		{
+			//nop
 		}
 	}
 }

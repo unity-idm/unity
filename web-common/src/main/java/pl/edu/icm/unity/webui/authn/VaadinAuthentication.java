@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.authn;
 
 import com.vaadin.server.Resource;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
@@ -84,6 +85,12 @@ public interface VaadinAuthentication extends BindingAuthn
 		 * Called after login was cancelled or finished, so the component can clear its state. 
 		 */
 		public void clear();
+
+		/**
+		 * Invoked when browser refreshes.
+		 * @param request that caused UI to be reloaded 
+		 */
+		public void refresh(VaadinRequest request);
 	}
 		
 	/**
