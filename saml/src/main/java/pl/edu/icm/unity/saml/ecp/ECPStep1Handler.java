@@ -145,7 +145,7 @@ public class ECPStep1Handler
 		for (String idpKey: idpKeys)
 		{
 			String idpId = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_ID);
-			String idpName = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_NAME);
+			String idpName = samlProperties.getName(idpKey);
 			IDPEntryType idp = idps.addNewIDPEntry();
 			idp.setProviderID(idpId);
 			idp.setName(idpName);

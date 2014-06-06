@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.sp.web;
 
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -25,10 +26,10 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.UIBgThread;
+import pl.edu.icm.unity.webui.common.idpselector.IdPsSpecification;
+import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
@@ -39,7 +40,6 @@ import com.vaadin.server.WrappedSession;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -56,7 +56,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private SAMLExchange credentialExchange;
 	private AuthenticationResultCallback callback;
 	
-	private String selectedIdp;
+	private IdpSelectorComponent idpSelector;
 	private Label messageLabel;
 	private Label errorDetailLabel;
 	private ResponseWaitingThread waitingThread;
@@ -89,38 +89,33 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		Label title = new Label(samlProperties.getValue(SAMLSPProperties.DISPLAY_NAME));
 		title.addStyleName(Reindeer.LABEL_H2);
 		ret.addComponent(title);
-		
-		Set<String> idps = samlProperties.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
-		if (idps.size() > 1)
+
+		Label subtitle = new Label(msg.getMessage("WebSAMLRetrieval.selectIdp"));
+		ret.addComponent(subtitle);
+		final Set<String> idps = samlProperties.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
+		int perRow = samlProperties.getIntValue(SAMLSPProperties.PROVIDERS_IN_ROW);
+		idpSelector = new IdpSelectorComponent(msg, perRow, new IdPsSpecification()
 		{
-			OptionGroup idpChooser = new OptionGroup(msg.getMessage("WebSAMLRetrieval.selectIdp"));
-			idpChooser.setImmediate(true);
-			for (String idpKey: idps)
+			@Override
+			public Collection<String> getIdpKeys()
 			{
-				String name = samlProperties.getValue(idpKey+SAMLSPProperties.IDP_NAME);
-				idpChooser.addItem(idpKey);
-				idpChooser.setItemCaption(idpKey, name);
+				return idps;
 			}
-			idpChooser.select(idps.iterator().next());
-			idpChooser.setNullSelectionAllowed(false);
-			idpChooser.addValueChangeListener(new ValueChangeListener()
+			
+			@Override
+			public String getIdPName(String key, Locale locale)
 			{
-				@Override
-				public void valueChange(ValueChangeEvent event)
-				{
-					selectedIdp = (String) event.getProperty().getValue();
-				}
-			});
-			ret.addComponent(idpChooser);
-		} else
-		{
-			String idpKey = idps.iterator().next();
-			String name = samlProperties.getValue(idpKey+SAMLSPProperties.IDP_NAME);
-			Label selectedIdp = new Label(msg.getMessage("WebSAMLRetrieval.selectedIdp", name));
-			ret.addComponent(selectedIdp);
-		}
-		
-		selectedIdp = idps.iterator().next();
+				return samlProperties.getLocalizedName(key, msg.getLocale());
+			}
+			
+			@Override
+			public String getIdPLogoUri(String key, Locale locale)
+			{
+				return samlProperties.getLocalizedValue(key + SAMLSPProperties.IDP_LOGO, 
+						msg.getLocale());
+			}
+		});
+		ret.addComponent(idpSelector);
 		
 		messageLabel = new Label();
 		messageLabel.setContentMode(ContentMode.HTML);
@@ -333,7 +328,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public void triggerAuthentication()
 	{
-		startLogin(selectedIdp);
+		startLogin(idpSelector.getSelectedProvider());
 	}
 
 	@Override

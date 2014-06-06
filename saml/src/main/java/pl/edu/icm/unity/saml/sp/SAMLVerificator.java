@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.xmlbeans.XmlException;
@@ -24,6 +25,7 @@ import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
+import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
@@ -32,6 +34,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
@@ -42,20 +45,25 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
  */
 public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLExchange
 {
+	private UnityServerConfiguration mainConfig;
 	private SAMLSPProperties samlProperties;
 	private PKIManagement pkiMan;
 	private MultiMetadataServlet metadataServlet;
 	private ExecutorsService executorsService;
 	private String responseConsumerAddress;
 	private SAMLResponseValidatorUtil responseValidatorUtil;
+	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	
 	public SAMLVerificator(String name, String description, TranslationProfileManagement profileManagement, 
 			AttributesManagement attrMan, PKIManagement pkiMan, ReplayAttackChecker replayAttackChecker,
 			ExecutorsService executorsService, MultiMetadataServlet metadataServlet,
-			URL baseAddress, String baseContext)
+			URL baseAddress, String baseContext, Map<String, RemoteMetaManager> remoteMetadataManagers,
+			UnityServerConfiguration mainConfig)
 	{
 		super(name, description, SAMLExchange.ID, profileManagement, attrMan);
+		this.remoteMetadataManagers = remoteMetadataManagers;
 		this.pkiMan = pkiMan;
+		this.mainConfig = mainConfig;
 		this.metadataServlet = metadataServlet;
 		this.executorsService = executorsService;
 		this.responseConsumerAddress = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
@@ -95,6 +103,15 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		
 		if (samlProperties.getBooleanValue(SamlProperties.PUBLISH_METADATA))
 			exposeMetadata();
+		String myId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
+		if (!remoteMetadataManagers.containsKey(myId))
+		{
+			RemoteMetaManager manager = new RemoteMetaManager(samlProperties, 
+					mainConfig, executorsService, pkiMan);
+			remoteMetadataManagers.put(myId, manager);
+			manager.start();
+		}
+		
 	}
 
 	private void exposeMetadata()

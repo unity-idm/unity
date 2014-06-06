@@ -47,7 +47,6 @@ public class CustomProviderProperties extends PropertiesHelper
 	public static final String REGISTRATION_FORM = "registrationFormForUnknown";
 	public static final String TRANSLATION_PROFILE = "translationProfile";
 	public static final String ICON_URL = "iconUrl";
-	public static final String ICON_FILE = "iconFile";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
@@ -73,12 +72,10 @@ public class CustomProviderProperties extends PropertiesHelper
 						+ "It is used to obtain additional user's attributes. "
 						+ "It can be autodiscovered for OpenID Connect mode. Otherwise it must be"
 						+ " set as otherwise there is no information about the user identity."));
-		META.put(PROVIDER_NAME, new PropertyMD().setMandatory().
-				setDescription("Name of the OAuth provider to be displayed"));
-		META.put(ICON_URL, new PropertyMD().
-				setDescription("URL to provider's logo"));
-		META.put(ICON_FILE, new PropertyMD().setPath().
-				setDescription("File path to provider's logo"));
+		META.put(PROVIDER_NAME, new PropertyMD().setMandatory().setCanHaveSubkeys().
+				setDescription("Name of the OAuth provider to be displayed. Can be localized with locale subkeys."));
+		META.put(ICON_URL, new PropertyMD().setCanHaveSubkeys().
+				setDescription("URL to provider's logo. Can be http(s), file or data scheme. Can be localized."));
 		META.put(CLIENT_ID, new PropertyMD().setMandatory().
 				setDescription("Client identifier, obtained during Unity's "
 				+ "registration at the provider"));
