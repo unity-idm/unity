@@ -235,8 +235,8 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	}
 
 	/**
-	 * Called when a SAML response is received. This method is not called from the UI thread!
-	 * @param samleResponse
+	 * Called when a SAML response is received.
+	 * @param authnContext
 	 */
 	private void onSamlAnswer(RemoteAuthnContext authnContext)
 	{
@@ -325,11 +325,12 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		WrappedSession session = request.getWrappedSession();
 		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
 				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
-		if (context.getResponse() == null)
+		if (context == null)
 		{
-			// TODO: determine what needs to be done in this case
-			showError(msg.getMessage("WebSAMLRetrieval.authnFailedError"));
-			log.error("If we are here it means something goes wrong");
+			log.debug("Either user refreshes page, or different authN arrived");
+		} else if (context.getResponse() == null)
+		{
+			log.debug("Authentication started but SAML response not arrived (user back button)");
 		} else 
 		{
 			onSamlAnswer(context);

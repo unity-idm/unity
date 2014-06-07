@@ -7,8 +7,6 @@ package pl.edu.icm.unity.oauth.client.web;
 import java.io.File;
 import java.util.Collection;
 import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -49,7 +47,6 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.UIBgThread;
 
 /**
  * UI part of OAuth retrieval. Shows available providers, redirects to the chosen one.
@@ -58,16 +55,13 @@ import pl.edu.icm.unity.webui.common.UIBgThread;
 public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuth2RetrievalUI.class);
-	private static final long RECHECK_DELAY = 200;
 	
 	private UnityMessageSource msg;
 	private OAuthExchange credentialExchange;
-	private ScheduledExecutorService execService;
 	private OAuthContextsManagement contextManagement;
 	
 	private AuthenticationResultCallback callback;
 
-	private ResponseWaitingRunnable responseWaitingRunnable;
 	private String selectedProvider;
 	private Button selectedButton;
 	private Label messageLabel;
@@ -79,7 +73,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		this.msg = msg;
 		this.credentialExchange = credentialExchange;
 		this.contextManagement = contextManagement;
-		this.execService = executorsService.getService();
 	}
 
 	@Override
@@ -176,14 +169,13 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		errorDetailLabel.setVisible(false);
 		ret.addComponents(messageLabel, errorDetailLabel);
 
-		checkInProgress();
-		
 		return ret;
 	}
 
 	@Override
 	public void setUsernameCallback(UsernameProvider usernameCallback)
 	{
+		//nop
 	}
 
 	@Override
@@ -259,30 +251,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			session.addRequestHandler(new RedirectRequestHandler());
 	}
 	
-	private void checkInProgress()
-	{
-		WrappedSession session = VaadinSession.getCurrent().getSession();
-		OAuthContext context = (OAuthContext) session.getAttribute(
-				OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
-		switchInProgress(context);
-	}
-	
-	private synchronized void switchInProgress(OAuthContext context)
-	{
-		boolean inProgress = context != null;
-		if (inProgress)
-		{
-			if (responseWaitingRunnable != null)
-				responseWaitingRunnable.forceStop();
-			responseWaitingRunnable = new ResponseWaitingRunnable(context);
-			execService.schedule(responseWaitingRunnable, RECHECK_DELAY, TimeUnit.MILLISECONDS);
-		} else
-		{
-			if (responseWaitingRunnable != null)
-				responseWaitingRunnable.forceStop();
-		}
-	}
-
 	private void breakLogin(boolean invokeCancel)
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
@@ -293,7 +261,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			session.removeAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
 			contextManagement.removeAuthnContext(context.getRelayState());
 		}
-		switchInProgress(null);
 		if (invokeCancel)
 			this.callback.cancelAuthentication();
 	}
@@ -305,7 +272,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 				OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
 		if (context != null)
 		{
-			switchInProgress(context);
 			ErrorPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("OAuth2Retrieval.loginInProgressError"));
 			return;
@@ -318,7 +284,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 					VaadinServletService.getCurrentServletRequest().getServletPath();
 			context.setReturnUrl(servletPath);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
-			switchInProgress(context);
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage("OAuth2Retrieval.configurationError"), e);
@@ -334,7 +299,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 	
 	/**
-	 * Called when a OAuth authorization code response is received. This method is not called from the UI thread!
+	 * Called when a OAuth authorization code response is received.
+	 * @param authnContext
 	 */
 	private void onAuthzAnswer(OAuthContext authnContext)
 	{
@@ -395,50 +361,25 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		callback.setAuthenticationResult(authnResult);
 	}
 
-	
-	
 	/**
-	 * Waits for the OAuth answer which should appear in the session's {@link OAuthContext}. 
-	 * @author K. Benedyczak
+	 * {@inheritDoc}
 	 */
-	private class ResponseWaitingRunnable extends UIBgThread
-	{
-		private OAuthContext context;
-		private boolean stop = false;
-		
-		public ResponseWaitingRunnable(OAuthContext context)
-		{
-			this.context = context;
-		}
-
-		public void safeRun()
-		{
-			if (isStopped())
-				return;
-			if (!context.isAnswerPresent())
-			{
-				execService.schedule(this, RECHECK_DELAY, TimeUnit.MILLISECONDS);
-			} else
-			{
-				onAuthzAnswer(context);
-			}
-		}
-		
-		public synchronized void forceStop()
-		{
-			stop = true;
-		}
-		
-		private synchronized boolean isStopped()
-		{
-			return stop;
-		}
-	}
-
 	@Override
 	public void refresh(VaadinRequest request) 
 	{
-		//nop
+		WrappedSession session = request.getWrappedSession();
+		OAuthContext context = (OAuthContext) session.getAttribute(
+				OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
+		if (context == null)
+		{
+			log.debug("Either user refreshes page, or different authN arrived");
+		} else if (!context.isAnswerPresent()) 
+		{
+			log.debug("Authentication started but OAuth2 response not arrived (user back button)");
+		} else 
+		{
+			onAuthzAnswer(context);
+		}
 	}
 
 }

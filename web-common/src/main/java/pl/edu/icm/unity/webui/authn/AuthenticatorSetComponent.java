@@ -90,7 +90,6 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 			VaadinAuthenticationUI vaadinAuth = authenticators.get(authenticator); 
 			if (vaadinAuth.needsCommonUsernameComponent())
 				needCommonUsername = true;
-			vaadinAuth.setAuthenticationResultCallback(authnResultCallback);
 			authenticatorsContainer.addComponent(vaadinAuth.getComponent());
 			authenticatorsContainer.addComponent(new Label("<hr>", ContentMode.HTML));
 		}
