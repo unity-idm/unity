@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.sp.web;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -13,7 +14,6 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties.Binding;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
@@ -28,7 +28,6 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.UIBgThread;
 import pl.edu.icm.unity.webui.common.idpselector.IdPsSpecification;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent;
-import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
@@ -92,7 +91,12 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 
 		Label subtitle = new Label(msg.getMessage("WebSAMLRetrieval.selectIdp"));
 		ret.addComponent(subtitle);
-		final Set<String> idps = samlProperties.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
+		Set<String> allIdps = samlProperties.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
+		final Set<String> idps = new HashSet<String>(allIdps.size()); 
+		for (String key: allIdps)
+			if (samlProperties.isIdPDefinitioncomplete(key))
+				idps.add(key);
+		
 		int perRow = samlProperties.getIntValue(SAMLSPProperties.PROVIDERS_IN_ROW);
 		idpSelector = new IdpSelectorComponent(msg, perRow, new IdPsSpecification()
 		{
@@ -219,39 +223,21 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 					msg.getMessage("WebSAMLRetrieval.loginInProgressError"));
 			return;
 		}
-		context = new RemoteAuthnContext();
-		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
-		samlContextManagement.addAuthnContext(context);
-		switchInProgress(context);
-		
-		SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
-		AuthnRequestDocument request;
+		String servletPath = VaadinServlet.getCurrent().getServletContext().getContextPath() + 
+				VaadinServletService.getCurrentServletRequest().getServletPath();
 		try
 		{
-			request = credentialExchange.createSAMLRequest(idpKey);
+			context = credentialExchange.createSAMLRequest(idpKey, servletPath);
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage("WebSAMLRetrieval.configurationError"), e);
 			log.error("Can not create SAML request", e);
 			breakLogin(true);
 			return;
-		}
-		Binding requestBinding = samlProperties.getEnumValue(idpKey + SAMLSPProperties.IDP_BINDING, 
-				Binding.class);
-		String servletPath = VaadinServlet.getCurrent().getServletContext().getContextPath() + 
-				VaadinServletService.getCurrentServletRequest().getServletPath();
-		String identityProviderURL = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_ADDRESS);
-		String groupAttribute = samlProperties.getValue(
-				idpKey + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE);
-		String registrationFormForUnknown = samlProperties.getValue(
-				idpKey + SAMLSPProperties.IDP_REGISTRATION_FORM);
-		String translationProfile = samlProperties.getValue(
-				idpKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE);
-		context.setRequest(request.xmlText(), request.getAuthnRequest().getID(), 
-				requestBinding, identityProviderURL, servletPath, groupAttribute, 
-				registrationFormForUnknown, translationProfile);
-		
-		
+		}		
+		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
+		samlContextManagement.addAuthnContext(context);
+		switchInProgress(context);
 		Page.getCurrent().open(servletPath + RedirectRequestHandler.PATH, null);
 	}
 

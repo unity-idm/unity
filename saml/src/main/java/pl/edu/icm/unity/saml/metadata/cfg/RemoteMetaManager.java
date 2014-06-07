@@ -81,11 +81,12 @@ public class RemoteMetaManager
 	
 	private void reloadSingle(String key, Properties virtualProps)
 	{
-		String url = configuration.getValue(SAMLSPProperties.IDPMETA_URL);
+		String url = configuration.getValue(key + SAMLSPProperties.IDPMETA_URL);
+		int refreshInterval = configuration.getIntValue(key + SAMLSPProperties.IDPMETA_REFRESH);
 		EntitiesDescriptorDocument metadata;
 		try
 		{
-			metadata = remoteMetaProvider.load(url);
+			metadata = remoteMetaProvider.load(url, refreshInterval);
 		} catch (XmlException e)
 		{
 			log.warn("Metadata from " + url + " was downloaded, but can not be parsed", e);

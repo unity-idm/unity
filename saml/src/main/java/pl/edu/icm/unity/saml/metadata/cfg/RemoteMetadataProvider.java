@@ -51,12 +51,12 @@ public class RemoteMetadataProvider
 		this.mainConfig = mainConfig;
 	}
 
-	public EntitiesDescriptorDocument load(String url) throws XmlException, IOException, EngineException
+	public EntitiesDescriptorDocument load(String url, int refreshInterval) throws XmlException, IOException, EngineException
 	{
-		return EntitiesDescriptorDocument.Factory.parse(getAsLocalFile(url));
+		return EntitiesDescriptorDocument.Factory.parse(getAsLocalFile(url, refreshInterval));
 	}
 	
-	private InputStream getAsLocalFile(String url) throws IOException, EngineException
+	private InputStream getAsLocalFile(String url, int refreshInterval) throws IOException, EngineException
 	{
 		if (url.startsWith("file:"))
 		{
@@ -66,7 +66,7 @@ public class RemoteMetadataProvider
 		
 		try
 		{
-			tryDownloading(url);
+			tryDownloading(url, refreshInterval);
 		} catch (Exception e)
 		{
 			log.warn("Download of remote metadata from " + url + 
@@ -82,9 +82,19 @@ public class RemoteMetadataProvider
 		return new BufferedInputStream(new FileInputStream(cachedFile));
 	}
 
-	private void tryDownloading(String url) throws EngineException, IOException
+	private void tryDownloading(String url, int refreshInterval) throws EngineException, IOException
 	{
 		File cachedFilePart = getLocalFile(url, "_part");
+		File cachedFile = getLocalFile(url, "");
+		if (cachedFilePart.exists())
+			cachedFilePart.delete();
+		
+		long expirationTime = System.currentTimeMillis() - (refreshInterval*100);
+		if (cachedFile.exists() && cachedFile.lastModified() < expirationTime)
+		{
+			log.trace("Locally cached metadata file is fresh, skipping downloading " + cachedFile);
+			return;
+		}
 		log.debug("Downloading metadata from " + url + " to " + cachedFilePart.toString());
 		HttpClient client = url.startsWith("https:") ? getSSLClient(url) : new DefaultHttpClient();
 		HttpGet request = new HttpGet(url);
@@ -102,7 +112,6 @@ public class RemoteMetadataProvider
 		IOUtils.copy(is, cacheFos);
 		cacheFos.close();
 
-		File cachedFile = getLocalFile(url, "");
 		cachedFile.delete();
 		FileUtils.moveFile(cachedFilePart, cachedFile);
 		log.debug("Downloaded metadata from " + url + " to final file " + cachedFile.toString());
@@ -111,7 +120,10 @@ public class RemoteMetadataProvider
 	private File getLocalFile(String uri, String suffix)
 	{
 		File dir = new File(mainConfig.getValue(UnityServerConfiguration.WORKSPACE_DIRECTORY), CACHE_DIR);
-		return new File(dir, DigestUtils.md5Hex(uri) + suffix);
+		if (!dir.exists())
+			dir.mkdirs();
+		File ret = new File(dir, DigestUtils.md5Hex(uri) + suffix);
+		return ret;
 	}
 	
 	private HttpClient getSSLClient(String url) throws EngineException

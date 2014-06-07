@@ -93,7 +93,7 @@ public class SAMLSPProperties extends SamlProperties
 		DocumentationCategory webRetrieval = new DocumentationCategory(
 				"SAML web retrieval specific settings", "03");
 
-		META.put(IDP_PREFIX, new PropertyMD().setStructuredList(true).setCategory(common).setDescription(
+		META.put(IDP_PREFIX, new PropertyMD().setStructuredList(false).setCategory(common).setDescription(
 				"With this prefix configuration of trusted and enabled remote SAML IdPs is stored. " +
 				"There must be at least one IdP defined. If there are multiple ones defined, then the user can choose which one to use."));
 		META.put(IDP_ADDRESS, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(common).setDescription(
@@ -307,6 +307,33 @@ public class SAMLSPProperties extends SamlProperties
 	}
 	
 	/**
+	 * As trusted IdP entries can be partially created from default values and/or generated from remote metadata
+	 * it may happen that some of the entries are in the end incomplete. This method verifies this.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public boolean isIdPDefinitioncomplete(String key)
+	{
+		if (!isSet(key + IDP_ADDRESS))
+		{
+			log.warn("No address for " + key + " ignoring IdP");
+			return false;
+		}
+		if (!isSet(key + IDP_CERTIFICATE))
+		{
+			log.warn("No certificate for " + key + " ignoring IdP");
+			return false;
+		}		
+		if (!isSet(key + IDP_TRANSLATION_PROFILE))
+		{
+			log.warn("No translation profile for " + key + " ignoring IdP");
+			return false;
+		}		
+		return true;
+	}
+	
+	/**
 	 * @return original properties, i.e. those which were used to configure the authenticator.
 	 * The {@link #getProperties()} returns runtime properties which can include additional entries
 	 * added from remote metadata. Always a copy is returned.
@@ -328,5 +355,10 @@ public class SAMLSPProperties extends SamlProperties
 	{
 		String key = idpKey + IDP_NAME;
 		return isSet(key) ? getValue(key) : getValue(idpKey + IDP_ID);
+	}
+	
+	public SAMLSPProperties clone()
+	{
+		return new SAMLSPProperties(getProperties(), pkiManagement);
 	}
 }

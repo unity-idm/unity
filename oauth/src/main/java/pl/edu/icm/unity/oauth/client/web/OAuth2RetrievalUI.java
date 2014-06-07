@@ -111,7 +111,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			public String getIdPName(String key, Locale locale)
 			{
 				CustomProviderProperties providerProps = clientProperties.getProvider(key);
-				return providerProps.getLocalizedValue(key + CustomProviderProperties.PROVIDER_NAME, 
+				return providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, 
 						locale);
 			}
 			
@@ -119,7 +119,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			public String getIdPLogoUri(String key, Locale locale)
 			{
 				CustomProviderProperties providerProps = clientProperties.getProvider(key);
-				return providerProps.getLocalizedValue(key + CustomProviderProperties.ICON_URL, 
+				return providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
 						locale);
 			}
 		});

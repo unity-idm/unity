@@ -58,8 +58,10 @@ public abstract class SamlProperties extends PropertiesHelper
 		super(prefix, properties, propertiesMD, log);
 	}
 
-	public Properties getProperties()
+	public synchronized Properties getProperties()
 	{
-		return properties;
+		Properties copy = new Properties();
+		copy.putAll(properties);
+		return copy;
 	}
 }

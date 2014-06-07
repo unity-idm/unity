@@ -137,15 +137,22 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	}
 	
 	@Override
-	public AuthnRequestDocument createSAMLRequest(String idpKey) throws InternalException
+	public RemoteAuthnContext createSAMLRequest(String idpKey, String servletPath) throws InternalException
 	{
-		boolean sign = samlProperties.isSignRequest(idpKey);
-		String requesterId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
-		String identityProviderURL = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_ADDRESS);
-		String requestedNameFormat = samlProperties.getRequestedNameFormat(idpKey);
-		X509Credential credential = sign ? samlProperties.getRequesterCredential() : null;
-		return SAMLHelper.createSAMLRequest(responseConsumerAddress, sign, requesterId, identityProviderURL,
+		RemoteAuthnContext context = new RemoteAuthnContext(samlProperties, idpKey);
+		
+		SAMLSPProperties samlPropertiesCopy = context.getContextConfig();
+		boolean sign = samlPropertiesCopy.isSignRequest(idpKey);
+		String requesterId = samlPropertiesCopy.getValue(SAMLSPProperties.REQUESTER_ID);
+		String identityProviderURL = samlPropertiesCopy.getValue(idpKey + SAMLSPProperties.IDP_ADDRESS);
+		String requestedNameFormat = samlPropertiesCopy.getRequestedNameFormat(idpKey);
+		X509Credential credential = sign ? samlPropertiesCopy.getRequesterCredential() : null;
+		
+		AuthnRequestDocument request = SAMLHelper.createSAMLRequest(responseConsumerAddress, sign, 
+				requesterId, identityProviderURL,
 				requestedNameFormat, credential);
+		context.setRequest(request.xmlText(), request.getAuthnRequest().getID(), servletPath);
+		return context;
 	}
 
 	@Override
@@ -161,12 +168,13 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 					"XML data is corrupted", e);
 		}
 		
-		
+		SAMLSPProperties config = context.getContextConfig();
+		String idpKey = context.getContextIdpKey();
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDocument, 
 				context.getRequestId(), 
 				SAMLBindings.valueOf(context.getResponseBinding().toString()), 
 				context.getGroupAttribute());
-		return getResult(input, context.getTranslationProfile());
+		return getResult(input, config.getValue(idpKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE));
 	}
 	
 	@Override

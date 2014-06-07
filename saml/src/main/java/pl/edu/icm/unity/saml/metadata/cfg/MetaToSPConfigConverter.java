@@ -90,8 +90,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 		{
 			if (!supportsSaml2(idpDef))
 			{
-				log.trace("IDP " + idpDef.getID() + " of entity " + entityId + 
-						" doesn't support SAML2 - ignoring.");
+				log.trace("IDP of entity " + entityId +	" doesn't support SAML2 - ignoring.");
 				continue;
 			}
 			
@@ -100,7 +99,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			if (certs.isEmpty())
 			{
 				log.info("No signing certificate found for IdP, skipping it: " + 
-						entityId + ":" + idpDef.getID());
+						entityId);
 				continue;
 			}
 			X509Certificate signingCert = certs.get(0);
@@ -108,8 +107,8 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			{
 				log.warn("IdP is advertising more then one certificate. This is unsupported, "
 						+ "only the first certificate will be used. Please fill up a "
-						+ "feature request ticket. Idp: " + 
-						entityId + ":" + idpDef.getID());
+						+ "feature request ticket. Idp of: " + 
+						entityId);
 			}
 
 			boolean requireSignedReq = idpDef.isSetWantAuthnRequestsSigned();
@@ -159,8 +158,11 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 		boolean noPerIdpConfig = configKey == null;
 		if (configKey == null)
 			configKey = SAMLSPProperties.P + SAMLSPProperties.IDP_PREFIX + 
-					"_entryFromMetadata_" + r.nextInt(); 
+					"_entryFromMetadata_" + r.nextInt() + "."; 
 
+		if (noPerIdpConfig || !properties.contains(configKey + SAMLSPProperties.IDP_ID))
+			properties.setProperty(configKey + SAMLSPProperties.IDP_ID, 
+					entityId);
 		if (noPerIdpConfig || !properties.contains(configKey + SAMLSPProperties.IDP_BINDING))
 			properties.setProperty(configKey + SAMLSPProperties.IDP_BINDING, 
 					convertBinding(endpoint.getBinding()));
@@ -197,6 +199,8 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 				!properties.contains(configKey + SAMLSPProperties.IDP_REGISTRATION_FORM)))
 			properties.setProperty(configKey + SAMLSPProperties.IDP_REGISTRATION_FORM, 
 					perMetaRegForm);
+		
+		log.debug("Added a trusted IdP loaded from SAML metadata: " + entityId);
 	}
 
 	private void updatePKICerts(List<X509Certificate> certs, String entityId) throws EngineException
@@ -293,7 +297,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 	{
 		List<?> supportedProtocols = idpDef.getProtocolSupportEnumeration();
 		for (Object supported: supportedProtocols)
-			if (SAMLConstants.SAML2_VERSION.equals(supported))
+			if (SAMLConstants.PROTOCOL_NS.equals(supported))
 				return true;
 		return false;
 	}
@@ -303,7 +307,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 		EndpointType selectedEndpoint = null;
 		for (EndpointType endpoint: idpDef.getSingleSignOnServiceArray())
 		{
-			if (endpoint.getBinding() == null || endpoint.getResponseLocation() == null)
+			if (endpoint.getBinding() == null || endpoint.getLocation() == null)
 				continue;
 			if (endpoint.getBinding().equals(SAMLConstants.BINDING_HTTP_REDIRECT))
 				return endpoint;
@@ -317,7 +321,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 	{
 		for (EndpointType endpoint: idpDef.getSingleSignOnServiceArray())
 		{
-			if (endpoint.getBinding() == null || endpoint.getResponseLocation() == null)
+			if (endpoint.getBinding() == null || endpoint.getLocation() == null)
 				continue;
 			if (endpoint.getBinding().equals(SAMLConstants.BINDING_SOAP))
 				return endpoint;
