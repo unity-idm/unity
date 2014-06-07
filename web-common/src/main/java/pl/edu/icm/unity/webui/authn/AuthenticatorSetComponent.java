@@ -31,7 +31,6 @@ import pl.edu.icm.unity.webui.registration.RegistrationRequestEditorDialog;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.UserError;
 import com.vaadin.server.VaadinService;
-import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -251,7 +250,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		}
 
 		@Override
-		public synchronized void setAuthenticationResult(AuthenticationResult result)
+		public void setAuthenticationResult(AuthenticationResult result)
 		{
 			log.trace("Received authentication result nr " + (results.size() + 1));
 			results.add(result);
@@ -260,80 +259,64 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		}
 
 		@Override
-		public synchronized void cancelAuthentication()
+		public void cancelAuthentication()
 		{
 			authenticationCancelled(false);
 		}
 		
-		public synchronized void authenticationCancelled(boolean signalAuthenticators)
+		public void authenticationCancelled(boolean signalAuthenticators)
 		{
-			this.results.clear();
-			VaadinSession session = VaadinSession.getCurrent();
-			session.lock();
-			try
+			results.clear();
+			authenticateButton.setEnabled(true);
+			showAuthnProgress(false);
+			authnDone = true;
+			if (signalAuthenticators)
 			{
-				authenticateButton.setEnabled(true);
-				showAuthnProgress(false);
-				authnDone = true;
-				if (signalAuthenticators)
-				{
-					for (VaadinAuthenticationUI vaadinAuth: authenticators.values())
-						vaadinAuth.cancelAuthentication();
-				}
-			} finally
-			{
-				session.unlock();
+				for (VaadinAuthenticationUI vaadinAuth: authenticators.values())
+					vaadinAuth.cancelAuthentication();
 			}
 		}
 		
-		public synchronized void resetAuthnDone()
+		public void resetAuthnDone()
 		{
 			authnDone = false;
 		}
 		
-		public synchronized boolean isAuthnDone()
+		public boolean isAuthnDone()
 		{
 			return authnDone;
 		}
 		
 		private void authnDone()
 		{
-			VaadinSession session = VaadinSession.getCurrent();
-			session.lock();
 			log.trace("Authentication completed, starting processing.");
+			List<AuthenticationResult> results = new ArrayList<>(this.results);
+			this.results.clear();
+			authenticateButton.setEnabled(true);
+			authnDone = true;
+			clearAuthenticators(authenticators);
 			try
 			{
-				List<AuthenticationResult> results = new ArrayList<>(this.results);
-				this.results.clear();
-				authenticateButton.setEnabled(true);
-				authnDone = true;
-				clearAuthenticators(authenticators);
-				try
-				{
-					authnProcessor.processResults(results, clientIp, realm, rememberMe.getValue());
-				} catch (UnknownRemoteUserException e)
-				{
-					if (e.getFormForUser() != null)
-					{
-						log.trace("Authentication successful, user unknown, "
-								+ "showing registration form");
-						showRegistration(e);
-					} else
-					{
-						log.trace("Authentication successful, user unknown, "
-								+ "no registration form");
-						handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"));
-					}
-				} catch (AuthenticationException e)
-				{
-					log.trace("Authentication failed ", e);
-					handleError(msg.getMessage(e.getMessage()));
-				}
-				showAuthnProgress(false);
-			} finally
+				authnProcessor.processResults(results, clientIp, realm, rememberMe.getValue());
+			} catch (UnknownRemoteUserException e)
 			{
-				session.unlock();
+				if (e.getFormForUser() != null)
+				{
+					log.trace("Authentication successful, user unknown, "
+							+ "showing registration form");
+					showRegistration(e);
+				} else
+				{
+					log.trace("Authentication successful, user unknown, "
+							+ "no registration form");
+					handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"));
+				}
+			} catch (AuthenticationException e)
+			{
+				log.trace("Authentication failed ", e);
+				handleError(msg.getMessage(e.getMessage()));
 			}
+			showAuthnProgress(false);
 		}
 		
 		private void showRegistration(UnknownRemoteUserException ee)

@@ -37,7 +37,6 @@ import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.common.UIBgThread;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
@@ -156,20 +155,10 @@ public class AuthenticationProcessor
 		final HttpSession httpSession = ((WrappedHttpSession) vss.getSession()).getHttpSession();
 	
 		sessionBinder.bindHttpSession(httpSession, ls);
-		//we can be called from a bg thread. To set a cookie & manipulate session we need a HTTP request/response.
-		UnityUIBase.addHttpContextAction(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				VaadinServletResponse servletResponse = 
-						(VaadinServletResponse) VaadinService.getCurrentResponse();
-				setupSessionCookie(getSessionCookieName(realm.getName()), 
-						ls.getId(), servletResponse, rememberMe,
-						realm);
-			}
-		});
 		
+		VaadinServletResponse servletResponse = (VaadinServletResponse) VaadinService.getCurrentResponse();
+		setupSessionCookie(getSessionCookieName(realm.getName()), ls.getId(), servletResponse, rememberMe, realm);
+
 		InvocationContext.getCurrent().addAuthenticatedIdentities(authenticatedEntity.getAuthenticatedWith());
 		
 		return session;

@@ -240,56 +240,48 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	 */
 	private void onSamlAnswer(RemoteAuthnContext authnContext)
 	{
-		VaadinSession session = VaadinSession.getCurrent();
-		session.lock();
 		AuthenticationResult authnResult;
 		showError(null);
+		String reason = null;
+		Exception savedException = null;
 		try
 		{
-			String reason = null;
-			Exception savedException = null;
-			try
-			{
-				authnResult = credentialExchange.verifySAMLResponse(authnContext);
-			} catch (AuthenticationException e)
-			{
-				savedException = e;
-				reason = ErrorPopup.getHumanMessage(e, "<br>");
-				authnResult = e.getResult();
-			} catch (Exception e)
-			{
-				log.error("Runtime error during SAML response processing or principal mapping", e);
-				authnResult = new AuthenticationResult(Status.deny, null);
-			}
-
-			if (authnResult.getStatus() == Status.success)
-			{
-				showError(null);
-				breakLogin(false);
-			} else if (authnResult.getStatus() == Status.unknownRemotePrincipal && 
-					authnContext.getRegistrationFormForUnknown() != null) 
-			{
-				log.debug("There is a registration form to show for the unknown user: " + 
-						authnContext.getRegistrationFormForUnknown());
-				authnResult.setFormForUnknownPrincipal(authnContext.getRegistrationFormForUnknown());
-				showError(null);
-				breakLogin(false);
-			} else
-			{
-				if (savedException != null)
-					log.warn("SAML response verification or processing failed", savedException);
-				else
-					log.warn("SAML response verification or processing failed");
-				if (reason != null)
-					showErrorDetail(msg.getMessage("WebSAMLRetrieval.authnFailedDetailInfo", reason));
-				showError(msg.getMessage("WebSAMLRetrieval.authnFailedError"));
-				breakLogin(false);
-			}
-
-		} finally
+			authnResult = credentialExchange.verifySAMLResponse(authnContext);
+		} catch (AuthenticationException e)
 		{
-			session.unlock();
+			savedException = e;
+			reason = ErrorPopup.getHumanMessage(e, "<br>");
+			authnResult = e.getResult();
+		} catch (Exception e)
+		{
+			log.error("Runtime error during SAML response processing or principal mapping", e);
+			authnResult = new AuthenticationResult(Status.deny, null);
 		}
+
+		if (authnResult.getStatus() == Status.success)
+		{
+			showError(null);
+			breakLogin(false);
+		} else if (authnResult.getStatus() == Status.unknownRemotePrincipal && 
+				authnContext.getRegistrationFormForUnknown() != null) 
+		{
+			log.debug("There is a registration form to show for the unknown user: " + 
+					authnContext.getRegistrationFormForUnknown());
+			authnResult.setFormForUnknownPrincipal(authnContext.getRegistrationFormForUnknown());
+			showError(null);
+			breakLogin(false);
+		} else
+		{
+			if (savedException != null)
+				log.warn("SAML response verification or processing failed", savedException);
+			else
+				log.warn("SAML response verification or processing failed");
+			if (reason != null)
+				showErrorDetail(msg.getMessage("WebSAMLRetrieval.authnFailedDetailInfo", reason));
+			showError(msg.getMessage("WebSAMLRetrieval.authnFailedError"));
+			breakLogin(false);
+		}
+
 		callback.setAuthenticationResult(authnResult);
 	}
 	

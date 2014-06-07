@@ -305,59 +305,53 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private void onAuthzAnswer(OAuthContext authnContext)
 	{
 		log.debug("RetrievalUI received OAuth response");
-		VaadinSession session = VaadinSession.getCurrent();
-		session.lock();
 		AuthenticationResult authnResult;
 		showError(null);
+		
+		log.debug("RetrievalUI will validate OAuth response");
+		String reason = null;
+		Exception savedException = null;
 		try
 		{
-			log.debug("RetrievalUI will validate OAuth response");
-			String reason = null;
-			Exception savedException = null;
-			try
-			{
-				authnResult = credentialExchange.verifyOAuthAuthzResponse(authnContext);
-			} catch (AuthenticationException e)
-			{
-				savedException = e;
-				reason = ErrorPopup.getHumanMessage(e, "<br>");
-				authnResult = e.getResult();
-			} catch (Exception e)
-			{
-				log.error("Runtime error during OAuth2 response processing or principal mapping", e);
-				authnResult = new AuthenticationResult(Status.deny, null);
-			}
-			CustomProviderProperties providerProps = credentialExchange.getSettings().getProvider(
-					authnContext.getProviderConfigKey()); 
-			String regFormForUnknown = providerProps.getValue(CustomProviderProperties.REGISTRATION_FORM);
-			if (authnResult.getStatus() == Status.success)
-			{
-				showError(null);
-				breakLogin(false);
-			} else if (authnResult.getStatus() == Status.unknownRemotePrincipal && 
-					regFormForUnknown != null) 
-			{
-				log.debug("There is a registration form to show for the unknown user: " + 
-						regFormForUnknown);
-				authnResult.setFormForUnknownPrincipal(regFormForUnknown);
-				showError(null);
-				breakLogin(false);
-			} else
-			{
-				if (savedException != null)
-					log.warn("OAuth2 authorization code verification or processing failed", 
-							savedException);
-				else
-					log.warn("OAuth2 authorization code verification or processing failed");
-				if (reason != null)
-					showErrorDetail(msg.getMessage("OAuth2Retrieval.authnFailedDetailInfo", reason));
-				showError(msg.getMessage("OAuth2Retrieval.authnFailedError"));
-				breakLogin(false);
-			}
-		} finally
+			authnResult = credentialExchange.verifyOAuthAuthzResponse(authnContext);
+		} catch (AuthenticationException e)
 		{
-			session.unlock();
+			savedException = e;
+			reason = ErrorPopup.getHumanMessage(e, "<br>");
+			authnResult = e.getResult();
+		} catch (Exception e)
+		{
+			log.error("Runtime error during OAuth2 response processing or principal mapping", e);
+			authnResult = new AuthenticationResult(Status.deny, null);
 		}
+		CustomProviderProperties providerProps = credentialExchange.getSettings().getProvider(
+				authnContext.getProviderConfigKey()); 
+		String regFormForUnknown = providerProps.getValue(CustomProviderProperties.REGISTRATION_FORM);
+		if (authnResult.getStatus() == Status.success)
+		{
+			showError(null);
+			breakLogin(false);
+		} else if (authnResult.getStatus() == Status.unknownRemotePrincipal && 
+				regFormForUnknown != null) 
+		{
+			log.debug("There is a registration form to show for the unknown user: " + 
+					regFormForUnknown);
+			authnResult.setFormForUnknownPrincipal(regFormForUnknown);
+			showError(null);
+			breakLogin(false);
+		} else
+		{
+			if (savedException != null)
+				log.warn("OAuth2 authorization code verification or processing failed", 
+						savedException);
+			else
+				log.warn("OAuth2 authorization code verification or processing failed");
+			if (reason != null)
+				showErrorDetail(msg.getMessage("OAuth2Retrieval.authnFailedDetailInfo", reason));
+			showError(msg.getMessage("OAuth2Retrieval.authnFailedError"));
+			breakLogin(false);
+		}
+
 		callback.setAuthenticationResult(authnResult);
 	}
 
