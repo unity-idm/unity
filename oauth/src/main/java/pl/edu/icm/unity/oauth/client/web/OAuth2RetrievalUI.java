@@ -366,7 +366,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 				OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
 		if (context == null)
 		{
-			log.debug("Either user refreshes page, or different authN arrived");
+			log.trace("Either user refreshes page, or different authN arrived");
 		} else if (!context.isAnswerPresent()) 
 		{
 			log.debug("Authentication started but OAuth2 response not arrived (user back button)");

@@ -319,7 +319,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 		if (context == null)
 		{
-			log.debug("Either user refreshes page, or different authN arrived");
+			log.trace("Either user refreshes page, or different authN arrived");
 		} else if (context.getResponse() == null)
 		{
 			log.debug("Authentication started but SAML response not arrived (user back button)");
