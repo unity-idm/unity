@@ -43,6 +43,7 @@ import xmlbeans.org.oasis.saml2.metadata.KeyTypes;
 import xmlbeans.org.oasis.saml2.metadata.LocalizedNameType;
 import xmlbeans.org.oasis.saml2.metadata.OrganizationType;
 import xmlbeans.org.oasis.saml2.metadata.extui.LogoType;
+import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoDocument;
 import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoType;
 import xmlbeans.org.w3.x2000.x09.xmldsig.X509DataType;
 
@@ -151,16 +152,16 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			configKey = SAMLSPProperties.P + SAMLSPProperties.IDP_PREFIX + 
 					"_entryFromMetadata_" + r.nextInt() + "."; 
 
-		if (noPerIdpConfig || !properties.contains(configKey + SAMLSPProperties.IDP_ID))
+		if (noPerIdpConfig || !properties.containsKey(configKey + SAMLSPProperties.IDP_ID))
 			properties.setProperty(configKey + SAMLSPProperties.IDP_ID, 
 					entityId);
-		if (noPerIdpConfig || !properties.contains(configKey + SAMLSPProperties.IDP_BINDING))
+		if (noPerIdpConfig || !properties.containsKey(configKey + SAMLSPProperties.IDP_BINDING))
 			properties.setProperty(configKey + SAMLSPProperties.IDP_BINDING, 
 					convertBinding(endpoint.getBinding()));
-		if (noPerIdpConfig || !properties.contains(configKey + SAMLSPProperties.IDP_ADDRESS))
+		if (noPerIdpConfig || !properties.containsKey(configKey + SAMLSPProperties.IDP_ADDRESS))
 			properties.setProperty(configKey + SAMLSPProperties.IDP_ADDRESS, 
 					endpoint.getLocation());
-		if (noPerIdpConfig || !properties.contains(configKey + SAMLSPProperties.IDP_CERTIFICATE))
+		if (noPerIdpConfig || !properties.containsKey(configKey + SAMLSPProperties.IDP_CERTIFICATE))
 		{
 			int i = 1;
 			for (X509Certificate cert: certs)
@@ -172,28 +173,28 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 		}
 		for (Map.Entry<String, String> name: names.entrySet())
 		{
-			if (noPerIdpConfig || !properties.contains(configKey + 
+			if (noPerIdpConfig || !properties.containsKey(configKey + 
 					SAMLSPProperties.IDP_NAME + name.getKey()))
 				properties.setProperty(configKey + SAMLSPProperties.IDP_NAME + name.getKey(), 
 						name.getValue());
 		}
 		for (Map.Entry<String, LogoType> logo: logos.entrySet())
 		{
-			if (noPerIdpConfig || !properties.contains(configKey + 
+			if (noPerIdpConfig || !properties.containsKey(configKey + 
 					SAMLSPProperties.IDP_LOGO + logo.getKey()))
 				properties.setProperty(configKey + SAMLSPProperties.IDP_LOGO + logo.getKey(), 
 						logo.getValue().getStringValue());
 		}
 
-		if (noPerIdpConfig || !properties.contains(configKey + SAMLSPProperties.IDP_SIGN_REQUEST))
+		if (noPerIdpConfig || !properties.containsKey(configKey + SAMLSPProperties.IDP_SIGN_REQUEST))
 			properties.setProperty(configKey + SAMLSPProperties.IDP_SIGN_REQUEST, 
 					Boolean.toString(requireSignedReq));
 		if ((perMetaProfile != null) && (noPerIdpConfig || 
-				!properties.contains(configKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE)))
+				!properties.containsKey(configKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE)))
 			properties.setProperty(configKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE, 
 					perMetaProfile);
 		if (perMetaRegForm != null && (noPerIdpConfig || 
-				!properties.contains(configKey + SAMLSPProperties.IDP_REGISTRATION_FORM)))
+				!properties.containsKey(configKey + SAMLSPProperties.IDP_REGISTRATION_FORM)))
 			properties.setProperty(configKey + SAMLSPProperties.IDP_REGISTRATION_FORM, 
 					perMetaRegForm);
 		
@@ -278,14 +279,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 		for (String key: keys)
 		{
 			if (entityId.equals(realConfig.getValue(key+SAMLSPProperties.IDP_ID)))
-			{
-				String location = endpoint.getLocation();
-				String configLocation = realConfig.getValue(key+SAMLSPProperties.IDP_ADDRESS);
-				if (configLocation == null || configLocation.equals(location))
-				{
-					return key;
-				}
-			}
+				return SAMLSPProperties.P + key;
 		}
 		return null;
 	}
@@ -353,7 +347,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 				return ret;
 			for (LogoType logo: logos)
 			{
-				String key = "." + logo.getLang();
+				String key = logo.getLang() == null ? "" : "." + logo.getLang();
 				LogoType e = ret.get(key);
 				if (e == null)
 				{
@@ -398,7 +392,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			{
 				try
 				{
-					return UIInfoType.Factory.parse(element);
+					return UIInfoDocument.Factory.parse(element).getUIInfo();
 				} catch (XmlException e)
 				{
 					log.warn("Can not parse UIInfo metadata extension for " + entityId, e);

@@ -6,6 +6,7 @@ package pl.edu.icm.unity.saml.metadata.cfg;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.Date;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -37,6 +38,7 @@ public class RemoteMetaManager
 	private MetaToSPConfigConverter converter;
 	private MetadataVerificator verificator;
 	private SAMLSPProperties virtualConfiguration;
+	private Date validationDate;
 	
 	public RemoteMetaManager(SAMLSPProperties configuration, UnityServerConfiguration mainConfig,
 			ExecutorsService executorsService, PKIManagement pkiManagement)
@@ -68,7 +70,7 @@ public class RemoteMetaManager
 		}, 0, delay, TimeUnit.SECONDS);
 	}
 	
-	private void reloadAll()
+	public void reloadAll()
 	{
 		Set<String> keys = configuration.getStructuredListKeys(SAMLSPProperties.IDPMETA_PREFIX);
 		if (keys.isEmpty())
@@ -121,7 +123,8 @@ public class RemoteMetaManager
 		{
 			X509Certificate issuerCertificate = issuerCertificateName != null ? 
 					pkiManagement.getCertificate(issuerCertificateName) : null;
-			verificator.validate(metadata, sigCheckingMode, issuerCertificate);
+			verificator.validate(metadata, validationDate != null ? validationDate : new Date(),
+					sigCheckingMode, issuerCertificate);
 		} catch (MetadataValidationException e)
 		{
 			log.error("Metadata from " + url + " is invalid, won't be used", e);
@@ -134,5 +137,10 @@ public class RemoteMetaManager
 		}
 		
 		converter.convertToProperties(metadata, virtualProps, configuration, key);
+	}
+
+	public void setValidationDate(Date validationDate)
+	{
+		this.validationDate = validationDate;
 	}
 }

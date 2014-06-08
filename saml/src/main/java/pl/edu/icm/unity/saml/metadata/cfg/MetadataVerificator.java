@@ -16,6 +16,7 @@ import eu.unicore.security.dsig.IdAttribute;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorType;
+import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
 
 /**
@@ -27,31 +28,29 @@ public class MetadataVerificator
 {
 	public static final IdAttribute ID_QNAME = new IdAttribute(null, "ID");
 	
-	public void validate(EntitiesDescriptorDocument metaDoc, MetadataSignatureValidation sigValidation, 
+	public void validate(EntitiesDescriptorDocument metaDoc, Date now, MetadataSignatureValidation sigValidation, 
 			X509Certificate issuerCertificate) throws MetadataValidationException
 	{
 		EntitiesDescriptorType meta = metaDoc.getEntitiesDescriptor();
-		Date now = new Date();
-		validate(meta, now, sigValidation, issuerCertificate);
-	}
-	
-	protected void validate(EntitiesDescriptorType meta, Date now, MetadataSignatureValidation sigValidation, 
-			X509Certificate issuerCertificate) throws MetadataValidationException
-	{
 		if (meta.isSetValidUntil() && meta.getValidUntil().after(now))
 			throw new MetadataValidationException("Metadata or its part expired on " + 
 					meta.getValidUntil());
 		
-		if (sigValidation == MetadataSignatureValidation.require)
+		if (sigValidation == MetadataSignatureValidation.require && meta.isSetSignature())
 		{
-			validateSignature(issuerCertificate, meta.getName(), (Document) meta.getDomNode());
+			validateSignature(issuerCertificate, meta.getName(), (Document) metaDoc.getDomNode());
+			return;
 		}
 		
 		EntitiesDescriptorType[] nested = meta.getEntitiesDescriptorArray();
 		if (nested != null)
 		{
 			for (EntitiesDescriptorType nestedD: nested)
-				validate(nestedD, now, sigValidation, issuerCertificate);
+			{
+				EntitiesDescriptorDocument tmp = EntitiesDescriptorDocument.Factory.newInstance();
+				tmp.setEntitiesDescriptor(nestedD);
+				validate(tmp, now, sigValidation, issuerCertificate);
+			}
 		}
 		EntityDescriptorType[] entities = meta.getEntityDescriptorArray();
 		
@@ -72,7 +71,9 @@ public class MetadataVerificator
 					meta.getValidUntil());
 		if (sigValidation == MetadataSignatureValidation.require)
 		{
-			validateSignature(issuerCertificate, meta.getEntityID(), (Document) meta.getDomNode());
+			EntityDescriptorDocument tmp = EntityDescriptorDocument.Factory.newInstance();
+			tmp.setEntityDescriptor(meta);
+			validateSignature(issuerCertificate, meta.getEntityID(), (Document) tmp.getDomNode());
 		}
 	}
 
@@ -82,10 +83,13 @@ public class MetadataVerificator
 		try
 		{
 			DigSignatureUtil sigUtil = new DigSignatureUtil();
-			sigUtil.verifyEnvelopedSignature(doc, 
+			boolean result = sigUtil.verifyEnvelopedSignature(doc, 
 				Collections.singletonList(doc.getDocumentElement()), 
 				ID_QNAME, 
 				issuerCertificate.getPublicKey());
+			if (!result)
+				throw new MetadataValidationException("Verification of metadata's signature "
+						+ "failed for " + name);				
 		} catch (DSigException e)
 		{
 			throw new MetadataValidationException("Verification of metadata's signature "
