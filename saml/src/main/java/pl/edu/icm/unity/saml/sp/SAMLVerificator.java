@@ -53,6 +53,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	private String responseConsumerAddress;
 	private SAMLResponseValidatorUtil responseValidatorUtil;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private RemoteMetaManager myMetadataManager;
 	
 	public SAMLVerificator(String name, String description, TranslationProfileManagement profileManagement, 
 			AttributesManagement attrMan, PKIManagement pkiMan, ReplayAttackChecker replayAttackChecker,
@@ -85,6 +86,11 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		return sbw.toString();	
 	}
 
+	/**
+	 * Configuration samlProperties is loaded, but it can be modified at runtime by the metadata manager.
+	 * Therefore the source properties are used only to configure basic things (not related to trusted IDPs)
+	 * while the virtual properties are used for authentication process setup.
+	 */
 	@Override
 	public void setSerializedConfiguration(String source) throws InternalException
 	{
@@ -106,11 +112,12 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		String myId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
 		if (!remoteMetadataManagers.containsKey(myId))
 		{
-			RemoteMetaManager manager = new RemoteMetaManager(samlProperties, 
+			myMetadataManager = new RemoteMetaManager(samlProperties, 
 					mainConfig, executorsService, pkiMan);
-			remoteMetadataManagers.put(myId, manager);
-			manager.start();
-		}
+			remoteMetadataManagers.put(myId, myMetadataManager);
+			myMetadataManager.start();
+		} else
+			myMetadataManager = remoteMetadataManagers.get(myId);
 		
 	}
 
@@ -139,7 +146,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	@Override
 	public RemoteAuthnContext createSAMLRequest(String idpKey, String servletPath) throws InternalException
 	{
-		RemoteAuthnContext context = new RemoteAuthnContext(samlProperties, idpKey);
+		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpKey);
 		
 		SAMLSPProperties samlPropertiesCopy = context.getContextConfig();
 		boolean sign = samlPropertiesCopy.isSignRequest(idpKey);
@@ -180,7 +187,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	@Override
 	public SAMLSPProperties getSamlValidatorSettings()
 	{
-		return samlProperties;
+		return myMetadataManager.getVirtualConfiguration();
 	}
 }
 

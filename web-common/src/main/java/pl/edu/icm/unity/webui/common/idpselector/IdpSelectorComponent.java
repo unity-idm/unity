@@ -24,7 +24,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -64,13 +64,14 @@ public class IdpSelectorComponent extends CustomComponent
 	private void initUI()
 	{
 		VerticalLayout main = new VerticalLayout();
-		main.setSpacing(true);
 		setCompositionRoot(main);
 		if (idps.getIdpKeys().size() > 9)
 		{
 			FormLayout wrapper = new FormLayout();
 			TextField search = new TextField(msg.getMessage("IdpSelectorComponent.search"));
+			search.addStyleName(Reindeer.TEXTFIELD_SMALL);
 			search.setImmediate(true);
+			wrapper.addComponent(search);
 			main.addComponent(wrapper);
 			search.addTextChangeListener(new TextChangeListener()
 			{
@@ -82,32 +83,25 @@ public class IdpSelectorComponent extends CustomComponent
 			});
 		}
 		idpsPanel = new Panel();
+		idpsPanel.addStyleName(Styles.contentPadRight20.toString());
 		main.addComponent(idpsPanel);
 		idpsPanel.setContent(initIdpsList(null));
 	}
 	
-	private VerticalLayout initIdpsList(String filter)
+	private GridLayout initIdpsList(String filter)
 	{
 		if (filter != null && filter.trim().equals(""))
 			filter = null;
 		if (filter != null)
 			filter = filter.toLowerCase();
-		VerticalLayout providersChoice = new VerticalLayout();
+		GridLayout providersChoice = new GridLayout(perRow, 1);
 		providersChoice.setSpacing(true);
+		providersChoice.addStyleName(Styles.maxHeight300.toString());
 
 		int current = 0;
-		HorizontalLayout providersL = null;
 		Locale locale = msg.getLocale();
 		for (String idpKey: idps.getIdpKeys())
 		{
-			if ((current % perRow) == 0)
-			{
-				providersL = new HorizontalLayout();
-				providersL.setSpacing(true);
-				providersChoice.addComponent(providersL);
-				providersL.addStyleName(Styles.verticalMargins10.toString());
-			}
-
 			String name = idps.getIdPName(idpKey, locale);
 			
 			if (filter != null && !name.toLowerCase().contains(filter))
@@ -116,7 +110,8 @@ public class IdpSelectorComponent extends CustomComponent
 			Button providerB = new Button();
 			providerB.setImmediate(true);
 			providerB.setStyleName(Reindeer.BUTTON_LINK);
-			providerB.addStyleName(Styles.horizontalMargins10.toString());
+			providerB.addStyleName(Styles.verticalMargins6.toString());
+			providerB.addStyleName(Styles.horizontalMargins6.toString());
 			if (current == 0)
 			{
 				selectedProvider = idpKey;
@@ -134,8 +129,8 @@ public class IdpSelectorComponent extends CustomComponent
 				providerB.setCaption(name);
 			}
 			
-			providersL.addComponent(providerB);
-			providersL.setComponentAlignment(providerB, Alignment.MIDDLE_LEFT);
+			providersChoice.addComponent(providerB);
+			providersChoice.setComponentAlignment(providerB, Alignment.MIDDLE_LEFT);
 			providerB.setData(idpKey);
 			providerB.addClickListener(new ClickListener()
 			{

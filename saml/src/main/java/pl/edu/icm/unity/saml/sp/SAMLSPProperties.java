@@ -315,19 +315,26 @@ public class SAMLSPProperties extends SamlProperties
 	 */
 	public boolean isIdPDefinitioncomplete(String key)
 	{
+		String entityId;
+		if (!isSet(key + IDP_ID))
+		{
+			log.warn("No entityId for " + key + " ignoring IdP");
+			return false;
+		} else
+			entityId = getValue(key + IDP_ID);
 		if (!isSet(key + IDP_ADDRESS))
 		{
-			log.warn("No address for " + key + " ignoring IdP");
+			log.warn("No address for " + entityId + " ignoring IdP");
 			return false;
 		}
 		if (!isSet(key + IDP_CERTIFICATE))
 		{
-			log.warn("No certificate for " + key + " ignoring IdP");
+			log.warn("No certificate for " + entityId + " ignoring IdP");
 			return false;
 		}		
 		if (!isSet(key + IDP_TRANSLATION_PROFILE))
 		{
-			log.warn("No translation profile for " + key + " ignoring IdP");
+			log.warn("No translation profile for " + entityId + " ignoring IdP");
 			return false;
 		}		
 		return true;

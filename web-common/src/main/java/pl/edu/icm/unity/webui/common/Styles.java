@@ -30,6 +30,10 @@ public enum Styles
 	selectedButton("u-selectedButton"),
 	horizontalMargins10("u-horizontalMargins10"),
 	verticalMargins10("u-verticalMargins10"),
+	horizontalMargins6("u-horizontalMargins6"),
+	verticalMargins6("u-verticalMargins6"),
+	maxHeight300("u-maxHeight300"),
+	contentPadRight20("u-padRight20"), //pads the *contents* of the container 20px on right
 	captionBold("bold");
 	
 	

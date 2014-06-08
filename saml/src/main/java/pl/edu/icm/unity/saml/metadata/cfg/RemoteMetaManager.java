@@ -36,6 +36,7 @@ public class RemoteMetaManager
 	private RemoteMetadataProvider remoteMetaProvider;
 	private MetaToSPConfigConverter converter;
 	private MetadataVerificator verificator;
+	private SAMLSPProperties virtualConfiguration;
 	
 	public RemoteMetaManager(SAMLSPProperties configuration, UnityServerConfiguration mainConfig,
 			ExecutorsService executorsService, PKIManagement pkiManagement)
@@ -46,6 +47,7 @@ public class RemoteMetaManager
 		this.remoteMetaProvider = new RemoteMetadataProvider(pkiManagement, mainConfig);
 		this.verificator = new MetadataVerificator();
 		this.pkiManagement = pkiManagement;
+		this.virtualConfiguration = configuration.clone();
 	}
 
 	public void start()
@@ -76,9 +78,19 @@ public class RemoteMetaManager
 		{
 			reloadSingle(key, virtualConfigProps);
 		}
-		configuration.setProperties(virtualConfigProps);
+		setVirtualConfiguration(virtualConfigProps);
 	}
 	
+	public synchronized SAMLSPProperties getVirtualConfiguration()
+	{
+		return virtualConfiguration;
+	}
+
+	public synchronized void setVirtualConfiguration(Properties virtualConfigurationProperties)
+	{
+		this.virtualConfiguration.setProperties(virtualConfigurationProperties);
+	}
+
 	private void reloadSingle(String key, Properties virtualProps)
 	{
 		String url = configuration.getValue(key + SAMLSPProperties.IDPMETA_URL);

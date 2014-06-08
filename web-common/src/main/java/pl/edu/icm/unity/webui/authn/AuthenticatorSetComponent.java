@@ -84,6 +84,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		setSizeUndefined();
 		VerticalLayout authenticatorsContainer = new VerticalLayout();		
 		authenticatorsContainer.setSpacing(true);
+		authenticatorsContainer.setHeight(100, Unit.PERCENTAGE);
 		authenticatorsContainer.addComponent(new Label("<hr>", ContentMode.HTML));
 		for (String authenticator: set.getAuthenticators())
 		{
