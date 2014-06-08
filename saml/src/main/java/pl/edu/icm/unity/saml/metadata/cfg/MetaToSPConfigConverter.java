@@ -102,15 +102,6 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 						entityId);
 				continue;
 			}
-			X509Certificate signingCert = certs.get(0);
-			if (certs.size() > 1)
-			{
-				log.warn("IdP is advertising more then one certificate. This is unsupported, "
-						+ "only the first certificate will be used. Please fill up a "
-						+ "feature request ticket. Idp of: " + 
-						entityId);
-			}
-
 			boolean requireSignedReq = idpDef.isSetWantAuthnRequestsSigned();
 			EndpointType webEndpoint = selectWebEndpoint(idpDef);
 			EndpointType soapEndpoint = selectSOAPEndpoint(idpDef);
@@ -133,20 +124,20 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			if (webEndpoint != null)
 			{
 				addEntryToProperties(entityId, webEndpoint, requireSignedReq, realConfig, 
-						configKey, properties, r, signingCert, names, logos);
+						configKey, properties, r, certs, names, logos);
 			}
 			
 			if (soapEndpoint != null)
 			{
 				addEntryToProperties(entityId, soapEndpoint, requireSignedReq, realConfig, 
-						configKey, properties, r, signingCert, names, logos);
+						configKey, properties, r, certs, names, logos);
 			}
 		}
 	}
 	
 	private void addEntryToProperties(String entityId, EndpointType endpoint, boolean requireSignedReq,
 			SAMLSPProperties realConfig, String metaConfigKey, Properties properties, Random r, 
-			X509Certificate signingCert,
+			List<X509Certificate> certs,
 			Map<String, String> names, Map<String, LogoType> logos)
 	{
 		String configKey = getExistingKey(entityId, endpoint, realConfig);
@@ -170,9 +161,15 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			properties.setProperty(configKey + SAMLSPProperties.IDP_ADDRESS, 
 					endpoint.getLocation());
 		if (noPerIdpConfig || !properties.contains(configKey + SAMLSPProperties.IDP_CERTIFICATE))
-			properties.setProperty(configKey + SAMLSPProperties.IDP_CERTIFICATE, 
-					getCertificateKey(signingCert, entityId));
-
+		{
+			int i = 1;
+			for (X509Certificate cert: certs)
+			{
+				properties.setProperty(configKey + SAMLSPProperties.IDP_CERTIFICATES + i, 
+					getCertificateKey(cert, entityId));
+				i++;
+			}
+		}
 		for (Map.Entry<String, String> name: names.entrySet())
 		{
 			if (noPerIdpConfig || !properties.contains(configKey + 

@@ -6,6 +6,7 @@ package pl.edu.icm.unity.saml.sp;
 
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -78,6 +79,7 @@ public class SAMLSPProperties extends SamlProperties
 	public static final String IDP_ADDRESS = "address";
 	public static final String IDP_BINDING = "binding";
 	public static final String IDP_CERTIFICATE = "certificate";
+	public static final String IDP_CERTIFICATES = "certificates.";
 	public static final String IDP_SIGN_REQUEST = "signRequest";
 	public static final String IDP_REQUESTED_NAME_FORMAT = "requestedNameFormat";
 	public static final String IDP_GROUP_MEMBERSHIP_ATTRIBUTE = "groupMembershipAttribute";
@@ -115,6 +117,9 @@ public class SAMLSPProperties extends SamlProperties
 		META.put(IDP_CERTIFICATE, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(common).setDescription(
 				"Certificate name (as used in centralized PKI store) of the IdP. This certificate is used to verify signature of SAML " +
 				"response and included assertions. Therefore it is of highest importance for the whole system security."));
+		META.put(IDP_CERTIFICATES, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(common).setList(false).setDescription(
+				"Using this property additional trusted certificates of an IdP can be added (when IdP uses more then one). See " 
+						+ IDP_CERTIFICATE + " for details. Those properties can be used together or alternatively."));
 		META.put(IDP_SIGN_REQUEST, new PropertyMD("false").setCategory(common).setStructuredListEntry(IDP_PREFIX).setDescription(
 				"Controls whether the requests for this IdP should be signed."));
 		META.put(IDP_REQUESTED_NAME_FORMAT, new PropertyMD().setCategory(common).setStructuredListEntry(IDP_PREFIX).setDescription(
@@ -277,17 +282,25 @@ public class SAMLSPProperties extends SamlProperties
 		for (String idpKey: idpKeys)
 		{
 			String idpId = getValue(idpKey+IDP_ID);
-			String idpCertName = getValue(idpKey+IDP_CERTIFICATE);
-			X509Certificate idpCert;
-			try
+			Set<String> idpCertNames = new HashSet<String>();
+			if (isSet(idpKey+IDP_CERTIFICATE))
+				idpCertNames.add(getValue(idpKey+IDP_CERTIFICATE));
+			idpCertNames.addAll(getListOfValues(idpKey+IDP_CERTIFICATES));
+			
+			for (String idpCertName: idpCertNames)
 			{
-				idpCert = pkiManagement.getCertificate(idpCertName);
-			} catch (EngineException e)
-			{
-				throw new ConfigurationException("Remote SAML IdP certificate can not be loaded " 
-						+ idpCertName, e);
+				X509Certificate idpCert;
+				try
+				{
+					idpCert = pkiManagement.getCertificate(idpCertName);
+				} catch (EngineException e)
+				{
+					throw new ConfigurationException("Remote SAML IdP certificate can not be loaded " 
+							+ idpCertName, e);
+				}
+				trustChecker.addTrustedIssuer(idpId, SAMLConstants.NFORMAT_ENTITY, 
+						idpCert.getPublicKey());
 			}
-			trustChecker.addTrustedIssuer(idpId, SAMLConstants.NFORMAT_ENTITY, idpCert.getPublicKey());
 		}
 		return trustChecker;
 	}
@@ -327,7 +340,7 @@ public class SAMLSPProperties extends SamlProperties
 			log.warn("No address for " + entityId + " ignoring IdP");
 			return false;
 		}
-		if (!isSet(key + IDP_CERTIFICATE))
+		if (!isSet(key + IDP_CERTIFICATE) && getListOfValues(key+IDP_CERTIFICATES).size() == 0)
 		{
 			log.warn("No certificate for " + entityId + " ignoring IdP");
 			return false;
@@ -368,4 +381,6 @@ public class SAMLSPProperties extends SamlProperties
 	{
 		return new SAMLSPProperties(getProperties(), pkiManagement);
 	}
+	
+	
 }
