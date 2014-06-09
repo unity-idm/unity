@@ -51,9 +51,9 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	private MultiMetadataServlet metadataServlet;
 	private ExecutorsService executorsService;
 	private String responseConsumerAddress;
-	private SAMLResponseValidatorUtil responseValidatorUtil;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private RemoteMetaManager myMetadataManager;
+	private ReplayAttackChecker replayAttackChecker;
 	
 	public SAMLVerificator(String name, String description, TranslationProfileManagement profileManagement, 
 			AttributesManagement attrMan, PKIManagement pkiMan, ReplayAttackChecker replayAttackChecker,
@@ -68,8 +68,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		this.metadataServlet = metadataServlet;
 		this.executorsService = executorsService;
 		this.responseConsumerAddress = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
-		this.responseValidatorUtil = new SAMLResponseValidatorUtil(samlProperties, 
-				replayAttackChecker, baseContext);
+		this.replayAttackChecker = replayAttackChecker;
 	}
 
 	@Override
@@ -118,7 +117,6 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			myMetadataManager.start();
 		} else
 			myMetadataManager = remoteMetadataManagers.get(myId);
-		
 	}
 
 	private void exposeMetadata()
@@ -177,6 +175,9 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		
 		SAMLSPProperties config = context.getContextConfig();
 		String idpKey = context.getContextIdpKey();
+		SAMLResponseValidatorUtil responseValidatorUtil = new SAMLResponseValidatorUtil(
+				getSamlValidatorSettings(), 
+				replayAttackChecker, responseConsumerAddress);
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDocument, 
 				context.getRequestId(), 
 				SAMLBindings.valueOf(context.getResponseBinding().toString()), 

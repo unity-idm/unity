@@ -51,6 +51,8 @@ import com.vaadin.ui.themes.Reindeer;
 public class SAMLRetrievalUI implements VaadinAuthenticationUI
 {	
 	private Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLRetrievalUI.class);
+	public static final String CHOSEN_IDP_COOKIE = "lastSAMLIdP";
+	
 	private UnityMessageSource msg;
 	private SAMLExchange credentialExchange;
 	private AuthenticationResultCallback callback;
@@ -98,7 +100,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 				idps.add(key);
 		
 		int perRow = samlProperties.getIntValue(SAMLSPProperties.PROVIDERS_IN_ROW);
-		idpSelector = new IdpSelectorComponent(msg, perRow, new IdPsSpecification()
+		idpSelector = new IdpSelectorComponent(msg, perRow, CHOSEN_IDP_COOKIE, new IdPsSpecification()
 		{
 			@Override
 			public Collection<String> getIdpKeys()
@@ -238,6 +240,9 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
 		samlContextManagement.addAuthnContext(context);
 		switchInProgress(context);
+		
+		IdpSelectorComponent.setLastIdpCookie(CHOSEN_IDP_COOKIE, context.getContextIdpKey());
+		
 		Page.getCurrent().open(servletPath + RedirectRequestHandler.PATH, null);
 	}
 

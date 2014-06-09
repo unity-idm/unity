@@ -53,6 +53,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuth2RetrievalUI.class);
 	private static final long RECHECK_DELAY = 200;
+	public static final String CHOSEN_IDP_COOKIE = "lastOAuthIdP";
 	
 	private UnityMessageSource msg;
 	private OAuthExchange credentialExchange;
@@ -99,7 +100,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		
 		final Set<String> idps = clientProperties.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
 		int perRow = clientProperties.getIntValue(OAuthClientProperties.PROVIDERS_IN_ROW);
-		idpSelector = new IdpSelectorComponent(msg, perRow, new IdPsSpecification()
+		idpSelector = new IdpSelectorComponent(msg, perRow, CHOSEN_IDP_COOKIE, new IdPsSpecification()
 		{
 			@Override
 			public Collection<String> getIdpKeys()
@@ -287,6 +288,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		String servletPath = VaadinServlet.getCurrent().getServletContext().getContextPath() + 
 				VaadinServletService.getCurrentServletRequest().getServletPath();
 		
+		IdpSelectorComponent.setLastIdpCookie(CHOSEN_IDP_COOKIE, context.getProviderConfigKey());
 		Page.getCurrent().open(servletPath + RedirectRequestHandler.PATH, null);
 	}
 
