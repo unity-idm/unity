@@ -56,6 +56,13 @@ public interface AttributeValueSyntax<T> extends JsonSerializable
 	 * @throws InternalException 
 	 */
 	public byte[] serialize(T value) throws InternalException;
+
+	/**
+	 * @param domain object
+	 * @return value in the form of a simple Java type. Can return any type which is directly serializable to JSON.
+	 * @throws InternalException 
+	 */
+	public Object serializeSimple(T value) throws InternalException;
 	
 	/**
 	 * @param raw data

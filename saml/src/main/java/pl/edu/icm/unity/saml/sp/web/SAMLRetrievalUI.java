@@ -5,6 +5,8 @@
 package pl.edu.icm.unity.saml.sp.web;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -12,7 +14,6 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties.Binding;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
@@ -24,10 +25,9 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Styles;
-import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
+import pl.edu.icm.unity.webui.common.idpselector.IdPsSpecification;
+import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
@@ -39,7 +39,6 @@ import com.vaadin.server.WrappedSession;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -52,11 +51,13 @@ import com.vaadin.ui.themes.Reindeer;
 public class SAMLRetrievalUI implements VaadinAuthenticationUI
 {	
 	private Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLRetrievalUI.class);
+	public static final String CHOSEN_IDP_COOKIE = "lastSAMLIdP";
+	
 	private UnityMessageSource msg;
 	private SAMLExchange credentialExchange;
 	private AuthenticationResultCallback callback;
 	
-	private String selectedIdp;
+	private IdpSelectorComponent idpSelector;
 	private Label messageLabel;
 	private Label errorDetailLabel;
 	private SamlContextManagement samlContextManagement;
@@ -88,38 +89,38 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		Label title = new Label(samlProperties.getValue(SAMLSPProperties.DISPLAY_NAME));
 		title.addStyleName(Reindeer.LABEL_H2);
 		ret.addComponent(title);
+
+		Label subtitle = new Label(msg.getMessage("WebSAMLRetrieval.selectIdp"));
+		ret.addComponent(subtitle);
+		Set<String> allIdps = samlProperties.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
+		final Set<String> idps = new HashSet<String>(allIdps.size()); 
+		for (String key: allIdps)
+			if (samlProperties.isIdPDefinitioncomplete(key))
+				idps.add(key);
 		
-		Set<String> idps = samlProperties.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
-		if (idps.size() > 1)
+		int perRow = samlProperties.getIntValue(SAMLSPProperties.PROVIDERS_IN_ROW);
+		idpSelector = new IdpSelectorComponent(msg, perRow, CHOSEN_IDP_COOKIE, new IdPsSpecification()
 		{
-			OptionGroup idpChooser = new OptionGroup(msg.getMessage("WebSAMLRetrieval.selectIdp"));
-			idpChooser.setImmediate(true);
-			for (String idpKey: idps)
+			@Override
+			public Collection<String> getIdpKeys()
 			{
-				String name = samlProperties.getValue(idpKey+SAMLSPProperties.IDP_NAME);
-				idpChooser.addItem(idpKey);
-				idpChooser.setItemCaption(idpKey, name);
+				return idps;
 			}
-			idpChooser.select(idps.iterator().next());
-			idpChooser.setNullSelectionAllowed(false);
-			idpChooser.addValueChangeListener(new ValueChangeListener()
+			
+			@Override
+			public String getIdPName(String key, Locale locale)
 			{
-				@Override
-				public void valueChange(ValueChangeEvent event)
-				{
-					selectedIdp = (String) event.getProperty().getValue();
-				}
-			});
-			ret.addComponent(idpChooser);
-		} else
-		{
-			String idpKey = idps.iterator().next();
-			String name = samlProperties.getValue(idpKey+SAMLSPProperties.IDP_NAME);
-			Label selectedIdp = new Label(msg.getMessage("WebSAMLRetrieval.selectedIdp", name));
-			ret.addComponent(selectedIdp);
-		}
-		
-		selectedIdp = idps.iterator().next();
+				return samlProperties.getLocalizedName(key, msg.getLocale());
+			}
+			
+			@Override
+			public String getIdPLogoUri(String key, Locale locale)
+			{
+				return samlProperties.getLocalizedValue(key + SAMLSPProperties.IDP_LOGO, 
+						msg.getLocale());
+			}
+		});
+		ret.addComponent(idpSelector);
 		
 		messageLabel = new Label();
 		messageLabel.setContentMode(ContentMode.HTML);
@@ -199,37 +200,22 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 					msg.getMessage("WebSAMLRetrieval.loginInProgressError"));
 			return;
 		}
-		context = new RemoteAuthnContext();
-		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
-		samlContextManagement.addAuthnContext(context);
-		
-		SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
-		AuthnRequestDocument request;
+		String servletPath = VaadinServlet.getCurrent().getServletContext().getContextPath() + 
+				VaadinServletService.getCurrentServletRequest().getServletPath();
 		try
 		{
-			request = credentialExchange.createSAMLRequest(idpKey);
+			context = credentialExchange.createSAMLRequest(idpKey, servletPath);
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage("WebSAMLRetrieval.configurationError"), e);
 			log.error("Can not create SAML request", e);
 			breakLogin(true);
 			return;
-		}
-		Binding requestBinding = samlProperties.getEnumValue(idpKey + SAMLSPProperties.IDP_BINDING, 
-				Binding.class);
-		String servletPath = VaadinServlet.getCurrent().getServletContext().getContextPath() + 
-				VaadinServletService.getCurrentServletRequest().getServletPath();
-		String identityProviderURL = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_ADDRESS);
-		String groupAttribute = samlProperties.getValue(
-				idpKey + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE);
-		String registrationFormForUnknown = samlProperties.getValue(
-				idpKey + SAMLSPProperties.IDP_REGISTRATION_FORM);
-		String translationProfile = samlProperties.getValue(
-				idpKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE);
-		context.setRequest(request.xmlText(), request.getAuthnRequest().getID(), 
-				requestBinding, identityProviderURL, servletPath, groupAttribute, 
-				registrationFormForUnknown, translationProfile);
+		}		
+		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
+		samlContextManagement.addAuthnContext(context);
 		
+		IdpSelectorComponent.setLastIdpCookie(CHOSEN_IDP_COOKIE, context.getContextIdpKey());
 		
 		Page.getCurrent().open(servletPath + RedirectRequestHandler.PATH, null);
 	}
@@ -299,7 +285,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public void triggerAuthentication()
 	{
-		startLogin(selectedIdp);
+		startLogin(idpSelector.getSelectedProvider());
 	}
 
 	@Override

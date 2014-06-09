@@ -123,3 +123,21 @@
 	margin-top: 10px;
 	margin-bottom: 10px;
 }
+
+.u-horizontalMargins6 {
+	margin-left: 6px;
+	margin-right: 6px;
+}
+
+.u-verticalMargins6 {
+	margin-top: 6px;
+	margin-bottom: 6px;
+}
+
+.u-maxHeight300 {
+	max-height: 300px;
+}
+
+.v-panel-content-u-padRight20 {
+	padding-right: 20px;
+}

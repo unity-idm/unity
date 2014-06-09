@@ -8,8 +8,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.xmlbeans.XmlException;
@@ -17,34 +16,25 @@ import org.apache.xmlbeans.XmlException;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.assertion.AttributeAssertionParser;
-import eu.unicore.samly2.attrprofile.ParsedAttribute;
-import eu.unicore.samly2.elements.NameID;
-import eu.unicore.samly2.exceptions.SAMLValidationException;
-import eu.unicore.samly2.proto.AuthnRequest;
-import eu.unicore.samly2.trust.SamlTrustChecker;
-import eu.unicore.samly2.validators.AssertionValidator;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
-import eu.unicore.samly2.validators.SSOAuthnResponseValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.saml.SAMLHelper;
+import pl.edu.icm.unity.saml.SAMLResponseValidatorUtil;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
+import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
-import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
-import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
-import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
-import xmlbeans.org.oasis.saml2.assertion.AssertionDocument;
-import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
@@ -55,24 +45,30 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
  */
 public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLExchange
 {
+	private UnityServerConfiguration mainConfig;
 	private SAMLSPProperties samlProperties;
 	private PKIManagement pkiMan;
-	private ReplayAttackChecker replayAttackChecker;
 	private MultiMetadataServlet metadataServlet;
 	private ExecutorsService executorsService;
 	private String responseConsumerAddress;
+	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private RemoteMetaManager myMetadataManager;
+	private ReplayAttackChecker replayAttackChecker;
 	
 	public SAMLVerificator(String name, String description, TranslationProfileManagement profileManagement, 
 			AttributesManagement attrMan, PKIManagement pkiMan, ReplayAttackChecker replayAttackChecker,
 			ExecutorsService executorsService, MultiMetadataServlet metadataServlet,
-			URL baseAddress, String baseContext)
+			URL baseAddress, String baseContext, Map<String, RemoteMetaManager> remoteMetadataManagers,
+			UnityServerConfiguration mainConfig)
 	{
 		super(name, description, SAMLExchange.ID, profileManagement, attrMan);
+		this.remoteMetadataManagers = remoteMetadataManagers;
 		this.pkiMan = pkiMan;
-		this.replayAttackChecker = replayAttackChecker;
+		this.mainConfig = mainConfig;
 		this.metadataServlet = metadataServlet;
 		this.executorsService = executorsService;
 		this.responseConsumerAddress = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
+		this.replayAttackChecker = replayAttackChecker;
 	}
 
 	@Override
@@ -89,6 +85,11 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		return sbw.toString();	
 	}
 
+	/**
+	 * Configuration samlProperties is loaded, but it can be modified at runtime by the metadata manager.
+	 * Therefore the source properties are used only to configure basic things (not related to trusted IDPs)
+	 * while the virtual properties are used for authentication process setup.
+	 */
 	@Override
 	public void setSerializedConfiguration(String source) throws InternalException
 	{
@@ -107,6 +108,15 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		
 		if (samlProperties.getBooleanValue(SamlProperties.PUBLISH_METADATA))
 			exposeMetadata();
+		String myId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
+		if (!remoteMetadataManagers.containsKey(myId))
+		{
+			myMetadataManager = new RemoteMetaManager(samlProperties, 
+					mainConfig, executorsService, pkiMan);
+			remoteMetadataManagers.put(myId, myMetadataManager);
+			myMetadataManager.start();
+		} else
+			myMetadataManager = remoteMetadataManagers.get(myId);
 	}
 
 	private void exposeMetadata()
@@ -132,32 +142,22 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	}
 	
 	@Override
-	public AuthnRequestDocument createSAMLRequest(String idpKey) throws InternalException
+	public RemoteAuthnContext createSAMLRequest(String idpKey, String servletPath) throws InternalException
 	{
-		boolean sign = samlProperties.getBooleanValue(idpKey + SAMLSPProperties.IDP_SIGN_REQUEST);
-		String requestrId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
-		String identityProviderURL = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_ADDRESS);
-		String requestedNameFormat = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_REQUESTED_NAME_FORMAT);
-		NameID issuer = new NameID(requestrId, SAMLConstants.NFORMAT_ENTITY);
-		AuthnRequest request = new AuthnRequest(issuer.getXBean());
+		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpKey);
 		
-		if (requestedNameFormat != null)
-			request.setFormat(requestedNameFormat);
-		request.getXMLBean().setDestination(identityProviderURL);
-		request.getXMLBean().setAssertionConsumerServiceURL(responseConsumerAddress);
-
-		if (sign)
-		{
-			try
-			{
-				X509Credential credential = samlProperties.getRequesterCredential();
-				request.sign(credential.getKey(), credential.getCertificateChain());
-			} catch (Exception e)
-			{
-				throw new InternalException("Can't sign request", e);
-			}
-		}
-		return request.getXMLBeanDoc();
+		SAMLSPProperties samlPropertiesCopy = context.getContextConfig();
+		boolean sign = samlPropertiesCopy.isSignRequest(idpKey);
+		String requesterId = samlPropertiesCopy.getValue(SAMLSPProperties.REQUESTER_ID);
+		String identityProviderURL = samlPropertiesCopy.getValue(idpKey + SAMLSPProperties.IDP_ADDRESS);
+		String requestedNameFormat = samlPropertiesCopy.getRequestedNameFormat(idpKey);
+		X509Credential credential = sign ? samlPropertiesCopy.getRequesterCredential() : null;
+		
+		AuthnRequestDocument request = SAMLHelper.createSAMLRequest(responseConsumerAddress, sign, 
+				requesterId, identityProviderURL,
+				requestedNameFormat, credential);
+		context.setRequest(request.xmlText(), request.getAuthnRequest().getID(), servletPath);
+		return context;
 	}
 
 	@Override
@@ -173,112 +173,22 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 					"XML data is corrupted", e);
 		}
 		
-		String consumerSamlName = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
-		
-		SamlTrustChecker samlTrustChecker;
-		try
-		{
-			samlTrustChecker = samlProperties.getTrustChecker();
-		} catch (ConfigurationException e1)
-		{
-			throw new AuthenticationException("The SAML response can not be verified - " +
-					"there is an internal configuration error", e1);
-		}
-		
-		SSOAuthnResponseValidator validator = new SSOAuthnResponseValidator(
-				consumerSamlName, responseConsumerAddress, 
-				context.getRequestId(), AssertionValidator.DEFAULT_VALIDITY_GRACE_PERIOD, 
-				samlTrustChecker, replayAttackChecker, 
-				SAMLBindings.valueOf(context.getResponseBinding().toString()));
-		
-		try
-		{
-			validator.validate(responseDocument);
-		} catch (SAMLValidationException e)
-		{
-			throw new AuthenticationException("The SAML response is either invalid or is issued " +
-					"by an untrusted identity provider.", e);
-		}
-
-		RemotelyAuthenticatedInput input = convertAssertion(responseDocument, validator, 
+		SAMLSPProperties config = context.getContextConfig();
+		String idpKey = context.getContextIdpKey();
+		SAMLResponseValidatorUtil responseValidatorUtil = new SAMLResponseValidatorUtil(
+				getSamlValidatorSettings(), 
+				replayAttackChecker, responseConsumerAddress);
+		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDocument, 
+				context.getRequestId(), 
+				SAMLBindings.valueOf(context.getResponseBinding().toString()), 
 				context.getGroupAttribute());
-
-		return getResult(input, context.getTranslationProfile());
-	}
-	
-	private RemotelyAuthenticatedInput convertAssertion(ResponseDocument responseDocument,
-			SSOAuthnResponseValidator validator, String groupA) throws AuthenticationException
-	{
-		NameIDType issuer = responseDocument.getResponse().getIssuer();
-		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput(issuer.getStringValue());
-		
-		input.setIdentities(getAuthenticatedIdentities(validator));
-		List<RemoteAttribute> remoteAttributes = getAttributes(validator);
-		input.setAttributes(remoteAttributes);
-		input.setGroups(getGroups(remoteAttributes, groupA));
-		
-		return input;
-	}
-	
-	private List<RemoteIdentity> getAuthenticatedIdentities(SSOAuthnResponseValidator validator)
-	{
-		List<AssertionDocument> authnAssertions = validator.getAuthNAssertions();
-		List<RemoteIdentity> ret = new ArrayList<>(authnAssertions.size());
-		for (int i=0; i<authnAssertions.size(); i++)
-		{
-			NameIDType samlName = authnAssertions.get(i).getAssertion().getSubject().getNameID();
-			ret.add(new RemoteIdentity(samlName.getStringValue(), samlName.getFormat()));
-		}
-		return ret;
-	}
-	
-	private List<RemoteAttribute> getAttributes(SSOAuthnResponseValidator validator) throws AuthenticationException
-	{
-		List<AssertionDocument> assertions = validator.getOtherAssertions();
-		List<RemoteAttribute> ret = new ArrayList<>(assertions.size());
-		for (AssertionDocument assertion: assertions)
-		{
-			AttributeAssertionParser parser = new AttributeAssertionParser(assertion);
-			List<ParsedAttribute> parsedAttrs;
-			try
-			{
-				parsedAttrs = parser.getAttributes();
-			} catch (SAMLValidationException e)
-			{
-				throw new AuthenticationException("Problem retrieving attributes from the SAML data", e);
-			}
-			for (ParsedAttribute pa: parsedAttrs)
-			{
-				List<String> strValues = pa.getStringValues();
-				ret.add(new RemoteAttribute(pa.getName(), 
-						(Object[]) strValues.toArray(new String[strValues.size()])));
-			}
-		}
-		return ret;
-	}
-	
-	private List<RemoteGroupMembership> getGroups(List<RemoteAttribute> remoteAttributes, String groupA)
-	{
-		List<RemoteGroupMembership> ret = new ArrayList<>();
-		if (groupA == null)
-			return ret;
-		for (RemoteAttribute ra: remoteAttributes)
-		{
-			if (ra.getName().equals(groupA))
-			{
-				for (Object value: ra.getValues())
-				{
-					ret.add(new RemoteGroupMembership((String) value));
-				}
-			}
-		}
-		return ret;
+		return getResult(input, config.getValue(idpKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE));
 	}
 	
 	@Override
 	public SAMLSPProperties getSamlValidatorSettings()
 	{
-		return samlProperties;
+		return myMetadataManager.getVirtualConfiguration();
 	}
 }
 

@@ -15,7 +15,6 @@ import java.security.cert.X509Certificate;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -27,6 +26,7 @@ import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.server.utils.CookieHelper;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -192,7 +192,7 @@ public class UnityVaadinServlet extends VaadinServlet
 				"javax.servlet.request.X509Certificate");
 		IdentityTaV tlsId = (clientCert == null) ? null : new IdentityTaV(X500Identity.ID, 
 				clientCert[0].getSubjectX500Principal().getName());
-		InvocationContext context = new InvocationContext(tlsId);
+		InvocationContext context = new InvocationContext(tlsId, description.getRealm());
 		InvocationContext.setCurrent(context);
 		return context;
 	}
@@ -216,17 +216,13 @@ public class UnityVaadinServlet extends VaadinServlet
 	 */
 	private void setLocale(HttpServletRequest request, InvocationContext context)
 	{
-		Cookie[] cookies = request.getCookies();
-		for (Cookie cookie: cookies)
+		String value = CookieHelper.getCookie(request, LANGUAGE_COOKIE);
+		if (value != null)
 		{
-			if (LANGUAGE_COOKIE.equals(cookie.getName()))
+			Locale locale = UnityServerConfiguration.safeLocaleDecode(value);
+			if (config.isLocaleSupported(locale))
 			{
-				String value = cookie.getValue();
-				Locale locale = UnityServerConfiguration.safeLocaleDecode(value);
-				if (config.isLocaleSupported(locale))
-					context.setLocale(locale);
-				else
-					context.setLocale(config.getDefaultLocale());
+				context.setLocale(locale);
 				return;
 			}
 		}

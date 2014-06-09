@@ -39,8 +39,9 @@
 |Feature 						| Status 						| Notes
 |SAML 2, Web SSO profile		| icon:check[role="green"]		| 
 |SAML 2, SOAP binding			| icon:check[role="green"]		| 
+|SAML 2, PAOS binding (for ECP) | icon:check[role="green"]		| 
 |Web admin interface			| icon:check[role="green"]		|
-|REST admin interface			| icon:exclamation[role="red"]	| Not yet available
+|REST admin interface			| icon:check[role="green"]		| Base part, read-only, is available, will be extended in future
 |Web user profile management	| icon:check[role="green"]		| Available however more functionality is required
 |SAML 2, Web binding + UNICORE profile | icon:check[role="green"]	|
 |SAML 2, SOAP binding + UNICORE profile	| icon:check[role="green"]	|

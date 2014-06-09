@@ -4,14 +4,12 @@
  */
 package pl.edu.icm.unity.oauth.client.web;
 
-import java.io.File;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.vaadin.server.ExternalResource;
-import com.vaadin.server.FileResource;
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
@@ -21,14 +19,9 @@ import com.vaadin.server.VaadinServletService;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
 import pl.edu.icm.unity.oauth.client.OAuthContext;
@@ -47,6 +40,8 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.idpselector.IdPsSpecification;
+import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent;
 
 /**
  * UI part of OAuth retrieval. Shows available providers, redirects to the chosen one.
@@ -55,6 +50,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuth2RetrievalUI.class);
+	public static final String CHOSEN_IDP_COOKIE = "lastOAuthIdP";
 	
 	private UnityMessageSource msg;
 	private OAuthExchange credentialExchange;
@@ -62,8 +58,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	
 	private AuthenticationResultCallback callback;
 
-	private String selectedProvider;
-	private Button selectedButton;
+	private IdpSelectorComponent idpSelector;
 	private Label messageLabel;
 	private Label errorDetailLabel;
 	
@@ -97,69 +92,34 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		Label subtitle = new Label(msg.getMessage("OAuth2Retrieval.selectProvider"));
 		ret.addComponent(subtitle);
 		
-		Set<String> idps = clientProperties.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
-		
-		VerticalLayout providersChoice = new VerticalLayout();
-		providersChoice.setSpacing(true);
-		ret.addComponent(providersChoice);
-
+		final Set<String> idps = clientProperties.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
 		int perRow = clientProperties.getIntValue(OAuthClientProperties.PROVIDERS_IN_ROW);
-
-		int current = 0;
-		HorizontalLayout providersL = null;
-		for (String idpKey: idps)
+		idpSelector = new IdpSelectorComponent(msg, perRow, CHOSEN_IDP_COOKIE, new IdPsSpecification()
 		{
-			if ((current % perRow) == 0)
+			@Override
+			public Collection<String> getIdpKeys()
 			{
-				providersL = new HorizontalLayout();
-				providersL.setSpacing(true);
-				providersChoice.addComponent(providersL);
-				providersL.addStyleName(Styles.verticalMargins10.toString());
+				return idps;
 			}
 			
-			Button providerB = new Button();
-			providerB.setImmediate(true);
-			providerB.setStyleName(Reindeer.BUTTON_LINK);
-			providerB.addStyleName(Styles.horizontalMargins10.toString());
-			if (current == 0)
+			@Override
+			public String getIdPName(String key, Locale locale)
 			{
-				selectedProvider = idpKey;
-				selectedButton = providerB;
-				selectedButton.addStyleName(Styles.selectedButton.toString());
+				CustomProviderProperties providerProps = clientProperties.getProvider(key);
+				return providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, 
+						locale);
 			}
 			
-			CustomProviderProperties providerProps = clientProperties.getProvider(idpKey);
-			String name = providerProps.getValue(CustomProviderProperties.PROVIDER_NAME);
-			String logoURL = providerProps.getValue(CustomProviderProperties.ICON_URL);
-			String logoFile = providerProps.getValue(CustomProviderProperties.ICON_FILE);
-			
-			if (logoURL != null)
+			@Override
+			public String getIdPLogoUri(String key, Locale locale)
 			{
-				ExternalResource iconR = new ExternalResource(logoURL);
-				providerB.setIcon(iconR);
-			} else if (logoFile != null)
-			{
-				FileResource iconR = new FileResource(new File(logoFile));
-				providerB.setIcon(iconR);
-			} else
-				providerB.setCaption(name);
-			
-			providersL.addComponent(providerB);
-			providersL.setComponentAlignment(providerB, Alignment.MIDDLE_LEFT);
-			providerB.setData(idpKey);
-			providerB.addClickListener(new ClickListener()
-			{
-				@Override
-				public void buttonClick(ClickEvent event)
-				{
-					selectedProvider = (String) event.getButton().getData();
-					selectedButton.removeStyleName(Styles.selectedButton.toString());
-					event.getButton().addStyleName(Styles.selectedButton.toString());
-					selectedButton = event.getButton();
-				}
-			});
-			current++;
-		}
+				CustomProviderProperties providerProps = clientProperties.getProvider(key);
+				return providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
+						locale);
+			}
+		});
+		ret.addComponent(idpSelector);
+		
 		messageLabel = new Label();
 		messageLabel.setContentMode(ContentMode.HTML);
 		messageLabel.addStyleName(Styles.error.toString());
@@ -187,7 +147,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public void triggerAuthentication()
 	{
-		startLogin(selectedProvider);
+		startLogin(idpSelector.getSelectedProvider());
 	}
 
 	@Override
@@ -294,6 +254,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		String servletPath = VaadinServlet.getCurrent().getServletContext().getContextPath() + 
 				VaadinServletService.getCurrentServletRequest().getServletPath();
 		
+		IdpSelectorComponent.setLastIdpCookie(CHOSEN_IDP_COOKIE, context.getProviderConfigKey());
 		Page.getCurrent().open(servletPath + RedirectRequestHandler.PATH, null);
 	}
 

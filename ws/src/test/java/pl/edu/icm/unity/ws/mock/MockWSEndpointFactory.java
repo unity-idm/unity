@@ -15,7 +15,7 @@ import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.ws.CXFEndpoint;
-import pl.edu.icm.unity.ws.authn.CXFAuthentication;
+import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
 
 @Component
 public class MockWSEndpointFactory implements EndpointFactory
@@ -24,7 +24,7 @@ public class MockWSEndpointFactory implements EndpointFactory
 	public static final String NAME = "Mock WS Endpoint";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(
 			NAME, "This is mock web service endpoint for tests", 
-			Collections.singleton(CXFAuthentication.NAME),Collections.singletonMap(SERVLET_PATH, "Test endpoint"));
+			Collections.singleton(WebServiceAuthentication.NAME),Collections.singletonMap(SERVLET_PATH, "Test endpoint"));
 
 	@Autowired
 	private UnityMessageSource msg;

@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.ws.authn;
+package pl.edu.icm.unity.rest.authn;
 
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -20,6 +20,7 @@ import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.rest.authn.ext.TLSRetrieval;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
@@ -33,7 +34,6 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.ws.authn.ext.TLSRetrieval;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
 /**
@@ -43,7 +43,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
  */
 public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WS, AuthenticationInterceptor.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, AuthenticationInterceptor.class);
 	private UnityMessageSource msg;
 	protected List<Map<String, BindingAuthn>> authenticators;
 	protected UnsuccessfulAuthenticationCounter unsuccessfulAuthenticationCounter;
@@ -76,7 +76,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		X509Certificate[] clientCert = TLSRetrieval.getTLSCertificates();
 		IdentityTaV tlsId = (clientCert == null) ? null : new IdentityTaV(X500Identity.ID, 
 				clientCert[0].getSubjectX500Principal().getName());
-		InvocationContext ctx = new InvocationContext(tlsId); 
+		InvocationContext ctx = new InvocationContext(tlsId, realm); 
 		InvocationContext.setCurrent(ctx);
 		AuthenticationException firstError = null;
 		AuthenticatedEntity client = null;
@@ -129,9 +129,14 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 			AuthenticationResult result = authnCache.get(authenticator.getKey());
 			if (result == null)
 			{
+				log.trace("Processing authenticator " + authenticator.getKey());
 				CXFAuthentication myAuth = (CXFAuthentication) authenticator.getValue();
 				result = myAuth.getAuthenticationResult();
 				authnCache.put(authenticator.getKey(), result);
+				log.trace("Authenticator " + authenticator.getKey() + " returned " + result);
+			} else
+			{
+				log.trace("Using cached result of " + authenticator.getKey() + ": " + result);
 			}
 			setResult.add(result);
 		}

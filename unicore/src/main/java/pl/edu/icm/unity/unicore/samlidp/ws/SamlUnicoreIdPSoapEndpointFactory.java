@@ -23,7 +23,7 @@ import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-import pl.edu.icm.unity.ws.authn.CXFAuthentication;
+import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
 
 /**
  * Factory creating {@link SamlUnicoreSoapEndpoint} instances.
@@ -60,7 +60,7 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 		this.sessionMan = sessionMan;
 
 		Set<String> supportedAuthn = new HashSet<String>();
-		supportedAuthn.add(CXFAuthentication.NAME);
+		supportedAuthn.add(WebServiceAuthentication.NAME);
 		Map<String,String> paths=new HashMap<String, String>();
 		paths.put(SERVLET_PATH,"SAML 2 UNICORE identity provider web endpoint");
 		paths.put(SamlIdPSoapEndpointFactory.METADATA_SERVLET_PATH, 

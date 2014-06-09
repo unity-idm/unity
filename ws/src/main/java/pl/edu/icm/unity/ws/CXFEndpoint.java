@@ -5,14 +5,10 @@
 package pl.edu.icm.unity.ws;
 
 import java.io.ByteArrayInputStream;
-import java.io.CharArrayWriter;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.jws.WebService;
 
@@ -29,6 +25,8 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.rest.RESTEndpoint;
+import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
@@ -36,8 +34,6 @@ import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-import pl.edu.icm.unity.ws.authn.AuthenticationInterceptor;
-import pl.edu.icm.unity.ws.authn.CXFAuthentication;
 
 /**
  * Web service endpoint based on CXF
@@ -48,7 +44,6 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 	protected UnityMessageSource msg;
 	protected String servletPath;
 	private Map<Class<?>, Object> services; 
-	protected Properties properties;
 	protected CXFEndpointProperties genericEndpointProperties;
 	protected SessionManagement sessionMan;
 	
@@ -61,20 +56,7 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 		this.sessionMan = sessionMan;
 		services = new HashMap<Class<?>, Object>();
 	}
-	@Override
-	public String getSerializedConfiguration()
-	{
-		CharArrayWriter writer = new CharArrayWriter();
-		try
-		{
-			properties.store(writer, "");
-		} catch (IOException e)
-		{
-			throw new IllegalStateException("Can not serialize endpoint's configuration", e);
-		}
-		return writer.toString();
-	}
-
+	
 	@Override
 	public void setSerializedConfiguration(String cfg)
 	{
@@ -85,7 +67,8 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 			genericEndpointProperties = new CXFEndpointProperties(properties);
 		} catch (Exception e)
 		{
-			throw new ConfigurationException("Can't initialize the the generic IdP endpoint's configuration", e);
+			throw new ConfigurationException("Can't initialize the the generic Web Service"
+					+ " endpoint's configuration", e);
 		}
 	}
 
@@ -114,7 +97,7 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 		outInterceptors.add(new XmlBeansNsHackOutHandler());
 		AuthenticationRealm realm = description.getRealm();
 		inInterceptors.add(new AuthenticationInterceptor(msg, authenticators, realm, sessionMan));
-		installAuthnInterceptors(inInterceptors);
+		RESTEndpoint.installAuthnInterceptors(authenticators, inInterceptors);
 	}
 	
 	protected abstract void configureServices();
@@ -136,25 +119,6 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 			deployWebservice(bus, service.getKey(), service.getValue());
 		
 		return context;
-	}
-
-	private void installAuthnInterceptors(List<Interceptor<? extends Message>> interceptors)
-	{
-		Set<String> added = new HashSet<String>();
-		for (Map<String, BindingAuthn> authenticatorSet: authenticators)
-		{
-			for (Map.Entry<String, BindingAuthn> authenticator: authenticatorSet.entrySet())
-			{
-				if (!added.contains(authenticator.getKey()))
-				{
-					CXFAuthentication a = (CXFAuthentication) authenticator.getValue();
-					Interceptor<? extends Message> in = a.getInterceptor();
-					if (in != null)
-						interceptors.add(in);
-					added.add(authenticator.getKey());
-				}
-			}
-		}
 	}
 	
 

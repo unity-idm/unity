@@ -6,6 +6,8 @@ package pl.edu.icm.unity.types.basic;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 
 /**
@@ -16,6 +18,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 public class Identity extends IdentityParam
 {
 	private Long entityId;
+	@JsonIgnore
 	private IdentityType type;
 
 	private String comparableValue;

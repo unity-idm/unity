@@ -27,7 +27,6 @@ import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
-
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
@@ -161,6 +160,23 @@ public class TestSamlConfiguration
 			public X509Certificate getCertificate(String name) throws EngineException
 			{
 				return null;
+			}
+
+			@Override
+			public void updateCertificate(String name, X509Certificate updated)
+					throws EngineException
+			{
+			}
+
+			@Override
+			public void removeCertificate(String name) throws EngineException
+			{
+			}
+
+			@Override
+			public void addCertificate(String name, X509Certificate updated)
+					throws EngineException
+			{
 			}
 		};
 	}

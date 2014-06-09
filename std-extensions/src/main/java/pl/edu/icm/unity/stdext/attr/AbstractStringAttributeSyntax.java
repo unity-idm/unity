@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.stdext.attr;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 
 /**
@@ -47,5 +48,12 @@ public abstract class AbstractStringAttributeSyntax implements AttributeValueSyn
 	public String deserialize(byte[] raw)
 	{
 		return new String(raw, Constants.UTF);
+	}
+	
+
+	@Override
+	public Object serializeSimple(String value) throws InternalException
+	{
+		return value;
 	}
 }

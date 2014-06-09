@@ -26,6 +26,7 @@ import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.server.utils.CookieHelper;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
@@ -103,7 +104,7 @@ public class AuthenticationFilter implements Filter
 			}
 		}
 
-		loginSessionId = getUnitySessionIdFromCookie(httpRequest);
+		loginSessionId = CookieHelper.getCookie(httpRequest, sessionCookie);
 		
 		if (loginSessionId == null)
 		{
@@ -161,15 +162,6 @@ public class AuthenticationFilter implements Filter
 			log.trace("Request to protected address, user is authenticated: " + 
 					httpRequest.getRequestURI());
 		chain.doFilter(httpRequest, response);
-	}
-	
-	private String getUnitySessionIdFromCookie(HttpServletRequest request)
-	{
-		Cookie[] cookies = request.getCookies();
-		for (Cookie cookie: cookies)
-			if (sessionCookie.equals(cookie.getName()))
-				return cookie.getValue();
-		return null;
 	}
 	
 	private void clearSessionCookie(HttpServletResponse response)
