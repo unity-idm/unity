@@ -66,6 +66,7 @@ public class SAMLSPProperties extends SamlProperties
 
 	public static final String IDPMETA_PREFIX = "metadataSource.";
 	public static final String IDPMETA_URL = "url";
+	public static final String IDPMETA_HTTPS_TRUSTSTORE = "httpsTruststore";
 	public static final String IDPMETA_REFRESH = "refreshInterval";
 	public static final String IDPMETA_SIGNATURE = "signaturVerification";
 	public static final String IDPMETA_ISSUER_CERT = "signatureVerificationCertificate";
@@ -162,7 +163,7 @@ public class SAMLSPProperties extends SamlProperties
 		
 		META.put(DISPLAY_NAME, new PropertyMD("SAML authentication").setCategory(webRetrieval).setDescription(
 				"Name of the SAML authentication GUI component"));
-		META.put(PROVIDERS_IN_ROW, new PropertyMD("3").setPositive().setCategory(webRetrieval).setDescription(
+		META.put(PROVIDERS_IN_ROW, new PropertyMD("2").setPositive().setCategory(webRetrieval).setDescription(
 				"How many IdPs should be displayed in a single row on the IdP selection screen. Relevant only if you define multiple providers."));
 
 		META.put(IDPMETA_PREFIX, new PropertyMD().setCategory(remoteMeta).setStructuredList(false).setDescription(
@@ -171,7 +172,10 @@ public class SAMLSPProperties extends SamlProperties
 				"How often the metadata should be reloaded."));
 		META.put(IDPMETA_URL, new PropertyMD().setCategory(remoteMeta).setMandatory().setStructuredListEntry(IDPMETA_PREFIX).setDescription(
 				"URL with the metadata location. Can be local or HTTP(s) URL. "
-				+ "In case of HTTPS the server's certificate will be checked against the main Unity server's truststore."));
+				+ "In case of HTTPS the server's certificate will be checked against the main Unity server's truststore"
+				+ " only if ."));
+		META.put(IDPMETA_HTTPS_TRUSTSTORE, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
+				"If set then the given truststore will be used for HTTPS connection validation during metadata fetching. Otherwise the default Java trustststore will beused."));
 		META.put(IDPMETA_TRANSLATION_PROFILE, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
 				"Deafult translation profile for all the IdPs from the metadata. Can be overwritten by individual IdP configuration entries."));
 		META.put(IDPMETA_REGISTRATION_FORM, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(IDPMETA_PREFIX).setDescription(

@@ -141,3 +141,15 @@
 .v-panel-content-u-padRight20 {
 	padding-right: 20px;
 }
+
+.u-width100 .v-button-wrap {
+	width: 100px;
+}
+
+.u-width100 {
+	width: 100px;
+}
+
+.u-width100 .v-button-wrap .v-icon {
+	width: 100px;
+}

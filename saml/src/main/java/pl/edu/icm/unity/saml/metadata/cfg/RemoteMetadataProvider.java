@@ -44,19 +44,20 @@ public class RemoteMetadataProvider
 	private PKIManagement pkiManagement;
 	private UnityServerConfiguration mainConfig;
 	
-	public RemoteMetadataProvider(PKIManagement pkiManagement,
-			UnityServerConfiguration mainConfig)
+	public RemoteMetadataProvider(PKIManagement pkiManagement, UnityServerConfiguration mainConfig)
 	{
 		this.pkiManagement = pkiManagement;
 		this.mainConfig = mainConfig;
 	}
 
-	public EntitiesDescriptorDocument load(String url, int refreshInterval) throws XmlException, IOException, EngineException
+	public EntitiesDescriptorDocument load(String url, int refreshInterval,
+			String customTruststore) throws XmlException, IOException, EngineException
 	{
-		return EntitiesDescriptorDocument.Factory.parse(getAsLocalFile(url, refreshInterval));
+		return EntitiesDescriptorDocument.Factory.parse(getAsLocalFile(url, refreshInterval, customTruststore));
 	}
 	
-	private InputStream getAsLocalFile(String url, int refreshInterval) throws IOException, EngineException
+	private InputStream getAsLocalFile(String url, int refreshInterval,
+			String customTruststore) throws IOException, EngineException
 	{
 		if (url.startsWith("file:"))
 		{
@@ -66,7 +67,7 @@ public class RemoteMetadataProvider
 		
 		try
 		{
-			tryDownloading(url, refreshInterval);
+			tryDownloading(url, refreshInterval, customTruststore);
 		} catch (Exception e)
 		{
 			log.warn("Download of remote metadata from " + url + 
@@ -82,7 +83,8 @@ public class RemoteMetadataProvider
 		return new BufferedInputStream(new FileInputStream(cachedFile));
 	}
 
-	private void tryDownloading(String url, int refreshInterval) throws EngineException, IOException
+	private void tryDownloading(String url, int refreshInterval,
+			String customTruststore) throws EngineException, IOException
 	{
 		File cachedFilePart = getLocalFile(url, "_part");
 		File cachedFile = getLocalFile(url, "");
@@ -96,7 +98,7 @@ public class RemoteMetadataProvider
 			return;
 		}
 		log.debug("Downloading metadata from " + url + " to " + cachedFilePart.toString());
-		HttpClient client = url.startsWith("https:") ? getSSLClient(url) : new DefaultHttpClient();
+		HttpClient client = url.startsWith("https:") ? getSSLClient(url, customTruststore) : new DefaultHttpClient();
 		HttpGet request = new HttpGet(url);
 		HttpResponse response = client.execute(request);
 		if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
@@ -126,12 +128,17 @@ public class RemoteMetadataProvider
 		return ret;
 	}
 	
-	private HttpClient getSSLClient(String url) throws EngineException
+	private HttpClient getSSLClient(String url, String customTruststore) throws EngineException
 	{
-		DefaultClientConfiguration config = new DefaultClientConfiguration();
-		config.setSslEnabled(true);
-		config.setValidator(pkiManagement.getValidator(
-				mainConfig.getValue(UnityServerConfiguration.MAIN_TRUSTSTORE)));
-		return HttpUtils.createClient(url, config);
+		if (customTruststore != null)
+		{
+			DefaultClientConfiguration config = new DefaultClientConfiguration();
+			config.setSslEnabled(true);
+			config.setValidator(pkiManagement.getValidator(customTruststore));
+			return HttpUtils.createClient(url, config);
+		} else
+		{
+			return new DefaultHttpClient();
+		}
 	}
 }

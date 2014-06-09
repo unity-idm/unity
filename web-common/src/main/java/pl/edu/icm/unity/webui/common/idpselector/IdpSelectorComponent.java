@@ -58,7 +58,8 @@ public class IdpSelectorComponent extends CustomComponent
 	private String selectedProvider;
 	private Button selectedButton;
 
-	public IdpSelectorComponent(UnityMessageSource msg, int perRow, String lastIdpCookie, IdPsSpecification idps)
+	public IdpSelectorComponent(UnityMessageSource msg, int perRow, 
+			String lastIdpCookie, IdPsSpecification idps)
 	{
 		this.msg = msg;
 		this.perRow = perRow;
@@ -194,6 +195,8 @@ public class IdpSelectorComponent extends CustomComponent
 		if (logo != null)
 		{
 			providerB.setIcon(logo);
+			providerB.addStyleName("u-width100");
+			providerB.setDescription(name);
 		} else
 		{
 			providerB.setCaption(name);

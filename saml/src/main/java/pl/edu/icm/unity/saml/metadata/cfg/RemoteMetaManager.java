@@ -97,10 +97,11 @@ public class RemoteMetaManager
 	{
 		String url = configuration.getValue(key + SAMLSPProperties.IDPMETA_URL);
 		int refreshInterval = configuration.getIntValue(key + SAMLSPProperties.IDPMETA_REFRESH);
+		String customTruststore = configuration.getValue(key + SAMLSPProperties.IDPMETA_HTTPS_TRUSTSTORE);
 		EntitiesDescriptorDocument metadata;
 		try
 		{
-			metadata = remoteMetaProvider.load(url, refreshInterval);
+			metadata = remoteMetaProvider.load(url, refreshInterval, customTruststore);
 		} catch (XmlException e)
 		{
 			log.warn("Metadata from " + url + " was downloaded, but can not be parsed", e);

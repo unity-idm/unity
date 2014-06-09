@@ -233,7 +233,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 		List<X509Certificate> ret = new ArrayList<X509Certificate>();
 		for (KeyDescriptorType key: keys)
 		{
-			if (KeyTypes.SIGNING.equals(key.getUse()))
+			if (!key.isSetUse() || KeyTypes.SIGNING.equals(key.getUse()))
 			{
 				X509DataType[] x509Keys = key.getKeyInfo().getX509DataArray();
 				if (x509Keys == null || x509Keys.length == 0)
@@ -355,8 +355,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 					ret.put(key, logo);
 				} else
 				{
-					if (e.getHeight().longValue() < logo.getHeight().longValue() && 
-							e.getWidth().longValue() < logo.getWidth().longValue())
+					if (e.getHeight().longValue() < logo.getHeight().longValue())
 						ret.put(key, logo);
 				}
 			}
