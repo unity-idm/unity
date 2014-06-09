@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties.Binding;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
@@ -96,7 +97,12 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		final Set<String> idps = new HashSet<String>(allIdps.size()); 
 		for (String key: allIdps)
 			if (samlProperties.isIdPDefinitioncomplete(key))
-				idps.add(key);
+			{
+				Binding binding = samlProperties.getEnumValue(key + 
+						SAMLSPProperties.IDP_BINDING, Binding.class);
+				if (binding == Binding.HTTP_POST || binding == Binding.HTTP_REDIRECT)
+					idps.add(key);
+			}
 		
 		int perRow = samlProperties.getIntValue(SAMLSPProperties.PROVIDERS_IN_ROW);
 		idpSelector = new IdpSelectorComponent(msg, perRow, CHOSEN_IDP_COOKIE, new IdPsSpecification()

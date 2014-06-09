@@ -199,7 +199,8 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			properties.setProperty(configKey + SAMLSPProperties.IDP_REGISTRATION_FORM, 
 					perMetaRegForm);
 		
-		log.debug("Added a trusted IdP loaded from SAML metadata: " + entityId);
+		log.debug("Added a trusted IdP loaded from SAML metadata: " + entityId + " with " + 
+				endpoint.getBinding() + " binding");
 	}
 
 	private void updatePKICerts(List<X509Certificate> certs, String entityId) throws EngineException
