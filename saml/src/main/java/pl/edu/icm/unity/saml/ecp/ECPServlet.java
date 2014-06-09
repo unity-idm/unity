@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import eu.unicore.samly2.validators.ReplayAttackChecker;
+import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
@@ -34,14 +35,15 @@ public class ECPServlet extends HttpServlet
 	private ECPStep1Handler step1Handler;
 	private ECPStep2Handler step2Handler;
 
-	public ECPServlet(SAMLECPProperties samlProperties, ECPContextManagement samlContextManagement, 
+	public ECPServlet(SAMLECPProperties samlProperties, RemoteMetaManager metadataManager,
+			ECPContextManagement samlContextManagement, 
 			String myAddress, ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
 			TranslationProfileManagement profileManagement, AttributesManagement attrMan,
 			TokensManagement tokensMan, PKIManagement pkiManagement, IdentitiesManagement identitiesMan,
 			SessionManagement sessionMan, AuthenticationRealm realm, String address)
 	{
-		step1Handler = new ECPStep1Handler(samlProperties, samlContextManagement, myAddress);
-		step2Handler = new ECPStep2Handler(samlProperties, samlContextManagement, myAddress,
+		step1Handler = new ECPStep1Handler(metadataManager, samlContextManagement, myAddress);
+		step2Handler = new ECPStep2Handler(samlProperties, metadataManager, samlContextManagement, myAddress,
 				replayAttackChecker, identityResolver, profileManagement, attrMan,
 				tokensMan, pkiManagement, identitiesMan, sessionMan, realm, address);
 	}

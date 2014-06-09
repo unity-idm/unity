@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.xmlbeans.XmlCursor;
 
 import pl.edu.icm.unity.saml.SAMLHelper;
+import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.xmlbeans.ecp.RelayStateDocument;
 import pl.edu.icm.unity.saml.xmlbeans.ecp.RelayStateType;
@@ -38,14 +39,14 @@ import eu.unicore.samly2.SAMLConstants;
  */
 public class ECPStep1Handler
 {
-	private SAMLSPProperties samlProperties;
+	private RemoteMetaManager metadataManager;
 	private String myAddress;
 	private ECPContextManagement samlContextManagement;
 
-	public ECPStep1Handler(SAMLSPProperties samlProperties, ECPContextManagement samlContextManagement, 
+	public ECPStep1Handler(RemoteMetaManager metadataManager, ECPContextManagement samlContextManagement, 
 			String myAddress)
 	{
-		this.samlProperties = samlProperties;
+		this.metadataManager = metadataManager;
 		this.myAddress = myAddress;
 		this.samlContextManagement = samlContextManagement;
 	}
@@ -80,23 +81,25 @@ public class ECPStep1Handler
 		EnvelopeDocument envDoc = EnvelopeDocument.Factory.newInstance();
 		Envelope env = envDoc.addNewEnvelope();
 		
+		SAMLSPProperties samlProperties = metadataManager.getVirtualConfiguration();
+		
 		Header header = env.addNewHeader();
 		XmlCursor curH = header.newCursor();
 		curH.toFirstContentToken();
-		generateEcpHeaders(curH, context);
+		generateEcpHeaders(samlProperties, curH, context);
 		generatePaosHeader(curH);
 		curH.dispose();
 		
 		Body body = env.addNewBody();
 		XmlCursor curBody = body.newCursor();
 		curBody.toFirstContentToken();
-		generateSamlRequest(curBody, context);
+		generateSamlRequest(samlProperties, curBody, context);
 		curBody.dispose();
 		
 		return envDoc;
 	}
 
-	private void generateSamlRequest(XmlCursor curBody, ECPAuthnState context)
+	private void generateSamlRequest(SAMLSPProperties samlProperties, XmlCursor curBody, ECPAuthnState context)
 	{
 		boolean sign = samlProperties.getBooleanValue(SAMLSPProperties.DEF_SIGN_REQUEST);
 		String requesterId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
@@ -128,7 +131,7 @@ public class ECPStep1Handler
 		curPa.dispose();
 	}
 	
-	private void generateEcpHeaders(XmlCursor curH, ECPAuthnState context)
+	private void generateEcpHeaders(SAMLSPProperties samlProperties, XmlCursor curH, ECPAuthnState context)
 	{
 		RequestDocument ecpRequestDoc = RequestDocument.Factory.newInstance();
 		RequestType ecpReq = ecpRequestDoc.addNewRequest();

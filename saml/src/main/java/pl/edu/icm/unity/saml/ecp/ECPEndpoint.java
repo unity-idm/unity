@@ -15,8 +15,16 @@ import java.util.Properties;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
+import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.saml.SamlProperties;
+import pl.edu.icm.unity.saml.metadata.MetadataProvider;
+import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
+import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
+import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
+import pl.edu.icm.unity.saml.sp.SAMLResponseConsumerServlet;
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
@@ -27,7 +35,10 @@ import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 
 /**
  * ECP endpoint used to enable ECP support in Unity. The endpoint doesn't use any authenticator by itself.
@@ -37,6 +48,8 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 {
 	private Properties properties;
 	private SAMLECPProperties samlProperties;
+	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private RemoteMetaManager myMetadataManager;
 	private String servletPath;
 	private PKIManagement pkiManagement;
 	private ECPContextManagement samlContextManagement;
@@ -48,12 +61,18 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 	private TokensManagement tokensMan;
 	private IdentitiesManagement identitiesMan;
 	private SessionManagement sessionMan;
+	private UnityServerConfiguration mainCfg;
+	private ExecutorsService executorsService;
+	private String responseConsumerAddress;
+	private MultiMetadataServlet metadataServlet;
 	
 	public ECPEndpoint(EndpointTypeDescription type, String servletPath, PKIManagement pkiManagement,
-			ECPContextManagement samlContextManagement, URL baseAddress, 
+			ECPContextManagement samlContextManagement, URL baseAddress, String baseContext, 
 			ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
 			TranslationProfileManagement profileManagement, AttributesManagement attrMan,
-			TokensManagement tokensMan, IdentitiesManagement identitiesMan, SessionManagement sessionMan)
+			TokensManagement tokensMan, IdentitiesManagement identitiesMan, SessionManagement sessionMan, 
+			Map<String, RemoteMetaManager> remoteMetadataManagers, UnityServerConfiguration mainCfg,
+			ExecutorsService executorsService, MultiMetadataServlet metadataServlet)
 	{
 		super(type);
 		this.pkiManagement = pkiManagement;
@@ -67,6 +86,11 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 		this.tokensMan = tokensMan;
 		this.identitiesMan = identitiesMan;
 		this.sessionMan = sessionMan;
+		this.remoteMetadataManagers = remoteMetadataManagers;
+		this.mainCfg = mainCfg;
+		this.executorsService = executorsService;
+		this.responseConsumerAddress = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
+		this.metadataServlet = metadataServlet;
 	}
 
 	@Override
@@ -82,8 +106,35 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 			throw new ConfigurationException("Can't initialize the SAML ECP" +
 					" endpoint's configuration", e);
 		}
+		
+		if (samlProperties.getBooleanValue(SamlProperties.PUBLISH_METADATA))
+			exposeMetadata();
+		String myId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
+		if (!remoteMetadataManagers.containsKey(myId))
+		{
+			myMetadataManager = new RemoteMetaManager(samlProperties, 
+					mainCfg, executorsService, pkiManagement);
+			remoteMetadataManagers.put(myId, myMetadataManager);
+			myMetadataManager.start();
+		} else
+			myMetadataManager = remoteMetadataManagers.get(myId);
 	}
 
+	private void exposeMetadata()
+	{
+		String metaPath = samlProperties.getValue(SAMLSPProperties.METADATA_PATH);
+		IndexedEndpointType consumerEndpoint = IndexedEndpointType.Factory.newInstance();
+		consumerEndpoint.setIndex(1);
+		consumerEndpoint.setBinding(SAMLConstants.BINDING_PAOS);
+		consumerEndpoint.setLocation(responseConsumerAddress);
+		consumerEndpoint.setIsDefault(true);
+
+		IndexedEndpointType[] assertionConsumerEndpoints = new IndexedEndpointType[] {consumerEndpoint};
+		MetadataProvider provider = MetadataProviderFactory.newSPInstance(samlProperties, 
+				executorsService, assertionConsumerEndpoints);
+		metadataServlet.addProvider("/" + metaPath, provider);
+	}
+	
 	@Override
 	public String getSerializedConfiguration()
 	{
@@ -103,7 +154,8 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 	{
 		String endpointAddress = baseAddress.toExternalForm() + description.getContextAddress() +
 				servletPath;
-		ECPServlet ecpServlet = new ECPServlet(samlProperties, samlContextManagement, endpointAddress, 
+		ECPServlet ecpServlet = new ECPServlet(samlProperties, myMetadataManager, 
+				samlContextManagement, endpointAddress, 
 				replayAttackChecker, identityResolver, profileManagement, attrMan,
 				tokensMan, pkiManagement, identitiesMan, sessionMan, 
 				description.getRealm(), baseAddress.toExternalForm());

@@ -23,6 +23,7 @@ import eu.unicore.samly2.validators.ReplayAttackChecker;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagement;
 import pl.edu.icm.unity.saml.SAMLResponseValidatorUtil;
+import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Body;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Envelope;
@@ -56,31 +57,32 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 public class ECPStep2Handler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, ECPStep2Handler.class);
-	private SAMLECPProperties samlProperties;
+	private RemoteMetaManager metadataManager;
 	private ECPContextManagement samlContextManagement;
-	private SAMLResponseValidatorUtil responseValidatorUtil;
 	private RemoteVerificatorUtil remoteVerificatorUtil;
 	private JWTManagement jwtGenerator;
 	private AuthenticationRealm realm;
 	private SessionManagement sessionMan;
+	private ReplayAttackChecker replayAttackChecker;
+	private String myAddress;
 	
-	public ECPStep2Handler(SAMLECPProperties samlProperties, 
+	public ECPStep2Handler(SAMLECPProperties samlProperties, RemoteMetaManager metadataManager,
 			ECPContextManagement samlContextManagement, String myAddress,
 			ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
 			TranslationProfileManagement profileManagement, AttributesManagement attrMan,
 			TokensManagement tokensMan, PKIManagement pkiManagement, IdentitiesManagement identitiesMan,
 			SessionManagement sessionMan, AuthenticationRealm realm, String address)
 	{
-		this.samlProperties = samlProperties;
+		this.metadataManager = metadataManager;
 		this.samlContextManagement = samlContextManagement;
-		this.responseValidatorUtil = new SAMLResponseValidatorUtil(samlProperties, 
-				replayAttackChecker, myAddress);
 		this.remoteVerificatorUtil = new RemoteVerificatorUtil(identityResolver, 
 				profileManagement, attrMan);
 		this.jwtGenerator = new JWTManagement(tokensMan, pkiManagement, identitiesMan, 
 				realm.getName(), address, samlProperties.getJWTProperties());
 		this.realm = realm;
 		this.sessionMan = sessionMan;
+		this.replayAttackChecker = replayAttackChecker;
+		this.myAddress = myAddress;
 	}
 
 
@@ -138,10 +140,11 @@ public class ECPStep2Handler
 			return;
 		}
 		
+		SAMLSPProperties samlProperties = metadataManager.getVirtualConfiguration();
 		AuthenticationResult authenticationResult;
 		try
 		{
-			authenticationResult = processSamlResponse(respDoc, ctx);
+			authenticationResult = processSamlResponse(samlProperties, respDoc, ctx);
 		} catch (Exception e)
 		{
 			log.warn("Error while processing SAML response", e);
@@ -224,18 +227,21 @@ public class ECPStep2Handler
 		return contents.getNodeValue();
 	}
 	
-	private AuthenticationResult processSamlResponse(ResponseDocument responseDoc, ECPAuthnState ctx) 
+	private AuthenticationResult processSamlResponse(SAMLSPProperties samlProperties, 
+			ResponseDocument responseDoc, ECPAuthnState ctx) 
 			throws ServletException, AuthenticationException
 	{
-		String key = findIdPKey(responseDoc);
+		String key = findIdPKey(samlProperties, responseDoc);
 		String groupAttr = samlProperties.getValue(key + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE);
 		String profile = samlProperties.getValue(key + SAMLSPProperties.IDP_TRANSLATION_PROFILE);
+		SAMLResponseValidatorUtil responseValidatorUtil = new SAMLResponseValidatorUtil(samlProperties, 
+				replayAttackChecker, myAddress);
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDoc, 
 				ctx.getRequestId(), SAMLBindings.PAOS, groupAttr);
 		return remoteVerificatorUtil.getResult(input, profile);
 	}
 	
-	private String findIdPKey(ResponseDocument responseDoc) throws ServletException
+	private String findIdPKey(SAMLSPProperties samlProperties, ResponseDocument responseDoc) throws ServletException
 	{
 		NameIDType issuer = responseDoc.getResponse().getIssuer();
 		if (issuer == null || issuer.isNil())
