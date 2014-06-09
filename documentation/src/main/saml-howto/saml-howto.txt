@@ -53,15 +53,18 @@ Of course any other SAML 2 compliant service should be also able to work with Un
 
 === Limitations aka what is not supported in Unity YET
 
-As of version 1.2.0 of Unity there are several restrictions related to SAML integration. 
+As of version 1.3.0 of Unity there are several restrictions related to SAML integration. 
 We enumerate here the most important ones:
 
 . Encryption in SAML must be turned off (both in case of identifiers and assertions). This will be improved in future,
 however note that typically this feature is not used anyway, as assertions are sent over a secure HTTPS channels.
-. Discovery Service functionality is not supported in Unity yet. This will be improved in upcoming versions. Currently
-when using upstream SAML IdPs, Unity must have all of them enumerated.
-. While Unity fully supports publishing SAML metadata (of each SAML endpoint and of each SAML authenticator), it is not
-yet possible to configure Unity from SAML metadata of remote service. It will be also improved in future.   
+. Discovery Service functionality is not supported in Unity yet. This will be improved in upcoming versions. 
+However Unity comes with a decent Discovery Service functionality embedded, so it is better to use what you get 
+out of the box.
+. Unity fully supports publishing SAML metadata (of each SAML endpoint and of each SAML authenticator), as well
+as configuring trusted external SAML IdPs from federation metadata. It is not
+yet possible to configure Unity SAML IdP endpoint trust (i.e. the trusted SPs) from federation metadata. 
+It will be also improved in future.   
 . Single Logout functionality is not supported in Unity yet. This SAML sub-protocol will be also enabled in future.
 
 
@@ -337,7 +340,51 @@ at the fixed location +/unitygw+ where cross-cutting functionality is exposed. T
 the path +/unitygw/ saml-sp-metadata/NAME+, where the NAME must be defined.
 * _Displayed name_ (+unity.saml.requester.displayName+) is used to distinguish the authenticator from others in the UI.
 
-The rest of configuration is defined per SP:
+The rest of configuration is a list of the settings of the trusted IdPs. This can be performed in two ways:
+either a SAML metadata can be set or all the settings can be given manually. The configuration from metadata should
+be preferred as it is much simpler and allows for automatic updates whenever your federation changes. Manual 
+configuration allows for a greater flexibility. Additionally you can mix both approaches: configure from metadata
+and override some selected settings with manual entries. In this case the entries are matched by the SAML id of
+the IdP (so called 'entity id' in SAML slang).
+
+
+When SAML authenticator's configuration is ready (using one of the methods described in the following subsections), 
+the authenticator must be defined in the +unityServer.conf+:
+
+----
+unityServer.core.authenticators.7.authenticatorName=samlWeb
+unityServer.core.authenticators.7.authenticatorType=saml2 with web-saml2
+unityServer.core.authenticators.7.verificatorConfigurationFile=conf/authenticators/remoteSamlAuth.properties
+----
+
+To enable it the server must be restarted, or authenticators must be reloaded in the 
+Server management -> Authenticators panel of the Admin UI.
+
+
+=== The metadata way
+
+Configure the metadata settings. Many metadata sources can be configured.
+
+* _URL of metadata_ is the base option. Local or remote URL can be set. It can be a URL to metadata of a federation
+or a single IdP.
+* _Validation settings_ can be used to turn on additional signature verification of the metadata. This is useful 
+when metadata is downloaded over the network.
+* _Refresh interval_ can be used to control how often the metadata should be reloaded.
+* _Unity specific settings_ translation profile and optionally the registration form for unknown users are 
+never provided in SAML metadata. If a common registration form/translation profile is valid for all IdPs from
+the metadata then it should be also set. Otherwise at least the translation profile should be set manually 
+per each trusted IdP.
+
+The following example configures all the IdPs from a remote location with standard settings:
+
+----
+unity.saml.requester.metadataSource.fed.url=http://metadata.fed.example.com/metadata.xml
+unity.saml.requester.metadataSource.fed.perMetadataTranslationProfile=fedSamlProfile
+----
+
+=== The manual way
+
+Configure the following settings per trusted IdP:
 
 * _Displayed name of a SP_ (+unity.saml.requester.remoteIdp.X.name+) is used in the authentication UI.
 * _Address of a SP_ (+unity.saml.requester.remoteIdp.X.address+) the remote IdP endpoint's URL
@@ -386,16 +433,6 @@ unity.saml.requester.remoteIdp.3.translationProfile=samlProfile
 
 The detailed reference of all possible options is given in the <<manual.txt#external-saml,Unity documentation>>.
 
-When SAML authenticator's configuration is ready, the authenticator must be defined in the +unityServer.conf+:
-
-----
-unityServer.core.authenticators.7.authenticatorName=samlWeb
-unityServer.core.authenticators.7.authenticatorType=saml2 with web-saml2
-unityServer.core.authenticators.7.verificatorConfigurationFile=conf/authenticators/remoteSamlAuth.properties
-----
-
-To enable it the server must be restarted, or authenticators must be reloaded in the 
-Server management -> Authenticators panel of the Admin UI.
 
 === Step 3: Bind SAML authenticator to an endpoint
 

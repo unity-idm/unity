@@ -90,39 +90,41 @@ public class SAMLSPProperties extends SamlProperties
 	{
 		DocumentationCategory common = new DocumentationCategory(
 				"Common settings", "01");
-		DocumentationCategory verificator = new DocumentationCategory(
-				"SAML validator specific settings", "02");
+		DocumentationCategory remoteMeta = new DocumentationCategory(
+				"Configuration from trusted SAML metadata", "02");
+		DocumentationCategory idp = new DocumentationCategory(
+				"Manual settings of trusted IdPs", "03");
 		DocumentationCategory webRetrieval = new DocumentationCategory(
-				"SAML web retrieval specific settings", "03");
+				"SAML web UI specific settings", "04");
 
-		META.put(IDP_PREFIX, new PropertyMD().setStructuredList(false).setCategory(common).setDescription(
+		META.put(IDP_PREFIX, new PropertyMD().setStructuredList(false).setCategory(idp).setDescription(
 				"With this prefix configuration of trusted and enabled remote SAML IdPs is stored. " +
 				"There must be at least one IdP defined. If there are multiple ones defined, then the user can choose which one to use."));
-		META.put(IDP_ADDRESS, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(common).setDescription(
+		META.put(IDP_ADDRESS, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
 				"Address of the IdP endpoint."));
-		META.put(IDP_BINDING, new PropertyMD(Binding.HTTP_REDIRECT).setStructuredListEntry(IDP_PREFIX).setCategory(common).setDescription(
+		META.put(IDP_BINDING, new PropertyMD(Binding.HTTP_REDIRECT).setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
 				"SAML binding to be used to send a request to the IdP. If you use 'SOAP' here then the IdP will be available only for ECP logins, not via the web browser login."));
-		META.put(IDP_NAME, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(common).setCanHaveSubkeys().setDescription(
+		META.put(IDP_NAME, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setCanHaveSubkeys().setDescription(
 				"Displayed name of the IdP. If not defined then the name is created " +
 				"from the IdP address (what is rather not user friendly). The property can have subkeys being "
 				+ "locale names; then the localized value is used if it is matching the selected locale of the UI."));
 		
-		META.put(IDP_LOGO, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(common).setCanHaveSubkeys().setDescription(
+		META.put(IDP_LOGO, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setCanHaveSubkeys().setDescription(
 				"Displayed logo of the IdP. If not defined then only the name is used. "
 				+ "The value can be a file:, http(s): or data: URI. The last option allows for embedding the logo in the configuration. "
 				+ "The property can have subkeys being "
 				+ "locale names; then the localized value is used if it is matching the selected locale of the UI."));
-		META.put(IDP_ID, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setMandatory().setCategory(common).setDescription(
+		META.put(IDP_ID, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setMandatory().setCategory(idp).setDescription(
 				"SAML entity identifier of the IdP."));
-		META.put(IDP_CERTIFICATE, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(common).setDescription(
+		META.put(IDP_CERTIFICATE, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
 				"Certificate name (as used in centralized PKI store) of the IdP. This certificate is used to verify signature of SAML " +
 				"response and included assertions. Therefore it is of highest importance for the whole system security."));
-		META.put(IDP_CERTIFICATES, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(common).setList(false).setDescription(
+		META.put(IDP_CERTIFICATES, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setList(false).setDescription(
 				"Using this property additional trusted certificates of an IdP can be added (when IdP uses more then one). See " 
 						+ IDP_CERTIFICATE + " for details. Those properties can be used together or alternatively."));
-		META.put(IDP_SIGN_REQUEST, new PropertyMD("false").setCategory(common).setStructuredListEntry(IDP_PREFIX).setDescription(
+		META.put(IDP_SIGN_REQUEST, new PropertyMD("false").setCategory(idp).setStructuredListEntry(IDP_PREFIX).setDescription(
 				"Controls whether the requests for this IdP should be signed."));
-		META.put(IDP_REQUESTED_NAME_FORMAT, new PropertyMD().setCategory(common).setStructuredListEntry(IDP_PREFIX).setDescription(
+		META.put(IDP_REQUESTED_NAME_FORMAT, new PropertyMD().setCategory(idp).setStructuredListEntry(IDP_PREFIX).setDescription(
 				"If defined then specifies what SAML name format should be requested from the IdP." +
 				" If undefined then IdP is free to choose, however see the " + ACCEPTED_NAME_FORMATS +
 				" property. Value is arbitrary string, meaningful for the IdP. SAML specifies several standard formats:" +
@@ -130,25 +132,25 @@ public class SAMLSPProperties extends SamlProperties
 				" +urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress+," +
 				" +urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName+ and " +
 				" +urn:oasis:names:tc:SAML:2.0:nameid-format:transient+ are the most popular."));
-		META.put(IDP_GROUP_MEMBERSHIP_ATTRIBUTE, new PropertyMD().setCategory(common).setStructuredListEntry(IDP_PREFIX).setDescription(
+		META.put(IDP_GROUP_MEMBERSHIP_ATTRIBUTE, new PropertyMD().setCategory(idp).setStructuredListEntry(IDP_PREFIX).setDescription(
 				"Defines a SAML attribute name which will be treated as an attribute carrying group" +
 				" membership information."));
-		META.put(IDP_TRANSLATION_PROFILE, new PropertyMD().setCategory(common).setStructuredListEntry(IDP_PREFIX).
+		META.put(IDP_TRANSLATION_PROFILE, new PropertyMD().setCategory(idp).setStructuredListEntry(IDP_PREFIX).
 				setDescription("Name of a translation" +
 				" profile, which will be used to map remotely obtained attributes and identity" +
 				" to the local counterparts. The profile should at least map the remote identity."));
-		META.put(IDP_REGISTRATION_FORM, new PropertyMD().setCategory(common).setStructuredListEntry(IDP_PREFIX).setDescription(
+		META.put(IDP_REGISTRATION_FORM, new PropertyMD().setCategory(idp).setStructuredListEntry(IDP_PREFIX).setDescription(
 				"Name of a registration form to be shown for a remotely authenticated principal who " +
 				"has no local account. If unset such users will be denied."));
 		
-		META.put(REQUESTER_ID, new PropertyMD().setMandatory().setCategory(verificator).setDescription(
+		META.put(REQUESTER_ID, new PropertyMD().setMandatory().setCategory(common).setDescription(
 				"SAML entity ID (must be a URI) of the lcoal SAML requester (or service provider)."));
-		META.put(CREDENTIAL, new PropertyMD().setCategory(verificator).setDescription(
+		META.put(CREDENTIAL, new PropertyMD().setCategory(common).setDescription(
 				"Local credential, used to sign requests. If signing is disabled it is not used."));
-		META.put(METADATA_PATH, new PropertyMD().setCategory(SamlProperties.samlCat).setDescription(
+		META.put(METADATA_PATH, new PropertyMD().setCategory(SamlProperties.samlMetaCat).setDescription(
 				"Last element of the URL, under which the SAML metadata should be published for this SAML authenticator." +
 				"Used only if metadata publication is enabled. See the SAML Metadata section for more details."));
-		META.put(ACCEPTED_NAME_FORMATS, new PropertyMD().setList(false).setCategory(verificator).setDescription(
+		META.put(ACCEPTED_NAME_FORMATS, new PropertyMD().setList(false).setCategory(common).setDescription(
 				"If defined then specifies what SAML name formatd are accepted from IdP. " +
 				"Useful when the property " + IDP_REQUESTED_NAME_FORMAT + " is undefined for at least one IdP. "));
 
@@ -163,20 +165,20 @@ public class SAMLSPProperties extends SamlProperties
 		META.put(PROVIDERS_IN_ROW, new PropertyMD("3").setPositive().setCategory(webRetrieval).setDescription(
 				"How many IdPs should be displayed in a single row on the IdP selection screen. Relevant only if you define multiple providers."));
 
-		META.put(IDPMETA_PREFIX, new PropertyMD().setCategory(common).setStructuredList(false).setDescription(
+		META.put(IDPMETA_PREFIX, new PropertyMD().setCategory(remoteMeta).setStructuredList(false).setDescription(
 				"Under this prefix you can configure the remote trusted SAML IdPs however not providing all their details but only their metadata."));
-		META.put(IDPMETA_REFRESH, new PropertyMD("3600").setCategory(common).setDescription(
+		META.put(IDPMETA_REFRESH, new PropertyMD("3600").setCategory(remoteMeta).setDescription(
 				"How often the metadata should be reloaded."));
-		META.put(IDPMETA_URL, new PropertyMD().setCategory(common).setMandatory().setStructuredListEntry(IDPMETA_PREFIX).setDescription(
+		META.put(IDPMETA_URL, new PropertyMD().setCategory(remoteMeta).setMandatory().setStructuredListEntry(IDPMETA_PREFIX).setDescription(
 				"URL with the metadata location. Can be local or HTTP(s) URL. "
 				+ "In case of HTTPS the server's certificate will be checked against the main Unity server's truststore."));
-		META.put(IDPMETA_TRANSLATION_PROFILE, new PropertyMD().setCategory(common).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
+		META.put(IDPMETA_TRANSLATION_PROFILE, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
 				"Deafult translation profile for all the IdPs from the metadata. Can be overwritten by individual IdP configuration entries."));
-		META.put(IDPMETA_REGISTRATION_FORM, new PropertyMD().setCategory(common).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
+		META.put(IDPMETA_REGISTRATION_FORM, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
 				"Deafult registration form for all the IdPs from the metadata. Can be overwritten by individual IdP configuraiton entries."));
-		META.put(IDPMETA_SIGNATURE, new PropertyMD(MetadataSignatureValidation.ignore).setCategory(common).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
+		META.put(IDPMETA_SIGNATURE, new PropertyMD(MetadataSignatureValidation.ignore).setCategory(remoteMeta).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
 				"Controls whether metadata signatures should be checked. If checking is turned on then the validation certificate must be set."));
-		META.put(IDPMETA_ISSUER_CERT, new PropertyMD().setCategory(common).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
+		META.put(IDPMETA_ISSUER_CERT, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
 				"Name of certificate to check metadata signature. Used only if signatures checking is turned on."));
 		
 		META.put(SAMLECPProperties.JWT_P, new PropertyMD().setCanHaveSubkeys().setHidden());
