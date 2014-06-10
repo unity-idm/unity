@@ -48,6 +48,7 @@
 		<module>web-common</module>
 		<module>web-admin</module>
 		<module>rest</module>
+		<module>rest-admin</module>
 		<module>ws</module>
 		<module>saml</module>
 		<module>unicore</module>
