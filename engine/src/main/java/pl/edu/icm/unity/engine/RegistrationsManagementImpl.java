@@ -800,6 +800,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		String requesterAddress = null;
 		for (AttributeParamValue ap: attrs)
 		{
+			if (ap == null)
+				continue;
 			Attribute<?> tested = ap.getAttribute();
 			if (tested.getName().equals(addrAttribute.getName()) &&
 					tested.getGroupPath().equals("/"))
