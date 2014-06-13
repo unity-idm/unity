@@ -139,9 +139,10 @@ public class RemoteVerificatorUtil
 		if (ri == null)
 			return null;
 		String unityIdentity = ri.getMetadata().get(RemoteInformationBase.UNITY_IDENTITY);
-		if (unityIdentity == null)
+		String unityType = ri.getMetadata().get(RemoteInformationBase.UNITY_IDENTITY_TYPE);
+		if (unityIdentity == null || unityType == null)
 			return null;
-		return new IdentityTaV(ri.getIdentityType(), unityIdentity);
+		return new IdentityTaV(unityType, unityIdentity);
 	}
 	
 	private List<IdentityTaV> extractIdentities(RemotelyAuthenticatedInput input)
@@ -154,9 +155,10 @@ public class RemoteVerificatorUtil
 		for (RemoteIdentity ri: identities.values())
 		{
 			String unityIdentity = ri.getMetadata().get(RemoteInformationBase.UNITY_IDENTITY);
-			if (unityIdentity == null)
+			String unityType = ri.getMetadata().get(RemoteInformationBase.UNITY_IDENTITY_TYPE);
+			if (unityIdentity == null || unityType == null)
 				continue;
-			IdentityTaV toAdd = new IdentityTaV(ri.getIdentityType(), unityIdentity);
+			IdentityTaV toAdd = new IdentityTaV(unityType, unityIdentity);
 			ret.add(toAdd);
 		}
 		return ret;
