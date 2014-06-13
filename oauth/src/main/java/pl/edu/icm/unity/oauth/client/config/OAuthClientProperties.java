@@ -12,6 +12,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -33,6 +34,7 @@ public class OAuthClientProperties extends PropertiesHelper
 
 	public static final String DISPLAY_NAME = "displayName";
 	public static final String PROVIDERS_IN_ROW = "providersInRow";
+	public static final String ICON_SCALE = "iconScale";
 	
 	public static final String PROVIDERS = "providers.";
 
@@ -46,6 +48,8 @@ public class OAuthClientProperties extends PropertiesHelper
 				+ "option to be displayed in the web interface"));
 		META.put(PROVIDERS_IN_ROW, new PropertyMD("3").setPositive().setDescription("How many providers should be displayed "
 				+ "in a single row on the provider selection screen. Relevant only if you define multiple providers."));
+		META.put(ICON_SCALE, new PropertyMD(ScaleMode.none).setDescription("Controls whether and how "
+				+ "the icons of providers should be scalled."));
 		
 		META.put(PROVIDERS, new PropertyMD().setStructuredList(false).setCanHaveSubkeys().setMandatory().
 				setDescription("Prefix, under which the available oauth providers are defined."));

@@ -19,6 +19,7 @@ import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.ecp.SAMLECPProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.SAMLConstants;
@@ -59,6 +60,7 @@ public class SAMLSPProperties extends SamlProperties
 	public static final String ACCEPTED_NAME_FORMATS = "acceptedNameFormats.";
 	public static final String DISPLAY_NAME = "displayName";
 	public static final String PROVIDERS_IN_ROW = "idpsInRow";
+	public static final String ICON_SCALE = "iconScale";
 	public static final String METADATA_PATH = "metadataPath";
 	
 	public static final String DEF_SIGN_REQUEST = "defaultSignRequest";
@@ -165,7 +167,9 @@ public class SAMLSPProperties extends SamlProperties
 				"Name of the SAML authentication GUI component"));
 		META.put(PROVIDERS_IN_ROW, new PropertyMD("2").setPositive().setCategory(webRetrieval).setDescription(
 				"How many IdPs should be displayed in a single row on the IdP selection screen. Relevant only if you define multiple providers."));
-
+		META.put(ICON_SCALE, new PropertyMD(ScaleMode.height100).setDescription("Controls whether and how "
+				+ "the icons of providers should be scalled."));
+		
 		META.put(IDPMETA_PREFIX, new PropertyMD().setCategory(remoteMeta).setStructuredList(false).setDescription(
 				"Under this prefix you can configure the remote trusted SAML IdPs however not providing all their details but only their metadata."));
 		META.put(IDPMETA_REFRESH, new PropertyMD("3600").setCategory(remoteMeta).setDescription(

@@ -28,6 +28,7 @@ import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.idpselector.IdPsSpecification;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent;
+import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
 
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
@@ -105,7 +106,8 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			}
 		
 		int perRow = samlProperties.getIntValue(SAMLSPProperties.PROVIDERS_IN_ROW);
-		idpSelector = new IdpSelectorComponent(msg, perRow, CHOSEN_IDP_COOKIE, new IdPsSpecification()
+		ScaleMode scaleMode = samlProperties.getEnumValue(SAMLSPProperties.ICON_SCALE, ScaleMode.class); 
+		idpSelector = new IdpSelectorComponent(msg, perRow, scaleMode, CHOSEN_IDP_COOKIE, new IdPsSpecification()
 		{
 			@Override
 			public Collection<String> getIdpKeys()

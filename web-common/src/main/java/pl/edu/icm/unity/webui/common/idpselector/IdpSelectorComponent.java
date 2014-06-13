@@ -49,8 +49,11 @@ public class IdpSelectorComponent extends CustomComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdpSelectorComponent.class);
 	
+	public enum ScaleMode {none, height100, width100, height50, width50}
+	
 	private UnityMessageSource msg;
 	private int perRow;
+	private ScaleMode scaleMode;
 	private IdPsSpecification idps;
 	private String lastIdpCookie;
 	
@@ -58,13 +61,14 @@ public class IdpSelectorComponent extends CustomComponent
 	private String selectedProvider;
 	private Button selectedButton;
 
-	public IdpSelectorComponent(UnityMessageSource msg, int perRow, 
+	public IdpSelectorComponent(UnityMessageSource msg, int perRow, ScaleMode scaleMode, 
 			String lastIdpCookie, IdPsSpecification idps)
 	{
 		this.msg = msg;
 		this.perRow = perRow;
 		this.idps = idps;
 		this.lastIdpCookie = lastIdpCookie;
+		this.scaleMode = scaleMode;
 		initUI();
 	}
 
@@ -94,6 +98,7 @@ public class IdpSelectorComponent extends CustomComponent
 			previousIdpPanel.addStyleName(Styles.contentPadRight20.toString());
 			previousIdpPanel.setContent(previous);
 			main.addComponent(previousIdpPanel);
+			main.addComponent(new Label(""));
 		}
 		
 		if (idps.getIdpKeys().size() > 9)
@@ -195,7 +200,22 @@ public class IdpSelectorComponent extends CustomComponent
 		if (logo != null)
 		{
 			providerB.setIcon(logo);
-			providerB.addStyleName("u-width100");
+			switch (scaleMode)
+			{
+			case width100:
+				providerB.addStyleName(Styles.width100.toString());
+				break;
+			case height100:
+				providerB.addStyleName(Styles.height100.toString());
+				break;
+			case width50:
+				providerB.addStyleName(Styles.width50.toString());
+				break;
+			case height50:
+				providerB.addStyleName(Styles.height50.toString());
+				break;
+			case none:
+			}
 			providerB.setDescription(name);
 		} else
 		{

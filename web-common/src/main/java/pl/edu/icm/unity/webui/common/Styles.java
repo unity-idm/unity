@@ -34,6 +34,10 @@ public enum Styles
 	verticalMargins6("u-verticalMargins6"),
 	maxHeight300("u-maxHeight300"),
 	contentPadRight20("u-padRight20"), //pads the *contents* of the container 20px on right
+	width100("u-width100"),
+	width50("u-width50"),
+	height100("u-height100"),
+	height50("u-height50"),
 	captionBold("bold");
 	
 	

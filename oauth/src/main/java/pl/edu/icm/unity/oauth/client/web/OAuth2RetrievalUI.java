@@ -42,6 +42,7 @@ import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.idpselector.IdPsSpecification;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent;
+import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
 
 /**
  * UI part of OAuth retrieval. Shows available providers, redirects to the chosen one.
@@ -94,7 +95,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		
 		final Set<String> idps = clientProperties.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
 		int perRow = clientProperties.getIntValue(OAuthClientProperties.PROVIDERS_IN_ROW);
-		idpSelector = new IdpSelectorComponent(msg, perRow, CHOSEN_IDP_COOKIE, new IdPsSpecification()
+		ScaleMode scaleMode = clientProperties.getEnumValue(OAuthClientProperties.ICON_SCALE, ScaleMode.class); 
+		idpSelector = new IdpSelectorComponent(msg, perRow, scaleMode, CHOSEN_IDP_COOKIE, new IdPsSpecification()
 		{
 			@Override
 			public Collection<String> getIdpKeys()
