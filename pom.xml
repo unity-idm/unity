@@ -37,7 +37,7 @@
 		<connection>${scm.base}</connection>
 		<developerConnection>${scm.base}</developerConnection>
 		<tag>HEAD</tag>
-  </scm>
+    </scm>
 
 	<modules>
 		<module>types</module>

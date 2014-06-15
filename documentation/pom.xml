@@ -22,14 +22,6 @@
 		<developerConnection>${scm.base}/${m.name}</developerConnection>
 	</scm>
 
-	<repositories>
-		<repository>
-			<id>unicore.eu</id>
-			<name>UNICORE repository</name>
-			<url>http://unicore-dev.zam.kfa-juelich.de/maven</url>
-		</repository>		
-	</repositories>
-
 	<distributionManagement>
 		<site>
       		<id>unity-idm.eu</id>

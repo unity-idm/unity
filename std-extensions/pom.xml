@@ -19,17 +19,8 @@
 	<scm>
 		<connection>${scm.base}/${m.name}</connection>
 		<developerConnection>${scm.base}/${m.name}</developerConnection>
-	  <tag>HEAD</tag>
-  </scm>
-
-	<repositories>
-		<repository>
-			<id>unicore.eu</id>
-			<name>UNICORE repository</name>
-			<url>http://unicore-dev.zam.kfa-juelich.de/maven</url>
-		</repository>
-	</repositories>
-
+		<tag>HEAD</tag>
+	</scm>
 
 	<dependencies>
 		<!-- test -->
