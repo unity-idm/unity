@@ -93,9 +93,9 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		
 		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
-				description.getContextAddress()+AUTHENTICATION_PATH, description.getRealm(),
-				sessionMan, sessionBinder);
-		context.addFilter(new FilterHolder(authnFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
+				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
+		context.addFilter(new FilterHolder(authnFilter), "/*", 
+				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
 

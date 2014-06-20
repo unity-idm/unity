@@ -99,9 +99,9 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		
 		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
-				description.getContextAddress()+AUTHENTICATION_PATH,
-				description.getRealm(), sessionMan, sessionBinder);
-		context.addFilter(new FilterHolder(authnFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
+				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
+		context.addFilter(new FilterHolder(authnFilter), "/*", 
+				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
 		UnityVaadinServlet authenticationServlet = new UnityVaadinServlet(applicationContext, 
