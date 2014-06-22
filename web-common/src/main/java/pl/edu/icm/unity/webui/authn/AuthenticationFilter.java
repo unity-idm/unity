@@ -38,7 +38,6 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
  */
 public class AuthenticationFilter implements Filter
 {
-	public static final String ORIGINAL_ADDRESS = AuthenticationFilter.class.getName()+".origURIkey";
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationFilter.class);
 
 	private String protectedServletPath;
@@ -144,17 +143,6 @@ public class AuthenticationFilter implements Filter
 
 	private void forwardtoAuthn(HttpServletRequest httpRequest, HttpServletResponse response) throws IOException, ServletException
 	{
-		HttpSession session = httpRequest.getSession();
-		if (session.getAttribute(ORIGINAL_ADDRESS) == null)
-		{
-			String originalAddress = httpRequest.getContextPath() + httpRequest.getServletPath();
-			if (log.isTraceEnabled()) 
-			{
-				log.trace("ORIGINAL_ADDRESS=" + originalAddress);
-			}
-			session.setAttribute(ORIGINAL_ADDRESS, originalAddress);
-		}
-		
 		String forwardURI = authnServletPath;
 		if (httpRequest.getPathInfo() != null) 
 		{

@@ -28,7 +28,6 @@ import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent;
@@ -37,8 +36,6 @@ import pl.edu.icm.unity.webui.registration.RegistrationFormChooserDialog;
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -147,7 +144,6 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		setContent(topLevel);
 		setSizeFull();
 
-		verifyIfOriginAvailable();
 	}
 	
 	private Button buildRegistrationButton()
@@ -194,14 +190,6 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			}
 		});
 		return register;
-	}
-	
-	private void verifyIfOriginAvailable()
-	{
-		WrappedSession session = VaadinSession.getCurrent().getSession();
-		String origURL = (String) session.getAttribute(AuthenticationFilter.ORIGINAL_ADDRESS);
-		if (origURL == null)
-			ErrorPopup.showError(msg, msg.getMessage("AuthenticationProcessor.noOriginatingAddress"), "");
 	}
 	
 	private Component buildAllSetsUI(final Button registrationButton, final Component... setComponents)

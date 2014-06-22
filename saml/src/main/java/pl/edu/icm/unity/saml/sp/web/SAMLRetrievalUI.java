@@ -209,7 +209,8 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			return;
 		}
 		String servletPath = VaadinServlet.getCurrent().getServletContext().getContextPath() + 
-				VaadinServletService.getCurrentServletRequest().getServletPath();
+				VaadinServlet.getCurrent().getServletContext().getServletContextName();
+		
 		try
 		{
 			context = credentialExchange.createSAMLRequest(idpKey, servletPath);
