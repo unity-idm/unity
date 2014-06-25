@@ -34,8 +34,6 @@ import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinServlet;
-import com.vaadin.server.VaadinServletService;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -208,9 +206,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 					msg.getMessage("WebSAMLRetrieval.loginInProgressError"));
 			return;
 		}
-		String servletPath = VaadinServlet.getCurrent().getServletContext().getContextPath() + 
-				VaadinServlet.getCurrent().getServletContext().getServletContextName();
-		
+		String servletPath = Page.getCurrent().getLocation().getPath();
 		try
 		{
 			context = credentialExchange.createSAMLRequest(idpKey, servletPath);
@@ -226,7 +222,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		
 		IdpSelectorComponent.setLastIdpCookie(CHOSEN_IDP_COOKIE, context.getContextIdpKey());
 		
-		Page.getCurrent().open(servletPath + RedirectRequestHandler.PATH, null);
+		Page.getCurrent().open(servletPath + "?" + RedirectRequestHandler.getParam(), null);
 	}
 
 	/**

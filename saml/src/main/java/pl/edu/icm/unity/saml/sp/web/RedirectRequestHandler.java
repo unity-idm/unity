@@ -38,9 +38,10 @@ public class RedirectRequestHandler implements RequestHandler
 	public boolean handleRequest(VaadinSession vaadinSession, VaadinRequest request,
 			VaadinResponse response) throws IOException
 	{
-		if (!PATH.equals(request.getPathInfo()))
+		String fire = request.getParameter(PATH); 
+		if (fire == null || !fire.equals(Boolean.TRUE.toString()))
 			return false;
-		
+				
 		WrappedSession session = vaadinSession.getSession();
 		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
 				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
@@ -63,6 +64,11 @@ public class RedirectRequestHandler implements RequestHandler
 			return true;
 		} else
 			return false;
+	}
+	
+	public static String getParam()
+	{
+		return RedirectRequestHandler.PATH + "=true";
 	}
 	
 	private void handlePost(RemoteAuthnContext context, VaadinResponse response) throws IOException
