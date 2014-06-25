@@ -9,7 +9,7 @@
 			"action": {
 				"name": "mapAttributeToIdentity",
 				"parameters": [
-					"urn:oid:0.9.2342.19200300.100.1.1",
+					"urn:oid:2.5.4.3",
 					"userName",
 					"Password requirement"
 				]
@@ -23,7 +23,7 @@
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
-					"cn",
+					"urn:oid:2.5.4.4",
 					"cn",
 					"/"
 				]
@@ -45,7 +45,7 @@
 
 		{
 			"condition": {
-				"conditionValue": "false"
+				"conditionValue": "true"
 			},
 			"action": {
 				"name": "createUser",
