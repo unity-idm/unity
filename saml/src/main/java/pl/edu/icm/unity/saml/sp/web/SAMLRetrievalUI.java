@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
@@ -206,10 +207,13 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 					msg.getMessage("WebSAMLRetrieval.loginInProgressError"));
 			return;
 		}
-		String servletPath = Page.getCurrent().getLocation().getPath();
+		URI requestURI = Page.getCurrent().getLocation();
+		String servletPath = requestURI.getPath();
+		String query = requestURI.getQuery() == null ? "" : "?" + requestURI.getQuery();
+		String currentRelativeURI = servletPath + query;
 		try
 		{
-			context = credentialExchange.createSAMLRequest(idpKey, servletPath);
+			context = credentialExchange.createSAMLRequest(idpKey, currentRelativeURI);
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage("WebSAMLRetrieval.configurationError"), e);

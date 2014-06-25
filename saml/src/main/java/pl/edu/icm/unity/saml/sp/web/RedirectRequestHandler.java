@@ -32,13 +32,13 @@ import eu.unicore.samly2.binding.SAMLMessageType;
 public class RedirectRequestHandler implements RequestHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, RedirectRequestHandler.class);
-	public static final String PATH = "/redirectToIdP";
+	public static final String TRIGGERING_PARAMETER = "redirectToIdP";
 	
 	@Override
 	public boolean handleRequest(VaadinSession vaadinSession, VaadinRequest request,
 			VaadinResponse response) throws IOException
 	{
-		String fire = request.getParameter(PATH); 
+		String fire = request.getParameter(TRIGGERING_PARAMETER); 
 		if (fire == null || !fire.equals(Boolean.TRUE.toString()))
 			return false;
 				
@@ -47,7 +47,7 @@ public class RedirectRequestHandler implements RequestHandler
 				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 		if (context == null)
 		{
-			log.warn("Got a request to the ..." + PATH + " path, " +
+			log.warn("Got a request to the ..." + TRIGGERING_PARAMETER + " path, " +
 					"but no SAML authn context is present in the session.");
 			return false;
 		}
@@ -68,7 +68,7 @@ public class RedirectRequestHandler implements RequestHandler
 	
 	public static String getParam()
 	{
-		return RedirectRequestHandler.PATH + "=true";
+		return RedirectRequestHandler.TRIGGERING_PARAMETER + "=true";
 	}
 	
 	private void handlePost(RemoteAuthnContext context, VaadinResponse response) throws IOException
