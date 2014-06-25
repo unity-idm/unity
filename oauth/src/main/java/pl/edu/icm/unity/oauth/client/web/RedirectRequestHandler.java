@@ -26,13 +26,14 @@ import com.vaadin.server.WrappedSession;
 public class RedirectRequestHandler implements RequestHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, RedirectRequestHandler.class);
-	public static final String PATH = "/redirectToProvider";
+	public static final String TRIGGERING_PARAMETER = "redirectToIdP";
 	
 	@Override
 	public boolean handleRequest(VaadinSession vaadinSession, VaadinRequest request,
 			VaadinResponse response) throws IOException
 	{
-		if (!PATH.equals(request.getPathInfo()))
+		String fire = request.getParameter(TRIGGERING_PARAMETER); 
+		if (fire == null || !fire.equals(Boolean.TRUE.toString()))
 			return false;
 		
 		WrappedSession session = vaadinSession.getSession();
@@ -40,7 +41,7 @@ public class RedirectRequestHandler implements RequestHandler
 				OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
 		if (context == null)
 		{
-			log.warn("Got a request to the ..." + PATH + " path, " +
+			log.warn("Got a request for the redirection, " +
 					"but no OAuth2 context is present in the session.");
 			return false;
 		}
@@ -48,7 +49,12 @@ public class RedirectRequestHandler implements RequestHandler
 		handleRedirect(context, response);
 		return true;
 	}
-
+	
+	public static String getParam()
+	{
+		return RedirectRequestHandler.TRIGGERING_PARAMETER + "=true";
+	}
+	
 	private void handleRedirect(OAuthContext context, VaadinResponse response) throws IOException
 	{
 		VaadinServletResponse rr = (VaadinServletResponse) response;

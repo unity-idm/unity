@@ -47,7 +47,7 @@ public class RedirectRequestHandler implements RequestHandler
 				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 		if (context == null)
 		{
-			log.warn("Got a request to the ..." + TRIGGERING_PARAMETER + " path, " +
+			log.warn("Got a request for the redirection, " +
 					"but no SAML authn context is present in the session.");
 			return false;
 		}

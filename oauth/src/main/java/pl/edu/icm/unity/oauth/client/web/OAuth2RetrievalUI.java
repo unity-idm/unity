@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.client.web;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Set;
@@ -14,8 +15,6 @@ import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinServlet;
-import com.vaadin.server.VaadinServletService;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -238,13 +237,14 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 					msg.getMessage("OAuth2Retrieval.loginInProgressError"));
 			return;
 		}
-		
+		URI requestURI = Page.getCurrent().getLocation();
+		String servletPath = requestURI.getPath();
+		String query = requestURI.getQuery() == null ? "" : "?" + requestURI.getQuery();
+		String currentRelativeURI = servletPath + query;
 		try
 		{
 			context = credentialExchange.createRequest(providerKey);
-			String servletPath = VaadinServlet.getCurrent().getServletContext().getContextPath() + 
-					VaadinServletService.getCurrentServletRequest().getServletPath();
-			context.setReturnUrl(servletPath);
+			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 		} catch (Exception e)
 		{
@@ -253,11 +253,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			breakLogin(true);
 			return;
 		}
-		String servletPath = VaadinServlet.getCurrent().getServletContext().getContextPath() + 
-				VaadinServletService.getCurrentServletRequest().getServletPath();
-		
 		IdpSelectorComponent.setLastIdpCookie(CHOSEN_IDP_COOKIE, context.getProviderConfigKey());
-		Page.getCurrent().open(servletPath + RedirectRequestHandler.PATH, null);
+		Page.getCurrent().open(servletPath + "?" + RedirectRequestHandler.getParam(), null);
 	}
 
 	
