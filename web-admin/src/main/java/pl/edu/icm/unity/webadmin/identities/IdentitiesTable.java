@@ -825,7 +825,7 @@ public class IdentitiesTable extends TreeTable
 			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
 					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
 			new CredentialsChangeDialog(msg, entity.getEntity().getId(), authnMan, identitiesMan,
-					credEditorsRegistry, new CredentialsChangeDialog.Callback()
+					credEditorsRegistry, false, new CredentialsChangeDialog.Callback()
 					{
 						@Override
 						public void onClose(boolean changed)
