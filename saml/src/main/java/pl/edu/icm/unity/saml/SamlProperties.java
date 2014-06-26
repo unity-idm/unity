@@ -38,7 +38,7 @@ public abstract class SamlProperties extends PropertiesHelper
 	static
 	{
 		defaults.put(PUBLISH_METADATA, new PropertyMD("true").setCategory(samlMetaCat).
-				setDescription("Controls whether the SAML Metadata should be published under /metadata path."));
+				setDescription("Controls whether the SAML Metadata should be published."));
 		defaults.put(SIGN_METADATA, new PropertyMD("false").setCategory(samlMetaCat).
 				setDescription("Controls whether the SAML Metadata should be automatically signed " +
 						"before publishing it. " +

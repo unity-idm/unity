@@ -108,15 +108,14 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		
 		if (samlProperties.getBooleanValue(SamlProperties.PUBLISH_METADATA))
 			exposeMetadata();
-		String myId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
-		if (!remoteMetadataManagers.containsKey(myId))
+		if (!remoteMetadataManagers.containsKey(instanceName))
 		{
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
 					mainConfig, executorsService, pkiMan);
-			remoteMetadataManagers.put(myId, myMetadataManager);
+			remoteMetadataManagers.put(instanceName, myMetadataManager);
 			myMetadataManager.start();
 		} else
-			myMetadataManager = remoteMetadataManagers.get(myId);
+			myMetadataManager = remoteMetadataManagers.get(instanceName);
 	}
 
 	private void exposeMetadata()
