@@ -11,13 +11,13 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.Binding;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.webui.authn.remote.AbstractRedirectRequestHandler;
 
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
 
 import eu.unicore.samly2.binding.HttpPostBindingSupport;
 import eu.unicore.samly2.binding.HttpRedirectBindingSupport;
@@ -29,30 +29,20 @@ import eu.unicore.samly2.binding.SAMLMessageType;
  * 
  * @author K. Benedyczak
  */
-public class RedirectRequestHandler implements RequestHandler
+public class RedirectRequestHandler extends AbstractRedirectRequestHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, RedirectRequestHandler.class);
-	public static final String TRIGGERING_PARAMETER = "redirectToIdP";
+	
+	public RedirectRequestHandler()
+	{
+		super(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
+	}
 	
 	@Override
-	public boolean handleRequest(VaadinSession vaadinSession, VaadinRequest request,
-			VaadinResponse response) throws IOException
+	protected boolean handleRequestInternal(Object contextO, VaadinSession vaadinSession,
+			VaadinRequest request, VaadinResponse response) throws IOException
 	{
-		String fire = request.getParameter(TRIGGERING_PARAMETER); 
-		if (fire == null || !fire.equals(Boolean.TRUE.toString()))
-			return false;
-				
-		WrappedSession session = vaadinSession.getSession();
-		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
-				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
-		if (context == null)
-		{
-			log.warn("Got a request for the redirection, " +
-					"but no SAML authn context is present in the session.");
-			return false;
-		}
-			
-
+		RemoteAuthnContext context = (RemoteAuthnContext)contextO;
 		Binding binding = context.getRequestBinding();
 		if (binding == Binding.HTTP_POST)
 		{
@@ -66,16 +56,10 @@ public class RedirectRequestHandler implements RequestHandler
 			return false;
 	}
 	
-	public static String getParam()
-	{
-		return RedirectRequestHandler.TRIGGERING_PARAMETER + "=true";
-	}
-	
 	private void handlePost(RemoteAuthnContext context, VaadinResponse response) throws IOException
 	{
 		response.setContentType("text/html; charset=utf-8");
-		response.setHeader("Cache-Control","no-cache,no-store,must-revalidate");
-		response.setHeader("Pragma","no-cache");
+		setCommonHeaders(response);
 		response.setDateHeader("Expires", -1);
 
 		log.debug("Starting SAML HTTP POST binding exchange with IdP " + context.getIdpUrl());
@@ -93,8 +77,7 @@ public class RedirectRequestHandler implements RequestHandler
 	private void handleRedirect(RemoteAuthnContext context, VaadinResponse response) throws IOException
 	{
 		VaadinServletResponse rr = (VaadinServletResponse) response;
-		response.setHeader("Cache-Control","no-cache,no-store");
-		response.setHeader("Pragma","no-cache");
+		setCommonHeaders(response);
 		log.debug("Starting SAML HTTP Redirect binding exchange with IdP " + context.getIdpUrl());
 		String redirectURL = HttpRedirectBindingSupport.getRedirectURL(SAMLMessageType.SAMLRequest, 
 				context.getRelayState(), context.getRequest(), context.getIdpUrl());

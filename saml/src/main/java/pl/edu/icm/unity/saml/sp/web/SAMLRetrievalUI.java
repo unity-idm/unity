@@ -57,6 +57,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private UnityMessageSource msg;
 	private SAMLExchange credentialExchange;
 	private AuthenticationResultCallback callback;
+	private String redirectParam;
 	
 	private IdpSelectorComponent idpSelector;
 	private Label messageLabel;
@@ -81,7 +82,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public Component getComponent()
 	{
-		installRequestHandler();
+		redirectParam = installRequestHandler();
 		
 		final SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
 		VerticalLayout ret = new VerticalLayout();
@@ -141,22 +142,21 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		return ret;
 	}
 
-	private void installRequestHandler()
+	private String installRequestHandler()
 	{
 		VaadinSession session = VaadinSession.getCurrent();
 		Collection<RequestHandler> requestHandlers = session.getRequestHandlers();
-		boolean redirectInstalled = false;
 		for (RequestHandler rh: requestHandlers)
 		{
 			if (rh instanceof RedirectRequestHandler)
 			{
-				redirectInstalled = true;
-				break;
+				return ((RedirectRequestHandler)rh).getTriggeringParam();
 			}
-			
 		}
-		if (!redirectInstalled)
-			session.addRequestHandler(new RedirectRequestHandler());
+	
+		RedirectRequestHandler rh = new RedirectRequestHandler(); 
+		session.addRequestHandler(rh);
+		return rh.getTriggeringParam();
 	}
 	
 	private void breakLogin(boolean invokeCancel)
@@ -226,7 +226,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		
 		IdpSelectorComponent.setLastIdpCookie(CHOSEN_IDP_COOKIE, context.getContextIdpKey());
 		
-		Page.getCurrent().open(servletPath + "?" + RedirectRequestHandler.getParam(), null);
+		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
 	}
 
 	/**
