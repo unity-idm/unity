@@ -67,7 +67,16 @@ public class AuthenticationFilter implements Filter
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		
-		if (!hasPathPrefix(httpRequest.getServletPath(), protectedServletPath))
+		String servletPath = httpRequest.getServletPath();
+		if (hasPathPrefix(servletPath, authnServletPath))
+		{
+			log.debug("Direct access to authentication servlet is prohibited");
+			httpResponse.sendError(HttpServletResponse.SC_NOT_FOUND, 
+					"The requested address is not available.");
+			return;
+		}
+		
+		if (!hasPathPrefix(servletPath, protectedServletPath))
 		{
 			gotoNotProtectedResource(httpRequest, response, chain);
 			return;

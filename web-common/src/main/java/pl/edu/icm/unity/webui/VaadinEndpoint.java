@@ -95,7 +95,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
 				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
-				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
+				EnumSet.of(DispatcherType.REQUEST));
 
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
 
