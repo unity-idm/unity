@@ -429,7 +429,14 @@ public class DBAttributes
 		return ret;
 	}
 	
-	
+	/**
+	 * @param entityId
+	 * @param atMapper
+	 * @param gMapper
+	 * @return map indexed with groups. Values are maps of all attributes in a group, indexed with their names.
+	 * @throws IllegalTypeException
+	 * @throws IllegalGroupValueException
+	 */
 	private Map<String, Map<String, AttributeExt<?>>> createAllAttrsMap(long entityId, AttributesMapper atMapper,
 			GroupsMapper gMapper) throws IllegalTypeException, IllegalGroupValueException
 	{

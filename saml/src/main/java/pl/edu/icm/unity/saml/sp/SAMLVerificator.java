@@ -86,7 +86,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	}
 
 	/**
-	 * Configuration samlProperties is loaded, but it can be modified at runtime by the metadata manager.
+	 * Configuration in samlProperties is loaded, but it can be modified at runtime by the metadata manager.
 	 * Therefore the source properties are used only to configure basic things (not related to trusted IDPs)
 	 * while the virtual properties are used for authentication process setup.
 	 */
@@ -108,15 +108,17 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		
 		if (samlProperties.getBooleanValue(SamlProperties.PUBLISH_METADATA))
 			exposeMetadata();
-		String myId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
-		if (!remoteMetadataManagers.containsKey(myId))
+		if (!remoteMetadataManagers.containsKey(instanceName))
 		{
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
 					mainConfig, executorsService, pkiMan);
-			remoteMetadataManagers.put(myId, myMetadataManager);
+			remoteMetadataManagers.put(instanceName, myMetadataManager);
 			myMetadataManager.start();
 		} else
-			myMetadataManager = remoteMetadataManagers.get(myId);
+		{
+			myMetadataManager = remoteMetadataManagers.get(instanceName);
+			myMetadataManager.setBaseConfiguration(samlProperties);
+		}
 	}
 
 	private void exposeMetadata()

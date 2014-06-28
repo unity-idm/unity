@@ -19,4 +19,10 @@ import pl.edu.icm.unity.types.JsonSerializable;
 public interface CredentialVerificator extends CredentialExchange, JsonSerializable, DescribedObject
 {
 	public void setIdentityResolver(IdentityResolver identityResolver);
+	
+	/**
+	 * Instance name is the configured name of the authenticator to which this credential verificator belongs.
+	 * @param name
+	 */
+	public void setInstanceName(String name);
 }
