@@ -61,13 +61,13 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
-import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.authn.remote.TranslationEngine;
 import pl.edu.icm.unity.server.utils.Log;
 
 
@@ -86,10 +86,10 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	private OpenIdProviderMetadataManager metadataManager;
 	
 	public OAuth2Verificator(String name, String description, OAuthContextsManagement contextManagement,
-			TranslationProfileManagement profileManagement, AttributesManagement attrMan,
+			TranslationProfileManagement profileManagement, TranslationEngine trEngine,
 			URL baseAddress, String baseContext)
 	{
-		super(name, description, OAuthExchange.ID, profileManagement, attrMan);
+		super(name, description, OAuthExchange.ID, profileManagement, trEngine);
 		this.responseConsumerAddress = baseAddress + baseContext + ResponseConsumerServlet.PATH;
 		this.contextManagement = contextManagement;
 	}

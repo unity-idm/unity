@@ -4,98 +4,66 @@
  */
 package pl.edu.icm.unity.stdext.tactions;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
-import pl.edu.icm.unity.server.authn.remote.RemoteInformationBase;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.authn.remote.translation.AbstractTranslationAction;
+import pl.edu.icm.unity.server.authn.remote.translation.IdentityEffectMode;
+import pl.edu.icm.unity.server.authn.remote.translation.MappedIdentity;
+import pl.edu.icm.unity.server.authn.remote.translation.MappingResult;
+import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
- * Maps identities matching a given regular expression (param1) to a new name (param2) which can use group references
- * from the pattern. Also assigns a local credentialRequirement.
+ * Defines Unity identity from a given expression. The engine can either match by or create the defined identity. 
  *   
  * @author K. Benedyczak
  */
 public class MapIdentityAction extends AbstractTranslationAction
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, MapIdentityAction.class);
-	private Pattern toReplace;
-	private String replacement;
+	private String unityType;
 	private String credentialRequirement;
+	private Serializable expressionCompiled;
+	private IdentityEffectMode mode;
 
-	public MapIdentityAction(String[] params)
+	public MapIdentityAction(String[] params, TranslationActionDescription desc)
 	{
+		super(desc, params);
 		setParameters(params);
 	}
 	
 	@Override
-	public String getName()
+	protected MappingResult invokeWrapped(RemotelyAuthenticatedInput input, Object mvelCtx) throws EngineException
 	{
-		return MapIdentityActionFactory.NAME;
-	}
-
-	@Override
-	protected void invokeWrapped(RemotelyAuthenticatedInput input) throws EngineException
-	{
-		Map<String, RemoteIdentity> identities = input.getIdentities();
-		Set<String> keys = new HashSet<>(identities.keySet());
+		Object value = MVEL.executeExpression(expressionCompiled, mvelCtx);
+		List<?> iValues = value instanceof List ? (List<?>)value : Collections.singletonList(value.toString());
 		
-		boolean primarySet = false;
-		for (String key: keys)
+		MappingResult ret = new MappingResult();
+		for (Object i: iValues)
 		{
-			Matcher m = toReplace.matcher(key);
-
-			boolean matches = false;
-			StringBuffer sb = new StringBuffer();
-			while(m.find())
-			{
-				matches = true;
-				m.appendReplacement(sb, replacement);
-			}
-			if (!matches)
-			{
-				log.debug("Identity " + key + " doesn't match");
-				continue;
-			}
-			
-			m.appendTail(sb);
-			log.debug("Translating identity " + key + " -> " + sb);
-			
-			RemoteIdentity changed = identities.remove(key);
-			identities.put(sb.toString(), changed);
-			changed.getMetadata().put(RemoteInformationBase.UNITY_IDENTITY, sb.toString());
-			changed.getMetadata().put(RemoteInformationBase.UNITY_IDENTITY_TYPE, changed.getIdentityType());
-			changed.getMetadata().put(RemoteInformationBase.UNITY_IDENTITY_CREDREQ, credentialRequirement);
-			if (!primarySet)
-			{
-				log.debug("Setting primary identity to " + sb.toString());
-				primarySet = true;
-				input.setPrimaryIdentityName(sb.toString());
-			}
+			IdentityParam idParam = new IdentityParam(unityType, i.toString(), false);
+			MappedIdentity mi = new MappedIdentity(mode, idParam, credentialRequirement);
+			log.debug("Mapped identity: " + idParam);
+			ret.addIdentity(mi);
 		}
-	}
-
-	@Override
-	public String[] getParameters()
-	{
-		return new String[] {toReplace.pattern(), replacement, credentialRequirement};
+		return ret;
 	}
 
 	private void setParameters(String[] parameters)
 	{
-		if (parameters.length != 3)
-			throw new IllegalArgumentException("Action requires exactely 3 parameters");
-		toReplace = Pattern.compile(parameters[0]);
-		replacement = parameters[1];
+		if (parameters.length != 4)
+			throw new IllegalArgumentException("Action requires exactly 4 parameters");
+		unityType = parameters[0];
+		expressionCompiled = MVEL.compileExpression(parameters[1]);
 		credentialRequirement = parameters[2];
+		mode = IdentityEffectMode.valueOf(parameters[3]);
 	}
 }

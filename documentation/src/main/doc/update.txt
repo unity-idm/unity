@@ -3,139 +3,53 @@
 This section covers a general update procedure. Make sure to read version specific update instruction too: 
 <<ver-update>>.
 
-When using the +.tar.gz+ the update can be conveniently performed on a single machine, in a safe way: 
+The update is a potentially dangerous operation, therefore we suggest to take two precautions:
+
+. *MANDATORY* make a full database backup _before_ starting the update.
+. *SUGGESTED* make a test drive. To do this you need a separate instance of Unity service, with database copied from 
+the production one. Update it first and only if everything goes OK, proceed with an update of the production instance.
+
+After the precautions are done the update instructions are following.
+
+When using the +.tar.gz+: 
 
 . Install the updated version in a separate directory as in the case of a fresh installation.
-. Configure it with the settings of the running instance, however change the port to any other which is free. 
-If using a database server as MySQL, be sure to use another, clean database.
-. Apply any required changes in configuration, e.g. to enable new features of the updated version.
-. Create a dump of the server state on the running instance.
-. Start the new instance (next to the old one).
-. Load the dumped state to the new instance and test it.
-. If everything is all right stop it and change its port to the correct port used by the old service.
-. If needed, create an another, up-to-date dump of the old service state and stop it.
-. Start the new service and load the latest dump.
+. Configure it with the settings of the running instance. Copy the config files of the old version and 
+(if required) made any version specific modifications which are given below. 
+. Stop the old service.
+. Start the new instance.
+. Carefully check log files for any errors or warnings.
 . If needed reconfigure startup scripts to start the updated service, as well as update the +PATH+ variable to use
 new Unity binaries location. It is a good practice to have a symbolic link to the actual Unity installation directory
 that is used in the +PATH+ and startup scripts. Then it is possible to simply change its target to the updated 
 service directory.
 
-The above procedure is long but allows for a detailed testing of the service before rolling it out into production.
-Of course if you want to be quick and unsafe, you can skip the testing phase.
+If using the RPM: 
 
-If using the RPM installation method, the safe test drive of the updated system can be only performed with a help
-of an additional machine: install the updated version there first, upload the dump of the old instance and test it.
-If everything is all right then the actual update may take place: 
-
-. Create a dump of the database state.
 . Stop the old service.
 . Update the RPM using platform tools (usually +yum+).
-. Check if any configuration files needs to be updated (search for +.rpmnew+ files in /etc/unity-idm).
-. Reconfigure the service to use a new, clean database or clean all the data from the existing one. In case of the
-embedded database it is needed to remove the files +/var/lib/unity-idm/data/unitydb\.*+. 
+. Check if any configuration files needs to be updated (see below, also search for +.rpmnew+ files in /etc/unity-idm).
 . Start the new service.
+. Carefully check log files for any errors or warnings.
 
 [NOTE] 
-The database dump can be created and loaded from the Web Admin UI, from the _Server maintenance_ tab.
-
-[NOTE] 
-If you plan to clean the database instead of configuring a new one it is always good to have a copy in case an 
-emergency downgrade. 
-
+The database dump can be created and loaded from the Web Admin UI, from the _Server maintenance_ tab. It can be used 
+to transfer the Unity state between instances, can be also used as a backup tool. Howver in the upgrade case
+it is strongly suggested to make a regular database dump.
 
 [[ver-update]]
 === Version specific update instructions
 
-==== From 1.0.0 to 1.1.0
+==== From pre-1.2.0 version
 
-In the 1.1.0 version three important changes of configuration subsystem were introduced.
+You should follow instructions and upgrade version by version. The update instructions are always available
+in the documentation of the version to which you are upgrading.
 
-The first change is a new mandatory option which needs to be added to the main configuration file. 
+==== From 1.2.0 to 1.3.0
 
- unityServer.core.httpServer.advertisedHost=unity.example.com
- 
-The value of this option should contain an external/official address (IP is also allowed) of the server.
-This option is important whenever server listens on many interfaces (+0.0.0.0+ address) or is behind proxies,
-DNAT solutions etc.
+The version 1.3.0 introduces automatic update database tooling. Be sure to make a backup before an update. 
+In case of production environments be sure to perform a test drive on a production database copy.
 
-In the version 1.1.0 a centralized configuration of credentials and truststores was introduced.
-Therefore all of the credentials and truststores are now configured in a single file and referenced
-by name in other files. Configuration should be updated as follows:
-
-. [Mandatory for the RPM installations; recommended for tar.gz installations] 
- A new property should be added to the main configuration file +unityServer.conf+, specifying the location
- of the +pki.properties+ file. Typically +unityServer.core.pkiConfigFile=/etc/unity-idm/pki.properties+ 
- (RPM installation) or +unityServer.core.pkiConfigFile=conf/pki.properties+ (tar.gz installation, this value is also
- the default one).
-. All distinct credentials and truststores used in the configuration should be identified. The possible locations are
- enumerated below:
-.. base server credential and truststore used in the main configuration file,
-.. each SAML endpoint typically have both the credential and truststore defined,
-.. the LDAP authenticator using SSL mode can have a truststore defined.
-. For each distinct truststore and keystore an name must be chosen, and the configuration of the credential/truststore
- must be copied to the +pki.properties+ file mentioned in the previous point. The syntax is described in the manual.
-. Finally in each place where the original configuration of the credential or truststore was provided directly,
- it should be removed and replaced with a single option referencing the globally defined credential/truststore. This
- option key (the last part) is respectively +.credential+ or +.truststore+.
-
-
-Another configuration format change introduced in 1.1.0 version is located in configuration of (all) SAML 
-endpoints. Besides few new options, the trust settings were changed to facilitate a more rich set of settings.
-
-The update should be performed with the following rules:
-
-Each entry +unity.saml.acceptedUriSP+ should be removed and replaced with a new +unity.saml.acceptedSP.+ entry.
-The trusted service provider certificate should be defined in +pki.properties+ and only referenced. 
-For instance the following setting:
- 
- unity.saml.acceptedUriSP.SP_1=http://sp.example.com/ /certs/sp.pem
-
-should be replaced with:
- 
- unity.saml.acceptedSP.SP_1.entity=http://sp.example.com/
- unity.saml.acceptedSP.SP_1.certificate=SP1_CERT
-
-where +SP1_CERT+ should be defined in +pki.properties+ as follows:
-
- unity.pki.certificates.SP_1.certificateFile=/certs/sp.pem
- 
-In the similar way the the +unity.saml.acceptedDNSP.+ entries should be updated:
-
- unity.saml.acceptedDNSP.SP_2=/certs/sp.pem
-
-should be replaced with:
-
- unity.saml.acceptedSP.SP_2.dn=CN=SP2,O=Example,C=AU
- unity.saml.acceptedSP.SP_2.certificate=SP2_CERT
-
-where +dn+ is a distinguished name of the Service Provider using X.500 name to identify itself.
-
-  
-==== From 1.1.0 to 1.2.0
-
-The version 1.2.0 introduces a new important concept: authentication realms. This new feature requires 
-several configuration updates:
-
-. Desired authentication realms should be planned (see authentication realms documentation) and configured in 
- the main configuration file +unityServer.conf+. 
-. The former endpoint specific options: +unity.endpoint.ws.blockFor+, +unity.endpoint.ws.blockAfterUnsuccessfulLogins+
-(both for web service endpoints), +unity.endpoint.web .blockAfterUnsuccessfulLogins+,
-+unity.endpoint.web.blockFor+ and +unity.endpoint.web.sessionTimeout+ (web endpoints) are to be removed from
-endpoint configuration files. Those settings are controlled on the realm level now.
-. Finally appropriate realm should be assigned to endpoints. This is performed in the +unityServer.conf+, with
-the per-endpoint property +unityServer.core.endpoints.X.endpointRealm+.
-
-Note that endpoints must be reloaded. The endpoints which were not reloaded will belong to a single, 
-default authentication realm.
-
-Another change introduced in the version 1.2.0 is the finalized message templates handling with 
-management feature in the Admin UI. The configuration of message templates from the configuration file is deprecated. 
-It can be still used, however each template must have an additional setting: +TEMPLATE_NAME.consumer+. 
-This setting controls the intended purpose of the template - what determines the available template variables. 
-The currently possible values are: +PasswordResetCode+, +RegistrationRequestSubmitted+, +RegistrationRequestUpdated+, 
-+RegistrationRequestAccepted+ and +RegistrationRequestRejected+.  
-
-Note: translation profiles and templates are not preserved automatically during upgrade. Therefore the easiest way to
-preserve them is to edit the templates in the new Admin UI tab (in Server management) and to load the old translation
-profiles from the +unityServer.conf+. After that translation profiles can be edited from the Admin UI, and their 
-configuration files can be dropped.
+During update to 1.3.0 the translation profiles will be updated to the new model. Be sure to carefully check 
+the results manually and to test if the profiles still work correctly. In case of any problems please let us know
+providing the profile's update log entries.   

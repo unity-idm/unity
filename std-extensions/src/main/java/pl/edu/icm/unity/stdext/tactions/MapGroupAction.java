@@ -4,85 +4,60 @@
  */
 package pl.edu.icm.unity.stdext.tactions;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.io.Serializable;
+import java.util.Collection;
 
 import org.apache.log4j.Logger;
+import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
-import pl.edu.icm.unity.server.authn.remote.RemoteInformationBase;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.authn.remote.translation.AbstractTranslationAction;
+import pl.edu.icm.unity.server.authn.remote.translation.MappingResult;
+import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.utils.Log;
 
 /**
- * Maps groups matching a given regular expression (param1) to a new name (param2) which can use group references
- * from the pattern.
+ * Create group mappings.
  *   
  * @author K. Benedyczak
  */
 public class MapGroupAction extends AbstractTranslationAction
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, MapGroupAction.class);
-	private Pattern toReplace;
-	private String replacement;
+	private Serializable expressionCompiled;
 
-	public MapGroupAction(String[] params)
+	public MapGroupAction(String[] params, TranslationActionDescription desc)
 	{
+		super(desc, params);
 		setParameters(params);
 	}
 	
 	@Override
-	public String getName()
+	protected MappingResult invokeWrapped(RemotelyAuthenticatedInput input, Object mvelCtx) throws EngineException
 	{
-		return MapGroupActionFactory.NAME;
-	}
-
-	@Override
-	protected void invokeWrapped(RemotelyAuthenticatedInput input) throws EngineException
-	{
-		Map<String, RemoteGroupMembership> groups = input.getGroups();
-		Set<String> keys = new HashSet<>(groups.keySet());
-		
-		for (String key: keys)
+		MappingResult ret = new MappingResult();
+		Object result = MVEL.executeExpression(expressionCompiled, mvelCtx);
+		if (result instanceof Collection<?>)
 		{
-			Matcher m = toReplace.matcher(key);
-			boolean matches = false;
-			StringBuffer sb = new StringBuffer();
-			while(m.find())
+			Collection<?> mgs = (Collection<?>) result;
+			for (Object mg: mgs)
 			{
-				matches = true;
-				m.appendReplacement(sb, replacement);
+				log.debug("Mapped group: " + mg.toString());
+				ret.addGroup(mg.toString());
 			}
-			if (!matches)
-			{
-				log.trace("Identity " + key + " doesn't match");
-				continue;
-			}
-			m.appendTail(sb);
-			
-			log.debug("Translating group " + key + " -> " + sb);
-			RemoteGroupMembership changed = groups.remove(key);
-			groups.put(sb.toString(), changed);
-			changed.getMetadata().put(RemoteInformationBase.UNITY_GROUP, sb.toString());
+		} else
+		{
+			log.debug("Mapped group: " + result.toString());
+			ret.addGroup(result.toString());
 		}
-	}
-
-	@Override
-	public String[] getParameters()
-	{
-		return new String[] {toReplace.pattern(), replacement};
+		return ret;
 	}
 
 	private void setParameters(String[] parameters)
 	{
-		if (parameters.length != 2)
-			throw new IllegalArgumentException("Action requires exactely 2 parameters");
-		toReplace = Pattern.compile(parameters[0]);
-		replacement = parameters[1];
+		if (parameters.length != 1)
+			throw new IllegalArgumentException("Action requires exactly 1 parameter");
+		expressionCompiled = MVEL.compileExpression(parameters[0]);
 	}
 }

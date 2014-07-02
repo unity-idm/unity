@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
+import pl.edu.icm.unity.server.authn.remote.TranslationEngine;
 
 /**
  * Produces verificators of passwords using remote LDAP server.
@@ -25,16 +25,15 @@ public class LdapVerificatorFactory implements CredentialVerificatorFactory
 	public static final String NAME = "ldap";
 	
 	private TranslationProfileManagement profileManagement;
-	private AttributesManagement attrMan;
+	private TranslationEngine trEngine;
 	private PKIManagement pkiManagement;
 
 	@Autowired
 	public LdapVerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement, 
-			@Qualifier("insecure") AttributesManagement attrMan,
-			PKIManagement pkiManagement)
+			TranslationEngine trEngine, PKIManagement pkiManagement)
 	{
 		this.profileManagement = profileManagement;
-		this.attrMan = attrMan;
+		this.trEngine = trEngine;
 		this.pkiManagement = pkiManagement;
 	}
 
@@ -53,6 +52,6 @@ public class LdapVerificatorFactory implements CredentialVerificatorFactory
 	@Override
 	public CredentialVerificator newInstance()
 	{
-		return new LdapVerificator(getName(), getDescription(), profileManagement, attrMan, pkiManagement);
+		return new LdapVerificator(getName(), getDescription(), profileManagement, trEngine, pkiManagement);
 	}
 }

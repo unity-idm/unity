@@ -8,11 +8,13 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
+import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc.Type;
+import pl.edu.icm.unity.server.authn.remote.translation.IdentityEffectMode;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
 
 /**
- * Factory for {@link MapIdentityAction}.
+ * Factory for identity mapping action.
  *   
  * @author K. Benedyczak
  */
@@ -38,25 +40,26 @@ public class MapIdentityActionFactory implements TranslationActionFactory
 	{
 		return new ActionParameterDesc[] {
 				new ActionParameterDesc(
-						true,
-						"replaced",
-						"TranslationAction.mapIdentity.param.replaced.desc",
-						20),
+						"unityIdentityType",
+						"TranslationAction.mapIdentity.paramDesc.unityIdentityType",
+						1, 1, Type.UNITY_ID_TYPE),
 				new ActionParameterDesc(
-						true,
-						"replacement",
-						"TranslationAction.mapIdentity.param.replacement.desc",
-						20),
+						"expression",
+						"TranslationAction.mapIdentity.paramDesc.expression",
+						1, 1, Type.EXPRESSION),
 				new ActionParameterDesc(
-						true,
 						"credential requirement",
-						"TranslationAction.mapIdentity.param.credentialRequirement.desc",
-						20) };
+						"TranslationAction.mapIdentity.paramDesc.credentialRequirement",
+						1, 1, Type.UNITY_CRED_REQ),
+				new ActionParameterDesc(
+						"effect",
+						"TranslationAction.mapIdentity.paramDesc.effect",
+						1, 1, IdentityEffectMode.class)};
 	}
 
 	@Override
 	public TranslationAction getInstance(String... parameters) throws EngineException
 	{
-		return new MapIdentityAction(parameters);
+		return new MapIdentityAction(parameters, this);
 	}
 }

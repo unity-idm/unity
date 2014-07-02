@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.server.authn.remote;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.AbstractVerificator;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
@@ -23,14 +22,14 @@ import pl.edu.icm.unity.server.authn.CredentialExchange;
 public abstract class AbstractRemoteVerificator extends AbstractVerificator
 {
 	private TranslationProfileManagement profileManagement;
-	private AttributesManagement attrMan;
+	private TranslationEngine trEngine;
 	
 	public AbstractRemoteVerificator(String name, String description, String exchangeId, 
-			TranslationProfileManagement profileManagement, AttributesManagement attrMan)
+			TranslationProfileManagement profileManagement, TranslationEngine trEngine)
 	{
 		super(name, description, exchangeId);
 		this.profileManagement = profileManagement;
-		this.attrMan = attrMan;
+		this.trEngine = trEngine;
 	}
 
 	/**
@@ -46,7 +45,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 	protected AuthenticationResult getResult(RemotelyAuthenticatedInput input, String profile) 
 			throws AuthenticationException
 	{
-		RemoteVerificatorUtil util = new RemoteVerificatorUtil(identityResolver, profileManagement, attrMan);
+		RemoteVerificatorUtil util = new RemoteVerificatorUtil(identityResolver, profileManagement, trEngine);
 		return util.getResult(input, profile);
 	}
 }

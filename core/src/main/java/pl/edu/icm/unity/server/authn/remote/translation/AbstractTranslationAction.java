@@ -16,18 +16,40 @@ import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
  */
 public abstract class AbstractTranslationAction implements TranslationAction
 {
+	private TranslationActionDescription description;
+	private String[] params;
+	
+	public AbstractTranslationAction(TranslationActionDescription description, String[] params)
+	{
+		this.description = description;
+		this.params = params;
+	}
+
 	@Override
-	public void invoke(RemotelyAuthenticatedInput input) throws EngineException
+	public TranslationActionDescription getActionDescription()
+	{
+		return description;
+	}
+	
+	@Override
+	public final MappingResult invoke(RemotelyAuthenticatedInput input, Object mvelCtx) throws EngineException
 	{
 		try
 		{
 			NDC.push("[" + input + "]");
-			invokeWrapped(input);
+			return invokeWrapped(input, mvelCtx);
 		} finally
 		{
 			NDC.pop();			
 		}
 	}
 	
-	protected abstract void invokeWrapped(RemotelyAuthenticatedInput input) throws EngineException;
+	protected abstract MappingResult invokeWrapped(RemotelyAuthenticatedInput input, Object mvelCtx) 
+			throws EngineException;
+	
+	@Override
+	public String[] getParameters()
+	{
+		return params;
+	}
 }

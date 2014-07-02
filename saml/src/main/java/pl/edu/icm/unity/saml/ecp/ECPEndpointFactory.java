@@ -16,11 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import eu.unicore.samly2.validators.ReplayAttackChecker;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
-import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
@@ -29,11 +27,13 @@ import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.authn.remote.TranslationEngine;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import eu.unicore.samly2.validators.ReplayAttackChecker;
 
 /**
  * Factory of {@link ECPEndpoint}s.
@@ -53,7 +53,7 @@ public class ECPEndpointFactory implements EndpointFactory
 	private ReplayAttackChecker replayAttackChecker;
 	private IdentityResolver identityResolver;
 	private TranslationProfileManagement profileManagement;
-	private AttributesManagement attrMan;
+	private TranslationEngine trEngine;
 	private TokensManagement tokensMan;
 	private IdentitiesManagement identitiesMan;
 	private SessionManagement sessionMan;
@@ -69,7 +69,7 @@ public class ECPEndpointFactory implements EndpointFactory
 			ECPContextManagement samlContextManagement,
 			ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
 			@Qualifier("insecure") TranslationProfileManagement profileManagement, 
-			@Qualifier("insecure") AttributesManagement attrMan,
+			TranslationEngine trEngine,
 			TokensManagement tokensMan, IdentitiesManagement identitiesMan,
 			SessionManagement sessionMan, UnityServerConfiguration mainCfg, 
 			ExecutorsService executorsService, SharedEndpointManagement sharedEndpointManagement) 
@@ -81,7 +81,7 @@ public class ECPEndpointFactory implements EndpointFactory
 		this.replayAttackChecker = replayAttackChecker;
 		this.identityResolver = identityResolver;
 		this.profileManagement = profileManagement;
-		this.attrMan = attrMan;
+		this.trEngine = trEngine;
 		this.tokensMan = tokensMan;
 		this.identitiesMan = identitiesMan;
 		this.sessionMan = sessionMan;
@@ -111,7 +111,7 @@ public class ECPEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new ECPEndpoint(description, SERVLET_PATH, pkiManagement, samlContextManagement, baseAddress,
-				baseContext, replayAttackChecker, identityResolver, profileManagement, attrMan, 
+				baseContext, replayAttackChecker, identityResolver, profileManagement, trEngine, 
 				tokensMan, identitiesMan, sessionMan, remoteMetadataManagers, 
 				mainCfg, executorsService, metadataServlet);
 	}

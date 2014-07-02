@@ -269,12 +269,12 @@ public class EngineInitialization extends LifecycleBase
 		initializeAdminUser();
 		initializeCredentials();
 		initializeCredentialReqirements();
+		initializeMsgTemplates();
+		runInitializers();
 		initializeTranslationProfiles();
 		initializeAuthenticators();
 		initializeEndpoints();
 		initializeNotifications();
-		initializeMsgTemplates();
-		runInitializers();
 		startLogConfigurationMonitoring();
 	}
 	

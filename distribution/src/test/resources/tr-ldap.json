@@ -1,4 +1,5 @@
 {
+	"ver": "2",
 	"name": "ldapProfile",
 	"description": "Allows to translate local Open LDAP data into local representation. gr1->/A/B, identity is taken as-is, cn->cn, everything is synced automatically",
 	"rules": [
@@ -9,24 +10,24 @@
 			"action": {
 				"name": "mapIdentity",
 				"parameters": [
-					"(.*)",
-					"$1",
-					"Password requirement"
+					"identifier",
+					"id",
+					"Password requirement",
+					"CREATE_OR_MATCH"
 				]
 			}			
 		},
 			
 		{
 			"condition": {
-				"conditionValue": "true"
+				"conditionValue": "groups contains 'student'"
 			},
 			"action": {
 				"name": "mapGroup",
 				"parameters": [
-					"gr1",
 					"/A/B"
 				]
-			}			
+			}
 		},	
 
 		{
@@ -37,10 +38,12 @@
 				"name": "mapAttribute",
 				"parameters": [
 					"cn",
+					"/",
 					"cn",
-					"/"
+					"full",
+					"CREATE_OR_UPDATE"
 				]
 			}			
-		}
+		}	
 	]
 }

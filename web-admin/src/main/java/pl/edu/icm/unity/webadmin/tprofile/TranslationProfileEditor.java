@@ -11,6 +11,7 @@ import java.util.List;
 
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationRule;
+import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile.ProfileMode;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.RuleComponent.Callback;
@@ -248,7 +249,7 @@ public class TranslationProfileEditor extends VerticalLayout
 			}
 
 		}
-		TranslationProfile profile = new TranslationProfile(n, trules);
+		TranslationProfile profile = new TranslationProfile(n, trules, ProfileMode.UPDATE_ONLY);
 		profile.setDescription(desc);
 		return profile;
 	}

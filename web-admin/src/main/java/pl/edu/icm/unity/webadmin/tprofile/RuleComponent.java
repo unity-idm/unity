@@ -35,7 +35,6 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -241,7 +240,7 @@ public class RuleComponent extends VerticalLayout
 		if (editMode)
 		{
 			condition.setValue(toEdit.getCondition().getCondition());
-			actions.setValue(toEdit.getAction().getName());
+			actions.setValue(toEdit.getAction().getActionDescription().getName());
 			setParams(actions.getValue().toString(), toEdit.getAction().getParameters());
 		} else
 		{
@@ -277,15 +276,8 @@ public class RuleComponent extends VerticalLayout
 		for (int i = 0; i < params.length; i++)
 		{
 			AbstractTextField p = null;
-			if (params[i].isMandatory())
-			{
-				p = new RequiredTextField(params[i].getName() + ":", msg);
-				p.setValidationVisible(false);
-
-			} else
-			{
-				p = new TextField(params[i].getName() + ":");
-			}
+			p = new RequiredTextField(params[i].getName() + ":", msg);
+			p.setValidationVisible(false);
 			p.setDescription(msg.getMessage(params[i].getDescriptionKey()));
 			if (values != null && values[i] != null)
 			{

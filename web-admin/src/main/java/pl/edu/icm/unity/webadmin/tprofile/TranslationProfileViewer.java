@@ -80,7 +80,8 @@ public class TranslationProfileViewer extends VerticalLayout
 			ActionParameterDesc[] pd = null;
 			try 
 			{
-				TranslationActionFactory f = registry.getByName(rule.getAction().getName());
+				TranslationActionFactory f = registry.getByName(rule.getAction().
+						getActionDescription().getName());
 				pd = f.getParameters();
 			} catch (IllegalTypeException e)
 			{
@@ -90,7 +91,7 @@ public class TranslationProfileViewer extends VerticalLayout
 			addField(String.valueOf(i) + ":  " + msg.getMessage("TranslationProfileViewer.ruleCondition"),
 					"<code>" + rule.getCondition().getCondition() + "</code>");
 			addField(msg.getMessage("TranslationProfileViewer.ruleAction"),
-					"<code>" + rule.getAction().getName() + "</code>");
+					"<code>" + rule.getAction().getActionDescription().getName() + "</code>");
 			String[] par = rule.getAction().getParameters();
 			for (int j = 0; j < par.length; j++)
 			{

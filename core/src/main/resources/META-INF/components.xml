@@ -30,6 +30,8 @@
 	<bean class="pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef"/>
 	<bean class="pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef"/>
 	<bean class="pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef"/>
+
+	<bean class="pl.edu.icm.unity.server.authn.remote.TranslationEngine"/>
 	
 	<beans profile="production">
 		<bean class="pl.edu.icm.unity.server.utils.DefaultConfigurationLocation"/>

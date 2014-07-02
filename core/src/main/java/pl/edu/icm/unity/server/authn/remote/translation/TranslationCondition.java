@@ -9,7 +9,6 @@ import java.io.Serializable;
 import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 
 /**
  * MVEL condition of translation rule.
@@ -34,7 +33,7 @@ public class TranslationCondition
 	}
 
 
-	public boolean evaluate(RemotelyAuthenticatedInput input) throws EngineException
+	public boolean evaluate(Object input) throws EngineException
 	{
 		Boolean result = (Boolean) MVEL.executeExpression(compiled, input);
                 return result.booleanValue();

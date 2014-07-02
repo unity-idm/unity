@@ -10,6 +10,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc.Type;
 
 /**
  * Factory for {@link MapGroupAction}.
@@ -38,20 +39,14 @@ public class MapGroupActionFactory implements TranslationActionFactory
 	{
 		return new ActionParameterDesc[] {
 				new ActionParameterDesc(
-						true,
-						"replaced",
-						"TranslationAction.mapGroup.param.replaced.desc",
-						20),
-				new ActionParameterDesc(
-						true,
-						"replacement",
-						"TranslationAction.mapGroup.param.replacement.desc",
-						20)};
+						"expression",
+						"TranslationAction.mapGroup.paramDesc.expression",
+						1, 1, Type.EXPRESSION)};
 	}
 
 	@Override
 	public TranslationAction getInstance(String... parameters) throws EngineException
 	{
-		return new MapGroupAction(parameters);
+		return new MapGroupAction(parameters, this);
 	}
 }

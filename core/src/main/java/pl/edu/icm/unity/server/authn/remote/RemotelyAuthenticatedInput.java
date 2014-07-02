@@ -15,7 +15,7 @@ import java.util.Map;
  * <p>
  * The data in this class typically should not be translated, unless an upstream IdP strictly requires some translation
  * to be able to populate the contents. The actual mapping of this data to the locally meaningful information
- * is done using this class as input.  
+ * is done using this class as an input.  
  * 
  * @author K. Benedyczak
  */
@@ -25,7 +25,6 @@ public class RemotelyAuthenticatedInput
 	private Map<String, RemoteGroupMembership> groups;
 	private Map<String, RemoteAttribute> attributes;
 	private Map<String, RemoteIdentity> identities;
-	private String primaryIdentity;
 
 	public RemotelyAuthenticatedInput(String idpName)
 	{
@@ -87,28 +86,11 @@ public class RemotelyAuthenticatedInput
 		return identities;
 	}
 	
-	public RemoteIdentity getPrimaryIdentity()
-	{
-		return primaryIdentity == null ? 
-				(identities.size() == 0 ? null : identities.values().iterator().next()) 
-				: identities.get(primaryIdentity);
-	}
-
-	public String getPrimaryIdentityName()
-	{
-		return primaryIdentity == null ? 
-				(identities.size() == 0 ? null : identities.values().iterator().next().getName()) 
-				: primaryIdentity;
-	}
-
-	public void setPrimaryIdentityName(String primaryIdentity)
-	{
-		this.primaryIdentity = primaryIdentity;
-	}
-	
 	public String toString()
 	{
-		return idpName + " - " + getPrimaryIdentityName();
+		String identity = getIdentities().isEmpty() ? "unknown" : 
+			(String)getIdentities().keySet().iterator().next();
+		return idpName + " - " + identity;
 	}
 	
 	/**

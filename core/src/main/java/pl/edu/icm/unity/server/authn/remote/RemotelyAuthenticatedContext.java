@@ -14,7 +14,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
  * Holds information about a user which was obtained and verified by a remote upstream IdP.
- * The information in this class in in Unity format but need not to have counterparts in the local database.
+ * The information in this class is in Unity format but need not to have counterparts in the local database.
  * 
  * @author K. Benedyczak
  */

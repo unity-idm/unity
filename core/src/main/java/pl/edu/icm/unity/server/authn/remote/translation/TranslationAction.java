@@ -15,17 +15,19 @@ import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 public interface TranslationAction
 {
 	/**
-	 * @return the name of the action (implementation defined)
+	 * @return the type of the action
 	 */
-	public String getName();
+	public TranslationActionDescription getActionDescription();
 	
 	/**
 	 * Performs the translation.
 	 * @param input
+	 * @param mvelCtx context which can be used in MVEL expression evaluation
+	 * @return result of the mapping
 	 * @throws EngineException when an error occurs. You can throw {@link ExecutionBreakException}
 	 * to gently stop the processing of further rules.
 	 */
-	public void invoke(RemotelyAuthenticatedInput input) throws EngineException;
+	public MappingResult invoke(RemotelyAuthenticatedInput input, Object mvelCtx) throws EngineException;
 	
 	/**
 	 * @return the list of parameters that were used to configure the action.

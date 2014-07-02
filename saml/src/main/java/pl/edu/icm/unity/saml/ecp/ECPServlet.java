@@ -11,16 +11,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import eu.unicore.samly2.validators.ReplayAttackChecker;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
-import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.authn.remote.TranslationEngine;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import eu.unicore.samly2.validators.ReplayAttackChecker;
 
 /**
  * ECP servlet which performs the actual ECP profile processing over PAOS binding.
@@ -38,13 +38,13 @@ public class ECPServlet extends HttpServlet
 	public ECPServlet(SAMLECPProperties samlProperties, RemoteMetaManager metadataManager,
 			ECPContextManagement samlContextManagement, 
 			String myAddress, ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
-			TranslationProfileManagement profileManagement, AttributesManagement attrMan,
+			TranslationProfileManagement profileManagement, TranslationEngine trEngine,
 			TokensManagement tokensMan, PKIManagement pkiManagement, IdentitiesManagement identitiesMan,
 			SessionManagement sessionMan, AuthenticationRealm realm, String address)
 	{
 		step1Handler = new ECPStep1Handler(metadataManager, samlContextManagement, myAddress);
 		step2Handler = new ECPStep2Handler(samlProperties, metadataManager, samlContextManagement, myAddress,
-				replayAttackChecker, identityResolver, profileManagement, attrMan,
+				replayAttackChecker, identityResolver, profileManagement, trEngine,
 				tokensMan, pkiManagement, identitiesMan, sessionMan, realm, address);
 	}
 

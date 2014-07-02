@@ -56,10 +56,12 @@ import pl.edu.icm.unity.saml.xmlbeans.soap.Header;
 import pl.edu.icm.unity.samlidp.AbstractTestIdpBase;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.authn.remote.translation.IdentityEffectMode;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationCondition;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
+import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile.ProfileMode;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationRule;
-import pl.edu.icm.unity.stdext.tactions.MapAttributeToIdentityAction;
+import pl.edu.icm.unity.stdext.tactions.MapIdentityActionFactory;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
@@ -93,12 +95,14 @@ public class TestECP extends AbstractTestIdpBase
 			assertEquals(2, endpoints.size());
 			
 			List<TranslationRule> rules = new ArrayList<TranslationRule>();
+			MapIdentityActionFactory factory = new MapIdentityActionFactory();
+			
 			TranslationRule mapId = new TranslationRule(
-					new MapAttributeToIdentityAction(
-							new String[] {"unity:identity:userName", "userName", "cr-pass"}), 
+					factory.getInstance("userName", "attr['unity:identity:userName']", 
+							"cr-pass", IdentityEffectMode.CREATE_OR_MATCH.toString()), 
 					new TranslationCondition());
 			rules.add(mapId);
-			TranslationProfile testP = new TranslationProfile("testP", rules);
+			TranslationProfile testP = new TranslationProfile("testP", rules, ProfileMode.UPDATE_ONLY);
 			profilesMan.addProfile(testP);
 			
 		} catch (Exception e)

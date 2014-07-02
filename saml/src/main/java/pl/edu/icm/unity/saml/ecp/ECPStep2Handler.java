@@ -18,8 +18,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import eu.unicore.samly2.SAMLBindings;
-import eu.unicore.samly2.validators.ReplayAttackChecker;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagement;
 import pl.edu.icm.unity.saml.SAMLResponseValidatorUtil;
@@ -29,7 +27,6 @@ import pl.edu.icm.unity.saml.xmlbeans.soap.Body;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Envelope;
 import pl.edu.icm.unity.saml.xmlbeans.soap.EnvelopeDocument;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Header;
-import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
@@ -44,11 +41,14 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.remote.RemoteVerificatorUtil;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.authn.remote.TranslationEngine;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+import eu.unicore.samly2.SAMLBindings;
+import eu.unicore.samly2.validators.ReplayAttackChecker;
 
 /**
  * Responsible for parsing HTTP POST with SAML response.
@@ -69,14 +69,14 @@ public class ECPStep2Handler
 	public ECPStep2Handler(SAMLECPProperties samlProperties, RemoteMetaManager metadataManager,
 			ECPContextManagement samlContextManagement, String myAddress,
 			ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
-			TranslationProfileManagement profileManagement, AttributesManagement attrMan,
+			TranslationProfileManagement profileManagement, TranslationEngine trEngine,
 			TokensManagement tokensMan, PKIManagement pkiManagement, IdentitiesManagement identitiesMan,
 			SessionManagement sessionMan, AuthenticationRealm realm, String address)
 	{
 		this.metadataManager = metadataManager;
 		this.samlContextManagement = samlContextManagement;
 		this.remoteVerificatorUtil = new RemoteVerificatorUtil(identityResolver, 
-				profileManagement, attrMan);
+				profileManagement, trEngine);
 		this.jwtGenerator = new JWTManagement(tokensMan, pkiManagement, identitiesMan, 
 				realm.getName(), address, samlProperties.getJWTProperties());
 		this.realm = realm;

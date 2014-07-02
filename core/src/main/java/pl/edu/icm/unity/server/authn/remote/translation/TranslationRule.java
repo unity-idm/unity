@@ -27,12 +27,14 @@ public class TranslationRule
 		this.condition = condition;
 	}
 	
-	public void invoke(RemotelyAuthenticatedInput input) throws EngineException
+	public void invoke(RemotelyAuthenticatedInput input, Object mvelCtx, MappingResult translationState) 
+			throws EngineException
 	{
-		if (condition.evaluate(input))
+		if (condition.evaluate(mvelCtx))
 		{
 			log.debug("Condition OK");
-			action.invoke(input);
+			MappingResult result = action.invoke(input, mvelCtx);
+			translationState.mergeWith(result);
 		} else
 		{
 			log.debug("Condition not met");			

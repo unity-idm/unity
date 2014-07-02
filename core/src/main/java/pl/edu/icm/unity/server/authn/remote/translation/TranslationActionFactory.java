@@ -10,11 +10,13 @@ import pl.edu.icm.unity.exceptions.EngineException;
  * Creates {@link TranslationAction}s and provides a description of the created actions.
  * @author K. Benedyczak
  */
-public interface TranslationActionFactory
+public interface TranslationActionFactory extends TranslationActionDescription
 {
-	public String getDescriptionKey();
-	public String getName();
-	public ActionParameterDesc[] getParameters();
-	
+	/**
+	 * Actual factory method
+	 * @param parameters parameter values.
+	 * @return configured instance
+	 * @throws EngineException
+	 */
 	public TranslationAction getInstance(String... parameters) throws EngineException;
 }

@@ -15,9 +15,6 @@ import java.util.Properties;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.validators.ReplayAttackChecker;
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
@@ -25,13 +22,13 @@ import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.sp.SAMLResponseConsumerServlet;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
-import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.authn.remote.TranslationEngine;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
@@ -39,6 +36,9 @@ import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.validators.ReplayAttackChecker;
+import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * ECP endpoint used to enable ECP support in Unity. The endpoint doesn't use any authenticator by itself.
@@ -57,7 +57,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 	private ReplayAttackChecker replayAttackChecker;
 	private IdentityResolver identityResolver;
 	private TranslationProfileManagement profileManagement;
-	private AttributesManagement attrMan;
+	private TranslationEngine trEngine;
 	private TokensManagement tokensMan;
 	private IdentitiesManagement identitiesMan;
 	private SessionManagement sessionMan;
@@ -69,7 +69,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 	public ECPEndpoint(EndpointTypeDescription type, String servletPath, PKIManagement pkiManagement,
 			ECPContextManagement samlContextManagement, URL baseAddress, String baseContext, 
 			ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
-			TranslationProfileManagement profileManagement, AttributesManagement attrMan,
+			TranslationProfileManagement profileManagement, TranslationEngine trEngine,
 			TokensManagement tokensMan, IdentitiesManagement identitiesMan, SessionManagement sessionMan, 
 			Map<String, RemoteMetaManager> remoteMetadataManagers, UnityServerConfiguration mainCfg,
 			ExecutorsService executorsService, MultiMetadataServlet metadataServlet)
@@ -82,7 +82,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 		this.replayAttackChecker = replayAttackChecker;
 		this.identityResolver = identityResolver;
 		this.profileManagement = profileManagement;
-		this.attrMan = attrMan;
+		this.trEngine = trEngine;
 		this.tokensMan = tokensMan;
 		this.identitiesMan = identitiesMan;
 		this.sessionMan = sessionMan;
@@ -156,7 +156,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 				servletPath;
 		ECPServlet ecpServlet = new ECPServlet(samlProperties, myMetadataManager, 
 				samlContextManagement, endpointAddress, 
-				replayAttackChecker, identityResolver, profileManagement, attrMan,
+				replayAttackChecker, identityResolver, profileManagement, trEngine,
 				tokensMan, pkiManagement, identitiesMan, sessionMan, 
 				description.getRealm(), baseAddress.toExternalForm());
 		

@@ -10,23 +10,37 @@ package pl.edu.icm.unity.server.authn.remote.translation;
  */
 public class ActionParameterDesc
 {
-	private boolean mandatory;
+	public enum Type {UNITY_ATTRIBUTE, EXPRESSION, UNITY_GROUP, UNITY_ID_TYPE, UNITY_CRED_REQ, ENUM}
+	
 	private String name;
 	private String descriptionKey;
-	private int typicalSize;
+	private int minValues;
+	private int maxValues;
+	private Type type;
+	private Class<? extends Enum<?>> enumClass;
 	
-	public ActionParameterDesc(boolean mandatory, String name, String descriptionKey,
-			int typicalSize)
+	
+	public ActionParameterDesc(String name, String descriptionKey, int minValues,
+			int maxValues, Type type)
 	{
-		this.mandatory = mandatory;
+		super();
 		this.name = name;
 		this.descriptionKey = descriptionKey;
-		this.typicalSize = typicalSize;
+		this.minValues = minValues;
+		this.maxValues = maxValues;
+		this.type = type;
 	}
 
-	public boolean isMandatory()
+	public ActionParameterDesc(String name, String descriptionKey, int minValues,
+			int maxValues, Class<? extends Enum<?>> enumClass)
 	{
-		return mandatory;
+		super();
+		this.name = name;
+		this.descriptionKey = descriptionKey;
+		this.minValues = minValues;
+		this.maxValues = maxValues;
+		this.type = Type.ENUM;
+		this.enumClass = enumClass;
 	}
 
 	public String getName()
@@ -39,8 +53,24 @@ public class ActionParameterDesc
 		return descriptionKey;
 	}
 
-	public int getTypicalSize()
+	public int getMinValues()
 	{
-		return typicalSize;
+		return minValues;
 	}
+
+	public int getMaxValues()
+	{
+		return maxValues;
+	}
+
+	public Type getType()
+	{
+		return type;
+	}
+
+	public Class<? extends Enum<?>> getEnumClass()
+	{
+		return enumClass;
+	}
+	
 }

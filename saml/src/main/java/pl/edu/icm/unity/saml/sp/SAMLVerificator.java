@@ -26,13 +26,13 @@ import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
-import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.authn.remote.TranslationEngine;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
@@ -56,12 +56,12 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	private ReplayAttackChecker replayAttackChecker;
 	
 	public SAMLVerificator(String name, String description, TranslationProfileManagement profileManagement, 
-			AttributesManagement attrMan, PKIManagement pkiMan, ReplayAttackChecker replayAttackChecker,
+			TranslationEngine trEngine, PKIManagement pkiMan, ReplayAttackChecker replayAttackChecker,
 			ExecutorsService executorsService, MultiMetadataServlet metadataServlet,
 			URL baseAddress, String baseContext, Map<String, RemoteMetaManager> remoteMetadataManagers,
 			UnityServerConfiguration mainConfig)
 	{
-		super(name, description, SAMLExchange.ID, profileManagement, attrMan);
+		super(name, description, SAMLExchange.ID, profileManagement, trEngine);
 		this.remoteMetadataManagers = remoteMetadataManagers;
 		this.pkiMan = pkiMan;
 		this.mainConfig = mainConfig;

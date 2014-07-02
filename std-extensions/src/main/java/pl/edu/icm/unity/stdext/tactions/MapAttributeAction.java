@@ -4,88 +4,78 @@
  */
 package pl.edu.icm.unity.stdext.tactions;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
-import pl.edu.icm.unity.server.authn.remote.RemoteInformationBase;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.authn.remote.translation.AbstractTranslationAction;
+import pl.edu.icm.unity.server.authn.remote.translation.AttributeEffectMode;
+import pl.edu.icm.unity.server.authn.remote.translation.MappedAttribute;
+import pl.edu.icm.unity.server.authn.remote.translation.MappingResult;
+import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 /**
- * Maps attributes matching a given regular expression (param1) to a new name (param2) which can use group references
- * from the pattern in a given group (param3).
+ * Maps attributes using MVEL expressions.
  *   
  * @author K. Benedyczak
  */
 public class MapAttributeAction extends AbstractTranslationAction
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, MapAttributeAction.class);
-	private Pattern toReplace;
-	private String replacement;
-	private String targetGroup;
+	private final AttributesManagement attrMan;
+	private String unityAttribute;
+	private String group;
+	private AttributeVisibility visibility;
+	private Serializable expressionCompiled;
+	private AttributeEffectMode mode;
+	private AttributeType at;
 
-	public MapAttributeAction(String[] params)
+	public MapAttributeAction(String[] params, TranslationActionDescription desc, AttributesManagement attrsMan) 
+			throws EngineException
 	{
+		super(desc, params);
 		setParameters(params);
+		attrMan = attrsMan;
+		at = attrMan.getAttributeTypesAsMap().get(unityAttribute);
+		if (at == null)
+			throw new WrongArgumentException("Attribute type " + unityAttribute + " is not known");
 	}
 	
 	@Override
-	public String getName()
+	protected MappingResult invokeWrapped(RemotelyAuthenticatedInput input, Object mvelCtx) throws EngineException
 	{
-		return MapAttributeActionFactory.NAME;
-	}
-
-	@Override
-	protected void invokeWrapped(RemotelyAuthenticatedInput input) throws EngineException
-	{
-		Map<String, RemoteAttribute> attributes = input.getAttributes();
-		Set<String> keys = new HashSet<>(attributes.keySet());
+		Object value = MVEL.executeExpression(expressionCompiled, mvelCtx);
+		List<?> aValues = value instanceof List ? (List<?>)value : Collections.singletonList(value.toString());
 		
-		for (String key: keys)
-		{
-			Matcher m = toReplace.matcher(key);
-			boolean matches = false;
-			StringBuffer sb = new StringBuffer();
-			while(m.find())
-			{
-				matches = true;
-				m.appendReplacement(sb, replacement);
-			}
-			if (!matches)
-			{
-				log.trace("Attribute " + key + " doesn't match");
-				continue;
-			}
-			m.appendTail(sb);
-			
-			log.debug("Translating attribute " + key + " -> " + sb);
-			RemoteAttribute changed = attributes.remove(key);
-			attributes.put(sb.toString(), changed);
-			changed.getMetadata().put(RemoteInformationBase.UNITY_ATTRIBUTE, sb.toString());
-			changed.getMetadata().put(RemoteInformationBase.UNITY_GROUP, targetGroup);
-		}
-	}
-
-	@Override
-	public String[] getParameters()
-	{
-		return new String[] {toReplace.pattern(), replacement, targetGroup};
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		Attribute<?> attribute = new Attribute(unityAttribute, at.getValueType(), group, 
+				visibility, aValues);
+		MappedAttribute ma = new MappedAttribute(mode, attribute);
+		MappingResult ret = new MappingResult();
+		log.debug("Mapped attribute: " + attribute);
+		ret.addAttribute(ma);
+		return ret;
 	}
 
 	private void setParameters(String[] parameters)
 	{
-		if (parameters.length != 3)
-			throw new IllegalArgumentException("Action requires exactely 3 parameters");
-		toReplace = Pattern.compile(parameters[0]);
-		replacement = parameters[1];
-		targetGroup = parameters[2];
+		if (parameters.length != 5)
+			throw new IllegalArgumentException("Action requires exactly 5 parameters");
+		unityAttribute = parameters[0];
+		group = parameters[1];
+		expressionCompiled = MVEL.compileExpression(parameters[2]);
+		visibility = AttributeVisibility.valueOf(parameters[3]);
+		mode = AttributeEffectMode.valueOf(parameters[4]);
 	}
 }
