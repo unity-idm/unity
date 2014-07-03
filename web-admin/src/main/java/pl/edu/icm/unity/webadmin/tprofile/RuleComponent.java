@@ -6,6 +6,8 @@
 package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.mvel2.MVEL;
 
@@ -17,6 +19,7 @@ import pl.edu.icm.unity.server.authn.remote.translation.TranslationCondition;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationRule;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.RequiredComboBox;
@@ -39,7 +42,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
- * Responsible for edit TranslationRule
+ * Responsible for editing of a single TranslationRule
  * 
  * @author P. Piernik
  * 
@@ -48,6 +51,10 @@ public class RuleComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private TranslationActionsRegistry tc;
+	private Collection<AttributeType> attributeTypes;
+	private List<String> groups;
+	private Collection<String> credReqs;
+	private Collection<String> idTypes;
 	private ComboBox actions;
 	private AbstractTextField condition;
 	private FormLayout paramsList;
@@ -61,12 +68,17 @@ public class RuleComponent extends VerticalLayout
 	private Image helpAction;
 
 	public RuleComponent(UnityMessageSource msg, TranslationActionsRegistry tc,
-			TranslationRule toEdit, Callback callback)
+			TranslationRule toEdit, Collection<AttributeType> attributeTypes, List<String> groups,
+			Collection<String> credReqs, Collection<String> idTypes, Callback callback)
 	{
 		this.callback = callback;
 		this.msg = msg;
 		this.tc = tc;
 		editMode = toEdit != null;
+		this.attributeTypes = attributeTypes;
+		this.groups = groups;
+		this.credReqs = credReqs;
+		this.idTypes = idTypes;
 		initUI(toEdit);
 	}
 
@@ -244,6 +256,7 @@ public class RuleComponent extends VerticalLayout
 			setParams(actions.getValue().toString(), toEdit.getAction().getParameters());
 		} else
 		{
+			condition.setValue("true");
 			actionParams.setVisible(false);
 			if (actions.size() > 0)
 			{
@@ -255,13 +268,11 @@ public class RuleComponent extends VerticalLayout
 
 	private void setParams(String action, String[] values)
 	{
-
 		paramsList.removeAllComponents();
 		if (action == null)
 		{
 			actionParams.setVisible(false);
-			helpAction.setDescription(msg
-					.getMessage("TranslationProfileEditor.helpEmptyAction"));
+			helpAction.setDescription(msg.getMessage("TranslationProfileEditor.helpEmptyAction"));
 			return;
 		}
 		
@@ -275,20 +286,36 @@ public class RuleComponent extends VerticalLayout
 		ActionParameterDesc[] params = factory.getParameters();	
 		for (int i = 0; i < params.length; i++)
 		{
-			AbstractTextField p = null;
-			p = new RequiredTextField(params[i].getName() + ":", msg);
+			ActionParameterComponent p = getParameterComponent(params[i]);
 			p.setValidationVisible(false);
-			p.setDescription(msg.getMessage(params[i].getDescriptionKey()));
 			if (values != null && values[i] != null)
 			{
-				p.setValue(values[i]);
+				p.setActionValue(values[i]);
 			}		
 			paramsList.addComponent(p);
-
 		}
 		actionParams.setVisible(paramsList.getComponentCount() != 0);
 	}
 
+	private ActionParameterComponent getParameterComponent(ActionParameterDesc param)
+	{
+		switch (param.getType())
+		{
+		case ENUM:
+			return new EnumActionParameterComponent(param, msg);
+		case UNITY_ATTRIBUTE:
+			return new AttributeActionParameterComponent(param, msg, attributeTypes);
+		case UNITY_GROUP:
+			return new BaseEnumActionParameterComponent(param, msg, groups);
+		case UNITY_CRED_REQ:
+			return new BaseEnumActionParameterComponent(param, msg, credReqs);
+		case UNITY_ID_TYPE:
+			return new BaseEnumActionParameterComponent(param, msg, idTypes);
+		default: 
+			return new DefaultActionParameterComponent(param, msg);
+		}
+	}
+	
 	public TranslationRule getRule()
 	{
 		String ac = (String) actions.getValue();
@@ -299,12 +326,9 @@ public class RuleComponent extends VerticalLayout
 		ArrayList<String> params = new ArrayList<String>();
 		for (int i = 0; i < paramsList.getComponentCount(); i++)
 		{
-			AbstractTextField tc = (AbstractTextField) paramsList.getComponent(i);
-			String val = tc.getValue();
-			if (tc.isRequired())
-			{
-				params.add(val);
-			}
+			ActionParameterComponent tc = (ActionParameterComponent) paramsList.getComponent(i);
+			String val = tc.getActionValue();
+			params.add(val);
 		}
 		String[] wrapper = new String[params.size()];
 		params.toArray(wrapper);
@@ -316,8 +340,7 @@ public class RuleComponent extends VerticalLayout
 		} catch (EngineException e)
 		{
 			ErrorPopup.showError(msg,
-					msg.getMessage("TranslationProfileEditor.errorGetAction"),
-					e);
+					msg.getMessage("TranslationProfileEditor.errorGetAction"), e);
 		}
 		TranslationCondition cnd = new TranslationCondition();
 		cnd.setCondition(condition.getValue());
@@ -374,7 +397,7 @@ public class RuleComponent extends VerticalLayout
 		int nval = 0;
 		for (int i = 0; i < paramsList.getComponentCount(); i++)
 		{
-			AbstractTextField tc = (AbstractTextField) paramsList.getComponent(i);
+			ActionParameterComponent tc = (ActionParameterComponent) paramsList.getComponent(i);
 			tc.setValidationVisible(true);
 			if (!tc.isValid())
 			{

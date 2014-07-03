@@ -12,6 +12,11 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
@@ -49,15 +54,23 @@ public class TranslationProfilesComponent extends VerticalLayout
 	private TranslationProfileViewer viewer;
 	private com.vaadin.ui.Component main;
 	private TranslationActionsRegistry tc;
+	private AttributesManagement attrsMan;
+	private IdentitiesManagement idMan;
+	private AuthenticationManagement authnMan;
+	private GroupsManagement groupsMan;
 	
 	@Autowired
-	public TranslationProfilesComponent(UnityMessageSource msg,
-			TranslationProfileManagement profileMan,
-			TranslationActionsRegistry tc)
+	public TranslationProfilesComponent(UnityMessageSource msg, TranslationProfileManagement profileMan,
+			TranslationActionsRegistry tc, AttributesManagement attrsMan, IdentitiesManagement idMan, 
+			AuthenticationManagement authnMan, GroupsManagement groupsMan)
 	{
 		this.msg = msg;
 		this.profileMan = profileMan;
 		this.tc = tc;
+		this.attrsMan = attrsMan;
+		this.idMan = idMan;
+		this.authnMan = authnMan;
+		this.groupsMan = groupsMan;
 		
 		HorizontalLayout hl = new HorizontalLayout();
 		setCaption(msg.getMessage("TranslationProfilesComponent.capion"));
@@ -202,10 +215,20 @@ public class TranslationProfilesComponent extends VerticalLayout
 		{
 			TranslationProfileEditor editor;
 			
-			editor = new TranslationProfileEditor(msg, tc, null);
+			try
+			{
+				editor = new TranslationProfileEditor(msg, tc, null, attrsMan, 
+						idMan, authnMan, groupsMan);
+			} catch (EngineException e)
+			{
+				ErrorPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorReadData"),
+						e);
+				return;
+			}
 			
 			TranslationProfileEditDialog dialog = new TranslationProfileEditDialog(msg, 
-					msg.getMessage("TranslationProfilesComponent.addAction"), new TranslationProfileEditDialog.Callback()
+					msg.getMessage("TranslationProfilesComponent.addAction"), 
+					new TranslationProfileEditDialog.Callback()
 					{
 						@Override
 						public boolean newProfile(TranslationProfile profile)
@@ -231,7 +254,16 @@ public class TranslationProfilesComponent extends VerticalLayout
 			GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>) target;
 			TranslationProfileEditor editor;
 			
-			editor = new TranslationProfileEditor(msg, tc, item.getElement());
+			try
+			{
+				editor = new TranslationProfileEditor(msg, tc, item.getElement(), attrsMan, 
+						idMan, authnMan, groupsMan);
+			} catch (EngineException e)
+			{
+				ErrorPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorReadData"),
+						e);
+				return;
+			}
 			
 			TranslationProfileEditDialog dialog = new TranslationProfileEditDialog(msg, 
 					msg.getMessage("TranslationProfilesComponent.editAction"), new TranslationProfileEditDialog.Callback()

@@ -6,16 +6,27 @@
 package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.TreeSet;
 
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationRule;
 import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile.ProfileMode;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webadmin.tprofile.RuleComponent.Callback;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -39,23 +50,49 @@ import com.vaadin.ui.themes.Reindeer;
 public class TranslationProfileEditor extends VerticalLayout
 {
 	private UnityMessageSource msg;
+	private Collection<AttributeType> atTypes;
+	private List<String> groups;
+	private Collection<String> credReqs;
+	private Collection<String> idTypes;
 	private TranslationActionsRegistry registry;
 	private boolean editMode;
 	private AbstractTextField name;
 	private DescriptionTextArea description;
 	private FormLayout rulesLayout;
 	private List<RuleComponent> rules;
+	
 	public TranslationProfileEditor(UnityMessageSource msg,
-			TranslationActionsRegistry registry, TranslationProfile toEdit)
+			TranslationActionsRegistry registry, TranslationProfile toEdit,
+			AttributesManagement attrsMan, IdentitiesManagement idMan, AuthenticationManagement authnMan,
+			GroupsManagement groupsMan) throws EngineException
 	{
 		super();
 		this.msg = msg;
 		this.registry = registry;
 		this.rules = new ArrayList<RuleComponent>();
 		editMode = toEdit != null;
+		initData(attrsMan, idMan, authnMan, groupsMan);
 		initUI(toEdit);
 	}
 
+	private void initData(AttributesManagement attrsMan, IdentitiesManagement idMan, 
+			AuthenticationManagement authnMan, GroupsManagement groupsMan) throws EngineException
+	{
+		this.atTypes = attrsMan.getAttributeTypes();
+		this.groups = new ArrayList<String>(); 
+		GroupComboBox.getGroups("/", true, groups, groupsMan);
+		groups.add("/");
+		Collection<CredentialRequirements> crs = authnMan.getCredentialRequirements();
+		credReqs = new TreeSet<String>();
+		for (CredentialRequirements cr: crs)
+			credReqs.add(cr.getName());
+		List<IdentityType> idTypesF = idMan.getIdentityTypes();
+		idTypes = new TreeSet<String>();
+		for (IdentityType it: idTypesF)
+			if (!it.getIdentityTypeProvider().isDynamic())
+				idTypes.add(it.getIdentityTypeProvider().getId());
+	}
+	
 	private void initUI(TranslationProfile toEdit)
 	{
 		rulesLayout = new FormLayout();
@@ -120,7 +157,8 @@ public class TranslationProfileEditor extends VerticalLayout
 
 	private void addRuleComponent(TranslationRule trule)
 	{
-		RuleComponent r = new RuleComponent(msg, registry, trule, new Callback()
+		RuleComponent r = new RuleComponent(msg, registry, trule, atTypes, groups, credReqs, idTypes, 
+				new Callback()
 		{
 
 			@Override

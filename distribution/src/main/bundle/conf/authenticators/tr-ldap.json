@@ -25,10 +25,10 @@
 			"action": {
 				"name": "mapGroup",
 				"parameters": [
-					"/A/B"
+					"'/A/B'"
 				]
 			}
-		},
+		},	
 
 		{
 			"condition": {
@@ -39,7 +39,7 @@
 				"parameters": [
 					"cn",
 					"/",
-					"cn",
+					"attr['cn']",
 					"full",
 					"CREATE_OR_UPDATE"
 				]

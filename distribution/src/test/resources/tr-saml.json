@@ -41,7 +41,7 @@
 			"action": {
 				"name": "mapGroup",
 				"parameters": [
-					"/A/B"
+					"'/A/B'"
 				]
 			}			
 		}

@@ -25,7 +25,7 @@
 			"action": {
 				"name": "mapGroup",
 				"parameters": [
-					"/A/B"
+					"'/A/B'"
 				]
 			}
 		},	
@@ -38,8 +38,8 @@
 				"name": "mapAttribute",
 				"parameters": [
 					"cn",
-					"/",
-					"cn",
+					"/A",
+					"attr['cn']",
 					"full",
 					"CREATE_OR_UPDATE"
 				]
