@@ -62,7 +62,6 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
@@ -834,7 +833,6 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	
 	private boolean checkAutoAcceptCondition(RegistrationRequest request) throws EngineException
 	{
-		Serializable compiled = null;
 		RegistrationForm form = null;
 
 		for (RegistrationForm f : getForms())
@@ -849,103 +847,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (form == null)
 			return false;
 		
-		compiled = MVEL.compileExpression(form.getAutoAcceptCondition());
-		if (compiled == null)
-			return false;
-		
-		Boolean result = (Boolean) MVEL.executeExpression(compiled, new MVELRequestCtx(request, form));
+		Boolean result = (Boolean) MVEL.eval(form.getAutoAcceptCondition(), request.createMvelContext(form));
 		return result.booleanValue();
 	}
-	
-	
-	public class MVELRequestCtx
-	{
-		private Map<String, IdentityParamValue> identities;
-		private Map<String, Attribute<?>> attributes;
-		private Map<String, String> credentials;
-		private Map<String, Group> groups;
-
-		public MVELRequestCtx(RegistrationRequest request, RegistrationForm form)
-		{
-			identities = new HashMap<String, IdentityParamValue>();
-			for (IdentityParamValue p : request.getIdentities())
-			{
-				identities.put(p.getValue(), p);
-			}
-			attributes = new HashMap<String, Attribute<?>>();
-			for (AttributeParamValue p : request.getAttributes())
-			{
-				attributes.put(p.getAttribute().getName(), p.getAttribute());
-			}
-
-			credentials = new HashMap<String, String>();
-			for (CredentialParamValue p : request.getCredentials())
-			{
-				credentials.put(p.getCredentialId(), p.getSecrets());
-			}
-			groups = new HashMap<String, Group>();
-			for (int i = 0; i < form.getGroupParams().size(); i++)
-			{
-				if (request.getGroupSelections().get(i).isSelected())
-				{
-
-					GroupRegistrationParam gr = form.getGroupParams().get(i);
-					groups.put(gr.getGroupPath(), new Group(gr.getGroupPath()));
-				}
-			}
-		}
-
-		public Map<String, IdentityParamValue> getIdentities()
-		{
-			return identities;
-		}
-
-		public void setIdentities(Map<String, IdentityParamValue> identities)
-		{
-			this.identities = identities;
-		}
-
-		public Map<String, Attribute<?>> getAttributes()
-		{
-			return attributes;
-		}
-
-		public void setAttributes(Map<String, Attribute<?>> attributes)
-		{
-			this.attributes = attributes;
-		}
-
-		public Map<String, String> getCredentials()
-		{
-			return credentials;
-		}
-
-		public void setCredentials(Map<String, String> credentials)
-		{
-			this.credentials = credentials;
-		}
-
-		public Map<String, Group> getGroups()
-		{
-			return groups;
-		}
-
-		public void setGroups(Map<String, Group> groups)
-		{
-			this.groups = groups;
-		}
-
-		public String getRegistrationCode()
-		{
-			return registrationCode;
-		}
-
-		public void setRegistrationCode(String registrationCode)
-		{
-			this.registrationCode = registrationCode;
-		}
-
-		private String registrationCode;
-
-	}	
 }
