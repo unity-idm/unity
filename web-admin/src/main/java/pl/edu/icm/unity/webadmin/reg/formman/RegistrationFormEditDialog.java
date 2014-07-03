@@ -51,6 +51,8 @@ public class RegistrationFormEditDialog extends AbstractDialog
 		try
 		{
 			RegistrationForm form = editor.getForm();
+			if (form == null)
+				return;	
 			if (callback.newForm(form, editor.isIgnoreRequests()))
 				close();
 		} catch (FormValidationException e) 

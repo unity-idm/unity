@@ -42,9 +42,18 @@ public class RegistrationForm extends DescribedObjectImpl
 	private List<String> groupAssignments;
 	private List<AttributeClassAssignment> attributeClassAssignments;
 	private EntityState initialEntityState;
-	
-	
-	
+	private String autoAcceptCondition;
+		
+	public String getAutoAcceptCondition()
+	{
+		return autoAcceptCondition;
+	}
+
+	public void setAutoAcceptCondition(String autoAcceptCondition)
+	{
+		this.autoAcceptCondition = autoAcceptCondition;
+	}
+
 	public RegistrationFormNotifications getNotificationsConfiguration()
 	{
 		return notificationsConfiguration;
@@ -235,6 +244,11 @@ public class RegistrationForm extends DescribedObjectImpl
 		result = prime * result + (publiclyAvailable ? 1231 : 1237);
 		result = prime * result
 				+ ((registrationCode == null) ? 0 : registrationCode.hashCode());
+		
+		result = prime * result
+				+ ((autoAcceptCondition == null) ? 0 : autoAcceptCondition
+						.hashCode());
+		
 		return result;
 	}
 
@@ -327,6 +341,14 @@ public class RegistrationForm extends DescribedObjectImpl
 				return false;
 		} else if (!registrationCode.equals(other.registrationCode))
 			return false;
+		
+		if (autoAcceptCondition == null)
+		{
+			if (other.autoAcceptCondition != null)
+				return false;
+		} else if (!autoAcceptCondition.equals(other.autoAcceptCondition))
+			return false;
+		
 		return true;
 	}
 }

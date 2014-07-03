@@ -133,7 +133,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		form.setIdentityParams(Collections.singletonList(idParam));
 		
 		RegistrationRequest request = getRequest();
-		registrationsMan.submitRegistrationRequest(request);
+		registrationsMan.submitRegistrationRequest(request, false);
 		assertEquals(1, registrationsMan.getRegistrationRequests().size());
 		
 		try
@@ -197,7 +197,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		initAndCreateForm(true);
 		RegistrationRequest request = getRequest();
 		request.setRegistrationCode(null);
-		registrationsMan.submitRegistrationRequest(request);
+		registrationsMan.submitRegistrationRequest(request, false);
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(request.getRegistrationCode(), fromDb.getRequest().getRegistrationCode());
 	}
@@ -207,7 +207,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 	{
 		initAndCreateForm(false);
 		RegistrationRequest request = getRequest();
-		String id1 = registrationsMan.submitRegistrationRequest(request);
+		String id1 = registrationsMan.submitRegistrationRequest(request, false);
 		
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(request, fromDb.getRequest());
@@ -239,7 +239,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		assertEquals(0, registrationsMan.getRegistrationRequests().size());
 		
 		request = getRequest();
-		String id2 = registrationsMan.submitRegistrationRequest(request);
+		String id2 = registrationsMan.submitRegistrationRequest(request, false);
 		registrationsMan.processRegistrationRequest(id2, null, 
 				RegistrationRequestAction.reject, "a2", "p2");
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
@@ -252,7 +252,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		assertNotNull(fromDb.getTimestamp());
 		
 		request = getRequest();
-		String id3 = registrationsMan.submitRegistrationRequest(request);
+		String id3 = registrationsMan.submitRegistrationRequest(request, false);
 		registrationsMan.processRegistrationRequest(id3, null, 
 				RegistrationRequestAction.accept, "a2", "p2");
 		fromDb = registrationsMan.getRegistrationRequests().get(1);
@@ -293,7 +293,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		request = getRequest();
 		IdentityParamValue ip = new IdentityParamValue(X500Identity.ID, "CN=registration test2");
 		request.setIdentities(Collections.singletonList(ip));		
-		String id4 = registrationsMan.submitRegistrationRequest(request);
+		String id4 = registrationsMan.submitRegistrationRequest(request, false);
 		
 		request = getRequest();
 		ip = new IdentityParamValue(X500Identity.ID, "CN=registration test updated");
