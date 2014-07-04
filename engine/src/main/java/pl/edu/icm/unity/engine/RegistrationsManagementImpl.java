@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.engine;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -62,6 +61,7 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
@@ -82,6 +82,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.types.registration.Selection;
 
 /**
  * Implementation of registrations subsystem.
@@ -847,7 +848,57 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (form == null)
 			return false;
 		
-		Boolean result = (Boolean) MVEL.eval(form.getAutoAcceptCondition(), request.createMvelContext(form));
+		Boolean result = (Boolean) MVEL.eval(form.getAutoAcceptCondition(), createMvelContext(request, form));
 		return result.booleanValue();
+	}
+	
+	private Map<String, Object> createMvelContext(RegistrationRequest request, RegistrationForm form)
+	{
+		HashMap<String, Object> ctx = new HashMap<String, Object>();
+
+		List<IdentityParamValue> identities = request.getIdentities();
+		if (!identities.isEmpty())
+		{
+			Map<String, IdentityParamValue> ids = new HashMap<String, IdentityParamValue>();
+			for (IdentityParamValue i : identities)
+			{
+				ids.put(i.getValue(), i);
+			}
+			ctx.put("ids", ids);
+		}
+		Map<String, Object> attr = new HashMap<String, Object>();
+		Map<String, List<?>> attrs = new HashMap<String, List<?>>();
+
+		List<AttributeParamValue> attributes = request.getAttributes();
+		for (AttributeParamValue ra : attributes)
+		{
+			Attribute<?> atr = ra.getAttribute();
+			Object v = atr.getValues().isEmpty() ? "" : atr.getValues().get(0);
+			attr.put(atr.getName(), v);
+			attrs.put(atr.getName(), atr.getValues());
+		}
+		ctx.put("attr", attr);
+		ctx.put("attrs", attrs);
+
+		List<Selection> groupSelections = request.getGroupSelections();
+		Map<String, Group> groups = new HashMap<String, Group>();
+		for (int i = 0; i < form.getGroupParams().size(); i++)
+		{
+			if (groupSelections.get(i).isSelected())
+			{
+				GroupRegistrationParam gr = form.getGroupParams().get(i);
+				groups.put(gr.getGroupPath(), new Group(gr.getGroupPath()));
+			}
+		}
+		ctx.put("groups", new ArrayList<String>(groups.keySet()));
+		
+		ArrayList<String> agr = new ArrayList<String>();
+		for (Selection a: request.getAgreements())
+		{
+			agr.add(Boolean.toString(a.isSelected()));
+		}
+		ctx.put("agrs", agr);
+		
+		return ctx;
 	}
 }

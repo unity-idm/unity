@@ -4,13 +4,7 @@
  */
 package pl.edu.icm.unity.types.registration;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.Group;
 
 /**
  * Registration request, tied to a registration form contains data collected
@@ -195,45 +189,5 @@ public class RegistrationRequest
 		} else if (!registrationCode.equals(other.registrationCode))
 			return false;
 		return true;
-	}
-
-	public Map<String, Object> createMvelContext(RegistrationForm form)
-	{
-		HashMap<String, Object> ctx = new HashMap<String, Object>();
-
-		if (!identities.isEmpty())
-		{
-			Map<String, IdentityParamValue> ids = new HashMap<String, IdentityParamValue>();
-			for (IdentityParamValue i : identities)
-			{
-				ids.put(i.getValue(), i);
-			}
-			ctx.put("ids", ids);
-		}
-		Map<String, Object> attr = new HashMap<String, Object>();
-		Map<String, List<?>> attrs = new HashMap<String, List<?>>();
-
-		for (AttributeParamValue ra : attributes)
-		{
-			Attribute<?> atr = ra.getAttribute();
-			Object v = atr.getValues().isEmpty() ? "" : atr.getValues().get(0);
-			attr.put(atr.getName(), v);
-			attrs.put(atr.getName(), atr.getValues());
-		}
-		ctx.put("attr", attr);
-		ctx.put("attrs", attrs);
-
-		Map<String, Group> groups = new HashMap<String, Group>();
-		for (int i = 0; i < form.getGroupParams().size(); i++)
-		{
-			if (groupSelections.get(i).isSelected())
-			{
-				GroupRegistrationParam gr = form.getGroupParams().get(i);
-				groups.put(gr.getGroupPath(), new Group(gr.getGroupPath()));
-			}
-		}
-		ctx.put("groups", new ArrayList<String>(groups.keySet()));
-
-		return ctx;
 	}
 }
