@@ -92,6 +92,7 @@ public class IdpSelectorComponent extends CustomComponent
 		setCompositionRoot(main);
 		
 		Component previous = initPrevousIdp();
+		boolean selected = false;
 		if (previous != null)
 		{
 			Panel previousIdpPanel = new Panel();
@@ -99,6 +100,7 @@ public class IdpSelectorComponent extends CustomComponent
 			previousIdpPanel.setContent(previous);
 			main.addComponent(previousIdpPanel);
 			main.addComponent(new Label(""));
+			selected = true;
 		}
 		
 		if (idps.getIdpKeys().size() > 9)
@@ -114,14 +116,14 @@ public class IdpSelectorComponent extends CustomComponent
 				@Override
 				public void textChange(TextChangeEvent event)
 				{
-					idpsPanel.setContent(initIdpsList(event.getText()));
+					idpsPanel.setContent(initIdpsList(false, event.getText()));
 				}
 			});
 		}
 		idpsPanel = new Panel();
 		idpsPanel.addStyleName(Styles.contentPadRight20.toString());
 		main.addComponents(idpsPanel);
-		idpsPanel.setContent(initIdpsList(null));
+		idpsPanel.setContent(initIdpsList(selected, null));
 	}
 	
 	private Component initPrevousIdp()
@@ -146,10 +148,11 @@ public class IdpSelectorComponent extends CustomComponent
 		Label info = new Label(msg.getMessage("IdpSelectorComponent.last"));
 		hl.addComponents(info, providerB);
 		hl.setComponentAlignment(info, Alignment.MIDDLE_RIGHT);
+		selectProvider(lastIdp, providerB);
 		return hl;
 	}
 	
-	private GridLayout initIdpsList(String filter)
+	private GridLayout initIdpsList(boolean selected, String filter)
 	{
 		if (filter != null && filter.trim().equals(""))
 			filter = null;
@@ -171,16 +174,19 @@ public class IdpSelectorComponent extends CustomComponent
 			providersChoice.addComponent(providerB);
 			providersChoice.setComponentAlignment(providerB, Alignment.MIDDLE_LEFT);
 
-			if (current == 0)
-			{
-				selectedProvider = idpKey;
-				selectedButton = providerB;
-				selectedButton.addStyleName(Styles.selectedButton.toString());
-			}
+			if (current == 0 && !selected)
+				selectProvider(idpKey, providerB);
 
 			current++;
 		}
 		return providersChoice;
+	}
+	
+	private void selectProvider(String idpKey, Button providerB)
+	{
+		selectedProvider = idpKey;
+		selectedButton = providerB;
+		selectedButton.addStyleName(Styles.selectedButton.toString());
 	}
 	
 	private Button createProviderButton(String idpKey, Locale locale)
