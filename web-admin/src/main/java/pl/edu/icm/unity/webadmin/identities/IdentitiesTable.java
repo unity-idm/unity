@@ -72,7 +72,7 @@ public class IdentitiesTable extends TreeTable
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesTable.class);
 	
-	enum BaseColumnId {entity, type, identity, status, local, credReq};
+	enum BaseColumnId {entity, type, identity, status, local, credReq, remoteIdP, profile};
 	public static final String ATTR_COL_PREFIX = "a::";
 	public static final String ATTR_ROOT_COL_PREFIX = ATTR_COL_PREFIX + "root::";
 	public static final String ATTR_CURRENT_COL_PREFIX = ATTR_COL_PREFIX + "current::";
@@ -122,12 +122,16 @@ public class IdentitiesTable extends TreeTable
 		addContainerProperty(BaseColumnId.status.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.local.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.credReq.toString(), String.class, "");
+		addContainerProperty(BaseColumnId.remoteIdP.toString(), String.class, "");
+		addContainerProperty(BaseColumnId.profile.toString(), String.class, "");
 		setColumnHeader(BaseColumnId.entity.toString(), msg.getMessage("Identities.entity"));
 		setColumnHeader(BaseColumnId.type.toString(), msg.getMessage("Identities.type"));
 		setColumnHeader(BaseColumnId.identity.toString(), msg.getMessage("Identities.identity"));
 		setColumnHeader(BaseColumnId.status.toString(), msg.getMessage("Identities.status"));
 		setColumnHeader(BaseColumnId.local.toString(), msg.getMessage("Identities.local"));
 		setColumnHeader(BaseColumnId.credReq.toString(), msg.getMessage("Identities.credReq"));
+		setColumnHeader(BaseColumnId.remoteIdP.toString(), msg.getMessage("Identities.remoteIdP"));
+		setColumnHeader(BaseColumnId.profile.toString(), msg.getMessage("Identities.profile"));
 		
 		setSelectable(true);
 		setMultiSelect(false);
@@ -136,12 +140,16 @@ public class IdentitiesTable extends TreeTable
 		setColumnCollapsible(BaseColumnId.entity.toString(), false);
 		setColumnCollapsed(BaseColumnId.local.toString(), true);
 		setColumnCollapsed(BaseColumnId.credReq.toString(), true);
+		setColumnCollapsed(BaseColumnId.remoteIdP.toString(), true);
+		setColumnCollapsed(BaseColumnId.profile.toString(), true);
 		
 		setColumnWidth(BaseColumnId.entity.toString(), 200);
 		setColumnWidth(BaseColumnId.type.toString(), 100);
 		setColumnWidth(BaseColumnId.status.toString(), 100);
 		setColumnWidth(BaseColumnId.local.toString(), 100);
 		setColumnWidth(BaseColumnId.credReq.toString(), 180);
+		setColumnWidth(BaseColumnId.remoteIdP.toString(), 200);
+		setColumnWidth(BaseColumnId.profile.toString(), 100);
 		
 		loadPreferences();
 		
@@ -502,19 +510,31 @@ public class IdentitiesTable extends TreeTable
 		Object itemId = id == null ? entWithLabel : new IdentityWithEntity(id, entWithLabel);
 		Item newItem = addItem(itemId);
 		
-		newItem.getItemProperty(BaseColumnId.entity.toString()).setValue(entWithLabel.toString());
-		newItem.getItemProperty(BaseColumnId.credReq.toString()).setValue(ent.getCredentialInfo().getCredentialRequirementId());
-		newItem.getItemProperty(BaseColumnId.status.toString()).setValue(msg.getMessage("EntityState."+ent.getState().name()));
+		newItem.getItemProperty(BaseColumnId.entity.toString()).setValue(
+				entWithLabel.toString());
+		newItem.getItemProperty(BaseColumnId.credReq.toString()).setValue(
+				ent.getCredentialInfo().getCredentialRequirementId());
+		newItem.getItemProperty(BaseColumnId.status.toString()).setValue(
+				msg.getMessage("EntityState."+ent.getState().name()));
 		if (id != null)
 		{
-			newItem.getItemProperty(BaseColumnId.type.toString()).setValue(id.getTypeId());
-			newItem.getItemProperty(BaseColumnId.identity.toString()).setValue(id.toPrettyStringNoPrefix());
-			newItem.getItemProperty(BaseColumnId.local.toString()).setValue(new Boolean(id.isLocal()).toString());
+			newItem.getItemProperty(BaseColumnId.type.toString()).setValue(
+					id.getTypeId());
+			newItem.getItemProperty(BaseColumnId.identity.toString()).setValue(
+					id.toPrettyStringNoPrefix());
+			newItem.getItemProperty(BaseColumnId.local.toString()).setValue(
+					new Boolean(id.isLocal()).toString());
+			String ridp = id.getRemoteIdp() == null ? "" : id.getRemoteIdp();
+			newItem.getItemProperty(BaseColumnId.remoteIdP.toString()).setValue(ridp);
+			String prof = id.getTranslationProfile() == null ? "" : id.getTranslationProfile();
+			newItem.getItemProperty(BaseColumnId.profile.toString()).setValue(prof);
 		} else
 		{
 			newItem.getItemProperty(BaseColumnId.type.toString()).setValue("");
 			newItem.getItemProperty(BaseColumnId.identity.toString()).setValue("");
 			newItem.getItemProperty(BaseColumnId.local.toString()).setValue("");
+			newItem.getItemProperty(BaseColumnId.remoteIdP.toString()).setValue("");
+			newItem.getItemProperty(BaseColumnId.profile.toString()).setValue("");
 		}
 		
 		Collection<?> propertyIds = newItem.getItemPropertyIds();
@@ -855,7 +875,7 @@ public class IdentitiesTable extends TreeTable
 
 	private void showEntityDetails(EntityWithLabel entity)
 	{
-		final EntityDetailsPanel identityDetailsPanel = new EntityDetailsPanel(msg);
+		final EntityDetailsPanel identityDetailsPanel = new EntityDetailsPanel(msg, true);
 		Collection<String> groups;
 		try
 		{

@@ -139,7 +139,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 			return;
 		}
 		String type = (String) identityType.getValue();
-		final IdentityParam toAdd = new IdentityParam(type, value, true);
+		final IdentityParam toAdd = new IdentityParam(type, value);
 		
 		Map<String, AttributesClass> allACs;
 		Set<String> required;

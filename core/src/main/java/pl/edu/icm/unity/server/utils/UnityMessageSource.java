@@ -45,6 +45,20 @@ public class UnityMessageSource extends ResourceBundleMessageSource
 		Locale loc = getLocale();
 		return super.getMessage(code, args, loc);
 	}
+
+	/**
+	 * If any of the arguments is null, then empty string is returned
+	 * @param code
+	 * @param args
+	 * @return
+	 */
+	public String getMessageNullArg(String code, Object... args)
+	{
+		for (Object a: args)
+			if (a == null)
+				return "";
+		return getMessage(code, args);
+	}
 	
 	public String getYesNo(boolean value)
 	{

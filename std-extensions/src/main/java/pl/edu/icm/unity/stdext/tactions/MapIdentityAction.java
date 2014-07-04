@@ -41,7 +41,8 @@ public class MapIdentityAction extends AbstractTranslationAction
 	}
 	
 	@Override
-	protected MappingResult invokeWrapped(RemotelyAuthenticatedInput input, Object mvelCtx) throws EngineException
+	protected MappingResult invokeWrapped(RemotelyAuthenticatedInput input, Object mvelCtx,
+			String currentProfile) throws EngineException
 	{
 		Object value = MVEL.executeExpression(expressionCompiled, mvelCtx);
 		List<?> iValues = value instanceof List ? (List<?>)value : Collections.singletonList(value.toString());
@@ -49,7 +50,8 @@ public class MapIdentityAction extends AbstractTranslationAction
 		MappingResult ret = new MappingResult();
 		for (Object i: iValues)
 		{
-			IdentityParam idParam = new IdentityParam(unityType, i.toString(), false);
+			IdentityParam idParam = new IdentityParam(unityType, i.toString(), input.getIdpName(),
+					currentProfile);
 			MappedIdentity mi = new MappedIdentity(mode, idParam, credentialRequirement);
 			log.debug("Mapped identity: " + idParam);
 			ret.addIdentity(mi);

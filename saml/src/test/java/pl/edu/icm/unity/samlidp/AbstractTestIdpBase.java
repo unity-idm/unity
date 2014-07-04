@@ -103,15 +103,15 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 	
 	protected void createUsers() throws Exception
 	{
-		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user1", true), 
+		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user1"), 
 				"cr-pass", EntityState.valid, false);
 		EntityParam e1 = new EntityParam(added1);
 		idsMan.setEntityCredential(e1, "credential1", new PasswordToken("mockPassword1").toJson());
 		
-		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user2", true), 
+		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user2"), 
 				"cr-certpass", EntityState.valid, false);
 		EntityParam e2 = new EntityParam(added2);
-		idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=Test UVOS,O=UNICORE,C=EU", true), 
+		idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=Test UVOS,O=UNICORE,C=EU"), 
 				e2, false);
 		idsMan.setEntityCredential(new EntityParam(added2), "credential1", new PasswordToken("mockPassword2").toJson());
 		

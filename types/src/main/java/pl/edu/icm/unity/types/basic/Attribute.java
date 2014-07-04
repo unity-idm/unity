@@ -23,6 +23,8 @@ public class Attribute<T> implements InitializationValidator
 	private String groupPath;
 	private AttributeVisibility visibility;
 	private List<T> values = Collections.emptyList();
+	private String translationProfile;
+	private String remoteIdp;
 	
 	public Attribute(String name, AttributeValueSyntax<T> attributeSyntax, String groupPath, AttributeVisibility visibility,
 			List<T> values)
@@ -32,6 +34,14 @@ public class Attribute<T> implements InitializationValidator
 		this.groupPath = groupPath;
 		this.visibility = visibility;
 		setValues(values);
+	}
+	
+	public Attribute(String name, AttributeValueSyntax<T> attributeSyntax, String groupPath, AttributeVisibility visibility,
+			List<T> values, String remoteIdp, String translationProfile)
+	{
+		this(name, attributeSyntax, groupPath, visibility, values);
+		this.remoteIdp = remoteIdp;
+		this.translationProfile = translationProfile;
 	}
 	
 	public Attribute()
@@ -81,6 +91,24 @@ public class Attribute<T> implements InitializationValidator
 		else
 			this.values = values;
 	}
+	public String getTranslationProfile()
+	{
+		return translationProfile;
+	}
+	public void setTranslationProfile(String translationProfile)
+	{
+		this.translationProfile = translationProfile;
+	}
+
+	public String getRemoteIdp()
+	{
+		return remoteIdp;
+	}
+
+	public void setRemoteIdp(String remoteIdp)
+	{
+		this.remoteIdp = remoteIdp;
+	}
 
 	@Override
 	public String toString()
@@ -98,6 +126,7 @@ public class Attribute<T> implements InitializationValidator
 		return sb.toString();
 	}
 	
+
 	@Override
 	public int hashCode()
 	{
@@ -107,6 +136,8 @@ public class Attribute<T> implements InitializationValidator
 				+ ((attributeSyntax == null) ? 0 : attributeSyntax.getValueSyntaxId().hashCode());
 		result = prime * result + ((groupPath == null) ? 0 : groupPath.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((translationProfile == null) ? 0 : translationProfile.hashCode());
+		result = prime * result + ((remoteIdp == null) ? 0 : remoteIdp.hashCode());
 		for (Object v: values)
 			result = prime * result + ((v == null) ? 0 : attributeSyntax.hashCode(v));
 		result = prime * result + ((visibility == null) ? 0 : visibility.hashCode());
@@ -143,7 +174,19 @@ public class Attribute<T> implements InitializationValidator
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
-
+		if (translationProfile == null)
+		{
+			if (other.translationProfile != null)
+				return false;
+		} else if (!translationProfile.equals(other.translationProfile))
+			return false;
+		if (remoteIdp == null)
+		{
+			if (other.remoteIdp != null)
+				return false;
+		} else if (!remoteIdp.equals(other.remoteIdp))
+			return false;
+	
 		if (values.size() != other.values.size())
 			return false;
 		for (int i=0; i<values.size(); i++)

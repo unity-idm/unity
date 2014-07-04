@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.types.basic;
 
+import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -20,6 +21,9 @@ public class Identity extends IdentityParam
 	private Long entityId;
 	@JsonIgnore
 	private IdentityType type;
+	
+	private Date creationTs;
+	private Date updateTs;
 
 	private String comparableValue;
 	private String prettyString;
@@ -30,10 +34,10 @@ public class Identity extends IdentityParam
 	{
 	}
 	
-	public Identity(IdentityType type, String value, Long entityId, boolean local, String realm, String target) 
-			throws IllegalIdentityValueException
+	public Identity(IdentityType type, String value, Long entityId, String realm, String target, String remoteIdp,
+			String translationProfile, Date creationTs, Date updateTs) throws IllegalIdentityValueException
 	{
-		super(type.getIdentityTypeProvider().getId(), value, local);
+		super(type.getIdentityTypeProvider().getId(), value);
 		this.entityId = entityId;
 		this.type = type;
 		this.type.getIdentityTypeProvider().validate(value);
@@ -41,8 +45,12 @@ public class Identity extends IdentityParam
 		this.realm = realm;
 		if (type.getIdentityTypeProvider().isTargeted() && (target == null || realm == null))
 			throw new IllegalIdentityValueException("The target and realm must be set for targeted identity");
+		setRemoteIdp(remoteIdp);
+		setTranslationProfile(translationProfile);
+		setCreationTs(creationTs);
+		setUpdateTs(updateTs);
 	}
-
+	
 	public Long getEntityId()
 	{
 		return entityId;
@@ -61,6 +69,26 @@ public class Identity extends IdentityParam
 	public void setType(IdentityType type)
 	{
 		this.type = type;
+	}
+
+	public Date getCreationTs()
+	{
+		return creationTs;
+	}
+
+	public void setCreationTs(Date creationTs)
+	{
+		this.creationTs = creationTs;
+	}
+
+	public Date getUpdateTs()
+	{
+		return updateTs;
+	}
+
+	public void setUpdateTs(Date updateTs)
+	{
+		this.updateTs = updateTs;
 	}
 
 	public List<Attribute<?>> extractAttributes()

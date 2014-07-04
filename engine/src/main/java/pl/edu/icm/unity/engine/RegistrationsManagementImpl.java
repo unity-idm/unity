@@ -70,7 +70,6 @@ import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.IdentityParamValue;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
@@ -389,7 +388,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			addAttr(a, rootAttributes, remainingAttributesByGroup);
 		}
 
-		List<IdentityParamValue> identities = req.getIdentities();
+		List<IdentityParam> identities = req.getIdentities();
 		
 		Identity initial = engineHelper.addEntity(identities.get(0), form.getCredentialRequirementAssignment(), 
 				form.getInitialEntityState(), false, rootAttributes, sql);
@@ -523,7 +522,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private void validateRequestIdentities(RegistrationForm form, RegistrationRequest request) 
 			throws WrongArgumentException, IllegalIdentityValueException, IllegalTypeException
 	{
-		List<IdentityParamValue> requestedIds = request.getIdentities();
+		List<IdentityParam> requestedIds = request.getIdentities();
 		validateParamsBase(form.getIdentityParams(), requestedIds, "identities");
 		for (int i=0; i<requestedIds.size(); i++)
 		{

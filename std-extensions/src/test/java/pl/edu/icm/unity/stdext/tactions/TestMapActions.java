@@ -47,7 +47,7 @@ public class TestMapActions
 		input.addAttribute(new RemoteAttribute("attribute", "a1"));
 		input.addAttribute(new RemoteAttribute("other", "a2"));
 		
-		MappingResult result = mapAction.invoke(input, TranslationProfile.createMvelContext(input));
+		MappingResult result = mapAction.invoke(input, TranslationProfile.createMvelContext(input), "testProf");
 		
 		Attribute<?> a = result.getAttributes().get(0).getAttribute();
 		assertEquals("stringA", a.getName());
@@ -62,7 +62,7 @@ public class TestMapActions
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		input.addAttribute(new RemoteAttribute("attribute", "a1"));
 		
-		MappingResult result = mapAction.invoke(input, TranslationProfile.createMvelContext(input));
+		MappingResult result = mapAction.invoke(input, TranslationProfile.createMvelContext(input), "testProf");
 		
 		assertTrue(result.getGroups().contains("/A/B/a1"));
 	}
@@ -79,7 +79,7 @@ public class TestMapActions
 		input.addAttribute(new RemoteAttribute("attribute:colon", "a1"));
 		input.addAttribute(new RemoteAttribute("other", "a2"));
 		
-		MappingResult result = mapAction.invoke(input, TranslationProfile.createMvelContext(input));
+		MappingResult result = mapAction.invoke(input, TranslationProfile.createMvelContext(input), "testProf");
 		
 		MappedIdentity mi = result.getIdentities().get(0);
 		assertEquals("CR", mi.getCredentialRequirement());

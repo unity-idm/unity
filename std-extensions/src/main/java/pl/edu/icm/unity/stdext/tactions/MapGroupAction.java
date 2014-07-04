@@ -34,7 +34,8 @@ public class MapGroupAction extends AbstractTranslationAction
 	}
 	
 	@Override
-	protected MappingResult invokeWrapped(RemotelyAuthenticatedInput input, Object mvelCtx) throws EngineException
+	protected MappingResult invokeWrapped(RemotelyAuthenticatedInput input, Object mvelCtx, String currentProfile) 
+			throws EngineException
 	{
 		MappingResult ret = new MappingResult();
 		Object result = MVEL.executeExpression(expressionCompiled, mvelCtx);

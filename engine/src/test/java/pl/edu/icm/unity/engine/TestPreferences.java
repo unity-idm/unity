@@ -20,7 +20,7 @@ public class TestPreferences extends DBIntegrationTestBase
 	public void testPreferences() throws Exception
 	{
 		setupMockAuthn();
-		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi", true), 
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi"), 
 				"crMock", EntityState.valid, false);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		assertNull(preferencesMan.getPreference(entity, "foo"));

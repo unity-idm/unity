@@ -7,10 +7,10 @@ package pl.edu.icm.unity.webadmin.reg.reqman;
 import java.util.ArrayList;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeParamValue;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.IdentityParamValue;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
@@ -158,7 +158,7 @@ public class RequestReviewPanel extends CustomComponent
 		code.setVisible(request.getRegistrationCode() != null);
 		
 		identities.clearContents();
-		for (IdentityParamValue idParam: request.getIdentities())
+		for (IdentityParam idParam: request.getIdentities())
 		{
 			if (idParam == null)
 				continue;

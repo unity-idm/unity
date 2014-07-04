@@ -31,7 +31,7 @@ public class TestSessions extends DBIntegrationTestBase
 	@Test
 	public void test() throws Exception
 	{
-		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1", true);
+		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				EntityState.valid, false);
 

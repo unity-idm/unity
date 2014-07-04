@@ -16,8 +16,8 @@ import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
  */
 public abstract class AbstractTranslationAction implements TranslationAction
 {
-	private TranslationActionDescription description;
-	private String[] params;
+	protected TranslationActionDescription description;
+	protected String[] params;
 	
 	public AbstractTranslationAction(TranslationActionDescription description, String[] params)
 	{
@@ -32,20 +32,21 @@ public abstract class AbstractTranslationAction implements TranslationAction
 	}
 	
 	@Override
-	public final MappingResult invoke(RemotelyAuthenticatedInput input, Object mvelCtx) throws EngineException
+	public final MappingResult invoke(RemotelyAuthenticatedInput input, Object mvelCtx, 
+			String currentProfile) throws EngineException
 	{
 		try
 		{
 			NDC.push("[" + input + "]");
-			return invokeWrapped(input, mvelCtx);
+			return invokeWrapped(input, mvelCtx, currentProfile);
 		} finally
 		{
 			NDC.pop();			
 		}
 	}
 	
-	protected abstract MappingResult invokeWrapped(RemotelyAuthenticatedInput input, Object mvelCtx) 
-			throws EngineException;
+	protected abstract MappingResult invokeWrapped(RemotelyAuthenticatedInput input, Object mvelCtx, 
+			String currentProfile) throws EngineException;
 	
 	@Override
 	public String[] getParameters()

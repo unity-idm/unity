@@ -40,6 +40,7 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -135,6 +136,14 @@ public abstract class SecuredDBIntegrationTestBase
 	{
 		for (IdentityType a: objs)
 			if (a.getIdentityTypeProvider().getId().equals(name))
+				return a;
+		return null;
+	}
+
+	protected Identity getIdentityByType(Identity[] objs, String type)
+	{
+		for (Identity a: objs)
+			if (a.getType().getIdentityTypeProvider().getId().equals(type))
 				return a;
 		return null;
 	}

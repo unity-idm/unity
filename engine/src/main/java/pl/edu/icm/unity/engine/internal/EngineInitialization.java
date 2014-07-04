@@ -407,7 +407,7 @@ public class EngineInitialization extends LifecycleBase
 			if (adminU == null)
 				return;
 			String adminP = config.getValue(UnityServerConfiguration.INITIAL_ADMIN_PASSWORD);
-			IdentityParam admin = new IdentityParam(UsernameIdentity.ID, adminU, true);
+			IdentityParam admin = new IdentityParam(UsernameIdentity.ID, adminU);
 			try
 			{
 				idManagement.getEntity(new EntityParam(admin));

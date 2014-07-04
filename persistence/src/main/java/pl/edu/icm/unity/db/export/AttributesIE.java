@@ -20,7 +20,7 @@ import pl.edu.icm.unity.db.resolvers.AttributesResolver;
 import pl.edu.icm.unity.db.resolvers.GroupResolver;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -99,7 +99,7 @@ public class AttributesIE extends AbstractIE
 			bean.setName(attributeName);
 			bean.setValues(values);
 			bean.setValueSyntaxId(valueSyntaxId);
-			Attribute<?> attr = attributesResolver.resolveAttributeBean(bean, path);
+			AttributeExt<?> attr = attributesResolver.resolveAttributeBean(bean, path);
 			dbAttributes.addAttribute(entityId, attr, false, sql);
 		}
 		JsonUtils.expect(input, JsonToken.END_ARRAY);

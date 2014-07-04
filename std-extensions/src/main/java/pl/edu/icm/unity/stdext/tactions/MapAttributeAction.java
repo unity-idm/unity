@@ -53,14 +53,15 @@ public class MapAttributeAction extends AbstractTranslationAction
 	}
 	
 	@Override
-	protected MappingResult invokeWrapped(RemotelyAuthenticatedInput input, Object mvelCtx) throws EngineException
+	protected MappingResult invokeWrapped(RemotelyAuthenticatedInput input, Object mvelCtx, 
+			String currentProfile) throws EngineException
 	{
 		Object value = MVEL.executeExpression(expressionCompiled, mvelCtx);
 		List<?> aValues = value instanceof List ? (List<?>)value : Collections.singletonList(value.toString());
 		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Attribute<?> attribute = new Attribute(unityAttribute, at.getValueType(), group, 
-				visibility, aValues);
+				visibility, aValues, input.getIdpName(), currentProfile);
 		MappedAttribute ma = new MappedAttribute(mode, attribute);
 		MappingResult ret = new MappingResult();
 		log.debug("Mapped attribute: " + attribute);

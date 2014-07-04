@@ -23,11 +23,13 @@ public interface TranslationAction
 	 * Performs the translation.
 	 * @param input
 	 * @param mvelCtx context which can be used in MVEL expression evaluation
+	 * @param currentProfile name of the current profile
 	 * @return result of the mapping
 	 * @throws EngineException when an error occurs. You can throw {@link ExecutionBreakException}
 	 * to gently stop the processing of further rules.
 	 */
-	public MappingResult invoke(RemotelyAuthenticatedInput input, Object mvelCtx) throws EngineException;
+	public MappingResult invoke(RemotelyAuthenticatedInput input, Object mvelCtx, 
+			String currentProfile) throws EngineException;
 	
 	/**
 	 * @return the list of parameters that were used to configure the action.

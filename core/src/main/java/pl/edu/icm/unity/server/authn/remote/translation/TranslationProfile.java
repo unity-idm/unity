@@ -99,7 +99,7 @@ public class TranslationProfile extends DescribedObjectImpl
 				NDC.push("[r: " + (i++) + "]");
 				try
 				{
-					rule.invoke(input, mvelCtx, translationState);
+					rule.invoke(input, mvelCtx, translationState, getName());
 				} catch (ExecutionBreakException e)
 				{
 					break;

@@ -37,13 +37,13 @@ import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.stdext.tactions.MapAttributeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.MapGroupActionFactory;
 import pl.edu.icm.unity.stdext.tactions.MapIdentityActionFactory;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
@@ -138,12 +138,21 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		assertEquals(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				entity.getCredentialInfo().getCredentialRequirementId());
 		assertEquals(2, entity.getIdentities().length);
+		Identity id = getIdentityByType(entity.getIdentities(), X500Identity.ID);
+		assertNotNull(id.getCreationTs());
+		assertNotNull(id.getUpdateTs());
+		assertEquals("test", id.getRemoteIdp());
+		assertEquals("p1", id.getTranslationProfile());
 		Collection<AttributeExt<?>> atrs = attrsMan.getAttributes(ep, "/A", "o");
 		assertEquals(1, atrs.size());
-		Attribute<?> at = atrs.iterator().next();
+		AttributeExt<?> at = atrs.iterator().next();
 		assertEquals(2, at.getValues().size());
 		assertEquals("mimuw", at.getValues().get(0));
 		assertEquals("icm", at.getValues().get(1));
+		assertNotNull(at.getCreationTs());
+		assertNotNull(at.getUpdateTs());
+		assertEquals("test", at.getRemoteIdp());
+		assertEquals("p1", at.getTranslationProfile());
 	}
 }
 

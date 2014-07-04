@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.db;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -174,12 +175,13 @@ public class DBIdentities
 		idB.setEntityId(entityId);
 		idB.setName(cmpVal);
 		idB.setTypeId(identityTypeB.getId());
-		idB.setContents(idSerializer.toJson(toAdd));
+		Date ts = new Date();
+		idB.setContents(idSerializer.toJson(toAdd, ts, ts));
 		mapper.insertIdentity(idB);
 		
 		IdentityType idType = idResolver.resolveIdentityType(identityTypeB);
-		return new Identity(idType, toAdd.getValue(), entityId, toAdd.isLocal(), 
-				toAdd.getRealm(), toAdd.getTarget());
+		return new Identity(idType, toAdd.getValue(), entityId, toAdd.getRealm(), toAdd.getTarget(),
+				toAdd.getRemoteIdp(), toAdd.getTranslationProfile(), ts, ts);
 	}
 
 	
