@@ -54,7 +54,7 @@ public class RemoteMetaManager
 
 	public void start()
 	{
-		long delay = configuration.getLongValue(SAMLSPProperties.IDPMETA_REFRESH);
+		long delay = getBaseConfiguration().getLongValue(SAMLSPProperties.IDPMETA_REFRESH);
 		executorsService.getService().scheduleWithFixedDelay(new Runnable()
 		{
 			public void run()
@@ -67,18 +67,17 @@ public class RemoteMetaManager
 					log.error("Problem loading metadata of external IdP(s)", e);
 				}
 			}
-		}, 0, delay, TimeUnit.SECONDS);
+		}, 5, delay, TimeUnit.SECONDS);
 	}
 	
 	public void reloadAll()
 	{
+		SAMLSPProperties configuration = getBaseConfiguration();
 		Set<String> keys = configuration.getStructuredListKeys(SAMLSPProperties.IDPMETA_PREFIX);
-		if (keys.isEmpty())
-			return;
 		Properties virtualConfigProps = configuration.getSourceProperties();
 		for (String key: keys)
 		{
-			reloadSingle(key, virtualConfigProps);
+			reloadSingle(key, virtualConfigProps, configuration);
 		}
 		setVirtualConfiguration(virtualConfigProps);
 	}
@@ -92,8 +91,19 @@ public class RemoteMetaManager
 	{
 		this.virtualConfiguration.setProperties(virtualConfigurationProperties);
 	}
+	
+	public synchronized void setBaseConfiguration(SAMLSPProperties configuration)
+	{
+		this.configuration = configuration;
+		reloadAll();
+	}
 
-	private void reloadSingle(String key, Properties virtualProps)
+	private synchronized SAMLSPProperties getBaseConfiguration()
+	{
+		return configuration;
+	}
+	
+	private void reloadSingle(String key, Properties virtualProps, SAMLSPProperties configuration)
 	{
 		String url = configuration.getValue(key + SAMLSPProperties.IDPMETA_URL);
 		int refreshInterval = configuration.getIntValue(key + SAMLSPProperties.IDPMETA_REFRESH);

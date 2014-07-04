@@ -37,6 +37,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
@@ -57,6 +58,7 @@ public class CredentialsPanel extends VerticalLayout
 	private boolean changed = false;
 	private Entity entity;
 	private final long entityId;
+	private final boolean simpleMode;
 	
 	private Map<String, CredentialDefinition> credentials;
 	
@@ -68,16 +70,30 @@ public class CredentialsPanel extends VerticalLayout
 	private Panel credentialStateInfo;
 	private Panel editor;
 	private Button update;
+	private Button clear;
+	private Button invalidate;
 	private CredentialEditor credEditor;
 	
+	/**
+	 * 
+	 * @param msg
+	 * @param entityId
+	 * @param authnMan
+	 * @param idsMan
+	 * @param credEditorReg
+	 * @param simpleMode if true then admin-only action buttons (credential reset/outdate) are not shown.
+	 * @throws Exception
+	 */
 	public CredentialsPanel(UnityMessageSource msg, long entityId, AuthenticationManagement authnMan, 
-			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg) throws Exception
+			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg, boolean simpleMode) 
+					throws Exception
 	{
 		this.msg = msg;
 		this.authnMan = authnMan;
 		this.idsMan = idsMan;
 		this.entityId = entityId;
 		this.credEditorReg = credEditorReg;
+		this.simpleMode = simpleMode;
 		init();
 	}
 
@@ -105,6 +121,31 @@ public class CredentialsPanel extends VerticalLayout
 		status = new TextField(msg.getMessage("CredentialChangeDialog.status"));
 		credentialStateInfo = new Panel(msg.getMessage("CredentialChangeDialog.credentialStateInfo"));
 		editor = new Panel(msg.getMessage("CredentialChangeDialog.value"));
+		
+		HorizontalLayout buttonsBar = new HorizontalLayout();
+		buttonsBar.setSpacing(true);
+		clear = new Button(msg.getMessage("CredentialChangeDialog.clear"));
+		clear.addClickListener(new ClickListener()
+		{
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				changeCredentialStatus(LocalCredentialState.notSet);
+			}
+		});
+		if (!simpleMode)
+			buttonsBar.addComponent(clear);
+		invalidate = new Button(msg.getMessage("CredentialChangeDialog.invalidate"));
+		invalidate.addClickListener(new ClickListener()
+		{
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				changeCredentialStatus(LocalCredentialState.outdated);
+			}
+		});
+		if (!simpleMode)
+			buttonsBar.addComponent(invalidate);
 		update = new Button(msg.getMessage("CredentialChangeDialog.update"));
 		update.addClickListener(new ClickListener()
 		{
@@ -114,7 +155,9 @@ public class CredentialsPanel extends VerticalLayout
 				updateCredential();
 			}
 		});
-		FormLayout fl = new FormLayout(type, description, status, credentialStateInfo, editor, update);
+		buttonsBar.addComponent(update);
+		
+		FormLayout fl = new FormLayout(type, description, status, credentialStateInfo, editor, buttonsBar);
 		fl.setMargin(true);
 		credentialPanel.setContent(fl);
 		
@@ -163,6 +206,19 @@ public class CredentialsPanel extends VerticalLayout
 			credentialStateInfo.setContent(viewer);
 			credentialStateInfo.setVisible(true);
 		}
+		if (credPublicInfo.getState() == LocalCredentialState.notSet)
+		{
+			clear.setEnabled(false);
+			invalidate.setEnabled(false);
+		} else if (credPublicInfo.getState() == LocalCredentialState.outdated)
+		{
+			clear.setEnabled(true);
+			invalidate.setEnabled(false);
+		} else
+		{
+			clear.setEnabled(true);
+			invalidate.setEnabled(true);
+		}
 	}
 	
 	private void updateCredential()
@@ -189,6 +245,24 @@ public class CredentialsPanel extends VerticalLayout
 		loadEntity(entityP);
 		updateStatus();
 	}
+
+	private void changeCredentialStatus(LocalCredentialState desiredState)
+	{
+		CredentialDefinition credDef = credential.getSelectedValue();
+		EntityParam entityP = new EntityParam(entity.getId());
+		try
+		{
+			idsMan.setEntityCredentialStatus(entityP, credDef.getName(), desiredState);
+		} catch (Exception e)
+		{
+			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
+			return;
+		}
+		changed = true;
+		loadEntity(entityP);
+		updateStatus();
+	}
+
 	
 	private void loadEntity(EntityParam entityP)
 	{

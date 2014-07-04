@@ -88,7 +88,7 @@ public class AuthenticationFilter implements Filter
 		{
 			LoginSession loginSession = (LoginSession) httpSession.getAttribute(
 					LoginToHttpSessionBinder.USER_SESSION_KEY);
-			if (loginSession != null)
+			if (loginSession != null && !loginSession.isUsedOutdatedCredential())
 			{
 				loginSessionId = loginSession.getId();
 				try
@@ -106,6 +106,10 @@ public class AuthenticationFilter implements Filter
 					log.debug("Can't update session activity ts for " + loginSessionId + 
 							" - expired(?), HTTP session " + httpSession.getId(), e);
 				}
+			} else 
+			{
+				forwardtoAuthn(httpRequest, httpResponse);
+				return;
 			}
 		}
 

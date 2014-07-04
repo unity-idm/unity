@@ -373,13 +373,15 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	public void testConflictResolution() throws Exception
 	{
 		setupStateForConditions();
+		Collection<AttributeExt<?>> aRet;
+
 		// overwrite direct (-> should skip)
 		AttributeStatement statement0 = new EverybodyStatement(
 				new StringAttribute("a1", "/A/B", AttributeVisibility.local, "updated"), 
 				ConflictResolution.overwrite);
 		groupAB.setAttributeStatements(new AttributeStatement[] {statement0});
 		groupsMan.updateGroup("/A/B", groupAB);
-		Collection<AttributeExt<?>> aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a1", false);
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a1", false);
 		assertEquals(1, aRet.size());
 		assertEquals(1, aRet.iterator().next().getValues().size());
 		assertEquals("va1", aRet.iterator().next().getValues().get(0));
@@ -433,7 +435,6 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		assertEquals(1, aRet.iterator().next().getValues().size());
 		assertEquals("base", aRet.iterator().next().getValues().get(0));
 
-
 		//add two rules to test merge working
 		AttributeStatement statement4 = new EverybodyStatement(
 				new StringAttribute("a2", "/A/B", AttributeVisibility.local, "merge1"), 
@@ -448,6 +449,14 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		assertEquals(1, aRet.size());
 		assertEquals(2, aRet.iterator().next().getValues().size());
 		assertEquals("merge1", aRet.iterator().next().getValues().get(0));
+		assertEquals("merge2", aRet.iterator().next().getValues().get(1));
+		
+		//additionally add a direct attribute
+		attrsMan.setAttribute(entity, new StringAttribute("a2", "/A/B", AttributeVisibility.local, "direct"), false);
+		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a2", false);
+		assertEquals(1, aRet.size());
+		assertEquals(aRet.iterator().next().getValues().toString(), 2, aRet.iterator().next().getValues().size());
+		assertEquals("direct", aRet.iterator().next().getValues().get(0));
 		assertEquals("merge2", aRet.iterator().next().getValues().get(1));
 	}
 	

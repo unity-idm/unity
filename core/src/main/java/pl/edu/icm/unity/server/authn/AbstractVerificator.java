@@ -13,6 +13,7 @@ import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 public abstract class AbstractVerificator implements CredentialVerificator
 {
 	private String name;
+	protected String instanceName;
 	private String description;
 	private String exchangeId;
 	protected IdentityResolver identityResolver;
@@ -46,5 +47,11 @@ public abstract class AbstractVerificator implements CredentialVerificator
 	public void setIdentityResolver(IdentityResolver identityResolver)
 	{
 		this.identityResolver = identityResolver;
+	}
+	
+	@Override
+	public void setInstanceName(String instanceName)
+	{
+		this.instanceName = instanceName;
 	}
 }
