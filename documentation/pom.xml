@@ -250,6 +250,5 @@
 				</reportSets>
 			</plugin>
 		</plugins>
-	</reporting>
-	
+	</reporting>	
 </project>
