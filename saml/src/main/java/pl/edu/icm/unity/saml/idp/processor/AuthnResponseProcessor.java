@@ -52,7 +52,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 	{
 		String samlFormat = getRequestedFormat();
 		Identity[] identities = authenticatedEntity.getIdentities();
-		String unityFormat = getUnityIdentityFormat(samlFormat);
+		String unityFormat = samlConfiguration.getIdTypeMapper().mapIdentity(samlFormat);
 		List<Identity> ret = new ArrayList<Identity>();
 		for (Identity identity: identities)
 		{

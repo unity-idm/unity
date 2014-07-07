@@ -20,7 +20,6 @@ import org.apache.xmlbeans.XmlObject;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.Assertion;
-import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.proto.AssertionResponse;
 import eu.unicore.security.dsig.DSigException;
@@ -37,11 +36,6 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
-import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
-import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
-import pl.edu.icm.unity.stdext.identity.TransientIdentity;
-import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -325,40 +319,6 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		if (log.isDebugEnabled())
 			log.debug("Processed attributes to be returned: " + all.values());
 		return all.values();
-	}
-	
-	/**
-	 * Converts SAML identity format to Unity identity format
-	 * @param samlIdFormat
-	 * @return
-	 * @throws SAMLRequesterException
-	 */
-	protected String getUnityIdentityFormat(String samlIdFormat) throws SAMLRequesterException
-	{
-		if (samlIdFormat.equals(SAMLConstants.NFORMAT_PERSISTENT) || 
-				samlIdFormat.equals(SAMLConstants.NFORMAT_UNSPEC))
-		{
-			return TargetedPersistentIdentity.ID;
-		} else if (samlIdFormat.equals(SAMLConstants.NFORMAT_DN))
-		{
-			return X500Identity.ID;
-		} else if (samlIdFormat.equals(SAMLConstants.NFORMAT_TRANSIENT))
-		{
-			return TransientIdentity.ID;
-		} else 
-//FIXME remove 			
-		if (samlIdFormat.equals("unity:persistent"))
-		{
-			return PersistentIdentity.ID;
-		} else if (samlIdFormat.equals("unity:identifier"))
-		{
-			return IdentifierIdentity.ID;
-		} else
-//FIXME remove end
-		{
-			throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_INVALID_NAMEID_POLICY,
-					samlIdFormat + " is not supported by this service.");
-		}
 	}
 	
 	public String getIdentityTarget()

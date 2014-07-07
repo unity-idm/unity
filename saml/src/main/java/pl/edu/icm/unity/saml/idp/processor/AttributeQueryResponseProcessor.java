@@ -53,7 +53,8 @@ public class AttributeQueryResponseProcessor extends BaseResponseProcessor<Attri
 		String target = getIdentityTarget();
 		String nFormat = subject.getFormat();
 		String nContents = subject.getStringValue();
-		return new IdentityTaV(getUnityIdentityFormat(nFormat), nContents, target, 
+		String unityFormat = samlConfiguration.getIdTypeMapper().mapIdentity(nFormat);
+		return new IdentityTaV(unityFormat, nContents, target, 
 				InvocationContext.safeGetRealm());
 	}
 	

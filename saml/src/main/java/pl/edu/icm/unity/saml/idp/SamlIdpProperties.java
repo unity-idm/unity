@@ -81,6 +81,10 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String GROUP = "mappingGroup";
 	public static final String DEFAULT_GROUP = "defaultGroup";
 	
+	public static final String IDENTITY_MAPPING_PFX = "identityMapping.";
+	public static final String IDENTITY_LOCAL = "localIdentity";
+	public static final String IDENTITY_SAML = "samlIdntity";
+	
 	public static final String GROUP_ATTRIBUTE = "groupAttribute";
 	public static final String GROUP_SELECTION = "groupSelection";
 	
@@ -105,6 +109,15 @@ public class SamlIdpProperties extends SamlProperties
 		defaults.put(DEFAULT_GROUP, new PropertyMD().setMandatory().setCategory(samlCat).
 				setDescription("Default group to be used for all requesers without an explicite mapping."));
 
+		defaults.put(IDENTITY_MAPPING_PFX, new PropertyMD().setStructuredList(false).setCategory(samlCat).
+				setDescription("Prefix used to store mappings of SAML identity types to Unity identity types. Those mappings can override and/or complement the default mapping."));
+		defaults.put(IDENTITY_LOCAL, new PropertyMD().setStructuredListEntry(IDENTITY_MAPPING_PFX).setMandatory().setCategory(samlCat).
+				setDescription("Unity identity to which the SAML identity is mapped. If it is set to an empty value, then the mapping is disabled, "
+						+ "what is useful for turning off the default mappings."));
+		defaults.put(IDENTITY_SAML, new PropertyMD().setStructuredListEntry(IDENTITY_MAPPING_PFX).setMandatory().setCategory(samlCat).
+				setDescription("SAML identity to be mapped"));
+		
+		
 		defaults.put(GROUP_ATTRIBUTE, new PropertyMD("memberOf").setCategory(samlCat).
 				setDescription("Name of the SAML attribute which is used to carry the Unity group membership information."));
 		defaults.put(GROUP_SELECTION, new PropertyMD(GroupsSelection.subgroups).setCategory(samlCat).
@@ -173,7 +186,7 @@ public class SamlIdpProperties extends SamlProperties
 	private AttributeFilters attributeFilter;
 	private SamlAttributeMapper attributesMapper;
 	private PKIManagement pkiManagement;
-	
+	private IdentityTypeMapper idTypeMapper;
 	
 	public SamlIdpProperties(Properties src, PKIManagement pkiManagement) throws ConfigurationException, IOException
 	{
@@ -280,6 +293,7 @@ public class SamlIdpProperties extends SamlProperties
 		requestValidity = getLongValue(SamlIdpProperties.SAML_REQUEST_VALIDITY)*1000;
 		
 		groupChooser = new GroupChooser(this);
+		idTypeMapper = new IdentityTypeMapper(this);
 		attributeFilter = new AttributeFilters(this);
 		attributesMapper = new DefaultSamlAttributesMapper();
 	}
@@ -406,6 +420,11 @@ public class SamlIdpProperties extends SamlProperties
 	public GroupChooser getGroupChooser()
 	{
 		return groupChooser;
+	}
+
+	public IdentityTypeMapper getIdTypeMapper()
+	{
+		return idTypeMapper;
 	}
 
 	public AttributeFilters getAttributeFilter()

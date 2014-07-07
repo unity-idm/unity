@@ -22,14 +22,19 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.saml.idp.AttributeFilters;
 import pl.edu.icm.unity.saml.idp.GroupChooser;
+import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
+import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 
 public class TestSamlConfiguration
@@ -54,6 +59,40 @@ public class TestSamlConfiguration
 		assertEquals("/def", chooser.chooseGroup("other"));
 	}
 	
+	@Test
+	public void testIdentityMapper() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(P+ISSUER_URI, "foo");
+		p.setProperty(P+CREDENTIAL, "MAIN");
+		p.setProperty(P+DEFAULT_GROUP, "/");
+		
+		p.setProperty(P+IDENTITY_MAPPING_PFX+"1."+IDENTITY_LOCAL, "qqq");
+		p.setProperty(P+IDENTITY_MAPPING_PFX+"1."+IDENTITY_SAML, "123");
+		p.setProperty(P+IDENTITY_MAPPING_PFX+"2."+IDENTITY_LOCAL, "aaa");
+		p.setProperty(P+IDENTITY_MAPPING_PFX+"2."+IDENTITY_SAML, SAMLConstants.NFORMAT_TRANSIENT);
+		p.setProperty(P+IDENTITY_MAPPING_PFX+"3."+IDENTITY_LOCAL, "");
+		p.setProperty(P+IDENTITY_MAPPING_PFX+"3."+IDENTITY_SAML, "unity:identifier");
+		SamlIdpProperties cfg = new SamlIdpProperties(p, getPKIManagement());
+
+		IdentityTypeMapper idMapper = cfg.getIdTypeMapper();
+		assertEquals("qqq", idMapper.mapIdentity("123"));
+		assertEquals("aaa", idMapper.mapIdentity(SAMLConstants.NFORMAT_TRANSIENT));
+		assertEquals(X500Identity.ID, idMapper.mapIdentity(SAMLConstants.NFORMAT_DN));
+		assertEquals(TargetedPersistentIdentity.ID, idMapper.mapIdentity(SAMLConstants.NFORMAT_UNSPEC));
+		
+		try
+		{
+			idMapper.mapIdentity("unity:identifier");
+			fail("Should get exception");
+		} catch (SAMLRequesterException e)
+		{
+			//OK
+		}
+		
+		assertEquals(idMapper.getSupportedIdentityTypes().toString(), 7, idMapper.getSupportedIdentityTypes().size());
+	}
+
 	@Test
 	public void testAttributeFilter() throws Exception
 	{
