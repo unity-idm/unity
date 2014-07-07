@@ -91,28 +91,34 @@ remote IdP. This latter option is possible only if a form is used for unknown re
 . Settings which are automatically assigned for each user whose registration request is accepted.
 For instance this feature may be used to add all users to a specified group.    
 
-Registration request can be automatically accepted after submit if meets the auto accept condition defined 
-in associated registration form. The auto accept condition is given as a MVEL expression, which must evaluate to 
-a boolean value (true or false).
-See <<mvel>> for details and examples.
-Condition can operate on a data structure filled during creating registration request which contain:
+Registration request can be automatically accepted after submission, if it meets the 'Auto accept' condition defined in the associated 
+registration form. The 'Auto accept' condition is given as an MVEL expression, which must evaluate to a boolean value (true or false).
+Condition operates on a data structure filled during registration request creation, which contains:
 
-. Identity (or identities) 
-. Attributes
-. Groups
-. Agreements
+. +attr+ Map indexed with attribute names. Value of each entry is a single value of the attribute. If the attribute
+is multi-valued then the first value is returned. If the attribute has no value then empty string is returned. 
+. +attrs+ Map indexed with attribute names. Value of each entry is a list of the attribute values.
+. +ids+ List of identities values.
+. +idsByType+ Map of identity values indexed by type.
+. +groups+ List of selected groups. 
+. +agrs+ List of agreements. Each agreement is boolean type.
+
+The full MVEL documentation can be found here 
+http://mvel.codehaus.org/Language+Guide+for+2.0 and the quick start is here
+http://mvel.codehaus.org/Getting+Started+for+2.0
+
 
 Example of auto accept conditions:
 
-Accept request with mail attribute.
+Accept request with +email+ attribute.
 ------
 attrs["email"][0] == "foo@a.b"
 ------
-Accept request with identity.
+Accept request if contain identity of x500Name type.
 ------
-ids["CN=registration test2"] != null
+idsByType["x500Name"] != null
 ------
-Accept request with selected first agreement.
+Accept a request only if the first agreement was accepted. 
 ------
 agrs[0] == true
 ------

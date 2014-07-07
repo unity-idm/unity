@@ -326,16 +326,14 @@ public class TestRegistrations extends DBIntegrationTestBase
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
 		clearDB();
+		idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test"));
 		
-		initAndCreateForm(false, "ids[\"CN=registration test2\"] != null");
-		request = getRequest();
-		request.getIdentities().get(0).setValue("CN=registration test2");
+		initAndCreateForm(false, "idsByType[\"" + X500Identity.ID +"\"] != null");
+		request = getRequest();	
 		registrationsMan.submitRegistrationRequest(request, true);
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
 		clearDB();
-		
-		idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test2"));
 		idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test"));
 		
 		initAndCreateForm(false, "attrs[\"email\"][0] == \"foo@a.b\"");
