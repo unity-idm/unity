@@ -84,12 +84,38 @@ added to the local database.
 
 The first step is to define a registration form. The form definition consists of three parts:
 
-. General settings as name, notifications configuration and decision whether the form is publicly available.
+. General settings as name, notifications configuration, auto accept condition and decision whether the form is publicly available.
 . Collected information settings, which define what needs to be provided to the form. This information
 is usually collected interactively by filling a web form, but some data can be also collected from a
 remote IdP. This latter option is possible only if a form is used for unknown remote users.
 . Settings which are automatically assigned for each user whose registration request is accepted.
 For instance this feature may be used to add all users to a specified group.    
+
+Registration request can be automatically accepted after submit if meets the auto accept condition defined 
+in associated registration form. The auto accept condition is given as a MVEL expression, which must evaluate to 
+a boolean value (true or false).
+See <<mvel>> for details and examples.
+Condition can operate on a data structure filled during creating registration request which contain:
+
+. Identity (or identities) 
+. Attributes
+. Groups
+. Agreements
+
+Example of auto accept conditions:
+
+Accept request with mail attribute.
+------
+attrs["email"][0] == "foo@a.b"
+------
+Accept request with identity.
+------
+ids["CN=registration test2"] != null
+------
+Accept request with selected first agreement.
+------
+agrs[0] == true
+------
 
 After creation a registration form can be tested and also filled (use case no 2 above) directly from 
 the Admin Web UI. If the form is public it can be associated with any endpoint with the Web (Vaadin) binding.

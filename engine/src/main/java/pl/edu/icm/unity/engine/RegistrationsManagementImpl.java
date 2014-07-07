@@ -857,15 +857,13 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		HashMap<String, Object> ctx = new HashMap<String, Object>();
 
 		List<IdentityParamValue> identities = request.getIdentities();
-		if (!identities.isEmpty())
+		Map<String, IdentityParamValue> ids = new HashMap<String, IdentityParamValue>();
+		for (IdentityParamValue i : identities)
 		{
-			Map<String, IdentityParamValue> ids = new HashMap<String, IdentityParamValue>();
-			for (IdentityParamValue i : identities)
-			{
-				ids.put(i.getValue(), i);
-			}
-			ctx.put("ids", ids);
+			ids.put(i.getValue(), i);
 		}
+		ctx.put("ids", ids);
+		
 		Map<String, Object> attr = new HashMap<String, Object>();
 		Map<String, List<?>> attrs = new HashMap<String, List<?>>();
 
