@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.credentials;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -240,16 +239,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			GenericItem<CredentialDefinition> item;
-			if (target instanceof Collection<?>)
-			{
-				@SuppressWarnings("unchecked")
-				Collection<GenericItem<CredentialDefinition>> items = (Collection<GenericItem<CredentialDefinition>>)target;
-				item = items.iterator().next();
-			} else
-			{
-				item = (GenericItem<CredentialDefinition>) target;
-			}
+			GenericItem<CredentialDefinition> item = (GenericItem<CredentialDefinition>) target;
 			CredentialDefinition cr = item.getElement();
 			CredentialDefinition crClone = new CredentialDefinition();
 			crClone.setDescription(cr.getDescription());
@@ -286,15 +276,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final Collection<GenericItem<CredentialDefinition>> items;
-			if (target instanceof Collection<?>)
-			{
-				items = (Collection<GenericItem<CredentialDefinition>>) target;
-			} else
-			{
-				items = new ArrayList<GenericItem<CredentialDefinition>>();
-				items.add((GenericItem<CredentialDefinition>) target);
-			}
+			final Collection<GenericItem<CredentialDefinition>> items = (Collection<GenericItem<CredentialDefinition>>) target;
 			String confirmText = "";
 			for (GenericItem<CredentialDefinition> item : items)
 			{

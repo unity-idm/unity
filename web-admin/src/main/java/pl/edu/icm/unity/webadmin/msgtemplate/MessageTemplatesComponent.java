@@ -5,7 +5,6 @@
 
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -233,16 +232,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			GenericItem<MessageTemplate> item;
-			if (target instanceof Collection<?>)
-			{
-				@SuppressWarnings("unchecked")
-				Collection<GenericItem<MessageTemplate>> items = (Collection<GenericItem<MessageTemplate>>) target;
-				item = items.iterator().next();
-			} else
-			{
-				item = (GenericItem<MessageTemplate>) target;
-			}
+			GenericItem<MessageTemplate> item = (GenericItem<MessageTemplate>) target;		
 			MessageTemplateEditor editor;
 			
 			editor = new MessageTemplateEditor(msg, consumersRegistry, item.getElement());
@@ -272,15 +262,8 @@ public class MessageTemplatesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final Collection<GenericItem<MessageTemplate>> items;
-			if (target instanceof Collection<?>)
-			{	
-				items = (Collection<GenericItem<MessageTemplate>>) target;
-			} else
-			{
-				items = new ArrayList<GenericItem<MessageTemplate>>();
-				items.add((GenericItem<MessageTemplate>) target);
-			}	
+			final Collection<GenericItem<MessageTemplate>> items = (Collection<GenericItem<MessageTemplate>>) target;
+			
 			String confirmText = "";
 			for (GenericItem<MessageTemplate> item : items)
 			{

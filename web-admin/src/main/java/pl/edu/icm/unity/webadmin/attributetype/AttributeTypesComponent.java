@@ -4,9 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.attributetype;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -283,16 +281,8 @@ public class AttributeTypesComponent extends VerticalLayout
 
 		@Override
 		public void handleAction(Object sender, final Object target)
-		{	AttributeType at;
-			if (target instanceof Collection<?>)
-			{
-				@SuppressWarnings("unchecked")
-				Collection<GenericItem<AttributeType>> items = (Collection<GenericItem<AttributeType>>) target;
-				at = items.iterator().next().getElement();
-			} else
-			{
-				at = (AttributeType) target;
-			}
+		{
+			AttributeType at = ((GenericItem<AttributeType>) target).getElement();
 			AttributeTypeEditor editor = new AttributeTypeEditor(msg, attrHandlerRegistry, at,
 					attrMetaHandlerRegistry);
 			AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
@@ -320,14 +310,7 @@ public class AttributeTypesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final List<GenericItem<AttributeType>> items = new ArrayList<GenericItem<AttributeType>>();
-			if (target instanceof Collection<?>)
-			{
-				items.addAll((Collection<GenericItem<AttributeType>>) target);
-			} else 
-			{
-				items.add((GenericItem<AttributeType>) target);	
-			}			
+			final Collection<GenericItem<AttributeType>> items = (Collection<GenericItem<AttributeType>>) target;				
 			String confirmText = "";
 			for (GenericItem<AttributeType> item : items)
 			{

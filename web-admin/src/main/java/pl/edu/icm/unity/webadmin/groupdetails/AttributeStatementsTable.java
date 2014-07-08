@@ -251,15 +251,7 @@ public class AttributeStatementsTable extends Table
 		public void handleAction(Object sender, final Object target)
 		{
 			
-			final Collection<AttributeStatement> items;
-			if (target instanceof Collection<?>)
-			{
-				items = (Collection<AttributeStatement>) target;
-			} else 
-			{
-				items =  new ArrayList<AttributeStatement>();
-				items.add((AttributeStatement) target);	
-			}		
+			final Collection<AttributeStatement> items = (Collection<AttributeStatement>) target;	
 			new ConfirmDialog(msg, msg.getMessage("AttributeStatements.confirmDelete"),
 					new ConfirmDialog.Callback()
 			{
@@ -310,15 +302,7 @@ public class AttributeStatementsTable extends Table
 		public void handleAction(Object sender, final Object target)
 		{
 			
-			AttributeStatement st;
-			if (target instanceof Collection<?>)
-			{
-				Collection<AttributeStatement> items = (Collection<AttributeStatement>) target;
-				st = items.iterator().next();
-			} else
-			{
-				st = (AttributeStatement) target;
-			}
+			AttributeStatement st = (AttributeStatement) target;
 			new AttributeStatementEditDialog(msg, st, 
 					attrsMan, statementHandlersReg, group.toString(), new Callback()
 					{

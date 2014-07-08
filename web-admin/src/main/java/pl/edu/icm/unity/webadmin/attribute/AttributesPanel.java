@@ -439,14 +439,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			final List<AttributeItem> items = new ArrayList<AttributeItem>();
-			if (target instanceof Collection<?>)
-			{
-				items.addAll((Collection<AttributeItem>) target);
-			} else 
-			{
-				items.add((AttributeItem) target);		
-			}		
+			final Collection<AttributeItem> items = (Collection<AttributeItem>) target;	
 			String confirmText = "";
 			for (AttributeItem item : items)
 			{
@@ -536,15 +529,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			Attribute<?> attribute;
-			if (target instanceof Collection<?>)
-			{
-				Collection<AttributeItem> items = (Collection<AttributeItem>) target;
-				attribute = items.iterator().next().getAttribute();
-			} else
-			{
-				attribute = ((AttributeItem) target).getAttribute();
-			}
+			Attribute<?> attribute = ((AttributeItem) target).getAttribute();;
 			AttributeType attributeType = attributeTypes.get(attribute.getName());
 			AttributeEditor attributeEditor = new AttributeEditor(msg, attributeType, attribute, 
 					registry);

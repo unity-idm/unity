@@ -714,14 +714,7 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{			
-			List<Object> nodes = new ArrayList<Object>();
-			if (target instanceof Collection<?>)
-			{
-				nodes.addAll((Collection<?>) target);
-			} else 
-			{
-				nodes.add(target);	
-			}		
+			Collection<?> nodes = (Collection<?>) target;	
 			final HashMap<Long, EntityWithLabel> toRemove = new HashMap<Long, EntityWithLabel>();
 			for (Object node : nodes)
 			{
@@ -778,20 +771,9 @@ public class IdentitiesTable extends TreeTable
 	}
 
 	private EntityWithLabel getSingleSelect(Object target)
-	{
-		EntityWithLabel entity;
-		if (target instanceof Collection<?>)
-		{
-			Collection<?> nodes = (Collection<?>) target;
-			Object node = nodes.iterator().next();
-			entity = node instanceof IdentityWithEntity ? ((IdentityWithEntity) node)
-					.getEntityWithLabel() : ((EntityWithLabel) node);
-
-		}else
-		{
-			entity = target instanceof IdentityWithEntity ? ((IdentityWithEntity) target)
-					.getEntityWithLabel() : ((EntityWithLabel) target);
-		}
+	{	
+		EntityWithLabel entity = target instanceof IdentityWithEntity ? ((IdentityWithEntity) target)
+				.getEntityWithLabel() : ((EntityWithLabel) target);
 		return entity;
 	}
 
@@ -831,14 +813,7 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{       
-			List<Object> nodes = new ArrayList<Object>();
-			if (target instanceof Collection<?>)
-			{
-				nodes.addAll((Collection<?>) target);
-			} else 
-			{
-				nodes.add(target);	
-			}
+			Collection<?> nodes = (Collection<?>) target;
 			final HashMap<Long, EntityWithLabel> toRemove = new HashMap<Long, EntityWithLabel>();
 			for (Object node : nodes)
 			{
@@ -902,15 +877,8 @@ public class IdentitiesTable extends TreeTable
 
 		@Override
 		public void handleAction(Object sender, Object target)
-		{
-			final List<IdentityWithEntity> nodes = new ArrayList<IdentityWithEntity>();
-			if (target instanceof Collection<?>)
-			{
-				nodes.addAll((Collection<IdentityWithEntity>) target);
-			} else 
-			{
-				nodes.add((IdentityWithEntity) target);	
-			}	
+		{	
+			final Collection<IdentityWithEntity> nodes = (Collection<IdentityWithEntity>) target;
 			String confirmText = "";
 			for (IdentityWithEntity node : nodes)
 			{

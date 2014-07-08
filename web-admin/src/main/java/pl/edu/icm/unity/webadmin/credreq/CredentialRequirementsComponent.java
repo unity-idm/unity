@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.credreq;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -12,13 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -31,10 +23,17 @@ import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
+import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Toolbar;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
+
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Provides {@link CredentialRequirements} management UI
@@ -263,16 +262,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			Collection<CredentialDefinition> allCredentials = getCredentials();	
 			if (allCredentials == null)
 				return;
-			GenericItem<CredentialRequirements> item;
-			if (target instanceof Collection<?>)
-			{
-				@SuppressWarnings("unchecked")
-				Collection<GenericItem<CredentialRequirements>> items = (Collection<GenericItem<CredentialRequirements>>)target;
-				item = items.iterator().next();
-			} else
-			{
-				item = (GenericItem<CredentialRequirements>) target;
-			}		
+			GenericItem<CredentialRequirements> item = (GenericItem<CredentialRequirements>) target;	
 			CredentialRequirements cr = item.getElement();
 			CredentialRequirements crClone = new CredentialRequirements();
 			crClone.setDescription(cr.getDescription());
@@ -305,15 +295,8 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final Collection<GenericItem<CredentialRequirements>> items;
-			if (target instanceof Collection<?>)
-			{
-				items = (Collection<GenericItem<CredentialRequirements>>) target;
-			} else
-			{
-				items = new ArrayList<GenericItem<CredentialRequirements>>();
-				items.add((GenericItem<CredentialRequirements>) target);
-			}
+			final Collection<GenericItem<CredentialRequirements>> items = (Collection<GenericItem<CredentialRequirements>>) target;
+
 			HashSet<String> removed = new HashSet<String>();
 			for (GenericItem<CredentialRequirements> item : items)
 			{

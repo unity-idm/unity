@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.attributeclass;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -221,15 +220,7 @@ public class AttributesClassesComponent  extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final Collection<GenericItem<String>> items;
-			if (target instanceof Collection<?>)
-			{
-				items = (Collection<GenericItem<String>>) target;
-			} else
-			{
-				items = new ArrayList<GenericItem<String>>();
-				items.add((GenericItem<String>) target);
-			}
+			final Collection<GenericItem<String>> items = (Collection<GenericItem<String>>) target;
 			String confirmText = "";
 			for (GenericItem<String> item : items)
 			{

@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -271,16 +270,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			GenericItem<RegistrationForm> item;
-			if (target instanceof Collection<?>)
-			{
-				@SuppressWarnings("unchecked")
-				Collection<GenericItem<RegistrationForm>> items = (Collection<GenericItem<RegistrationForm>>)target;
-				item = items.iterator().next();
-			} else
-			{
-				item = (GenericItem<RegistrationForm>) target;
-			}
+			GenericItem<RegistrationForm> item = (GenericItem<RegistrationForm>) target;
 			RegistrationFormEditor editor;
 			try
 			{
@@ -317,16 +307,8 @@ public class RegistrationFormsComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final Collection<GenericItem<RegistrationForm>> items;
-			if (target instanceof Collection<?>)
-			{
-
-				items = (Collection<GenericItem<RegistrationForm>>) target;
-			} else
-			{
-				items = new ArrayList<GenericItem<RegistrationForm>>();
-				items.add((GenericItem<RegistrationForm>) target);
-			}
+			final Collection<GenericItem<RegistrationForm>> items = (Collection<GenericItem<RegistrationForm>>) target;
+	
 			String confirmText = "";
 			for (GenericItem<RegistrationForm> item : items)
 			{

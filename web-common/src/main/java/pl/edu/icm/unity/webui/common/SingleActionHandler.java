@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import com.vaadin.event.Action;
@@ -66,22 +67,38 @@ public abstract class SingleActionHandler implements Handler
 
 		} else
 		{
-			if (target instanceof Collection<?> && needsTarget)
+			if (target instanceof Collection<?>)
 			{
-				Collection<?> t = (Collection<?>) target;
-				if (t.isEmpty() || (t.size() > 1 && !multiTarget))
-					return EMPTY;		
-			}
+			    Collection<?> t = (Collection<?>) target;
+			    if (t.size() > 1 && !multiTarget && needsTarget)
+			        return EMPTY;
+			    if (t.isEmpty() && needsTarget)
+			        return EMPTY;       
+			} 
 		}	
 		return action;
 	}
-
+	
 	@Override
 	public void handleAction(Action action, Object sender, Object target)
 	{
 		if (action != this.action[0])
 			return;
-		handleAction(sender, target);
+		
+		Object wrTarget = target;
+		if (multiTarget && !(target instanceof Collection<?>))
+		{
+			ArrayList<Object> ntarget = new ArrayList<Object>();
+			ntarget.add(target);
+			wrTarget = ntarget;
+		}
+		if (!multiTarget && (target instanceof Collection<?>))
+		{
+			Collection<Object> ntarget = (Collection<Object>)target;
+			wrTarget = ntarget.iterator().next();
+		}
+			
+		handleAction(sender, wrTarget);
 	}
 	
 	protected abstract void handleAction(Object sender, Object target);

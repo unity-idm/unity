@@ -5,7 +5,6 @@
 
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -234,15 +233,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		public void handleAction(Object sender, final Object target)
 		{
 			GenericItem<TranslationProfile> item;
-			if (target instanceof Collection<?>)
-			{
-				@SuppressWarnings("unchecked")
-				Collection<GenericItem<TranslationProfile>> items = (Collection<GenericItem<TranslationProfile>>)target;
-				item = items.iterator().next();
-			} else
-			{
-				item = (GenericItem<TranslationProfile>) target;
-			}
+			item = (GenericItem<TranslationProfile>) target;	
 			TranslationProfileEditor editor;
 			editor = new TranslationProfileEditor(msg, tc, item.getElement());	
 			TranslationProfileEditDialog dialog = new TranslationProfileEditDialog(msg, 
@@ -270,15 +261,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final Collection<GenericItem<TranslationProfile>> items;
-			if (target instanceof Collection<?>)
-			{	
-				items = (Collection<GenericItem<TranslationProfile>>) target;
-			} else
-			{
-				items = new ArrayList<GenericItem<TranslationProfile>>();
-				items.add((GenericItem<TranslationProfile>) target);
-			}
+			final Collection<GenericItem<TranslationProfile>> items = (Collection<GenericItem<TranslationProfile>>) target;
 			String confirmText = "";
 			for (GenericItem<TranslationProfile> item : items)
 			{
