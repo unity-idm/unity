@@ -16,6 +16,8 @@ import java.util.TreeSet;
 import java.util.UUID;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.log4j.Logger;
+import org.mvel2.MVEL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -56,10 +58,12 @@ import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
@@ -80,6 +84,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.types.registration.Selection;
 
 /**
  * Implementation of registrations subsystem.
@@ -89,6 +94,8 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 @Component
 public class RegistrationsManagementImpl implements RegistrationsManagement
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, RegistrationsManagementImpl.class);
+	private final String autoAcceptComment = "System";
 	private DBSessionManager db;
 	private RegistrationFormDB formsDB;
 	private RegistrationRequestDB requestDB;
@@ -225,21 +232,21 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	}
 
 	@Override
-	public String submitRegistrationRequest(RegistrationRequest request) throws EngineException
+	public String submitRegistrationRequest(RegistrationRequest request, boolean tryAutoAccept) throws EngineException
 	{
+		RegistrationRequestState requestFull = null;
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
 			RegistrationForm form = formsDB.get(request.getFormId(), sql);
 			validateRequestContents(form, request, true, sql);
-			RegistrationRequestState requestFull = new RegistrationRequestState();
+			requestFull = new RegistrationRequestState();
 			requestFull.setStatus(RegistrationRequestStatus.pending);
 			requestFull.setRequest(request);
 			requestFull.setRequestId(UUID.randomUUID().toString());
 			requestFull.setTimestamp(new Date());
 			requestDB.insert(requestFull.getRequestId(), requestFull, sql);
 			sql.commit();
-			
 			RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 			if (notificationsCfg.getChannel() != null && notificationsCfg.getSubmittedTemplate() != null
 					&& notificationsCfg.getAdminsNotificationGroup() != null)
@@ -249,11 +256,21 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 					notificationsCfg.getSubmittedTemplate(),
 					getBaseNotificationParams(form.getName(), requestFull.getRequestId()));
 			}
-			return requestFull.getRequestId();
+			
 		} finally
 		{
 			db.releaseSqlSession(sql);
 		}
+		
+		
+		if (tryAutoAccept && checkAutoAcceptCondition(requestFull.getRequest()))
+		{
+			processRegistrationRequest(requestFull.getRequestId(),
+					requestFull.getRequest(), RegistrationRequestAction.accept,
+					null, autoAcceptComment);
+		}
+			
+		return requestFull.getRequestId();
 	}
 
 	@Override
@@ -290,6 +307,13 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			}
 			InvocationContext authnCtx = InvocationContext.getCurrent();
 			LoginSession client = authnCtx.getLoginSession();
+		
+			if (client == null)
+			{
+				client = new LoginSession();
+				client.setEntityId(0);
+			}
+			
 			AdminComment publicComment = null;
 			AdminComment internalComment = null;
 			if (publicCommentStr != null)
@@ -811,5 +835,90 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			}
 		}
 		return requesterAddress;
+	}
+	
+	private boolean checkAutoAcceptCondition(RegistrationRequest request) throws EngineException
+	{
+		RegistrationForm form = null;
+
+		for (RegistrationForm f : getForms())
+		{
+			if (f.getName().equals(request.getFormId()))
+			{
+				form = f;
+				break;
+			}
+		}
+		
+		if (form == null)
+			return false;
+		
+		Boolean result = new Boolean(false);
+		try
+		{
+			result = (Boolean) MVEL.eval(form.getAutoAcceptCondition(),
+					createMvelContext(request, form));
+
+		} catch (Exception e)
+		{
+			log.warn("Invalid MVEL condition", e);
+		}
+		return result.booleanValue();
+	}
+	
+	private Map<String, Object> createMvelContext(RegistrationRequest request, RegistrationForm form)
+	{
+		HashMap<String, Object> ctx = new HashMap<String, Object>();
+
+		List<IdentityParamValue> identities = request.getIdentities();	
+		Map<String, List<String>> idsByType = new HashMap<String, List<String>>();
+	        for (IdentityParamValue id: identities)
+	        {
+	            if (id == null)
+	        	    continue;
+	            List<String> vals = idsByType.get(id.getTypeId());
+	            if (vals == null)
+	            {
+	                vals = new ArrayList<String>();
+	                idsByType.put(id.getTypeId(), vals);
+	            }
+	            vals.add(id.getValue());
+	        }
+	        ctx.put("idsByType", idsByType);
+				
+		Map<String, Object> attr = new HashMap<String, Object>();
+		Map<String, List<?>> attrs = new HashMap<String, List<?>>();
+
+		List<AttributeParamValue> attributes = request.getAttributes();
+		for (AttributeParamValue ra : attributes)
+		{
+			Attribute<?> atr = ra.getAttribute();
+			Object v = atr.getValues().isEmpty() ? "" : atr.getValues().get(0);
+			attr.put(atr.getName(), v);
+			attrs.put(atr.getName(), atr.getValues());
+		}
+		ctx.put("attr", attr);
+		ctx.put("attrs", attrs);
+
+		List<Selection> groupSelections = request.getGroupSelections();
+		Map<String, Group> groups = new HashMap<String, Group>();
+		for (int i = 0; i < form.getGroupParams().size(); i++)
+		{
+			if (groupSelections.get(i).isSelected())
+			{
+				GroupRegistrationParam gr = form.getGroupParams().get(i);
+				groups.put(gr.getGroupPath(), new Group(gr.getGroupPath()));
+			}
+		}
+		ctx.put("groups", new ArrayList<String>(groups.keySet()));
+		
+		ArrayList<String> agr = new ArrayList<String>();
+		for (Selection a: request.getAgreements())
+		{
+			agr.add(Boolean.toString(a.isSelected()));
+		}
+		ctx.put("agrs", agr);
+		
+		return ctx;
 	}
 }

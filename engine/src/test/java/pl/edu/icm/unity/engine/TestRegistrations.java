@@ -4,7 +4,10 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -61,7 +64,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 	@Test
 	public void testRegistrationForms() throws Exception
 	{
-		RegistrationForm form = initAndCreateForm(false);
+		RegistrationForm form = initAndCreateForm(false, null);
 		
 		List<RegistrationForm> forms = registrationsMan.getForms();
 		assertEquals(1, forms.size());
@@ -133,18 +136,18 @@ public class TestRegistrations extends DBIntegrationTestBase
 		form.setIdentityParams(Collections.singletonList(idParam));
 		
 		RegistrationRequest request = getRequest();
-		registrationsMan.submitRegistrationRequest(request);
+		registrationsMan.submitRegistrationRequest(request, false);
 		assertEquals(1, registrationsMan.getRegistrationRequests().size());
 		
 		try
 		{
-			registrationsMan.updateForm(getForm(false), false);
+			registrationsMan.updateForm(getForm(false, null), false);
 		} catch (SchemaConsistencyException e)
 		{
 			//OK
 		}
 		
-		registrationsMan.updateForm(getForm(false), true);
+		registrationsMan.updateForm(getForm(false, null), true);
 		
 		try
 		{
@@ -194,10 +197,10 @@ public class TestRegistrations extends DBIntegrationTestBase
 	@Test
 	public void testRequestWithNull() throws EngineException
 	{
-		initAndCreateForm(true);
+		initAndCreateForm(true, null);
 		RegistrationRequest request = getRequest();
 		request.setRegistrationCode(null);
-		registrationsMan.submitRegistrationRequest(request);
+		registrationsMan.submitRegistrationRequest(request, false);
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(request.getRegistrationCode(), fromDb.getRequest().getRegistrationCode());
 	}
@@ -205,9 +208,9 @@ public class TestRegistrations extends DBIntegrationTestBase
 	@Test
 	public void testRequests() throws EngineException
 	{
-		initAndCreateForm(false);
+		initAndCreateForm(false, null);
 		RegistrationRequest request = getRequest();
-		String id1 = registrationsMan.submitRegistrationRequest(request);
+		String id1 = registrationsMan.submitRegistrationRequest(request, false);
 		
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(request, fromDb.getRequest());
@@ -239,7 +242,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		assertEquals(0, registrationsMan.getRegistrationRequests().size());
 		
 		request = getRequest();
-		String id2 = registrationsMan.submitRegistrationRequest(request);
+		String id2 = registrationsMan.submitRegistrationRequest(request, false);
 		registrationsMan.processRegistrationRequest(id2, null, 
 				RegistrationRequestAction.reject, "a2", "p2");
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
@@ -252,7 +255,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		assertNotNull(fromDb.getTimestamp());
 		
 		request = getRequest();
-		String id3 = registrationsMan.submitRegistrationRequest(request);
+		String id3 = registrationsMan.submitRegistrationRequest(request, false);
 		registrationsMan.processRegistrationRequest(id3, null, 
 				RegistrationRequestAction.accept, "a2", "p2");
 		fromDb = registrationsMan.getRegistrationRequests().get(1);
@@ -293,7 +296,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		request = getRequest();
 		IdentityParamValue ip = new IdentityParamValue(X500Identity.ID, "CN=registration test2");
 		request.setIdentities(Collections.singletonList(ip));		
-		String id4 = registrationsMan.submitRegistrationRequest(request);
+		String id4 = registrationsMan.submitRegistrationRequest(request, false);
 		
 		request = getRequest();
 		ip = new IdentityParamValue(X500Identity.ID, "CN=registration test updated");
@@ -306,9 +309,65 @@ public class TestRegistrations extends DBIntegrationTestBase
 		//TODO test notifications
 		
 	}
-	
-	
-	private RegistrationForm getForm(boolean nullCode)
+		
+	@Test
+	public void testRequestsWithAutoAccept() throws EngineException
+	{
+		initAndCreateForm(false, "true");
+		RegistrationRequest request = getRequest();
+		registrationsMan.submitRegistrationRequest(request, true);
+		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
+		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
+		clearDB();
+		
+		initAndCreateForm(false, "false");
+		request = getRequest();
+		registrationsMan.submitRegistrationRequest(request, true);
+		fromDb = registrationsMan.getRegistrationRequests().get(0);
+		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
+		clearDB();
+		idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test"));
+		
+		initAndCreateForm(false, "idsByType[\"" + X500Identity.ID +"\"] != null");
+		request = getRequest();	
+		registrationsMan.submitRegistrationRequest(request, true);
+		fromDb = registrationsMan.getRegistrationRequests().get(0);
+		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
+		clearDB();
+		idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test"));
+		
+		initAndCreateForm(false, "attrs[\"email\"][0] == \"foo@a.b\"");
+		request = getRequest();
+		registrationsMan.submitRegistrationRequest(request, true);
+		fromDb = registrationsMan.getRegistrationRequests().get(0);
+		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
+		clearDB();
+		idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test"));
+		
+		initAndCreateForm(false, "attrs[\"email\"][0] == \"NoAccept\"");
+		request = getRequest();
+		registrationsMan.submitRegistrationRequest(request, true);
+		fromDb = registrationsMan.getRegistrationRequests().get(0);
+		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
+		clearDB();
+		
+		initAndCreateForm(false, "agrs[0] == true");
+		request = getRequest();
+		registrationsMan.submitRegistrationRequest(request, true);
+		fromDb = registrationsMan.getRegistrationRequests().get(0);
+		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
+		clearDB();
+		idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test"));
+		
+		initAndCreateForm(false, "agrs[0] == false");
+		request = getRequest();
+		registrationsMan.submitRegistrationRequest(request, true);
+		fromDb = registrationsMan.getRegistrationRequests().get(0);
+		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
+		clearDB();		
+	}
+		
+	private RegistrationForm getForm(boolean nullCode, String autoAcceptCondition)
 	{
 		RegistrationForm form = new RegistrationForm();
 		
@@ -371,6 +430,11 @@ public class TestRegistrations extends DBIntegrationTestBase
 		if (!nullCode)
 			form.setRegistrationCode("123");
 		form.setInitialEntityState(EntityState.valid);
+		
+		if (autoAcceptCondition != null)
+			form.setAutoAcceptCondition(autoAcceptCondition);
+		else
+			form.setAutoAcceptCondition("false");
 		return form;
 	}
 	
@@ -415,16 +479,25 @@ public class TestRegistrations extends DBIntegrationTestBase
 		}
 	}
 	
-	private RegistrationForm initAndCreateForm(boolean nullCode) throws EngineException
+	private RegistrationForm initAndCreateForm(boolean nullCode, String autoAcceptCondition) throws EngineException
 	{
 		commonInitializer.initializeCommonAttributeTypes();
 		commonInitializer.initializeMainAttributeClass();
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addGroup(new Group("/B"));
 		
-		RegistrationForm form = getForm(nullCode);
+		RegistrationForm form = getForm(nullCode, autoAcceptCondition);
 
 		registrationsMan.addForm(form);
 		return form;
 	}
+	
+	private void clearDB() throws EngineException
+	{			
+		for (RegistrationForm f:registrationsMan.getForms())
+			registrationsMan.removeForm(f.getName(), true);
+		groupsMan.removeGroup("/A", true);
+		groupsMan.removeGroup("/B", true);	
+	}
+	
 }

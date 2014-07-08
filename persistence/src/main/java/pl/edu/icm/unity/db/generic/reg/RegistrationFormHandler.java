@@ -73,6 +73,7 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 			root.put("IdentityParams", jsonMapper.valueToTree(value.getIdentityParams()));
 			root.put("InitialEntityState", jsonMapper.valueToTree(value.getInitialEntityState().name()));
 			root.put("Name", value.getName());
+			root.put("AutoAcceptCondition", value.getAutoAcceptCondition());
 			root.put("NotificationsConfiguration", jsonMapper.valueToTree(value.getNotificationsConfiguration()));
 			root.put("PubliclyAvailable", value.isPubliclyAvailable());
 			root.put("RegistrationCode", value.getRegistrationCode());
@@ -189,6 +190,9 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 			
 			n = root.get("Name");
 			ret.setName(n.asText());
+			
+			n = root.get("AutoAcceptCondition");
+			ret.setAutoAcceptCondition(n != null ? n.asText(): "false");
 			
 			n = root.get("NotificationsConfiguration");
 			if (n != null)

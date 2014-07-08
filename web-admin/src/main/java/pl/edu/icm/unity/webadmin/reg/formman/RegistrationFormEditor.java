@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.mvel2.MVEL;
+
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
@@ -53,6 +55,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.attributes.SelectableAttributeEditor;
 
+import com.vaadin.data.validator.AbstractStringValidator;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
@@ -97,6 +100,7 @@ public class RegistrationFormEditor extends VerticalLayout
 	private ComboBox acceptedTemplate;
 	private ComboBox channel;
 	private GroupComboBox adminsNotificationGroup;
+	private AbstractTextField autoAcceptCondition;
 	
 	private DescriptionTextArea formInformation;
 	private TextField registrationCode;
@@ -177,6 +181,8 @@ public class RegistrationFormEditor extends VerticalLayout
 	
 	public RegistrationForm getForm() throws FormValidationException
 	{
+		if (!autoAcceptCondition.isValid())
+		  return null;
 		RegistrationForm ret = new RegistrationForm();
 		
 		ret.setAgreements(agreements.getElements());
@@ -193,7 +199,8 @@ public class RegistrationFormEditor extends VerticalLayout
 		ret.setIdentityParams(identityParams.getElements());
 		ret.setInitialEntityState(initialState.getSelectedValue());
 		ret.setName(name.getValue());
-		
+		ret.setAutoAcceptCondition(autoAcceptCondition.getValue().equals("") ? "false" : autoAcceptCondition.getValue() );
+				
 		RegistrationFormNotifications notCfg = ret.getNotificationsConfiguration();
 		notCfg.setAcceptedTemplate((String) acceptedTemplate.getValue());
 		notCfg.setAdminsNotificationGroup((String) adminsNotificationGroup.getValue());
@@ -251,8 +258,31 @@ public class RegistrationFormEditor extends VerticalLayout
 		acceptedTemplate =  new CompatibleTemplatesComboBox(AcceptRegistrationTemplateDef.NAME, msgTempMan);
 		acceptedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.acceptedTemplate"));
 		
+		autoAcceptCondition = new TextField();
+		autoAcceptCondition.setCaption(msg.getMessage("RegistrationFormViewer.autoAcceptCondition"));
+		autoAcceptCondition.setValue("false");
+		autoAcceptCondition.addValidator(new AbstractStringValidator(msg
+				.getMessage("RegistrationFormEditor.conditionValidationFalse"))
+		{
+			@Override
+			protected boolean isValidValue(String value)
+			{
+				try
+				{
+					MVEL.compileExpression(value);
+				} catch (Exception e)
+				{
+					return false;
+				}
+
+				return true;
+
+			}
+		});
+		autoAcceptCondition.setValidationVisible(true);
+		autoAcceptCondition.setImmediate(true);
 		main.addComponents(name, description, publiclyAvailable, channel, adminsNotificationGroup,
-				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate);
+				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, autoAcceptCondition);
 		
 		if (toEdit != null)
 		{
@@ -265,6 +295,7 @@ public class RegistrationFormEditor extends VerticalLayout
 			updatedTemplate.setValue(notCfg.getUpdatedTemplate());
 			rejectedTemplate.setValue(notCfg.getRejectedTemplate());
 			acceptedTemplate.setValue(notCfg.getAcceptedTemplate());
+			autoAcceptCondition.setValue(toEdit.getAutoAcceptCondition());
 		}
 	}
 	

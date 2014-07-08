@@ -7,89 +7,111 @@ package pl.edu.icm.unity.types.registration;
 import java.util.List;
 
 /**
- * Registration request, tied to a registration form contains data collected during registration process.
- * This data can be entered by the user in UI, taken from external IdP or possibly from other 
- * sources (e.g. a DN can be taken from client-authenticated TLS).
+ * Registration request, tied to a registration form contains data collected
+ * during registration process. This data can be entered by the user in UI,
+ * taken from external IdP or possibly from other sources (e.g. a DN can be
+ * taken from client-authenticated TLS).
  * 
  * @author K. Benedyczak
  */
 public class RegistrationRequest
 {
 	private String formId;
-	
+
 	private List<IdentityParamValue> identities;
+
 	private List<AttributeParamValue> attributes;
+
 	private List<CredentialParamValue> credentials;
+
 	private List<Selection> groupSelections;
+
 	private List<Selection> agreements;
+
 	private String comments;
+
 	private String registrationCode;
-	
-	
+
 	public String getFormId()
 	{
 		return formId;
 	}
+
 	public void setFormId(String formId)
 	{
 		this.formId = formId;
 	}
+
 	public List<IdentityParamValue> getIdentities()
 	{
 		return identities;
 	}
+
 	public void setIdentities(List<IdentityParamValue> identities)
 	{
 		this.identities = identities;
 	}
+
 	public List<AttributeParamValue> getAttributes()
 	{
 		return attributes;
 	}
+
 	public void setAttributes(List<AttributeParamValue> attributes)
 	{
 		this.attributes = attributes;
 	}
+
 	public List<CredentialParamValue> getCredentials()
 	{
 		return credentials;
 	}
+
 	public void setCredentials(List<CredentialParamValue> credentials)
 	{
 		this.credentials = credentials;
 	}
+
 	public List<Selection> getGroupSelections()
 	{
 		return groupSelections;
 	}
+
 	public void setGroupSelections(List<Selection> groupSelections)
 	{
 		this.groupSelections = groupSelections;
 	}
+
 	public List<Selection> getAgreements()
 	{
 		return agreements;
 	}
+
 	public void setAgreements(List<Selection> agreements)
 	{
 		this.agreements = agreements;
 	}
+
 	public String getComments()
 	{
 		return comments;
 	}
+
 	public void setComments(String comments)
 	{
 		this.comments = comments;
 	}
+
 	public String getRegistrationCode()
 	{
 		return registrationCode;
 	}
+
 	public void setRegistrationCode(String registrationCode)
 	{
 		this.registrationCode = registrationCode;
 	}
+
 	@Override
 	public int hashCode()
 	{
@@ -107,6 +129,7 @@ public class RegistrationRequest
 				+ ((registrationCode == null) ? 0 : registrationCode.hashCode());
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj)
 	{
