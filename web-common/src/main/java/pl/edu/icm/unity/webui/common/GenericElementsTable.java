@@ -61,7 +61,7 @@ public class GenericElementsTable<T> extends Table
 		return actionHandlers;
 	}
 	
-	public void setInput(Collection<T> types)
+	public void setInput(Collection<? extends T> types)
 	{
 		@SuppressWarnings("unchecked")
 		GenericItem<T> selected = (GenericItem<T>) getValue();

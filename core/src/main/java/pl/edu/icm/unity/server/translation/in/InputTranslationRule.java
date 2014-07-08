@@ -2,29 +2,29 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.server.authn.remote.translation;
+package pl.edu.icm.unity.server.translation.in;
 
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
+import pl.edu.icm.unity.server.translation.TranslationCondition;
+import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.Log;
 
 /**
- * Pair: condition and action; configured.
+ * Invokes {@link InputTranslationAction}.
  *  
  * @author K. Benedyczak
  */
-public class TranslationRule
+public class InputTranslationRule extends AbstractTranslationRule<InputTranslationAction>
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, TranslationRule.class);
-	private TranslationAction action;
-	private TranslationCondition condition;
+	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, InputTranslationRule.class);
 	
-	public TranslationRule(TranslationAction action, TranslationCondition condition)
+	public InputTranslationRule(InputTranslationAction action, TranslationCondition condition)
 	{
-		this.action = action;
-		this.condition = condition;
+		super(action, condition);
 	}
 	
 	public void invoke(RemotelyAuthenticatedInput input, Object mvelCtx, MappingResult translationState,
@@ -39,25 +39,5 @@ public class TranslationRule
 		{
 			log.debug("Condition not met");			
 		}
-	}
-
-	public TranslationAction getAction()
-	{
-		return action;
-	}
-
-	public void setAction(TranslationAction action)
-	{
-		this.action = action;
-	}
-
-	public TranslationCondition getCondition()
-	{
-		return condition;
-	}
-
-	public void setCondition(TranslationCondition condition)
-	{
-		this.condition = condition;
 	}
 }

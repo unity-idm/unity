@@ -12,12 +12,15 @@ import java.util.List;
 import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationCondition;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationRule;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.translation.ActionParameterDesc;
+import pl.edu.icm.unity.server.translation.ProfileType;
+import pl.edu.icm.unity.server.translation.TranslationAction;
+import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.TranslationCondition;
+import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
+import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
+import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
@@ -50,6 +53,7 @@ import com.vaadin.ui.themes.Reindeer;
 public class RuleComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
+	private ProfileType profileType;
 	private TranslationActionsRegistry tc;
 	private Collection<AttributeType> attributeTypes;
 	private List<String> groups;
@@ -67,10 +71,11 @@ public class RuleComponent extends VerticalLayout
 	private boolean editMode;
 	private Image helpAction;
 
-	public RuleComponent(UnityMessageSource msg, TranslationActionsRegistry tc,
-			TranslationRule toEdit, Collection<AttributeType> attributeTypes, List<String> groups,
+	public RuleComponent(ProfileType profileType, UnityMessageSource msg, TranslationActionsRegistry tc,
+			AbstractTranslationRule<?> toEdit, Collection<AttributeType> attributeTypes, List<String> groups,
 			Collection<String> credReqs, Collection<String> idTypes, Callback callback)
 	{
+		this.profileType = profileType;
 		this.callback = callback;
 		this.msg = msg;
 		this.tc = tc;
@@ -82,7 +87,7 @@ public class RuleComponent extends VerticalLayout
 		initUI(toEdit);
 	}
 
-	private void initUI(TranslationRule toEdit)
+	private void initUI(AbstractTranslationRule<?> toEdit)
 	{
 		up = new Button();
 		up.setDescription(msg.getMessage("TranslationProfileEditor.moveUp"));
@@ -204,7 +209,8 @@ public class RuleComponent extends VerticalLayout
 		actions = new RequiredComboBox(msg.getMessage("TranslationProfileEditor.ruleAction"), msg);
 		for (TranslationActionFactory a : tc.getAll())
 		{
-			actions.addItem(a.getName());
+			if (a.getSupportedProfileType() == profileType)
+				actions.addItem(a.getName());
 		}
 		actions.setImmediate(true);
 		actions.setValidationVisible(false);
@@ -316,7 +322,7 @@ public class RuleComponent extends VerticalLayout
 		}
 	}
 	
-	public TranslationRule getRule()
+	public AbstractTranslationRule<?> getRule()
 	{
 		String ac = (String) actions.getValue();
 		if (ac == null)
@@ -344,9 +350,14 @@ public class RuleComponent extends VerticalLayout
 		}
 		TranslationCondition cnd = new TranslationCondition();
 		cnd.setCondition(condition.getValue());
-		TranslationRule rule = new TranslationRule(action, cnd);
-		return rule;
-
+		
+		switch (profileType)
+		{
+		case INPUT:
+			return new InputTranslationRule((InputTranslationAction) action, cnd);
+		
+		}
+		throw new IllegalStateException("Not implemented");
 	}
 	
 	private TranslationActionFactory getActionFactory(String action)

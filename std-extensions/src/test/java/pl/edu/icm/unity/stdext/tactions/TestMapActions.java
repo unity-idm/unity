@@ -4,7 +4,8 @@
  */
 package pl.edu.icm.unity.stdext.tactions;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,12 +18,12 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.authn.remote.translation.AttributeEffectMode;
-import pl.edu.icm.unity.server.authn.remote.translation.IdentityEffectMode;
-import pl.edu.icm.unity.server.authn.remote.translation.MappedIdentity;
-import pl.edu.icm.unity.server.authn.remote.translation.MappingResult;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
+import pl.edu.icm.unity.server.translation.in.AttributeEffectMode;
+import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
+import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
+import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.server.translation.in.MappedIdentity;
+import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -38,7 +39,7 @@ public class TestMapActions
 	{
 		MapAttributeActionFactory factory = new MapAttributeActionFactory(new MockAttributesMan());
 		
-		TranslationAction mapAction = factory.getInstance("stringA", "/A/B", 
+		InputTranslationAction mapAction = factory.getInstance("stringA", "/A/B", 
 				"attr['attribute'] + '-' + attr['other'] + '-' + id", 
 				AttributeVisibility.full.toString(), AttributeEffectMode.CREATE_OR_UPDATE.toString());
 				
@@ -47,7 +48,7 @@ public class TestMapActions
 		input.addAttribute(new RemoteAttribute("attribute", "a1"));
 		input.addAttribute(new RemoteAttribute("other", "a2"));
 		
-		MappingResult result = mapAction.invoke(input, TranslationProfile.createMvelContext(input), "testProf");
+		MappingResult result = mapAction.invoke(input, InputTranslationProfile.createMvelContext(input), "testProf");
 		
 		Attribute<?> a = result.getAttributes().get(0).getAttribute();
 		assertEquals("stringA", a.getName());
@@ -58,11 +59,11 @@ public class TestMapActions
 	public void testMapGroup() throws EngineException
 	{
 		MapGroupActionFactory factory = new MapGroupActionFactory();
-		TranslationAction mapAction = factory.getInstance("'/A/B/' + attr['attribute']");
+		InputTranslationAction mapAction = factory.getInstance("'/A/B/' + attr['attribute']");
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		input.addAttribute(new RemoteAttribute("attribute", "a1"));
 		
-		MappingResult result = mapAction.invoke(input, TranslationProfile.createMvelContext(input), "testProf");
+		MappingResult result = mapAction.invoke(input, InputTranslationProfile.createMvelContext(input), "testProf");
 		
 		assertTrue(result.getGroups().contains("/A/B/a1"));
 	}
@@ -71,7 +72,7 @@ public class TestMapActions
 	public void testMapIdentity() throws EngineException
 	{
 		MapIdentityActionFactory factory = new MapIdentityActionFactory();
-		TranslationAction mapAction = factory.getInstance("userName", 
+		InputTranslationAction mapAction = factory.getInstance("userName", 
 				"attr['attribute:colon'] + '-' + attr['other'] + '-' + id", 
 				"CR", IdentityEffectMode.REQUIRE_MATCH.toString());
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
@@ -79,7 +80,7 @@ public class TestMapActions
 		input.addAttribute(new RemoteAttribute("attribute:colon", "a1"));
 		input.addAttribute(new RemoteAttribute("other", "a2"));
 		
-		MappingResult result = mapAction.invoke(input, TranslationProfile.createMvelContext(input), "testProf");
+		MappingResult result = mapAction.invoke(input, InputTranslationProfile.createMvelContext(input), "testProf");
 		
 		MappedIdentity mi = result.getIdentities().get(0);
 		assertEquals("CR", mi.getCredentialRequirement());

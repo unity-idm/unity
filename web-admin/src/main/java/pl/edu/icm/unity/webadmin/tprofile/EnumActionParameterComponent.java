@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
+import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 import com.vaadin.ui.ComboBox;

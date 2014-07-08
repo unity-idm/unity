@@ -15,11 +15,11 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.authn.remote.translation.AbstractTranslationAction;
-import pl.edu.icm.unity.server.authn.remote.translation.AttributeEffectMode;
-import pl.edu.icm.unity.server.authn.remote.translation.MappedAttribute;
-import pl.edu.icm.unity.server.authn.remote.translation.MappingResult;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionDescription;
+import pl.edu.icm.unity.server.translation.TranslationActionDescription;
+import pl.edu.icm.unity.server.translation.in.AbstractInputTranslationAction;
+import pl.edu.icm.unity.server.translation.in.AttributeEffectMode;
+import pl.edu.icm.unity.server.translation.in.MappedAttribute;
+import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -30,7 +30,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
  *   
  * @author K. Benedyczak
  */
-public class MapAttributeAction extends AbstractTranslationAction
+public class MapAttributeAction extends AbstractInputTranslationAction
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, MapAttributeAction.class);
 	private final AttributesManagement attrMan;

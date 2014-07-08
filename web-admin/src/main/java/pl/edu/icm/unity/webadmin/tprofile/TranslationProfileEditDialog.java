@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
+import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 

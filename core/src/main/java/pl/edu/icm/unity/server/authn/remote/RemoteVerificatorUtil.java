@@ -7,7 +7,6 @@ package pl.edu.icm.unity.server.authn.remote;
 import java.util.ArrayList;
 import java.util.List;
 
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
@@ -16,12 +15,13 @@ import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.remote.translation.MappedAttribute;
-import pl.edu.icm.unity.server.authn.remote.translation.MappedIdentity;
-import pl.edu.icm.unity.server.authn.remote.translation.MappingResult;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
+import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.server.translation.in.MappedAttribute;
+import pl.edu.icm.unity.server.translation.in.MappedIdentity;
+import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
+import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Processes {@link RemotelyAuthenticatedInput} by applying a translation profile to it and 
@@ -118,7 +118,7 @@ public class RemoteVerificatorUtil
 	public final RemotelyAuthenticatedContext processRemoteInput(RemotelyAuthenticatedInput input, 
 			String profile)	throws EngineException
 	{
-		TranslationProfile translationProfile = profileManagement.listProfiles().get(profile);
+		InputTranslationProfile translationProfile = profileManagement.listInputProfiles().get(profile);
 		if (translationProfile == null)
 			throw new ConfigurationException("The translation profile '" + profile + 
 					"' configured for the authenticator does not exist");

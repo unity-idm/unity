@@ -7,11 +7,12 @@ package pl.edu.icm.unity.stdext.tactions;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.authn.remote.translation.IdentityEffectMode;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.ActionParameterDesc;
+import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
+import pl.edu.icm.unity.server.translation.ProfileType;
+import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
+import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 
 /**
  * Factory for identity mapping action.
@@ -58,8 +59,14 @@ public class MapIdentityActionFactory implements TranslationActionFactory
 	}
 
 	@Override
-	public TranslationAction getInstance(String... parameters) throws EngineException
+	public InputTranslationAction getInstance(String... parameters) throws EngineException
 	{
 		return new MapIdentityAction(parameters, this);
+	}
+
+	@Override
+	public ProfileType getSupportedProfileType()
+	{
+		return ProfileType.INPUT;
 	}
 }

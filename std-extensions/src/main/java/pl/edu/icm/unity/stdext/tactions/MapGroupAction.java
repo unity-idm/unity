@@ -12,9 +12,9 @@ import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.authn.remote.translation.AbstractTranslationAction;
-import pl.edu.icm.unity.server.authn.remote.translation.MappingResult;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionDescription;
+import pl.edu.icm.unity.server.translation.TranslationActionDescription;
+import pl.edu.icm.unity.server.translation.in.AbstractInputTranslationAction;
+import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.Log;
 
 /**
@@ -22,7 +22,7 @@ import pl.edu.icm.unity.server.utils.Log;
  *   
  * @author K. Benedyczak
  */
-public class MapGroupAction extends AbstractTranslationAction
+public class MapGroupAction extends AbstractInputTranslationAction
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, MapGroupAction.class);
 	private Serializable expressionCompiled;

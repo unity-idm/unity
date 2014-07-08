@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.server.authn.remote.translation;
+package pl.edu.icm.unity.server.translation.in;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,15 +23,20 @@ import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
+import pl.edu.icm.unity.server.translation.ExecutionBreakException;
+import pl.edu.icm.unity.server.translation.ProfileType;
+import pl.edu.icm.unity.server.translation.TranslationAction;
+import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.types.DescribedObjectImpl;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 /**
- * Full profile of translation: a list of translation rules annotated with a name and description.
+ * Entry point: input translation profile, a list of translation rules annotated with a name and description.
  * @author K. Benedyczak
  */
-public class TranslationProfile extends DescribedObjectImpl
+public class InputTranslationProfile extends AbstractTranslationProfile<InputTranslationRule>
 {
 	public enum ProfileMode 
 	{
@@ -47,31 +52,20 @@ public class TranslationProfile extends DescribedObjectImpl
 		 */
 		UPDATE_ONLY
 	}
-	
-	private Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, TranslationProfile.class);
-	private List<TranslationRule> rules;
-	private ProfileMode mode;
 
-	public TranslationProfile(String name, List<TranslationRule> rules, ProfileMode mode)
+	
+	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, InputTranslationProfile.class);
+	private ProfileMode mode;
+	
+	public InputTranslationProfile(String name, List<InputTranslationRule> rules, ProfileMode mode)
 	{
-		this.rules = rules;
+		super(name, ProfileType.INPUT, rules);
 		this.mode = mode;
-		setName(name);
 	}
 
-	public TranslationProfile(String json, ObjectMapper jsonMapper, TranslationActionsRegistry registry)
+	public InputTranslationProfile(String json, ObjectMapper jsonMapper, TranslationActionsRegistry registry)
 	{
 		fromJson(json, jsonMapper, registry);
-	}
-
-	public List<TranslationRule> getRules()
-	{
-		return rules;
-	}
-
-	public void setRules(List<TranslationRule> rules)
-	{
-		this.rules = rules;
 	}
 	
 	public ProfileMode getMode()
@@ -83,7 +77,7 @@ public class TranslationProfile extends DescribedObjectImpl
 	{
 		this.mode = mode;
 	}
-
+	
 	public MappingResult translate(RemotelyAuthenticatedInput input) throws EngineException
 	{
 		NDC.push("[TrProfile " + getName() + "]");
@@ -94,7 +88,7 @@ public class TranslationProfile extends DescribedObjectImpl
 		{
 			int i=1;
 			MappingResult translationState = new MappingResult();
-			for (TranslationRule rule: rules)
+			for (InputTranslationRule rule: rules)
 			{
 				NDC.push("[r: " + (i++) + "]");
 				try
@@ -155,22 +149,15 @@ public class TranslationProfile extends DescribedObjectImpl
 		return ret;
 	}
 	
+	
 	public String toJson(ObjectMapper jsonMapper)
 	{
 		try
 		{
 			ObjectNode root = jsonMapper.createObjectNode();
-			root.put("ver", "2");
-			root.put("name", getName());
-			root.put("description", getDescription());
+			storePreable(root);
 			root.put("mode", getMode().toString());
-			ArrayNode jsonRules = root.putArray("rules");
-			for (TranslationRule rule: rules)
-			{
-				addAction(jsonRules, rule.getAction().getActionDescription().getName(),
-						rule.getCondition().getCondition(), 
-						rule.getAction().getParameters());
-			}
+			storeRules(root);
 			return jsonMapper.writeValueAsString(root);
 		} catch (JsonProcessingException e)
 		{
@@ -186,8 +173,8 @@ public class TranslationProfile extends DescribedObjectImpl
 			if (!root.has("ver"))
 				root = convertV1(root, json, jsonMapper);
 			
-			setName(root.get("name").asText());
-			setDescription(root.get("description").asText());
+			loadPreamble(root);
+			
 			if (root.has("mode"))
 			{
 				String m = root.get("mode").asText();
@@ -205,8 +192,14 @@ public class TranslationProfile extends DescribedObjectImpl
 				TranslationActionFactory fact = registry.getByName(actionName);
 				String[] parameters = extractParams(jsonAction);
 				TranslationAction action = fact.getInstance(parameters);
+				if (!(action instanceof InputTranslationAction))
+				{
+					throw new InternalException("The translation action of the input translation "
+							+ "profile is not compatible with it, it is " + action.getClass());
+				}
 				
-				rules.add(new TranslationRule(action, new TranslationCondition(condition)));
+				rules.add(new InputTranslationRule((InputTranslationAction) action, 
+						new TranslationCondition(condition)));
 			}
 		} catch (Exception e)
 		{
@@ -214,6 +207,14 @@ public class TranslationProfile extends DescribedObjectImpl
 		}
 	}
 	
+	
+	/**
+	 * Legacy syntax converter.
+	 * @param old
+	 * @param json
+	 * @param jsonMapper
+	 * @return
+	 */
 	private ObjectNode convertV1(ObjectNode old, String json, ObjectMapper jsonMapper)
 	{
 		String name = old.get("name").asText();
@@ -246,7 +247,7 @@ public class TranslationProfile extends DescribedObjectImpl
 		root.put("ver", "2");
 		root.put("name", name);
 		root.put("description", old.get("description"));
-		root.put("mode", ProfileMode.UPDATE_ONLY.toString());
+		root.put("mode", InputTranslationProfile.ProfileMode.UPDATE_ONLY.toString());
 		ArrayNode jsonRules = root.putArray("rules");
 
 		for (int i=0; i<rulesA.size(); i++)
@@ -299,26 +300,5 @@ public class TranslationProfile extends DescribedObjectImpl
 		}
 		
 		return root;
-	}
-	
-	private void addAction(ArrayNode jsonRules, String name, String condition, String... args)
-	{
-		ObjectNode jsonRule = jsonRules.addObject();
-		ObjectNode jsonCondition = jsonRule.putObject("condition");
-		jsonCondition.put("conditionValue", condition);
-		ObjectNode jsonAction = jsonRule.putObject("action");
-		jsonAction.put("name", name);
-		ArrayNode jsonAParams = jsonAction.putArray("parameters");
-		for (String param: args)
-			jsonAParams.add(param);
-	}
-	
-	private String[] extractParams(ObjectNode jsonAction)
-	{
-		ArrayNode jsonAParams = (ArrayNode) jsonAction.get("parameters");
-		String[] parameters = new String[jsonAParams.size()];
-		for (int j=0; j<jsonAParams.size(); j++)
-			parameters[j] = jsonAParams.get(j).asText();
-		return parameters;
 	}
 }

@@ -1,24 +1,21 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.server.authn.remote.translation;
+package pl.edu.icm.unity.server.translation.in;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.translation.ExecutionBreakException;
+import pl.edu.icm.unity.server.translation.TranslationAction;
 
 /**
  * Instance of this interface is configured with parameters and performs a translation
  * of a remotely obtained information about a client.
  * @author K. Benedyczak
  */
-public interface TranslationAction
+public interface InputTranslationAction extends TranslationAction
 {
-	/**
-	 * @return the type of the action
-	 */
-	public TranslationActionDescription getActionDescription();
-	
 	/**
 	 * Performs the translation.
 	 * @param input
@@ -30,10 +27,4 @@ public interface TranslationAction
 	 */
 	public MappingResult invoke(RemotelyAuthenticatedInput input, Object mvelCtx, 
 			String currentProfile) throws EngineException;
-	
-	/**
-	 * @return the list of parameters that were used to configure the action.
-	 */
-	public String[] getParameters();
-
 }

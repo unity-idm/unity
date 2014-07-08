@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
@@ -15,7 +16,9 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
+import pl.edu.icm.unity.server.translation.ProfileType;
+import pl.edu.icm.unity.server.translation.TranslationProfile;
+import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 
 /**
  * Implementation of {@link TranslationProfileManagement}
@@ -83,14 +86,18 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	}
 
 	@Override
-	public Map<String, TranslationProfile> listProfiles() throws EngineException
+	public Map<String, InputTranslationProfile> listInputProfiles() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = db.getSqlSession(false);
 		try
 		{
-			Map<String, TranslationProfile> ret = tpDB.getAllAsMap(sql);
+			Map<String, TranslationProfile> all = tpDB.getAllAsMap(sql);
 			sql.commit();
+			Map<String, InputTranslationProfile> ret = new HashMap<String, InputTranslationProfile>();
+			for (Map.Entry<String, TranslationProfile> e: all.entrySet())
+				if (e.getValue().getProfileType().equals(ProfileType.INPUT))
+					ret.put(e.getKey(), (InputTranslationProfile) e.getValue());
 			return ret;
 		} finally
 		{

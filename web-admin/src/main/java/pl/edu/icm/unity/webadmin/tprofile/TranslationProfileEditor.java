@@ -16,10 +16,10 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationRule;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile.ProfileMode;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
+import pl.edu.icm.unity.server.translation.ProfileType;
+import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -42,24 +42,24 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
- * Component to edit or add translation profile
+ * Generic component to edit or add translation profile of any type
  * 
  * @author P. Piernik
  * 
  */
-public class TranslationProfileEditor extends VerticalLayout
+public abstract class TranslationProfileEditor extends VerticalLayout
 {
-	private UnityMessageSource msg;
-	private Collection<AttributeType> atTypes;
-	private List<String> groups;
-	private Collection<String> credReqs;
-	private Collection<String> idTypes;
-	private TranslationActionsRegistry registry;
-	private boolean editMode;
-	private AbstractTextField name;
-	private DescriptionTextArea description;
-	private FormLayout rulesLayout;
-	private List<RuleComponent> rules;
+	protected UnityMessageSource msg;
+	protected Collection<AttributeType> atTypes;
+	protected List<String> groups;
+	protected Collection<String> credReqs;
+	protected Collection<String> idTypes;
+	protected TranslationActionsRegistry registry;
+	protected boolean editMode;
+	protected AbstractTextField name;
+	protected DescriptionTextArea description;
+	protected FormLayout rulesLayout;
+	protected List<RuleComponent> rules;
 	
 	public TranslationProfileEditor(UnityMessageSource msg,
 			TranslationActionsRegistry registry, TranslationProfile toEdit,
@@ -112,10 +112,9 @@ public class TranslationProfileEditor extends VerticalLayout
 			name.setValue(toEdit.getName());
 			name.setReadOnly(true);
 			description.setValue(toEdit.getDescription());
-			for (TranslationRule trule : toEdit.getRules())
+			for (AbstractTranslationRule<?> trule : toEdit.getRules())
 			{
 				addRuleComponent(trule);
-
 			}
 		} else
 		{
@@ -155,10 +154,10 @@ public class TranslationProfileEditor extends VerticalLayout
 		refreshRules();
 	}
 
-	private void addRuleComponent(TranslationRule trule)
+	private void addRuleComponent(AbstractTranslationRule<?> trule)
 	{
-		RuleComponent r = new RuleComponent(msg, registry, trule, atTypes, groups, credReqs, idTypes, 
-				new Callback()
+		RuleComponent r = new RuleComponent(getProfileType(), msg, registry, 
+				trule, atTypes, groups, credReqs, idTypes, new Callback()
 		{
 
 			@Override
@@ -260,35 +259,7 @@ public class TranslationProfileEditor extends VerticalLayout
 		}
 	}
 
-	public TranslationProfile getProfile()
-	{
-		int nvalidr= 0;
-		for (RuleComponent cr : rules)
-		{
-			if (!cr.validateRule())
-			{
-				nvalidr++;
-			}
-		}	
-		name.setValidationVisible(true);
-		if (!(name.isValid() && nvalidr == 0))
-		{
-			return null;
-		}
-		String n = name.getValue();
-		String desc = description.getValue();
-		List<TranslationRule> trules = new ArrayList<TranslationRule>();
-		for (RuleComponent cr : rules)
-		{
-			TranslationRule r = cr.getRule();
-			if (r != null)
-			{
-				trules.add(r);
-			}
-
-		}
-		TranslationProfile profile = new TranslationProfile(n, trules, ProfileMode.UPDATE_ONLY);
-		profile.setDescription(desc);
-		return profile;
-	}
+	public abstract TranslationProfile getProfile();
+	
+	protected abstract ProfileType getProfileType();
 }

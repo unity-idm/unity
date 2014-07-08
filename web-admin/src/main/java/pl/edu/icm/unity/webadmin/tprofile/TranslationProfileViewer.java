@@ -5,11 +5,11 @@
 package pl.edu.icm.unity.webadmin.tprofile;
 
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationRule;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
+import pl.edu.icm.unity.server.translation.ActionParameterDesc;
+import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 
@@ -74,9 +74,8 @@ public class TranslationProfileViewer extends VerticalLayout
 		description.setValue(profile.getDescription());
 		description.setRows(profile.getDescription().split("\n").length);
 		int i=0;
-		for (TranslationRule rule : profile.getRules())
+		for (AbstractTranslationRule<?> rule : profile.getRules())
 		{
-			
 			ActionParameterDesc[] pd = null;
 			try 
 			{

@@ -2,7 +2,7 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.server.authn.remote.translation;
+package pl.edu.icm.unity.server.translation.in;
 
 import pl.edu.icm.unity.types.basic.Attribute;
 

@@ -9,7 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 
 /**
  * Maintains a simple registry of available {@link TranslationActionFactory}ies.

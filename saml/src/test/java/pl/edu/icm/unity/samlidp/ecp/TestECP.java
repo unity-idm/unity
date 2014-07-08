@@ -40,11 +40,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
-
-import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
-import eu.unicore.util.httpclient.DefaultClientConfiguration;
-import eu.unicore.util.httpclient.HttpUtils;
 import pl.edu.icm.unity.rest.jwt.JWTUtils;
 import pl.edu.icm.unity.saml.ecp.ECPConstants;
 import pl.edu.icm.unity.saml.ecp.ECPEndpointFactory;
@@ -56,14 +51,20 @@ import pl.edu.icm.unity.saml.xmlbeans.soap.Header;
 import pl.edu.icm.unity.samlidp.AbstractTestIdpBase;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.authn.remote.translation.IdentityEffectMode;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationCondition;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile.ProfileMode;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationRule;
+import pl.edu.icm.unity.server.translation.TranslationCondition;
+import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
+import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.server.translation.in.InputTranslationProfile.ProfileMode;
+import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.stdext.tactions.MapIdentityActionFactory;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+
+import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+
+import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
+import eu.unicore.util.httpclient.DefaultClientConfiguration;
+import eu.unicore.util.httpclient.HttpUtils;
 
 public class TestECP extends AbstractTestIdpBase
 {
@@ -94,15 +95,15 @@ public class TestECP extends AbstractTestIdpBase
 			List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 			assertEquals(2, endpoints.size());
 			
-			List<TranslationRule> rules = new ArrayList<TranslationRule>();
+			List<InputTranslationRule> rules = new ArrayList<InputTranslationRule>();
 			MapIdentityActionFactory factory = new MapIdentityActionFactory();
 			
-			TranslationRule mapId = new TranslationRule(
+			InputTranslationRule mapId = new InputTranslationRule(
 					factory.getInstance("userName", "attr['unity:identity:userName']", 
 							"cr-pass", IdentityEffectMode.CREATE_OR_MATCH.toString()), 
 					new TranslationCondition());
 			rules.add(mapId);
-			TranslationProfile testP = new TranslationProfile("testP", rules, ProfileMode.UPDATE_ONLY);
+			InputTranslationProfile testP = new InputTranslationProfile("testP", rules, ProfileMode.UPDATE_ONLY);
 			profilesMan.addProfile(testP);
 			
 		} catch (Exception e)

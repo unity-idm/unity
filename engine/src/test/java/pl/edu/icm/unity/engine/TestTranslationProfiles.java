@@ -4,7 +4,8 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,15 +22,15 @@ import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.authn.remote.TranslationEngine;
-import pl.edu.icm.unity.server.authn.remote.translation.AttributeEffectMode;
-import pl.edu.icm.unity.server.authn.remote.translation.IdentityEffectMode;
-import pl.edu.icm.unity.server.authn.remote.translation.MappingResult;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationCondition;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationRule;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile.ProfileMode;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.translation.TranslationCondition;
+import pl.edu.icm.unity.server.translation.in.AttributeEffectMode;
+import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
+import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
+import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.server.translation.in.InputTranslationProfile.ProfileMode;
+import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
+import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -62,22 +63,22 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 	@Test
 	public void testPersistence() throws Exception
 	{
-		assertEquals(0, tprofMan.listProfiles().size());
-		List<TranslationRule> rules = new ArrayList<>();
-		TranslationAction action1 = tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+		assertEquals(0, tprofMan.listInputProfiles().size());
+		List<InputTranslationRule> rules = new ArrayList<>();
+		InputTranslationAction action1 = (InputTranslationAction) tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
 				IdentifierIdentity.ID, 
 				"'joe'", 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				IdentityEffectMode.CREATE_OR_MATCH.toString());
-		rules.add(new TranslationRule(action1, new TranslationCondition()));
-		TranslationAction action2 = tactionReg.getByName(MapGroupActionFactory.NAME).getInstance(
+		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
+		InputTranslationAction action2 = (InputTranslationAction) tactionReg.getByName(MapGroupActionFactory.NAME).getInstance(
 				"'/A'"); 
-		rules.add(new TranslationRule(action2, new TranslationCondition()));
+		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
 		
-		TranslationProfile toAdd = new TranslationProfile("p1", rules, ProfileMode.UPDATE_ONLY);
+		InputTranslationProfile toAdd = new InputTranslationProfile("p1", rules, ProfileMode.UPDATE_ONLY);
 		tprofMan.addProfile(toAdd);
 		
-		Map<String, TranslationProfile> profiles = tprofMan.listProfiles();
+		Map<String, InputTranslationProfile> profiles = tprofMan.listInputProfiles();
 		assertNotNull(profiles.get("p1"));
 		assertEquals(2, profiles.get("p1").getRules().size());
 		assertEquals(MapIdentityActionFactory.NAME, profiles.get("p1").getRules().get(0).
@@ -86,7 +87,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		
 		rules.remove(0);
 		tprofMan.updateProfile(toAdd);
-		profiles = tprofMan.listProfiles();
+		profiles = tprofMan.listInputProfiles();
 		assertNotNull(profiles.get("p1"));
 		assertEquals(1, profiles.get("p1").getRules().size());
 		assertEquals(MapGroupActionFactory.NAME, profiles.get("p1").getRules().get(0).
@@ -94,7 +95,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		assertEquals("'/A'", profiles.get("p1").getRules().get(0).getAction().getParameters()[0]);
 		
 		tprofMan.removeProfile("p1");
-		assertEquals(0, tprofMan.listProfiles().size());
+		assertEquals(0, tprofMan.listInputProfiles().size());
 	}
 
 	
@@ -107,22 +108,22 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		
 		groupsMan.addGroup(new Group("/A"));
 		
-		List<TranslationRule> rules = new ArrayList<>();
-		TranslationAction action1 = tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+		List<InputTranslationRule> rules = new ArrayList<>();
+		InputTranslationAction action1 = (InputTranslationAction) tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
 				X500Identity.ID, 
 				"'CN=' + attr['cn'] + ',O=ICM,UID=' + id", 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				IdentityEffectMode.CREATE_OR_MATCH.toString());
-		rules.add(new TranslationRule(action1, new TranslationCondition()));
-		TranslationAction action2 = tactionReg.getByName(MapGroupActionFactory.NAME).getInstance(
+		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
+		InputTranslationAction action2 = (InputTranslationAction) tactionReg.getByName(MapGroupActionFactory.NAME).getInstance(
 				"'/A'"); 
-		rules.add(new TranslationRule(action2, new TranslationCondition()));
-		TranslationAction action3 = tactionReg.getByName(MapAttributeActionFactory.NAME).getInstance(
+		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
+		InputTranslationAction action3 = (InputTranslationAction) tactionReg.getByName(MapAttributeActionFactory.NAME).getInstance(
 				"o", "/A", "groups",
 				AttributeVisibility.full.toString(), AttributeEffectMode.CREATE_OR_UPDATE.toString()); 
-		rules.add(new TranslationRule(action3, new TranslationCondition()));
+		rules.add(new InputTranslationRule(action3, new TranslationCondition()));
 		
-		TranslationProfile tp1 = new TranslationProfile("p1", rules, ProfileMode.UPDATE_ONLY);
+		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules, ProfileMode.UPDATE_ONLY);
 		
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		input.addIdentity(new RemoteIdentity("someUser", UsernameIdentity.ID));

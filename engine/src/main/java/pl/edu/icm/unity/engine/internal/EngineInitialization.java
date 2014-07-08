@@ -55,9 +55,9 @@ import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.RealmsManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.FileWatcher;
 import pl.edu.icm.unity.server.utils.Log;
@@ -766,10 +766,10 @@ public class EngineInitialization extends LifecycleBase
 	private void initializeTranslationProfiles()
 	{
 		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
-		Map<String, TranslationProfile> existingProfiles;
+		Map<String, InputTranslationProfile> existingProfiles;
 		try
 		{
-			existingProfiles = profilesManagement.listProfiles();
+			existingProfiles = profilesManagement.listInputProfiles();
 		} catch (EngineException e1)
 		{
 			throw new InternalException("Can't list the existing translation profiles", e1);
@@ -786,7 +786,7 @@ public class EngineInitialization extends LifecycleBase
 				throw new ConfigurationException("Problem loading translation profile from file: " +
 						profileFile, e);
 			}
-			TranslationProfile tp = new TranslationProfile(json, jsonMapper, tactionsRegistry);
+			InputTranslationProfile tp = new InputTranslationProfile(json, jsonMapper, tactionsRegistry);
 			try
 			{
 				if (existingProfiles.containsKey(tp.getName()))

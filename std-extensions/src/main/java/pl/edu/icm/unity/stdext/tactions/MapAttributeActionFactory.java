@@ -10,11 +10,12 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.authn.remote.translation.AttributeEffectMode;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationAction;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc.Type;
+import pl.edu.icm.unity.server.translation.ActionParameterDesc;
+import pl.edu.icm.unity.server.translation.ProfileType;
+import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
+import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.in.AttributeEffectMode;
+import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 /**
@@ -73,8 +74,14 @@ public class MapAttributeActionFactory implements TranslationActionFactory
 	}
 
 	@Override
-	public TranslationAction getInstance(String... parameters) throws EngineException
+	public InputTranslationAction getInstance(String... parameters) throws EngineException
 	{
 		return new MapAttributeAction(parameters, this, attrsMan);
+	}
+
+	@Override
+	public ProfileType getSupportedProfileType()
+	{
+		return ProfileType.INPUT;
 	}
 }
