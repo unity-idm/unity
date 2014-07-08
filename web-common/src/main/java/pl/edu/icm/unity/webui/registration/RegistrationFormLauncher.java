@@ -82,15 +82,17 @@ public class RegistrationFormLauncher
 		String id;
 		try
 		{
-			id = registrationsManagement.submitRegistrationRequest(request, !addAutoAccept);
+			id = registrationsManagement.submitRegistrationRequest(request, !andAccept);
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage(
-					"RegistrationFormsChooserComponent.errorRequestSubmit"), e);
+			ErrorPopup.showError(
+					msg,
+					msg.getMessage("RegistrationFormsChooserComponent.errorRequestSubmit"),
+					e);
 			return false;
 		}
-		
+
 		try
 		{							
 			if (andAccept && addAutoAccept)

@@ -16,6 +16,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.log4j.Logger;
 import org.mvel2.MVEL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -57,6 +58,7 @@ import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -92,7 +94,7 @@ import pl.edu.icm.unity.types.registration.Selection;
 @Component
 public class RegistrationsManagementImpl implements RegistrationsManagement
 {
-	
+	private static final Logger log = Log.getLogger(Log.U_SERVER, RegistrationsManagementImpl.class);
 	private final String autoAcceptComment = "System";
 	private DBSessionManager db;
 	private RegistrationFormDB formsDB;
@@ -258,13 +260,16 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		} finally
 		{
 			db.releaseSqlSession(sql);
-		}		
-		if (checkAutoAcceptCondition(requestFull.getRequest()) && tryAutoAccept)
+		}
+		
+		
+		if (tryAutoAccept && checkAutoAcceptCondition(requestFull.getRequest()))
 		{
 			processRegistrationRequest(requestFull.getRequestId(),
 					requestFull.getRequest(), RegistrationRequestAction.accept,
 					null, autoAcceptComment);
 		}
+			
 		return requestFull.getRequestId();
 	}
 
@@ -848,7 +853,16 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (form == null)
 			return false;
 		
-		Boolean result = (Boolean) MVEL.eval(form.getAutoAcceptCondition(), createMvelContext(request, form));
+		Boolean result = new Boolean(false);
+		try
+		{
+			result = (Boolean) MVEL.eval(form.getAutoAcceptCondition(),
+					createMvelContext(request, form));
+
+		} catch (Exception e)
+		{
+			log.warn("Invalid MVEL condition", e);
+		}
 		return result.booleanValue();
 	}
 	
@@ -856,16 +870,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	{
 		HashMap<String, Object> ctx = new HashMap<String, Object>();
 
-		List<IdentityParamValue> identities = request.getIdentities();
-		List<String> ids = new ArrayList<String>();
-		for (IdentityParamValue id : identities)
-		{
-			if (id == null)
-				continue;
-			ids.add(id.getValue());
-		}
-		ctx.put("ids", ids);
-		
+		List<IdentityParamValue> identities = request.getIdentities();	
 		Map<String, List<String>> idsByType = new HashMap<String, List<String>>();
 	        for (IdentityParamValue id: identities)
 	        {
