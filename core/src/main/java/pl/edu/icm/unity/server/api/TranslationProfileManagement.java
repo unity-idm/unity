@@ -9,6 +9,7 @@ import java.util.Map;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
 
 /**
  * This interface allows clients to manipulate translation profiles. Translation profiles are 
@@ -20,12 +21,13 @@ import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
  */
 public interface TranslationProfileManagement
 {
+	void addProfile(TranslationProfile toAdd) throws EngineException;
 	
-	public void addProfile(TranslationProfile toAdd) throws EngineException;
+	void removeProfile(String name) throws EngineException;
 	
-	public void removeProfile(String name) throws EngineException;
+	void updateProfile(TranslationProfile updated) throws EngineException;
 	
-	public void updateProfile(TranslationProfile updated) throws EngineException;
-	
-	public Map<String, InputTranslationProfile> listInputProfiles() throws EngineException;
+	Map<String, InputTranslationProfile> listInputProfiles() throws EngineException;
+
+	Map<String, OutputTranslationProfile> listOutputProfiles() throws EngineException;
 }

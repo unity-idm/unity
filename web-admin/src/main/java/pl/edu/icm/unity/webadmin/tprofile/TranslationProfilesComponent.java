@@ -119,11 +119,23 @@ public class TranslationProfilesComponent extends VerticalLayout
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		
 		profileType = new OptionGroup();
+		profileType.setImmediate(true);
 		profileType.addItem(ProfileType.INPUT);
 		profileType.setItemCaption(ProfileType.INPUT, 
 				msg.getMessage("TranslationProfilesComponent.inputProfileType"));
+		profileType.addItem(ProfileType.OUTPUT);
+		profileType.setItemCaption(ProfileType.OUTPUT, 
+				msg.getMessage("TranslationProfilesComponent.outputProfileType"));
 		profileType.setNullSelectionAllowed(false);
 		profileType.select(ProfileType.INPUT);
+		profileType.addValueChangeListener(new ValueChangeListener()
+		{
+			@Override
+			public void valueChange(ValueChangeEvent event)
+			{
+				refresh();
+			}
+		});
 		
 		VerticalLayout left = new VerticalLayout();
 		left.setSpacing(true);
@@ -151,6 +163,9 @@ public class TranslationProfilesComponent extends VerticalLayout
 			{
 			case INPUT:
 				profiles = profileMan.listInputProfiles().values();
+				break;
+			case OUTPUT:
+				profiles = profileMan.listOutputProfiles().values();
 				break;
 			}
 			if (profiles == null)
@@ -235,6 +250,9 @@ public class TranslationProfilesComponent extends VerticalLayout
 		{
 		case INPUT:
 			return new InputTranslationProfileEditor(msg, tc, toEdit, attrsMan, 
+					idMan, authnMan, groupsMan);
+		case OUTPUT:
+			return new OutputTranslationProfileEditor(msg, tc, toEdit, attrsMan, 
 					idMan, authnMan, groupsMan);
 		}
 		throw new IllegalStateException("not implemented");

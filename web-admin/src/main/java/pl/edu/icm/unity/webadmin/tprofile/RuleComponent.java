@@ -21,6 +21,8 @@ import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
@@ -355,6 +357,8 @@ public class RuleComponent extends VerticalLayout
 		{
 		case INPUT:
 			return new InputTranslationRule((InputTranslationAction) action, cnd);
+		case OUTPUT:
+			return new OutputTranslationRule((OutputTranslationAction) action, cnd);
 		
 		}
 		throw new IllegalStateException("Not implemented");

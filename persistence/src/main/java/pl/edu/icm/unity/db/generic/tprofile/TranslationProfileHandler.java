@@ -17,6 +17,7 @@ import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
 
 /**
  * Handler for {@link AbstractTranslationProfile}.
@@ -40,7 +41,8 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 	public GenericObjectBean toBlob(TranslationProfile value, SqlSession sql)
 	{
 		String json = value.toJson(jsonMapper);
-		return new GenericObjectBean(value.getName(), json.getBytes(), supportedType);
+		return new GenericObjectBean(value.getName(), json.getBytes(), supportedType, 
+				value.getProfileType().toString());
 	}
 
 	@Override
@@ -54,6 +56,9 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 		{
 		case INPUT:
 			return new InputTranslationProfile(new String(blob.getContents()), 
+					jsonMapper, actionsRegistry);
+		case OUTPUT:
+			return new OutputTranslationProfile(new String(blob.getContents()), 
 					jsonMapper, actionsRegistry);
 		}
 		throw new IllegalStateException("The stored translation profile with subtype id " + subType + 
