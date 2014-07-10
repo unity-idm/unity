@@ -36,6 +36,7 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
+import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
@@ -366,7 +367,20 @@ public class AttributesPanel extends HorizontalSplitPanel
 		return acHelper.isMandatory(attribute.getName());
 			
 	}
-
+	
+	private Collection<AttributeItem> getItems(Object target)
+	{
+		Collection<?> c = (Collection<?>) target;
+		Collection<AttributeItem> items = new ArrayList<AttributeItem>();
+		for (Object o: c)
+		{
+			GenericItem<?> i = (GenericItem<?>) o;
+			AttributeItem at = (AttributeItem) i.getElement();
+			items.add(at);	
+		}
+		return items;
+	}
+	
 	/**
 	 * Extends {@link SingleActionHandler}. Returns action only for selections on an attribute. 
 	 * @author K. Benedyczak
@@ -387,9 +401,8 @@ public class AttributesPanel extends HorizontalSplitPanel
 			
 			if (target instanceof Collection<?>)
 			{
-				@SuppressWarnings("unchecked")
-				Collection<AttributeItem> items = (Collection<AttributeItem>) target;
-				for (AttributeItem item : items)
+				
+				for (AttributeItem item : getItems(target))
 				{
 					if (checkAttributeImm((AttributeItem) item))
 						return EMPTY;
@@ -420,9 +433,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			{
 				if (target instanceof Collection<?>)
 				{
-					@SuppressWarnings("unchecked")
-					Collection<AttributeItem> items = (Collection<AttributeItem>) target;
-					for (AttributeItem item : items)
+					for (AttributeItem item : getItems(target))
 					{
 						if (checkAttributeMandatory((AttributeItem) item))
 							return EMPTY;
@@ -439,7 +450,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			final Collection<AttributeItem> items = (Collection<AttributeItem>) target;	
+			final Collection<AttributeItem> items = getItems(target);	
 			String confirmText = "";
 			for (AttributeItem item : items)
 			{

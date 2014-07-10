@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.attributeclass;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -220,12 +221,18 @@ public class AttributesClassesComponent  extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final Collection<GenericItem<String>> items = (Collection<GenericItem<String>>) target;
+			Collection<?> c = (Collection<?>) target;
+			final Collection<String> items = new ArrayList<String>();
+			for (Object o: c)
+			{
+				GenericItem<?> i = (GenericItem<?>) o;
+				items.add((String) i.getElement());	
+			}
 			String confirmText = "";
-			for (GenericItem<String> item : items)
+			for (String item : items)
 			{
 				confirmText += ", ";
-				confirmText += item.getElement();
+				confirmText += item;
 			}
 			confirmText = confirmText.substring(2);
 			new ConfirmDialog(msg, msg.getMessage("AttributesClass.confirmDelete", confirmText),
@@ -234,9 +241,9 @@ public class AttributesClassesComponent  extends VerticalLayout
 				@Override
 				public void onConfirm()
 				{
-					for (GenericItem<String> item : items)
+					for (String item : items)
 					{
-						removeAC(item.getElement());
+						removeAC(item);
 					}
 				}
 			}).show();

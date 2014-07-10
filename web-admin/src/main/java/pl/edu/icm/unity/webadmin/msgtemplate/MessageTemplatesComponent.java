@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -232,10 +233,12 @@ public class MessageTemplatesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			GenericItem<MessageTemplate> item = (GenericItem<MessageTemplate>) target;		
+			
+			GenericItem<?> witem = (GenericItem<?>) target;
+			MessageTemplate item = (MessageTemplate) witem.getElement();
 			MessageTemplateEditor editor;
 			
-			editor = new MessageTemplateEditor(msg, consumersRegistry, item.getElement());
+			editor = new MessageTemplateEditor(msg, consumersRegistry, item);
 			
 			MessageTemplateEditDialog dialog = new MessageTemplateEditDialog(msg, 
 					msg.getMessage("MessageTemplatesComponent.editAction"), new MessageTemplateEditDialog.Callback()
@@ -262,13 +265,18 @@ public class MessageTemplatesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final Collection<GenericItem<MessageTemplate>> items = (Collection<GenericItem<MessageTemplate>>) target;
-			
+			Collection<?> c = (Collection<?>) target;
+			final Collection<MessageTemplate> items = new ArrayList<MessageTemplate>();
+			for (Object o: c)
+			{
+				GenericItem<?> i = (GenericItem<?>) o;
+				items.add((MessageTemplate) i.getElement());	
+			}	
 			String confirmText = "";
-			for (GenericItem<MessageTemplate> item : items)
+			for (MessageTemplate item : items)
 			{
 				confirmText += ", ";
-				confirmText += item.getElement().getName();
+				confirmText += item.getName();
 			}
 			confirmText = confirmText.substring(2);
 			new ConfirmDialog(msg, msg.getMessage(
@@ -279,9 +287,9 @@ public class MessageTemplatesComponent extends VerticalLayout
 						@Override
 						public void onConfirm()
 						{
-							for (GenericItem<MessageTemplate> item : items)
+							for (MessageTemplate item : items)
 							{
-								removeTemplate(item.getElement().getName());
+								removeTemplate(item.getName());
 							}
 						}
 					}).show();

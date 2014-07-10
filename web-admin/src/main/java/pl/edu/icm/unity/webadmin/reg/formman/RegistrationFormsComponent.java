@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -270,13 +271,15 @@ public class RegistrationFormsComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			GenericItem<RegistrationForm> item = (GenericItem<RegistrationForm>) target;
+			
+			GenericItem<?> witem = (GenericItem<?>) target;
+			RegistrationForm item = (RegistrationForm) witem.getElement();
 			RegistrationFormEditor editor;
 			try
 			{
 				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
 						msgTempMan, identitiesMan, attributeMan, authenticationMan,
-						attrHandlerRegistry, item.getElement());
+						attrHandlerRegistry, item);
 			} catch (EngineException e)
 			{
 				ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
@@ -307,13 +310,18 @@ public class RegistrationFormsComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final Collection<GenericItem<RegistrationForm>> items = (Collection<GenericItem<RegistrationForm>>) target;
-	
+			Collection<?> c = (Collection<?>) target;
+			final Collection<RegistrationForm> items = new ArrayList<RegistrationForm>();
+			for (Object o: c)
+			{
+				GenericItem<?> i = (GenericItem<?>) o;
+				items.add((RegistrationForm) i.getElement());	
+			}	
 			String confirmText = "";
-			for (GenericItem<RegistrationForm> item : items)
+			for (RegistrationForm item : items)
 			{
 				confirmText += ", ";
-				confirmText += item.getElement().getName();
+				confirmText += item.getName();
 			}
 			confirmText = confirmText.substring(2);
 			new ConfirmWithOptionDialog(msg, msg.getMessage("RegistrationFormsComponent.confirmDelete", 
@@ -324,9 +332,9 @@ public class RegistrationFormsComponent extends VerticalLayout
 				@Override
 				public void onConfirm(boolean dropRequests)
 				{
-							for (GenericItem<RegistrationForm> item : items)
+							for (RegistrationForm item : items)
 							{
-								removeForm(item.getElement().getName(),
+								removeForm(item.getName(),
 										dropRequests);
 							}
 				}

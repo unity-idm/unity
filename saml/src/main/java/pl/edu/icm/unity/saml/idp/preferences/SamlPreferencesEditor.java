@@ -207,9 +207,9 @@ public class SamlPreferencesEditor implements PreferencesEditor
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			@SuppressWarnings("unchecked")
-			GenericItem<String> item = (GenericItem<String>)target;
-			preferences.removeSPSettings(item.getElement());
+			
+			GenericItem<?> item = (GenericItem<?>)target;
+			preferences.removeSPSettings((String)item.getElement());
 			table.setInput(preferences.getKeys());
 			listener.preferencesModified();
 		}

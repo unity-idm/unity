@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.webadmin.tprofile;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -232,10 +233,11 @@ public class TranslationProfilesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			GenericItem<TranslationProfile> item;
-			item = (GenericItem<TranslationProfile>) target;	
+			
+			GenericItem<?> item = (GenericItem<?>) target;		
+			TranslationProfile profile = (TranslationProfile) item.getElement();
 			TranslationProfileEditor editor;
-			editor = new TranslationProfileEditor(msg, tc, item.getElement());	
+			editor = new TranslationProfileEditor(msg, tc, profile);	
 			TranslationProfileEditDialog dialog = new TranslationProfileEditDialog(msg, 
 					msg.getMessage("TranslationProfilesComponent.editAction"), new TranslationProfileEditDialog.Callback()
 					{
@@ -261,12 +263,18 @@ public class TranslationProfilesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final Collection<GenericItem<TranslationProfile>> items = (Collection<GenericItem<TranslationProfile>>) target;
+			Collection<?> c = (Collection<?>) target;
+			final Collection<TranslationProfile> items = new ArrayList<TranslationProfile>();
+			for (Object o: c)
+			{
+				GenericItem<?> i = (GenericItem<?>) o;
+				items.add((TranslationProfile) i.getElement());	
+			}	
 			String confirmText = "";
-			for (GenericItem<TranslationProfile> item : items)
+			for (TranslationProfile item : items)
 			{
 				confirmText += ", ";
-				confirmText += item.getElement().getName();
+				confirmText += item.getName();
 			}
 			confirmText = confirmText.substring(2);		
 			new ConfirmDialog(msg, msg.getMessage(
@@ -277,9 +285,9 @@ public class TranslationProfilesComponent extends VerticalLayout
 				@Override
 				public void onConfirm()
 				{
-					for (GenericItem<TranslationProfile> item : items)
+					for (TranslationProfile item : items)
 					{
-						removeProfile(item.getElement().getName());
+						removeProfile(item.getName());
 					}
 
 				}

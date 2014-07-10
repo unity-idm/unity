@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.credreq;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -262,8 +263,9 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			Collection<CredentialDefinition> allCredentials = getCredentials();	
 			if (allCredentials == null)
 				return;
-			GenericItem<CredentialRequirements> item = (GenericItem<CredentialRequirements>) target;	
-			CredentialRequirements cr = item.getElement();
+			
+			GenericItem<?> item = (GenericItem<?>) target;			
+			CredentialRequirements cr = (CredentialRequirements) item.getElement();
 			CredentialRequirements crClone = new CredentialRequirements();
 			crClone.setDescription(cr.getDescription());
 			crClone.setName(cr.getName());
@@ -295,12 +297,18 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final Collection<GenericItem<CredentialRequirements>> items = (Collection<GenericItem<CredentialRequirements>>) target;
-
-			HashSet<String> removed = new HashSet<String>();
-			for (GenericItem<CredentialRequirements> item : items)
+			
+			Collection<?> c = (Collection<?>) target;
+			final Collection<CredentialRequirements> items = new ArrayList<CredentialRequirements>();
+			for (Object o: c)
 			{
-				removed.add(item.getElement().getName());
+				GenericItem<?> i = (GenericItem<?>) o;
+				items.add((CredentialRequirements) i.getElement());	
+			}	
+			HashSet<String> removed = new HashSet<String>();
+			for (CredentialRequirements item : items)
+			{
+				removed.add(item.getName());
 				
 			}			
 			Collection<CredentialRequirements> allCRs = getCredentialRequirements();
@@ -310,9 +318,9 @@ public class CredentialRequirementsComponent extends VerticalLayout
 				@Override
 				public void onConfirm(String replacementCR)
 				{
-					for (GenericItem<CredentialRequirements> item : items)
+					for (CredentialRequirements item : items)
 					{
-						removeCR(item.getElement().getName(), replacementCR);
+						removeCR(item.getName(), replacementCR);
 					}
 				}
 			}).show();

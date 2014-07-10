@@ -808,11 +808,13 @@ public class IdentitiesTable extends TreeTable
 
 		@Override
 		public void handleAction(Object sender, Object target)
-		{	
-			final Collection<IdentityWithEntity> nodes = (Collection<IdentityWithEntity>) target;
+		{		
+			final Collection<?> nodes = (Collection<?>) target;
+				
 			String confirmText = "";
-			for (IdentityWithEntity node : nodes)
+			for (Object o : nodes)
 			{
+				IdentityWithEntity node = (IdentityWithEntity) o;
 				confirmText += ", ";
 				confirmText += node.identity;
 			}
@@ -823,8 +825,9 @@ public class IdentitiesTable extends TreeTable
 				@Override
 				public void onConfirm()
 				{
-					for (IdentityWithEntity node : nodes)
+					for (Object o : nodes)
 					{
+						IdentityWithEntity node = (IdentityWithEntity) o;
 						removeIdentity(node.identity);
 					}
 

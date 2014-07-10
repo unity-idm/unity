@@ -251,7 +251,13 @@ public class AttributeStatementsTable extends Table
 		public void handleAction(Object sender, final Object target)
 		{
 			
-			final Collection<AttributeStatement> items = (Collection<AttributeStatement>) target;	
+			final Collection<AttributeStatement> items = new ArrayList<AttributeStatement>();
+			Collection<?> ats = (Collection<?>) target;
+			for (Object o: ats)
+			{
+				items.add((AttributeStatement) o);
+			}
+					
 			new ConfirmDialog(msg, msg.getMessage("AttributeStatements.confirmDelete"),
 					new ConfirmDialog.Callback()
 			{

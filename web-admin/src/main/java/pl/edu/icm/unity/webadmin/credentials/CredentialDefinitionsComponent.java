@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.credentials;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -242,8 +243,9 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			GenericItem<CredentialDefinition> item = (GenericItem<CredentialDefinition>) target;
-			CredentialDefinition cr = item.getElement();
+			
+			GenericItem<?> item = (GenericItem<?>) target;
+			CredentialDefinition cr = (CredentialDefinition) item.getElement();
 			CredentialDefinition crClone = new CredentialDefinition();
 			crClone.setDescription(cr.getDescription());
 			crClone.setName(cr.getName());
@@ -279,12 +281,18 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final Collection<GenericItem<CredentialDefinition>> items = (Collection<GenericItem<CredentialDefinition>>) target;
+			Collection<?> c = (Collection<?>) target;
+			final Collection<CredentialDefinition> items = new ArrayList<CredentialDefinition>();
+			for (Object o: c)
+			{
+				GenericItem<?> i = (GenericItem<?>) o;
+				items.add((CredentialDefinition) i.getElement());	
+			}	
 			String confirmText = "";
-			for (GenericItem<CredentialDefinition> item : items)
+			for (CredentialDefinition item : items)
 			{
 				confirmText += ", ";
-				confirmText += item.getElement().getName();
+				confirmText += item.getName();
 			}
 			confirmText = confirmText.substring(2);		
 			new ConfirmDialog(msg, msg.getMessage("CredentialDefinitions.confirmDelete", confirmText),
@@ -293,10 +301,9 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 						@Override
 						public void onConfirm()
 						{
-							for (GenericItem<CredentialDefinition> item : items)
+							for (CredentialDefinition item : items)
 							{
-								removeCD(item.getElement()
-										.getName());
+								removeCD(item.getName());
 							}
 						}
 					}).show();

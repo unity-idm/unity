@@ -94,7 +94,7 @@ public abstract class SingleActionHandler implements Handler
 		}
 		if (!multiTarget && (target instanceof Collection<?>))
 		{
-			Collection<Object> ntarget = (Collection<Object>)target;
+			Collection<?> ntarget = (Collection<?>)target;
 			wrTarget = ntarget.iterator().next();
 		}
 			

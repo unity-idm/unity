@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.attributetype;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -231,6 +232,19 @@ public class AttributeTypesComponent extends VerticalLayout
 			dialog.show();
 		}
 	}
+		
+	private Collection<AttributeType> getItems(Object target)
+	{
+		Collection<?> c = (Collection<?>) target;
+		Collection<AttributeType> items = new ArrayList<AttributeType>();
+		for (Object o: c)
+		{
+			GenericItem<?> i = (GenericItem<?>) o;
+			AttributeType at = (AttributeType) i.getElement();
+			items.add(at);	
+		}
+		return items;
+	}
 	
 	/**
 	 * Extends {@link SingleActionHandler}. Returns action only for selections on mutable attribute type items. 
@@ -252,18 +266,16 @@ public class AttributeTypesComponent extends VerticalLayout
 				
 			if (target instanceof Collection<?>)
 			{
-				@SuppressWarnings("unchecked")
-				Collection<GenericItem<AttributeType>> items = (Collection<GenericItem<AttributeType>>) target;
-				for (GenericItem<AttributeType> item : items)
+				for (AttributeType item : getItems(target))
 				{
-					AttributeType at = item.getElement();
-					if (at.isTypeImmutable())
+					if (item.isTypeImmutable())
 						return EMPTY;
 				}
 			} else
 			{
-				@SuppressWarnings("unchecked")
-				AttributeType at = ((GenericItem<AttributeType>) target).getElement();
+				
+				GenericItem<?> item = (GenericItem<?>) target;	
+				AttributeType at = (AttributeType) item.getElement();
 				if (at.isTypeImmutable())
 					return EMPTY;
 			}
@@ -282,7 +294,9 @@ public class AttributeTypesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			AttributeType at = ((GenericItem<AttributeType>) target).getElement();
+			
+			GenericItem<?> item = (GenericItem<?>) target;	
+			AttributeType at = (AttributeType) item.getElement();
 			AttributeTypeEditor editor = new AttributeTypeEditor(msg, attrHandlerRegistry, at,
 					attrMetaHandlerRegistry);
 			AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
@@ -309,13 +323,14 @@ public class AttributeTypesComponent extends VerticalLayout
 		
 		@Override
 		public void handleAction(Object sender, Object target)
-		{
-			final Collection<GenericItem<AttributeType>> items = (Collection<GenericItem<AttributeType>>) target;				
+		{	
+			final Collection<AttributeType> items = getItems(target);
+
 			String confirmText = "";
-			for (GenericItem<AttributeType> item : items)
+			for (AttributeType item : items)
 			{
 				confirmText += ", ";
-				confirmText += item.getElement().getName();
+				confirmText += item.getName();
 			}
 			confirmText = confirmText.substring(2);
 			new ConfirmWithOptionDialog(msg, msg.getMessage(
@@ -327,10 +342,9 @@ public class AttributeTypesComponent extends VerticalLayout
 						public void onConfirm(boolean withInstances)
 						{
 
-							for (GenericItem<AttributeType> item : items)
+							for (AttributeType item : items)
 							{
-								removeType(item.getElement()
-										.getName(),
+								removeType(item.getName(),
 										withInstances);
 							}
 						}
