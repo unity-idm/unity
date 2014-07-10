@@ -36,7 +36,6 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
@@ -374,8 +373,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		Collection<AttributeItem> items = new ArrayList<AttributeItem>();
 		for (Object o: c)
 		{
-			GenericItem<?> i = (GenericItem<?>) o;
-			AttributeItem at = (AttributeItem) i.getElement();
+			AttributeItem at = (AttributeItem) o;
 			items.add(at);	
 		}
 		return items;
@@ -400,8 +398,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 				return EMPTY;
 			
 			if (target instanceof Collection<?>)
-			{
-				
+			{		
 				for (AttributeItem item : getItems(target))
 				{
 					if (checkAttributeImm((AttributeItem) item))
