@@ -28,7 +28,7 @@ import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.authn.remote.TranslationEngine;
+import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
@@ -57,7 +57,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 	private ReplayAttackChecker replayAttackChecker;
 	private IdentityResolver identityResolver;
 	private TranslationProfileManagement profileManagement;
-	private TranslationEngine trEngine;
+	private InputTranslationEngine trEngine;
 	private TokensManagement tokensMan;
 	private IdentitiesManagement identitiesMan;
 	private SessionManagement sessionMan;
@@ -69,7 +69,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 	public ECPEndpoint(EndpointTypeDescription type, String servletPath, PKIManagement pkiManagement,
 			ECPContextManagement samlContextManagement, URL baseAddress, String baseContext, 
 			ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
-			TranslationProfileManagement profileManagement, TranslationEngine trEngine,
+			TranslationProfileManagement profileManagement, InputTranslationEngine trEngine,
 			TokensManagement tokensMan, IdentitiesManagement identitiesMan, SessionManagement sessionMan, 
 			Map<String, RemoteMetaManager> remoteMetadataManagers, UnityServerConfiguration mainCfg,
 			ExecutorsService executorsService, MultiMetadataServlet metadataServlet)

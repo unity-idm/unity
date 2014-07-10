@@ -42,15 +42,15 @@ import pl.edu.icm.unity.types.basic.Identity;
  * @author K. Benedyczak
  */
 @Component
-public class TranslationEngine
+public class InputTranslationEngine
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, TranslationEngine.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, InputTranslationEngine.class);
 	private IdentitiesManagement idsMan;
 	private AttributesManagement attrMan;
 	private GroupsManagement groupsMan;
 	
 	@Autowired
-	public TranslationEngine(@Qualifier("insecure") IdentitiesManagement idsMan, 
+	public InputTranslationEngine(@Qualifier("insecure") IdentitiesManagement idsMan, 
 			@Qualifier("insecure") AttributesManagement attrMan,
 			@Qualifier("insecure") GroupsManagement groupsMan)
 	{

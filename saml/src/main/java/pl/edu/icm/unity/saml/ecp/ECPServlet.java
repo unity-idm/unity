@@ -18,7 +18,7 @@ import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.authn.remote.TranslationEngine;
+import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 
@@ -38,7 +38,7 @@ public class ECPServlet extends HttpServlet
 	public ECPServlet(SAMLECPProperties samlProperties, RemoteMetaManager metadataManager,
 			ECPContextManagement samlContextManagement, 
 			String myAddress, ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
-			TranslationProfileManagement profileManagement, TranslationEngine trEngine,
+			TranslationProfileManagement profileManagement, InputTranslationEngine trEngine,
 			TokensManagement tokensMan, PKIManagement pkiManagement, IdentitiesManagement identitiesMan,
 			SessionManagement sessionMan, AuthenticationRealm realm, String address)
 	{

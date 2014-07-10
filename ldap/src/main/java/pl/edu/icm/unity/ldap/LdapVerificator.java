@@ -20,7 +20,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialReset;
 import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.authn.remote.TranslationEngine;
+import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 
 /**
@@ -38,7 +38,7 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 	private String translationProfile;
 	
 	public LdapVerificator(String name, String description, 
-			TranslationProfileManagement profileManagement, TranslationEngine trEngine,
+			TranslationProfileManagement profileManagement, InputTranslationEngine trEngine,
 			PKIManagement pkiManagement)
 	{
 		super(name, description, PasswordExchange.ID, profileManagement, trEngine);

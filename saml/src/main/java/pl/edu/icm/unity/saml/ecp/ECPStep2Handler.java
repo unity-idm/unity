@@ -41,7 +41,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.remote.RemoteVerificatorUtil;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.authn.remote.TranslationEngine;
+import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -69,7 +69,7 @@ public class ECPStep2Handler
 	public ECPStep2Handler(SAMLECPProperties samlProperties, RemoteMetaManager metadataManager,
 			ECPContextManagement samlContextManagement, String myAddress,
 			ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
-			TranslationProfileManagement profileManagement, TranslationEngine trEngine,
+			TranslationProfileManagement profileManagement, InputTranslationEngine trEngine,
 			TokensManagement tokensMan, PKIManagement pkiManagement, IdentitiesManagement identitiesMan,
 			SessionManagement sessionMan, AuthenticationRealm realm, String address)
 	{

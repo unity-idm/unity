@@ -67,7 +67,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.authn.remote.TranslationEngine;
+import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.utils.Log;
 
 
@@ -86,7 +86,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	private OpenIdProviderMetadataManager metadataManager;
 	
 	public OAuth2Verificator(String name, String description, OAuthContextsManagement contextManagement,
-			TranslationProfileManagement profileManagement, TranslationEngine trEngine,
+			TranslationProfileManagement profileManagement, InputTranslationEngine trEngine,
 			URL baseAddress, String baseContext)
 	{
 		super(name, description, OAuthExchange.ID, profileManagement, trEngine);

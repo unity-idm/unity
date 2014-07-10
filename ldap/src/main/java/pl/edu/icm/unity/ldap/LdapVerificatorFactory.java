@@ -12,7 +12,7 @@ import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
-import pl.edu.icm.unity.server.authn.remote.TranslationEngine;
+import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 
 /**
  * Produces verificators of passwords using remote LDAP server.
@@ -25,12 +25,12 @@ public class LdapVerificatorFactory implements CredentialVerificatorFactory
 	public static final String NAME = "ldap";
 	
 	private TranslationProfileManagement profileManagement;
-	private TranslationEngine trEngine;
+	private InputTranslationEngine trEngine;
 	private PKIManagement pkiManagement;
 
 	@Autowired
 	public LdapVerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement, 
-			TranslationEngine trEngine, PKIManagement pkiManagement)
+			InputTranslationEngine trEngine, PKIManagement pkiManagement)
 	{
 		this.profileManagement = profileManagement;
 		this.trEngine = trEngine;

@@ -22,10 +22,10 @@ import pl.edu.icm.unity.server.authn.CredentialExchange;
 public abstract class AbstractRemoteVerificator extends AbstractVerificator
 {
 	private TranslationProfileManagement profileManagement;
-	private TranslationEngine trEngine;
+	private InputTranslationEngine trEngine;
 	
 	public AbstractRemoteVerificator(String name, String description, String exchangeId, 
-			TranslationProfileManagement profileManagement, TranslationEngine trEngine)
+			TranslationProfileManagement profileManagement, InputTranslationEngine trEngine)
 	{
 		super(name, description, exchangeId);
 		this.profileManagement = profileManagement;

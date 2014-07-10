@@ -27,7 +27,7 @@ import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.authn.remote.TranslationEngine;
+import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
@@ -53,7 +53,7 @@ public class ECPEndpointFactory implements EndpointFactory
 	private ReplayAttackChecker replayAttackChecker;
 	private IdentityResolver identityResolver;
 	private TranslationProfileManagement profileManagement;
-	private TranslationEngine trEngine;
+	private InputTranslationEngine trEngine;
 	private TokensManagement tokensMan;
 	private IdentitiesManagement identitiesMan;
 	private SessionManagement sessionMan;
@@ -69,7 +69,7 @@ public class ECPEndpointFactory implements EndpointFactory
 			ECPContextManagement samlContextManagement,
 			ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
 			@Qualifier("insecure") TranslationProfileManagement profileManagement, 
-			TranslationEngine trEngine,
+			InputTranslationEngine trEngine,
 			TokensManagement tokensMan, IdentitiesManagement identitiesMan,
 			SessionManagement sessionMan, UnityServerConfiguration mainCfg, 
 			ExecutorsService executorsService, SharedEndpointManagement sharedEndpointManagement) 

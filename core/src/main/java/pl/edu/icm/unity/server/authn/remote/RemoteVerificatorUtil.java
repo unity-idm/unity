@@ -34,10 +34,10 @@ public class RemoteVerificatorUtil
 {
 	private TranslationProfileManagement profileManagement;
 	private IdentityResolver identityResolver;
-	private TranslationEngine trEngine;
+	private InputTranslationEngine trEngine;
 	
 	public RemoteVerificatorUtil(IdentityResolver identityResolver,	TranslationProfileManagement profileManagement,
-			TranslationEngine trEngine)
+			InputTranslationEngine trEngine)
 	{
 		this.identityResolver = identityResolver;
 		this.profileManagement = profileManagement;

@@ -23,7 +23,7 @@ import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
-import pl.edu.icm.unity.server.authn.remote.TranslationEngine;
+import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
@@ -40,7 +40,7 @@ public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 	public static final String METADATA_SERVLET_PATH = "/saml-sp-metadata";
 	
 	private TranslationProfileManagement profileManagement;
-	private TranslationEngine trEngine;
+	private InputTranslationEngine trEngine;
 	private PKIManagement pkiMan;
 	private UnityServerConfiguration mainConfig;
 	private ReplayAttackChecker replayAttackChecker;
@@ -52,7 +52,7 @@ public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 	
 	@Autowired
 	public SAMLVerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement,
-			TranslationEngine trEngine, 
+			InputTranslationEngine trEngine, 
 			PKIManagement pkiMan, ReplayAttackChecker replayAttackChecker,
 			SharedEndpointManagement sharedEndpointManagement, SamlContextManagement contextManagement,
 			NetworkServer jettyServer, ExecutorsService executorsService, 

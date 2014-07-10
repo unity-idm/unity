@@ -17,7 +17,7 @@ import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
-import pl.edu.icm.unity.server.authn.remote.TranslationEngine;
+import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 
 /**
  * Factory of {@link OAuth2Verificator}s.
@@ -30,14 +30,14 @@ public class OAuth2VerificatorFactory implements CredentialVerificatorFactory
 	public static final String NAME = "oauth2";
 	
 	private TranslationProfileManagement profileManagement;
-	private TranslationEngine trEngine;
+	private InputTranslationEngine trEngine;
 	private URL baseAddress;
 	private String baseContext;
 	private OAuthContextsManagement contextManagement;
 	
 	@Autowired
 	public OAuth2VerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement,
-			TranslationEngine trEngine, NetworkServer jettyServer,
+			InputTranslationEngine trEngine, NetworkServer jettyServer,
 			SharedEndpointManagement sharedEndpointManagement,
 			OAuthContextsManagement contextManagement) throws EngineException
 	{
