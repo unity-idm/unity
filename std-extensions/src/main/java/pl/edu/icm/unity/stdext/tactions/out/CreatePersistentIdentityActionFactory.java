@@ -4,24 +4,35 @@
  */
 package pl.edu.icm.unity.stdext.tactions.out;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 
 /**
- * Factory for {@link CreateAttributeAction}.
+ * Factory for {@link CreatePersistentIdentityAction}.
  *   
  * @author K. Benedyczak
  */
 @Component
-public class CreateAttributeActionFactory implements TranslationActionFactory
+public class CreatePersistentIdentityActionFactory implements TranslationActionFactory
 {
-	public static final String NAME = "createAttribute";
+	public static final String NAME = "createPersistedIdentity";
 	
+	private IdentityTypesRegistry idTypesReg;
+
+	@Autowired
+	public CreatePersistentIdentityActionFactory(IdentityTypesRegistry idTypesReg)
+	{
+		super();
+		this.idTypesReg = idTypesReg;
+	}
+
 	@Override
 	public String getName()
 	{
@@ -31,7 +42,7 @@ public class CreateAttributeActionFactory implements TranslationActionFactory
 	@Override
 	public String getDescriptionKey()
 	{
-		return "TranslationAction.createAttribute.desc";
+		return "TranslationAction.createPersistedIdentity.desc";
 	}
 
 	@Override
@@ -39,20 +50,19 @@ public class CreateAttributeActionFactory implements TranslationActionFactory
 	{
 		return new ActionParameterDesc[] {
 				new ActionParameterDesc(
-						"attributeName",
-						"TranslationAction.createAttribute.paramDesc.attributeName",
-						1, 1, Type.EXPRESSION),
+						"identityType",
+						"TranslationAction.createPersistedIdentity.paramDesc.idType",
+						1, 1, Type.UNITY_ID_TYPE),
 				new ActionParameterDesc(
 						"expression",
-						"TranslationAction.createAttribute.paramDesc.expression",
-						1, 1, Type.EXPRESSION)
-		};
+						"TranslationAction.createPersistedIdentity.paramDesc.idValueExpression",
+						1, 1, Type.EXPRESSION)};
 	}
 	
 	@Override
-	public CreateAttributeAction getInstance(String... parameters) throws EngineException
+	public CreatePersistentIdentityAction getInstance(String... parameters) throws EngineException
 	{
-		return new CreateAttributeAction(parameters, this);
+		return new CreatePersistentIdentityAction(parameters, this, idTypesReg);
 	}
 
 	@Override

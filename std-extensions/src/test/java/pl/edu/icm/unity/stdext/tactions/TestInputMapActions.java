@@ -6,8 +6,9 @@ package pl.edu.icm.unity.stdext.tactions;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,19 +26,26 @@ import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.MappedIdentity;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.tactions.in.MapAttributeActionFactory;
+import pl.edu.icm.unity.stdext.tactions.in.MapGroupActionFactory;
+import pl.edu.icm.unity.stdext.tactions.in.MapIdentityActionFactory;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
-import pl.edu.icm.unity.types.basic.AttributesClass;
-import pl.edu.icm.unity.types.basic.EntityParam;
 
-public class TestMapActions
+public class TestInputMapActions
 {
 	@Test
 	public void testMapAttribute() throws EngineException
 	{
-		MapAttributeActionFactory factory = new MapAttributeActionFactory(new MockAttributesMan());
+		AttributesManagement attrsMan = mock(AttributesManagement.class);
+		
+		Map<String, AttributeType> mockAts = new HashMap<String, AttributeType>();
+		AttributeType sA = new AttributeType("stringA", new StringAttributeSyntax());
+		mockAts.put(sA.getName(), sA);
+		when(attrsMan.getAttributeTypesAsMap()).thenReturn(mockAts);
+		
+		MapAttributeActionFactory factory = new MapAttributeActionFactory(attrsMan);
 		
 		InputTranslationAction mapAction = factory.getInstance("stringA", "/A/B", 
 				"attr['attribute'] + '-' + attr['other'] + '-' + id", 
@@ -87,100 +95,5 @@ public class TestMapActions
 		assertEquals(IdentityEffectMode.REQUIRE_MATCH, mi.getMode());
 		assertEquals("userName", mi.getIdentity().getTypeId());
 		assertEquals("a1-a2-idvalue", mi.getIdentity().getValue());
-	}
-	
-	
-	
-	
-	private static class MockAttributesMan implements AttributesManagement
-	{
-		@Override
-		public String[] getSupportedAttributeValueTypes() throws EngineException
-		{
-			return null;
-		}
-
-		@Override
-		public void addAttributeType(AttributeType at) throws EngineException
-		{
-		}
-
-		@Override
-		public void updateAttributeType(AttributeType at) throws EngineException
-		{
-		}
-
-		@Override
-		public void removeAttributeType(String id, boolean deleteInstances)
-				throws EngineException
-		{
-		}
-
-		@Override
-		public Collection<AttributeType> getAttributeTypes() throws EngineException
-		{
-			return null;
-		}
-
-		@Override
-		public Map<String, AttributeType> getAttributeTypesAsMap() throws EngineException
-		{
-			Map<String, AttributeType> ret = new HashMap<String, AttributeType>();
-			AttributeType sA = new AttributeType("stringA", new StringAttributeSyntax());
-			ret.put(sA.getName(), sA);
-			return ret;
-		}
-
-		@Override
-		public void addAttributeClass(AttributesClass clazz) throws EngineException
-		{
-		}
-		@Override
-		public void removeAttributeClass(String id) throws EngineException
-		{
-		}
-		@Override
-		public void updateAttributeClass(AttributesClass updated) throws EngineException
-		{
-		}
-		@Override
-		public Map<String, AttributesClass> getAttributeClasses() throws EngineException
-		{
-			return null;
-		}
-		@Override
-		public void setEntityAttributeClasses(EntityParam entity, String group,
-				Collection<String> classes) throws EngineException
-		{
-		}
-		@Override
-		public Collection<AttributesClass> getEntityAttributeClasses(EntityParam entity,
-				String group) throws EngineException
-		{
-			return null;
-		}
-		@Override
-		public <T> void setAttribute(EntityParam entity, Attribute<T> attribute,
-				boolean update) throws EngineException
-		{
-		}
-		@Override
-		public void removeAttribute(EntityParam entity, String groupPath,
-				String attributeTypeId) throws EngineException
-		{
-		}
-		@Override
-		public Collection<AttributeExt<?>> getAttributes(EntityParam entity,
-				String groupPath, String attributeTypeId) throws EngineException
-		{
-			return null;
-		}
-		@Override
-		public Collection<AttributeExt<?>> getAllAttributes(EntityParam entity,
-				boolean effective, String groupPath, String attributeTypeId,
-				boolean allowDegrade) throws EngineException
-		{
-			return null;
-		}
 	}
 }

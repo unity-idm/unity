@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
  * Result of output translation. Set of identities and attributes. This class is mutable: actions modify the contents
@@ -18,18 +18,18 @@ import pl.edu.icm.unity.types.basic.Identity;
  */
 public class TranslationResult
 {
-	private Collection<Attribute<?>> attributes = new HashSet<Attribute<?>>();
-	private Collection<Identity> identities = new ArrayList<Identity>();
+	private Collection<Attribute<?>> attributes = new HashSet<>();
+	private Collection<IdentityParam> identities = new ArrayList<>();
 
-	private Collection<Attribute<?>> attributesToPersist = new HashSet<Attribute<?>>();
-	private Collection<Identity> identitiesToPersist = new ArrayList<Identity>();
+	private Collection<Attribute<?>> attributesToPersist = new HashSet<>();
+	private Collection<IdentityParam> identitiesToPersist = new ArrayList<>();
 	
 	public Collection<Attribute<?>> getAttributes()
 	{
 		return attributes;
 	}
 	
-	public Collection<Identity> getIdentities()
+	public Collection<IdentityParam> getIdentities()
 	{
 		return identities;
 	}
@@ -39,7 +39,7 @@ public class TranslationResult
 		return attributesToPersist;
 	}
 
-	public Collection<Identity> getIdentitiesToPersist()
+	public Collection<IdentityParam> getIdentitiesToPersist()
 	{
 		return identitiesToPersist;
 	}

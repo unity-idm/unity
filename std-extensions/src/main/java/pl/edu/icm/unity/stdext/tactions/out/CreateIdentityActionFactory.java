@@ -4,17 +4,13 @@
  */
 package pl.edu.icm.unity.stdext.tactions.out;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.translation.out.CreationMode;
-import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 
 /**
  * Factory for {@link CreateIdentityAction}.
@@ -25,9 +21,6 @@ import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 public class CreateIdentityActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "createIdentity";
-	
-	@Autowired
-	private IdentityTypesRegistry idTypesReg;
 	
 	@Override
 	public String getName()
@@ -52,17 +45,13 @@ public class CreateIdentityActionFactory implements TranslationActionFactory
 				new ActionParameterDesc(
 						"expression",
 						"TranslationAction.createIdentity.paramDesc.idValueExpression",
-						1, 1, Type.EXPRESSION),
-				new ActionParameterDesc(
-						"creationMode",
-						"TranslationAction.createIdentity.paramDesc.creationMode",
-						1, 1, CreationMode.class)};
+						1, 1, Type.EXPRESSION)};
 	}
 	
 	@Override
-	public OutputTranslationAction getInstance(String... parameters) throws EngineException
+	public CreateIdentityAction getInstance(String... parameters) throws EngineException
 	{
-		return new CreateIdentityAction(parameters, this, idTypesReg);
+		return new CreateIdentityAction(parameters, this);
 	}
 
 	@Override

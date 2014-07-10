@@ -57,7 +57,7 @@ public class OutputTranslationProfile extends AbstractTranslationProfile<OutputT
 		try
 		{
 			int i=1;
-			TranslationResult translationState = new TranslationResult();
+			TranslationResult translationState = initiateTranslationResult(input);
 			for (OutputTranslationRule rule: rules)
 			{
 				NDC.push("[r: " + (i++) + "]");
@@ -77,6 +77,15 @@ public class OutputTranslationProfile extends AbstractTranslationProfile<OutputT
 		{
 			NDC.pop();
 		}
+	}
+	
+	public static TranslationResult initiateTranslationResult(TranslationInput input)
+	{
+		TranslationResult ret = new TranslationResult();
+		ret.getAttributes().addAll(input.getAttributes());
+		for (Identity id: input.getEntity().getIdentities())
+			ret.getIdentities().add(id);
+		return ret;
 	}
 	
 	public static Map<String, Object> createMvelContext(TranslationInput input)

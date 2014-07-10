@@ -16,7 +16,7 @@ import pl.edu.icm.unity.server.translation.out.AbstractOutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.TranslationInput;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
  * Filter outgoing identities by name and or type. Name filter is specified using regular expressions
@@ -40,13 +40,13 @@ public class FilterIdentityAction extends AbstractOutputTranslationAction
 	protected void invokeWrapped(TranslationInput input, Object mvelCtx, String currentProfile,
 			TranslationResult result) throws EngineException
 	{
-		Set<Identity> copy = new HashSet<Identity>(result.getIdentities());
-		for (Identity i: copy)
+		Set<IdentityParam> copy = new HashSet<IdentityParam>(result.getIdentities());
+		for (IdentityParam i: copy)
 		{
 			if ((identity == null || i.getTypeId().equals(identity)) &&
 					(idValueRegexp == null || idValueRegexp.matcher(i.getValue()).matches()))
 			{
-				log.debug("Filtering the identity " + i.toPrettyString());
+				log.debug("Filtering the identity " + i.toString());
 				result.getIdentities().remove(i);
 			}
 		}

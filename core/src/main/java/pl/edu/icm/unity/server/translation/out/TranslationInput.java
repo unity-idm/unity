@@ -27,7 +27,7 @@ public class TranslationInput
 	private String protocol;
 	private String protocolSubType;
 	
-	public TranslationInput(List<Attribute<?>> attributes, Entity entity,
+	public TranslationInput(List<? extends Attribute<?>> attributes, Entity entity,
 			Set<String> groups, String requester, String protocol,
 			String protocolSubType)
 	{

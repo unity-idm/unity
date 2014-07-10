@@ -11,7 +11,6 @@ import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 
 /**
  * Factory for {@link FilterAttributeAction}.
@@ -46,7 +45,7 @@ public class FilterAttributeActionFactory implements TranslationActionFactory
 	}
 
 	@Override
-	public OutputTranslationAction getInstance(String... parameters) throws EngineException
+	public FilterAttributeAction getInstance(String... parameters) throws EngineException
 	{
 		return new FilterAttributeAction(parameters, this);
 	}
