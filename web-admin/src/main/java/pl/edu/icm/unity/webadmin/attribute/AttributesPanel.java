@@ -118,7 +118,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				Collection<AttributeItem> items = (Collection<AttributeItem>)attributesTable.getValue(); 
+				Collection<AttributeItem> items = getItems(attributesTable.getValue()); 
 				if (items.size() > 1 || items.isEmpty())
 				{
 					updateValues(null);

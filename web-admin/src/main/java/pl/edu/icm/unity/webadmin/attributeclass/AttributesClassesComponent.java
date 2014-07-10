@@ -75,18 +75,16 @@ public class AttributesClassesComponent  extends VerticalLayout
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				@SuppressWarnings("unchecked")
-				Collection<GenericItem<String>> items = (Collection<GenericItem<String>>) table.getValue();
+				Collection<String> items = getItems(table.getValue());
 				if (items.size() > 1 || items.isEmpty())
 				{
 					viewer.setInput(null, allACs);
 					return;
 				}
-				GenericItem<String> item = items.iterator().next();	
+				String item = items.iterator().next();	
 				if (item != null)
 				{
-					String ac = item.getElement();
-					viewer.setInput(ac, allACs);
+					viewer.setInput(item, allACs);
 				} else
 					viewer.setInput(null, allACs);
 			}
@@ -158,6 +156,18 @@ public class AttributesClassesComponent  extends VerticalLayout
 			return false;
 		}
 	}
+	
+	private Collection<String> getItems(Object target)
+	{
+		Collection<?> c = (Collection<?>) target;
+		Collection<String> items = new ArrayList<String>();
+		for (Object o: c)
+		{
+			GenericItem<?> i = (GenericItem<?>) o;
+			items.add((String) i.getElement());	
+		}
+		return items;
+	}
 
 	private class RefreshActionHandler extends SingleActionHandler
 	{
@@ -221,13 +231,8 @@ public class AttributesClassesComponent  extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			Collection<?> c = (Collection<?>) target;
-			final Collection<String> items = new ArrayList<String>();
-			for (Object o: c)
-			{
-				GenericItem<?> i = (GenericItem<?>) o;
-				items.add((String) i.getElement());	
-			}
+			final Collection<String> items = getItems(target);
+			
 			String confirmText = "";
 			for (String item : items)
 			{

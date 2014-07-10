@@ -81,22 +81,14 @@ public class TranslationProfilesComponent extends VerticalLayout
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				@SuppressWarnings("unchecked")
-				Collection<GenericItem<TranslationProfile>> items = (Collection<GenericItem<TranslationProfile>>)table.getValue();
+				Collection<TranslationProfile> items = getItems(table.getValue());
 				if (items.size() > 1 || items.isEmpty())
 				{
 					viewer.setInput(null);
 					return;
 				}	
-				GenericItem<TranslationProfile> item = items.iterator().next();	
-				if (item!=null)
-				{
-					TranslationProfile profile = item.getElement();
-					viewer.setInput(profile);
-				}else
-				{
-					viewer.setInput(null);
-				}
+				TranslationProfile item = items.iterator().next();
+				viewer.setInput(item);
 			}
 		});
 		table.addActionHandler(new RefreshActionHandler());
@@ -182,6 +174,18 @@ public class TranslationProfilesComponent extends VerticalLayout
 		}
 	}
 	
+	private Collection<TranslationProfile> getItems(Object target)
+	{
+		Collection<?> c = (Collection<?>) target;
+		Collection<TranslationProfile> items = new ArrayList<TranslationProfile>();
+		for (Object o: c)
+		{
+			GenericItem<?> i = (GenericItem<?>) o;
+			items.add((TranslationProfile) i.getElement());	
+		}	
+		return items;
+	}
+	
 	private class RefreshActionHandler extends SingleActionHandler
 	{
 		public RefreshActionHandler()
@@ -263,13 +267,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			Collection<?> c = (Collection<?>) target;
-			final Collection<TranslationProfile> items = new ArrayList<TranslationProfile>();
-			for (Object o: c)
-			{
-				GenericItem<?> i = (GenericItem<?>) o;
-				items.add((TranslationProfile) i.getElement());	
-			}	
+			final Collection<TranslationProfile> items = getItems(target);
 			String confirmText = "";
 			for (TranslationProfile item : items)
 			{

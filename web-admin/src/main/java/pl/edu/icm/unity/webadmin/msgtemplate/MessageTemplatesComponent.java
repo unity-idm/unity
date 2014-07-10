@@ -82,21 +82,14 @@ public class MessageTemplatesComponent extends VerticalLayout
 			public void valueChange(ValueChangeEvent event)
 			{
 				@SuppressWarnings("unchecked")
-				Collection<GenericItem<MessageTemplate>> items = (Collection<GenericItem<MessageTemplate>>)table.getValue();
+				Collection<MessageTemplate> items = getItems(table.getValue());
 				if (items.size() > 1 || items.isEmpty())
 				{
 					viewer.setTemplateInput(null);
 					return;	
 				}	
-				GenericItem<MessageTemplate> item = items.iterator().next();	
-				if (item != null)
-				{
-					MessageTemplate template = item.getElement();
-					viewer.setTemplateInput(template);
-				} else
-				{
-					viewer.setTemplateInput(null);
-				}
+				MessageTemplate item = items.iterator().next();	
+				viewer.setTemplateInput(item);
 			}
 		});
 		table.addActionHandler(new RefreshActionHandler());
@@ -182,6 +175,18 @@ public class MessageTemplatesComponent extends VerticalLayout
 		}
 	}
 	
+	private Collection<MessageTemplate> getItems(Object target)
+	{
+		Collection<?> c = (Collection<?>) target;
+		Collection<MessageTemplate> items = new ArrayList<MessageTemplate>();
+		for (Object o: c)
+		{
+			GenericItem<?> i = (GenericItem<?>) o;
+			items.add((MessageTemplate) i.getElement());	
+		}	
+		return items;
+	}
+	
 	private class RefreshActionHandler extends SingleActionHandler
 	{
 		public RefreshActionHandler()
@@ -265,13 +270,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			Collection<?> c = (Collection<?>) target;
-			final Collection<MessageTemplate> items = new ArrayList<MessageTemplate>();
-			for (Object o: c)
-			{
-				GenericItem<?> i = (GenericItem<?>) o;
-				items.add((MessageTemplate) i.getElement());	
-			}	
+			final Collection<MessageTemplate> items = getItems(target);		
 			String confirmText = "";
 			for (MessageTemplate item : items)
 			{

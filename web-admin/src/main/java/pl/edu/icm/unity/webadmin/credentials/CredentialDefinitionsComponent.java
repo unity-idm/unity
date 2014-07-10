@@ -87,17 +87,16 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				@SuppressWarnings("unchecked")
-				Collection<GenericItem<CredentialDefinition>> items = (Collection<GenericItem<CredentialDefinition>>) table.getValue();
+				Collection<CredentialDefinition> items = getItems(table.getValue());
 				if (items.size() > 1 || items.isEmpty())
 				{
 					viewer.setInput(null, null);
 					return;
 				}	
-				GenericItem<CredentialDefinition> item = items.iterator().next();
+				CredentialDefinition item = items.iterator().next();
 				if (item != null)
 				{
-					CredentialDefinition cd = item.getElement();
+					CredentialDefinition cd = item;
 					CredentialEditorFactory cef = CredentialDefinitionsComponent.this.
 							credentialEditorReg.getFactory(cd.getTypeId());
 					viewer.setInput(cd, cef);
@@ -191,6 +190,18 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		}
 	}
 
+	private Collection<CredentialDefinition> getItems(Object target)
+	{
+		Collection<?> c = (Collection<?>) target;
+		Collection<CredentialDefinition> items = new ArrayList<CredentialDefinition>();
+		for (Object o: c)
+		{
+			GenericItem<?> i = (GenericItem<?>) o;
+			items.add((CredentialDefinition) i.getElement());	
+		}
+		return items;
+	}
+	
 	private class RefreshActionHandler extends SingleActionHandler
 	{
 		public RefreshActionHandler()
@@ -280,14 +291,8 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		
 		@Override
 		public void handleAction(Object sender, Object target)
-		{
-			Collection<?> c = (Collection<?>) target;
-			final Collection<CredentialDefinition> items = new ArrayList<CredentialDefinition>();
-			for (Object o: c)
-			{
-				GenericItem<?> i = (GenericItem<?>) o;
-				items.add((CredentialDefinition) i.getElement());	
-			}	
+		{		
+			final Collection<CredentialDefinition> items = getItems(target);
 			String confirmText = "";
 			for (CredentialDefinition item : items)
 			{

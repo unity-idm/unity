@@ -110,19 +110,14 @@ public class RegistrationFormsComponent extends VerticalLayout
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				Collection<GenericItem<RegistrationForm>> items = (Collection<GenericItem<RegistrationForm>>) table.getValue();
+				Collection<RegistrationForm> items = getItems(table.getValue());
 				if (items.size() > 1 || items.isEmpty())
 				{
 					viewer.setInput(null);
 					return;
 				}
-				GenericItem<RegistrationForm> item = items.iterator().next();	
-				if (item != null)
-				{
-					RegistrationForm form = item.getElement();
-					viewer.setInput(form);
-				} else
-					viewer.setInput(null);
+				RegistrationForm item = items.iterator().next();	
+				viewer.setInput(item);
 			}
 		});
 		table.addActionHandler(new RefreshActionHandler());
@@ -207,6 +202,18 @@ public class RegistrationFormsComponent extends VerticalLayout
 			ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorRemove"), e);
 			return false;
 		}
+	}
+	
+	private Collection<RegistrationForm> getItems(Object target)
+	{
+		Collection<?> c = (Collection<?>) target;
+		Collection<RegistrationForm> items = new ArrayList<RegistrationForm>();
+		for (Object o: c)
+		{
+			GenericItem<?> i = (GenericItem<?>) o;
+			items.add((RegistrationForm) i.getElement());	
+		}	
+		return items;
 	}
 	
 	private class RefreshActionHandler extends SingleActionHandler
@@ -310,13 +317,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			Collection<?> c = (Collection<?>) target;
-			final Collection<RegistrationForm> items = new ArrayList<RegistrationForm>();
-			for (Object o: c)
-			{
-				GenericItem<?> i = (GenericItem<?>) o;
-				items.add((RegistrationForm) i.getElement());	
-			}	
+			final Collection<RegistrationForm> items = getItems(target);
 			String confirmText = "";
 			for (RegistrationForm item : items)
 			{

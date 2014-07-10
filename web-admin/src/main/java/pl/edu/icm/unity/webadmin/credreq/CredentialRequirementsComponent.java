@@ -83,19 +83,14 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				Collection<GenericItem<CredentialRequirements>> items = (Collection<GenericItem<CredentialRequirements>>) table.getValue();
+				Collection<CredentialRequirements> items = getItems(table.getValue());
 				if (items.size() > 1 || items.isEmpty())
 				{
 					viewer.setInput(null);
 					return;
 				}	
-				GenericItem<CredentialRequirements> item = items.iterator().next();	
-				if (item != null)
-				{
-					CredentialRequirements at = item.getElement();
-					viewer.setInput(at);
-				} else
-					viewer.setInput(null);
+				CredentialRequirements item = items.iterator().next();	
+				viewer.setInput(item);
 			}
 		});
 		table.addActionHandler(new RefreshActionHandler());
@@ -205,6 +200,18 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			return false;
 		}
 	}
+	
+	private Collection<CredentialRequirements> getItems(Object target)
+	{
+		Collection<?> c = (Collection<?>) target;
+	        Collection<CredentialRequirements> items = new ArrayList<CredentialRequirements>();
+		for (Object o: c)
+		{
+			GenericItem<?> i = (GenericItem<?>) o;
+			items.add((CredentialRequirements) i.getElement());	
+		}	
+		return items;
+	}
 
 	private class RefreshActionHandler extends SingleActionHandler
 	{
@@ -220,7 +227,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			refresh();
 		}
 	}
-
+	
 	private class AddActionHandler extends SingleActionHandler
 	{
 		public AddActionHandler()
@@ -296,15 +303,8 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		
 		@Override
 		public void handleAction(Object sender, Object target)
-		{
-			
-			Collection<?> c = (Collection<?>) target;
-			final Collection<CredentialRequirements> items = new ArrayList<CredentialRequirements>();
-			for (Object o: c)
-			{
-				GenericItem<?> i = (GenericItem<?>) o;
-				items.add((CredentialRequirements) i.getElement());	
-			}	
+		{		
+			final Collection<CredentialRequirements> items = getItems(target);			
 			HashSet<String> removed = new HashSet<String>();
 			for (CredentialRequirements item : items)
 			{

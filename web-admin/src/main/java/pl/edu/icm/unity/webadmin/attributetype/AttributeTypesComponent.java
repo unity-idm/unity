@@ -94,17 +94,15 @@ public class AttributeTypesComponent extends VerticalLayout
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				@SuppressWarnings("unchecked")
-				Collection<GenericItem<AttributeType>> items = (Collection<GenericItem<AttributeType>>)table.getValue();
+				Collection<AttributeType> items = getItems(table.getValue());
 				if (items.size() > 1 || items.isEmpty())
 				{
 					viewer.setInput(null, null, AttributeTypesComponent.this.attrMetaHandlerRegistry);
 					return;		
 				}	
-				GenericItem<AttributeType> item = items.iterator().next();	
-				if (item != null)
+				AttributeType at = items.iterator().next();	
+				if (at != null)
 				{
-					AttributeType at = item.getElement();
 					WebAttributeHandler<?> handler = AttributeTypesComponent.this.attrHandlerRegistry.getHandler(
 							at.getValueType().getValueSyntaxId());
 					viewer.setInput(at, handler, AttributeTypesComponent.this.attrMetaHandlerRegistry);
