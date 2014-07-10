@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.stdext.identity;
 
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.types.basic.IdentityRepresentation;
 
 /**
  * Base class for static identity types, which simply store the identity value in the database.
@@ -13,23 +14,39 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 public abstract class AbstractStaticIdentityTypeProvider extends AbstractIdentityTypeProvider
 {
 	@Override
-	public String toExternalForm(String realm, String target, String inDbValue)
+	public String toExternalForm(String realm, String target, String inDbValue, String comparableValue)
 	{
 		return inDbValue;
 	}
-
+	
 	@Override
-	public String createNewIdentity(String realm, String target, String inDbValue)
+	public String toExternalFormNoContext(String inDbValue, String comparableValue)
+	{
+		return inDbValue;
+	}
+	
+	@Override
+	public IdentityRepresentation createNewIdentity(String realm, String target, String value) 
 			throws IllegalTypeException
 	{
 		throw new IllegalTypeException("This identity type doesn't support dynamic identity creation.");
 	}
-	
 
 	@Override
-	public String resetIdentity(String realm, String target, String inDbValue)
-			throws IllegalTypeException
+	public boolean isDynamic()
 	{
-		throw new IllegalTypeException("This identity type doesn't support dynamic identity reset.");
+		return false;
+	}
+	
+	@Override
+	public boolean isTargeted()
+	{
+		return false;
+	}
+	
+	@Override
+	public boolean isExpired(IdentityRepresentation idRepresentation)
+	{
+		return false;
 	}
 }

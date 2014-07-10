@@ -74,11 +74,6 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		return nameIdPolicy.getAllowCreate();
 	}
 	
-	public String getIdentityTarget()
-	{
-		return context.getRequest().getIssuer().getStringValue();
-	}
-	
 	public ResponseDocument processAuthnRequest(Identity authenticatedIdentity) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{

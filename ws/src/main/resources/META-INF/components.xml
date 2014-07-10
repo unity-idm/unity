@@ -8,6 +8,7 @@
 
 	<bean class="pl.edu.icm.unity.ws.authn.ext.HttpBasicRetrievalFactory"/>
 	<bean class="pl.edu.icm.unity.ws.authn.ext.TLSRetrievalFactory"/>
+	<bean class="pl.edu.icm.unity.ws.authn.ext.JWTRetrievalFactory"/>
 
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
 		<property name="bundle" value="pl/edu/icm/unity/ws/messages/messages"/>

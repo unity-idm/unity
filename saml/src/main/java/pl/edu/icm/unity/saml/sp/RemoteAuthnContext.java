@@ -5,37 +5,31 @@
 package pl.edu.icm.unity.saml.sp;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.concurrent.ThreadLocalRandom;
 
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.Binding;
+import pl.edu.icm.unity.server.utils.RemoteAuthnState;
 
 
 /**
- * Context of a remote SAML authentication. Stored in HTTP session. Basically thread safe.
+ * Context of a remote SAML authentication. Basically thread safe. As endpoint reconfiguration may occur
+ * during authentication configuration valid at the beginning of authentication is stored internally. 
  * @author K. Benedyczak
  */
-public class RemoteAuthnContext implements Serializable
+public class RemoteAuthnContext extends RemoteAuthnState implements Serializable
 {
-	private Date creationTime;
-	private String relayState;
 	private String request;
 	private String requestId;
-	private String idpUrl;
-	private Binding requestBinding;
 	private Binding responseBinding;
 	private String response;
 	private String returnUrl;
-	private String groupAttribute;
-	private String registrationFormForUnknown;
-	private String translationProfile;
 
+	private SAMLSPProperties samlProperties;
+	private String idpKey;
 
-	public RemoteAuthnContext()
+	public RemoteAuthnContext(SAMLSPProperties config, String entryKey)
 	{
-		this.relayState = String.valueOf(ThreadLocalRandom.current().nextLong()) + 
-				String.valueOf(ThreadLocalRandom.current().nextLong());
-		this.creationTime = new Date();
+		this.samlProperties = config.clone();
+		this.idpKey = entryKey;
 	}
 
 	public synchronized String getReturnUrl()
@@ -43,31 +37,15 @@ public class RemoteAuthnContext implements Serializable
 		return returnUrl;
 	}
 
-	public synchronized Date getCreationTime()
-	{
-		return creationTime;
-	}
-
-	public synchronized String getRelayState()
-	{
-		return relayState;
-	}
 	public synchronized String getRequest()
 	{
 		return request;
 	}
-	public synchronized void setRequest(String request, String requestId,
-			Binding requestBinding, String idpUrl, String returnUrl, String groupAttribute,
-			String registartionFormForUnknown, String translationProfile)
+	public synchronized void setRequest(String request, String requestId, String returnUrl)
 	{
 		this.request = request;
 		this.requestId = requestId;
-		this.requestBinding = requestBinding;
-		this.idpUrl = idpUrl;
 		this.returnUrl = returnUrl;
-		this.groupAttribute = groupAttribute;
-		this.registrationFormForUnknown = registartionFormForUnknown;
-		this.translationProfile = translationProfile;
 	}
 	
 	public synchronized void setResponse(String response, Binding responseBinding)
@@ -78,7 +56,7 @@ public class RemoteAuthnContext implements Serializable
 
 	public synchronized String getIdpUrl()
 	{
-		return idpUrl;
+		return samlProperties.getValue(idpKey + SAMLSPProperties.IDP_ADDRESS);
 	}
 	public synchronized String getResponse()
 	{
@@ -86,7 +64,8 @@ public class RemoteAuthnContext implements Serializable
 	}
 	public synchronized Binding getRequestBinding()
 	{
-		return requestBinding;
+		return samlProperties.getEnumValue(idpKey + SAMLSPProperties.IDP_BINDING, 
+				Binding.class);
 	}
 	public synchronized Binding getResponseBinding()
 	{
@@ -98,14 +77,21 @@ public class RemoteAuthnContext implements Serializable
 	}
 	public synchronized String getGroupAttribute()
 	{
-		return groupAttribute;
+		return samlProperties.getValue(idpKey + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE);
 	}
 	public synchronized String getRegistrationFormForUnknown()
 	{
-		return registrationFormForUnknown;
+		return samlProperties.getValue(
+				idpKey + SAMLSPProperties.IDP_REGISTRATION_FORM);
 	}
-	public synchronized String getTranslationProfile()
+	
+	public synchronized SAMLSPProperties getContextConfig()
 	{
-		return translationProfile;
+		return samlProperties;
+	}
+	
+	public synchronized String getContextIdpKey()
+	{
+		return idpKey;
 	}
 }

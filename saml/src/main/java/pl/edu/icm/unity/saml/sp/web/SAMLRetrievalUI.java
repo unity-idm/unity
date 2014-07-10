@@ -4,7 +4,10 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
+import java.net.URI;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -24,22 +27,19 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.UIBgThread;
-import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
+import pl.edu.icm.unity.webui.common.idpselector.IdPsSpecification;
+import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent;
+import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
-import com.vaadin.server.VaadinServlet;
-import com.vaadin.server.VaadinServletService;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -52,14 +52,16 @@ import com.vaadin.ui.themes.Reindeer;
 public class SAMLRetrievalUI implements VaadinAuthenticationUI
 {	
 	private Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLRetrievalUI.class);
+	public static final String CHOSEN_IDP_COOKIE = "lastSAMLIdP";
+	
 	private UnityMessageSource msg;
 	private SAMLExchange credentialExchange;
 	private AuthenticationResultCallback callback;
+	private String redirectParam;
 	
-	private String selectedIdp;
+	private IdpSelectorComponent idpSelector;
 	private Label messageLabel;
 	private Label errorDetailLabel;
-	private ResponseWaitingThread waitingThread;
 	private SamlContextManagement samlContextManagement;
 	
 	
@@ -80,7 +82,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public Component getComponent()
 	{
-		installRequestHandler();
+		redirectParam = installRequestHandler();
 		
 		final SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
 		VerticalLayout ret = new VerticalLayout();
@@ -89,38 +91,44 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		Label title = new Label(samlProperties.getValue(SAMLSPProperties.DISPLAY_NAME));
 		title.addStyleName(Reindeer.LABEL_H2);
 		ret.addComponent(title);
-		
-		Set<String> idps = samlProperties.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
-		if (idps.size() > 1)
-		{
-			OptionGroup idpChooser = new OptionGroup(msg.getMessage("WebSAMLRetrieval.selectIdp"));
-			idpChooser.setImmediate(true);
-			for (String idpKey: idps)
+
+		Label subtitle = new Label(msg.getMessage("WebSAMLRetrieval.selectIdp"));
+		ret.addComponent(subtitle);
+		Set<String> allIdps = samlProperties.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
+		final Set<String> idps = new HashSet<String>(allIdps.size()); 
+		for (String key: allIdps)
+			if (samlProperties.isIdPDefinitioncomplete(key))
 			{
-				String name = samlProperties.getValue(idpKey+SAMLSPProperties.IDP_NAME);
-				idpChooser.addItem(idpKey);
-				idpChooser.setItemCaption(idpKey, name);
+				Binding binding = samlProperties.getEnumValue(key + 
+						SAMLSPProperties.IDP_BINDING, Binding.class);
+				if (binding == Binding.HTTP_POST || binding == Binding.HTTP_REDIRECT)
+					idps.add(key);
 			}
-			idpChooser.select(idps.iterator().next());
-			idpChooser.setNullSelectionAllowed(false);
-			idpChooser.addValueChangeListener(new ValueChangeListener()
-			{
-				@Override
-				public void valueChange(ValueChangeEvent event)
-				{
-					selectedIdp = (String) event.getProperty().getValue();
-				}
-			});
-			ret.addComponent(idpChooser);
-		} else
-		{
-			String idpKey = idps.iterator().next();
-			String name = samlProperties.getValue(idpKey+SAMLSPProperties.IDP_NAME);
-			Label selectedIdp = new Label(msg.getMessage("WebSAMLRetrieval.selectedIdp", name));
-			ret.addComponent(selectedIdp);
-		}
 		
-		selectedIdp = idps.iterator().next();
+		int perRow = samlProperties.getIntValue(SAMLSPProperties.PROVIDERS_IN_ROW);
+		ScaleMode scaleMode = samlProperties.getEnumValue(SAMLSPProperties.ICON_SCALE, ScaleMode.class); 
+		idpSelector = new IdpSelectorComponent(msg, perRow, scaleMode, CHOSEN_IDP_COOKIE, new IdPsSpecification()
+		{
+			@Override
+			public Collection<String> getIdpKeys()
+			{
+				return idps;
+			}
+			
+			@Override
+			public String getIdPName(String key, Locale locale)
+			{
+				return samlProperties.getLocalizedName(key, msg.getLocale());
+			}
+			
+			@Override
+			public String getIdPLogoUri(String key, Locale locale)
+			{
+				return samlProperties.getLocalizedValue(key + SAMLSPProperties.IDP_LOGO, 
+						msg.getLocale());
+			}
+		});
+		ret.addComponent(idpSelector);
 		
 		messageLabel = new Label();
 		messageLabel.setContentMode(ContentMode.HTML);
@@ -131,47 +139,24 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		errorDetailLabel.setVisible(false);
 		ret.addComponents(messageLabel, errorDetailLabel);
 
-		checkInProgress();
-		
 		return ret;
 	}
 
-	private void installRequestHandler()
+	private String installRequestHandler()
 	{
 		VaadinSession session = VaadinSession.getCurrent();
 		Collection<RequestHandler> requestHandlers = session.getRequestHandlers();
-		boolean redirectInstalled = false;
 		for (RequestHandler rh: requestHandlers)
 		{
 			if (rh instanceof RedirectRequestHandler)
-				redirectInstalled = true;
+			{
+				return ((RedirectRequestHandler)rh).getTriggeringParam();
+			}
 		}
-		if (!redirectInstalled)
-			session.addRequestHandler(new RedirectRequestHandler());
-	}
 	
-	private synchronized void switchInProgress(RemoteAuthnContext context)
-	{
-		boolean inProgress = context != null;
-		if (inProgress)
-		{
-			if (waitingThread != null)
-				waitingThread.forceStop();
-			waitingThread = new ResponseWaitingThread(context);
-			new Thread(waitingThread).start();
-		} else
-		{
-			if (waitingThread != null)
-				waitingThread.forceStop();
-		}
-	}
-	
-	private void checkInProgress()
-	{
-		WrappedSession session = VaadinSession.getCurrent().getSession();
-		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
-				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
-		switchInProgress(context);
+		RedirectRequestHandler rh = new RedirectRequestHandler(); 
+		session.addRequestHandler(rh);
+		return rh.getTriggeringParam();
 	}
 	
 	private void breakLogin(boolean invokeCancel)
@@ -184,7 +169,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			session.removeAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 			samlContextManagement.removeAuthnContext(context.getRelayState());
 		}
-		switchInProgress(null);
 		if (invokeCancel)
 			this.callback.cancelAuthentication();
 	}
@@ -219,103 +203,80 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 		if (context != null)
 		{
-			switchInProgress(context);
 			ErrorPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("WebSAMLRetrieval.loginInProgressError"));
 			return;
 		}
-		context = new RemoteAuthnContext();
-		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
-		samlContextManagement.addAuthnContext(context);
-		switchInProgress(context);
-		
-		SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
-		AuthnRequestDocument request;
+		URI requestURI = Page.getCurrent().getLocation();
+		String servletPath = requestURI.getPath();
+		String query = requestURI.getQuery() == null ? "" : "?" + requestURI.getQuery();
+		String currentRelativeURI = servletPath + query;
 		try
 		{
-			request = credentialExchange.createSAMLRequest(idpKey);
+			context = credentialExchange.createSAMLRequest(idpKey, currentRelativeURI);
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage("WebSAMLRetrieval.configurationError"), e);
 			log.error("Can not create SAML request", e);
 			breakLogin(true);
 			return;
-		}
-		Binding requestBinding = samlProperties.getEnumValue(idpKey + SAMLSPProperties.IDP_BINDING, 
-				Binding.class);
-		String servletPath = VaadinServlet.getCurrent().getServletContext().getContextPath() + 
-				VaadinServletService.getCurrentServletRequest().getServletPath();
-		String identityProviderURL = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_ADDRESS);
-		String groupAttribute = samlProperties.getValue(
-				idpKey + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE);
-		String registrationFormForUnknown = samlProperties.getValue(
-				idpKey + SAMLSPProperties.IDP_REGISTRATION_FORM);
-		String translationProfile = samlProperties.getValue(
-				idpKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE);
-		context.setRequest(request.xmlText(), request.getAuthnRequest().getID(), 
-				requestBinding, identityProviderURL, servletPath, groupAttribute, 
-				registrationFormForUnknown, translationProfile);
+		}		
+		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
+		samlContextManagement.addAuthnContext(context);
 		
+		IdpSelectorComponent.setLastIdpCookie(CHOSEN_IDP_COOKIE, context.getContextIdpKey());
 		
-		Page.getCurrent().open(servletPath + RedirectRequestHandler.PATH, null);
+		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
 	}
 
 	/**
-	 * Called when a SAML response is received. This method is not called from the UI thread!
-	 * @param samleResponse
+	 * Called when a SAML response is received.
+	 * @param authnContext
 	 */
 	private void onSamlAnswer(RemoteAuthnContext authnContext)
 	{
-		VaadinSession session = VaadinSession.getCurrent();
-		session.lock();
 		AuthenticationResult authnResult;
 		showError(null);
+		String reason = null;
+		Exception savedException = null;
 		try
 		{
-			String reason = null;
-			Exception savedException = null;
-			try
-			{
-				authnResult = credentialExchange.verifySAMLResponse(authnContext);
-			} catch (AuthenticationException e)
-			{
-				savedException = e;
-				reason = ErrorPopup.getHumanMessage(e, "<br>");
-				authnResult = e.getResult();
-			} catch (Exception e)
-			{
-				log.error("Runtime error during SAML response processing or principal mapping", e);
-				authnResult = new AuthenticationResult(Status.deny, null);
-			}
-
-			if (authnResult.getStatus() == Status.success)
-			{
-				showError(null);
-				breakLogin(false);
-			} else if (authnResult.getStatus() == Status.unknownRemotePrincipal && 
-					authnContext.getRegistrationFormForUnknown() != null) 
-			{
-				log.debug("There is a registration form to show for the unknown user: " + 
-						authnContext.getRegistrationFormForUnknown());
-				authnResult.setFormForUnknownPrincipal(authnContext.getRegistrationFormForUnknown());
-				showError(null);
-				breakLogin(true);
-			} else
-			{
-				if (savedException != null)
-					log.warn("SAML response verification or processing failed", savedException);
-				else
-					log.warn("SAML response verification or processing failed");
-				if (reason != null)
-					showErrorDetail(msg.getMessage("WebSAMLRetrieval.authnFailedDetailInfo", reason));
-				showError(msg.getMessage("WebSAMLRetrieval.authnFailedError"));
-				breakLogin(false);
-			}
-
-		} finally
+			authnResult = credentialExchange.verifySAMLResponse(authnContext);
+		} catch (AuthenticationException e)
 		{
-			session.unlock();
+			savedException = e;
+			reason = ErrorPopup.getHumanMessage(e, "<br>");
+			authnResult = e.getResult();
+		} catch (Exception e)
+		{
+			log.error("Runtime error during SAML response processing or principal mapping", e);
+			authnResult = new AuthenticationResult(Status.deny, null);
 		}
+
+		if (authnResult.getStatus() == Status.success)
+		{
+			showError(null);
+			breakLogin(false);
+		} else if (authnResult.getStatus() == Status.unknownRemotePrincipal && 
+				authnContext.getRegistrationFormForUnknown() != null) 
+		{
+			log.debug("There is a registration form to show for the unknown user: " + 
+					authnContext.getRegistrationFormForUnknown());
+			authnResult.setFormForUnknownPrincipal(authnContext.getRegistrationFormForUnknown());
+			showError(null);
+			breakLogin(false);
+		} else
+		{
+			if (savedException != null)
+				log.warn("SAML response verification or processing failed", savedException);
+			else
+				log.warn("SAML response verification or processing failed");
+			if (reason != null)
+				showErrorDetail(msg.getMessage("WebSAMLRetrieval.authnFailedDetailInfo", reason));
+			showError(msg.getMessage("WebSAMLRetrieval.authnFailedError"));
+			breakLogin(false);
+		}
+
 		callback.setAuthenticationResult(authnResult);
 	}
 	
@@ -333,7 +294,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public void triggerAuthentication()
 	{
-		startLogin(selectedIdp);
+		startLogin(idpSelector.getSelectedProvider());
 	}
 
 	@Override
@@ -343,48 +304,23 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	}
 
 	/**
-	 * Waits for the SAML answer which should appear in the session's {@link RemoteAuthnContext}. 
-	 * @author K. Benedyczak
+	 * {@inheritDoc}
 	 */
-	private class ResponseWaitingThread extends UIBgThread
+	@Override
+	public void refresh(VaadinRequest request) 
 	{
-		private RemoteAuthnContext context;
-		private boolean stop = false;
-		
-		public ResponseWaitingThread(RemoteAuthnContext context)
+		WrappedSession session = request.getWrappedSession();
+		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
+				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
+		if (context == null)
 		{
-			this.context = context;
-		}
-
-		public void safeRun()
+			log.trace("Either user refreshes page, or different authN arrived");
+		} else if (context.getResponse() == null)
 		{
-			while (!isStopped())
-			{
-				if (context.getResponse() == null)
-				{
-					try
-					{
-						Thread.sleep(100);
-					} catch (InterruptedException e)
-					{
-						//ok
-					}
-				} else
-				{
-					onSamlAnswer(context);
-					break;
-				}
-			}
-		}
-		
-		public synchronized void forceStop()
+			log.debug("Authentication started but SAML response not arrived (user back button)");
+		} else 
 		{
-			stop = true;
-		}
-		
-		private synchronized boolean isStopped()
-		{
-			return stop;
+			onSamlAnswer(context);
 		}
 	}
 	

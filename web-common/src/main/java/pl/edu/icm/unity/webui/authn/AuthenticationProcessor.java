@@ -37,7 +37,7 @@ import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.UnityUIBase;
+import pl.edu.icm.unity.webui.common.UIBgThread;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 import com.vaadin.server.Page;
@@ -45,7 +45,6 @@ import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedHttpSession;
-import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.UI;
 
 /**
@@ -99,14 +98,15 @@ public class AuthenticationProcessor
 				counter.unsuccessfulAttempt(clientIp);
 			throw e;
 		}
-		WrappedSession session = logged(logInfo, realm, rememberMe);
+		
+		logged(logInfo, realm, rememberMe);
 
 		if (logInfo.isUsedOutdatedCredential())
 		{
 			showCredentialUpdate();
 			return;
 		}
-		redirectToOrigin(session);
+		gotoOrigin();
 	}
 
 	private String getLabel(long entityId)
@@ -134,7 +134,7 @@ public class AuthenticationProcessor
 		dialog.show();
 	}
 	
-	private WrappedSession logged(AuthenticatedEntity authenticatedEntity, final AuthenticationRealm realm, 
+	private void logged(AuthenticatedEntity authenticatedEntity, final AuthenticationRealm realm, 
 			final boolean rememberMe) throws AuthenticationException
 	{
 		long entityId = authenticatedEntity.getEntityId();
@@ -150,28 +150,15 @@ public class AuthenticationProcessor
 			log.error("BUG: Can't get VaadinSession to store authenticated user's data.");
 			throw new AuthenticationException("AuthenticationProcessor.authnInternalError");
 		}
-		WrappedSession session = vss.getSession();
 		
 		final HttpSession httpSession = ((WrappedHttpSession) vss.getSession()).getHttpSession();
 	
 		sessionBinder.bindHttpSession(httpSession, ls);
-		//we can be called from a bg thread. To set a cookie & manipulate session we need a HTTP request/response.
-		UnityUIBase.addHttpContextAction(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				VaadinServletResponse servletResponse = 
-						(VaadinServletResponse) VaadinService.getCurrentResponse();
-				setupSessionCookie(getSessionCookieName(realm.getName()), 
-						ls.getId(), servletResponse, rememberMe,
-						realm);
-			}
-		});
 		
+		VaadinServletResponse servletResponse = (VaadinServletResponse) VaadinService.getCurrentResponse();
+		setupSessionCookie(getSessionCookieName(realm.getName()), ls.getId(), servletResponse, rememberMe, realm);
+
 		InvocationContext.getCurrent().addAuthenticatedIdentities(authenticatedEntity.getAuthenticatedWith());
-		
-		return session;
 	}
 	
 	public static String getSessionCookieName(String realmName)
@@ -200,7 +187,7 @@ public class AuthenticationProcessor
 		servletResponse.addCookie(unitySessionCookie);
 	}
 	
-	private static void redirectToOrigin(WrappedSession session) throws AuthenticationException
+	private static void gotoOrigin() throws AuthenticationException
 	{
 		UI ui = UI.getCurrent();
 		if (ui == null)
@@ -208,24 +195,8 @@ public class AuthenticationProcessor
 			log.error("BUG Can't get UI to redirect the authenticated user.");
 			throw new AuthenticationException("AuthenticationProcessor.authnInternalError");
 		}
-		String origURL = getOriginalURL(session);
 		ui.getSession().close();
-		ui.getPage().open(origURL, "");
-	}
-	
-	public static String getOriginalURL(WrappedSession session) throws AuthenticationException
-	{
-		String origURL = (String) session.getAttribute(AuthenticationFilter.ORIGINAL_ADDRESS);
-		//String origFragment = (String) session.getAttribute(AuthenticationApp.ORIGINAL_FRAGMENT);
-		if (origURL == null)
-			throw new AuthenticationException("AuthenticationProcessor.noOriginatingAddress");
-		//if (origFragment == null)
-		//	origFragment = "";
-		//else
-		//	origFragment = "#" + origFragment;
-		
-		//origURL = origURL+origFragment;
-		return origURL;
+		ui.getPage().reload();
 	}
 	
 	private void destroySession(boolean soft)
@@ -242,36 +213,29 @@ public class AuthenticationProcessor
 	{
 		Page p = Page.getCurrent();
 		URI currentLocation = p.getLocation();
-		destroySession(false);
+		//FIXME - workaround for the Vaadin bug http://dev.vaadin.com/ticket/12346
+		// when the bug is fixed session should be invalidated in the current thread.
+		// the workaround is ugly - it is possible that the 'logout' thread completes after we return answer
+		// -> then user is logged out but no effect is visible automatically.
+		UIBgThread logoutWorker = new UIBgThread()
+		{
+			@Override
+			public void safeRun()
+			{
+				destroySession(false);
+			}
+		};
+		Thread logoutThread = new Thread(logoutWorker);
+		logoutThread.setPriority(Thread.MAX_PRIORITY);
+		logoutThread.start();
 		p.setLocation(currentLocation);
 	}
 
 	public void logout(boolean soft)
 	{
 		Page p = Page.getCurrent();
-		URI currentLocation = p.getLocation();
 		destroySession(soft);
-		p.setLocation(currentLocation);
-	}
-	
-	/**
-	 * Destroys the session and opens the original address again.
-	 */
-	public void logoutAndRefresh(boolean soft)
-	{
-		VaadinSession vs = VaadinSession.getCurrent();
-		WrappedSession s = vs.getSession();
-		Page p = Page.getCurrent();
-		String originalAddress;
-		try
-		{
-			originalAddress = getOriginalURL(s);
-		} catch (AuthenticationException e1)
-		{
-			originalAddress = p.getLocation().toString(); 
-		}
-		destroySession(soft);
-		p.setLocation(originalAddress);
+		p.reload();
 	}
 	
 	public static UnsuccessfulAuthenticationCounter getLoginCounter()

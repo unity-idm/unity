@@ -83,3 +83,5 @@ action: mapIdentity ((.*), $1, PasswordOnly)
 include::external-ldap.txt[]
 
 include::external-saml.txt[]
+
+include::external-oauth.txt[]

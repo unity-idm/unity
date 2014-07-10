@@ -5,8 +5,6 @@
 package pl.edu.icm.unity.webui;
 
 import java.io.ByteArrayInputStream;
-import java.io.CharArrayWriter;
-import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +43,8 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, VaadinEndpoint.class);
 	public static final int DEFAULT_HEARTBEAT = 10;
+	public static final int LONG_SESSION = 3600;
+	public static final int LONG_HEARTBEAT = 300;
 	public static final String AUTHENTICATION_PATH = "/authentication";
 	public static final String VAADIN_RESOURCES = "/VAADIN/*";
 	public static final String SESSION_TIMEOUT_PARAM = "session-timeout";
@@ -52,7 +52,6 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	protected ApplicationContext applicationContext;
 	protected String uiBeanName;
 	protected String servletPath;
-	protected Properties properties;
 	protected VaadinEndpointProperties genericEndpointProperties;
 
 	protected ServletContextHandler context = null;
@@ -67,21 +66,6 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		this.uiBeanName = uiBeanName;
 		this.servletPath = servletPath;
 	}
-	
-
-	@Override
-	public String getSerializedConfiguration()
-	{
-		CharArrayWriter writer = new CharArrayWriter();
-		try
-		{
-			properties.store(writer, "");
-		} catch (IOException e)
-		{
-			throw new IllegalStateException("Can not serialize endpoint's configuration", e);
-		}
-		return writer.toString();
-	}
 
 	@Override
 	public void setSerializedConfiguration(String cfg)
@@ -93,7 +77,8 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 			genericEndpointProperties = new VaadinEndpointProperties(properties);
 		} catch (Exception e)
 		{
-			throw new ConfigurationException("Can't initialize the the generic IdP endpoint's configuration", e);
+			throw new ConfigurationException("Can't initialize the the generic web"
+					+ " endpoint's configuration", e);
 		}
 	}
 
@@ -110,9 +95,9 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		
 		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
-				description.getContextAddress()+AUTHENTICATION_PATH, description.getRealm(),
-				sessionMan, sessionBinder);
-		context.addFilter(new FilterHolder(authnFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
+				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
+		context.addFilter(new FilterHolder(authnFilter), "/*", 
+				EnumSet.of(DispatcherType.REQUEST));
 
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
 
@@ -149,10 +134,11 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	protected ServletHolder createServletHolder(Servlet servlet, boolean unrestrictedSessionTime)
 	{
 		ServletHolder holder = new ServletHolder(servlet);
+
 		if (unrestrictedSessionTime)
 		{
-			holder.setInitParameter("closeIdleSessions", "false");
-			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(-1));
+			holder.setInitParameter("closeIdleSessions", "true");
+			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(LONG_SESSION));
 		} else
 		{
 			holder.setInitParameter("closeIdleSessions", "true");
@@ -170,12 +156,14 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	{
 		ServletHolder holder = createServletHolder(servlet, unrestrictedSessionTime);
 		int sessionTimeout = description.getRealm().getMaxInactivity();
-		int heartBeat = getHeartbeatInterval(sessionTimeout);
+		int heartBeat = unrestrictedSessionTime ? LONG_HEARTBEAT : getHeartbeatInterval(sessionTimeout);
 		log.debug("Servlet " + servlet.toString() + " - heartBeat=" +heartBeat);
 			
 		boolean productionMode = genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.PRODUCTION_MODE);
 		holder.setInitParameter("heartbeatInterval", String.valueOf(heartBeat));
 		holder.setInitParameter(PRODUCTION_MODE_PARAM, String.valueOf(productionMode));
+		holder.setInitParameter("org.atmosphere.cpr.broadcasterCacheClass", 
+				"org.atmosphere.cache.UUIDBroadcasterCache");
 		return holder;
 	}
 

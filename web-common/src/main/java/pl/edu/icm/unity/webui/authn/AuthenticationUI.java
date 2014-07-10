@@ -28,7 +28,6 @@ import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent;
@@ -37,8 +36,7 @@ import pl.edu.icm.unity.webui.registration.RegistrationFormChooserDialog;
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
+import com.vaadin.server.VaadinService;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -126,7 +124,6 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		main.setComponentAlignment(localeChoice, Alignment.TOP_LEFT);
 
 		Label vSpacer = new Label("");
-		//vSpacer.setHeight(10, Unit.PERCENTAGE);
 		main.addComponent(vSpacer);
 		main.setExpandRatio(vSpacer, 1.0f);
 		
@@ -146,8 +143,11 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		
 		setContent(topLevel);
 		setSizeFull();
-
-		verifyIfOriginAvailable();
+		
+		//Extra safety - it can happen that we entered the UI in pipeline of authentication,
+		// if this UI expired in the meantime. Shouldn't happen often as heart of authentication UI
+		// is beating very slowly but in case of very slow user we may still need to refresh.
+		refresh(VaadinService.getCurrentRequest()); 
 	}
 	
 	private Button buildRegistrationButton()
@@ -194,14 +194,6 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			}
 		});
 		return register;
-	}
-	
-	private void verifyIfOriginAvailable()
-	{
-		WrappedSession session = VaadinSession.getCurrent().getSession();
-		String origURL = (String) session.getAttribute(AuthenticationFilter.ORIGINAL_ADDRESS);
-		if (origURL == null)
-			ErrorPopup.showError(msg, msg.getMessage("AuthenticationProcessor.noOriginatingAddress"), "");
 	}
 	
 	private Component buildAllSetsUI(final Button registrationButton, final Component... setComponents)
@@ -260,4 +252,18 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		vl.setMargin(new MarginInfo(false, true, true, false));
 		return vl;
 	}
+	
+	@Override
+	protected void refresh(VaadinRequest request) 
+	{
+		if (authenticators != null) {
+			for (Map<String, VaadinAuthenticationUI> auth : authenticators)
+			{
+				for (VaadinAuthenticationUI authUI : auth.values())
+				{
+					authUI.refresh(request);
+				}
+			}
+		}
+	}	
 }

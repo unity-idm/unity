@@ -17,17 +17,8 @@
 	<scm>
 		<connection>${scm.base}/${m.name}</connection>
 		<developerConnection>${scm.base}/${m.name}</developerConnection>
-	  <tag>HEAD</tag>
-  </scm>
-
-	<repositories>
-		<repository>
-			<id>unicore.eu</id>
-			<name>UNICORE repository</name>
-			<url>http://unicore-dev.zam.kfa-juelich.de/maven</url>
-		</repository>
-	</repositories>
-
+		<tag>HEAD</tag>
+	</scm>
 
 	<dependencies>
 		<!-- test -->
@@ -63,12 +54,6 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-client-compiled</artifactId>
 		</dependency>
-		<!-- 
-		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-push</artifactId>
-		</dependency>
-		 -->
 		<dependency>
 			<groupId>nl.simplecaptcha</groupId>
 			<artifactId>simplecaptcha</artifactId>

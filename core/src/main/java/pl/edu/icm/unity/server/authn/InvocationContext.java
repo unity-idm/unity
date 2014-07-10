@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 
@@ -31,15 +32,17 @@ public class InvocationContext implements Serializable
 	private LoginSession loginSession;
 	private Locale locale;
 	private IdentityTaV tlsIdentity; 
-	private Set<String> authenticatedIdentities = new LinkedHashSet<>();	
+	private Set<String> authenticatedIdentities = new LinkedHashSet<>();
+	private AuthenticationRealm realm;
 
 	/**
 	 * @param tlsIdentity TLS client-authenticated identity (of X500 type) or null if there is no TLS 
 	 * client connection context or it is not client authenticated.
 	 */
-	public InvocationContext(IdentityTaV tlsIdentity)
+	public InvocationContext(IdentityTaV tlsIdentity, AuthenticationRealm realm)
 	{
 		setTlsIdentity(tlsIdentity);
+		this.realm = realm;
 	}
 	
 	public static void setCurrent(InvocationContext context)
@@ -55,6 +58,27 @@ public class InvocationContext implements Serializable
 		return ret;
 	}
 
+	/**
+	 * @return current authentication realm's name or null if undefined/unknown.
+	 */
+	public static String safeGetRealm()
+	{
+		try
+		{
+			InvocationContext context = InvocationContext.getCurrent();
+			return context.getRealm().getName();
+		} catch (InternalException e)
+		{
+			//OK
+		}
+		return null;
+	}
+	
+	public AuthenticationRealm getRealm()
+	{
+		return realm;
+	}
+	
 	public LoginSession getLoginSession()
 	{
 		return loginSession;

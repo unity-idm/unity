@@ -17,17 +17,8 @@
 	<scm>
 		<connection>${scm.base}/${m.name}</connection>
 		<developerConnection>${scm.base}/${m.name}</developerConnection>
-	  <tag>HEAD</tag>
-  </scm>
-
-	<repositories>
-		<repository>
-			<id>unicore.eu</id>
-			<name>UNICORE repository</name>
-			<url>http://unicore-dev.zam.kfa-juelich.de/maven</url>
-		</repository>
-	</repositories>
-
+		<tag>HEAD</tag>
+	</scm>
 
 	<dependencies>
 		<dependency>
@@ -57,6 +48,11 @@
 			<artifactId>secutils-cxf</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<scope>test</scope>
+		</dependency>
 		
 		
 		<!-- compile -->
@@ -79,8 +75,38 @@
 			<artifactId>securityLibrary</artifactId>
 		</dependency>
 		<dependency>
+		 		<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpclient</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>eu.unicore.security</groupId>
 			<artifactId>SAMLMetadataTypes</artifactId>
 		</dependency>
 	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>xmlbeans-maven-plugin</artifactId>
+				<version>2.3.3</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>xmlbeans</goal>
+						</goals>
+					</execution>
+				</executions>
+				<inherited>true</inherited>
+				<configuration>
+					<schemaDirectory>src/main/schema</schemaDirectory>
+					<xmlConfigs>
+						<xmlConfig implementation="java.io.File">src/main/schema/xmlbeans_config.xsdconfig</xmlConfig>
+					</xmlConfigs>
+					<noUpa>true</noUpa>
+					<outputJar>target/unity-server-saml-xmlbeans-${project.version}.jar</outputJar>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

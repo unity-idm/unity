@@ -34,6 +34,9 @@ import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 /**
  * Implementation of {@link PKIManagement}. Currently pretty simplistic: all artifacts are resolved 
  * wrt the configuration loaded from disk.
+ * <p>
+ * The certificates can be also set via API, however the changes are recorded in memory only. To be changed in future,
+ * it is fine with current applications.
  * @author K. Benedyczak
  */
 @Component
@@ -149,5 +152,32 @@ public class PKIManagementImpl implements PKIManagement
 			throw new WrongArgumentException("The certificate " + name + " is not defined. " +
 					"Available certificates: " + getCertificateNames());
 		return certificates.get(name);
+	}
+
+
+	@Override
+	public void updateCertificate(String name, X509Certificate updated) throws EngineException
+	{
+		if (!certificates.containsKey(name))
+			throw new IllegalArgumentException("There is no certificate labelled " + name);
+		certificates.put(name, updated);
+	}
+
+
+	@Override
+	public void removeCertificate(String name) throws EngineException
+	{
+		if (!certificates.containsKey(name))
+			throw new IllegalArgumentException("There is no certificate labelled " + name);
+		certificates.remove(name);
+	}
+
+
+	@Override
+	public void addCertificate(String name, X509Certificate updated) throws EngineException
+	{
+		if (certificates.containsKey(name))
+			throw new IllegalArgumentException("The certificate labelled " + name + " already exists");
+		certificates.put(name, updated);
 	}
 }

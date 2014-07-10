@@ -4,9 +4,7 @@
  */
 package pl.edu.icm.unity.webui;
 
-import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.LinkedList;
+import java.util.Stack;
 import java.util.Queue;
 
 import org.apache.log4j.Logger;
@@ -16,13 +14,10 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 
+import com.vaadin.annotations.Push;
 import com.vaadin.server.DefaultErrorHandler;
-import com.vaadin.server.RequestHandler;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinResponse;
-import com.vaadin.server.VaadinService;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
+import com.vaadin.shared.communication.PushMode;
 import com.vaadin.ui.UI;
 
 /**
@@ -30,6 +25,7 @@ import com.vaadin.ui.UI;
  * Currently proper error handling of unchecked exceptions.
  * @author K. Benedyczak
  */
+@Push(value=PushMode.DISABLED)
 public abstract class UnityUIBase extends UI implements UnityWebUI
 {
 	/**
@@ -43,6 +39,8 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	protected UnityMessageSource msg;
 	protected CancelHandler cancelHandler;
 	
+	private Stack<Integer> pollings = new Stack<>();
+	
 	public UnityUIBase(UnityMessageSource msg)
 	{
 		super();
@@ -53,9 +51,6 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	protected final void init(VaadinRequest request)
 	{
 		setErrorHandler(new ErrorHandlerImpl());
-		RequestsContextQueueHandler handler = new RequestsContextQueueHandler();
-		VaadinSession.getCurrent().addRequestHandler(handler);
-		handler.executePendingActions();
 		appInit(request);
 	}
 
@@ -64,6 +59,37 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	public void setCancelHandler(CancelHandler handler)
 	{
 		this.cancelHandler = handler;
+	}
+	
+	/**
+	 * This method is overriden to ensure that multiple components can individually manipulate poll intervals.
+	 * If multiple pollings are turned on then the interval is set to a smallest value. What's more the polling
+	 * is stopped only when all registered pollings are removed. The stack used is not really needed - 
+	 * we could use counter.
+	 * @param interval
+	 */
+	@Override
+	public void setPollInterval(int interval)
+	{
+		System.out.println("Set Poll wrapped " + interval);
+		if (interval < 0)
+		{
+			pollings.pop();
+			if (pollings.isEmpty())
+			{
+				System.out.println("Poll disabled");
+				super.setPollInterval(-1);
+			}
+		} else
+		{
+			pollings.push(interval);
+			int currentPoll = super.getPollInterval();
+			if (currentPoll < 0 || currentPoll > interval)
+			{
+				System.out.println("Poll enabled");
+				super.setPollInterval(interval);
+			}
+		}
 	}
 	
 	/**
@@ -84,92 +110,5 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 			ErrorPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("UnityUIBase.unhandledError"));
 		} 
-	}
-	
-	/**
-	 * This class takes all actions queued in a {@link WebSession} and invokes them in order.
-	 * The purpose of this mechanism is to perform operations which require HTTP request or response
-	 * as cookie setting, which are initiated in background threads where the request&response are not available. 
-	 * @author K. Benedyczak
-	 */
-	private class RequestsContextQueueHandler implements RequestHandler
-	{
-		@Override
-		public boolean handleRequest(VaadinSession session, VaadinRequest request,
-				VaadinResponse response) throws IOException
-		{
-			executePendingActions();
-			return false;
-		}
-		
-		public void executePendingActions()
-		{
-			Queue<Runnable> actions = getHttpContextActions();
-			for (Runnable action: actions)
-			{
-				log.debug("Found pending action to be executed in HTTP context: " + action);
-				try
-				{
-					action.run();
-				} catch (Exception e)
-				{
-					log.error("Can not execute pending action in HTTP context action failed", e);
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Adds an action to be performed either immediately (if executing in the request handling thread) or
-	 * later on when being in the client request handling thread. It is guaranteed that {@link VaadinRequest} and 
-	 * {@link VaadinResponse} are available in the context. Useful for setting cookies.
-	 * @param action
-	 */
-	public static void addHttpContextAction(Runnable action)
-	{
-		VaadinSession vs = VaadinSession.getCurrent();
-		
-		if (VaadinService.getCurrentResponse() != null && VaadinService.getCurrentRequest() != null)
-		{
-			log.debug("HTTP context action will be invoked immediately");
-			vs.lock();
-			try
-			{
-				action.run();
-			} finally 
-			{
-				vs.unlock();
-			}
-			return;
-		}
-			
-		WrappedSession ws = vs.getSession();
-		log.debug("HTTP context action will be queued");
-		synchronized (ws)
-		{
-			@SuppressWarnings("unchecked")
-			Queue<Runnable> actions = (Queue<Runnable>) ws.getAttribute(ACTIONS_LIST_KEY);
-			if (actions == null)
-			{
-				actions = new LinkedList<Runnable>();
-				ws.setAttribute(ACTIONS_LIST_KEY, actions);
-			}
-			actions.add(action);
-		}
-	}
-	
-	private static Queue<Runnable> getHttpContextActions()
-	{
-		WrappedSession ws = VaadinSession.getCurrent().getSession();
-		synchronized(ws)
-		{
-			@SuppressWarnings("unchecked")
-			Queue<Runnable> actions = (Queue<Runnable>) ws.getAttribute(ACTIONS_LIST_KEY);
-			Queue<Runnable> ret = actions == null ? new ArrayDeque<Runnable>() 
-					: new ArrayDeque<Runnable>(actions);
-			if (actions != null)
-				actions.clear();
-			return ret; 
-		}
 	}
 }

@@ -22,14 +22,6 @@
 		<developerConnection>${scm.base}/${m.name}</developerConnection>
 	</scm>
 
-	<repositories>
-		<repository>
-			<id>unicore.eu</id>
-			<name>UNICORE repository</name>
-			<url>http://unicore-dev.zam.kfa-juelich.de/maven</url>
-		</repository>		
-	</repositories>
-
 	<distributionManagement>
 		<site>
       		<id>unity-idm.eu</id>
@@ -62,12 +54,22 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-oauth</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-web-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-ldap</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-rest</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -172,7 +174,10 @@
 								<argument>pl.edu.icm.unity.webui.VaadinEndpointProperties|ref-vaadinEndpointProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.saml.idp.SamlIdpProperties|ref-samlIdPProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.saml.sp.SAMLSPProperties|ref-samlSPProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.oauth.client.config.OAuthClientProperties|ref-oauthClientProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.oauth.client.config.CustomProviderProperties|ref-oauthProviderProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.db.DBConfiguration|ref-dbProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties|ref-JWTManProperties.txt|</argument>
 							</arguments>
 						</configuration>
 						<goals>
@@ -245,7 +250,5 @@
 				</reportSets>
 			</plugin>
 		</plugins>
-	</reporting>
-	
-	
+	</reporting>	
 </project>

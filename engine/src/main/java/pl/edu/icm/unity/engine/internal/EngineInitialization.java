@@ -31,10 +31,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.db.ContentsUpdater;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.db.InitDB;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.endpoints.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
@@ -111,6 +113,10 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private UnityServerConfiguration config;
 	@Autowired
+	private ContentsUpdater contentsUpdater;
+	@Autowired
+	private InitDB initDB;
+	@Autowired
 	private DBSessionManager db;
 	@Autowired
 	private DBAttributes dbAttributes;
@@ -165,6 +171,7 @@ public class EngineInitialization extends LifecycleBase
 	@Override
 	public void start()
 	{
+		updateDatabase();
 		initializeDatabaseContents();
 		initializeBackgroundTasks();
 		super.start();
@@ -176,7 +183,21 @@ public class EngineInitialization extends LifecycleBase
 		return ENGINE_INITIALIZATION_MOMENT;
 	}
 
-	public void initializeBackgroundTasks()
+	private void updateDatabase()
+	{
+		try
+		{
+			initDB.updateContents(contentsUpdater);
+		} catch (Exception e)
+		{
+			log.fatal("Update of database contents failded. You have to:\n1) Restore DB from backup\n"
+					+ "2) Use the previous version of Unity\n"
+					+ "3) Report this problem with the exception following this message to the Unity support mailing list"); 
+			throw new InternalException("Update of the database contents failed", e);
+		}
+	}
+	
+	private void initializeBackgroundTasks()
 	{
 		Runnable endpointsUpdater = new Runnable()
 		{
@@ -215,6 +236,30 @@ public class EngineInitialization extends LifecycleBase
 		//the cleaner is just a cleaner. No need to call it very often.
 		executors.getService().scheduleWithFixedDelay(attributeStatementsUpdater, 
 				interval*10, interval*10, TimeUnit.SECONDS);
+		
+		
+		Runnable expiredIdentitiesCleaner = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				SqlSession sqlMap = db.getSqlSession(true);
+				try
+				{
+					log.debug("Clearing expired identities");
+					dbIdentities.removeExpiredIdentities(sqlMap);
+					sqlMap.commit();
+				} catch (Exception e)
+				{
+					log.error("Can't clean expired identities", e);
+				} finally
+				{
+					db.releaseSqlSession(sqlMap);
+				}
+			}
+		};
+		executors.getService().scheduleWithFixedDelay(expiredIdentitiesCleaner, 
+				interval*100, interval*100, TimeUnit.SECONDS);
 	}
 	
 	public void initializeDatabaseContents()
@@ -721,15 +766,13 @@ public class EngineInitialization extends LifecycleBase
 	private void initializeTranslationProfiles()
 	{
 		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
-		log.info("Removing old translation profiles");
+		Map<String, TranslationProfile> existingProfiles;
 		try
 		{
-			Map<String, TranslationProfile> existingProfiles = profilesManagement.listProfiles();
-			for (String pr: existingProfiles.keySet())
-				profilesManagement.removeProfile(pr);
-		} catch (EngineException e)
+			existingProfiles = profilesManagement.listProfiles();
+		} catch (EngineException e1)
 		{
-			throw new InternalException("Can't wipe existing translation profiles", e);
+			throw new InternalException("Can't list the existing translation profiles", e1);
 		}
 		log.info("Loading configured translation profiles");
 		for (String profileFile: profileFiles)
@@ -746,8 +789,17 @@ public class EngineInitialization extends LifecycleBase
 			TranslationProfile tp = new TranslationProfile(json, jsonMapper, tactionsRegistry);
 			try
 			{
-				profilesManagement.addProfile(tp);
-				log.info(" - loaded translation profile: " + tp.getName() + " from " + profileFile);
+				if (existingProfiles.containsKey(tp.getName()))
+				{
+					log.info(" - updated the in-DB translation profile : " + tp.getName() + 
+							" with file definition: " + profileFile);
+					profilesManagement.updateProfile(tp);	
+				} else
+				{
+					profilesManagement.addProfile(tp);
+					log.info(" - loaded translation profile: " + tp.getName() + 
+							" from file: " + profileFile);
+				}
 			} catch (EngineException e)
 			{
 				throw new InternalException("Can't install the configured translation profile " 

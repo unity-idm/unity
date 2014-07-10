@@ -18,6 +18,10 @@ import pl.edu.icm.unity.exceptions.EngineException;
  * <p>
  * Currently it is read only and implementation is based on FS stored data. In future it will be enhanced
  * to support DB-stored data with possibility to add/remove contents.
+ * <p>
+ * Single exception are certificates. It is possible to managed (add/remove) them at runtime, however the 
+ * current implementation is in memory only, i.e. all changes are lost after restart. Again this will be
+ * refactored in future.
  * @author K. Benedyczak
  */
 public interface PKIManagement
@@ -66,5 +70,28 @@ public interface PKIManagement
 	 * @throws EngineException
 	 */
 	public X509Certificate getCertificate(String name) throws EngineException;
+	
+	/**
+	 * Updates a given certificate
+	 * @param name
+	 * @param updated
+	 * @throws EngineException
+	 */
+	public void updateCertificate(String name, X509Certificate updated) throws EngineException;
+	
+	/**
+	 * Removes a given certificate
+	 * @param name
+	 * @throws EngineException
+	 */
+	public void removeCertificate(String name) throws EngineException;
+	
+	/**
+	 * Adds a new certificate
+	 * @param name
+	 * @param updated
+	 * @throws EngineException
+	 */
+	public void addCertificate(String name, X509Certificate updated) throws EngineException;
 	
 }

@@ -60,14 +60,18 @@ public class IdentityResolverImpl implements IdentityResolver
 			if (entityState == EntityState.authenticationDisabled || entityState == EntityState.disabled)
 				throw new IllegalIdentityValueException("Authentication is disabled for this entity");
 			EntityWithCredential ret = new EntityWithCredential();
-			Collection<AttributeExt<?>> credAttributes = dbAttributes.getAllAttributes(entityId, "/", true,
-					SystemAttributeTypes.CREDENTIAL_PREFIX+credentialName, sql);
-			if (credAttributes.size() > 0)
+			if (credentialName != null)
 			{
-				Attribute<?> a = credAttributes.iterator().next();
-				ret.setCredentialValue((String)a.getValues().get(0));
+				Collection<AttributeExt<?>> credAttributes = dbAttributes.getAllAttributes(
+						entityId, "/", true, 
+						SystemAttributeTypes.CREDENTIAL_PREFIX+credentialName, sql);
+				if (credAttributes.size() > 0)
+				{
+					Attribute<?> a = credAttributes.iterator().next();
+					ret.setCredentialValue((String)a.getValues().get(0));
+				}
+				ret.setCredentialName(credentialName);
 			}
-			ret.setCredentialName(credentialName);
 			ret.setEntityId(entityId);
 			sql.commit();
 			return ret;

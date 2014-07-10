@@ -10,7 +10,7 @@ import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.CredentialRetrievalFactory;
 import pl.edu.icm.unity.stdext.credential.CertificateExchange;
-import pl.edu.icm.unity.ws.authn.CXFAuthentication;
+import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
 
 /**
  * Factory of {@link TLSRetrieval}
@@ -42,7 +42,7 @@ public class TLSRetrievalFactory implements CredentialRetrievalFactory
 	@Override
 	public String getSupportedBinding()
 	{
-		return CXFAuthentication.NAME;
+		return WebServiceAuthentication.NAME;
 	}
 
 	@Override

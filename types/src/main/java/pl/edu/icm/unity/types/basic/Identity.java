@@ -6,6 +6,8 @@ package pl.edu.icm.unity.types.basic;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 
 /**
@@ -16,6 +18,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 public class Identity extends IdentityParam
 {
 	private Long entityId;
+	@JsonIgnore
 	private IdentityType type;
 
 	private String comparableValue;
@@ -27,13 +30,17 @@ public class Identity extends IdentityParam
 	{
 	}
 	
-	public Identity(IdentityType type, String value, Long entityId, boolean local) 
+	public Identity(IdentityType type, String value, Long entityId, boolean local, String realm, String target) 
 			throws IllegalIdentityValueException
 	{
 		super(type.getIdentityTypeProvider().getId(), value, local);
 		this.entityId = entityId;
 		this.type = type;
 		this.type.getIdentityTypeProvider().validate(value);
+		this.target = target;
+		this.realm = realm;
+		if (type.getIdentityTypeProvider().isTargeted() && (target == null || realm == null))
+			throw new IllegalIdentityValueException("The target and realm must be set for targeted identity");
 	}
 
 	public Long getEntityId()
@@ -64,7 +71,15 @@ public class Identity extends IdentityParam
 	public String getComparableValue()
 	{
 		if (comparableValue == null)
-			comparableValue = type.getIdentityTypeProvider().getComparableValue(value);
+			try
+			{
+				comparableValue = type.getIdentityTypeProvider().getComparableValue(value, 
+						realm, target);
+			} catch (IllegalIdentityValueException e)
+			{
+				//shouldn't happen, unless somebody made a buggy code
+				throw new IllegalStateException("The identity is not initialized properly", e);
+			}
 		return comparableValue;
 	}
 	

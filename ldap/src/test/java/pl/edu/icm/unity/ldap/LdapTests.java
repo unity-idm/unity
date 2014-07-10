@@ -44,7 +44,6 @@ import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
-
 import static pl.edu.icm.unity.ldap.LdapProperties.*;
 import static org.junit.Assert.*;
 
@@ -149,6 +148,23 @@ public class LdapTests
 			public X509Certificate getCertificate(String name) throws EngineException
 			{
 				return null;
+			}
+
+			@Override
+			public void updateCertificate(String name, X509Certificate updated)
+					throws EngineException
+			{
+			}
+
+			@Override
+			public void removeCertificate(String name) throws EngineException
+			{
+			}
+
+			@Override
+			public void addCertificate(String name, X509Certificate updated)
+					throws EngineException
+			{
 			}
 		};
 	}

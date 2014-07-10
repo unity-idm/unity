@@ -125,4 +125,10 @@ public class IntegerAttributeSyntax implements AttributeValueSyntax<Long>
 			throw new WrongArgumentException("Maximum must not be less then the minimum");
 		this.max = max;
 	}
+
+	@Override
+	public Object serializeSimple(Long value) throws InternalException
+	{
+		return value;
+	}
 }

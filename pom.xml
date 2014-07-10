@@ -22,9 +22,8 @@
 		<jetty.version>8.1.14.v20131031</jetty.version>
 		<slf4j.version>1.7.6</slf4j.version>
 		<spring.version>4.0.1.RELEASE</spring.version>
-		<vaadin.version>7.0.7</vaadin.version>
-		<cxf.version>2.7.8</cxf.version>
-
+		<vaadin.version>7.2.2</vaadin.version>
+		<cxf.version>2.7.11</cxf.version>
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
@@ -37,7 +36,7 @@
 		<connection>${scm.base}</connection>
 		<developerConnection>${scm.base}</developerConnection>
 		<tag>HEAD</tag>
-  </scm>
+    </scm>
 
 	<modules>
 		<module>types</module>
@@ -47,10 +46,13 @@
 		<module>std-extensions</module>
 		<module>web-common</module>
 		<module>web-admin</module>
+		<module>rest</module>
+		<module>rest-admin</module>
 		<module>ws</module>
 		<module>saml</module>
 		<module>unicore</module>
 		<module>ldap</module>
+		<module>oauth</module>
 		<module>distribution</module>
 	</modules>
 
@@ -226,7 +228,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>4.0.1</version>
+				<version>4.0.2-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>pl.edu.icm.saml</groupId>
@@ -236,7 +238,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>SAMLMetadataTypes</artifactId>
-				<version>1.0.0</version>
+				<version>1.1.0</version>
 			</dependency>
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
@@ -321,6 +323,11 @@
 				<version>${cxf.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.sun.mail</groupId>
 				<artifactId>javax.mail</artifactId>
 				<version>1.5.1</version>
@@ -344,6 +351,26 @@
 				<groupId>org.mvel</groupId>
 				<artifactId>mvel2</artifactId>
 				<version>2.1.9.Final</version>
+			</dependency>
+			<dependency>
+		 		<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpclient</artifactId>
+				<version>4.2.4</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nimbusds</groupId>
+				<artifactId>oauth2-oidc-sdk</artifactId>
+				<version>3.1</version>
+			</dependency>
+			<dependency>
+		 		<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpclient</artifactId>
+				<version>4.2.4</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nimbusds</groupId>
+				<artifactId>nimbus-jose-jwt</artifactId>
+				<version>2.25</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

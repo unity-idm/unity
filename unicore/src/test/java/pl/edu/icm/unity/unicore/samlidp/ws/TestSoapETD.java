@@ -91,7 +91,7 @@ public class TestSoapETD extends DBIntegrationTestBase
 	@Test
 	public void testETDAuthn() throws Exception
 	{
-		String attrWSUrl = "https://localhost:2443/saml" + SamlUnicoreIdPSoapEndpointFactory.SERVLET_PATH +
+		String attrWSUrl = "https://localhost:52443/saml" + SamlUnicoreIdPSoapEndpointFactory.SERVLET_PATH +
 				"/AuthenticationService";
 		
 		DefaultClientConfiguration clientCfg = getClientCfg();

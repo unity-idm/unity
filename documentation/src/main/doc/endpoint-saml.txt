@@ -68,3 +68,51 @@ that it generates and return UNICORE 7 trust delegations made for the client.
 
 Only the users with the X.500 identity (among others identities) may use this endpoint. However neither 
 authentication with certificate nor possession of a X.509 certificate is required.
+
+
+[[endp-ecp]]
+=== SAML PAOS Enhanced Client or Proxy (ECP) endpoint
+
+Endpoint type:: +SAML-ECP+
+Binding:: _none_ (this endpoint doesn't use authenticators thus there is no binding in Unity sense. Formally it is HTTP/PAOS.)
+Exposed paths:: +/saml2-ecp+
+
+SAML ECP endpoint is a helper endpoint for non web browser clients,
+which want to authenticate for using Unity interfaces (e.g. to perform SAML attribute queries), however the
+authentication should be performed with a remote SAML IdP. In other words this endpoint is non-web browser client 
+friendly counterpart of the Web SAML SSO endpoint. The details of the ECP are described in the 
+SAML ECP profile: http://docs.oasis-open.org/security/saml/Post2.0/saml-ecp/v2.0/cs01/saml-ecp-v2.0-cs01.html.
+
+As the only function of the endpoint is to actually authenticate the client, it is not using any of regular 
+Unity authenticators (none is matching this endpoint).
+
+After successful ECP authentication against this endpoint, the client receives a JWT credential which can be used
+to authenticate it against other Unity endpoints.
+
+Configuration of the ECP endpoints is the same as the configuration of the remote SAML authenticator
+(see <<external-saml>>) as ECP endpoint is in fact a relaying party (SP in SAML terminology) for remote IdPs.
+However there are the following things to note:
+
+. The ECP endpoint must have additional settings configuring JWT generation. Those are the same as the 
+settings for <<endp-rest-jwt>>, however the prefix is +unity.saml.requester.jwt.+.
+. The ECP endpoint always uses the *default* settings for signing the request and of the requested SAML format. 
+This is because the target IdP is not known during SAML query generation.
+
+An example configuration:
+
+----
+unity.saml.requester.requesterEntityId=http://ecpSP.example.com
+unity.saml.requester.metadataPath=metadata
+unity.saml.requester.remoteIdp.1.address=http://localhost:52443/
+unity.saml.requester.remoteIdp.1.samlId=http://example-saml-idp.org
+unity.saml.requester.remoteIdp.1.certificate=MAIN
+unity.saml.requester.remoteIdp.1.translationProfile=testP 
+unity.saml.requester.jwt.credential=MAIN
+unity.saml.requester.jwt.tokenTtl=10
+---- 
+
+
+    
+
+
+

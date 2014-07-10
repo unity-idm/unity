@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServletService;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
@@ -21,7 +22,6 @@ import com.vaadin.ui.themes.Reindeer;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.util.configuration.ConfigurationException;
-
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
@@ -219,7 +219,12 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 		public void clear()
 		{
 			//nop
-			
+		}
+
+		@Override
+		public void refresh(VaadinRequest request) 
+		{
+			//nop
 		}
 	}	
 }

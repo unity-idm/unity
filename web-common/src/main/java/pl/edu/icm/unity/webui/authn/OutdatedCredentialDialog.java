@@ -61,7 +61,7 @@ public class OutdatedCredentialDialog extends AbstractDialog
 				ls.getEntityId(), 
 				authnMan, 
 				idsMan, 
-				credEditorReg, 
+				credEditorReg, true,
 				new Callback()
 				{
 					@Override
@@ -77,7 +77,7 @@ public class OutdatedCredentialDialog extends AbstractDialog
 	protected void onCancel()
 	{
 		close();
-		authnProcessor.logoutAndRefresh(true);
+		authnProcessor.logout(true);
 	}
 	
 	private void afterCredentialUpdate(final boolean changed)

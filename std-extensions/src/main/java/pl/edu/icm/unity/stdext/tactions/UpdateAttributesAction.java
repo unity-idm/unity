@@ -14,9 +14,9 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemoteInformationBase;
+import pl.edu.icm.unity.server.authn.remote.RemoteVerificatorUtil;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.authn.remote.translation.AbstractTranslationAction;
 import pl.edu.icm.unity.server.utils.Log;
@@ -76,7 +76,7 @@ public class UpdateAttributesAction extends AbstractTranslationAction
 				existingANames.add(a.getGroupPath()+"///" + a.getName());
 		}
 
-		List<Attribute<?>> attrs = AbstractRemoteVerificator.extractAttributes(input, attrMan);
+		List<Attribute<?>> attrs = RemoteVerificatorUtil.extractAttributes(input, attrMan);
 		for (Attribute<?> attr: attrs)
 		{
 			if (!selection.matcher(attr.getName()).matches())

@@ -49,7 +49,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.ProgressIndicator;
+import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.SucceededEvent;
 
@@ -148,7 +148,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		private JpegImageAttributeSyntax syntax;
 		private Image field;
 		private Upload upload;
-		private ProgressIndicator progressIndicator;
+		private ProgressBar progressIndicator;
 		private CheckBox scale;
 		private Label error;
 		private boolean required;
@@ -193,15 +193,11 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			field.setDescription(msg.getMessage("JpegAttributeHandler.clickToEnlarge"));
 			
 			upload = new Upload();
-			progressIndicator = new ProgressIndicator(0);
+			progressIndicator = new ProgressBar(0);
 			progressIndicator.setVisible(false);
-			progressIndicator.setPollingInterval(2000);
 			
-			ImageUploader uploader = new ImageUploader(field, syntax, progressIndicator); 
-			upload.setReceiver(uploader);
-			upload.addSucceededListener(uploader);
-			upload.addStartedListener(uploader);
-			upload.addProgressListener(uploader);
+			ImageUploader uploader = new ImageUploader(field, syntax, progressIndicator);
+			uploader.register();
 			upload.setWidth(100, Unit.PERCENTAGE);
 			upload.setCaption(label);
 
@@ -245,7 +241,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			private LimitedOuputStream fos;
 			private JpegImageAttributeSyntax syntax;
 			
-			public ImageUploader(Image image, JpegImageAttributeSyntax syntax, ProgressIndicator progress)
+			public ImageUploader(Image image, JpegImageAttributeSyntax syntax, ProgressBar progress)
 			{
 				super(upload, progress);
 				this.image = image;

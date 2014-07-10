@@ -72,7 +72,7 @@ public class AttributeStatementProcessor
 	 * </ol>
 	 * @param entityId
 	 * @param group
-	 * @param attribute the only interesting attribute or null if all should be collected
+	 * @param queriedAttribute the only interesting attribute or null if all should be collected
 	 * @param allGroups set with all groups where the entity is the member
 	 * @param directAttributesByGroup map with group as keys with all regular attributes of the user. Values
 	 * are maps of attributes by name.
@@ -82,24 +82,24 @@ public class AttributeStatementProcessor
 	 * @throws IllegalGroupValueException 
 	 * @throws WrongArgumentException 
 	 */
-	public Map<String, AttributeExt<?>> getEffectiveAttributes(long entityId, String group, String attribute, 
+	public Map<String, AttributeExt<?>> getEffectiveAttributes(long entityId, String group, String queriedAttribute, 
 			Set<String> allGroups, Map<String, Map<String, AttributeExt<?>>> directAttributesByGroup,
 			AttributesMapper atMapper, GroupsMapper gMapper, Map<String, AttributesClass> knownClasses) 
 					throws IllegalGroupValueException, IllegalTypeException
 	{		
 		Map<String, Map<String, AttributeExt<?>>> downwardsAttributes = new HashMap<String, Map<String,AttributeExt<?>>>();
-		collectUpOrDownAttributes(Direction.downwards, group, attribute, downwardsAttributes, 
+		collectUpOrDownAttributes(Direction.downwards, group, queriedAttribute, downwardsAttributes, 
 				directAttributesByGroup, allGroups, atMapper, gMapper, knownClasses);
 
 		Map<String, Map<String, AttributeExt<?>>> upwardsAttributes = new HashMap<String, Map<String,AttributeExt<?>>>();
-		collectUpOrDownAttributes(Direction.upwards, group, attribute, upwardsAttributes, 
+		collectUpOrDownAttributes(Direction.upwards, group, queriedAttribute, upwardsAttributes, 
 				directAttributesByGroup, allGroups, atMapper, gMapper, knownClasses);
 
 		AttributeStatement[] statements = getGroupStatements(group, atMapper, gMapper);
 		
 		return processAttributeStatements(Direction.undirected, directAttributesByGroup, 
 				upwardsAttributes, downwardsAttributes, group, 
-				attribute, statements, allGroups, atMapper, knownClasses);
+				queriedAttribute, statements, allGroups, atMapper, knownClasses);
 	}
 
 	/**
@@ -140,7 +140,7 @@ public class AttributeStatementProcessor
 	 * @throws IllegalAttributeTypeException 
 	 * @throws IllegalTypeException 
 	 */
-	private void collectUpOrDownAttributes(Direction mode, String groupPath, String attribute,
+	private void collectUpOrDownAttributes(Direction mode, String groupPath, String queriedAttribute,
 			Map<String, Map<String, AttributeExt<?>>> upOrDownAttributes, 
 			Map<String, Map<String, AttributeExt<?>>> allAttributesByGroup,
 			Set<String> allGroups, AttributesMapper mapper, GroupsMapper gMapper, 
@@ -152,7 +152,7 @@ public class AttributeStatementProcessor
 		Set<String> interestingGroups = new HashSet<String>();
 		for (AttributeStatement as: statements)
 		{
-			if (mode == as.getDirection() && isForInterestingAttribute(attribute, as))
+			if (mode == as.getDirection() && isForInterestingAttribute(queriedAttribute, as))
 			{
 				String groupPath2 = as.getConditionAttribute().getGroupPath();
 				interestingGroups.add(groupPath2);
@@ -160,7 +160,7 @@ public class AttributeStatementProcessor
 		}
 		for (String interestingGroup: interestingGroups)
 		{
-			collectUpOrDownAttributes(mode, interestingGroup, attribute, upOrDownAttributes, allAttributesByGroup,
+			collectUpOrDownAttributes(mode, interestingGroup, queriedAttribute, upOrDownAttributes, allAttributesByGroup,
 					allGroups, mapper, gMapper, knownClasses);
 		}
 		
@@ -182,12 +182,12 @@ public class AttributeStatementProcessor
 		return false;
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Map<String, AttributeExt<?>> processAttributeStatements(Direction direction,
 			Map<String, Map<String, AttributeExt<?>>> allAttributesByGroup,
 			Map<String, Map<String, AttributeExt<?>>> upwardsAttributesByGroup,
 			Map<String, Map<String, AttributeExt<?>>> downwardsAttributesByGroup,
-			String group, String attribute, AttributeStatement[] statements, 
+			String group, String queriedAttribute, AttributeStatement[] statements, 
 			Set<String> allGroups, AttributesMapper mapper, Map<String, AttributesClass> knownClasses) 
 					throws IllegalTypeException 
 	{
@@ -196,13 +196,15 @@ public class AttributeStatementProcessor
 		AttributeExt<String> acAttribute = null;
 		if (attributesInGroup != null)
 		{
-			if (attribute == null)
-				collectedAttributes.putAll(attributesInGroup);
-			else
+			if (queriedAttribute == null)
 			{
-				AttributeExt<?> at = attributesInGroup.get(attribute);
+				for (Map.Entry<String, AttributeExt<?>> a: attributesInGroup.entrySet())
+					collectedAttributes.put(a.getKey(), new AttributeExt(a.getValue()));
+			} else
+			{
+				AttributeExt<?> at = attributesInGroup.get(queriedAttribute);
 				if (at != null)
-					collectedAttributes.put(attribute, at);
+					collectedAttributes.put(queriedAttribute, new AttributeExt(at));
 			}
 			acAttribute = (AttributeExt<String>) attributesInGroup.get(
 					AttributeClassUtil.ATTRIBUTE_CLASSES_ATTRIBUTE);
@@ -218,7 +220,7 @@ public class AttributeStatementProcessor
 				directedAttributesByGroup = downwardsAttributesByGroup;
 			if (as.getDirection() == Direction.upwards)
 				directedAttributesByGroup = upwardsAttributesByGroup;
-			processAttributeStatement(direction, as, attribute, collectedAttributes, 
+			processAttributeStatement(direction, as, queriedAttribute, collectedAttributes, 
 					directedAttributesByGroup, allGroups, mapper, acHelper);
 		}
 		return collectedAttributes;

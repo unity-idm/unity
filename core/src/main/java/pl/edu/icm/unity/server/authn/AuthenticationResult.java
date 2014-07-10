@@ -93,4 +93,10 @@ public class AuthenticationResult
 	{
 		this.formForUnknownPrincipal = formForUnknownPrincipal;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return status.toString();
+	}
 }

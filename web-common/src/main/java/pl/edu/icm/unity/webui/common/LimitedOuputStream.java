@@ -70,4 +70,9 @@ public class LimitedOuputStream extends OutputStream
 	{
 		return overflow;
 	}
+	
+	public long getLength()
+	{
+		return written;
+	}
 }

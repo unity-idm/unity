@@ -1,0 +1,115 @@
+[[endp-rest-admin]]
+=== RESTful Administration API endpoint
+
+Endpoint type:: +RESTAdmin+
+Binding:: RESTful (CXF)
+Exposed paths:: +/v1/*+
+
+This endpoint exposes a RESTful API to Unity features. 
+The endpoint does not require any specialized configuration.
+
+All paths must be naturally prefixed with the 
+server's base URL, endpoint deployment's path (as configured) and API version (currently there is only one).
+Example query path can be similar to:
+
+   https://unity.example.com/rest-admin/v1/entity/1
+
+==== API reference
+
+'''
+
++@Path("/entity/{entityId}")+ +
++@GET+ +
+
+Returns information about a given entity, including its status and all identities.
+
+Example output: 
+----
+{
+  "id" : 3,
+  "state" : "valid",
+  "identities" : [ {
+    "typeId" : "userName",
+    "value" : "tested",
+    "target" : null,
+    "realm" : null,
+    "local" : true,
+    "entityId" : 3,
+    "comparableValue" : "tested"
+  }, {
+    "typeId" : "persistent",
+    "value" : "129ffe63-63b9-4467-ae24-6bc889327b0d",
+    "target" : null,
+    "realm" : null,
+    "local" : true,
+    "entityId" : 3,
+    "comparableValue" : "129ffe63-63b9-4467-ae24-6bc889327b0d"
+  } ],
+  "credentialInfo" : {
+    "credentialRequirementId" : "cr-pass",
+    "credentialsState" : {
+      "credential1" : {
+        "state" : "notSet",
+        "extraInformation" : ""
+      }
+    }
+  }
+}
+----
+
+'''
+	
++@Path("/entity/{entityId}/groups")+ +
++@GET+ +
+ Returns all groups the entity is member of.
+
+Example output: 
+----
+["/example/sub","/example","/"]
+----
+
+
+'''
+
++@Path("/entity/{entityId}/attributes")+ +
++@QueryParam("group")+ +
++@GET+ +
+
+Returns effective attributes of a given entity in a selected group. Values are encoded using simple mapping if possible
+(e.g. String attribute is placed as JSON string), values with syntax which is not directly mappable to JSON type
+is converted to binary representation and then Base64 encoded. 
+
+Example output: 
+----
+[ {
+  "values" : [ "/9j/4AAQSk .... KKKKACiiigD//2Q==" ],
+  "direct" : true,
+  "name" : "jpegA",
+  "groupPath" : "/example",
+  "visibility" : "full",
+  "syntax" : "jpegImage"
+}, {
+  "values" : [ "value" ],
+  "direct" : true,
+  "name" : "stringA",
+  "groupPath" : "/example",
+  "visibility" : "full",
+  "syntax" : "string"
+} ]
+----
+
+
+'''
+
++@Path("/group/{groupPath}")+ +
++@GET+ +
+
+Returns all members and subgroups of a given group.
+
+Example output: 
+----
+{
+  "subGroups" : [ ],
+  "members" : [ 3 ]
+}
+----

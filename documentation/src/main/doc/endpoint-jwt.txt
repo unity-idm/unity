@@ -1,0 +1,15 @@
+[[endp-rest-jwt]]
+=== JWT management endpoint
+
+Endpoint type:: +JWTMan+
+Binding:: RESTful (CXF)
+Exposed paths:: +/*+
+
+This endpoint exposes a simple JWT (JSON Web Token) management endpoint. It is possible to obtain, refresh
+and invalidate JWT with simple API calls. The usage of this endpoint is documented on the Unity Wiki.
+
+The options of the endpoint are:
+
+include::ref-JWTManProperties.txt[]
+
+

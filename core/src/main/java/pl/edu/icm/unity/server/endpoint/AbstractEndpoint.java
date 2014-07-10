@@ -4,10 +4,13 @@
  */
 package pl.edu.icm.unity.server.endpoint;
 
+import java.io.CharArrayWriter;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
@@ -23,6 +26,7 @@ public abstract class AbstractEndpoint implements EndpointInstance
 	protected EndpointDescription description;
 	protected List<Map<String, BindingAuthn>> authenticators;
 	protected URL baseUrl;
+	protected Properties properties;
 	
 	public AbstractEndpoint(EndpointTypeDescription type)
 	{
@@ -45,6 +49,20 @@ public abstract class AbstractEndpoint implements EndpointInstance
 		setSerializedConfiguration(serializedConfiguration);
 	}
 
+	@Override
+	public String getSerializedConfiguration()
+	{
+		CharArrayWriter writer = new CharArrayWriter();
+		try
+		{
+			properties.store(writer, "");
+		} catch (IOException e)
+		{
+			throw new IllegalStateException("Can not serialize endpoint's configuration", e);
+		}
+		return writer.toString();
+	}
+	
 	protected abstract void setSerializedConfiguration(String serializedState);
 	
 	@Override

@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types.basic;
 
+import java.util.ArrayList;
+
 /**
  * Extends the basic {@link Attribute} with metadata which is set by the server when returning 
  * attributes.
@@ -17,8 +19,17 @@ public class AttributeExt<T> extends Attribute<T>
 	public AttributeExt(Attribute<T> baseAttribute, boolean isDirect)
 	{
 		super(baseAttribute.getName(), baseAttribute.getAttributeSyntax(), baseAttribute.getGroupPath(), 
-				baseAttribute.getVisibility(), baseAttribute.getValues());
+				baseAttribute.getVisibility(), new ArrayList<T>(baseAttribute.getValues()));
 		this.direct = isDirect;
+	}
+	
+	/**
+	 * Cloning constructor. Deep cloning is performed.
+	 * @param source
+	 */
+	public AttributeExt(AttributeExt<T> source)
+	{
+		this(source, source.isDirect());
 	}
 	
 	/**

@@ -127,6 +127,17 @@ public interface IdentitiesManagement
 	 * @throws EngineException
 	 */
 	public Entity getEntity(EntityParam entity, String target, boolean allowCreate) throws EngineException;
+
+	/**
+	 * Returns information about an entity along with its identities.
+	 * This version requires higher privileges and returns all identities, also those targeted 
+	 * for anybody in any realm.
+	 * @param entity
+	 * @return
+	 * @throws EngineException
+	 */
+	Entity getEntityNoContext(EntityParam entity) throws EngineException;
+
 	
 	/**
 	 * Changes {@link CredentialRequirements} of an entity. 

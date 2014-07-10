@@ -99,6 +99,11 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 					AuthzCapability.readHidden,
 					AuthzCapability.read,
 					AuthzCapability.readInfo
+				},
+				new AuthzCapability[] {
+					AuthzCapability.credentialModify,
+					AuthzCapability.attributeModify,
+					AuthzCapability.read
 				}));
 		
 		setupRole(new RoleImpl(INSPECTOR_ROLE, "Allows for reading entities, groups and attributes. " +
@@ -106,6 +111,11 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 				new AuthzCapability[] {
 					AuthzCapability.read,
 					AuthzCapability.readInfo
+				},
+				new AuthzCapability[] {
+					AuthzCapability.credentialModify,
+					AuthzCapability.attributeModify,
+					AuthzCapability.read
 				}));
 		
 		setupRole(new RoleImpl(USER_ROLE, "Allows owners for reading of the basic system information," +

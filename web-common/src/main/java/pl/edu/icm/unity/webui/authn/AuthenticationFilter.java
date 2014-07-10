@@ -5,10 +5,12 @@
 package pl.edu.icm.unity.webui.authn;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -26,20 +28,19 @@ import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.server.utils.CookieHelper;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
 /**
- * Servlet filter redirecting unauthenticated requests to the protected addresses,
- * to the authentication servlet.
+ * Servlet filter forwarding unauthenticated requests to the protected authentication servlet.
  * @author K. Benedyczak
  */
 public class AuthenticationFilter implements Filter
 {
-	public static final String ORIGINAL_ADDRESS = AuthenticationFilter.class.getName()+".origURIkey";
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationFilter.class);
 
-	private String protectedPath;
+	private String protectedServletPath;
 	private String authnServletPath;
 	private final String sessionCookie;
 	private UnsuccessfulAuthenticationCounter dosGauard;
@@ -47,10 +48,10 @@ public class AuthenticationFilter implements Filter
 	private LoginToHttpSessionBinder sessionBinder;
 	
 	
-	public AuthenticationFilter(String protectedPath, String authnServletPath, AuthenticationRealm realm,
+	public AuthenticationFilter(String protectedServletPath, String authnServletPath, AuthenticationRealm realm,
 			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder)
 	{
-		this.protectedPath = protectedPath;
+		this.protectedServletPath = protectedServletPath;
 		this.authnServletPath = authnServletPath;
 		dosGauard = new UnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), 
 				realm.getBlockFor()*1000);
@@ -65,24 +66,29 @@ public class AuthenticationFilter implements Filter
 	{
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
+		
 		String servletPath = httpRequest.getServletPath();
-		if (!hasPathPrefix(servletPath, protectedPath) || hasPathPrefix(httpRequest.getPathInfo(), 
-				ApplicationConstants.HEARTBEAT_PATH + '/'))
+		if (hasPathPrefix(servletPath, authnServletPath))
 		{
-			if (log.isTraceEnabled())
-				log.trace("Request to not protected address: " + httpRequest.getRequestURI());
-			chain.doFilter(httpRequest, response);
+			log.debug("Direct access to authentication servlet is prohibited");
+			httpResponse.sendError(HttpServletResponse.SC_NOT_FOUND, 
+					"The requested address is not available.");
 			return;
 		}
-
+		
+		if (!hasPathPrefix(servletPath, protectedServletPath))
+		{
+			gotoNotProtectedResource(httpRequest, response, chain);
+			return;
+		}
+		
 		HttpSession httpSession = httpRequest.getSession(false);
 		String loginSessionId;
-		
 		if (httpSession != null)
 		{
 			LoginSession loginSession = (LoginSession) httpSession.getAttribute(
 					LoginToHttpSessionBinder.USER_SESSION_KEY);
-			if (loginSession != null)
+			if (loginSession != null && !loginSession.isUsedOutdatedCredential())
 			{
 				loginSessionId = loginSession.getId();
 				try
@@ -93,21 +99,25 @@ public class AuthenticationFilter implements Filter
 						log.trace("Update session activity for " + loginSessionId);
 						sessionMan.updateSessionActivity(loginSessionId);
 					}
-					gotoResource(httpRequest, response, chain);
+					gotoProtectedResource(httpRequest, response, chain);
 					return;
 				} catch (WrongArgumentException e)
 				{
 					log.debug("Can't update session activity ts for " + loginSessionId + 
 							" - expired(?), HTTP session " + httpSession.getId(), e);
 				}
+			} else 
+			{
+				forwardtoAuthn(httpRequest, httpResponse);
+				return;
 			}
 		}
 
-		loginSessionId = getUnitySessionIdFromCookie(httpRequest);
+		loginSessionId = CookieHelper.getCookie(httpRequest, sessionCookie);
 		
 		if (loginSessionId == null)
 		{
-			gotoAuthn(httpRequest, httpResponse);
+			forwardtoAuthn(httpRequest, httpResponse);
 			return;
 		}
 		
@@ -117,7 +127,7 @@ public class AuthenticationFilter implements Filter
 		{
 			log.debug("Blocked potential DoS/brute force authN attack from " + clientIp);
 			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Access is blocked for " + 
-					blockedTime/1000 + 
+					TimeUnit.MILLISECONDS.toSeconds(blockedTime) + 
 					"s more, due to sending too many invalid session cookies.");
 			return;
 		}
@@ -132,7 +142,7 @@ public class AuthenticationFilter implements Filter
 					httpRequest.getRequestURI() );
 			dosGauard.unsuccessfulAttempt(clientIp);
 			clearSessionCookie(httpResponse);
-			gotoAuthn(httpRequest, httpResponse);
+			forwardtoAuthn(httpRequest, httpResponse);
 			return;
 		}
 		dosGauard.successfulAttempt(clientIp);
@@ -141,20 +151,26 @@ public class AuthenticationFilter implements Filter
 
 		sessionBinder.bindHttpSession(httpSession, ls);
 		
-		gotoResource(httpRequest, response, chain);
+		gotoProtectedResource(httpRequest, response, chain);
 	}
 
-	private void gotoAuthn(HttpServletRequest httpRequest, HttpServletResponse response) throws IOException
+	private void forwardtoAuthn(HttpServletRequest httpRequest, HttpServletResponse response) throws IOException, ServletException
 	{
-		if (log.isTraceEnabled())
-			log.trace("Request to protected address, redirecting to auth: " + 
-					httpRequest.getRequestURI());
-		HttpSession session = httpRequest.getSession();
-		session.setAttribute(ORIGINAL_ADDRESS, httpRequest.getRequestURI());
-		response.sendRedirect(authnServletPath);
+		String forwardURI = authnServletPath;
+		if (httpRequest.getPathInfo() != null) 
+		{
+			forwardURI += httpRequest.getPathInfo();
+		}
+		if (log.isTraceEnabled()) 
+		{
+			log.trace("Request to protected address, forward: " + 
+					httpRequest.getRequestURI() + " -> " + httpRequest.getContextPath() + forwardURI);
+		}
+		RequestDispatcher dispatcher = httpRequest.getRequestDispatcher(forwardURI);
+		dispatcher.forward(httpRequest, response);
 	}
 
-	private void gotoResource(HttpServletRequest httpRequest, ServletResponse response, FilterChain chain) 
+	private void gotoProtectedResource(HttpServletRequest httpRequest, ServletResponse response, FilterChain chain) 
 			throws IOException, ServletException
 	{
 		if (log.isTraceEnabled())
@@ -163,13 +179,12 @@ public class AuthenticationFilter implements Filter
 		chain.doFilter(httpRequest, response);
 	}
 	
-	private String getUnitySessionIdFromCookie(HttpServletRequest request)
+	private void gotoNotProtectedResource(HttpServletRequest httpRequest,
+			ServletResponse response, FilterChain chain) throws IOException, ServletException 
 	{
-		Cookie[] cookies = request.getCookies();
-		for (Cookie cookie: cookies)
-			if (sessionCookie.equals(cookie.getName()))
-				return cookie.getValue();
-		return null;
+		if (log.isTraceEnabled())
+			log.trace("Request to not protected address: " + httpRequest.getRequestURI());
+		chain.doFilter(httpRequest, response);
 	}
 	
 	private void clearSessionCookie(HttpServletResponse response)
@@ -181,8 +196,8 @@ public class AuthenticationFilter implements Filter
 		response.addCookie(unitySessionCookie);
 	}
 	
-	public static boolean hasPathPrefix(String pathInfo , String prefix) {
-
+	public static boolean hasPathPrefix(String pathInfo , String prefix) 
+	{
 		if (pathInfo == null || pathInfo.equals("")) {
 			return false;
 		}

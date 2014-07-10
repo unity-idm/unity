@@ -81,7 +81,7 @@ public class UsernameIdentity extends AbstractStaticIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getComparableValue(String from)
+	public String getComparableValue(String from, String realm, String target)
 	{
 		return from;
 	}

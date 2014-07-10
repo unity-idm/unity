@@ -21,21 +21,9 @@ import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.security.wsutil.client.WSClientFactory;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory;
-import pl.edu.icm.unity.stdext.credential.PasswordToken;
-import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.ws.mock.MockWSEndpointFactory;
 import pl.edu.icm.unity.ws.mock.MockWSSEI;
 import xmlbeans.org.oasis.saml2.assertion.NameIDDocument;
@@ -43,22 +31,21 @@ import xmlbeans.org.oasis.saml2.assertion.NameIDDocument;
 
 public class TestWSCore extends DBIntegrationTestBase
 {
+	public static final String AUTHENTICATOR_WS_PASS = "ApassWS";
+	public static final String AUTHENTICATOR_WS_CERT = "AcertWS";
+	
 	@Test
 	public void testBlockAccess() throws Exception
 	{
-		setupMockAuthn();
+		setupAuth();
 		createUsers();
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
 				5, 1, -1, 600);
 		realmsMan.addRealm(realm);
 		
-		List<EndpointTypeDescription> endpointTypes = endpointMan.getEndpointTypes();
-		assertEquals(1, endpointTypes.size());
-		EndpointTypeDescription type = endpointTypes.get(0);
-
 		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
-		authnCfg.add(new AuthenticatorSet(Collections.singleton("Apass")));
-		endpointMan.deploy(type.getName(), "endpoint1", "/mock", "desc", authnCfg, "", realm.getName());
+		authnCfg.add(new AuthenticatorSet(Collections.singleton(AUTHENTICATOR_WS_PASS)));
+		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", "/mock", "desc", authnCfg, "", realm.getName());
 
 		httpServer.start();
 		
@@ -130,20 +117,17 @@ public class TestWSCore extends DBIntegrationTestBase
 	@Test
 	public void test() throws Exception
 	{
-		setupMockAuthn();
+		setupAuth();
 		createUsers();
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
 				10, 100, -1, 600);
 		realmsMan.addRealm(realm);
 		
-		List<EndpointTypeDescription> endpointTypes = endpointMan.getEndpointTypes();
-		assertEquals(1, endpointTypes.size());
-		EndpointTypeDescription type = endpointTypes.get(0);
-
+		
 		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
-		authnCfg.add(new AuthenticatorSet(Collections.singleton("Apass")));
-		authnCfg.add(new AuthenticatorSet(Collections.singleton("Acert")));
-		endpointMan.deploy(type.getName(), "endpoint1", "/mock", "desc", authnCfg, "", realm.getName());
+		authnCfg.add(new AuthenticatorSet(Collections.singleton(AUTHENTICATOR_WS_PASS)));
+		authnCfg.add(new AuthenticatorSet(Collections.singleton(AUTHENTICATOR_WS_CERT)));
+		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", "/mock", "desc", authnCfg, "", realm.getName());
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 
@@ -209,10 +193,11 @@ public class TestWSCore extends DBIntegrationTestBase
 
 		List<AuthenticatorSet> authnCfg2 = new ArrayList<AuthenticatorSet>();
 		Set<String> setC = new HashSet<String>();
-		setC.add("Apass");
-		setC.add("Acert");
+		setC.add(AUTHENTICATOR_WS_PASS);
+		setC.add(AUTHENTICATOR_WS_CERT);
 		authnCfg2.add(new AuthenticatorSet(setC));
-		endpointMan.deploy(type.getName(), "endpoint2", "/mock2", "desc", authnCfg2, "", realm.getName());
+		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint2", "/mock2", "desc",
+				authnCfg2, "", realm.getName());
 		
 		clientCfg.setSslAuthn(true);
 		clientCfg.setHttpAuthn(true);
@@ -253,52 +238,17 @@ public class TestWSCore extends DBIntegrationTestBase
 		
 	}
 	
-	
-	
 	protected void createUsers() throws Exception
 	{
-		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user1", true), 
-				"cr-pass", EntityState.valid, false);
-		idsMan.setEntityCredential(new EntityParam(added1), "credential1", 
-				new PasswordToken("mockPassword1").toJson());
-		
-		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user2", true), 
-				"cr-certpass", EntityState.valid, false);
-		idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=Test UVOS,O=UNICORE,C=EU", true), 
-				new EntityParam(added2), false);
-		idsMan.setEntityCredential(new EntityParam(added2), "credential1", 
-				new PasswordToken("mockPassword2").toJson());
+		createUsernameUser(null);
+		createCertUser();
 	}
 	
-	protected void setupMockAuthn() throws Exception
+	protected void setupAuth() throws Exception
 	{
-		CredentialDefinition credDef = new CredentialDefinition(
-				PasswordVerificatorFactory.NAME, "credential1", "");
-		credDef.setJsonConfiguration("{\"minLength\": 4, " +
-				"\"historySize\": 5," +
-				"\"minClassesNum\": 1," +
-				"\"denySequences\": true," +
-				"\"maxAge\": 30758400}");
-		authnMan.addCredentialDefinition(credDef);
-		CredentialDefinition credDef2 = new CredentialDefinition(
-				CertificateVerificatorFactory.NAME, "credential2", "");
-		credDef2.setJsonConfiguration("");
-		authnMan.addCredentialDefinition(credDef2);
-		
-		CredentialRequirements cr = new CredentialRequirements("cr-pass", "", 
-				Collections.singleton(credDef.getName()));
-		authnMan.addCredentialRequirement(cr);
-		CredentialRequirements cr2 = new CredentialRequirements("cr-cert", "", 
-				Collections.singleton(credDef2.getName()));
-		authnMan.addCredentialRequirement(cr2);
-
-		Set<String> creds = new HashSet<String>();
-		Collections.addAll(creds, credDef.getName(), credDef2.getName());
-		CredentialRequirements cr3 = new CredentialRequirements("cr-certpass", "", creds);
-		authnMan.addCredentialRequirement(cr3);
-		
-		authnMan.createAuthenticator("Apass", "password with cxf-httpbasic", null, "", "credential1");
-		authnMan.createAuthenticator("Acert", "certificate with cxf-certificate", null, "", "credential2");
+		setupPasswordAuthn();
+		setupPasswordAndCertAuthn();
+		authnMan.createAuthenticator(AUTHENTICATOR_WS_CERT, "certificate with cxf-certificate", null, "", "credential2");
+		authnMan.createAuthenticator(AUTHENTICATOR_WS_PASS, "password with cxf-httpbasic", null, "", "credential1");
 	}
-
 }

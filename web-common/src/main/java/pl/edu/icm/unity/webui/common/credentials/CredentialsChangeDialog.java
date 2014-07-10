@@ -25,11 +25,13 @@ public class CredentialsChangeDialog extends AbstractDialog
 	private CredentialEditorRegistry credEditorReg;
 	private Callback callback;
 	private final long entityId;
+	private final boolean simpleMode;
 	
 	private CredentialsPanel ui;
 	
 	public CredentialsChangeDialog(UnityMessageSource msg, long entityId, AuthenticationManagement authnMan, 
-			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg, Callback callback)
+			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg, boolean simpleMode,
+			Callback callback)
 	{
 		super(msg, msg.getMessage("CredentialChangeDialog.caption"), msg.getMessage("close"));
 		this.defaultSizeUndfined = true;
@@ -38,6 +40,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 		this.entityId = entityId;
 		this.credEditorReg = credEditorReg;
 		this.callback = callback;
+		this.simpleMode = simpleMode;
 	}
 
 	@Override
@@ -45,7 +48,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 	{
 		try
 		{
-			ui = new CredentialsPanel(msg, entityId, authnMan, idsMan, credEditorReg);
+			ui = new CredentialsPanel(msg, entityId, authnMan, idsMan, credEditorReg, simpleMode);
 		} catch (EngineException e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage("error"), e);

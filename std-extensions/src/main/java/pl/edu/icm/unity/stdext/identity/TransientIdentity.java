@@ -18,10 +18,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.stdext.identity.SessionIdentityModel.PerSessionEntry;
+import pl.edu.icm.unity.stdext.utils.Escaper;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.IdentityRepresentation;
 
 /**
  * Identity type which creates a different identifier for each target, which is valid only for a time span of a single
@@ -76,20 +80,36 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	@Override
 	public void validate(String value) throws IllegalIdentityValueException
 	{
-		if (value != null)
-			throw new IllegalIdentityValueException("Only null identity value is allowed "
-					+ "for dynamic identity type");
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getComparableValue(String from)
+	public String getComparableValue(String from, String realm, String target)
 	{
-		return from;
+		if (realm == null || target == null)
+			return null;
+		LoginSession ls;
+		try
+		{
+			InvocationContext ctx = InvocationContext.getCurrent();
+			ls = ctx.getLoginSession();
+			if (ls == null)
+				return null;
+		} catch (InternalException e)
+		{
+			return null;
+		}
+		
+		return getComparableValueInternal(from, realm, target, ls);
 	}
 
+	private String getComparableValueInternal(String from, String realm, String target, LoginSession ls)
+	{
+		return Escaper.encode(realm, target, ls.getId(), from);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -115,41 +135,47 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	}
 	
 	@Override
-	public String toExternalForm(String realm, String target, String inDbValue)
+	public String toExternalForm(String realm, String target, String inDbValue, String comparableValue) 
+			throws IllegalIdentityValueException
 	{
 		if (realm == null || target == null || inDbValue == null)
-			return null;
-		TransientTargetedIdsModel db = new TransientTargetedIdsModel(mapper, inDbValue);
+			throw new IllegalIdentityValueException("No enough arguments");
+		LoginSession ls;
 		try
 		{
 			InvocationContext ctx = InvocationContext.getCurrent();
-			LoginSession ls = ctx.getLoginSession();
+			ls = ctx.getLoginSession();
 			if (ls == null)
-				return null;
-			return db.getIdentity(realm, target, ls.getId());
+				throw new IllegalIdentityValueException("No login session");
 		} catch (Exception e)
 		{
-			return null;
+			throw new IllegalIdentityValueException("Error getting invocation context", e);
 		}
+
+		String[] parsed = Escaper.decode(comparableValue);
+		return parsed[3];
 	}
 
 	@Override
-	public String createNewIdentity(String realm, String target, String inDbValue)
+	public IdentityRepresentation createNewIdentity(String realm, String target, String value)
 			throws IllegalTypeException
 	{
 		if (realm == null || target == null)
 			throw new IllegalTypeException("Identity can be created only when target is defined");
-		TransientTargetedIdsModel db = new TransientTargetedIdsModel(mapper, inDbValue);
+		if (value == null)
+			value = UUID.randomUUID().toString();
 		try
 		{
 			InvocationContext ctx = InvocationContext.getCurrent();
 			LoginSession ls = ctx.getLoginSession();
 			if (ls == null)
 				return null;
-			SessionIdentityModel model = new SessionIdentityModel(mapper, ls, UUID.randomUUID().toString());
-			db.addIdentity(realm, target, model, ls.getId());
-			db.cleanupExpired();
-			return db.serialize();
+			
+			SessionIdentityModel model = new SessionIdentityModel(mapper, ls, value);
+			
+			String contents = model.serialize();
+			String comparableValue = getComparableValueInternal(value, realm, target, ls);
+			return new IdentityRepresentation(comparableValue, contents);
 		} catch (Exception e)
 		{
 			throw new IllegalTypeException("Identity can be created only when login session is defined", e);
@@ -157,16 +183,25 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	}
 
 	@Override
-	public String resetIdentity(String realm, String target, String inDbValue)
-			throws IllegalTypeException
+	public boolean isExpired(IdentityRepresentation representation)
 	{
-		if (inDbValue == null || (realm == null && target == null))
-			return null;
+		
+		SessionIdentityModel model = new SessionIdentityModel(mapper, representation.getContents());
+		PerSessionEntry info = model.getEntry();
+		return info.isExpired();
+	}
 
-		TransientTargetedIdsModel db = new TransientTargetedIdsModel(mapper, inDbValue);
-		db.resetIdentities(realm, target);
-		db.cleanupExpired();
-		return db.serialize();
+	@Override
+	public boolean isTargeted()
+	{
+		return true;
+	}
+
+	@Override
+	public String toExternalFormNoContext(String inDbValue, String comparableValue)
+	{
+		String[] split = Escaper.decode(comparableValue);
+		return split[3];
 	}
 }
 

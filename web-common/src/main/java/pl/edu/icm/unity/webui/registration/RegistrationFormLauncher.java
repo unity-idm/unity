@@ -21,6 +21,8 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
+import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
@@ -80,17 +82,19 @@ public class RegistrationFormLauncher
 		String id;
 		try
 		{
-			id = registrationsManagement.submitRegistrationRequest(request);
+			id = registrationsManagement.submitRegistrationRequest(request, !andAccept);
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage(
-					"RegistrationFormsChooserComponent.errorRequestSubmit"), e);
+			ErrorPopup.showError(
+					msg,
+					msg.getMessage("RegistrationFormsChooserComponent.errorRequestSubmit"),
+					e);
 			return false;
 		}
-		
+
 		try
-		{
+		{							
 			if (andAccept && addAutoAccept)
 			{
 				registrationsManagement.processRegistrationRequest(id, request, 
@@ -101,9 +105,23 @@ public class RegistrationFormLauncher
 						msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoWithAccept"));
 			} else
 			{
-				ErrorPopup.showNotice(msg, msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"), 
+
+				for (RegistrationRequestState r : registrationsManagement.getRegistrationRequests())
+				{
+					if (r.getRequestId().equals(id)
+							&& r.getStatus() == RegistrationRequestStatus.accepted)
+					{
+						ErrorPopup.showNotice(msg,
+								msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"),
+								msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoWithAccept"));
+						return true;
+					}
+				}
+							
+				ErrorPopup.showNotice(msg, msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"),
 						msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoNoAccept"));
-			}
+
+			}	
 			
 			return true;
 		} catch (EngineException e)
@@ -114,6 +132,8 @@ public class RegistrationFormLauncher
 		}
 	}
 	
+	
+
 	public RegistrationRequestEditorDialog getDialog(String formName, RemotelyAuthenticatedContext remoteContext) 
 			throws EngineException
 	{

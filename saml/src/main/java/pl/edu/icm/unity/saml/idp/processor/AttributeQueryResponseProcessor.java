@@ -20,6 +20,7 @@ import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.proto.AssertionResponse;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAttributeQueryContext;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
@@ -49,9 +50,11 @@ public class AttributeQueryResponseProcessor extends BaseResponseProcessor<Attri
 	public IdentityTaV getSubjectsIdentity() throws SAMLRequesterException
 	{
 		NameIDType subject = context.getRequest().getSubject().getNameID();
+		String target = getIdentityTarget();
 		String nFormat = subject.getFormat();
 		String nContents = subject.getStringValue();
-		return new IdentityTaV(getUnityIdentityFormat(nFormat), nContents);
+		return new IdentityTaV(getUnityIdentityFormat(nFormat), nContents, target, 
+				InvocationContext.safeGetRealm());
 	}
 	
 	public ResponseDocument processAtributeRequest(Collection<Attribute<?>> attributes) 
