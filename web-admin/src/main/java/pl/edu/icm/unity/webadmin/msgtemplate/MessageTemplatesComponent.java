@@ -81,7 +81,6 @@ public class MessageTemplatesComponent extends VerticalLayout
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				@SuppressWarnings("unchecked")
 				Collection<MessageTemplate> items = getItems(table.getValue());
 				if (items.size() > 1 || items.isEmpty())
 				{
