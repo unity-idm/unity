@@ -46,7 +46,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 				10, 10, -1, 600);
 		realmsMan.addRealm(realm);
 		
-		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=foo", false), 
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=foo"), 
 				"crMock", EntityState.valid, false);
 
 		//create authenticator and an endpoint with it
@@ -245,7 +245,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		} catch (IllegalCredentialException e) {}
 		
 		//add identity with cred requirements with notSet state
-		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=test", false), 
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=test"), 
 				"crMock", EntityState.valid, false);
 		EntityParam entityP = new EntityParam(id);
 		Entity entity = idsMan.getEntity(entityP);

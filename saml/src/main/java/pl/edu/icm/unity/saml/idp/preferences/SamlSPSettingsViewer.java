@@ -71,10 +71,7 @@ public class SamlSPSettingsViewer extends FormLayout
 		{
 			for (String h: hidden)
 			{
-				if (h.equals(SamlPreferences.SYMBOLIC_GROUP_ATTR))
-					hiddenAttributes.addItem(msg.getMessage("SAMLPreferences.groupMembershipAttribute"));
-				else
-					hiddenAttributes.addItem(h);
+				hiddenAttributes.addItem(h);
 			}
 			hiddenAttributes.setVisible(true);
 		} else

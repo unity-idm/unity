@@ -10,17 +10,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.TimeZone;
 
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.assertion.Assertion;
-import eu.unicore.samly2.elements.Subject;
-import eu.unicore.samly2.exceptions.SAMLRequesterException;
-import eu.unicore.samly2.proto.AssertionResponse;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import xmlbeans.org.oasis.saml2.assertion.AuthnContextType;
 import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationDataType;
 import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationType;
@@ -29,6 +24,11 @@ import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 import xmlbeans.org.oasis.saml2.protocol.NameIDPolicyType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.assertion.Assertion;
+import eu.unicore.samly2.elements.Subject;
+import eu.unicore.samly2.exceptions.SAMLRequesterException;
+import eu.unicore.samly2.proto.AssertionResponse;
 
 /**
  * Extends {@link StatusResponseProcessor} to produce SAML Response documents, 
@@ -47,14 +47,13 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		super(context, authnTime);
 	}
 
-	public List<Identity> getCompatibleIdentities(Entity authenticatedEntity) 
+	public List<IdentityParam> getCompatibleIdentities(Collection<? extends IdentityParam> identities) 
 			throws SAMLRequesterException
 	{
 		String samlFormat = getRequestedFormat();
-		Identity[] identities = authenticatedEntity.getIdentities();
-		String unityFormat = getUnityIdentityFormat(samlFormat);
-		List<Identity> ret = new ArrayList<Identity>();
-		for (Identity identity: identities)
+		String unityFormat = samlConfiguration.getIdTypeMapper().mapIdentity(samlFormat);
+		List<IdentityParam> ret = new ArrayList<>();
+		for (IdentityParam identity: identities)
 		{
 			if (identity.getTypeId().equals(unityFormat))
 				ret.add(identity);
@@ -80,7 +79,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		return processAuthnRequest(authenticatedIdentity, null);
 	}
 	
-	public ResponseDocument processAuthnRequest(Identity authenticatedIdentity, Collection<Attribute<?>> attributes) 
+	public ResponseDocument processAuthnRequest(IdentityParam authenticatedIdentity, Collection<Attribute<?>> attributes) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
 		boolean returnSingleAssertion = samlConfiguration.getBooleanValue(
@@ -88,7 +87,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		return processAuthnRequest(authenticatedIdentity, attributes, returnSingleAssertion);
 	}
 	
-	protected ResponseDocument processAuthnRequest(Identity authenticatedIdentity, 
+	protected ResponseDocument processAuthnRequest(IdentityParam authenticatedIdentity, 
 			Collection<Attribute<?>> attributes, boolean returnSingleAssertion) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
@@ -112,7 +111,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		return resp.getXMLBeanDoc();
 	}
 	
-	protected SubjectType establishSubject(Identity authenticatedIdentity)
+	protected SubjectType establishSubject(IdentityParam authenticatedIdentity)
 	{
 		String format = getRequestedFormat();
 		Subject authenticatedOne = convertIdentity(authenticatedIdentity, format);
@@ -169,7 +168,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		return ret;
 	}
 		
-	protected Subject convertIdentity(Identity unityIdentity, String requestedSamlFormat)
+	protected Subject convertIdentity(IdentityParam unityIdentity, String requestedSamlFormat)
 	{
 		if (requestedSamlFormat.equals(SAMLConstants.NFORMAT_UNSPEC))
 			requestedSamlFormat = SAMLConstants.NFORMAT_PERSISTENT;

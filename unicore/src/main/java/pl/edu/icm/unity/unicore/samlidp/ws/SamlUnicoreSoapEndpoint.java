@@ -4,18 +4,17 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.ws;
 
-import eu.unicore.samly2.webservice.SAMLAuthnInterface;
-import eu.unicore.samly2.webservice.SAMLQueryInterface;
 import pl.edu.icm.unity.saml.idp.ws.SAMLAssertionQueryImpl;
 import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import eu.unicore.samly2.webservice.SAMLAuthnInterface;
+import eu.unicore.samly2.webservice.SAMLQueryInterface;
 
 /**
  * Endpoint exposing SAML SOAP binding. This version extends the {@link SamlSoapEndpoint}
@@ -27,12 +26,12 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 {
 	public SamlUnicoreSoapEndpoint(UnityMessageSource msg, EndpointTypeDescription type,
-			String servletPath, String metadataServletPath, IdentitiesManagement identitiesMan,
-			AttributesManagement attributesMan, PreferencesManagement preferencesMan,
+			String servletPath, String metadataServletPath, IdPEngine idpEngine,
+			PreferencesManagement preferencesMan,
 			PKIManagement pkiManagement, ExecutorsService executorsService, SessionManagement sessionMan)
 	{
 		super(msg, type, servletPath, metadataServletPath, 
-				identitiesMan, attributesMan, preferencesMan, 
+				idpEngine, preferencesMan, 
 				pkiManagement, executorsService, sessionMan);
 	}
 
@@ -42,10 +41,10 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 	{
 		String endpointURL = getServletUrl(servletPath);
 		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(samlProperties, 
-				endpointURL, attributesMan, identitiesMan, preferencesMan);
+				endpointURL, idpEngine, preferencesMan);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
 		SAMLETDAuthnImpl authnImpl = new SAMLETDAuthnImpl(samlProperties, endpointURL, 
-				identitiesMan, attributesMan, preferencesMan);
+				idpEngine, preferencesMan);
 		addWebservice(SAMLAuthnInterface.class, authnImpl);
 	}
 }

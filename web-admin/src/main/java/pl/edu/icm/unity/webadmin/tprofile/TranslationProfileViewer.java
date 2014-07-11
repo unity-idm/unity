@@ -5,11 +5,11 @@
 package pl.edu.icm.unity.webadmin.tprofile;
 
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.server.authn.remote.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationRule;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
+import pl.edu.icm.unity.server.translation.ActionParameterDesc;
+import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 
@@ -74,13 +74,13 @@ public class TranslationProfileViewer extends VerticalLayout
 		description.setValue(profile.getDescription());
 		description.setRows(profile.getDescription().split("\n").length);
 		int i=0;
-		for (TranslationRule rule : profile.getRules())
+		for (AbstractTranslationRule<?> rule : profile.getRules())
 		{
-			
 			ActionParameterDesc[] pd = null;
 			try 
 			{
-				TranslationActionFactory f = registry.getByName(rule.getAction().getName());
+				TranslationActionFactory f = registry.getByName(rule.getAction().
+						getActionDescription().getName());
 				pd = f.getParameters();
 			} catch (IllegalTypeException e)
 			{
@@ -90,7 +90,7 @@ public class TranslationProfileViewer extends VerticalLayout
 			addField(String.valueOf(i) + ":  " + msg.getMessage("TranslationProfileViewer.ruleCondition"),
 					"<code>" + rule.getCondition().getCondition() + "</code>");
 			addField(msg.getMessage("TranslationProfileViewer.ruleAction"),
-					"<code>" + rule.getAction().getName() + "</code>");
+					"<code>" + rule.getAction().getActionDescription().getName() + "</code>");
 			String[] par = rule.getAction().getParameters();
 			for (int j = 0; j < par.length; j++)
 			{

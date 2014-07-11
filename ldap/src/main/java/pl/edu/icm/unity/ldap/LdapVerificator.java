@@ -13,7 +13,6 @@ import eu.unicore.security.AuthenticationException;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
@@ -21,6 +20,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialReset;
 import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 
 /**
@@ -38,10 +38,10 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 	private String translationProfile;
 	
 	public LdapVerificator(String name, String description, 
-			TranslationProfileManagement profileManagement, AttributesManagement attrMan,
+			TranslationProfileManagement profileManagement, InputTranslationEngine trEngine,
 			PKIManagement pkiManagement)
 	{
-		super(name, description, PasswordExchange.ID, profileManagement, attrMan);
+		super(name, description, PasswordExchange.ID, profileManagement, trEngine);
 		this.client = new LdapClient(name);
 		this.pkiManagement = pkiManagement;
 	}

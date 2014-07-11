@@ -7,22 +7,29 @@ package pl.edu.icm.unity.server.api;
 import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
+import pl.edu.icm.unity.server.translation.TranslationProfile;
+import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
 
 /**
  * This interface allows clients to manipulate translation profiles. Translation profiles are 
- * used during authentication with external IdPs: the information about user is mapped to the internal Unity 
- * format and automation of updates of the local DB is controlled by the translation profiles. 
+ * used to manipulate entities data in various moments of Unity usage. Each profile has its type
+ * which defines the place where it can be used. For instance the input profiles are used to manipulate the incoming
+ * data from external IdPs. 
  * 
  * @author K. Benedyczak
  */
 public interface TranslationProfileManagement
 {
-	public void addProfile(TranslationProfile toAdd) throws EngineException;
+	void addProfile(TranslationProfile toAdd) throws EngineException;
 	
-	public void removeProfile(String name) throws EngineException;
+	void removeProfile(String name) throws EngineException;
 	
-	public void updateProfile(TranslationProfile updated) throws EngineException;
+	void updateProfile(TranslationProfile updated) throws EngineException;
 	
-	public Map<String, TranslationProfile> listProfiles() throws EngineException;
+	Map<String, InputTranslationProfile> listInputProfiles() throws EngineException;
+
+	Map<String, OutputTranslationProfile> listOutputProfiles() throws EngineException;
+
+	OutputTranslationProfile getDefaultOutputProfile() throws EngineException;
 }

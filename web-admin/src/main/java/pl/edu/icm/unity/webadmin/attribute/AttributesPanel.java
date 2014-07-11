@@ -240,7 +240,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		attributesTable.select(attributes.get(0));
 	}
 	
-	private void updateValues(Attribute<?> attribute)
+	private void updateValues(AttributeExt<?> attribute)
 	{
 		if (attribute == null)
 		{
@@ -249,7 +249,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 		AttributeValueSyntax<?> syntax = attribute.getAttributeSyntax();
 		WebAttributeHandler<?> handler = registry.getHandler(syntax.getValueSyntaxId());
-		attributeValues.setValues(handler, syntax, attribute.getValues());
+		attributeValues.setValues(handler, attribute);
 	}
 	
 	private void updateAttributesFilter(boolean add, Container.Filter filter)

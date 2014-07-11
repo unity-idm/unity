@@ -19,7 +19,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 
@@ -68,21 +68,22 @@ public class AttributesResolver
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Attribute<?> resolveAttributeBean(AttributeBean raw, String groupPath) throws IllegalTypeException
+	public AttributeExt<?> resolveAttributeBean(AttributeBean raw, String groupPath) throws IllegalTypeException
 	{
-		Attribute attr = new Attribute();
+		AttributeExt attr = new AttributeExt();
 		attr.setName(raw.getName());
 		attr.setGroupPath(groupPath);
 		AttributeValueSyntaxFactory<?> syntaxFactory = typesRegistry.getByName(raw.getValueSyntaxId());
 		AttributeValueSyntax attributeSyntax = syntaxFactory.createInstance();
 		attr.setAttributeSyntax(attributeSyntax);
+		attr.setDirect(true);
 		aSerializer.fromJson(raw.getValues(), attr);
 		return attr;
 	}
 	
-	public List<Attribute<?>> convertAttributes(List<AttributeBean> raw, String groupPath) throws IllegalTypeException
+	public List<AttributeExt<?>> convertAttributes(List<AttributeBean> raw, String groupPath) throws IllegalTypeException
 	{
-		List<Attribute<?>> ret = new ArrayList<Attribute<?>>(raw.size());
+		List<AttributeExt<?>> ret = new ArrayList<AttributeExt<?>>(raw.size());
 		for (AttributeBean ab: raw)
 			ret.add(resolveAttributeBean(ab, groupPath));
 		return ret;

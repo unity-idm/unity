@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml.metadata;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.Set;
 
 import org.apache.xmlbeans.XmlBase64Binary;
 import org.apache.xmlbeans.XmlException;
@@ -91,6 +92,10 @@ public class IdpMetadataGenerator implements MetadataProvider
 		IDPSSODescriptorType idpDesc = meta.addNewIDPSSODescriptor();
 		fillIdpGenericDescriptor(idpDesc);
 
+		Set<String> supportedIdTypes = samlConfig.getIdTypeMapper().getSupportedIdentityTypes();
+		for (String idType: supportedIdTypes)
+			idpDesc.addNameIDFormat(idType);
+		
 		RequestAcceptancePolicy acceptancePolicy = samlConfig.getEnumValue(SamlIdpProperties.SP_ACCEPT_POLICY, 
 				RequestAcceptancePolicy.class);
 		idpDesc.setWantAuthnRequestsSigned(acceptancePolicy == RequestAcceptancePolicy.strict ||

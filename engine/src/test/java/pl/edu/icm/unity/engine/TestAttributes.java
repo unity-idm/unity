@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
@@ -50,7 +51,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	{
 		setupMockAuthn();
 		groupsMan.addGroup(new Group("/test"));
-		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi", true), "crMock", 
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi"), "crMock", 
 				EntityState.valid, false);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		
@@ -86,7 +87,13 @@ public class TestAttributes extends DBIntegrationTestBase
 		assertEquals(2, allAts.size());
 		Collection<AttributeExt<?>> gr1Ats = attrsMan.getAttributes(entity, "/", null);
 		assertEquals(1, gr1Ats.size());
-		assertEquals(at2, gr1Ats.iterator().next());
+		AttributeExt<?> retrievedA = gr1Ats.iterator().next(); 
+		assertEquals(at2, retrievedA);
+		assertNotNull(retrievedA.getUpdateTs());
+		assertNotNull(retrievedA.getCreationTs());
+		assertNull(retrievedA.getRemoteIdp());
+		assertNull(retrievedA.getTranslationProfile());
+		
 		Collection<AttributeExt<?>> nameAts = attrsMan.getAttributes(entity, null, "tel");
 		assertEquals(2, nameAts.size());
 		Collection<AttributeExt<?>> specificAts = attrsMan.getAttributes(entity, "/test", "tel");
@@ -126,6 +133,11 @@ public class TestAttributes extends DBIntegrationTestBase
 		allAts = attrsMan.getAttributes(entity, null, null);
 		assertEquals(1, allAts.size());
 		
+		retrievedA = allAts.iterator().next();
+		Date created = retrievedA.getCreationTs(); 
+		Date updated = retrievedA.getUpdateTs(); 
+		assertEquals(created, updated);
+		
 		at2.setVisibility(AttributeVisibility.local);
 		at2.setValues(Collections.singletonList("333"));
 		try
@@ -137,6 +149,13 @@ public class TestAttributes extends DBIntegrationTestBase
 		
 		allAts = attrsMan.getAttributes(entity, null, null);
 		assertEquals(0, allAts.size());
+		
+		allAts = attrsMan.getAllAttributes(entity, true, "/", "tel", false);
+		assertEquals(1, allAts.size());
+		retrievedA = allAts.iterator().next();
+		assertEquals(created, retrievedA.getCreationTs());
+		assertNotEquals(updated, retrievedA.getUpdateTs());
+		assertNotNull(retrievedA.getUpdateTs());
 		
 		allAts = attrsMan.getAllAttributes(entity, true, null, null, false);
 		assertEquals(2, allAts.size());
@@ -233,7 +252,7 @@ public class TestAttributes extends DBIntegrationTestBase
 
 		//recreate and add an attribute
 		attrsMan.addAttributeType(at);
-		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi", true), "crMock", 
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi"), "crMock", 
 				EntityState.disabled, false);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		StringAttribute at1 = new StringAttribute("some", "/", AttributeVisibility.local, "123456");
@@ -303,7 +322,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	public void testStringAT() throws Exception
 	{
 		setupMockAuthn();
-		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi", true), "crMock", 
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi"), "crMock", 
 				EntityState.disabled, false);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		

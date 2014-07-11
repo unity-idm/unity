@@ -12,11 +12,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pl.edu.icm.unity.db.generic.DefaultEntityHandler;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
+import pl.edu.icm.unity.server.translation.ProfileType;
+import pl.edu.icm.unity.server.translation.TranslationProfile;
+import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
 
 /**
- * Handler for {@link TranslationProfile}.
+ * Handler for {@link AbstractTranslationProfile}.
  * 
  * @author K. Benedyczak
  */
@@ -37,13 +41,27 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 	public GenericObjectBean toBlob(TranslationProfile value, SqlSession sql)
 	{
 		String json = value.toJson(jsonMapper);
-		return new GenericObjectBean(value.getName(), json.getBytes(), supportedType);
+		return new GenericObjectBean(value.getName(), json.getBytes(), supportedType, 
+				value.getProfileType().toString());
 	}
 
 	@Override
 	public TranslationProfile fromBlob(GenericObjectBean blob, SqlSession sql)
 	{
-		return new TranslationProfile(new String(blob.getContents()), 
-				jsonMapper, actionsRegistry);
+		String subType = blob.getSubType();
+		if (subType == null)
+			subType = ProfileType.INPUT.toString();
+		ProfileType pt = ProfileType.valueOf(subType);
+		switch (pt)
+		{
+		case INPUT:
+			return new InputTranslationProfile(new String(blob.getContents()), 
+					jsonMapper, actionsRegistry);
+		case OUTPUT:
+			return new OutputTranslationProfile(new String(blob.getContents()), 
+					jsonMapper, actionsRegistry);
+		}
+		throw new IllegalStateException("The stored translation profile with subtype id " + subType + 
+				" has no implemented class representation");
 	}
 }

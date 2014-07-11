@@ -14,12 +14,12 @@ import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.ws.SAMLAuthnImpl;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.internal.IdPEngine;
+import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
 import pl.edu.icm.unity.unicore.samlidp.saml.AuthnWithETDResponseProcessor;
@@ -44,10 +44,10 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLETDAuthnImpl.class);
 
 	public SAMLETDAuthnImpl(SamlIdpProperties samlProperties, String endpointAddress,
-			IdentitiesManagement identitiesMan, AttributesManagement attributesMan,
+			IdPEngine idpEngine,
 			PreferencesManagement preferencesMan)
 	{
-		super(samlProperties, endpointAddress, identitiesMan, attributesMan, preferencesMan);
+		super(samlProperties, endpointAddress, idpEngine, preferencesMan);
 	}
 
 	@Override
@@ -72,9 +72,11 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan);
 			SPETDSettings spEtdPreferences = preferences.getSPETDSettings(samlRequester);
 			SPSettings spPreferences = preferences.getSPSettings(samlRequester);
-
-			Identity selectedIdentity = getIdentity(samlProcessor, spPreferences);
-			Collection<Attribute<?>> attributes = getAttributes(samlProcessor, spPreferences);
+			
+			TranslationResult userInfo = getUserInfo(samlProcessor);
+			IdentityParam selectedIdentity = getIdentity(userInfo, samlProcessor, spPreferences);
+			log.debug("Authentication of " + selectedIdentity);
+			Collection<Attribute<?>> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
 			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes, 
 					getRestrictions(spEtdPreferences));
 		} catch (Exception e)

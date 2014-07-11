@@ -67,8 +67,12 @@ public class GroupComboBox extends ComboBox
 		return new ArrayList<>(fixedGroups);
 	}
 	
-	
 	private void getGroups(String group, boolean recursive, List<String> groups)
+	{
+		getGroups(group, recursive, groups, groupsMan);
+	}
+	
+	public static void getGroups(String group, boolean recursive, List<String> groups, GroupsManagement groupsMan)
 	{
 		GroupContents contents;
 		try
@@ -78,7 +82,7 @@ public class GroupComboBox extends ComboBox
 			{
 				groups.add(subgroup);
 				if (recursive)
-					getGroups(subgroup, recursive, groups);
+					getGroups(subgroup, recursive, groups, groupsMan);
 			}
 		} catch (Exception e)
 		{

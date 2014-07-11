@@ -87,7 +87,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertEquals("cn", updated.getExtractedAttributes().values().iterator().next());
 		
 		setupMockAuthn();
-		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi, dc=ddd, ou=org unit,C=pl", true);
+		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi, dc=ddd, ou=org unit,C=pl");
 		Identity added = idsMan.addEntity(idParam, "crMock", EntityState.valid, true);
 		
 		Collection<AttributeExt<?>> attributes = attrsMan.getAttributes(new EntityParam(added), "/", null);
@@ -114,7 +114,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		setupMockAuthn();
 		setupAdmin();
 
-		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi", true);
+		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
 		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
 		assertNotNull(id.getEntityId());
 		assertEquals("CN=golbi", id.getValue());
@@ -155,7 +155,7 @@ public class TestIdentities extends DBIntegrationTestBase
 				getByType(e4, PersistentIdentity.ID).getValue());
 		
 		
-		IdentityParam idParam2 = new IdentityParam(X500Identity.ID, "CN=golbi2", true);
+		IdentityParam idParam2 = new IdentityParam(X500Identity.ID, "CN=golbi2");
 		Identity id2 = idsMan.addEntity(idParam2, "crMock", EntityState.valid, false);
 		EntityParam entityParam2 = new EntityParam(id2.getEntityId());
 
@@ -187,17 +187,25 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void testCreate() throws Exception
 	{
 		setupMockAuthn();
-		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi", true);
+		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
 		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
 		assertNotNull(id.getEntityId());
 		assertEquals("CN=golbi", id.getValue());
 		assertEquals(true, id.isLocal());
+		assertNotNull(id.getCreationTs());
+		assertNotNull(id.getUpdateTs());
+		assertNull(id.getTranslationProfile());
+		assertNull(id.getRemoteIdp());
 		
-		IdentityParam idParam2 = new IdentityParam(X500Identity.ID, "CN=golbi2", false);
+		IdentityParam idParam2 = new IdentityParam(X500Identity.ID, "CN=golbi2", "remoteIdp", "prof1");
 		Identity id2 = idsMan.addIdentity(idParam2, new EntityParam(id.getEntityId()), false);
 		assertEquals("CN=golbi2", id2.getValue());
 		assertEquals(id.getEntityId(), id2.getEntityId());
 		assertEquals(false, id2.isLocal());
+		assertNotNull(id2.getCreationTs());
+		assertNotNull(id2.getUpdateTs());
+		assertEquals("prof1", id2.getTranslationProfile());
+		assertEquals("remoteIdp", id2.getRemoteIdp());
 		
 		Entity entity = idsMan.getEntity(new EntityParam(id2));
 		assertEquals(3, entity.getIdentities().length);

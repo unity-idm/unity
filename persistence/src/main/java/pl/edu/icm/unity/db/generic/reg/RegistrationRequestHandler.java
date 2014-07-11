@@ -27,10 +27,10 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.AttributeParamValue;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
-import pl.edu.icm.unity.types.registration.IdentityParamValue;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
@@ -192,8 +192,8 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 			if (n != null)
 			{
 				String v = jsonMapper.writeValueAsString(n);
-				List<IdentityParamValue> r = jsonMapper.readValue(v, 
-						new TypeReference<List<IdentityParamValue>>(){});
+				List<IdentityParam> r = jsonMapper.readValue(v, 
+						new TypeReference<List<IdentityParam>>(){});
 				retReq.setIdentities(r);
 			}
 			

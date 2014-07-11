@@ -198,14 +198,13 @@ public class IdentitiesResolver
 			long typeId = mapper.getIdentityTypeByName(idTypeImpl.getId()).getId();
 			newIdBean.setTypeId(typeId);
 			IdentityParam idParam = new IdentityParam();
-			idParam.setLocal(true);
 			idParam.setValue(newId.getContents());
 			if (idTypeImpl.isTargeted())
 			{
 				idParam.setRealm(realm);
 				idParam.setTarget(target);
 			}
-			newIdBean.setContents(idSerializer.toJson(idParam));
+			newIdBean.setContents(idSerializer.toJson(idParam, null, null));
 			mapper.insertIdentity(newIdBean);
 			
 			String externalizedValue = idTypeImpl.toExternalForm(realm, target, newId.getContents(), 

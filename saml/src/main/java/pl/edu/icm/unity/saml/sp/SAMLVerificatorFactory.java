@@ -14,19 +14,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import eu.unicore.samly2.validators.ReplayAttackChecker;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
-import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
+import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import eu.unicore.samly2.validators.ReplayAttackChecker;
 
 /**
  * Factory of {@link SAMLVerificator}s.
@@ -40,7 +40,7 @@ public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 	public static final String METADATA_SERVLET_PATH = "/saml-sp-metadata";
 	
 	private TranslationProfileManagement profileManagement;
-	private AttributesManagement attrMan;
+	private InputTranslationEngine trEngine;
 	private PKIManagement pkiMan;
 	private UnityServerConfiguration mainConfig;
 	private ReplayAttackChecker replayAttackChecker;
@@ -52,7 +52,7 @@ public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 	
 	@Autowired
 	public SAMLVerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement,
-			@Qualifier("insecure") AttributesManagement attrMan, 
+			InputTranslationEngine trEngine, 
 			PKIManagement pkiMan, ReplayAttackChecker replayAttackChecker,
 			SharedEndpointManagement sharedEndpointManagement, SamlContextManagement contextManagement,
 			NetworkServer jettyServer, ExecutorsService executorsService, 
@@ -60,7 +60,7 @@ public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 					throws EngineException
 	{
 		this.profileManagement = profileManagement;
-		this.attrMan = attrMan;
+		this.trEngine = trEngine;
 		this.pkiMan = pkiMan;
 		this.replayAttackChecker = replayAttackChecker;
 		this.executorsService = executorsService;
@@ -93,7 +93,7 @@ public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 	public CredentialVerificator newInstance()
 	{
 		
-		return new SAMLVerificator(NAME, getDescription(), profileManagement, attrMan, pkiMan, 
+		return new SAMLVerificator(NAME, getDescription(), profileManagement, trEngine, pkiMan, 
 				replayAttackChecker, executorsService, metadataServlet,
 				baseAddress, baseContext, remoteMetadataManagers, mainConfig);
 	}

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.db;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -188,8 +189,39 @@ public class DBAttributes
 		param.setName(attributeTypeName);
 		return param;
 	}
-	
+
+	/**
+	 * Adds an attribute to DB, creation and update timestamps are set to the current time.
+	 * @param entityId
+	 * @param attribute
+	 * @param update
+	 * @param sqlMap
+	 * @throws IllegalAttributeValueException
+	 * @throws IllegalTypeException
+	 * @throws IllegalAttributeTypeException
+	 * @throws IllegalGroupValueException
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void addAttribute(long entityId, Attribute<?> attribute, boolean update, SqlSession sqlMap) 
+			throws IllegalAttributeValueException, IllegalTypeException, 
+			IllegalAttributeTypeException, IllegalGroupValueException
+	{
+		Date now = new Date();
+		addAttribute(entityId, new AttributeExt(attribute, true, now, now), update, sqlMap);
+	}
+	
+	/**
+	 * Adds an attribute to the local DB.
+	 * @param entityId
+	 * @param attribute
+	 * @param update
+	 * @param sqlMap
+	 * @throws IllegalAttributeValueException
+	 * @throws IllegalTypeException
+	 * @throws IllegalAttributeTypeException
+	 * @throws IllegalGroupValueException
+	 */
+	public void addAttribute(long entityId, AttributeExt<?> attribute, boolean update, SqlSession sqlMap) 
 			throws IllegalAttributeValueException, IllegalTypeException, 
 			IllegalAttributeTypeException, IllegalGroupValueException
 	{
@@ -203,16 +235,20 @@ public class DBAttributes
 		AttributeBean param = prepareAttributeParam(entityId, atBean.getId(), attribute.getName(),
 				attribute.getGroupPath(), mapper, grMapper);
 		List<AttributeBean> existing = mapper.getAttributes(param);
-		if (existing.size() == 0)
+		if (existing.isEmpty())
 		{
 			if (grMapper.isMember(new GroupElementBean(param.getGroupId(), entityId)) == null)
-				throw new IllegalGroupValueException("The entity is not a member of the group specified in the attribute");
+				throw new IllegalGroupValueException("The entity is not a member "
+						+ "of the group specified in the attribute");
 			param.setValues(aSerializer.toJson(attribute));
 			mapper.insertAttribute(param);
 		} else
 		{
 			if (!update)
 				throw new IllegalAttributeValueException("The attribute already exists");
+			AttributeBean updated = existing.get(0);
+			Long creationTs = aSerializer.getCreationTs(updated.getValues());
+			attribute.setCreationTs(creationTs == null ? null : new Date(creationTs));
 			param.setValues(aSerializer.toJson(attribute));
 			mapper.updateAttribute(param);
 		}
@@ -445,9 +481,7 @@ public class DBAttributes
 		for (AttributeBean ab: allAts)
 		{
 			String groupPath = groupResolver.resolveGroupPath(ab.getGroupId(), gMapper);
-			Attribute<?> attributeT = attrResolver.resolveAttributeBean(ab, groupPath);
-			@SuppressWarnings({ "rawtypes", "unchecked" })
-			AttributeExt<?> attribute = new AttributeExt(attributeT, true);
+			AttributeExt<?> attribute = attrResolver.resolveAttributeBean(ab, groupPath);
 			
 			Map<String, AttributeExt<?>> attrsInGroup = ret.get(groupPath);
 			if (attrsInGroup == null)

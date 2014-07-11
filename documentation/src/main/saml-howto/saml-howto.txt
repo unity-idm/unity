@@ -318,9 +318,8 @@ and finally the mapped user is create if doesn't exist yet.
 [cols="10%n,15%m,m,m", options="header"]
 |====
 |Rule no 	|Condition 	|Action 					|Action arguments
-|1			|true 		|mapAttributeToIdentity		|uid, userName, Password requirement
-|2			|true		|mapAttribute				|cn, cn, /
-|3			|true		|createUser					|true
+|1			|true 		|mapIdentity				|userName, attr['uid'], ...
+|2			|true		|mapAttribute				|cn, attr['cn'], /, ...
 |====
 
 === Step 2: Create SAML authenticator

@@ -43,7 +43,6 @@ public class SPSettingsEditor extends FormLayout
 	protected Identity[] identities;
 	protected Collection<AttributeType> attributeTypes;
 	
-	protected String groupAT;
 	protected ComboBox sp;
 	protected Label spLabel;
 	protected OptionGroup decision;
@@ -115,18 +114,13 @@ public class SPSettingsEditor extends FormLayout
 		{
 			@SuppressWarnings("unchecked")
 			String hiddenAttr = ((BeanItem<GenericItem<String>>)hidden.getItem(itemId)).getBean().getElement();
-			if (!hiddenAttr.equals(groupAT))
-				hiddenAttrs.add(hiddenAttr);
-			else
-				hiddenAttrs.add(SamlPreferences.SYMBOLIC_GROUP_ATTR);
+			hiddenAttrs.add(hiddenAttr);
 		}
 		return hiddenAttrs;
 	}
 	
 	private void initUI(SPSettings initial, String initialSp, Set<String> allSps)
 	{
-		this.groupAT = msg.getMessage("SAMLPreferences.groupMembershipAttribute");
-
 		if (initial == null)
 		{
 			sp = new ComboBox(msg.getMessage("SAMLPreferences.SP"));
@@ -203,13 +197,7 @@ public class SPSettingsEditor extends FormLayout
 			}
 		}
 			
-		
 		Set<String> selHidden = initial.getHiddenAttribtues();
-		if (selHidden.contains(SamlPreferences.SYMBOLIC_GROUP_ATTR))
-		{
-			selHidden.remove(SamlPreferences.SYMBOLIC_GROUP_ATTR);
-			selHidden.add(groupAT);
-		}
 		if (selHidden != null)
 			hidden.setInput(selHidden);
 	}
@@ -261,8 +249,6 @@ public class SPSettingsEditor extends FormLayout
 			selection = new ComboBox(msg.getMessage("SAMLPreferences.selectAttribute"));
 			selection.setNullSelectionAllowed(false);
 			Set<String> alreadySelected = getHidden();
-			if (!alreadySelected.contains(SamlPreferences.SYMBOLIC_GROUP_ATTR))
-				selection.addItem(groupAT);
 			for (AttributeType at: attributeTypes)
 				if (at.getVisibility() != AttributeVisibility.local && 
 						!alreadySelected.contains(at.getName()))

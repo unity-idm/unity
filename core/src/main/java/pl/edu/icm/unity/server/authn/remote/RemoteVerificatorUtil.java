@@ -6,23 +6,22 @@ package pl.edu.icm.unity.server.authn.remote;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.remote.translation.TranslationProfile;
+import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.server.translation.in.MappedAttribute;
+import pl.edu.icm.unity.server.translation.in.MappedIdentity;
+import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
+import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Processes {@link RemotelyAuthenticatedInput} by applying a translation profile to it and 
@@ -34,15 +33,15 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 public class RemoteVerificatorUtil
 {
 	private TranslationProfileManagement profileManagement;
-	private AttributesManagement attrMan;
 	private IdentityResolver identityResolver;
+	private InputTranslationEngine trEngine;
 	
-	public RemoteVerificatorUtil(IdentityResolver identityResolver,
-			TranslationProfileManagement profileManagement, AttributesManagement attrMan)
+	public RemoteVerificatorUtil(IdentityResolver identityResolver,	TranslationProfileManagement profileManagement,
+			InputTranslationEngine trEngine)
 	{
 		this.identityResolver = identityResolver;
 		this.profileManagement = profileManagement;
-		this.attrMan = attrMan;
+		this.trEngine = trEngine;
 	}
 
 	/**
@@ -119,97 +118,44 @@ public class RemoteVerificatorUtil
 	public final RemotelyAuthenticatedContext processRemoteInput(RemotelyAuthenticatedInput input, 
 			String profile)	throws EngineException
 	{
-		TranslationProfile translationProfile = profileManagement.listProfiles().get(profile);
+		InputTranslationProfile translationProfile = profileManagement.listInputProfiles().get(profile);
 		if (translationProfile == null)
 			throw new ConfigurationException("The translation profile '" + profile + 
 					"' configured for the authenticator does not exist");
-		translationProfile.translate(input);
-	
+		MappingResult result = translationProfile.translate(input);
+
+		trEngine.process(result);
+		
 		RemotelyAuthenticatedContext ret = new RemotelyAuthenticatedContext(input.getIdpName());
-		ret.addAttributes(extractAttributes(input));
-		ret.addIdentities(extractIdentities(input));
-		ret.addGroups(extractGroups(input));
-		ret.setPrimaryIdentity(extractPrimaryIdentity(input));
+		ret.addAttributes(extractAttributes(result));
+		ret.addIdentities(extractIdentities(result));
+		ret.addGroups(result.getGroups());
+		ret.setPrimaryIdentity(extractPrimaryIdentity(result));
 		return ret;
 	}
 	
-	private IdentityTaV extractPrimaryIdentity(RemotelyAuthenticatedInput input)
+	private IdentityTaV extractPrimaryIdentity(MappingResult input)
 	{
-		RemoteIdentity ri = input.getPrimaryIdentity();
-		if (ri == null)
-			return null;
-		String unityIdentity = ri.getMetadata().get(RemoteInformationBase.UNITY_IDENTITY);
-		String unityType = ri.getMetadata().get(RemoteInformationBase.UNITY_IDENTITY_TYPE);
-		if (unityIdentity == null || unityType == null)
-			return null;
-		return new IdentityTaV(unityType, unityIdentity);
+		return input.getIdentities().get(0).getIdentity();
 	}
 	
-	private List<IdentityTaV> extractIdentities(RemotelyAuthenticatedInput input)
+	private List<IdentityTaV> extractIdentities(MappingResult input)
 	{
-		Map<String, RemoteIdentity> identities = input.getIdentities();
+		List<MappedIdentity> identities = input.getIdentities();
 		List<IdentityTaV> ret = new ArrayList<>();
 		if (identities == null)
 			return ret;
-
-		for (RemoteIdentity ri: identities.values())
-		{
-			String unityIdentity = ri.getMetadata().get(RemoteInformationBase.UNITY_IDENTITY);
-			String unityType = ri.getMetadata().get(RemoteInformationBase.UNITY_IDENTITY_TYPE);
-			if (unityIdentity == null || unityType == null)
-				continue;
-			IdentityTaV toAdd = new IdentityTaV(unityType, unityIdentity);
-			ret.add(toAdd);
-		}
+		for (MappedIdentity ri: identities)
+			ret.add(ri.getIdentity());
 		return ret;
 	}
 	
-	private List<String> extractGroups(RemotelyAuthenticatedInput input)
+	public static List<Attribute<?>> extractAttributes(MappingResult input) throws EngineException
 	{
-		List<String> ret = new ArrayList<>();
-		Map<String, RemoteGroupMembership> groups = input.getGroups();
-		for (RemoteGroupMembership rg: groups.values())
-		{
-			String group = rg.getMetadata().get(RemoteInformationBase.UNITY_GROUP);
-			if (group == null)
-				continue;
-			ret.add(group);
-		}
-		return ret;
-	}
-	
-	private List<Attribute<?>> extractAttributes(RemotelyAuthenticatedInput input) throws EngineException
-	{
-		return extractAttributes(input, attrMan);
-	}
-	
-	public static List<Attribute<?>> extractAttributes(RemotelyAuthenticatedInput input,
-			AttributesManagement attrMan) throws EngineException
-	{
-		Map<String, RemoteAttribute> attributes = input.getAttributes();
-		Map<String, AttributeType> atMap = attrMan.getAttributeTypesAsMap();
-		
+		List<MappedAttribute> attributes = input.getAttributes();
 		List<Attribute<?>> ret = new ArrayList<>();
-		for (Map.Entry<String, RemoteAttribute> ra: attributes.entrySet())
-		{
-			Map<String, String> metadata = ra.getValue().getMetadata();
-			String scope = metadata.get(RemoteInformationBase.UNITY_GROUP);
-			if (scope == null)
-				continue;
-			String unityName = metadata.get(RemoteInformationBase.UNITY_ATTRIBUTE);
-			if (unityName == null)
-				continue;
-			if (!atMap.containsKey(unityName))
-				continue;
-
-			String visibilityM = metadata.get(RemoteInformationBase.UNITY_ATTRIBUTE_VISIBILITY);
-			AttributeVisibility visibility = visibilityM == null ? AttributeVisibility.full : 
-				AttributeVisibility.valueOf(visibilityM);
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			Attribute<?> mapped = new Attribute(unityName, atMap.get(unityName).getValueType(), 
-					scope, visibility, ra.getValue().getValues());
-			ret.add(mapped);
-		}
+		for (MappedAttribute ra: attributes)
+			ret.add(ra.getAttribute());
 		return ret;
 	}
 }

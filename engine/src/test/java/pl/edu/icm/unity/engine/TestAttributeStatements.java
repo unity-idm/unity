@@ -612,7 +612,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		groupAB = new Group("/A/B");
 		groupsMan.addGroup(groupAB);
 
-		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi", true), "crMock", 
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi"), "crMock", 
 				EntityState.disabled, false);
 		entity = new EntityParam(id);
 		groupsMan.addMemberFromParent("/A", entity);
@@ -664,7 +664,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		groupABC = new Group("/A/B/C");
 		groupsMan.addGroup(groupABC);
 		
-		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi", true), "crMock", 
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi"), "crMock", 
 				EntityState.disabled, false);
 		entity = new EntityParam(id);
 		groupsMan.addMemberFromParent("/A", entity);

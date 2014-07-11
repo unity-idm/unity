@@ -44,7 +44,7 @@ public class TestAuthorization extends DBIntegrationTestBase
 			fail("reset db possible for contents man");
 		} catch(AuthorizationException e) {}
 		
-		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "user1", true);
+		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "user1");
 		Identity added = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				EntityState.valid, false);
 		EntityParam entity = new EntityParam(added.getEntityId());

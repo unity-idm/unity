@@ -22,6 +22,7 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeParamValue;
@@ -29,7 +30,6 @@ import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.IdentityParamValue;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -210,8 +210,8 @@ public class RegistrationRequestEditor extends CustomComponent
 
 		boolean hasFormException = false;
 		
-		List<IdentityParamValue> identities = new ArrayList<>();
-		IdentityParamValue ip;
+		List<IdentityParam> identities = new ArrayList<>();
+		IdentityParam ip;
 		int j=0;
 		for (int i=0; i<form.getIdentityParams().size(); i++)
 		{
@@ -228,12 +228,12 @@ public class RegistrationRequestEditor extends CustomComponent
 					hasFormException = true;
 					continue;
 				}
-				ip = id == null ? null : new IdentityParamValue(regParam.getIdentityType(), id);
+				ip = id == null ? null : new IdentityParam(regParam.getIdentityType(), id);
 			} else
 			{
 				id = remoteIdentitiesByType.get(regParam.getIdentityType()).getValue();
-				ip = id == null ? null : new IdentityParamValue(regParam.getIdentityType(), id, 
-						remotelyAuthenticated.getRemoteIdPName());
+				ip = id == null ? null : new IdentityParam(regParam.getIdentityType(), id, 
+						remotelyAuthenticated.getRemoteIdPName(), null);
 			}
 			identities.add(ip);
 		}

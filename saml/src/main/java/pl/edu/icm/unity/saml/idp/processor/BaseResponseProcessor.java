@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.saml.idp.processor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,38 +16,16 @@ import java.util.TimeZone;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlObject;
 
-import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.assertion.Assertion;
-import eu.unicore.samly2.exceptions.SAMLRequesterException;
-import eu.unicore.samly2.exceptions.SAMLServerException;
-import eu.unicore.samly2.proto.AssertionResponse;
-import eu.unicore.security.dsig.DSigException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.AttributeFilters;
 import pl.edu.icm.unity.saml.idp.GroupChooser;
 import pl.edu.icm.unity.saml.idp.SamlAttributeMapper;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties.GroupsSelection;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAssertionResponseContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
-import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
-import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
-import pl.edu.icm.unity.stdext.identity.TransientIdentity;
-import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.Identity;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationDataType;
@@ -56,6 +33,12 @@ import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationType;
 import xmlbeans.org.oasis.saml2.assertion.SubjectType;
 import xmlbeans.org.oasis.saml2.protocol.RequestAbstractType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+import eu.emi.security.authn.x509.X509Credential;
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.assertion.Assertion;
+import eu.unicore.samly2.exceptions.SAMLServerException;
+import eu.unicore.samly2.proto.AssertionResponse;
+import eu.unicore.security.dsig.DSigException;
 
 /**
  * Base class for all processors which return SAML Response. I.e. processors for Authentication and
@@ -112,95 +95,6 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		return new AssertionResponse(getResponseIssuer(), id, e).getXMLBeanDoc();
 	}
 
-	/**
-	 * Returns a collection of attributes including only those attributes for which there is SAML 
-	 * representation and which are allowed by attribute filters. The 
-	 * 'memberOf' attribute is also added if configured so.
-	 * @param allAttribtues, which should be collected in the scope of the chosenGroup. Note that the input list is modified. 
-	 * @param allGroups
-	 * @return
-	 */
-	public Map<String, Attribute<?>> prepareReleasedAttributes(Collection<AttributeExt<?>> allAttribtues, 
-			Collection<String> allGroups, Entity entity)
-	{
-		Map<String, Attribute<?>> ret = new HashMap<String, Attribute<?>>();
-		Attribute<?> groupAttr = createGroupAttribute(allGroups);
-		if (groupAttr != null)
-			ret.put(groupAttr.getName(), groupAttr);
-		addIdentityAttributes(entity, ret);
-		
-		AttributeFilters filter = samlConfiguration.getAttributeFilter();
-		filter.filter(allAttribtues, getRequestIssuer());
-		
-		SamlAttributeMapper mapper = samlConfiguration.getAttributesMapper();
-		
-		for (AttributeExt<?> a: allAttribtues)
-			if (mapper.isHandled(a))
-				ret.put(a.getName(), a);
-		return ret;
-	}
-
-	private void addIdentityAttributes(Entity entity, Map<String, Attribute<?>> ret)
-	{
-		for (Identity identity: entity.getIdentities())
-		{
-			if (identity.getType().getIdentityTypeProvider().isTargeted())
-				continue;
-			String name = "unity:identity:" + identity.getTypeId();
-			
-			StringAttribute sa = (StringAttribute) ret.get(name);
-			if (sa != null)
-			{
-				List<String> newValues = new ArrayList<String>(sa.getValues());
-				newValues.add(identity.getValue());
-				sa.setValues(newValues);
-			} else
-			{
-				sa = new StringAttribute(name, 
-						"/", AttributeVisibility.full, identity.getValue());
-				ret.put(sa.getName(), sa);
-			}
-		}
-	}
-	
-	
-	private Attribute<String> createGroupAttribute(Collection<String> allGroups)
-	{
-		GroupsSelection mode = samlConfiguration.getEnumValue(SamlIdpProperties.GROUP_SELECTION, 
-				SamlIdpProperties.GroupsSelection.class);
-		
-		String attributeName = samlConfiguration.getValue(SamlIdpProperties.GROUP_ATTRIBUTE);
-		List<String> values = new ArrayList<String>();
-		switch(mode)
-		{
-		case none:
-			return null;
-		case all:
-			values.addAll(allGroups);
-			break;
-		case single:
-			if (allGroups.contains(chosenGroup))
-				values.add(chosenGroup);
-			break;
-		case subgroups:
-			Group main = new Group(chosenGroup);
-			for (String group: allGroups)
-			{
-				Group g = new Group(group);
-				if (g.isChild(main))
-					values.add(group);
-			}
-			break;
-		}
-		
-		return new StringAttribute(attributeName, "/", AttributeVisibility.full, values);
-	}
-
-	public String getConfiguredGroupAttribute()
-	{
-		return samlConfiguration.getValue(SamlIdpProperties.GROUP_ATTRIBUTE); 
-	}
-	
 	public String getChosenGroup()
 	{
 		return chosenGroup;
@@ -304,63 +198,53 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		return requested;
 	}
 	
-	public static Collection<Attribute<?>> getAttributes(EntityParam entity, 
-			BaseResponseProcessor<? extends XmlObject, ? extends RequestAbstractType> processor, 
-			SPSettings preferences, 
-			AttributesManagement attributesMan, IdentitiesManagement identitiesMan) throws EngineException
+	/**
+	 * Assembles all attributes (with translation profiles), then filters them with user controlled preferences.
+	 * @param entity
+	 * @param processor
+	 * @param preferences
+	 * @param attributesMan
+	 * @param identitiesMan
+	 * @return
+	 * @throws EngineException
+	 */
+	public Collection<Attribute<?>> getAttributes(TranslationResult userInfo,
+			SPSettings preferences) throws EngineException
 	{
-		Collection<String> allGroups = identitiesMan.getGroups(entity);
-		Collection<AttributeExt<?>> allAttribtues = attributesMan.getAttributes(
-				entity, processor.getChosenGroup(), null);
-		Entity fullEntity = identitiesMan.getEntity(entity);
-		if (log.isTraceEnabled())
-			log.trace("Attributes to be returned (before postprocessing): " + 
-					allAttribtues + "\nGroups: " + allGroups + "\nIdentities: " + 
-					Arrays.toString(fullEntity.getIdentities()));
-		Map<String, Attribute<?>> all = processor.prepareReleasedAttributes(allAttribtues, allGroups, 
-				fullEntity);
+		Map<String, Attribute<?>> all = filterSupportedBySamlAttributes(userInfo);
+		filterAttributesWithPreferences(preferences, all);
+		return all.values();
+	}
+
+	/**
+	 * Filters the given attributes map with settings from user-controled preferences
+	 * @param preferences
+	 * @param all
+	 */
+	private void filterAttributesWithPreferences(SPSettings preferences, Map<String, Attribute<?>> all)
+	{
 		Set<String> hidden = preferences.getHiddenAttribtues();
 		for (String hiddenA: hidden)
 			all.remove(hiddenA);
 		if (log.isDebugEnabled())
 			log.debug("Processed attributes to be returned: " + all.values());
-		return all.values();
 	}
-	
+
 	/**
-	 * Converts SAML identity format to Unity identity format
-	 * @param samlIdFormat
-	 * @return
-	 * @throws SAMLRequesterException
+	 * Returns a collection of attributes including only those attributes for which there is SAML 
+	 * representation.
 	 */
-	protected String getUnityIdentityFormat(String samlIdFormat) throws SAMLRequesterException
+	private Map<String, Attribute<?>> filterSupportedBySamlAttributes(TranslationResult userInfo)
 	{
-		if (samlIdFormat.equals(SAMLConstants.NFORMAT_PERSISTENT) || 
-				samlIdFormat.equals(SAMLConstants.NFORMAT_UNSPEC))
-		{
-			return TargetedPersistentIdentity.ID;
-		} else if (samlIdFormat.equals(SAMLConstants.NFORMAT_DN))
-		{
-			return X500Identity.ID;
-		} else if (samlIdFormat.equals(SAMLConstants.NFORMAT_TRANSIENT))
-		{
-			return TransientIdentity.ID;
-		} else 
-//FIXME remove 			
-		if (samlIdFormat.equals("unity:persistent"))
-		{
-			return PersistentIdentity.ID;
-		} else if (samlIdFormat.equals("unity:identifier"))
-		{
-			return IdentifierIdentity.ID;
-		} else
-//FIXME remove end
-		{
-			throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_INVALID_NAMEID_POLICY,
-					samlIdFormat + " is not supported by this service.");
-		}
+		Map<String, Attribute<?>> ret = new HashMap<String, Attribute<?>>();
+		SamlAttributeMapper mapper = samlConfiguration.getAttributesMapper();
+		
+		for (Attribute<?> a: userInfo.getAttributes())
+			if (mapper.isHandled(a))
+				ret.put(a.getName(), a);
+		return ret;
 	}
-	
+
 	public String getIdentityTarget()
 	{
 		return context.getRequest().getIssuer().getStringValue();
