@@ -20,6 +20,8 @@ include::configuration.txt[]
 
 include::contents-management.txt[]
 
+include::translation.txt[]
+
 include::external-idps.txt[]
 
 include::endpoints.txt[]
