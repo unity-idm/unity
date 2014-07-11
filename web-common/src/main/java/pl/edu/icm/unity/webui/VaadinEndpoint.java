@@ -43,6 +43,8 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, VaadinEndpoint.class);
 	public static final int DEFAULT_HEARTBEAT = 10;
+	public static final int LONG_SESSION = 3600;
+	public static final int LONG_HEARTBEAT = 300;
 	public static final String AUTHENTICATION_PATH = "/authentication";
 	public static final String VAADIN_RESOURCES = "/VAADIN/*";
 	public static final String SESSION_TIMEOUT_PARAM = "session-timeout";
@@ -93,9 +95,9 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		
 		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
-				description.getContextAddress()+AUTHENTICATION_PATH, description.getRealm(),
-				sessionMan, sessionBinder);
-		context.addFilter(new FilterHolder(authnFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
+				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
+		context.addFilter(new FilterHolder(authnFilter), "/*", 
+				EnumSet.of(DispatcherType.REQUEST));
 
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
 
@@ -135,8 +137,8 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 
 		if (unrestrictedSessionTime)
 		{
-			holder.setInitParameter("closeIdleSessions", "false");
-			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(-1));
+			holder.setInitParameter("closeIdleSessions", "true");
+			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(LONG_SESSION));
 		} else
 		{
 			holder.setInitParameter("closeIdleSessions", "true");
@@ -154,7 +156,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	{
 		ServletHolder holder = createServletHolder(servlet, unrestrictedSessionTime);
 		int sessionTimeout = description.getRealm().getMaxInactivity();
-		int heartBeat = getHeartbeatInterval(sessionTimeout);
+		int heartBeat = unrestrictedSessionTime ? LONG_HEARTBEAT : getHeartbeatInterval(sessionTimeout);
 		log.debug("Servlet " + servlet.toString() + " - heartBeat=" +heartBeat);
 			
 		boolean productionMode = genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.PRODUCTION_MODE);

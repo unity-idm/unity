@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
@@ -34,8 +35,6 @@ import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinServlet;
-import com.vaadin.server.VaadinServletService;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -58,6 +57,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private UnityMessageSource msg;
 	private SAMLExchange credentialExchange;
 	private AuthenticationResultCallback callback;
+	private String redirectParam;
 	
 	private IdpSelectorComponent idpSelector;
 	private Label messageLabel;
@@ -82,7 +82,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public Component getComponent()
 	{
-		installRequestHandler();
+		redirectParam = installRequestHandler();
 		
 		final SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
 		VerticalLayout ret = new VerticalLayout();
@@ -142,22 +142,21 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		return ret;
 	}
 
-	private void installRequestHandler()
+	private String installRequestHandler()
 	{
 		VaadinSession session = VaadinSession.getCurrent();
 		Collection<RequestHandler> requestHandlers = session.getRequestHandlers();
-		boolean redirectInstalled = false;
 		for (RequestHandler rh: requestHandlers)
 		{
 			if (rh instanceof RedirectRequestHandler)
 			{
-				redirectInstalled = true;
-				break;
+				return ((RedirectRequestHandler)rh).getTriggeringParam();
 			}
-			
 		}
-		if (!redirectInstalled)
-			session.addRequestHandler(new RedirectRequestHandler());
+	
+		RedirectRequestHandler rh = new RedirectRequestHandler(); 
+		session.addRequestHandler(rh);
+		return rh.getTriggeringParam();
 	}
 	
 	private void breakLogin(boolean invokeCancel)
@@ -208,11 +207,13 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 					msg.getMessage("WebSAMLRetrieval.loginInProgressError"));
 			return;
 		}
-		String servletPath = VaadinServlet.getCurrent().getServletContext().getContextPath() + 
-				VaadinServletService.getCurrentServletRequest().getServletPath();
+		URI requestURI = Page.getCurrent().getLocation();
+		String servletPath = requestURI.getPath();
+		String query = requestURI.getQuery() == null ? "" : "?" + requestURI.getQuery();
+		String currentRelativeURI = servletPath + query;
 		try
 		{
-			context = credentialExchange.createSAMLRequest(idpKey, servletPath);
+			context = credentialExchange.createSAMLRequest(idpKey, currentRelativeURI);
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage("WebSAMLRetrieval.configurationError"), e);
@@ -225,7 +226,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		
 		IdpSelectorComponent.setLastIdpCookie(CHOSEN_IDP_COOKIE, context.getContextIdpKey());
 		
-		Page.getCurrent().open(servletPath + RedirectRequestHandler.PATH, null);
+		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
 	}
 
 	/**

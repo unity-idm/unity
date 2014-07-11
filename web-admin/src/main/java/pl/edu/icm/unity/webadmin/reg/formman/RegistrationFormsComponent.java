@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,6 +102,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 					}
 				});
 		table.setWidth(90, Unit.PERCENTAGE);
+		table.setMultiSelect(true);
 		viewer = new RegistrationFormViewer(msg, attrHandlersRegistry, msgTempMan);
 		viewer.setInput(null);
 		table.addValueChangeListener(new ValueChangeListener()
@@ -107,14 +110,14 @@ public class RegistrationFormsComponent extends VerticalLayout
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				@SuppressWarnings("unchecked")
-				GenericItem<RegistrationForm> item = (GenericItem<RegistrationForm>)table.getValue();
-				if (item != null)
+				Collection<RegistrationForm> items = getItems(table.getValue());
+				if (items.size() > 1 || items.isEmpty())
 				{
-					RegistrationForm form = item.getElement();
-					viewer.setInput(form);
-				} else
 					viewer.setInput(null);
+					return;
+				}
+				RegistrationForm item = items.iterator().next();	
+				viewer.setInput(item);
 			}
 		});
 		table.addActionHandler(new RefreshActionHandler());
@@ -201,6 +204,18 @@ public class RegistrationFormsComponent extends VerticalLayout
 		}
 	}
 	
+	private Collection<RegistrationForm> getItems(Object target)
+	{
+		Collection<?> c = (Collection<?>) target;
+		Collection<RegistrationForm> items = new ArrayList<RegistrationForm>();
+		for (Object o: c)
+		{
+			GenericItem<?> i = (GenericItem<?>) o;
+			items.add((RegistrationForm) i.getElement());	
+		}	
+		return items;
+	}
+	
 	private class RefreshActionHandler extends SingleActionHandler
 	{
 		public RefreshActionHandler()
@@ -263,14 +278,15 @@ public class RegistrationFormsComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			@SuppressWarnings("unchecked")
-			GenericItem<RegistrationForm> item = (GenericItem<RegistrationForm>) target;
+			
+			GenericItem<?> witem = (GenericItem<?>) target;
+			RegistrationForm item = (RegistrationForm) witem.getElement();
 			RegistrationFormEditor editor;
 			try
 			{
 				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
 						msgTempMan, identitiesMan, attributeMan, authenticationMan,
-						attrHandlerRegistry, item.getElement());
+						attrHandlerRegistry, item);
 			} catch (EngineException e)
 			{
 				ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
@@ -295,23 +311,33 @@ public class RegistrationFormsComponent extends VerticalLayout
 		{
 			super(msg.getMessage("RegistrationFormsComponent.deleteAction"), 
 					Images.delete.getResource());
+			setMultiTarget(true);
 		}
 		
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			@SuppressWarnings("unchecked")
-			GenericItem<RegistrationForm> item = (GenericItem<RegistrationForm>)target;
-			final RegistrationForm form = item.getElement();
+			final Collection<RegistrationForm> items = getItems(target);
+			String confirmText = "";
+			for (RegistrationForm item : items)
+			{
+				confirmText += ", ";
+				confirmText += item.getName();
+			}
+			confirmText = confirmText.substring(2);
 			new ConfirmWithOptionDialog(msg, msg.getMessage("RegistrationFormsComponent.confirmDelete", 
-					form.getName()),
+					confirmText),
 					msg.getMessage("RegistrationFormsComponent.dropRequests"),
 					new ConfirmWithOptionDialog.Callback()
 			{
 				@Override
 				public void onConfirm(boolean dropRequests)
 				{
-					removeForm(form.getName(), dropRequests);
+							for (RegistrationForm item : items)
+							{
+								removeForm(item.getName(),
+										dropRequests);
+							}
 				}
 			}).show();
 		}

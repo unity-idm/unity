@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.webadmin.tprofile;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,6 +89,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 					}
 				});
 		
+		table.setMultiSelect(true);
 		table.setWidth(90, Unit.PERCENTAGE);
 		viewer = new TranslationProfileViewer(msg, tc);
 		table.addValueChangeListener(new ValueChangeListener()
@@ -96,16 +98,14 @@ public class TranslationProfilesComponent extends VerticalLayout
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				@SuppressWarnings("unchecked")
-				GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>)table.getValue();
-				if (item!=null)
-				{
-					TranslationProfile profile = item.getElement();
-					viewer.setInput(profile);
-				}else
+				Collection<TranslationProfile> items = getItems(table.getValue());
+				if (items.size() > 1 || items.isEmpty())
 				{
 					viewer.setInput(null);
-				}
+					return;
+				}	
+				TranslationProfile item = items.iterator().next();
+				viewer.setInput(item);
 			}
 		});
 		table.addActionHandler(new RefreshActionHandler());
@@ -173,7 +173,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			
 			table.setInput(profiles);
 			viewer.setInput(null);
-			table.select(null);
+			//table.select(null);
 			removeAllComponents();
 			addComponent(main);
 		} catch (Exception e)
@@ -228,6 +228,18 @@ public class TranslationProfilesComponent extends VerticalLayout
 		}
 	}
 	
+	private Collection<TranslationProfile> getItems(Object target)
+	{
+		Collection<?> c = (Collection<?>) target;
+		Collection<TranslationProfile> items = new ArrayList<TranslationProfile>();
+		for (Object o: c)
+		{
+			GenericItem<?> i = (GenericItem<?>) o;
+			items.add((TranslationProfile) i.getElement());	
+		}	
+		return items;
+	}
+	
 	private class RefreshActionHandler extends SingleActionHandler
 	{
 		public RefreshActionHandler()
@@ -270,7 +282,6 @@ public class TranslationProfilesComponent extends VerticalLayout
 		public void handleAction(Object sender, final Object target)
 		{
 			TranslationProfileEditor editor;
-			
 			try
 			{
 				editor = getProfileEditor(null);				
@@ -318,7 +329,6 @@ public class TranslationProfilesComponent extends VerticalLayout
 						e);
 				return;
 			}
-			
 			TranslationProfileEditDialog dialog = new TranslationProfileEditDialog(msg, 
 					msg.getMessage("TranslationProfilesComponent.editAction"), 
 					new TranslationProfileEditDialog.Callback()
@@ -339,22 +349,31 @@ public class TranslationProfilesComponent extends VerticalLayout
 		{
 			super(msg.getMessage("TranslationProfilesComponent.deleteAction"),
 					Images.delete.getResource());
+			setMultiTarget(true);
 		}
 
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			@SuppressWarnings("unchecked")
-			GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>) target;
-			final TranslationProfile profile = item.getElement();
+			final Collection<TranslationProfile> items = getItems(target);
+			String confirmText = "";
+			for (TranslationProfile item : items)
+			{
+				confirmText += ", ";
+				confirmText += item.getName();
+			}
+			confirmText = confirmText.substring(2);		
 			new ConfirmDialog(msg, msg.getMessage(
 					"TranslationProfilesComponent.confirmDelete",
-					profile.getName()), new ConfirmDialog.Callback()
+					confirmText), new ConfirmDialog.Callback()
 			{
 				@Override
 				public void onConfirm()
 				{
-					removeProfile(profile.getName());
+					for (TranslationProfile item : items)
+					{
+						removeProfile(item.getName());
+					}
 
 				}
 			}).show();

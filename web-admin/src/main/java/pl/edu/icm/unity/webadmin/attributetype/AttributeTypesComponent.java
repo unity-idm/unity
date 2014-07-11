@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.attributetype;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +23,11 @@ import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
+import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Toolbar;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
@@ -87,16 +88,21 @@ public class AttributeTypesComponent extends VerticalLayout
 				});
 
 		viewer = new AttributeTypeViewer(msg);
+		table.setMultiSelect(true);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				@SuppressWarnings("unchecked")
-				GenericItem<AttributeType> item = (GenericItem<AttributeType>)table.getValue();
-				if (item != null)
+				Collection<AttributeType> items = getItems(table.getValue());
+				if (items.size() > 1 || items.isEmpty())
 				{
-					AttributeType at = item.getElement();
+					viewer.setInput(null, null, AttributeTypesComponent.this.attrMetaHandlerRegistry);
+					return;		
+				}	
+				AttributeType at = items.iterator().next();	
+				if (at != null)
+				{
 					WebAttributeHandler<?> handler = AttributeTypesComponent.this.attrHandlerRegistry.getHandler(
 							at.getValueType().getValueSyntaxId());
 					viewer.setInput(at, handler, AttributeTypesComponent.this.attrMetaHandlerRegistry);
@@ -224,6 +230,19 @@ public class AttributeTypesComponent extends VerticalLayout
 			dialog.show();
 		}
 	}
+		
+	private Collection<AttributeType> getItems(Object target)
+	{
+		Collection<?> c = (Collection<?>) target;
+		Collection<AttributeType> items = new ArrayList<AttributeType>();
+		for (Object o: c)
+		{
+			GenericItem<?> i = (GenericItem<?>) o;
+			AttributeType at = (AttributeType) i.getElement();
+			items.add(at);	
+		}
+		return items;
+	}
 	
 	/**
 	 * Extends {@link SingleActionHandler}. Returns action only for selections on mutable attribute type items. 
@@ -240,13 +259,24 @@ public class AttributeTypesComponent extends VerticalLayout
 		@Override
 		public Action[] getActions(Object target, Object sender)
 		{
-			if (target == null || !(target instanceof GenericItem))
+			if (target == null)
 				return EMPTY;
-			@SuppressWarnings("unchecked")
-			GenericItem<AttributeType> item = (GenericItem<AttributeType>)target;
-			final AttributeType at = item.getElement();
-			if (at.isTypeImmutable())
-				return EMPTY;
+				
+			if (target instanceof Collection<?>)
+			{
+				for (AttributeType item : getItems(target))
+				{
+					if (item.isTypeImmutable())
+						return EMPTY;
+				}
+			} else
+			{
+				
+				GenericItem<?> item = (GenericItem<?>) target;	
+				AttributeType at = (AttributeType) item.getElement();
+				if (at.isTypeImmutable())
+					return EMPTY;
+			}
 			return super.getActions(target, sender);
 		}
 	}
@@ -262,9 +292,9 @@ public class AttributeTypesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			@SuppressWarnings("unchecked")
-			GenericItem<AttributeType> item = (GenericItem<AttributeType>)target;
-			AttributeType at = item.getElement();
+			
+			GenericItem<?> item = (GenericItem<?>) target;	
+			AttributeType at = (AttributeType) item.getElement();
 			AttributeTypeEditor editor = new AttributeTypeEditor(msg, attrHandlerRegistry, at,
 					attrMetaHandlerRegistry);
 			AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
@@ -286,24 +316,37 @@ public class AttributeTypesComponent extends VerticalLayout
 		{
 			super(msg.getMessage("AttributeTypes.deleteAction"), 
 					Images.delete.getResource());
+			setMultiTarget(true);
 		}
 		
 		@Override
 		public void handleAction(Object sender, Object target)
-		{
-			@SuppressWarnings("unchecked")
-			GenericItem<AttributeType> item = (GenericItem<AttributeType>)target;
-			final AttributeType at = item.getElement();
-			new ConfirmWithOptionDialog(msg, msg.getMessage("AttributeTypes.confirmDelete", at.getName()),
+		{	
+			final Collection<AttributeType> items = getItems(target);
+
+			String confirmText = "";
+			for (AttributeType item : items)
+			{
+				confirmText += ", ";
+				confirmText += item.getName();
+			}
+			confirmText = confirmText.substring(2);
+			new ConfirmWithOptionDialog(msg, msg.getMessage(
+					"AttributeTypes.confirmDelete", confirmText),
 					msg.getMessage("AttributeTypes.withInstances"),
 					new ConfirmWithOptionDialog.Callback()
-			{
-				@Override
-				public void onConfirm(boolean withInstances)
-				{
-					removeType(at.getName(), withInstances);
-				}
-			}).show();
+					{
+						@Override
+						public void onConfirm(boolean withInstances)
+						{
+
+							for (AttributeType item : items)
+							{
+								removeType(item.getName(),
+										withInstances);
+							}
+						}
+					}).show();
 		}
 	}
 }

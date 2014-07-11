@@ -51,6 +51,7 @@ public class RegistrationFormViewer extends VerticalLayout
 	private SimpleMessageTemplateViewer acceptedTemplate;
 	private Label channel;
 	private Label adminsNotificationGroup;
+	private Label autoAcceptCondition;
 	
 	private Label formInformation;
 	private Label registrationCode;
@@ -88,6 +89,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		
 		name.setValue(form.getName());
 		description.setValue(form.getDescription());
+		autoAcceptCondition.setValue(form.getAutoAcceptCondition());
 		publiclyAvailable.setValue(msg.getYesNo(form.isPubliclyAvailable()));
 		
 		RegistrationFormNotifications notCfg = form.getNotificationsConfiguration();
@@ -131,6 +133,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		name.setValue("");
 		description.setValue("");
 		publiclyAvailable.setValue("");
+		autoAcceptCondition.setValue("");
 		
 		submittedTemplate.setInput(null);
 		updatedTemplate.setInput(null);
@@ -324,6 +327,9 @@ public class RegistrationFormViewer extends VerticalLayout
 		
 		description = new DescriptionTextArea(msg.getMessage("RegistrationFormViewer.description"), true, "");
 		
+		autoAcceptCondition = new Label();
+		autoAcceptCondition.setCaption(msg.getMessage("RegistrationFormViewer.autoAcceptCondition"));
+		
 		publiclyAvailable = new Label();
 		publiclyAvailable.setCaption(msg.getMessage("RegistrationFormViewer.publiclyAvailable"));
 		
@@ -343,7 +349,7 @@ public class RegistrationFormViewer extends VerticalLayout
 				msg, msgTempMan);
 		
 		main.addComponents(name, description, publiclyAvailable, channel, adminsNotificationGroup,
-				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate);
+				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, autoAcceptCondition);
 	}
 	
 	private String toHTMLLabel(OptionalRegistrationParam value)

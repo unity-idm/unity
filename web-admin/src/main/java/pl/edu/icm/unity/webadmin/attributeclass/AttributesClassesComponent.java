@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.attributeclass;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -11,13 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
@@ -29,10 +23,17 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
+import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Toolbar;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
+
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 
 /**
@@ -65,6 +66,7 @@ public class AttributesClassesComponent  extends VerticalLayout
 	private void init()
 	{
 		setCaption(msg.getMessage("AttributesClass.caption"));
+		viewer = new AttributesClassViewer(msg);
 		table =  new GenericElementsTable<String>(
 				msg.getMessage("AttributesClass.attributesClassesHeader"), 
 				String.class);
@@ -73,12 +75,16 @@ public class AttributesClassesComponent  extends VerticalLayout
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				@SuppressWarnings("unchecked")
-				GenericItem<String> item = (GenericItem<String>)table.getValue();
+				Collection<String> items = getItems(table.getValue());
+				if (items.size() > 1 || items.isEmpty())
+				{
+					viewer.setInput(null, allACs);
+					return;
+				}
+				String item = items.iterator().next();	
 				if (item != null)
 				{
-					String ac = item.getElement();
-					viewer.setInput(ac, allACs);
+					viewer.setInput(item, allACs);
 				} else
 					viewer.setInput(null, allACs);
 			}
@@ -87,13 +93,13 @@ public class AttributesClassesComponent  extends VerticalLayout
 		table.addActionHandler(new AddActionHandler());
 		table.addActionHandler(new DeleteActionHandler());
 		table.setWidth(90, Unit.PERCENTAGE);
-		
+		table.setMultiSelect(true);
 		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
 		toolbar.addActionHandlers(table.getActionHandlers());
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		
-		viewer = new AttributesClassViewer(msg);
+		
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.addComponents(tableWithToolbar, viewer);
 		hl.setSizeFull();
@@ -149,6 +155,18 @@ public class AttributesClassesComponent  extends VerticalLayout
 			ErrorPopup.showError(msg, msg.getMessage("AttributesClass.errorRemove"), e);
 			return false;
 		}
+	}
+	
+	private Collection<String> getItems(Object target)
+	{
+		Collection<?> c = (Collection<?>) target;
+		Collection<String> items = new ArrayList<String>();
+		for (Object o: c)
+		{
+			GenericItem<?> i = (GenericItem<?>) o;
+			items.add((String) i.getElement());	
+		}
+		return items;
 	}
 
 	private class RefreshActionHandler extends SingleActionHandler
@@ -207,20 +225,31 @@ public class AttributesClassesComponent  extends VerticalLayout
 		{
 			super(msg.getMessage("AttributesClass.deleteAction"), 
 					Images.delete.getResource());
+			setMultiTarget(true);
 		}
 		
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			@SuppressWarnings("unchecked")
-			final GenericItem<String> item = (GenericItem<String>)target;
-			new ConfirmDialog(msg, msg.getMessage("AttributesClass.confirmDelete", item.getElement()),
+			final Collection<String> items = getItems(target);
+			
+			String confirmText = "";
+			for (String item : items)
+			{
+				confirmText += ", ";
+				confirmText += item;
+			}
+			confirmText = confirmText.substring(2);
+			new ConfirmDialog(msg, msg.getMessage("AttributesClass.confirmDelete", confirmText),
 					new ConfirmDialog.Callback()
 			{
 				@Override
 				public void onConfirm()
 				{
-					removeAC(item.getElement());
+					for (String item : items)
+					{
+						removeAC(item);
+					}
 				}
 			}).show();
 		}

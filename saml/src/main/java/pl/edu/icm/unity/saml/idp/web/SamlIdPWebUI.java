@@ -352,7 +352,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				authnProcessor.logoutAndRefresh(true);
+				authnProcessor.logout(true);
 			}
 		});
 		buttons.addComponents(confirmB, declineB, reloginB);

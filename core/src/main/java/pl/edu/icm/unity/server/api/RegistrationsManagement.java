@@ -51,14 +51,16 @@ public interface RegistrationsManagement
 	public List<RegistrationForm> getForms() throws EngineException;
 	
 	/**
-	 * Submits a new registration request. It gets a pending state.
+	 * Submits a new registration request. It gets a pending state. If tryAutoAccept is true check auto accept condition
+	 * and if true accept request and set status to accepted.
 	 * Note that the input parameter can be modified by the invocation: all the supplied credential secrets
 	 * are transformed to the internal (typically hashed) form. 
 	 * @param request
+	 * @param tryAutoAccept
 	 * @return automatically asigned identifier of the request
 	 * @throws EngineException
 	 */
-	public String submitRegistrationRequest(RegistrationRequest request) throws EngineException;
+	public String submitRegistrationRequest(RegistrationRequest request, boolean tryAutoAccept) throws EngineException;
 	
 	/**
 	 * Lists all registration requests.
