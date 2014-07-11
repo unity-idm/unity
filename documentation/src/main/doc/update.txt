@@ -53,3 +53,12 @@ In case of production environments be sure to perform a test drive on a producti
 During update to 1.3.0 the translation profiles will be updated to the new model. Be sure to carefully check 
 the results manually and to test if the profiles still work correctly. In case of any problems please let us know
 providing the profile's update log entries.   
+
+The version 1.3.0 introduces _output translation profiles_. Two of the features previously available in the 
+configuration of SAML IdP endpoints are now handled by the translation profile in a more flexible and generic way: 
+attribute filters and control of a dynamic attribute storing group membership information. If you relayed on 
+default settings for those features (i.e. no filtering and 'memberOf' membership attribute) then it is only required
+to remove the legacy properties from endpoint configuration files: +filter*+, +groupAttribute+ and +groupSelection+.
+If the defaults were not used, the properties should be removed too, a custom output translation profile created
+with rules filtering and or settings proper membership attribute, and finally the new profile must be assigned to the 
+affected endpoint.    

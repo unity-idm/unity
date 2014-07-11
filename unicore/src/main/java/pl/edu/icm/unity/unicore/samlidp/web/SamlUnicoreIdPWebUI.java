@@ -21,11 +21,11 @@ import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.web.EopException;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebUI;
 import pl.edu.icm.unity.saml.idp.web.SamlResponseHandler;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -69,13 +69,11 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	private ETDSettingsEditor etdEditor;
 
 	@Autowired
-	public SamlUnicoreIdPWebUI(UnityMessageSource msg, IdentitiesManagement identitiesMan,
-			AttributesManagement attributesMan, FreemarkerHandler freemarkerHandler,
+	public SamlUnicoreIdPWebUI(UnityMessageSource msg, FreemarkerHandler freemarkerHandler,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
-			AuthenticationProcessor authnProcessor)
+			AuthenticationProcessor authnProcessor, IdPEngine idpEngine)
 	{
-		super(msg, identitiesMan, attributesMan, freemarkerHandler, handlersRegistry, preferencesMan,
-				authnProcessor);
+		super(msg, freemarkerHandler, handlersRegistry, preferencesMan,	authnProcessor, idpEngine);
 	}
 
 	@Override
@@ -97,7 +95,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	}
 	
 	@Override
-	protected void createExposedDataPart(VerticalLayout contents) throws EopException
+	protected void createExposedDataPart(SAMLAuthnContext samlCtx, VerticalLayout contents) throws EopException
 	{
 		Panel exposedInfoPanel = new Panel();
 		contents.addComponent(exposedInfoPanel);
@@ -107,9 +105,10 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		exposedInfoPanel.setContent(eiLayout);
 		try
 		{
-			createIdentityPart(eiLayout);
+			TranslationResult translationResult = getUserInfo(samlCtx, samlProcessor);
+			createIdentityPart(translationResult, eiLayout);
 			eiLayout.addComponent(new Label("<br>", ContentMode.HTML));
-			createAttributesPart(eiLayout);
+			createAttributesPart(translationResult, eiLayout);
 			eiLayout.addComponent(new Label("<br>", ContentMode.HTML));
 			createETDPart(eiLayout);
 		} catch (SAMLRequesterException e)

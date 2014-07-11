@@ -9,6 +9,16 @@ import java.util.Collection;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.saml.SAMLProcessingException;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
+import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+import xmlbeans.org.oasis.saml2.assertion.SubjectType;
+import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
@@ -20,16 +30,6 @@ import eu.unicore.security.etd.DelegationRestrictions;
 import eu.unicore.security.etd.ETDApi;
 import eu.unicore.security.etd.ETDImpl;
 import eu.unicore.security.etd.TrustDelegation;
-import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
-import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
-import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.Identity;
-import xmlbeans.org.oasis.saml2.assertion.NameIDType;
-import xmlbeans.org.oasis.saml2.assertion.SubjectType;
-import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 /**
  * Extension of the {@link AuthnResponseProcessor} which allows for adding a bootstrap ETD
@@ -52,7 +52,7 @@ public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 	}
 
 
-	public ResponseDocument processAuthnRequest(Identity authenticatedIdentity, Collection<Attribute<?>> attributes,
+	public ResponseDocument processAuthnRequest(IdentityParam authenticatedIdentity, Collection<Attribute<?>> attributes,
 			DelegationRestrictions restrictions) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{

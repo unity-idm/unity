@@ -51,7 +51,7 @@ public class TestOutputCreateActions
 		
 		TranslationInput input = new TranslationInput(new ArrayList<Attribute<?>>(), 
 				TestOutputIdentityActions.createEntity(), 
-				new HashSet<String>(), "RE1", "P1", "SP1");
+				"/", new HashSet<String>(), "RE1", "P1", "SP1");
 		
 		Object mvelCtx = OutputTranslationProfile.createMvelContext(input);
 		TranslationResult result = OutputTranslationProfile.initiateTranslationResult(input);
@@ -85,7 +85,7 @@ public class TestOutputCreateActions
 		
 		TranslationInput input = new TranslationInput(new ArrayList<Attribute<?>>(), 
 				TestOutputIdentityActions.createEntity(), 
-				new HashSet<String>(), "RE1", "P1", "SP1");
+				"/", new HashSet<String>(), "RE1", "P1", "SP1");
 		
 		Object mvelCtx = OutputTranslationProfile.createMvelContext(input);
 		TranslationResult result = OutputTranslationProfile.initiateTranslationResult(input);
@@ -113,7 +113,7 @@ public class TestOutputCreateActions
 		
 		TranslationInput input = new TranslationInput(new ArrayList<Attribute<?>>(), 
 				new Entity(1L, new Identity[] {}, EntityState.valid, null), 
-				new HashSet<String>(), "RE1", "P1", "SP1");
+				"/", new HashSet<String>(), "RE1", "P1", "SP1");
 		
 		Object mvelCtx = OutputTranslationProfile.createMvelContext(input);
 		TranslationResult result = OutputTranslationProfile.initiateTranslationResult(input);
@@ -143,7 +143,7 @@ public class TestOutputCreateActions
 		
 		TranslationInput input = new TranslationInput(new ArrayList<Attribute<?>>(), 
 				new Entity(1L, new Identity[] {}, EntityState.valid, null), 
-				new HashSet<String>(), "RE1", "P1", "SP1");
+				"/", new HashSet<String>(), "RE1", "P1", "SP1");
 		
 		Object mvelCtx = OutputTranslationProfile.createMvelContext(input);
 		TranslationResult result = OutputTranslationProfile.initiateTranslationResult(input);

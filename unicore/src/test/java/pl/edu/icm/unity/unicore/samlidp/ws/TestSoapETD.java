@@ -60,8 +60,6 @@ public class TestSoapETD extends DBIntegrationTestBase
 			"#unity.saml.acceptedUriSP.xx=\n" +
 			"#unity.saml.acceptedDNSP.xx=\n" +
 			"unity.saml.defaultGroup=/\n" +
-			"unity.saml.groupAttribute=groups\n" +
-			"unity.saml.groupSelection=all\n" +
 			"unity.saml.credential=MAIN\n";
 
 	@Before

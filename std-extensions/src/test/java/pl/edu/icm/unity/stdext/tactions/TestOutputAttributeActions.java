@@ -40,7 +40,7 @@ public class TestOutputAttributeActions
 		StringAttribute a2 = new StringAttribute("a2", "/", AttributeVisibility.full);
 		TranslationInput input = new TranslationInput(Arrays.asList(a1, a2), 
 				TestOutputIdentityActions.createEntity(), 
-				new HashSet<String>(), "RE1", "P1", "SP1");
+				"/", new HashSet<String>(), "RE1", "P1", "SP1");
 		
 		Object mvelCtx = OutputTranslationProfile.createMvelContext(input);
 		TranslationResult result = OutputTranslationProfile.initiateTranslationResult(input);
@@ -62,7 +62,7 @@ public class TestOutputAttributeActions
 		StringAttribute a2 = new StringAttribute("a2", "/", AttributeVisibility.full, "vv1", "vv2");
 		TranslationInput input = new TranslationInput(Arrays.asList(a1, a2), 
 				TestOutputIdentityActions.createEntity(),
-				new HashSet<String>(), "RE1", "P1", "SP1");
+				"/", new HashSet<String>(), "RE1", "P1", "SP1");
 		
 		Object mvelCtx = OutputTranslationProfile.createMvelContext(input);
 		TranslationResult result = OutputTranslationProfile.initiateTranslationResult(input);

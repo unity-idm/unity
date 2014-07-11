@@ -118,7 +118,7 @@ public class Attribute<T> implements InitializationValidator
 		int size = values.size();
 		for (int i=0; i<size; i++)
 		{
-			sb.append(values.get(i).toString());
+			sb.append(values.get(i));
 			if (i<size-1)
 				sb.append(", ");
 		}

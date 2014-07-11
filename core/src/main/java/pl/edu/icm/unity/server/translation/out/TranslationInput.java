@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.server.translation.out;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -22,19 +22,23 @@ public class TranslationInput
 {
 	private Collection<Attribute<?>> attributes;
 	private Entity entity;
+	private String chosenGroup;
 	private Set<String> groups;
 	private String requester;
 	private String protocol;
 	private String protocolSubType;
 	
-	public TranslationInput(List<? extends Attribute<?>> attributes, Entity entity,
-			Set<String> groups, String requester, String protocol,
+	public TranslationInput(Collection<? extends Attribute<?>> attributes, Entity entity, String chosenGroup,
+			Collection<String> groups, String requester, String protocol,
 			String protocolSubType)
 	{
 		super();
-		this.attributes = Collections.unmodifiableList(attributes);
+		this.attributes = new ArrayList<Attribute<?>>();
+		this.attributes.addAll(attributes);
 		this.entity = entity;
-		this.groups = Collections.unmodifiableSet(groups);
+		this.chosenGroup = chosenGroup;
+		this.groups = new HashSet<String>();
+		this.groups.addAll(groups);
 		this.requester = requester;
 		this.protocol = protocol;
 		this.protocolSubType = protocolSubType;
@@ -64,7 +68,11 @@ public class TranslationInput
 	{
 		return protocolSubType;
 	}
-	
+	public String getChosenGroup()
+	{
+		return chosenGroup;
+	}
+
 	/**
 	 * @return Multiline string with a complete contents 
 	 */
@@ -80,6 +88,7 @@ public class TranslationInput
 			for (Attribute<?> at: attributes)
 				sb.append(" - ").append(at).append("\n");
 		}
+		sb.append("In group: " + chosenGroup + "\n");
 		if (!groups.isEmpty())
 		{
 			sb.append("Groups: " + groups + "\n");

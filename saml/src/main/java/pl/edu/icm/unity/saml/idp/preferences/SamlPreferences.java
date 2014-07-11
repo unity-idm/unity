@@ -35,7 +35,6 @@ import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 public class SamlPreferences implements JsonSerializable
 {
 	public static final String ID = SamlPreferences.class.getName();
-	public static final String SYMBOLIC_GROUP_ATTR = "groupAttribtueKey---MAGIC_MAGIC_MAGIC";
 	protected final ObjectMapper mapper = Constants.MAPPER;
 
 	private Map<String, SPSettings> spSettings = new HashMap<String, SamlPreferences.SPSettings>();

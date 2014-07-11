@@ -4,32 +4,36 @@
  */
 package pl.edu.icm.unity.samlidp;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.CREDENTIAL;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.DEFAULT_GROUP;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.GROUP;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.GROUP_PFX;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.GROUP_TARGET;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.IDENTITY_LOCAL;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.IDENTITY_MAPPING_PFX;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.IDENTITY_SAML;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ISSUER_URI;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.P;
+
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-
-import static org.junit.Assert.*;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.*;
 
 import org.junit.Test;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.saml.idp.AttributeFilters;
 import pl.edu.icm.unity.saml.idp.GroupChooser;
 import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
@@ -93,59 +97,6 @@ public class TestSamlConfiguration
 		assertEquals(idMapper.getSupportedIdentityTypes().toString(), 7, idMapper.getSupportedIdentityTypes().size());
 	}
 
-	@Test
-	public void testAttributeFilter() throws Exception
-	{
-		Properties p = new Properties();
-		p.setProperty(P+ISSUER_URI, "foo");
-		
-		p.setProperty(P+ATTRIBUTE_FILTER+"1."+ATTRIBUTE_FILTER_TARGET, "sp.*");
-		p.setProperty(P+ATTRIBUTE_FILTER+"1."+ATTRIBUTE_FILTER_EXCLUDE+"1", "a");
-		p.setProperty(P+ATTRIBUTE_FILTER+"1."+ATTRIBUTE_FILTER_EXCLUDE+"2", "b");
-		p.setProperty(P+ATTRIBUTE_FILTER+"1."+ATTRIBUTE_FILTER_INCLUDE+"1", "z");
-		
-		p.setProperty(P+ATTRIBUTE_FILTER+"2."+ATTRIBUTE_FILTER_TARGET, "gg");
-		p.setProperty(P+ATTRIBUTE_FILTER+"2."+ATTRIBUTE_FILTER_EXCLUDE+"1", "a");
-		p.setProperty(P+ATTRIBUTE_FILTER+"2."+ATTRIBUTE_FILTER_EXCLUDE+"2", "b");
-		p.setProperty(P+ATTRIBUTE_FILTER+"2."+ATTRIBUTE_FILTER_EXCLUDE+"3", "c");
-
-		p.setProperty(P+ATTRIBUTE_FILTER+"3."+ATTRIBUTE_FILTER_TARGET, "qq");
-		p.setProperty(P+ATTRIBUTE_FILTER+"3."+ATTRIBUTE_FILTER_INCLUDE+"1", "a");
-
-		p.setProperty(P+DEFAULT_GROUP, "/");
-		p.setProperty(P+CREDENTIAL, "MAIN");
-		SamlIdpProperties cfg = new SamlIdpProperties(p, getPKIManagement());
-		
-		AttributeFilters filter = cfg.getAttributeFilter();
-		
-		List<Attribute<?>> attributes = getAttrs();
-		filter.filter(attributes, "spAAA");
-		assertEquals(1, attributes.size());
-		assertEquals("z", attributes.get(0).getName());
-		
-		attributes = getAttrs();
-		filter.filter(attributes, "gg");
-		assertEquals(2, attributes.size());
-		assertEquals("d", attributes.get(0).getName());
-		assertEquals("z", attributes.get(1).getName());
-		
-		attributes = getAttrs();
-		filter.filter(attributes, "qq");
-		assertEquals(1, attributes.size());
-		assertEquals("a", attributes.get(0).getName());
-	}
-	
-	private List<Attribute<?>> getAttrs()
-	{
-		List<Attribute<?>> attributes = new ArrayList<Attribute<?>>();
-		attributes.add(new StringAttribute("a", "/", AttributeVisibility.local, ""));
-		attributes.add(new StringAttribute("b", "/", AttributeVisibility.local, ""));
-		attributes.add(new StringAttribute("c", "/", AttributeVisibility.local, ""));
-		attributes.add(new StringAttribute("d", "/", AttributeVisibility.local, ""));
-		attributes.add(new StringAttribute("z", "/", AttributeVisibility.local, ""));
-		return attributes;
-	}
-	
 	private PKIManagement getPKIManagement()
 	{
 		return new PKIManagement()

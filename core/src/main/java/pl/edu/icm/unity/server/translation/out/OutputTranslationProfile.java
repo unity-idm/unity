@@ -23,6 +23,7 @@ import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -120,6 +121,18 @@ public class OutputTranslationProfile extends AbstractTranslationProfile<OutputT
 		ret.put("idsByType", idsByType);
 		
 		ret.put("groups", new ArrayList<String>(input.getGroups()));
+		
+		ret.put("usedGroup", input.getChosenGroup());
+
+		Group main = new Group(input.getChosenGroup());
+		List<String> subgroups = new ArrayList<String>();
+		for (String group: input.getGroups())
+		{
+			Group g = new Group(group);
+			if (g.isChild(main))
+				subgroups.add(group);
+		}
+		ret.put("subGroups", subgroups);
 		return ret;
 	}
 	

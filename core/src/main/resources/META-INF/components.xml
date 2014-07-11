@@ -33,6 +33,8 @@
 
 	<bean class="pl.edu.icm.unity.server.authn.remote.InputTranslationEngine"/>
 	<bean class="pl.edu.icm.unity.server.translation.out.OutputTranslationEngine"/>
+
+	<bean class="pl.edu.icm.unity.server.api.internal.IdPEngine"/>
 	
 	<beans profile="production">
 		<bean class="pl.edu.icm.unity.server.utils.DefaultConfigurationLocation"/>

@@ -237,7 +237,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		
 		
 		TranslationInput input = new TranslationInput(new ArrayList<Attribute<?>>(), userE, 
-				Collections.singleton("/"),
+				"/", Collections.singleton("/"),
 				"req", "proto", "subProto");
 		
 		TranslationResult result = tp1.translate(input);

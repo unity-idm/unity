@@ -9,24 +9,23 @@ import javax.servlet.Servlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.webservice.SAMLAuthnInterface;
-import eu.unicore.samly2.webservice.SAMLQueryInterface;
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataServlet;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.ws.CXFEndpoint;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.webservice.SAMLAuthnInterface;
+import eu.unicore.samly2.webservice.SAMLQueryInterface;
+import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Endpoint exposing SAML SOAP binding.
@@ -36,22 +35,20 @@ import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 public class SamlSoapEndpoint extends CXFEndpoint
 {
 	protected SamlIdpProperties samlProperties;
-	protected IdentitiesManagement identitiesMan;
-	protected AttributesManagement attributesMan;
 	protected PreferencesManagement preferencesMan;
+	protected IdPEngine idpEngine;
 	protected PKIManagement pkiManagement;
 	protected ExecutorsService executorsService;
 	protected String samlMetadataPath;
 	
 	public SamlSoapEndpoint(UnityMessageSource msg, EndpointTypeDescription type,
 			String servletPath,  String metadataPath,
-			IdentitiesManagement identitiesMan, AttributesManagement attributesMan,
+			IdPEngine idpEngine,
 			PreferencesManagement preferencesMan, PKIManagement pkiManagement, 
 			ExecutorsService executorsService, SessionManagement sessionMan)
 	{
 		super(msg, sessionMan, type, servletPath);
-		this.identitiesMan = identitiesMan;
-		this.attributesMan = attributesMan;
+		this.idpEngine = idpEngine;
 		this.preferencesMan = preferencesMan;
 		this.pkiManagement = pkiManagement;
 		this.samlMetadataPath = metadataPath;
@@ -90,10 +87,10 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	{
 		String endpointURL = getServletUrl(servletPath);
 		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(samlProperties, 
-				endpointURL, attributesMan, identitiesMan, preferencesMan);
+				endpointURL, idpEngine, preferencesMan);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
 		SAMLAuthnImpl authnImpl = new SAMLAuthnImpl(samlProperties, endpointURL, 
-				identitiesMan, attributesMan, preferencesMan);
+				idpEngine, preferencesMan);
 		addWebservice(SAMLAuthnInterface.class, authnImpl);		
 	}
 	

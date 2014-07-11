@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml.idp.web;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -21,24 +22,24 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
@@ -46,9 +47,9 @@ import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
+import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
-import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
@@ -62,7 +63,6 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
@@ -70,7 +70,9 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
+import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 
 /**
@@ -88,8 +90,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	private static Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebUI.class);
 	protected UnityMessageSource msg;
 	protected EndpointDescription endpointDescription;
-	protected IdentitiesManagement identitiesMan;
-	protected AttributesManagement attributesMan;
+	protected IdPEngine idpEngine;
 	protected FreemarkerHandler freemarkerHandler;
 	protected AttributeHandlerRegistry handlersRegistry;
 	protected PreferencesManagement preferencesMan;
@@ -97,27 +98,25 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	
 	protected AuthnResponseProcessor samlProcessor;
 	protected SamlResponseHandler samlResponseHandler;
-	protected List<Identity> validIdentities;
-	protected Identity selectedIdentity;
+	protected List<IdentityParam> validIdentities;
+	protected IdentityParam selectedIdentity;
 	protected Map<String, Attribute<?>> attributes;
 	protected ListOfSelectableElements attributesHiding;
 	protected CheckBox rememberCB;
 	protected ComboBox identitiesCB;
 
 	@Autowired
-	public SamlIdPWebUI(UnityMessageSource msg, IdentitiesManagement identitiesMan,
-			AttributesManagement attributesMan, FreemarkerHandler freemarkerHandler,
+	public SamlIdPWebUI(UnityMessageSource msg, FreemarkerHandler freemarkerHandler,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
-			AuthenticationProcessor authnProcessor)
+			AuthenticationProcessor authnProcessor, IdPEngine idpEngine)
 	{
 		super(msg);
 		this.msg = msg;
-		this.identitiesMan = identitiesMan;
 		this.freemarkerHandler = freemarkerHandler;
-		this.attributesMan = attributesMan;
 		this.handlersRegistry = handlersRegistry;
 		this.preferencesMan = preferencesMan;
 		this.authnProcessor = authnProcessor;
+		this.idpEngine = idpEngine;
 	}
 
 	@Override
@@ -128,25 +127,17 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		this.endpointDescription = description;
 	}
 	
-	protected Entity getAuthenticatedEntity(String target, boolean allowCreate) throws EngineException
-	{
-		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		return identitiesMan.getEntity(new EntityParam(ae.getEntityId()), target, allowCreate);
-	}
-	
-	protected Map<String, Attribute<?>> getAttributes(AuthnResponseProcessor processor) 
+	protected TranslationResult getUserInfo(SAMLAuthnContext samlCtx, AuthnResponseProcessor processor) 
 			throws EngineException
 	{
+		String profile = samlCtx.getSamlConfiguration().getValue(SamlIdpProperties.TRANSLATION_PROFILE);
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		EntityParam entity = new EntityParam(ae.getEntityId());
-		Collection<String> allGroups = identitiesMan.getGroups(entity);
-		Collection<AttributeExt<?>> allAttribtues = attributesMan.getAttributes(
-				entity, processor.getChosenGroup(), null);
-		Entity fullEntity = identitiesMan.getEntity(entity);
-		return processor.prepareReleasedAttributes(allAttribtues, allGroups, fullEntity);
+		return idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
+				processor.getChosenGroup(), profile, 
+				samlProcessor.getIdentityTarget(), "SAML2", SAMLConstants.BINDING_HTTP_REDIRECT,
+				processor.isIdentityCreationAllowed());
 	}
-	
-	
+
 	protected Collection<Attribute<?>> getUserFilteredAttributes()
 	{
 		Set<String> hidden = new HashSet<String>();
@@ -190,7 +181,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		{
 			createInfoPart(samlCtx, contents);
 
-			createExposedDataPart(contents);
+			createExposedDataPart(samlCtx, contents);
 
 			createButtonsPart(contents);
 
@@ -224,7 +215,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		contents.addComponents(info1, info1Id, info1Addr, spc1, info2, info3);
 	}
 
-	protected void createExposedDataPart(VerticalLayout contents) throws EopException
+	protected void createExposedDataPart(SAMLAuthnContext samlCtx, VerticalLayout contents) throws EopException
 	{
 		Panel exposedInfoPanel = new Panel();
 		contents.addComponent(exposedInfoPanel);
@@ -234,9 +225,10 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		exposedInfoPanel.setContent(eiLayout);
 		try
 		{
-			createIdentityPart(eiLayout);
+			TranslationResult translationResult = getUserInfo(samlCtx, samlProcessor);
+			createIdentityPart(translationResult, eiLayout);
 			eiLayout.addComponent(new Label("<br>", ContentMode.HTML));
-			createAttributesPart(eiLayout);
+			createAttributesPart(translationResult, eiLayout);
 		} catch (SAMLRequesterException e)
 		{
 			//we kill the session as the user may want to log as different user if has access to several entities.
@@ -255,18 +247,17 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		contents.addComponent(rememberCB);
 	}
 	
-	protected void createIdentityPart(VerticalLayout contents) throws EngineException, SAMLRequesterException
+	protected void createIdentityPart(TranslationResult translationResult, VerticalLayout contents) 
+			throws EngineException, SAMLRequesterException
 	{
-		Entity authenticatedEntity = getAuthenticatedEntity(samlProcessor.getIdentityTarget(),
-				samlProcessor.isIdentityCreationAllowed());
-		validIdentities = samlProcessor.getCompatibleIdentities(authenticatedEntity);
+		validIdentities = samlProcessor.getCompatibleIdentities(translationResult.getIdentities());
 		selectedIdentity = validIdentities.get(0);
 		if (validIdentities.size() == 1)
 		{
 			Label identityL = new Label(msg.getMessage("SamlIdPWebUI.identity"));
 			identityL.setStyleName(Styles.bold.toString());
 			TextField identityTF = new TextField();
-			identityTF.setValue(selectedIdentity.toPrettyString());
+			identityTF.setValue(selectedIdentity.getValue());
 			identityTF.setReadOnly(true);
 			identityTF.setWidth(100, Unit.PERCENTAGE);
 			contents.addComponents(identityL, identityTF);
@@ -277,7 +268,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			Label infoManyIds = new Label(msg.getMessage("SamlIdPWebUI.infoManyIds"));
 			infoManyIds.setStyleName(Reindeer.LABEL_SMALL);
 			identitiesCB = new ComboBox();
-			for (Identity id: validIdentities)
+			for (IdentityParam id: validIdentities)
 				identitiesCB.addItem(id);
 			identitiesCB.setImmediate(true);
 			identitiesCB.select(selectedIdentity);
@@ -294,9 +285,11 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		}
 	}
 	
-	protected void createAttributesPart(VerticalLayout contents) throws EngineException
+	protected void createAttributesPart(TranslationResult translationResult, VerticalLayout contents) throws EngineException
 	{
-		attributes = getAttributes(samlProcessor);
+		attributes = new HashMap<String, Attribute<?>>();
+		for (Attribute<?> a: translationResult.getAttributes())
+			attributes.put(a.getName(), a);
 		Label attributesL = new Label(msg.getMessage("SamlIdPWebUI.attributes"));
 		attributesL.setStyleName(Styles.bold.toString());
 		Label attributesInfo = new Label(msg.getMessage("SamlIdPWebUI.attributesInfo"));
@@ -395,13 +388,10 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		if (settings == null)
 			return;
 		Set<String> hidden = settings.getHiddenAttribtues();
-		String groupAttribtue = samlProcessor.getConfiguredGroupAttribute();
 		for (CheckBox cb: attributesHiding.getSelection())
 		{
 			String a = (String) cb.getData();
 			if (hidden.contains(a))
-				cb.setValue(true);
-			if (a.equals(groupAttribtue) && hidden.contains(SamlPreferences.SYMBOLIC_GROUP_ATTR))
 				cb.setValue(true);
 		}
 		if (settings.isDoNotAsk())
@@ -414,9 +404,19 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		String selId = settings.getSelectedIdentity();
 		if (validIdentities.size() > 0 && selId != null)
 		{
-			for (Identity id: validIdentities)
+			for (IdentityParam id: validIdentities)
 			{
-				if (id.getComparableValue().equals(selId))
+				if (id instanceof Identity)
+					
+				{
+					if (((Identity)id).getComparableValue().equals(selId))
+					{
+						if (identitiesCB != null)
+							identitiesCB.select(id);
+						selectedIdentity = id;
+						break;
+					}
+				} else if (id.getValue().equals(selId))
 				{
 					if (identitiesCB != null)
 						identitiesCB.select(id);
@@ -444,21 +444,27 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		settings.setDefaultAccept(defaultAccept);
 		settings.setDoNotAsk(true);
 		Set<String> hidden = new HashSet<String>();
-		String groupAttribtue = samlProcessor.getConfiguredGroupAttribute();
 		for (CheckBox h: attributesHiding.getSelection())
 		{
 			if (!h.getValue())
 				continue;
 			String a = (String) h.getData();
-			if (!a.equals(groupAttribtue))
-				hidden.add(a);
-			else
-				hidden.add(SamlPreferences.SYMBOLIC_GROUP_ATTR);
+			hidden.add(a);
 		}
 		settings.setHiddenAttribtues(hidden);
-		IdentityTypeDefinition idType = selectedIdentity.getType().getIdentityTypeProvider();
-		if (!idType.isDynamic() && !idType.isTargeted())
-			settings.setSelectedIdentity(selectedIdentity.getComparableValue());
+
+		boolean dynamic = false;
+		String identityValue = selectedIdentity.getValue();
+		if (selectedIdentity instanceof Identity)
+		{
+			Identity casted = (Identity) selectedIdentity;
+			identityValue = casted.getComparableValue();
+			IdentityTypeDefinition idType = casted.getType().getIdentityTypeProvider();
+			if (idType.isDynamic() || idType.isTargeted())
+				dynamic = true;
+		}
+		if (!dynamic)
+			settings.setSelectedIdentity(identityValue);
 		preferences.setSPSettings(reqIssuer, settings);
 	}
 	

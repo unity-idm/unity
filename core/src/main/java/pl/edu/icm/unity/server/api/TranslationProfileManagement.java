@@ -30,4 +30,6 @@ public interface TranslationProfileManagement
 	Map<String, InputTranslationProfile> listInputProfiles() throws EngineException;
 
 	Map<String, OutputTranslationProfile> listOutputProfiles() throws EngineException;
+
+	OutputTranslationProfile getDefaultOutputProfile() throws EngineException;
 }
