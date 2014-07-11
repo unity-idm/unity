@@ -32,12 +32,15 @@ public class IdentitiesTablePreferences implements JsonSerializable
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	private Map<String, ColumnSettings> colSettings;
 	private boolean groupbyEntitiesSetting;
+	private boolean showTargetedSetting;
 
 	public IdentitiesTablePreferences()
 	{
 		super();
 		colSettings = new HashMap<String, IdentitiesTablePreferences.ColumnSettings>();
 		groupbyEntitiesSetting = false;
+		showTargetedSetting = false;
+		
 	}
 
 	@Override
@@ -60,7 +63,8 @@ public class IdentitiesTablePreferences implements JsonSerializable
 		for (Map.Entry<String, ColumnSettings> entry : colSettings.entrySet())
 			settingsN.put(entry.getKey(), serializeSingle(entry.getValue()));
 		ObjectNode settingC = main.with("checkBoxSettings");
-			   settingC.put("groupByEntities",groupbyEntitiesSetting);
+		settingC.put("groupByEntities", groupbyEntitiesSetting);
+		settingC.put("showTargeted", showTargetedSetting);		 
 	}
 
 	protected ObjectNode serializeSingle(ColumnSettings what)
@@ -102,7 +106,7 @@ public class IdentitiesTablePreferences implements JsonSerializable
 		}
 		ObjectNode spSettingsNodeB = main.with("checkBoxSettings");;
 		groupbyEntitiesSetting=spSettingsNodeB.get("groupByEntities").asBoolean();
-		
+		showTargetedSetting=spSettingsNodeB.get("showTargeted").asBoolean();		
 	}
 
 	protected ColumnSettings deserializeSingle(ObjectNode from)
@@ -165,6 +169,17 @@ public class IdentitiesTablePreferences implements JsonSerializable
 	{
 		this.groupbyEntitiesSetting = groupCheckboxSetting;
 	}
+	
+	public boolean getShowTargetedSetting()
+	{
+		return showTargetedSetting;
+	}
+
+	public void setShowTargetedSetting(boolean showTargetedSetting)
+	{
+		this.showTargetedSetting = showTargetedSetting;
+	}
+
 
 	public void addColumneSettings(String columnName, ColumnSettings settings)
 	{

@@ -72,7 +72,7 @@ public class IdentitiesTable extends TreeTable
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesTable.class);
 	
-	enum BaseColumnId {entity, type, identity, status, local, credReq};
+	enum BaseColumnId {entity, type, identity, status, local, credReq, target, realm};
 	public static final String ATTR_COL_PREFIX = "a::";
 	public static final String ATTR_ROOT_COL_PREFIX = ATTR_COL_PREFIX + "root::";
 	public static final String ATTR_CURRENT_COL_PREFIX = ATTR_COL_PREFIX + "current::";
@@ -90,6 +90,7 @@ public class IdentitiesTable extends TreeTable
 	private String group;
 	private Map<Long, IdentitiesAndAttributes> data = new HashMap<Long, IdentitiesAndAttributes>();
 	private boolean groupByEntity;
+	private boolean showTargeted;
 	private Entity selected;
 	private List<Filter> containerFilters;
 	private String entityNameAttribute = null;
@@ -122,13 +123,19 @@ public class IdentitiesTable extends TreeTable
 		addContainerProperty(BaseColumnId.status.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.local.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.credReq.toString(), String.class, "");
+		addContainerProperty(BaseColumnId.target.toString(), String.class, "");
+		addContainerProperty(BaseColumnId.realm.toString(), String.class, "");
+		
+		
 		setColumnHeader(BaseColumnId.entity.toString(), msg.getMessage("Identities.entity"));
 		setColumnHeader(BaseColumnId.type.toString(), msg.getMessage("Identities.type"));
 		setColumnHeader(BaseColumnId.identity.toString(), msg.getMessage("Identities.identity"));
 		setColumnHeader(BaseColumnId.status.toString(), msg.getMessage("Identities.status"));
 		setColumnHeader(BaseColumnId.local.toString(), msg.getMessage("Identities.local"));
 		setColumnHeader(BaseColumnId.credReq.toString(), msg.getMessage("Identities.credReq"));
-		
+		setColumnHeader(BaseColumnId.target.toString(), msg.getMessage("Identities.target"));
+		setColumnHeader(BaseColumnId.realm.toString(), msg.getMessage("Identities.realm"));
+				
 		setSelectable(true);
 		setMultiSelect(true);	
 		setColumnReorderingAllowed(true);
@@ -136,13 +143,17 @@ public class IdentitiesTable extends TreeTable
 		setColumnCollapsible(BaseColumnId.entity.toString(), false);
 		setColumnCollapsed(BaseColumnId.local.toString(), true);
 		setColumnCollapsed(BaseColumnId.credReq.toString(), true);
+		setColumnCollapsed(BaseColumnId.target.toString(), true);
+		setColumnCollapsed(BaseColumnId.realm.toString(), true);
 
 		setColumnWidth(BaseColumnId.entity.toString(), 200);
 		setColumnWidth(BaseColumnId.type.toString(), 100);
 		setColumnWidth(BaseColumnId.status.toString(), 100);
 		setColumnWidth(BaseColumnId.local.toString(), 100);
 		setColumnWidth(BaseColumnId.credReq.toString(), 180);
-
+		setColumnWidth(BaseColumnId.target.toString(), 180);
+		setColumnWidth(BaseColumnId.realm.toString(), 100);
+		
 		loadPreferences();
 
 		addActionHandler(new RefreshHandler());
@@ -243,6 +254,7 @@ public class IdentitiesTable extends TreeTable
 		}
 
 		preferences.setGroupByEntitiesSetting(groupByEntity);
+		preferences.setShowTargetedSetting(showTargeted);
 		try
 		{
 			IdentitiesTablePreferences.savePreferences(preferencesMan, preferences);
@@ -269,7 +281,8 @@ public class IdentitiesTable extends TreeTable
 			return;
 		}
 		groupByEntity = preferences.getGroupByEntitiesSetting();
-
+		showTargeted = preferences.getShowTargetedSetting();
+		
 		Set<String> props = new HashSet<String>();
 
 		for (Object prop : getContainerPropertyIds())
@@ -335,6 +348,15 @@ public class IdentitiesTable extends TreeTable
 		this.groupByEntity = groupByEntity;
 		updateContents();
 	}
+	
+	public void setShowTargeted(boolean showTargeted) throws EngineException
+	{
+		this.showTargeted = showTargeted;
+		ArrayList<Long> entities = new ArrayList<Long>();
+		entities.addAll(data.keySet());
+		setInput(group, entities);
+		updateContents();
+	}	
 
 	private void refresh()
 	{
@@ -515,11 +537,16 @@ public class IdentitiesTable extends TreeTable
 			newItem.getItemProperty(BaseColumnId.type.toString()).setValue(id.getTypeId());
 			newItem.getItemProperty(BaseColumnId.identity.toString()).setValue(id.toPrettyStringNoPrefix());
 			newItem.getItemProperty(BaseColumnId.local.toString()).setValue(new Boolean(id.isLocal()).toString());
+			newItem.getItemProperty(BaseColumnId.target.toString()).setValue(id.getTarget());
+			newItem.getItemProperty(BaseColumnId.realm.toString()).setValue(id.getRealm());
+			
 		} else
 		{
 			newItem.getItemProperty(BaseColumnId.type.toString()).setValue("");
 			newItem.getItemProperty(BaseColumnId.identity.toString()).setValue("");
 			newItem.getItemProperty(BaseColumnId.local.toString()).setValue("");
+			newItem.getItemProperty(BaseColumnId.target.toString()).setValue("");
+			newItem.getItemProperty(BaseColumnId.realm.toString()).setValue("");
 		}
 
 		Collection<?> propertyIds = newItem.getItemPropertyIds();
@@ -558,8 +585,10 @@ public class IdentitiesTable extends TreeTable
 	}
 
 	private void resolveEntity(long entity) throws EngineException
-	{
-		Entity resolvedEntity = identitiesMan.getEntity(new EntityParam(entity));
+	{		
+		Entity resolvedEntity = showTargeted ? identitiesMan
+				.getEntityNoContext(new EntityParam(entity)) : identitiesMan
+				.getEntity(new EntityParam(entity));
 		Collection<AttributeExt<?>> rawRootAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
 				true, "/", null, true);
 		Collection<AttributeExt<?>> rawCurAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
@@ -996,6 +1025,11 @@ public class IdentitiesTable extends TreeTable
 	public boolean isGroupByEntity()
 	{
 		return groupByEntity;
+	}
+	
+	public boolean isShowTargeted()
+	{
+		return showTargeted;
 	}
 
 	/**
