@@ -86,18 +86,24 @@ public abstract class SingleActionHandler implements Handler
 			return;
 		
 		Object wrTarget = target;
-		if (multiTarget && !(target instanceof Collection<?>))
+		
+		if (target != null)
 		{
-			ArrayList<Object> ntarget = new ArrayList<Object>();
-			ntarget.add(target);
-			wrTarget = ntarget;
+			if (multiTarget && !(target instanceof Collection<?>))
+			{
+				ArrayList<Object> ntarget = new ArrayList<Object>();
+				ntarget.add(target);
+				wrTarget = ntarget;
+			}
+			if (!multiTarget && (target instanceof Collection<?>))
+			{
+				Collection<?> ntarget = (Collection<?>) target;
+				if (!ntarget.isEmpty())
+					wrTarget = ntarget.iterator().next();
+				else
+					wrTarget = null;
+			}
 		}
-		if (!multiTarget && (target instanceof Collection<?>))
-		{
-			Collection<?> ntarget = (Collection<?>)target;
-			wrTarget = ntarget.iterator().next();
-		}
-			
 		handleAction(sender, wrTarget);
 	}
 	
