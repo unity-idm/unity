@@ -43,6 +43,11 @@ public class CreatePersistentIdentityAction extends AbstractOutputTranslationAct
 			TranslationResult result) throws EngineException
 	{
 		String value = MVEL.executeExpression(idValueExpression, mvelCtx).toString();
+		if (value == null)
+		{
+			log.debug("Identity value evaluated to null, skipping");
+			return;
+		}
 		IdentityParam newId = new IdentityParam(idType.getId(), value, null, currentProfile);
 		String cmpValue = idType.getComparableValue(value, null, null);
 		for (IdentityParam existing: result.getIdentities())

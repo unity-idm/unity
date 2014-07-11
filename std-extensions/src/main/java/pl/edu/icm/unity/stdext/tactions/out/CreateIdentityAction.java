@@ -39,6 +39,11 @@ public class CreateIdentityAction extends AbstractOutputTranslationAction
 			TranslationResult result) throws EngineException
 	{
 		String value = MVEL.executeExpression(idValueExpression, mvelCtx).toString();
+		if (value == null)
+		{
+			log.debug("Identity value evaluated to null, skipping");
+			return;
+		}
 		for (IdentityParam existing: result.getIdentities())
 		{
 			if (existing.getTypeId().equals(idTypeString))

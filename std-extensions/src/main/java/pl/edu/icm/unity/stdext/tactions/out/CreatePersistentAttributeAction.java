@@ -47,6 +47,11 @@ public class CreatePersistentAttributeAction extends AbstractOutputTranslationAc
 			TranslationResult result) throws EngineException
 	{
 		Object value = MVEL.executeExpression(valuesExpression, mvelCtx);
+		if (value == null)
+		{
+			log.debug("Attribute value evaluated to null, skipping");
+			return;
+		}
 		for (Attribute<?> existing: result.getAttributes())
 		{
 			if (existing.getName().equals(attrNameString))

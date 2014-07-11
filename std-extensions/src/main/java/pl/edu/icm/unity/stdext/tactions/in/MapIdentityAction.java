@@ -44,10 +44,15 @@ public class MapIdentityAction extends AbstractInputTranslationAction
 	protected MappingResult invokeWrapped(RemotelyAuthenticatedInput input, Object mvelCtx,
 			String currentProfile) throws EngineException
 	{
+		MappingResult ret = new MappingResult();
 		Object value = MVEL.executeExpression(expressionCompiled, mvelCtx);
+		if (value == null)
+		{
+			log.debug("Identity value evaluated to null, skipping");
+			return ret;
+		}
 		List<?> iValues = value instanceof List ? (List<?>)value : Collections.singletonList(value.toString());
 		
-		MappingResult ret = new MappingResult();
 		for (Object i: iValues)
 		{
 			IdentityParam idParam = new IdentityParam(unityType, i.toString(), input.getIdpName(),

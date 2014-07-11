@@ -56,14 +56,19 @@ public class MapAttributeAction extends AbstractInputTranslationAction
 	protected MappingResult invokeWrapped(RemotelyAuthenticatedInput input, Object mvelCtx, 
 			String currentProfile) throws EngineException
 	{
+		MappingResult ret = new MappingResult();
 		Object value = MVEL.executeExpression(expressionCompiled, mvelCtx);
+		if (value == null)
+		{
+			log.debug("Attribute value evaluated to null, skipping");
+			return ret;
+		}
 		List<?> aValues = value instanceof List ? (List<?>)value : Collections.singletonList(value.toString());
 		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Attribute<?> attribute = new Attribute(unityAttribute, at.getValueType(), group, 
 				visibility, aValues, input.getIdpName(), currentProfile);
 		MappedAttribute ma = new MappedAttribute(mode, attribute);
-		MappingResult ret = new MappingResult();
 		log.debug("Mapped attribute: " + attribute);
 		ret.addAttribute(ma);
 		return ret;

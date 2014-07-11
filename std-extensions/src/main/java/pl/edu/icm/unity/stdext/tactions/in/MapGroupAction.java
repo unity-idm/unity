@@ -39,6 +39,11 @@ public class MapGroupAction extends AbstractInputTranslationAction
 	{
 		MappingResult ret = new MappingResult();
 		Object result = MVEL.executeExpression(expressionCompiled, mvelCtx);
+		if (result == null)
+		{
+			log.debug("Group evaluated to null, skipping");
+			return ret;
+		}
 		if (result instanceof Collection<?>)
 		{
 			Collection<?> mgs = (Collection<?>) result;
