@@ -210,7 +210,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		Entity entity = idsMan.getEntity(new EntityParam(id2));
 		assertEquals(3, entity.getIdentities().length);
 		assertEquals(id, getByName(entity, X500Identity.ID, "CN=golbi"));
-		Identity retP = getByType(entity, PersistentIdentity.ID);
+		getByType(entity, PersistentIdentity.ID);
 		Identity retDn = getByName(entity, X500Identity.ID, "CN=golbi2");
 		assertEquals(id2, retDn);
 		assertEquals(id.getEntityId(), entity.getId());
@@ -267,12 +267,6 @@ public class TestIdentities extends DBIntegrationTestBase
 		Identity retdnp = getByName(entity, X500Identity.ID, "CN=golbi2");
 		assertEquals(id2, retdnp);
 		assertEquals(id2.getEntityId(), entity.getId());
-		
-		try
-		{
-			idsMan.removeIdentity(retP);
-			fail("Managed to remove persistent identity");
-		} catch (IllegalIdentityValueException e) {}
 		
 		idsMan.removeEntity(new EntityParam(id2));
 		
