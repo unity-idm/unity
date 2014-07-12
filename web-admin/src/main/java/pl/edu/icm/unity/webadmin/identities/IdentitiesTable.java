@@ -148,6 +148,7 @@ public class IdentitiesTable extends TreeTable
 		setColumnCollapsingAllowed(true);
 		setColumnCollapsible(BaseColumnId.entity.toString(), false);
 		setColumnCollapsed(BaseColumnId.local.toString(), true);
+		setColumnCollapsed(BaseColumnId.dynamic.toString(), true);
 		setColumnCollapsed(BaseColumnId.credReq.toString(), true);
 		setColumnCollapsed(BaseColumnId.target.toString(), true);
 		setColumnCollapsed(BaseColumnId.realm.toString(), true);
