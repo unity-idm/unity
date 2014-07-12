@@ -284,7 +284,6 @@ public class DBIdentities
 				mapper.deleteIdentity(idBean.getName());
 			}
 		}
-		throw new IllegalTypeException("The " + type + " is not defined for the entity");
 	}
 	
 	public EntityState getEntityStatus(long entityId, SqlSession sqlMap) 
@@ -312,9 +311,6 @@ public class DBIdentities
 		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(toRemove.getTypeId());
 		if (idTypeDef == null)
 			throw new IllegalIdentityValueException("The identity type is unknown");
-		if (idTypeDef.isDynamic())
-			throw new IllegalIdentityValueException("The dynamic identity can not be removed "
-					+ "without removing the containing entity.");
 		
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
 		String cmpVal = IdentitiesResolver.getComparableIdentityValue(toRemove, idTypeDef);

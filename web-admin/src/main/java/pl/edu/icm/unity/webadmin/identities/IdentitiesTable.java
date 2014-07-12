@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webadmin.identities;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -72,7 +73,7 @@ public class IdentitiesTable extends TreeTable
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesTable.class);
 	
-	enum BaseColumnId {entity, type, identity, status, local, credReq, remoteIdP, profile, target, realm};
+	enum BaseColumnId {entity, type, identity, status, local, dynamic, credReq, remoteIdP, profile, target, realm};
 	public static final String ATTR_COL_PREFIX = "a::";
 	public static final String ATTR_ROOT_COL_PREFIX = ATTR_COL_PREFIX + "root::";
 	public static final String ATTR_CURRENT_COL_PREFIX = ATTR_COL_PREFIX + "current::";
@@ -122,6 +123,7 @@ public class IdentitiesTable extends TreeTable
 		addContainerProperty(BaseColumnId.identity.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.status.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.local.toString(), String.class, "");
+		addContainerProperty(BaseColumnId.dynamic.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.credReq.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.target.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.realm.toString(), String.class, "");
@@ -133,6 +135,7 @@ public class IdentitiesTable extends TreeTable
 		setColumnHeader(BaseColumnId.identity.toString(), msg.getMessage("Identities.identity"));
 		setColumnHeader(BaseColumnId.status.toString(), msg.getMessage("Identities.status"));
 		setColumnHeader(BaseColumnId.local.toString(), msg.getMessage("Identities.local"));
+		setColumnHeader(BaseColumnId.dynamic.toString(), msg.getMessage("Identities.dynamic"));
 		setColumnHeader(BaseColumnId.credReq.toString(), msg.getMessage("Identities.credReq"));
 		setColumnHeader(BaseColumnId.target.toString(), msg.getMessage("Identities.target"));
 		setColumnHeader(BaseColumnId.realm.toString(), msg.getMessage("Identities.realm"));
@@ -155,6 +158,7 @@ public class IdentitiesTable extends TreeTable
 		setColumnWidth(BaseColumnId.type.toString(), 100);
 		setColumnWidth(BaseColumnId.status.toString(), 100);
 		setColumnWidth(BaseColumnId.local.toString(), 100);
+		setColumnWidth(BaseColumnId.dynamic.toString(), 100);
 		setColumnWidth(BaseColumnId.credReq.toString(), 180);
 		setColumnWidth(BaseColumnId.target.toString(), 180);
 		setColumnWidth(BaseColumnId.realm.toString(), 100);
@@ -550,6 +554,8 @@ public class IdentitiesTable extends TreeTable
 					id.toPrettyStringNoPrefix());
 			newItem.getItemProperty(BaseColumnId.local.toString()).setValue(
 					new Boolean(id.isLocal()).toString());
+			newItem.getItemProperty(BaseColumnId.dynamic.toString()).setValue(
+					new Boolean(id.getType().getIdentityTypeProvider().isDynamic()).toString());
 			String ridp = id.getRemoteIdp() == null ? "" : id.getRemoteIdp();
 			newItem.getItemProperty(BaseColumnId.remoteIdP.toString()).setValue(ridp);
 			String prof = id.getTranslationProfile() == null ? "" : id.getTranslationProfile();
@@ -561,6 +567,7 @@ public class IdentitiesTable extends TreeTable
 			newItem.getItemProperty(BaseColumnId.type.toString()).setValue("");
 			newItem.getItemProperty(BaseColumnId.identity.toString()).setValue("");
 			newItem.getItemProperty(BaseColumnId.local.toString()).setValue("");
+			newItem.getItemProperty(BaseColumnId.dynamic.toString()).setValue("");
 			newItem.getItemProperty(BaseColumnId.target.toString()).setValue("");
 			newItem.getItemProperty(BaseColumnId.realm.toString()).setValue("");
 			newItem.getItemProperty(BaseColumnId.remoteIdP.toString()).setValue("");
@@ -646,7 +653,18 @@ public class IdentitiesTable extends TreeTable
 		try
 		{
 			identitiesMan.removeIdentity(identity);
-			refresh();
+		} catch (Exception e)
+		{
+			ErrorPopup.showError(msg, msg.getMessage("Identities.removeIdentityError"), e);
+		}
+	}
+
+	private void resetIdentity(Identity identity)
+	{
+		try
+		{
+			identitiesMan.resetIdentity(new EntityParam(identity.getEntityId()), identity.getTypeId(), 
+					identity.getRealm(), identity.getTarget());
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage("Identities.removeIdentityError"), e);
@@ -795,8 +813,9 @@ public class IdentitiesTable extends TreeTable
 			final HashMap<Long, EntityWithLabel> toRemove = new HashMap<Long, EntityWithLabel>();
 			for (Object node : nodes)
 			{
-				EntityWithLabel entity = node instanceof IdentityWithEntity ? ((IdentityWithEntity) node)
-						.getEntityWithLabel() : ((EntityWithLabel) node);
+				EntityWithLabel entity = node instanceof IdentityWithEntity ? 
+						((IdentityWithEntity) node).getEntityWithLabel() : 
+						((EntityWithLabel) node);
 				toRemove.put(entity.getEntity().getId(), entity);
 			}
 			String confirmText = "";
@@ -836,54 +855,59 @@ public class IdentitiesTable extends TreeTable
 		{
 			if (target == null)
 				return EMPTY;
-			if (target instanceof Collection<?>)
+			
+			if (!(target instanceof Collection<?>))
+				target = Collections.singleton(target);
+			
+			Collection<?> targets = (Collection<?>) target;
+			for (Object ta : targets)
 			{
-				Collection<?> targets = (Collection<?>) target;
-				for (Object ta : targets)
-				{
-					if (ta != null && !(ta instanceof IdentityWithEntity))
-						return EMPTY;
-				}
-			} else
-			{
-				if (!(target instanceof IdentityWithEntity))
+				if (ta != null && !(ta instanceof IdentityWithEntity))
 					return EMPTY;
 			}
-
+			
 			return super.getActions(target, sender);
 		}
 
 		@Override
 		public void handleAction(Object sender, Object target)
 		{		
-			final Collection<?> nodes = (Collection<?>) target;
-				
-			String confirmText = "";
+			Collection<?> nodes = (Collection<?>) target;
+			final List<IdentityWithEntity> filteredNodes = new ArrayList<>();
+			
+			StringBuilder confirmText = new StringBuilder();
+			int count = 0;
 			for (Object o : nodes)
 			{
 				IdentityWithEntity node = (IdentityWithEntity) o;
-				confirmText += ", ";
-				confirmText += node.identity;
+				if (count < 4)
+					confirmText.append(", " + node.identity);
+				count++;
+				filteredNodes.add(node);
 			}
-			confirmText = confirmText.substring(2);
+			if (count > 3)
+				confirmText.append(msg.getMessage("Identities.andMore", count-3));
+				
+			String confirmTextF = confirmText.substring(2);
 			new ConfirmDialog(msg, msg.getMessage("Identities.confirmIdentityDelete",
-					confirmText), new ConfirmDialog.Callback()
+					confirmTextF), new ConfirmDialog.Callback()
 			{
 				@Override
 				public void onConfirm()
 				{
-					for (Object o : nodes)
+					for (IdentityWithEntity o : filteredNodes)
 					{
-						IdentityWithEntity node = (IdentityWithEntity) o;
-						removeIdentity(node.identity);
+						if (o.getIdentity().getType().getIdentityTypeProvider().isRemovable())
+							removeIdentity(o.identity);
+						else
+							resetIdentity(o.identity);
 					}
-
+					refresh();
 				}
 			}).show();
-
 		}
 	}
-
+	
 	private class ChangeEntityStatusHandler extends SingleActionHandler
 	{
 		public ChangeEntityStatusHandler()

@@ -112,11 +112,8 @@ public class IdentitiesResolver
 				if (idtavParam.getTarget() == null)
 					throw new IllegalIdentityValueException("The target is mandatory "
 							+ "for identity type " + idtavParam.getTypeId());
-				inDBIdentityValue = getComparableIdentityValue(idtavParam, idTypeDef);
-			} else
-			{
-				inDBIdentityValue = getComparableIdentityValue(idtavParam, idTypeDef);
 			}
+			inDBIdentityValue = getComparableIdentityValue(idtavParam, idTypeDef);
 
 			IdentityBean idBean = mapper.getIdentityByName(inDBIdentityValue);
 			if (idBean == null)

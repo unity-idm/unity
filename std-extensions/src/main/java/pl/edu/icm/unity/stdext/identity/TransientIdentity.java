@@ -30,8 +30,6 @@ import pl.edu.icm.unity.types.basic.IdentityRepresentation;
 /**
  * Identity type which creates a different identifier for each target, which is valid only for a time span of a single
  * login session.
- * <p>
- * The values of transient identities are stored in session attributes, not in the identities table.
  * @author K. Benedyczak
  */
 @Component
@@ -64,7 +62,13 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	{
 		return "Transient targeted id";
 	}
-
+	
+	@Override
+	public boolean isRemovable()
+	{
+		return false;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
