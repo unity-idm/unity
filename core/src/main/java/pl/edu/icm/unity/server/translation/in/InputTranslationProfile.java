@@ -246,7 +246,7 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 		ObjectNode root = jsonMapper.createObjectNode();
 		root.put("ver", "2");
 		root.put("name", name);
-		root.put("description", old.get("description"));
+		root.set("description", old.get("description"));
 		root.put("mode", InputTranslationProfile.ProfileMode.UPDATE_ONLY.toString());
 		ArrayNode jsonRules = root.putArray("rules");
 

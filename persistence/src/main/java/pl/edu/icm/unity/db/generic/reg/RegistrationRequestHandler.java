@@ -59,19 +59,19 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 		try
 		{
 			ObjectNode root = jsonMapper.createObjectNode();
-			root.put("AdminComments", jsonMapper.valueToTree(value.getAdminComments()));
-			root.put("RequestId", jsonMapper.valueToTree(value.getRequestId()));
-			root.put("Status", jsonMapper.valueToTree(value.getStatus()));
-			root.put("Timestamp", jsonMapper.valueToTree(value.getTimestamp().getTime()));
+			root.set("AdminComments", jsonMapper.valueToTree(value.getAdminComments()));
+			root.set("RequestId", jsonMapper.valueToTree(value.getRequestId()));
+			root.set("Status", jsonMapper.valueToTree(value.getStatus()));
+			root.set("Timestamp", jsonMapper.valueToTree(value.getTimestamp().getTime()));
 			RegistrationRequest req = value.getRequest();
-			root.put("Agreements", jsonMapper.valueToTree(req.getAgreements()));
+			root.set("Agreements", jsonMapper.valueToTree(req.getAgreements()));
 			addAttributes(root, req.getAttributes());
-			root.put("Comments", jsonMapper.valueToTree(req.getComments()));
-			root.put("Credentials", jsonMapper.valueToTree(req.getCredentials()));
-			root.put("FormId", jsonMapper.valueToTree(req.getFormId()));
-			root.put("GroupSelections", jsonMapper.valueToTree(req.getGroupSelections()));
-			root.put("Identities", jsonMapper.valueToTree(req.getIdentities()));
-			root.put("RegistrationCode", jsonMapper.valueToTree(req.getRegistrationCode()));
+			root.set("Comments", jsonMapper.valueToTree(req.getComments()));
+			root.set("Credentials", jsonMapper.valueToTree(req.getCredentials()));
+			root.set("FormId", jsonMapper.valueToTree(req.getFormId()));
+			root.set("GroupSelections", jsonMapper.valueToTree(req.getGroupSelections()));
+			root.set("Identities", jsonMapper.valueToTree(req.getIdentities()));
+			root.set("RegistrationCode", jsonMapper.valueToTree(req.getRegistrationCode()));
 
 			byte[] contents = jsonMapper.writeValueAsBytes(root);
 			return new GenericObjectBean(value.getRequestId(), contents, supportedType);

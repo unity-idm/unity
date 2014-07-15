@@ -61,7 +61,7 @@ public class IdentitiesTablePreferences implements JsonSerializable
 	{
 		ObjectNode settingsN = main.with("colSettings");
 		for (Map.Entry<String, ColumnSettings> entry : colSettings.entrySet())
-			settingsN.put(entry.getKey(), serializeSingle(entry.getValue()));
+			settingsN.set(entry.getKey(), serializeSingle(entry.getValue()));
 		ObjectNode settingC = main.with("checkBoxSettings");
 		settingC.put("groupByEntities", groupbyEntitiesSetting);
 		settingC.put("showTargeted", showTargetedSetting);		 

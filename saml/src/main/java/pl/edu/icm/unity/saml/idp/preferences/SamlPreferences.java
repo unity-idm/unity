@@ -57,7 +57,7 @@ public class SamlPreferences implements JsonSerializable
 	{
 		ObjectNode settingsN = main.with("spSettings");
 		for (Map.Entry<String, SPSettings> entry: spSettings.entrySet())
-			settingsN.put(entry.getKey(), serializeSingle(entry.getValue()));
+			settingsN.set(entry.getKey(), serializeSingle(entry.getValue()));
 	}
 	
 	protected ObjectNode serializeSingle(SPSettings what)
