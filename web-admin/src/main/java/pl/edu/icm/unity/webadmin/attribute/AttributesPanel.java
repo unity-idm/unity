@@ -31,6 +31,7 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
@@ -291,6 +292,11 @@ public class AttributesPanel extends HorizontalSplitPanel
 		{
 			return attribute;
 		}
+		
+		public String toString()
+		{
+			return attribute.getName();
+		}
 	}
 	
 	private void removeAttribute(AttributeItem attributeItem)
@@ -448,13 +454,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		public void handleAction(Object sender, final Object target)
 		{
 			final Collection<AttributeItem> items = getItems(target);	
-			String confirmText = "";
-			for (AttributeItem item : items)
-			{
-				confirmText += ", ";
-				confirmText += item.getAttribute().getName();
-			}
-			confirmText = confirmText.substring(2);
+			String confirmText = MessageUtils.createConfirmFromStrings(msg, items);
 			
 			ConfirmDialog confirm = new ConfirmDialog(msg, msg.getMessage(
 					"Attribute.removeConfirm", confirmText), new Callback()

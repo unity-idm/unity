@@ -17,6 +17,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionEditDialog.Callback;
+import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
@@ -293,13 +294,8 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		public void handleAction(Object sender, Object target)
 		{		
 			final Collection<CredentialDefinition> items = getItems(target);
-			String confirmText = "";
-			for (CredentialDefinition item : items)
-			{
-				confirmText += ", ";
-				confirmText += item.getName();
-			}
-			confirmText = confirmText.substring(2);		
+			String confirmText = MessageUtils.createConfirmFromNames(msg, items);
+	
 			new ConfirmDialog(msg, msg.getMessage("CredentialDefinitions.confirmDelete", confirmText),
 					new ConfirmDialog.Callback()
 					{

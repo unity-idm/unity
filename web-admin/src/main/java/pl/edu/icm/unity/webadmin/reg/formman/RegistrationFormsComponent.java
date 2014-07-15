@@ -24,6 +24,7 @@ import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditDialog.Callback;
+import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
@@ -318,13 +319,8 @@ public class RegistrationFormsComponent extends VerticalLayout
 		public void handleAction(Object sender, Object target)
 		{
 			final Collection<RegistrationForm> items = getItems(target);
-			String confirmText = "";
-			for (RegistrationForm item : items)
-			{
-				confirmText += ", ";
-				confirmText += item.getName();
-			}
-			confirmText = confirmText.substring(2);
+			String confirmText = MessageUtils.createConfirmFromNames(msg, items);
+
 			new ConfirmWithOptionDialog(msg, msg.getMessage("RegistrationFormsComponent.confirmDelete", 
 					confirmText),
 					msg.getMessage("RegistrationFormsComponent.dropRequests"),
