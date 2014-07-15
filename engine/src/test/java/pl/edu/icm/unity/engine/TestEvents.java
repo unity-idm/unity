@@ -49,7 +49,13 @@ public class TestEvents extends DBIntegrationTestBase
 		assertEquals(0, eventProcessor.getPendingEventsNumber());
 		
 		idsMan.getIdentityTypes();
-		Thread.sleep(800);
+		int i=0;
+		do 
+		{
+			Thread.sleep(500);
+			assertNotEquals(40, i++);
+		} while (1 != hConsumer1.invocationTries);
+		
 		assertEquals(1, hConsumer1.invocationTries);
 		assertEquals(1, hConsumer2.invocationTries);
 		assertEquals(1, lConsumer1.invocationTries);
@@ -61,7 +67,12 @@ public class TestEvents extends DBIntegrationTestBase
 		assertEquals(2, eventProcessor.getPendingEventsNumber());
 
 		idsMan.getIdentityTypes();
-		Thread.sleep(800);
+		i=0;
+		do 
+		{
+			Thread.sleep(500);
+			assertNotEquals(40, i++);
+		} while (2 != hConsumer1.invocationTries);
 		assertEquals(2, hConsumer1.invocationTries);
 		assertEquals(2, hConsumer2.invocationTries);
 		assertEquals(2, lConsumer1.invocationTries);
