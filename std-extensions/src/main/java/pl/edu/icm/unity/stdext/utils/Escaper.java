@@ -65,8 +65,9 @@ public class Escaper
 				current.append(chars[i]);
 			}
 		}
-		if (!current.equals(""))
-			ret.add(current.toString());
+		String asStr = current.toString();
+		if (!asStr.equals(""))
+			ret.add(asStr);
 		return ret.toArray(new String[ret.size()]);
 	}
 	

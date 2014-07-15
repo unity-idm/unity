@@ -91,7 +91,7 @@ public class RemoteMetadataProvider
 		if (cachedFilePart.exists())
 			cachedFilePart.delete();
 		
-		long expirationTime = System.currentTimeMillis() - (refreshInterval*100);
+		long expirationTime = System.currentTimeMillis() - (refreshInterval*100l);
 		if (cachedFile.exists() && cachedFile.lastModified() < expirationTime)
 		{
 			log.trace("Locally cached metadata file is fresh, skipping downloading " + cachedFile);

@@ -53,7 +53,7 @@ public class CreatePersistentIdentityAction extends AbstractOutputTranslationAct
 		String cmpValue = idType.getComparableValue(value, null, null);
 		for (IdentityParam existing: result.getIdentities())
 		{
-			if (existing.getTypeId().equals(idType))
+			if (existing.getTypeId().equals(idType.getId()))
 			{
 				if (idType.getComparableValue(existing.getValue(), null, null).equals(cmpValue))
 				{
