@@ -94,7 +94,7 @@ public abstract class AbstractTranslationProfile<T extends AbstractTranslationRu
 	 * @param condition
 	 * @param args
 	 */
-	protected void addAction(ArrayNode jsonRules, String name, String condition, String... args)
+	public static void addAction(ArrayNode jsonRules, String name, String condition, String... args)
 	{
 		ObjectNode jsonRule = jsonRules.addObject();
 		ObjectNode jsonCondition = jsonRule.putObject("condition");
@@ -111,7 +111,7 @@ public abstract class AbstractTranslationProfile<T extends AbstractTranslationRu
 	 * @param jsonAction
 	 * @return array of action parameter values
 	 */
-	protected String[] extractParams(ObjectNode jsonAction)
+	public static String[] extractParams(ObjectNode jsonAction)
 	{
 		ArrayNode jsonAParams = (ArrayNode) jsonAction.get("parameters");
 		String[] parameters = new String[jsonAParams.size()];
