@@ -138,3 +138,35 @@ image::./figures/regFormFill1.png[alt="Filling of a registration form in Unity",
 
 Note that the above screenshot is showing the form as activated from the Web Admin UI; the form 
 launched other way will not allow for automatic acceptance.
+
+
+=== Identities and entities
+
+Unity represents principals as _entities_. Entity is a logical element symbolizing, the principal. Each entity
+must have at least one concrete representation which is called _identity_. 
+
+Identities in Unity have its type, which defines the syntax, comparison rules etc. of the value. 
+
+Regular identities can be created manually by administrators, imported from external IdPs with a help of 
+input translation profile or added in effect of registration request acceptance. There is also a special category
+of identities: dynamic or automatic identities. Those identities are special in this sense that their values
+are assigned by Unity itself - administrator is able to only see their values and optionally can remove the values.
+
+The following table describes all available identity types:
+
+[cols="m,n,n" options="header"]
+|=== 
+|UNITY identity type	| Category	| Description  
+|userName				| regular	| User name, compared with simple string equality. This type of identity is used for all password-alike authentications in Unity. 
+|identifier				| regular	| Generic identifier, compared with string equality. It is useful to represent remotely assigned user identifiers and to match against them during subsequent authentications. 
+|x500Name				| regular	| X.500 name or a Distinguished Name (DN). Used in case of TLS/SSL authentication. The equality is tested on canonical form of DN.
+|persistent				| automatic	| An automatically assigned anonymous identifier. Should be constant for each entity for its lifetime (and is unless manually removed).
+|targetedPersistent		| automatic	| An automatically assigned anonymous identifier. It is different from the persistent type as for each of Unity clients (targets) a different identifier is maintained. 
+|transient				| automatic	| An automatically assigned anonymous identifier. It is very similar to targetedPersistent, the only difference is that the identifier is regenerated for each login session. 
+|===
+ 
+
+  
+What is more 
+identities can be categorized as automatic: Unity 
+ 
