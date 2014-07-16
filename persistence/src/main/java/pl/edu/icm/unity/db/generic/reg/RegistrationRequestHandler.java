@@ -6,6 +6,7 @@ package pl.edu.icm.unity.db.generic.reg;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
@@ -45,6 +46,7 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 {
 	public static final String REGISTRATION_REQUEST_OBJECT_TYPE = "registrationRequest";
 	private FullAttributeSerializer attributeSerializer;
+	private ObjectMapper jsonMapper = new ObjectMapper();
 	
 	@Autowired
 	public RegistrationRequestHandler(ObjectMapper jsonMapper, FullAttributeSerializer attributeSerializer)
@@ -188,7 +190,7 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 				retReq.setGroupSelections(r);
 			}
 
-			n = root.get("Identities");
+			n = root.get("Identities");			
 			if (n != null)
 			{
 				String v = jsonMapper.writeValueAsString(n);
@@ -205,5 +207,26 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 		{
 			throw new InternalException("Can't deserialize registration request from JSON", e);
 		}
+	}
+	
+	@Override
+	public byte[] updateBeforeImport(String name, JsonNode node) throws JsonProcessingException
+	{
+		if (node == null)
+			return null;
+		
+		if (node.has("Identities"))
+		{
+			ArrayNode ids = (ArrayNode) node.get("Identities");
+			Iterator<JsonNode> idsIt = ids.iterator();
+			while (idsIt.hasNext())
+			{
+				ObjectNode id = (ObjectNode) idsIt.next();
+				JsonNode extIdp = id.remove("externalIdp");
+				if (extIdp != null)
+					id.set("remoteIdp", extIdp);
+			}
+		}
+		return jsonMapper.writeValueAsBytes(node);
 	}
 }
