@@ -24,16 +24,17 @@ public class TestEvents extends DBIntegrationTestBase
 {
 	@Autowired
 	private EventProcessor eventProcessor;
+
+	private MockConsumer hConsumer1 = new MockConsumer();
+	private MockConsumer hConsumer2 = new MockConsumer();
+	private MockConsumer lConsumer1 = new MockConsumer();
+	private MockConsumer lConsumer2 = new MockConsumer();
 	
 	@Test
 	public void test() throws Exception
 	{
-		MockConsumer hConsumer1 = new MockConsumer();
 		hConsumer1.lightweight = false;
-		MockConsumer hConsumer2 = new MockConsumer();
 		hConsumer2.lightweight = false;
-		MockConsumer lConsumer1 = new MockConsumer();
-		MockConsumer lConsumer2 = new MockConsumer();
 		
 		eventProcessor.addEventListener(hConsumer1);
 		eventProcessor.addEventListener(hConsumer2);
@@ -42,10 +43,7 @@ public class TestEvents extends DBIntegrationTestBase
 		
 		attrsMan.getAttributeTypes();
 		Thread.sleep(800);
-		assertEquals(0, hConsumer1.invocationTries);
-		assertEquals(0, hConsumer2.invocationTries);
-		assertEquals(0, lConsumer1.invocationTries);
-		assertEquals(0, lConsumer2.invocationTries);
+		testInvocationTries(0, true);
 		assertEquals(0, eventProcessor.getPendingEventsNumber());
 		
 		idsMan.getIdentityTypes();
@@ -54,16 +52,10 @@ public class TestEvents extends DBIntegrationTestBase
 		{
 			Thread.sleep(500);
 			assertNotEquals(40, i++);
-		} while (1 != hConsumer1.invocationTries);
+		} while (!testInvocationTries(1, false) || !testInvocations(1, false));
 		
-		assertEquals(1, hConsumer1.invocationTries);
-		assertEquals(1, hConsumer2.invocationTries);
-		assertEquals(1, lConsumer1.invocationTries);
-		assertEquals(1, lConsumer2.invocationTries);
-		assertEquals(1, hConsumer1.invocations);
-		assertEquals(1, hConsumer2.invocations);
-		assertEquals(1, lConsumer1.invocations);
-		assertEquals(1, lConsumer2.invocations);
+		testInvocationTries(1, true);
+		testInvocations(1, true);
 		assertEquals(2, eventProcessor.getPendingEventsNumber());
 
 		idsMan.getIdentityTypes();
@@ -72,21 +64,48 @@ public class TestEvents extends DBIntegrationTestBase
 		{
 			Thread.sleep(500);
 			assertNotEquals(40, i++);
-		} while (2 != hConsumer1.invocationTries);
-		assertEquals(2, hConsumer1.invocationTries);
-		assertEquals(2, hConsumer2.invocationTries);
-		assertEquals(2, lConsumer1.invocationTries);
-		assertEquals(2, lConsumer2.invocationTries);
-		assertEquals(2, hConsumer1.invocations);
-		assertEquals(2, hConsumer2.invocations);
-		assertEquals(2, lConsumer1.invocations);
-		assertEquals(2, lConsumer2.invocations);
+		} while (!testInvocationTries(2, false) || !testInvocations(2, false));
+
+		testInvocationTries(2, true);
+		testInvocations(2, true);
 		assertEquals(2, eventProcessor.getPendingEventsNumber());
 		
 		eventProcessor.removeEventListener(hConsumer2);
 		eventProcessor.removeEventListener(hConsumer1);
 		eventProcessor.removeEventListener(lConsumer2);
 		eventProcessor.removeEventListener(lConsumer1);
+	}
+	
+	private boolean testInvocationTries(int expected, boolean fail)
+	{
+		if (fail)
+		{
+			assertEquals(expected, hConsumer1.invocationTries);
+			assertEquals(expected, hConsumer2.invocationTries);
+			assertEquals(expected, lConsumer1.invocationTries);
+			assertEquals(expected, lConsumer2.invocationTries);
+			return true;
+		} else
+		{
+			return expected == hConsumer1.invocationTries && expected == hConsumer2.invocationTries &&
+					expected == lConsumer1.invocationTries && expected == lConsumer2.invocationTries;
+		}
+	}
+
+	private boolean testInvocations(int expected, boolean fail)
+	{
+		if (fail)
+		{
+			assertEquals(expected, hConsumer1.invocations);
+			assertEquals(expected, hConsumer2.invocations);
+			assertEquals(expected, lConsumer1.invocations);
+			assertEquals(expected, lConsumer2.invocations);
+			return true;
+		} else
+		{
+			return expected == hConsumer1.invocations && expected == hConsumer2.invocations &&
+					expected == lConsumer1.invocations && expected == lConsumer2.invocations;
+		}
 	}
 	
 	private static class MockConsumer implements EventListener
