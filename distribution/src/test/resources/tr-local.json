@@ -1,4 +1,5 @@
 {
+	"ver": "2",
 	"name": "localProfile",
 	"description": "Useful on loopback login (Unity->Unity)",
 	"rules": [
@@ -7,11 +8,12 @@
 				"conditionValue": "true"
 			}, 
 			"action": {
-				"name": "mapAttributeToIdentity",
+				"name": "mapIdentity",
 				"parameters": [
-					"unity:identity:userName",
-					"userName",
-					"Password requirement"
+					"persistent",
+					"id",
+					"Password requirement",
+					"CREATE_OR_MATCH"
 				]
 			}			
 		}
