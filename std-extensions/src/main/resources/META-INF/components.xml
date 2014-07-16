@@ -42,6 +42,7 @@
 	<bean class="pl.edu.icm.unity.stdext.tactions.out.CreateIdentityActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.out.CreatePersistentIdentityActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.out.FilterAttributeActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.tactions.out.UnFilterAttributeActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.out.FilterIdentityActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.out.FilterAttributeValuesActionFactory"/>
 </beans>

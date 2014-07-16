@@ -24,6 +24,8 @@ import pl.edu.icm.unity.stdext.tactions.out.FilterAttributeAction;
 import pl.edu.icm.unity.stdext.tactions.out.FilterAttributeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.out.FilterAttributeValuesAction;
 import pl.edu.icm.unity.stdext.tactions.out.FilterAttributeValuesActionFactory;
+import pl.edu.icm.unity.stdext.tactions.out.UnFilterAttributeAction;
+import pl.edu.icm.unity.stdext.tactions.out.UnFilterAttributeActionFactory;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
@@ -33,8 +35,10 @@ public class TestOutputAttributeActions
 	public void testFilterAttribute() throws EngineException
 	{
 		FilterAttributeActionFactory factory = new FilterAttributeActionFactory();
-		
-		FilterAttributeAction filterAllAction = factory.getInstance("a1");
+		FilterAttributeAction filterAllAction = factory.getInstance(".*");
+
+		UnFilterAttributeActionFactory unfactory = new UnFilterAttributeActionFactory();
+		UnFilterAttributeAction unfilterAction = unfactory.getInstance("a2");
 		
 		StringAttribute a1 = new StringAttribute("a1", "/", AttributeVisibility.full);
 		StringAttribute a2 = new StringAttribute("a2", "/", AttributeVisibility.full);
@@ -45,6 +49,7 @@ public class TestOutputAttributeActions
 		Object mvelCtx = OutputTranslationProfile.createMvelContext(input);
 		TranslationResult result = OutputTranslationProfile.initiateTranslationResult(input);
 		filterAllAction.invoke(input, mvelCtx, "prof1", result);
+		unfilterAction.invoke(input, mvelCtx, "prof1", result);
 
 		Collection<Attribute<?>> attributes = result.getAttributes();
 		assertEquals(1, attributes.size());

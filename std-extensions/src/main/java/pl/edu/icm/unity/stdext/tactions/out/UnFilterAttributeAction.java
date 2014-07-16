@@ -19,16 +19,16 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
- * Filter outgoing attributes by name
+ * Inserts previously filtered outgoing attributes by name
  *   
  * @author K. Benedyczak
  */
-public class FilterAttributeAction extends AbstractOutputTranslationAction
+public class UnFilterAttributeAction extends AbstractOutputTranslationAction
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, FilterAttributeAction.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, UnFilterAttributeAction.class);
 	private Pattern attrPattern;
 
-	public FilterAttributeAction(String[] params, TranslationActionDescription desc) 
+	public UnFilterAttributeAction(String[] params, TranslationActionDescription desc) 
 			throws EngineException
 	{
 		super(desc, params);
@@ -39,12 +39,15 @@ public class FilterAttributeAction extends AbstractOutputTranslationAction
 	protected void invokeWrapped(TranslationInput input, Object mvelCtx, String currentProfile,
 			TranslationResult result) throws EngineException
 	{
-		Set<Attribute<?>> copy = new HashSet<Attribute<?>>(result.getAttributes());
-		for (Attribute<?> a: copy)
+		Set<String> existing = new HashSet<>();
+		for (Attribute<?> a: result.getAttributes())
+			existing.add(a.getName());
+		
+		for (Attribute<?> a: input.getAttributes())
 			if (attrPattern.matcher(a.getName()).matches())
 			{
-				log.debug("Filtering the attribute " + a.getName());
-				result.getAttributes().remove(a);
+				log.debug("Unfiltering the attribute " + a.getName());
+				result.getAttributes().add(a);
 			}
 	}
 
