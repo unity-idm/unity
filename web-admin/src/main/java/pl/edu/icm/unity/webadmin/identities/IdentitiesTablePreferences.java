@@ -104,9 +104,12 @@ public class IdentitiesTablePreferences implements JsonSerializable
 			key = keys.next();
 			colSettings.put(key, deserializeSingle(spSettingsNodeC.with(key)));
 		}
-		ObjectNode spSettingsNodeB = main.with("checkBoxSettings");;
-		groupbyEntitiesSetting=spSettingsNodeB.get("groupByEntities").asBoolean();
-		showTargetedSetting=spSettingsNodeB.get("showTargeted").asBoolean();		
+		ObjectNode spSettingsNodeB = main.with("checkBoxSettings");
+		groupbyEntitiesSetting = spSettingsNodeB.get("groupByEntities").asBoolean();
+		if (spSettingsNodeB.has("showTargeted"))
+			showTargetedSetting = spSettingsNodeB.get("showTargeted").asBoolean();
+		else
+			showTargetedSetting = false;
 	}
 
 	protected ColumnSettings deserializeSingle(ObjectNode from)
