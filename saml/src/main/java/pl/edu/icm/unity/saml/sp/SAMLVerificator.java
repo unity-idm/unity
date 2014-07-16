@@ -157,7 +157,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		
 		AuthnRequestDocument request = SAMLHelper.createSAMLRequest(responseConsumerAddress, sign, 
 				requesterId, identityProviderURL,
-				requestedNameFormat, credential);
+				requestedNameFormat, true, credential);
 		context.setRequest(request.xmlText(), request.getAuthnRequest().getID(), servletPath);
 		return context;
 	}
