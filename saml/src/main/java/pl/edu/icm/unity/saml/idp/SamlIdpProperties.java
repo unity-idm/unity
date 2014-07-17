@@ -26,7 +26,6 @@ import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
-
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
@@ -172,7 +171,7 @@ public class SamlIdpProperties extends SamlProperties
 	
 	public SamlIdpProperties(Properties src, PKIManagement pkiManagement) throws ConfigurationException, IOException
 	{
-		super(P, src, defaults, log);
+		super(P, cleanupLegacyProperties(src), defaults, log);
 		this.pkiManagement = pkiManagement;
 		checkIssuer();
 		try
@@ -183,6 +182,25 @@ public class SamlIdpProperties extends SamlProperties
 			throw new ConfigurationException("Can't init SAML PKI settings", e);
 		}
 		init();
+	}
+	
+	private static Properties cleanupLegacyProperties(Properties src)
+	{
+		if (src.containsKey("unity.saml.groupSelection"))
+		{
+			src.remove("unity.saml.groupSelection");
+			log.warn("The legacy property 'unity.saml.groupSelection' was removed from "
+					+ "endpoint's configuration. If needed use output "
+					+ "translation profile to define group membership encoding attribute.");
+		}
+		if (src.containsKey("unity.saml.groupAttribute"))
+		{
+			src.remove("unity.saml.groupAttribute");
+			log.warn("The legacy property 'unity.saml.groupAttribute' was removed from "
+					+ "endpoint's configuration. If needed use output "
+					+ "translation profile to define group membership encoding attribute.");
+		}
+		return src;
 	}
 	
 	private void init()
