@@ -44,12 +44,14 @@ import pl.edu.icm.unity.engine.notifications.EmailFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
+import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
@@ -78,6 +80,7 @@ import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityType;
@@ -127,6 +130,9 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	@Qualifier("insecure")
 	private IdentitiesManagement idManagement;
+	@Autowired
+	@Qualifier("insecure")
+	private GroupsManagement groupManagement;
 	@Autowired
 	@Qualifier("insecure")
 	private AuthenticationManagement authnManagement;
@@ -413,13 +419,13 @@ public class EngineInitialization extends LifecycleBase
 				idManagement.getEntity(new EntityParam(admin));
 			} catch (IllegalIdentityValueException e)
 			{
-				log.info("Database contains no users, adding the admin user and the " +
+				log.info("Database contains no admin user, adding the admin user and the " +
 						"default credential settings");
 				
 				CredentialDefinition credDef = createDefaultAdminCredential();
 				CredentialRequirements crDef = createDefaultAdminCredReq(credDef.getName());
 				
-				Identity adminId = idManagement.addEntity(admin, crDef.getName(), EntityState.valid, false);
+				Identity adminId = createAdminSafe(admin, crDef);
 				
 				EntityParam adminEntity = new EntityParam(adminId.getEntityId());
 				PasswordToken ptoken = new PasswordToken(adminP);
@@ -438,6 +444,25 @@ public class EngineInitialization extends LifecycleBase
 		} catch (EngineException e)
 		{
 			throw new InternalException("Initialization problem when creating admin user", e);
+		}
+	}
+	
+	private Identity createAdminSafe(IdentityParam admin, CredentialRequirements crDef) throws EngineException
+	{
+		try
+		{
+			return idManagement.addEntity(admin, crDef.getName(), EntityState.valid, false);
+		} catch (SchemaConsistencyException e)
+		{
+			//most probably '/' group attribute class forbids to insert admin. As we need the admin
+			//remove ACs and repeat.
+			log.warn("There was a schema consistency error adding the admin user. All "
+					+ "attribute classes of the '/' group will be removed. Error: " + e.toString());
+			GroupContents root = groupManagement.getContents("/", GroupContents.METADATA);
+			log.info("Removing ACs: " + root.getGroup().getAttributesClasses());
+			root.getGroup().setAttributesClasses(new HashSet<String>());
+			groupManagement.updateGroup("/", root.getGroup());
+			return idManagement.addEntity(admin, crDef.getName(), EntityState.valid, false);
 		}
 	}
 	
