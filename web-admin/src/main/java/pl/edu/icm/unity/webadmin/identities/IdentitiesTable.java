@@ -337,9 +337,19 @@ public class IdentitiesTable extends TreeTable
 				}
 
 				scol[entry.getValue().getOrder()] = entry.getKey();
-
 			}
-			setVisibleColumns(scol);
+			
+			//get all which are not in prefs and add them at the end. Important for prefs from older version.
+			HashSet<String> missing = new HashSet<String>(props);
+			missing.removeAll(preferences.getColumnSettings().keySet());
+			Object[] scolComplete = new Object[scol.length + missing.size()];
+			int i=0;
+			for (; i<scol.length; i++)
+				scolComplete[i] = scol[i];
+			for (String miss: missing)
+				scolComplete[i++] = miss;
+			
+			setVisibleColumns(scolComplete);
 		}
 
 	}
