@@ -17,6 +17,7 @@ public interface GenericMapper
 {
 	public int insertObject(GenericObjectBean toAdd);
 	public int insertObject2(GenericObjectBean toAdd);
+	public void deleteAll();
 	public void deleteObjectByNameType(GenericObjectBean toRemove);
 	public void deleteObjectsByType(String type);
 	public void updateByNameType(GenericObjectBean updated);

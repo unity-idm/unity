@@ -28,6 +28,10 @@
 	<delete id="deleteObjectsByType" parameterType="string">
 		DELETE FROM VAR_OBJECTS WHERE TYPE = #{value}
 	</delete>
+
+	<delete id="deleteAll">
+		DELETE FROM VAR_OBJECTS
+	</delete>
 	
 	<update id="updateByNameType" parameterType="GenericObjectB">
 		UPDATE VAR_OBJECTS SET CONTENTS=#{contents}, LAST_UPDATE=CURRENT_TIMESTAMP() WHERE NAME=#{name} AND TYPE=#{type}  
