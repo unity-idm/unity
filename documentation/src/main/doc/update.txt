@@ -62,3 +62,9 @@ to remove the legacy properties from endpoint configuration files: +filter*+, +g
 If the defaults were not used, the properties should be removed too, a custom output translation profile created
 with rules filtering and or settings proper membership attribute, and finally the new profile must be assigned to the 
 affected endpoint.    
+
+If you still use the feature to load translation profiles from JSON files, please remove the definitions 
+from configuration in +unityServer.conf+ or manually update the JSON definitions. 
+Note that the profiles are anyway stored in the database after initial loading at server startup and will be updated
+there. The JSON files won't be updated automatically. 
+Note also that this format is undocumented and this feature is going to be deprecated soon. 
