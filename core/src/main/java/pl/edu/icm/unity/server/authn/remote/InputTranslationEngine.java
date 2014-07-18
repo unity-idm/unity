@@ -68,12 +68,21 @@ public class InputTranslationEngine
 	public void process(MappingResult result) throws EngineException
 	{
 		Identity principal = processIdentities(result);
+		if (principal == null)
+		{
+			log.info("The mapped identity does not exist in database and was not created. "
+					+ "The creation of groups and attributes is skipped, the mapped groups and attributes "
+					+ "will be available for the registration form (if any)");
+			return;
+		}
+		
 		processGroups(result, principal);
 		processAttributes(result, principal);
 	}
 	
 	private Identity processIdentities(MappingResult result) throws EngineException
 	{
+		List<MappedIdentity> mappedMissingIdentitiesToCreate = new ArrayList<>();
 		List<MappedIdentity> mappedMissingIdentities = new ArrayList<>();
 		Entity existing = null;
 		for (MappedIdentity checked: result.getIdentities())
@@ -97,30 +106,33 @@ public class InputTranslationEngine
 					throw new ExecutionBreakException();
 				} else if (checked.getMode() == IdentityEffectMode.CREATE_OR_MATCH)
 				{
+					mappedMissingIdentitiesToCreate.add(checked);
+				} else
+				{
 					mappedMissingIdentities.add(checked);
 				}
 			}			
 		}
-		if (mappedMissingIdentities.isEmpty() && existing == null)
+		if (mappedMissingIdentitiesToCreate.isEmpty() && mappedMissingIdentities.isEmpty() && existing == null)
 		{
 			log.info("The translation profile didn't return any identity of the principal. "
 					+ "We can't authenticate such anonymous principal.");
 			throw new ExecutionBreakException();
 		}
 		
-		if (mappedMissingIdentities.isEmpty())
+		if (mappedMissingIdentitiesToCreate.isEmpty())
 		{
 			log.debug("No identity needs to be added");
-			return existing.getIdentities()[0];
+			return existing != null ? existing.getIdentities()[0] : null;
 		}
 		
 		if (existing != null)
 		{
-			addEquivalents(mappedMissingIdentities, new EntityParam(existing.getId()));
+			addEquivalents(mappedMissingIdentitiesToCreate, new EntityParam(existing.getId()));
 			return existing.getIdentities()[0];
 		} else
 		{
-			return createNewEntity(result, mappedMissingIdentities);
+			return createNewEntity(result, mappedMissingIdentitiesToCreate);
 		}
 
 	}

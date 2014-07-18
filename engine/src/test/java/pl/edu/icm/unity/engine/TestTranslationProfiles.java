@@ -207,6 +207,56 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		assertEquals("test", at.getRemoteIdp());
 		assertEquals("p1", at.getTranslationProfile());
 	}
+
+	
+	@Test
+	public void testIntegratedInputWithReg() throws Exception
+	{
+		AttributeType oType = new AttributeType("o", new StringAttributeSyntax());
+		oType.setMaxElements(10);
+		attrsMan.addAttributeType(oType);
+		
+		groupsMan.addGroup(new Group("/A"));
+		
+		List<InputTranslationRule> rules = new ArrayList<>();
+		InputTranslationAction action1 = (InputTranslationAction) tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				X500Identity.ID, 
+				"'CN=' + attr['cn'] + ',O=ICM,UID=' + id", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.MATCH.toString());
+		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
+		InputTranslationAction action2 = (InputTranslationAction) tactionReg.getByName(MapGroupActionFactory.NAME).getInstance(
+				"'/A'"); 
+		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
+		InputTranslationAction action3 = (InputTranslationAction) tactionReg.getByName(MapAttributeActionFactory.NAME).getInstance(
+				"o", "/A", "groups",
+				AttributeVisibility.full.toString(), AttributeEffectMode.CREATE_OR_UPDATE.toString()); 
+		rules.add(new InputTranslationRule(action3, new TranslationCondition()));
+		
+		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules, ProfileMode.UPDATE_ONLY);
+		
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
+		input.addIdentity(new RemoteIdentity("someUser", UsernameIdentity.ID));
+		input.addAttribute(new RemoteAttribute("cn", "foo"));
+		input.addGroup(new RemoteGroupMembership("mimuw"));
+		input.addGroup(new RemoteGroupMembership("icm"));
+		
+		MappingResult result = tp1.translate(input);
+		inputTrEngine.process(result);
+		
+		assertEquals(1, result.getIdentities().size());
+		IdentityParam ep = new IdentityParam(X500Identity.ID, "CN=foo,O=ICM,UID=someUser");
+		ep.setRemoteIdp("test");
+		ep.setTranslationProfile("p1");
+		assertEquals(ep, result.getIdentities().get(0).getIdentity());
+		
+		assertEquals(1, result.getGroups().size());
+		assertEquals("/A", result.getGroups().get(0));
+		
+		assertEquals(1, result.getAttributes().size());
+		assertEquals("o", result.getAttributes().get(0).getAttribute().getName());
+		assertEquals(2, result.getAttributes().get(0).getAttribute().getValues().size());
+	}
 	
 	
 	@Test
