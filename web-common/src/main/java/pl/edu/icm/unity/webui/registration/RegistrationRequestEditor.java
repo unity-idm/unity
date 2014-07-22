@@ -175,31 +175,6 @@ public class RegistrationRequestEditor extends CustomComponent
 				}
 			}
 		}
-		
-		List<GroupRegistrationParam> gParams = form.getGroupParams();
-		if (gParams != null)
-		{
-			for (GroupRegistrationParam gParam: gParams)
-			{
-				if (gParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic
-						|| gParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
-				{
-					Collection<String> groups = remotelyAuthenticated.getGroups();
-					boolean found = false;
-					for (String g: groups)
-						if (g.equals(gParam.getGroupPath()))
-						{
-							found = true;
-							break;
-						}
-					if (!found)
-						throw new AuthenticationException("This registration form may be used only by " +
-								"users which were remotely authenticated first and who are members of " +
-								 gParam.getGroupPath() + " group according to "
-								+ " the remote authentication source.");
-				}				
-			}
-		}
 	}
 	
 	public RegistrationRequest getRequest() throws FormValidationException
@@ -372,7 +347,8 @@ public class RegistrationRequestEditor extends CustomComponent
 			mainFormLayout.addComponent(registrationCode);
 		}
 		
-		createIdentityUI(mainFormLayout);
+		if (form.getIdentityParams() != null && form.getIdentityParams().size() > 0)
+			createIdentityUI(mainFormLayout);
 
 		if (form.getCredentialParams() != null && form.getCredentialParams().size() > 0)
 			createCredentialsUI(mainFormLayout);
@@ -408,9 +384,7 @@ public class RegistrationRequestEditor extends CustomComponent
 	
 	private void createIdentityUI(Layout layout)
 	{
-		Label identityL = new Label(msg.getMessage("RegistrationRequest.identities"));
-		identityL.addStyleName(Styles.formSection.toString());
-		layout.addComponent(identityL);
+		boolean headerAdded = false;
 		List<IdentityRegistrationParam> idParams = form.getIdentityParams();
 		identityParamEditors = new ArrayList<>();
 		for (int i=0; i<idParams.size(); i++)
@@ -418,6 +392,13 @@ public class RegistrationRequestEditor extends CustomComponent
 			IdentityRegistrationParam idParam = idParams.get(i);
 			if (idParam.getRetrievalSettings() != ParameterRetrievalSettings.interactive)
 				continue;
+			if (!headerAdded)
+			{
+				Label identityL = new Label(msg.getMessage("RegistrationRequest.identities"));
+				identityL.addStyleName(Styles.formSection.toString());
+				layout.addComponent(identityL);
+				headerAdded = true;
+			}
 			IdentityEditor editor = identityEditorRegistry.getEditor(idParam.getIdentityType());
 			identityParamEditors.add(editor);
 			ComponentsContainer editorUI = editor.getEditor(!idParam.isOptional());
@@ -465,10 +446,7 @@ public class RegistrationRequestEditor extends CustomComponent
 	
 	private void createAttributesUI(AbstractOrderedLayout layout) throws EngineException
 	{
-		Label identityL = new Label(msg.getMessage("RegistrationRequest.attributes"));
-		identityL.addStyleName(Styles.formSection.toString());
-		layout.addComponent(identityL);
-		
+		boolean headerAdded = false;
 		Map<String, AttributeType> atTypes = attrsMan.getAttributeTypesAsMap();
 		List<AttributeRegistrationParam> attributeParams = form.getAttributeParams();
 		attributeEditor = new ArrayList<>();
@@ -477,6 +455,13 @@ public class RegistrationRequestEditor extends CustomComponent
 			AttributeRegistrationParam aParam = attributeParams.get(i);
 			if (aParam.getRetrievalSettings() != ParameterRetrievalSettings.interactive)
 				continue;
+			if (!headerAdded)
+			{
+				Label identityL = new Label(msg.getMessage("RegistrationRequest.attributes"));
+				identityL.addStyleName(Styles.formSection.toString());
+				layout.addComponent(identityL);
+				headerAdded = true;
+			}
 			AttributeType at = atTypes.get(aParam.getAttributeType());
 			String description = aParam.isUseDescription() ? at.getDescription() : aParam.getDescription();
 			String aName = isEmpty(aParam.getLabel()) ? (aParam.getAttributeType()+":") : aParam.getLabel();
@@ -490,9 +475,7 @@ public class RegistrationRequestEditor extends CustomComponent
 	
 	private void createGroupsUI(Layout layout)
 	{
-		Label titleL = new Label(msg.getMessage("RegistrationRequest.groups"));
-		titleL.addStyleName(Styles.formSection.toString());
-		layout.addComponent(titleL);
+		boolean headerAdded = false;
 		
 		List<GroupRegistrationParam> groupParams = form.getGroupParams();
 		groupSelectors = new ArrayList<>();
@@ -501,6 +484,13 @@ public class RegistrationRequestEditor extends CustomComponent
 			GroupRegistrationParam gParam = groupParams.get(i);
 			if (gParam.getRetrievalSettings() != ParameterRetrievalSettings.interactive)
 				continue;
+			if (!headerAdded)
+			{
+				Label titleL = new Label(msg.getMessage("RegistrationRequest.groups"));
+				titleL.addStyleName(Styles.formSection.toString());
+				layout.addComponent(titleL);
+				headerAdded = true;
+			}
 			CheckBox cb = new CheckBox();
 			cb.setCaption(isEmpty(gParam.getLabel()) ? gParam.getGroupPath() : gParam.getLabel());
 			if (gParam.getDescription() != null)
