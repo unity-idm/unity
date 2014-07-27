@@ -483,8 +483,24 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	
 	private RemotelyAuthenticatedInput convertInput(OAuthContext context, Map<String, String> attributes)
 	{
-		String tokenEndpoint = config.getProvider(context.getProviderConfigKey()).getValue( 
-				CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
+		CustomProviderProperties provCfg = config.getProvider(context.getProviderConfigKey());
+		String tokenEndpoint = provCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
+		String discoveryEndpoint = provCfg.getValue(CustomProviderProperties.OPENID_DISCOVERY);
+		if (tokenEndpoint == null && discoveryEndpoint != null)
+		{
+			try
+			{
+				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(discoveryEndpoint);
+				tokenEndpoint = providerMeta.getTokenEndpointURI().toString();
+			} catch (Exception e)
+			{
+				log.warn("Can't obtain OIDC metadata", e);
+			}
+		}
+		if (tokenEndpoint == null)
+			tokenEndpoint = "unknown";
+
+		
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput(tokenEndpoint);
 		for (Map.Entry<String, String> attr: attributes.entrySet())
 		{
