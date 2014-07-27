@@ -169,7 +169,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			RegistrationForm form = formsChooser.getDisplayedForms().get(0);
 			try
 			{
-				dialog = formLauncher.getDialog(form, new RemotelyAuthenticatedContext("--none--"));
+				dialog = formLauncher.getDialog(form, new RemotelyAuthenticatedContext("--none--",
+						"--none--"));
 			} catch (EngineException e)
 			{
 				log.info("Can't initialize registration form '" + form.getName() + "' UI. "

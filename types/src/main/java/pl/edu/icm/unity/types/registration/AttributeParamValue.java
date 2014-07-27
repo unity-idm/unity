@@ -7,7 +7,8 @@ package pl.edu.icm.unity.types.registration;
 import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
- * Attribute registration parameter. If the parameter was provided by an external IdP its name is set here too. 
+ * Attribute registration parameter. If the parameter was provided by an external IdP its name is set here too.
+ * TODO - this class should be removed. The externalIdp is already stored in Attribute, so it makes no sense. 
  * @author K. Benedyczak
  */
 public class AttributeParamValue
@@ -25,10 +26,11 @@ public class AttributeParamValue
 	}
 	public String getExternalIdp()
 	{
-		return externalIdp;
+		return attribute.getRemoteIdp();
 	}
 	public void setExternalIdp(String externalIdp)
 	{
+		attribute.setRemoteIdp(externalIdp);
 		this.externalIdp = externalIdp;
 	}
 	@Override

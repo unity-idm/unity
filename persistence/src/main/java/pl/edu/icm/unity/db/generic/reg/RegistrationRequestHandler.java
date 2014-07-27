@@ -114,11 +114,11 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 			}
 			ObjectNode el = (ObjectNode) node;
 			AttributeParamValue av = new AttributeParamValue();
+			Attribute<?> a = attributeSerializer.fromJson((ObjectNode) el.get("attribute"), sql);
+			av.setAttribute(a);
 			JsonNode eidp = el.get("externalIdP");
 			if (eidp != null && !eidp.isNull())
 				av.setExternalIdp(eidp.asText());
-			Attribute<?> a = attributeSerializer.fromJson((ObjectNode) el.get("attribute"), sql);
-			av.setAttribute(a);
 			ret.add(av);
 		}
 		return ret;

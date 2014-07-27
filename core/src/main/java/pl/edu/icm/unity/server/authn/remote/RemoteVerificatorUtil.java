@@ -126,7 +126,7 @@ public class RemoteVerificatorUtil
 
 		trEngine.process(result);
 		
-		RemotelyAuthenticatedContext ret = new RemotelyAuthenticatedContext(input.getIdpName());
+		RemotelyAuthenticatedContext ret = new RemotelyAuthenticatedContext(input.getIdpName(), profile);
 		ret.addAttributes(extractAttributes(result));
 		ret.addIdentities(extractIdentities(result));
 		ret.addGroups(result.getGroups());

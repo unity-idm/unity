@@ -233,7 +233,8 @@ public class RegistrationRequestEditor extends CustomComponent
 			{
 				id = remoteIdentitiesByType.get(regParam.getIdentityType()).getValue();
 				ip = id == null ? null : new IdentityParam(regParam.getIdentityType(), id, 
-						remotelyAuthenticated.getRemoteIdPName(), null);
+						remotelyAuthenticated.getRemoteIdPName(), 
+						remotelyAuthenticated.getInputTranslationProfile());
 			}
 			identities.add(ip);
 		}
@@ -269,7 +270,6 @@ public class RegistrationRequestEditor extends CustomComponent
 				AttributeRegistrationParam aparam = form.getAttributeParams().get(i);
 				
 				Attribute<?> attr;
-				String externalIdP = null;
 				if (aparam.getRetrievalSettings() == ParameterRetrievalSettings.interactive)
 				{
 					FixedAttributeEditor ae = attributeEditor.get(interactiveIndex++);
@@ -285,14 +285,14 @@ public class RegistrationRequestEditor extends CustomComponent
 				{
 					attr = remoteAttributes.get(
 							aparam.getGroup() + "//" + aparam.getAttributeType());
-					externalIdP = remotelyAuthenticated.getRemoteIdPName();
+					attr.setTranslationProfile(remotelyAuthenticated.getInputTranslationProfile());
+					attr.setRemoteIdp(remotelyAuthenticated.getRemoteIdPName());
 				}
 
 				if (attr != null)
 				{
 					AttributeParamValue ap = new AttributeParamValue();
 					ap.setAttribute(attr);
-					ap.setExternalIdp(externalIdP);
 					a.add(ap);
 				} else
 					a.add(null);
