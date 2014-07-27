@@ -169,6 +169,8 @@ public class RequestReviewPanel extends CustomComponent
 		for (int i=0; i<request.getAgreements().size(); i++)
 		{
 			Selection selection = request.getAgreements().get(i);
+			if (form.getAgreements().size() <= i)
+				break;
 			AgreementRegistrationParam agreementText = form.getAgreements().get(i);
 			String info = (selection.isSelected()) ? msg.getMessage("RequestReviewPanel.accepted") : 
 				msg.getMessage("RequestReviewPanel.notAccepted");
@@ -197,6 +199,8 @@ public class RequestReviewPanel extends CustomComponent
 			Selection selection = request.getGroupSelections().get(i);
 			if (!selection.isSelected())
 				continue;
+			if (form.getGroupParams().size() <= i)
+				break;
 			GroupRegistrationParam groupParam = form.getGroupParams().get(i);
 			String groupEntry = selection.getExternalIdp() == null ? groupParam.getGroupPath() :
 				"[from: " + selection.getExternalIdp() + "] " + groupParam.getGroupPath();
