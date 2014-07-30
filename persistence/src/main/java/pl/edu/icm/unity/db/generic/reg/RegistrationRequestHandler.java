@@ -13,14 +13,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import pl.edu.icm.unity.db.generic.DefaultEntityHandler;
 import pl.edu.icm.unity.db.json.FullAttributeSerializer;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
@@ -30,12 +22,19 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
-import pl.edu.icm.unity.types.registration.AttributeParamValue;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.Selection;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Handler for {@link RegistrationRequestState}
@@ -83,10 +82,10 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 		}
 	}
 
-	private void addAttributes(ObjectNode root, List<AttributeParamValue> attributes)
+	private void addAttributes(ObjectNode root, List<Attribute<?>> attributes)
 	{
 		ArrayNode jsonAttrs = root.putArray("Attributes");
-		for (AttributeParamValue a: attributes)
+		for (Attribute<?> a: attributes)
 		{
 			if (a == null)
 			{
@@ -94,16 +93,15 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 				continue;
 			}
 			ObjectNode ap = jsonMapper.createObjectNode();
-			ap.set("attribute", attributeSerializer.toJson(a.getAttribute()));
-			ap.put("externalIdP", a.getExternalIdp());
+			ap.set("attribute", attributeSerializer.toJson(a));
 			jsonAttrs.add(ap);
 		}
 	}
 	
-	private List<AttributeParamValue> getAttributes(ArrayNode n, SqlSession sql) 
+	private List<Attribute<?>> getAttributes(ArrayNode n, SqlSession sql) 
 			throws IllegalAttributeTypeException, IllegalTypeException
 	{
-		List<AttributeParamValue> ret = new ArrayList<>(n.size());
+		List<Attribute<?>> ret = new ArrayList<>(n.size());
 		for (int i=0; i<n.size(); i++)
 		{
 			JsonNode node = n.get(i);
@@ -113,13 +111,8 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 				continue;
 			}
 			ObjectNode el = (ObjectNode) node;
-			AttributeParamValue av = new AttributeParamValue();
 			Attribute<?> a = attributeSerializer.fromJson((ObjectNode) el.get("attribute"), sql);
-			av.setAttribute(a);
-			JsonNode eidp = el.get("externalIdP");
-			if (eidp != null && !eidp.isNull())
-				av.setExternalIdp(eidp.asText());
-			ret.add(av);
+			ret.add(a);
 		}
 		return ret;
 	}

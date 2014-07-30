@@ -69,7 +69,6 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
-import pl.edu.icm.unity.types.registration.AttributeParamValue;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
@@ -404,12 +403,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		Map<String, List<Attribute<?>>> remainingAttributesByGroup = new HashMap<String, List<Attribute<?>>>();
 		for (Attribute<?> a: form.getAttributeAssignments())
 			addAttr(a, rootAttributes, remainingAttributesByGroup);
-		for (AttributeParamValue ap: req.getAttributes())
+		for (Attribute<?> ap: req.getAttributes())
 		{
 			if (ap == null)
 				continue;
-			Attribute<?> a = ap.getAttribute();
-			addAttr(a, rootAttributes, remainingAttributesByGroup);
+			addAttr(ap, rootAttributes, remainingAttributesByGroup);
 		}
 
 		List<IdentityParam> identities = req.getIdentities();
@@ -520,12 +518,9 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		Map<String, AttributeType> atMap = dbAttributes.getAttributeTypes(sql);
 		for (int i=0; i<request.getAttributes().size(); i++)
 		{
-			AttributeParamValue attrP = request.getAttributes().get(i);
-			if (attrP == null)
-				continue;
-			Attribute<?> attr = attrP.getAttribute();
+			Attribute<?> attr = request.getAttributes().get(i);
 			if (attr == null)
-				throw new WrongArgumentException("Attribute no " + i + " is null.");
+				continue;
 			AttributeRegistrationParam regParam = form.getAttributeParams().get(i);
 			if (!regParam.getAttributeType().equals(attr.getName()))
 				throw new WrongArgumentException("Attribute " + 
@@ -817,19 +812,18 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private String getRequesterAddress(RegistrationRequestState currentRequest, 
 			RegistrationFormNotifications notificationsCfg, SqlSession sql) throws EngineException
 	{
-		List<AttributeParamValue> attrs = currentRequest.getRequest().getAttributes();
+		List<Attribute<?>> attrs = currentRequest.getRequest().getAttributes();
 		AttributeType addrAttribute = notificationProducer.getChannelAddressAttribute(
 				notificationsCfg.getChannel(), sql);
 		String requesterAddress = null;
-		for (AttributeParamValue ap: attrs)
+		for (Attribute<?> ap: attrs)
 		{
 			if (ap == null)
 				continue;
-			Attribute<?> tested = ap.getAttribute();
-			if (tested.getName().equals(addrAttribute.getName()) &&
-					tested.getGroupPath().equals("/"))
+			if (ap.getName().equals(addrAttribute.getName()) &&
+					ap.getGroupPath().equals("/"))
 			{
-				requesterAddress = (String) tested.getValues().get(0);
+				requesterAddress = (String) ap.getValues().get(0);
 				break;
 			}
 		}
@@ -888,10 +882,9 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		Map<String, Object> attr = new HashMap<String, Object>();
 		Map<String, List<?>> attrs = new HashMap<String, List<?>>();
 
-		List<AttributeParamValue> attributes = request.getAttributes();
-		for (AttributeParamValue ra : attributes)
+		List<Attribute<?>> attributes = request.getAttributes();
+		for (Attribute<?> atr : attributes)
 		{
-			Attribute<?> atr = ra.getAttribute();
 			Object v = atr.getValues().isEmpty() ? "" : atr.getValues().get(0);
 			attr.put(atr.getName(), v);
 			attrs.put(atr.getName(), atr.getValues());

@@ -25,7 +25,6 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
-import pl.edu.icm.unity.types.registration.AttributeParamValue;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
@@ -238,7 +237,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		}
 		if (form.getAttributeParams() != null)
 		{
-			List<AttributeParamValue> a = new ArrayList<>();
+			List<Attribute<?>> a = new ArrayList<>();
 			int interactiveIndex=0;
 			for (int i=0; i<form.getAttributeParams().size(); i++)
 			{
@@ -266,9 +265,7 @@ public class RegistrationRequestEditor extends CustomComponent
 
 				if (attr != null)
 				{
-					AttributeParamValue ap = new AttributeParamValue();
-					ap.setAttribute(attr);
-					a.add(ap);
+					a.add(attr);
 				} else
 					a.add(null);
 			}
