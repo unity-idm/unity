@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import com.vaadin.data.util.BeanItemContainer;
@@ -15,7 +16,7 @@ import com.vaadin.ui.Table;
 
 /**
  * 1-column table with arbitrary objects. 
- * Allows for sorting, disable multiselect, uses {@link BeanItemContainer}.
+ * Allows for sorting and default disable multiselect, uses {@link BeanItemContainer}.
  * The value is obtaned either via toString() method of the content item or via a given implementation 
  * of {@link NameProvider}.
  * @author K. Benedyczak
@@ -61,18 +62,40 @@ public class GenericElementsTable<T> extends Table
 		return actionHandlers;
 	}
 	
-	public void setInput(Collection<T> types)
+	public void setInput(Collection<? extends T> types)
 	{
-		@SuppressWarnings("unchecked")
-		GenericItem<T> selected = (GenericItem<T>) getValue();
-		removeAllItems();
-		for (T attributeType: types)
+		if (!isMultiSelect())
 		{
-			GenericItem<T> item = new GenericItem<T>(attributeType, nameProvider);
-			addItem(item);
-			if (selected != null && selected.getElement().equals(attributeType))
-				setValue(item);
-		}
+			@SuppressWarnings("unchecked")
+			GenericItem<T> selected = (GenericItem<T>) getValue();
+			removeAllItems();
+			for (T attributeType : types)
+			{
+				GenericItem<T> item = new GenericItem<T>(attributeType,
+						nameProvider);
+				addItem(item);
+				if (selected != null && selected.getElement().equals(attributeType))
+					setValue(item);
+			}
+		} else
+		{
+			@SuppressWarnings("unchecked")
+			Collection<GenericItem<T>> selected = (Collection<GenericItem<T>>) getValue();
+			removeAllItems();
+			Collection<GenericItem<T>> nselected = new LinkedHashSet<GenericItem<T>>();
+			for (T attributeType : types)
+			{
+				GenericItem<T> item = new GenericItem<T>(attributeType,
+						nameProvider);
+				addItem(item);
+				for (GenericItem<T> s : selected)
+				{
+					if (s.getElement().equals(attributeType))
+						nselected.add(item);
+				}
+			}
+			setValue(nselected);
+		}	
 		sort();
 	}
 	

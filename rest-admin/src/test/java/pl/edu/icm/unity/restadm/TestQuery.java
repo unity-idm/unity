@@ -110,7 +110,7 @@ public class TestQuery extends DBIntegrationTestBase
 	{
 		groupsMan.addGroup(new Group("/example"));
 		groupsMan.addGroup(new Group("/example/sub"));
-		Identity id = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tested", true), "cr-pass", 
+		Identity id = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tested"), "cr-pass", 
 				EntityState.valid, false);
 		EntityParam e = new EntityParam(id);
 		groupsMan.addMemberFromParent("/example", e);

@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
@@ -70,7 +72,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 						return new Label(element.getName());
 					}
 				});
-		
+		table.setMultiSelect(true);
 		table.setWidth(90, Unit.PERCENTAGE);
 		viewer = new MessageTemplateViewer(null, msg, msgTempMan, consumersRegistry);
 		viewer.setTemplateInput(null);
@@ -80,16 +82,14 @@ public class MessageTemplatesComponent extends VerticalLayout
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				@SuppressWarnings("unchecked")
-				GenericItem<MessageTemplate> item = (GenericItem<MessageTemplate>)table.getValue();
-				if (item!=null)
-				{
-					MessageTemplate template = item.getElement();
-					viewer.setTemplateInput(template);
-				}else
+				Collection<MessageTemplate> items = getItems(table.getValue());
+				if (items.size() > 1 || items.isEmpty())
 				{
 					viewer.setTemplateInput(null);
-				}
+					return;	
+				}	
+				MessageTemplate item = items.iterator().next();	
+				viewer.setTemplateInput(item);
 			}
 		});
 		table.addActionHandler(new RefreshActionHandler());
@@ -120,7 +120,6 @@ public class MessageTemplatesComponent extends VerticalLayout
 			Collection<MessageTemplate> templates = msgTempMan.listTemplates().values();
 			table.setInput(templates);
 			viewer.setTemplateInput(null);
-			table.select(null);
 			removeAllComponents();
 			addComponent(main);
 		} catch (Exception e)
@@ -175,6 +174,18 @@ public class MessageTemplatesComponent extends VerticalLayout
 		}
 	}
 	
+	private Collection<MessageTemplate> getItems(Object target)
+	{
+		Collection<?> c = (Collection<?>) target;
+		Collection<MessageTemplate> items = new ArrayList<MessageTemplate>();
+		for (Object o: c)
+		{
+			GenericItem<?> i = (GenericItem<?>) o;
+			items.add((MessageTemplate) i.getElement());	
+		}	
+		return items;
+	}
+	
 	private class RefreshActionHandler extends SingleActionHandler
 	{
 		public RefreshActionHandler()
@@ -201,10 +212,8 @@ public class MessageTemplatesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			MessageTemplateEditor editor;
-			
-			editor = new MessageTemplateEditor(msg, consumersRegistry, null);
-			
+			MessageTemplateEditor editor;			
+			editor = new MessageTemplateEditor(msg, consumersRegistry, null);		
 			MessageTemplateEditDialog dialog = new MessageTemplateEditDialog(msg, 
 					msg.getMessage("MessageTemplatesComponent.addAction"), new MessageTemplateEditDialog.Callback()
 					{
@@ -228,11 +237,12 @@ public class MessageTemplatesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			@SuppressWarnings("unchecked")
-			GenericItem<MessageTemplate> item = (GenericItem<MessageTemplate>) target;
+			
+			GenericItem<?> witem = (GenericItem<?>) target;
+			MessageTemplate item = (MessageTemplate) witem.getElement();
 			MessageTemplateEditor editor;
 			
-			editor = new MessageTemplateEditor(msg, consumersRegistry, item.getElement());
+			editor = new MessageTemplateEditor(msg, consumersRegistry, item);
 			
 			MessageTemplateEditDialog dialog = new MessageTemplateEditDialog(msg, 
 					msg.getMessage("MessageTemplatesComponent.editAction"), new MessageTemplateEditDialog.Callback()
@@ -253,26 +263,29 @@ public class MessageTemplatesComponent extends VerticalLayout
 		{
 			super(msg.getMessage("MessageTemplatesComponent.deleteAction"),
 					Images.delete.getResource());
+			setMultiTarget(true);
 		}
 
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			@SuppressWarnings("unchecked")
-			GenericItem<MessageTemplate> item = (GenericItem<MessageTemplate>) target;
-			final MessageTemplate template = item.getElement();
+			final Collection<MessageTemplate> items = getItems(target);		
+			String confirmText = MessageUtils.createConfirmFromNames(msg, items);
 			new ConfirmDialog(msg, msg.getMessage(
-					"MessageTemplatesComponent.confirmDelete",
-					template.getName()), new ConfirmDialog.Callback()
-			{
+					"MessageTemplatesComponent.confirmDelete", confirmText),
+					new ConfirmDialog.Callback()
+					{
 
-				@Override
-				public void onConfirm()
-				{
-					removeTemplate(template.getName());
-
-				}
-			}).show();
+						@Override
+						public void onConfirm()
+						{
+							for (MessageTemplate item : items)
+							{
+								removeTemplate(item.getName());
+							}
+						}
+					}).show();
+			
 		}
 	}
 	

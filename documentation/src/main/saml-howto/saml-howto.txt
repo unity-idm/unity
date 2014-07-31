@@ -59,8 +59,8 @@ We enumerate here the most important ones:
 . Encryption in SAML must be turned off (both in case of identifiers and assertions). This will be improved in future,
 however note that typically this feature is not used anyway, as assertions are sent over a secure HTTPS channels.
 . Discovery Service functionality is not supported in Unity yet. This will be improved in upcoming versions. 
-However Unity comes with a decent Discovery Service functionality embedded, so it is better to use what you get 
-out of the box.
+However Unity comes with a decent Discovery Service functionality embedded, so there is no real need to use external
+service.
 . Unity fully supports publishing SAML metadata (of each SAML endpoint and of each SAML authenticator), as well
 as configuring trusted external SAML IdPs from federation metadata. It is not
 yet possible to configure Unity SAML IdP endpoint trust (i.e. the trusted SPs) from federation metadata. 
@@ -113,8 +113,6 @@ The following example shows a typical configuration, with three trusted SPs:
 unity.saml.issuerURI=https://unity.example.com/saml-idp/metadata
 unity.saml.credential=MAIN
 unity.saml.defaultGroup=/A
-unity.saml.groupAttribute=groups
-unity.saml.groupSelection=all
 
 unity.saml.spAcceptPolicy=validRequester
 unity.saml.acceptedSP.1.entity=https://shibboleth-sp.example.com/shibboleth
@@ -238,14 +236,17 @@ such identity must be defined for the user.
 
 ==== Filtering attributes
 
-By default all attributes of an authenticated user, which are not marked as local in their attribute type definition 
-(see Schema management->Attribute types) are exposed and which are defined in the group configured for the endpoint 
+By default all attributes of an authenticated user, which:
+
+. are not marked as local in their attribute type definition (see Schema management->Attribute types) and
+. are defined in the group configured for the endpoint 
+
 are exposed. 
 
 The user is able to hide some of the attributes (for privacy reasons) when authenticating with SAML.
 
-What is more it is possible to filter attributes on the endpoint level. Check the documentation of 
-+unity.saml.attributeFilter.*+ for details.
+What is more it is possible to filter attributes on the endpoint level. It is done with _ouput translation profiles_.
+See their documentation for details. It is also possible to modify or even create attributes with them.
 
 ==== Custom SAML metadata
 
@@ -318,9 +319,8 @@ and finally the mapped user is create if doesn't exist yet.
 [cols="10%n,15%m,m,m", options="header"]
 |====
 |Rule no 	|Condition 	|Action 					|Action arguments
-|1			|true 		|mapAttributeToIdentity		|uid, userName, Password requirement
-|2			|true		|mapAttribute				|cn, cn, /
-|3			|true		|createUser					|true
+|1			|true 		|mapIdentity				|userName, attr['uid'], ...
+|2			|true		|mapAttribute				|cn, attr['cn'], /, ...
 |====
 
 === Step 2: Create SAML authenticator

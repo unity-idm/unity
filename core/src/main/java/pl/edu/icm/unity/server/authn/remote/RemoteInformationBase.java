@@ -14,13 +14,6 @@ import java.util.Map;
  */
 public abstract class RemoteInformationBase
 {
-	public static final String UNITY_GROUP = "unity-group";
-	public static final String UNITY_ATTRIBUTE = "unity-attribute";
-	public static final String UNITY_ATTRIBUTE_VISIBILITY = "unity-attribute-visibility";
-	public static final String UNITY_IDENTITY = "unity-identity";
-	public static final String UNITY_IDENTITY_TYPE = "unity-identity-type";
-	public static final String UNITY_IDENTITY_CREDREQ = "unity-identity-credreq";
-	
 	private String name;
 	private Map<String, String> metadata;
 	

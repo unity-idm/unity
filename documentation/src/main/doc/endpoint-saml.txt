@@ -16,6 +16,29 @@ The metadata related features and configuration is the same as in the case of re
 (<<saml-metadata>>) with the exception that the metadata is published under the endpoint's address with 
 the constant +/metadata+ suffix.
 
+The endpoint can be configured to support arbitrary SAML identity type names. By default the following 
+identity type mappings are used:
+
+[cols="m,m" options="header"]
+|=== 
+|SAML name 													| UNITY identity type  
+|urn:oasis:names:tc:SAML:2.0:nameid-format:persistent 		| targetedPersistent 
+|urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName 	| x500Name
+|urn:oasis:names:tc:SAML:2.0:nameid-format:transient 		| transient
+|urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified 		| targetedPersistent
+|unity:persistent 											| persistent
+|unity:identifier 											| identifier
+|unity:userName 											| userName
+|===
+
+It is possible to reconfigure the mappings in the configuration or to add a new one. For example 
+the following snippet will map the SAML identity type +userId+ to the Unity +userName+ identity type:
+
+----
+unity.saml.identityMapping.1.localIdentity=userName
+unity.saml.identityMapping.1.samlIdntity=userId
+----
+
 The options of the endpoint (besides the standard options for all Web endpoints) are:
 
 include::ref-samlIdPProperties.txt[]

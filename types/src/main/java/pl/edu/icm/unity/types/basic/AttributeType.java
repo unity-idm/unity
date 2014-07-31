@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.types.DescribedObject;
 import pl.edu.icm.unity.types.InitializationValidator;
 
 /**
@@ -18,7 +19,7 @@ import pl.edu.icm.unity.types.InitializationValidator;
  * <p>
  * The class is compared only using the name.
  */
-public class AttributeType implements InitializationValidator
+public class AttributeType implements InitializationValidator, DescribedObject
 {
 	/**
 	 * The attribute type can not be changed using management API (it is created
@@ -72,7 +73,7 @@ public class AttributeType implements InitializationValidator
 		return (flags & INSTANCES_IMMUTABLE_FLAG) != 0;
 	}
 	
-	
+	@Override
 	public String getDescription()
 	{
 		return description;
@@ -83,6 +84,7 @@ public class AttributeType implements InitializationValidator
 			throw new IllegalArgumentException("Argument can not be null");
 		this.description = description;
 	}
+	@Override
 	public String getName()
 	{
 		return name;

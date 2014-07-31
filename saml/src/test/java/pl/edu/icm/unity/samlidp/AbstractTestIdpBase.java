@@ -15,12 +15,21 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.Before;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory;
+import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.translation.TranslationCondition;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
@@ -33,6 +42,7 @@ import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.stdext.tactions.out.CreateAttributeActionFactory;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -58,11 +68,15 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 			"#unity.saml.acceptedUriSP.xx=\n" +
 			"#unity.saml.acceptedDNSP.xx=\n" +
 			"unity.saml.defaultGroup=/\n" +
-			"unity.saml.groupAttribute=groups\n" +
-			"unity.saml.groupSelection=all\n" +
+			"unity.saml.translationProfile=testOutProfile\n" +
 			"unity.saml.credential=MAIN\n";
 
 	public static final String REALM_NAME = "testr";
+	
+	@Autowired
+	private TranslationActionsRegistry tactionReg;
+	@Autowired
+	private TranslationProfileManagement profilesMan;
 	
 	@Before
 	public void setup()
@@ -71,6 +85,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 		{
 			setupMockAuthn();
 			createUsers();
+			profilesMan.addProfile(createOutputProfile());
 			AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
 					10, 100, -1, 600);
 			realmsMan.addRealm(realm);
@@ -89,6 +104,32 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 		}
 	}
 	
+	private OutputTranslationProfile createOutputProfile() throws IllegalTypeException, EngineException
+	{
+		List<OutputTranslationRule> rules = new ArrayList<>();
+		OutputTranslationAction action1 = (OutputTranslationAction) tactionReg.getByName(
+				CreateAttributeActionFactory.NAME).getInstance(
+				"memberOf", 
+				"groups");
+		rules.add(new OutputTranslationRule(action1, new TranslationCondition()));
+		OutputTranslationAction action2 = (OutputTranslationAction) tactionReg.getByName(
+				CreateAttributeActionFactory.NAME).getInstance(
+				"unity:identity:userName", 
+				"idsByType['userName']");
+		rules.add(new OutputTranslationRule(action2, new TranslationCondition("idsByType['userName'] != null")));
+		OutputTranslationAction action3 = (OutputTranslationAction) tactionReg.getByName(
+				CreateAttributeActionFactory.NAME).getInstance(
+				"unity:identity:x500Name", 
+				"idsByType['x500Name']");
+		rules.add(new OutputTranslationRule(action3, new TranslationCondition("idsByType['x500Name'] != null")));
+		OutputTranslationAction action4 = (OutputTranslationAction) tactionReg.getByName(
+				CreateAttributeActionFactory.NAME).getInstance(
+				"unity:identity:persistent", 
+				"idsByType['persistent']");
+		rules.add(new OutputTranslationRule(action4, new TranslationCondition("idsByType['persistent'] != null")));
+		return new OutputTranslationProfile("testOutProfile", rules);
+	}
+	
 	protected DefaultClientConfiguration getClientCfg() throws KeyStoreException, IOException
 	{
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
@@ -103,15 +144,15 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 	
 	protected void createUsers() throws Exception
 	{
-		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user1", true), 
+		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user1"), 
 				"cr-pass", EntityState.valid, false);
 		EntityParam e1 = new EntityParam(added1);
 		idsMan.setEntityCredential(e1, "credential1", new PasswordToken("mockPassword1").toJson());
 		
-		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user2", true), 
+		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user2"), 
 				"cr-certpass", EntityState.valid, false);
 		EntityParam e2 = new EntityParam(added2);
-		idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=Test UVOS,O=UNICORE,C=EU", true), 
+		idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=Test UVOS,O=UNICORE,C=EU"), 
 				e2, false);
 		idsMan.setEntityCredential(new EntityParam(added2), "credential1", new PasswordToken("mockPassword2").toJson());
 		

@@ -32,12 +32,15 @@ public class IdentitiesTablePreferences implements JsonSerializable
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	private Map<String, ColumnSettings> colSettings;
 	private boolean groupbyEntitiesSetting;
+	private boolean showTargetedSetting;
 
 	public IdentitiesTablePreferences()
 	{
 		super();
 		colSettings = new HashMap<String, IdentitiesTablePreferences.ColumnSettings>();
 		groupbyEntitiesSetting = false;
+		showTargetedSetting = false;
+		
 	}
 
 	@Override
@@ -58,9 +61,10 @@ public class IdentitiesTablePreferences implements JsonSerializable
 	{
 		ObjectNode settingsN = main.with("colSettings");
 		for (Map.Entry<String, ColumnSettings> entry : colSettings.entrySet())
-			settingsN.put(entry.getKey(), serializeSingle(entry.getValue()));
+			settingsN.set(entry.getKey(), serializeSingle(entry.getValue()));
 		ObjectNode settingC = main.with("checkBoxSettings");
-			   settingC.put("groupByEntities",groupbyEntitiesSetting);
+		settingC.put("groupByEntities", groupbyEntitiesSetting);
+		settingC.put("showTargeted", showTargetedSetting);		 
 	}
 
 	protected ObjectNode serializeSingle(ColumnSettings what)
@@ -100,9 +104,12 @@ public class IdentitiesTablePreferences implements JsonSerializable
 			key = keys.next();
 			colSettings.put(key, deserializeSingle(spSettingsNodeC.with(key)));
 		}
-		ObjectNode spSettingsNodeB = main.with("checkBoxSettings");;
-		groupbyEntitiesSetting=spSettingsNodeB.get("groupByEntities").asBoolean();
-		
+		ObjectNode spSettingsNodeB = main.with("checkBoxSettings");
+		groupbyEntitiesSetting = spSettingsNodeB.get("groupByEntities").asBoolean();
+		if (spSettingsNodeB.has("showTargeted"))
+			showTargetedSetting = spSettingsNodeB.get("showTargeted").asBoolean();
+		else
+			showTargetedSetting = false;
 	}
 
 	protected ColumnSettings deserializeSingle(ObjectNode from)
@@ -165,6 +172,17 @@ public class IdentitiesTablePreferences implements JsonSerializable
 	{
 		this.groupbyEntitiesSetting = groupCheckboxSetting;
 	}
+	
+	public boolean getShowTargetedSetting()
+	{
+		return showTargetedSetting;
+	}
+
+	public void setShowTargetedSetting(boolean showTargetedSetting)
+	{
+		this.showTargetedSetting = showTargetedSetting;
+	}
+
 
 	public void addColumneSettings(String columnName, ColumnSettings settings)
 	{

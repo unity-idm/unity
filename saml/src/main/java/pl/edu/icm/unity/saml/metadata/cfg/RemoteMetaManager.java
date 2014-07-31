@@ -55,19 +55,7 @@ public class RemoteMetaManager
 	public void start()
 	{
 		long delay = getBaseConfiguration().getLongValue(SAMLSPProperties.IDPMETA_REFRESH);
-		executorsService.getService().scheduleWithFixedDelay(new Runnable()
-		{
-			public void run()
-			{
-				try
-				{
-					reloadAll();
-				} catch (Exception e)
-				{
-					log.error("Problem loading metadata of external IdP(s)", e);
-				}
-			}
-		}, 5, delay, TimeUnit.SECONDS);
+		executorsService.getService().scheduleWithFixedDelay(new Reloader(), 5, delay, TimeUnit.SECONDS);
 	}
 	
 	public void reloadAll()
@@ -94,8 +82,12 @@ public class RemoteMetaManager
 	
 	public synchronized void setBaseConfiguration(SAMLSPProperties configuration)
 	{
+		Properties oldP = this.configuration.getProperties();
+		Properties newP = configuration.getProperties();
+		boolean reload = !oldP.equals(newP);
 		this.configuration = configuration;
-		reloadAll();
+		if (reload)
+			executorsService.getService().schedule(new Reloader(), 500, TimeUnit.MILLISECONDS);
 	}
 
 	private synchronized SAMLSPProperties getBaseConfiguration()
@@ -153,5 +145,19 @@ public class RemoteMetaManager
 	public void setValidationDate(Date validationDate)
 	{
 		this.validationDate = validationDate;
+	}
+	
+	private class Reloader implements Runnable
+	{
+		public void run()
+		{
+			try
+			{
+				reloadAll();
+			} catch (Exception e)
+			{
+				log.error("Problem loading metadata of external IdP(s)", e);
+			}
+		}
 	}
 }

@@ -15,11 +15,10 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAttributeQueryContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AttributeQueryResponseProcessor;
-import pl.edu.icm.unity.saml.idp.processor.BaseResponseProcessor;
 import pl.edu.icm.unity.saml.validator.UnityAttributeQueryValidator;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.internal.IdPEngine;
+import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -30,6 +29,7 @@ import xmlbeans.org.oasis.saml2.protocol.AttributeQueryDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnQueryDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthzDecisionQueryDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.exceptions.SAMLResponderException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
@@ -45,19 +45,16 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLAssertionQueryImpl.class);
 	protected SamlIdpProperties samlProperties;
 	protected String endpointAddress;
-	protected AttributesManagement attributesMan;
-	protected IdentitiesManagement identitiesMan;	
+	protected IdPEngine idpEngine;
 	protected PreferencesManagement preferencesMan;
 	
 	public SAMLAssertionQueryImpl(SamlIdpProperties samlProperties, String endpointAddress,
-			AttributesManagement attributesMan, IdentitiesManagement identitiesMan,
-			PreferencesManagement preferencesMan)
+			IdPEngine idpEngine, PreferencesManagement preferencesMan)
 	{
 		super();
 		this.samlProperties = samlProperties;
 		this.endpointAddress = endpointAddress;
-		this.attributesMan = attributesMan;
-		this.identitiesMan = identitiesMan;
+		this.idpEngine = idpEngine;
 		this.preferencesMan = preferencesMan;
 	}
 
@@ -118,11 +115,15 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 		throw new Fault(new SAMLResponderException("This SAML operation is not supported by this service"));
 	}
 	
-	protected Collection<Attribute<?>> getAttributes(IdentityTaV subjectId, 
+	protected Collection<Attribute<?>> getAttributes(IdentityTaV subjectId,
 			AttributeQueryResponseProcessor processor, SPSettings preferences) throws EngineException
 	{
-		return BaseResponseProcessor.getAttributes(new EntityParam(subjectId), processor, 
-				preferences, attributesMan, identitiesMan);
+		String profile = samlProperties.getValue(SamlIdpProperties.TRANSLATION_PROFILE);
+		
+		TranslationResult userInfo = idpEngine.obtainUserInformation(new EntityParam(subjectId), 
+				processor.getChosenGroup(), profile, 
+				processor.getIdentityTarget(), "SAML2", SAMLConstants.BINDING_SOAP, false);
+		return processor.getAttributes(userInfo, preferences);
 	}
 
 	protected void validate(SAMLAttributeQueryContext context) throws SAMLServerException

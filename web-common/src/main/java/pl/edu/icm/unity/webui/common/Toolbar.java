@@ -154,7 +154,7 @@ public class Toolbar extends CustomComponent
 				SingleActionHandler handler = (SingleActionHandler) button.getData();
 				if (handler.isNeedsTarget() && target == null)
 					return;
-				handler.handleAction(source, target);
+				handler.handleAction(handler.getActionUnconditionally(), source, target);
 			}
 		});
 		buttons.add(button);

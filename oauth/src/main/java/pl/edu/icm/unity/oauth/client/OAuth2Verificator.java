@@ -61,13 +61,13 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
-import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.utils.Log;
 
 
@@ -86,10 +86,10 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	private OpenIdProviderMetadataManager metadataManager;
 	
 	public OAuth2Verificator(String name, String description, OAuthContextsManagement contextManagement,
-			TranslationProfileManagement profileManagement, AttributesManagement attrMan,
+			TranslationProfileManagement profileManagement, InputTranslationEngine trEngine,
 			URL baseAddress, String baseContext)
 	{
-		super(name, description, OAuthExchange.ID, profileManagement, attrMan);
+		super(name, description, OAuthExchange.ID, profileManagement, trEngine);
 		this.responseConsumerAddress = baseAddress + baseContext + ResponseConsumerServlet.PATH;
 		this.contextManagement = contextManagement;
 	}
@@ -483,8 +483,24 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	
 	private RemotelyAuthenticatedInput convertInput(OAuthContext context, Map<String, String> attributes)
 	{
-		String tokenEndpoint = config.getProvider(context.getProviderConfigKey()).getValue( 
-				CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
+		CustomProviderProperties provCfg = config.getProvider(context.getProviderConfigKey());
+		String tokenEndpoint = provCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
+		String discoveryEndpoint = provCfg.getValue(CustomProviderProperties.OPENID_DISCOVERY);
+		if (tokenEndpoint == null && discoveryEndpoint != null)
+		{
+			try
+			{
+				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(discoveryEndpoint);
+				tokenEndpoint = providerMeta.getTokenEndpointURI().toString();
+			} catch (Exception e)
+			{
+				log.warn("Can't obtain OIDC metadata", e);
+			}
+		}
+		if (tokenEndpoint == null)
+			tokenEndpoint = "unknown";
+
+		
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput(tokenEndpoint);
 		for (Map.Entry<String, String> attr: attributes.entrySet())
 		{

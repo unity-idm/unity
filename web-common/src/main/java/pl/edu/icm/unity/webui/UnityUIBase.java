@@ -71,13 +71,13 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	@Override
 	public void setPollInterval(int interval)
 	{
-		System.out.println("Set Poll wrapped " + interval);
+		log.debug("Set Poll wrapped " + interval);
 		if (interval < 0)
 		{
 			pollings.pop();
 			if (pollings.isEmpty())
 			{
-				System.out.println("Poll disabled");
+				log.debug("Poll disabled");
 				super.setPollInterval(-1);
 			}
 		} else
@@ -86,7 +86,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 			int currentPoll = super.getPollInterval();
 			if (currentPoll < 0 || currentPoll > interval)
 			{
-				System.out.println("Poll enabled");
+				log.debug("Poll enabled");
 				super.setPollInterval(interval);
 			}
 		}

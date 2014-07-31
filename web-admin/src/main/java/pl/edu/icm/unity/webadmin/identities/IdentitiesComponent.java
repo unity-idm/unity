@@ -92,6 +92,10 @@ public class IdentitiesComponent extends Panel
 		mode.setImmediate(true);
 		mode.setValue(IdentitiesComponent.this.identitiesTable.isGroupByEntity());
 		
+		final CheckBox showTargeted = new CheckBox(msg.getMessage("Identities.showTargeted"));
+		showTargeted.setImmediate(true);
+		showTargeted.setValue(IdentitiesComponent.this.identitiesTable.isShowTargeted());
+		
 		Toolbar toolbar = new Toolbar(identitiesTable, Orientation.HORIZONTAL);
 		
 		filtersBar = new HorizontalLayout();
@@ -229,7 +233,7 @@ public class IdentitiesComponent extends Panel
 		toolbar.addActionHandlers(identitiesTable.getActionHandlers());
 		toolbar.addSeparator();
 		toolbar.addButtons(addFilter, addAttributes, removeAttributes, savePreferences);
-		topBar.addComponents(mode, spacer, searchWrapper, toolbar);
+		topBar.addComponents(mode, showTargeted, spacer, searchWrapper, toolbar);
 		topBar.setExpandRatio(spacer, 2f);
 		topBar.setWidth(100, Unit.PERCENTAGE);
 		
@@ -239,6 +243,22 @@ public class IdentitiesComponent extends Panel
 			public void valueChange(ValueChangeEvent event)
 			{
 				IdentitiesComponent.this.identitiesTable.setMode(mode.getValue());
+			}
+		});
+		
+		showTargeted.addValueChangeListener(new ValueChangeListener()
+		{
+			
+			@Override
+			public void valueChange(ValueChangeEvent event)
+			{
+					try
+					{
+						IdentitiesComponent.this.identitiesTable.setShowTargeted(showTargeted.getValue());
+					} catch (EngineException e)
+					{
+						setIdProblem(IdentitiesComponent.this.identitiesTable.getGroup(), e);
+					}	
 			}
 		});
 
@@ -341,9 +361,14 @@ public class IdentitiesComponent extends Panel
 			setProblem(msg.getMessage("Identities.noReadAuthz", group), Level.error);
 		} catch (Exception e)
 		{
-			log.error("Problem retrieving group contents of " + group, e);
-			setProblem(msg.getMessage("Identities.internalError", e.toString()), Level.error);
+			setIdProblem(group, e);
 		}
+	}
+	
+	private void setIdProblem(String group, Exception e)
+	{
+		log.error("Problem retrieving group contents of " + group, e);
+		setProblem(msg.getMessage("Identities.internalError", e.toString()), Level.error);	
 	}
 	
 	private void setProblem(String message, Level level)

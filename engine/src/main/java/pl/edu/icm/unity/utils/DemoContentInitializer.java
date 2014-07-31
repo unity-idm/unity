@@ -101,10 +101,10 @@ public class DemoContentInitializer implements ServerInitializer
 			height.setDescription("He\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjh");
 			attrMan.addAttributeType(height);
 
-			IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "demo-user", true);
+			IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "demo-user");
 			Identity base = idsMan.addEntity(toAdd, "Password requirement", EntityState.valid, false);
 
-			IdentityParam toAddDn = new IdentityParam(X500Identity.ID, "CN=Demo user", true);
+			IdentityParam toAddDn = new IdentityParam(X500Identity.ID, "CN=Demo user");
 			idsMan.addIdentity(toAddDn, new EntityParam(base.getEntityId()), true);
 
 			groupsMan.addMemberFromParent("/A", new EntityParam(base.getEntityId()));

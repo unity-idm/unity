@@ -87,7 +87,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	
 	protected void createUsernameUser(String role) throws Exception
 	{
-		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user1", true), 
+		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user1"), 
 				"cr-pass", EntityState.valid, false);
 		idsMan.setEntityCredential(new EntityParam(added1), "credential1", 
 				new PasswordToken("mockPassword1").toJson());
@@ -101,9 +101,9 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	
 	protected void createCertUser() throws Exception
 	{
-		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user2", true), 
+		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user2"), 
 				"cr-certpass", EntityState.valid, false);
-		idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=Test UVOS,O=UNICORE,C=EU", true), 
+		idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=Test UVOS,O=UNICORE,C=EU"), 
 				new EntityParam(added2), false);
 		idsMan.setEntityCredential(new EntityParam(added2), "credential1", 
 				new PasswordToken("mockPassword2").toJson());

@@ -12,12 +12,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
+import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 
 /**
  * Factory of {@link OAuth2Verificator}s.
@@ -30,19 +30,19 @@ public class OAuth2VerificatorFactory implements CredentialVerificatorFactory
 	public static final String NAME = "oauth2";
 	
 	private TranslationProfileManagement profileManagement;
-	private AttributesManagement attrMan;
+	private InputTranslationEngine trEngine;
 	private URL baseAddress;
 	private String baseContext;
 	private OAuthContextsManagement contextManagement;
 	
 	@Autowired
 	public OAuth2VerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement,
-			@Qualifier("insecure") AttributesManagement attrMan, NetworkServer jettyServer,
+			InputTranslationEngine trEngine, NetworkServer jettyServer,
 			SharedEndpointManagement sharedEndpointManagement,
 			OAuthContextsManagement contextManagement) throws EngineException
 	{
 		this.profileManagement = profileManagement;
-		this.attrMan = attrMan;
+		this.trEngine = trEngine;
 		this.baseAddress = jettyServer.getAdvertisedAddress();
 		this.baseContext = sharedEndpointManagement.getBaseContextPath();
 		this.contextManagement = contextManagement;
@@ -68,7 +68,7 @@ public class OAuth2VerificatorFactory implements CredentialVerificatorFactory
 	public CredentialVerificator newInstance()
 	{
 		return new OAuth2Verificator(NAME, getDescription(), contextManagement, 
-				profileManagement, attrMan, baseAddress, baseContext);
+				profileManagement, trEngine, baseAddress, baseContext);
 	}
 
 }

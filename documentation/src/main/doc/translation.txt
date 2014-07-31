@@ -1,0 +1,208 @@
+[[translation]]
+== Translation profiles configuration
+
+Translation profile is a named, ordered list of conditional rules. The rules are used to 
+modify the information about a principal being processed by Unity. Such situation occurs when:
+
+. Remote user was externally authenticated and its data is consumed by Unity. In this case
+translation is performed by so called _input translation profiles_.
+. Information about Unity's entity is being exposed to outside world with an IdP-like endpoint
+as for instance SAML web endpoint.  In this case
+translation is performed by so called _output translation profiles_.
+
+For instance, an input translation profile can change remote attribute 'size' name to
+'width' and insert a remotely authenticated user to the local database (to the correct group)
+if the user is not yet there. An output profile can return an additional dynamic identity named 'email' 
+with a value of an email attribute.   
+
+The following subsections cover both types of translation profiles in details. Though many of the features
+are common. The profiles are managed with the Admin UI in the Server management->Translation profiles tab.
+The profile has a name and a list of rules. Each rule has a condition and an action.
+
+Conditions are used to dynamically turn action execution on or off. Conditions (as well as some of the arguments 
+of translation actions have) to be specified as _MVEL expressions_. Such expressions allow for a powerful, 
+dynamic functionality. 
+
+The full MVEL documentation can be found here: 
+http://mvel.codehaus.org/Language+Guide+for+2.0 
+and the quick start is here:
+http://mvel.codehaus.org/Getting+Started+for+2.0
+
+The following example condition:
+----
+attr contains 'cn'
+----
+will trigger an action whenever the subject has an attribute +cn+. In the following sections there are 
+additional examples and a complete reference of all variables which are available to write conditions. Nevertheless
+the most popular condition is simply: +true+.
+
+Actions are different for each type of the profile. The editor provides you with helpful interface to create them.
+
+
+
+[[input-translation]]
+=== Input translation
+
+An input translation profile is always associated with a _remote authenticator in its configuration_.
+It is a mandatory setting, all remote authenticators must have one profile associated. This is because it is
+typically not possible to provide sensible default mapping of arbitrary remote data to the configurable schema used in 
+Unity.  
+
+Input translation profile (both conditions and rules) operate on a data structure which is initially
+filled by the protocol specific component. The structure can contain:
+
+. Identity (or identities) authenticated by the remote IdP.
+. Attributes provided by the remote IdP.
+. Groups assigned by the remote IdP.
+ 
+What data is actually in this structure is dependent on the upstream protocol, upstream server and 
+callout configuration.
+
+Each profile should be started from a mandatory identity mapping. It is possible to control whether
+the remote identity should be matched against the local one automatically created. 
+
+Additionally the actions allow for creating Unity's attributes, identities and assigning the remote user to groups. 
+
+MVEL context reference:
+
+. +idp+ Name of the IdP which provided the data 
+. +attr+ Map indexed with attribute names. Value of each entry is a single value of the attribute. If the attribute
+is multi-valued then the first value is returned. If the attribute has no value then empty string is returned. 
+. +attrs+ Map indexed with attribute names. Value of each entry is a list of the attribute values.
+. +id+ Value of the authenticated identity. If remote IdP returned multiple identities, then a random one is available,
+though this is a very exotic case. 
+. +idType+ The type of the identity stored in the +id+ variable.
+. +idsByType+ Map of identity values indexed by type. Rarely useful.
+. +groups+ List of all remote groups. 
+ 
+
+Example input profile:
+------
+1: Condition: true
+Action: mapIdentity
+Action parameters:
+  unityIdentityType = userName
+  expression = attr['urn:oid:2.5.4.3']
+  credential requirement = Password requirement
+  effect = CREATE_OR_MATCH
+
+2: Condition: true
+Action: mapAttribute
+Action parameters:
+  unityAttribute = cn
+  group = /
+  expression = attr['urn:oid:2.5.4.4']
+  visibility = full
+  effect = CREATE_OR_UPDATE
+
+3: Condition: groups contains 'student'
+Action: mapGroup
+Action parameters:
+  expression = /A/B
+------
+
+The above profile in the first action maps the attribute +urn:oid:2.5.4.3+ value to Unity identity of +userName+ 
+type. Such identity will be created if doesn't exist, otherwise all other actions will be performed against 
+the existing local identity with such userName. Subsequently the remote attribute +urn:oid:2.5.4.4+ value 
+will be mapped to Unity attribute +cn+ and the attribute will be assigned in the root group if it doesn't exist.
+If it does, its value will be updated (upon each login). Finally the user will be added to the '/A/B' group
+assuming it is in the +student+ group as reported by the remote IdP.
+
+==== Example expressions
+
+The most often used condition:
+----
+true
+----
+
+Condition disabling the action:
+----
+false
+----
+
+Condition testing if a principal is a member of the +students+ group (which is a group at the remote IdP):  
+----
+groups contains 'students'
+----  
+
+Condition testing if a principal has the +cn+ attribute:
+----
+attr contains 'cn'
+----
+
+When writing expressions in actions, usually we need a string value. For instance here is the first value
+of the _cn_ attribute:
+----
+attr['cn']
+----
+
+All values (list) of the same attribute:
+----
+attrs['cn']
+----
+  
+It is also possible to glue many values. Let's create a DN, which can be used to dynamically create an identity:
+----
+'CN=' + attr['cn'] + ',O=' + attr['o'] + ',C=NO'
+----
+
+Finally the value of the identity provided by remote IdP is available as follows:
+----
+id
+----
+
+
+
+
+
+
+=== Output translation
+
+An output translation profile can be associated with an IdP-like endpoint as the SAML endpoints.
+It can be used to filter the data being exposed (so called attribute release policies can be implemented
+with output profiles). Also it can dynamically create additional data to be returned. It is even possible to
+store the dynamically created data back into the local Unity database, so it becomes a regular data.
+
+Configuration of output profiles is optional. If no profile is manually installed on an endpoint, then a so called
+_default output profile_ is used. The default profile is simplistic: it doesn't filter anything and anly adds 
+one additional attribute: +memberOf+ with all groups of the principal as value. 
+
+Output translation profile operate on a data structure which is initially
+filled by Unity with all attributes and identities of the queried principal. Attributes are from the group configured
+in the endpoint.
+
+MVEL context used in conditions and as value of some action parameters can use the following variables:
+
+. +protocol+ Name of the protocol being used 
+. +protocolSubtype+ Name of the protocol variant
+. +requester+ Name of the requester
+. +usedGroup+ Unity group from which attributes are served 
+. +subGroups+ All sub groups of the Unity group from which attributes are served
+. +attr+ Map indexed with principal's attribute names. Value of each entry is a single value of the attribute. 
+If the attribute is multi-valued then the first value is returned. 
+If the attribute has no value then empty string is returned. 
+. +attrs+ Map indexed with attribute names. Value of each entry is a list of the attribute values.
+. +idsByType+ Map of identity values indexed by type.
+. +groups+ List of all groups the user is a member. 
+ 
+
+Example output profile:
+------
+1: Condition: idsByType contains 'userName'
+Action: createAttribute
+Action parameters:
+  attributeName = userid
+  expression = idsByType['userName']
+
+2: Condition: true
+Action: filterAttribute
+Action parameters:
+  unityAttribute = email
+------
+
+The above profile in the first action creates a new attribute +userid+ with a value of user's identity 
+of the +userName+ type. The attribute is added only if the principal has such identity.
+The second rule hides the email attribute unconditionally.
+
+Additional examples of expressions and conditions can be found in the <<input-translation>> above. Note however
+that only the variables from the output MVEL context can be used.

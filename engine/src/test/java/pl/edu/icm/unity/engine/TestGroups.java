@@ -8,15 +8,20 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.attrstmnt.EverybodyStatement;
 import pl.edu.icm.unity.types.basic.attrstmnt.HasSubgroupAttributeStatement;
@@ -31,6 +36,48 @@ public class TestGroups extends DBIntegrationTestBase
 			System.out.println(idType);
 	}
 	
+	@Test
+	public void testGetContentsWithLimitedAuthz() throws Exception
+	{
+		setupPasswordAuthn();
+		createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		Group a = new Group("/A");
+		a.setDescription("foo");
+		groupsMan.addGroup(a);
+		Group ab = new Group("/A/B");
+		groupsMan.addGroup(ab);
+		Group ac = new Group("/A/C");
+		ac.setDescription("goo");
+		groupsMan.addGroup(ac);
+		
+		EntityParam ep = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user1"));
+		groupsMan.addMemberFromParent("/A", ep);
+		groupsMan.addMemberFromParent("/A/B", ep);
+		
+		setupUserContext("user1", false);
+		
+		GroupContents rootC = groupsMan.getContents("/", GroupContents.EVERYTHING);
+		assertEquals(1, rootC.getSubGroups().size());
+		assertEquals("/A", rootC.getSubGroups().get(0));
+		assertNull(rootC.getGroup());
+		assertNull(rootC.getMembers());
+		
+		GroupContents aC = groupsMan.getContents("/A", GroupContents.EVERYTHING);
+		assertEquals(1, aC.getSubGroups().size());
+		assertEquals("/A/B", aC.getSubGroups().get(0));
+		assertNull(aC.getGroup());
+		assertNull(aC.getMembers());
+
+		try
+		{
+			groupsMan.getContents("/A/C", GroupContents.EVERYTHING);
+			fail("Should get authZ error for group where is not a member");
+		} catch (AuthorizationException e)
+		{
+			//OK
+		}
+	}
+
 	@Test
 	public void testCreate() throws Exception
 	{

@@ -12,10 +12,9 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
@@ -35,29 +34,27 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 	public static final String METADATA_SERVLET_PATH = "/metadata";
 	public static final String NAME = "SAMLSoapIdP";
 	
-	private EndpointTypeDescription description;
-	private UnityMessageSource msg;
-	private IdentitiesManagement identitiesMan;
-	private AttributesManagement attributesMan;
-	private PreferencesManagement preferencesMan;
-	private PKIManagement pkiManagement;
-	private ExecutorsService executorsService;
-	private SessionManagement sessionMan;
+	private final EndpointTypeDescription description;
+	private final UnityMessageSource msg;
+	private final IdPEngine idpEngine;
+	private final PreferencesManagement preferencesMan;
+	private final PKIManagement pkiManagement;
+	private final ExecutorsService executorsService;
+	private final SessionManagement sessionMan;
 	
 	
 	@Autowired
-	public SamlIdPSoapEndpointFactory(UnityMessageSource msg, IdentitiesManagement identitiesMan,
-			AttributesManagement attributesMan, PreferencesManagement preferencesMan,
+	public SamlIdPSoapEndpointFactory(UnityMessageSource msg, PreferencesManagement preferencesMan,
+			IdPEngine idpEngine,
 			PKIManagement pkiManagement, ExecutorsService executorsService, SessionManagement sessionMan)
 	{
 		super();
 		this.msg = msg;
-		this.identitiesMan = identitiesMan;
-		this.attributesMan = attributesMan;
-		this.preferencesMan = preferencesMan;
+		this.idpEngine = idpEngine;
 		this.pkiManagement = pkiManagement;
 		this.executorsService = executorsService;
 		this.sessionMan = sessionMan;
+		this.preferencesMan = preferencesMan;
 		
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(WebServiceAuthentication.NAME);
@@ -77,8 +74,8 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new SamlSoapEndpoint(msg, getDescription(), SERVLET_PATH, METADATA_SERVLET_PATH, identitiesMan, 
-				attributesMan, preferencesMan, pkiManagement, executorsService, sessionMan);
+		return new SamlSoapEndpoint(msg, getDescription(), SERVLET_PATH, METADATA_SERVLET_PATH, idpEngine, 
+				preferencesMan, pkiManagement, executorsService, sessionMan);
 	}
 
 }

@@ -28,10 +28,17 @@ public interface IdentityTypeDefinition
 	public String getDefaultDescription();
 	
 	/**
-	 * @return if true then the identity type is dynamic, and can not be neither created or removed manually.
+	 * @return if true then the identity type is dynamic, and can not be created manually.
 	 * Dynamic identities are created automatically.
 	 */
 	public boolean isDynamic();
+	
+	/**
+	 * @return true is returned only for dynamic identities, which can not be removed manually. This happens for 
+	 * volatile identities, for instance session-scoped. Those identities can be only reset, i.e. all instances
+	 * of its type can be removed.
+	 */
+	public boolean isRemovable();
 	
 	/**
 	 * @return if true then identities of this type are targeted, i.e. can have a different value 

@@ -7,10 +7,10 @@ package pl.edu.icm.unity.webadmin.reg.reqman;
 import java.util.ArrayList;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
-import pl.edu.icm.unity.types.registration.AttributeParamValue;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.IdentityParamValue;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
@@ -130,7 +130,7 @@ public class RequestReviewPanel extends CustomComponent
 			}
 		}
 		
-		ret.setAttributes(new ArrayList<AttributeParamValue>(attributes.getSelection().size()));
+		ret.setAttributes(new ArrayList<Attribute<?>>(attributes.getSelection().size()));
 		for (int i=0, j=0; i<orig.getAttributes().size(); i++)
 		{
 			if (orig.getAttributes().get(i) == null)
@@ -158,7 +158,7 @@ public class RequestReviewPanel extends CustomComponent
 		code.setVisible(request.getRegistrationCode() != null);
 		
 		identities.clearContents();
-		for (IdentityParamValue idParam: request.getIdentities())
+		for (IdentityParam idParam: request.getIdentities())
 		{
 			if (idParam == null)
 				continue;
@@ -169,6 +169,8 @@ public class RequestReviewPanel extends CustomComponent
 		for (int i=0; i<request.getAgreements().size(); i++)
 		{
 			Selection selection = request.getAgreements().get(i);
+			if (form.getAgreements().size() <= i)
+				break;
 			AgreementRegistrationParam agreementText = form.getAgreements().get(i);
 			String info = (selection.isSelected()) ? msg.getMessage("RequestReviewPanel.accepted") : 
 				msg.getMessage("RequestReviewPanel.notAccepted");
@@ -178,15 +180,14 @@ public class RequestReviewPanel extends CustomComponent
 		}
 		
 		attributes.clearEntries();
-		for (AttributeParamValue ap: request.getAttributes())
+		for (Attribute<?> ap: request.getAttributes())
 		{
 			if (ap == null)
 				continue;
 			Label attrInfo = new Label();
-			String representation = handlersRegistry.getSimplifiedAttributeRepresentation(
-					ap.getAttribute(), 80);
-			if (ap.getExternalIdp() != null)
-				representation = "[from: " + ap.getExternalIdp() + "] " + representation;
+			String representation = handlersRegistry.getSimplifiedAttributeRepresentation(ap, 80);
+			if (ap.getRemoteIdp() != null)
+				representation = "[from: " + ap.getRemoteIdp() + "] " + representation;
 			attrInfo.setValue(representation);
 			attributes.addEntry(attrInfo, false);
 		}
@@ -197,6 +198,8 @@ public class RequestReviewPanel extends CustomComponent
 			Selection selection = request.getGroupSelections().get(i);
 			if (!selection.isSelected())
 				continue;
+			if (form.getGroupParams().size() <= i)
+				break;
 			GroupRegistrationParam groupParam = form.getGroupParams().get(i);
 			String groupEntry = selection.getExternalIdp() == null ? groupParam.getGroupPath() :
 				"[from: " + selection.getExternalIdp() + "] " + groupParam.getGroupPath();

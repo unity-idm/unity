@@ -13,6 +13,8 @@ if [ -e "$PID" ]
    fi
 fi
 
+cd /
+
 CP=.$(find "$LIB" -name '*.jar' -exec printf ":{}" \;)
 
 export CLASSPATH=$CP

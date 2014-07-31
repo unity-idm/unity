@@ -32,6 +32,15 @@ public abstract class AbstractIdentityTypeProvider implements IdentityTypeDefini
 	}
 
 	/**
+	 * Most of the implementations are removable
+	 */
+	@Override
+	public boolean isRemovable()
+	{
+		return true;
+	}
+	
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webadmin.identities;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +43,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webadmin.identities.CredentialRequirementDialog.Callback;
+import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -50,8 +52,8 @@ import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
 import com.vaadin.data.Container;
@@ -72,7 +74,7 @@ public class IdentitiesTable extends TreeTable
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesTable.class);
 	
-	enum BaseColumnId {entity, type, identity, status, local, credReq};
+	enum BaseColumnId {entity, type, identity, status, local, dynamic, credReq, remoteIdP, profile, target, realm};
 	public static final String ATTR_COL_PREFIX = "a::";
 	public static final String ATTR_ROOT_COL_PREFIX = ATTR_COL_PREFIX + "root::";
 	public static final String ATTR_CURRENT_COL_PREFIX = ATTR_COL_PREFIX + "current::";
@@ -90,6 +92,7 @@ public class IdentitiesTable extends TreeTable
 	private String group;
 	private Map<Long, IdentitiesAndAttributes> data = new HashMap<Long, IdentitiesAndAttributes>();
 	private boolean groupByEntity;
+	private boolean showTargeted;
 	private Entity selected;
 	private List<Filter> containerFilters;
 	private String entityNameAttribute = null;
@@ -121,30 +124,51 @@ public class IdentitiesTable extends TreeTable
 		addContainerProperty(BaseColumnId.identity.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.status.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.local.toString(), String.class, "");
+		addContainerProperty(BaseColumnId.dynamic.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.credReq.toString(), String.class, "");
+		addContainerProperty(BaseColumnId.target.toString(), String.class, "");
+		addContainerProperty(BaseColumnId.realm.toString(), String.class, "");
+		addContainerProperty(BaseColumnId.remoteIdP.toString(), String.class, "");
+		addContainerProperty(BaseColumnId.profile.toString(), String.class, "");
+
 		setColumnHeader(BaseColumnId.entity.toString(), msg.getMessage("Identities.entity"));
 		setColumnHeader(BaseColumnId.type.toString(), msg.getMessage("Identities.type"));
 		setColumnHeader(BaseColumnId.identity.toString(), msg.getMessage("Identities.identity"));
 		setColumnHeader(BaseColumnId.status.toString(), msg.getMessage("Identities.status"));
 		setColumnHeader(BaseColumnId.local.toString(), msg.getMessage("Identities.local"));
+		setColumnHeader(BaseColumnId.dynamic.toString(), msg.getMessage("Identities.dynamic"));
 		setColumnHeader(BaseColumnId.credReq.toString(), msg.getMessage("Identities.credReq"));
+		setColumnHeader(BaseColumnId.target.toString(), msg.getMessage("Identities.target"));
+		setColumnHeader(BaseColumnId.realm.toString(), msg.getMessage("Identities.realm"));
+		setColumnHeader(BaseColumnId.remoteIdP.toString(), msg.getMessage("Identities.remoteIdP"));
+		setColumnHeader(BaseColumnId.profile.toString(), msg.getMessage("Identities.profile"));
 		
 		setSelectable(true);
-		setMultiSelect(false);
+		setMultiSelect(true);	
 		setColumnReorderingAllowed(true);
 		setColumnCollapsingAllowed(true);
 		setColumnCollapsible(BaseColumnId.entity.toString(), false);
 		setColumnCollapsed(BaseColumnId.local.toString(), true);
+		setColumnCollapsed(BaseColumnId.dynamic.toString(), true);
 		setColumnCollapsed(BaseColumnId.credReq.toString(), true);
-		
+		setColumnCollapsed(BaseColumnId.target.toString(), true);
+		setColumnCollapsed(BaseColumnId.realm.toString(), true);
+		setColumnCollapsed(BaseColumnId.remoteIdP.toString(), true);
+		setColumnCollapsed(BaseColumnId.profile.toString(), true);
+
 		setColumnWidth(BaseColumnId.entity.toString(), 200);
 		setColumnWidth(BaseColumnId.type.toString(), 100);
 		setColumnWidth(BaseColumnId.status.toString(), 100);
 		setColumnWidth(BaseColumnId.local.toString(), 100);
+		setColumnWidth(BaseColumnId.dynamic.toString(), 100);
 		setColumnWidth(BaseColumnId.credReq.toString(), 180);
-		
+		setColumnWidth(BaseColumnId.target.toString(), 180);
+		setColumnWidth(BaseColumnId.realm.toString(), 100);
+		setColumnWidth(BaseColumnId.remoteIdP.toString(), 200);
+		setColumnWidth(BaseColumnId.profile.toString(), 100);
+
 		loadPreferences();
-		
+
 		addActionHandler(new RefreshHandler());
 		addActionHandler(new ShowEntityDetailsHandler());
 		addActionHandler(new RemoveFromGroupHandler());
@@ -157,16 +181,21 @@ public class IdentitiesTable extends TreeTable
 		addActionHandler(new ChangeCredentialRequirementHandler());
 		addActionHandler(new EntityAttributesClassesHandler());
 		setDragMode(TableDragMode.ROW);
-		
+
 		setImmediate(true);
 		setSizeFull();
-		
+
 		addValueChangeListener(new Property.ValueChangeListener()
 		{
 			@Override
 			public void valueChange(com.vaadin.data.Property.ValueChangeEvent event)
 			{
-				Object selected = getValue();
+				Collection<?> nodes = (Collection<?>) getValue();
+				Object selected = null;
+				if (nodes != null && nodes.size() == 1)
+				{
+					selected = nodes.iterator().next();
+				}
 				if (selected == null)
 				{
 					IdentitiesTable.this.selected = null;
@@ -236,8 +265,9 @@ public class IdentitiesTable extends TreeTable
 
 			preferences.addColumneSettings(property, settings);
 		}
-		
+
 		preferences.setGroupByEntitiesSetting(groupByEntity);
+		preferences.setShowTargetedSetting(showTargeted);
 		try
 		{
 			IdentitiesTablePreferences.savePreferences(preferencesMan, preferences);
@@ -263,10 +293,11 @@ public class IdentitiesTable extends TreeTable
 			log.debug("Can not load preferences for identities table", e);
 			return;
 		}
-		groupByEntity=preferences.getGroupByEntitiesSetting();
+		groupByEntity = preferences.getGroupByEntitiesSetting();
+		showTargeted = preferences.getShowTargetedSetting();
 		
 		Set<String> props = new HashSet<String>();
-		
+
 		for (Object prop : getContainerPropertyIds())
 		{
 			if (!(prop instanceof String))
@@ -275,9 +306,8 @@ public class IdentitiesTable extends TreeTable
 			props.add(property);
 		}
 
-		
 		if (preferences != null && preferences.getColumnSettings().size() > 0)
-		{       
+		{
 			Object[] scol = new String[preferences.getColumnSettings().size()];
 
 			for (Map.Entry<String, IdentitiesTablePreferences.ColumnSettings> entry : 
@@ -307,13 +337,23 @@ public class IdentitiesTable extends TreeTable
 				}
 
 				scol[entry.getValue().getOrder()] = entry.getKey();
-
 			}
-			setVisibleColumns(scol);
+			
+			//get all which are not in prefs and add them at the end. Important for prefs from older version.
+			HashSet<String> missing = new HashSet<String>(props);
+			missing.removeAll(preferences.getColumnSettings().keySet());
+			Object[] scolComplete = new Object[scol.length + missing.size()];
+			int i=0;
+			for (; i<scol.length; i++)
+				scolComplete[i] = scol[i];
+			for (String miss: missing)
+				scolComplete[i++] = miss;
+			
+			setVisibleColumns(scolComplete);
 		}
 
 	}
-	
+
 	@Override
 	public void addActionHandler(Action.Handler actionHandler) {
 		super.addActionHandler(actionHandler);
@@ -325,23 +365,32 @@ public class IdentitiesTable extends TreeTable
 	{
 		return actionHandlers;
 	}
-	
+
 	public void setMode(boolean groupByEntity)
 	{
 		this.groupByEntity = groupByEntity;
 		updateContents();
 	}
 	
+	public void setShowTargeted(boolean showTargeted) throws EngineException
+	{
+		this.showTargeted = showTargeted;
+		ArrayList<Long> entities = new ArrayList<Long>();
+		entities.addAll(data.keySet());
+		setInput(group, entities);
+		updateContents();
+	}	
+
 	private void refresh()
 	{
 		bus.fireEvent(new GroupChangedEvent(group));
 	}
-	
+
 	public String getGroup()
 	{
 		return group;
 	}
-	
+
 	public void setInput(String group, List<Long> entities) throws EngineException
 	{
 		this.group = group;
@@ -349,13 +398,14 @@ public class IdentitiesTable extends TreeTable
 				EntityNameMetadataProvider.NAME);
 		this.entityNameAttribute = nameAt == null ? null : nameAt.getName();
 		data.clear();
-		for (Long entity: entities)
-			resolveEntity(entity); 
+		for (Long entity : entities)
+			resolveEntity(entity);
 		updateContents();
 	}
-	
+
 	/**
-	 * Adds a new attribute column. 
+	 * Adds a new attribute column.
+	 * 
 	 * @param attribute
 	 * @param group group from where the attribute's value should be displayed. If it is null then the current 
 	 * group is used. Otherwise root group is assumed (in future other 'fixed' groups might be supported, 
@@ -367,7 +417,7 @@ public class IdentitiesTable extends TreeTable
 		addContainerProperty(key, String.class, "");
 		setColumnHeader(key, attribute + (group == null ? "@" + this.group : "@/"));
 		refresh();
-	//	savePreferences();
+		// savePreferences();
 	}
 
 	public void removeAttributeColumn(String group, String... attributes)
@@ -380,9 +430,9 @@ public class IdentitiesTable extends TreeTable
 				removeContainerProperty(ATTR_CURRENT_COL_PREFIX + attribute);
 		}
 		refresh();
-	//	savePreferences();
+		// savePreferences();
 	}
-	
+
 	public Set<String> getAttributeColumns(boolean root)
 	{
 		Collection<?> props = getContainerPropertyIds();
@@ -408,7 +458,7 @@ public class IdentitiesTable extends TreeTable
 	private void updateAttributeColumnHeaders()
 	{
 		Collection<?> props = getContainerPropertyIds();
-		for (Object prop: props)
+		for (Object prop : props)
 		{
 			if (!(prop instanceof String))
 				continue;
@@ -420,14 +470,14 @@ public class IdentitiesTable extends TreeTable
 			}
 		}
 	}
-	
+
 	public void addFilter(Filter filter)
 	{
 		Container.Filterable filterable = (Filterable) getContainerDataSource();
 		filterable.addContainerFilter(filter);
 		containerFilters.add(filter);
 	}
-	
+
 	public void removeFilter(Filter filter)
 	{
 		Container.Filterable filterable = (Filterable) getContainerDataSource();
@@ -435,8 +485,7 @@ public class IdentitiesTable extends TreeTable
 		containerFilters.remove(filter);
 		refresh();
 	}
-	
-	
+
 	private void updateContents()
 	{
 		updateAttributeColumnHeaders();
@@ -447,7 +496,7 @@ public class IdentitiesTable extends TreeTable
 		else
 			setFlatContents(selected);
 	}
-	
+
 	/*
 	 * We use a hack here: filters are temporarly removed and readded after all data is set. 
 	 * This is because Vaadin (tested at 7.0.4) seems to ignore parent elements when not matching filter
@@ -490,33 +539,53 @@ public class IdentitiesTable extends TreeTable
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	private Object addRow(Identity id, Entity ent, Map<String, Attribute<?>> rootAttributes, 
+	private Object addRow(Identity id, Entity ent, Map<String, Attribute<?>> rootAttributes,
 			Map<String, Attribute<?>> curAttributes)
 	{
 		String label = null;
 		if (entityNameAttribute != null && rootAttributes.containsKey(entityNameAttribute))
 			label = rootAttributes.get(entityNameAttribute).getValues().get(0).toString() + " ";
 		EntityWithLabel entWithLabel = new EntityWithLabel(ent, label);
-		Object itemId = id == null ? entWithLabel : new IdentityWithEntity(id, entWithLabel);
+		Object itemId = id == null ? entWithLabel
+				: new IdentityWithEntity(id, entWithLabel);
 		Item newItem = addItem(itemId);
 		
-		newItem.getItemProperty(BaseColumnId.entity.toString()).setValue(entWithLabel.toString());
-		newItem.getItemProperty(BaseColumnId.credReq.toString()).setValue(ent.getCredentialInfo().getCredentialRequirementId());
-		newItem.getItemProperty(BaseColumnId.status.toString()).setValue(msg.getMessage("EntityState."+ent.getState().name()));
+		newItem.getItemProperty(BaseColumnId.entity.toString()).setValue(
+				entWithLabel.toString());
+		newItem.getItemProperty(BaseColumnId.credReq.toString()).setValue(
+				ent.getCredentialInfo().getCredentialRequirementId());
+		newItem.getItemProperty(BaseColumnId.status.toString()).setValue(
+				msg.getMessage("EntityState."+ent.getState().name()));
 		if (id != null)
 		{
-			newItem.getItemProperty(BaseColumnId.type.toString()).setValue(id.getTypeId());
-			newItem.getItemProperty(BaseColumnId.identity.toString()).setValue(id.toPrettyStringNoPrefix());
-			newItem.getItemProperty(BaseColumnId.local.toString()).setValue(new Boolean(id.isLocal()).toString());
+			newItem.getItemProperty(BaseColumnId.type.toString()).setValue(
+					id.getTypeId());
+			newItem.getItemProperty(BaseColumnId.identity.toString()).setValue(
+					id.toPrettyStringNoPrefix());
+			newItem.getItemProperty(BaseColumnId.local.toString()).setValue(
+					new Boolean(id.isLocal()).toString());
+			newItem.getItemProperty(BaseColumnId.dynamic.toString()).setValue(
+					new Boolean(id.getType().getIdentityTypeProvider().isDynamic()).toString());
+			String ridp = id.getRemoteIdp() == null ? "" : id.getRemoteIdp();
+			newItem.getItemProperty(BaseColumnId.remoteIdP.toString()).setValue(ridp);
+			String prof = id.getTranslationProfile() == null ? "" : id.getTranslationProfile();
+			newItem.getItemProperty(BaseColumnId.profile.toString()).setValue(prof);
+			newItem.getItemProperty(BaseColumnId.target.toString()).setValue(id.getTarget());
+			newItem.getItemProperty(BaseColumnId.realm.toString()).setValue(id.getRealm());
 		} else
 		{
 			newItem.getItemProperty(BaseColumnId.type.toString()).setValue("");
 			newItem.getItemProperty(BaseColumnId.identity.toString()).setValue("");
 			newItem.getItemProperty(BaseColumnId.local.toString()).setValue("");
+			newItem.getItemProperty(BaseColumnId.dynamic.toString()).setValue("");
+			newItem.getItemProperty(BaseColumnId.target.toString()).setValue("");
+			newItem.getItemProperty(BaseColumnId.realm.toString()).setValue("");
+			newItem.getItemProperty(BaseColumnId.remoteIdP.toString()).setValue("");
+			newItem.getItemProperty(BaseColumnId.profile.toString()).setValue("");
 		}
-		
+
 		Collection<?> propertyIds = newItem.getItemPropertyIds();
 		for (Object propertyId: propertyIds)
 		{
@@ -553,8 +622,10 @@ public class IdentitiesTable extends TreeTable
 	}
 
 	private void resolveEntity(long entity) throws EngineException
-	{
-		Entity resolvedEntity = identitiesMan.getEntity(new EntityParam(entity));
+	{		
+		Entity resolvedEntity = showTargeted ? identitiesMan
+				.getEntityNoContext(new EntityParam(entity)) : identitiesMan
+				.getEntity(new EntityParam(entity));
 		Collection<AttributeExt<?>> rawRootAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
 				true, "/", null, true);
 		Collection<AttributeExt<?>> rawCurAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
@@ -569,11 +640,11 @@ public class IdentitiesTable extends TreeTable
 				resolvedEntity.getIdentities(),	rootAttrs, curAttrs);
 		data.put(resolvedEntity.getId(), resolved);
 	}
-	
+
 	private void removeEntity(long entityId)
 	{
 		LoginSession entity = InvocationContext.getCurrent().getLoginSession();
-		
+
 		if (entityId == entity.getEntityId())
 		{
 			ErrorPopup.showError(msg, msg.getMessage("error"), msg.getMessage("Identities.notRemovingLoggedUser"));
@@ -594,7 +665,18 @@ public class IdentitiesTable extends TreeTable
 		try
 		{
 			identitiesMan.removeIdentity(identity);
-			refresh();
+		} catch (Exception e)
+		{
+			ErrorPopup.showError(msg, msg.getMessage("Identities.removeIdentityError"), e);
+		}
+	}
+
+	private void resetIdentity(Identity identity)
+	{
+		try
+		{
+			identitiesMan.resetIdentity(new EntityParam(identity.getEntityId()), identity.getTypeId(), 
+					identity.getRealm(), identity.getTarget());
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage("Identities.removeIdentityError"), e);
@@ -614,7 +696,7 @@ public class IdentitiesTable extends TreeTable
 			return false;
 		}
 	}
-	
+
 	private void removeFromGroup(long entityId)
 	{
 		try
@@ -626,29 +708,41 @@ public class IdentitiesTable extends TreeTable
 			ErrorPopup.showError(msg, msg.getMessage("Identities.removeFromGroupError"), e);
 		}
 	}
-	
+
 	private class RemoveFromGroupHandler extends SingleActionHandler
 	{
 		public RemoveFromGroupHandler()
 		{
 			super(msg.getMessage("Identities.removeFromGroupAction"), 
 					Images.delete.getResource());
+			setMultiTarget(true);
 		}
 
 		@Override
 		public void handleAction(Object sender, Object target)
-		{
-			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
-			new ConfirmDialog(msg, msg.getMessage("Identities.confirmRemoveFromGroup", entity, group),
-					new ConfirmDialog.Callback()
+		{			
+			Collection<?> nodes = (Collection<?>) target;	
+			final HashMap<Long, EntityWithLabel> toRemove = new HashMap<Long, EntityWithLabel>();
+			for (Object node : nodes)
+			{
+				EntityWithLabel entity = node instanceof IdentityWithEntity ? ((IdentityWithEntity) node)
+						.getEntityWithLabel() : ((EntityWithLabel) node);
+				toRemove.put(entity.getEntity().getId(), entity);
+			}
+			String confirmText = MessageUtils.createConfirmFromStrings(msg, toRemove.values());
+			new ConfirmDialog(msg, msg.getMessage("Identities.confirmRemoveFromGroup",
+					confirmText, group), new ConfirmDialog.Callback()
 			{
 				@Override
 				public void onConfirm()
 				{
-					removeFromGroup(entity.getEntity().getId());
+					for (EntityWithLabel en : toRemove.values())
+					{
+						removeFromGroup(en.getEntity().getId());
+					}
 				}
 			}).show();
+
 		}
 	}
 
@@ -677,11 +771,19 @@ public class IdentitiesTable extends TreeTable
 		}
 	}
 
+	private EntityWithLabel getSingleSelect(Object target)
+	{	
+		EntityWithLabel entity = target instanceof IdentityWithEntity ? ((IdentityWithEntity) target)
+				.getEntityWithLabel() : ((EntityWithLabel) target);
+		return entity;
+	}
+
 	private class AddIdentityActionHandler extends SingleActionHandler
 	{
 		public AddIdentityActionHandler()
 		{
-			super(msg.getMessage("Identities.addIdentityAction"), Images.addIdentity.getResource());
+			super(msg.getMessage("Identities.addIdentityAction"), Images.addIdentity
+					.getResource());
 		}
 
 		@Override
@@ -707,107 +809,158 @@ public class IdentitiesTable extends TreeTable
 		{
 			super(msg.getMessage("Identities.deleteEntityAction"), 
 					Images.deleteEntity.getResource());
+			setMultiTarget(true);
 		}
 
 		@Override
 		public void handleAction(Object sender, Object target)
-		{
-			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
-			new ConfirmDialog(msg, msg.getMessage("Identities.confirmEntityDelete", entity),
-					new ConfirmDialog.Callback()
+		{       
+			Collection<?> nodes = (Collection<?>) target;
+			final HashMap<Long, EntityWithLabel> toRemove = new HashMap<Long, EntityWithLabel>();
+			for (Object node : nodes)
+			{
+				EntityWithLabel entity = node instanceof IdentityWithEntity ? 
+						((IdentityWithEntity) node).getEntityWithLabel() : 
+						((EntityWithLabel) node);
+				toRemove.put(entity.getEntity().getId(), entity);
+			}
+			String confirmText = MessageUtils.createConfirmFromStrings(msg, toRemove.values());
+			new ConfirmDialog(msg, msg.getMessage("Identities.confirmEntityDelete",
+					confirmText), new ConfirmDialog.Callback()
 			{
 				@Override
 				public void onConfirm()
 				{
-					removeEntity(entity.getEntity().getId());
+					for (EntityWithLabel entity : toRemove.values())
+					{
+						removeEntity(entity.getEntity().getId());
+					}
 				}
 			}).show();
+
 		}
 	}
 
-	
 	private class DeleteIdentityHandler extends SingleActionHandler
 	{
 		public DeleteIdentityHandler()
 		{
-			super(msg.getMessage("Identities.deleteIdentityAction"), 
+			super(msg.getMessage("Identities.deleteIdentityAction"),
 					Images.deleteIdentity.getResource());
+			setMultiTarget(true);
 		}
-		
+
 		@Override
 		public Action[] getActions(Object target, Object sender)
 		{
-			if (target != null && !(target instanceof IdentityWithEntity))
+			if (target == null)
 				return EMPTY;
+			
+			if (!(target instanceof Collection<?>))
+				target = Collections.singleton(target);
+			
+			Collection<?> targets = (Collection<?>) target;
+			for (Object ta : targets)
+			{
+				if (ta != null && !(ta instanceof IdentityWithEntity))
+					return EMPTY;
+			}
+			
 			return super.getActions(target, sender);
 		}
-		
+
 		@Override
 		public void handleAction(Object sender, Object target)
-		{
-			final IdentityWithEntity node = (IdentityWithEntity) target;
-			new ConfirmDialog(msg, msg.getMessage("Identities.confirmIdentityDelete", node.identity),
-					new ConfirmDialog.Callback()
+		{		
+			Collection<?> nodes = (Collection<?>) target;
+			final List<IdentityWithEntity> filteredNodes = new ArrayList<>();
+			
+			StringBuilder confirmText = new StringBuilder();
+			int count = 0;
+			for (Object o : nodes)
+			{
+				IdentityWithEntity node = (IdentityWithEntity) o;
+				if (count < 4)
+					confirmText.append(", " + node.identity);
+				count++;
+				filteredNodes.add(node);
+			}
+			if (count > 3)
+				confirmText.append(msg.getMessage("MessageUtils.andMore", count-3));
+				
+			String confirmTextF = confirmText.substring(2);
+			new ConfirmDialog(msg, msg.getMessage("Identities.confirmIdentityDelete",
+					confirmTextF), new ConfirmDialog.Callback()
 			{
 				@Override
 				public void onConfirm()
 				{
-					removeIdentity(node.identity);
+					for (IdentityWithEntity o : filteredNodes)
+					{
+						if (o.getIdentity().getType().getIdentityTypeProvider().isRemovable())
+							removeIdentity(o.identity);
+						else
+							resetIdentity(o.identity);
+					}
+					refresh();
 				}
 			}).show();
 		}
 	}
-
+	
 	private class ChangeEntityStatusHandler extends SingleActionHandler
 	{
 		public ChangeEntityStatusHandler()
 		{
-			super(msg.getMessage("Identities.changeEntityStatusAction"), 
+			super(msg.getMessage("Identities.changeEntityStatusAction"),
 					Images.editUser.getResource());
 		}
-		
+
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
-			EntityState currentState = data.get(entity.getEntity().getId()).getEntity().getState();
-			new ChangeEntityStateDialog(msg, entity, currentState, new ChangeEntityStateDialog.Callback()
-			{
-				@Override
-				public boolean onChanged(EntityState newState)
-				{
-					return setEntityStatus(entity.getEntity().getId(), newState);
-				}
-			}).show();
+			final EntityWithLabel entity = getSingleSelect(target);
+			EntityState currentState = data.get(entity.getEntity().getId()).getEntity()
+					.getState();
+			new ChangeEntityStateDialog(msg, entity, currentState,
+					new ChangeEntityStateDialog.Callback()
+					{
+						@Override
+						public boolean onChanged(EntityState newState)
+						{
+							return setEntityStatus(entity.getEntity()
+									.getId(), newState);
+						}
+					}).show();
 		}
+		
+		
 	}
 
 	private class ChangeCredentialRequirementHandler extends SingleActionHandler
 	{
 		public ChangeCredentialRequirementHandler()
 		{
-			super(msg.getMessage("Identities.changeCredentialRequirementAction"), 
+			super(msg.getMessage("Identities.changeCredentialRequirementAction"),
 					Images.key.getResource());
 		}
 
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
+			final EntityWithLabel entity = getSingleSelect(target);
 			IdentitiesAndAttributes info = data.get(entity.getEntity().getId());
-			String currentCredId = info.getEntity().getCredentialInfo().getCredentialRequirementId();
-			new CredentialRequirementDialog(msg, entity, currentCredId,
-					identitiesMan, authnMan, new Callback()
-			{
-				@Override
-				public void onChanged()
-				{
-					refresh();
-				}
-			}).show();
+			String currentCredId = info.getEntity().getCredentialInfo()
+					.getCredentialRequirementId();
+			new CredentialRequirementDialog(msg, entity, currentCredId, identitiesMan,
+					authnMan, new Callback()
+					{
+						@Override
+						public void onChanged()
+						{
+							refresh();
+						}
+					}).show();
 		}
 	}
 
@@ -815,15 +968,14 @@ public class IdentitiesTable extends TreeTable
 	{
 		public ChangeCredentialHandler()
 		{
-			super(msg.getMessage("Identities.changeCredentialAction"), 
-					Images.key.getResource());
+			super(msg.getMessage("Identities.changeCredentialAction"), Images.key
+					.getResource());
 		}
 
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
+			final EntityWithLabel entity = getSingleSelect(target);
 			new CredentialsChangeDialog(msg, entity.getEntity().getId(), authnMan, identitiesMan,
 					credEditorsRegistry, false, new CredentialsChangeDialog.Callback()
 					{
@@ -855,7 +1007,7 @@ public class IdentitiesTable extends TreeTable
 
 	private void showEntityDetails(EntityWithLabel entity)
 	{
-		final EntityDetailsPanel identityDetailsPanel = new EntityDetailsPanel(msg);
+		final EntityDetailsPanel identityDetailsPanel = new EntityDetailsPanel(msg, true);
 		Collection<String> groups;
 		try
 		{
@@ -868,7 +1020,7 @@ public class IdentitiesTable extends TreeTable
 		identityDetailsPanel.setInput(entity, groups);
 		new EntityDetailsDialog(msg, identityDetailsPanel).show();
 	}
-	
+
 	private class ShowEntityDetailsHandler extends SingleActionHandler
 	{
 		public ShowEntityDetailsHandler()
@@ -880,8 +1032,7 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
+			final EntityWithLabel entity = getSingleSelect(target);
 			showEntityDetails(entity);
 		}
 	}
@@ -897,10 +1048,11 @@ public class IdentitiesTable extends TreeTable
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
-			EntityAttributesClassesDialog dialog = new EntityAttributesClassesDialog(msg, group, 
-					entity, attrMan, groupsMan, new EntityAttributesClassesDialog.Callback()
+
+			final EntityWithLabel entity = getSingleSelect(target);
+			EntityAttributesClassesDialog dialog = new EntityAttributesClassesDialog(
+					msg, group, entity, attrMan, groupsMan,
+					new EntityAttributesClassesDialog.Callback()
 					{
 						@Override
 						public void onChange()
@@ -911,13 +1063,17 @@ public class IdentitiesTable extends TreeTable
 			dialog.show();
 		}
 	}
-	
+
 	public boolean isGroupByEntity()
 	{
 		return groupByEntity;
 	}
-
 	
+	public boolean isShowTargeted()
+	{
+		return showTargeted;
+	}
+
 	/**
 	 * Complete info about entity: its identities and relevant attributes.
 	 * Used to populate table.
@@ -937,26 +1093,32 @@ public class IdentitiesTable extends TreeTable
 			this.currentAttributes = currentAttributes;
 			this.entity = entity;
 		}
+		
 		public Identity[] getIdentities()
 		{
 			return identities;
 		}
+
 		public Map<String, Attribute<?>> getRootAttributes()
 		{
 			return rootAttributes;
 		}
+
 		public Map<String, Attribute<?>> getCurrentAttributes()
 		{
 			return currentAttributes;
 		}
+
 		public Entity getEntity()
 		{
 			return entity;
 		}
 	}
-	
+
 	/**
-	 * Identity with its Entity. Used as item id for the rows with particular identities.
+	 * Identity with its Entity. Used as item id for the rows with
+	 * particular identities.
+	 * 
 	 * @author K. Benedyczak
 	 */
 	public static class IdentityWithEntity
@@ -969,15 +1131,17 @@ public class IdentitiesTable extends TreeTable
 			this.identity = identity;
 			this.entity = entity;
 		}
+
 		public Identity getIdentity()
 		{
 			return identity;
 		}
+
 		public EntityWithLabel getEntityWithLabel()
 		{
 			return entity;
 		}
-		
+
 		@Override
 		public int hashCode()
 		{

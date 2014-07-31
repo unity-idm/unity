@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.db;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -174,12 +175,13 @@ public class DBIdentities
 		idB.setEntityId(entityId);
 		idB.setName(cmpVal);
 		idB.setTypeId(identityTypeB.getId());
-		idB.setContents(idSerializer.toJson(toAdd));
+		Date ts = new Date();
+		idB.setContents(idSerializer.toJson(toAdd, ts, ts));
 		mapper.insertIdentity(idB);
 		
 		IdentityType idType = idResolver.resolveIdentityType(identityTypeB);
-		return new Identity(idType, toAdd.getValue(), entityId, toAdd.isLocal(), 
-				toAdd.getRealm(), toAdd.getTarget());
+		return new Identity(idType, toAdd.getValue(), entityId, toAdd.getRealm(), toAdd.getTarget(),
+				toAdd.getRemoteIdp(), toAdd.getTranslationProfile(), ts, ts);
 	}
 
 	
@@ -282,7 +284,6 @@ public class DBIdentities
 				mapper.deleteIdentity(idBean.getName());
 			}
 		}
-		throw new IllegalTypeException("The " + type + " is not defined for the entity");
 	}
 	
 	public EntityState getEntityStatus(long entityId, SqlSession sqlMap) 
@@ -310,9 +311,6 @@ public class DBIdentities
 		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(toRemove.getTypeId());
 		if (idTypeDef == null)
 			throw new IllegalIdentityValueException("The identity type is unknown");
-		if (idTypeDef.isDynamic())
-			throw new IllegalIdentityValueException("The dynamic identity can not be removed "
-					+ "without removing the containing entity.");
 		
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
 		String cmpVal = IdentitiesResolver.getComparableIdentityValue(toRemove, idTypeDef);

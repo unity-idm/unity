@@ -59,22 +59,22 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 		try
 		{
 			ObjectNode root = jsonMapper.createObjectNode();
-			root.put("Agreements", jsonMapper.valueToTree(value.getAgreements()));
+			root.set("Agreements", jsonMapper.valueToTree(value.getAgreements()));
 			addAttributes(root, value.getAttributeAssignments());
-			root.put("AttributeClassAssignments", jsonMapper.valueToTree(value.getAttributeClassAssignments()));
-			root.put("AttributeParams", jsonMapper.valueToTree(value.getAttributeParams()));
+			root.set("AttributeClassAssignments", jsonMapper.valueToTree(value.getAttributeClassAssignments()));
+			root.set("AttributeParams", jsonMapper.valueToTree(value.getAttributeParams()));
 			root.put("CollectComments", value.isCollectComments());
-			root.put("CredentialParams", jsonMapper.valueToTree(value.getCredentialParams()));
+			root.set("CredentialParams", jsonMapper.valueToTree(value.getCredentialParams()));
 			root.put("CredentialRequirementAssignment", value.getCredentialRequirementAssignment());
 			root.put("Description", value.getDescription());
 			root.put("FormInformation", value.getFormInformation());
-			root.put("GroupAssignments", jsonMapper.valueToTree(value.getGroupAssignments()));
-			root.put("GroupParams", jsonMapper.valueToTree(value.getGroupParams()));
-			root.put("IdentityParams", jsonMapper.valueToTree(value.getIdentityParams()));
-			root.put("InitialEntityState", jsonMapper.valueToTree(value.getInitialEntityState().name()));
+			root.set("GroupAssignments", jsonMapper.valueToTree(value.getGroupAssignments()));
+			root.set("GroupParams", jsonMapper.valueToTree(value.getGroupParams()));
+			root.set("IdentityParams", jsonMapper.valueToTree(value.getIdentityParams()));
+			root.set("InitialEntityState", jsonMapper.valueToTree(value.getInitialEntityState().name()));
 			root.put("Name", value.getName());
 			root.put("AutoAcceptCondition", value.getAutoAcceptCondition());
-			root.put("NotificationsConfiguration", jsonMapper.valueToTree(value.getNotificationsConfiguration()));
+			root.set("NotificationsConfiguration", jsonMapper.valueToTree(value.getNotificationsConfiguration()));
 			root.put("PubliclyAvailable", value.isPubliclyAvailable());
 			root.put("RegistrationCode", value.getRegistrationCode());
 			byte[] contents = jsonMapper.writeValueAsBytes(root);

@@ -13,10 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
@@ -37,8 +36,7 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 	
 	private EndpointTypeDescription description;
 	private UnityMessageSource msg;
-	private IdentitiesManagement identitiesMan;
-	private AttributesManagement attributesMan;
+	private IdPEngine idpEngine;
 	private PreferencesManagement preferencesMan;
 	private PKIManagement pkiManagement;
 	private ExecutorsService executorsService;
@@ -46,14 +44,13 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 	
 	
 	@Autowired
-	public SamlUnicoreIdPSoapEndpointFactory(UnityMessageSource msg, IdentitiesManagement identitiesMan,
-			AttributesManagement attributesMan, PreferencesManagement preferencesMan,
+	public SamlUnicoreIdPSoapEndpointFactory(UnityMessageSource msg, IdPEngine idpEngine, 
+			PreferencesManagement preferencesMan,
 			PKIManagement pkiManagement, ExecutorsService executorsService, SessionManagement sessionMan)
 	{
 		super();
 		this.msg = msg;
-		this.identitiesMan = identitiesMan;
-		this.attributesMan = attributesMan;
+		this.idpEngine = idpEngine;
 		this.preferencesMan = preferencesMan;
 		this.pkiManagement = pkiManagement;
 		this.executorsService = executorsService;
@@ -79,7 +76,7 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new SamlUnicoreSoapEndpoint(msg, getDescription(), SERVLET_PATH, 
-				SamlIdPSoapEndpointFactory.METADATA_SERVLET_PATH, identitiesMan, 
-				attributesMan, preferencesMan, pkiManagement, executorsService, sessionMan);
+				SamlIdPSoapEndpointFactory.METADATA_SERVLET_PATH, idpEngine, 
+				preferencesMan, pkiManagement, executorsService, sessionMan);
 	}
 }

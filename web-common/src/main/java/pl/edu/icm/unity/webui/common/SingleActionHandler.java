@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import com.vaadin.event.Action;
 import com.vaadin.event.Action.Handler;
 import com.vaadin.server.Resource;
@@ -21,6 +24,7 @@ public abstract class SingleActionHandler implements Handler
 	protected static final Action[] EMPTY = new Action[0];
 	private Action[] action;
 	private boolean needsTarget = true;
+	private boolean multiTarget = false;
 	
 	public SingleActionHandler(String caption, Resource icon)
 	{
@@ -37,6 +41,16 @@ public abstract class SingleActionHandler implements Handler
 	{
 		this.needsTarget = needsTarget;
 	}
+	
+	public boolean isMultiTarget()
+	{
+		return multiTarget;
+	}
+	
+	public void setMultiTarget(boolean multiTarget)
+	{
+		this.multiTarget = multiTarget;
+	}
 
 	public Action getActionUnconditionally()
 	{
@@ -46,17 +60,51 @@ public abstract class SingleActionHandler implements Handler
 	@Override
 	public Action[] getActions(Object target, Object sender)
 	{
-		if (needsTarget && target == null)
-			return EMPTY;
+		if (target == null)
+		{
+			if (needsTarget)
+				return EMPTY;
+
+		} else
+		{
+			if (target instanceof Collection<?>)
+			{
+			    Collection<?> t = (Collection<?>) target;
+			    if (t.size() > 1 && !multiTarget && needsTarget)
+			        return EMPTY;
+			    if (t.isEmpty() && needsTarget)
+			        return EMPTY;       
+			} 
+		}	
 		return action;
 	}
-
+	
 	@Override
 	public void handleAction(Action action, Object sender, Object target)
 	{
 		if (action != this.action[0])
 			return;
-		handleAction(sender, target);
+		
+		Object wrTarget = target;
+		
+		if (target != null)
+		{
+			if (multiTarget && !(target instanceof Collection<?>))
+			{
+				ArrayList<Object> ntarget = new ArrayList<Object>();
+				ntarget.add(target);
+				wrTarget = ntarget;
+			}
+			if (!multiTarget && (target instanceof Collection<?>))
+			{
+				Collection<?> ntarget = (Collection<?>) target;
+				if (!ntarget.isEmpty())
+					wrTarget = ntarget.iterator().next();
+				else
+					wrTarget = null;
+			}
+		}
+		handleAction(sender, wrTarget);
 	}
 	
 	protected abstract void handleAction(Object sender, Object target);

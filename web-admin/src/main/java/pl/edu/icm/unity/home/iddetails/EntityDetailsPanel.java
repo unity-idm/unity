@@ -25,6 +25,7 @@ import com.vaadin.ui.Label;
 public class EntityDetailsPanel extends FormLayout
 {
 	private UnityMessageSource msg;
+	private boolean showAdminData;
 	private Label id;
 	private Label status;
 	private Label identities;
@@ -33,9 +34,10 @@ public class EntityDetailsPanel extends FormLayout
 	private Label groups;
 	
 	
-	public EntityDetailsPanel(UnityMessageSource msg)
+	public EntityDetailsPanel(UnityMessageSource msg, boolean showAdminData)
 	{
 		this.msg = msg;
+		this.showAdminData = showAdminData;
 		id = new Label();
 		id.setCaption(msg.getMessage("IdentityDetails.id"));
 
@@ -70,10 +72,21 @@ public class EntityDetailsPanel extends FormLayout
 		StringBuilder sb = new StringBuilder();
 		for (Identity id: entity.getIdentities())
 		{
-			String local = id.isLocal() ? msg.getMessage("IdentityDetails.identityLocal") : 
-				msg.getMessage("IdentityDetails.identityRemote");
-			sb.append(msg.getMessage("IdentityDetails.identity", local, id.getTypeId(), 
+			if (!showAdminData || id.isLocal())
+			{
+				sb.append(msg.getMessage("IdentityDetails.identityLocal", id.getTypeId(), 
 					id.getType().getIdentityTypeProvider().toPrettyStringNoPrefix(id.getValue())));
+			} else
+			{
+				String trProfile = id.getTranslationProfile() == null ? 
+						"-" : id.getTranslationProfile(); 
+				String created = msg.getMessageNullArg("IdentityDetails.creationDate", id.getCreationTs());
+				String updated = msg.getMessageNullArg("IdentityDetails.updatedDate", id.getUpdateTs());
+				sb.append(msg.getMessage("IdentityDetails.identityRemote", id.getTypeId(), 
+						id.getRemoteIdp(), trProfile, 
+						id.getType().getIdentityTypeProvider().toPrettyStringNoPrefix(id.getValue())));
+				sb.append(created + updated);
+			}
 			sb.append("<br>");
 		}
 		identities.setValue(sb.toString());

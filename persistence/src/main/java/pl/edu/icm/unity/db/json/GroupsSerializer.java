@@ -35,6 +35,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
 import pl.edu.icm.unity.server.registries.AttributeStatementsRegistry;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -197,7 +198,8 @@ public class GroupsSerializer
 			GroupBean gb = groupResolver.resolveGroup(attribute.getGroupPath(), groupMapper);
 			main.put(pfx+"attributeGroupId", gb.getId());
 		}
-		byte[] attrValues = attributeSerializer.toJson(attribute);
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		byte[] attrValues = attributeSerializer.toJson(new AttributeExt(attribute, false, null, null));
 		main.put(pfx+"attributeValues", attrValues);
 	}
 	

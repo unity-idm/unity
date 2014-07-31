@@ -107,7 +107,7 @@ public class ECPStep1Handler
 		X509Credential credential = sign ? samlProperties.getRequesterCredential() : null;
 		
 		AuthnRequestDocument authnRequestDoc = SAMLHelper.createSAMLRequest(myAddress, sign, requesterId, null,
-				requestedNameFormat, credential);
+				requestedNameFormat, true, credential);
 		context.setRequestId(authnRequestDoc.getAuthnRequest().getID()); 
 
 		XmlCursor curR = authnRequestDoc.getAuthnRequest().newCursor();

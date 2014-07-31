@@ -31,15 +31,16 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
+import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
@@ -109,17 +110,22 @@ public class AttributesPanel extends HorizontalSplitPanel
 		attributesTable.setImmediate(true);
 		BeanItemContainer<AttributeItem> tableContainer = new BeanItemContainer<AttributeItem>(AttributeItem.class);
 		attributesTable.setSelectable(true);
-		attributesTable.setMultiSelect(false);
+		attributesTable.setMultiSelect(true);
 		attributesTable.setContainerDataSource(tableContainer);
 		attributesTable.setColumnHeaders(new String[] {msg.getMessage("Attribute.attributes")});
-		
 		
 		attributesTable.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				AttributeItem selected = (AttributeItem)attributesTable.getValue(); 
+				Collection<AttributeItem> items = getItems(attributesTable.getValue()); 
+				if (items.size() > 1 || items.isEmpty())
+				{
+					updateValues(null);
+					return;
+				}
+				AttributeItem selected = items.iterator().next();
 				if (selected != null)
 					updateValues(selected.getAttribute());
 				else
@@ -235,7 +241,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		attributesTable.select(attributes.get(0));
 	}
 	
-	private void updateValues(Attribute<?> attribute)
+	private void updateValues(AttributeExt<?> attribute)
 	{
 		if (attribute == null)
 		{
@@ -244,7 +250,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 		AttributeValueSyntax<?> syntax = attribute.getAttributeSyntax();
 		WebAttributeHandler<?> handler = registry.getHandler(syntax.getValueSyntaxId());
-		attributeValues.setValues(handler, syntax, attribute.getValues());
+		attributeValues.setValues(handler, attribute);
 	}
 	
 	private void updateAttributesFilter(boolean add, Container.Filter filter)
@@ -285,6 +291,11 @@ public class AttributesPanel extends HorizontalSplitPanel
 		private AttributeExt<?> getAttribute()
 		{
 			return attribute;
+		}
+		
+		public String toString()
+		{
+			return attribute.getName();
 		}
 	}
 	
@@ -344,7 +355,36 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 	}
 	
-
+	private boolean checkAttributeImm(AttributeItem item)
+	{
+		AttributeExt<?> attribute = ((AttributeItem) item)
+				.getAttribute();
+		AttributeType attributeType = attributeTypes.get(attribute
+				.getName());
+		return attributeType.isInstanceImmutable()
+				|| !attribute.isDirect();
+	}
+	
+	private boolean checkAttributeMandatory(AttributeItem item)
+	{
+		AttributeExt<?> attribute = (item)
+				.getAttribute();
+		return acHelper.isMandatory(attribute.getName());
+			
+	}
+	
+	private Collection<AttributeItem> getItems(Object target)
+	{
+		Collection<?> c = (Collection<?>) target;
+		Collection<AttributeItem> items = new ArrayList<AttributeItem>();
+		for (Object o: c)
+		{
+			AttributeItem at = (AttributeItem) o;
+			items.add(at);	
+		}
+		return items;
+	}
+	
 	/**
 	 * Extends {@link SingleActionHandler}. Returns action only for selections on an attribute. 
 	 * @author K. Benedyczak
@@ -360,23 +400,32 @@ public class AttributesPanel extends HorizontalSplitPanel
 		@Override
 		public Action[] getActions(Object target, Object sender)
 		{
-			if (target == null || !(target instanceof AttributeItem))
+			if (target == null)
 				return EMPTY;
-			AttributeExt<?> attribute = ((AttributeItem) target).getAttribute();
-			AttributeType attributeType = attributeTypes.get(attribute.getName());
-			if (attributeType.isInstanceImmutable() || !attribute.isDirect())
-				return EMPTY;
+			
+			if (target instanceof Collection<?>)
+			{		
+				for (AttributeItem item : getItems(target))
+				{
+					if (checkAttributeImm((AttributeItem) item))
+						return EMPTY;
+				}
+			} else
+			{
+				if (checkAttributeImm((AttributeItem) target))
+					return EMPTY;
+			}
 			return super.getActions(target, sender);
 		}
 	}
-	
-	
+		
 	private class RemoveAttributeActionHandler extends AbstractAttributeActionHandler
 	{
 		public RemoveAttributeActionHandler()
 		{
 			super(msg.getMessage("Attribute.removeAttribute"), 
 					Images.delete.getResource());
+			setMultiTarget(true);
 		}
 		
 		@Override
@@ -385,9 +434,18 @@ public class AttributesPanel extends HorizontalSplitPanel
 			Action[] ret = super.getActions(target, sender);
 			if (ret.length > 0)
 			{
-				AttributeExt<?> attribute = ((AttributeItem) target).getAttribute();
-				if (acHelper.isMandatory(attribute.getName()))
-					return EMPTY;
+				if (target instanceof Collection<?>)
+				{
+					for (AttributeItem item : getItems(target))
+					{
+						if (checkAttributeMandatory((AttributeItem) item))
+							return EMPTY;
+					}
+				} else
+				{
+					if (checkAttributeMandatory((AttributeItem) target))
+						return EMPTY;
+				}
 			}
 			return ret;
 		}
@@ -395,16 +453,21 @@ public class AttributesPanel extends HorizontalSplitPanel
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			ConfirmDialog confirm = new ConfirmDialog(msg, msg.getMessage("Attribute.removeConfirm", 
-					((AttributeItem) target).getAttribute().getName()), 
-					new Callback()
+			final Collection<AttributeItem> items = getItems(target);	
+			String confirmText = MessageUtils.createConfirmFromStrings(msg, items);
+			
+			ConfirmDialog confirm = new ConfirmDialog(msg, msg.getMessage(
+					"Attribute.removeConfirm", confirmText), new Callback()
+			{
+				@Override
+				public void onConfirm()
+				{
+					for (AttributeItem item : items)
 					{
-						@Override
-						public void onConfirm()
-						{
-							removeAttribute((AttributeItem) target);
-						}
-					});
+						removeAttribute(item);
+					}
+				}
+			});
 			confirm.show();
 		}
 	}
@@ -474,7 +537,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			Attribute<?> attribute = ((AttributeItem) target).getAttribute();
+			Attribute<?> attribute = ((AttributeItem) target).getAttribute();;
 			AttributeType attributeType = attributeTypes.get(attribute.getName());
 			AttributeEditor attributeEditor = new AttributeEditor(msg, attributeType, attribute, 
 					registry);

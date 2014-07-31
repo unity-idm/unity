@@ -14,21 +14,23 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
  * Holds information about a user which was obtained and verified by a remote upstream IdP.
- * The information in this class in in Unity format but need not to have counterparts in the local database.
+ * The information in this class is in Unity format but need not to have counterparts in the local database.
  * 
  * @author K. Benedyczak
  */
 public class RemotelyAuthenticatedContext
 {
 	private String remoteIdPName;
+	private String inputTranslationProfile;
 	private Collection<IdentityTaV> identities = new ArrayList<>();
 	private IdentityTaV primaryIdentity;
 	private Collection<Attribute<?>> attributes = new ArrayList<>();
 	private Collection<String> groups = new ArrayList<>();
 
-	public RemotelyAuthenticatedContext(String remoteIdPName)
+	public RemotelyAuthenticatedContext(String remoteIdPName, String inputTranslationProfile)
 	{
 		this.remoteIdPName = remoteIdPName;
+		this.inputTranslationProfile = inputTranslationProfile;
 		try
 		{
 			InvocationContext ctx = InvocationContext.getCurrent();
@@ -74,5 +76,9 @@ public class RemotelyAuthenticatedContext
 	public String getRemoteIdPName()
 	{
 		return remoteIdPName;
+	}
+	public String getInputTranslationProfile()
+	{
+		return inputTranslationProfile;
 	}
 }

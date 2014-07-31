@@ -106,7 +106,7 @@ public class IdentityCreationDialog extends AbstractDialog
 			return;
 		}
 		String type = (String) identityType.getValue();
-		IdentityParam toAdd = new IdentityParam(type, value, true);
+		IdentityParam toAdd = new IdentityParam(type, value);
 		try
 		{
 			identitiesMan.addIdentity(toAdd, new EntityParam(entityId), 

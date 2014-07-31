@@ -90,7 +90,9 @@ public class GenericsIE extends AbstractIE
 			JsonUtils.nextExpect(input, "type");
 			String type = input.getText();
 			JsonUtils.nextExpect(input, "subType");
-			String subType = input.getText();
+			String subType = null;
+			if (input.getCurrentToken() != JsonToken.VALUE_NULL)
+				subType = input.getText();
 			JsonUtils.nextExpect(input, "name");
 			String name = input.getText();
 			JsonUtils.nextExpect(input, "lastUpdate");

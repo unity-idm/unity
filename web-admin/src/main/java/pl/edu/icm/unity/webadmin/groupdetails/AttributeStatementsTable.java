@@ -66,7 +66,7 @@ public class AttributeStatementsTable extends Table
 		setSizeFull();
 		setSortEnabled(false);
 		setSelectable(true);
-		setMultiSelect(false);
+		setMultiSelect(true);
 		setImmediate(true);
 		addActionHandler(new AddHandler());
 		addActionHandler(new EditHandler());
@@ -102,18 +102,30 @@ public class AttributeStatementsTable extends Table
 		}
 	}
 	
-	private void removeStatement(AttributeStatement removedStatement)
+	private void removeStatements(Collection<AttributeStatement> removedStatements)
 	{
 		Collection<?> items = getItemIds();
 		Iterator<?> it = items.iterator();
-		AttributeStatement[] attributeStatements = new AttributeStatement[items.size()-1];
+		AttributeStatement[] attributeStatements = new AttributeStatement[items.size()-removedStatements.size()];
 		for (int i=0; it.hasNext(); i++)
 		{
 			AttributeStatement s = (AttributeStatement) it.next();
-			if (!removedStatement.equals(s))
+			boolean check = false;
+			for (AttributeStatement st : removedStatements)
+			{
+				if (st.equals(s))
+				{
+					check = true;
+					break;
+				}					
+			}
+			if (!check)
+			{
 				attributeStatements[i] = s;
-			else
+			} else
+			{
 				i--;
+			}
 		}
 		updateGroup(attributeStatements);
 	}
@@ -232,18 +244,29 @@ public class AttributeStatementsTable extends Table
 		{
 			super(msg.getMessage("AttributeStatements.removeStatement"), 
 					Images.delete.getResource());
+			setMultiTarget(true);
 		}
 
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
+			
+			final Collection<AttributeStatement> items = new ArrayList<AttributeStatement>();
+			Collection<?> ats = (Collection<?>) target;
+			for (Object o: ats)
+			{
+				items.add((AttributeStatement) o);
+			}
+					
 			new ConfirmDialog(msg, msg.getMessage("AttributeStatements.confirmDelete"),
 					new ConfirmDialog.Callback()
 			{
 				@Override
 				public void onConfirm()
 				{
-					removeStatement((AttributeStatement) target);
+					
+					removeStatements(items);
+					
 				}
 			}).show();
 		}
@@ -285,7 +308,8 @@ public class AttributeStatementsTable extends Table
 		public void handleAction(Object sender, final Object target)
 		{
 			
-			new AttributeStatementEditDialog(msg, (AttributeStatement)target, 
+			AttributeStatement st = (AttributeStatement) target;
+			new AttributeStatementEditDialog(msg, st, 
 					attrsMan, statementHandlersReg, group.toString(), new Callback()
 					{
 						@Override

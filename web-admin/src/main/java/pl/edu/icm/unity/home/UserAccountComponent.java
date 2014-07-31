@@ -119,7 +119,7 @@ public class UserAccountComponent extends VerticalLayout
 	private com.vaadin.ui.Component getUserInfoComponent(long entityId, IdentitiesManagement idsMan, 
 			AttributesInternalProcessing attrMan) throws EngineException
 	{
-		EntityDetailsPanel ret = new EntityDetailsPanel(msg);
+		EntityDetailsPanel ret = new EntityDetailsPanel(msg, false);
 		EntityParam param = new EntityParam(entityId);
 		Collection<String> groups;
 		try

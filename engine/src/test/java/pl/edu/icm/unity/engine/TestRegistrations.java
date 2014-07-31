@@ -38,15 +38,14 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
-import pl.edu.icm.unity.types.registration.AttributeParamValue;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.IdentityParamValue;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -294,12 +293,12 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		// accept with updates -> check if results are fine
 		request = getRequest();
-		IdentityParamValue ip = new IdentityParamValue(X500Identity.ID, "CN=registration test2");
+		IdentityParam ip = new IdentityParam(X500Identity.ID, "CN=registration test2");
 		request.setIdentities(Collections.singletonList(ip));		
 		String id4 = registrationsMan.submitRegistrationRequest(request, false);
 		
 		request = getRequest();
-		ip = new IdentityParamValue(X500Identity.ID, "CN=registration test updated");
+		ip = new IdentityParam(X500Identity.ID, "CN=registration test updated");
 		request.setIdentities(Collections.singletonList(ip));
 		registrationsMan.processRegistrationRequest(id4, request, 
 				RegistrationRequestAction.accept, "a2", "p2");
@@ -443,9 +442,9 @@ public class TestRegistrations extends DBIntegrationTestBase
 		RegistrationRequest request = new RegistrationRequest();
 		
 		request.setAgreements(Collections.singletonList(new Selection(true)));
-		AttributeParamValue ap = new AttributeParamValue();
-		ap.setAttribute(new StringAttribute("email", "/", AttributeVisibility.full, "foo@a.b"));
-		request.setAttributes(Collections.singletonList(ap));
+		List<Attribute<?>> attrs = new ArrayList<Attribute<?>>();
+		attrs.add(new StringAttribute("email", "/", AttributeVisibility.full, "foo@a.b"));
+		request.setAttributes(attrs);
 		request.setComments("comments");
 		CredentialParamValue cp = new CredentialParamValue();
 		cp.setCredentialId(EngineInitialization.DEFAULT_CREDENTIAL);
@@ -453,7 +452,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		request.setCredentials(Collections.singletonList(cp));
 		request.setFormId("f1");
 		request.setGroupSelections(Collections.singletonList(new Selection(true)));
-		IdentityParamValue ip = new IdentityParamValue(X500Identity.ID, "CN=registration test");
+		IdentityParam ip = new IdentityParam(X500Identity.ID, "CN=registration test");
 		request.setIdentities(Collections.singletonList(ip));
 		request.setRegistrationCode("123");
 		return request;

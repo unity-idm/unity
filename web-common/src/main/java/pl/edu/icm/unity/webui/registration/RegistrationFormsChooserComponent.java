@@ -182,7 +182,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 			try
 			{
 				dialog = formLauncher.getDialog(form, 
-						new RemotelyAuthenticatedContext("--none--"));
+						new RemotelyAuthenticatedContext("--none--", "--none--"));
 				dialog.show();
 			} catch (EngineException e)
 			{

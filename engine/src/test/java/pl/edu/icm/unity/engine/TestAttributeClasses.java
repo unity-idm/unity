@@ -350,7 +350,7 @@ public class TestAttributeClasses extends DBIntegrationTestBase
 		groupA = new Group("/A");
 		groupsMan.addGroup(groupA);
 		
-		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=test", true), "crMock", 
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=test"), "crMock", 
 				EntityState.disabled, false);
 		entity = new EntityParam(id);
 	}

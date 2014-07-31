@@ -112,11 +112,8 @@ public class IdentitiesResolver
 				if (idtavParam.getTarget() == null)
 					throw new IllegalIdentityValueException("The target is mandatory "
 							+ "for identity type " + idtavParam.getTypeId());
-				inDBIdentityValue = getComparableIdentityValue(idtavParam, idTypeDef);
-			} else
-			{
-				inDBIdentityValue = getComparableIdentityValue(idtavParam, idTypeDef);
 			}
+			inDBIdentityValue = getComparableIdentityValue(idtavParam, idTypeDef);
 
 			IdentityBean idBean = mapper.getIdentityByName(inDBIdentityValue);
 			if (idBean == null)
@@ -198,14 +195,13 @@ public class IdentitiesResolver
 			long typeId = mapper.getIdentityTypeByName(idTypeImpl.getId()).getId();
 			newIdBean.setTypeId(typeId);
 			IdentityParam idParam = new IdentityParam();
-			idParam.setLocal(true);
 			idParam.setValue(newId.getContents());
 			if (idTypeImpl.isTargeted())
 			{
 				idParam.setRealm(realm);
 				idParam.setTarget(target);
 			}
-			newIdBean.setContents(idSerializer.toJson(idParam));
+			newIdBean.setContents(idSerializer.toJson(idParam, null, null));
 			mapper.insertIdentity(newIdBean);
 			
 			String externalizedValue = idTypeImpl.toExternalForm(realm, target, newId.getContents(), 
