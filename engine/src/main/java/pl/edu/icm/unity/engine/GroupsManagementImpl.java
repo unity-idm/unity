@@ -4,10 +4,12 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.db.DBShared;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassUtil;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.internal.EngineHelper;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -28,6 +32,7 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
@@ -46,6 +51,7 @@ public class GroupsManagementImpl implements GroupsManagement
 {
 	private DBSessionManager db;
 	private DBGroups dbGroups;
+	private DBShared dbShared;
 	private DBAttributes dbAttributes;
 	private AttributeClassDB acDB;
 	private AuthorizationManager authz;
@@ -54,13 +60,14 @@ public class GroupsManagementImpl implements GroupsManagement
 	
 	
 	@Autowired
-	public GroupsManagementImpl(DBSessionManager db, DBGroups dbGroups,
+	public GroupsManagementImpl(DBSessionManager db, DBGroups dbGroups, DBShared dbShared,
 			DBAttributes dbAttributes, AttributeClassDB acDB,
 			AuthorizationManager authz, EngineHelper engineHelper,
 			IdentitiesResolver idResolver)
 	{
 		this.db = db;
 		this.dbGroups = dbGroups;
+		this.dbShared = dbShared;
 		this.dbAttributes = dbAttributes;
 		this.acDB = acDB;
 		this.authz = authz;
@@ -170,7 +177,15 @@ public class GroupsManagementImpl implements GroupsManagement
 	@Override
 	public GroupContents getContents(String path, int filter) throws EngineException
 	{
-		authz.checkAuthorization(path, AuthzCapability.read);
+		try
+		{
+			authz.checkAuthorization(path, AuthzCapability.read);
+		} catch (AuthorizationException e)
+		{
+			if ((GroupContents.GROUPS & filter) == 0)
+				throw e;
+			return getLimitedContents(path, filter);
+		}
 		SqlSession sql = db.getSqlSession(true);
 		try 
 		{
@@ -183,6 +198,60 @@ public class GroupsManagementImpl implements GroupsManagement
 		}
 	}
 
+	/**
+	 * Invoked whenever getContents fails due to insufficient authZ. In such case still some subgroups
+	 * of the given group can be returned, only if the requester is their member.
+	 * @param path
+	 * @param filter
+	 * @return
+	 * @throws EngineException
+	 */
+	private GroupContents getLimitedContents(String path, int filter) throws EngineException
+	{
+		long entity = InvocationContext.getCurrent().getLoginSession().getEntityId();
+		authz.checkAuthorization(true, AuthzCapability.read);
+		SqlSession sqlMap = db.getSqlSession(true);
+		try
+		{
+			Set<String> allGroups = dbShared.getAllGroups(entity, sqlMap);
+			sqlMap.commit();
+			if (!allGroups.contains(path))
+				throw new AuthorizationException("Access is denied. The operation "
+						+ "getContents requires 'read' capability");
+				
+			//TODO - handle linked groups
+			List<String> directSubgroups = new ArrayList<String>();
+			
+			for (String g: allGroups)
+			{
+				Group potential = new Group(g);
+				String parent = potential.getParentPath();
+				if (parent != null && parent.equals(path))
+					directSubgroups.add(g);
+			}
+			
+			GroupContents ret = new GroupContents();
+			ret.setSubGroups(directSubgroups);
+			
+			if ((filter & GroupContents.LINKED_GROUPS) != 0)
+			{
+				ret.setLinkedGroups(new ArrayList<String>());
+			}
+			if ((filter & GroupContents.MEMBERS) != 0)
+			{
+				ret.setMembers(new ArrayList<Long>());
+			}
+			if ((filter & GroupContents.METADATA) != 0)
+			{
+				ret.setGroup(new Group(path));
+			}
+			return ret;
+		} finally
+		{
+			db.releaseSqlSession(sqlMap);
+		}
+	}
+	
 	@Override
 	public void updateGroup(String path, Group group) throws EngineException
 	{
