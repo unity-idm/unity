@@ -59,14 +59,14 @@ public class TestGroups extends DBIntegrationTestBase
 		GroupContents rootC = groupsMan.getContents("/", GroupContents.EVERYTHING);
 		assertEquals(1, rootC.getSubGroups().size());
 		assertEquals("/A", rootC.getSubGroups().get(0));
-		assertNull(rootC.getGroup());
-		assertNull(rootC.getMembers());
+		assertNotNull(rootC.getGroup());
+		assertNotNull(rootC.getMembers());
 		
 		GroupContents aC = groupsMan.getContents("/A", GroupContents.EVERYTHING);
 		assertEquals(1, aC.getSubGroups().size());
 		assertEquals("/A/B", aC.getSubGroups().get(0));
-		assertNull(aC.getGroup());
-		assertNull(aC.getMembers());
+		assertNotNull(aC.getGroup());
+		assertNotNull(aC.getMembers());
 
 		try
 		{
