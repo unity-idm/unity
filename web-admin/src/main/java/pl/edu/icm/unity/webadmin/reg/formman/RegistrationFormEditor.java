@@ -234,9 +234,6 @@ public class RegistrationFormEditor extends VerticalLayout
 			if (!copyMode)
 			{
 				name.setReadOnly(true);
-			} else
-			{
-				name.setCaption(msg.getMessage("RegistrationFormEditor.copyName"));
 			}
 		} else
 		{

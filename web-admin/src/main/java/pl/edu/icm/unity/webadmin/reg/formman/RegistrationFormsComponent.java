@@ -317,15 +317,14 @@ public class RegistrationFormsComponent extends VerticalLayout
 		{
 			@SuppressWarnings("unchecked")
 			GenericItem<RegistrationForm> item = (GenericItem<RegistrationForm>) target;
-			RegistrationForm formCopy= item.getElement();
 			RegistrationFormEditor editor;		
-			formCopy.setName("Copy_" + item.getElement().getName());
 			try
-			{
+			{	RegistrationForm formCopy = (RegistrationForm) item.getElement().clone();
+				formCopy.setName(msg.getMessage("RegistrationFormsComponent.copyPrefix") + formCopy.getName());
 				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
 						msgTempMan, identitiesMan, attributeMan, authenticationMan,
 						attrHandlerRegistry, formCopy, true);
-			} catch (EngineException e)
+			} catch (Exception e)
 			{
 				ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
 				return;
