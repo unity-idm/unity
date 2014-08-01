@@ -23,7 +23,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
  * </ol>
  * @author K. Benedyczak
  */
-public class RegistrationForm extends DescribedObjectImpl implements Cloneable
+public class RegistrationForm extends DescribedObjectImpl
 {
 	private boolean publiclyAvailable;
 	private RegistrationFormNotifications notificationsConfiguration = new RegistrationFormNotifications();
@@ -351,11 +351,4 @@ public class RegistrationForm extends DescribedObjectImpl implements Cloneable
 		
 		return true;
 	}
-	
-	@Override
-	public Object clone() throws CloneNotSupportedException
-	{
-		return super.clone();
-	}
-
 }

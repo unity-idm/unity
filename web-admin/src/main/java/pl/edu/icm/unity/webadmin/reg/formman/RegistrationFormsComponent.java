@@ -317,13 +317,15 @@ public class RegistrationFormsComponent extends VerticalLayout
 		{
 			@SuppressWarnings("unchecked")
 			GenericItem<RegistrationForm> item = (GenericItem<RegistrationForm>) target;
-			RegistrationFormEditor editor;		
+			RegistrationForm form =  item.getElement();
+			String oldName = item.getElement().getName();
+			form.setName(msg.getMessage("RegistrationFormsComponent.copyPrefix") + oldName);
+			RegistrationFormEditor editor;
 			try
-			{	RegistrationForm formCopy = (RegistrationForm) item.getElement().clone();
-				formCopy.setName(msg.getMessage("RegistrationFormsComponent.copyPrefix") + formCopy.getName());
+			{		
 				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
 						msgTempMan, identitiesMan, attributeMan, authenticationMan,
-						attrHandlerRegistry, formCopy, true);
+						attrHandlerRegistry, form, true);
 			} catch (Exception e)
 			{
 				ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
@@ -339,6 +341,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 						}
 					}, editor);
 			dialog.show();
+			form.setName(oldName);
 		}
 	}
 	
