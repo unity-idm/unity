@@ -318,8 +318,6 @@ public class RegistrationFormsComponent extends VerticalLayout
 			@SuppressWarnings("unchecked")
 			GenericItem<RegistrationForm> item = (GenericItem<RegistrationForm>) target;
 			RegistrationForm form =  item.getElement();
-			String oldName = item.getElement().getName();
-			form.setName(msg.getMessage("RegistrationFormsComponent.copyPrefix") + oldName);
 			RegistrationFormEditor editor;
 			try
 			{		
@@ -340,8 +338,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 							return addForm(form);
 						}
 					}, editor);
-			dialog.show();
-			form.setName(oldName);
+			dialog.show();		
 		}
 	}
 	
