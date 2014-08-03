@@ -87,6 +87,7 @@ public class RegistrationFormEditor extends VerticalLayout
 	private List<String> credentialTypes;
 	private Collection<String> attributeClasses;
 	private boolean editMode;
+	private boolean copyMode;
 	
 	private TabSheet tabs;
 	private CheckBox ignoreRequests;
@@ -125,7 +126,7 @@ public class RegistrationFormEditor extends VerticalLayout
 			AttributeHandlerRegistry attrHandlerRegistry) throws EngineException
 	{
 		this(msg, groupsMan, notificationsMan, msgTempMan, identitiesMan, attributeMan, authenticationMan, 
-				attrHandlerRegistry, null);
+				attrHandlerRegistry, null, false);
 	}
 
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
@@ -133,11 +134,12 @@ public class RegistrationFormEditor extends VerticalLayout
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan,
 			AuthenticationManagement authenticationMan,
-			AttributeHandlerRegistry attrHandlerRegistry, RegistrationForm toEdit)
+			AttributeHandlerRegistry attrHandlerRegistry, RegistrationForm toEdit, boolean copyMode)
 			throws EngineException
 	{
 		super();
 		editMode = toEdit != null;
+		this.copyMode = editMode && copyMode;
 		this.msg = msg;
 		this.groupsMan = groupsMan;
 		this.notificationsMan = notificationsMan;
@@ -164,7 +166,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		initCollectedTab(toEdit);
 		initAssignedTab(toEdit);
 		ignoreRequests = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreRequests"));
-		if (editMode)
+		if (editMode && !copyMode)
 		{
 			addComponent(ignoreRequests);
 			setComponentAlignment(ignoreRequests, Alignment.TOP_RIGHT);
@@ -225,14 +227,23 @@ public class RegistrationFormEditor extends VerticalLayout
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.mainTab"));
 		
 		name = new RequiredTextField(msg);
-		if (toEdit != null)
-		{
-			name.setValue(toEdit.getName());
-			name.setReadOnly(true);
-		} else
-			name.setValue(msg.getMessage("RegistrationFormEditor.defaultName"));
 		name.setCaption(msg.getMessage("RegistrationFormEditor.name"));
-		
+		if (editMode)
+		{
+			if (!copyMode)
+			{	
+				name.setValue(toEdit.getName());
+				name.setReadOnly(true);
+			} else
+			{
+				name.setValue(msg.getMessage("RegistrationFormEditor.copyPrefix")
+						+ toEdit.getName());
+			}
+		} else
+		{
+			name.setValue(msg.getMessage("RegistrationFormEditor.defaultName"));
+		}
+				
 		description = new DescriptionTextArea(msg.getMessage("RegistrationFormViewer.description"));
 		
 		publiclyAvailable = new CheckBox(msg.getMessage("RegistrationFormEditor.publiclyAvailable"));
