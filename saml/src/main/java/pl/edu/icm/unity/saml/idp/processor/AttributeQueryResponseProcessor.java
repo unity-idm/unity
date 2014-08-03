@@ -68,7 +68,7 @@ public class AttributeQueryResponseProcessor extends BaseResponseProcessor<Attri
 					context.getRequest().getSubject());
 			Assertion assertion = createAttributeAssertion(subjectWithConf, attributes);
 			if (assertion != null)
-				resp.addAssertion(assertion);
+				addAssertionEncrypting(resp, assertion);
 		}
 		return resp.getXMLBeanDoc();
 	}

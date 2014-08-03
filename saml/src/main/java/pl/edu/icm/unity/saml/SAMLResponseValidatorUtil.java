@@ -67,7 +67,8 @@ public class SAMLResponseValidatorUtil
 		SSOAuthnResponseValidator validator = new SSOAuthnResponseValidator(
 				consumerSamlName, responseConsumerAddress, 
 				requestId, AssertionValidator.DEFAULT_VALIDITY_GRACE_PERIOD, 
-				samlTrustChecker, replayAttackChecker, binding);
+				samlTrustChecker, replayAttackChecker, binding, 
+				samlProperties.getRequesterCredential().getKey());
 		
 		try
 		{
