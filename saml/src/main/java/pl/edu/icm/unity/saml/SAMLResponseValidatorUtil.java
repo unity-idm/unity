@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml;
 
+import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import xmlbeans.org.oasis.saml2.assertion.AssertionDocument;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.assertion.AttributeAssertionParser;
 import eu.unicore.samly2.attrprofile.ParsedAttribute;
@@ -64,11 +66,13 @@ public class SAMLResponseValidatorUtil
 					"there is an internal configuration error", e1);
 		}
 		
+		X509Credential credential = samlProperties.getRequesterCredential();
+		PrivateKey decryptKey = credential == null ? null : credential.getKey();
 		SSOAuthnResponseValidator validator = new SSOAuthnResponseValidator(
 				consumerSamlName, responseConsumerAddress, 
 				requestId, AssertionValidator.DEFAULT_VALIDITY_GRACE_PERIOD, 
 				samlTrustChecker, replayAttackChecker, binding, 
-				samlProperties.getRequesterCredential().getKey());
+				decryptKey);
 		
 		try
 		{
