@@ -15,10 +15,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
-import pl.edu.icm.unity.saml.idp.web.EopException;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebUI;
 import pl.edu.icm.unity.saml.idp.web.SamlResponseHandler;
 import pl.edu.icm.unity.server.api.PreferencesManagement;

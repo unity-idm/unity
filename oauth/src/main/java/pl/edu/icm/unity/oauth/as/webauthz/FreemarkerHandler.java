@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.saml.idp;
+package pl.edu.icm.unity.oauth.as.webauthz;
 
 import org.springframework.stereotype.Component;
 
@@ -17,6 +17,6 @@ public class FreemarkerHandler extends FreemarkerHandlerBase
 {
 	public FreemarkerHandler()
 	{
-		super(FreemarkerHandler.class, "/pl/edu/icm/unity/samlidp/freemarker");
+		super(FreemarkerHandler.class, "/pl/edu/icm/unity/oauth/freemarker");
 	}
 }

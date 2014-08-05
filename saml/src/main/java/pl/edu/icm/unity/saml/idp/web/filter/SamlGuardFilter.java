@@ -18,9 +18,9 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
-import pl.edu.icm.unity.saml.idp.web.EopException;
 import pl.edu.icm.unity.server.utils.Log;
 
 /**

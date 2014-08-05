@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml.idp.web;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.server.authn.AuthenticationException;

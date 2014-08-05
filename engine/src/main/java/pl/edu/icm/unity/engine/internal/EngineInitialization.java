@@ -57,6 +57,7 @@ import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.RealmsManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
@@ -140,7 +141,7 @@ public class EngineInitialization extends LifecycleBase
 	@Qualifier("insecure")
 	private AttributesManagement attrManagement;
 	@Autowired
-	private SystemAttributeTypes sysTypes;
+	private List<SystemAttributeTypes> sysTypeProviders;
 	@Autowired
 	private IdentityTypesRegistry idTypesReg;
 	@Autowired
@@ -386,14 +387,15 @@ public class EngineInitialization extends LifecycleBase
 		try
 		{
 			Map<String, AttributeType> existing = dbAttributes.getAttributeTypes(sql);
-			for (AttributeType at: sysTypes.getSystemAttributes())
-			{
-				if (!existing.containsKey(at.getName()))
+			for (SystemAttributesProvider attrTypesProvider: sysTypeProviders)
+				for (AttributeType at: attrTypesProvider.getSystemAttributes())
 				{
-					log.info("Adding a system attribute type: " + at.getName());
-					dbAttributes.addAttributeType(at, sql);
+					if (!existing.containsKey(at.getName()))
+					{
+						log.info("Adding a system attribute type: " + at.getName());
+						dbAttributes.addAttributeType(at, sql);
+					}
 				}
-			}
 			sql.commit();
 		} catch (EngineException e)
 		{

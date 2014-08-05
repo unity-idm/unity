@@ -13,4 +13,9 @@
 	<bean class="pl.edu.icm.unity.oauth.client.OAuth2VerificatorFactory"/>
 	<bean class="pl.edu.icm.unity.oauth.client.OAuthContextsManagement"/>
 	<bean class="pl.edu.icm.unity.oauth.client.web.OAuth2RetrievalFactory"/>
+	
+	
+	<bean class="pl.edu.icm.unity.oauth.as.webauthz.FreemarkerHandler"/>
+	<bean class="pl.edu.icm.unity.oauth.as.OAuthSystemAttriubtesProvider"/>
+	
 </beans>
