@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -26,15 +28,24 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 {
 	public static final String NAME = "OAuth2Authz";
-	public static final String OAUTH_UI_SERVLET_PATH = "/oauth2-authz";
+	public static final String OAUTH_UI_SERVLET_PATH = "/oauth2-authz-web-ui";
+	public static final String OAUTH_CONSUMER_SERVLET_PATH = "/oauth2-authz";
 	private EndpointTypeDescription description;
 	
 	private ApplicationContext applicationContext;
+	private FreemarkerHandler freemarkerHandler;
+	private IdentitiesManagement identitiesManagement;
+	private AttributesManagement attributesManagement;
+
 	
 	@Autowired
-	public OAuthAuthzWebEndpointFactory(ApplicationContext applicationContext)
+	public OAuthAuthzWebEndpointFactory(ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
+			IdentitiesManagement identitiesManagement, AttributesManagement attributesManagement)
 	{
 		this.applicationContext = applicationContext;
+		this.freemarkerHandler = freemarkerHandler;
+		this.attributesManagement = attributesManagement;
+		this.identitiesManagement = identitiesManagement;
 		
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
@@ -53,6 +64,8 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new OAuthAuthzWebEndpoint(description, applicationContext, OAUTH_UI_SERVLET_PATH);
+		return new OAuthAuthzWebEndpoint(description, applicationContext, OAUTH_UI_SERVLET_PATH, 
+				OAUTH_CONSUMER_SERVLET_PATH, freemarkerHandler, identitiesManagement, 
+				attributesManagement);
 	}
 }
