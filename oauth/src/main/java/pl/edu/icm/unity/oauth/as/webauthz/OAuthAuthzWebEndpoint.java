@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -71,9 +72,9 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		
 		String endpointURL = getServletUrl(consumerServletPath);
 		String uiURL = getServletUrl(servletPath);
-//		Filter samlGuardFilter = new SamlGuardFilter(servletPath, new ErrorHandler(freemarkerHandler));
-//		context.addFilter(new FilterHolder(samlGuardFilter), servletPath + "/*", 
-//				EnumSet.of(DispatcherType.REQUEST));
+		Filter oauthGuardFilter = new OAuthGuardFilter(servletPath, new ErrorHandler(freemarkerHandler));
+		context.addFilter(new FilterHolder(oauthGuardFilter), servletPath + "/*", 
+				EnumSet.of(DispatcherType.REQUEST));
 		
 		Servlet samlParseServlet = new OAuthParseServlet(oauthProperties, endpointURL, 
 				uiURL, new ErrorHandler(freemarkerHandler), identitiesManagement, 
@@ -94,9 +95,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 				AuthenticationUI.class.getSimpleName(), description, authenticators,
 				registrationConfiguration);
 		
-//		CancelHandler cancelHandler = new SamlAuthnCancelHandler(freemarkerHandler,
-//				description.getContextAddress()+SamlIdPWebEndpointFactory.SAML_UI_SERVLET_PATH);
-//		authenticationServlet.setCancelHandler(cancelHandler);
+		authenticationServlet.setCancelHandler(new OAuthCancelHandler());
 		
 		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true); 
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");

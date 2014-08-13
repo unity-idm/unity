@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.saml.idp.web.filter;
+package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.io.IOException;
 
@@ -19,30 +19,28 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.idpcommon.EopException;
-import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.server.utils.Log;
 
 /**
  * Filter which is invoked prior to authentication. 
  * <p>
- * If a request comes to any other address then the SAML consumer servlet path, then the filter checks if a SAML context 
- * is available in the session. If not - the request is banned and an error page displayed.
+ * If a request comes to any other address then the OAuth consumer servlet path, then the filter checks if 
+ * a OAuth context is available in the session. If not - the request is banned and an error page displayed.
  * 
  * @author K. Benedyczak
  */
-public class SamlGuardFilter implements Filter
+public class OAuthGuardFilter implements Filter
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlGuardFilter.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthGuardFilter.class);
 	
-	protected String samlUiPath;
+	protected String oauthUiPath;
 	protected ErrorHandler errorHandler;
 
-	public SamlGuardFilter(String samlUiPath, ErrorHandler errorHandler)
+	public OAuthGuardFilter(String oauthUiPath, ErrorHandler errorHandler)
 	{
 		super();
 		this.errorHandler = errorHandler;
-		this.samlUiPath = samlUiPath;
+		this.oauthUiPath = oauthUiPath;
 	}
 
 	@Override
@@ -66,15 +64,15 @@ public class SamlGuardFilter implements Filter
 		HttpServletRequest request = (HttpServletRequest) requestBare;
 		HttpServletResponse response = (HttpServletResponse) responseBare;
 		HttpSession session = request.getSession();
-		SAMLAuthnContext context = (SAMLAuthnContext) session.getAttribute(
-				SamlParseServlet.SESSION_SAML_CONTEXT); 
+		OAuthAuthzContext context = (OAuthAuthzContext) session.getAttribute(
+				OAuthParseServlet.SESSION_OAUTH_CONTEXT); 
 
 		if (context == null)
 		{
 			if (log.isDebugEnabled())
 				log.debug("Request to SAML post-processing address, without SAML context: " 
 						+ request.getRequestURI());
-			errorHandler.showErrorPage(new SAMLProcessingException("No SAML context"), 
+			errorHandler.showErrorPage("No SAML context", null, 
 					(HttpServletResponse) response);
 			return;
 		} else

@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import java.net.URI;
 import java.util.Date;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
@@ -17,7 +18,7 @@ public class OAuthAuthzContext
 	public static final long AUTHN_TIMEOUT = 900000;
 	private AuthorizationRequest request;
 	private Date timestamp;
-	private String returnURI;
+	private URI returnURI;
 
 	public OAuthAuthzContext(AuthorizationRequest request)
 	{
@@ -36,12 +37,12 @@ public class OAuthAuthzContext
 		return System.currentTimeMillis() > AUTHN_TIMEOUT+timestamp.getTime();
 	}
 
-	public String getReturnURI()
+	public URI getReturnURI()
 	{
 		return returnURI;
 	}
 
-	public void setReturnURI(String returnURI)
+	public void setReturnURI(URI returnURI)
 	{
 		this.returnURI = returnURI;
 	}

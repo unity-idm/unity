@@ -6,6 +6,7 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -261,8 +262,20 @@ public class OAuthParseServlet extends HttpServlet
 					redirectionURI);
 		
 		if (redirectionURI != null)
-			context.setReturnURI(redirectionURI.toString());
+			context.setReturnURI(redirectionURI);
 		else
-			context.setReturnURI(allowedUris.iterator().next());
+		{
+			String configuredUri = allowedUris.iterator().next();
+			try
+			{
+				context.setReturnURI(new URI(configuredUri));
+			} catch (URISyntaxException e)
+			{
+				log.error("The URI configured for the client '" + client + 
+						"' is invalid: " + configuredUri, e);
+				throw new OAuthValidationException("The URI configured for the client '" + client + 
+						"' is invalid: " + configuredUri);
+			}
+		}
 	}
 }
