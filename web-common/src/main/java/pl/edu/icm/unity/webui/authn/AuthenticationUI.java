@@ -64,14 +64,14 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationUI.class);
-	private EndpointDescription description;
-	private List<Map<String, VaadinAuthenticationUI>> authenticators;
 	private LocaleChoiceComponent localeChoice;
 	private AuthenticationProcessor authnProcessor;
-	private EndpointRegistrationConfiguration registrationConfiguration;
 	private InsecureRegistrationFormsChooserComponent formsChooser;
 	private InsecureRegistrationFormLauncher formLauncher;
 	private ExecutorsService execService;
+	protected List<Map<String, VaadinAuthenticationUI>> authenticators;
+	protected EndpointDescription description;
+	protected EndpointRegistrationConfiguration registrationConfiguration;
 	
 	@Autowired
 	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,

@@ -15,6 +15,11 @@ public class EndpointRegistrationConfiguration
 	private List<String> enabledForms;
 	private boolean showRegistrationOption;
 
+	public EndpointRegistrationConfiguration(boolean showRegistrationOption)
+	{
+		this.showRegistrationOption = showRegistrationOption;
+	}
+	
 	public EndpointRegistrationConfiguration(List<String> enabledForms,
 			boolean showRegistrationOption)
 	{
