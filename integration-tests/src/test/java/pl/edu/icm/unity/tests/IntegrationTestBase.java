@@ -1,9 +1,7 @@
 package pl.edu.icm.unity.tests;
 
 import java.awt.image.BufferedImage;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,8 +11,8 @@ import java.util.Random;
 
 import org.junit.Before;
 
-import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.rest.TestRESTBase;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
@@ -45,45 +43,18 @@ import pl.edu.icm.unity.types.basic.attrstmnt.MemberOfStatement;
  * Contains all necessary db and time method for integration tests
  * @author P.Piernik
  */
-public class IntegrationTestBase extends DBIntegrationTestBase
+public class IntegrationTestBase extends TestRESTBase
 {
-	private long startT;
-	private final String outFile = "target/tests.csv";
-	protected boolean consoleOut = true;
-		
+	TimeHelper timer;
+	
 	@Before
 	public void setup() throws Exception
 	{
 		setupPasswordAuthn();
+		timer = new TimeHelper();
 	
 	}
 	
-	public void startTimer()
-	{
-		startT = System.currentTimeMillis();
-	}
-
-	public long stopTimer(int ops, String label) throws IOException
-	{
-		long endT = System.currentTimeMillis();
-		long periodMs = endT - startT;
-		
-		
-		double periodS = periodMs / 1000.0;
-		double opsPerS = (ops * 1000 / periodMs);
-		if (consoleOut)
-			System.out.println(label + " performed " + ops + " in " + periodS + "s, "+ opsPerS + " ops/s");
-		
-		FileWriter fw = new FileWriter(outFile, true);
-		PrintWriter pw = new PrintWriter(fw);
-		pw.println(label + "," + ops + "," + periodS + "," + opsPerS);
-		pw.flush();
-		pw.close();
-		fw.close();
-		
-		return periodMs;
-		
-	}
 	/**
 	 * Add users with password credential	
 	 *   
@@ -419,7 +390,7 @@ public class IntegrationTestBase extends DBIntegrationTestBase
 	}
 	
 	/**
-	 * Add additional attr type used in attr statment 
+	 * Add additional attr type used in attr statment. Prefix "ex_"
 	 * @throws EngineException
 	 */
 	protected void addAttributeTypeForStatments() throws EngineException
@@ -432,8 +403,7 @@ public class IntegrationTestBase extends DBIntegrationTestBase
 		type = new AttributeType("ex_ho1", new StringAttributeSyntax());
 		attrsMan.addAttributeType(type);	
 		type = new AttributeType("ex_ho2", new StringAttributeSyntax());
-		attrsMan.addAttributeType(type);
-		
+		attrsMan.addAttributeType(type);		
 	}
 	
 	
@@ -541,7 +511,5 @@ public class IntegrationTestBase extends DBIntegrationTestBase
 			sts[g.getAttributeStatements().length + i] = asts.get(i);
 		}
 		g.setAttributeStatements(sts);
-	}
-	
-	
+	}	
 }
