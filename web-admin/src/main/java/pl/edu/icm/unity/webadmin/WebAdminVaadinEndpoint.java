@@ -40,6 +40,8 @@ public class WebAdminVaadinEndpoint extends VaadinEndpoint
 		
 		context = super.getServletContextHandler();
 		
+		authnFilter.addProtectedPath(SANDBOX_PATH);
+		
 		UnityVaadinServlet sandboxServlet = new UnityVaadinServlet(applicationContext, 
 				SandboxUI.class.getSimpleName(), description, null, null);
 		ServletHolder sandboxServletHolder = createVaadinServletHolder(sandboxServlet, true);

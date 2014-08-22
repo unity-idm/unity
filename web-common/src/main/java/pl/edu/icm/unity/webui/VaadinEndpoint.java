@@ -5,6 +5,8 @@
 package pl.edu.icm.unity.webui;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +59,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	protected ServletContextHandler context = null;
 	protected UnityVaadinServlet theServlet;
 	protected UnityVaadinServlet authenticationServlet;
+	protected AuthenticationFilter authnFilter;
 	
 	public VaadinEndpoint(EndpointTypeDescription type, ApplicationContext applicationContext,
 			String uiBeanName, String servletPath)
@@ -94,7 +97,9 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		
-		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
+		
+		authnFilter = new AuthenticationFilter(
+				new ArrayList<String>(Arrays.asList(servletPath)), 
 				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST));

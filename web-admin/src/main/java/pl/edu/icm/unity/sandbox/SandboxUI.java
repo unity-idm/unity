@@ -42,7 +42,8 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 
 /**
- * Vaadin UI of the sandbox application.
+ * Vaadin UI of the sandbox application. This servlet is based on AuthenticationUI 
+ * but authenticators are overwritten with all available {@link VaadinAuthentication.NAME}.
  *  
  * @author Roman Krysinski
  */
@@ -70,7 +71,33 @@ public class SandboxUI extends AuthenticationUI
 	{
 		super(msg, localeChoice, authnProcessor, formsChooser, formLauncher, execService);
 		
-		authnList = new ArrayList<AuthenticatorSet>();
+		authnList      = getAllVaadinAuthenticators(authnManagement);
+		authenticators = getAuthenticatorUIs(authnList, authnLoader, db);
+	}
+
+	@Override
+	public void configure(EndpointDescription description,
+			List<Map<String, BindingAuthn>> authenticators,
+			EndpointRegistrationConfiguration regCfg) 
+	{
+		registrationConfiguration = new EndpointRegistrationConfiguration(false);
+		this.description          = new EndpointDescription(description);
+		this.description.setAuthenticatorSets(authnList);
+	}
+	
+	@Override
+	protected void appInit(VaadinRequest request) 
+	{
+		super.appInit(request);
+		
+		setSelectionTitle(msg.getMessage("SandboxUI.selectionTitle"));
+		setHeaderTitle(msg.getMessage("SandboxUI.headerTitle"));
+	}
+	
+	private List<AuthenticatorSet> getAllVaadinAuthenticators(AuthenticationManagement authnManagement) 
+	{
+		ArrayList<AuthenticatorSet> vaadinAuthenticators = new ArrayList<AuthenticatorSet>();
+		
 		try 
 		{
 			Collection<AuthenticatorInstance> authnInstances = authnManagement.getAuthenticators(VaadinAuthentication.NAME);
@@ -87,7 +114,7 @@ public class SandboxUI extends AuthenticationUI
 			for (AuthenticatorInstance instance : authnInstances)
 			{
 				AuthenticatorSet authnSet = new AuthenticatorSet(Collections.singleton(instance.getId()));
-				authnList.add(authnSet);
+				vaadinAuthenticators.add(authnSet);
 			}
 		} catch (EngineException e) 
 		{
@@ -95,8 +122,14 @@ public class SandboxUI extends AuthenticationUI
 					+ e.getMessage(), e);
 		}
 		
-		List<Map<String, BindingAuthn>> authenticators = null;
+		return vaadinAuthenticators;
+	}
+	
+	private List<Map<String, VaadinAuthenticationUI>> getAuthenticatorUIs(
+			List<AuthenticatorSet> authnList, AuthenticatorLoader authnLoader, DBSessionManager db) 
+	{
 		SqlSession sql = db.getSqlSession(true);
+		List<Map<String, BindingAuthn>> authenticators = null;
 		try 
 		{
 			authenticators = authnLoader.getAuthenticators(authnList, sql);
@@ -109,31 +142,17 @@ public class SandboxUI extends AuthenticationUI
 			db.releaseSqlSession(sql);
 		}
 		
-		this.authenticators = new ArrayList<Map<String, VaadinAuthenticationUI>>();
+		ArrayList<Map<String, VaadinAuthenticationUI>> authenticatorUIs = new ArrayList<Map<String, VaadinAuthenticationUI>>();
 		for (int i=0; i<authenticators.size(); i++)
 		{
 			Map<String, VaadinAuthenticationUI> map = new HashMap<String, VaadinAuthenticationUI>();
 			Map<String, BindingAuthn> origMap = authenticators.get(i);
 			for (Map.Entry<String, BindingAuthn> el: origMap.entrySet())
 				map.put(el.getKey(), ((VaadinAuthentication)el.getValue()).createUIInstance());
-			this.authenticators.add(map);
-		}		
-		
-	}
+			authenticatorUIs.add(map);
+		}
 
-	@Override
-	public void configure(EndpointDescription description,
-			List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration regCfg) 
-	{
-		this.registrationConfiguration = new EndpointRegistrationConfiguration(false);
-		this.description = description;
-		this.description.setAuthenticatorSets(authnList);
+		return authenticatorUIs;
 	}
 	
-	@Override
-	protected void appInit(VaadinRequest request) 
-	{
-		super.appInit(request);
-	}
 }

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.authn;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Filter;
@@ -40,7 +41,7 @@ public class AuthenticationFilter implements Filter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationFilter.class);
 
-	private String protectedServletPath;
+	private List<String> protectedServletPaths;
 	private String authnServletPath;
 	private final String sessionCookie;
 	private UnsuccessfulAuthenticationCounter dosGauard;
@@ -48,10 +49,10 @@ public class AuthenticationFilter implements Filter
 	private LoginToHttpSessionBinder sessionBinder;
 	
 	
-	public AuthenticationFilter(String protectedServletPath, String authnServletPath, AuthenticationRealm realm,
+	public AuthenticationFilter(List<String> protectedServletPaths, String authnServletPath, AuthenticationRealm realm,
 			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder)
 	{
-		this.protectedServletPath = protectedServletPath;
+		this.protectedServletPaths = protectedServletPaths;
 		this.authnServletPath = authnServletPath;
 		dosGauard = new UnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), 
 				realm.getBlockFor()*1000);
@@ -76,7 +77,7 @@ public class AuthenticationFilter implements Filter
 			return;
 		}
 		
-		if (!hasPathPrefix(servletPath, protectedServletPath))
+		if (!hasPathPrefix(servletPath, protectedServletPaths))
 		{
 			gotoNotProtectedResource(httpRequest, response, chain);
 			return;
@@ -196,17 +197,32 @@ public class AuthenticationFilter implements Filter
 		response.addCookie(unitySessionCookie);
 	}
 	
+	private static boolean hasPathPrefix(String pathInfo , List<String> prefixes)
+	{
+		for (String prefix : prefixes) 
+		{
+			if (hasPathPrefix(pathInfo, prefix))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public static boolean hasPathPrefix(String pathInfo , String prefix) 
 	{
-		if (pathInfo == null || pathInfo.equals("")) {
+		if (pathInfo == null || pathInfo.equals("")) 
+		{
 			return false;
 		}
 
-		if (!prefix.startsWith("/")) {
+		if (!prefix.startsWith("/")) 
+		{
 			prefix = '/' + prefix;
 		}
 
-		if (pathInfo.startsWith(prefix)) {
+		if (pathInfo.startsWith(prefix)) 
+		{
 			return true;
 		}
 
@@ -221,5 +237,10 @@ public class AuthenticationFilter implements Filter
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException
 	{
+	}
+	
+	public void addProtectedPath(String path)
+	{
+		protectedServletPaths.add(path);
 	}
 }
