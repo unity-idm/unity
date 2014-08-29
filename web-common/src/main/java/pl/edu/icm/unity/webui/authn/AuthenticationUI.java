@@ -259,7 +259,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	@Override
 	protected void refresh(VaadinRequest request) 
 	{
-		if (authenticators != null) {
+		if (authenticators != null) 
+		{
 			for (Map<String, VaadinAuthenticationUI> auth : authenticators)
 			{
 				for (VaadinAuthenticationUI authUI : auth.values())

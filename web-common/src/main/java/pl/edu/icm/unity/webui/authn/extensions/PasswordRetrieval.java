@@ -23,11 +23,14 @@ import com.vaadin.ui.themes.Reindeer;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.callbacks.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.utils.Log;
@@ -117,6 +120,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		private PasswordField passwordField;
 		private CredentialEditor credEditor;
 		private AuthenticationResultCallback callback;
+		private SandboxAuthnResultCallback sandboxCallback;
 
 		public PasswordRetrievalUI(CredentialEditor credEditor)
 		{
@@ -173,18 +177,45 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		@Override
 		public void triggerAuthentication()
 		{
-			callback.setAuthenticationResult(getAuthenticationResult());
-		}
-		
-
-		private AuthenticationResult getAuthenticationResult()
-		{
 			String username = usernameProvider.getUsername();
 			String password = passwordField.getValue();
 			if (username.equals("") && password.equals(""))
 			{
 				passwordField.setComponentError(new UserError(
 						msg.getMessage("WebPasswordRetrieval.noPassword")));
+			}
+			
+			if (sandboxCallback != null)
+			{
+				handleSandboxAuthn(username, password);
+			} else
+			{
+				callback.setAuthenticationResult(getAuthenticationResult(username, password));
+			}
+		}
+		
+
+		private void handleSandboxAuthn(String username, String password) 
+		{
+			if (username.equals("") && password.equals(""))
+			{
+				return;
+			}
+			try 
+			{
+				RemotelyAuthenticatedInput input = credentialExchange.getRemotelyAuthenticatedInput(
+						username, password);
+				sandboxCallback.handleAuthnInput(input);
+			} catch (AuthenticationException e) 
+			{
+				sandboxCallback.handleAuthnError(e);
+			}
+		}
+
+		private AuthenticationResult getAuthenticationResult(String username, String password)
+		{
+			if (username.equals("") && password.equals(""))
+			{
 				return new AuthenticationResult(Status.notApplicable, null);
 			}
 			try
@@ -257,6 +288,12 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		public void refresh(VaadinRequest request) 
 		{
 			//nop
+		}
+
+		@Override
+		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+		{
+			sandboxCallback = callback;
 		}
 	}
 }

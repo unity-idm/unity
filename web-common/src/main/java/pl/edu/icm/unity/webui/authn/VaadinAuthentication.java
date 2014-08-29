@@ -8,6 +8,7 @@ import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Component;
 
+import pl.edu.icm.unity.callbacks.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
@@ -53,6 +54,13 @@ public interface VaadinAuthentication extends BindingAuthn
 		 * @param callback
 		 */
 		public void setAuthenticationResultCallback(AuthenticationResultCallback callback);
+		
+		/**
+		 * Sets a callback object which is used to indicate sandbox authentication. The result of 
+		 * authn is returned back to the sandbox servlet and handled property. 
+		 * @param callback
+		 */
+		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback);
 		
 		/**
 		 * Should trigger the actual authentication (if was not triggered manually via the component).
@@ -116,5 +124,4 @@ public interface VaadinAuthentication extends BindingAuthn
 		 */
 		public void cancelAuthentication();
 	}
-
 }

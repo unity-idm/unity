@@ -17,10 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
+import pl.edu.icm.unity.callbacks.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.engine.authn.AuthenticatorLoader;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationException;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
@@ -40,6 +43,9 @@ import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserCompo
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinService;
+import com.vaadin.ui.JavaScript;
+import com.vaadin.ui.Notification;
 
 /**
  * Vaadin UI of the sandbox application. This servlet is based on AuthenticationUI 
@@ -55,6 +61,7 @@ public class SandboxUI extends AuthenticationUI
 {
 	private static final long serialVersionUID = 5093317898729462049L;
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, SandboxUI.class);
+	private static final String DEBUG_ID = "sbox";
 	
 	private List<AuthenticatorSet> authnList;
 
@@ -88,12 +95,69 @@ public class SandboxUI extends AuthenticationUI
 	@Override
 	protected void appInit(VaadinRequest request) 
 	{
+		setSandboxCallbackForAuthenticators();
+		
 		super.appInit(request);
 		
 		setSelectionTitle(msg.getMessage("SandboxUI.selectionTitle"));
 		setHeaderTitle(msg.getMessage("SandboxUI.headerTitle"));
+		
 	}
 	
+	private void setSandboxCallbackForAuthenticators() 
+	{
+		if (authenticators != null) 
+		{
+			for (Map<String, VaadinAuthenticationUI> auth : authenticators)
+			{
+				for (VaadinAuthenticationUI authUI : auth.values())
+				{
+					authUI.setSandboxAuthnResultCallback(new SandboxAuthnResultCallback() 
+					{
+						@Override
+						public void handleAuthnInput(RemotelyAuthenticatedInput input) 
+						{
+							cancelAuthentication();
+							if (isPopup())
+							{
+								fireAuthnEvent(input);
+								JavaScript.getCurrent().execute("window.close();");
+							} else
+							{
+								Notification.show(input.getTextDump(), Notification.Type.HUMANIZED_MESSAGE);
+							}
+						}
+						
+						@Override
+						public void handleAuthnError(AuthenticationException e) 
+						{
+							Notification.show(e.getMessage(), Notification.Type.ERROR_MESSAGE);
+						}
+					});
+				}
+			}
+		}
+	}
+
+	private void fireAuthnEvent(RemotelyAuthenticatedInput input) 
+	{
+		// TODO Auto-generated method stub
+	}
+
+	private void cancelAuthentication() 
+	{
+		if (authenticators != null) 
+		{
+			for (Map<String, VaadinAuthenticationUI> auth : authenticators)
+			{
+				for (VaadinAuthenticationUI authUI : auth.values())
+				{
+					authUI.cancelAuthentication();
+				}
+			}
+		}			
+	}
+
 	private List<AuthenticatorSet> getAllVaadinAuthenticators(AuthenticationManagement authnManagement) 
 	{
 		ArrayList<AuthenticatorSet> vaadinAuthenticators = new ArrayList<AuthenticatorSet>();
@@ -155,4 +219,20 @@ public class SandboxUI extends AuthenticationUI
 		return authenticatorUIs;
 	}
 	
+	/**
+	 * If sandbox URL contains {@value DEBUG_ID} then it's assumed that
+	 * works in debug mode - just for testing purposes when running sandbox
+	 * by hand in browser.
+	 * 
+	 * @return false if debug mode assumed
+	 */
+	private boolean isPopup() 
+	{
+		boolean isPopup = true;
+		if (VaadinService.getCurrentRequest().getParameter(DEBUG_ID) != null)
+		{
+			isPopup = false;
+		}
+		return isPopup;
+	}	
 }

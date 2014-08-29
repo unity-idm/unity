@@ -23,6 +23,7 @@ import com.vaadin.ui.themes.Reindeer;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.callbacks.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
@@ -223,6 +224,12 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 
 		@Override
 		public void refresh(VaadinRequest request) 
+		{
+			//nop
+		}
+
+		@Override
+		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
 		{
 			//nop
 		}

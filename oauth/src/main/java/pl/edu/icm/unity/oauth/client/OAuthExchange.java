@@ -14,6 +14,7 @@ import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 
 /**
  * Defines comunication of a OAuth verificator and retrieval.
@@ -26,4 +27,5 @@ public interface OAuthExchange extends CredentialExchange
 	OAuthClientProperties getSettings();
 	OAuthContext createRequest(String providerKey) throws URISyntaxException, SerializeException, ParseException, IOException;
 	AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context) throws AuthenticationException;
+	RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(OAuthContext context) throws AuthenticationException;
 }

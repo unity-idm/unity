@@ -9,12 +9,12 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Properties;
 
-import eu.unicore.security.AuthenticationException;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialReset;
@@ -86,17 +86,37 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 		RemotelyAuthenticatedInput input;
 		try
 		{
-			input = client.bindAndSearch(username, password, clientConfiguration);
-		} catch (LdapAuthenticationException e)
+			input = getRemotelyAuthenticatedInput(username, password);
+		} catch (AuthenticationException e)
 		{
-			return new AuthenticationResult(Status.deny, null, null);
-		} catch (Exception e)
-		{
+			if (e.getCause() instanceof LdapAuthenticationException)
+			{
+				return new AuthenticationResult(Status.deny, null, null);
+			}
 			throw new AuthenticationException("Problem when authenticating against the LDAP server", e);
 		}
 
 		return getResult(input, translationProfile);
 	}
+	
+
+	@Override
+	public RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(
+			String username, String password) throws AuthenticationException 
+	{
+		RemotelyAuthenticatedInput input = null;
+		try 
+		{
+			input = client.bindAndSearch(username, password, clientConfiguration);
+		} catch (LdapAuthenticationException e) 
+		{
+			throw new AuthenticationException("Authentication has failed", e);
+		} catch (Exception e)
+		{
+			throw new AuthenticationException("Problem when authenticating against the LDAP server", e);
+		}
+		return input;
+	}	
 
 	@Override
 	public CredentialReset getCredentialResetBackend()

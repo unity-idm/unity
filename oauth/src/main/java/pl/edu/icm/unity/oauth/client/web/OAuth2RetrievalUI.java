@@ -23,6 +23,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
+import pl.edu.icm.unity.callbacks.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthContextsManagement;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
@@ -31,6 +32,7 @@ import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -57,6 +59,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private OAuthContextsManagement contextManagement;
 	
 	private AuthenticationResultCallback callback;
+	private SandboxAuthnResultCallback sandboxCallback;
 	private String redirectParam;
 
 	private IdpSelectorComponent idpSelector;
@@ -319,6 +322,23 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		callback.setAuthenticationResult(authnResult);
 	}
 
+
+	/**
+	 * Called when a OAuth response is received and sandbox callback is set.
+	 * @param context
+	 */
+	private void handleSandboxAuthn(OAuthContext context) 
+	{
+		try 
+		{
+			RemotelyAuthenticatedInput input = credentialExchange.getRemotelyAuthenticatedInput(context);
+			sandboxCallback.handleAuthnInput(input);
+		} catch (AuthenticationException e) 
+		{
+			sandboxCallback.handleAuthnError(e);
+		}
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -336,8 +356,20 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			log.debug("Authentication started but OAuth2 response not arrived (user back button)");
 		} else 
 		{
-			onAuthzAnswer(context);
+			if (sandboxCallback != null)
+			{
+				handleSandboxAuthn(context);
+			} else
+			{
+				onAuthzAnswer(context);
+			}
 		}
+	}
+
+	@Override
+	public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+	{
+		sandboxCallback = callback;
 	}
 
 }

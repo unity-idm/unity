@@ -31,7 +31,6 @@ import edu.vt.middleware.password.RepeatCharacterRegexRule;
 import edu.vt.middleware.password.Rule;
 import edu.vt.middleware.password.RuleResult;
 import edu.vt.middleware.password.UppercaseCharacterRule;
-
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -43,11 +42,13 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.notifications.NotificationProducer;
 import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialHelper;
 import pl.edu.icm.unity.server.authn.CredentialReset;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.CryptoUtils;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
@@ -73,7 +74,6 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	private Random random = new Random();
 	
 	private PasswordCredential credential = new PasswordCredential();
-
 
 	public PasswordVerificator(String name, String description,
 			NotificationProducer notificationProducer, CredentialHelper credentialHelper)
@@ -315,6 +315,13 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			ruleList.add(new RepeatCharacterRegexRule(4));
 		}
 		return new PasswordValidator(ruleList);
+	}
+
+	@Override
+	public RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(
+			String username, String password) throws AuthenticationException 
+	{
+		throw new AuthenticationException("RemotelyAuthenticatedInput not supported.");
 	}
 }
 

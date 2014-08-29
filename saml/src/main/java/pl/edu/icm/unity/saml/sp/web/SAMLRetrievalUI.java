@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.callbacks.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
@@ -20,6 +21,7 @@ import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
@@ -57,6 +59,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private UnityMessageSource msg;
 	private SAMLExchange credentialExchange;
 	private AuthenticationResultCallback callback;
+	private SandboxAuthnResultCallback sandboxCallback;
 	private String redirectParam;
 	
 	private IdpSelectorComponent idpSelector;
@@ -280,6 +283,22 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		callback.setAuthenticationResult(authnResult);
 	}
 	
+	/**
+	 * Called when a SAML response is received and sandbox callback is set.
+	 * @param context
+	 */
+	private void handleSandboxAuthn(RemoteAuthnContext context) 
+	{
+		try 
+		{
+			RemotelyAuthenticatedInput input = credentialExchange.getRemotelyAuthenticatedInput(context);
+			sandboxCallback.handleAuthnInput(input);
+		} catch (AuthenticationException e) 
+		{
+			sandboxCallback.handleAuthnError(e);
+		}
+	}
+	
 	@Override
 	public void setUsernameCallback(UsernameProvider usernameCallback)
 	{
@@ -320,10 +339,16 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			log.debug("Authentication started but SAML response not arrived (user back button)");
 		} else 
 		{
-			onSamlAnswer(context);
+			if (sandboxCallback != null)
+			{
+				handleSandboxAuthn(context);
+			} else
+			{
+				onSamlAnswer(context);
+			}
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -346,5 +371,11 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	public void clear()
 	{
 		//nop
+	}
+
+	@Override
+	public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+	{
+		sandboxCallback = callback;
 	}
 }
