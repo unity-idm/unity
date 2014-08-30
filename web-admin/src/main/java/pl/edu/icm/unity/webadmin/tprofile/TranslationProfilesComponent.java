@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -44,9 +45,8 @@ import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.VerticalLayout;
 
 /**
- * Responsible for message templates management
+ * Responsible for message templates management.
  * @author P. Piernik
- *
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -64,6 +64,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 	private IdentitiesManagement idMan;
 	private AuthenticationManagement authnMan;
 	private GroupsManagement groupsMan;
+	private SandboxAuthnNotifier sandboxNotifier;
 	
 	@Autowired
 	public TranslationProfilesComponent(UnityMessageSource msg, TranslationProfileManagement profileMan,
@@ -373,5 +374,10 @@ public class TranslationProfilesComponent extends VerticalLayout
 				}
 			}).show();
 		}
+	}
+
+	public void setSandboxNotifier(SandboxAuthnNotifier sandboxNotifier) 
+	{
+		this.sandboxNotifier = sandboxNotifier;
 	}
 }

@@ -141,7 +141,7 @@ public class SandboxUI extends AuthenticationUI
 
 	private void fireAuthnEvent(RemotelyAuthenticatedInput input) 
 	{
-		// TODO Auto-generated method stub
+		sandboxRouter.fireEvent(new SandboxAuthnEvent(input));
 	}
 
 	private void cancelAuthentication() 
@@ -221,8 +221,8 @@ public class SandboxUI extends AuthenticationUI
 	
 	/**
 	 * If sandbox URL contains {@value DEBUG_ID} then it's assumed that
-	 * works in debug mode - just for testing purposes when running sandbox
-	 * by hand in browser.
+	 * it works in debug mode - just for testing purposes when running sandbox
+	 * "by hand" in browser.
 	 * 
 	 * @return false if debug mode assumed
 	 */

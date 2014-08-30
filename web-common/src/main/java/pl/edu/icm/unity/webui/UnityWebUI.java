@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui;
 import java.util.List;
 import java.util.Map;
 
+import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
@@ -29,4 +30,10 @@ public interface UnityWebUI
 	 * @param handler
 	 */
 	public void setCancelHandler(CancelHandler handler);
+
+	/**
+	 * Method invoked only for SandboxUI and AuthenticationUI.
+	 * @param sandboxRouter
+	 */
+	public void setSandboxRouter(SandboxAuthnRouter sandboxRouter);
 }

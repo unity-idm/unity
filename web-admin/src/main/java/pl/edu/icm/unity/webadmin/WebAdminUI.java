@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.home.UserAccountComponent;
+import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
@@ -123,4 +124,9 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 		contents.setExpandRatio(component, 1.0f);		
 	}
 	
+	@Override
+	public void setSandboxRouter(SandboxAuthnRouter sandboxRouter) 
+	{
+		serverManagement.setSandboxNotifier(sandboxRouter);
+	}	
 }

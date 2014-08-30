@@ -8,6 +8,8 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 
+import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
+import pl.edu.icm.unity.sandbox.SandboxAuthnRouterImpl;
 import pl.edu.icm.unity.sandbox.SandboxUI;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.UnityVaadinServlet;
@@ -21,7 +23,7 @@ import pl.edu.icm.unity.webui.VaadinEndpoint;
 public class WebAdminVaadinEndpoint extends VaadinEndpoint 
 {
 
-	private static final String SANDBOX_PATH = "/sandbox";
+	public static final String SANDBOX_PATH = "/sandbox";
 
 	public WebAdminVaadinEndpoint(EndpointTypeDescription type,
 			ApplicationContext applicationContext, String uiBeanName,
@@ -42,11 +44,16 @@ public class WebAdminVaadinEndpoint extends VaadinEndpoint
 		
 		authnFilter.addProtectedPath(SANDBOX_PATH);
 		
+		SandboxAuthnRouter sandboxRouter = new SandboxAuthnRouterImpl();
+		
 		UnityVaadinServlet sandboxServlet = new UnityVaadinServlet(applicationContext, 
 				SandboxUI.class.getSimpleName(), description, null, null);
+		sandboxServlet.setSandboxRouter(sandboxRouter);
 		ServletHolder sandboxServletHolder = createVaadinServletHolder(sandboxServlet, true);
 		sandboxServletHolder.setInitParameter("closeIdleSessions", "true");
 		context.addServlet(sandboxServletHolder, SANDBOX_PATH + "/*");
+		
+		theServlet.setSandboxRouter(sandboxRouter);
 		
 		return context;
 	}
