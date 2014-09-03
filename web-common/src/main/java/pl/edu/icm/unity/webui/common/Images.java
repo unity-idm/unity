@@ -67,6 +67,7 @@ public enum Images
 	topArrow	(I.P + "16/topArrow.png"),
 	downArrow       (I.P + "16/down.png"),
 	bottomArrow	(I.P + "16/bottomArrow.png"),
+	wizard		(I.P + "16/wizard.png"),
 	help       	(I.P + "16/help.png");
 	
 	

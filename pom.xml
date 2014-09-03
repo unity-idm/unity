@@ -86,6 +86,10 @@
 			<name>UNICORE repository</name>
 			<url>http://unicore-dev.zam.kfa-juelich.de/maven</url>
 		</repository>
+		<repository>
+		   <id>vaadin-addons</id>
+		   <url>http://maven.vaadin.com/vaadin-addons</url>
+		</repository>		
 	</repositories>
 
 	<distributionManagement>

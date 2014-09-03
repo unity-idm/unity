@@ -114,6 +114,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		table.addActionHandler(new AddActionHandler());
 		table.addActionHandler(new EditActionHandler());
 		table.addActionHandler(new DeleteActionHandler());
+		table.addActionHandler(new WizardActionHandler());
 		
 		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
 		toolbar.addActionHandlers(table.getActionHandlers());
@@ -375,6 +376,21 @@ public class TranslationProfilesComponent extends VerticalLayout
 			}).show();
 		}
 	}
+	
+	private class WizardActionHandler extends SingleActionHandler
+	{
+		public WizardActionHandler()
+		{
+			super(msg.getMessage("TranslationProfilesComponent.wizardAction"), Images.wizard.getResource());
+			setNeedsTarget(false);
+		}
+
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{
+
+		}
+	}	
 
 	public void setSandboxNotifier(SandboxAuthnNotifier sandboxNotifier) 
 	{
