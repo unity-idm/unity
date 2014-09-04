@@ -59,7 +59,7 @@ What data is actually in this structure is dependent on the upstream protocol, u
 callout configuration.
 
 Each profile should be started from a mandatory identity mapping. It is possible to control whether
-the remote identity should be matched against the local one automatically created. 
+the remote identity should be matched against the local one and/or automatically created. 
 
 Additionally the actions allow for creating Unity's attributes, identities and assigning the remote user to groups. 
 
@@ -75,6 +75,8 @@ though this is a very exotic case.
 . +idsByType+ Map of identity values indexed by type. Rarely useful.
 . +groups+ List of all remote groups. 
  
+Actions as +mapGroup+, +mapIdentity+ or +mapAttribute+ can be used with an expression returning either
+a single value or a collection of values.
 
 Example input profile:
 ------
@@ -98,7 +100,7 @@ Action parameters:
 3: Condition: groups contains 'student'
 Action: mapGroup
 Action parameters:
-  expression = /A/B
+  expression = '/A/B'
 ------
 
 The above profile in the first action maps the attribute +urn:oid:2.5.4.3+ value to Unity identity of +userName+ 
