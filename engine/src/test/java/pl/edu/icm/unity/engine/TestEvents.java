@@ -6,6 +6,8 @@ package pl.edu.icm.unity.engine;
 
 
 import static org.junit.Assert.*;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -20,6 +22,7 @@ import pl.edu.icm.unity.server.events.EventListener;
  * Tests the core events mechanism
  * @author K. Benedyczak
  */
+@Ignore
 public class TestEvents extends DBIntegrationTestBase
 {
 	@Autowired
