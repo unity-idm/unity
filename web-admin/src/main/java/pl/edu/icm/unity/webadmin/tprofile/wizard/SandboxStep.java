@@ -19,29 +19,30 @@ import com.vaadin.ui.Component;
 public class SandboxStep implements WizardStep 
 {
 
-	public SandboxStep(UnityMessageSource msg) 
+	private UnityMessageSource msg;
+	private String sandboxURL;
+
+	public SandboxStep(UnityMessageSource msg, String sandboxURL) 
 	{
-		// TODO Auto-generated constructor stub
+		this.msg = msg;
+		this.sandboxURL = sandboxURL;
 	}
 
 	@Override
 	public String getCaption() 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return msg.getMessage("Wizard.SandboxStep.caption");
 	}
 
 	@Override
 	public Component getContent() 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return new SandboxStepComponent(msg, sandboxURL);
 	}
 
 	@Override
 	public boolean onAdvance() 
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -49,7 +50,7 @@ public class SandboxStep implements WizardStep
 	public boolean onBack() 
 	{
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 }

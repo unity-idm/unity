@@ -7,7 +7,9 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -17,13 +19,19 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.webadmin.WebAdminEndpointFactory;
+import pl.edu.icm.unity.webadmin.WebAdminVaadinEndpoint;
+import pl.edu.icm.unity.webadmin.tprofile.wizard.WizardDialog;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -52,6 +60,8 @@ import com.vaadin.ui.VerticalLayout;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class TranslationProfilesComponent extends VerticalLayout
 {
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, TranslationProfilesComponent.class);
+			
 	private UnityMessageSource msg;
 	private TranslationProfileManagement profileMan;
 	private GenericElementsTable<TranslationProfile> table;
@@ -64,12 +74,14 @@ public class TranslationProfilesComponent extends VerticalLayout
 	private IdentitiesManagement idMan;
 	private AuthenticationManagement authnMan;
 	private GroupsManagement groupsMan;
+
 	private SandboxAuthnNotifier sandboxNotifier;
+	private String sandboxURL;
 	
 	@Autowired
 	public TranslationProfilesComponent(UnityMessageSource msg, TranslationProfileManagement profileMan,
 			TranslationActionsRegistry tc, AttributesManagement attrsMan, IdentitiesManagement idMan, 
-			AuthenticationManagement authnMan, GroupsManagement groupsMan)
+			AuthenticationManagement authnMan, GroupsManagement groupsMan, EndpointManagement endpointMan)
 	{
 		this.msg = msg;
 		this.profileMan = profileMan;
@@ -78,6 +90,22 @@ public class TranslationProfilesComponent extends VerticalLayout
 		this.idMan = idMan;
 		this.authnMan = authnMan;
 		this.groupsMan = groupsMan;
+		
+		try 
+		{
+			List<EndpointDescription> endpointList = endpointMan.getEndpoints();
+			for (EndpointDescription endpoint : endpointList) {
+				if (endpoint.getType().getName().equals(WebAdminEndpointFactory.NAME))
+				{
+					sandboxURL = endpoint.getContextAddress() + WebAdminVaadinEndpoint.SANDBOX_PATH;
+					break;
+				}
+			}
+		} catch (EngineException e) 
+		{
+			LOG.error("Unable to retrieve enbpoints: " + e.getMessage(), e);
+			throw new IllegalStateException("Unable to retrieve enbpoints", e);
+		}		
 		
 		HorizontalLayout hl = new HorizontalLayout();
 		setCaption(msg.getMessage("TranslationProfilesComponent.capion"));
@@ -388,7 +416,8 @@ public class TranslationProfilesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-
+			WizardDialog wizard = new WizardDialog(msg, sandboxURL);
+			wizard.show();
 		}
 	}	
 

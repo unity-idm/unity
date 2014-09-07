@@ -18,37 +18,35 @@ import com.vaadin.ui.Component;
 public class DryRunStep implements WizardStep 
 {
 
+	private UnityMessageSource msg;
+
 	public DryRunStep(UnityMessageSource msg) 
 	{
-		// TODO Auto-generated constructor stub
+		this.msg = msg;
 	}
 
 	@Override
 	public String getCaption() 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return msg.getMessage("Wizard.DryRunStep.caption");
 	}
 
 	@Override
 	public Component getContent() 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return new DryRunStepComponent(msg);
 	}
 
 	@Override
 	public boolean onAdvance() 
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean onBack() 
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 }
