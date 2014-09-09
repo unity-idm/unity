@@ -39,6 +39,7 @@ public class LdapClientConfiguration
 	private List<GroupSpecification> groups;
 	private Filter validUsersFilter;
 	private X509CertChainValidator connectionValidator;
+	private List<SearchSpecification> extraSearches;
 	
 	public LdapClientConfiguration(LdapProperties ldapProperties, PKIManagement pkiManagement)
 	{
@@ -110,6 +111,29 @@ public class LdapClientConfiguration
 				}
 			}
 		}
+		
+		Set<String> skeys = ldapProperties.getStructuredListKeys(LdapProperties.ADV_SEARCH_PFX);
+		extraSearches = new ArrayList<>(skeys.size());
+		for (String key: skeys)
+		{
+			SearchSpecification spec = new SearchSpecification();
+			
+			String filter = ldapProperties.getValue(key+LdapProperties.ADV_SEARCH_FILTER);
+			try
+			{
+				spec.setFilter(filter);
+			} catch (LDAPException e)
+			{
+				throw new ConfigurationException("The additional search query '" + key 
+						+ "' filter is invalid: " + filter, e);
+			}
+			spec.setBaseDN(ldapProperties.getValue(key+LdapProperties.ADV_SEARCH_BASE));
+			String attrs = ldapProperties.getValue(key+LdapProperties.ADV_SEARCH_ATTRIBUTES);
+			String[] attrsA = attrs.split("[ ]+");
+			spec.setAttributes(attrsA);
+			
+			extraSearches.add(spec);
+		}
 	}
 
 	public String[] getServers()
@@ -172,6 +196,16 @@ public class LdapClientConfiguration
 		return groups;
 	}
 	
+	public static String getUsernameToken()
+	{
+		return USERNAME_TOKEN;
+	}
+
+	public List<SearchSpecification> getExtraSearches()
+	{
+		return extraSearches;
+	}
+
 	public String getMemberOfAttribute()
 	{
 		return ldapProperties.getValue(LdapProperties.MEMBER_OF_ATTRIBUTE);		
