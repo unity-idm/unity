@@ -21,11 +21,13 @@ public class SandboxStep implements WizardStep
 
 	private UnityMessageSource msg;
 	private String sandboxURL;
+	private boolean onAdvance;
 
 	public SandboxStep(UnityMessageSource msg, String sandboxURL) 
 	{
 		this.msg = msg;
 		this.sandboxURL = sandboxURL;
+		onAdvance = false;
 	}
 
 	@Override
@@ -43,14 +45,18 @@ public class SandboxStep implements WizardStep
 	@Override
 	public boolean onAdvance() 
 	{
-		return false;
+		return onAdvance;
 	}
 
 	@Override
 	public boolean onBack() 
 	{
-		// TODO Auto-generated method stub
 		return true;
+	}
+	
+	public void enableNext()
+	{
+		onAdvance = true;
 	}
 
 }

@@ -13,6 +13,7 @@ import com.vaadin.ui.Button.ClickListener;
 
 /**
  * This class extends {@link BrowserWindowOpener} with handy options.
+ * Note that once popup window is opened, polling is enabled.
  * 
  * @author Roman Krysinski
  */

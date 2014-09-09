@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.tprofile.wizard;
 
 import org.vaadin.teemu.wizards.WizardStep;
 
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 import com.vaadin.ui.Component;
@@ -17,12 +18,18 @@ import com.vaadin.ui.Component;
  */
 public class ProfileStep implements WizardStep 
 {
-
 	private UnityMessageSource msg;
+	private ProfileStepComponent profileComponent;
 
 	public ProfileStep(UnityMessageSource msg) 
 	{
 		this.msg = msg;
+		profileComponent = new ProfileStepComponent(msg);
+	}
+
+	public void handle(RemotelyAuthenticatedInput authnInput) 
+	{
+		profileComponent.handle(authnInput);
 	}
 
 	@Override
@@ -34,7 +41,7 @@ public class ProfileStep implements WizardStep
 	@Override
 	public Component getContent() 
 	{
-		return new ProfileStepComponent(msg);
+		return profileComponent;
 	}
 
 	@Override
@@ -46,7 +53,6 @@ public class ProfileStep implements WizardStep
 	@Override
 	public boolean onBack() 
 	{
-		return false;
+		return true;
 	}
-
 }

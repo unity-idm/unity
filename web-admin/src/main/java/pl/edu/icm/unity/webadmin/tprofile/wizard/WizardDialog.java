@@ -4,17 +4,22 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile.wizard;
 
-import org.apache.log4j.Logger;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.vaadin.teemu.wizards.event.WizardCancelledEvent;
 import org.vaadin.teemu.wizards.event.WizardCompletedEvent;
 import org.vaadin.teemu.wizards.event.WizardProgressListener;
 import org.vaadin.teemu.wizards.event.WizardStepActivationEvent;
 import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
-import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
+import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
+import com.vaadin.event.UIEvents.PollEvent;
+import com.vaadin.event.UIEvents.PollListener;
 import com.vaadin.server.ExternalResource;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
@@ -25,22 +30,82 @@ import com.vaadin.ui.Window;
  */
 public class WizardDialog extends Window implements WizardProgressListener
 {
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, WizardDialog.class);
 	private WizardDialogComponent wizardComponent;
 	private String sandboxURL;
+	private AtomicBoolean isAuthnEventArrived;
+	private SandboxAuthnNotifier sandboxNotifier;
+	private SandboxAuthnNotifier.Listener sandboxListener;
 
-	public WizardDialog(UnityMessageSource msg, String sandboxURL)
+	public WizardDialog(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier)
 	{
-		this.sandboxURL = sandboxURL;
+		this.sandboxURL      = sandboxURL;
+		this.sandboxNotifier = sandboxNotifier;
+		isAuthnEventArrived  = new AtomicBoolean(false);
+		wizardComponent      = new WizardDialogComponent(msg, sandboxURL);
+		wizardComponent.addWizardListener(this);
+		
+		openSandboxPopupOnNextButton();
+		
+		addSandboxListener();
+		
+		addPoolListener();
+		
 		setModal(true);
 		setClosable(false);
 		setWidth(80, Unit.PERCENTAGE);
 		setHeight(85, Unit.PERCENTAGE);
-		wizardComponent = new WizardDialogComponent(msg, sandboxURL);
-		wizardComponent.addWizardListener(this);
-		openSandboxPopupOnNextButton();
 		setContent(wizardComponent);
 	}
+
+	private void openSandboxPopupOnNextButton() 
+	{
+		SandboxPopup popup = new SandboxPopup(new ExternalResource(sandboxURL));
+		popup.attachButtonOnce(wizardComponent.getNextButton());	
+	}
+
+	
+	private void addSandboxListener() 
+	{
+		sandboxListener = new SandboxAuthnNotifier.Listener() 
+		{
+			@Override
+			public void handle(SandboxAuthnEvent event) 
+			{
+				try 
+				{
+					VaadinSession.getCurrent().lock();
+					wizardComponent.handle(event.getAuthnInput());
+					isAuthnEventArrived.set(true);
+				} finally 
+				{
+					VaadinSession.getCurrent().unlock();
+				}				
+			}
+		};
+		
+		sandboxNotifier.addListener(sandboxListener);
+	}
+	
+	/**
+	 * Once sanbox popup window is opened, the {@value SandboxPopup.POLLING_INTERVAL} ms
+	 * interval polling is enabled. This is to let the admin gui quickly detect when 
+	 * sandbox event arrives and then disable polling.
+	 */
+	private void addPoolListener() 
+	{
+		UI.getCurrent().addPollListener(new PollListener() 
+		{
+			@Override
+			public void poll(PollEvent event) 
+			{
+				if (isAuthnEventArrived.get()) 
+				{
+					disablePolling();
+					isAuthnEventArrived.set(false);
+				}
+			}
+		});
+	}	
 	
 	public void show()
 	{
@@ -54,13 +119,13 @@ public class WizardDialog extends Window implements WizardProgressListener
 		{
 			((UI) getParent()).removeWindow(this);
 		}
+		sandboxNotifier.removeListener(sandboxListener);
 		disablePolling();
 	}
 
 	@Override
 	public void activeStepChanged(WizardStepActivationEvent event) 
 	{
-		LOG.debug("activeStepChanged");
 		if (event.getActivatedStep() instanceof IntroStep) 
 		{
 			openSandboxPopupOnNextButton();
@@ -85,12 +150,6 @@ public class WizardDialog extends Window implements WizardProgressListener
 		close();
 	}
 	
-	private void openSandboxPopupOnNextButton() 
-	{
-		SandboxPopup popup = new SandboxPopup(new ExternalResource(sandboxURL));
-		popup.attachButtonOnce(wizardComponent.getNextButton());	
-	}
-
 	private void disablePolling() 
 	{
 		if (UI.getCurrent().getPollInterval() != -1) 

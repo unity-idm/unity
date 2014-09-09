@@ -416,7 +416,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			WizardDialog wizard = new WizardDialog(msg, sandboxURL);
+			WizardDialog wizard = new WizardDialog(msg, sandboxURL, sandboxNotifier);
 			wizard.show();
 		}
 	}	
