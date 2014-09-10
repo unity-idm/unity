@@ -30,7 +30,7 @@ public class TranslationProfileEditDialog extends AbstractDialog
 		super(msg, caption);
 		this.editor = editor;
 		this.callback = callback;
-		setWidth(50, Unit.PERCENTAGE);
+		setWidth(60, Unit.PERCENTAGE);
 		setHeight(85, Unit.PERCENTAGE);
 	}
 
