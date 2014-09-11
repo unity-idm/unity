@@ -73,7 +73,15 @@ public class SamlPreferencesEditor implements PreferencesEditor
 	{
 		main = new HorizontalLayout();
 		
-		table = new GenericElementsTable<String>(msg.getMessage("SAMLPreferences.spSettings"), String.class);
+		table = new GenericElementsTable<String>(msg.getMessage("SAMLPreferences.spSettings"), String.class,
+				new GenericElementsTable.NameProvider<String>()
+				{
+					public Object toRepresentation(String element)
+					{
+						return element.equals("") ? 
+								msg.getMessage("SAMLPreferences.defaultSP") : element;
+					}
+				});
 		table.setWidth(90, Unit.PERCENTAGE);
 		main.addComponent(table);
 		viewer = configureViewer();
