@@ -26,7 +26,7 @@ public class OAuthContext extends RemoteAuthnState
 	private String returnUrl;
 	private String providerConfigKey;
 
-	public void setRequest(AuthorizationRequest request, URI requestURI, String providerConfigKey)
+	public synchronized void setRequest(AuthorizationRequest request, URI requestURI, String providerConfigKey)
 	{
 		this.request = request;
 		this.requestURI = requestURI;

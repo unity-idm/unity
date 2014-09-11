@@ -42,7 +42,6 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
-import pl.edu.icm.unity.types.registration.AttributeParamValue;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
@@ -443,9 +442,9 @@ public class TestRegistrations extends DBIntegrationTestBase
 		RegistrationRequest request = new RegistrationRequest();
 		
 		request.setAgreements(Collections.singletonList(new Selection(true)));
-		AttributeParamValue ap = new AttributeParamValue();
-		ap.setAttribute(new StringAttribute("email", "/", AttributeVisibility.full, "foo@a.b"));
-		request.setAttributes(Collections.singletonList(ap));
+		List<Attribute<?>> attrs = new ArrayList<Attribute<?>>();
+		attrs.add(new StringAttribute("email", "/", AttributeVisibility.full, "foo@a.b"));
+		request.setAttributes(attrs);
 		request.setComments("comments");
 		CredentialParamValue cp = new CredentialParamValue();
 		cp.setCredentialId(EngineInitialization.DEFAULT_CREDENTIAL);

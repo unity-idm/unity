@@ -44,6 +44,7 @@ public enum Images
 	deleteEntity	(I.P + "16/entity_delete.png"),
 	deleteIdentity	(I.P + "16/identity_delete.png"),
 	edit		(I.P + "16/edit.png"),
+	copy		(I.P + "16/copy.png"),
 	editUser	(I.P + "16/user_edit.png"),
 	editFolder	(I.P + "16/folder_edit.png"),
 	ok		(I.P + "16/ok.png"),

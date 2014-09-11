@@ -296,7 +296,7 @@ public class RuleComponent extends VerticalLayout
 		{
 			ActionParameterComponent p = getParameterComponent(params[i]);
 			p.setValidationVisible(false);
-			if (values != null && values[i] != null)
+			if (values != null && values.length > i && values[i] != null)
 			{
 				p.setActionValue(values[i]);
 			}		

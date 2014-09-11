@@ -57,7 +57,7 @@ public class SamlPreferences implements JsonSerializable
 	{
 		ObjectNode settingsN = main.with("spSettings");
 		for (Map.Entry<String, SPSettings> entry: spSettings.entrySet())
-			settingsN.put(entry.getKey(), serializeSingle(entry.getValue()));
+			settingsN.set(entry.getKey(), serializeSingle(entry.getValue()));
 	}
 	
 	protected ObjectNode serializeSingle(SPSettings what)
@@ -158,9 +158,17 @@ public class SamlPreferences implements JsonSerializable
 		return getSPSettings(sp);
 	}
 
+	/**
+	 * @param sp
+	 * @return settings for the given service provider. If no preferences are defined for he given provider 
+	 * then first the default as set by user preferences are returned and if those are also unset then
+	 * hardcoded defaults are used. 
+	 */
 	public SPSettings getSPSettings(String sp)
 	{
 		SPSettings ret = spSettings.get(sp);
+		if (ret == null)
+			ret = spSettings.get("");
 		if (ret == null)
 			ret = new SPSettings();
 		return ret;
@@ -182,6 +190,10 @@ public class SamlPreferences implements JsonSerializable
 		setSPSettings(getSPKey(spName), settings);
 	}
 	
+	/**
+	 * @param sp Use empty string as a key to set default preferences
+	 * @param settings
+	 */
 	public void setSPSettings(String sp, SPSettings settings)
 	{
 		spSettings.put(sp, settings);

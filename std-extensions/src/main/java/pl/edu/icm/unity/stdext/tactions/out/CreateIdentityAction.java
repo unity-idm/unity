@@ -38,12 +38,13 @@ public class CreateIdentityAction extends AbstractOutputTranslationAction
 	protected void invokeWrapped(TranslationInput input, Object mvelCtx, String currentProfile,
 			TranslationResult result) throws EngineException
 	{
-		String value = MVEL.executeExpression(idValueExpression, mvelCtx).toString();
-		if (value == null)
+		Object valueO = MVEL.executeExpression(idValueExpression, mvelCtx);
+		if (valueO == null)
 		{
 			log.debug("Identity value evaluated to null, skipping");
 			return;
 		}
+		String value = valueO.toString();
 		for (IdentityParam existing: result.getIdentities())
 		{
 			if (existing.getTypeId().equals(idTypeString))

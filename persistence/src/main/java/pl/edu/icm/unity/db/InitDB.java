@@ -75,6 +75,7 @@ public class InitDB
 		{
 			db.releaseSqlSession(session);
 			initDB();
+			dbVersionAtServerStarup = dbVersion2Long(DB.DB_VERSION);
 			return;
 		}
 		

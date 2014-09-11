@@ -96,17 +96,21 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		AssertionResponse resp = getOKResponseDocument();
 		
 		if (returnSingleAssertion)
-			resp.addAssertion(createAuthenticationAssertion(authenticatedOne, attributes));
-		else
-			resp.addAssertion(createAuthenticationAssertion(authenticatedOne, null));
-		
-		if (attributes != null && !returnSingleAssertion)
 		{
-			SubjectType attributeAssertionSubject = cloneSubject(authenticatedOne);
-			setSenderVouchesSubjectConfirmation(attributeAssertionSubject);
-			Assertion assertion = createAttributeAssertion(attributeAssertionSubject, attributes);
-			if (assertion != null)
-				resp.addAssertion(assertion);
+			Assertion authnAssertion = createAuthenticationAssertion(authenticatedOne, attributes);
+			addAssertionEncrypting(resp, authnAssertion);
+		} else
+		{
+			Assertion authnAssertion = createAuthenticationAssertion(authenticatedOne, null);
+			addAssertionEncrypting(resp, authnAssertion);
+			if (attributes != null)
+			{
+				SubjectType attributeAssertionSubject = cloneSubject(authenticatedOne);
+				setSenderVouchesSubjectConfirmation(attributeAssertionSubject);
+				Assertion assertion = createAttributeAssertion(attributeAssertionSubject, attributes);
+				if (assertion != null)
+					addAssertionEncrypting(resp, assertion);
+			}
 		}
 		return resp.getXMLBeanDoc();
 	}

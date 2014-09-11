@@ -43,6 +43,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webadmin.identities.CredentialRequirementDialog.Callback;
+import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -336,9 +337,19 @@ public class IdentitiesTable extends TreeTable
 				}
 
 				scol[entry.getValue().getOrder()] = entry.getKey();
-
 			}
-			setVisibleColumns(scol);
+			
+			//get all which are not in prefs and add them at the end. Important for prefs from older version.
+			HashSet<String> missing = new HashSet<String>(props);
+			missing.removeAll(preferences.getColumnSettings().keySet());
+			Object[] scolComplete = new Object[scol.length + missing.size()];
+			int i=0;
+			for (; i<scol.length; i++)
+				scolComplete[i] = scol[i];
+			for (String miss: missing)
+				scolComplete[i++] = miss;
+			
+			setVisibleColumns(scolComplete);
 		}
 
 	}
@@ -718,13 +729,7 @@ public class IdentitiesTable extends TreeTable
 						.getEntityWithLabel() : ((EntityWithLabel) node);
 				toRemove.put(entity.getEntity().getId(), entity);
 			}
-			String confirmText = "";
-			for (EntityWithLabel entity : toRemove.values())
-			{
-				confirmText += ", ";
-				confirmText += entity;
-			}
-			confirmText = confirmText.substring(2);
+			String confirmText = MessageUtils.createConfirmFromStrings(msg, toRemove.values());
 			new ConfirmDialog(msg, msg.getMessage("Identities.confirmRemoveFromGroup",
 					confirmText, group), new ConfirmDialog.Callback()
 			{
@@ -819,13 +824,7 @@ public class IdentitiesTable extends TreeTable
 						((EntityWithLabel) node);
 				toRemove.put(entity.getEntity().getId(), entity);
 			}
-			String confirmText = "";
-			for (EntityWithLabel entity : toRemove.values())
-			{
-				confirmText += ", ";
-				confirmText += entity;
-			}
-			confirmText = confirmText.substring(2);
+			String confirmText = MessageUtils.createConfirmFromStrings(msg, toRemove.values());
 			new ConfirmDialog(msg, msg.getMessage("Identities.confirmEntityDelete",
 					confirmText), new ConfirmDialog.Callback()
 			{
@@ -887,7 +886,7 @@ public class IdentitiesTable extends TreeTable
 				filteredNodes.add(node);
 			}
 			if (count > 3)
-				confirmText.append(msg.getMessage("Identities.andMore", count-3));
+				confirmText.append(msg.getMessage("MessageUtils.andMore", count-3));
 				
 			String confirmTextF = confirmText.substring(2);
 			new ConfirmDialog(msg, msg.getMessage("Identities.confirmIdentityDelete",

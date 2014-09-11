@@ -42,17 +42,18 @@ public class CreatePersistentIdentityAction extends AbstractOutputTranslationAct
 	protected void invokeWrapped(TranslationInput input, Object mvelCtx, String currentProfile,
 			TranslationResult result) throws EngineException
 	{
-		String value = MVEL.executeExpression(idValueExpression, mvelCtx).toString();
-		if (value == null)
+		Object valueO = MVEL.executeExpression(idValueExpression, mvelCtx);
+		if (valueO == null)
 		{
 			log.debug("Identity value evaluated to null, skipping");
 			return;
 		}
+		String value = valueO.toString();
 		IdentityParam newId = new IdentityParam(idType.getId(), value, null, currentProfile);
 		String cmpValue = idType.getComparableValue(value, null, null);
 		for (IdentityParam existing: result.getIdentities())
 		{
-			if (existing.getTypeId().equals(idType))
+			if (existing.getTypeId().equals(idType.getId()))
 			{
 				if (idType.getComparableValue(existing.getValue(), null, null).equals(cmpValue))
 				{

@@ -10,16 +10,19 @@ import java.io.IOException;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.db.export.DumpHeader;
+import pl.edu.icm.unity.db.export.GenericsIE;
+import pl.edu.icm.unity.db.export.IdentitiesIE;
+import pl.edu.icm.unity.db.mapper.GenericMapper;
+import pl.edu.icm.unity.db.mapper.IdentitiesMapper;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.utils.Log;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-
-import pl.edu.icm.unity.db.export.DumpHeader;
-import pl.edu.icm.unity.db.export.IdentitiesIE;
-import pl.edu.icm.unity.db.mapper.IdentitiesMapper;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.utils.Log;
 
 /**
  * Updates DB contents. Note that this class is not updating DB schema (it is done in {@link InitDB}).
@@ -29,15 +32,18 @@ import pl.edu.icm.unity.server.utils.Log;
  *  
  * @author K. Benedyczak
  */
+@Component
 public class ContentsUpdater
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, ContentsUpdater.class);
 	private final IdentitiesIE identitiesIE;
+	private GenericsIE genericsIE;
 	
 	@Autowired
-	public ContentsUpdater(IdentitiesIE identitiesIE)
+	public ContentsUpdater(IdentitiesIE identitiesIE, GenericsIE genericsIE)
 	{
 		this.identitiesIE = identitiesIE;
+		this.genericsIE = genericsIE;
 	}
 
 	public void update(long oldDbVersion, SqlSession sql) throws IOException, EngineException
@@ -55,6 +61,14 @@ public class ContentsUpdater
 	{
 		log.info("Updating DB contents to 2_1_1 format");
 
+		updateIdentitites(sql);
+		updateGeneric(sql);
+		
+		log.info("Update to 2_1_1 format finished");
+	}
+	
+	private void updateIdentitites(SqlSession sql) throws IOException, EngineException
+	{
 		log.info(" - Identities are recreated");
 		JsonFactory jsonF = new JsonFactory();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(102400);
@@ -71,7 +85,26 @@ public class ContentsUpdater
 		fakeHeader.setVersionMajor(1);
 		fakeHeader.setVersionMinor(0);
 		identitiesIE.deserialize(sql, jp, fakeHeader);
-
-		log.info("Update to 2_1_1 format finished");
+	}
+	
+	private void updateGeneric(SqlSession sql) throws IOException, EngineException
+	{
+		log.info(" - Generics are recreated");
+		JsonFactory jsonF = new JsonFactory();
+		ByteArrayOutputStream baos = new ByteArrayOutputStream(102400);
+		JsonGenerator jg = jsonF.createGenerator(baos);
+		genericsIE.serialize(sql, jg);
+		jg.close();
+		String contents = baos.toString();
+		GenericMapper mapper = sql.getMapper(GenericMapper.class);
+		mapper.deleteAll();
+		
+		JsonParser jp = jsonF.createParser(contents);
+		jp.nextToken();
+		genericsIE.deserialize(sql, jp);
 	}
 }
+
+
+
+

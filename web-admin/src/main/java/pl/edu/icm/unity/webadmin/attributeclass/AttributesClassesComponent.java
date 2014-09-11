@@ -18,6 +18,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
@@ -233,13 +234,7 @@ public class AttributesClassesComponent  extends VerticalLayout
 		{
 			final Collection<String> items = getItems(target);
 			
-			String confirmText = "";
-			for (String item : items)
-			{
-				confirmText += ", ";
-				confirmText += item;
-			}
-			confirmText = confirmText.substring(2);
+			String confirmText = MessageUtils.createConfirmFromStrings(msg, items);
 			new ConfirmDialog(msg, msg.getMessage("AttributesClass.confirmDelete", confirmText),
 					new ConfirmDialog.Callback()
 			{

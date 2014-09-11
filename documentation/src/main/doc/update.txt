@@ -1,7 +1,8 @@
 == Update
 
 This section covers a general update procedure. Make sure to read version specific update instruction too: 
-<<ver-update>>.
+<<ver-update>>. If you are updating with a revision release (change of the version number after the last dot only, 
+e.g. 1.3.0 -> 1.3.1 or 9.11.2 -> 9.11.5) you can skip to the simplified <<revision-update>> instruction.
 
 The update is a potentially dangerous operation, therefore we suggest to take two precautions:
 
@@ -34,18 +35,39 @@ If using the RPM:
 
 [NOTE] 
 The database dump can be created and loaded from the Web Admin UI, from the _Server maintenance_ tab. It can be used 
-to transfer the Unity state between instances, can be also used as a backup tool. Howver in the upgrade case
+to transfer the Unity state between instances, can be also used as a backup tool. However in the upgrade case
 it is strongly suggested to make a regular database dump.
+
+[[revision-update]]
+=== Revision (bugfix) update
+
+From time to time a revision version of Unity is released. Such version is marked with a change of the last 
+number in the distribution version only. When installing such revision release a simplified procedure can be
+taken. Database backup is advised as always, though in revision update the risk is minimal - revision releases
+typically do not introduce database changes.
+  
+When using the +.tar.gz+: 
+
+. Unpack the updated release
+. Stop the server
+. Replace the contents of the server's +lib/+ directory with the contents of the +lib/+ directory of the updated package.
+. Start the server
+
+When using RPM distribution it is enough to update the package with your package manager and restart the server. 
 
 [[ver-update]]
 === Version specific update instructions
+
+[NOTE]
+The last component in the version string is irrelevant for the following instructions. For instance instructions
+for the 1.2.0->1.3.0 applies also to 1.2.0->1.3.1 and all other 1.3.x versions.
 
 ==== From pre-1.2.0 version
 
 You should follow instructions and upgrade version by version. The update instructions are always available
 in the documentation of the version to which you are upgrading.
 
-==== From 1.2.0 to 1.3.0
+==== From 1.2.0 to 1.3.x
 
 The version 1.3.0 introduces automatic update database tooling. Be sure to make a backup before an update. 
 In case of production environments be sure to perform a test drive on a production database copy.
@@ -62,3 +84,9 @@ to remove the legacy properties from endpoint configuration files: +filter*+, +g
 If the defaults were not used, the properties should be removed too, a custom output translation profile created
 with rules filtering and or settings proper membership attribute, and finally the new profile must be assigned to the 
 affected endpoint.    
+
+If you still use the feature to load translation profiles from JSON files, please remove the definitions 
+from configuration in +unityServer.conf+ or manually update the JSON definitions. 
+Note that the profiles are anyway stored in the database after initial loading at server startup and will be updated
+there. The JSON files won't be updated automatically. 
+Note also that this format is undocumented and this feature is going to be deprecated soon. 

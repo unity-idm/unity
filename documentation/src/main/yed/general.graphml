@@ -50,7 +50,7 @@
           <y:Geometry height="42.0" width="153.0" x="211.5" y="470.0"/>
           <y:Fill color="#3366FF" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="110.04296875" x="21.478515625" y="4.0">OAuth 1 endpoint</y:NodeLabel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="110.04296875" x="21.478515625" y="4.0">OAuth 2 endpoint</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>

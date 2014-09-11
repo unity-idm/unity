@@ -6,8 +6,10 @@ package pl.edu.icm.unity.ldap;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +17,14 @@ import java.util.Set;
 import javax.net.ssl.SSLContext;
 
 import org.apache.log4j.Logger;
+
+import pl.edu.icm.unity.ldap.LdapClientConfiguration.ConnectionMode;
+import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
+import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
+import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.stdext.identity.X500Identity;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.DN;
@@ -37,14 +47,6 @@ import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.security.canl.SSLContextCreator;
-
-import pl.edu.icm.unity.ldap.LdapClientConfiguration.ConnectionMode;
-import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
-import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
-import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.stdext.identity.X500Identity;
 
 /**
  * LDAP v3 client code. Immutable -> thread safe.
@@ -146,6 +148,8 @@ public class LdapClient
 		
 		RemotelyAuthenticatedInput ret = assembleBaseResult(entry);
 		findGroupsMembership(connection, entry, configuration, ret.getGroups());
+		
+		performAdditionalQueries(connection, configuration, user, ret);
 		
 		connection.close();
 		return ret;
@@ -314,6 +318,49 @@ public class LdapClient
 		return rg;
 	}
 	
+	private void performAdditionalQueries(LDAPConnection connection, LdapClientConfiguration configuration, 
+			String user, RemotelyAuthenticatedInput principalData) throws LDAPException
+	{
+		int timeLimit = configuration.getSearchTimeLimit();
+		int sizeLimit = configuration.getAttributesLimit();
+		DereferencePolicy derefPolicy = configuration.getDereferencePolicy();
+		SearchScope searchScope = configuration.getSearchScope();
+
+		List<SearchSpecification> searchSpecs = configuration.getExtraSearches();
+		for (SearchSpecification searchSpec: searchSpecs)
+		{
+			String[] queriedAttributes = searchSpec.getAttributes();
+			Filter validUsersFilter = searchSpec.getFilter(user);
+			String base = searchSpec.getBaseDN();
+			ReadOnlySearchRequest searchRequest = new SearchRequest(base, searchScope, derefPolicy, 
+					sizeLimit, timeLimit, false, validUsersFilter, queriedAttributes);
+			SearchResult result = connection.search(searchRequest);
+			consolidateAttributes(result, principalData);
+		}
+	}
+	
+	private void consolidateAttributes(SearchResult result, RemotelyAuthenticatedInput principalData)
+	{
+		Map<String, Set<String>> attributes = new HashMap<String, Set<String>>();
+		for (SearchResultEntry entry: result.getSearchEntries())
+		{
+			for (Attribute a: entry.getAttributes())
+			{
+				Set<String> curValues = attributes.get(a.getName());
+				if (curValues == null)
+				{
+					curValues = new LinkedHashSet<String>();
+					attributes.put(a.getName(), curValues);
+				}
+				Collections.addAll(curValues, a.getValues());
+			}
+		}
+		
+		for (Map.Entry<String, Set<String>> e: attributes.entrySet())
+		{
+			principalData.addAttribute(new RemoteAttribute(e.getKey(), e.getValue().toArray()));
+		}
+	}
 	
 	/**
 	 * Returns a value of the nameAttribute in dn. If not found then null is returned. This is intended 

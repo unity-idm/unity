@@ -26,7 +26,6 @@ import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
-
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
@@ -74,6 +73,7 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String ALLOWED_SP_ENTITY = "entity";
 	public static final String ALLOWED_SP_RETURN_URL = "returnURL";
 	public static final String ALLOWED_SP_CERT = "certificate";
+	public static final String ALLOWED_SP_ENCRYPT = "encryptAssertion";
 	
 	public static final String GROUP_PFX = "groupMapping.";
 	public static final String GROUP_TARGET = "serviceProvider";
@@ -139,7 +139,11 @@ public class SamlIdpProperties extends SamlProperties
 		defaults.put(ALLOWED_SP_ENTITY, new PropertyMD().setStructuredListEntry(ALLOWED_SP).setCategory(samlCat).
 				setDescription("Entity ID (typically an URI) of a trusted SAML requester (SP)."));
 		defaults.put(ALLOWED_SP_CERT, new PropertyMD().setStructuredListEntry(ALLOWED_SP).setCategory(samlCat).
-				setDescription("Certificate of the SP. Used only when acceptance policy is +strict+."));
+				setDescription("Certificate of the SP. Used only when acceptance policy is +strict+ "
+						+ "and when assertion encryption is turned on for this SP."));
+		defaults.put(ALLOWED_SP_ENCRYPT, new PropertyMD("false").setStructuredListEntry(ALLOWED_SP).setCategory(samlCat).
+				setDescription("Whether to encrypt assertions sent to this peer. "
+						+ "Usually not needed as Unity uses TLS. If turned on, then certificate of the peer must be also set."));
 		defaults.put(ALLOWED_SP_RETURN_URL, new PropertyMD().setStructuredListEntry(ALLOWED_SP).setCategory(samlCat).
 				setDescription("Response consumer address of the SP. Mandatory when acceptance " +
 				"policy is +validRequester+, optional otherwise as SAML requesters may send this address" +
@@ -172,7 +176,7 @@ public class SamlIdpProperties extends SamlProperties
 	
 	public SamlIdpProperties(Properties src, PKIManagement pkiManagement) throws ConfigurationException, IOException
 	{
-		super(P, src, defaults, log);
+		super(P, cleanupLegacyProperties(src), defaults, log);
 		this.pkiManagement = pkiManagement;
 		checkIssuer();
 		try
@@ -183,6 +187,25 @@ public class SamlIdpProperties extends SamlProperties
 			throw new ConfigurationException("Can't init SAML PKI settings", e);
 		}
 		init();
+	}
+	
+	private static Properties cleanupLegacyProperties(Properties src)
+	{
+		if (src.containsKey("unity.saml.groupSelection"))
+		{
+			src.remove("unity.saml.groupSelection");
+			log.warn("The legacy property 'unity.saml.groupSelection' was removed from "
+					+ "endpoint's configuration. If needed use output "
+					+ "translation profile to define group membership encoding attribute.");
+		}
+		if (src.containsKey("unity.saml.groupAttribute"))
+		{
+			src.remove("unity.saml.groupAttribute");
+			log.warn("The legacy property 'unity.saml.groupAttribute' was removed from "
+					+ "endpoint's configuration. If needed use output "
+					+ "translation profile to define group membership encoding attribute.");
+		}
+		return src;
 	}
 	
 	private void init()
@@ -266,6 +289,15 @@ public class SamlIdpProperties extends SamlProperties
 			}
 		}
 		
+		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP);
+		for (String allowedKey: allowedKeys)
+		{
+			String certificate = getValue(allowedKey + ALLOWED_SP_CERT);
+			if (getBooleanValue(allowedKey + ALLOWED_SP_ENCRYPT) && certificate == null)
+				throw new ConfigurationException("Invalid specification of allowed Service " +
+						"Provider " + allowedKey + 
+						" must have the certificate defined to be able to encrypt assertions.");
+		}
 		
 		if (trustedValidator != null)
 			soapTrustChecker = new PKISamlTrustChecker(trustedValidator, true);
@@ -358,6 +390,49 @@ public class SamlIdpProperties extends SamlProperties
 			}
 			
 			return getValue(allowedKey + ALLOWED_SP_RETURN_URL);
+		}
+		return null;
+	}
+	
+	/**
+	 * @param requester
+	 * @return certificate which should be used for encryption or null if no encryption should be performed
+	 * for the given requester
+	 */
+	public X509Certificate getEncryptionCertificateForRequester(NameIDType requester)
+	{
+		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP);
+		boolean dnName = requester.getFormat() != null && requester.getFormat().equals(
+				SAMLConstants.NFORMAT_DN); 
+		for (String allowedKey: allowedKeys)
+		{
+			if (dnName)
+			{
+				String name = getValue(allowedKey + ALLOWED_SP_DN);
+				if (name == null)
+					continue;
+				if (!X500NameUtils.equal(name, requester.getStringValue()))
+					continue;
+			} else
+			{
+				String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
+				if (name == null)
+					continue;
+				if (!name.equals(requester.getStringValue()))
+					continue;
+			}
+			
+			if (!getBooleanValue(allowedKey + ALLOWED_SP_ENCRYPT))
+				return null;
+			String cert = getValue(allowedKey + ALLOWED_SP_CERT);
+			try
+			{
+				return pkiManagement.getCertificate(cert);
+			} catch (EngineException e)
+			{
+				throw new InternalException("Can't retrieve SAML encryption certificate " + cert +
+						 " for requester with config key " + allowedKey, e);
+			}
 		}
 		return null;
 	}

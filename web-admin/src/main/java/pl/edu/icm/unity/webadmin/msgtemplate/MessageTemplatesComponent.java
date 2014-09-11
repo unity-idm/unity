@@ -17,6 +17,7 @@ import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
@@ -119,7 +120,6 @@ public class MessageTemplatesComponent extends VerticalLayout
 			Collection<MessageTemplate> templates = msgTempMan.listTemplates().values();
 			table.setInput(templates);
 			viewer.setTemplateInput(null);
-			//table.select(null);
 			removeAllComponents();
 			addComponent(main);
 		} catch (Exception e)
@@ -270,13 +270,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 		public void handleAction(Object sender, Object target)
 		{
 			final Collection<MessageTemplate> items = getItems(target);		
-			String confirmText = "";
-			for (MessageTemplate item : items)
-			{
-				confirmText += ", ";
-				confirmText += item.getName();
-			}
-			confirmText = confirmText.substring(2);
+			String confirmText = MessageUtils.createConfirmFromNames(msg, items);
 			new ConfirmDialog(msg, msg.getMessage(
 					"MessageTemplatesComponent.confirmDelete", confirmText),
 					new ConfirmDialog.Callback()

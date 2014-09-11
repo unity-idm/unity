@@ -63,6 +63,8 @@ Once again, to have a short list:
 - Set a desired bind address, port and external address in +unityServer.conf+.
 - Remove the demo content creation from the +unityServer.conf+.
 - Consider configuring a MySQL database instead of the default H2.
+- After the first start consider commenting out the default admin user creation. You should use it only
+if you accidentally remove your last user with administrative privileges. 
 
 
 === How to work with unity

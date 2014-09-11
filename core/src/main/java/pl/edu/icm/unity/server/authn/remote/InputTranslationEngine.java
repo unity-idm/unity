@@ -17,13 +17,16 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.translation.ExecutionBreakException;
+import pl.edu.icm.unity.server.translation.in.GroupEffectMode;
 import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.server.translation.in.MappedAttribute;
+import pl.edu.icm.unity.server.translation.in.MappedGroup;
 import pl.edu.icm.unity.server.translation.in.MappedIdentity;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.GroupUtils;
@@ -33,6 +36,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 
 /**
@@ -68,12 +72,21 @@ public class InputTranslationEngine
 	public void process(MappingResult result) throws EngineException
 	{
 		Identity principal = processIdentities(result);
+		if (principal == null)
+		{
+			log.info("The mapped identity does not exist in database and was not created. "
+					+ "The creation of groups and attributes is skipped, the mapped groups and attributes "
+					+ "will be available for the registration form (if any)");
+			return;
+		}
+		
 		processGroups(result, principal);
 		processAttributes(result, principal);
 	}
 	
 	private Identity processIdentities(MappingResult result) throws EngineException
 	{
+		List<MappedIdentity> mappedMissingIdentitiesToCreate = new ArrayList<>();
 		List<MappedIdentity> mappedMissingIdentities = new ArrayList<>();
 		Entity existing = null;
 		for (MappedIdentity checked: result.getIdentities())
@@ -97,30 +110,33 @@ public class InputTranslationEngine
 					throw new ExecutionBreakException();
 				} else if (checked.getMode() == IdentityEffectMode.CREATE_OR_MATCH)
 				{
+					mappedMissingIdentitiesToCreate.add(checked);
+				} else
+				{
 					mappedMissingIdentities.add(checked);
 				}
 			}			
 		}
-		if (mappedMissingIdentities.isEmpty() && existing == null)
+		if (mappedMissingIdentitiesToCreate.isEmpty() && mappedMissingIdentities.isEmpty() && existing == null)
 		{
 			log.info("The translation profile didn't return any identity of the principal. "
 					+ "We can't authenticate such anonymous principal.");
 			throw new ExecutionBreakException();
 		}
 		
-		if (mappedMissingIdentities.isEmpty())
+		if (mappedMissingIdentitiesToCreate.isEmpty())
 		{
 			log.debug("No identity needs to be added");
-			return existing.getIdentities()[0];
+			return existing != null ? existing.getIdentities()[0] : null;
 		}
 		
 		if (existing != null)
 		{
-			addEquivalents(mappedMissingIdentities, new EntityParam(existing.getId()));
+			addEquivalents(mappedMissingIdentitiesToCreate, new EntityParam(existing.getId()));
 			return existing.getIdentities()[0];
 		} else
 		{
-			return createNewEntity(result, mappedMissingIdentities);
+			return createNewEntity(result, mappedMissingIdentitiesToCreate);
 		}
 
 	}
@@ -164,13 +180,13 @@ public class InputTranslationEngine
 	{
 		EntityParam entity = new EntityParam(principal);
 		Set<String> currentGroups = new HashSet<String>(idsMan.getGroups(entity));
-		for (String gm: result.getGroups())
+		for (MappedGroup gm: result.getGroups())
 		{
 			if (!currentGroups.contains(gm))
 			{
-				Deque<String> missingGroups = GroupUtils.getMissingGroups(gm, currentGroups);
+				Deque<String> missingGroups = GroupUtils.getMissingGroups(gm.getGroup(), currentGroups);
 				log.info("Adding to group " + gm);
-				addToGroupRecursive(entity, missingGroups, currentGroups);
+				addToGroupRecursive(entity, missingGroups, currentGroups, gm.getCreateIfMissing());
 			} else
 			{
 				log.debug("Entity already in the group " + gm + ", skipping");
@@ -178,15 +194,36 @@ public class InputTranslationEngine
 		}
 	}
 	
-	private void addToGroupRecursive(EntityParam who, Deque<String> missingGroups, Set<String> currentGroups) 
-			throws EngineException
+	private void addToGroupRecursive(EntityParam who, Deque<String> missingGroups, Set<String> currentGroups,
+			GroupEffectMode createMissingGroups) throws EngineException
 	{
 		String group = missingGroups.pollLast();
-		groupsMan.addMemberFromParent(group, who);
+		try
+		{
+			groupsMan.addMemberFromParent(group, who);
+		} catch (IllegalGroupValueException missingGroup)
+		{
+			if (createMissingGroups == GroupEffectMode.CREATE_GROUP_IF_MISSING)
+			{
+				log.info("Group " + group + " doesn't exist, "
+						+ "will be created to fullfil translation profile rule");
+				groupsMan.addGroup(new Group(group));
+				groupsMan.addMemberFromParent(group, who);
+			} else if (createMissingGroups == GroupEffectMode.REQUIRE_EXISTING_GROUP)
+			{
+				log.debug("Entity should be added to a group " + group + " which is missing, failing.");
+				throw missingGroup;
+			} else
+			{
+				log.debug("Entity should be added to a group " + group + " which is missing, ignoring.");
+				return;
+			}
+		}
+		
 		currentGroups.add(group);
 		if (!missingGroups.isEmpty())
 		{
-			addToGroupRecursive(who, missingGroups, currentGroups);
+			addToGroupRecursive(who, missingGroups, currentGroups, createMissingGroups);
 		}
 	}
 	

@@ -54,7 +54,7 @@ public class SamlPreferencesWithETD extends SamlPreferences
 		
 		ObjectNode settingsN = main.with("spEtdSettings");
 		for (Map.Entry<String, SPETDSettings> entry: spEtdSettings.entrySet())
-			settingsN.put(entry.getKey(), serializeSingleETD(entry.getValue()));
+			settingsN.set(entry.getKey(), serializeSingleETD(entry.getValue()));
 	}
 	
 	protected ObjectNode serializeSingleETD(SPETDSettings what)
@@ -74,6 +74,8 @@ public class SamlPreferencesWithETD extends SamlPreferences
 	public SPETDSettings getSPETDSettings(String sp)
 	{
 		SPETDSettings ret = spEtdSettings.get(sp); 
+		if (ret == null)
+			ret = spEtdSettings.get("");
 		if (ret == null)
 			ret = new SPETDSettings();
 		return ret;

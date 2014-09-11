@@ -73,6 +73,12 @@ public class TranslationInput
 		return chosenGroup;
 	}
 
+	@Override
+	public String toString()
+	{
+		return requester + " - eId: " + entity;
+	}
+
 	/**
 	 * @return Multiline string with a complete contents 
 	 */

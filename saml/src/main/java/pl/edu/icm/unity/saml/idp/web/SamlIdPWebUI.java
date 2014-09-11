@@ -278,7 +278,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 				@Override
 				public void valueChange(ValueChangeEvent event)
 				{
-					selectedIdentity = (Identity) identitiesCB.getValue();
+					selectedIdentity = (IdentityParam) identitiesCB.getValue();
 				}
 			});
 			contents.addComponents(identitiesL, infoManyIds, identitiesCB);

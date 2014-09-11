@@ -18,6 +18,7 @@ import com.vaadin.ui.Label;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 
@@ -55,14 +56,8 @@ public class CredentialRequirementRemovalDialog extends AbstractDialog
 	{
 		FormLayout vl = new FormLayout();
 		vl.setSpacing(true);		
-		String confirm = "";
-		for (String c : removedCr)
-		{
-			confirm += ", ";
-			confirm += c;
-		}
-		confirm = confirm.substring(2);
-		vl.addComponent(new Label(msg.getMessage("CredentialRequirements.removalConfirm", confirm)));
+		String confirmText = MessageUtils.createConfirmFromStrings(msg, removedCr);
+		vl.addComponent(new Label(msg.getMessage("CredentialRequirements.removalConfirm", confirmText)));
 		
 		replacementCR = new ComboBox(msg.getMessage("CredentialRequirements.replacement"));
 		List<String> crs = new ArrayList<String>();

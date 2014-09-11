@@ -6,6 +6,7 @@ package pl.edu.icm.unity.types.registration;
 
 import java.util.List;
 
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
@@ -20,7 +21,7 @@ public class RegistrationRequest
 {
 	private String formId;
 	private List<IdentityParam> identities;
-	private List<AttributeParamValue> attributes;
+	private List<Attribute<?>> attributes;
 
 	private List<CredentialParamValue> credentials;
 
@@ -50,12 +51,12 @@ public class RegistrationRequest
 		this.identities = identities;
 	}
 
-	public List<AttributeParamValue> getAttributes()
+	public List<Attribute<?>> getAttributes()
 	{
 		return attributes;
 	}
 
-	public void setAttributes(List<AttributeParamValue> attributes)
+	public void setAttributes(List<Attribute<?>> attributes)
 	{
 		this.attributes = attributes;
 	}

@@ -23,6 +23,7 @@ import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
@@ -356,13 +357,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		public void handleAction(Object sender, Object target)
 		{
 			final Collection<TranslationProfile> items = getItems(target);
-			String confirmText = "";
-			for (TranslationProfile item : items)
-			{
-				confirmText += ", ";
-				confirmText += item.getName();
-			}
-			confirmText = confirmText.substring(2);		
+			String confirmText = MessageUtils.createConfirmFromNames(msg, items);
 			new ConfirmDialog(msg, msg.getMessage(
 					"TranslationProfilesComponent.confirmDelete",
 					confirmText), new ConfirmDialog.Callback()

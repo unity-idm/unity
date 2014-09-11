@@ -24,6 +24,7 @@ import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditDialog.Callback;
+import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
@@ -123,8 +124,9 @@ public class RegistrationFormsComponent extends VerticalLayout
 		table.addActionHandler(new RefreshActionHandler());
 		table.addActionHandler(new AddActionHandler());
 		table.addActionHandler(new EditActionHandler());
+		table.addActionHandler(new CopyActionHandler());
 		table.addActionHandler(new DeleteActionHandler());
-		
+				
 		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
 		toolbar.addActionHandlers(table.getActionHandlers());
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
@@ -231,7 +233,6 @@ public class RegistrationFormsComponent extends VerticalLayout
 		}
 	}
 
-
 	private class AddActionHandler extends SingleActionHandler
 	{
 		public AddActionHandler()
@@ -267,7 +268,6 @@ public class RegistrationFormsComponent extends VerticalLayout
 		}
 	}
 
-
 	private class EditActionHandler extends SingleActionHandler
 	{
 		public EditActionHandler()
@@ -286,7 +286,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			{
 				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
 						msgTempMan, identitiesMan, attributeMan, authenticationMan,
-						attrHandlerRegistry, item);
+						attrHandlerRegistry, item, false);
 			} catch (EngineException e)
 			{
 				ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
@@ -305,6 +305,43 @@ public class RegistrationFormsComponent extends VerticalLayout
 		}
 	}
 	
+	private class CopyActionHandler extends SingleActionHandler
+	{
+		public CopyActionHandler()
+		{
+			super(msg.getMessage("RegistrationFormsComponent.copyAction"), Images.copy.getResource());
+		}
+
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{
+			@SuppressWarnings("unchecked")
+			GenericItem<RegistrationForm> item = (GenericItem<RegistrationForm>) target;
+			RegistrationForm form =  item.getElement();
+			RegistrationFormEditor editor;
+			try
+			{		
+				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
+						msgTempMan, identitiesMan, attributeMan, authenticationMan,
+						attrHandlerRegistry, form, true);
+			} catch (Exception e)
+			{
+				ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
+				return;
+			}
+			RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, 
+					msg.getMessage("RegistrationFormsComponent.copyAction"), new Callback()
+					{
+						@Override
+						public boolean newForm(RegistrationForm form, boolean foo)
+						{
+							return addForm(form);
+						}
+					}, editor);
+			dialog.show();		
+		}
+	}
+	
 	private class DeleteActionHandler extends SingleActionHandler
 	{
 		public DeleteActionHandler()
@@ -318,13 +355,8 @@ public class RegistrationFormsComponent extends VerticalLayout
 		public void handleAction(Object sender, Object target)
 		{
 			final Collection<RegistrationForm> items = getItems(target);
-			String confirmText = "";
-			for (RegistrationForm item : items)
-			{
-				confirmText += ", ";
-				confirmText += item.getName();
-			}
-			confirmText = confirmText.substring(2);
+			String confirmText = MessageUtils.createConfirmFromNames(msg, items);
+
 			new ConfirmWithOptionDialog(msg, msg.getMessage("RegistrationFormsComponent.confirmDelete", 
 					confirmText),
 					msg.getMessage("RegistrationFormsComponent.dropRequests"),

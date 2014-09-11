@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.idp.processor;
 
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -27,6 +28,8 @@ import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
+import xmlbeans.org.oasis.saml2.assertion.EncryptedAssertionDocument;
+import xmlbeans.org.oasis.saml2.assertion.EncryptedElementType;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationDataType;
 import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationType;
@@ -158,6 +161,28 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		return true;
 	}
 
+	
+	protected void addAssertionEncrypting(AssertionResponse resp, Assertion assertion) throws SAMLProcessingException
+	{
+		X509Certificate encCert = samlConfiguration.getEncryptionCertificateForRequester(
+				context.getRequest().getIssuer());
+		if (encCert != null)
+		{
+			try
+			{
+				EncryptedAssertionDocument encrypted = assertion.encrypt(encCert, 128);
+				EncryptedElementType at = resp.getXMLBean().addNewEncryptedAssertion();
+				at.set(encrypted.getEncryptedAssertion());
+			} catch (Exception e)
+			{
+				throw new SAMLProcessingException("Problem during assertion encryption", e);
+			}
+		} else
+		{
+			resp.addAssertion(assertion);
+		}
+	}
+	
 	/**
 	 * Does nothing. Supclasses which require attribtues filtering should overwrite (as in the case of attribute query protocol).
 	 * 

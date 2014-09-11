@@ -13,14 +13,14 @@ import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 
 /**
- * Factory for {@link FilterAttributeAction}.
+ * Factory for {@link UnFilterAttributeAction}.
  *   
  * @author K. Benedyczak
  */
 @Component
-public class FilterAttributeActionFactory implements TranslationActionFactory
+public class UnFilterAttributeActionFactory implements TranslationActionFactory
 {
-	public static final String NAME = "filterAttribute";
+	public static final String NAME = "unfilterAttribute";
 	
 	@Override
 	public String getName()
@@ -31,7 +31,7 @@ public class FilterAttributeActionFactory implements TranslationActionFactory
 	@Override
 	public String getDescriptionKey()
 	{
-		return "TranslationAction.filterAttribute.desc";
+		return "TranslationAction.unfilterAttribute.desc";
 	}
 
 	@Override
@@ -40,14 +40,14 @@ public class FilterAttributeActionFactory implements TranslationActionFactory
 		return new ActionParameterDesc[] {
 				new ActionParameterDesc(
 						"attribute",
-						"TranslationAction.filterAttribute.paramDesc.attributeRegexp",
+						"TranslationAction.unfilterAttribute.paramDesc.attributeRegexp",
 						1, 1, Type.EXPRESSION)};
 	}
 
 	@Override
-	public FilterAttributeAction getInstance(String... parameters) throws EngineException
+	public UnFilterAttributeAction getInstance(String... parameters) throws EngineException
 	{
-		return new FilterAttributeAction(parameters, this);
+		return new UnFilterAttributeAction(parameters, this);
 	}
 
 	@Override
