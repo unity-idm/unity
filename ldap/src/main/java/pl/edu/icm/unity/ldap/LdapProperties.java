@@ -47,6 +47,11 @@ public class LdapProperties extends PropertiesHelper
 	public static final String MEMBER_OF_ATTRIBUTE = "memberOfAttribute";
 	public static final String MEMBER_OF_GROUP_ATTRIBUTE = "memberOfGroupAttribute";
 	
+	public static final String ADV_SEARCH_PFX = "additionalSearch.";
+	public static final String ADV_SEARCH_ATTRIBUTES = "selectedAttributes";
+	public static final String ADV_SEARCH_FILTER = "filter";
+	public static final String ADV_SEARCH_BASE = "baseName";
+	
 	public static final String GROUPS_BASE_NAME = "groupsBaseName";
 	public static final String GROUP_DEFINITION_PFX = "groups.";
 	public static final String GROUP_DEFINITION_OC = "objectClass";
@@ -64,6 +69,7 @@ public class LdapProperties extends PropertiesHelper
 	{
 		DocumentationCategory main = new DocumentationCategory("General settings", "1");
 		DocumentationCategory groups = new DocumentationCategory("Group retrieval settings", "3");
+		DocumentationCategory advSearch = new DocumentationCategory("Advanced attribute search settings", "5");
 		
 		META.put(SERVERS, new PropertyMD().setList(true).setCategory(main).setDescription("List of redundant LDAP server " +
 				"hostnames. Use only one if there is no redundancy."));
@@ -125,6 +131,21 @@ public class LdapProperties extends PropertiesHelper
 				"If defined then the group's name will be the value of the attribute in the group's DN " +
 				"with a name defined here."));
 
+		META.put(ADV_SEARCH_PFX, new PropertyMD().setStructuredList(false).setCategory(advSearch).
+				setDescription("Advanced attribute searches can be defined with this prefix."));
+		META.put(ADV_SEARCH_BASE, new PropertyMD().setStructuredListEntry(ADV_SEARCH_PFX).setMandatory().setCategory(advSearch).
+				setDescription("Base DN for the search"));
+		META.put(ADV_SEARCH_FILTER, new PropertyMD().setStructuredListEntry(ADV_SEARCH_PFX).setMandatory().setCategory(advSearch).
+				setDescription("Filter in LDAP syntax, to match requested entries. The filter can include a special"
+				+ "string: '{USERNAME}' (without quotation). The username provided by the client" +
+				" will be substituted."));
+		META.put(ADV_SEARCH_ATTRIBUTES, new PropertyMD().setStructuredListEntry(ADV_SEARCH_PFX).setMandatory().setCategory(advSearch).
+				setDescription("Space separated list of attributes to be searched. "
+						+ "Attributes from the query will have all values unified from all returned entries by the query."
+						+ "Duplicate values will be removed and finally attributes will be added "
+						+ "to the set of the standard attributes of the principal."));
+
+		
 		META.put(TRANSLATION_PROFILE, new PropertyMD().setMandatory().setCategory(main).setDescription("Name of a translation" +
 				" profile, which will be used to map remotely obtained attributes and identity" +
 				" to the local counterparts. The profile should at least map the remote identity."));
