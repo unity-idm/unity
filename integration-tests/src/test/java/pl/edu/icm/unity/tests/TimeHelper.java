@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
 package pl.edu.icm.unity.tests;
 
 import java.io.FileWriter;
@@ -5,23 +9,29 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
 /**
- * Helper to time measure. 
+ * Helper to time measure.
+ * 
  * @author P.Piernik
- *
+ * 
  */
 public class TimeHelper
 {
+
+	public final boolean PRINT_TO_CONSOLE = false;
+	public String file;
 	private long startT;
-	private final String outFile = "target/tests.csv";
-	protected boolean consoleOut = true;
-	protected List<Long> results;
-	
-	public TimeHelper()
+
+	protected List<SingleResult> results;
+
+	public TimeHelper(String file)
 	{
-		results = new ArrayList<Long>();
+		this.file = file;
+		results = new ArrayList<SingleResult>();
 	}
-	
+
 	public void startTimer()
 	{
 		startT = System.currentTimeMillis();
@@ -31,54 +41,86 @@ public class TimeHelper
 	{
 		long endT = System.currentTimeMillis();
 		long periodMs = endT - startT;
-		results.add(periodMs);
-				
 		double periodS = periodMs / 1000.0;
 		double opsPerS = (ops * 1000 / periodMs);
-		if (consoleOut)
-			System.out.println(label + " performed " + ops + " in " + periodS + "s, "+ opsPerS + " ops/s");
-		toFile(label + "," + ops + "," + periodS + "," + opsPerS);	
+
+		results.add(new SingleResult(periodMs, opsPerS));
+
+		if (PRINT_TO_CONSOLE)
+			System.out.printf(Locale.US, label + "  %d ops, %.2f s, %.2f ops/s \n",
+					ops, periodS, opsPerS);
+		toFile(String.format(Locale.US, label + " , %d , %.2f , %.2f ", ops, periodS,
+				opsPerS));
 		return periodMs;
-		
 	}
-	
+
 	private void toFile(String line) throws IOException
 	{
-		FileWriter fw = new FileWriter(outFile, true);
+		FileWriter fw = new FileWriter(file, true);
 		PrintWriter pw = new PrintWriter(fw);
 		pw.println(line);
 		pw.flush();
 		pw.close();
 		fw.close();
 	}
-	
+
 	public void calculateResults(String label) throws IOException
 	{
-		Long avg = 0l;
-		Long dev = 0l;	
-		Long sum = 0l;
-		for (Long l:results)
-			sum+=l;
-		avg = sum/results.size();
-		long td = 0l;
-		for (Long l:results)
+		double pavg = 0l;
+		double pdev = 0l;
+		double oavg = 0l;
+		double odev = 0l;
+		double psum = 0l;
+		double osum = 0l;
+		for (SingleResult l : results)
 		{
-			td+= Math.pow(l-avg,2);
-		}	
-		dev = (long) Math.sqrt(td/results.size());
-		
-		double periodS = avg / 1000.0;
-		if(consoleOut)
-			System.out.println(label + " - average - " + periodS + "s");
-		toFile(label +" average " + periodS + "s");
-		periodS = dev / 1000.0;
-		if(consoleOut)
-			System.out.println(label + " - deviation - " + periodS + "s");	
-		toFile(label + " deviation" + periodS + "s");
+			psum += l.periodMs;
+			osum += l.opsPerS;
+
+		}
+		double size = (double) results.size();
+
+		pavg = psum / size;
+		oavg = osum / size;
+		double ptd = 0l;
+		double otd = 0l;
+		for (SingleResult l : results)
+		{
+			ptd += Math.pow(l.periodMs - pavg, 2);
+			otd += Math.pow(l.opsPerS - oavg, 2);
+		}
+		pdev = (double) Math.sqrt(ptd / size);
+		odev = (double) Math.sqrt(otd / size);
+
+		double periodS = pavg / 1000.0;
+		if (PRINT_TO_CONSOLE)
+			System.out.printf(Locale.US, label + " average , , %.2f s, %.2f ops/s \n",
+					periodS, oavg);
+		toFile(String.format(Locale.US, label + " average ,, %.2f , %.2f", periodS, oavg));
+		periodS = pdev / 1000.0;
+		if (PRINT_TO_CONSOLE)
+			System.out.printf(Locale.US,
+					label + " deviation , , %.2f s, %.2f ops/s \n", periodS,
+					odev);
+		toFile(String.format(Locale.US, label + " deviation ,, %.2f , %.2f", periodS, odev));
 	}
-		
+
 	public void clear()
 	{
 		results.clear();
 	}
+
+	public class SingleResult
+	{
+		public SingleResult(double periodMs, double opsPerS)
+		{
+			this.periodMs = periodMs;
+			this.opsPerS = opsPerS;
+		}
+
+		public double periodMs;
+
+		public double opsPerS;
+	}
+
 }

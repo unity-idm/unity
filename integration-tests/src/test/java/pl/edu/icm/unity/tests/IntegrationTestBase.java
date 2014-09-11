@@ -1,9 +1,16 @@
+/*
+ * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
 package pl.edu.icm.unity.tests;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -13,9 +20,13 @@ import org.junit.Before;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.rest.TestRESTBase;
+import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.IntegerAttribute;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.JpegImageAttribute;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -45,13 +56,24 @@ import pl.edu.icm.unity.types.basic.attrstmnt.MemberOfStatement;
  */
 public class IntegrationTestBase extends TestRESTBase
 {
+	public final int GROUP_TIERS = 3; 
+	public final int GROUP_IN_TIER = 10; 
+	public final int USERS = 100;  
+
+	public final int IMAGE_ATTRIBUTES = 10; 
+	public final int STRING_ATTRIBUTES = 100; 
+	public final int FLOAT_ATTRIBUTES = 100;
+	public final int INT_ATTRIBUTES = 100; 
+			
 	TimeHelper timer;
 	
 	@Before
 	public void setup() throws Exception
 	{
 		setupPasswordAuthn();
-		timer = new TimeHelper();
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+		Calendar c = Calendar.getInstance();
+		timer = new TimeHelper("target/test-"+ getClass().getSimpleName() + "-" + dateFormat.format(c.getTime()) + ".csv");
 	
 	}
 	
@@ -341,8 +363,7 @@ public class IntegrationTestBase extends TestRESTBase
 		{
 			BufferedImage im = new BufferedImage(1000, 1000, 1);
 			String typeName = "jpeg_" + r.nextInt(nDefAttr / 4 - 1);
-			Attribute<?> a = new Attribute(typeName, attributeTypesAsMap.get(typeName)
-					.getValueType(), enInGroup.get(i%NU),
+			Attribute<?> a = new JpegImageAttribute(typeName, enInGroup.get(i%NU),
 					AttributeVisibility.full, Collections.singletonList(im));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
 			attrsMan.setAttribute(par, a, true);
@@ -352,8 +373,7 @@ public class IntegrationTestBase extends TestRESTBase
 		for (int i = 0; i < stringAttr; i++)
 		{
 			String typeName = "string_" + r.nextInt((nDefAttr ) / 4 - 1);
-			Attribute<?> a = new Attribute(typeName, attributeTypesAsMap.get(typeName)
-					.getValueType(), enInGroup.get(i%NU),
+			Attribute<?> a = new StringAttribute(typeName, enInGroup.get(i%NU),
 					AttributeVisibility.full,
 					Collections.singletonList(new String(typeName)));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
@@ -364,8 +384,7 @@ public class IntegrationTestBase extends TestRESTBase
 		for (int i = 0; i < intAttr; i++)
 		{
 			String typeName = "int_" + r.nextInt(nDefAttr / 4 - 1);
-			Attribute<?> a = new Attribute(typeName, attributeTypesAsMap.get(typeName)
-					.getValueType(), enInGroup.get(i%NU),
+			Attribute<?> a = new IntegerAttribute(typeName, enInGroup.get(i%NU),
 					AttributeVisibility.full,
 					Collections.singletonList(new Long(i + 100)));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
@@ -376,8 +395,7 @@ public class IntegrationTestBase extends TestRESTBase
 		for (int i = 0; i < floatAttr; i++)
 		{
 			String typeName = "float_" + r.nextInt(nDefAttr / 4 - 1);
-			Attribute<?> a = new Attribute(typeName, attributeTypesAsMap.get(typeName)
-					.getValueType(), enInGroup.get(i%NU),
+			Attribute<?> a = new FloatingPointAttribute(typeName, enInGroup.get(i%NU),
 					AttributeVisibility.full,
 					Collections.singletonList(new Double(i + 100)));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
@@ -430,8 +448,7 @@ public class IntegrationTestBase extends TestRESTBase
 
 			ArrayList<AttributeStatement> asts = new ArrayList<AttributeStatement>();
 			AttributeStatement st = new EverybodyStatement();
-			Attribute<?> a = new Attribute("ex_everybody", attributeTypesAsMap.get(
-					"ex_everybody").getValueType(), path,
+			Attribute<?> a = new StringAttribute("ex_everybody", path,
 					AttributeVisibility.full,
 					Collections.singletonList(new String(g.getName()
 							+ "_everybody")));
@@ -440,8 +457,7 @@ public class IntegrationTestBase extends TestRESTBase
 			asts.add(st);
 
 			st = new MemberOfStatement();
-			a = new Attribute("ex_memberof", attributeTypesAsMap.get("ex_memberof")
-					.getValueType(), path, AttributeVisibility.full,
+			a = new StringAttribute("ex_memberof", path, AttributeVisibility.full,
 					Collections.singletonList(new String(g.getName()
 							+ "_memberof")));
 			st.setAssignedAttribute(a);
@@ -449,31 +465,24 @@ public class IntegrationTestBase extends TestRESTBase
 			st.setConflictResolution(ConflictResolution.merge);
 			asts.add(st);
 
-			st = new CopyParentAttributeStatement();
-			st.setConditionAttribute(new Attribute("string_0", attributeTypesAsMap.get(
-					"string_0").getValueType(),
-					new Group(path).getParentPath(), AttributeVisibility.full,
-					null));
+			st = new CopyParentAttributeStatement();	
+			st.setConditionAttribute(new StringAttribute("string_0", new Group(path).getParentPath(),
+					AttributeVisibility.full));
 			st.setConflictResolution(ConflictResolution.merge);
 			asts.add(st);	
 			if (path.split("/").length > 1 && path.split("/").length < d)
 			{
 				st = new CopySubgroupAttributeStatement();
-				st.setConditionAttribute(new Attribute("string_0",
-						attributeTypesAsMap.get("string_0").getValueType(),
-						c.getSubGroups().get(0), AttributeVisibility.full,
-						null));
+				st.setConditionAttribute(new StringAttribute("string_0",
+						c.getSubGroups().get(0), AttributeVisibility.full));
 				st.setConflictResolution(ConflictResolution.merge);
 				asts.add(st);
 						
 				st = new HasSubgroupAttributeStatement();
-				st.setConditionAttribute(new Attribute("ex_everybody", attributeTypesAsMap.get(
-						"ex_everybody").getValueType(),
-						c.getSubGroups().get(0), AttributeVisibility.full,
-						null));
+				st.setConditionAttribute(new StringAttribute("ex_everybody",
+						c.getSubGroups().get(0), AttributeVisibility.full));
 				
-				st.setAssignedAttribute(new Attribute("ex_ho2", attributeTypesAsMap.get(
-						"ex_ho2").getValueType(),
+				st.setAssignedAttribute(new StringAttribute("ex_ho2",
 						path, AttributeVisibility.full,
 						Collections.singletonList(new String(g.getName()+"_ho2"))));
 				st.setConditionGroup(c.getSubGroups().get(0));	
@@ -482,13 +491,10 @@ public class IntegrationTestBase extends TestRESTBase
 			}
 			
 			st = new HasParentAttributeStatement();
-			st.setConditionAttribute(new Attribute("ex_everybody", attributeTypesAsMap.get(
-					"ex_everybody").getValueType(),
-					new Group(path).getParentPath(), AttributeVisibility.full,
-					null));
+			st.setConditionAttribute(new StringAttribute("ex_everybody",
+					new Group(path).getParentPath(), AttributeVisibility.full));
 			
-			st.setAssignedAttribute(new Attribute("ex_ho1", attributeTypesAsMap.get(
-					"ex_ho1").getValueType(),
+			st.setAssignedAttribute(new StringAttribute("ex_ho1",
 					path, AttributeVisibility.full,
 					Collections.singletonList(new String(g.getName()+"_ho1"))));
 			
