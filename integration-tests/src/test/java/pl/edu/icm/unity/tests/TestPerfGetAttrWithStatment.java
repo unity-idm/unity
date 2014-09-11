@@ -48,7 +48,7 @@ public class TestPerfGetAttrWithStatment extends IntegrationTestBase
 		//warn-up
 		getUsersAttr(GROUP_IN_TIER/10, enInGroup, false);
 		
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < TEST_REPETITIONS; i++)
 		{
 			timer.startTimer();
 			getUsersAttr(GROUP_IN_TIER, enInGroup, false);

@@ -29,7 +29,7 @@ public class TestPerfGetEntities extends IntegrationTestBase
 		getAllEntities(USERS/10);
 			
 		
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < TEST_REPETITIONS; i++)
 		{
 			timer.startTimer();
 			getAllEntities(GROUP_IN_TIER);

@@ -29,14 +29,16 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
  */
 public class TestPerfLogin extends IntegrationTestBase
 {
-	public final int USERS_MULTIPLIER = 10; 
-	public final int USERS = 100; 
+	
+	public final int USERS = 1000; 
+	public final int WARM_SIZE = 10;
 	
 	@Test
 	public void testLogin() throws Exception
 	{
 		
-		addUsers(USERS_MULTIPLIER * USERS);
+		
+		addUsers(WARM_SIZE + USERS);
 
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 10, 100, -1, 600);
 		realmsMan.addRealm(realm);
@@ -51,7 +53,7 @@ public class TestPerfLogin extends IntegrationTestBase
 		HttpHost host = new HttpHost("localhost", 53456, "https");
 
 		// warn-up ...login user
-		for (int i = 0; i < USERS_MULTIPLIER / 10 * USERS; i++)
+		for (int i = 0; i < WARM_SIZE; i++)
 		{
 			DefaultHttpClient client = getClient();
 			BasicHttpContext localcontext = getClientContext(client, host, "user" + i,
@@ -62,21 +64,25 @@ public class TestPerfLogin extends IntegrationTestBase
 					.getStatusLine().getStatusCode());
 		}
 
-		for (int j = 0; j < USERS_MULTIPLIER - 1; j++)
+		int jump = USERS / TEST_REPETITIONS;
+		int index = WARM_SIZE;
+		for (int j = 0; j < TEST_REPETITIONS; j++)
 		{
 
 			timer.startTimer();
-			for (int i = j * USERS; i < (j + 1) * USERS; i++)
+			for (int i = 0; i < jump; i++)
 			{
+				
 				DefaultHttpClient client = getClient();
 				BasicHttpContext localcontext = getClientContext(client, host,
-						"user" + i, "PassWord8743#%$^&*");
+						"user" + index, "PassWord8743#%$^&*");
+				index++;
 				HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
 				HttpResponse response = client.execute(host, get, localcontext);
 				assertEquals(response.getStatusLine().toString(), 200, response
 						.getStatusLine().getStatusCode());
 			}
-			timer.stopTimer(USERS, "Login user");
+			timer.stopTimer(jump, "Login user");
 		}
 		timer.calculateResults("Login user");
 

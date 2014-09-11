@@ -20,7 +20,7 @@ import java.util.Locale;
 public class TimeHelper
 {
 
-	public final boolean PRINT_TO_CONSOLE = false;
+	public final boolean PRINT_TO_CONSOLE = true;
 	public String file;
 	private long startT;
 

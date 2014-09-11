@@ -56,6 +56,8 @@ import pl.edu.icm.unity.types.basic.attrstmnt.MemberOfStatement;
  */
 public class IntegrationTestBase extends TestRESTBase
 {
+	public final int TEST_REPETITIONS = 10;
+	
 	public final int GROUP_TIERS = 3; 
 	public final int GROUP_IN_TIER = 10; 
 	public final int USERS = 100;  
@@ -266,10 +268,8 @@ public class IntegrationTestBase extends TestRESTBase
 				}
 			}
 		}
-		
-		
-	}
-	
+			
+	}	
 	
 	/**
 	 * Get all entities from db. 
@@ -296,7 +296,6 @@ public class IntegrationTestBase extends TestRESTBase
 	 */
 	protected void addAttributeTypes(int n) throws EngineException
 	{
-
 		for (int i = 0; i < n; i++)
 		{
 			AttributeType type = new AttributeType("int_" + i,
@@ -402,9 +401,7 @@ public class IntegrationTestBase extends TestRESTBase
 			attrsMan.setAttribute(par, a, true);
 			op++;
 		}
-
 		return op;
-
 	}
 	
 	/**
@@ -435,12 +432,8 @@ public class IntegrationTestBase extends TestRESTBase
 	protected void addAttrStatments(ArrayList<GroupContents> groups,Map<String, AttributeType> attributeTypesAsMap
 			, int d) throws EngineException
 	{
-
-		
-		
 		for (GroupContents c : groups)
 		{
-
 			Group g = c.getGroup();
 			String path = getGroupPath(g);
 			if (path.equals("/"))
@@ -504,7 +497,6 @@ public class IntegrationTestBase extends TestRESTBase
 			addStatments(g, asts);			
 			groupsMan.updateGroup(path, g);
 		}
-
 	}
 
 	private void addStatments(Group g, ArrayList<AttributeStatement> asts)
