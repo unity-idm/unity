@@ -6,6 +6,7 @@ package pl.edu.icm.unity.test.headlessui;
 
 import static org.junit.Assert.*;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 
@@ -18,6 +19,7 @@ public class TestBasic extends SeleniumTestBase
 	private String baseUrl = "https://localhost:2443/admin/admin";
 
 	@Test
+	@Ignore
 	public void loginTest() throws Exception
 	{
 		driver.get(baseUrl + "/admin/admin");
