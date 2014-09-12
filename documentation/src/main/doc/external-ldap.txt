@@ -61,11 +61,11 @@ custom LDAP attribute searches. Results of those searches will be added to the r
 an example where user is member of several groups, each group has its +gidNumber+ attribute set and we want to have
 a +gidNumber+ attribute assigned to user in Unity. The following snippet should be added to configuration:
 
----
+----
 ldap.additionalSearch.1.baseName=dc=groups,dc=unity-example,dc=com
 ldap.additionalSearch.1.filter=(memberUid={USERNAME})
 ldap.additionalSearch.1.selectedAttributes=gidNumber
----
+----
 
 In the above example it is assumed that all groups are found under the +dc=groups,dc=unity-example,dc=com+ node and
 each group has its members listed with the +memberUid+ attribute. Of course the filter expression 
