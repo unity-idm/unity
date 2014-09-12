@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.db;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -14,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -37,6 +39,7 @@ public class DBConfiguration extends PropertiesHelper
 	
 	public static final String DBCONFIG_FILE = "mapconfigFile";
 	public static final String LOCAL_DB_URL = "localDBUrl";
+	public static final String ALTERNATIVE_DB_CONFIG = "alternativeUnityDb";
 	
 	@DocumentationReferenceMeta
 	public static final Map<String, PropertyMD> META;
@@ -55,6 +58,28 @@ public class DBConfiguration extends PropertiesHelper
 	public DBConfiguration(UnityServerConfiguration main) throws ConfigurationException
 	{
 		super(PREFIX, main.getProperties(), META, log);
+		String alternativeDB;
+		alternativeDB = System.getProperty(ALTERNATIVE_DB_CONFIG);
+		if(alternativeDB != null)
+		{
+			loadAlternativeDbConfig(alternativeDB);	
+		}
+		
+	}
+	
+	private void loadAlternativeDbConfig(String db)
+	{
+		String path = "/dbConfigs/" + db + ".conf";
+		log.debug("Loading alternative DB config from " + path);
+		Properties p = new Properties();
+		try
+		{
+			p.load(getClass().getResourceAsStream(path));
+			setProperties(p);
+		} catch (Exception e)
+		{
+			log.error("Cannot load alternative DB config from " + path, e);
+		}	
 	}
 	
 	public Properties getProperties()
