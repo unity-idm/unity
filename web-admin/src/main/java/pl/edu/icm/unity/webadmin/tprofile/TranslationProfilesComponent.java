@@ -328,7 +328,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 					new TranslationProfileEditDialog.Callback()
 					{
 						@Override
-						public boolean newProfile(TranslationProfile profile)
+						public boolean handleProfile(TranslationProfile profile)
 						{
 							return addProfile(profile);
 						}
@@ -365,7 +365,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 					new TranslationProfileEditDialog.Callback()
 					{
 						@Override
-						public boolean newProfile(TranslationProfile profile)
+						public boolean handleProfile(TranslationProfile profile)
 						{
 							return updateProfile(profile);
 						}
@@ -407,16 +407,49 @@ public class TranslationProfilesComponent extends VerticalLayout
 	
 	private class WizardActionHandler extends SingleActionHandler
 	{
+		private TranslationProfileEditDialog.Callback addCallback;
+		private TranslationProfileEditDialog.Callback updateCallback;
+		
 		public WizardActionHandler()
 		{
 			super(msg.getMessage("TranslationProfilesComponent.wizardAction"), Images.wizard.getResource());
 			setNeedsTarget(false);
+			
+			addCallback = new TranslationProfileEditDialog.Callback()
+			{
+				@Override
+				public boolean handleProfile(TranslationProfile profile)
+				{
+					return addProfile(profile);
+				}
+			};
+			
+			updateCallback = new TranslationProfileEditDialog.Callback()
+			{
+				@Override
+				public boolean handleProfile(TranslationProfile profile)
+				{
+					return updateProfile(profile);
+				}
+			};
 		}
 
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			WizardDialog wizard = new WizardDialog(msg, sandboxURL, sandboxNotifier);
+			TranslationProfileEditor editor;
+			try
+			{
+				editor = getProfileEditor(null);				
+			} catch (EngineException e)
+			{
+				ErrorPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorReadData"),
+						e);
+				return;
+			}
+			
+			WizardDialog wizard = new WizardDialog(msg, sandboxURL, sandboxNotifier, 
+					editor, addCallback, updateCallback);
 			wizard.show();
 		}
 	}	

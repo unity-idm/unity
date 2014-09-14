@@ -50,7 +50,7 @@ public class TranslationProfileEditDialog extends AbstractDialog
 		if(profile == null)
 			return;
 			
-		if (callback.newProfile(profile))
+		if (callback.handleProfile(profile))
 			close();
 	}
 	@Override
@@ -62,7 +62,7 @@ public class TranslationProfileEditDialog extends AbstractDialog
 	
 	public interface Callback
 	{
-		public boolean newProfile(TranslationProfile profile);
+		public boolean handleProfile(TranslationProfile profile);
 	}
 	
 }

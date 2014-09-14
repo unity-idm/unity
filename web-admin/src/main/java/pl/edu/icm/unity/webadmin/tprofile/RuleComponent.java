@@ -12,8 +12,10 @@ import java.util.List;
 import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.authn.remote.RemoteInformationBase;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
+import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
@@ -33,16 +35,25 @@ import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.validator.AbstractStringValidator;
+import com.vaadin.event.DataBoundTransferable;
+import com.vaadin.event.dd.DragAndDropEvent;
+import com.vaadin.event.dd.DropHandler;
+import com.vaadin.event.dd.acceptcriteria.AcceptAll;
+import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.DragAndDropWrapper;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -300,7 +311,12 @@ public class RuleComponent extends VerticalLayout
 			{
 				p.setActionValue(values[i]);
 			}		
-			paramsList.addComponent(p);
+			if (params[i].getType() == Type.EXPRESSION) 
+			{
+				paramsList.addComponent(getDragAndDropWrappedText((TextField) p));
+			} else {
+				paramsList.addComponent(p);
+			}
 		}
 		actionParams.setVisible(paramsList.getComponentCount() != 0);
 	}
@@ -324,6 +340,42 @@ public class RuleComponent extends VerticalLayout
 		}
 	}
 	
+	private Component getDragAndDropWrappedText(final TextField text)
+	{
+		DragAndDropWrapper textWrapper = new DragAndDropWrapper(text);
+		textWrapper.setData(text);
+		textWrapper.setDropHandler(new DropHandler() 
+		{
+			@Override
+			public AcceptCriterion getAcceptCriterion() 
+			{
+				return AcceptAll.get();
+			}
+			
+			@Override
+			public void drop(DragAndDropEvent event) 
+			{
+				DataBoundTransferable t = (DataBoundTransferable) event.getTransferable();
+				Object sourceItemId = t.getData("itemId");
+				
+				String source = "";
+				if (sourceItemId instanceof BeanItem<?>)
+				{
+					Object bean = ((BeanItem<?>) sourceItemId).getBean();
+					source = ((RemoteInformationBase) bean).getName();
+				} else if (sourceItemId instanceof RemoteInformationBase)
+				{
+					source = ((RemoteInformationBase) sourceItemId).getName();
+				}
+				String newValue = text.getValue() + source;
+				text.setValue(newValue);
+				text.focus();
+			}
+		});
+		
+		return textWrapper;
+	}	
+	
 	public AbstractTranslationRule<?> getRule()
 	{
 		String ac = (String) actions.getValue();
@@ -334,7 +386,7 @@ public class RuleComponent extends VerticalLayout
 		ArrayList<String> params = new ArrayList<String>();
 		for (int i = 0; i < paramsList.getComponentCount(); i++)
 		{
-			ActionParameterComponent tc = (ActionParameterComponent) paramsList.getComponent(i);
+			ActionParameterComponent tc = getParamComponent(i);
 			String val = tc.getActionValue();
 			params.add(val);
 		}
@@ -412,7 +464,7 @@ public class RuleComponent extends VerticalLayout
 		int nval = 0;
 		for (int i = 0; i < paramsList.getComponentCount(); i++)
 		{
-			ActionParameterComponent tc = (ActionParameterComponent) paramsList.getComponent(i);
+			ActionParameterComponent tc = getParamComponent(i);
 			tc.setValidationVisible(true);
 			if (!tc.isValid())
 			{
@@ -435,6 +487,20 @@ public class RuleComponent extends VerticalLayout
 
 		return nval == 0;
 
+	}
+
+	private ActionParameterComponent getParamComponent(int i) 
+	{
+		Component retVal = null;
+		if (paramsList.getComponent(i) instanceof DragAndDropWrapper)
+		{
+			DragAndDropWrapper wrap = ((DragAndDropWrapper) paramsList.getComponent(i));
+			retVal = (Component) wrap.getData();
+		} else 
+		{
+			retVal = paramsList.getComponent(i);		
+		}
+		return (ActionParameterComponent) retVal;
 	}
 
 	public interface Callback

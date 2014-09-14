@@ -259,6 +259,14 @@ public abstract class TranslationProfileEditor extends VerticalLayout
 		}
 	}
 
+	public void changeToEditModeAndRefresh(TranslationProfile toEdit)
+	{
+		editMode = true;
+		rules.clear();
+		removeAllComponents();
+		initUI(toEdit);
+	}
+
 	public abstract TranslationProfile getProfile();
 	
 	protected abstract ProfileType getProfileType();

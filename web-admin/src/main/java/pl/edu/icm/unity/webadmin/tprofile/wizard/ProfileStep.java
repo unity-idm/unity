@@ -7,7 +7,10 @@ package pl.edu.icm.unity.webadmin.tprofile.wizard;
 import org.vaadin.teemu.wizards.WizardStep;
 
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditDialog.Callback;
+import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
 
 import com.vaadin.ui.Component;
 
@@ -20,11 +23,19 @@ public class ProfileStep implements WizardStep
 {
 	private UnityMessageSource msg;
 	private ProfileStepComponent profileComponent;
+	private TranslationProfileEditor editor;
+	private boolean addProfile = true;
+	private Callback addCallback;
+	private Callback updateCallback;
 
-	public ProfileStep(UnityMessageSource msg) 
+	public ProfileStep(UnityMessageSource msg, TranslationProfileEditor editor, 
+			Callback addCallback, Callback updateCallback) 
 	{
 		this.msg = msg;
-		profileComponent = new ProfileStepComponent(msg);
+		this.editor = editor;
+		this.addCallback = addCallback;
+		this.updateCallback = updateCallback;
+		profileComponent = new ProfileStepComponent(msg, editor);
 	}
 
 	public void handle(RemotelyAuthenticatedInput authnInput) 
@@ -47,12 +58,23 @@ public class ProfileStep implements WizardStep
 	@Override
 	public boolean onAdvance() 
 	{
+		TranslationProfile translationProfile = editor.getProfile();
+		if (addProfile)
+		{
+			addProfile = false;
+			addCallback.handleProfile(translationProfile);
+			editor.changeToEditModeAndRefresh(translationProfile);
+			profileComponent.setEditor(editor);
+		} else 
+		{
+			updateCallback.handleProfile(translationProfile);
+		}
 		return true;
 	}
 
 	@Override
 	public boolean onBack() 
 	{
-		return true;
+		return false;
 	}
 }

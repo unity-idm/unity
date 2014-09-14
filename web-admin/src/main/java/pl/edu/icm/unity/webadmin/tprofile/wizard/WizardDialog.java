@@ -15,6 +15,8 @@ import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditDialog.Callback;
+import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
 
 import com.vaadin.event.UIEvents.PollEvent;
 import com.vaadin.event.UIEvents.PollListener;
@@ -36,12 +38,13 @@ public class WizardDialog extends Window implements WizardProgressListener
 	private SandboxAuthnNotifier sandboxNotifier;
 	private SandboxAuthnNotifier.Listener sandboxListener;
 
-	public WizardDialog(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier)
+	public WizardDialog(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier, 
+			TranslationProfileEditor editor, Callback addCallback, Callback updateCallback)
 	{
 		this.sandboxURL      = sandboxURL;
 		this.sandboxNotifier = sandboxNotifier;
 		isAuthnEventArrived  = new AtomicBoolean(false);
-		wizardComponent      = new WizardDialogComponent(msg, sandboxURL);
+		wizardComponent      = new WizardDialogComponent(msg, sandboxURL, editor, addCallback, updateCallback);
 		wizardComponent.addWizardListener(this);
 		
 		openSandboxPopupOnNextButton();
