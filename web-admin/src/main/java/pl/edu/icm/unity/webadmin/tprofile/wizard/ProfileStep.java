@@ -58,18 +58,24 @@ public class ProfileStep implements WizardStep
 	@Override
 	public boolean onAdvance() 
 	{
+		boolean onAdvance = true;
 		TranslationProfile translationProfile = editor.getProfile();
 		if (addProfile)
 		{
-			addProfile = false;
-			addCallback.handleProfile(translationProfile);
-			editor.changeToEditModeAndRefresh(translationProfile);
-			profileComponent.setEditor(editor);
+			if (addCallback.handleProfile(translationProfile))
+			{
+				addProfile = false;
+				editor.changeToEditModeAndRefresh(translationProfile);
+				profileComponent.setEditor(editor);
+			} else
+			{
+				onAdvance = false;
+			}
 		} else 
 		{
 			updateCallback.handleProfile(translationProfile);
 		}
-		return true;
+		return onAdvance;
 	}
 
 	@Override

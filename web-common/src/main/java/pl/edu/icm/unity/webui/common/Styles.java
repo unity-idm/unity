@@ -21,6 +21,7 @@ public enum Styles
 	gray("u-gray"),
 	messageBox("u-messageBox"),
 	error("u-error"),
+	success("u-success"),
 	textLarge("u-textLarge"),
 	textXLarge("u-textXLarge"),
 	toolbarButton("u-toolbarButton"),

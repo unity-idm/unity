@@ -280,7 +280,13 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			breakLogin(false);
 		}
 
-		callback.setAuthenticationResult(authnResult);
+		if (sandboxCallback != null && sandboxCallback.validateProfile())
+		{
+			sandboxCallback.handleProfileValidation(authnResult);
+		} else
+		{
+			callback.setAuthenticationResult(authnResult);
+		}
 	}
 	
 	/**
@@ -339,7 +345,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			log.debug("Authentication started but SAML response not arrived (user back button)");
 		} else 
 		{
-			if (sandboxCallback != null)
+			if (sandboxCallback != null && !sandboxCallback.validateProfile())
 			{
 				handleSandboxAuthn(context);
 			} else

@@ -319,7 +319,13 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			breakLogin(false);
 		}
 
-		callback.setAuthenticationResult(authnResult);
+		if (sandboxCallback != null && sandboxCallback.validateProfile())
+		{
+			sandboxCallback.handleProfileValidation(authnResult);
+		} else
+		{
+			callback.setAuthenticationResult(authnResult);
+		}
 	}
 
 
@@ -356,7 +362,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			log.debug("Authentication started but OAuth2 response not arrived (user back button)");
 		} else 
 		{
-			if (sandboxCallback != null)
+			if (sandboxCallback != null && !sandboxCallback.validateProfile())
 			{
 				handleSandboxAuthn(context);
 			} else

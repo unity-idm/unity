@@ -1,6 +1,7 @@
 package pl.edu.icm.unity.callbacks;
 
 import pl.edu.icm.unity.server.authn.AuthenticationException;
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 
 /**
@@ -12,4 +13,8 @@ public interface SandboxAuthnResultCallback
 	public void handleAuthnInput(RemotelyAuthenticatedInput input);
 
 	public void handleAuthnError(AuthenticationException e);
+	
+	public boolean validateProfile();
+	
+	public void handleProfileValidation(AuthenticationResult authnResult);
 }

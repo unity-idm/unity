@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.tprofile.wizard;
 
 import org.vaadin.teemu.wizards.WizardStep;
 
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 import com.vaadin.ui.Component;
@@ -19,10 +20,17 @@ public class DryRunStep implements WizardStep
 {
 
 	private UnityMessageSource msg;
+	private DryRunStepComponent dryRunComponent;
 
-	public DryRunStep(UnityMessageSource msg) 
+	public DryRunStep(UnityMessageSource msg, String sandboxURL) 
 	{
 		this.msg = msg;
+		dryRunComponent = new DryRunStepComponent(msg, sandboxURL);
+	}
+
+	public void handle(AuthenticationResult authnResult) 
+	{
+		dryRunComponent.handle(authnResult);
 	}
 
 	@Override
@@ -34,13 +42,13 @@ public class DryRunStep implements WizardStep
 	@Override
 	public Component getContent() 
 	{
-		return new DryRunStepComponent(msg);
+		return dryRunComponent;
 	}
 
 	@Override
 	public boolean onAdvance() 
 	{
-		return false;
+		return true;
 	}
 
 	@Override
@@ -48,5 +56,4 @@ public class DryRunStep implements WizardStep
 	{
 		return true;
 	}
-
 }

@@ -47,6 +47,10 @@
 	color: red;
 }
 
+.u-success {
+	color: green;
+}
+
 .u-header {
 	background: url("../unityTheme/img/top-bar-bg.jpg");
 }

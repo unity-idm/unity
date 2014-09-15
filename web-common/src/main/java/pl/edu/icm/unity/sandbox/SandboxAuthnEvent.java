@@ -6,6 +6,7 @@ package pl.edu.icm.unity.sandbox;
 
 import java.util.EventObject;
 
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 
 /**
@@ -18,6 +19,7 @@ public class SandboxAuthnEvent extends EventObject
 {
 	private static final long serialVersionUID = 9068192207497978728L;
 	private RemotelyAuthenticatedInput input;
+	private AuthenticationResult authnResult;
 	
 	public SandboxAuthnEvent(RemotelyAuthenticatedInput input)
 	{
@@ -25,9 +27,20 @@ public class SandboxAuthnEvent extends EventObject
 		this.input = input;
 	}
 
+	public SandboxAuthnEvent(AuthenticationResult authnResult)
+	{
+		super(authnResult);
+		this.authnResult = authnResult;
+	}
+
 	public RemotelyAuthenticatedInput getAuthnInput()
 	{
 		return input;
+	}
+	
+	public AuthenticationResult getAuthnResult() 
+	{
+		return authnResult;
 	}
 
 	public String toString()

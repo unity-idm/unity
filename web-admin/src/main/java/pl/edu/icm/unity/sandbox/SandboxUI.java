@@ -23,6 +23,8 @@ import pl.edu.icm.unity.engine.authn.AuthenticatorLoader;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
+import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
@@ -62,6 +64,7 @@ public class SandboxUI extends AuthenticationUI
 	private static final long serialVersionUID = 5093317898729462049L;
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, SandboxUI.class);
 	private static final String DEBUG_ID = "sbox";
+	public static final String PROFILE_VALIDATION = "validate";
 	
 	private List<AuthenticatorSet> authnList;
 
@@ -99,8 +102,15 @@ public class SandboxUI extends AuthenticationUI
 		
 		super.appInit(request);
 		
-		setSelectionTitle(msg.getMessage("SandboxUI.selectionTitle"));
 		setHeaderTitle(msg.getMessage("SandboxUI.headerTitle"));
+		
+		if (isProfileValidation())
+		{
+			setSelectionTitle(msg.getMessage("SandboxUI.selectionTitle.profileValidation"));
+		} else
+		{
+			setSelectionTitle(msg.getMessage("SandboxUI.selectionTitle.profileCreation"));
+		}
 		
 	}
 	
@@ -117,10 +127,13 @@ public class SandboxUI extends AuthenticationUI
 						@Override
 						public void handleAuthnInput(RemotelyAuthenticatedInput input) 
 						{
-							cancelAuthentication();
 							if (isPopup())
 							{
 								fireAuthnEvent(input);
+							}
+							cancelAuthentication();
+							if (isPopup())
+							{
 								JavaScript.getCurrent().execute("window.close();");
 							} else
 							{
@@ -133,6 +146,23 @@ public class SandboxUI extends AuthenticationUI
 						{
 							Notification.show(e.getMessage(), Notification.Type.ERROR_MESSAGE);
 						}
+
+						@Override
+						public boolean validateProfile() 
+						{
+							return isProfileValidation();
+						}
+
+						@Override
+						public void handleProfileValidation(AuthenticationResult authnResult) 
+						{
+							fireAuthnEvent(authnResult);
+							cancelAuthentication();
+							if (authnResult.getStatus() == Status.success && isPopup()) 
+							{
+								JavaScript.getCurrent().execute("window.close();");
+							}
+						}
 					});
 				}
 			}
@@ -144,6 +174,11 @@ public class SandboxUI extends AuthenticationUI
 		sandboxRouter.fireEvent(new SandboxAuthnEvent(input));
 	}
 
+	private void fireAuthnEvent(AuthenticationResult authnResult)
+	{
+		sandboxRouter.fireEvent(new SandboxAuthnEvent(authnResult));
+	}
+	
 	private void cancelAuthentication() 
 	{
 		if (authenticators != null) 
@@ -235,4 +270,14 @@ public class SandboxUI extends AuthenticationUI
 		}
 		return isPopup;
 	}	
+	
+	private boolean isProfileValidation()
+	{
+		boolean isProfileValidation = false;
+		if (VaadinService.getCurrentRequest().getParameter(PROFILE_VALIDATION) != null)
+		{
+			isProfileValidation = true;
+		}		
+		return isProfileValidation;
+	}
 }

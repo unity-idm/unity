@@ -77,7 +77,7 @@ public class WizardDialog extends Window implements WizardProgressListener
 				try 
 				{
 					VaadinSession.getCurrent().lock();
-					wizardComponent.handle(event.getAuthnInput());
+					wizardComponent.handle(event);
 					isAuthnEventArrived.set(true);
 				} finally 
 				{
