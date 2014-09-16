@@ -24,7 +24,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
@@ -154,11 +153,12 @@ public class SandboxUI extends AuthenticationUI
 						}
 
 						@Override
-						public void handleProfileValidation(AuthenticationResult authnResult) 
+						public void handleProfileValidation(AuthenticationResult authnResult,
+								StringBuffer capturedLogs) 
 						{
-							fireAuthnEvent(authnResult);
+							fireAuthnEvent(authnResult, capturedLogs);
 							cancelAuthentication();
-							if (authnResult.getStatus() == Status.success && isPopup()) 
+							if (isPopup()) 
 							{
 								JavaScript.getCurrent().execute("window.close();");
 							}
@@ -174,9 +174,9 @@ public class SandboxUI extends AuthenticationUI
 		sandboxRouter.fireEvent(new SandboxAuthnEvent(input));
 	}
 
-	private void fireAuthnEvent(AuthenticationResult authnResult)
+	private void fireAuthnEvent(AuthenticationResult authnResult, StringBuffer capturedLogs)
 	{
-		sandboxRouter.fireEvent(new SandboxAuthnEvent(authnResult));
+		sandboxRouter.fireEvent(new SandboxAuthnEvent(authnResult, capturedLogs));
 	}
 	
 	private void cancelAuthentication() 

@@ -20,6 +20,7 @@ public class SandboxAuthnEvent extends EventObject
 	private static final long serialVersionUID = 9068192207497978728L;
 	private RemotelyAuthenticatedInput input;
 	private AuthenticationResult authnResult;
+	private StringBuffer capturedLogs;
 	
 	public SandboxAuthnEvent(RemotelyAuthenticatedInput input)
 	{
@@ -27,10 +28,11 @@ public class SandboxAuthnEvent extends EventObject
 		this.input = input;
 	}
 
-	public SandboxAuthnEvent(AuthenticationResult authnResult)
+	public SandboxAuthnEvent(AuthenticationResult authnResult, StringBuffer capturedLogs)
 	{
 		super(authnResult);
 		this.authnResult = authnResult;
+		this.capturedLogs = capturedLogs;
 	}
 
 	public RemotelyAuthenticatedInput getAuthnInput()
@@ -41,6 +43,11 @@ public class SandboxAuthnEvent extends EventObject
 	public AuthenticationResult getAuthnResult() 
 	{
 		return authnResult;
+	}
+	
+	public StringBuffer getCapturedLogs()
+	{
+		return capturedLogs;
 	}
 
 	public String toString()

@@ -8,7 +8,7 @@ import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
  * Retrieval must provide an authentication result along with specific data via this callback. 
  * @author Roman Krysinski
  */
-public interface SandboxAuthnResultCallback 
+public interface SandboxAuthnResultCallback
 {
 	public void handleAuthnInput(RemotelyAuthenticatedInput input);
 
@@ -16,5 +16,5 @@ public interface SandboxAuthnResultCallback
 	
 	public boolean validateProfile();
 	
-	public void handleProfileValidation(AuthenticationResult authnResult);
+	public void handleProfileValidation(AuthenticationResult authnResult, StringBuffer capturedLogs);
 }

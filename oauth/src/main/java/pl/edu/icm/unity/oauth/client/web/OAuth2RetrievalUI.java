@@ -35,6 +35,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.LogRecorder;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
@@ -60,6 +61,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	
 	private AuthenticationResultCallback callback;
 	private SandboxAuthnResultCallback sandboxCallback;
+	private LogRecorder logRecorder;
 	private String redirectParam;
 
 	private IdpSelectorComponent idpSelector;
@@ -271,6 +273,13 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	 */
 	private void onAuthzAnswer(OAuthContext authnContext)
 	{
+		boolean isProfileValidationOnly = sandboxCallback != null && sandboxCallback.validateProfile();
+		if (isProfileValidationOnly)
+		{
+			logRecorder = new LogRecorder();
+			logRecorder.startLogRecording();
+		}
+		
 		log.debug("RetrievalUI received OAuth response");
 		AuthenticationResult authnResult;
 		showError(null);
@@ -319,9 +328,10 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			breakLogin(false);
 		}
 
-		if (sandboxCallback != null && sandboxCallback.validateProfile())
+		if (isProfileValidationOnly)
 		{
-			sandboxCallback.handleProfileValidation(authnResult);
+			sandboxCallback.handleProfileValidation(authnResult, logRecorder.getCapturedLogs());
+			logRecorder.stopLogRecording();
 		} else
 		{
 			callback.setAuthenticationResult(authnResult);

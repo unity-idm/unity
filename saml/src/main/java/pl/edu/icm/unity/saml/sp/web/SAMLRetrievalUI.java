@@ -23,6 +23,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.LogRecorder;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
@@ -60,6 +61,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private SAMLExchange credentialExchange;
 	private AuthenticationResultCallback callback;
 	private SandboxAuthnResultCallback sandboxCallback;
+	private LogRecorder logRecorder;
 	private String redirectParam;
 	
 	private IdpSelectorComponent idpSelector;
@@ -242,6 +244,14 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		showError(null);
 		String reason = null;
 		Exception savedException = null;
+		
+		boolean isProfileValidationOnly = sandboxCallback != null && sandboxCallback.validateProfile();
+		if (isProfileValidationOnly)
+		{
+			logRecorder = new LogRecorder();
+			logRecorder.startLogRecording();
+		}
+		
 		try
 		{
 			authnResult = credentialExchange.verifySAMLResponse(authnContext);
@@ -280,28 +290,13 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			breakLogin(false);
 		}
 
-		if (sandboxCallback != null && sandboxCallback.validateProfile())
+		if (isProfileValidationOnly)
 		{
-			sandboxCallback.handleProfileValidation(authnResult);
+			sandboxCallback.handleProfileValidation(authnResult, logRecorder.getCapturedLogs());
+			logRecorder.stopLogRecording();
 		} else
 		{
 			callback.setAuthenticationResult(authnResult);
-		}
-	}
-	
-	/**
-	 * Called when a SAML response is received and sandbox callback is set.
-	 * @param context
-	 */
-	private void handleSandboxAuthn(RemoteAuthnContext context) 
-	{
-		try 
-		{
-			RemotelyAuthenticatedInput input = credentialExchange.getRemotelyAuthenticatedInput(context);
-			sandboxCallback.handleAuthnInput(input);
-		} catch (AuthenticationException e) 
-		{
-			sandboxCallback.handleAuthnError(e);
 		}
 	}
 	
@@ -355,6 +350,22 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		}
 	}
 
+	/**
+	 * Called when a SAML response is received and sandbox callback is set.
+	 * @param context
+	 */
+	private void handleSandboxAuthn(RemoteAuthnContext context) 
+	{
+		try 
+		{
+			RemotelyAuthenticatedInput input = credentialExchange.getRemotelyAuthenticatedInput(context);
+			sandboxCallback.handleAuthnInput(input);
+		} catch (AuthenticationException e) 
+		{
+			sandboxCallback.handleAuthnError(e);
+		}
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

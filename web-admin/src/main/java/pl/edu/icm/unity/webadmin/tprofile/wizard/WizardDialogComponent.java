@@ -8,7 +8,6 @@ import org.vaadin.teemu.wizards.Wizard;
 import org.vaadin.teemu.wizards.event.WizardProgressListener;
 
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
-import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
@@ -81,11 +80,7 @@ public class WizardDialogComponent extends CustomComponent
 			wizard.next();
 		} else
 		{
-			dryRun.handle(event.getAuthnResult());
-			if (event.getAuthnResult().getStatus() != Status.success)
-			{
-				wizard.back();
-			}
+			dryRun.handle(event);
 		}
 	}
 	

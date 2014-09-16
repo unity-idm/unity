@@ -34,6 +34,7 @@ import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.LogRecorder;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
@@ -189,8 +190,14 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 			{
 				if (sandboxCallback.validateProfile())
 				{
+					LogRecorder logRecorder = new LogRecorder();
+					logRecorder.startLogRecording();
+					
 					AuthenticationResult authnResult = getAuthenticationResult(username, password);
-					sandboxCallback.handleProfileValidation(authnResult);
+					sandboxCallback.handleProfileValidation(authnResult, logRecorder.getCapturedLogs());
+					
+					logRecorder.stopLogRecording();
+					
 				} else
 				{
 					handleSandboxAuthn(username, password);
