@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.server.utils;
 
 import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.Layout;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.LoggingEvent;
 
@@ -32,6 +33,14 @@ public class StringRecorderAppender extends AppenderSkeleton
 		if (threadName.equals(event.getThreadName()))
 		{
 			recording.append(this.layout.format(event));
+			String[] strRep = event.getThrowableStrRep();
+			if (strRep != null) 
+			{
+				for (String line : strRep)
+				{
+					recording.append(line).append(Layout.LINE_SEP);
+				}
+			}
 		}
 	}
 
