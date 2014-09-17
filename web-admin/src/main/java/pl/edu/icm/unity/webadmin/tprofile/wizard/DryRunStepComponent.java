@@ -80,7 +80,7 @@ public class DryRunStepComponent extends CustomComponent
 		authnResultLabel.setValue("");
 		popup.attachButton(popupButton);		
 		
-		splitPanel.setSplitPosition(25);
+		splitPanel.setSplitPosition(22);
 		splitPanel.addStyleName(Reindeer.SPLITPANEL_SMALL);
 		splitPanel.setLocked(true);
 	}

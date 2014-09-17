@@ -15,11 +15,13 @@ import org.apache.log4j.spi.LoggingEvent;
  */
 public class StringRecorderAppender extends AppenderSkeleton 
 {
-	private static final String PATTERN = "%d [%t] %-p %c: %x %m%n";
-	private StringBuffer recording;  
+	private static final String PATTERN = "%d %x %m%n";
+	private StringBuffer recording;
+	private String threadName;  
 
-	public StringRecorderAppender()
+	public StringRecorderAppender(String threadName)
 	{
+		this.threadName = threadName;
 		recording = new StringBuffer();
 		layout = new PatternLayout(PATTERN);
 	}
@@ -27,7 +29,10 @@ public class StringRecorderAppender extends AppenderSkeleton
 	@Override
 	protected void append(LoggingEvent event) 
 	{
-		recording.append(this.layout.format(event));
+		if (threadName.equals(event.getThreadName()))
+		{
+			recording.append(this.layout.format(event));
+		}
 	}
 
 	public StringBuffer getCapturedLogs()

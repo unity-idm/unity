@@ -21,6 +21,7 @@ import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
 import com.vaadin.event.UIEvents.PollEvent;
 import com.vaadin.event.UIEvents.PollListener;
 import com.vaadin.server.ExternalResource;
+import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
@@ -37,15 +38,18 @@ public class WizardDialog extends Window implements WizardProgressListener
 	private AtomicBoolean isAuthnEventArrived;
 	private SandboxAuthnNotifier sandboxNotifier;
 	private SandboxAuthnNotifier.Listener sandboxListener;
+	private String callerId;
 
 	public WizardDialog(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier, 
 			TranslationProfileEditor editor, Callback addCallback, Callback updateCallback)
 	{
 		this.sandboxURL      = sandboxURL;
 		this.sandboxNotifier = sandboxNotifier;
+		this.callerId        = VaadinService.getCurrentRequest().getWrappedSession().getId();
 		isAuthnEventArrived  = new AtomicBoolean(false);
 		wizardComponent      = new WizardDialogComponent(msg, sandboxURL, editor, addCallback, updateCallback);
 		wizardComponent.addWizardListener(this);
+		
 		
 		openSandboxPopupOnNextButton();
 		
@@ -74,6 +78,12 @@ public class WizardDialog extends Window implements WizardProgressListener
 			@Override
 			public void handle(SandboxAuthnEvent event) 
 			{
+				
+				if (!callerId.equals(event.getCallerId()))
+				{
+					return;
+				}
+				
 				try 
 				{
 					VaadinSession.getCurrent().lock();
