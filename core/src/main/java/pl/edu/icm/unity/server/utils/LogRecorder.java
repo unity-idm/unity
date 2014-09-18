@@ -38,9 +38,9 @@ public class LogRecorder
 		{
 			Logger logger = Logger.getRootLogger().getLoggerRepository().getLogger(log);
 			levelBackup.put(log, logger.getLevel());
+			logger.setLevel(Level.ALL);
 			logger.addAppender(recorder);
 		}
-		
 	}
 
 	public void stopLogRecording() 

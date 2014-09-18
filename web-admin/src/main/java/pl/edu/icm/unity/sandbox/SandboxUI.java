@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -24,10 +23,12 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
+import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
+import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
@@ -61,7 +62,6 @@ import com.vaadin.ui.Notification;
 public class SandboxUI extends AuthenticationUI 
 {
 	private static final long serialVersionUID = 5093317898729462049L;
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, SandboxUI.class);
 	private static final String DEBUG_ID = "sbox";
 	public static final String PROFILE_VALIDATION = "validate";
 	
@@ -76,11 +76,12 @@ public class SandboxUI extends AuthenticationUI
 			ExecutorsService execService,
 			AuthenticationManagement authnManagement,
 			AuthenticatorLoader authnLoader,
-			DBSessionManager db)
+			DBSessionManager db,
+			AuthenticatorsRegistry authnRegistry)
 	{
 		super(msg, localeChoice, authnProcessor, formsChooser, formLauncher, execService);
 		
-		authnList      = getAllVaadinAuthenticators(authnManagement);
+		authnList      = getAllVaadinAuthenticators(authnManagement, authnRegistry);
 		authenticators = getAuthenticatorUIs(authnList, authnLoader, db);
 	}
 
@@ -143,7 +144,8 @@ public class SandboxUI extends AuthenticationUI
 						@Override
 						public void handleAuthnError(AuthenticationException e) 
 						{
-							Notification.show(e.getMessage(), Notification.Type.ERROR_MESSAGE);
+							cancelAuthentication();
+							Notification.show(msg.getMessage("very.important.message", e.getMessage()), Notification.Type.ERROR_MESSAGE);
 						}
 
 						@Override
@@ -193,27 +195,23 @@ public class SandboxUI extends AuthenticationUI
 		}			
 	}
 
-	private List<AuthenticatorSet> getAllVaadinAuthenticators(AuthenticationManagement authnManagement) 
+	private List<AuthenticatorSet> getAllVaadinAuthenticators(AuthenticationManagement authnManagement, 
+			AuthenticatorsRegistry authnRegistry) 
 	{
 		ArrayList<AuthenticatorSet> vaadinAuthenticators = new ArrayList<AuthenticatorSet>();
 		
 		try 
 		{
 			Collection<AuthenticatorInstance> authnInstances = authnManagement.getAuthenticators(VaadinAuthentication.NAME);
-			if (LOG.isDebugEnabled()) 
-			{
-				StringBuilder builder = new StringBuilder();
-				builder.append("authnInstances: \n");
-				for (AuthenticatorInstance inst : authnInstances)
-				{
-					builder.append(inst.getId()).append("\n");
-				}
-				LOG.debug(builder.toString());
-			}
 			for (AuthenticatorInstance instance : authnInstances)
 			{
-				AuthenticatorSet authnSet = new AuthenticatorSet(Collections.singleton(instance.getId()));
-				vaadinAuthenticators.add(authnSet);
+				CredentialVerificatorFactory factory = authnRegistry.getCredentialVerificatorFactory(
+						instance.getTypeDescription().getVerificationMethod());
+				if (!(factory instanceof LocalCredentialVerificatorFactory)) 
+				{
+					AuthenticatorSet authnSet = new AuthenticatorSet(Collections.singleton(instance.getId()));
+					vaadinAuthenticators.add(authnSet);
+				}
 			}
 		} catch (EngineException e) 
 		{

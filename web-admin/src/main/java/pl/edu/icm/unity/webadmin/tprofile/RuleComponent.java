@@ -372,7 +372,7 @@ public class RuleComponent extends VerticalLayout
 				text.focus();
 			}
 		});
-		
+		textWrapper.setCaption(text.getCaption());
 		return textWrapper;
 	}	
 	
