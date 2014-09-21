@@ -6,11 +6,12 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>unity-server-rest</artifactId>
+	<artifactId>unity-integration-tests</artifactId>
 	<packaging>jar</packaging>
 	<name>UNITY Server ${m.name} module</name>
+	<description>Unity tests sets</description>
 	<properties>
-		<m.name>rest</m.name>
+		<m.name>integration-tests</m.name>
 	</properties>
 
 	<scm>
@@ -18,9 +19,8 @@
 		<developerConnection>${scm.base}/${m.name}</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
-
 	<dependencies>
-		<dependency>
+	<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
@@ -44,53 +44,28 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-rest</artifactId>
+			<version>${project.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-rest</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
 		 	<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<scope>test</scope>
 		</dependency>
-				
-		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-std-extensions</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-transports-http</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.nimbusds</groupId>
-			<artifactId>nimbus-jose-jwt</artifactId>
-		</dependency>
+
+
+
 	</dependencies>
-	
-	<build>
-		<plugins>
-			<!--  test classes and resources will be packaged for reuse -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>test-jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+
 </project>
