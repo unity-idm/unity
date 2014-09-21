@@ -4,9 +4,10 @@
  */
 package pl.edu.icm.unity.db;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
 
@@ -57,29 +58,42 @@ public class DBConfiguration extends PropertiesHelper
 	@Autowired
 	public DBConfiguration(UnityServerConfiguration main) throws ConfigurationException
 	{
-		super(PREFIX, main.getProperties(), META, log);
-		String alternativeDB;
-		alternativeDB = System.getProperty(ALTERNATIVE_DB_CONFIG);
-		if(alternativeDB != null)
-		{
-			loadAlternativeDbConfig(alternativeDB);	
-		}
-		
+		super(PREFIX, loadDbConfig(main), META, log);
 	}
 	
-	private void loadAlternativeDbConfig(String db)
+	private static Properties loadDbConfig(UnityServerConfiguration main)
 	{
-		String path = "/dbConfigs/" + db + ".conf";
-		log.debug("Loading alternative DB config from " + path);
+		String alternativeDB = System.getProperty(ALTERNATIVE_DB_CONFIG);
+		if (alternativeDB == null)
+			return main.getProperties();
 		Properties p = new Properties();
+		InputStream is;
+		File f = new File(alternativeDB);
+		if (f.exists() && f.isFile())
+		{
+			log.info("Loading alternative DB config from file " + alternativeDB);
+			try
+			{
+				is = new FileInputStream(f);
+			} catch (FileNotFoundException e)
+			{
+				throw new ConfigurationException("Cannot read DB config file", e);
+			}
+		} else
+		{
+			String path = "/dbConfigs/" + alternativeDB + ".conf";
+			log.info("Loading alternative DB config from classpath resource " + path);
+			is = DBConfiguration.class.getResourceAsStream(path);
+		}
+
 		try
 		{
-			p.load(getClass().getResourceAsStream(path));
-			setProperties(p);
+			p.load(is);
 		} catch (Exception e)
 		{
-			log.error("Cannot load alternative DB config from " + path, e);
+			throw new ConfigurationException("Cannot load alternative DB config", e);
 		}	
+		return p;
 	}
 	
 	public Properties getProperties()
