@@ -148,6 +148,16 @@ It is also possible to glue many values. Let's create a DN, which can be used to
 'CN=' + attr['cn'] + ',O=' + attr['o'] + ',C=NO'
 ----
 
+
+MVEL provides convenient operations on list of values too. The following expression converts a list of
+groups (as returned by remote IdP, e.g. LDAP) to unity groups. A constant prefix +/it/groups/+ is added and 
+3 initial characters are removed from the external group name, but only of the group name has at least 4 characters.
+
+----
+('/it/groups'+$.substring(3) in groups if $.length() > 3)
+----  
+
+
 Finally the value of the identity provided by remote IdP is available as follows:
 ----
 id
