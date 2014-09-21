@@ -17,7 +17,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 
 /**
- * Test get user attributes with proccesing attributes statments
+ * Test get user attributes with attributes statements processing
  * 
  * @author P.Piernik
  * 

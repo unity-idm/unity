@@ -37,7 +37,7 @@ public class TestPerfGetAttributes extends IntegrationTestBase
 		addRandomAttributeToEntities(entities, enInGroup, attributeTypesAsMap, IMAGE_ATTRIBUTES,
 				STRING_ATTRIBUTES, INT_ATTRIBUTES, FLOAT_ATTRIBUTES);
 		
-		//warn-up
+		//warm-up
 		getUsersAttr(USERS/10, enInGroup, false);
 		
 		for (int i = 0; i < TEST_REPETITIONS; i++)

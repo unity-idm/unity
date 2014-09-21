@@ -26,9 +26,10 @@ public class TimeHelper
 
 	protected List<SingleResult> results;
 
-	public TimeHelper(String file)
+	public TimeHelper(String file) throws IOException
 	{
 		this.file = file;
+		toFile("OPERATION , COUNT , TOTAL_TIME_S , OPS_PER_S ");
 		results = new ArrayList<SingleResult>();
 	}
 
@@ -44,7 +45,7 @@ public class TimeHelper
 		double periodS = periodMs / 1000.0;
 		double opsPerS = (ops * 1000 / periodMs);
 
-		results.add(new SingleResult(periodMs, opsPerS));
+		results.add(new SingleResult(periodMs, opsPerS, ops));
 
 		if (PRINT_TO_CONSOLE)
 			System.out.printf(Locale.US, label + "  %d ops, %.2f s, %.2f ops/s \n",
@@ -72,11 +73,12 @@ public class TimeHelper
 		double odev = 0l;
 		double psum = 0l;
 		double osum = 0l;
+		long count = 0;
 		for (SingleResult l : results)
 		{
 			psum += l.periodMs;
 			osum += l.opsPerS;
-
+			count += l.count;
 		}
 		double size = (double) results.size();
 
@@ -94,15 +96,15 @@ public class TimeHelper
 
 		double periodS = pavg / 1000.0;
 		if (PRINT_TO_CONSOLE)
-			System.out.printf(Locale.US, label + " average , , %.2f s, %.2f ops/s \n",
-					periodS, oavg);
-		toFile(String.format(Locale.US, label + " average ,, %.2f , %.2f", periodS, oavg));
+			System.out.printf(Locale.US, label + " average , %d , %.2f s, %.2f ops/s \n",
+					count, periodS, oavg);
+		toFile(String.format(Locale.US, label + " average , %d , %.2f , %.2f", count, periodS, oavg));
 		periodS = pdev / 1000.0;
 		if (PRINT_TO_CONSOLE)
 			System.out.printf(Locale.US,
-					label + " deviation , , %.2f s, %.2f ops/s \n", periodS,
+					label + " deviation , %d , %.2f s, %.2f ops/s \n", count, periodS,
 					odev);
-		toFile(String.format(Locale.US, label + " deviation ,, %.2f , %.2f", periodS, odev));
+		toFile(String.format(Locale.US, label + " deviation , %d , %.2f , %.2f", count, periodS, odev));
 	}
 
 	public void clear()
@@ -112,15 +114,17 @@ public class TimeHelper
 
 	public class SingleResult
 	{
-		public SingleResult(double periodMs, double opsPerS)
+		public double periodMs;
+		public double opsPerS;
+		public int count;
+
+		public SingleResult(double periodMs, double opsPerS, int count)
 		{
 			this.periodMs = periodMs;
 			this.opsPerS = opsPerS;
+			this.count = count;
 		}
 
-		public double periodMs;
-
-		public double opsPerS;
 	}
 
 }

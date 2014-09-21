@@ -67,7 +67,7 @@ public class IntegrationTestBase extends TestRESTBase
 	public final int FLOAT_ATTRIBUTES = 100;
 	public final int INT_ATTRIBUTES = 100; 
 			
-	TimeHelper timer;
+	protected TimeHelper timer;
 	
 	@Before
 	public void setup() throws Exception
@@ -75,8 +75,10 @@ public class IntegrationTestBase extends TestRESTBase
 		setupPasswordAuthn();
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 		Calendar c = Calendar.getInstance();
-		timer = new TimeHelper("target/test-"+ getClass().getSimpleName() + "-" + dateFormat.format(c.getTime()) + ".csv");
-	
+		String outputFile = "target/test-"+ getClass().getSimpleName() + "-" + 
+				dateFormat.format(c.getTime()) + ".csv";
+		timer = new TimeHelper(outputFile);
+		System.out.println("Test output will be written to " + outputFile);
 	}
 	
 	/**
@@ -194,7 +196,6 @@ public class IntegrationTestBase extends TestRESTBase
 		ArrayList<GroupContents> groupsC = new ArrayList<GroupContents>();
 		String path = getGroupPath(g);
 
-//		System.out.println(path);
 		GroupContents contents = groupsMan.getContents(path,
 					GroupContents.EVERYTHING);
 		groupsC.add(contents);		
@@ -429,8 +430,8 @@ public class IntegrationTestBase extends TestRESTBase
 	 * @param d Numbers of group tiers
 	 * @throws EngineException
 	 */	
-	protected void addAttrStatments(ArrayList<GroupContents> groups,Map<String, AttributeType> attributeTypesAsMap
-			, int d) throws EngineException
+	protected void addAttrStatments(ArrayList<GroupContents> groups,Map<String, AttributeType> attributeTypesAsMap, 
+			int d) throws EngineException
 	{
 		for (GroupContents c : groups)
 		{
