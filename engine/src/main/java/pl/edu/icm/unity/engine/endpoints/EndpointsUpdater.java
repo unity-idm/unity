@@ -65,7 +65,7 @@ public class EndpointsUpdater
 
 	public void setLastUpdate(long lastUpdate)
 	{
-		this.lastUpdate = lastUpdate;
+		this.lastUpdate = (lastUpdate/1000)*1000;
 	}
 
 	private void updateEndpointsInt() throws EngineException
@@ -103,7 +103,7 @@ public class EndpointsUpdater
 					updateEndpointAuthenticators(name, instance, endpointsDeployed);
 				}
 			}
-			lastUpdate = System.currentTimeMillis();
+			setLastUpdate(System.currentTimeMillis());
 
 			undeployRemoved(endpointsInDb, deployedEndpoints);
 			
