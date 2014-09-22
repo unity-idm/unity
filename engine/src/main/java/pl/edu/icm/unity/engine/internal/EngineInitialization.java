@@ -178,6 +178,10 @@ public class EngineInitialization extends LifecycleBase
 	public void start()
 	{
 		updateDatabase();
+		
+		if (config.getBooleanValue(UnityServerConfiguration.WIPE_DB_AT_STARTUP))
+			initDB.resetDatabase();
+		
 		initializeDatabaseContents();
 		initializeBackgroundTasks();
 		super.start();
