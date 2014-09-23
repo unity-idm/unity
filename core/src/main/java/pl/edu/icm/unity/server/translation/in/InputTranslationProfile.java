@@ -6,6 +6,7 @@ package pl.edu.icm.unity.server.translation.in;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +51,17 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 		 * Actions from the profile are applied only.
 		 */
 		UPDATE_ONLY
+	}
+	
+	public enum ContextKey
+	{
+		id,
+		idType,
+		idsByType,
+		attrs,
+		attr,
+		idp,
+		groups;
 	}
 
 	
@@ -112,7 +124,7 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 	{
 		Map<String, Object> ret = new HashMap<>();
 		
-		ret.put("idp", input.getIdpName());
+		ret.put(ContextKey.idp.name(), input.getIdpName());
 		Map<String, Object> attr = new HashMap<String, Object>();
 		Map<String, List<Object>> attrs = new HashMap<String, List<Object>>();
 		for (RemoteAttribute ra: input.getAttributes().values())
@@ -121,14 +133,14 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 			attr.put(ra.getName(), v);
 			attrs.put(ra.getName(), ra.getValues());
 		}
-		ret.put("attr", attr);
-		ret.put("attrs", attrs);
+		ret.put(ContextKey.attr.name(), attr);
+		ret.put(ContextKey.attrs.name(), attrs);
 		
 		if (!input.getIdentities().isEmpty())
 		{
 			RemoteIdentity ri = input.getIdentities().values().iterator().next();
-			ret.put("id", ri.getName());
-			ret.put("idType", ri.getIdentityType());
+			ret.put(ContextKey.id.name(), ri.getName());
+			ret.put(ContextKey.idType.name(), ri.getIdentityType());
 		}
 		
 		Map<String, List<String>> idsByType = new HashMap<String, List<String>>();
@@ -142,12 +154,67 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 			}
 			vals.add(ri.getName());
 		}
-		ret.put("idsByType", idsByType);
+		ret.put(ContextKey.idsByType.name(), idsByType);
 		
-		ret.put("groups", new ArrayList<String>(input.getGroups().keySet()));
+		ret.put(ContextKey.groups.name(), new ArrayList<String>(input.getGroups().keySet()));
 		return ret;
 	}
 	
+	public static Map<String, String> createExpresionValueMap(RemotelyAuthenticatedInput input)
+	{
+		Map<String, Object> mvelCtx = createMvelContext(input);
+		return createExpresionValueMap(mvelCtx);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static Map<String, String> createExpresionValueMap(Map<String, Object> mvelCtx)
+	{
+		Map<String, String> exprValMap = new LinkedHashMap<String, String>();
+
+		for (String contextKey : mvelCtx.keySet())
+		{
+			if (ContextKey.valueOf(contextKey) == null)
+			{
+				throw new IllegalArgumentException("Incorrect MVEL context, uknnown context key: " + contextKey);
+			}
+			
+			if (mvelCtx.get(contextKey) instanceof Map)
+			{
+				@SuppressWarnings("unchecked")
+				HashMap<String, Object> value = (HashMap<String, Object>) mvelCtx.get(contextKey);
+				for (String key : value.keySet())
+				{
+					if (value.get(key) instanceof List)
+					{
+						for (Object item: (List) value.get(key))
+						{
+							exprValMap.put(String.format("%s['%s']", contextKey, key), item.toString());
+						}
+					} else
+					{
+						exprValMap.put(String.format("%s['%s']", contextKey, key), value.get(key).toString());
+					}
+				}
+			} else if (mvelCtx.get(contextKey) instanceof List)
+			{
+				exprValMap.put(contextKey, mvelCtx.get(contextKey).toString());
+				
+			} else if (mvelCtx.get(contextKey) instanceof String)
+			{
+				exprValMap.put(contextKey, mvelCtx.get(contextKey).toString());
+				
+			} else
+			{
+				throw new IllegalArgumentException("Incorrect MVEL context: unexpected: \"" 
+						+ mvelCtx.get(contextKey).getClass() 
+						+ "\" type for context key: \"" 
+						+ contextKey 
+						+ "\"");
+			}
+		}
+		
+		return exprValMap;
+	}
 	
 	public String toJson(ObjectMapper jsonMapper)
 	{

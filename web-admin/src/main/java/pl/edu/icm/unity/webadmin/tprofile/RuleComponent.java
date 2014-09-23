@@ -12,7 +12,6 @@ import java.util.List;
 import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.authn.remote.RemoteInformationBase;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
@@ -27,6 +26,7 @@ import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.webadmin.tprofile.wizard.DragDropBean;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.RequiredComboBox;
@@ -362,10 +362,10 @@ public class RuleComponent extends VerticalLayout
 				if (sourceItemId instanceof BeanItem<?>)
 				{
 					Object bean = ((BeanItem<?>) sourceItemId).getBean();
-					source = ((RemoteInformationBase) bean).getName();
-				} else if (sourceItemId instanceof RemoteInformationBase)
+					source = ((DragDropBean) bean).getExpression();
+				} else if (sourceItemId instanceof DragDropBean)
 				{
-					source = ((RemoteInformationBase) sourceItemId).getName();
+					source = ((DragDropBean) sourceItemId).getExpression();
 				}
 				String newValue = text.getValue() + source;
 				text.setValue(newValue);
