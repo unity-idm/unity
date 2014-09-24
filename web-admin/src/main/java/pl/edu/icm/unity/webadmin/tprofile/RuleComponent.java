@@ -7,11 +7,14 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
@@ -21,6 +24,7 @@ import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
+import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
@@ -503,6 +507,65 @@ public class RuleComponent extends VerticalLayout
 		return (ActionParameterComponent) retVal;
 	}
 
+	public void test(RemotelyAuthenticatedInput remoteAuthnInput) 
+	{
+		InputTranslationRule rule = (InputTranslationRule) getRule();
+		Map<String, Object> mvelCtx = InputTranslationProfile.createMvelContext(remoteAuthnInput);
+		TranslationCondition conditionRule = rule.getCondition();
+		
+		try 
+		{
+			boolean result = conditionRule.evaluate(mvelCtx);
+			setLayoutForEvaludatedCondition(result);
+		} catch (EngineException e) 
+		{
+			ErrorPopup.showError(msg,
+					msg.getMessage("TranslationProfileEditor.errorConditionEvaluation"),
+					e);
+		}
+		
+		InputTranslationAction action = rule.getAction();
+		try 
+		{
+			action.invoke(remoteAuthnInput, mvelCtx, null);
+		} catch (EngineException e) 
+		{
+			ErrorPopup.showError(msg,
+					msg.getMessage("TranslationProfileEditor.errorExpressionEvaluation"),
+					e);
+		}
+	}
+	
+	private void setLayoutForEvaludatedCondition(boolean conditionResult) 
+	{
+		if (conditionResult)
+		{
+			condition.setStyleName(Styles.greenBackground.toString());
+			actions.removeStyleName(Styles.grayBackground.toString());
+			Iterator<Component> iter = paramsList.iterator();
+			while (iter.hasNext())
+			{
+				Component c = iter.next();
+				c.removeStyleName(Styles.grayBackground.toString());
+			}
+		} else
+		{
+			condition.setStyleName(Styles.grayBackground.toString());
+			actions.setStyleName(Styles.grayBackground.toString());
+			Iterator<Component> iter = paramsList.iterator();
+			while (iter.hasNext())
+			{
+				Component c = iter.next();
+				c.setStyleName(Styles.grayBackground.toString());
+			}
+		}
+	}
+
+	public void clearTestResult() 
+	{
+		
+	}
+	
 	public interface Callback
 	{
 		public boolean moveUp(RuleComponent rule);
@@ -511,5 +574,6 @@ public class RuleComponent extends VerticalLayout
 		public boolean moveTop(RuleComponent rule);
 		public boolean moveBottom(RuleComponent rule);
 	}
+
 
 }

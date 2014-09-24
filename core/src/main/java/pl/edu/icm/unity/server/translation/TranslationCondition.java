@@ -38,13 +38,25 @@ public class TranslationCondition
 
 	public boolean evaluate(Object input) throws EngineException
 	{
-		Boolean result = (Boolean) MVEL.executeExpression(compiled, input);
+		Boolean result = null;
+		try
+		{
+			result = (Boolean) MVEL.executeExpression(compiled, input);
+		} catch (Exception e)
+		{
+			if (log.isDebugEnabled())
+			{
+				log.debug("Error during expression execution.", e);
+			}
+			throw new EngineException(e);
+		}
+		
 		if (result == null)
 		{
 			log.debug("Condition evaluated to null value, assuming false");
 			return false;
 		}
-                return result.booleanValue();
+        return result.booleanValue();
 	}
 	
 	public String getCondition()

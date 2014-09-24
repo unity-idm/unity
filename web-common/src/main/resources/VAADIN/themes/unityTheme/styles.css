@@ -161,3 +161,11 @@
 .u-height50 .v-button-wrap .v-icon {
 	height: 50px;
 }
+
+.u-green-bg {
+	background: lightgreen;
+}
+
+.u-gray-bg .v-filterselect-input .v-textfield {
+	background: LightGray;
+}

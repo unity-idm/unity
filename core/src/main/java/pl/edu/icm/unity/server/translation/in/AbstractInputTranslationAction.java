@@ -4,12 +4,14 @@
  */
 package pl.edu.icm.unity.server.translation.in;
 
+import org.apache.log4j.Logger;
 import org.apache.log4j.NDC;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.translation.AbstractTranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationActionDescription;
+import pl.edu.icm.unity.server.utils.Log;
 
 /**
  * Minimal base for input translation actions. Ensures that logging NDC is properly pushed and popped.
@@ -17,6 +19,8 @@ import pl.edu.icm.unity.server.translation.TranslationActionDescription;
  */
 public abstract class AbstractInputTranslationAction extends AbstractTranslationAction implements InputTranslationAction
 {
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_TRANSLATION, AbstractInputTranslationAction.class);
+			
 	public AbstractInputTranslationAction(TranslationActionDescription description,
 			String[] params)
 	{
@@ -31,6 +35,13 @@ public abstract class AbstractInputTranslationAction extends AbstractTranslation
 		{
 			NDC.push("[" + input + "]");
 			return invokeWrapped(input, mvelCtx, currentProfile);
+		} catch (Exception e)
+		{
+			if (LOG.isDebugEnabled())
+			{
+				LOG.debug("Error getting mapping result.", e);
+			}			
+			throw new EngineException(e);
 		} finally
 		{
 			NDC.pop();			

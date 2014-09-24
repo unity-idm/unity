@@ -65,8 +65,6 @@ public class ProfileStep implements WizardStep
 			if (addCallback.handleProfile(translationProfile))
 			{
 				addProfile = false;
-				editor.changeToEditModeAndRefresh(translationProfile);
-				profileComponent.setEditor(editor);
 			} else
 			{
 				onAdvance = false;

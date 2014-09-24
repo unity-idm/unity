@@ -39,6 +39,8 @@ public enum Styles
 	width50("u-width50"),
 	height100("u-height100"),
 	height50("u-height50"),
+	greenBackground("u-green-bg"),
+	grayBackground("u-gray-bg"),
 	captionBold("bold");
 	
 	
