@@ -538,16 +538,10 @@ public class RuleComponent extends VerticalLayout
 	
 	private void setLayoutForEvaludatedCondition(boolean conditionResult) 
 	{
+		removeRuleComponentBgStyle();
 		if (conditionResult)
 		{
 			condition.setStyleName(Styles.greenBackground.toString());
-			actions.removeStyleName(Styles.grayBackground.toString());
-			Iterator<Component> iter = paramsList.iterator();
-			while (iter.hasNext())
-			{
-				Component c = iter.next();
-				c.removeStyleName(Styles.grayBackground.toString());
-			}
 		} else
 		{
 			condition.setStyleName(Styles.grayBackground.toString());
@@ -563,7 +557,20 @@ public class RuleComponent extends VerticalLayout
 
 	public void clearTestResult() 
 	{
-		
+		removeRuleComponentBgStyle();	
+	}
+	
+	private void removeRuleComponentBgStyle()
+	{
+		condition.removeStyleName(Styles.greenBackground.toString());
+		condition.removeStyleName(Styles.grayBackground.toString());
+		actions.removeStyleName(Styles.grayBackground.toString());
+		Iterator<Component> iter = paramsList.iterator();
+		while (iter.hasNext())
+		{
+			Component c = iter.next();
+			c.removeStyleName(Styles.grayBackground.toString());
+		}	
 	}
 	
 	public interface Callback
