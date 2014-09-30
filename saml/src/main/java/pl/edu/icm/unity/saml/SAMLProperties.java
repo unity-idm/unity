@@ -24,13 +24,21 @@ import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
  * This class is a base for extension by SP and IdP specific classes.
  * @author K. Benedyczak
  */
-public abstract class SamlProperties extends PropertiesHelper
+public abstract class SAMLProperties extends PropertiesHelper
 {
 	public static final String P = "unity.saml.";
 	
 	public static final String PUBLISH_METADATA = "publishMetadata";
 	public static final String SIGN_METADATA = "signMetadata";
 	public static final String METADATA_SOURCE = "metadataSource";
+	
+	public static final String META_PREFIX = "metadataSource.";
+	public static final String META_URL = "url";
+	public static final String META_HTTPS_TRUSTSTORE = "httpsTruststore";
+	public static final String META_REFRESH = "refreshInterval";
+	public static final String META_SIGNATURE = "signaturVerification";
+	public static final String META_ISSUER_CERT = "signatureVerificationCertificate";
+	
 	
 	public static final DocumentationCategory samlMetaCat = new DocumentationCategory("SAML metadata settings", "6");
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -51,7 +59,7 @@ public abstract class SamlProperties extends PropertiesHelper
 						"however it will be checked first for correctness."));
 	}
 
-	public SamlProperties(String prefix, Properties properties,
+	public SAMLProperties(String prefix, Properties properties,
 			Map<String, PropertyMD> propertiesMD, Logger log)
 			throws ConfigurationException
 	{
@@ -64,4 +72,8 @@ public abstract class SamlProperties extends PropertiesHelper
 		copy.putAll(properties);
 		return copy;
 	}
+	
+	public abstract SAMLProperties clone();	
+	
+	public abstract Properties getSourceProperties();
 }

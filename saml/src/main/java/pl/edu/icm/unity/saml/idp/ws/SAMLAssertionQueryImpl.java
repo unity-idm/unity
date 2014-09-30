@@ -10,7 +10,7 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAttributeQueryContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
@@ -43,12 +43,12 @@ import eu.unicore.samly2.webservice.SAMLQueryInterface;
 public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLAssertionQueryImpl.class);
-	protected SamlIdpProperties samlProperties;
+	protected SAMLIDPProperties samlProperties;
 	protected String endpointAddress;
 	protected IdPEngine idpEngine;
 	protected PreferencesManagement preferencesMan;
 	
-	public SAMLAssertionQueryImpl(SamlIdpProperties samlProperties, String endpointAddress,
+	public SAMLAssertionQueryImpl(SAMLIDPProperties samlProperties, String endpointAddress,
 			IdPEngine idpEngine, PreferencesManagement preferencesMan)
 	{
 		super();
@@ -118,7 +118,7 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 	protected Collection<Attribute<?>> getAttributes(IdentityTaV subjectId,
 			AttributeQueryResponseProcessor processor, SPSettings preferences) throws EngineException
 	{
-		String profile = samlProperties.getValue(SamlIdpProperties.TRANSLATION_PROFILE);
+		String profile = samlProperties.getValue(SAMLIDPProperties.TRANSLATION_PROFILE);
 		
 		TranslationResult userInfo = idpEngine.obtainUserInformation(new EntityParam(subjectId), 
 				processor.getChosenGroup(), profile, 

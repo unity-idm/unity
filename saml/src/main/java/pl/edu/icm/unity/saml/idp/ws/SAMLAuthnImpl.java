@@ -11,7 +11,7 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
@@ -43,13 +43,13 @@ import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 public class SAMLAuthnImpl implements SAMLAuthnInterface
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLAuthnImpl.class);
-	protected SamlIdpProperties samlProperties;
+	protected SAMLIDPProperties samlProperties;
 	protected String endpointAddress;
 	protected IdPEngine idpEngine;
 	protected PreferencesManagement preferencesMan;
 	
 
-	public SAMLAuthnImpl(SamlIdpProperties samlProperties, String endpointAddress,
+	public SAMLAuthnImpl(SAMLIDPProperties samlProperties, String endpointAddress,
 			IdPEngine idpEngine, PreferencesManagement preferencesMan)
 	{
 		this.samlProperties = samlProperties;
@@ -100,7 +100,7 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 	protected TranslationResult getUserInfo(AuthnResponseProcessor processor) 
 			throws EngineException
 	{
-		String profile = samlProperties.getValue(SamlIdpProperties.TRANSLATION_PROFILE);
+		String profile = samlProperties.getValue(SAMLIDPProperties.TRANSLATION_PROFILE);
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		return idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
 				processor.getChosenGroup(), profile, 

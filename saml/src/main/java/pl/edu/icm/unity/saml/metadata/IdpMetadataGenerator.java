@@ -13,8 +13,8 @@ import org.apache.xmlbeans.XmlBase64Binary;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
+import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIDPProperties.RequestAcceptancePolicy;
 import xmlbeans.org.oasis.saml2.metadata.AnyURIListType;
 import xmlbeans.org.oasis.saml2.metadata.AttributeAuthorityDescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
@@ -36,12 +36,12 @@ import eu.unicore.samly2.SAMLConstants;
 public class IdpMetadataGenerator implements MetadataProvider
 {
 	private Date generationDate;
-	private SamlIdpProperties samlConfig;
+	private SAMLIDPProperties samlConfig;
 	private EntityDescriptorDocument document;
 	private EndpointType[] ssoEndpoints;
 	private EndpointType[] attributeQueryEndpoints;
 	
-	public IdpMetadataGenerator(SamlIdpProperties samlConfig, EndpointType[] ssoEndpoints, 
+	public IdpMetadataGenerator(SAMLIDPProperties samlConfig, EndpointType[] ssoEndpoints, 
 			EndpointType[] attributeQueryEndpoints)
 	{
 		this.samlConfig = samlConfig;
@@ -69,7 +69,7 @@ public class IdpMetadataGenerator implements MetadataProvider
 		
 		EntityDescriptorType meta = document.addNewEntityDescriptor();
 		
-		meta.setEntityID(samlConfig.getValue(SamlIdpProperties.ISSUER_URI));
+		meta.setEntityID(samlConfig.getValue(SAMLIDPProperties.ISSUER_URI));
 
 		if (ssoEndpoints != null && ssoEndpoints.length > 0)
 			addIdpSSODescriptor(meta);
@@ -95,7 +95,7 @@ public class IdpMetadataGenerator implements MetadataProvider
 		for (String idType: supportedIdTypes)
 			idpDesc.addNameIDFormat(idType);
 		
-		RequestAcceptancePolicy acceptancePolicy = samlConfig.getEnumValue(SamlIdpProperties.SP_ACCEPT_POLICY, 
+		RequestAcceptancePolicy acceptancePolicy = samlConfig.getEnumValue(SAMLIDPProperties.SP_ACCEPT_POLICY, 
 				RequestAcceptancePolicy.class);
 		idpDesc.setWantAuthnRequestsSigned(acceptancePolicy == RequestAcceptancePolicy.strict ||
 				acceptancePolicy == RequestAcceptancePolicy.validSigner);

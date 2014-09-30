@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.saml.SAMLProperties;
 import pl.edu.icm.unity.saml.metadata.cfg.MetadataVerificator.MetadataValidationException;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
@@ -32,20 +33,20 @@ public class RemoteMetaManager
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, RemoteMetaManager.class);
 	private PKIManagement pkiManagement;
-	private SAMLSPProperties configuration;
+	private SAMLProperties configuration;
 	private ExecutorsService executorsService;
 	private RemoteMetadataProvider remoteMetaProvider;
-	private MetaToSPConfigConverter converter;
+	private AbstractMetaToConfigConverter converter;
 	private MetadataVerificator verificator;
-	private SAMLSPProperties virtualConfiguration;
+	private SAMLProperties virtualConfiguration;
 	private Date validationDate;
 	
-	public RemoteMetaManager(SAMLSPProperties configuration, UnityServerConfiguration mainConfig,
-			ExecutorsService executorsService, PKIManagement pkiManagement)
+	public RemoteMetaManager(SAMLProperties configuration, UnityServerConfiguration mainConfig,
+			ExecutorsService executorsService, PKIManagement pkiManagement, AbstractMetaToConfigConverter converter)
 	{
 		this.configuration = configuration;
 		this.executorsService = executorsService;
-		this.converter = new MetaToSPConfigConverter(pkiManagement);
+		this.converter = converter;
 		this.remoteMetaProvider = new RemoteMetadataProvider(pkiManagement, mainConfig);
 		this.verificator = new MetadataVerificator();
 		this.pkiManagement = pkiManagement;
@@ -54,14 +55,14 @@ public class RemoteMetaManager
 
 	public void start()
 	{
-		long delay = getBaseConfiguration().getLongValue(SAMLSPProperties.IDPMETA_REFRESH);
+		long delay = getBaseConfiguration().getLongValue(SAMLProperties.META_REFRESH);
 		executorsService.getService().scheduleWithFixedDelay(new Reloader(), 5, delay, TimeUnit.SECONDS);
 	}
 	
 	public void reloadAll()
 	{
-		SAMLSPProperties configuration = getBaseConfiguration();
-		Set<String> keys = configuration.getStructuredListKeys(SAMLSPProperties.IDPMETA_PREFIX);
+		SAMLProperties configuration = getBaseConfiguration();
+		Set<String> keys = configuration.getStructuredListKeys(SAMLProperties.META_PREFIX);
 		Properties virtualConfigProps = configuration.getSourceProperties();
 		for (String key: keys)
 		{
@@ -70,7 +71,7 @@ public class RemoteMetaManager
 		setVirtualConfiguration(virtualConfigProps);
 	}
 	
-	public synchronized SAMLSPProperties getVirtualConfiguration()
+	public synchronized SAMLProperties getVirtualConfiguration()
 	{
 		return virtualConfiguration;
 	}
@@ -80,7 +81,7 @@ public class RemoteMetaManager
 		this.virtualConfiguration.setProperties(virtualConfigurationProperties);
 	}
 	
-	public synchronized void setBaseConfiguration(SAMLSPProperties configuration)
+	public synchronized void setBaseConfiguration(SAMLProperties configuration)
 	{
 		Properties oldP = this.configuration.getProperties();
 		Properties newP = configuration.getProperties();
@@ -90,16 +91,16 @@ public class RemoteMetaManager
 			executorsService.getService().schedule(new Reloader(), 500, TimeUnit.MILLISECONDS);
 	}
 
-	private synchronized SAMLSPProperties getBaseConfiguration()
+	private synchronized SAMLProperties getBaseConfiguration()
 	{
 		return configuration;
 	}
 	
-	private void reloadSingle(String key, Properties virtualProps, SAMLSPProperties configuration)
+	private void reloadSingle(String key, Properties virtualProps, SAMLProperties configuration)
 	{
-		String url = configuration.getValue(key + SAMLSPProperties.IDPMETA_URL);
-		int refreshInterval = configuration.getIntValue(key + SAMLSPProperties.IDPMETA_REFRESH);
-		String customTruststore = configuration.getValue(key + SAMLSPProperties.IDPMETA_HTTPS_TRUSTSTORE);
+		String url = configuration.getValue(key + SAMLProperties.META_URL);
+		int refreshInterval = configuration.getIntValue(key + SAMLProperties.META_REFRESH);
+		String customTruststore = configuration.getValue(key + SAMLProperties.META_HTTPS_TRUSTSTORE);
 		EntitiesDescriptorDocument metadata;
 		try
 		{
@@ -119,8 +120,8 @@ public class RemoteMetaManager
 		}
 		
 		MetadataSignatureValidation sigCheckingMode = configuration.getEnumValue(
-				key + SAMLSPProperties.IDPMETA_SIGNATURE, MetadataSignatureValidation.class);
-		String issuerCertificateName = configuration.getValue(key + SAMLSPProperties.IDPMETA_ISSUER_CERT);
+				key + SAMLProperties.META_SIGNATURE, MetadataSignatureValidation.class);
+		String issuerCertificateName = configuration.getValue(key + SAMLProperties.META_ISSUER_CERT);
 		
 		try
 		{

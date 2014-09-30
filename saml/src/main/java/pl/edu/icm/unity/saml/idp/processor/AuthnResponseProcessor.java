@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -83,7 +83,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 			throws SAMLRequesterException, SAMLProcessingException
 	{
 		boolean returnSingleAssertion = samlConfiguration.getBooleanValue(
-				SamlIdpProperties.RETURN_SINGLE_ASSERTION);
+				SAMLIDPProperties.RETURN_SINGLE_ASSERTION);
 		return processAuthnRequest(authenticatedIdentity, attributes, returnSingleAssertion);
 	}
 	
@@ -147,7 +147,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 	{
 		AuthnContextType authContext = setupAuthnContext();
 		Assertion assertion = new Assertion();
-		assertion.setIssuer(samlConfiguration.getValue(SamlIdpProperties.ISSUER_URI), 
+		assertion.setIssuer(samlConfiguration.getValue(SAMLIDPProperties.ISSUER_URI), 
 				SAMLConstants.NFORMAT_ENTITY);
 		assertion.setSubject(authenticatedOne);
 		assertion.addAuthStatement(getAuthnTime(), authContext);

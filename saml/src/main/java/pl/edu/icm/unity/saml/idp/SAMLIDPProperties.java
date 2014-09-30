@@ -21,7 +21,8 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.saml.SamlProperties;
+import pl.edu.icm.unity.saml.SAMLProperties;
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
 import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
@@ -47,9 +48,9 @@ import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
  *  
  * @author K. Benedyczak
  */
-public class SamlIdpProperties extends SamlProperties
+public class SAMLIDPProperties extends SAMLProperties
 {
-	private static final Logger log = Log.getLogger(SamlIdpProperties.LOG_PFX, SamlIdpProperties.class);
+	private static final Logger log = Log.getLogger(SAMLIDPProperties.LOG_PFX, SAMLIDPProperties.class);
 	public enum RequestAcceptancePolicy {all, validSigner, validRequester, strict};
 	public enum ResponseSigningPolicy {always, never, asRequest};
 	
@@ -89,10 +90,15 @@ public class SamlIdpProperties extends SamlProperties
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
 	
+	private Properties sourceProperties;
+	
 	static
 	{
 		DocumentationCategory samlCat = new DocumentationCategory("SAML subsystem settings", "5");
 
+		DocumentationCategory remoteMeta = new DocumentationCategory(
+				"Configuration from trusted SAML metadata", "02");
+		
 		defaults.put(GROUP_PFX, new PropertyMD().setStructuredList(false).setCategory(samlCat).
 				setDescription("Prefix used to mark requester to group mappings."));
 		defaults.put(GROUP_TARGET, new PropertyMD().setStructuredListEntry(GROUP_PFX).setMandatory().setCategory(samlCat).
@@ -159,7 +165,25 @@ public class SamlIdpProperties extends SamlProperties
 						"if the Service Provider accept policy requires so."));
 		defaults.put(CREDENTIAL, new PropertyMD().setMandatory().setCategory(samlCat).
 				setDescription("SAML IdP credential name, which is used to sign responses."));
-		defaults.putAll(SamlProperties.defaults);
+		
+		defaults.put(META_PREFIX, new PropertyMD().setCategory(remoteMeta).setStructuredList(false).setDescription(
+				"Under this prefix you can configure the remote trusted SAML Sps however not providing all their details but only their metadata."));
+		defaults.put(META_REFRESH, new PropertyMD("3600").setCategory(remoteMeta).setDescription(
+				"How often the metadata should be reloaded."));
+		defaults.put(META_URL, new PropertyMD().setCategory(remoteMeta).setMandatory().setStructuredListEntry(META_PREFIX).setDescription(
+				"URL with the metadata location. Can be local or HTTP(s) URL. "
+				+ "In case of HTTPS the server's certificate will be checked against the main Unity server's truststore"
+				+ " only if ."));
+		defaults.put(META_HTTPS_TRUSTSTORE, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(META_PREFIX).setDescription(
+				"If set then the given truststore will be used for HTTPS connection validation during metadata fetching. Otherwise the default Java trustststore will beused."));
+		defaults.put(META_SIGNATURE, new PropertyMD(MetadataSignatureValidation.ignore).setCategory(remoteMeta).setStructuredListEntry(META_PREFIX).setDescription(
+				"Controls whether metadata signatures should be checked. If checking is turned on then the validation certificate must be set."));
+		defaults.put(META_ISSUER_CERT, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(META_PREFIX).setDescription(
+				"Name of certificate to check metadata signature. Used only if signatures checking is turned on."));
+		
+		
+		
+		defaults.putAll(SAMLProperties.defaults);
 	}
 
 	private boolean signRespNever;
@@ -174,9 +198,11 @@ public class SamlIdpProperties extends SamlProperties
 	private PKIManagement pkiManagement;
 	private IdentityTypeMapper idTypeMapper;
 	
-	public SamlIdpProperties(Properties src, PKIManagement pkiManagement) throws ConfigurationException, IOException
+	public SAMLIDPProperties(Properties src, PKIManagement pkiManagement) throws ConfigurationException, IOException
 	{
 		super(P, cleanupLegacyProperties(src), defaults, log);
+		sourceProperties = new Properties();
+		sourceProperties.putAll(properties);
 		this.pkiManagement = pkiManagement;
 		checkIssuer();
 		try
@@ -210,7 +236,7 @@ public class SamlIdpProperties extends SamlProperties
 	
 	private void init()
 	{
-		ResponseSigningPolicy repPolicy = getEnumValue(SamlIdpProperties.SIGN_RESPONSE, ResponseSigningPolicy.class);
+		ResponseSigningPolicy repPolicy = getEnumValue(SAMLIDPProperties.SIGN_RESPONSE, ResponseSigningPolicy.class);
 		signRespAlways = signRespNever = false;
 		if (repPolicy == ResponseSigningPolicy.always)
 			signRespAlways = true;
@@ -304,7 +330,7 @@ public class SamlIdpProperties extends SamlProperties
 		else
 			soapTrustChecker = new AcceptingSamlTrustChecker();
 		replayChecker = new ReplayAttackChecker();
-		requestValidity = getLongValue(SamlIdpProperties.SAML_REQUEST_VALIDITY)*1000;
+		requestValidity = getLongValue(SAMLIDPProperties.SAML_REQUEST_VALIDITY)*1000;
 		
 		groupChooser = new GroupChooser(this);
 		idTypeMapper = new IdentityTypeMapper(this);
@@ -487,4 +513,27 @@ public class SamlIdpProperties extends SamlProperties
 	{
 		return attributesMapper;
 	}
+
+	
+	//TODO CHECK EXCEPTION 
+	@Override
+	public SAMLProperties clone()
+	{
+		try
+		{
+			return new SAMLIDPProperties(getProperties(), pkiManagement);
+		} catch (Exception e)
+		{
+			return null;
+		} 
+		
+	}
+
+	public Properties getSourceProperties()
+	{
+		Properties configProps = new Properties();
+		configProps.putAll(sourceProperties);
+		return configProps;
+	}
+
 }

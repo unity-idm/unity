@@ -40,15 +40,15 @@ public class IdentityTypeMapper
 		DEFAULTS.put("unity:userName", UsernameIdentity.ID);
 	}
 
-	public IdentityTypeMapper(SamlIdpProperties config)
+	public IdentityTypeMapper(SAMLIDPProperties config)
 	{
-		Set<String> keys = config.getStructuredListKeys(SamlIdpProperties.IDENTITY_MAPPING_PFX);
+		Set<String> keys = config.getStructuredListKeys(SAMLIDPProperties.IDENTITY_MAPPING_PFX);
 		configuredMappings = new HashMap<String, String>(keys.size());
 		configuredMappings.putAll(DEFAULTS);
 		for (String key: keys)
 		{
-			String localId = config.getValue(key+SamlIdpProperties.IDENTITY_LOCAL);
-			String samlId = config.getValue(key+SamlIdpProperties.IDENTITY_SAML);
+			String localId = config.getValue(key+SAMLIDPProperties.IDENTITY_LOCAL);
+			String samlId = config.getValue(key+SAMLIDPProperties.IDENTITY_SAML);
 			if (localId.trim().equals(""))
 				configuredMappings.remove(samlId);
 			else

@@ -21,10 +21,11 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SAMLHelper;
 import pl.edu.icm.unity.saml.SAMLResponseValidatorUtil;
-import pl.edu.icm.unity.saml.SamlProperties;
+import pl.edu.icm.unity.saml.SAMLProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaToSPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
@@ -106,12 +107,13 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			throw new InternalException("Invalid configuration of the SAML verificator(?)", e);
 		}
 		
-		if (samlProperties.getBooleanValue(SamlProperties.PUBLISH_METADATA))
+		if (samlProperties.getBooleanValue(SAMLProperties.PUBLISH_METADATA))
 			exposeMetadata();
 		if (!remoteMetadataManagers.containsKey(instanceName))
 		{
+			
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
-					mainConfig, executorsService, pkiMan);
+					mainConfig, executorsService, pkiMan, new MetaToSPConfigConverter(pkiMan));
 			remoteMetadataManagers.put(instanceName, myMetadataManager);
 			myMetadataManager.start();
 		} else
@@ -190,7 +192,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	@Override
 	public SAMLSPProperties getSamlValidatorSettings()
 	{
-		return myMetadataManager.getVirtualConfiguration();
+		return (SAMLSPProperties) myMetadataManager.getVirtualConfiguration();
 	}
 }
 

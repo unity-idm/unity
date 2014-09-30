@@ -10,7 +10,7 @@ import java.util.Date;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.ws.SAMLAuthnImpl;
@@ -43,7 +43,7 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLETDAuthnImpl.class);
 
-	public SAMLETDAuthnImpl(SamlIdpProperties samlProperties, String endpointAddress,
+	public SAMLETDAuthnImpl(SAMLIDPProperties samlProperties, String endpointAddress,
 			IdPEngine idpEngine,
 			PreferencesManagement preferencesMan)
 	{

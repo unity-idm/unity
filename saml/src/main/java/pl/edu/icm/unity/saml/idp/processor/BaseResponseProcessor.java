@@ -21,7 +21,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.GroupChooser;
 import pl.edu.icm.unity.saml.idp.SamlAttributeMapper;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAssertionResponseContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
@@ -123,7 +123,7 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		if (attributes.size() == 0)
 			return null;
 		Assertion assertion = new Assertion();
-		assertion.setIssuer(samlConfiguration.getValue(SamlIdpProperties.ISSUER_URI), 
+		assertion.setIssuer(samlConfiguration.getValue(SAMLIDPProperties.ISSUER_URI), 
 				SAMLConstants.NFORMAT_ENTITY);
 		assertion.setSubject(authenticatedOne);
 

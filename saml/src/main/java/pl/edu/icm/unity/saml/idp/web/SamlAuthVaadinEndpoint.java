@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.idp.web;
 
 import java.util.EnumSet;
+import java.util.Map;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
@@ -18,17 +19,21 @@ import org.springframework.context.ApplicationContext;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
 import pl.edu.icm.unity.saml.idp.web.filter.SamlGuardFilter;
 import pl.edu.icm.unity.saml.idp.web.filter.SamlParseServlet;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataServlet;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaToSPConfigConverter;
+import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityVaadinServlet;
@@ -46,17 +51,20 @@ import xmlbeans.org.oasis.saml2.metadata.EndpointType;
  */
 public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 {
-	protected SamlIdpProperties samlProperties;
+	protected SAMLIDPProperties samlProperties;
 	protected FreemarkerHandler freemarkerHandler;
 	protected PKIManagement pkiManagement;
 	protected ExecutorsService executorsService;
 	protected String samlConsumerPath;
 	protected String samlMetadataPath;
+	private RemoteMetaManager myMetadataManager;
+	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private UnityServerConfiguration mainConfig;
 	
 	public SamlAuthVaadinEndpoint(EndpointTypeDescription type, ApplicationContext applicationContext,
 			FreemarkerHandler freemarkerHandler, Class<?> uiClass, String samlUiServletPath, 
 			PKIManagement pkiManagement, ExecutorsService executorsService, 
-			String samlConsumerPath, String samlMetadataPath)
+			UnityServerConfiguration mainConfig, Map<String, RemoteMetaManager> remoteMetadataManagers, String samlConsumerPath, String samlMetadataPath)
 	{
 		super(type, applicationContext, uiClass.getSimpleName(), samlUiServletPath);
 		this.freemarkerHandler = freemarkerHandler;
@@ -64,6 +72,9 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		this.executorsService = executorsService;
 		this.samlConsumerPath = samlConsumerPath;
 		this.samlMetadataPath = samlMetadataPath;
+		this.remoteMetadataManagers = remoteMetadataManagers;
+		this.mainConfig = mainConfig;
+		
 	}
 	
 	@Override
@@ -72,11 +83,26 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		super.setSerializedConfiguration(properties);
 		try
 		{
-			samlProperties = new SamlIdpProperties(this.properties, pkiManagement);
+			samlProperties = new SAMLIDPProperties(this.properties, pkiManagement);
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("Can't initialize the SAML Web IdP endpoint's configuration", e);
 		}
+		
+		String id = getEndpointDescription().getId();
+		if (!remoteMetadataManagers.containsKey(id))
+		{
+			
+			myMetadataManager = new RemoteMetaManager(samlProperties, 
+					mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement));
+			remoteMetadataManagers.put(id, myMetadataManager);
+			myMetadataManager.start();
+		} else
+		{
+			myMetadataManager = remoteMetadataManagers.get(id);
+			myMetadataManager.setBaseConfiguration(samlProperties);
+		}
+		
 	}
 
 	@Override
@@ -120,7 +146,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 				description, authenticators, registrationConfiguration);
 		context.addServlet(createVaadinServletHolder(theServlet, false), servletPath + "/*");
 		
-		if (samlProperties.getBooleanValue(SamlIdpProperties.PUBLISH_METADATA))
+		if (samlProperties.getBooleanValue(SAMLIDPProperties.PUBLISH_METADATA))
 		{
 			Servlet metadataServlet = getMetadataServlet(endpointURL);
 			context.addServlet(createServletHolder(metadataServlet, true), samlMetadataPath + "/*");

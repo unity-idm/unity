@@ -15,10 +15,11 @@ import java.util.Properties;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import pl.edu.icm.unity.saml.SamlProperties;
+import pl.edu.icm.unity.saml.SAMLProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaToSPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.sp.SAMLResponseConsumerServlet;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
@@ -107,13 +108,13 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 					" endpoint's configuration", e);
 		}
 		
-		if (samlProperties.getBooleanValue(SamlProperties.PUBLISH_METADATA))
+		if (samlProperties.getBooleanValue(SAMLProperties.PUBLISH_METADATA))
 			exposeMetadata();
 		String myId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
 		if (!remoteMetadataManagers.containsKey(myId))
 		{
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
-					mainCfg, executorsService, pkiManagement);
+					mainCfg, executorsService, pkiManagement, new MetaToSPConfigConverter(pkiManagement));
 			remoteMetadataManagers.put(myId, myMetadataManager);
 			myMetadataManager.start();
 		} else

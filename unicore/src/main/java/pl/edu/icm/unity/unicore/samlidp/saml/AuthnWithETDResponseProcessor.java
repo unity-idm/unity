@@ -10,7 +10,7 @@ import java.util.Collection;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.server.utils.Log;
@@ -56,8 +56,8 @@ public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 			DelegationRestrictions restrictions) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
-		if (samlConfiguration.getBooleanValue(SamlIdpProperties.RETURN_SINGLE_ASSERTION))
-			log.info("The " + SamlIdpProperties.RETURN_SINGLE_ASSERTION + 
+		if (samlConfiguration.getBooleanValue(SAMLIDPProperties.RETURN_SINGLE_ASSERTION))
+			log.info("The " + SAMLIDPProperties.RETURN_SINGLE_ASSERTION + 
 					" = true setting is ignored for UNICORE IdP. " +
 					"Set it to false to disable this message");
 		
@@ -92,7 +92,7 @@ public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 	{
 		ETDApi etdEngine = new ETDImpl();
 		X509Credential issuerCredential = samlConfiguration.getSamlIssuerCredential(); 
-		String issuerName = samlConfiguration.getValue(SamlIdpProperties.ISSUER_URI); 
+		String issuerName = samlConfiguration.getValue(SAMLIDPProperties.ISSUER_URI); 
 		String custodianDN = X500NameUtils.getPortableRFC2253Form(custodian);
 		NameIDType receiver = context.getRequest().getIssuer();
 		String receiverDN = X500NameUtils.getPortableRFC2253Form(receiver.getStringValue());

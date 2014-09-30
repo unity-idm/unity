@@ -21,7 +21,7 @@ import org.bouncycastle.util.encoders.Base64;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.web.EopException;
 import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
@@ -54,12 +54,12 @@ public class SamlParseServlet extends HttpServlet
 	 * when an existing auth is in progress. 
 	 */
 	public static final String REQ_FORCE = "force";
-	protected SamlIdpProperties samlConfig;
+	protected SAMLIDPProperties samlConfig;
 	protected String endpointAddress;
 	protected String samlUiServletPath;
 	protected ErrorHandler errorHandler;
 
-	public SamlParseServlet(SamlIdpProperties samlConfig, String endpointAddress,
+	public SamlParseServlet(SAMLIDPProperties samlConfig, String endpointAddress,
 			String samlUiServletPath, ErrorHandler errorHandler)
 	{
 		super();

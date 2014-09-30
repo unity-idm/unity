@@ -6,16 +6,16 @@ package pl.edu.icm.unity.samlidp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.CREDENTIAL;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.DEFAULT_GROUP;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.GROUP;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.GROUP_PFX;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.GROUP_TARGET;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.IDENTITY_LOCAL;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.IDENTITY_MAPPING_PFX;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.IDENTITY_SAML;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ISSUER_URI;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.P;
+import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.CREDENTIAL;
+import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.DEFAULT_GROUP;
+import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.GROUP;
+import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.GROUP_PFX;
+import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.GROUP_TARGET;
+import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.IDENTITY_LOCAL;
+import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.IDENTITY_MAPPING_PFX;
+import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.IDENTITY_SAML;
+import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.ISSUER_URI;
+import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.P;
 
 import java.security.cert.X509Certificate;
 import java.util.Collections;
@@ -30,7 +30,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.saml.idp.GroupChooser;
 import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -55,7 +55,7 @@ public class TestSamlConfiguration
 		p.setProperty(P+GROUP_PFX+"2."+GROUP, "/");
 		p.setProperty(P+DEFAULT_GROUP, "/def");
 		p.setProperty(P+CREDENTIAL, "MAIN");
-		SamlIdpProperties cfg = new SamlIdpProperties(p, getPKIManagement());
+		SAMLIDPProperties cfg = new SAMLIDPProperties(p, getPKIManagement());
 		
 		GroupChooser chooser = cfg.getGroupChooser();
 		assertEquals("/some/gr", chooser.chooseGroup("http://sp.org1"));
@@ -77,7 +77,7 @@ public class TestSamlConfiguration
 		p.setProperty(P+IDENTITY_MAPPING_PFX+"2."+IDENTITY_SAML, SAMLConstants.NFORMAT_TRANSIENT);
 		p.setProperty(P+IDENTITY_MAPPING_PFX+"3."+IDENTITY_LOCAL, "");
 		p.setProperty(P+IDENTITY_MAPPING_PFX+"3."+IDENTITY_SAML, "unity:identifier");
-		SamlIdpProperties cfg = new SamlIdpProperties(p, getPKIManagement());
+		SAMLIDPProperties cfg = new SAMLIDPProperties(p, getPKIManagement());
 
 		IdentityTypeMapper idMapper = cfg.getIdTypeMapper();
 		assertEquals("qqq", idMapper.mapIdentity("123"));
