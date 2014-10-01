@@ -55,14 +55,14 @@ public class RemoteMetaManager
 
 	public void start()
 	{
-		long delay = getBaseConfiguration().getLongValue(SAMLProperties.META_REFRESH);
+		long delay = getBaseConfiguration().getLongValue(SAMLProperties.METADATA_REFRESH);
 		executorsService.getService().scheduleWithFixedDelay(new Reloader(), 5, delay, TimeUnit.SECONDS);
 	}
 	
 	public void reloadAll()
 	{
 		SAMLProperties configuration = getBaseConfiguration();
-		Set<String> keys = configuration.getStructuredListKeys(SAMLProperties.META_PREFIX);
+		Set<String> keys = configuration.getStructuredListKeys(SAMLProperties.METADATA_PREFIX);
 		Properties virtualConfigProps = configuration.getSourceProperties();
 		for (String key: keys)
 		{
@@ -98,9 +98,9 @@ public class RemoteMetaManager
 	
 	private void reloadSingle(String key, Properties virtualProps, SAMLProperties configuration)
 	{
-		String url = configuration.getValue(key + SAMLProperties.META_URL);
-		int refreshInterval = configuration.getIntValue(key + SAMLProperties.META_REFRESH);
-		String customTruststore = configuration.getValue(key + SAMLProperties.META_HTTPS_TRUSTSTORE);
+		String url = configuration.getValue(key + SAMLProperties.METADATA_URL);
+		int refreshInterval = configuration.getIntValue(key + SAMLProperties.METADATA_REFRESH);
+		String customTruststore = configuration.getValue(key + SAMLProperties.METADATA_HTTPS_TRUSTSTORE);
 		EntitiesDescriptorDocument metadata;
 		try
 		{
@@ -120,8 +120,8 @@ public class RemoteMetaManager
 		}
 		
 		MetadataSignatureValidation sigCheckingMode = configuration.getEnumValue(
-				key + SAMLProperties.META_SIGNATURE, MetadataSignatureValidation.class);
-		String issuerCertificateName = configuration.getValue(key + SAMLProperties.META_ISSUER_CERT);
+				key + SAMLProperties.METADATA_SIGNATURE, MetadataSignatureValidation.class);
+		String issuerCertificateName = configuration.getValue(key + SAMLProperties.METADATA_ISSUER_CERT);
 		
 		try
 		{

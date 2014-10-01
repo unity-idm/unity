@@ -4,14 +4,18 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.ws;
 
+import java.util.Map;
+
 import pl.edu.icm.unity.saml.idp.ws.SAMLAssertionQueryImpl;
 import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
+import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
@@ -28,11 +32,12 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 	public SamlUnicoreSoapEndpoint(UnityMessageSource msg, EndpointTypeDescription type,
 			String servletPath, String metadataServletPath, IdPEngine idpEngine,
 			PreferencesManagement preferencesMan,
-			PKIManagement pkiManagement, ExecutorsService executorsService, SessionManagement sessionMan)
+			PKIManagement pkiManagement, ExecutorsService executorsService, SessionManagement sessionMan,
+			Map<String, RemoteMetaManager> remoteMetadataManagers, UnityServerConfiguration mainConfig)
 	{
 		super(msg, type, servletPath, metadataServletPath, 
 				idpEngine, preferencesMan, 
-				pkiManagement, executorsService, sessionMan);
+				pkiManagement, executorsService, sessionMan, remoteMetadataManagers, mainConfig);
 	}
 
 

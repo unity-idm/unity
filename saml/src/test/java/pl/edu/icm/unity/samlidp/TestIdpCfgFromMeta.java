@@ -10,7 +10,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import static org.junit.Assert.*;
-import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.*;
+import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.*;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +18,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.saml.metadata.cfg.MetaToSPConfigConverter;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 
-public class TestSpCfgFromMeta extends DBIntegrationTestBase
+public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 {
 	@Autowired
 	private ExecutorsService executorsService;
@@ -37,80 +37,71 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 	private PKIManagement pkiManagement;
 	
 	@Test
-	public void testConfigureSPFromMetadata() throws Exception
+	public void testConfigureIdpFromMetadata() throws Exception
 	{
 		Properties p = new Properties();
 		p.setProperty(P+CREDENTIAL, "MAIN");
-		p.setProperty(P+REQUESTER_ID, "me");
 		p.setProperty(P+PUBLISH_METADATA, "false");
+		p.setProperty(P+ISSUER_URI, "me");
+		p.setProperty(P+GROUP, "group");
+		p.setProperty(P+DEFAULT_GROUP,"group");
+		
+		
 
-		p.setProperty(P+METADATA_PREFIX+"1." + METADATA_URL, "file:src/test/resources/metadata.switchaai.xml");
-		p.setProperty(P+METADATA_PREFIX+"1." + IDPMETA_TRANSLATION_PROFILE, "metaTrP");
-		p.setProperty(P+METADATA_PREFIX+"1." + IDPMETA_REGISTRATION_FORM, "metaRegForm");
-		p.setProperty(P+METADATA_PREFIX+"1." + METADATA_SIGNATURE, "require");
+		p.setProperty(P+ALLOWED_SP_PREFIX+METADATA_PREFIX+"1." + METADATA_URL, "file:src/test/resources/metadata.switchaai.xml");
+		p.setProperty(P+ALLOWED_SP_PREFIX+METADATA_PREFIX+"1." + METADATA_SIGNATURE, "require");
 		X509Certificate cert = CertificateUtils.loadCertificate(new ByteArrayInputStream(CERT.getBytes()), Encoding.PEM);
 		pkiManagement.addCertificate("issuerCert", cert);
-		p.setProperty(P+METADATA_PREFIX+"1." + METADATA_ISSUER_CERT, "issuerCert");
+		p.setProperty(P+ALLOWED_SP_PREFIX+METADATA_PREFIX+"1." + METADATA_ISSUER_CERT, "issuerCert");
 
-		p.setProperty(P+IDP_PREFIX+"1." + IDP_ADDRESS, "https://aai.unifr.ch/idp/profile/SAML2/Redirect/SSO");
-		p.setProperty(P+IDP_PREFIX+"1." + IDP_BINDING, "HTTP_POST");
-		p.setProperty(P+IDP_PREFIX+"1." + IDP_CERTIFICATE, "MAIN");
-		p.setProperty(P+IDP_PREFIX+"1." + IDP_GROUP_MEMBERSHIP_ATTRIBUTE, "memberOf");
-		p.setProperty(P+IDP_PREFIX+"1." + IDP_ID, "https://aai.unifr.ch/idp/shibboleth");
-		p.setProperty(P+IDP_PREFIX+"1." + IDP_LOGO, "http://example.com");
-		p.setProperty(P+IDP_PREFIX+"1." + IDP_NAME, "Name");
-		p.setProperty(P+IDP_PREFIX+"1." + IDP_REGISTRATION_FORM, "regForm");
-		p.setProperty(P+IDP_PREFIX+"1." + IDP_REQUESTED_NAME_FORMAT, "foo");
-		p.setProperty(P+IDP_PREFIX+"1." + IDP_SIGN_REQUEST, "true");
-		p.setProperty(P+IDP_PREFIX+"1." + IDP_TRANSLATION_PROFILE, "trProf");
-
-		p.setProperty(P+IDP_PREFIX+"2." + IDP_ADDRESS, "https://aai-login.fh-htwchur.ch/idp/profile/SAML2/POST/SSO");
-		p.setProperty(P+IDP_PREFIX+"2." + IDP_ID, "https://aai-login.fh-htwchur.ch/idp/shibboleth");
+		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_ENTITY, "https://support.hes-so.ch/shibboleth");
+		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_RETURN_URL, "URL");
+		
 
 
-		SAMLSPProperties configuration = new SAMLSPProperties(p, pkiManagement);
+		SAMLIDPProperties configuration = new SAMLIDPProperties(p, pkiManagement);
 		RemoteMetaManager manager = new RemoteMetaManager(configuration, 
-				mainConfig, executorsService, pkiManagement, new MetaToSPConfigConverter(pkiManagement));
+				mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement));
 		manager.reloadAll();
 		
-		SAMLSPProperties ret = (SAMLSPProperties) manager.getVirtualConfiguration();
+		SAMLIDPProperties ret = (SAMLIDPProperties) manager.getVirtualConfiguration();
 		
-		String pfx = getPrefixOf("https://aai.unifr.ch/idp/shibboleth", ret);
-		assertEquals("https://aai.unifr.ch/idp/profile/SAML2/Redirect/SSO", ret.getValue(pfx + IDP_ADDRESS));
-		assertEquals("HTTP_POST", ret.getValue(pfx + IDP_BINDING));
-		assertEquals("MAIN", ret.getValue(pfx + IDP_CERTIFICATE));
-		assertEquals("memberOf", ret.getValue(pfx + IDP_GROUP_MEMBERSHIP_ATTRIBUTE));
-		assertEquals("https://aai.unifr.ch/idp/shibboleth", ret.getValue(pfx + IDP_ID));
-		assertEquals("http://example.com", ret.getValue(pfx + IDP_LOGO));
-		assertEquals("Name", ret.getValue(pfx + IDP_NAME));
-		assertEquals("regForm", ret.getValue(pfx + IDP_REGISTRATION_FORM));
-		assertEquals("foo", ret.getValue(pfx + IDP_REQUESTED_NAME_FORMAT));
-		assertEquals("true", ret.getValue(pfx + IDP_SIGN_REQUEST));
-		assertEquals("trProf", ret.getValue(pfx + IDP_TRANSLATION_PROFILE));
-		
-		pfx = getPrefixOf("https://aai-login.fh-htwchur.ch/idp/shibboleth", ret);
-		assertEquals("https://aai-login.fh-htwchur.ch/idp/profile/SAML2/POST/SSO", ret.getValue(pfx + IDP_ADDRESS));
-		assertEquals("HTTP_REDIRECT", ret.getValue(pfx + IDP_BINDING));
-		String certName = ret.getValue(pfx + IDP_CERTIFICATES + "1");
-		assertNotNull(pkiManagement.getCertificate(certName));
-		assertNull(ret.getValue(pfx + IDP_GROUP_MEMBERSHIP_ATTRIBUTE));
-		assertEquals("https://aai-login.fh-htwchur.ch/idp/shibboleth", ret.getValue(pfx + IDP_ID));
-		assertEquals(LOGO, ret.getValue(pfx + IDP_LOGO));
-		assertEquals("HTW Chur - University of Applied Sciences HTW Chur", ret.getValue(pfx + IDP_NAME+".en"));
-		assertEquals("HTW Chur - Hochschule für Technik und Wirtschaft", ret.getValue(pfx + IDP_NAME+".de"));
-		assertEquals("metaRegForm", ret.getValue(pfx + IDP_REGISTRATION_FORM));
-		assertNull(ret.getValue(pfx + IDP_REQUESTED_NAME_FORMAT));
-		assertEquals("false", ret.getValue(pfx + IDP_SIGN_REQUEST));
-		assertEquals("metaTrP", ret.getValue(pfx + IDP_TRANSLATION_PROFILE));
+		String pfx = getPrefixOf("https://support.hes-so.ch/shibboleth", ret);
+		assertEquals("https://support.hes-so.ch/Shibboleth.sso/SAML2/POST", ret.getValue(pfx + ALLOWED_SP_RETURN_URL));
+//		assertEquals("HTTP_POST", ret.getValue(pfx + IDP_BINDING));
+//		assertEquals("MAIN", ret.getValue(pfx + IDP_CERTIFICATE));
+//		assertEquals("memberOf", ret.getValue(pfx + IDP_GROUP_MEMBERSHIP_ATTRIBUTE));
+//		assertEquals("https://aai.unifr.ch/idp/shibboleth", ret.getValue(pfx + IDP_ID));
+//		assertEquals("http://example.com", ret.getValue(pfx + IDP_LOGO));
+//		assertEquals("Name", ret.getValue(pfx + IDP_NAME));
+//		assertEquals("regForm", ret.getValue(pfx + IDP_REGISTRATION_FORM));
+//		assertEquals("foo", ret.getValue(pfx + IDP_REQUESTED_NAME_FORMAT));
+//		assertEquals("true", ret.getValue(pfx + IDP_SIGN_REQUEST));
+//		assertEquals("trProf", ret.getValue(pfx + IDP_TRANSLATION_PROFILE));
+//		
+//		pfx = getPrefixOf("https://aai-login.fh-htwchur.ch/idp/shibboleth", ret);
+//		assertEquals("https://aai-login.fh-htwchur.ch/idp/profile/SAML2/POST/SSO", ret.getValue(pfx + IDP_ADDRESS));
+//		assertEquals("HTTP_REDIRECT", ret.getValue(pfx + IDP_BINDING));
+//		String certName = ret.getValue(pfx + IDP_CERTIFICATES + "1");
+//		assertNotNull(pkiManagement.getCertificate(certName));
+//		assertNull(ret.getValue(pfx + IDP_GROUP_MEMBERSHIP_ATTRIBUTE));
+//		assertEquals("https://aai-login.fh-htwchur.ch/idp/shibboleth", ret.getValue(pfx + IDP_ID));
+//		assertEquals(LOGO, ret.getValue(pfx + IDP_LOGO));
+//		assertEquals("HTW Chur - University of Applied Sciences HTW Chur", ret.getValue(pfx + IDP_NAME+".en"));
+//		assertEquals("HTW Chur - Hochschule für Technik und Wirtschaft", ret.getValue(pfx + IDP_NAME+".de"));
+//		assertEquals("metaRegForm", ret.getValue(pfx + IDP_REGISTRATION_FORM));
+//		assertNull(ret.getValue(pfx + IDP_REQUESTED_NAME_FORMAT));
+//		assertEquals("false", ret.getValue(pfx + IDP_SIGN_REQUEST));
+//		assertEquals("metaTrP", ret.getValue(pfx + IDP_TRANSLATION_PROFILE));
 		
 	}
 	
-	private String getPrefixOf(String entity, SAMLSPProperties cfg)
+	private String getPrefixOf(String entity, SAMLIDPProperties cfg)
 	{
-		Set<String> keys = cfg.getStructuredListKeys(IDP_PREFIX);
+		Set<String> keys = cfg.getStructuredListKeys(ALLOWED_SP_PREFIX);
 		for (String key: keys)
 		{
-			if (entity.equals(cfg.getValue(key+IDP_ID)))
+			if (entity.equals(cfg.getValue(key+ALLOWED_SP_ENTITY)))
 				return key;
 		}
 		fail("No entry for entity " + entity);

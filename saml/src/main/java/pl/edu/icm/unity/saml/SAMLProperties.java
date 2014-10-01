@@ -14,6 +14,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
@@ -32,15 +33,16 @@ public abstract class SAMLProperties extends PropertiesHelper
 	public static final String SIGN_METADATA = "signMetadata";
 	public static final String METADATA_SOURCE = "metadataSource";
 	
-	public static final String META_PREFIX = "metadataSource.";
-	public static final String META_URL = "url";
-	public static final String META_HTTPS_TRUSTSTORE = "httpsTruststore";
-	public static final String META_REFRESH = "refreshInterval";
-	public static final String META_SIGNATURE = "signaturVerification";
-	public static final String META_ISSUER_CERT = "signatureVerificationCertificate";
+	public static final String METADATA_PREFIX = "metadataSource.";
+	public static final String METADATA_URL = "url";
+	public static final String METADATA_HTTPS_TRUSTSTORE = "httpsTruststore";
+	public static final String METADATA_REFRESH = "refreshInterval";
+	public static final String METADATA_SIGNATURE = "signaturVerification";
+	public static final String METADATA_ISSUER_CERT = "signatureVerificationCertificate";
 	
 	
 	public static final DocumentationCategory samlMetaCat = new DocumentationCategory("SAML metadata settings", "6");
+	public static final DocumentationCategory remoteMeta = new DocumentationCategory("Configuration from trusted SAML metadata", "02");
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
 	
 	static
@@ -57,6 +59,21 @@ public abstract class SAMLProperties extends PropertiesHelper
 						"then it should contain a file path, to a file with custom metadata document. " +
 						"This document will be published as-is, " +
 						"however it will be checked first for correctness."));
+		
+		
+		defaults.put(METADATA_REFRESH, new PropertyMD("3600").setCategory(remoteMeta).setDescription(
+				"How often the metadata should be reloaded."));
+		defaults.put(METADATA_URL, new PropertyMD().setCategory(remoteMeta).setMandatory().setStructuredListEntry(METADATA_PREFIX).setDescription(
+				"URL with the metadata location. Can be local or HTTP(s) URL. "
+				+ "In case of HTTPS the server's certificate will be checked against the main Unity server's truststore"
+				+ " only if ."));
+		defaults.put(METADATA_HTTPS_TRUSTSTORE, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(METADATA_PREFIX).setDescription(
+				"If set then the given truststore will be used for HTTPS connection validation during metadata fetching. Otherwise the default Java trustststore will beused."));
+		defaults.put(METADATA_SIGNATURE, new PropertyMD(MetadataSignatureValidation.ignore).setCategory(remoteMeta).setStructuredListEntry(METADATA_PREFIX).setDescription(
+				"Controls whether metadata signatures should be checked. If checking is turned on then the validation certificate must be set."));
+		defaults.put(METADATA_ISSUER_CERT, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(METADATA_PREFIX).setDescription(
+				"Name of certificate to check metadata signature. Used only if signatures checking is turned on."));
+		
 	}
 
 	public SAMLProperties(String prefix, Properties properties,
