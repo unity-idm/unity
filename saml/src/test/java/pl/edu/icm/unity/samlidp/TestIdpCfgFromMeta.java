@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
+import eu.unicore.util.configuration.PropertiesHelper;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
@@ -56,10 +57,15 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 
 		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_ENTITY, "https://support.hes-so.ch/shibboleth");
 		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_RETURN_URL, "URL");
+		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_NAME, "Name");
+		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_LOGO, "http://example.com");
+		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_SIGN_ASSERT, "true");
+		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_ENCRYPT, "true");
+		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_CERTIFICATE, "MAIN");
 		
-
-
 		SAMLIDPProperties configuration = new SAMLIDPProperties(p, pkiManagement);
+		
+		
 		RemoteMetaManager manager = new RemoteMetaManager(configuration, 
 				mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement));
 		manager.reloadAll();
@@ -68,16 +74,12 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 		
 		String pfx = getPrefixOf("https://support.hes-so.ch/shibboleth", ret);
 		assertEquals("https://support.hes-so.ch/Shibboleth.sso/SAML2/POST", ret.getValue(pfx + ALLOWED_SP_RETURN_URL));
-//		assertEquals("HTTP_POST", ret.getValue(pfx + IDP_BINDING));
-//		assertEquals("MAIN", ret.getValue(pfx + IDP_CERTIFICATE));
-//		assertEquals("memberOf", ret.getValue(pfx + IDP_GROUP_MEMBERSHIP_ATTRIBUTE));
-//		assertEquals("https://aai.unifr.ch/idp/shibboleth", ret.getValue(pfx + IDP_ID));
-//		assertEquals("http://example.com", ret.getValue(pfx + IDP_LOGO));
-//		assertEquals("Name", ret.getValue(pfx + IDP_NAME));
-//		assertEquals("regForm", ret.getValue(pfx + IDP_REGISTRATION_FORM));
-//		assertEquals("foo", ret.getValue(pfx + IDP_REQUESTED_NAME_FORMAT));
-//		assertEquals("true", ret.getValue(pfx + IDP_SIGN_REQUEST));
-//		assertEquals("trProf", ret.getValue(pfx + IDP_TRANSLATION_PROFILE));
+		assertEquals("Name", ret.getValue(pfx + ALLOWED_SP_NAME));
+		assertEquals("MAIN", ret.getValue(pfx + ALLOWED_SP_CERTIFICATE));
+		assertEquals("http://example.com", ret.getValue(pfx + ALLOWED_SP_LOGO));
+		assertEquals("true", ret.getValue(pfx + ALLOWED_SP_SIGN_ASSERT));
+		assertEquals("true", ret.getValue(pfx + ALLOWED_SP_ENCRYPT));
+
 //		
 //		pfx = getPrefixOf("https://aai-login.fh-htwchur.ch/idp/shibboleth", ret);
 //		assertEquals("https://aai-login.fh-htwchur.ch/idp/profile/SAML2/POST/SSO", ret.getValue(pfx + IDP_ADDRESS));

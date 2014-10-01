@@ -163,7 +163,7 @@ public class SAMLSPProperties extends SAMLProperties
 				"Deafult translation profile for all the IdPs from the metadata. Can be overwritten by individual IdP configuration entries."));
 		META.put(IDPMETA_REGISTRATION_FORM, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(METADATA_PREFIX).setDescription(
 				"Deafult registration form for all the IdPs from the metadata. Can be overwritten by individual IdP configuraiton entries."));
-		META.put(METADATA_PREFIX, new PropertyMD().setCategory(remoteMeta).setStructuredList(false).setDescription(
+		META.put(METADATA_PREFIX, new PropertyMD().setCategory(webRetrieval).setStructuredList(false).setDescription(
 				"Under this prefix you can configure the remote trusted SAML IdPs however not providing all their details but only their metadata."));
 		
 		META.putAll(SAMLProperties.defaults);

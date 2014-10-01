@@ -104,8 +104,9 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 			Map<String, String> names = getLocalizedNames(uiInfo, spDef);
 			Map<String, LogoType> logos = getLocalizedLogos(uiInfo);
 			
-			//TODO SIGN
-			addEntryToProperties(entityId, aserServ, false, realConfig, configKey, properties, r, certs, names, logos);
+			boolean wantAssertSigned = spDef.isSetWantAssertionsSigned();
+			
+			addEntryToProperties(entityId, aserServ, wantAssertSigned, realConfig, configKey, properties, r, certs, names, logos);
 		
 		
 			
@@ -115,7 +116,7 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 	
 	//TODO add next properties 
 	//TODO requireSingned
-	private void addEntryToProperties(String entityId, IndexedEndpointType serviceEndpoint, boolean requireSignedReq,
+	private void addEntryToProperties(String entityId, IndexedEndpointType serviceEndpoint, boolean assertSigned,
 			SAMLIDPProperties realConfig, String metaConfigKey, Properties properties, Random r, 
 			List<X509Certificate> certs,
 			Map<String, String> names, Map<String, LogoType> logos)
@@ -139,14 +140,37 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 					serviceEndpoint.getLocation());
 		
 		
+		if (noPerSpConfig || !properties.containsKey(configKey + SAMLIDPProperties.ALLOWED_SP_CERTIFICATE))
+		{
+			int i = 1;
+			for (X509Certificate cert: certs)
+			{
+				if (!properties.containsKey(configKey + SAMLIDPProperties.ALLOWED_SP_CERTIFICATES + i))
+					properties.setProperty(configKey + SAMLIDPProperties.ALLOWED_SP_CERTIFICATES + i, 
+							getCertificateKey(cert, entityId, "_IDP_METADATA_CERT_"));
+				i++;
+			}
+		}
+		for (Map.Entry<String, String> name: names.entrySet())
+		{
+			if (noPerSpConfig || !properties.containsKey(configKey + 
+					SAMLIDPProperties.ALLOWED_SP_NAME + name.getKey()))
+				properties.setProperty(configKey + SAMLIDPProperties.ALLOWED_SP_NAME + name.getKey(), 
+						name.getValue());
+		}
+		for (Map.Entry<String, LogoType> logo: logos.entrySet())
+		{
+			if (noPerSpConfig || !properties.containsKey(configKey + 
+					SAMLIDPProperties.ALLOWED_SP_LOGO + logo.getKey()))
+				properties.setProperty(configKey + SAMLIDPProperties.ALLOWED_SP_LOGO + logo.getKey(), 
+						logo.getValue().getStringValue());
+		}
 		
+		if (noPerSpConfig || !properties.containsKey(configKey + SAMLIDPProperties.ALLOWED_SP_SIGN_ASSERT))
+			properties.setProperty(configKey + SAMLIDPProperties.ALLOWED_SP_SIGN_ASSERT, 
+					Boolean.toString(assertSigned));
 		
-		
-		
-		
-		
-		
-		
+			
 		log.debug("Added a accepted SP loaded from SAML metadata: " + entityId + " with " + 
 				serviceEndpoint.getLocation() + " returnl url" + logos);
 		

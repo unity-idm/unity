@@ -13,6 +13,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -78,6 +79,8 @@ public class SAMLIDPProperties extends SAMLProperties
 	public static final String ALLOWED_SP_LOGO = "logoURI";
 	public static final String ALLOWED_SP_CERTIFICATE = "certificate";
 	public static final String ALLOWED_SP_CERTIFICATES = "certificates.";
+	public static final String ALLOWED_SP_SIGN_ASSERT = "signAssertion";
+	public static final String DEF_SIGN_ASSERT = "defaultSignAssertion";
 	
 	public static final String GROUP_PFX = "groupMapping.";
 	public static final String GROUP_TARGET = "serviceProvider";
@@ -92,11 +95,15 @@ public class SAMLIDPProperties extends SAMLProperties
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
+
+	
 	
 	private Properties sourceProperties;
 	
 	static
 	{
+		DocumentationCategory common = new DocumentationCategory("Common settings", "01");
+		
 		DocumentationCategory samlCat = new DocumentationCategory("SAML subsystem settings", "5");
 		
 		DocumentationCategory sp = new DocumentationCategory("Manual settings of allowed Sps", "03");
@@ -137,6 +144,9 @@ public class SAMLIDPProperties extends SAMLProperties
 		defaults.put(ALLOWED_SP_PREFIX, new PropertyMD().setStructuredList(false).setCategory(samlCat).
 				setDescription("List of entries defining allowed Service Providers (clients). Used " +
 				"only for +validRequester+ and +strict+ acceptance policies."));
+		
+		
+		
 		defaults.put(ALLOWED_SP_DN, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(samlCat).
 				setDescription("Rarely useful: for SPs which use DN SAML identifiers as UNICORE portal. " +
 				"Typically " + ALLOWED_SP_ENTITY + " is used instead. " +
@@ -151,11 +161,11 @@ public class SAMLIDPProperties extends SAMLProperties
 				"policy is +validRequester+, optional otherwise as SAML requesters may send this address" +
 				"with a request."));
 		defaults.put(ALLOWED_SP_NAME, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(sp).setCanHaveSubkeys().setDescription(
-				"Displayed name of the IdP. If not defined then the name is created " +
-				"from the IdP address (what is rather not user friendly). The property can have subkeys being "
+				"Displayed name of the Sp. If not defined then the name is created " +
+				"from the Sp address (what is rather not user friendly). The property can have subkeys being "
 				+ "locale names; then the localized value is used if it is matching the selected locale of the UI."));	
 		defaults.put(ALLOWED_SP_LOGO, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(sp).setCanHaveSubkeys().setDescription(
-				"Displayed logo of the IdP. If not defined then only the name is used. "
+				"Displayed logo of the SP. If not defined then only the name is used. "
 				+ "The value can be a file:, http(s): or data: URI. The last option allows for embedding the logo in the configuration. "
 				+ "The property can have subkeys being "
 				+ "locale names; then the localized value is used if it is matching the selected locale of the UI."));
@@ -165,6 +175,10 @@ public class SAMLIDPProperties extends SAMLProperties
 		defaults.put(ALLOWED_SP_CERTIFICATES, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(sp).setList(false).setDescription(
 				"Using this property additional trusted certificates of an SP can be added (when SP uses more then one). See " 
 						+ ALLOWED_SP_CERTIFICATE + " for details. Those properties can be used together or alternatively."));
+		defaults.put(ALLOWED_SP_SIGN_ASSERT, new PropertyMD("false").setCategory(sp).setStructuredListEntry(ALLOWED_SP_PREFIX).setDescription(
+				"Controls whether the assertion for this sp should be signed."));
+		defaults.put(DEF_SIGN_ASSERT, new PropertyMD("false").setCategory(common).setDescription(
+				"Default setting of request signing. Used for those sps, for which the setting is not set explicitly."));		
 		defaults.put(TRANSLATION_PROFILE, new PropertyMD().setCategory(samlCat).
 				setDescription("Name of an output translation profile which can be used to dynamically modify the "
 						+ "data being returned on this endpoint. When not defined the default profile is used: "
@@ -174,10 +188,12 @@ public class SAMLIDPProperties extends SAMLProperties
 						"if the Service Provider accept policy requires so."));
 		defaults.put(CREDENTIAL, new PropertyMD().setMandatory().setCategory(samlCat).
 				setDescription("SAML IdP credential name, which is used to sign responses."));	
-		defaults.put(METADATA_PREFIX, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(ALLOWED_SP_PREFIX).setDescription(
-				"Under this prefix you can configure the remote trusted SAML IdPs however not providing all their details but only their metadata."));
+
+		defaults.put(METADATA_PREFIX, new PropertyMD().setCategory(remoteMeta).setList(true).setDescription(
+				"Under this prefix you can configure the remote trusted SAML Sps however not providing all their details but only their metadata."));
 		
 		defaults.putAll(SAMLProperties.defaults);
+		
 	}
 
 	private boolean signRespNever;
@@ -253,10 +269,7 @@ public class SAMLIDPProperties extends SAMLProperties
 			Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
 			for (String allowedKey: allowedKeys)
 			{
-				String certificate = getValue(allowedKey + ALLOWED_SP_CERTIFICATE);
-				if (certificate == null)
-					throw new ConfigurationException("Invalid specification of allowed Service " +
-							"Provider " + allowedKey + " must have the certificate defined.");
+				
 				String type = SAMLConstants.NFORMAT_ENTITY;
 				String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
 				if (name == null)
@@ -267,16 +280,27 @@ public class SAMLIDPProperties extends SAMLProperties
 				if (name == null)
 					throw new ConfigurationException("Invalid specification of allowed Service " +
 							"Provider " + allowedKey + ", neither Entity ID nor DN is set.");
-				try
+					
+				Set<String> spCertNames = new HashSet<String>();
+				if (isSet(allowedKey + ALLOWED_SP_CERTIFICATE))
+					spCertNames.add(getValue(allowedKey + ALLOWED_SP_CERTIFICATE));
+				spCertNames.addAll(getListOfValues(allowedKey + ALLOWED_SP_CERTIFICATES));
+				
+				for (String spCertName: spCertNames)
 				{
-					X509Certificate cert = pkiManagement.getCertificate(certificate);
-					((StrictSamlTrustChecker)authnTrustChecker).addTrustedIssuer(
-							name, type, cert.getPublicKey());
-				} catch (EngineException e)
-				{
-					throw new ConfigurationException("Can't set certificate of trusted " +
-							"issuer named " + certificate, e);
+					X509Certificate spCert;
+					try
+					{
+						 spCert = pkiManagement.getCertificate(spCertName);
+						((StrictSamlTrustChecker)authnTrustChecker).addTrustedIssuer(
+								name, type, spCert.getPublicKey());
+					} catch (EngineException e)
+					{
+						throw new ConfigurationException("Can't set certificate of trusted " +
+								"issuer named " + spCertName, e);
+					}
 				}
+				
 				log.debug("SP authorized to submit authentication requests: " + name);
 			}
 		} else
