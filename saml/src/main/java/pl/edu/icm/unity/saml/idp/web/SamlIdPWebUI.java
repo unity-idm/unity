@@ -48,6 +48,8 @@ import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.provider.ExposedAttributesComponent;
+import pl.edu.icm.unity.webui.common.provider.IdPButtonsBar;
+import pl.edu.icm.unity.webui.common.provider.IdPButtonsBar.Action;
 import pl.edu.icm.unity.webui.common.provider.IdentitySelectorComponent;
 import pl.edu.icm.unity.webui.common.provider.SPInfoComponent;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -57,11 +59,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
@@ -222,7 +220,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			return;
 		}
 		
-		rememberCB = new CheckBox("Remember the settings for this service and do not show this dialog again");
+		rememberCB = new CheckBox(msg.getMessage("SamlIdPWebUI.rememberSettings"));
 		contents.addComponent(rememberCB);
 	}
 	
@@ -244,51 +242,24 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	
 	protected void createButtonsPart(VerticalLayout contents)
 	{
-		HorizontalLayout buttons = new HorizontalLayout();
+		IdPButtonsBar buttons = new IdPButtonsBar(msg, authnProcessor, new IdPButtonsBar.ActionListener()
+		{
+			@Override
+			public void buttonClicked(Action action)
+			{
+				try
+				{
+					if (Action.ACCEPT == action)
+						confirm();
+					else if (Action.DENY == action)
+						decline();
+				} catch (EopException e) 
+				{
+					//OK
+				}
+			}
+		});
 		
-		Button confirmB = new Button(msg.getMessage("SamlIdPWebUI.confirm"));
-		confirmB.addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				try
-				{
-					confirm();
-				} catch (EopException e)
-				{
-					//OK
-				}
-			}
-		});
-		Button declineB = new Button(msg.getMessage("SamlIdPWebUI.decline"));
-		declineB.addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				try
-				{
-					decline();
-				} catch (EopException e)
-				{
-					//OK
-				}
-			}
-		});
-		Button reloginB = new Button(msg.getMessage("SamlIdPWebUI.logAsAnother"));
-		reloginB.addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				authnProcessor.logout(true);
-			}
-		});
-		buttons.addComponents(confirmB, declineB, reloginB);
-		buttons.setSpacing(true);
-		buttons.setMargin(true);
-		buttons.setSizeUndefined();
 		contents.addComponent(buttons);
 		contents.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 	}

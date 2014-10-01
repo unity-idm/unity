@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,6 +32,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -186,6 +188,7 @@ public class OAuthParseServlet extends HttpServlet
 	 * whether the authorization grant is enabled for the client.
 	 * @param context
 	 */
+	@SuppressWarnings("unchecked")
 	protected void validate(OAuthAuthzContext context) 
 			throws OAuthValidationException
 	{
@@ -221,12 +224,21 @@ public class OAuthParseServlet extends HttpServlet
 		}
 		AttributeExt<?> allowedUrisA = null;
 		AttributeExt<?> allowedFlowsA = null;
+		AttributeExt<?> nameA = null;
+		AttributeExt<?> logoA = null;
+		AttributeExt<?> groupA = null;
 		for (AttributeExt<?> attr: attrs)
 		{
 			if (attr.getName().equals(OAuthSystemAttributesProvider.ALLOWED_FLOWS))
 				allowedFlowsA = attr;
 			else if (attr.getName().equals(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI))
 				allowedUrisA = attr;
+			else if (attr.getName().equals(OAuthSystemAttributesProvider.CLIENT_LOGO))
+				logoA = attr;
+			else if (attr.getName().equals(OAuthSystemAttributesProvider.CLIENT_NAME))
+				nameA = attr;
+			else if (attr.getName().equals(OAuthSystemAttributesProvider.PER_CLIENT_GROUP))
+				groupA = attr;
 		}
 		if (allowedUrisA == null || allowedUrisA.getValues().isEmpty())
 			throw new OAuthValidationException("The '" + client + 
@@ -277,5 +289,18 @@ public class OAuthParseServlet extends HttpServlet
 						"' is invalid: " + configuredUri);
 			}
 		}
+
+		if (logoA != null)
+			context.setClientLogo((Attribute<BufferedImage>) logoA);
+		
+		if (nameA != null)
+			context.setClientName((String) nameA.getValues().get(0));
+		
+		if (groupA != null)
+			context.setUsersGroup((String) groupA.getValues().get(0));
+		else
+			context.setUsersGroup(oauthConfig.getValue(OAuthASProperties.USERS_GROUP));
+		
+		context.setTranslationProfile(oauthConfig.getValue(OAuthASProperties.TRANSLATION_PROFILE));
 	}
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -28,7 +29,10 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	
 	public static final String ALLOWED_FLOWS = "sys:oauth:allowedGrantFlows";
 	public static final String ALLOWED_RETURN_URI = "sys:oauth:allowedReturnURI";
-
+	public static final String PER_CLIENT_GROUP = "sys:oauth:groupForClient";
+	public static final String CLIENT_NAME = "sys:oauth:name";
+	public static final String CLIENT_LOGO = "sys:oauth:logo";
+	
 	public enum GrantFlow {authorizationCode, implicit, resourceOwnerPassword, clientCredentials};
 	
 	
@@ -36,6 +40,9 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	{
 		oauthAttributes.add(getAllowedGrantFlowsAT());
 		oauthAttributes.add(getAllowedURIsAT());
+		oauthAttributes.add(getLogoAT());
+		oauthAttributes.add(getNameAT());
+		oauthAttributes.add(getPerClientGroupAT());
 	}
 	
 	private AttributeType getAllowedGrantFlowsAT()
@@ -70,6 +77,45 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		return authorizationAt;
 	}
 	
+	private AttributeType getLogoAT()
+	{
+		AttributeType logoAt = new AttributeType(CLIENT_LOGO, new JpegImageAttributeSyntax());
+		logoAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
+		logoAt.setDescription("OAuth Client specific attribute. Defines a logo which is "
+				+ "displayed for the client.");
+		logoAt.setMinElements(1);
+		logoAt.setMaxElements(1);
+		logoAt.setUniqueValues(false);
+		logoAt.setVisibility(AttributeVisibility.local);
+		return logoAt;
+	}
+
+	private AttributeType getNameAT()
+	{
+		AttributeType nameAt = new AttributeType(CLIENT_NAME, new StringAttributeSyntax());
+		nameAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
+		nameAt.setDescription("OAuth Client specific attribute. Defines human readable name of the client.");
+		nameAt.setMinElements(1);
+		nameAt.setMaxElements(1);
+		nameAt.setUniqueValues(false);
+		nameAt.setVisibility(AttributeVisibility.local);
+		return nameAt;
+	}
+
+	private AttributeType getPerClientGroupAT()
+	{
+		AttributeType nameAt = new AttributeType(PER_CLIENT_GROUP, new StringAttributeSyntax());
+		nameAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
+		nameAt.setDescription("OAuth Client specific attribute. Defines a group path, "
+				+ "where users of this client should be present and where their attributes are resolved."
+				+ " This attribute overrides the default group configured per endpoint.");
+		nameAt.setMinElements(1);
+		nameAt.setMaxElements(1);
+		nameAt.setUniqueValues(false);
+		nameAt.setVisibility(AttributeVisibility.local);
+		return nameAt;
+	}
+
 	@Override
 	public List<AttributeType> getSystemAttributes()
 	{

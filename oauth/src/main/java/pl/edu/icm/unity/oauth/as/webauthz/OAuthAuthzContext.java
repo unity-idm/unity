@@ -4,8 +4,11 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.util.Date;
+
+import pl.edu.icm.unity.types.basic.Attribute;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 
@@ -19,6 +22,11 @@ public class OAuthAuthzContext
 	private AuthorizationRequest request;
 	private Date timestamp;
 	private URI returnURI;
+	private String clientName;
+	private Attribute<BufferedImage> clientLogo;
+	private String translationProfile;
+	private String usersGroup;
+	
 
 	public OAuthAuthzContext(AuthorizationRequest request)
 	{
@@ -45,5 +53,45 @@ public class OAuthAuthzContext
 	public void setReturnURI(URI returnURI)
 	{
 		this.returnURI = returnURI;
+	}
+
+	public String getClientName()
+	{
+		return clientName;
+	}
+
+	public void setClientName(String clientName)
+	{
+		this.clientName = clientName;
+	}
+
+	public Attribute<BufferedImage> getClientLogo()
+	{
+		return clientLogo;
+	}
+
+	public void setClientLogo(Attribute<BufferedImage> clientLogo)
+	{
+		this.clientLogo = clientLogo;
+	}
+
+	public String getUsersGroup()
+	{
+		return usersGroup;
+	}
+
+	public void setUsersGroup(String usersGroup)
+	{
+		this.usersGroup = usersGroup;
+	}
+
+	public String getTranslationProfile()
+	{
+		return translationProfile;
+	}
+
+	public void setTranslationProfile(String translationProfile)
+	{
+		this.translationProfile = translationProfile;
 	}
 }

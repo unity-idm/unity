@@ -301,7 +301,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 						syntax.getMaxHeight()));
 	}
 	
-	public class SimpleImageSource implements StreamSource
+	public static class SimpleImageSource implements StreamSource
 	{
 		private static final long serialVersionUID = 1L;
 		private final byte[] isData;
