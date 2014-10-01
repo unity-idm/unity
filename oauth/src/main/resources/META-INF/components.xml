@@ -16,6 +16,6 @@
 	
 	
 	<bean class="pl.edu.icm.unity.oauth.as.webauthz.FreemarkerHandler"/>
-	<bean class="pl.edu.icm.unity.oauth.as.OAuthSystemAttriubtesProvider"/>
+	<bean class="pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider"/>
 	
 </beans>

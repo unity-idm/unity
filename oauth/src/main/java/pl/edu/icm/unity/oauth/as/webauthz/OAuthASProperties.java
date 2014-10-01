@@ -33,13 +33,39 @@ public class OAuthASProperties extends PropertiesHelper
 	public final static Map<String, PropertyMD> defaults = new HashMap<String, PropertyMD>();
 	
 	public static final String CLIENTS_GROUP = "clientsGroup";
+	public static final String USERS_GROUP = "usersGroup";
+	public static final String TRANSLATION_PROFILE = "translationProfile";
+	
+	public static final String SCOPES = "scopes";
+	public static final String SCOPE_ATTRIBUTES = "attributes";
+	public static final String SCOPE_DESCRIPTION = "description";
+	public static final String SCOPE_NAME = "name";
 	
 	static
 	{
 		defaults.put(CLIENTS_GROUP, new PropertyMD("/oauth-clients").
-				setDescription("Groups in which authorized OAuth Clients must be members. "
+				setDescription("Group in which authorized OAuth Clients must be present. "
 						+ "OAuth related attributes defined in this group are used"
 						+ "to configure the client."));
+		defaults.put(CLIENTS_GROUP, new PropertyMD("/").
+				setDescription("Group for resolving attributes of OAuth users. "
+						+ "Only members of this group can authorize with OAuth."));
+		defaults.put(SCOPES, new PropertyMD().setStructuredList(false).
+				setDescription("Under this prefix OAuth scopes can be defined. In general scope"
+						+ " defines a set of attribtues returned when it is requested."));
+		defaults.put(SCOPE_NAME, new PropertyMD().setStructuredListEntry(SCOPES).setMandatory().
+				setDescription("Name of the scope as used in OAuth protocol."));
+		defaults.put(SCOPE_DESCRIPTION, new PropertyMD().setStructuredListEntry(SCOPES).
+				setDescription("Human readable description of the scope meaning."));
+		defaults.put(SCOPE_ATTRIBUTES, new PropertyMD().setStructuredListEntry(SCOPES).setList(false).
+				setDescription("List of Unity attributes that should be returned when the scope is "
+						+ "requested. Note that those attribtues are merely an input to the "
+						+ "configured output translation profile."));
+		defaults.put(TRANSLATION_PROFILE, new PropertyMD().
+				setDescription("Name of an output translation profile which can be used to dynamically modify the "
+						+ "data being returned on this endpoint. "
+						+ "When not defined the default profile is used which simply return all Unity attribtues."));
+
 	}
 	
 	public OAuthASProperties(Properties properties) throws ConfigurationException

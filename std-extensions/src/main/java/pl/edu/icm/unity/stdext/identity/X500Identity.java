@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import eu.emi.security.authn.x509.helpers.JavaAndBCStyle;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -159,6 +160,13 @@ public class X500Identity extends AbstractStaticIdentityTypeProvider
 		return X500NameUtils.getReadableForm(from);
 	}
 
+
+	@Override
+	public String getHumanFriendlyDescription(MessageSource msg)
+	{
+		return msg.getMessage("X500Identity.description");
+	}
+	
 	@Override
 	public boolean isDynamic()
 	{

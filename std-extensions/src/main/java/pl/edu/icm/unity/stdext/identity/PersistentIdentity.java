@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -46,7 +47,7 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	{
 		return "Persistent id";
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -126,5 +127,17 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	public boolean isExpired(IdentityRepresentation representation)
 	{
 		return false;
+	}
+	
+	@Override
+	public String getHumanFriendlyDescription(MessageSource msg)
+	{
+		return msg.getMessage("PersistentIdentity.description");
+	}
+
+	@Override
+	public String toHumanFriendlyString(MessageSource msg, String from)
+	{
+		return msg.getMessage("PersistentIdentity.anonymous");
 	}
 }
