@@ -10,6 +10,7 @@
 	$gray : LightGray;
 	$font : Helvetica, Arial, "Lucida Grande", Geneva, Tahoma, Verdana, sans-serif;
 	$shadow : #888;
+	$red :  LightCoral;
   
 	.v-select-optiongroup-authnSetSelect {
 	    font-family: $font;
@@ -173,6 +174,11 @@
 		height: 50px;
 	}
 	
+	.v-verticallayout-u-smallMargin {
+		padding-top: 5px;
+	}
+	
+	/* green background for translation profile test */
 	.v-textfield-u-green-bg {
 		background: $green;
 	}
@@ -182,6 +188,14 @@
 			background: $green;
 		}
 	}
+
+	.v-ddwrapper-u-green-bg {
+		.v-textfield {
+			background: $green;
+		}
+	}
+	
+	/* gray background for translation profile test */
 	.v-textfield-u-gray-bg {
 		background: $gray;
 	}
@@ -195,6 +209,23 @@
 	.v-ddwrapper-u-gray-bg {
 		.v-textfield {
 			background: $gray;
+		}
+	}
+	
+	/* red background for translation profile test */
+	.v-textfield-u-red-bg {
+		background: $red;
+	}
+	
+	.v-filterselect-u-red-bg {
+		.v-filterselect-input {
+			background: $red;
+		}
+	}
+	
+	.v-ddwrapper-u-red-bg {
+		.v-textfield {
+			background: $red;
 		}
 	}
 }

@@ -26,6 +26,7 @@ import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
+import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -79,6 +80,7 @@ public class RuleComponent extends VerticalLayout
 	private ComboBox actions;
 	private AbstractTextField condition;
 	private FormLayout paramsList;
+	private MappingResultComponent mappingResultComponent;
 	private Callback callback;
 	private Button up;
 	private Button top;
@@ -267,8 +269,10 @@ public class RuleComponent extends VerticalLayout
 		main.setMargin(false);
 		main.addComponents(condition, actions, actionParams);
 		wrapper.addComponents(main, help);
+		
+		mappingResultComponent = new MappingResultComponent(msg);
 
-		addComponents(separator, toolbar, wrapper, paramsList);
+		addComponents(separator, toolbar, wrapper, paramsList, mappingResultComponent);
 		setSpacing(false);
 		setMargin(false);
 
@@ -522,57 +526,89 @@ public class RuleComponent extends VerticalLayout
 			ErrorPopup.showError(msg,
 					msg.getMessage("TranslationProfileEditor.errorConditionEvaluation"),
 					e);
+			condition.setStyleName(Styles.redBackground.toString());
 		}
 		
 		InputTranslationAction action = rule.getAction();
 		try 
 		{
-			action.invoke(remoteAuthnInput, mvelCtx, null);
+			MappingResult mappingResult = action.invoke(remoteAuthnInput, mvelCtx, null);
+			displayMappingResult(mappingResult);
 		} catch (EngineException e) 
 		{
 			ErrorPopup.showError(msg,
 					msg.getMessage("TranslationProfileEditor.errorExpressionEvaluation"),
 					e);
+			setColorForParamList(Styles.redBackground.toString());
 		}
+	}
+
+
+	public void clearTestResult() 
+	{
+		removeRuleComponentEvaluationStyle();	
+		hideMappingResultComponent();
 	}
 	
 	private void setLayoutForEvaludatedCondition(boolean conditionResult) 
 	{
-		removeRuleComponentBgStyle();
+		removeRuleComponentEvaluationStyle();
 		if (conditionResult)
 		{
-			condition.setStyleName(Styles.greenBackground.toString());
+			setColorForInputComponents(Styles.greenBackground.toString());
 		} else
 		{
-			condition.setStyleName(Styles.grayBackground.toString());
-			actions.setStyleName(Styles.grayBackground.toString());
-			Iterator<Component> iter = paramsList.iterator();
-			while (iter.hasNext())
-			{
-				Component c = iter.next();
-				c.setStyleName(Styles.grayBackground.toString());
-			}
+			setColorForInputComponents(Styles.grayBackground.toString());
 		}
 	}
-
-	public void clearTestResult() 
+	
+	private void setColorForInputComponents(String color)
 	{
-		removeRuleComponentBgStyle();	
+		condition.setStyleName(color);
+		actions.setStyleName(color);
+		setColorForParamList(color);
 	}
 	
-	private void removeRuleComponentBgStyle()
+	private void setColorForParamList(String color)
+	{
+		Iterator<Component> iter = paramsList.iterator();
+		while (iter.hasNext())
+		{
+			Component c = iter.next();
+			c.setStyleName(color);
+		}		
+	}
+	
+	private void removeRuleComponentEvaluationStyle()
 	{
 		condition.removeStyleName(Styles.greenBackground.toString());
+		condition.removeStyleName(Styles.redBackground.toString());
 		condition.removeStyleName(Styles.grayBackground.toString());
+		
 		actions.removeStyleName(Styles.grayBackground.toString());
+		actions.removeStyleName(Styles.greenBackground.toString());
+		
 		Iterator<Component> iter = paramsList.iterator();
 		while (iter.hasNext())
 		{
 			Component c = iter.next();
 			c.removeStyleName(Styles.grayBackground.toString());
+			c.removeStyleName(Styles.greenBackground.toString());
+			c.removeStyleName(Styles.redBackground.toString());
 		}	
 	}
 	
+	private void displayMappingResult(MappingResult mappingResult) 
+	{
+		mappingResultComponent.displeyMappingResult(mappingResult);
+		mappingResultComponent.setVisible(true);
+	}
+	
+	private void hideMappingResultComponent() 
+	{
+		mappingResultComponent.setVisible(false);
+	}
+
 	public interface Callback
 	{
 		public boolean moveUp(RuleComponent rule);
