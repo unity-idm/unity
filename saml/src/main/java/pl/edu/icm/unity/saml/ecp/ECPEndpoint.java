@@ -114,7 +114,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 		if (!remoteMetadataManagers.containsKey(myId))
 		{
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
-					mainCfg, executorsService, pkiManagement, new MetaToSPConfigConverter(pkiManagement));
+					mainCfg, executorsService, pkiManagement, new MetaToSPConfigConverter(pkiManagement), SAMLECPProperties.IDPMETA_PREFIX);
 			remoteMetadataManagers.put(myId, myMetadataManager);
 			myMetadataManager.start();
 		} else

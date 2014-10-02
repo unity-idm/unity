@@ -83,7 +83,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		{
 			
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
-					mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement));
+					mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement), SAMLIDPProperties.SPMETA_PREFIX);
 			remoteMetadataManagers.put(id, myMetadataManager);
 			myMetadataManager.start();
 		} else

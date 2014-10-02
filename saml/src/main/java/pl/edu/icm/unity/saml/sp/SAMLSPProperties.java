@@ -66,6 +66,7 @@ public class SAMLSPProperties extends SAMLProperties
 	public static final String DEF_SIGN_REQUEST = "defaultSignRequest";
 	public static final String DEF_REQUESTED_NAME_FORMAT = "defaultRequestedNameFormat";
 
+	public static final String IDPMETA_PREFIX = "metadataSource.";
 	public static final String IDPMETA_TRANSLATION_PROFILE = "perMetadataTranslationProfile";
 	public static final String IDPMETA_REGISTRATION_FORM = "perMetadataRegistrationForm";
 	
@@ -159,12 +160,26 @@ public class SAMLSPProperties extends SAMLProperties
 		META.put(ICON_SCALE, new PropertyMD(ScaleMode.height100).setDescription("Controls whether and how "
 				+ "the icons of providers should be scalled."));
 		META.put(SAMLECPProperties.JWT_P, new PropertyMD().setCanHaveSubkeys().setHidden());	
-		META.put(IDPMETA_TRANSLATION_PROFILE, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(METADATA_PREFIX).setDescription(
+			
+		META.put(IDPMETA_PREFIX, new PropertyMD().setCategory(remoteMeta).setStructuredList(false).setDescription(
+				"Under this prefix you can configure the remote trusted SAML IdPs however not providing all their details but only their metadata."));	
+		META.put(METADATA_REFRESH, new PropertyMD("3600").setCategory(remoteMeta).setDescription(
+				"How often the metadata should be reloaded."));
+		META.put(METADATA_URL, new PropertyMD().setCategory(remoteMeta).setMandatory().setStructuredListEntry(IDPMETA_PREFIX).setDescription(
+				"URL with the metadata location. Can be local or HTTP(s) URL. "
+				+ "In case of HTTPS the server's certificate will be checked against the main Unity server's truststore"
+				+ " only if ."));
+		META.put(METADATA_HTTPS_TRUSTSTORE, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
+				"If set then the given truststore will be used for HTTPS connection validation during metadata fetching. Otherwise the default Java trustststore will beused."));
+		META.put(METADATA_SIGNATURE, new PropertyMD(MetadataSignatureValidation.ignore).setCategory(remoteMeta).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
+				"Controls whether metadata signatures should be checked. If checking is turned on then the validation certificate must be set."));
+		META.put(METADATA_ISSUER_CERT, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
+				"Name of certificate to check metadata signature. Used only if signatures checking is turned on."));	
+		META.put(IDPMETA_TRANSLATION_PROFILE, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
 				"Deafult translation profile for all the IdPs from the metadata. Can be overwritten by individual IdP configuration entries."));
-		META.put(IDPMETA_REGISTRATION_FORM, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(METADATA_PREFIX).setDescription(
+		META.put(IDPMETA_REGISTRATION_FORM, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
 				"Deafult registration form for all the IdPs from the metadata. Can be overwritten by individual IdP configuraiton entries."));
-		META.put(METADATA_PREFIX, new PropertyMD().setCategory(webRetrieval).setStructuredList(false).setDescription(
-				"Under this prefix you can configure the remote trusted SAML IdPs however not providing all their details but only their metadata."));
+		
 		
 		META.putAll(SAMLProperties.defaults);
 	}
@@ -212,7 +227,7 @@ public class SAMLSPProperties extends SAMLProperties
 			}
 		}
 		
-		Set<String> metaKeys = getStructuredListKeys(METADATA_PREFIX);
+		Set<String> metaKeys = getStructuredListKeys(IDPMETA_PREFIX);
 		Set<String> certs;
 		try
 		{

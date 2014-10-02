@@ -17,7 +17,6 @@ import org.apache.xmlbeans.XmlException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SAMLProperties;
 import pl.edu.icm.unity.saml.metadata.cfg.MetadataVerificator.MetadataValidationException;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
@@ -40,9 +39,11 @@ public class RemoteMetaManager
 	private MetadataVerificator verificator;
 	private SAMLProperties virtualConfiguration;
 	private Date validationDate;
+	private String metaPrefix;
 	
 	public RemoteMetaManager(SAMLProperties configuration, UnityServerConfiguration mainConfig,
-			ExecutorsService executorsService, PKIManagement pkiManagement, AbstractMetaToConfigConverter converter)
+			ExecutorsService executorsService, PKIManagement pkiManagement, AbstractMetaToConfigConverter converter,
+			String metaPrefix)
 	{
 		this.configuration = configuration;
 		this.executorsService = executorsService;
@@ -51,6 +52,7 @@ public class RemoteMetaManager
 		this.verificator = new MetadataVerificator();
 		this.pkiManagement = pkiManagement;
 		this.virtualConfiguration = configuration.clone();
+		this.metaPrefix = metaPrefix;
 	}
 
 	public void start()
@@ -62,7 +64,7 @@ public class RemoteMetaManager
 	public void reloadAll()
 	{
 		SAMLProperties configuration = getBaseConfiguration();
-		Set<String> keys = configuration.getStructuredListKeys(SAMLProperties.METADATA_PREFIX);
+		Set<String> keys = configuration.getStructuredListKeys(metaPrefix);
 		Properties virtualConfigProps = configuration.getSourceProperties();
 		for (String key: keys)
 		{
@@ -149,7 +151,7 @@ public class RemoteMetaManager
 	}
 	
 	private class Reloader implements Runnable
-	{
+	{		
 		public void run()
 		{
 			try

@@ -113,7 +113,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		{
 			
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
-					mainConfig, executorsService, pkiMan, new MetaToSPConfigConverter(pkiMan));
+					mainConfig, executorsService, pkiMan, new MetaToSPConfigConverter(pkiMan), SAMLSPProperties.IDPMETA_PREFIX);
 			remoteMetadataManagers.put(instanceName, myMetadataManager);
 			myMetadataManager.start();
 		} else

@@ -106,16 +106,10 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 			
 			boolean wantAssertSigned = spDef.isSetWantAssertionsSigned();
 			
-			addEntryToProperties(entityId, aserServ, wantAssertSigned, realConfig, configKey, properties, r, certs, names, logos);
-		
-		
-			
-		}
-		
+			addEntryToProperties(entityId, aserServ, wantAssertSigned, realConfig, configKey, properties, r, certs, names, logos);					
+		}		
 	}
 	
-	//TODO add next properties 
-	//TODO requireSingned
 	private void addEntryToProperties(String entityId, IndexedEndpointType serviceEndpoint, boolean assertSigned,
 			SAMLIDPProperties realConfig, String metaConfigKey, Properties properties, Random r, 
 			List<X509Certificate> certs,
@@ -138,8 +132,7 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 		if (noPerSpConfig || !properties.containsKey(configKey + SAMLIDPProperties.ALLOWED_SP_CERTIFICATE))
 			properties.setProperty(configKey + SAMLIDPProperties.ALLOWED_SP_CERTIFICATE, 
 					serviceEndpoint.getLocation());
-		
-		
+				
 		if (noPerSpConfig || !properties.containsKey(configKey + SAMLIDPProperties.ALLOWED_SP_CERTIFICATE))
 		{
 			int i = 1;
@@ -151,6 +144,7 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 				i++;
 			}
 		}
+		
 		for (Map.Entry<String, String> name: names.entrySet())
 		{
 			if (noPerSpConfig || !properties.containsKey(configKey + 
@@ -158,6 +152,7 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 				properties.setProperty(configKey + SAMLIDPProperties.ALLOWED_SP_NAME + name.getKey(), 
 						name.getValue());
 		}
+		
 		for (Map.Entry<String, LogoType> logo: logos.entrySet())
 		{
 			if (noPerSpConfig || !properties.containsKey(configKey + 
@@ -165,18 +160,11 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 				properties.setProperty(configKey + SAMLIDPProperties.ALLOWED_SP_LOGO + logo.getKey(), 
 						logo.getValue().getStringValue());
 		}
-		
-		if (noPerSpConfig || !properties.containsKey(configKey + SAMLIDPProperties.ALLOWED_SP_SIGN_ASSERT))
-			properties.setProperty(configKey + SAMLIDPProperties.ALLOWED_SP_SIGN_ASSERT, 
-					Boolean.toString(assertSigned));
-		
-			
+					
 		log.debug("Added a accepted SP loaded from SAML metadata: " + entityId + " with " + 
-				serviceEndpoint.getLocation() + " returnl url" + logos);
-		
+				serviceEndpoint.getLocation() + " returnl url");		
 	}
-	
-	
+		
 	private String getExistingKey(String entityId, SAMLIDPProperties realConfig)
 	{
 		Set<String> keys = realConfig.getStructuredListKeys(SAMLIDPProperties.ALLOWED_SP_PREFIX);
@@ -190,7 +178,6 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 
 	private IndexedEndpointType selectHttpPostService(SPSSODescriptorType spDef)
 	{
-	
 		for (IndexedEndpointType endpoint: spDef.getAssertionConsumerServiceArray())
 		{
 			if (endpoint.getBinding() == null || endpoint.getLocation() == null)
@@ -199,11 +186,6 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 			if(endpoint.getBinding().equals(SAMLConstants.BINDING_HTTP_POST))
 				return endpoint;
 		}
-	
-		//TODO
 		return null;
 	}
-
-
-
 }
