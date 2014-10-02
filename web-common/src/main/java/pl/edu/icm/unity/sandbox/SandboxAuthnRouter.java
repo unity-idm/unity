@@ -13,5 +13,7 @@ package pl.edu.icm.unity.sandbox;
  */
 public interface SandboxAuthnRouter extends SandboxAuthnNotifier
 {
-	void fireEvent(SandboxAuthnEvent event);
+	void fireEvent(SandboxRemoteAuthnInputEvent event);
+	
+	void fireEvent(SandboxAuthnResultEvent event);
 }

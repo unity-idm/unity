@@ -12,11 +12,19 @@ package pl.edu.icm.unity.sandbox;
  */
 public interface SandboxAuthnNotifier 
 {
-	void addListener(Listener listener);
+	void addListener(RemoteAuthnInputListener listener);
 
-	void removeListener(Listener listener);
+	void removeListener(RemoteAuthnInputListener listener);
 	
-	public interface Listener {
-		void handle(SandboxAuthnEvent event);
+	void addListener(AuthnResultListener listener);
+	
+	void removeListener(AuthnResultListener listener);
+	
+	public interface RemoteAuthnInputListener {
+		void handle(SandboxRemoteAuthnInputEvent event);
+	}
+	
+	public interface AuthnResultListener {
+		void handle(SandboxAuthnResultEvent event);
 	}	
 }

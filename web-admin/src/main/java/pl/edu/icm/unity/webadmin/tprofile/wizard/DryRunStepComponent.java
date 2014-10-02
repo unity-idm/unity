@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile.wizard;
 
-import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
+import pl.edu.icm.unity.sandbox.SandboxAuthnResultEvent;
 import pl.edu.icm.unity.sandbox.SandboxUI;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -85,7 +85,7 @@ public class DryRunStepComponent extends CustomComponent
 		splitPanel.setLocked(true);
 	}
 
-	public void handle(SandboxAuthnEvent event) 
+	public void handle(SandboxAuthnResultEvent event) 
 	{
 		if (event.getAuthnResult().getStatus() == Status.success)
 		{

@@ -172,6 +172,7 @@ public class ProfileStepComponent extends CustomComponent
 		leftPanel.setWidth("300px");
 		leftPanel.setHeight("100.0%");
 		leftPanel.setMargin(false);
+		leftPanel.setSpacing(true);
 		
 		// dragdropHint
 		dragdropHint = new Label();

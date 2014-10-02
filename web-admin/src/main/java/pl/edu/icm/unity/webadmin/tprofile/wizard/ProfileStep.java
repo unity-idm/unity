@@ -24,17 +24,14 @@ public class ProfileStep implements WizardStep
 	private UnityMessageSource msg;
 	private ProfileStepComponent profileComponent;
 	private TranslationProfileEditor editor;
-	private boolean addProfile = true;
 	private Callback addCallback;
-	private Callback updateCallback;
 
 	public ProfileStep(UnityMessageSource msg, TranslationProfileEditor editor, 
-			Callback addCallback, Callback updateCallback) 
+			Callback addCallback) 
 	{
 		this.msg = msg;
 		this.editor = editor;
 		this.addCallback = addCallback;
-		this.updateCallback = updateCallback;
 		profileComponent = new ProfileStepComponent(msg, editor);
 	}
 
@@ -58,22 +55,12 @@ public class ProfileStep implements WizardStep
 	@Override
 	public boolean onAdvance() 
 	{
-		boolean onAdvance = true;
 		TranslationProfile translationProfile = editor.getProfile();
-		if (addProfile)
-		{
-			if (addCallback.handleProfile(translationProfile))
-			{
-				addProfile = false;
-			} else
-			{
-				onAdvance = false;
-			}
-		} else 
-		{
-			updateCallback.handleProfile(translationProfile);
+		if (translationProfile == null)
+		{ 
+			return false;
 		}
-		return onAdvance;
+		return addCallback.handleProfile(translationProfile);
 	}
 
 	@Override

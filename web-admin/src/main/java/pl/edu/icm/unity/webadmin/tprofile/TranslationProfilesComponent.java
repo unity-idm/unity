@@ -408,7 +408,6 @@ public class TranslationProfilesComponent extends VerticalLayout
 	private class WizardActionHandler extends SingleActionHandler
 	{
 		private TranslationProfileEditDialog.Callback addCallback;
-		private TranslationProfileEditDialog.Callback updateCallback;
 		
 		public WizardActionHandler()
 		{
@@ -421,15 +420,6 @@ public class TranslationProfilesComponent extends VerticalLayout
 				public boolean handleProfile(TranslationProfile profile)
 				{
 					return addProfile(profile);
-				}
-			};
-			
-			updateCallback = new TranslationProfileEditDialog.Callback()
-			{
-				@Override
-				public boolean handleProfile(TranslationProfile profile)
-				{
-					return updateProfile(profile);
 				}
 			};
 		}
@@ -448,8 +438,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 				return;
 			}
 			
-			WizardDialog wizard = new WizardDialog(msg, sandboxURL, sandboxNotifier, 
-					editor, addCallback, updateCallback);
+			WizardDialog wizard = new WizardDialog(msg, sandboxURL, sandboxNotifier, editor, addCallback);
 			wizard.show();
 		}
 	}	

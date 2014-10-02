@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webadmin.tprofile.wizard;
 
 import org.vaadin.teemu.wizards.WizardStep;
 
-import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
+import pl.edu.icm.unity.sandbox.SandboxAuthnResultEvent;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 import com.vaadin.ui.Component;
@@ -28,7 +28,7 @@ public class DryRunStep implements WizardStep
 		dryRunComponent = new DryRunStepComponent(msg, sandboxURL);
 	}
 
-	public void handle(SandboxAuthnEvent event) 
+	public void handle(SandboxAuthnResultEvent event) 
 	{
 		dryRunComponent.handle(event);
 	}

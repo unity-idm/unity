@@ -12,7 +12,7 @@ import org.vaadin.teemu.wizards.event.WizardProgressListener;
 import org.vaadin.teemu.wizards.event.WizardStepActivationEvent;
 import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
-import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
+import pl.edu.icm.unity.sandbox.SandboxRemoteAuthnInputEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditDialog.Callback;
@@ -37,17 +37,17 @@ public class WizardDialog extends Window implements WizardProgressListener
 	private String sandboxURL;
 	private AtomicBoolean isAuthnEventArrived;
 	private SandboxAuthnNotifier sandboxNotifier;
-	private SandboxAuthnNotifier.Listener sandboxListener;
+	private SandboxAuthnNotifier.RemoteAuthnInputListener sandboxListener;
 	private String callerId;
 
 	public WizardDialog(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier, 
-			TranslationProfileEditor editor, Callback addCallback, Callback updateCallback)
+			TranslationProfileEditor editor, Callback addCallback)
 	{
 		this.sandboxURL      = sandboxURL;
 		this.sandboxNotifier = sandboxNotifier;
 		this.callerId        = VaadinService.getCurrentRequest().getWrappedSession().getId();
 		isAuthnEventArrived  = new AtomicBoolean(false);
-		wizardComponent      = new WizardDialogComponent(msg, sandboxURL, editor, addCallback, updateCallback);
+		wizardComponent      = new WizardDialogComponent(msg, sandboxURL, editor, addCallback);
 		wizardComponent.addWizardListener(this);
 		
 		
@@ -73,10 +73,10 @@ public class WizardDialog extends Window implements WizardProgressListener
 	
 	private void addSandboxListener() 
 	{
-		sandboxListener = new SandboxAuthnNotifier.Listener() 
+		sandboxListener = new SandboxAuthnNotifier.RemoteAuthnInputListener() 
 		{
 			@Override
-			public void handle(SandboxAuthnEvent event) 
+			public void handle(SandboxRemoteAuthnInputEvent event) 
 			{
 				
 				if (!callerId.equals(event.getCallerId()))

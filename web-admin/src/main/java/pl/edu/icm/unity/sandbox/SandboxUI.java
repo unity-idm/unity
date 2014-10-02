@@ -173,12 +173,12 @@ public class SandboxUI extends AuthenticationUI
 
 	private void fireAuthnEvent(RemotelyAuthenticatedInput input) 
 	{
-		sandboxRouter.fireEvent(new SandboxAuthnEvent(input));
+		sandboxRouter.fireEvent(new SandboxRemoteAuthnInputEvent(input));
 	}
 
 	private void fireAuthnEvent(AuthenticationResult authnResult, StringBuffer capturedLogs)
 	{
-		sandboxRouter.fireEvent(new SandboxAuthnEvent(authnResult, capturedLogs));
+		sandboxRouter.fireEvent(new SandboxAuthnResultEvent(authnResult, capturedLogs));
 	}
 	
 	private void cancelAuthentication() 
