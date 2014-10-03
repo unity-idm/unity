@@ -38,6 +38,7 @@ public class IdPButtonsBar extends CustomComponent
 
 	private void initUI()
 	{
+		setSizeUndefined();
 		HorizontalLayout buttons = new HorizontalLayout();
 		
 		Button confirmB = new Button(msg.getMessage("IdPButtonsBar.confirm"));

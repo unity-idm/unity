@@ -6,7 +6,10 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.awt.image.BufferedImage;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import pl.edu.icm.unity.types.basic.Attribute;
 
@@ -26,7 +29,9 @@ public class OAuthAuthzContext
 	private Attribute<BufferedImage> clientLogo;
 	private String translationProfile;
 	private String usersGroup;
-	
+	private Set<ScopeInfo> effectiveRequestedScopes = new HashSet<OAuthAuthzContext.ScopeInfo>();
+	private Set<String> requestedAttrs = new HashSet<>();
+
 
 	public OAuthAuthzContext(AuthorizationRequest request)
 	{
@@ -93,5 +98,51 @@ public class OAuthAuthzContext
 	public void setTranslationProfile(String translationProfile)
 	{
 		this.translationProfile = translationProfile;
+	}
+	
+	public void addScopeInfo(ScopeInfo scopeInfo)
+	{
+		effectiveRequestedScopes.add(scopeInfo);
+		requestedAttrs.addAll(scopeInfo.getAttributes());
+	}
+	
+	public Set<String> getRequestedAttrs()
+	{
+		return requestedAttrs;
+	}
+
+	public Set<ScopeInfo> getEffectiveRequestedScopes()
+	{
+		return effectiveRequestedScopes;
+	}
+
+	public static class ScopeInfo
+	{
+		private String name;
+		private String description;
+		private Set<String> attributes;
+		
+		public ScopeInfo(String name, String description, Collection<String> attributes)
+		{
+			super();
+			this.name = name;
+			this.description = description;
+			this.attributes = new HashSet<String>(attributes);
+		}
+
+		public String getName()
+		{
+			return name;
+		}
+
+		public String getDescription()
+		{
+			return description;
+		}
+
+		public Set<String> getAttributes()
+		{
+			return attributes;
+		}
 	}
 }

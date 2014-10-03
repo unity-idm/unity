@@ -14,8 +14,10 @@
 	<bean class="pl.edu.icm.unity.oauth.client.OAuthContextsManagement"/>
 	<bean class="pl.edu.icm.unity.oauth.client.web.OAuth2RetrievalFactory"/>
 	
-	
-	<bean class="pl.edu.icm.unity.oauth.as.webauthz.FreemarkerHandler"/>
 	<bean class="pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider"/>
 	
+	<bean class="pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpointFactory"/>
+	<bean class="pl.edu.icm.unity.oauth.as.webauthz.FreemarkerHandler"/>
+	
+	<bean scope="prototype" id="OAuthAuthzUI" class="pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzUI"/>
 </beans>

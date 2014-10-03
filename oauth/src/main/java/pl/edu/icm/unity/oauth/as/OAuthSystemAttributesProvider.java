@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
@@ -30,8 +31,8 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	public static final String ALLOWED_FLOWS = "sys:oauth:allowedGrantFlows";
 	public static final String ALLOWED_RETURN_URI = "sys:oauth:allowedReturnURI";
 	public static final String PER_CLIENT_GROUP = "sys:oauth:groupForClient";
-	public static final String CLIENT_NAME = "sys:oauth:name";
-	public static final String CLIENT_LOGO = "sys:oauth:logo";
+	public static final String CLIENT_NAME = "sys:oauth:clientName";
+	public static final String CLIENT_LOGO = "sys:oauth:clientLogo";
 	
 	public enum GrantFlow {authorizationCode, implicit, resourceOwnerPassword, clientCredentials};
 	
@@ -79,7 +80,17 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	
 	private AttributeType getLogoAT()
 	{
-		AttributeType logoAt = new AttributeType(CLIENT_LOGO, new JpegImageAttributeSyntax());
+		JpegImageAttributeSyntax syntax = new JpegImageAttributeSyntax();
+		try
+		{
+			syntax.setMaxHeight(200);
+			syntax.setMaxWidth(400);
+			syntax.setMaxSize(4000000);
+		} catch (WrongArgumentException e)
+		{
+			throw new IllegalArgumentException(e);
+		}
+		AttributeType logoAt = new AttributeType(CLIENT_LOGO, syntax);
 		logoAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
 		logoAt.setDescription("OAuth Client specific attribute. Defines a logo which is "
 				+ "displayed for the client.");

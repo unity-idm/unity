@@ -36,8 +36,8 @@ public class OAuthASProperties extends PropertiesHelper
 	public static final String USERS_GROUP = "usersGroup";
 	public static final String TRANSLATION_PROFILE = "translationProfile";
 	
-	public static final String SCOPES = "scopes";
-	public static final String SCOPE_ATTRIBUTES = "attributes";
+	public static final String SCOPES = "scopes.";
+	public static final String SCOPE_ATTRIBUTES = "attributes.";
 	public static final String SCOPE_DESCRIPTION = "description";
 	public static final String SCOPE_NAME = "name";
 	
@@ -47,7 +47,7 @@ public class OAuthASProperties extends PropertiesHelper
 				setDescription("Group in which authorized OAuth Clients must be present. "
 						+ "OAuth related attributes defined in this group are used"
 						+ "to configure the client."));
-		defaults.put(CLIENTS_GROUP, new PropertyMD("/").
+		defaults.put(USERS_GROUP, new PropertyMD("/").
 				setDescription("Group for resolving attributes of OAuth users. "
 						+ "Only members of this group can authorize with OAuth."));
 		defaults.put(SCOPES, new PropertyMD().setStructuredList(false).

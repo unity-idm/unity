@@ -141,7 +141,7 @@ public class EngineInitialization extends LifecycleBase
 	@Qualifier("insecure")
 	private AttributesManagement attrManagement;
 	@Autowired
-	private List<SystemAttributeTypes> sysTypeProviders;
+	private List<SystemAttributesProvider> sysTypeProviders;
 	@Autowired
 	private IdentityTypesRegistry idTypesReg;
 	@Autowired

@@ -91,6 +91,8 @@ public class ExposedAttributesComponent extends CustomComponent
 	public Set<String> getHidden()
 	{
 		Set<String> hidden = new HashSet<String>();
+		if (!allowHiding)
+			return hidden;
 		for (CheckBox h: attributesHiding.getSelection())
 		{
 			if (!h.getValue())
@@ -117,18 +119,18 @@ public class ExposedAttributesComponent extends CustomComponent
 		credInfo.setStyleName(Reindeer.LABEL_SMALL);
 		credInfo.setContentMode(ContentMode.HTML);
 		
-		Label attributesInfo = new Label(msg.getMessage("ExposedAttributesComponent.attributesInfo"));
-		attributesInfo.setStyleName(Reindeer.LABEL_SMALL);
-		attributesInfo.setContentMode(ContentMode.HTML);
-		
 		contents.addComponent(attributesL);
 		contents.addComponent(showDetails);
 		contents.addComponent(details);
 		
-		details.addComponent(attributesInfo);
 		details.addComponent(credInfo);
 		if (allowHiding)
 		{
+			Label attributesInfo = new Label(msg.getMessage("ExposedAttributesComponent.attributesInfo"));
+			attributesInfo.setStyleName(Reindeer.LABEL_SMALL);
+			attributesInfo.setContentMode(ContentMode.HTML);
+			details.addComponent(attributesInfo);
+			
 			Label hideL = new Label(msg.getMessage("ExposedAttributesComponent.hide"));
 			attributesHiding = new ListOfSelectableElements(null, hideL, DisableMode.WHEN_SELECTED);
 			for (Attribute<?> at: attributes.values())
@@ -141,6 +143,11 @@ public class ExposedAttributesComponent extends CustomComponent
 			details.addComponent(attributesHiding);
 		} else
 		{
+			Label spacer = new Label("<br>");
+			spacer.setStyleName(Reindeer.LABEL_SMALL);
+			spacer.setContentMode(ContentMode.HTML);
+			details.addComponent(spacer);
+			
 			ListOfElements<String> attributesList = new ListOfElements<String>(msg);
 			for (Attribute<?> at: attributes.values())
 			{

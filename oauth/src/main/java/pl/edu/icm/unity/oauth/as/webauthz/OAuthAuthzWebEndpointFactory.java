@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +41,8 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 	
 	@Autowired
 	public OAuthAuthzWebEndpointFactory(ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
-			IdentitiesManagement identitiesManagement, AttributesManagement attributesManagement)
+			@Qualifier("insecure") IdentitiesManagement identitiesManagement, 
+			@Qualifier("insecure") AttributesManagement attributesManagement)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;

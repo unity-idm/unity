@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.common.provider;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 import com.vaadin.server.Resource;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Image;
@@ -53,19 +54,26 @@ public class SPInfoComponent extends CustomComponent
 		
 		if (logo != null)
 		{
-			Image logoI = new Image(msg.getMessage("SPInfoComponent.requesterName", logo));
+			Image logoI = new Image();
+			logoI.setAlternateText(msg.getMessage("SPInfoComponent.requesterName", name));
+			logoI.setSource(logo);
 			main.addComponent(logoI);
 			main.setComponentAlignment(logoI, Alignment.TOP_CENTER);
+
+			Label spacer = new Label("<br>");
+			spacer.addStyleName(Reindeer.LABEL_SMALL);
+			spacer.setContentMode(ContentMode.HTML);
+			main.addComponent(spacer);
 		}
 		
 		Label info1Id = new Label(msg.getMessage("SPInfoComponent.requesterName", name));
-		info1Id.setStyleName(Reindeer.LABEL_H2);
+		info1Id.addStyleName(Reindeer.LABEL_H2);
 		main.addComponent(info1Id);
 		
 		if (url != null)
 		{
 			Label info1Addr = new Label(msg.getMessage("SPInfoComponent.requesterAddress", url));
-			info1Addr.setStyleName(Reindeer.LABEL_SMALL);
+			info1Addr.addStyleName(Reindeer.LABEL_SMALL);
 			main.addComponent(info1Addr);
 		}
 

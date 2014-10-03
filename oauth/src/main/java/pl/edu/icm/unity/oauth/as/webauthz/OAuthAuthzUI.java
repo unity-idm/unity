@@ -6,8 +6,10 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.awt.image.BufferedImage;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.SPSettings;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
@@ -173,15 +176,22 @@ public class OAuthAuthzUI extends UnityUIBase
 		exposedInfoPanel.setContent(eiLayout);
 		try
 		{
-			//TODO present requested scopes properly
-			Label scopes = new Label("Scopes: " + ctx.getRequest().getScope().toString());
-			contents.addComponent(scopes);
-			
+			for (ScopeInfo si: ctx.getEffectiveRequestedScopes())
+			{
+				Label scope = new Label(si.getName());
+				Label scopeDesc = new Label(si.getDescription());
+				scopeDesc.addStyleName(Reindeer.LABEL_SMALL);
+				eiLayout.addComponents(scope, scopeDesc);
+			}
+			Label spacer = new Label("<br>");
+			spacer.setContentMode(ContentMode.HTML);
+			spacer.addStyleName(Reindeer.LABEL_SMALL);
+			eiLayout.addComponent(spacer);
 			
 			TranslationResult translationResult = getUserInfo(ctx);
 			attrsPresenter = new ExposedAttributesComponent(msg, handlersRegistry, 
-					translationResult.getAttributes(), true);
-			contents.addComponent(attrsPresenter);
+					filterRequestedAttributes(translationResult, ctx), false);
+			eiLayout.addComponent(attrsPresenter);
 		} catch (Exception e)
 		{
 			log.error("Engine problem when handling client request", e);
@@ -227,13 +237,25 @@ public class OAuthAuthzUI extends UnityUIBase
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		String flow = ctx.getRequest().getResponseType().impliesCodeFlow() ? 
 				GrantFlow.authorizationCode.toString() : GrantFlow.implicit.toString();
-		return idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
+		TranslationResult translationResult = idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
 				ctx.getUsersGroup(), 
 				ctx.getTranslationProfile(), 
 				ctx.getRequest().getClientID().getValue(),
 				"OAuth2", 
 				flow,
 				true);
+		return translationResult;
+	}
+	
+	private Set<Attribute<?>> filterRequestedAttributes(TranslationResult translationResult, OAuthAuthzContext ctx)
+	{
+		Collection<Attribute<?>> allAttrs = translationResult.getAttributes();
+		Set<Attribute<?>> filteredAttrs = new HashSet<Attribute<?>>();
+		
+		for (Attribute<?> attr: allAttrs)
+			if (ctx.getRequestedAttrs().contains(attr.getName()))
+				filteredAttrs.add(attr);
+		return filteredAttrs;
 	}
 	
 	private void loadPreferences(OAuthAuthzContext ctx) throws EopException

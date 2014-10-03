@@ -11,6 +11,7 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -27,6 +28,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -40,6 +42,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
+import com.nimbusds.oauth2.sdk.Scope;
 
 /**
  * Low level servlet performing the initial OAuth handling.
@@ -201,7 +204,7 @@ public class OAuthParseServlet extends HttpServlet
 			groups = identitiesMan.getGroups(clientEntity);
 		} catch (IllegalIdentityValueException e)
 		{
-			throw new OAuthValidationException("The '" + client + "' is unknown");
+			throw new OAuthValidationException("The client '" + client + "' is unknown");
 		} catch (EngineException e)
 		{
 			log.error("Problem retrieving groups of the OAuth client", e);
@@ -216,7 +219,7 @@ public class OAuthParseServlet extends HttpServlet
 		Collection<AttributeExt<?>> attrs;
 		try
 		{
-			attrs = attributesMan.getAttributes(clientEntity, oauthGroup, null);
+			attrs = attributesMan.getAllAttributes(clientEntity, true, oauthGroup, null, false);
 		} catch (EngineException e)
 		{
 			log.error("Problem retrieving attributes of the OAuth client", e);
@@ -302,5 +305,20 @@ public class OAuthParseServlet extends HttpServlet
 			context.setUsersGroup(oauthConfig.getValue(OAuthASProperties.USERS_GROUP));
 		
 		context.setTranslationProfile(oauthConfig.getValue(OAuthASProperties.TRANSLATION_PROFILE));
+		
+		Set<String> scopeKeys = oauthConfig.getStructuredListKeys(OAuthASProperties.SCOPES);
+		Scope requestedScopes = authzRequest.getScope();
+		for (String scopeKey: scopeKeys)
+		{
+			String scope = oauthConfig.getValue(scopeKey+OAuthASProperties.SCOPE_NAME);
+			
+			if (requestedScopes.contains(scope))
+			{
+				String desc = oauthConfig.getValue(scopeKey+OAuthASProperties.SCOPE_DESCRIPTION);
+				List<String> attributes = oauthConfig.getListOfValues(
+						scopeKey+OAuthASProperties.SCOPE_ATTRIBUTES);
+				context.addScopeInfo(new ScopeInfo(scope, desc, attributes));
+			}
+		}
 	}
 }
