@@ -85,12 +85,19 @@ public class Toolbar extends CustomComponent
 		if (buttonData == null || !(buttonData instanceof SingleActionHandler))
 			return;
 		SingleActionHandler handler = (SingleActionHandler) button.getData();
-		if (handler.isNeedsTarget() && target == null)
+		if (handler.isNeeded())
 		{
-			button.setEnabled(false);
+			button.setVisible(true);
+			if (handler.isNeedsTarget() && target == null)
+			{
+				button.setEnabled(false);
+			} else
+			{
+				button.setEnabled(handler.getActions(target, source).length == 1);
+			}
 		} else
 		{
-			button.setEnabled(handler.getActions(target, source).length == 1);
+			button.setVisible(false);
 		}
 	}
 	

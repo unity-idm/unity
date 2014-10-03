@@ -138,16 +138,6 @@ public class TranslationProfilesComponent extends VerticalLayout
 				viewer.setInput(item);
 			}
 		});
-		table.addActionHandler(new RefreshActionHandler());
-		table.addActionHandler(new AddActionHandler());
-		table.addActionHandler(new EditActionHandler());
-		table.addActionHandler(new DeleteActionHandler());
-		table.addActionHandler(new WizardActionHandler());
-		
-		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
-		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
-		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		
 		profileType = new OptionGroup();
 		profileType.setImmediate(true);
@@ -167,6 +157,18 @@ public class TranslationProfilesComponent extends VerticalLayout
 				refresh();
 			}
 		});
+		
+		table.addActionHandler(new RefreshActionHandler());
+		table.addActionHandler(new AddActionHandler());
+		table.addActionHandler(new EditActionHandler());
+		table.addActionHandler(new DeleteActionHandler());
+		table.addActionHandler(new WizardActionHandler());
+		
+		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
+		toolbar.addActionHandlers(table.getActionHandlers());
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
+		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
+		profileType.addValueChangeListener(toolbar.getValueChangeListener());
 		
 		VerticalLayout left = new VerticalLayout();
 		left.setSpacing(true);
@@ -420,6 +422,24 @@ public class TranslationProfilesComponent extends VerticalLayout
 				public boolean handleProfile(TranslationProfile profile)
 				{
 					return addProfile(profile);
+				}
+			};
+			
+			callback = new SingleActionHandler.ActionButtonCallback() 
+			{
+				@Override
+				public boolean showActionButton() 
+				{
+					boolean isVisible = false;
+					if (profileType != null) 
+					{
+						ProfileType pt = (ProfileType) profileType.getValue();
+						if (pt == ProfileType.INPUT) 
+						{
+							isVisible = true;
+						}
+					}
+					return isVisible;
 				}
 			};
 		}
