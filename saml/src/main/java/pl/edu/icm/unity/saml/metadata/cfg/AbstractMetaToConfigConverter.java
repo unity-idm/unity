@@ -255,8 +255,5 @@ public abstract class AbstractMetaToConfigConverter
 		if (SAMLConstants.BINDING_SOAP.equals(samlBinding))
 			return Binding.SOAP.toString();
 		throw new IllegalStateException("Unsupported binding: " + samlBinding);
-	}
-	
-		
-	
+	}		
 }

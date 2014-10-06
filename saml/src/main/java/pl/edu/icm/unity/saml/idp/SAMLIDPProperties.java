@@ -493,16 +493,15 @@ public class SAMLIDPProperties extends SAMLProperties
 				}	
 			}
 			
-			for(X509Certificate c : certs)
+			for (X509Certificate c : certs)
 			{
 				if (rc == null)
 				{
 					rc = c;
-				}
-				else if (c.getNotAfter().compareTo(rc.getNotAfter()) > 0)
+				} else if (c.getNotAfter().compareTo(rc.getNotAfter()) > 0)
 				{
 					rc = c;
-				}		
+				}
 			}
 		}
 		return rc;
@@ -576,6 +575,7 @@ public class SAMLIDPProperties extends SAMLProperties
 			return new SAMLIDPProperties(getProperties(), pkiManagement);
 		} catch (Exception e)
 		{
+			log.error("Can not clone SAMLIDPProperties");
 			return null;
 		} 
 		

@@ -159,7 +159,7 @@ public class RemoteMetaManager
 				reloadAll();
 			} catch (Exception e)
 			{
-				log.error("Problem loading metadata of external IdP(s)", e);
+				log.error("Problem loading metadata of external saml 2 provider", e);
 			}
 		}
 	}

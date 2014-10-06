@@ -37,6 +37,7 @@ import eu.unicore.samly2.SAMLConstants;
 public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MetaToSPConfigConverter.class);
+	private static final String SP_META_CERT = "_SP_METADATA_CERT_";
 	
 	public MetaToSPConfigConverter(PKIManagement pkiManagement)
 	{
@@ -90,7 +91,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			
 			try
 			{
-				updatePKICerts(certs, entityId, "_SP_METADATA_CERT_");
+				updatePKICerts(certs, entityId, SP_META_CERT);
 			} catch (EngineException e)
 			{
 				log.error("Adding remote IDPs certs to local certs store failed, "
@@ -147,7 +148,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			{
 				if (!properties.containsKey(configKey + SAMLSPProperties.IDP_CERTIFICATES + i))
 					properties.setProperty(configKey + SAMLSPProperties.IDP_CERTIFICATES + i, 
-							getCertificateKey(cert, entityId, "_SP_METADATA_CERT_"));
+							getCertificateKey(cert, entityId, SP_META_CERT));
 				i++;
 			}
 		}

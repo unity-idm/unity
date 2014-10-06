@@ -38,6 +38,7 @@ import eu.unicore.samly2.SAMLConstants;
 public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MetaToSPConfigConverter.class);
+	private static final String IDP_META_CERT = "_IDP_METADATA_CERT_";
 	
 	public MetaToIDPConfigConverter(PKIManagement pkiManagement)
 	{
@@ -92,10 +93,10 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 			
 			try
 			{
-				updatePKICerts(certs, entityId, "_IDP_METADATA_CERT_");
+				updatePKICerts(certs, entityId, IDP_META_CERT );
 			} catch (EngineException e)
 			{
-				log.error("Adding remote Sps certs to local certs store failed, "
+				log.error("Adding remote SPs certs to local certs store failed, "
 						+ "skipping IdP: " + entityId, e);
 				continue;
 			}
@@ -104,16 +105,15 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 			Map<String, String> names = getLocalizedNames(uiInfo, spDef);
 			Map<String, LogoType> logos = getLocalizedLogos(uiInfo);
 			
-			boolean wantAssertSigned = spDef.isSetWantAssertionsSigned();
 			
-			addEntryToProperties(entityId, aserServ, wantAssertSigned, realConfig, configKey, properties, r, certs, names, logos);					
+			addEntryToProperties(entityId, aserServ, realConfig, configKey, properties, r, certs, names, logos);					
 		}		
 	}
 	
-	private void addEntryToProperties(String entityId, IndexedEndpointType serviceEndpoint, boolean assertSigned,
-			SAMLIDPProperties realConfig, String metaConfigKey, Properties properties, Random r, 
-			List<X509Certificate> certs,
-			Map<String, String> names, Map<String, LogoType> logos)
+	private void addEntryToProperties(String entityId, IndexedEndpointType serviceEndpoint,
+			SAMLIDPProperties realConfig, String metaConfigKey, Properties properties,
+			Random r, List<X509Certificate> certs, Map<String, String> names,
+			Map<String, LogoType> logos)
 	{
 		String configKey = getExistingKey(entityId, realConfig);
 		
@@ -140,7 +140,7 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 			{
 				if (!properties.containsKey(configKey + SAMLIDPProperties.ALLOWED_SP_CERTIFICATES + i))
 					properties.setProperty(configKey + SAMLIDPProperties.ALLOWED_SP_CERTIFICATES + i, 
-							getCertificateKey(cert, entityId, "_IDP_METADATA_CERT_"));
+							getCertificateKey(cert, entityId, IDP_META_CERT));
 				i++;
 			}
 		}
