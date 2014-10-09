@@ -151,6 +151,9 @@ public class AuthenticationProcessor
 			throw new AuthenticationException("AuthenticationProcessor.authnInternalError");
 		}
 		
+		//prevent session fixation
+		VaadinService.reinitializeSession(VaadinService.getCurrentRequest());
+		
 		final HttpSession httpSession = ((WrappedHttpSession) vss.getSession()).getHttpSession();
 	
 		sessionBinder.bindHttpSession(httpSession, ls);
