@@ -16,14 +16,10 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.Lifecycle;
 import org.springframework.stereotype.Component;
-
-import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.jetty.JettyServerBase;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -33,6 +29,8 @@ import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.jetty.JettyServerBase;
 
 /**
  * Manages HTTP server. Mostly responsible for creating proper hierarchy of HTTP handlers for deployed
@@ -57,6 +55,8 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		super(createURLs(cfg.getJettyProperties()), pkiManagement.getMainAuthnAndTrust(), 
 				cfg.getJettyProperties(), null);
 		initServer();
+		getServer().setSendServerVersion(false);
+		getServer().addBean(new UnityErrorHandler());
 	}
 
 	private static URL[] createURLs(UnityHttpServerConfiguration conf)
@@ -108,8 +108,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		usedContextPaths = new HashMap<String, ServletContextHandler>();
 		ContextHandlerCollection handlersCollection = new ContextHandlerCollection();
 		deployedEndpoints = new ArrayList<WebAppEndpointInstance>(16);
-		//TODO a custom default handler is needed
-		handlersCollection.addHandler(new DefaultHandler());
+		handlersCollection.addHandler(new UnityDefaultHandler());
 		return handlersCollection;
 	}
 
