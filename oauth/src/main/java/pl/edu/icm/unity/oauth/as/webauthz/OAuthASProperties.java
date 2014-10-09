@@ -31,6 +31,11 @@ public class OAuthASProperties extends PropertiesHelper
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults = new HashMap<String, PropertyMD>();
+
+	public static final String ISSUER_URI = "issuerUri";
+	public static final String ACCESS_TOKEN_VALIDITY = "accessTokenValidity";
+	public static final String CODE_TOKEN_VALIDITY = "codeTokenValidity";
+	public static final String ID_TOKEN_VALIDITY = "idTokenValidity";
 	
 	public static final String CLIENTS_GROUP = "clientsGroup";
 	public static final String USERS_GROUP = "usersGroup";
@@ -43,6 +48,16 @@ public class OAuthASProperties extends PropertiesHelper
 	
 	static
 	{
+		defaults.put(ISSUER_URI, new PropertyMD().setMandatory().
+				setDescription("This property controls the server's URI which is used in tokens to identify the Authorization Server. "
+						+ "It should be a unique URI which identifies the server. It should start with the 'https://' prefix. "
+						+ "The best approach is to use the server's URL of the OAuth endpoint."));
+		defaults.put(CODE_TOKEN_VALIDITY, new PropertyMD("600").setPositive().
+				setDescription("Controls the maximum validity period of a code token returned to a client (in seconds)."));
+		defaults.put(ID_TOKEN_VALIDITY, new PropertyMD("3600").setPositive().
+				setDescription("Controls the maximum validity period of an OpenID Connect Id token (in seconds)."));
+		defaults.put(ACCESS_TOKEN_VALIDITY, new PropertyMD("3600").setPositive().
+				setDescription("Controls the maximum validity period of an Access token (in seconds)."));
 		defaults.put(CLIENTS_GROUP, new PropertyMD("/oauth-clients").
 				setDescription("Group in which authorized OAuth Clients must be present. "
 						+ "OAuth related attributes defined in this group are used"

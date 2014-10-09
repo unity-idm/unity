@@ -6,10 +6,9 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.awt.image.BufferedImage;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,9 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.idpcommon.EopException;
+import pl.edu.icm.unity.oauth.as.DefaultOAuthAttributeMapper;
+import pl.edu.icm.unity.oauth.as.OAuthAttributeMapper;
+import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.SPSettings;
@@ -26,13 +28,17 @@ import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
@@ -46,11 +52,21 @@ import pl.edu.icm.unity.webui.common.provider.IdPButtonsBar.Action;
 import pl.edu.icm.unity.webui.common.provider.IdentitySelectorComponent;
 import pl.edu.icm.unity.webui.common.provider.SPInfoComponent;
 
+import com.google.gwt.thirdparty.guava.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.ResponseType;
+import com.nimbusds.oauth2.sdk.id.Audience;
+import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.Subject;
+import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
+import com.nimbusds.openid.connect.sdk.claims.ClaimsSet;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
@@ -74,20 +90,24 @@ public class OAuthAuthzUI extends UnityUIBase
 	private static Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthAuthzUI.class);
 	private UnityMessageSource msg;
 	private EndpointDescription endpointDescription;
+	private TokensManagement tokensMan;
 	private IdPEngine idpEngine;
 	private AttributeHandlerRegistry handlersRegistry;
 	private PreferencesManagement preferencesMan;
 	private AuthenticationProcessor authnProcessor;
+	private IdentityTypesRegistry identityTypesRegistry;
 	
 	private IdentitySelectorComponent idSelector;
 	private ExposedAttributesComponent attrsPresenter;
 	private OAuthResponseHandler oauthResponseHandler;
 	private CheckBox rememberCB;
+	private OAuthProcessor oauthProcessor; 
 	
 	@Autowired
-	public OAuthAuthzUI(UnityMessageSource msg, 
+	public OAuthAuthzUI(UnityMessageSource msg, TokensManagement tokensMan,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
-			AuthenticationProcessor authnProcessor, IdPEngine idpEngine)
+			AuthenticationProcessor authnProcessor, IdPEngine idpEngine,
+			IdentityTypesRegistry identityTypesRegistry)
 	{
 		super(msg);
 		this.msg = msg;
@@ -95,6 +115,8 @@ public class OAuthAuthzUI extends UnityUIBase
 		this.preferencesMan = preferencesMan;
 		this.authnProcessor = authnProcessor;
 		this.idpEngine = idpEngine;
+		this.tokensMan = tokensMan;
+		this.identityTypesRegistry = identityTypesRegistry;
 	}
 
 	@Override
@@ -110,6 +132,7 @@ public class OAuthAuthzUI extends UnityUIBase
 	{
 		OAuthAuthzContext ctx = OAuthResponseHandler.getContext();
 		oauthResponseHandler = new OAuthResponseHandler();
+		oauthProcessor = new OAuthProcessor();
 		
 		VerticalLayout vmain = new VerticalLayout();
 		TopHeaderLight header = new TopHeaderLight(endpointDescription.getId(), msg);
@@ -189,8 +212,11 @@ public class OAuthAuthzUI extends UnityUIBase
 			eiLayout.addComponent(spacer);
 			
 			TranslationResult translationResult = getUserInfo(ctx);
+			
+			createIdentityPart(translationResult, contents);
+			
 			attrsPresenter = new ExposedAttributesComponent(msg, handlersRegistry, 
-					filterRequestedAttributes(translationResult, ctx), false);
+					oauthProcessor.filterAttributes(translationResult, ctx), false);
 			eiLayout.addComponent(attrsPresenter);
 		} catch (Exception e)
 		{
@@ -205,7 +231,25 @@ public class OAuthAuthzUI extends UnityUIBase
 		rememberCB = new CheckBox(msg.getMessage("OAuthAuthzUI.rememberSettings"));
 		contents.addComponent(rememberCB);
 	}
-
+	
+	private void createIdentityPart(TranslationResult translationResult, VerticalLayout contents) 
+			throws EngineException
+	{
+		IdentityParam validIdentity = null;
+		for (IdentityParam id: translationResult.getIdentities())
+			if (TargetedPersistentIdentity.ID.equals(id.getTypeId()))
+			{
+				validIdentity = id;
+				break;
+			}
+		if (validIdentity == null)
+			throw new IllegalStateException("There is no targeted persistent identity "
+					+ "for the authenticated user");
+		idSelector = new IdentitySelectorComponent(msg, identityTypesRegistry, 
+				Lists.newArrayList(validIdentity));
+		contents.addComponent(idSelector);
+	}
+	
 	private void createButtonsPart(VerticalLayout contents)
 	{
 		IdPButtonsBar buttons = new IdPButtonsBar(msg, authnProcessor, new IdPButtonsBar.ActionListener()
@@ -246,17 +290,7 @@ public class OAuthAuthzUI extends UnityUIBase
 				true);
 		return translationResult;
 	}
-	
-	private Set<Attribute<?>> filterRequestedAttributes(TranslationResult translationResult, OAuthAuthzContext ctx)
-	{
-		Collection<Attribute<?>> allAttrs = translationResult.getAttributes();
-		Set<Attribute<?>> filteredAttrs = new HashSet<Attribute<?>>();
-		
-		for (Attribute<?> attr: allAttrs)
-			if (ctx.getRequestedAttrs().contains(attr.getName()))
-				filteredAttrs.add(attr);
-		return filteredAttrs;
-	}
+
 	
 	private void loadPreferences(OAuthAuthzContext ctx) throws EopException
 	{
@@ -342,20 +376,12 @@ public class OAuthAuthzUI extends UnityUIBase
 		try
 		{
 			Collection<Attribute<?>> attributes = attrsPresenter.getUserFilteredAttributes();
-			//TODO proper token creation, proper response.
-			AuthorizationSuccessResponse oauthResponse = null;
-			ResponseType respType = ctx.getRequest().getResponseType(); 
-			if (respType.impliesCodeFlow())
-			{
-				AuthorizationCode authzCode = new AuthorizationCode();
-				oauthResponse = new AuthorizationSuccessResponse(ctx.getReturnURI(), authzCode, 
-						ctx.getRequest().getState());
-			} else if (respType.impliesImplicitFlow())
-			{
-//				AccessToken accessToken = new AccessTo
-//				oauthResponse = new AuthorizationSuccessResponse(ctx.getReturnURI(), accessToken, 
-//						ctx.getRequest().getState());
-			}
+			IdentityParam identity = idSelector.getSelectedIdentity();
+			
+			AuthorizationSuccessResponse oauthResponse = oauthProcessor.
+					prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, tokensMan);
+			
+			
 			oauthResponseHandler.returnOauthResponse(oauthResponse, false);
 		} catch (Exception e)
 		{

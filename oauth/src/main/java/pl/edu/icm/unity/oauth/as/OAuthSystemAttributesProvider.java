@@ -34,7 +34,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	public static final String CLIENT_NAME = "sys:oauth:clientName";
 	public static final String CLIENT_LOGO = "sys:oauth:clientLogo";
 	
-	public enum GrantFlow {authorizationCode, implicit, resourceOwnerPassword, clientCredentials};
+	public enum GrantFlow {authorizationCode, implicit, openidHybrid};
 	
 	
 	public OAuthSystemAttributesProvider()

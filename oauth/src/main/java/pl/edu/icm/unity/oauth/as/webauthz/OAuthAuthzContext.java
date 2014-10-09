@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.types.basic.Attribute;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
@@ -31,13 +32,23 @@ public class OAuthAuthzContext
 	private String usersGroup;
 	private Set<ScopeInfo> effectiveRequestedScopes = new HashSet<OAuthAuthzContext.ScopeInfo>();
 	private Set<String> requestedAttrs = new HashSet<>();
+	private GrantFlow flow;
+	private boolean openIdMode;
+	private int codeTokenValidity;
+	private int accessTokenValidity;
+	private int idTokenValidity;
+	private String issuerName;
 
-
-	public OAuthAuthzContext(AuthorizationRequest request)
+	public OAuthAuthzContext(AuthorizationRequest request, int accessTokenValidity, int codeTokenValidity,
+			int idTokenValidity, String issuerName)
 	{
 		super();
-		this.request = request;
 		this.timestamp = new Date();
+		this.request = request;
+		this.codeTokenValidity = codeTokenValidity;
+		this.accessTokenValidity = accessTokenValidity;
+		this.idTokenValidity = idTokenValidity;
+		this.issuerName = issuerName;
 	}
 
 	public AuthorizationRequest getRequest()
@@ -115,6 +126,47 @@ public class OAuthAuthzContext
 	{
 		return effectiveRequestedScopes;
 	}
+
+	public GrantFlow getFlow()
+	{
+		return flow;
+	}
+
+	public void setFlow(GrantFlow flow)
+	{
+		this.flow = flow;
+	}
+
+	public boolean isOpenIdMode()
+	{
+		return openIdMode;
+	}
+
+	public void setOpenIdMode(boolean openIdMode)
+	{
+		this.openIdMode = openIdMode;
+	}
+
+	public int getCodeTokenValidity()
+	{
+		return codeTokenValidity;
+	}
+
+	public int getAccessTokenValidity()
+	{
+		return accessTokenValidity;
+	}
+
+	public int getIdTokenValidity()
+	{
+		return idTokenValidity;
+	}
+
+	public String getIssuerName()
+	{
+		return issuerName;
+	}
+
 
 	public static class ScopeInfo
 	{

@@ -28,8 +28,8 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.Log;
@@ -39,10 +39,14 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
+import com.google.gwt.thirdparty.guava.common.collect.Sets;
+import com.google.gwt.thirdparty.guava.common.collect.Sets.SetView;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
+import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
 /**
  * Low level servlet performing the initial OAuth handling.
@@ -61,6 +65,8 @@ public class OAuthParseServlet extends HttpServlet
 	 */
 	public static final String SESSION_OAUTH_CONTEXT = "oauth2AuthnContextKey";
 	
+	public static final Set<ResponseType.Value> KNOWN_RESPONSE_TYPES = Sets.newHashSet(
+			ResponseType.Value.CODE, ResponseType.Value.TOKEN, OIDCResponseTypeValue.ID_TOKEN);
 	
 	/**
 	 * key used by hold on form to mark that the new authn session should be started even 
@@ -169,7 +175,11 @@ public class OAuthParseServlet extends HttpServlet
 		{
 			if (log.isTraceEnabled())
 				log.trace("Parsed OAuth request: " + request.getQueryString());
-			context = new OAuthAuthzContext(authzRequest);
+			context = new OAuthAuthzContext(authzRequest,
+					oauthConfig.getIntValue(OAuthASProperties.ACCESS_TOKEN_VALIDITY),
+					oauthConfig.getIntValue(OAuthASProperties.CODE_TOKEN_VALIDITY),
+					oauthConfig.getIntValue(OAuthASProperties.ID_TOKEN_VALIDITY),
+					oauthConfig.getValue(OAuthASProperties.ISSUER_URI));
 			validate(context);
 		} catch (OAuthValidationException e)
 		{
@@ -260,17 +270,9 @@ public class OAuthParseServlet extends HttpServlet
 				allowedFlows.add(GrantFlow.valueOf(val.toString()));
 		}
 		
-		ResponseType responseType = authzRequest.getResponseType();
-		URI redirectionURI = authzRequest.getRedirectionURI();
+		validateFlowAndMode(authzRequest, allowedFlows, client, context);
 		
-		if (responseType.impliesCodeFlow() && !allowedFlows.contains(GrantFlow.authorizationCode))
-			throw new OAuthValidationException("The '" + client + 
-					"' is not authorized to use the authorization code grant flow.");
-
-		if (responseType.impliesImplicitFlow() && !allowedFlows.contains(GrantFlow.implicit))
-			throw new OAuthValidationException("The '" + client + 
-					"' is not authorized to use the implicit grant flow.");
-			
+		URI redirectionURI = authzRequest.getRedirectionURI();
 		if (redirectionURI != null && !allowedUris.contains(redirectionURI.toString()))
 			throw new OAuthValidationException("The '" + client + 
 					"' requested to use a not registered response redirection URI: " + 
@@ -321,4 +323,60 @@ public class OAuthParseServlet extends HttpServlet
 			}
 		}
 	}
+
+	/**
+	 * Checks if the response type(s) are understood and in proper combination. Also openid connect mode
+	 * is set and checked for consistency with the flow. It is checked if the client can use the requested flow. 
+	 * @param authzRequest
+	 * @param allowedFlows
+	 * @param client
+	 * @param context
+	 * @throws OAuthValidationException
+	 */
+	private void validateFlowAndMode(AuthorizationRequest authzRequest, Set<GrantFlow> allowedFlows, 
+			String client, OAuthAuthzContext context) throws OAuthValidationException
+	{
+		ResponseType responseType = authzRequest.getResponseType();
+		Scope requestedScopes = authzRequest.getScope();
+
+		context.setOpenIdMode(requestedScopes.contains(OIDCScopeValue.OPENID));
+
+		if (context.isOpenIdMode() && responseType.contains(ResponseType.Value.TOKEN)
+				&& responseType.size() == 1)
+			throw new OAuthValidationException("The OpenID Connect mode implied by the requested 'openid'"
+					+ " scope can not be used with the 'token' response type - it makes no sense");
+		if (!context.isOpenIdMode() && responseType.contains(OIDCResponseTypeValue.ID_TOKEN))
+			throw new OAuthValidationException("The 'openid' scope was not requested and the "
+					+ "'id_token' response type was what is an invalid combination");
+		SetView<ResponseType.Value> diff = Sets.difference(responseType, KNOWN_RESPONSE_TYPES);
+		if (!diff.isEmpty())
+			throw new OAuthValidationException("The following response type(s) is(are) not supported: " 
+					+ diff);
+		
+		if (responseType.contains(ResponseType.Value.CODE))
+		{
+			if (responseType.size() == 1)
+			{
+				context.setFlow(GrantFlow.authorizationCode);
+			} else
+			{
+				context.setFlow(GrantFlow.openidHybrid);
+				if (!context.isOpenIdMode())
+					throw new OAuthValidationException("The OpenID Connect mode "
+							+ "implied by the requested hybrid flow "
+							+ "must use the 'openid' scope");
+			}
+		} else
+		{
+			context.setFlow(GrantFlow.implicit);
+		}
+		
+		if (!allowedFlows.contains(context.getFlow()))
+			throw new OAuthValidationException("The '" + client + 
+					"' is not authorized to use the '" + context.getFlow() + "' grant flow.");
+	}
 }
+
+
+
+
