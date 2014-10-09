@@ -77,6 +77,7 @@ public class LocaleChoiceComponent extends FormLayout
 							l.toString());
 					languageCookie.setPath("/");
 					languageCookie.setMaxAge(3600*24*31);
+					languageCookie.setHttpOnly(true);
 					((VaadinServletResponse)VaadinService.getCurrentResponse()).addCookie(languageCookie);
 					
 					VaadinSession vSession = VaadinSession.getCurrent();

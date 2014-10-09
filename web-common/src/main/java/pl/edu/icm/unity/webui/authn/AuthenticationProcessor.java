@@ -180,6 +180,7 @@ public class AuthenticationProcessor
 		Cookie unitySessionCookie = new Cookie(cookieName, sessionId);
 		unitySessionCookie.setPath("/");
 		unitySessionCookie.setSecure(true);
+		unitySessionCookie.setHttpOnly(true);
 		if (rememberMe && realm.getAllowForRememberMeDays() > 0)
 		{
 			unitySessionCookie.setMaxAge(getAbsoluteSessionTTL(realm));

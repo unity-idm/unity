@@ -83,6 +83,7 @@ public class IdpSelectorComponent extends CustomComponent
 		Cookie selectedIdp = new Cookie(name, idpKey);
 		selectedIdp.setMaxAge(3600*24*30);
 		selectedIdp.setPath("/");
+		selectedIdp.setHttpOnly(true);
 		resp.addCookie(selectedIdp);
 	}
 	
