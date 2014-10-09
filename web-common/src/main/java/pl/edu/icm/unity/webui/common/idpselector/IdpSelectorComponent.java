@@ -137,6 +137,9 @@ public class IdpSelectorComponent extends CustomComponent
 		String lastIdp = CookieHelper.getCookie(req.getCookies(), lastIdpCookie);
 		if (lastIdp == null)
 			return null;
+		if (!idps.getIdpKeys().contains(lastIdp))
+			return null;
+		
 		Button providerB;
 		try
 		{
