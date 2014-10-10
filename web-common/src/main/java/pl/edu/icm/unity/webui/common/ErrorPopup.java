@@ -128,7 +128,7 @@ public class ErrorPopup
 			main.addComponent(img);
 			main.setComponentAlignment(img, Alignment.MIDDLE_CENTER);
 			
-			main.addComponent(new Label("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", ContentMode.HTML));
+			main.addComponent(HtmlTag.hspaceEm(4));
 			
 			VerticalLayout right = new VerticalLayout();
 			right.setSpacing(true);

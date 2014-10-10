@@ -36,6 +36,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -356,7 +357,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		if (form.getGroupParams() != null && form.getGroupParams().size() > 0)
 		{
 			createGroupsUI(mainFormLayout);
-			mainFormLayout.addComponent(new Label("<br>", ContentMode.HTML));
+			mainFormLayout.addComponent(HtmlTag.br());
 		}
 		
 		if (form.isCollectComments())
@@ -367,13 +368,13 @@ public class RegistrationRequestEditor extends CustomComponent
 			comment = new TextArea();
 			comment.setWidth(80, Unit.PERCENTAGE);
 			mainFormLayout.addComponent(comment);
-			mainFormLayout.addComponent(new Label("<br>", ContentMode.HTML));
+			mainFormLayout.addComponent(HtmlTag.br());
 		}
 
 		if (form.getAgreements() != null && form.getAgreements().size() > 0)
 		{
 			createAgreementsUI(mainFormLayout);
-			mainFormLayout.addComponent(new Label("<br>", ContentMode.HTML));
+			mainFormLayout.addComponent(HtmlTag.br());
 		}
 		
 		setCompositionRoot(main);
@@ -437,7 +438,7 @@ public class RegistrationRequestEditor extends CustomComponent
 			layout.addComponents(editorUI.getComponents());
 				
 			if (i < credParams.size() - 1)
-				layout.addComponent(new Label("<hr>", ContentMode.HTML));
+				layout.addComponent(HtmlTag.hr());
 		}
 	}
 	
@@ -521,7 +522,7 @@ public class RegistrationRequestEditor extends CustomComponent
 				layout.addComponent(mandatory);
 			}
 			if (i < aParams.size() - 1)
-				layout.addComponent(new Label("<hr>", ContentMode.HTML));
+				layout.addComponent(HtmlTag.hr());
 		}		
 	}
 	
