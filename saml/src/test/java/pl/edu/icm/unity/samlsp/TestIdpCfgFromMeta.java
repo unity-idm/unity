@@ -8,6 +8,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.*;
+
 import java.io.ByteArrayInputStream;
 import java.security.cert.X509Certificate;
 import java.util.Properties;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
@@ -36,6 +38,9 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 	
 	@Autowired
 	private PKIManagement pkiManagement;
+	
+	@Autowired
+	private MetaDownloadManager downloadManager;
 	
 	@Test
 	public void testConfigureIdpFromMetadata() throws Exception
@@ -66,7 +71,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 		
 		
 		RemoteMetaManager manager = new RemoteMetaManager(configuration, 
-				mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement), SAMLIDPProperties.SPMETA_PREFIX);
+				mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement), downloadManager, SAMLIDPProperties.SPMETA_PREFIX);
 		manager.reloadAll();
 		
 		SAMLIDPProperties ret = (SAMLIDPProperties) manager.getVirtualConfiguration();

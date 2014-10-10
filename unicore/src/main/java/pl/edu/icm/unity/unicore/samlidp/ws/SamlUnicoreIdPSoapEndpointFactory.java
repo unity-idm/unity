@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
@@ -45,13 +46,14 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 	private ExecutorsService executorsService;
 	private SessionManagement sessionMan;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
 	
 	@Autowired
 	public SamlUnicoreIdPSoapEndpointFactory(UnityMessageSource msg, IdPEngine idpEngine,
 			PreferencesManagement preferencesMan, PKIManagement pkiManagement,
 			ExecutorsService executorsService, SessionManagement sessionMan,
-			UnityServerConfiguration mainConfig)
+			MetaDownloadManager dowloadManager, UnityServerConfiguration mainConfig)
 	{
 		super();
 		this.msg = msg;
@@ -61,6 +63,7 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 		this.executorsService = executorsService;
 		this.sessionMan = sessionMan;
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
+		this.downloadManager = dowloadManager;
 		this.mainConfig = mainConfig;
 
 		Set<String> supportedAuthn = new HashSet<String>();
@@ -85,6 +88,6 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 		return new SamlUnicoreSoapEndpoint(msg, getDescription(), SERVLET_PATH,
 				SamlIdPSoapEndpointFactory.METADATA_SERVLET_PATH, idpEngine,
 				preferencesMan, pkiManagement, executorsService, sessionMan,
-				remoteMetadataManagers, mainConfig);
+				remoteMetadataManagers, downloadManager, mainConfig);
 	}
 }

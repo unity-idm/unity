@@ -8,6 +8,7 @@ import java.util.Map;
 
 import pl.edu.icm.unity.saml.idp.ws.SAMLAssertionQueryImpl;
 import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
@@ -33,11 +34,11 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 			String servletPath, String metadataServletPath, IdPEngine idpEngine,
 			PreferencesManagement preferencesMan,
 			PKIManagement pkiManagement, ExecutorsService executorsService, SessionManagement sessionMan,
-			Map<String, RemoteMetaManager> remoteMetadataManagers, UnityServerConfiguration mainConfig)
+			Map<String, RemoteMetaManager> remoteMetadataManagers, MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig)
 	{
 		super(msg, type, servletPath, metadataServletPath, 
 				idpEngine, preferencesMan, 
-				pkiManagement, executorsService, sessionMan, remoteMetadataManagers, mainConfig);
+				pkiManagement, executorsService, sessionMan, remoteMetadataManagers, downloadManager, mainConfig);
 	}
 
 

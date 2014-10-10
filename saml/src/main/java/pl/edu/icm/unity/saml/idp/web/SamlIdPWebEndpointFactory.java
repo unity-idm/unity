@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
@@ -43,17 +44,19 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 	private PKIManagement pkiManagement;
 	private ExecutorsService executorsService;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
 	
 	@Autowired
 	public SamlIdPWebEndpointFactory(ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
-			PKIManagement pkiManagement, ExecutorsService executorsService, UnityServerConfiguration mainConfig)
+			PKIManagement pkiManagement, MetaDownloadManager downloadManager, ExecutorsService executorsService, UnityServerConfiguration mainConfig)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;
 		this.pkiManagement = pkiManagement;
 		this.executorsService = executorsService;
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
+		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
 		
 		Set<String> supportedAuthn = new HashSet<String>();
@@ -76,7 +79,7 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 	{
 		return new SamlAuthVaadinEndpoint(getDescription(), applicationContext, freemarkerHandler,
 				SamlIdPWebUI.class, SAML_UI_SERVLET_PATH, pkiManagement, executorsService, mainConfig,
-				remoteMetadataManagers, SAML_CONSUMER_SERVLET_PATH, SAML_META_SERVLET_PATH);
+				remoteMetadataManagers, downloadManager, SAML_CONSUMER_SERVLET_PATH, SAML_META_SERVLET_PATH);
 	}
 
 }

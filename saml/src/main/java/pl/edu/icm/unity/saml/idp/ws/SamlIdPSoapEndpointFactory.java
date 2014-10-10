@@ -13,6 +13,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
@@ -45,12 +46,14 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 	private final ExecutorsService executorsService;
 	private final SessionManagement sessionMan;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
 	
 	@Autowired
-	public SamlIdPSoapEndpointFactory(UnityMessageSource msg, PreferencesManagement preferencesMan,
-			IdPEngine idpEngine,
-			PKIManagement pkiManagement, ExecutorsService executorsService, SessionManagement sessionMan,
+	public SamlIdPSoapEndpointFactory(UnityMessageSource msg,
+			PreferencesManagement preferencesMan, IdPEngine idpEngine,
+			PKIManagement pkiManagement, ExecutorsService executorsService,
+			SessionManagement sessionMan, MetaDownloadManager downloadManager,
 			UnityServerConfiguration mainConfig)
 	{
 		super();
@@ -61,6 +64,7 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 		this.sessionMan = sessionMan;
 		this.preferencesMan = preferencesMan;
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
+		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
 		
 		Set<String> supportedAuthn = new HashSet<String>();
@@ -83,7 +87,7 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 	{
 		return new SamlSoapEndpoint(msg, getDescription(), SERVLET_PATH,
 				METADATA_SERVLET_PATH, idpEngine, preferencesMan, pkiManagement,
-				executorsService, sessionMan, remoteMetadataManagers, mainConfig);
+				executorsService, sessionMan, remoteMetadataManagers, downloadManager, mainConfig);
 	}
 
 }

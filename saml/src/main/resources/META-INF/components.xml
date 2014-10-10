@@ -9,6 +9,9 @@
 		<property name="bundle" value="pl/edu/icm/unity/samlidp/messages/messages"/>
 	</bean>		
 
+
+	<bean class="pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager"/>
+	
 	<bean class="pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory"/>
 	<bean class="pl.edu.icm.unity.saml.ecp.ECPEndpointFactory"/>
 	

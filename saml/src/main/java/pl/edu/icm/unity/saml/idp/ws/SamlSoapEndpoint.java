@@ -15,6 +15,7 @@ import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataServlet;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
@@ -47,14 +48,15 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	protected String samlMetadataPath;
 	private RemoteMetaManager myMetadataManager;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
 	
 	public SamlSoapEndpoint(UnityMessageSource msg, EndpointTypeDescription type,
-			String servletPath,  String metadataPath,
-			IdPEngine idpEngine,
-			PreferencesManagement preferencesMan, PKIManagement pkiManagement, 
+			String servletPath, String metadataPath, IdPEngine idpEngine,
+			PreferencesManagement preferencesMan, PKIManagement pkiManagement,
 			ExecutorsService executorsService, SessionManagement sessionMan,
-			Map<String, RemoteMetaManager> remoteMetadataManagers, UnityServerConfiguration mainConfig)
+			Map<String, RemoteMetaManager> remoteMetadataManagers,
+			MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig)
 	{
 		super(msg, sessionMan, type, servletPath);
 		this.idpEngine = idpEngine;
@@ -63,6 +65,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		this.samlMetadataPath = metadataPath;
 		this.executorsService = executorsService;
 		this.remoteMetadataManagers = remoteMetadataManagers;
+		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
 	}
 
@@ -83,7 +86,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		{
 			
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
-					mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement), SAMLIDPProperties.SPMETA_PREFIX);
+					mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement), downloadManager, SAMLIDPProperties.SPMETA_PREFIX);
 			remoteMetadataManagers.put(id, myMetadataManager);
 			myMetadataManager.start();
 		} else

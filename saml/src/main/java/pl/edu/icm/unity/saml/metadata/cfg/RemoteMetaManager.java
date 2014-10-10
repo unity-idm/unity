@@ -42,13 +42,14 @@ public class RemoteMetaManager
 	private String metaPrefix;
 	
 	public RemoteMetaManager(SAMLProperties configuration, UnityServerConfiguration mainConfig,
-			ExecutorsService executorsService, PKIManagement pkiManagement, AbstractMetaToConfigConverter converter,
-			String metaPrefix)
+			ExecutorsService executorsService, PKIManagement pkiManagement,
+			AbstractMetaToConfigConverter converter,
+			MetaDownloadManager downloadManager, String metaPrefix)
 	{
 		this.configuration = configuration;
 		this.executorsService = executorsService;
 		this.converter = converter;
-		this.remoteMetaProvider = new RemoteMetadataProvider(pkiManagement, mainConfig);
+		this.remoteMetaProvider = new RemoteMetadataProvider(downloadManager);
 		this.verificator = new MetadataVerificator();
 		this.pkiManagement = pkiManagement;
 		this.virtualConfiguration = configuration.clone();

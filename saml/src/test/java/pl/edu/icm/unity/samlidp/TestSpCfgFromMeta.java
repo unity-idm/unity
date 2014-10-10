@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToSPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
@@ -35,6 +36,9 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 	
 	@Autowired
 	private PKIManagement pkiManagement;
+	
+	@Autowired
+	private MetaDownloadManager downloadManager;
 	
 	@Test
 	public void testConfigureSPFromMetadata() throws Exception
@@ -70,7 +74,7 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 
 		SAMLSPProperties configuration = new SAMLSPProperties(p, pkiManagement);
 		RemoteMetaManager manager = new RemoteMetaManager(configuration, 
-				mainConfig, executorsService, pkiManagement, new MetaToSPConfigConverter(pkiManagement), SAMLSPProperties.IDPMETA_PREFIX);
+				mainConfig, executorsService, pkiManagement, new MetaToSPConfigConverter(pkiManagement), downloadManager, SAMLSPProperties.IDPMETA_PREFIX);
 		manager.reloadAll();
 		
 		SAMLSPProperties ret = (SAMLSPProperties) manager.getVirtualConfiguration();

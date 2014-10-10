@@ -25,6 +25,7 @@ import pl.edu.icm.unity.saml.SAMLProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToSPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
@@ -53,17 +54,21 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	private ExecutorsService executorsService;
 	private String responseConsumerAddress;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private MetaDownloadManager downloadManager;
 	private RemoteMetaManager myMetadataManager;
 	private ReplayAttackChecker replayAttackChecker;
 	
-	public SAMLVerificator(String name, String description, TranslationProfileManagement profileManagement, 
-			InputTranslationEngine trEngine, PKIManagement pkiMan, ReplayAttackChecker replayAttackChecker,
-			ExecutorsService executorsService, MultiMetadataServlet metadataServlet,
-			URL baseAddress, String baseContext, Map<String, RemoteMetaManager> remoteMetadataManagers,
-			UnityServerConfiguration mainConfig)
+	public SAMLVerificator(String name, String description,
+			TranslationProfileManagement profileManagement,
+			InputTranslationEngine trEngine, PKIManagement pkiMan,
+			ReplayAttackChecker replayAttackChecker, ExecutorsService executorsService,
+			MultiMetadataServlet metadataServlet, URL baseAddress, String baseContext,
+			Map<String, RemoteMetaManager> remoteMetadataManagers,
+			MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig)
 	{
 		super(name, description, SAMLExchange.ID, profileManagement, trEngine);
 		this.remoteMetadataManagers = remoteMetadataManagers;
+		this.downloadManager = downloadManager;
 		this.pkiMan = pkiMan;
 		this.mainConfig = mainConfig;
 		this.metadataServlet = metadataServlet;
@@ -113,7 +118,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		{
 			
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
-					mainConfig, executorsService, pkiMan, new MetaToSPConfigConverter(pkiMan), SAMLSPProperties.IDPMETA_PREFIX);
+					mainConfig, executorsService, pkiMan, new MetaToSPConfigConverter(pkiMan), downloadManager, SAMLSPProperties.IDPMETA_PREFIX);
 			remoteMetadataManagers.put(instanceName, myMetadataManager);
 			myMetadataManager.start();
 		} else

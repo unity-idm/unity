@@ -57,7 +57,6 @@ public abstract class SAMLProperties extends PropertiesHelper
 						"then it should contain a file path, to a file with custom metadata document. " +
 						"This document will be published as-is, " +
 						"however it will be checked first for correctness."));
-		
 	}
 
 	public SAMLProperties(String prefix, Properties properties,

@@ -16,8 +16,6 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
@@ -26,8 +24,8 @@ import pl.edu.icm.unity.saml.idp.web.filter.SamlParseServlet;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataServlet;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
-import pl.edu.icm.unity.saml.metadata.cfg.MetaToSPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
@@ -42,6 +40,8 @@ import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Extends a simple {@link VaadinEndpoint} with configuration of SAML authn filter. Also SAML configuration
@@ -59,12 +59,16 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	protected String samlMetadataPath;
 	private RemoteMetaManager myMetadataManager;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
 	
-	public SamlAuthVaadinEndpoint(EndpointTypeDescription type, ApplicationContext applicationContext,
-			FreemarkerHandler freemarkerHandler, Class<?> uiClass, String samlUiServletPath, 
-			PKIManagement pkiManagement, ExecutorsService executorsService, 
-			UnityServerConfiguration mainConfig, Map<String, RemoteMetaManager> remoteMetadataManagers, String samlConsumerPath, String samlMetadataPath)
+	public SamlAuthVaadinEndpoint(EndpointTypeDescription type,
+			ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
+			Class<?> uiClass, String samlUiServletPath, PKIManagement pkiManagement,
+			ExecutorsService executorsService, UnityServerConfiguration mainConfig,
+			Map<String, RemoteMetaManager> remoteMetadataManagers,
+			MetaDownloadManager downloadManager, String samlConsumerPath,
+			String samlMetadataPath)
 	{
 		super(type, applicationContext, uiClass.getSimpleName(), samlUiServletPath);
 		this.freemarkerHandler = freemarkerHandler;
@@ -73,6 +77,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		this.samlConsumerPath = samlConsumerPath;
 		this.samlMetadataPath = samlMetadataPath;
 		this.remoteMetadataManagers = remoteMetadataManagers;
+		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
 		
 	}
@@ -94,7 +99,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		{
 			
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
-					mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement),SAMLIDPProperties.SPMETA_PREFIX);
+					mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement), downloadManager, SAMLIDPProperties.SPMETA_PREFIX);
 			remoteMetadataManagers.put(id, myMetadataManager);
 			myMetadataManager.start();
 		} else

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
@@ -43,13 +44,14 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	private PKIManagement pkiManagement;
 	protected ExecutorsService executorsService;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
 
 	
 	@Autowired
 	public SamlUnicoreIdPWebEndpointFactory(ApplicationContext applicationContext, 
 			FreemarkerHandler freemarkerHandler, PKIManagement pkiManagement, 
-			ExecutorsService executorsService, UnityServerConfiguration mainConfig)
+			ExecutorsService executorsService, MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;
@@ -57,6 +59,7 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 		this.executorsService = executorsService;
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
 		this.mainConfig = mainConfig;
+		this.downloadManager = downloadManager;
 		
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
@@ -79,7 +82,7 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	{
 		return new SamlAuthETDVaadinEndpoint(getDescription(), applicationContext,
 				freemarkerHandler, SamlUnicoreIdPWebUI.class, SAML_UI_SERVLET_PATH,
-				pkiManagement, executorsService, remoteMetadataManagers,
+				pkiManagement, executorsService, remoteMetadataManagers, downloadManager, 
 				mainConfig, SAML_CONSUMER_SERVLET_PATH,
 				SamlIdPWebEndpointFactory.SAML_META_SERVLET_PATH);
 	}

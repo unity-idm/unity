@@ -189,12 +189,12 @@ public class SAMLIDPProperties extends SAMLProperties
 		
 		defaults.put(SPMETA_PREFIX, new PropertyMD().setCategory(remoteMeta).setStructuredList(false).setDescription(
 				"Under this prefix you can configure the remote trusted SAML Sps however not providing all their details but only their metadata."));	
-		defaults.put(METADATA_REFRESH, new PropertyMD("3600").setCategory(remoteMeta).setDescription(
-				"How often the metadata should be reloaded."));
 		defaults.put(METADATA_URL, new PropertyMD().setCategory(remoteMeta).setMandatory().setStructuredListEntry(SPMETA_PREFIX).setDescription(
 				"URL with the metadata location. Can be local or HTTP(s) URL. "
 				+ "In case of HTTPS the server's certificate will be checked against the main Unity server's truststore"
 				+ " only if ."));
+		defaults.put(METADATA_REFRESH, new PropertyMD("3600").setCategory(remoteMeta).setDescription(
+				"How often the metadata should be reloaded."));
 		defaults.put(METADATA_HTTPS_TRUSTSTORE, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(SPMETA_PREFIX).setDescription(
 				"If set then the given truststore will be used for HTTPS connection validation during metadata fetching. Otherwise the default Java trustststore will beused."));
 		defaults.put(METADATA_SIGNATURE, new PropertyMD(MetadataSignatureValidation.ignore).setCategory(remoteMeta).setStructuredListEntry(SPMETA_PREFIX).setDescription(
