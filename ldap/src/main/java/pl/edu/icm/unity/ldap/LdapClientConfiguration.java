@@ -148,7 +148,8 @@ public class LdapClientConfiguration
 	
 	public String getBindDN(String userName)
 	{
-		return bindTemplate.replace(USERNAME_TOKEN, userName);
+		String sanitized = LdapUnsafeArgsEscaper.escapeForUseAsDN(userName);
+		return bindTemplate.replace(USERNAME_TOKEN, sanitized);
 	}
 	
 	public boolean isBindOnly()
