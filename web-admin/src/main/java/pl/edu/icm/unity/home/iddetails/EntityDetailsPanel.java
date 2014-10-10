@@ -13,8 +13,8 @@ import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
+import pl.edu.icm.unity.webui.common.HtmlLabel;
 
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
@@ -28,10 +28,10 @@ public class EntityDetailsPanel extends FormLayout
 	private boolean showAdminData;
 	private Label id;
 	private Label status;
-	private Label identities;
+	private HtmlLabel identities;
 	private Label credReq;
-	private Label credStatus;
-	private Label groups;
+	private HtmlLabel credStatus;
+	private HtmlLabel groups;
 	
 	
 	public EntityDetailsPanel(UnityMessageSource msg, boolean showAdminData)
@@ -44,20 +44,17 @@ public class EntityDetailsPanel extends FormLayout
 		status = new Label();
 		status.setCaption(msg.getMessage("IdentityDetails.status"));
 		
-		identities = new Label();
-		identities.setContentMode(ContentMode.HTML);
+		identities = new HtmlLabel(msg);
 		identities.setCaption(msg.getMessage("IdentityDetails.identities"));
 
 		credReq = new Label();
 		credReq.setCaption(msg.getMessage("IdentityDetails.credReq"));
 
-		credStatus = new Label();
+		credStatus = new HtmlLabel(msg);
 		credStatus.setCaption(msg.getMessage("IdentityDetails.credStatus"));
-		credStatus.setContentMode(ContentMode.HTML);
 
-		groups = new Label();
+		groups = new HtmlLabel(msg);
 		groups.setCaption(msg.getMessage("IdentityDetails.groups"));
-		groups.setContentMode(ContentMode.HTML);
 		
 		addComponents(id, status, identities, credReq, credStatus, groups);
 	}
@@ -69,46 +66,42 @@ public class EntityDetailsPanel extends FormLayout
 		
 		status.setValue(msg.getMessage("EntityState." + entity.getState().toString()));
 		
-		StringBuilder sb = new StringBuilder();
+		identities.resetValue();
 		for (Identity id: entity.getIdentities())
 		{
 			if (!showAdminData || id.isLocal())
 			{
-				sb.append(msg.getMessage("IdentityDetails.identityLocal", id.getTypeId(), 
-					id.getType().getIdentityTypeProvider().toPrettyStringNoPrefix(id.getValue())));
+				identities.addHtmlValueLine("IdentityDetails.identityLocal", id.getTypeId(), 
+					id.getType().getIdentityTypeProvider().toPrettyStringNoPrefix(id.getValue()));
 			} else
 			{
 				String trProfile = id.getTranslationProfile() == null ? 
 						"-" : id.getTranslationProfile(); 
-				String created = msg.getMessageNullArg("IdentityDetails.creationDate", id.getCreationTs());
-				String updated = msg.getMessageNullArg("IdentityDetails.updatedDate", id.getUpdateTs());
-				sb.append(msg.getMessage("IdentityDetails.identityRemote", id.getTypeId(), 
-						id.getRemoteIdp(), trProfile, 
-						id.getType().getIdentityTypeProvider().toPrettyStringNoPrefix(id.getValue())));
-				sb.append(created + updated);
+				String idValue = id.getType().getIdentityTypeProvider().
+						toPrettyStringNoPrefix(id.getValue());
+				identities.addHtmlValueLine("IdentityDetails.identityRemote", id.getTypeId(), 
+						id.getRemoteIdp(), 
+						trProfile, 
+						idValue,
+						id.getCreationTs(), id.getUpdateTs());
 			}
-			sb.append("<br>");
 		}
-		identities.setValue(sb.toString());
 		
 		CredentialInfo credInf = entity.getCredentialInfo();
 		credReq.setValue(credInf.getCredentialRequirementId());
 		
-		sb = new StringBuilder();
+		credStatus.resetValue();
 		for (Map.Entry<String, CredentialPublicInformation> cred: credInf.getCredentialsState().entrySet())
 		{
-			sb.append(cred.getKey() + ": " + msg.getMessage("CredentialStatus." + 
-					cred.getValue().getState().toString()));
-			sb.append("<br>");
+			String status = msg.getMessage("CredentialStatus." + 
+					cred.getValue().getState().toString());
+			credStatus.addHtmlValueLine("IdentityDetails.credStatusValue", cred.getKey(), status);
 		}
-		credStatus.setValue(sb.toString());
 		
-		sb = new StringBuilder();
+		this.groups.resetValue();
 		for (String group: groups)
 		{
-			sb.append(group);
-			sb.append("<br>");
+			this.groups.addHtmlValueLine("IdentityDetails.groupLine", group);
 		}
-		this.groups.setValue(sb.toString());
 	}
 }

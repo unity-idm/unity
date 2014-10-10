@@ -9,6 +9,7 @@ import com.vaadin.ui.Label;
 
 /**
  * HTML label displaying commonly used simple steering sequences as hr.
+ *   
  * @author K. Benedyczak
  */
 public class HtmlTag

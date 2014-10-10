@@ -10,12 +10,12 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
+import pl.edu.icm.unity.webui.common.HtmlLabel;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -64,17 +64,15 @@ public class ValuesRendererPanel extends VerticalLayout
 	
 	private void buildInfoView(AttributeExt<?> a)
 	{
-		String direct = a.isDirect() ? msg.getMessage("Attribute.direct") : 
-			msg.getMessage("Attribute.effective");
-		
-		String ridp = msg.getMessageNullArg("Attribute.remoteIdp", a.getRemoteIdp());
-		String trp = msg.getMessageNullArg("Attribute.translationProfile", a.getTranslationProfile());
 		String created = msg.getMessageNullArg("Attribute.creationDate", a.getCreationTs());
 		String updated = msg.getMessageNullArg("Attribute.updatedDate", a.getUpdateTs());
-		Label info = new Label(direct + " " + ridp + " " + trp);
-		info.setContentMode(ContentMode.HTML);
+		
+		HtmlLabel info = new HtmlLabel(msg);
+		info.addHtmlValue(a.isDirect() ? "Attribute.direct" : "Attribute.effective");
+		info.addHtmlValue("Attribute.remoteIdp", a.getRemoteIdp());
+		info.addHtmlValue("Attribute.translationProfile", a.getTranslationProfile());
+		
 		Label infoDate = new Label(created + " " + updated);
-		infoDate.setContentMode(ContentMode.HTML);
 		VerticalLayout contents = new VerticalLayout();
 		contents.addComponent(info);
 		if (!created.equals(""))

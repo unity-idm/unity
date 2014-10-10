@@ -46,9 +46,9 @@ import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
-import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -59,7 +59,6 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -295,7 +294,6 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		attributesL.setStyleName(Styles.bold.toString());
 		Label attributesInfo = new Label(msg.getMessage("SamlIdPWebUI.attributesInfo"));
 		attributesInfo.setStyleName(Reindeer.LABEL_SMALL);
-		attributesInfo.setContentMode(ContentMode.HTML);
 		Label hideL = new Label(msg.getMessage("SamlIdPWebUI.hide"));
 		
 		contents.addComponent(attributesL);
