@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.rewrite.handler.HeaderPatternRule;
+import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -39,7 +41,8 @@ import eu.unicore.util.jetty.JettyServerBase;
  * Jetty structure which is used:
  *  {@link ContextHandlerCollection} is used to manage all deployed contexts (fixed, one instance)
  *  Endpoints provide a single {@link ServletContextHandler} which describes an endpoint's web application.
- * 
+ * <p>
+ *  If needed it is wrapped in some rewrite handler.
  * @author K. Benedyczak
  */
 @Component
@@ -48,6 +51,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 	private static final Logger log = Log.getLogger(Log.U_SERVER, UnityApplication.class);
 	private List<WebAppEndpointInstance> deployedEndpoints;
 	private Map<String, ServletContextHandler> usedContextPaths;
+	private ContextHandlerCollection mainContextHandler;
 	
 	@Autowired
 	public JettyServer(UnityServerConfiguration cfg, PKIManagement pkiManagement)
@@ -59,6 +63,23 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		getServer().addBean(new UnityErrorHandler());
 	}
 
+	private Handler configureHSTS(Handler toWrap)
+	{
+		RewriteHandler rewriter = new RewriteHandler();
+		rewriter.setRewriteRequestURI(false);
+		rewriter.setRewritePathInfo(false);
+		rewriter.setHandler(toWrap);
+
+		HeaderPatternRule hstsRule = new HeaderPatternRule();
+		hstsRule.setName("Strict-Transport-Security");
+		hstsRule.setValue("max-age=31536000; includeSubDomains");
+		hstsRule.setPattern("*");
+		
+		rewriter.addRule(hstsRule);
+		
+		return rewriter;
+	}
+	
 	private static URL[] createURLs(UnityHttpServerConfiguration conf)
 	{
 		try
@@ -106,10 +127,13 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 	protected synchronized Handler createRootHandler() throws ConfigurationException
 	{
 		usedContextPaths = new HashMap<String, ServletContextHandler>();
-		ContextHandlerCollection handlersCollection = new ContextHandlerCollection();
+		mainContextHandler = new ContextHandlerCollection();
 		deployedEndpoints = new ArrayList<WebAppEndpointInstance>(16);
-		handlersCollection.addHandler(new UnityDefaultHandler());
-		return handlersCollection;
+		mainContextHandler.addHandler(new UnityDefaultHandler());
+		
+		if (extraSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_HSTS))
+			return configureHSTS(mainContextHandler);
+		return mainContextHandler;
 	}
 
 	/**
@@ -140,14 +164,13 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 					"applications configured at the same context path: " + contextPath);
 		}
 		
-		ContextHandlerCollection root = (ContextHandlerCollection) getRootHandler();
-		root.addHandler(handler);
+		mainContextHandler.addHandler(handler);
 		try
 		{
 			handler.start();
 		} catch (Exception e)
 		{
-			root.removeHandler(handler);
+			mainContextHandler.removeHandler(handler);
 			throw new EngineException("Can not start handler", e);
 		}
 		usedContextPaths.put(contextPath, handler);
@@ -173,8 +196,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		{
 			throw new EngineException("Can not stop handler", e);
 		}
-		ContextHandlerCollection root = (ContextHandlerCollection) getRootHandler();
-		root.removeHandler(handler);
+		mainContextHandler.removeHandler(handler);
 		usedContextPaths.remove(handler.getContextPath());
 		deployedEndpoints.remove(endpoint);
 	}
