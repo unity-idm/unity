@@ -1,4 +1,4 @@
-package pl.edu.icm.unity.samlidp;
+package pl.edu.icm.unity.samlmeta;
 
 import static pl.edu.icm.unity.saml.SAMLProperties.METADATA_REFRESH;
 import static pl.edu.icm.unity.saml.SAMLProperties.METADATA_URL;
@@ -52,13 +52,14 @@ public class TestDownloadManager extends DBIntegrationTestBase
 	public void testDownload() throws IOException, EngineException, InterruptedException
 	{
 
+		int refreshTime = 10;
 		Properties p = new Properties();
 		p.setProperty(P + CREDENTIAL, "MAIN");
 		p.setProperty(P + PUBLISH_METADATA, "false");
 		p.setProperty(P + ISSUER_URI, "me");
 		p.setProperty(P + GROUP, "group");
 		p.setProperty(P + DEFAULT_GROUP, "group");
-		p.setProperty(P + METADATA_REFRESH, "6");
+		p.setProperty(P + METADATA_REFRESH, String.valueOf(refreshTime));
 
 		p.setProperty(P + ALLOWED_SP_PREFIX + "1." + ALLOWED_SP_ENTITY,
 				"https://support.hes-so.ch/shibboleth");
@@ -99,11 +100,11 @@ public class TestDownloadManager extends DBIntegrationTestBase
 		{
 			i++;
 			m.start();
-			System.out.println("Started manager " + i);
+			//System.out.println("Started manager " + i);
 
 		}
 
-		Thread.sleep(100000);
+		Thread.sleep(i * refreshTime * 500);
 
 	}
 }

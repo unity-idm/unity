@@ -58,6 +58,7 @@ public class RemoteMetaManager
 
 	public void start()
 	{
+		log.trace("Staring remote meta manager");
 		long delay = getBaseConfiguration().getLongValue(SAMLProperties.METADATA_REFRESH);
 		executorsService.getService().scheduleWithFixedDelay(new Reloader(), 5, delay, TimeUnit.SECONDS);
 	}
