@@ -8,11 +8,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -27,6 +25,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -49,7 +48,7 @@ public class MetaDownloadManager
 	private PKIManagement pkiManagement;
 	private UnityServerConfiguration mainConfig;
 	private Map<String, Long> downloadedFiles;
-	private Set<String> downlodingFiles;
+	private HashSet<String> downlodingFiles;
 
 	@Autowired
 	public MetaDownloadManager(PKIManagement pkiManagement, UnityServerConfiguration mainConfig)
@@ -58,55 +57,20 @@ public class MetaDownloadManager
 		this.mainConfig = mainConfig;
 		this.downloadedFiles = new HashMap<String, Long>();
 		this.downlodingFiles = new HashSet<String>();
-
-	}
-
-	public void waitToDownload(String url) throws InterruptedException
-	{	
-		while (downlodingFiles.contains(url))
-		{
-			Thread.sleep(5000);
-		}	
-	}
-
-	public synchronized int checkWaiting(String url)
-	{
-		if (downlodingFiles.contains(url))
-		{
-			return 1;
-		}
-
-		downlodingFiles.add(url);
-		return 0;
 	}
 
 	public File tryDownloading(String url, int refreshInterval, String customTruststore)
 			throws EngineException, IOException
-	{
-
-		Long lastDownload = downloadedFiles.get(url);
-		if (lastDownload != null)
+	{		
+		try
 		{
-			long expirationTime = System.currentTimeMillis() - (refreshInterval * 100l);
-			if (lastDownload < expirationTime)
+			if (tryStartDownloading(url, refreshInterval))
 			{
-				log.trace("Locally cached metadata file is fresh, skipping downloading " + url);
 				return getFromCache(url, "");
 			}
-		}
-
-		if (checkWaiting(url) == 1)
+		} catch (InterruptedException e)
 		{
-			log.trace("Another process download file from " + url
-					+ ", waiting to complete download");
-			try
-			{
-				waitToDownload(url);
-			} catch (InterruptedException e)
-			{
-				log.error("Error in waiting for the end downloading file " + url, e);
-			}
-			return getFromCache(url, "");
+			throw new InternalException("Error waiting to download file from " + url, e);
 		}
 
 		try
@@ -114,17 +78,13 @@ public class MetaDownloadManager
 			download(url, customTruststore);
 		} catch (Exception ex)
 		{
-			downlodingFiles.remove(url);
+			endDownloading(url, false);
 			throw ex;
 		}
 
-		File cachedFile = getFromCache(url, "");
-		downloadedFiles.put(url, cachedFile.lastModified());
-		downlodingFiles.remove(url);
-
-		return cachedFile;
+		return endDownloading(url, true);
 	}
-
+	
 	private void download(String url, String customTruststore) throws EngineException,
 			IOException
 	{
@@ -157,6 +117,64 @@ public class MetaDownloadManager
 		FileUtils.moveFile(cachedFilePart, cachedFile);
 		log.debug("Downloaded metadata from " + url + " to final file "
 				+ cachedFile.toString());
+	}
+	
+	private boolean tryStartDownloading(String url, int refreshInterval) throws InterruptedException
+	{
+		boolean wait = false;
+		synchronized (downlodingFiles)
+		{	
+			Long lastDownload = downloadedFiles.get(url);				
+			if (lastDownload != null)
+			{
+				long expirationTime = System.currentTimeMillis() - (refreshInterval * 100l);
+				if (lastDownload < expirationTime)
+				{
+					log.trace("Locally cached metadata file is fresh, skipping downloading "
+							+ url);
+					return true;
+				}
+			}
+			
+			while (downlodingFiles.contains(url))
+			{
+				if (!wait)
+					log.trace("Another process download file from " + url
+							+ ", waiting to complete download");
+				wait = true;
+				downlodingFiles.wait();
+			}
+			if (!wait)
+			{
+				downlodingFiles.add(url);
+			} else
+			{
+				log.trace("Download from " + url + " complete by another proccess, stop waiting");
+			}
+		}
+		return wait;
+	}
+
+	private File endDownloading(String url, boolean success) throws IOException
+	{
+		File cachedFile = null;
+		synchronized (downlodingFiles)
+		{
+			if (success)
+			{
+				cachedFile = getFromCache(url, "");
+				downloadedFiles.put(url, cachedFile.lastModified());
+				log.trace("Downloading file from " + url + " complete successfull");
+			} else
+			{
+				log.trace("Downloading file from " + url + " fail");
+			}
+
+			downlodingFiles.remove(url);
+			downlodingFiles.notifyAll();
+
+		}
+		return cachedFile;
 	}
 
 	public File getFromCache(String uri, String suffix) throws IOException

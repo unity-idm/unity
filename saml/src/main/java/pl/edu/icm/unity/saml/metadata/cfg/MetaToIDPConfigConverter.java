@@ -104,8 +104,7 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 			UIInfoType uiInfo = parseMDUIInfo(spDef.getExtensions(), entityId);
 			Map<String, String> names = getLocalizedNames(uiInfo, spDef);
 			Map<String, LogoType> logos = getLocalizedLogos(uiInfo);
-			
-			
+				
 			addEntryToProperties(entityId, aserServ, realConfig, configKey, properties, r, certs, names, logos);					
 		}		
 	}
@@ -127,12 +126,7 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 					entityId);
 		if (noPerSpConfig || !properties.containsKey(configKey + SAMLIDPProperties.ALLOWED_SP_RETURN_URL))
 			properties.setProperty(configKey + SAMLIDPProperties.ALLOWED_SP_RETURN_URL, 
-					serviceEndpoint.getLocation());
-		
-		if (noPerSpConfig || !properties.containsKey(configKey + SAMLIDPProperties.ALLOWED_SP_CERTIFICATE))
-			properties.setProperty(configKey + SAMLIDPProperties.ALLOWED_SP_CERTIFICATE, 
-					serviceEndpoint.getLocation());
-				
+					serviceEndpoint.getLocation());		
 		if (noPerSpConfig || !properties.containsKey(configKey + SAMLIDPProperties.ALLOWED_SP_CERTIFICATE))
 		{
 			int i = 1;

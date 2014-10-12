@@ -141,6 +141,10 @@ public abstract class AbstractMetaToConfigConverter
 	
 	protected void updatePKICerts(List<X509Certificate> certs, String entityId, String prefix) throws EngineException
 	{
+		synchronized (pkiManagement)
+		{
+			
+		
 		for (X509Certificate cert: certs)
 		{
 			String pkiKey = getCertificateKey(cert, entityId, prefix);
@@ -155,7 +159,7 @@ public abstract class AbstractMetaToConfigConverter
 			{
 				pkiManagement.addCertificate(pkiKey, cert);
 			}
-		}
+		}}
 	}
 	
 	protected String getCertificateKey(X509Certificate cert, String entityId, String prefix)
