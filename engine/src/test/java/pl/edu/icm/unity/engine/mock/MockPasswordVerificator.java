@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.mock;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -84,6 +85,14 @@ public class MockPasswordVerificator extends AbstractLocalVerificator implements
 	public String invalidate(String currentCredential)
 	{
 		throw new RuntimeException("Shouldn't be called");
+	}
+
+	@Override
+	public String prepareCredential(String rawCredential, String previousCredential,
+			String currentCredential) throws IllegalCredentialException,
+			InternalException
+	{
+		return prepareCredential(rawCredential, currentCredential);
 	}
 
 }

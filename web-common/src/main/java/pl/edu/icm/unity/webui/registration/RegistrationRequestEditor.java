@@ -426,7 +426,7 @@ public class RegistrationRequestEditor extends CustomComponent
 			CredentialRegistrationParam param = credParams.get(i);
 			CredentialDefinition credDefinition = credentials.get(param.getCredentialName());
 			CredentialEditor editor = credentialEditorRegistry.getEditor(credDefinition.getTypeId());
-			ComponentsContainer editorUI = editor.getEditor(credDefinition.getJsonConfiguration(), true);
+			ComponentsContainer editorUI = editor.getEditor(false, credDefinition.getJsonConfiguration(), true);
 			if (param.getLabel() != null)
 				editorUI.setCaption(param.getLabel());
 			else

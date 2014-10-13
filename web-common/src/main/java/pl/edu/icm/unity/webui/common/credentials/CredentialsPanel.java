@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -59,6 +60,7 @@ public class CredentialsPanel extends VerticalLayout
 	private Entity entity;
 	private final long entityId;
 	private final boolean simpleMode;
+	private boolean askAboutCurrent;
 	
 	private Map<String, CredentialDefinition> credentials;
 	
@@ -195,7 +197,19 @@ public class CredentialsPanel extends VerticalLayout
 		credEditor = credEditorReg.getEditor(chosen.getTypeId());
 		FormLayout credLayout = new FormLayout();
 		credLayout.setMargin(true);
-		credLayout.addComponents(credEditor.getEditor(chosen.getJsonConfiguration(), true).getComponents());
+		EntityParam entityP = new EntityParam(entity.getId());
+		try
+		{
+			askAboutCurrent = idsMan.isCurrentCredentialRequiredForChange(entityP, 
+					chosen.getTypeId());
+		} catch (EngineException e)
+		{
+			log.debug("Got exception when asking about possibility to "
+					+ "change the credential without providing the existing one."
+					+ " Most probably the subsequent credential change will also fail.", e);
+			askAboutCurrent = true;
+		}
+		credLayout.addComponents(credEditor.getEditor(askAboutCurrent, chosen.getJsonConfiguration(), true).getComponents());
 		editor.setContent(credLayout);
 		Component viewer = credEditor.getViewer(credPublicInfo.getExtraInformation());
 		if (viewer == null)
@@ -223,9 +237,11 @@ public class CredentialsPanel extends VerticalLayout
 	
 	private void updateCredential()
 	{
-		String secrets;
+		String secrets, currentSecrets = null;
 		try
 		{
+			if (askAboutCurrent)
+				currentSecrets = credEditor.getCurrentValue();
 			secrets = credEditor.getValue();
 		} catch (IllegalCredentialException e)
 		{
@@ -235,7 +251,22 @@ public class CredentialsPanel extends VerticalLayout
 		EntityParam entityP = new EntityParam(entity.getId());
 		try
 		{
-			idsMan.setEntityCredential(entityP, credDef.getName(), secrets);
+			if (askAboutCurrent)
+				idsMan.setEntityCredential(entityP, credDef.getName(), secrets, currentSecrets);
+			else
+				idsMan.setEntityCredential(entityP, credDef.getName(), secrets);
+		} catch (IllegalPreviousCredentialException e)
+		{
+			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
+			credEditor.setCredentialError(null);
+			credEditor.setPreviousCredentialError(e.getMessage());
+			return;
+		}  catch (IllegalCredentialException e)
+		{
+			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
+			credEditor.setPreviousCredentialError(null);
+			credEditor.setCredentialError(e.getMessage());
+			return;
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
