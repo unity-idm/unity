@@ -14,17 +14,15 @@ public interface SandboxAuthnNotifier
 {
 	void addListener(RemoteAuthnInputListener listener);
 
-	void removeListener(RemoteAuthnInputListener listener);
-	
 	void addListener(AuthnResultListener listener);
 	
-	void removeListener(AuthnResultListener listener);
-	
-	public interface RemoteAuthnInputListener {
+	public interface RemoteAuthnInputListener 
+	{
 		void handle(SandboxRemoteAuthnInputEvent event);
 	}
 	
-	public interface AuthnResultListener {
+	public interface AuthnResultListener 
+	{
 		void handle(SandboxAuthnResultEvent event);
 	}	
 }

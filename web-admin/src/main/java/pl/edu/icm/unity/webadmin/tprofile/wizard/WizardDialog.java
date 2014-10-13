@@ -50,7 +50,6 @@ public class WizardDialog extends Window implements WizardProgressListener
 		wizardComponent      = new WizardDialogComponent(msg, sandboxURL, editor, addCallback);
 		wizardComponent.addWizardListener(this);
 		
-		
 		openSandboxPopupOnNextButton();
 		
 		addSandboxListener();
@@ -132,7 +131,6 @@ public class WizardDialog extends Window implements WizardProgressListener
 		{
 			((UI) getParent()).removeWindow(this);
 		}
-		sandboxNotifier.removeListener(sandboxListener);
 		disablePolling();
 	}
 

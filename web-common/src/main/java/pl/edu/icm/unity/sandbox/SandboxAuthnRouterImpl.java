@@ -4,10 +4,12 @@
  */
 package pl.edu.icm.unity.sandbox;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.WeakHashMap;
 
 import org.springframework.stereotype.Component;
+
+import com.vaadin.server.VaadinSession;
+import com.vaadin.server.WrappedSession;
 
 /**
  * Simple implementation of {@link SandboxAuthnRouter} interface, used by
@@ -19,13 +21,13 @@ import org.springframework.stereotype.Component;
 public class SandboxAuthnRouterImpl implements SandboxAuthnRouter 
 {
 	
-	private HashSet<RemoteAuthnInputListener> inputListenerList;
-	private HashSet<AuthnResultListener> authnListenerList;
+	private WeakHashMap<WrappedSession, RemoteAuthnInputListener> inputListenerList;
+	private WeakHashMap<WrappedSession, AuthnResultListener> authnListenerList;
 
 	public SandboxAuthnRouterImpl()
 	{
-		inputListenerList = new LinkedHashSet<RemoteAuthnInputListener>();
-		authnListenerList = new LinkedHashSet<AuthnResultListener>();
+		inputListenerList = new WeakHashMap<WrappedSession, RemoteAuthnInputListener>();
+		authnListenerList = new WeakHashMap<WrappedSession, AuthnResultListener>();
 	}
 	
 	@Override
@@ -33,7 +35,7 @@ public class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 	{
 		synchronized (inputListenerList)
 		{
-			for (RemoteAuthnInputListener listener : inputListenerList)
+			for (RemoteAuthnInputListener listener : inputListenerList.values())
 			{
 				listener.handle(event);
 			}
@@ -45,7 +47,7 @@ public class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 	{
 		synchronized (authnListenerList)
 		{
-			for (AuthnResultListener listener : authnListenerList)
+			for (AuthnResultListener listener : authnListenerList.values())
 			{
 				listener.handle(event);
 			}
@@ -55,37 +57,20 @@ public class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 	@Override
 	public void addListener(RemoteAuthnInputListener listener) 
 	{
+		WrappedSession session = VaadinSession.getCurrent().getSession();
 		synchronized (inputListenerList)
 		{
-			inputListenerList.add(listener);
-		}
-	}
-
-	@Override
-	public void removeListener(RemoteAuthnInputListener listener) 
-	{
-		synchronized (inputListenerList)
-		{
-			inputListenerList.remove(listener);
+			inputListenerList.put(session, listener);
 		}
 	}
 
 	@Override
 	public void addListener(AuthnResultListener listener) 
 	{
+		WrappedSession session = VaadinSession.getCurrent().getSession();
 		synchronized (authnListenerList)
 		{
-			authnListenerList.add(listener);
+			authnListenerList.put(session, listener);
 		}
-	}
-
-	@Override
-	public void removeListener(AuthnResultListener listener) 
-	{
-		synchronized (authnListenerList)
-		{
-			authnListenerList.remove(listener);
-		}
-		
 	}
 }
