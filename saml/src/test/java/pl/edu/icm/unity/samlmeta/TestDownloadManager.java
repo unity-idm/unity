@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
 package pl.edu.icm.unity.samlmeta;
 
 import static pl.edu.icm.unity.saml.SAMLProperties.METADATA_REFRESH;
@@ -95,16 +99,13 @@ public class TestDownloadManager extends DBIntegrationTestBase
 
 		}
 
-		int i = 0;
+		
 		for (RemoteMetaManager m : mans)
 		{
-			i++;
 			m.start();
-			//System.out.println("Started manager " + i);
-
 		}
 
-		Thread.sleep(i * refreshTime * 500);
+		Thread.sleep(10 * refreshTime * 500);
 
 	}
 }

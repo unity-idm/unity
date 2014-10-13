@@ -92,7 +92,6 @@ public abstract class AbstractMetaToConfigConverter
 	protected abstract void convertToProperties(EntityDescriptorType meta, Properties properties, 
 			SAMLProperties realConfig, String configKey);
 	
-	
 	protected boolean supportsSaml2(SSODescriptorType idpDef)
 	{
 		List<?> supportedProtocols = idpDef.getProtocolSupportEnumeration();
@@ -101,7 +100,6 @@ public abstract class AbstractMetaToConfigConverter
 				return true;
 		return false;
 	}
-	
 	
 	protected List<X509Certificate> getSigningCerts(KeyDescriptorType[] keys, String entityId)
 	{
@@ -137,39 +135,39 @@ public abstract class AbstractMetaToConfigConverter
 		}
 		return ret;
 	}
-	
-	
-	protected void updatePKICerts(List<X509Certificate> certs, String entityId, String prefix) throws EngineException
+		
+	protected void updatePKICerts(List<X509Certificate> certs, String entityId, String prefix)
+			throws EngineException
 	{
 		synchronized (pkiManagement)
 		{
-			
-		
-		for (X509Certificate cert: certs)
-		{
-			String pkiKey = getCertificateKey(cert, entityId, prefix);
-			try
+			for (X509Certificate cert : certs)
 			{
-				X509Certificate existingCert = pkiManagement.getCertificate(pkiKey);
-				if (!existingCert.equals(cert))
+				String pkiKey = getCertificateKey(cert, entityId, prefix);
+				try
 				{
-					pkiManagement.updateCertificate(pkiKey, cert);
+					X509Certificate existingCert = pkiManagement
+							.getCertificate(pkiKey);
+					if (!existingCert.equals(cert))
+					{
+						pkiManagement.updateCertificate(pkiKey, cert);
+					}
+				} catch (WrongArgumentException e)
+				{
+					pkiManagement.addCertificate(pkiKey, cert);
 				}
-			} catch (WrongArgumentException e)
-			{
-				pkiManagement.addCertificate(pkiKey, cert);
 			}
-		}}
+		}
 	}
-	
+
 	protected String getCertificateKey(X509Certificate cert, String entityId, String prefix)
 	{
-		String dn = X500NameUtils.getComparableForm(cert.getSubjectX500Principal().getName());
+		String dn = X500NameUtils.getComparableForm(cert.getSubjectX500Principal()
+				.getName());
 		String key = prefix + DigestUtils.md5Hex(entityId) + "#" + DigestUtils.md5Hex(dn);
 		return key;
 	}
-	
-	
+
 	protected Map<String, String> getLocalizedNames(UIInfoType uiInfo, SSODescriptorType idpDesc)
 	{
 		Map<String, String> ret = new HashMap<String, String>();
@@ -207,8 +205,7 @@ public abstract class AbstractMetaToConfigConverter
 						ret.put(key, logo);
 				}
 			}
-		}
-		
+		}	
 		return ret;
 	}
 	

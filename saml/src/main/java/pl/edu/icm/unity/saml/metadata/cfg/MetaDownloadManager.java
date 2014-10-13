@@ -58,6 +58,16 @@ public class MetaDownloadManager
 		this.downloadedFiles = new HashMap<String, Long>();
 		this.downlodingFiles = new HashSet<String>();
 	}
+	
+	/**
+	 * Download  or waits until another process download file.
+	 * @param url file to download
+	 * @param refreshInterval used to calculate  freshness of file
+	 * @param customTruststore
+	 * @return
+	 * @throws EngineException
+	 * @throws IOException
+	 */
 
 	public File tryDownloading(String url, int refreshInterval, String customTruststore)
 			throws EngineException, IOException
@@ -84,6 +94,13 @@ public class MetaDownloadManager
 
 		return endDownloading(url, true);
 	}
+	/**
+	 * Download remote file
+	 * @param url
+	 * @param customTruststore
+	 * @throws EngineException
+	 * @throws IOException
+	 */
 	
 	private void download(String url, String customTruststore) throws EngineException,
 			IOException
@@ -119,6 +136,14 @@ public class MetaDownloadManager
 				+ cachedFile.toString());
 	}
 	
+	/**
+	 * If cached file is fresh return false. In other case wait to download and return true
+	 * or put file to download queue and return false
+	 * @param url
+	 * @param refreshInterval
+	 * @return true if waiting occurs
+	 * @throws InterruptedException
+	 */
 	private boolean tryStartDownloading(String url, int refreshInterval) throws InterruptedException
 	{
 		boolean wait = false;
@@ -155,6 +180,13 @@ public class MetaDownloadManager
 		return wait;
 	}
 
+	/**
+	 * Remove file from download queue, and add to downloaded files.
+	 * @param url
+	 * @param success
+	 * @return
+	 * @throws IOException
+	 */
 	private File endDownloading(String url, boolean success) throws IOException
 	{
 		File cachedFile = null;
@@ -177,6 +209,13 @@ public class MetaDownloadManager
 		return cachedFile;
 	}
 
+	/**
+	 * Get file directly from cache
+	 * @param uri
+	 * @param suffix
+	 * @return
+	 * @throws IOException
+	 */
 	public File getFromCache(String uri, String suffix) throws IOException
 	{
 		File resp = getLocalFile(uri, suffix);

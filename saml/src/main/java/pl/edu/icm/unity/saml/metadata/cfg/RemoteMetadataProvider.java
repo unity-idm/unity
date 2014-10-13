@@ -34,7 +34,15 @@ public class RemoteMetadataProvider
 	{
 		return EntitiesDescriptorDocument.Factory.parse(getAsLocalFile(url, refreshInterval, customTruststore));
 	}
-	
+	/**
+	 * If url is local file return its stream in other case try download remote file using download manager
+	 * @param url
+	 * @param refreshInterval
+	 * @param customTruststore
+	 * @return
+	 * @throws IOException
+	 * @throws EngineException
+	 */
 	private InputStream getAsLocalFile(String url, int refreshInterval,
 			String customTruststore) throws IOException, EngineException
 	{
@@ -46,7 +54,5 @@ public class RemoteMetadataProvider
 			
 		File cachedFile = downloadManager.tryDownloading(url, refreshInterval, customTruststore);
 		return new BufferedInputStream(new FileInputStream(cachedFile));
-	}
-
-	
+	}	
 }
