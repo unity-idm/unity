@@ -25,23 +25,22 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCal
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.RegistrationRequestEditorDialog;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.UserError;
 import com.vaadin.server.VaadinService;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -84,14 +83,14 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		VerticalLayout authenticatorsContainer = new VerticalLayout();		
 		authenticatorsContainer.setSpacing(true);
 		authenticatorsContainer.setHeight(100, Unit.PERCENTAGE);
-		authenticatorsContainer.addComponent(new Label("<hr>", ContentMode.HTML));
+		authenticatorsContainer.addComponent(HtmlTag.hr());
 		for (String authenticator: set.getAuthenticators())
 		{
 			VaadinAuthenticationUI vaadinAuth = authenticators.get(authenticator); 
 			if (vaadinAuth.needsCommonUsernameComponent())
 				needCommonUsername = true;
 			authenticatorsContainer.addComponent(vaadinAuth.getComponent());
-			authenticatorsContainer.addComponent(new Label("<hr>", ContentMode.HTML));
+			authenticatorsContainer.addComponent(HtmlTag.hr());
 		}
 		
 		

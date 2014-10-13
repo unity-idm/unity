@@ -11,13 +11,12 @@ import java.util.List;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -188,7 +187,7 @@ public class ListOfEmbeddedElementsStub<T>
 			cc = new ComponentsContainer();
 			if (showLine)
 			{
-				hr = new Label("<hr>", ContentMode.HTML);
+				hr = HtmlTag.hr();
 				cc.add(hr);
 			}
 			
