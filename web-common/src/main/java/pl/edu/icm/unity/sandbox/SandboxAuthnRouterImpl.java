@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Simple implementation of {@link SandboxAuthnRouter} interface, used by
- * {@link SandboxUI} to dispatcher authn events. 
+ * {@link SandboxUI} to dispatch authn events. 
  * 
  * @author R. Krysinski
  */
@@ -24,51 +24,68 @@ public class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 
 	public SandboxAuthnRouterImpl()
 	{
-		//TODO: thread safe LinkedHashSet?
 		inputListenerList = new LinkedHashSet<RemoteAuthnInputListener>();
 		authnListenerList = new LinkedHashSet<AuthnResultListener>();
 	}
 	
 	@Override
-	public synchronized void fireEvent(SandboxRemoteAuthnInputEvent event) 
+	public void fireEvent(SandboxRemoteAuthnInputEvent event) 
 	{
-		for (RemoteAuthnInputListener listener : inputListenerList)
+		synchronized (inputListenerList)
 		{
-			listener.handle(event);
+			for (RemoteAuthnInputListener listener : inputListenerList)
+			{
+				listener.handle(event);
+			}
 		}
 	}
 
 	@Override
 	public void fireEvent(SandboxAuthnResultEvent event) 
 	{
-		for (AuthnResultListener listener : authnListenerList)
+		synchronized (authnListenerList)
 		{
-			listener.handle(event);
+			for (AuthnResultListener listener : authnListenerList)
+			{
+				listener.handle(event);
+			}
 		}
 	}
 	
 	@Override
-	public synchronized void addListener(RemoteAuthnInputListener listener) 
+	public void addListener(RemoteAuthnInputListener listener) 
 	{
-		inputListenerList.add(listener);
+		synchronized (inputListenerList)
+		{
+			inputListenerList.add(listener);
+		}
 	}
 
 	@Override
-	public synchronized void removeListener(RemoteAuthnInputListener listener) 
+	public void removeListener(RemoteAuthnInputListener listener) 
 	{
-		inputListenerList.remove(listener);
+		synchronized (inputListenerList)
+		{
+			inputListenerList.remove(listener);
+		}
 	}
 
 	@Override
 	public void addListener(AuthnResultListener listener) 
 	{
-		authnListenerList.add(listener);
+		synchronized (authnListenerList)
+		{
+			authnListenerList.add(listener);
+		}
 	}
 
 	@Override
 	public void removeListener(AuthnResultListener listener) 
 	{
-		authnListenerList.remove(listener);
+		synchronized (authnListenerList)
+		{
+			authnListenerList.remove(listener);
+		}
 		
 	}
 }
