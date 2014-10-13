@@ -103,10 +103,16 @@ public class CredentialsPanel extends VerticalLayout
 	{
 		loadCredentials();
 		
+		if (credentials.size() == 0)
+		{
+			addComponent(new Label(msg.getMessage("CredentialChangeDialog.noCredentials")));
+			return;
+		}
+		
 		statuses = new Panel(msg.getMessage("CredentialChangeDialog.statusAll"));
-		
+
 		Panel credentialPanel = new Panel();
-		
+
 		credential = new MapComboBox<CredentialDefinition>(msg.getMessage("CredentialChangeDialog.credential"),
 				credentials, credentials.keySet().iterator().next());
 		credential.setImmediate(true);
@@ -123,7 +129,7 @@ public class CredentialsPanel extends VerticalLayout
 		status = new TextField(msg.getMessage("CredentialChangeDialog.status"));
 		credentialStateInfo = new Panel(msg.getMessage("CredentialChangeDialog.credentialStateInfo"));
 		editor = new Panel(msg.getMessage("CredentialChangeDialog.value"));
-		
+
 		HorizontalLayout buttonsBar = new HorizontalLayout();
 		buttonsBar.setSpacing(true);
 		clear = new Button(msg.getMessage("CredentialChangeDialog.clear"));
@@ -158,19 +164,23 @@ public class CredentialsPanel extends VerticalLayout
 			}
 		});
 		buttonsBar.addComponent(update);
-		
+
 		FormLayout fl = new FormLayout(type, description, status, credentialStateInfo, editor, buttonsBar);
 		fl.setMargin(true);
 		credentialPanel.setContent(fl);
-		
+
 		Label spacer = new Label();
 		spacer.setHeight(2, Unit.EM);
 		addComponents(statuses, spacer);
+		
 		if (credentials.size() > 1)
+		{
 			addComponent(credential);
-		else
+		} else
+		{
 			addComponent(new Label(msg.getMessage("CredentialChangeDialog.credentialSingle", 
 					credentials.values().iterator().next().getName())));
+		}
 		addComponent(credentialPanel);
 		setSpacing(true);
 		updateStatus();
@@ -380,10 +390,6 @@ public class CredentialsPanel extends VerticalLayout
 		{
 			if (required.contains(credential.getName()))
 				credentials.put(credential.getName(), credential);
-		}
-		if (credentials.size() == 0)
-		{
-			throw new InternalException(msg.getMessage("CredentialChangeDialog.noCredentials"));
 		}
 	}
 }

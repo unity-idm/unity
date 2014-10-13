@@ -357,6 +357,20 @@ public class LdapTests
 		assertEquals(2, ret.getAttributes().size());
 		assertTrue(containsAttribute(ret.getAttributes(), "sn", "User1 surname"));
 		assertTrue(containsAttribute(ret.getAttributes(), "cn", "user1"));
+		
+
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_BASE, "ou=groups,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_FILTER, "(memberUid={USERNAME})");
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_ATTRIBUTES, "dummy  gidNumber");
+		
+		lp = new LdapProperties(p);
+		clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		client = new LdapClient("test");
+		ret = client.bindAndSearch("user1", "user1", clientConfig);
+		assertEquals(3, ret.getAttributes().size());
+		assertTrue(containsAttribute(ret.getAttributes(), "sn", "User1 surname"));
+		assertTrue(containsAttribute(ret.getAttributes(), "cn", "user1"));
+		assertTrue(containsAttribute(ret.getAttributes(), "gidNumber", "1"));
 	}
 
 	@Test

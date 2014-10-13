@@ -14,6 +14,8 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.translation.in.AbstractInputTranslationAction;
+import pl.edu.icm.unity.server.translation.in.GroupEffectMode;
+import pl.edu.icm.unity.server.translation.in.MappedGroup;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.Log;
 
@@ -26,6 +28,7 @@ public class MapGroupAction extends AbstractInputTranslationAction
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, MapGroupAction.class);
 	private Serializable expressionCompiled;
+	private GroupEffectMode groupEffect = GroupEffectMode.REQUIRE_EXISTING_GROUP;
 
 	public MapGroupAction(String[] params, TranslationActionDescription desc)
 	{
@@ -50,20 +53,24 @@ public class MapGroupAction extends AbstractInputTranslationAction
 			for (Object mg: mgs)
 			{
 				log.debug("Mapped group: " + mg.toString());
-				ret.addGroup(mg.toString());
+				ret.addGroup(new MappedGroup(mg.toString(), groupEffect));
 			}
 		} else
 		{
 			log.debug("Mapped group: " + result.toString());
-			ret.addGroup(result.toString());
+			ret.addGroup(new MappedGroup(result.toString(), groupEffect));
 		}
 		return ret;
 	}
 
 	private void setParameters(String[] parameters)
 	{
-		if (parameters.length != 1)
-			throw new IllegalArgumentException("Action requires exactly 1 parameter");
+		if (parameters.length < 1 || parameters.length > 2)
+			throw new IllegalArgumentException("Action requires 2 parameters");
 		expressionCompiled = MVEL.compileExpression(parameters[0]);
+		if (parameters.length > 1)
+			groupEffect = GroupEffectMode.valueOf(parameters[1]);
+		else
+			groupEffect = GroupEffectMode.REQUIRE_EXISTING_GROUP;
 	}
 }

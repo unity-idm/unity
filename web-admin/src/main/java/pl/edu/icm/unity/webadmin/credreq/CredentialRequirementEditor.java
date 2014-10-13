@@ -66,8 +66,6 @@ public class CredentialRequirementEditor extends FormLayout
 		requiredCredentials = new TwinColSelect(msg.getMessage("CredentialRequirements.credentials"));
 		requiredCredentials.setLeftColumnCaption(msg.getMessage("CredentialRequirements.available"));
 		requiredCredentials.setRightColumnCaption(msg.getMessage("CredentialRequirements.chosen"));
-		requiredCredentials.setRequired(true);
-		requiredCredentials.setRequiredError(msg.getMessage("fieldRequired"));
 		requiredCredentials.setWidth(48, Unit.EM);
 		for (CredentialDefinition cr: allCredentials)
 			requiredCredentials.addItem(cr.getName());

@@ -16,6 +16,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.SessionManagement.AttributeUpdater;
+import pl.edu.icm.unity.server.utils.TimeUtil;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -78,10 +79,10 @@ public class TestSessions extends DBIntegrationTestBase
 	{
 		assertEquals(s.getId(), ret.getId());
 		assertEquals(s.getEntityId(), ret.getEntityId());
-		assertEquals(s.getExpires(), ret.getExpires());
+		assertEquals(TimeUtil.roundToS(s.getExpires()), TimeUtil.roundToS(ret.getExpires()));
 		assertEquals(s.getMaxInactivity(), ret.getMaxInactivity());
 		assertEquals(s.getRealm(), ret.getRealm());
-		assertEquals(s.getStarted(), ret.getStarted());
+		assertEquals(TimeUtil.roundToS(s.getStarted()), TimeUtil.roundToS(ret.getStarted()));
 		assertEquals(s.getSessionData(), ret.getSessionData());
 	}
 	

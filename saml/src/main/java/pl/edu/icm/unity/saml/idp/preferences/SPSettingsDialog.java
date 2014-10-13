@@ -4,12 +4,11 @@
  */
 package pl.edu.icm.unity.saml.idp.preferences;
 
-import com.vaadin.ui.Component;
-
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+
+import com.vaadin.ui.Component;
 
 /**
  * Shows {@link SPSettingsEditor} in a dialog.
@@ -39,11 +38,7 @@ public class SPSettingsDialog extends AbstractDialog
 	{
 		String sp = editor.getSP();
 		if (sp == null)
-		{
-			ErrorPopup.showError(msg, msg.getMessage("Generic.formError"), 
-					msg.getMessage("SAMLPreferences.spIsRequired"));
-			return;
-		}
+			sp = "";
 		callback.updatedSP(editor.getSPSettings(), sp);
 		close();
 	}

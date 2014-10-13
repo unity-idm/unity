@@ -25,11 +25,18 @@ public abstract class TestRESTBase extends DBIntegrationTestBase
 	public static final String AUTHENTICATOR_REST_PASS = "ApassREST";
 	public static final String AUTHENTICATOR_REST_CERT = "AcertREST";
 	
+	
+	
 	protected BasicHttpContext getClientContext(DefaultHttpClient client, HttpHost host)
+	{
+		return getClientContext(client, host, "user1","mockPassword1");
+	}
+		
+	protected BasicHttpContext getClientContext(DefaultHttpClient client, HttpHost host, String user, String pass)
 	{
 		client.getCredentialsProvider().setCredentials(
 				new AuthScope(host.getHostName(), host.getPort()),
-				new UsernamePasswordCredentials("user1", "mockPassword1"));
+				new UsernamePasswordCredentials(user, pass));
 		AuthCache authCache = new BasicAuthCache();
 		BasicScheme basicAuth = new BasicScheme();
 		authCache.put(host, basicAuth);

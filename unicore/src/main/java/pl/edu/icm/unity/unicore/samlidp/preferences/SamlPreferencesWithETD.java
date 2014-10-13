@@ -75,6 +75,8 @@ public class SamlPreferencesWithETD extends SamlPreferences
 	{
 		SPETDSettings ret = spEtdSettings.get(sp); 
 		if (ret == null)
+			ret = spEtdSettings.get("");
+		if (ret == null)
 			ret = new SPETDSettings();
 		return ret;
 	}
