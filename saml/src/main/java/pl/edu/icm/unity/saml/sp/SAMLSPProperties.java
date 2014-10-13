@@ -196,10 +196,16 @@ public class SAMLSPProperties extends SamlProperties
 	
 	private PKIManagement pkiManagement;
 	private Properties sourceProperties;
-	
+
 	public SAMLSPProperties(Properties properties, PKIManagement pkiMan) throws ConfigurationException
 	{
-		super(P, properties, META, log);
+		this(properties, META, pkiMan);
+	}
+	
+	protected SAMLSPProperties(Properties properties, Map<String, PropertyMD> meta, 
+			PKIManagement pkiMan) throws ConfigurationException
+	{
+		super(P, properties, meta, log);
 		sourceProperties = new Properties();
 		sourceProperties.putAll(properties);
 		this.pkiManagement = pkiMan;
