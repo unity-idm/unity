@@ -27,7 +27,8 @@ public class CertificateCredentialEditor implements CredentialEditor
 	}
 
 	@Override
-	public ComponentsContainer getEditor(String credentialConfiguration, boolean required)
+	public ComponentsContainer getEditor(boolean askAboutCurrent, 
+			String credentialConfiguration, boolean required)
 	{
 		Label label = new Label(msg.getMessage("CertificateCredentialEditor.info"));
 		return new ComponentsContainer(label);
@@ -43,5 +44,21 @@ public class CertificateCredentialEditor implements CredentialEditor
 	public Component getViewer(String credentialConfiguration)
 	{
 		return null;
+	}
+
+	@Override
+	public String getCurrentValue() throws IllegalCredentialException
+	{
+		return "";
+	}
+
+	@Override
+	public void setCredentialError(String message)
+	{
+	}
+
+	@Override
+	public void setPreviousCredentialError(String message)
+	{
 	}
 }
