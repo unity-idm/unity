@@ -26,6 +26,8 @@ Here we list the most important facts about the default configuration:
 All of those parameters need an update before going into production.
 - The server uses an insecure credential (its private key is well known) issued by an insecure CA, which is the only
 one trusted CA. A real credential and truststore should be used for production.
+- When a proper certificate is installed it is strongly advised to consider turning on the HSTS mechanism to improve
+server's security (with +unityServer.core.httpServer.enableHsts=true+ ).
 - The server uses an embedded H2 database. Its performance is fine, however it is not recommended in production 
 deployments where DB backups and high availability may easily become a requirement.
 - The server should be started by an unprivileged user. It is not required in case of using 

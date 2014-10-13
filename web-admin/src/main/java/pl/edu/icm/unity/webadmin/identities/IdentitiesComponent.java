@@ -32,6 +32,7 @@ import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
+import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Toolbar;
 
@@ -45,7 +46,6 @@ import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -398,8 +398,7 @@ public class IdentitiesComponent extends Panel
 						filtersBar.setVisible(false);
 				}
 			});
-			Label spacer = new Label("&nbsp;", ContentMode.HTML);
-			addComponents(info, spacer, remove);
+			addComponents(info, HtmlTag.hspaceEm(1), remove);
 			setMargin(new MarginInfo(false, false, false, true));
 		}
 	}

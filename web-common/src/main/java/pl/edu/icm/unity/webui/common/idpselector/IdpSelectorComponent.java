@@ -83,6 +83,7 @@ public class IdpSelectorComponent extends CustomComponent
 		Cookie selectedIdp = new Cookie(name, idpKey);
 		selectedIdp.setMaxAge(3600*24*30);
 		selectedIdp.setPath("/");
+		selectedIdp.setHttpOnly(true);
 		resp.addCookie(selectedIdp);
 	}
 	
@@ -137,6 +138,9 @@ public class IdpSelectorComponent extends CustomComponent
 		String lastIdp = CookieHelper.getCookie(req.getCookies(), lastIdpCookie);
 		if (lastIdp == null)
 			return null;
+		if (!idps.getIdpKeys().contains(lastIdp))
+			return null;
+		
 		Button providerB;
 		try
 		{

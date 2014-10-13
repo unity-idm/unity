@@ -12,8 +12,8 @@ import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.HtmlLabel;
 
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
@@ -87,30 +87,35 @@ public class TranslationProfileViewer extends VerticalLayout
 				
 			}
 			i++;     
-			addField(String.valueOf(i) + ":  " + msg.getMessage("TranslationProfileViewer.ruleCondition"),
-					"<code>" + rule.getCondition().getCondition() + "</code>");
+			addField(msg.getMessage("TranslationProfileViewer.ruleCondition", i),
+					"TranslationProfileViewer.codeValue", 
+					rule.getCondition().getCondition());
 			addField(msg.getMessage("TranslationProfileViewer.ruleAction"),
-					"<code>" + rule.getAction().getActionDescription().getName() + "</code>");
+					"TranslationProfileViewer.codeValue", 
+					rule.getAction().getActionDescription().getName());
 			String[] par = rule.getAction().getParameters();
 			for (int j = 0; j < par.length; j++)
 			{
 				if (j == 0)
 				{
 					addField(msg.getMessage("TranslationProfileViewer.ruleActionParameters"),
-							pd[j].getName() + " = <code>" + par[j]);
+						"TranslationProfileViewer.ruleActionParameter",
+								pd[j].getName(), par[j]);
 				}else
 				{
-					addField("", pd[j].getName() + " = <code>" + par[j]);
+					addField("", "TranslationProfileViewer.ruleActionParameter",
+							pd[j].getName(), par[j]);
 				}
 			}		
 		}
 
 	}
 
-	protected void addField(String name, String value)
+	protected void addField(String name, String msgKey, Object... unsafeArgs)
 	{
-		Label val = new Label(value, ContentMode.HTML);
+		HtmlLabel val = new HtmlLabel(msg);
 		val.setCaption(name);
+		val.setHtmlValue(msgKey, unsafeArgs);
 		rules.addComponent(val);
 	}
 	

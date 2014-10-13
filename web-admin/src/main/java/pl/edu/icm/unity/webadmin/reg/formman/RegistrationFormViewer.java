@@ -19,10 +19,11 @@ import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.webadmin.msgtemplate.SimpleMessageTemplateViewer;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.HtmlLabel;
+import pl.edu.icm.unity.webui.common.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -176,8 +177,7 @@ public class RegistrationFormViewer extends VerticalLayout
 
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
 		
-		formInformation = new Label();
-		formInformation.setContentMode(ContentMode.HTML);
+		formInformation = new HtmlSimplifiedLabel();
 		formInformation.setCaption(msg.getMessage("RegistrationFormViewer.formInformation"));
 		registrationCode = new Label();
 		registrationCode.setCaption(msg.getMessage("RegistrationFormViewer.registrationCode"));
@@ -189,8 +189,10 @@ public class RegistrationFormViewer extends VerticalLayout
 			@Override
 			public Label toLabel(AgreementRegistrationParam value)
 			{
-				String content = getOptionalStr(!value.isManatory()) + "<br>" + value.getText();
-				return new Label(content, ContentMode.HTML);
+				String content = getOptionalStr(!value.isManatory());
+				HtmlLabel ret = new HtmlLabel(msg);
+				ret.setHtmlValue("RegistrationFormViewer.twoLines", content, value.getText());
+				return ret;			
 			}
 		});
 		agreements.setMargin(true);
@@ -201,9 +203,11 @@ public class RegistrationFormViewer extends VerticalLayout
 			@Override
 			public Label toLabel(IdentityRegistrationParam value)
 			{
-				String content = msg.getMessage("RegistrationFormViewer.identityType", value.getIdentityType())
-						 + "<br>" + toHTMLLabel(value);
-				return new Label(content, ContentMode.HTML);
+				String content = msg.getMessage("RegistrationFormViewer.identityType", 
+						value.getIdentityType());
+				HtmlLabel ret = new HtmlLabel(msg);
+				ret.setHtmlValue("RegistrationFormViewer.twoLines", content, toHTMLLabel(value));
+				return ret;
 			}
 		});
 		identityParams.setMargin(true);
@@ -218,10 +222,11 @@ public class RegistrationFormViewer extends VerticalLayout
 						("[" + msg.getMessage("RegistrationFormViewer.useAttributeTypeDescription") +"]") : ""; 
 				String showGroup = value.isShowGroups() ? 
 						"[" + msg.getMessage("RegistrationFormViewer.showAttributeGroup")+"]" : ""; 
-				String content = value.getAttributeType() + " @ " + value.getGroup() + " " +
-						useDescription + " " + showGroup  + 
-						"<br>" + toHTMLLabel(value);
-				return new Label(content, ContentMode.HTML);
+				HtmlLabel ret = new HtmlLabel(msg);
+				String line1 = value.getAttributeType() + " @ " + value.getGroup() + " " +
+						useDescription + " " + showGroup;
+				ret.setHtmlValue("RegistrationFormViewer.twoLines", line1, toHTMLLabel(value));
+				return ret;
 			}
 		});
 		attributeParams.setMargin(true);
@@ -234,8 +239,10 @@ public class RegistrationFormViewer extends VerticalLayout
 			@Override
 			public Label toLabel(GroupRegistrationParam value)
 			{
-				String content = value.getGroupPath()  + "<br>" + toHTMLLabel(value);
-				return new Label(content, ContentMode.HTML);
+				HtmlLabel ret = new HtmlLabel(msg);
+				ret.setHtmlValue("RegistrationFormViewer.twoLines", value.getGroupPath(), 
+						toHTMLLabel(value));
+				return ret;
 			}
 		});
 		groupParams.setMargin(true);
@@ -246,10 +253,11 @@ public class RegistrationFormViewer extends VerticalLayout
 			@Override
 			public Label toLabel(CredentialRegistrationParam value)
 			{
-				String content = value.getCredentialName() + "<br>" + 
+				HtmlLabel ret = new HtmlLabel(msg);
+				ret.setHtmlValue("RegistrationFormViewer.twoLines", value.getCredentialName(), 
 						"[" + emptyNull(value.getLabel()) +  "] ["+
-						emptyNull(value.getDescription()) + "]";
-				return new Label(content, ContentMode.HTML);
+								emptyNull(value.getDescription()) + "]");
+				return ret;
 			}
 		});
 		credentialParams.setMargin(true);
@@ -280,7 +288,7 @@ public class RegistrationFormViewer extends VerticalLayout
 			{
 				String content = attrHandlerRegistry.getSimplifiedAttributeRepresentation(
 						value, 64) + " @ " + value.getGroupPath();
-				return new Label(content, ContentMode.HTML);
+				return new Label(content);
 			}
 		});
 		attributeAssignments.setMargin(true);

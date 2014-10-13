@@ -106,6 +106,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	
 	public static final String TRANSLATION_PROFILES = "translationProfiles.";
 	
+	public static final String WIPE_DB_AT_STARTUP = "wipeDbAtStartup";
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -230,6 +231,9 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("Credential requirement description"));
 		defaults.put(CREDENTIAL_REQ_CONTENTS, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setList(false).setMandatory().setCategory(initCredReqCat).
 				setDescription("Credential requirement contents, i.e. credentials that belongs to it"));
+		
+		defaults.put(WIPE_DB_AT_STARTUP, new PropertyMD("false").setHidden().
+				setDescription("For testing: if set to true then DB will be fully cleared at server startup"));
 		
 		defaults.put(MAIN_TRUSTSTORE, new PropertyMD().setMandatory().setCategory(mainCat).
 				setDescription("Name of the truststore to be used by the server."));

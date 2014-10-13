@@ -79,7 +79,8 @@ The setup of MySQL requires creation of a database with a separate user which is
 In mysql console (when logged with admin privileges) execute:
  
  CREATE DATABASE unitydb;
- GRANT ALL PRIVILEGES ON unitydb.* to 'unity'@'localhost' IDENTIFIED BY 'unitypass';
+ GRANT ALTER, CREATE, DELETE, DROP, EXECUTE, INDEX, INSERT, LOCK TABLES, 
+  SELECT, TRIGGER, UPDATE PRIVILEGES ON unitydb.* to 'unity'@'localhost' IDENTIFIED BY 'unitypass';
  
 using the desired database name, username and password. If the database is on a different host then the Unity instance,
 change to localhost to a proper host of Unity installation or use +%+ to allow connections from any host.  

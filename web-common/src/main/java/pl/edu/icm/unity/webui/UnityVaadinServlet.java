@@ -119,6 +119,8 @@ public class UnityVaadinServlet extends VaadinServlet
 			}
 		}; 
 		getService().setSystemMessagesProvider(msgProvider);
+		
+		getServletContext().getSessionCookieConfig().setHttpOnly(true);
 	}
 	
 	private Map<Class<?>, Object> saveThreadLocalState()

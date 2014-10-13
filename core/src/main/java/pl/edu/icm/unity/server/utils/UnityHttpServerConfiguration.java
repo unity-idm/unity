@@ -33,6 +33,7 @@ public class UnityHttpServerConfiguration extends HttpServerProperties
 	public static final String HTTPS_PORT = "port";
 	public static final String HTTPS_HOST = "host";
 	public static final String ADVERTISED_HOST = "advertisedHost";
+	public static final String ENABLE_HSTS = "enableHsts";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -50,6 +51,12 @@ public class UnityHttpServerConfiguration extends HttpServerProperties
 						"the server has to provide its address. By default it is set to the listen address, " + 
 						"however it must be set when the listen address is 0.0.0.0 and " +
 						"also should be set whenver the server is listening on private interface accessible via DNAT or similar solutions."));
+		defaults.put(ENABLE_HSTS, new PropertyMD("false").setCategory(mainCat).
+				setDescription("Control whether HTTP strict transport security is enabled. "
+						+ "It is a good and strongly suggested security mechanism for all production sites. "
+						+ "At the same time it can not be used with self-signed or not "
+						+ "issued by a generally trusted CA server certificates, "
+						+ "as with HSTS a user can't opt in to enter such site."));
 
 		for (Map.Entry<String, PropertyMD> entry: HttpServerProperties.defaults.entrySet())
 			defaults.put(entry.getKey(), entry.getValue().setCategory(advancedCat));

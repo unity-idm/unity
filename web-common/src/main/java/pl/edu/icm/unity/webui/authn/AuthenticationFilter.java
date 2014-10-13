@@ -193,6 +193,7 @@ public class AuthenticationFilter implements Filter
 		unitySessionCookie.setPath("/");
 		unitySessionCookie.setSecure(true);
 		unitySessionCookie.setMaxAge(0);
+		unitySessionCookie.setHttpOnly(true);
 		response.addCookie(unitySessionCookie);
 	}
 	
