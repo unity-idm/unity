@@ -128,4 +128,18 @@ public class ExtensionActionParameterComponent extends CustomField<String> imple
 	{
 		return String.class;
 	}
+	
+	@Override
+	public void setStyleName(String style) 
+	{
+		super.setStyleName(style);
+		parameter.setStyleName(style);
+	}
+	
+	@Override
+	public void removeStyleName(String style) 
+	{
+		super.removeStyleName(style);
+		parameter.removeStyleName(style);
+	}
 }
