@@ -229,7 +229,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("Credential requirement name"));
 		defaults.put(CREDENTIAL_REQ_DESCRIPTION, new PropertyMD("").setStructuredListEntry(CREDENTIAL_REQS).setCategory(initCredReqCat).
 				setDescription("Credential requirement description"));
-		defaults.put(CREDENTIAL_REQ_CONTENTS, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setList(false).setMandatory().setCategory(initCredReqCat).
+		defaults.put(CREDENTIAL_REQ_CONTENTS, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setList(false).setCategory(initCredReqCat).
 				setDescription("Credential requirement contents, i.e. credentials that belongs to it"));
 		
 		defaults.put(WIPE_DB_AT_STARTUP, new PropertyMD("false").setHidden().

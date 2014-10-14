@@ -30,6 +30,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 public class PasswordCredentialEditor implements CredentialEditor
 {
 	private UnityMessageSource msg;
+	private PasswordField passwordCurrent;
 	private PasswordField password1;
 	private PasswordField password2;
 	private ComboBox questionSelection;
@@ -37,6 +38,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 	private boolean requireQA;
 	private PasswordCredential helper;
 	private boolean required;
+	private boolean askAboutCurrent;
 
 	public PasswordCredentialEditor(UnityMessageSource msg)
 	{
@@ -44,19 +46,32 @@ public class PasswordCredentialEditor implements CredentialEditor
 	}
 
 	@Override
-	public ComponentsContainer getEditor(String credentialConfiguration, boolean required)
+	public ComponentsContainer getEditor(boolean askAboutCurrent, 
+			String credentialConfiguration, boolean required)
 	{
 		this.required = required;
+		this.askAboutCurrent = askAboutCurrent;
 		helper = new PasswordCredential();
 		helper.setSerializedConfiguration(credentialConfiguration);
 		
+		ComponentsContainer ret = new ComponentsContainer();
+
+		if (askAboutCurrent)
+		{
+			passwordCurrent = new PasswordField(msg.getMessage(
+					"PasswordCredentialEditor.currentPassword"));
+			ret.add(passwordCurrent);
+		}
 		password1 = new PasswordField(msg.getMessage("PasswordCredentialEditor.password"));
 		password2 = new PasswordField(msg.getMessage("PasswordCredentialEditor.repeatPassword"));
 		if (required)
 		{
 			password1.setRequired(true);
 			password2.setRequired(true);
+			if (askAboutCurrent)
+				passwordCurrent.setRequired(true);
 		}
+		ret.add(password1, password2);
 		
 		CredentialResetSettings resetSettings = helper.getPasswordResetSettings();
 		requireQA = resetSettings.isEnabled() && resetSettings.isRequireSecurityQuestion(); 
@@ -70,9 +85,9 @@ public class PasswordCredentialEditor implements CredentialEditor
 			answer = new TextField(msg.getMessage("PasswordCredentialEditor.answer"));
 			if (required)
 				answer.setRequired(true);
-			return new ComponentsContainer(password1, password2, questionSelection, answer);
+			ret.add(questionSelection, answer);
 		}
-		return new ComponentsContainer(password1, password2);
+		return ret;
 	}
 
 	@Override
@@ -80,6 +95,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 	{
 		if (!required && password1.getValue().isEmpty() && password2.getValue().isEmpty())
 			return null;
+		
 		if (required && password1.getValue().isEmpty())
 		{
 			password1.setComponentError(new UserError(msg.getMessage("fieldRequired")));
@@ -143,5 +159,30 @@ public class PasswordCredentialEditor implements CredentialEditor
 			ret.addComponent(new Label(msg.getMessage("PasswordCredentialEditor.securityQuestion", secQ)));
 		}
 		return ret;
+	}
+
+	@Override
+	public String getCurrentValue() throws IllegalCredentialException
+	{
+		if (askAboutCurrent && required && passwordCurrent.getValue().isEmpty())
+		{
+			passwordCurrent.setComponentError(new UserError(msg.getMessage("fieldRequired")));
+			throw new IllegalCredentialException(msg.getMessage("fieldRequired"));
+		} else
+			passwordCurrent.setComponentError(null);
+		return new PasswordToken(passwordCurrent.getValue()).toJson();
+	}
+
+	@Override
+	public void setCredentialError(String message)
+	{
+		password1.setComponentError(message == null ? null : new UserError(message));
+		password2.setComponentError(message == null ? null : new UserError(message));
+	}
+
+	@Override
+	public void setPreviousCredentialError(String message)
+	{
+		passwordCurrent.setComponentError(message == null ? null : new UserError(message));
 	}
 }

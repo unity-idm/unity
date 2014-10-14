@@ -9,13 +9,12 @@ import java.util.List;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -145,8 +144,7 @@ public class ListOfElements<T> extends VerticalLayout
 			VerticalLayout main = new VerticalLayout(cont);
 			if (addSeparatorLine)
 			{
-				Label line = new Label("<hr>", ContentMode.HTML);
-				main.addComponent(line);
+				main.addComponent(HtmlTag.hr());
 			}
 			main.setSpacing(true);
 			setCompositionRoot(main);

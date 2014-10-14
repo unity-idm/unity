@@ -103,7 +103,7 @@ public class RegistrationFormEditor extends VerticalLayout
 	private GroupComboBox adminsNotificationGroup;
 	private AbstractTextField autoAcceptCondition;
 	
-	private DescriptionTextArea formInformation;
+	private TextArea formInformation;
 	private TextField registrationCode;
 	private CheckBox collectComments;
 	private ListOfEmbeddedElements<AgreementRegistrationParam> agreements;	
@@ -317,7 +317,9 @@ public class RegistrationFormEditor extends VerticalLayout
 		wrapper.setMargin(true);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
 		
-		formInformation = new DescriptionTextArea(msg.getMessage("RegistrationFormViewer.formInformation"));
+		formInformation = new TextArea(msg.getMessage("RegistrationFormViewer.formInformation"));
+		formInformation.setWordwrap(true);
+		formInformation.setWidth(100, Unit.PERCENTAGE);
 		registrationCode = new TextField(msg.getMessage("RegistrationFormViewer.registrationCode"));
 		collectComments = new CheckBox(msg.getMessage("RegistrationFormEditor.collectComments"));
 		

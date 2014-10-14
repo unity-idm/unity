@@ -65,7 +65,8 @@ public class SearchSpecification
 	
 	private static Filter createFilter(String filterExp, String username) throws LDAPException
 	{
-		String filterStr = filterExp.replace("{USERNAME}", username);  
+		String sanitizedInput = LdapUnsafeArgsEscaper.escapeLDAPSearchFilter(username);
+		String filterStr = filterExp.replace("{USERNAME}", sanitizedInput);  
 		return Filter.create(filterStr);
 	}
 }

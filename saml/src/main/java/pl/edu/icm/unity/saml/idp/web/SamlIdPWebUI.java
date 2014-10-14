@@ -46,6 +46,7 @@ import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -58,7 +59,6 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -207,7 +207,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		info1Id.setStyleName(Reindeer.LABEL_H2);
 		Label info1Addr = new Label(msg.getMessage("SamlIdPWebUI.info1Addr", returnAddress));
 		info1Addr.setStyleName(Reindeer.LABEL_H2);
-		Label spc1 = new Label("<br>", ContentMode.HTML);
+		Label spc1 = new Label(HtmlTag.br());
 		Label info2 = new Label(msg.getMessage("SamlIdPWebUI.info2"));
 		Label info3 = new Label(msg.getMessage("SamlIdPWebUI.info3"));
 		info3.setStyleName(Reindeer.LABEL_SMALL);
@@ -227,7 +227,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		{
 			TranslationResult translationResult = getUserInfo(samlCtx, samlProcessor);
 			createIdentityPart(translationResult, eiLayout);
-			eiLayout.addComponent(new Label("<br>", ContentMode.HTML));
+			eiLayout.addComponent(HtmlTag.br());
 			createAttributesPart(translationResult, eiLayout);
 		} catch (SAMLRequesterException e)
 		{
@@ -294,7 +294,6 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		attributesL.setStyleName(Styles.bold.toString());
 		Label attributesInfo = new Label(msg.getMessage("SamlIdPWebUI.attributesInfo"));
 		attributesInfo.setStyleName(Reindeer.LABEL_SMALL);
-		attributesInfo.setContentMode(ContentMode.HTML);
 		Label hideL = new Label(msg.getMessage("SamlIdPWebUI.hide"));
 		
 		contents.addComponent(attributesL);

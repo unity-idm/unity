@@ -9,7 +9,6 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.server.utils.Log;
 
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
@@ -32,11 +31,10 @@ public class ErrorComponent extends FormLayout
 	
 	public void setError(String description, Exception error)
 	{
-		Label errorL = new Label();
-		errorL.setStyleName(Styles.error.toString());
+		HtmlSimplifiedLabel errorL = new HtmlSimplifiedLabel();
+		errorL.addStyleName(Styles.error.toString());
 		errorL.setIcon(Images.error32.getResource());
 		errorL.setValue(description + ": " + ErrorPopup.getHumanMessage(error));
-		errorL.setContentMode(ContentMode.HTML);
 		if (error instanceof AuthorizationException)
 			log.debug("Error component initialized with the authZ error: " + description);
 		else
@@ -55,8 +53,8 @@ public class ErrorComponent extends FormLayout
 
 	public void setError(String error)
 	{
-		Label errorL = new Label();
-		errorL.setStyleName(Styles.error.toString());
+		HtmlSimplifiedLabel errorL = new HtmlSimplifiedLabel();
+		errorL.addStyleName(Styles.error.toString());
 		errorL.setIcon(Images.error32.getResource());
 		errorL.setValue(error);
 		addCommon(errorL);
@@ -64,11 +62,9 @@ public class ErrorComponent extends FormLayout
 		
 	public void setWarning(String warning)
 	{
-		Label errorL = new Label();
-		errorL.setStyleName(Styles.italic.toString());
-		errorL.setContentMode(ContentMode.HTML);
+		HtmlSimplifiedLabel errorL = new HtmlSimplifiedLabel();
+		errorL.addStyleName(Styles.italic.toString());
 		errorL.setIcon(Images.warn32.getResource());
-		
 		errorL.setValue(warning);
 		addCommon(errorL);
 	}

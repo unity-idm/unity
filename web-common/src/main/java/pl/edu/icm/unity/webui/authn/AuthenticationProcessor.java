@@ -151,6 +151,9 @@ public class AuthenticationProcessor
 			throw new AuthenticationException("AuthenticationProcessor.authnInternalError");
 		}
 		
+		//prevent session fixation
+		VaadinService.reinitializeSession(VaadinService.getCurrentRequest());
+		
 		final HttpSession httpSession = ((WrappedHttpSession) vss.getSession()).getHttpSession();
 	
 		sessionBinder.bindHttpSession(httpSession, ls);
@@ -180,6 +183,7 @@ public class AuthenticationProcessor
 		Cookie unitySessionCookie = new Cookie(cookieName, sessionId);
 		unitySessionCookie.setPath("/");
 		unitySessionCookie.setSecure(true);
+		unitySessionCookie.setHttpOnly(true);
 		if (rememberMe && realm.getAllowForRememberMeDays() > 0)
 		{
 			unitySessionCookie.setMaxAge(getAbsoluteSessionTTL(realm));

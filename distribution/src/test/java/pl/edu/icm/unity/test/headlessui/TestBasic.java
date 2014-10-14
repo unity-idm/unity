@@ -8,6 +8,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Cookie;
 
 /**
  * 
@@ -21,6 +22,8 @@ public class TestBasic extends SeleniumTestBase
 	public void loginTest() throws Exception
 	{
 		driver.get(baseUrl + "/admin/admin");
+		//TODO - likely it won't work - we have http only cookie
+		Cookie sessionBefore = driver.manage().getCookieNamed("JSESSIONID");
 		driver.findElement(By.id("AuthenticationUI.username")).clear();
 		driver.findElement(By.id("AuthenticationUI.username")).sendKeys("a");
 		driver.findElement(By.id("WebPasswordRetrieval.password")).clear();
@@ -28,5 +31,7 @@ public class TestBasic extends SeleniumTestBase
 		driver.findElement(By.id("AuthenticationUI.authnenticateButton")).click();
 		assertTrue(driver.findElement(By.id("MainHeader.loggedAs")).getText().contains("[entity id: 1]"));
 		driver.findElement(By.id("MainHeader.logout"));
+		Cookie sessionAfter = driver.manage().getCookieNamed("JSESSIONID");
+		assertNotEquals(sessionBefore.getValue(), sessionAfter.getValue());
 	}
 }

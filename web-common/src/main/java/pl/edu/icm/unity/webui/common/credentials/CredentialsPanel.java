@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -27,13 +28,14 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.MapComboBox;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -41,7 +43,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -59,6 +60,7 @@ public class CredentialsPanel extends VerticalLayout
 	private Entity entity;
 	private final long entityId;
 	private final boolean simpleMode;
+	private boolean askAboutCurrent;
 	
 	private Map<String, CredentialDefinition> credentials;
 	
@@ -205,7 +207,19 @@ public class CredentialsPanel extends VerticalLayout
 		credEditor = credEditorReg.getEditor(chosen.getTypeId());
 		FormLayout credLayout = new FormLayout();
 		credLayout.setMargin(true);
-		credLayout.addComponents(credEditor.getEditor(chosen.getJsonConfiguration(), true).getComponents());
+		EntityParam entityP = new EntityParam(entity.getId());
+		try
+		{
+			askAboutCurrent = idsMan.isCurrentCredentialRequiredForChange(entityP, 
+					chosen.getTypeId());
+		} catch (EngineException e)
+		{
+			log.debug("Got exception when asking about possibility to "
+					+ "change the credential without providing the existing one."
+					+ " Most probably the subsequent credential change will also fail.", e);
+			askAboutCurrent = true;
+		}
+		credLayout.addComponents(credEditor.getEditor(askAboutCurrent, chosen.getJsonConfiguration(), true).getComponents());
 		editor.setContent(credLayout);
 		Component viewer = credEditor.getViewer(credPublicInfo.getExtraInformation());
 		if (viewer == null)
@@ -233,9 +247,11 @@ public class CredentialsPanel extends VerticalLayout
 	
 	private void updateCredential()
 	{
-		String secrets;
+		String secrets, currentSecrets = null;
 		try
 		{
+			if (askAboutCurrent)
+				currentSecrets = credEditor.getCurrentValue();
 			secrets = credEditor.getValue();
 		} catch (IllegalCredentialException e)
 		{
@@ -245,7 +261,22 @@ public class CredentialsPanel extends VerticalLayout
 		EntityParam entityP = new EntityParam(entity.getId());
 		try
 		{
-			idsMan.setEntityCredential(entityP, credDef.getName(), secrets);
+			if (askAboutCurrent)
+				idsMan.setEntityCredential(entityP, credDef.getName(), secrets, currentSecrets);
+			else
+				idsMan.setEntityCredential(entityP, credDef.getName(), secrets);
+		} catch (IllegalPreviousCredentialException e)
+		{
+			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
+			credEditor.setCredentialError(null);
+			credEditor.setPreviousCredentialError(e.getMessage());
+			return;
+		}  catch (IllegalCredentialException e)
+		{
+			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
+			credEditor.setPreviousCredentialError(null);
+			credEditor.setCredentialError(e.getMessage());
+			return;
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
@@ -306,7 +337,7 @@ public class CredentialsPanel extends VerticalLayout
 			contents.addComponents(label);
 		}
 		
-		contents.addComponent(new Label("<hr/>", ContentMode.HTML));
+		contents.addComponent(HtmlTag.hr());
 		
 		statuses.setContent(contents);
 		updateSelectedCredential();

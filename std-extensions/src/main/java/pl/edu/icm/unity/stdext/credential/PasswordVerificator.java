@@ -31,13 +31,13 @@ import edu.vt.middleware.password.RepeatCharacterRegexRule;
 import edu.vt.middleware.password.Rule;
 import edu.vt.middleware.password.RuleResult;
 import edu.vt.middleware.password.UppercaseCharacterRule;
-
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.notifications.NotificationProducer;
@@ -99,13 +99,28 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	 * The rawCredential must be in JSON format, see {@link PasswordToken} for details.
 	 */
 	@Override
-	public String prepareCredential(String rawCredential, String currentCredential)
+	public String prepareCredential(String rawCredential, String previousCredential, 
+			String currentCredential)
 			throws IllegalCredentialException, InternalException
 	{
 		Deque<PasswordInfo> currentPasswords = PasswordCredentialDBState.fromJson(currentCredential).
 				getPasswords();
 		
 		PasswordToken pToken = PasswordToken.loadFromJson(rawCredential);
+		
+		//verify it existing password was correctly provided 
+		if (previousCredential!= null && !currentPasswords.isEmpty())
+		{
+			PasswordToken checkedToken = PasswordToken.loadFromJson(previousCredential);
+			PasswordInfo current = currentPasswords.getFirst();
+			try
+			{
+				checkPasswordInternal(checkedToken.getPassword(), current);
+			} catch (IllegalCredentialException e)
+			{
+				throw new IllegalPreviousCredentialException("The current credential is incorrect", e);
+			}
+		}
 		
 		verifyNewPassword(pToken.getExistingPassword(), pToken.getPassword(), currentPasswords);
 		
@@ -206,15 +221,21 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		if (credentials.isEmpty())
 			throw new IllegalCredentialException("The entity has no password set");
 		PasswordInfo current = credentials.getFirst();
-		byte[] testedHash = CryptoUtils.hash(password, current.getSalt());
-		if (!Arrays.areEqual(testedHash, current.getHash()))
-			throw new IllegalCredentialException("The password is incorrect");
+		checkPasswordInternal(password, current);
 		boolean isOutdated = isCurrentPasswordOutdated(password, credState, resolved);
 		AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), username, isOutdated);
 		return new AuthenticationResult(Status.success, ae);
 	}
 
-
+	private void checkPasswordInternal(String password, PasswordInfo current) 
+			throws IllegalCredentialException
+	{
+		byte[] testedHash = CryptoUtils.hash(password, current.getSalt());
+		if (!Arrays.areEqual(testedHash, current.getHash()))
+			throw new IllegalCredentialException("The password is incorrect");
+	}
+	
+	
 	@Override
 	public CredentialReset getCredentialResetBackend()
 	{
@@ -315,6 +336,13 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			ruleList.add(new RepeatCharacterRegexRule(4));
 		}
 		return new PasswordValidator(ruleList);
+	}
+
+	@Override
+	public String prepareCredential(String rawCredential, String currentCredential)
+			throws IllegalCredentialException, InternalException
+	{
+		return prepareCredential(rawCredential, null, currentCredential);
 	}
 }
 
