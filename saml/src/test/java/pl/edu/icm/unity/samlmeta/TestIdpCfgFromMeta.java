@@ -57,8 +57,8 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_URL, "file:src/test/resources/metadata.switchaai.xml");
 		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_SIGNATURE, "require");
 		X509Certificate cert = CertificateUtils.loadCertificate(new ByteArrayInputStream(CERT.getBytes()), Encoding.PEM);
-		pkiManagement.addCertificate("issuerCert", cert);
-		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_ISSUER_CERT, "issuerCert");
+		pkiManagement.addCertificate("issuerCert2", cert);
+		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_ISSUER_CERT, "issuerCert2");
 
 		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_ENTITY, "https://support.hes-so.ch/shibboleth");
 		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_RETURN_URL, "URL");

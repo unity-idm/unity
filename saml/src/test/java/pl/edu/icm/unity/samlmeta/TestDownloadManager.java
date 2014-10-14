@@ -52,10 +52,11 @@ public class TestDownloadManager extends DBIntegrationTestBase
 	@Autowired
 	private MetaDownloadManager downloadManager;
 
+	
+	
 	@Test
 	public void testDownload() throws IOException, EngineException, InterruptedException
 	{
-
 		int refreshTime = 10;
 		Properties p = new Properties();
 		p.setProperty(P + CREDENTIAL, "MAIN");
@@ -64,7 +65,6 @@ public class TestDownloadManager extends DBIntegrationTestBase
 		p.setProperty(P + GROUP, "group");
 		p.setProperty(P + DEFAULT_GROUP, "group");
 		p.setProperty(P + METADATA_REFRESH, String.valueOf(refreshTime));
-
 		p.setProperty(P + ALLOWED_SP_PREFIX + "1." + ALLOWED_SP_ENTITY,
 				"https://support.hes-so.ch/shibboleth");
 		p.setProperty(P + ALLOWED_SP_PREFIX + "1." + ALLOWED_SP_RETURN_URL, "URL");
@@ -77,17 +77,14 @@ public class TestDownloadManager extends DBIntegrationTestBase
 
 		for (int i = 0; i < 10; i++)
 		{
-
 			if (i % 2 == 0)
 			{
 				p.setProperty(P + SPMETA_PREFIX + "1." + METADATA_URL,
-						new String(
-								"http://metadata.aai.switch.ch/metadata.switchaai.xml"));
+						new String("http://metadata.aai.switch.ch/metadata.switchaai.xml"));
 			} else
 			{
 				p.setProperty(P + SPMETA_PREFIX + "1." + METADATA_URL,
-						new String(
-								"https://www.aai.dfn.de/fileadmin/metadata/DFN-AAI-metadata.xml"));
+						new String("https://www.aai.dfn.de/fileadmin/metadata/DFN-AAI-metadata.xml"));
 			}
 			SAMLIDPProperties configuration = new SAMLIDPProperties(p, pkiManagement);
 
@@ -96,16 +93,13 @@ public class TestDownloadManager extends DBIntegrationTestBase
 					new MetaToIDPConfigConverter(pkiManagement),
 					downloadManager, SAMLIDPProperties.SPMETA_PREFIX);
 			mans.add(manager);
-
 		}
-
 		
 		for (RemoteMetaManager m : mans)
 		{
 			m.start();
 		}
 
-		Thread.sleep(10 * refreshTime * 500);
-
+		Thread.sleep(5 * refreshTime * 500);
 	}
 }
