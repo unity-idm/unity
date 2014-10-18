@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.tprofile.wizard;
+package pl.edu.icm.unity.webadmin.tprofile.dryrun;
 
 import org.vaadin.teemu.wizards.WizardStep;
 
@@ -12,7 +12,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import com.vaadin.ui.Component;
 
 /**
- * Fourth wizard step with profile validation - used in {@link WizardDialogComponent}.
+ * Fourth dryrun step with profile validation - used in {@link DryRunDialogComponent}.
  * 
  * @author Roman Krysinski
  */
@@ -36,7 +36,7 @@ public class DryRunStep implements WizardStep
 	@Override
 	public String getCaption() 
 	{
-		return msg.getMessage("Wizard.DryRunStep.caption");
+		return msg.getMessage("DryRun.DryRunStep.caption");
 	}
 
 	@Override

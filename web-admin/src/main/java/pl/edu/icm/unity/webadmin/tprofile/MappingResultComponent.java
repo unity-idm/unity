@@ -78,7 +78,6 @@ public class MappingResultComponent extends CustomComponent
 		initTables();
 	}
 
-
 	private void initLabels() 
 	{
 		titleLabel.setValue(msg.getMessage("MappingResultComponent.title"));
@@ -101,16 +100,17 @@ public class MappingResultComponent extends CustomComponent
 	
 	public void displeyMappingResult(MappingResult mappingResult)
 	{
-		displayItsTables(mappingResult.getIdentities());
-		displayAttrsTable(mappingResult.getAttributes());
-		displayGroups(mappingResult.getGroups());
-		if (mappingResult.getIdentities().isEmpty()
-				&& mappingResult.getAttributes().isEmpty()
-				&& mappingResult.getGroups().isEmpty())
+		if (mappingResult == null 
+				|| (mappingResult.getIdentities().isEmpty()
+					&& mappingResult.getAttributes().isEmpty()
+					&& mappingResult.getGroups().isEmpty()))
 		{
 			noneLabel.setVisible(true);
 		} else
 		{
+			displayItsTables(mappingResult.getIdentities());
+			displayAttrsTable(mappingResult.getAttributes());
+			displayGroups(mappingResult.getGroups());
 			noneLabel.setVisible(false);
 		}
 	}

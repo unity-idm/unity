@@ -68,6 +68,7 @@ public enum Images
 	downArrow       (I.P + "16/down.png"),
 	bottomArrow	(I.P + "16/bottomArrow.png"),
 	wizard		(I.P + "16/wizard.png"),
+	dryrun		(I.P + "16/dryrun.png"),
 	play		(I.P + "16/play.png"),
 	pause		(I.P + "16/pause.png"),
 	cross		(I.P + "16/cross.png"),

@@ -31,6 +31,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webadmin.WebAdminEndpointFactory;
 import pl.edu.icm.unity.webadmin.WebAdminVaadinEndpoint;
+import pl.edu.icm.unity.webadmin.tprofile.dryrun.DryRunDialog;
 import pl.edu.icm.unity.webadmin.tprofile.wizard.WizardDialog;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
@@ -163,6 +164,8 @@ public class TranslationProfilesComponent extends VerticalLayout
 		table.addActionHandler(new EditActionHandler());
 		table.addActionHandler(new DeleteActionHandler());
 		table.addActionHandler(new WizardActionHandler());
+		table.addActionHandler(new DryRunActionHandler());
+		
 		
 		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
 		toolbar.addActionHandlers(table.getActionHandlers());
@@ -415,31 +418,12 @@ public class TranslationProfilesComponent extends VerticalLayout
 		{
 			super(msg.getMessage("TranslationProfilesComponent.wizardAction"), Images.wizard.getResource());
 			setNeedsTarget(false);
-			
-			addCallback = new TranslationProfileEditDialog.Callback()
-			{
-				@Override
-				public boolean handleProfile(TranslationProfile profile)
-				{
-					return addProfile(profile);
-				}
-			};
-			
 			callback = new SingleActionHandler.ActionButtonCallback() 
 			{
 				@Override
 				public boolean showActionButton() 
 				{
-					boolean isVisible = false;
-					if (profileType != null) 
-					{
-						ProfileType pt = (ProfileType) profileType.getValue();
-						if (pt == ProfileType.INPUT) 
-						{
-							isVisible = true;
-						}
-					}
-					return isVisible;
+					return isInputProfileSelection();
 				}
 			};
 		}
@@ -457,11 +441,49 @@ public class TranslationProfilesComponent extends VerticalLayout
 						e);
 				return;
 			}
-			
+
 			WizardDialog wizard = new WizardDialog(msg, sandboxURL, sandboxNotifier, editor, addCallback);
 			wizard.show();
 		}
+	}
+	
+	private class DryRunActionHandler extends SingleActionHandler
+	{
+		public DryRunActionHandler()
+		{
+			super(msg.getMessage("TranslationProfilesComponent.dryrunAction"), Images.dryrun.getResource());
+			setNeedsTarget(false);
+			callback = new SingleActionHandler.ActionButtonCallback() 
+			{
+				@Override
+				public boolean showActionButton() 
+				{
+					return isInputProfileSelection();
+				}
+			};
+		}
+
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{
+			DryRunDialog wizard = new DryRunDialog(msg, sandboxURL, sandboxNotifier);
+			wizard.show();
+		}
 	}	
+	
+	private boolean isInputProfileSelection()
+	{
+		boolean isInputProfile = false;
+		if (profileType != null) 
+		{
+			ProfileType pt = (ProfileType) profileType.getValue();
+			if (pt == ProfileType.INPUT) 
+			{
+				isInputProfile = true;
+			}
+		}
+		return isInputProfile;		
+	}
 
 	public void setSandboxNotifier(SandboxAuthnNotifier sandboxNotifier) 
 	{

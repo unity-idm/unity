@@ -330,7 +330,15 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 		if (isProfileValidationOnly)
 		{
-			sandboxCallback.handleProfileValidation(authnResult, logRecorder.getCapturedLogs());
+			try 
+			{
+				sandboxCallback.handleProfileValidation(authnResult, 
+						credentialExchange.getRemotelyAuthenticatedInput(authnContext),
+						logRecorder.getCapturedLogs());
+			} catch (AuthenticationException e) 
+			{
+				sandboxCallback.handleAuthnError(e);
+			}			
 			logRecorder.stopLogRecording();
 		} else
 		{

@@ -190,13 +190,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 			{
 				if (sandboxCallback.validateProfile())
 				{
-					LogRecorder logRecorder = new LogRecorder();
-					logRecorder.startLogRecording();
-					
-					AuthenticationResult authnResult = getAuthenticationResult(username, password);
-					sandboxCallback.handleProfileValidation(authnResult, logRecorder.getCapturedLogs());
-					
-					logRecorder.stopLogRecording();
+					handleProfileValidation(username, password);
 					
 				} else
 				{
@@ -208,6 +202,25 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 			}
 		}
 		
+
+		private void handleProfileValidation(String username, String password) 
+		{
+			LogRecorder logRecorder = new LogRecorder();
+			logRecorder.startLogRecording();
+			
+			AuthenticationResult authnResult = getAuthenticationResult(username, password);
+			try 
+			{
+				sandboxCallback.handleProfileValidation(authnResult, 
+						credentialExchange.getRemotelyAuthenticatedInput(username, password), 
+						logRecorder.getCapturedLogs());
+			} catch (AuthenticationException e) 
+			{
+				sandboxCallback.handleAuthnError(e);
+			}					
+			
+			logRecorder.stopLogRecording();
+		}
 
 		private void handleSandboxAuthn(String username, String password) 
 		{
