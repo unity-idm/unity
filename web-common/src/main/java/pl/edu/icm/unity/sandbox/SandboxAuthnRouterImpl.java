@@ -4,12 +4,17 @@
  */
 package pl.edu.icm.unity.sandbox;
 
-import java.util.WeakHashMap;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
+import pl.edu.icm.unity.server.utils.Log;
+
+import com.vaadin.server.SessionDestroyEvent;
+import com.vaadin.server.SessionDestroyListener;
+import com.vaadin.server.VaadinService;
 
 /**
  * Simple implementation of {@link SandboxAuthnRouter} interface, used by
@@ -20,14 +25,50 @@ import com.vaadin.server.WrappedSession;
 @Component
 public class SandboxAuthnRouterImpl implements SandboxAuthnRouter 
 {
-	
-	private WeakHashMap<WrappedSession, RemoteAuthnInputListener> inputListenerList;
-	private WeakHashMap<WrappedSession, AuthnResultListener> authnListenerList;
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, SandboxAuthnRouterImpl.class);
+	private Map<String, RemoteAuthnInputListener> inputListenerList;
+	private Map<String, AuthnResultListener> authnListenerList;
 
 	public SandboxAuthnRouterImpl()
 	{
-		inputListenerList = new WeakHashMap<WrappedSession, RemoteAuthnInputListener>();
-		authnListenerList = new WeakHashMap<WrappedSession, AuthnResultListener>();
+		inputListenerList = new HashMap<String, RemoteAuthnInputListener>();
+		authnListenerList = new HashMap<String, AuthnResultListener>();
+		if (LOG.isDebugEnabled()) 
+		{
+			Thread thread = new Thread(new Runnable() 
+			{
+				@Override
+				public void run() 
+				{
+					while (true)
+					{
+						int inputSize = 0;
+						int authnSize = 0;
+						synchronized (inputListenerList)
+						{
+							inputSize = inputListenerList.size();
+						}
+						synchronized (authnListenerList)
+						{
+							authnSize = authnListenerList.size();
+						}						
+						if (inputSize > 0)
+							LOG.debug("inputListenerList.size()==" + inputSize);
+						if (authnSize > 0)
+							LOG.debug("authnListenerList.size()==" + authnSize);
+						try 
+						{
+							Thread.sleep(5000);
+						} catch (InterruptedException e) 
+						{
+							break;
+						}
+					}
+				}
+			});
+			thread.setName("SandboxAuthnRouterImpl");
+			thread.start();
+		}
 	}
 	
 	@Override
@@ -57,20 +98,52 @@ public class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 	@Override
 	public void addListener(RemoteAuthnInputListener listener) 
 	{
-		WrappedSession session = VaadinSession.getCurrent().getSession();
+		final String sessionId = VaadinService.getCurrentRequest().getWrappedSession().getId();
+		LOG.debug("addin RemoteAuthnInputListener: " + sessionId);
 		synchronized (inputListenerList)
 		{
-			inputListenerList.put(session, listener);
+			inputListenerList.put(sessionId, listener);
 		}
+		final VaadinService vaadinService = VaadinService.getCurrent();
+		vaadinService.addSessionDestroyListener(new SessionDestroyListener()
+		{
+			@Override
+			public void sessionDestroy(SessionDestroyEvent event) 
+			{
+				LOG.debug("removing RemoteAuthnInputListener: " + sessionId);
+				synchronized (inputListenerList)
+				{
+					inputListenerList.remove(sessionId);
+				}				
+				vaadinService.removeSessionDestroyListener(this);
+				
+			}
+		}); 
 	}
 
 	@Override
 	public void addListener(AuthnResultListener listener) 
 	{
-		WrappedSession session = VaadinSession.getCurrent().getSession();
+		final String sessionId = VaadinService.getCurrentRequest().getWrappedSession().getId();
+		LOG.debug("addin AuthnResultListener: " + sessionId);
 		synchronized (authnListenerList)
 		{
-			authnListenerList.put(session, listener);
+			authnListenerList.put(sessionId, listener);
 		}
+		final VaadinService vaadinService = VaadinService.getCurrent();
+		vaadinService.addSessionDestroyListener(new SessionDestroyListener() 
+		{
+			@Override
+			public void sessionDestroy(SessionDestroyEvent event) 
+			{
+				LOG.debug("removing AuthnResultListener: " + sessionId);
+				synchronized (authnListenerList)
+				{
+					authnListenerList.remove(sessionId);
+				}				
+				vaadinService.removeSessionDestroyListener(this);
+				
+			}
+		}); 	
 	}
 }
