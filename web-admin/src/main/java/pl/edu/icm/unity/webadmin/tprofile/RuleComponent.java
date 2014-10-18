@@ -39,6 +39,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.validator.AbstractStringValidator;
+import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -451,20 +452,25 @@ public class RuleComponent extends VerticalLayout
 
 	public void test(RemotelyAuthenticatedInput remoteAuthnInput) 
 	{
-		InputTranslationRule rule = (InputTranslationRule) getRule();
+		InputTranslationRule rule = null;
+		try 
+		{
+			rule = (InputTranslationRule) getRule();
+		} catch (Exception e)
+		{
+			indicateExtensionError(e);
+			return;
+		}
+		
 		Map<String, Object> mvelCtx = InputTranslationProfile.createMvelContext(remoteAuthnInput);
 		TranslationCondition conditionRule = rule.getCondition();
-		
 		try 
 		{
 			boolean result = conditionRule.evaluate(mvelCtx);
 			setLayoutForEvaludatedCondition(result);
 		} catch (EngineException e) 
 		{
-			ErrorPopup.showError(msg,
-					msg.getMessage("TranslationProfileEditor.errorConditionEvaluation"),
-					e);
-			condition.setStyleName(Styles.redBackground.toString());
+			indicateConditionError(e);
 		}
 		
 		InputTranslationAction action = rule.getAction();
@@ -474,18 +480,8 @@ public class RuleComponent extends VerticalLayout
 			displayMappingResult(mappingResult);
 		} catch (EngineException e) 
 		{
-			ErrorPopup.showError(msg,
-					msg.getMessage("TranslationProfileEditor.errorExpressionEvaluation"),
-					e);
-			setColorForParamList(Styles.redBackground.toString());
+			indicateExtensionError(e);
 		}
-	}
-
-
-	public void clearTestResult() 
-	{
-		removeRuleComponentEvaluationStyle();	
-		hideMappingResultComponent();
 	}
 	
 	private void setLayoutForEvaludatedCondition(boolean conditionResult) 
@@ -498,6 +494,42 @@ public class RuleComponent extends VerticalLayout
 		{
 			setColorForInputComponents(Styles.grayBackground.toString());
 		}
+	}
+	
+	private void displayMappingResult(MappingResult mappingResult) 
+	{
+		mappingResultComponent.displeyMappingResult(mappingResult);
+		mappingResultComponent.setVisible(true);
+	}
+	
+	private void indicateConditionError(Exception e) 
+	{
+		condition.setStyleName(Styles.redBackground.toString());
+		condition.setComponentError(new UserError(ErrorPopup.getHumanMessage(e)));
+		condition.setValidationVisible(true);
+	}
+	
+	private void indicateExtensionError(Exception e) 
+	{
+		Iterator<Component> iter = paramsList.iterator();
+		while (iter.hasNext())
+		{
+			Component c = iter.next();
+			if (c instanceof ExtensionActionParameterComponent)
+			{
+				ExtensionActionParameterComponent extension = (ExtensionActionParameterComponent) c;
+				extension.setStyleName(Styles.redBackground.toString());
+				extension.setComponentError(new UserError(ErrorPopup.getHumanMessage(e)));
+				extension.setValidationVisible(true);
+				break;
+			}
+		}	
+	}
+
+	public void clearTestResult() 
+	{
+		removeRuleComponentEvaluationStyle();	
+		hideMappingResultComponent();
 	}
 	
 	private void setColorForInputComponents(String color)
@@ -522,6 +554,8 @@ public class RuleComponent extends VerticalLayout
 		condition.removeStyleName(Styles.greenBackground.toString());
 		condition.removeStyleName(Styles.redBackground.toString());
 		condition.removeStyleName(Styles.grayBackground.toString());
+		condition.setComponentError(null);
+		condition.setValidationVisible(false);
 		
 		actions.removeStyleName(Styles.grayBackground.toString());
 		actions.removeStyleName(Styles.greenBackground.toString());
@@ -533,13 +567,13 @@ public class RuleComponent extends VerticalLayout
 			c.removeStyleName(Styles.grayBackground.toString());
 			c.removeStyleName(Styles.greenBackground.toString());
 			c.removeStyleName(Styles.redBackground.toString());
+			if (c instanceof ExtensionActionParameterComponent)
+			{
+				ExtensionActionParameterComponent extension = (ExtensionActionParameterComponent) c;
+				extension.setComponentError(null);
+				extension.setValidationVisible(false);
+			}			
 		}	
-	}
-	
-	private void displayMappingResult(MappingResult mappingResult) 
-	{
-		mappingResultComponent.displeyMappingResult(mappingResult);
-		mappingResultComponent.setVisible(true);
 	}
 	
 	private void hideMappingResultComponent() 
