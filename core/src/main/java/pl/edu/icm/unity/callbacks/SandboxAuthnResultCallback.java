@@ -16,5 +16,5 @@ public interface SandboxAuthnResultCallback
 	
 	public boolean validateProfile();
 	
-	public void handleProfileValidation(AuthenticationResult authnResult, RemotelyAuthenticatedInput input, StringBuffer capturedLogs);
+	public void handleProfileValidation(AuthenticationResult authnResult, StringBuffer capturedLogs);
 }

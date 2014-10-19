@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.sandbox;
 
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.translation.in.MappingResult;
 
 /**
  * As the result of sandbox authn this event contains {@link AuthenticationResult}
@@ -18,14 +17,11 @@ public class SandboxAuthnResultEvent extends SandboxAuthnEvent
 {
 	private AuthenticationResult authnResult;
 	private StringBuffer capturedLogs;
-	private MappingResult mapping;
 	
-	public SandboxAuthnResultEvent(AuthenticationResult authnResult, 
-			MappingResult mapping, StringBuffer capturedLogs) 
+	public SandboxAuthnResultEvent(AuthenticationResult authnResult, StringBuffer capturedLogs) 
 	{
 		super();
 		this.authnResult  = authnResult;
-		this.mapping      = mapping;
 		this.capturedLogs = capturedLogs;
 	}
 
@@ -37,10 +33,5 @@ public class SandboxAuthnResultEvent extends SandboxAuthnEvent
 	public StringBuffer getCapturedLogs()
 	{
 		return capturedLogs;
-	}
-	
-	public MappingResult getMappingResult()
-	{
-		return mapping;
 	}
 }

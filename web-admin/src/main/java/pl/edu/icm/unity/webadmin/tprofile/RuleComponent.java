@@ -452,6 +452,7 @@ public class RuleComponent extends VerticalLayout
 
 	public void test(RemotelyAuthenticatedInput remoteAuthnInput) 
 	{
+		
 		InputTranslationRule rule = null;
 		try 
 		{

@@ -13,7 +13,6 @@ import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
@@ -22,7 +21,6 @@ import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.engine.authn.AuthenticatorLoader;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
@@ -30,8 +28,6 @@ import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
-import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
-import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
@@ -70,7 +66,6 @@ public class SandboxUI extends AuthenticationUI
 	public static final String PROFILE_VALIDATION = "validate";
 
 	private List<AuthenticatorSet> authnList;
-	private TranslationProfileManagement profileManagement;
 
 	@Autowired
 	public SandboxUI(UnityMessageSource msg,
@@ -82,11 +77,9 @@ public class SandboxUI extends AuthenticationUI
 			AuthenticationManagement authnManagement,
 			AuthenticatorLoader authnLoader,
 			DBSessionManager db,
-			AuthenticatorsRegistry authnRegistry,
-			@Qualifier("insecure") TranslationProfileManagement profileManagement)
+			AuthenticatorsRegistry authnRegistry)
 	{
 		super(msg, localeChoice, authnProcessor, formsChooser, formLauncher, execService);
-		this.profileManagement = profileManagement;
 		
 		authnList      = getAllVaadinAuthenticators(authnManagement, authnRegistry);
 		authenticators = getAuthenticatorUIs(authnList, authnLoader, db);
@@ -162,22 +155,9 @@ public class SandboxUI extends AuthenticationUI
 						}
 
 						@Override
-						public void handleProfileValidation(AuthenticationResult authnResult,
-								RemotelyAuthenticatedInput input, StringBuffer capturedLogs) 
+						public void handleProfileValidation(AuthenticationResult authnResult, StringBuffer capturedLogs) 
 						{
-							MappingResult mapping = null;
-							try 
-							{
-								InputTranslationProfile translationProfile = profileManagement.listInputProfiles().
-										get(authnResult.getRemoteAuthnContext().getInputTranslationProfile());
-								mapping = translationProfile.translate(input);
-							} catch (EngineException e) 
-							{
-								capturedLogs.append("\n").append("Error: failed to generate mapping result: ");
-								capturedLogs.append(e.getMessage()).append("\n");
-							}
-							
-							fireAuthnEvent(authnResult, mapping, capturedLogs);
+							fireAuthnEvent(authnResult, capturedLogs);
 							cancelAuthentication();
 							if (isPopup()) 
 							{
@@ -195,9 +175,9 @@ public class SandboxUI extends AuthenticationUI
 		sandboxRouter.fireEvent(new SandboxRemoteAuthnInputEvent(input));
 	}
 
-	private void fireAuthnEvent(AuthenticationResult authnResult, MappingResult mapping, StringBuffer capturedLogs)
+	private void fireAuthnEvent(AuthenticationResult authnResult, StringBuffer capturedLogs)
 	{
-		sandboxRouter.fireEvent(new SandboxAuthnResultEvent(authnResult, mapping, capturedLogs));
+		sandboxRouter.fireEvent(new SandboxAuthnResultEvent(authnResult, capturedLogs));
 	}
 	
 	private void cancelAuthentication() 

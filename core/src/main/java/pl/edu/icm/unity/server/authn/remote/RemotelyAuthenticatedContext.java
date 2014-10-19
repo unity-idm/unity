@@ -9,6 +9,7 @@ import java.util.Collection;
 
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
@@ -26,6 +27,7 @@ public class RemotelyAuthenticatedContext
 	private IdentityTaV primaryIdentity;
 	private Collection<Attribute<?>> attributes = new ArrayList<>();
 	private Collection<String> groups = new ArrayList<>();
+	private MappingResult mappingResult;
 
 	public RemotelyAuthenticatedContext(String remoteIdPName, String inputTranslationProfile)
 	{
@@ -81,4 +83,12 @@ public class RemotelyAuthenticatedContext
 	{
 		return inputTranslationProfile;
 	}
+	public MappingResult getMappingResult() 
+	{
+		return mappingResult;
+	}
+	public void setMappingResult(MappingResult mappingResult) 
+	{
+		this.mappingResult = mappingResult;
+	}	
 }

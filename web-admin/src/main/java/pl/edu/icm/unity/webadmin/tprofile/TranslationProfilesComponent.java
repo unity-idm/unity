@@ -426,6 +426,14 @@ public class TranslationProfilesComponent extends VerticalLayout
 					return isInputProfileSelection();
 				}
 			};
+			addCallback = new TranslationProfileEditDialog.Callback()
+			{
+				@Override
+				public boolean handleProfile(TranslationProfile profile)
+				{
+					return addProfile(profile);
+				}
+			};			
 		}
 
 		@Override

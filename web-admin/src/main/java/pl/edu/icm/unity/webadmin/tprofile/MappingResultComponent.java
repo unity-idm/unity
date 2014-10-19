@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
+import java.util.Collections;
 import java.util.List;
 
 import pl.edu.icm.unity.server.translation.in.MappedAttribute;
@@ -105,6 +106,9 @@ public class MappingResultComponent extends CustomComponent
 					&& mappingResult.getAttributes().isEmpty()
 					&& mappingResult.getGroups().isEmpty()))
 		{
+			displayItsTables(Collections.<MappedIdentity>emptyList());
+			displayAttrsTable(Collections.<MappedAttribute>emptyList());
+			displayGroups(Collections.<String>emptyList());
 			noneLabel.setVisible(true);
 		} else
 		{
@@ -113,6 +117,7 @@ public class MappingResultComponent extends CustomComponent
 			displayGroups(mappingResult.getGroups());
 			noneLabel.setVisible(false);
 		}
+		setVisible(true);
 	}
 
 	private void displayItsTables(List<MappedIdentity> identities) 

@@ -131,6 +131,7 @@ public class RemoteVerificatorUtil
 		ret.addIdentities(extractIdentities(result));
 		ret.addGroups(result.getGroups());
 		ret.setPrimaryIdentity(extractPrimaryIdentity(result));
+		ret.setMappingResult(result);
 		return ret;
 	}
 	
