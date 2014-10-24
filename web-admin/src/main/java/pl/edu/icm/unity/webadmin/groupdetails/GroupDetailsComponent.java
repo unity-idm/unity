@@ -25,13 +25,13 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
+import pl.edu.icm.unity.webui.common.SafePanel;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -44,7 +44,7 @@ import com.vaadin.ui.themes.Reindeer;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class GroupDetailsComponent extends Panel
+public class GroupDetailsComponent extends SafePanel
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, GroupDetailsComponent.class);
 	private UnityMessageSource msg;

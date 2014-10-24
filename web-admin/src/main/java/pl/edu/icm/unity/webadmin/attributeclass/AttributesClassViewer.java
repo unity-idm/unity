@@ -6,14 +6,14 @@ package pl.edu.icm.unity.webadmin.attributeclass;
 
 import java.util.Map;
 
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.Table;
-
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.SafePanel;
+
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Table;
 
 /**
  * Displays a single {@link AttributesClass}: its settings and parents hierarchy.
@@ -28,7 +28,7 @@ public class AttributesClassViewer extends FormLayout
 	private Label allAllowed;
 	private Table allowed;
 	private Table mandatory;
-	private Panel effectiveWrapper;
+	private SafePanel effectiveWrapper;
 	private EffectiveAttrClassViewer effectiveViewer;
 	
 	
@@ -61,7 +61,7 @@ public class AttributesClassViewer extends FormLayout
 		mandatory.setHeight(12, Unit.EM);
 		
 		effectiveViewer = new EffectiveAttrClassViewer(msg);
-		effectiveWrapper = new Panel(effectiveViewer);
+		effectiveWrapper = new SafePanel(effectiveViewer);
 		effectiveWrapper.setCaption(msg.getMessage("AttributesClass.resultingClassInView"));
 		
 		addComponents(name, typeDescription, allAllowed, allowed, mandatory, effectiveWrapper);

@@ -11,6 +11,7 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.HtmlLabel;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -18,7 +19,6 @@ import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -77,7 +77,7 @@ public class ValuesRendererPanel extends VerticalLayout
 		contents.addComponent(info);
 		if (!created.equals(""))
 			contents.addComponent(infoDate);
-		Panel infoPanel = new Panel(msg.getMessage("Attribute.info"));
+		SafePanel infoPanel = new SafePanel(msg.getMessage("Attribute.info"));
 		infoPanel.addStyleName(Reindeer.PANEL_LIGHT);
 		infoPanel.setContent(contents);
 		addComponent(infoPanel);
@@ -105,7 +105,7 @@ public class ValuesRendererPanel extends VerticalLayout
 				Component c = handler.getRepresentation(value, syntax);
 				c.setSizeUndefined();
 				
-				Panel valuePanel = new Panel(msg.getMessage("Attribute.selectedValue"));
+				SafePanel valuePanel = new SafePanel(msg.getMessage("Attribute.selectedValue"));
 				valuePanel.addStyleName(Reindeer.PANEL_LIGHT);
 				valuePanel.setContent(c);
 				valuePanel.setSizeFull();
@@ -124,7 +124,7 @@ public class ValuesRendererPanel extends VerticalLayout
 	{
 		Component c = handler.getRepresentation(value, syntax);
 		c.setSizeUndefined();
-		Panel valuePanel = new Panel(msg.getMessage("Attribute.value"));
+	SafePanel valuePanel = new SafePanel(msg.getMessage("Attribute.value"));
 		valuePanel.addStyleName(Reindeer.PANEL_LIGHT);
 		valuePanel.setSizeFull();
 		valuePanel.setContent(c);

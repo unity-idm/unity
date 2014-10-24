@@ -6,24 +6,24 @@ package pl.edu.icm.unity.webadmin.groupdetails;
 
 import java.util.Collection;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Panel;
-
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.attrstmnt.EverybodyStatement;
-import pl.edu.icm.unity.webadmin.attrstmt.StatementHandlersRegistry;
 import pl.edu.icm.unity.webadmin.attrstmt.AttributeStatementWebHandlerFactory.AttributeStatementComponent;
+import pl.edu.icm.unity.webadmin.attrstmt.StatementHandlersRegistry;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.MapComboBox;
+import pl.edu.icm.unity.webui.common.SafePanel;
+
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
 
 /**
  * Allows to create/edit/view an attribute statement of a group.
@@ -38,7 +38,7 @@ public class AttributeStatementEditDialog extends AbstractDialog
 	private final String group;
 	
 	private MapComboBox<AttributeStatementComponent> statementComponents;
-	private Panel statementPanel;
+	private SafePanel statementPanel;
 	private EnumComboBox<AttributeStatement.ConflictResolution> conflictResolution;
 	
 	/**
@@ -87,7 +87,7 @@ public class AttributeStatementEditDialog extends AbstractDialog
 			}
 		});
 		
-		statementPanel = new Panel();
+		statementPanel = new SafePanel();
 		conflictResolution = new EnumComboBox<AttributeStatement.ConflictResolution>(
 				msg.getMessage("AttributeStatementEditDialog.conflictResolution"), msg, 
 				"AttributeStatement.conflictResolution.", AttributeStatement.ConflictResolution.class, 

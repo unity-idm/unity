@@ -22,6 +22,7 @@ import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.HtmlLabel;
 import pl.edu.icm.unity.webui.common.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.ListOfElements;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 import com.vaadin.ui.FormLayout;
@@ -196,7 +197,7 @@ public class RegistrationFormViewer extends VerticalLayout
 			}
 		});
 		agreements.setMargin(true);
-		Panel agreementsP = new Panel(msg.getMessage("RegistrationFormViewer.agreements"), agreements);
+		Panel agreementsP = new SafePanel(msg.getMessage("RegistrationFormViewer.agreements"), agreements);
 
 		identityParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<IdentityRegistrationParam>()
 		{
@@ -211,7 +212,7 @@ public class RegistrationFormViewer extends VerticalLayout
 			}
 		});
 		identityParams.setMargin(true);
-		Panel identityParamsP = new Panel(msg.getMessage("RegistrationFormViewer.identityParams"), identityParams);
+		Panel identityParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.identityParams"), identityParams);
 		
 		attributeParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<AttributeRegistrationParam>()
 		{
@@ -230,7 +231,7 @@ public class RegistrationFormViewer extends VerticalLayout
 			}
 		});
 		attributeParams.setMargin(true);
-		Panel attributeParamsP = new Panel(msg.getMessage("RegistrationFormViewer.attributeParams"), 
+		Panel attributeParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.attributeParams"), 
 				attributeParams);
 		
 		
@@ -246,7 +247,7 @@ public class RegistrationFormViewer extends VerticalLayout
 			}
 		});
 		groupParams.setMargin(true);
-		Panel groupParamsP = new Panel(msg.getMessage("RegistrationFormViewer.groupParams"), groupParams);
+		Panel groupParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.groupParams"), groupParams);
 		
 		credentialParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<CredentialRegistrationParam>()
 		{
@@ -261,7 +262,7 @@ public class RegistrationFormViewer extends VerticalLayout
 			}
 		});
 		credentialParams.setMargin(true);
-		Panel credentialParamsP = new Panel(msg.getMessage("RegistrationFormViewer.credentialParams"), 
+		Panel credentialParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.credentialParams"), 
 				credentialParams);
 		
 		main.addComponents(formInformation, registrationCode, collectComments);
@@ -292,7 +293,7 @@ public class RegistrationFormViewer extends VerticalLayout
 			}
 		});
 		attributeAssignments.setMargin(true);
-		Panel attributeAssignmentsP = new Panel(msg.getMessage("RegistrationFormViewer.attributeAssignments"),
+		Panel attributeAssignmentsP = new SafePanel(msg.getMessage("RegistrationFormViewer.attributeAssignments"),
 				attributeAssignments);
 
 		groupAssignments = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
@@ -304,7 +305,7 @@ public class RegistrationFormViewer extends VerticalLayout
 			}
 		});
 		groupAssignments.setMargin(true);
-		Panel groupAssignmentsP = new Panel(msg.getMessage("RegistrationFormViewer.groupAssignments"), 
+		Panel groupAssignmentsP = new SafePanel(msg.getMessage("RegistrationFormViewer.groupAssignments"), 
 				groupAssignments);
 
 		attributeClassAssignments = new ListOfElements<>(msg, new ListOfElements.LabelConverter<AttributeClassAssignment>()
@@ -316,7 +317,7 @@ public class RegistrationFormViewer extends VerticalLayout
 			}
 		});
 		attributeClassAssignments.setMargin(true);
-		Panel attributeClassAssignmentsP = new Panel(msg.getMessage("RegistrationFormViewer.attributeClassAssignments"),
+		Panel attributeClassAssignmentsP = new SafePanel(msg.getMessage("RegistrationFormViewer.attributeClassAssignments"),
 				attributeClassAssignments);
 		
 		main.addComponents(credentialRequirementAssignment, initialState);

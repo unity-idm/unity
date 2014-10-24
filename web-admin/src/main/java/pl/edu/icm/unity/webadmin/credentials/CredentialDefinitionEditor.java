@@ -13,6 +13,7 @@ import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
@@ -24,7 +25,6 @@ import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Panel;
 
 /**
  * Allows to edit a credential definition. Can be configured to edit an existing definition (name and is fixed,
@@ -40,7 +40,7 @@ public class CredentialDefinitionEditor extends FormLayout
 	private DescriptionTextArea description;
 	private EnumComboBox<LocalCredentialState> newCredState; 
 	private ComboBox credentialType;
-	private Panel credentialEditorPanel;
+	private SafePanel credentialEditorPanel;
 	private pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor cdEd;
 	
 	private FieldGroup binder;
@@ -90,7 +90,7 @@ public class CredentialDefinitionEditor extends FormLayout
 
 		addComponent(credentialType);
 		
-		credentialEditorPanel = new Panel();
+		credentialEditorPanel = new SafePanel();
 		addComponent(credentialEditorPanel);
 		
 		String firstType = supportedTypes.iterator().next(); 

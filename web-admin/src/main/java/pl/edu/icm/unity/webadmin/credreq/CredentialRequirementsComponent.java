@@ -29,6 +29,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Toolbar;
 
+import com.google.common.html.HtmlEscapers;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
@@ -274,7 +275,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			GenericItem<?> item = (GenericItem<?>) target;			
 			CredentialRequirements cr = (CredentialRequirements) item.getElement();
 			CredentialRequirements crClone = new CredentialRequirements();
-			crClone.setDescription(cr.getDescription());
+			crClone.setDescription(HtmlEscapers.htmlEscaper().escape(cr.getDescription()));
 			crClone.setName(cr.getName());
 			crClone.setRequiredCredentials(new HashSet<String>(cr.getRequiredCredentials()));
 			CredentialRequirementEditor editor = new CredentialRequirementEditor(msg, allCredentials, crClone);
