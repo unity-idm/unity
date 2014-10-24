@@ -1,3 +1,4 @@
+[[quick_start]]
 == Quick start
 
 This section is fairly standalone and serves as a first-read, hands-on introduction to Unity.
@@ -70,11 +71,11 @@ if you accidentally remove your last user with administrative privileges.
 
 
 === How to work with unity
--> make note on what you want to do with Unity, concentrating on
---> what will be the clients, using what protocols
---> whether external authentication services are going to be used, which ones, and with what protocols?
---> 
--> design internal DB schema (attribute types, groups structure, attribute classes)
+
+. Make note on what you want to do with Unity:
+.. what are the planned clients, what protocols are going to be used to access Unity by those clients?
+.. whether external authentication services are going to be used, which ones, and with what protocols?
+. Design the internal DB schema (attribute types, groups structure, attribute classes).
 
 
 === Understanding Unity

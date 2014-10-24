@@ -7,7 +7,7 @@ Compatible credentials:: +SAML tokens+
 [NOTE]
 ======
 The SAML integration can be very challenging, as the protocol is enormously complex. We advise to read the
-<<saml-howto.txt,SAML HOWTO>>
+<<saml-howto.txt#,SAML HOWTO>>
 ======
 
 External SAML authentication module allows for authenticating the Unity's client with the external
