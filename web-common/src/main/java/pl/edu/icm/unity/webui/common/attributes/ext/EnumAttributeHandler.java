@@ -168,17 +168,17 @@ public class EnumAttributeHandler implements WebAttributeHandler<String>, WebAtt
 	public AttributeSyntaxEditor<String> getSyntaxEditorComponent(
 			AttributeValueSyntax<String> initialValue)
 	{
-		return new StringSyntaxEditor((EnumAttributeSyntax) initialValue);
+		return new EnumSyntaxEditor((EnumAttributeSyntax) initialValue);
 	}
 	
-	private class StringSyntaxEditor implements AttributeSyntaxEditor<String>
+	private class EnumSyntaxEditor implements AttributeSyntaxEditor<String>
 	{
 		private EnumAttributeSyntax initial;
 		private TextField value;
 		private Button add;
 		private Table current;
 		
-		public StringSyntaxEditor(EnumAttributeSyntax initial)
+		public EnumSyntaxEditor(EnumAttributeSyntax initial)
 		{
 			this.initial = initial;
 		}
@@ -236,6 +236,9 @@ public class EnumAttributeHandler implements WebAttributeHandler<String>, WebAtt
 			Set<String> allowed = new HashSet<String>();
 			for (Object itemId: current.getItemIds())
 				allowed.add((String)itemId);
+			if (allowed.isEmpty())
+				throw new IllegalAttributeTypeException(
+						msg.getMessage("EnumAttributeHandler.errorNoValues"));
 			ret.setAllowed(allowed);
 			return ret;
 		}

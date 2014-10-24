@@ -48,6 +48,8 @@ public class EnumAttributeSyntax extends AbstractStringAttributeSyntax
 
 	public void setAllowed(String... allowed)
 	{
+		if (allowed.length == 0)
+			throw new IllegalArgumentException("At least one enumeration value must be defined");
 		this.allowed = new HashSet<String>(allowed.length);
 		for (String allow: allowed)
 			this.allowed.add(allow);
@@ -56,6 +58,8 @@ public class EnumAttributeSyntax extends AbstractStringAttributeSyntax
 
 	public void setAllowed(Set<String> allowed)
 	{
+		if (allowed.isEmpty())
+			throw new IllegalArgumentException("At least one enumeration value must be defined");
 		this.allowed = new HashSet<String>(allowed.size());
 		for (String allow: allowed)
 			this.allowed.add(allow);
