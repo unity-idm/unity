@@ -151,7 +151,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		vl.setSpacing(true);
 		vl.setMargin(true);
 		
-		Panel contentsPanel = new Panel();
+		Panel contentsPanel = new SafePanel();
 		if (lightweightWrapperPanel)
 			contentsPanel.addStyleName(Reindeer.PANEL_LIGHT);
 		VerticalLayout internal = new VerticalLayout();

@@ -17,6 +17,7 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.SafePanel;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -80,7 +81,7 @@ public class AttributesClassEditor extends FormLayout
 				msg.getMessage("AttributesClass.selectedACs"));
 		
 		effectiveViewer = new EffectiveAttrClassViewer(msg);
-		Panel effectiveWrapper = new Panel(effectiveViewer);
+		Panel effectiveWrapper = new SafePanel(effectiveViewer);
 		effectiveWrapper.setCaption(msg.getMessage("AttributesClass.resultingClass"));
 		
 		

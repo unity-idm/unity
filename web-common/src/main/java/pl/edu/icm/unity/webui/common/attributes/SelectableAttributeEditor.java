@@ -9,13 +9,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
-
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -24,6 +17,13 @@ import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
+import pl.edu.icm.unity.webui.common.SafePanel;
+
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Attribute editor allowing to choose an attribute. It can use a fixed group for returned attribute or can 
@@ -43,7 +43,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 	private EnumComboBox<AttributeVisibility> visibilitySel;
 	private boolean showVisibilityWidget;
 	private VerticalLayout main = new VerticalLayout();
-	private Panel valuesPanel = new Panel();
+	private SafePanel valuesPanel = new SafePanel();
 
 	public SelectableAttributeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, 
 			Collection<AttributeType> attributeTypes, boolean showVisibilityWidget, 

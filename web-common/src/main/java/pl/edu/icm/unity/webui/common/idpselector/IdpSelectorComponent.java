@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.server.utils.CookieHelper;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
@@ -28,6 +29,8 @@ import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
@@ -37,8 +40,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -57,7 +58,7 @@ public class IdpSelectorComponent extends CustomComponent
 	private IdPsSpecification idps;
 	private String lastIdpCookie;
 	
-	private Panel idpsPanel;
+	private SafePanel idpsPanel;
 	private String selectedProvider;
 	private Button selectedButton;
 
@@ -96,7 +97,7 @@ public class IdpSelectorComponent extends CustomComponent
 		boolean selected = false;
 		if (previous != null)
 		{
-			Panel previousIdpPanel = new Panel();
+			Panel previousIdpPanel = new SafePanel();
 			previousIdpPanel.addStyleName(Styles.contentPadRight20.toString());
 			previousIdpPanel.setContent(previous);
 			main.addComponent(previousIdpPanel);
@@ -121,7 +122,7 @@ public class IdpSelectorComponent extends CustomComponent
 				}
 			});
 		}
-		idpsPanel = new Panel();
+		idpsPanel = new SafePanel();
 		idpsPanel.addStyleName(Styles.contentPadRight20.toString());
 		main.addComponents(idpsPanel);
 		idpsPanel.setContent(initIdpsList(selected, null));

@@ -7,6 +7,23 @@ package pl.edu.icm.unity.webadmin.attributetype;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.FormValidator;
+import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.SafePanel;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
+import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
+import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
+import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
+
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.converter.StringToIntegerConverter;
@@ -18,22 +35,6 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
-import pl.edu.icm.unity.webui.common.EnumComboBox;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.FormValidator;
-import pl.edu.icm.unity.webui.common.RequiredTextField;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
-import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
-import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 
 /**
  * Allows to edit an attribute type. Can be configured to edit an existing attribute (name is fixed)
@@ -127,7 +128,7 @@ public class AttributeTypeEditor extends FormLayout
 			syntax.addItem(syntaxId);
 		addComponent(syntax);
 		
-		Panel syntaxPanelP = new Panel();
+		Panel syntaxPanelP = new SafePanel();
 		syntaxPanel = new VerticalLayout();
 		syntaxPanel.setMargin(true);
 		syntaxPanelP.setContent(syntaxPanel);
@@ -150,7 +151,7 @@ public class AttributeTypeEditor extends FormLayout
 		
 		metaEditor = new MetadataEditor(msg, attrMetaHandlerReg);
 		metaEditor.setMargin(true);
-		Panel metaPanel = new Panel(msg.getMessage("AttributeType.metadata"), metaEditor);
+		Panel metaPanel = new SafePanel(msg.getMessage("AttributeType.metadata"), metaEditor);
 		addComponent(metaPanel);
 		
 		if (toEdit != null)
