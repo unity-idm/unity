@@ -19,6 +19,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.Styles;
 
+import com.google.common.html.HtmlEscapers;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.server.ExternalResource;
@@ -227,7 +228,7 @@ public class IdpSelectorComponent extends CustomComponent
 				break;
 			case none:
 			}
-			providerB.setDescription(name);
+			providerB.setDescription(HtmlEscapers.htmlEscaper().escape(name));
 		} else
 		{
 			providerB.setCaption(name);

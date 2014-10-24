@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Button;
@@ -47,7 +48,7 @@ public class TextFieldWithButton extends CustomField<String>
 		Button b = new Button();
 		b.addStyleName(Reindeer.BUTTON_SMALL);
 		b.setIcon(buttonIcon);
-		b.setDescription(buttonDescription);
+		b.setDescription(HtmlEscapers.htmlEscaper().escape(buttonDescription));
 		b.addClickListener(new ClickListener()
 		{
 			@Override

@@ -47,6 +47,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
+import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.CheckBox;
@@ -404,7 +405,7 @@ public class RegistrationRequestEditor extends CustomComponent
 			if (idParam.getLabel() != null)
 				editorUI.setCaption(idParam.getLabel());
 			if (idParam.getDescription() != null)
-				editorUI.setDescription(idParam.getDescription());
+				editorUI.setDescription(HtmlEscapers.htmlEscaper().escape(idParam.getDescription()));
 		}
 		createExternalIdentitiesUI(layout);
 	}
@@ -433,7 +434,7 @@ public class RegistrationRequestEditor extends CustomComponent
 			else
 				editorUI.setCaption(param.getCredentialName()+":");
 			if (param.getDescription() != null)
-				editorUI.setDescription(param.getDescription());
+				editorUI.setDescription(HtmlEscapers.htmlEscaper().escape(param.getDescription()));
 			credentialParamEditors.add(editor);
 			layout.addComponents(editorUI.getComponents());
 				
@@ -492,7 +493,7 @@ public class RegistrationRequestEditor extends CustomComponent
 			CheckBox cb = new CheckBox();
 			cb.setCaption(isEmpty(gParam.getLabel()) ? gParam.getGroupPath() : gParam.getLabel());
 			if (gParam.getDescription() != null)
-				cb.setDescription(gParam.getDescription());
+				cb.setDescription(HtmlEscapers.htmlEscaper().escape(gParam.getDescription()));
 			groupSelectors.add(cb);
 			layout.addComponent(cb);
 		}

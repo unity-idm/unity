@@ -24,6 +24,7 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
 import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 
+import com.google.common.html.HtmlEscapers;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.converter.StringToIntegerConverter;
@@ -196,7 +197,7 @@ public class AttributeTypeEditor extends FormLayout
 		
 		AttributeValueSyntax<?> syntax = editor.getCurrentValue();
 		AttributeType ret = new AttributeType();
-		ret.setDescription(typeDescription.getValue());
+		ret.setDescription(HtmlEscapers.htmlEscaper().escape(typeDescription.getValue()));
 		ret.setName(name.getValue());
 		ret.setMaxElements(max.getValue());
 		ret.setMinElements((Integer)min.getConvertedValue());

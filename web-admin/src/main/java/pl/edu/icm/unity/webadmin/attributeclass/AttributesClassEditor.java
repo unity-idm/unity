@@ -19,6 +19,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.SafePanel;
 
+import com.google.common.html.HtmlEscapers;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.ui.AbstractTextField;
@@ -145,7 +146,7 @@ public class AttributesClassEditor extends FormLayout
 	{
 		AttributesClass cur = new AttributesClass();
 		cur.setName(name.getValue());
-		cur.setDescription(typeDescription.getValue());
+		cur.setDescription(HtmlEscapers.htmlEscaper().escape(typeDescription.getValue()));
 		cur.setAllowArbitrary(allowArbitrary.getValue());
 		cur.setAllowed((Set<String>) allowed.getValue());
 		cur.setMandatory((Set<String>) mandatory.getValue());

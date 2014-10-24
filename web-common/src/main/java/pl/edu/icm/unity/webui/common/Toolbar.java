@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.html.HtmlEscapers;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.event.Action;
@@ -143,7 +144,7 @@ public class Toolbar extends CustomComponent
 		else
 			button.setCaption(action.getCaption());
 		if (action.getCaption() != null)
-			button.setDescription(action.getCaption());
+			button.setDescription(HtmlEscapers.htmlEscaper().escape(action.getCaption()));
 		button.addStyleName(Reindeer.BUTTON_LINK);
 		button.addStyleName(Styles.toolbarButton.toString());
 		button.addClickListener(new Button.ClickListener()
