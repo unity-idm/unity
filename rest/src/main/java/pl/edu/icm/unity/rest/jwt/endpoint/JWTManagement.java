@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.rest.jwt.endpoint;
 
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.UUID;
@@ -20,11 +21,6 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
-
-import eu.emi.security.authn.x509.X509Credential;
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
@@ -39,6 +35,11 @@ import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
+
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+
+import eu.emi.security.authn.x509.X509Credential;
 
 /**
  * JWT tokens management implementation implemented as JAX-RS resource object.
@@ -147,7 +148,8 @@ public class JWTManagement
 		
 		try
 		{
-			tokensMan.addToken(JWT_TOKEN_ID, id, entityId, token.getBytes(Constants.UTF), now, expiration);
+			tokensMan.addToken(JWT_TOKEN_ID, id, entityId, token.getBytes(StandardCharsets.UTF_8), 
+					now, expiration);
 		} catch (Exception e)
 		{
 			log.error("Can't persist the generated JWT", e);

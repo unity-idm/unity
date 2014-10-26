@@ -6,6 +6,7 @@ package pl.edu.icm.unity.saml.idp.web;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -87,7 +88,7 @@ public class SamlResponseHandler
 			if (samlResponse == null)
 				return false;
 			String assertion = samlResponse.xmlText();
-			String encodedAssertion = Base64.encode(assertion.getBytes());
+			String encodedAssertion = Base64.encode(assertion.getBytes(StandardCharsets.UTF_8));
 			SessionDisposal error = session.getAttribute(SessionDisposal.class);
 			
 			SAMLAuthnContext samlCtx = getContext();

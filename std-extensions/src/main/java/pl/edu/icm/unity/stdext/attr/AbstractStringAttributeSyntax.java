@@ -4,7 +4,8 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
-import pl.edu.icm.unity.Constants;
+import java.nio.charset.StandardCharsets;
+
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 
@@ -38,7 +39,7 @@ public abstract class AbstractStringAttributeSyntax implements AttributeValueSyn
 	@Override
 	public byte[] serialize(String value)
 	{
-		return value.getBytes(Constants.UTF);
+		return value.getBytes(StandardCharsets.UTF_8);
 	}
 
 	/**
@@ -47,7 +48,7 @@ public abstract class AbstractStringAttributeSyntax implements AttributeValueSyn
 	@Override
 	public String deserialize(byte[] raw)
 	{
-		return new String(raw, Constants.UTF);
+		return new String(raw, StandardCharsets.UTF_8);
 	}
 	
 
