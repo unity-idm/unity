@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.stdext.utils;
 
-import org.bouncycastle.crypto.digests.SHA256Digest;
+import java.nio.charset.StandardCharsets;
 
-import pl.edu.icm.unity.Constants;
+import org.bouncycastle.crypto.digests.SHA256Digest;
 
 /**
  * Shared crypto code.
@@ -23,7 +23,7 @@ public class CryptoUtils
 	{
 		SHA256Digest digest = new SHA256Digest();
 		int size = digest.getDigestSize();
-		byte[] salted = (salt+password).getBytes(Constants.UTF);
+		byte[] salted = (salt+password).getBytes(StandardCharsets.UTF_8);
 		digest.update(salted, 0, salted.length);
 		byte[] hashed = new byte[size];
 		digest.doFinal(hashed, 0);

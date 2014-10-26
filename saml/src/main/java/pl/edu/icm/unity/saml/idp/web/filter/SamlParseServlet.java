@@ -6,6 +6,7 @@ package pl.edu.icm.unity.saml.idp.web.filter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterOutputStream;
 
@@ -19,7 +20,6 @@ import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 import org.bouncycastle.util.encoders.Base64;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -245,6 +245,6 @@ public class SamlParseServlet extends HttpServlet
 		os.write(third);
 		os.finish();
 		os.close();
-		return new String(baos.toByteArray(), Constants.UTF);
+		return new String(baos.toByteArray(), StandardCharsets.UTF_8);
 	}
 }
