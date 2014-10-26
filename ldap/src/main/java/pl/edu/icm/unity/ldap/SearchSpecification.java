@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.ldap;
 
+import pl.edu.icm.unity.ldap.LdapProperties.SearchScope;
+
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 
@@ -18,14 +20,17 @@ public class SearchSpecification
 	private String filterExp;
 	private String baseDN;
 	private String[] attributes;
+	private SearchScope scope;
 	
-	public SearchSpecification(String filter, String baseDN, String[] attributes) throws LDAPException
+	public SearchSpecification(String filter, String baseDN, String[] attributes, 
+			SearchScope scope) throws LDAPException
 	{
 		super();
 		createFilter(filter, "test");
 		this.filterExp = filter;
 		this.baseDN = baseDN;
 		this.attributes = attributes;
+		this.scope = scope;
 	}
 
 	public SearchSpecification()
@@ -43,9 +48,10 @@ public class SearchSpecification
 		this.filterExp = filter;
 	}
 
-	public String getBaseDN()
+	public String getBaseDN(String username)
 	{
-		return baseDN;
+		String sanitizedInput = LdapUnsafeArgsEscaper.escapeLDAPSearchFilter(username);
+		return baseDN.replace("{USERNAME}", sanitizedInput);  
 	}
 
 	public void setBaseDN(String baseDN)
@@ -63,6 +69,16 @@ public class SearchSpecification
 		this.attributes = attributes;
 	}
 	
+	public SearchScope getScope()
+	{
+		return scope;
+	}
+
+	public void setScope(SearchScope scope)
+	{
+		this.scope = scope;
+	}
+
 	private static Filter createFilter(String filterExp, String username) throws LDAPException
 	{
 		String sanitizedInput = LdapUnsafeArgsEscaper.escapeLDAPSearchFilter(username);
