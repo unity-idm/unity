@@ -55,6 +55,27 @@ public class EndpointsUpdater
 		this.authnDB = authnDB;
 	}
 
+	/**
+	 * Invokes refresh of endpoints, ensuring that endpoints updated at the time of the call are
+	 * included in update. The method invocation can wait up to 1s. 
+	 * @throws EngineException
+	 */
+	public void updateEndpointsManual() throws EngineException
+	{
+		long start = roundToS(System.currentTimeMillis());
+		while (roundToS(System.currentTimeMillis()) == start)
+		{
+			try
+			{
+				Thread.sleep(100);
+			} catch (InterruptedException e)
+			{
+				//ok
+			}
+		}
+		updateEndpoints();
+	}
+	
 	public void updateEndpoints() throws EngineException
 	{
 		synchronized(endpointMan)
@@ -63,9 +84,14 @@ public class EndpointsUpdater
 		}
 	}
 
+	private long roundToS(long ts)
+	{
+		return (ts/1000)*1000;
+	}
+	
 	public void setLastUpdate(long lastUpdate)
 	{
-		this.lastUpdate = (lastUpdate/1000)*1000;
+		this.lastUpdate = roundToS(lastUpdate);
 	}
 
 	private void updateEndpointsInt() throws EngineException
@@ -80,7 +106,8 @@ public class EndpointsUpdater
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			Set<String> changedAuthenticators = getChangedAuthenticators(sql);
+			long roundedUpdateTime = roundToS(System.currentTimeMillis());
+			Set<String> changedAuthenticators = getChangedAuthenticators(sql, roundedUpdateTime);
 
 			List<Map.Entry<EndpointInstance, Date>> endpoints = endpointDB.getAllWithUpdateTimestamps(sql);
 			for (Map.Entry<EndpointInstance, Date> instanceWithDate: endpoints)
@@ -88,8 +115,17 @@ public class EndpointsUpdater
 				EndpointInstance instance = instanceWithDate.getKey();
 				String name = instance.getEndpointDescription().getId();
 				endpointsInDb.add(name);
-				if (instanceWithDate.getValue().getTime() >= lastUpdate)
+				long endpointLastChange = roundToS(instanceWithDate.getValue().getTime());
+				log.trace("Update timestampses: " + roundedUpdateTime + " " + 
+						lastUpdate + " " + name + ": " + endpointLastChange);
+				if (endpointLastChange >= lastUpdate)
 				{
+					if (endpointLastChange == roundedUpdateTime)
+					{
+						log.debug("Skipping update of a changed endpoint to the next round,"
+								+ "to prevent doubled update");
+						continue;
+					}
 					if (endpointsDeployed.containsKey(name))
 					{
 						log.info("Endpoint " + name + " will be re-deployed");
@@ -103,7 +139,7 @@ public class EndpointsUpdater
 					updateEndpointAuthenticators(name, instance, endpointsDeployed);
 				}
 			}
-			setLastUpdate(System.currentTimeMillis());
+			setLastUpdate(roundedUpdateTime);
 
 			undeployRemoved(endpointsInDb, deployedEndpoints);
 			
@@ -135,13 +171,14 @@ public class EndpointsUpdater
 	 * @return Set of those authenticators that were updated after the last update of endpoints.
 	 * @throws EngineException 
 	 */
-	private Set<String> getChangedAuthenticators(SqlSession sql) throws EngineException
+	private Set<String> getChangedAuthenticators(SqlSession sql, long roundedUpdateTime) throws EngineException
 	{
 		Set<String> changedAuthenticators = new HashSet<String>();
 		List<Map.Entry<String, Date>> authnNames = authnDB.getAllNamesWithUpdateTimestamps(sql);
 		for (Map.Entry<String, Date> authn: authnNames)
 		{
-			if (authn.getValue().getTime() >= lastUpdate)
+			long authenticatorChangedAt = roundToS(authn.getValue().getTime());
+			if (authenticatorChangedAt >= lastUpdate && roundedUpdateTime != authenticatorChangedAt)
 				changedAuthenticators.add(authn.getKey());
 		}
 		return changedAuthenticators;

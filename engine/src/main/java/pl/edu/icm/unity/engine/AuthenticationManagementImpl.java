@@ -175,7 +175,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 		{
 			db.releaseSqlSession(sql);
 		}
-		endpointsUpdater.updateEndpoints();
+		endpointsUpdater.updateEndpointsManual();
 	}
 
 	private void verifyIfLocalCredentialMatchesVerificator(AuthenticatorImpl authenticator,
