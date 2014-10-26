@@ -25,6 +25,7 @@ import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
+import com.google.common.html.HtmlEscapers;
 import com.vaadin.data.Container;
 import com.vaadin.event.Action;
 import com.vaadin.event.dd.DragAndDropEvent;
@@ -90,7 +91,7 @@ public class AttributeStatementsTable extends Table
 	private void updateGroup(AttributeStatement[] attributeStatements)
 	{
 		Group updated = new Group(group.toString());
-		updated.setDescription(group.getDescription());
+		updated.setDescription(HtmlEscapers.htmlEscaper().escape(group.getDescription()));
 		updated.setAttributeStatements(attributeStatements);
 		try
 		{

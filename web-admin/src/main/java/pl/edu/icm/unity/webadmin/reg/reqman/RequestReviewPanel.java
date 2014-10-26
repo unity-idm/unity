@@ -19,6 +19,7 @@ import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
@@ -68,7 +69,7 @@ public class RequestReviewPanel extends CustomComponent
 			}
 		});
 		identities.setAddSeparatorLine(false);
-		Panel identitiesP = new Panel(msg.getMessage("RequestReviewPanel.requestedIdentities"), identities);
+		Panel identitiesP = new SafePanel(msg.getMessage("RequestReviewPanel.requestedIdentities"), identities);
 		identitiesP.addStyleName(Reindeer.PANEL_LIGHT);
 		
 		Label aLabel = new Label(msg.getMessage("RequestReviewPanel.requestedAttributes"));
@@ -90,12 +91,12 @@ public class RequestReviewPanel extends CustomComponent
 			}
 		});
 		agreements.setAddSeparatorLine(false);
-		Panel agreementsP = new Panel(msg.getMessage("RequestReviewPanel.agreements"), agreements);
+		Panel agreementsP = new SafePanel(msg.getMessage("RequestReviewPanel.agreements"), agreements);
 		agreementsP.addStyleName(Reindeer.PANEL_LIGHT);
 		
 		
 		comment = new DescriptionTextArea(true, "");
-		Panel commentP = new Panel(msg.getMessage("RequestReviewPanel.comment"), comment);
+		Panel commentP = new SafePanel(msg.getMessage("RequestReviewPanel.comment"), comment);
 		commentP.addStyleName(Reindeer.PANEL_LIGHT);
 		
 		code = new Label(msg.getMessage("RequestReviewPanel.codeValid"));

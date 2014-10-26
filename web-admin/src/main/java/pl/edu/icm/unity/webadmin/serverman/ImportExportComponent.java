@@ -24,9 +24,10 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.LimitedOuputStream;
+import pl.edu.icm.unity.webui.common.SafePanel;
 
 import com.vaadin.server.DownloadStream;
 import com.vaadin.server.FileDownloader;
@@ -35,14 +36,14 @@ import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Responsible for exporting and importing the server's database.
@@ -80,7 +81,7 @@ public class ImportExportComponent extends VerticalLayout
 
 	private void initExportUI()
 	{
-		Panel exportPanel = new Panel(msg.getMessage("ImportExport.exportCaption"));
+		Panel exportPanel = new SafePanel(msg.getMessage("ImportExport.exportCaption"));
 		VerticalLayout hl = new VerticalLayout();
 		hl.setSpacing(true);
 		hl.setMargin(true);
@@ -117,7 +118,7 @@ public class ImportExportComponent extends VerticalLayout
 
 	private void initImportUI()
 	{
-		Panel importPanel = new Panel(msg.getMessage("ImportExport.importCaption"));
+		Panel importPanel = new SafePanel(msg.getMessage("ImportExport.importCaption"));
 		VerticalLayout vl = new VerticalLayout();
 		vl.setSpacing(true);
 		vl.setMargin(true);

@@ -6,20 +6,20 @@ package pl.edu.icm.unity.webadmin.attributetype;
 
 import java.util.Map;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
-
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandler;
+
+import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Allows to inspect a single attribute type
@@ -37,7 +37,7 @@ public class AttributeTypeViewer extends FormLayout
 	private Label visibility;
 	private Label flags;
 	private Label syntax;
-	private Panel syntaxPanel;
+	private SafePanel syntaxPanel;
 	private VerticalLayout metaPanel;
 	
 	public AttributeTypeViewer(UnityMessageSource msg)
@@ -81,7 +81,7 @@ public class AttributeTypeViewer extends FormLayout
 		syntax.setCaption(msg.getMessage("AttributeType.type"));
 		addComponent(syntax);
 		
-		syntaxPanel = new Panel();
+		syntaxPanel = new SafePanel();
 		syntaxPanel.setStyleName(Reindeer.PANEL_LIGHT);
 		addComponent(syntaxPanel);
 		

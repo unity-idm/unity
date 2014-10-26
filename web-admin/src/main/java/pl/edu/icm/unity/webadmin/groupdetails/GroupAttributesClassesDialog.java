@@ -6,13 +6,6 @@ package pl.edu.icm.unity.webadmin.groupdetails;
 
 import java.util.Set;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -24,7 +17,15 @@ import pl.edu.icm.unity.webadmin.attributeclass.ACTwinColSelect;
 import pl.edu.icm.unity.webadmin.attributeclass.AbstractAttributesClassesDialog;
 import pl.edu.icm.unity.webadmin.attributeclass.EffectiveAttrClassViewer;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.Styles;
+
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
 
 
 /**
@@ -60,7 +61,7 @@ public class GroupAttributesClassesDialog extends AbstractAttributesClassesDialo
 			}
 		});
 		
-		Panel extraInfo = new Panel(msg.getMessage("EntityAttributesClasses.infoPanel"));
+		Panel extraInfo = new SafePanel(msg.getMessage("EntityAttributesClasses.infoPanel"));
 		FormLayout extra = new FormLayout();
 		extraInfo.setContent(extra);
 		

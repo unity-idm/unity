@@ -31,6 +31,7 @@ import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.MapComboBox;
+import pl.edu.icm.unity.webui.common.SafePanel;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -64,13 +65,13 @@ public class CredentialsPanel extends VerticalLayout
 	
 	private Map<String, CredentialDefinition> credentials;
 	
-	private Panel statuses;
+	private SafePanel statuses;
 	private MapComboBox<CredentialDefinition> credential;
 	private TextField type;
 	private TextField status;
 	private DescriptionTextArea description;
-	private Panel credentialStateInfo;
-	private Panel editor;
+	private SafePanel credentialStateInfo;
+	private SafePanel editor;
 	private Button update;
 	private Button clear;
 	private Button invalidate;
@@ -109,9 +110,9 @@ public class CredentialsPanel extends VerticalLayout
 			return;
 		}
 		
-		statuses = new Panel(msg.getMessage("CredentialChangeDialog.statusAll"));
+		statuses = new SafePanel(msg.getMessage("CredentialChangeDialog.statusAll"));
 
-		Panel credentialPanel = new Panel();
+		Panel credentialPanel = new SafePanel();
 
 		credential = new MapComboBox<CredentialDefinition>(msg.getMessage("CredentialChangeDialog.credential"),
 				credentials, credentials.keySet().iterator().next());
@@ -127,8 +128,8 @@ public class CredentialsPanel extends VerticalLayout
 		type = new TextField(msg.getMessage("CredentialChangeDialog.credType"));
 		description = new DescriptionTextArea(msg.getMessage("CredentialChangeDialog.description"), true, "");
 		status = new TextField(msg.getMessage("CredentialChangeDialog.status"));
-		credentialStateInfo = new Panel(msg.getMessage("CredentialChangeDialog.credentialStateInfo"));
-		editor = new Panel(msg.getMessage("CredentialChangeDialog.value"));
+		credentialStateInfo = new SafePanel(msg.getMessage("CredentialChangeDialog.credentialStateInfo"));
+		editor = new SafePanel(msg.getMessage("CredentialChangeDialog.value"));
 
 		HorizontalLayout buttonsBar = new HorizontalLayout();
 		buttonsBar.setSpacing(true);
