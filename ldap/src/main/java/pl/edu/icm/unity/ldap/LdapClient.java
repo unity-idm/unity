@@ -27,6 +27,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 
 import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.CompareResult;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.ExtendedResult;
@@ -113,15 +114,11 @@ public class LdapClient
 			}
 		}
 		
-		String dn = configuration.getBindDN(user);
-		try
-		{
-			connection.bind(dn, password);
-		} catch (LDAPException e)
-		{
-			if (ResultCode.INVALID_CREDENTIALS.equals(e.getResultCode()))
-				throw new LdapAuthenticationException("Wrong username or credentials", e);
-		}
+		String dn;
+		if (configuration.isBindAsUser())
+			dn = bindAsUser(connection, user, password, configuration);
+		else
+			dn = bindAsSystemAndVerifyPassword(connection, user, password, configuration);
 		
 		if (configuration.isBindOnly())
 		{
@@ -154,6 +151,52 @@ public class LdapClient
 		connection.close();
 		return ret;
 		
+	}
+	
+	
+	private String bindAsUser(LDAPConnection connection, String user, String password, 
+			LdapClientConfiguration configuration) throws LdapAuthenticationException
+	{
+		String dn = configuration.getBindDN(user);
+		try
+		{
+			connection.bind(dn, password);
+		} catch (LDAPException e)
+		{
+			if (ResultCode.INVALID_CREDENTIALS.equals(e.getResultCode()))
+				throw new LdapAuthenticationException("Wrong username or credentials", e);
+		}
+		return dn;
+	}
+
+	private String bindAsSystemAndVerifyPassword(LDAPConnection connection, String user, String password, 
+			LdapClientConfiguration configuration) throws LdapAuthenticationException
+	{
+		String systemDN = configuration.getSystemDN();
+		String systemPassword = configuration.getSystemPassword();
+		try
+		{
+			connection.bind(systemDN, systemPassword);
+		} catch (LDAPException e)
+		{
+			if (ResultCode.INVALID_CREDENTIALS.equals(e.getResultCode()))
+				throw new LdapAuthenticationException("Wrong username or credentials of the "
+						+ "system LDAP client "
+						+ "(system, not the ones provided by the user)", e);
+		}
+		
+		String usersDN = configuration.getBindDN(user);
+		String passwordAttribute = configuration.getUserPasswordAttribute();
+		try
+		{
+			CompareResult result = connection.compare(usersDN, passwordAttribute, password);
+			if (ResultCode.COMPARE_FALSE.equals(result.getResultCode()))
+				throw new LdapAuthenticationException("Wrong username or credentials");
+		} catch (LDAPException e)
+		{
+			throw new LdapAuthenticationException("Can't check username/credentials", e);
+		}
+		return usersDN;
 	}
 	
 	private RemotelyAuthenticatedInput assembleBaseResult(SearchResultEntry entry)
@@ -324,15 +367,15 @@ public class LdapClient
 		int timeLimit = configuration.getSearchTimeLimit();
 		int sizeLimit = configuration.getAttributesLimit();
 		DereferencePolicy derefPolicy = configuration.getDereferencePolicy();
-		SearchScope searchScope = configuration.getSearchScope();
 
 		List<SearchSpecification> searchSpecs = configuration.getExtraSearches();
 		for (SearchSpecification searchSpec: searchSpecs)
 		{
 			String[] queriedAttributes = searchSpec.getAttributes();
 			Filter validUsersFilter = searchSpec.getFilter(user);
-			String base = searchSpec.getBaseDN();
-			ReadOnlySearchRequest searchRequest = new SearchRequest(base, searchScope, derefPolicy, 
+			String base = searchSpec.getBaseDN(user);
+			SearchScope scope = searchSpec.getScope().getInternalScope();
+			ReadOnlySearchRequest searchRequest = new SearchRequest(base, scope, derefPolicy, 
 					sizeLimit, timeLimit, false, validUsersFilter, queriedAttributes);
 			SearchResult result = connection.search(searchRequest);
 			consolidateAttributes(result, principalData);

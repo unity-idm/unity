@@ -83,3 +83,24 @@ objectClass: groupOfUniqueNames
 objectClass: top
 uniqueMember: cn=user1,ou=users,dc=unity-example,dc=com
 uniqueMember: cn=user2,ou=users,dc=unity-example,dc=com
+
+# 
+dn: ou=grant1,cn=user2,ou=users,dc=unity-example,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+ou: grant1
+cn: Grant 1
+sn: userFFF
+secretary: cn=extra,dc=org
+
+dn: ou=grant2,cn=user2,ou=users,dc=unity-example,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+ou: grant2
+cn: Grant 2
+sn: user2
+secretary: cn=extra2,dc=org

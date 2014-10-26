@@ -207,7 +207,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		info1Id.setStyleName(Reindeer.LABEL_H2);
 		Label info1Addr = new Label(msg.getMessage("SamlIdPWebUI.info1Addr", returnAddress));
 		info1Addr.setStyleName(Reindeer.LABEL_H2);
-		Label spc1 = new Label(HtmlTag.br());
+		Label spc1 = HtmlTag.br();
 		Label info2 = new Label(msg.getMessage("SamlIdPWebUI.info2"));
 		Label info3 = new Label(msg.getMessage("SamlIdPWebUI.info3"));
 		info3.setStyleName(Reindeer.LABEL_SMALL);
