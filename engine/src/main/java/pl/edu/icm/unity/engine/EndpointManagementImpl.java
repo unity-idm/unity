@@ -252,6 +252,6 @@ public class EndpointManagementImpl implements EndpointManagement
 		{
 			db.releaseSqlSession(sql);
 		}
-		endpointsUpdater.updateEndpoints();
+		endpointsUpdater.updateEndpointsManual();
 	}
 }
