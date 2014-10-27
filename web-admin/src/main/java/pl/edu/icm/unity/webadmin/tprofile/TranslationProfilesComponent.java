@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -26,7 +25,6 @@ import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webadmin.WebAdminEndpointFactory;
@@ -54,15 +52,13 @@ import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.VerticalLayout;
 
 /**
- * Responsible for message templates management.
+ * Responsible for translation profiles management.
  * @author P. Piernik
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class TranslationProfilesComponent extends VerticalLayout
 {
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, TranslationProfilesComponent.class);
-			
 	private UnityMessageSource msg;
 	private TranslationProfileManagement profileMan;
 	private GenericElementsTable<TranslationProfile> table;
@@ -91,9 +87,28 @@ public class TranslationProfilesComponent extends VerticalLayout
 		this.idMan = idMan;
 		this.authnMan = authnMan;
 		this.groupsMan = groupsMan;
+
+		setCaption(msg.getMessage("TranslationProfilesComponent.capion"));		
 		
 		try 
 		{
+			establishSandboxURL(endpointMan);
+		} catch (EngineException e) 
+		{
+			ErrorComponent error = new ErrorComponent();
+			error.setError(msg.getMessage("TranslationProfilesComponent.errorGetEndpoints"), e);
+			removeAllComponents();
+			addComponent(error);
+			return;
+		}
+
+		buildUI();
+		
+		refresh();
+	}
+	
+	private void establishSandboxURL(EndpointManagement endpointMan) throws EngineException
+	{
 			List<EndpointDescription> endpointList = endpointMan.getEndpoints();
 			for (EndpointDescription endpoint : endpointList) {
 				if (endpoint.getType().getName().equals(WebAdminEndpointFactory.NAME))
@@ -102,14 +117,12 @@ public class TranslationProfilesComponent extends VerticalLayout
 					break;
 				}
 			}
-		} catch (EngineException e) 
-		{
-			LOG.error("Unable to retrieve enbpoints: " + e.getMessage(), e);
-			throw new IllegalStateException("Unable to retrieve enbpoints", e);
-		}		
-		
+	}
+	
+	
+	private void buildUI()
+	{
 		HorizontalLayout hl = new HorizontalLayout();
-		setCaption(msg.getMessage("TranslationProfilesComponent.capion"));
 		table = new GenericElementsTable<TranslationProfile>(msg.getMessage("TranslationProfilesComponent.profilesTable"),
 				TranslationProfile.class, new GenericElementsTable.NameProvider<TranslationProfile>()
 				{
@@ -185,7 +198,6 @@ public class TranslationProfilesComponent extends VerticalLayout
 		main = hl;
 		hl.setExpandRatio(left, 0.3f);
 		hl.setExpandRatio(viewer, 0.7f);
-		refresh();
 	}
 	
 	private void refresh()
