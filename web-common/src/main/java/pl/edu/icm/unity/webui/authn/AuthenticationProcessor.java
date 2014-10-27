@@ -37,7 +37,6 @@ import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.common.UIBgThread;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 import com.vaadin.server.Page;
@@ -217,21 +216,7 @@ public class AuthenticationProcessor
 	{
 		Page p = Page.getCurrent();
 		URI currentLocation = p.getLocation();
-		//FIXME - workaround for the Vaadin bug http://dev.vaadin.com/ticket/12346
-		// when the bug is fixed session should be invalidated in the current thread.
-		// the workaround is ugly - it is possible that the 'logout' thread completes after we return answer
-		// -> then user is logged out but no effect is visible automatically.
-		UIBgThread logoutWorker = new UIBgThread()
-		{
-			@Override
-			public void safeRun()
-			{
-				destroySession(false);
-			}
-		};
-		Thread logoutThread = new Thread(logoutWorker);
-		logoutThread.setPriority(Thread.MAX_PRIORITY);
-		logoutThread.start();
+		destroySession(false);
 		p.setLocation(currentLocation);
 	}
 
