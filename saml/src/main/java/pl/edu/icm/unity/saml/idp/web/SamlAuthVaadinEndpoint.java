@@ -17,7 +17,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
-import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
 import pl.edu.icm.unity.saml.idp.web.filter.SamlGuardFilter;
 import pl.edu.icm.unity.saml.idp.web.filter.SamlParseServlet;
@@ -51,7 +51,7 @@ import eu.unicore.util.configuration.ConfigurationException;
  */
 public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 {
-	protected SAMLIDPProperties samlProperties;
+	protected SamlIdpProperties samlProperties;
 	protected FreemarkerHandler freemarkerHandler;
 	protected PKIManagement pkiManagement;
 	protected ExecutorsService executorsService;
@@ -88,7 +88,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		super.setSerializedConfiguration(properties);
 		try
 		{
-			samlProperties = new SAMLIDPProperties(this.properties, pkiManagement);
+			samlProperties = new SamlIdpProperties(this.properties, pkiManagement);
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("Can't initialize the SAML Web IdP endpoint's configuration", e);
@@ -99,7 +99,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		{
 			
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
-					mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement), downloadManager, SAMLIDPProperties.SPMETA_PREFIX);
+					mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement), downloadManager, SamlIdpProperties.SPMETA_PREFIX);
 			remoteMetadataManagers.put(id, myMetadataManager);
 			myMetadataManager.start();
 		} else
@@ -151,7 +151,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 				description, authenticators, registrationConfiguration);
 		context.addServlet(createVaadinServletHolder(theServlet, false), servletPath + "/*");
 		
-		if (samlProperties.getBooleanValue(SAMLIDPProperties.PUBLISH_METADATA))
+		if (samlProperties.getBooleanValue(SamlIdpProperties.PUBLISH_METADATA))
 		{
 			Servlet metadataServlet = getMetadataServlet(endpointURL);
 			context.addServlet(createServletHolder(metadataServlet, true), samlMetadataPath + "/*");

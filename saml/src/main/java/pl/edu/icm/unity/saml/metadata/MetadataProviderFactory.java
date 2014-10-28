@@ -7,8 +7,8 @@ package pl.edu.icm.unity.saml.metadata;
 import java.io.File;
 import java.io.IOException;
 
-import pl.edu.icm.unity.saml.SAMLProperties;
-import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
+import pl.edu.icm.unity.saml.SamlProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
@@ -28,12 +28,12 @@ public class MetadataProviderFactory
 	 * @param endpoints
 	 * @return metadata of an IDP
 	 */
-	public static MetadataProvider newIdpInstance(SAMLIDPProperties samlProperties, 
+	public static MetadataProvider newIdpInstance(SamlIdpProperties samlProperties, 
 			ExecutorsService executorsService, EndpointType[] ssoEndpoints, 
 			EndpointType[] attributeQueryEndpoints)
 	{
 		MetadataProvider metaProvider;
-		File metadataFile = samlProperties.getFileValue(SAMLProperties.METADATA_SOURCE, false);
+		File metadataFile = samlProperties.getFileValue(SamlProperties.METADATA_SOURCE, false);
 		if (metadataFile == null)
 		{
 			metaProvider = new IdpMetadataGenerator(samlProperties, ssoEndpoints, attributeQueryEndpoints);
@@ -61,7 +61,7 @@ public class MetadataProviderFactory
 			ExecutorsService executorsService, IndexedEndpointType[] assertionConsumerEndpoints)
 	{
 		MetadataProvider metaProvider;
-		File metadataFile = samlProperties.getFileValue(SAMLProperties.METADATA_SOURCE, false);
+		File metadataFile = samlProperties.getFileValue(SamlProperties.METADATA_SOURCE, false);
 		if (metadataFile == null)
 		{
 			metaProvider = new SPMetadataGenerator(samlProperties, assertionConsumerEndpoints);
@@ -81,10 +81,10 @@ public class MetadataProviderFactory
 	}
 
 	
-	private static MetadataProvider addSigner(MetadataProvider metaProvider, SAMLProperties samlProperties,
+	private static MetadataProvider addSigner(MetadataProvider metaProvider, SamlProperties samlProperties,
 			X509Credential credential)
 	{
-		if (samlProperties.getBooleanValue(SAMLProperties.SIGN_METADATA))
+		if (samlProperties.getBooleanValue(SamlProperties.SIGN_METADATA))
 		{
 			try
 			{

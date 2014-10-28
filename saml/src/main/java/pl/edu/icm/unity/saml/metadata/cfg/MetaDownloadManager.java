@@ -60,7 +60,7 @@ public class MetaDownloadManager
 	}
 	
 	/**
-	 * Download  or waits until another process download file.
+	 * Download  or waits until another process finishes downloading the file.
 	 * @param url file to download
 	 * @param refreshInterval used to calculate  freshness of file
 	 * @param customTruststore
@@ -80,7 +80,7 @@ public class MetaDownloadManager
 			}
 		} catch (InterruptedException e)
 		{
-			throw new InternalException("Error waiting to download file from " + url, e);
+			throw new InternalException("Error waiting for downloading file from " + url, e);
 		}
 
 		try
@@ -164,7 +164,7 @@ public class MetaDownloadManager
 			while (downlodingFiles.contains(url))
 			{
 				if (!wait)
-					log.trace("Another process download file from " + url
+					log.trace("Another process is downloading metadata from " + url
 							+ ", waiting to complete download");
 				wait = true;
 				downlodingFiles.wait();

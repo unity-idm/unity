@@ -22,7 +22,7 @@ import org.w3c.dom.NodeList;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.saml.SAMLProperties;
+import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.Binding;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
@@ -63,14 +63,14 @@ public abstract class AbstractMetaToConfigConverter
 	 * @param realConfig
 	 */
 	protected void convertToProperties(EntitiesDescriptorDocument metaDoc, Properties properties, 
-			SAMLProperties realConfig, String configKey)
+			SamlProperties realConfig, String configKey)
 	{
 		EntitiesDescriptorType meta = metaDoc.getEntitiesDescriptor();
 		convertToProperties(meta, properties, realConfig, configKey);
 	}
 	
 	protected void convertToProperties(EntitiesDescriptorType meta, Properties properties, 
-			SAMLProperties realConfig, String configKey)
+			SamlProperties realConfig, String configKey)
 	{
 		EntitiesDescriptorType[] nested = meta.getEntitiesDescriptorArray();
 		if (nested != null)
@@ -90,7 +90,7 @@ public abstract class AbstractMetaToConfigConverter
 	}
 	
 	protected abstract void convertToProperties(EntityDescriptorType meta, Properties properties, 
-			SAMLProperties realConfig, String configKey);
+			SamlProperties realConfig, String configKey);
 	
 	protected boolean supportsSaml2(SSODescriptorType idpDef)
 	{

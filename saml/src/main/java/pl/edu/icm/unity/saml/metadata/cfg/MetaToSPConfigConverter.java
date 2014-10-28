@@ -14,7 +14,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.SAMLProperties;
+import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
@@ -58,7 +58,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 	}
 	
 	protected void convertToProperties(EntityDescriptorType meta, Properties properties, 
-			SAMLProperties realConfigG, String configKey)
+			SamlProperties realConfigG, String configKey)
 	{
 		SAMLSPProperties realConfig = (SAMLSPProperties) realConfigG;
 		IDPSSODescriptorType[] idpDefs = meta.getIDPSSODescriptorArray();

@@ -10,5 +10,5 @@ package pl.edu.icm.unity.saml.idp;
  */
 public interface SamlEndpoint
 {
-	public SAMLIDPProperties getSamlProperties();
+	public SamlIdpProperties getSamlProperties();
 }

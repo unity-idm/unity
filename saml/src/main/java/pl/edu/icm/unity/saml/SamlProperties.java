@@ -24,7 +24,7 @@ import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
  * This class is a base for extension by SP and IdP specific classes.
  * @author K. Benedyczak
  */
-public abstract class SAMLProperties extends PropertiesHelper
+public abstract class SamlProperties extends PropertiesHelper
 {
 	public static final String P = "unity.saml.";
 	
@@ -59,7 +59,7 @@ public abstract class SAMLProperties extends PropertiesHelper
 						"however it will be checked first for correctness."));
 	}
 
-	public SAMLProperties(String prefix, Properties properties,
+	public SamlProperties(String prefix, Properties properties,
 			Map<String, PropertyMD> propertiesMD, Logger log)
 			throws ConfigurationException
 	{
@@ -73,7 +73,7 @@ public abstract class SAMLProperties extends PropertiesHelper
 		return copy;
 	}
 	
-	public abstract SAMLProperties clone();	
+	public abstract SamlProperties clone();	
 	
 	public abstract Properties getSourceProperties();
 }

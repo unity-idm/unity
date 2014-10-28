@@ -15,7 +15,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.SAMLProperties;
+import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.ecp.SAMLECPProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
@@ -35,7 +35,7 @@ import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
  * Configuration of a SAML requester (or SAML SP).
  * @author K. Benedyczak
  */
-public class SAMLSPProperties extends SAMLProperties
+public class SAMLSPProperties extends SamlProperties
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, SAMLSPProperties.class);
 	
@@ -143,7 +143,7 @@ public class SAMLSPProperties extends SAMLProperties
 				"SAML entity ID (must be a URI) of the lcoal SAML requester (or service provider)."));
 		META.put(CREDENTIAL, new PropertyMD().setCategory(common).setDescription(
 				"Local credential, used to sign requests. If signing is disabled it is not used."));
-		META.put(METADATA_PATH, new PropertyMD().setCategory(SAMLProperties.samlMetaCat).setDescription(
+		META.put(METADATA_PATH, new PropertyMD().setCategory(SamlProperties.samlMetaCat).setDescription(
 				"Last element of the URL, under which the SAML metadata should be published for this SAML authenticator." +
 				"Used only if metadata publication is enabled. See the SAML Metadata section for more details."));
 		META.put(ACCEPTED_NAME_FORMATS, new PropertyMD().setList(false).setCategory(common).setDescription(
@@ -181,7 +181,7 @@ public class SAMLSPProperties extends SAMLProperties
 				"Deafult registration form for all the IdPs from the metadata. Can be overwritten by individual IdP configuraiton entries."));
 		
 		
-		META.putAll(SAMLProperties.defaults);
+		META.putAll(SamlProperties.defaults);
 	}
 	
 	private PKIManagement pkiManagement;

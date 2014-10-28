@@ -7,7 +7,7 @@ package pl.edu.icm.unity.samlmeta;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.*;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.*;
 
 import java.io.ByteArrayInputStream;
 import java.security.cert.X509Certificate;
@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
@@ -67,14 +67,14 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_ENCRYPT, "true");
 		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_CERTIFICATE, "MAIN");
 		
-		SAMLIDPProperties configuration = new SAMLIDPProperties(p, pkiManagement);
+		SamlIdpProperties configuration = new SamlIdpProperties(p, pkiManagement);
 		
 		
 		RemoteMetaManager manager = new RemoteMetaManager(configuration, 
-				mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement), downloadManager, SAMLIDPProperties.SPMETA_PREFIX);
+				mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement), downloadManager, SamlIdpProperties.SPMETA_PREFIX);
 		manager.reloadAll();
 		
-		SAMLIDPProperties ret = (SAMLIDPProperties) manager.getVirtualConfiguration();
+		SamlIdpProperties ret = (SamlIdpProperties) manager.getVirtualConfiguration();
 		
 		String pfx = getPrefixOf("https://support.hes-so.ch/shibboleth", ret);
 		assertEquals("URL", ret.getValue(pfx + ALLOWED_SP_RETURN_URL));
@@ -94,7 +94,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 		
 	}
 	
-	private String getPrefixOf(String entity, SAMLIDPProperties cfg)
+	private String getPrefixOf(String entity, SamlIdpProperties cfg)
 	{
 		Set<String> keys = cfg.getStructuredListKeys(ALLOWED_SP_PREFIX);
 		for (String key: keys)

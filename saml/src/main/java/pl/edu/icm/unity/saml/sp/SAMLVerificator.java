@@ -21,7 +21,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SAMLHelper;
 import pl.edu.icm.unity.saml.SAMLResponseValidatorUtil;
-import pl.edu.icm.unity.saml.SAMLProperties;
+import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
@@ -112,7 +112,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			throw new InternalException("Invalid configuration of the SAML verificator(?)", e);
 		}
 		
-		if (samlProperties.getBooleanValue(SAMLProperties.PUBLISH_METADATA))
+		if (samlProperties.getBooleanValue(SamlProperties.PUBLISH_METADATA))
 			exposeMetadata();
 		if (!remoteMetadataManagers.containsKey(instanceName))
 		{

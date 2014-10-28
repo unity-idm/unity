@@ -17,15 +17,15 @@ public class GroupChooser
 	private String defaultGroup;
 	private Map<String, String> groupMappings;
 	
-	public GroupChooser(SAMLIDPProperties config)
+	public GroupChooser(SamlIdpProperties config)
 	{
-		defaultGroup = config.getValue(SAMLIDPProperties.DEFAULT_GROUP);
-		Set<String> keys = config.getStructuredListKeys(SAMLIDPProperties.GROUP_PFX);
+		defaultGroup = config.getValue(SamlIdpProperties.DEFAULT_GROUP);
+		Set<String> keys = config.getStructuredListKeys(SamlIdpProperties.GROUP_PFX);
 		groupMappings = new HashMap<String, String>(keys.size());
 		for (String key: keys)
 		{
-			String target = config.getValue(key+SAMLIDPProperties.GROUP_TARGET);
-			String group = config.getValue(key+SAMLIDPProperties.GROUP);
+			String target = config.getValue(key+SamlIdpProperties.GROUP_TARGET);
+			String group = config.getValue(key+SamlIdpProperties.GROUP);
 			groupMappings.put(target, group);
 		}
 	}

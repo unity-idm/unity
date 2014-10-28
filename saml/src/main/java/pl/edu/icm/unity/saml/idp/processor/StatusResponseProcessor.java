@@ -10,7 +10,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLContext;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -30,7 +30,7 @@ import eu.unicore.samly2.exceptions.SAMLServerException;
 public abstract class StatusResponseProcessor<T extends XmlObject, C extends RequestAbstractType>
 {
 	protected SAMLContext<T, C> context;
-	protected SAMLIDPProperties samlConfiguration;
+	protected SamlIdpProperties samlConfiguration;
 	
 	public StatusResponseProcessor(SAMLContext<T, C> context)
 	{
@@ -43,7 +43,7 @@ public abstract class StatusResponseProcessor<T extends XmlObject, C extends Req
 		return context;
 	}
 
-	protected SAMLIDPProperties getSamlConfiguration()
+	protected SamlIdpProperties getSamlConfiguration()
 	{
 		return samlConfiguration;
 	}
@@ -52,7 +52,7 @@ public abstract class StatusResponseProcessor<T extends XmlObject, C extends Req
 	{
 		NameIDType ret = NameIDType.Factory.newInstance();
 		ret.setFormat(SAMLConstants.NFORMAT_ENTITY);
-		ret.setStringValue(samlConfiguration.getValue(SAMLIDPProperties.ISSUER_URI));
+		ret.setStringValue(samlConfiguration.getValue(SamlIdpProperties.ISSUER_URI));
 		return ret;
 	}
 	

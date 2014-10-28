@@ -10,7 +10,7 @@ package pl.edu.icm.unity.saml.idp.ctx;
 
 import org.apache.xmlbeans.XmlObject;
 
-import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 
 import xmlbeans.org.oasis.saml2.protocol.RequestAbstractType;
 
@@ -24,18 +24,18 @@ import xmlbeans.org.oasis.saml2.protocol.RequestAbstractType;
  */
 public class SAMLContext<T extends XmlObject, C extends RequestAbstractType>
 {
-	protected SAMLIDPProperties samlConfiguration;
+	protected SamlIdpProperties samlConfiguration;
 	protected C request;
 	protected T requestDoc;
 
-	public SAMLContext(T reqDoc, C req, SAMLIDPProperties samlConfiguration)
+	public SAMLContext(T reqDoc, C req, SamlIdpProperties samlConfiguration)
 	{
 		this.samlConfiguration=samlConfiguration;
 		request = req;
 		requestDoc = reqDoc;
 	}
 	
-	public SAMLIDPProperties getSamlConfiguration()
+	public SamlIdpProperties getSamlConfiguration()
 	{
 		return samlConfiguration;
 	}

@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.saml.SAMLProperties;
+import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
 import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
 import pl.edu.icm.unity.server.api.PKIManagement;
@@ -49,9 +49,9 @@ import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
  *  
  * @author K. Benedyczak
  */
-public class SAMLIDPProperties extends SAMLProperties
+public class SamlIdpProperties extends SamlProperties
 {
-	private static final Logger log = Log.getLogger(SAMLIDPProperties.LOG_PFX, SAMLIDPProperties.class);
+	private static final Logger log = Log.getLogger(SamlIdpProperties.LOG_PFX, SamlIdpProperties.class);
 	public enum RequestAcceptancePolicy {all, validSigner, validRequester, strict};
 	public enum ResponseSigningPolicy {always, never, asRequest};
 	
@@ -103,8 +103,6 @@ public class SAMLIDPProperties extends SAMLProperties
 	
 	static
 	{
-		DocumentationCategory common = new DocumentationCategory("Common settings", "01");
-		
 		DocumentationCategory remoteMeta = new DocumentationCategory("Configuration from trusted SAML metadata", "02");
 		
 		DocumentationCategory sp = new DocumentationCategory("Manual settings of allowed Sps", "03");
@@ -202,7 +200,7 @@ public class SAMLIDPProperties extends SAMLProperties
 		defaults.put(METADATA_ISSUER_CERT, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(SPMETA_PREFIX).setDescription(
 				"Name of certificate to check metadata signature. Used only if signatures checking is turned on."));
 		
-		defaults.putAll(SAMLProperties.defaults);
+		defaults.putAll(SamlProperties.defaults);
 		
 	}
 
@@ -218,7 +216,7 @@ public class SAMLIDPProperties extends SAMLProperties
 	private PKIManagement pkiManagement;
 	private IdentityTypeMapper idTypeMapper;
 	
-	public SAMLIDPProperties(Properties src, PKIManagement pkiManagement) throws ConfigurationException, IOException
+	public SamlIdpProperties(Properties src, PKIManagement pkiManagement) throws ConfigurationException, IOException
 	{
 		super(P, cleanupLegacyProperties(src), defaults, log);
 		sourceProperties = new Properties();
@@ -256,7 +254,7 @@ public class SAMLIDPProperties extends SAMLProperties
 	
 	private void init()
 	{
-		ResponseSigningPolicy repPolicy = getEnumValue(SAMLIDPProperties.SIGN_RESPONSE, ResponseSigningPolicy.class);
+		ResponseSigningPolicy repPolicy = getEnumValue(SamlIdpProperties.SIGN_RESPONSE, ResponseSigningPolicy.class);
 		signRespAlways = signRespNever = false;
 		if (repPolicy == ResponseSigningPolicy.always)
 			signRespAlways = true;
@@ -356,7 +354,7 @@ public class SAMLIDPProperties extends SAMLProperties
 		else
 			soapTrustChecker = new AcceptingSamlTrustChecker();
 		replayChecker = new ReplayAttackChecker();
-		requestValidity = getLongValue(SAMLIDPProperties.SAML_REQUEST_VALIDITY)*1000;
+		requestValidity = getLongValue(SamlIdpProperties.SAML_REQUEST_VALIDITY)*1000;
 		
 		groupChooser = new GroupChooser(this);
 		idTypeMapper = new IdentityTypeMapper(this);
@@ -568,11 +566,11 @@ public class SAMLIDPProperties extends SAMLProperties
 	}
 
 	@Override
-	public SAMLProperties clone()
+	public SamlProperties clone()
 	{
 		try
 		{
-			return new SAMLIDPProperties(getProperties(), pkiManagement);
+			return new SamlIdpProperties(getProperties(), pkiManagement);
 		} catch (Exception e)
 		{
 			log.error("Can not clone SAMLIDPProperties");

@@ -14,8 +14,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.SAMLProperties;
-import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
+import pl.edu.icm.unity.saml.SamlProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
@@ -29,7 +29,7 @@ import eu.unicore.samly2.SAMLConstants;
 
 /**
  * Utility class: converts SAML metadata into a series of property statements, 
- * compatible with {@link SAMLIDPProperties}. If the SAML metadata is describing an SP which is already defined in 
+ * compatible with {@link SamlIdpProperties}. If the SAML metadata is describing an SP which is already defined in 
  * the source properties, then only the entries which are not already set are added.
  *  
  * @author P. Piernik
@@ -53,7 +53,7 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 	 * @param realConfig
 	 */
 	public void convertToProperties(EntitiesDescriptorDocument metaDoc, Properties properties, 
-			SAMLIDPProperties realConfig, String configKey)
+			SamlIdpProperties realConfig, String configKey)
 	{
 		super.convertToProperties(metaDoc, properties, realConfig, configKey);
 	}
@@ -61,9 +61,9 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 	
 	@Override
 	protected void convertToProperties(EntityDescriptorType meta, Properties properties,
-			SAMLProperties realConfigG, String configKey)
+			SamlProperties realConfigG, String configKey)
 	{
-		SAMLIDPProperties realConfig = (SAMLIDPProperties) realConfigG;
+		SamlIdpProperties realConfig = (SamlIdpProperties) realConfigG;
 		SPSSODescriptorType[] spDefs = meta.getSPSSODescriptorArray();
 		if (spDefs == null || spDefs.length == 0)
 			return;
@@ -110,7 +110,7 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 	}
 	
 	private void addEntryToProperties(String entityId, IndexedEndpointType serviceEndpoint,
-			SAMLIDPProperties realConfig, String metaConfigKey, Properties properties,
+			SamlIdpProperties realConfig, String metaConfigKey, Properties properties,
 			Random r, List<X509Certificate> certs, Map<String, String> names,
 			Map<String, LogoType> logos)
 	{
@@ -118,22 +118,22 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 		
 		boolean noPerSpConfig = configKey == null;
 		if (configKey == null)
-			configKey = SAMLIDPProperties.P + SAMLIDPProperties.ALLOWED_SP_PREFIX + 
+			configKey = SamlIdpProperties.P + SamlIdpProperties.ALLOWED_SP_PREFIX + 
 					"_entryFromMetadata_" + r.nextInt() + "."; 
 
-		if (noPerSpConfig || !properties.containsKey(configKey + SAMLIDPProperties.ALLOWED_SP_ENTITY))
-			properties.setProperty(configKey + SAMLIDPProperties.ALLOWED_SP_ENTITY, 
+		if (noPerSpConfig || !properties.containsKey(configKey + SamlIdpProperties.ALLOWED_SP_ENTITY))
+			properties.setProperty(configKey + SamlIdpProperties.ALLOWED_SP_ENTITY, 
 					entityId);
-		if (noPerSpConfig || !properties.containsKey(configKey + SAMLIDPProperties.ALLOWED_SP_RETURN_URL))
-			properties.setProperty(configKey + SAMLIDPProperties.ALLOWED_SP_RETURN_URL, 
+		if (noPerSpConfig || !properties.containsKey(configKey + SamlIdpProperties.ALLOWED_SP_RETURN_URL))
+			properties.setProperty(configKey + SamlIdpProperties.ALLOWED_SP_RETURN_URL, 
 					serviceEndpoint.getLocation());		
-		if (noPerSpConfig || !properties.containsKey(configKey + SAMLIDPProperties.ALLOWED_SP_CERTIFICATE))
+		if (noPerSpConfig || !properties.containsKey(configKey + SamlIdpProperties.ALLOWED_SP_CERTIFICATE))
 		{
 			int i = 1;
 			for (X509Certificate cert: certs)
 			{
-				if (!properties.containsKey(configKey + SAMLIDPProperties.ALLOWED_SP_CERTIFICATES + i))
-					properties.setProperty(configKey + SAMLIDPProperties.ALLOWED_SP_CERTIFICATES + i, 
+				if (!properties.containsKey(configKey + SamlIdpProperties.ALLOWED_SP_CERTIFICATES + i))
+					properties.setProperty(configKey + SamlIdpProperties.ALLOWED_SP_CERTIFICATES + i, 
 							getCertificateKey(cert, entityId, IDP_META_CERT));
 				i++;
 			}
@@ -142,16 +142,16 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 		for (Map.Entry<String, String> name: names.entrySet())
 		{
 			if (noPerSpConfig || !properties.containsKey(configKey + 
-					SAMLIDPProperties.ALLOWED_SP_NAME + name.getKey()))
-				properties.setProperty(configKey + SAMLIDPProperties.ALLOWED_SP_NAME + name.getKey(), 
+					SamlIdpProperties.ALLOWED_SP_NAME + name.getKey()))
+				properties.setProperty(configKey + SamlIdpProperties.ALLOWED_SP_NAME + name.getKey(), 
 						name.getValue());
 		}
 		
 		for (Map.Entry<String, LogoType> logo: logos.entrySet())
 		{
 			if (noPerSpConfig || !properties.containsKey(configKey + 
-					SAMLIDPProperties.ALLOWED_SP_LOGO + logo.getKey()))
-				properties.setProperty(configKey + SAMLIDPProperties.ALLOWED_SP_LOGO + logo.getKey(), 
+					SamlIdpProperties.ALLOWED_SP_LOGO + logo.getKey()))
+				properties.setProperty(configKey + SamlIdpProperties.ALLOWED_SP_LOGO + logo.getKey(), 
 						logo.getValue().getStringValue());
 		}
 					
@@ -159,13 +159,13 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 				serviceEndpoint.getLocation() + " returnl url");		
 	}
 		
-	private String getExistingKey(String entityId, SAMLIDPProperties realConfig)
+	private String getExistingKey(String entityId, SamlIdpProperties realConfig)
 	{
-		Set<String> keys = realConfig.getStructuredListKeys(SAMLIDPProperties.ALLOWED_SP_PREFIX);
+		Set<String> keys = realConfig.getStructuredListKeys(SamlIdpProperties.ALLOWED_SP_PREFIX);
 		for (String key: keys)
 		{
-			if (entityId.equals(realConfig.getValue(key+SAMLIDPProperties.ALLOWED_SP_ENTITY)))
-				return SAMLIDPProperties.P + key;
+			if (entityId.equals(realConfig.getValue(key+SamlIdpProperties.ALLOWED_SP_ENTITY)))
+				return SamlIdpProperties.P + key;
 		}
 		return null;
 	}

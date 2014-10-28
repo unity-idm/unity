@@ -4,22 +4,22 @@
  */
 package pl.edu.icm.unity.samlmeta;
 
-import static pl.edu.icm.unity.saml.SAMLProperties.METADATA_REFRESH;
-import static pl.edu.icm.unity.saml.SAMLProperties.METADATA_URL;
-import static pl.edu.icm.unity.saml.SAMLProperties.PUBLISH_METADATA;
-import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.ALLOWED_SP_CERTIFICATE;
-import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.ALLOWED_SP_ENCRYPT;
-import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.ALLOWED_SP_ENTITY;
-import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.ALLOWED_SP_LOGO;
-import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.ALLOWED_SP_NAME;
-import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.ALLOWED_SP_PREFIX;
-import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.ALLOWED_SP_RETURN_URL;
-import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.CREDENTIAL;
-import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.DEFAULT_GROUP;
-import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.GROUP;
-import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.ISSUER_URI;
-import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.P;
-import static pl.edu.icm.unity.saml.idp.SAMLIDPProperties.SPMETA_PREFIX;
+import static pl.edu.icm.unity.saml.SamlProperties.METADATA_REFRESH;
+import static pl.edu.icm.unity.saml.SamlProperties.METADATA_URL;
+import static pl.edu.icm.unity.saml.SamlProperties.PUBLISH_METADATA;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_CERTIFICATE;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_ENCRYPT;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_ENTITY;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_LOGO;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_NAME;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_PREFIX;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_RETURN_URL;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.CREDENTIAL;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.DEFAULT_GROUP;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.GROUP;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ISSUER_URI;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.P;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.SPMETA_PREFIX;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
@@ -86,12 +86,12 @@ public class TestDownloadManager extends DBIntegrationTestBase
 				p.setProperty(P + SPMETA_PREFIX + "1." + METADATA_URL,
 						new String("https://www.aai.dfn.de/fileadmin/metadata/DFN-AAI-metadata.xml"));
 			}
-			SAMLIDPProperties configuration = new SAMLIDPProperties(p, pkiManagement);
+			SamlIdpProperties configuration = new SamlIdpProperties(p, pkiManagement);
 
 			RemoteMetaManager manager = new RemoteMetaManager(configuration,
 					mainConfig, executorsService, pkiManagement,
 					new MetaToIDPConfigConverter(pkiManagement),
-					downloadManager, SAMLIDPProperties.SPMETA_PREFIX);
+					downloadManager, SamlIdpProperties.SPMETA_PREFIX);
 			mans.add(manager);
 		}
 		

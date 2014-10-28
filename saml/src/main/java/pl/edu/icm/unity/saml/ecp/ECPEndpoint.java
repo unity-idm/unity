@@ -15,7 +15,7 @@ import java.util.Properties;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import pl.edu.icm.unity.saml.SAMLProperties;
+import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
@@ -80,7 +80,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 			UnityServerConfiguration mainCfg, MetaDownloadManager downloadManager,
 			ExecutorsService executorsService, MultiMetadataServlet metadataServlet)
 	{
-	super(type);
+		super(type);
 		this.pkiManagement = pkiManagement;
 		this.servletPath = servletPath;
 		this.samlContextManagement = samlContextManagement;
@@ -114,7 +114,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 					" endpoint's configuration", e);
 		}
 		
-		if (samlProperties.getBooleanValue(SAMLProperties.PUBLISH_METADATA))
+		if (samlProperties.getBooleanValue(SamlProperties.PUBLISH_METADATA))
 			exposeMetadata();
 		String myId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
 		if (!remoteMetadataManagers.containsKey(myId))

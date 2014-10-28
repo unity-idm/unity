@@ -11,7 +11,7 @@ import javax.servlet.Servlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import pl.edu.icm.unity.saml.idp.SAMLIDPProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataServlet;
@@ -40,7 +40,7 @@ import eu.unicore.util.configuration.ConfigurationException;
  */
 public class SamlSoapEndpoint extends CXFEndpoint
 {
-	protected SAMLIDPProperties samlProperties;
+	protected SamlIdpProperties samlProperties;
 	protected PreferencesManagement preferencesMan;
 	protected IdPEngine idpEngine;
 	protected PKIManagement pkiManagement;
@@ -75,7 +75,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		super.setSerializedConfiguration(config);
 		try
 		{
-			samlProperties = new SAMLIDPProperties(properties, pkiManagement);
+			samlProperties = new SamlIdpProperties(properties, pkiManagement);
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("Can't initialize the SAML SOAP" +
@@ -86,7 +86,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		{
 			
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
-					mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement), downloadManager, SAMLIDPProperties.SPMETA_PREFIX);
+					mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement), downloadManager, SamlIdpProperties.SPMETA_PREFIX);
 			remoteMetadataManagers.put(id, myMetadataManager);
 			myMetadataManager.start();
 		} else
