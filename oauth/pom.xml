@@ -54,6 +54,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-rest</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 		</dependency>

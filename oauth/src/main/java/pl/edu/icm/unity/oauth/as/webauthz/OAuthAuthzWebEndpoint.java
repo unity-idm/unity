@@ -15,8 +15,10 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 
+import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -38,17 +40,20 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 	private FreemarkerHandler freemarkerHandler;
 	private IdentitiesManagement identitiesManagement;
 	private AttributesManagement attributesManagement;
+	private PKIManagement pkiManagement;
 	
 	public OAuthAuthzWebEndpoint(EndpointTypeDescription type,
 			ApplicationContext applicationContext, String uiServletPath,
 			String consumerServletPath, FreemarkerHandler freemarkerHandler,
-			IdentitiesManagement identitiesManagement, AttributesManagement attributesManagement)
+			IdentitiesManagement identitiesManagement, AttributesManagement attributesManagement,
+			PKIManagement pkiManagement)
 	{
 		super(type, applicationContext, OAuthAuthzUI.class.getSimpleName(), uiServletPath);
 		this.consumerServletPath = consumerServletPath;
 		this.freemarkerHandler = freemarkerHandler;
 		this.attributesManagement = attributesManagement;
 		this.identitiesManagement = identitiesManagement;
+		this.pkiManagement = pkiManagement;
 	}
 
 	@Override
@@ -57,7 +62,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		super.setSerializedConfiguration(properties);
 		try
 		{
-			oauthProperties = new OAuthASProperties(this.properties);
+			oauthProperties = new OAuthASProperties(this.properties, pkiManagement);
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("Can't initialize the OAuth 2 AS endpoint's configuration", e);

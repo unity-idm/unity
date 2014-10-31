@@ -30,6 +30,10 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
+import pl.edu.icm.unity.rest.exception.EngineExceptionMapper;
+import pl.edu.icm.unity.rest.exception.InternalExceptionMapper;
+import pl.edu.icm.unity.rest.exception.JSONExceptionMapper;
+import pl.edu.icm.unity.rest.exception.NPEExceptionMapper;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
@@ -150,5 +154,16 @@ public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEnd
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Adds common exception handlers
+	 */
+	public static void installExceptionHandlers(HashSet<Object> ret)
+	{
+		ret.add(new EngineExceptionMapper());
+		ret.add(new NPEExceptionMapper());
+		ret.add(new InternalExceptionMapper());
+		ret.add(new JSONExceptionMapper());
 	}
 }

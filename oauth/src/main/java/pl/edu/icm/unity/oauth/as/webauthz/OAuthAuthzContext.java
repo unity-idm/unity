@@ -9,12 +9,15 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.types.basic.Attribute;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
+
+import eu.emi.security.authn.x509.X509Credential;
 
 /**
  * Context stored in HTTP session maintaining authorization token. 
@@ -27,6 +30,7 @@ public class OAuthAuthzContext
 	private Date timestamp;
 	private URI returnURI;
 	private String clientName;
+	private long clientEntityId;
 	private Attribute<BufferedImage> clientLogo;
 	private String translationProfile;
 	private String usersGroup;
@@ -38,9 +42,11 @@ public class OAuthAuthzContext
 	private int accessTokenValidity;
 	private int idTokenValidity;
 	private String issuerName;
+	private X509Credential credential;
+	
 
 	public OAuthAuthzContext(AuthorizationRequest request, int accessTokenValidity, int codeTokenValidity,
-			int idTokenValidity, String issuerName)
+			int idTokenValidity, String issuerName, X509Credential credential)
 	{
 		super();
 		this.timestamp = new Date();
@@ -49,6 +55,12 @@ public class OAuthAuthzContext
 		this.accessTokenValidity = accessTokenValidity;
 		this.idTokenValidity = idTokenValidity;
 		this.issuerName = issuerName;
+		this.credential = credential;
+	}
+
+	public X509Credential getCredential()
+	{
+		return credential;
 	}
 
 	public AuthorizationRequest getRequest()
@@ -127,6 +139,15 @@ public class OAuthAuthzContext
 		return effectiveRequestedScopes;
 	}
 
+	public String[] getEffectiveRequestedScopesList()
+	{
+		String[] ret = new String[effectiveRequestedScopes.size()];
+		Iterator<ScopeInfo> sIt = effectiveRequestedScopes.iterator();
+		for (int i=0; i<ret.length; i++)
+			ret[i] = sIt.next().name;
+		return ret;
+	}
+
 	public GrantFlow getFlow()
 	{
 		return flow;
@@ -166,6 +187,17 @@ public class OAuthAuthzContext
 	{
 		return issuerName;
 	}
+
+	public long getClientEntityId()
+	{
+		return clientEntityId;
+	}
+
+	public void setClientEntityId(long clientEntityId)
+	{
+		this.clientEntityId = clientEntityId;
+	}
+
 
 
 	public static class ScopeInfo

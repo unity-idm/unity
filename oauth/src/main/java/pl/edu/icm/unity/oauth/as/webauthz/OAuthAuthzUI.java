@@ -6,7 +6,6 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.awt.image.BufferedImage;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -18,8 +17,6 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.idpcommon.EopException;
-import pl.edu.icm.unity.oauth.as.DefaultOAuthAttributeMapper;
-import pl.edu.icm.unity.oauth.as.OAuthAttributeMapper;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
@@ -53,20 +50,9 @@ import pl.edu.icm.unity.webui.common.provider.IdentitySelectorComponent;
 import pl.edu.icm.unity.webui.common.provider.SPInfoComponent;
 
 import com.google.gwt.thirdparty.guava.common.collect.Lists;
-import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
-import com.nimbusds.oauth2.sdk.ResponseType;
-import com.nimbusds.oauth2.sdk.id.Audience;
-import com.nimbusds.oauth2.sdk.id.Issuer;
-import com.nimbusds.oauth2.sdk.id.Subject;
-import com.nimbusds.oauth2.sdk.token.AccessToken;
-import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
-import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
-import com.nimbusds.openid.connect.sdk.claims.ClaimsSet;
-import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
-import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;

@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.idpcommon.EopException;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
@@ -36,6 +37,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
@@ -179,7 +181,8 @@ public class OAuthParseServlet extends HttpServlet
 					oauthConfig.getIntValue(OAuthASProperties.ACCESS_TOKEN_VALIDITY),
 					oauthConfig.getIntValue(OAuthASProperties.CODE_TOKEN_VALIDITY),
 					oauthConfig.getIntValue(OAuthASProperties.ID_TOKEN_VALIDITY),
-					oauthConfig.getValue(OAuthASProperties.ISSUER_URI));
+					oauthConfig.getValue(OAuthASProperties.ISSUER_URI),
+					oauthConfig.getCredential());
 			validate(context);
 		} catch (OAuthValidationException e)
 		{
@@ -211,6 +214,8 @@ public class OAuthParseServlet extends HttpServlet
 		Collection<String> groups;
 		try
 		{
+			Entity clientResolvedEntity = identitiesMan.getEntity(clientEntity);
+			context.setClientEntityId(clientResolvedEntity.getId());
 			groups = identitiesMan.getGroups(clientEntity);
 		} catch (IllegalIdentityValueException e)
 		{

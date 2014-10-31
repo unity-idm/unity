@@ -2,15 +2,21 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as.webauthz;
+package pl.edu.icm.unity.oauth.as;
 
+import java.security.PrivateKey;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.RSAPrivateKey;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
+import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -36,6 +42,7 @@ public class OAuthASProperties extends PropertiesHelper
 	public static final String ACCESS_TOKEN_VALIDITY = "accessTokenValidity";
 	public static final String CODE_TOKEN_VALIDITY = "codeTokenValidity";
 	public static final String ID_TOKEN_VALIDITY = "idTokenValidity";
+	public static final String CREDENTIAL = "signingCredential";
 	
 	public static final String CLIENTS_GROUP = "clientsGroup";
 	public static final String USERS_GROUP = "usersGroup";
@@ -58,6 +65,9 @@ public class OAuthASProperties extends PropertiesHelper
 				setDescription("Controls the maximum validity period of an OpenID Connect Id token (in seconds)."));
 		defaults.put(ACCESS_TOKEN_VALIDITY, new PropertyMD("3600").setPositive().
 				setDescription("Controls the maximum validity period of an Access token (in seconds)."));
+		defaults.put(CREDENTIAL, new PropertyMD().setMandatory().
+				setDescription("Name of a credential which is used to sign tokens. "
+						+ "Used only for the OpenId Connect mode, but currently it is always required."));
 		defaults.put(CLIENTS_GROUP, new PropertyMD("/oauth-clients").
 				setDescription("Group in which authorized OAuth Clients must be present. "
 						+ "OAuth related attributes defined in this group are used"
@@ -83,8 +93,31 @@ public class OAuthASProperties extends PropertiesHelper
 
 	}
 	
-	public OAuthASProperties(Properties properties) throws ConfigurationException
+	private X509Credential credential;
+	
+	public OAuthASProperties(Properties properties, PKIManagement pkiManamgenet) throws ConfigurationException
 	{
 		super(P, properties, defaults, log);
+		
+		String credential = getValue(CREDENTIAL);
+		try
+		{
+			if (!pkiManamgenet.getCertificateNames().contains(credential))
+				throw new ConfigurationException("There is no credential named '" + credential + 
+						"' which is configured in the OAuth endpoint.");
+			this.credential = pkiManamgenet.getCredential(credential);
+			PrivateKey pk = this.credential.getKey();
+			if (!(pk instanceof RSAPrivateKey) && !(pk instanceof ECPrivateKey))
+				throw new ConfigurationException("The private key of credential "
+						+ "is neither RSA or EC - it is unsupported.");
+		} catch (EngineException e)
+		{
+			throw new ConfigurationException("Can't obtain credential names.", e);
+		}
+	}
+
+	public X509Credential getCredential()
+	{
+		return credential;
 	}
 }
