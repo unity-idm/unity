@@ -46,7 +46,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	protected PKIManagement pkiManagement;
 	protected ExecutorsService executorsService;
 	protected String samlMetadataPath;
-	private RemoteMetaManager myMetadataManager;
+	protected RemoteMetaManager myMetadataManager;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
@@ -115,10 +115,11 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	protected void configureServices()
 	{
 		String endpointURL = getServletUrl(servletPath);
-		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(samlProperties, 
+		SamlIdpProperties virtualConf = (SamlIdpProperties) myMetadataManager.getVirtualConfiguration();
+		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(virtualConf, 
 				endpointURL, idpEngine, preferencesMan);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
-		SAMLAuthnImpl authnImpl = new SAMLAuthnImpl(samlProperties, endpointURL, 
+		SAMLAuthnImpl authnImpl = new SAMLAuthnImpl(virtualConf, endpointURL, 
 				idpEngine, preferencesMan);
 		addWebservice(SAMLAuthnInterface.class, authnImpl);		
 	}

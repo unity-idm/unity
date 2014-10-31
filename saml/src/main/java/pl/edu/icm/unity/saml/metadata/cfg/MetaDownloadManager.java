@@ -60,7 +60,7 @@ public class MetaDownloadManager
 	}
 	
 	/**
-	 * Download  or waits until another process finishes downloading the file.
+	 * Download or waits until another process finishes downloading the file.
 	 * @param url file to download
 	 * @param refreshInterval used to calculate  freshness of file
 	 * @param customTruststore
@@ -68,12 +68,11 @@ public class MetaDownloadManager
 	 * @throws EngineException
 	 * @throws IOException
 	 */
-
 	public File tryDownloading(String url, int refreshInterval, String customTruststore)
 			throws EngineException, IOException
 	{		
 		try
-		{
+		{	//check if wait occur or file is fresh
 			if (tryStartDownloading(url, refreshInterval))
 			{
 				return getFromCache(url, "");
@@ -88,12 +87,15 @@ public class MetaDownloadManager
 			download(url, customTruststore);
 		} catch (Exception ex)
 		{
+			log.debug("Downloading file from " + url + " fail", ex);
 			endDownloading(url, false);
-			throw ex;
-		}
+			log.debug("Trying get file from cache");
+			return getFromCache(url, "");
+		}	
 
 		return endDownloading(url, true);
 	}
+	
 	/**
 	 * Download remote file
 	 * @param url
@@ -101,7 +103,6 @@ public class MetaDownloadManager
 	 * @throws EngineException
 	 * @throws IOException
 	 */
-	
 	private void download(String url, String customTruststore) throws EngineException,
 			IOException
 	{
@@ -137,11 +138,12 @@ public class MetaDownloadManager
 	}
 	
 	/**
-	 * If cached file is fresh return false. In other case wait to download and return true
-	 * or put file to download queue and return false
+	 * First check if cached file is fresh, if yes return true.
+	 * Next check if requested file is in downloading queue, if yes waits to finishing download by another process and return true. 
+	 * If file is not in download queue added it to the queue and return false.
 	 * @param url
 	 * @param refreshInterval
-	 * @return true if waiting occurs
+	 * @return true if waiting occurs or file is fresh, false in the other case
 	 * @throws InterruptedException
 	 */
 	private boolean tryStartDownloading(String url, int refreshInterval) throws InterruptedException
@@ -174,18 +176,18 @@ public class MetaDownloadManager
 				downlodingFiles.add(url);
 			} else
 			{
-				log.trace("Download from " + url + " complete by another proccess, stop waiting");
+				log.trace("Stop waiting to file from " + url + ", another process end downloading");
 			}
 		}
 		return wait;
 	}
 
 	/**
-	 * Remove file from download queue, and add to downloaded files.
+	 * Remove file from download queue, notify all waiting processes. If downloading end with success add file to downloaded map.
 	 * @param url
 	 * @param success
 	 * @return
-	 * @throws IOException
+	 * @throws IOException 
 	 */
 	private File endDownloading(String url, boolean success) throws IOException
 	{
@@ -196,16 +198,13 @@ public class MetaDownloadManager
 			{
 				cachedFile = getFromCache(url, "");
 				downloadedFiles.put(url, cachedFile.lastModified());
-				log.trace("Downloading file from " + url + " complete successfull");
-			} else
-			{
-				log.trace("Downloading file from " + url + " fail");
-			}
 
+			}
 			downlodingFiles.remove(url);
 			downlodingFiles.notifyAll();
 
 		}
+		
 		return cachedFile;
 	}
 

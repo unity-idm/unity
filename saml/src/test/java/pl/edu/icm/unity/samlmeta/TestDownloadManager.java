@@ -51,8 +51,6 @@ public class TestDownloadManager extends DBIntegrationTestBase
 
 	@Autowired
 	private MetaDownloadManager downloadManager;
-
-	
 	
 	@Test
 	public void testDownload() throws IOException, EngineException, InterruptedException

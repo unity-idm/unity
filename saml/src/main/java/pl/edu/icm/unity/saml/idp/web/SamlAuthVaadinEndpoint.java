@@ -57,7 +57,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	protected ExecutorsService executorsService;
 	protected String samlConsumerPath;
 	protected String samlMetadataPath;
-	private RemoteMetaManager myMetadataManager;
+	protected RemoteMetaManager myMetadataManager;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
@@ -161,7 +161,8 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	
 	protected Servlet getSamlParseServlet(String endpointURL, String uiUrl)
 	{
-		return new SamlParseServlet(samlProperties, 
+		SamlIdpProperties virtualConf = (SamlIdpProperties) myMetadataManager.getVirtualConfiguration();
+		return new SamlParseServlet(virtualConf, 
 				endpointURL, uiUrl, new ErrorHandler(freemarkerHandler));
 	}
 	

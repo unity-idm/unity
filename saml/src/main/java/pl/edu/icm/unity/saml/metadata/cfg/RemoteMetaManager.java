@@ -77,7 +77,7 @@ public class RemoteMetaManager
 	
 	public synchronized SamlProperties getVirtualConfiguration()
 	{
-		return virtualConfiguration;
+		return virtualConfiguration.clone();
 	}
 
 	public synchronized void setVirtualConfiguration(Properties virtualConfigurationProperties)
