@@ -11,6 +11,7 @@ import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.in.GroupEffectMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 
 /**
@@ -42,7 +43,11 @@ public class MapGroupActionFactory implements TranslationActionFactory
 				new ActionParameterDesc(
 						"expression",
 						"TranslationAction.mapGroup.paramDesc.expression",
-						1, 1, Type.EXPRESSION)};
+						1, 1, Type.EXPRESSION),
+				new ActionParameterDesc(
+						"mode",
+						"TranslationAction.mapGroup.paramDesc.createMissing",
+						1, 1, GroupEffectMode.class)};
 	}
 
 	@Override

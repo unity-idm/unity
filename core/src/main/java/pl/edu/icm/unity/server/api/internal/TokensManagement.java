@@ -41,22 +41,26 @@ public interface TokensManagement
 	void closeTokenTransaction(Object transaction);
 	
 	/**
-	 * Adds a new token
-	 * Transactional.
-	 * @param token
+	 * Adds a new token - transactional
+	 * @param type type or category of the token
+	 * @param value
+	 * @param owner
+	 * @param contents
+	 * @param created creation timestamp. It is guaranteed to be stored with second precision, though implementation
+	 * might also store the full time.
+	 * @param expires precision as in created case.
+	 * @param transaction
 	 * @throws WrongArgumentException
-	 * @throws IllegalTypeException 
-	 * @throws IllegalIdentityValueException 
+	 * @throws IllegalIdentityValueException
+	 * @throws IllegalTypeException
 	 */
 	void addToken(String type, String value, EntityParam owner, byte[] contents, Date created, Date expires, 
 			Object transaction) 
 			throws WrongArgumentException, IllegalIdentityValueException, IllegalTypeException;
 	
 	/**
-	 * Adds a new token
-	 * @throws WrongArgumentException
-	 * @throws IllegalTypeException 
-	 * @throws IllegalIdentityValueException 
+	 * @see #addToken(String, String, EntityParam, byte[], Date, Date, Object) - standalone version, without
+	 * wrapping transaction.
 	 */
 	void addToken(String type, String value, EntityParam owner, byte[] contents, Date created, Date expires) 
 			throws WrongArgumentException, IllegalIdentityValueException, IllegalTypeException;

@@ -6,13 +6,6 @@ package pl.edu.icm.unity.webadmin.identities;
 
 import java.util.Set;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Panel;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -21,8 +14,16 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Panel;
 
 /**
  * Identity creation dialog. Adds the identity to an existing entity.
@@ -67,7 +68,7 @@ public class IdentityCreationDialog extends AbstractDialog
 		identityType.setNullSelectionAllowed(false);
 		identityType.setImmediate(true);
 
-		Panel identityPanel = new Panel(msg.getMessage("IdentityCreation.idValue"));
+		Panel identityPanel = new SafePanel(msg.getMessage("IdentityCreation.idValue"));
 		final FormLayout idLayout = new FormLayout();
 		idLayout.setMargin(true);
 		identityPanel.setContent(idLayout);

@@ -45,6 +45,7 @@ import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.provider.ExposedAttributesComponent;
@@ -57,7 +58,6 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
@@ -183,10 +183,8 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 
 		Label info1 = new Label(msg.getMessage("SamlIdPWebUI.info1"));
 		info1.setStyleName(Reindeer.LABEL_H1);
-		
 		SPInfoComponent spInfo = new SPInfoComponent(msg, null, samlRequester, returnAddress);
-		
-		Label spc1 = new Label("<br>", ContentMode.HTML);
+		Label spc1 = HtmlTag.br();
 		Label info2 = new Label(msg.getMessage("SamlIdPWebUI.info2"));
 		
 		contents.addComponents(info1, spInfo, spc1, info2);
@@ -204,7 +202,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		{
 			TranslationResult translationResult = getUserInfo(samlCtx, samlProcessor);
 			createIdentityPart(translationResult, eiLayout);
-			eiLayout.addComponent(new Label("<br>", ContentMode.HTML));
+			eiLayout.addComponent(HtmlTag.br());
 			createAttributesPart(translationResult, eiLayout);
 		} catch (SAMLRequesterException e)
 		{

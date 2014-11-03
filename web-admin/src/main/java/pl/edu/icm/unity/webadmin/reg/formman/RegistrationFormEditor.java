@@ -55,6 +55,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.attributes.SelectableAttributeEditor;
 
+import com.google.common.html.HtmlEscapers;
 import com.vaadin.data.validator.AbstractStringValidator;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
@@ -103,7 +104,7 @@ public class RegistrationFormEditor extends VerticalLayout
 	private GroupComboBox adminsNotificationGroup;
 	private AbstractTextField autoAcceptCondition;
 	
-	private DescriptionTextArea formInformation;
+	private TextArea formInformation;
 	private TextField registrationCode;
 	private CheckBox collectComments;
 	private ListOfEmbeddedElements<AgreementRegistrationParam> agreements;	
@@ -194,7 +195,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		ret.setCollectComments(collectComments.getValue());
 		ret.setCredentialParams(credentialParams.getElements());
 		ret.setCredentialRequirementAssignment((String) credentialRequirementAssignment.getValue());
-		ret.setDescription(description.getValue());
+		ret.setDescription(HtmlEscapers.htmlEscaper().escape(description.getValue()));
 		ret.setFormInformation(formInformation.getValue());
 		ret.setGroupAssignments(groupAssignments.getElements());
 		ret.setGroupParams(groupParams.getElements());
@@ -317,7 +318,9 @@ public class RegistrationFormEditor extends VerticalLayout
 		wrapper.setMargin(true);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
 		
-		formInformation = new DescriptionTextArea(msg.getMessage("RegistrationFormViewer.formInformation"));
+		formInformation = new TextArea(msg.getMessage("RegistrationFormViewer.formInformation"));
+		formInformation.setWordwrap(true);
+		formInformation.setWidth(100, Unit.PERCENTAGE);
 		registrationCode = new TextField(msg.getMessage("RegistrationFormViewer.registrationCode"));
 		collectComments = new CheckBox(msg.getMessage("RegistrationFormEditor.collectComments"));
 		
@@ -604,7 +607,7 @@ public class RegistrationFormEditor extends VerticalLayout
 			if (!label.getValue().isEmpty())
 				ret.setLabel(label.getValue());
 			if (!description.getValue().isEmpty())
-				ret.setDescription(description.getValue());
+				ret.setDescription(HtmlEscapers.htmlEscaper().escape(description.getValue()));
 			return ret;
 		}
 
@@ -643,7 +646,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		protected void fill(RegistrationParam v)
 		{
 			if (!description.getValue().isEmpty())
-				v.setDescription(description.getValue());
+				v.setDescription(HtmlEscapers.htmlEscaper().escape(description.getValue()));
 			if (!label.getValue().isEmpty())
 				v.setLabel(label.getValue());
 			v.setRetrievalSettings(retrievalSettings.getSelectedValue());

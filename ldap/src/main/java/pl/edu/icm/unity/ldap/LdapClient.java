@@ -6,8 +6,10 @@ package pl.edu.icm.unity.ldap;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +18,16 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.ldap.LdapClientConfiguration.ConnectionMode;
+import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
+import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
+import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.stdext.identity.X500Identity;
+
 import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.CompareResult;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.ExtendedResult;
@@ -37,14 +48,6 @@ import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.security.canl.SSLContextCreator;
-
-import pl.edu.icm.unity.ldap.LdapClientConfiguration.ConnectionMode;
-import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
-import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
-import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.stdext.identity.X500Identity;
 
 /**
  * LDAP v3 client code. Immutable -> thread safe.
@@ -111,15 +114,11 @@ public class LdapClient
 			}
 		}
 		
-		String dn = configuration.getBindDN(user);
-		try
-		{
-			connection.bind(dn, password);
-		} catch (LDAPException e)
-		{
-			if (ResultCode.INVALID_CREDENTIALS.equals(e.getResultCode()))
-				throw new LdapAuthenticationException("Wrong username or credentials", e);
-		}
+		String dn;
+		if (configuration.isBindAsUser())
+			dn = bindAsUser(connection, user, password, configuration);
+		else
+			dn = bindAsSystemAndVerifyPassword(connection, user, password, configuration);
 		
 		if (configuration.isBindOnly())
 		{
@@ -147,9 +146,57 @@ public class LdapClient
 		RemotelyAuthenticatedInput ret = assembleBaseResult(entry);
 		findGroupsMembership(connection, entry, configuration, ret.getGroups());
 		
+		performAdditionalQueries(connection, configuration, user, ret);
+		
 		connection.close();
 		return ret;
 		
+	}
+	
+	
+	private String bindAsUser(LDAPConnection connection, String user, String password, 
+			LdapClientConfiguration configuration) throws LdapAuthenticationException
+	{
+		String dn = configuration.getBindDN(user);
+		try
+		{
+			connection.bind(dn, password);
+		} catch (LDAPException e)
+		{
+			if (ResultCode.INVALID_CREDENTIALS.equals(e.getResultCode()))
+				throw new LdapAuthenticationException("Wrong username or credentials", e);
+		}
+		return dn;
+	}
+
+	private String bindAsSystemAndVerifyPassword(LDAPConnection connection, String user, String password, 
+			LdapClientConfiguration configuration) throws LdapAuthenticationException
+	{
+		String systemDN = configuration.getSystemDN();
+		String systemPassword = configuration.getSystemPassword();
+		try
+		{
+			connection.bind(systemDN, systemPassword);
+		} catch (LDAPException e)
+		{
+			if (ResultCode.INVALID_CREDENTIALS.equals(e.getResultCode()))
+				throw new LdapAuthenticationException("Wrong username or credentials of the "
+						+ "system LDAP client "
+						+ "(system, not the ones provided by the user)", e);
+		}
+		
+		String usersDN = configuration.getBindDN(user);
+		String passwordAttribute = configuration.getUserPasswordAttribute();
+		try
+		{
+			CompareResult result = connection.compare(usersDN, passwordAttribute, password);
+			if (ResultCode.COMPARE_FALSE.equals(result.getResultCode()))
+				throw new LdapAuthenticationException("Wrong username or credentials");
+		} catch (LDAPException e)
+		{
+			throw new LdapAuthenticationException("Can't check username/credentials", e);
+		}
+		return usersDN;
 	}
 	
 	private RemotelyAuthenticatedInput assembleBaseResult(SearchResultEntry entry)
@@ -314,6 +361,49 @@ public class LdapClient
 		return rg;
 	}
 	
+	private void performAdditionalQueries(LDAPConnection connection, LdapClientConfiguration configuration, 
+			String user, RemotelyAuthenticatedInput principalData) throws LDAPException
+	{
+		int timeLimit = configuration.getSearchTimeLimit();
+		int sizeLimit = configuration.getAttributesLimit();
+		DereferencePolicy derefPolicy = configuration.getDereferencePolicy();
+
+		List<SearchSpecification> searchSpecs = configuration.getExtraSearches();
+		for (SearchSpecification searchSpec: searchSpecs)
+		{
+			String[] queriedAttributes = searchSpec.getAttributes();
+			Filter validUsersFilter = searchSpec.getFilter(user);
+			String base = searchSpec.getBaseDN(user);
+			SearchScope scope = searchSpec.getScope().getInternalScope();
+			ReadOnlySearchRequest searchRequest = new SearchRequest(base, scope, derefPolicy, 
+					sizeLimit, timeLimit, false, validUsersFilter, queriedAttributes);
+			SearchResult result = connection.search(searchRequest);
+			consolidateAttributes(result, principalData);
+		}
+	}
+	
+	private void consolidateAttributes(SearchResult result, RemotelyAuthenticatedInput principalData)
+	{
+		Map<String, Set<String>> attributes = new HashMap<String, Set<String>>();
+		for (SearchResultEntry entry: result.getSearchEntries())
+		{
+			for (Attribute a: entry.getAttributes())
+			{
+				Set<String> curValues = attributes.get(a.getName());
+				if (curValues == null)
+				{
+					curValues = new LinkedHashSet<String>();
+					attributes.put(a.getName(), curValues);
+				}
+				Collections.addAll(curValues, a.getValues());
+			}
+		}
+		
+		for (Map.Entry<String, Set<String>> e: attributes.entrySet())
+		{
+			principalData.addAttribute(new RemoteAttribute(e.getKey(), e.getValue().toArray()));
+		}
+	}
 	
 	/**
 	 * Returns a value of the nameAttribute in dn. If not found then null is returned. This is intended 

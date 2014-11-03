@@ -107,9 +107,17 @@ public class SamlPreferences extends IdPPreferences
 		return getSPSettings(sp);
 	}
 
+	/**
+	 * @param sp
+	 * @return settings for the given service provider. If no preferences are defined for he given provider 
+	 * then first the default as set by user preferences are returned and if those are also unset then
+	 * hardcoded defaults are used. 
+	 */
 	public SPSettings getSPSettings(String sp)
 	{
 		SPSettings ret = spSettings.get(sp);
+		if (ret == null)
+			ret = spSettings.get("");
 		if (ret == null)
 			ret = new SPSettings();
 		return ret;
@@ -131,6 +139,10 @@ public class SamlPreferences extends IdPPreferences
 		setSPSettings(getSPKey(spName), settings);
 	}
 	
+	/**
+	 * @param sp Use empty string as a key to set default preferences
+	 * @param settings
+	 */
 	public void setSPSettings(String sp, SPSettings settings)
 	{
 		spSettings.put(sp, settings);

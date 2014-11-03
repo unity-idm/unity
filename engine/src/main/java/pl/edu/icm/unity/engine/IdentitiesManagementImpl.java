@@ -25,10 +25,12 @@ import pl.edu.icm.unity.engine.authn.CredentialRequirementsHolder;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.internal.EngineHelper;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -370,7 +372,6 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
 			engineHelper.setEntityCredentialRequirements(entityId, requirementId, sqlMap);
 			sqlMap.commit();
 		} finally
@@ -380,7 +381,40 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	}
 
 	@Override
-	public void setEntityCredential(EntityParam entity, String credentialId, String rawCredential) throws EngineException
+	public boolean isCurrentCredentialRequiredForChange(EntityParam entity, String credentialId)
+			throws EngineException
+	{
+		SqlSession sqlMap = db.getSqlSession(true);
+		try
+		{
+			boolean fullAuthz = false;
+			try
+			{
+				authz.checkAuthorization(AuthzCapability.credentialModify);
+				fullAuthz = true;
+			} catch (AuthorizationException e)
+			{
+				//OK
+			}
+			sqlMap.commit();
+			return !fullAuthz;
+		} finally
+		{
+			db.releaseSqlSession(sqlMap);
+		}
+
+	}
+	
+	@Override
+	public void setEntityCredential(EntityParam entity, String credentialId, String rawCredential) 
+			throws EngineException
+	{
+		setEntityCredential(entity, credentialId, rawCredential, null);
+	}
+	
+	@Override
+	public void setEntityCredential(EntityParam entity, String credentialId, String rawCredential,
+			String currentRawCredential) throws EngineException
 	{
 		if (rawCredential == null)
 			throw new IllegalCredentialException("The credential can not be null");
@@ -389,8 +423,25 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.credentialModify);
-			engineHelper.setEntityCredentialInternal(entityId, credentialId, rawCredential, sqlMap);
+			boolean fullAuthz = false;
+			try
+			{
+				authz.checkAuthorization(AuthzCapability.credentialModify);
+				fullAuthz = true;
+			} catch (AuthorizationException e)
+			{
+				authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.credentialModify);
+			}
+			
+			if (!fullAuthz && currentRawCredential == null)
+				throw new IllegalPreviousCredentialException(
+						"The current credential must be provided");
+			//we don't check it 
+			if (fullAuthz)
+				currentRawCredential = null;
+			
+			engineHelper.setEntityCredentialInternal(entityId, credentialId, rawCredential, 
+					currentRawCredential, sqlMap);
 			sqlMap.commit();
 		} finally
 		{

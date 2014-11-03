@@ -36,6 +36,8 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.HtmlSimplifiedLabel;
+import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -45,8 +47,8 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
+import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.UserError;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
@@ -331,7 +333,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		main.addComponent(formName);
 		
 		String info = form.getFormInformation() == null ? "" : form.getFormInformation();
-		Label formInformation = new Label(info, ContentMode.HTML);
+		HtmlSimplifiedLabel formInformation = new HtmlSimplifiedLabel(info);
 		main.addComponent(formInformation);
 
 		FormLayout mainFormLayout = new FormLayout();
@@ -356,7 +358,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		if (form.getGroupParams() != null && form.getGroupParams().size() > 0)
 		{
 			createGroupsUI(mainFormLayout);
-			mainFormLayout.addComponent(new Label("<br>", ContentMode.HTML));
+			mainFormLayout.addComponent(HtmlTag.br());
 		}
 		
 		if (form.isCollectComments())
@@ -367,13 +369,13 @@ public class RegistrationRequestEditor extends CustomComponent
 			comment = new TextArea();
 			comment.setWidth(80, Unit.PERCENTAGE);
 			mainFormLayout.addComponent(comment);
-			mainFormLayout.addComponent(new Label("<br>", ContentMode.HTML));
+			mainFormLayout.addComponent(HtmlTag.br());
 		}
 
 		if (form.getAgreements() != null && form.getAgreements().size() > 0)
 		{
 			createAgreementsUI(mainFormLayout);
-			mainFormLayout.addComponent(new Label("<br>", ContentMode.HTML));
+			mainFormLayout.addComponent(HtmlTag.br());
 		}
 		
 		setCompositionRoot(main);
@@ -403,7 +405,7 @@ public class RegistrationRequestEditor extends CustomComponent
 			if (idParam.getLabel() != null)
 				editorUI.setCaption(idParam.getLabel());
 			if (idParam.getDescription() != null)
-				editorUI.setDescription(idParam.getDescription());
+				editorUI.setDescription(HtmlEscapers.htmlEscaper().escape(idParam.getDescription()));
 		}
 		createExternalIdentitiesUI(layout);
 	}
@@ -426,18 +428,18 @@ public class RegistrationRequestEditor extends CustomComponent
 			CredentialRegistrationParam param = credParams.get(i);
 			CredentialDefinition credDefinition = credentials.get(param.getCredentialName());
 			CredentialEditor editor = credentialEditorRegistry.getEditor(credDefinition.getTypeId());
-			ComponentsContainer editorUI = editor.getEditor(credDefinition.getJsonConfiguration(), true);
+			ComponentsContainer editorUI = editor.getEditor(false, credDefinition.getJsonConfiguration(), true);
 			if (param.getLabel() != null)
 				editorUI.setCaption(param.getLabel());
 			else
 				editorUI.setCaption(param.getCredentialName()+":");
 			if (param.getDescription() != null)
-				editorUI.setDescription(param.getDescription());
+				editorUI.setDescription(HtmlEscapers.htmlEscaper().escape(param.getDescription()));
 			credentialParamEditors.add(editor);
 			layout.addComponents(editorUI.getComponents());
 				
 			if (i < credParams.size() - 1)
-				layout.addComponent(new Label("<hr>", ContentMode.HTML));
+				layout.addComponent(HtmlTag.hr());
 		}
 	}
 	
@@ -491,7 +493,7 @@ public class RegistrationRequestEditor extends CustomComponent
 			CheckBox cb = new CheckBox();
 			cb.setCaption(isEmpty(gParam.getLabel()) ? gParam.getGroupPath() : gParam.getLabel());
 			if (gParam.getDescription() != null)
-				cb.setDescription(gParam.getDescription());
+				cb.setDescription(HtmlEscapers.htmlEscaper().escape(gParam.getDescription()));
 			groupSelectors.add(cb);
 			layout.addComponent(cb);
 		}
@@ -509,7 +511,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<aParams.size(); i++)
 		{
 			AgreementRegistrationParam aParam = aParams.get(i);
-			Label aText = new Label(aParam.getText(), ContentMode.HTML);
+			HtmlSimplifiedLabel aText = new HtmlSimplifiedLabel(aParam.getText());
 			CheckBox cb = new CheckBox(msg.getMessage("RegistrationRequest.agree"));
 			agreementSelectors.add(cb);
 			layout.addComponent(aText);
@@ -521,7 +523,7 @@ public class RegistrationRequestEditor extends CustomComponent
 				layout.addComponent(mandatory);
 			}
 			if (i < aParams.size() - 1)
-				layout.addComponent(new Label("<hr>", ContentMode.HTML));
+				layout.addComponent(HtmlTag.hr());
 		}		
 	}
 	

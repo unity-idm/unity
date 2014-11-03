@@ -6,7 +6,6 @@ package pl.edu.icm.unity.webui.common;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 
@@ -48,10 +47,7 @@ public class ConfirmDialog extends AbstractDialog
 	@Override
 	protected Component getContents()
 	{
-		Label ret = new Label(question);
-		if (htmlContent)
-			ret.setContentMode(ContentMode.HTML);
-		return ret;
+		return htmlContent ? new HtmlSimplifiedLabel(question) : new Label(question);
 	}
 
 	@Override

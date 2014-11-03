@@ -179,6 +179,10 @@ public class EngineInitialization extends LifecycleBase
 	public void start()
 	{
 		updateDatabase();
+		
+		if (config.getBooleanValue(UnityServerConfiguration.WIPE_DB_AT_STARTUP))
+			initDB.resetDatabase();
+		
 		initializeDatabaseContents();
 		initializeBackgroundTasks();
 		super.start();
@@ -222,7 +226,10 @@ public class EngineInitialization extends LifecycleBase
 			}
 		};
 		int interval = config.getIntValue(UnityServerConfiguration.UPDATE_INTERVAL);
-		updater.setLastUpdate(endpointsLoadTime);
+		updater.setLastUpdate(endpointsLoadTime + 1000); //hack. We set the last update to +1s then the 
+		//real value is, to ensure that no immediate endpoint update will take place. This is due to fact that
+		//the update precision is stored with 1s granularity. The negative outcome is that any endpoint update
+		//in the very first second won't be found. Though chances are minimal (server is still starting...)
 		executors.getService().scheduleWithFixedDelay(endpointsUpdater, interval+interval/10, 
 				interval, TimeUnit.SECONDS);
 
@@ -600,7 +607,8 @@ public class EngineInitialization extends LifecycleBase
 		{
 			log.fatal("Can't list loaded endpoints", e);
 			throw new InternalException("Can't list loaded endpoints", e);
-		}		endpointsLoadTime = System.currentTimeMillis();
+		}		
+		endpointsLoadTime = System.currentTimeMillis();
 	}
 	
 	private void loadEndpointsFromConfiguration() throws IOException, EngineException

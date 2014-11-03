@@ -151,10 +151,12 @@ public interface IdentitiesManagement
 	 * Sets authentication secretes for the entity. After the change, the credential will be in correct state.  
 	 * @param entity to be modified
 	 * @param credentialId credential id to be changed. 
-	 * @param secrets the credential type specific value of the credential. 
+	 * @param secrets the credential type specific value of the credential.
+	 * @param previousSecrets used to check if the previous credential is known to the caller. 
 	 * @throws EngineException
 	 */
-	public void setEntityCredential(EntityParam entity, String credentialId, String secrets) throws EngineException;
+	public void setEntityCredential(EntityParam entity, String credentialId, String secrets,
+			String previousSecrets) throws EngineException;
 
 	/**
 	 * Sets local credential state. 
@@ -177,5 +179,28 @@ public interface IdentitiesManagement
 	 * @throws EngineException
 	 */
 	public Collection<String> getGroups(EntityParam entity) throws EngineException;
+
+	/**
+	 * As {@link #setEntityCredential(EntityParam, String, String, String)}
+	 * but works only when invoked with super administrative role, so that the 
+	 * current credential is not used. 
+	 * @param entity
+	 * @param credentialId
+	 * @param rawCredential
+	 * @throws EngineException
+	 */
+	void setEntityCredential(EntityParam entity, String credentialId, String rawCredential)
+			throws EngineException;
+
+	/**
+	 * @param entity
+	 * @param credentialId
+	 * @return true only if the {@link #setEntityCredential(EntityParam, String, String)} method can 
+	 * be used. If false then the {@link #setEntityCredential(EntityParam, String, String, String)}
+	 * version must be used.
+	 * @throws EngineException
+	 */
+	boolean isCurrentCredentialRequiredForChange(EntityParam entity, String credentialId)
+			throws EngineException;
 }
 

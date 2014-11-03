@@ -16,7 +16,6 @@ import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -257,7 +256,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 
 	protected void addField(Layout parent, String name, String value)
 	{
-		Label val = new Label(value, ContentMode.HTML);
+		Label val = new Label(value);
 		val.setCaption(name + ":");
 		val.addStyleName(Styles.captionBold.toString());
 		parent.addComponents(val);

@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class MappingResult
 {
-	private List<String> groups = new ArrayList<String>();
+	private List<MappedGroup> groups = new ArrayList<MappedGroup>();
 	private List<MappedIdentity> identities = new ArrayList<MappedIdentity>();
 	private List<MappedAttribute> attributes = new ArrayList<MappedAttribute>();
 	
@@ -21,7 +21,7 @@ public class MappingResult
 	{
 	}
 	
-	public void addGroup(String group)
+	public void addGroup(MappedGroup group)
 	{
 		groups.add(group);
 	}
@@ -36,7 +36,7 @@ public class MappingResult
 		attributes.add(attr);
 	}
 
-	public List<String> getGroups()
+	public List<MappedGroup> getGroups()
 	{
 		return groups;
 	}

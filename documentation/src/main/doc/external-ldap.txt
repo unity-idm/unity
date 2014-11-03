@@ -54,6 +54,24 @@ group's short name is in its +cn+ attribute. The 2nd group definition is similar
 object class is used (+groupOfNames+), members are in other attribute (+members+) and are given 
 with their full DNs.
 
+In some cases the above approach which retrieves group membership and user's attributes from LDAP is not enough.
+It may happen that additional attributes, which should be assigned to the user inside Unity, are placed in 
+other branches of the LDAP tree. To solve this problem it is possible to configure arbitrary number of additional 
+custom LDAP attribute searches. Results of those searches will be added to the regular user's attributes. Let's consider
+an example where user is member of several groups, each group has its +gidNumber+ attribute set and we want to have
+a +gidNumber+ attribute assigned to user in Unity. The following snippet should be added to configuration:
+
+----
+ldap.additionalSearch.1.baseName=dc=groups,dc=unity-example,dc=com
+ldap.additionalSearch.1.filter=(memberUid={USERNAME})
+ldap.additionalSearch.1.selectedAttributes=gidNumber
+----
+
+In the above example it is assumed that all groups are found under the +dc=groups,dc=unity-example,dc=com+ node and
+each group has its members listed with the +memberUid+ attribute. Of course the filter expression 
+may be arbitrary complex.
+
+
 The complete LDAP options reference follows:
 
 include::ref-ldapProperties.txt[]

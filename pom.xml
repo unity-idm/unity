@@ -22,7 +22,7 @@
 		<jetty.version>8.1.15.v20140411</jetty.version>
 		<slf4j.version>1.7.7</slf4j.version>
 		<spring.version>4.0.6.RELEASE</spring.version>
-		<vaadin.version>7.2.4</vaadin.version>
+		<vaadin.version>7.3.3</vaadin.version>
 		<cxf.version>2.7.11</cxf.version>
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -158,6 +158,14 @@
 					<artifactId>jacoco-maven-plugin</artifactId>
 					<version>0.6.4.201312101107</version>
 				</plugin>
+				<plugin>
+				    <groupId>org.apache.maven.plugins</groupId>
+				    <artifactId>maven-surefire-plugin</artifactId>
+				    <version>2.17</version>
+				    <configuration>
+				        <forkCount>1</forkCount>
+				    </configuration>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 		
@@ -211,6 +219,11 @@
 				<version>${jetty.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-rewrite</artifactId>
+				<version>${jetty.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
 				<version>${slf4j.version}</version>
@@ -243,7 +256,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>4.0.3</version>
+				<version>4.0.4</version>
 			</dependency>
 			<dependency>
 				<groupId>pl.edu.icm.saml</groupId>
@@ -386,6 +399,11 @@
 				<groupId>com.nimbusds</groupId>
 				<artifactId>nimbus-jose-jwt</artifactId>
 				<version>2.26.1</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>18.0</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

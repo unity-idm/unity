@@ -16,8 +16,10 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.server.utils.CookieHelper;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.Styles;
 
+import com.google.common.html.HtmlEscapers;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.server.ExternalResource;
@@ -28,6 +30,8 @@ import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
@@ -37,8 +41,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -57,7 +59,7 @@ public class IdpSelectorComponent extends CustomComponent
 	private IdPsSpecification idps;
 	private String lastIdpCookie;
 	
-	private Panel idpsPanel;
+	private SafePanel idpsPanel;
 	private String selectedProvider;
 	private Button selectedButton;
 
@@ -83,6 +85,7 @@ public class IdpSelectorComponent extends CustomComponent
 		Cookie selectedIdp = new Cookie(name, idpKey);
 		selectedIdp.setMaxAge(3600*24*30);
 		selectedIdp.setPath("/");
+		selectedIdp.setHttpOnly(true);
 		resp.addCookie(selectedIdp);
 	}
 	
@@ -95,7 +98,7 @@ public class IdpSelectorComponent extends CustomComponent
 		boolean selected = false;
 		if (previous != null)
 		{
-			Panel previousIdpPanel = new Panel();
+			Panel previousIdpPanel = new SafePanel();
 			previousIdpPanel.addStyleName(Styles.contentPadRight20.toString());
 			previousIdpPanel.setContent(previous);
 			main.addComponent(previousIdpPanel);
@@ -120,7 +123,7 @@ public class IdpSelectorComponent extends CustomComponent
 				}
 			});
 		}
-		idpsPanel = new Panel();
+		idpsPanel = new SafePanel();
 		idpsPanel.addStyleName(Styles.contentPadRight20.toString());
 		main.addComponents(idpsPanel);
 		idpsPanel.setContent(initIdpsList(selected, null));
@@ -137,6 +140,9 @@ public class IdpSelectorComponent extends CustomComponent
 		String lastIdp = CookieHelper.getCookie(req.getCookies(), lastIdpCookie);
 		if (lastIdp == null)
 			return null;
+		if (!idps.getIdpKeys().contains(lastIdp))
+			return null;
+		
 		Button providerB;
 		try
 		{
@@ -222,7 +228,7 @@ public class IdpSelectorComponent extends CustomComponent
 				break;
 			case none:
 			}
-			providerB.setDescription(name);
+			providerB.setDescription(HtmlEscapers.htmlEscaper().escape(name));
 		} else
 		{
 			providerB.setCaption(name);

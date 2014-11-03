@@ -36,6 +36,7 @@ import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETD
 import pl.edu.icm.unity.unicore.samlidp.saml.AuthnWithETDResponseProcessor;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -43,7 +44,6 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -110,9 +110,9 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		{
 			TranslationResult translationResult = getUserInfo(samlCtx, samlProcessor);
 			createIdentityPart(translationResult, eiLayout);
-			eiLayout.addComponent(new Label("<br>", ContentMode.HTML));
+			eiLayout.addComponent(HtmlTag.br());
 			createAttributesPart(translationResult, eiLayout);
-			eiLayout.addComponent(new Label("<br>", ContentMode.HTML));
+			eiLayout.addComponent(HtmlTag.br());
 			createETDPart(eiLayout);
 		} catch (SAMLRequesterException e)
 		{

@@ -241,10 +241,12 @@ public class EngineHelper
 	 * @param sqlMap
 	 * @throws EngineException
 	 */
-	public void setEntityCredentialInternal(long entityId, String credentialId, String rawCredential,
+	public void setEntityCredentialInternal(long entityId, String credentialId, String rawCredential, 
+			String currentRawCredential,
 			SqlSession sqlMap) throws EngineException
 	{
-		String newCred = prepareEntityCredentialInternal(entityId, credentialId, rawCredential, sqlMap);
+		String newCred = prepareEntityCredentialInternal(entityId, credentialId, rawCredential, 
+				currentRawCredential, sqlMap);
 		setPreviouslyPreparedEntityCredentialInternal(entityId, newCred, credentialId, sqlMap);
 	}
 	
@@ -257,7 +259,8 @@ public class EngineHelper
 	 * @param sqlMap
 	 * @throws EngineException
 	 */
-	public String prepareEntityCredentialInternal(long entityId, String credentialId, String rawCredential,
+	public String prepareEntityCredentialInternal(long entityId, String credentialId, 
+			String rawCredential, String currentRawCredential,
 			SqlSession sqlMap) throws EngineException
 	{
 		Map<String, AttributeExt<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(
@@ -276,7 +279,8 @@ public class EngineHelper
 		String currentCredential = currentCredentialA != null ? 
 				(String)currentCredentialA.getValues().get(0) : null;
 				
-		return handler.prepareCredential(rawCredential, currentCredential);
+		return currentRawCredential == null ? handler.prepareCredential(rawCredential, currentCredential) :
+				handler.prepareCredential(rawCredential, currentRawCredential, currentCredential);
 	}
 
 	/**

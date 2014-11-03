@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.ldap.LdapProperties.BindAs;
 import pl.edu.icm.unity.server.api.PKIManagement;
 
 import com.unboundid.ldap.sdk.DereferencePolicy;
@@ -39,6 +40,12 @@ public class LdapClientConfiguration
 	private List<GroupSpecification> groups;
 	private Filter validUsersFilter;
 	private X509CertChainValidator connectionValidator;
+	private List<SearchSpecification> extraSearches;
+	
+	private boolean bindAsUser;
+	private String systemDN;
+	private String systemPassword;
+	private String userPasswordAttribute;
 	
 	public LdapClientConfiguration(LdapProperties ldapProperties, PKIManagement pkiManagement)
 	{
@@ -69,6 +76,17 @@ public class LdapClientConfiguration
 		if (!bindTemplate.contains(USERNAME_TOKEN))
 			throw new ConfigurationException("DN template doesn't contain the mandatory token " + 
 					USERNAME_TOKEN + ": " + bindTemplate);
+		bindAsUser = true;
+		if (ldapProperties.getEnumValue(LdapProperties.BIND_AS, BindAs.class) == BindAs.system)
+		{
+			bindAsUser = false;
+			systemDN = ldapProperties.getValue(LdapProperties.SYSTEM_DN);
+			systemPassword = ldapProperties.getValue(LdapProperties.SYSTEM_PASSWORD);
+			userPasswordAttribute = ldapProperties.getValue(LdapProperties.USER_PASSWORD_ATTRIBUTE);
+			if (systemDN == null || systemPassword == null || userPasswordAttribute == null)
+				throw new ConfigurationException("When binding as system all system DN, password "
+						+ "and user's password attribute name must be configured.");
+		}
 		
 		Set<String> keys = ldapProperties.getStructuredListKeys(LdapProperties.GROUP_DEFINITION_PFX);
 		groups = new ArrayList<>(keys.size());
@@ -110,6 +128,30 @@ public class LdapClientConfiguration
 				}
 			}
 		}
+		
+		Set<String> skeys = ldapProperties.getStructuredListKeys(LdapProperties.ADV_SEARCH_PFX);
+		extraSearches = new ArrayList<>(skeys.size());
+		for (String key: skeys)
+		{
+			SearchSpecification spec = new SearchSpecification();
+			
+			String filter = ldapProperties.getValue(key+LdapProperties.ADV_SEARCH_FILTER);
+			try
+			{
+				spec.setFilter(filter);
+			} catch (LDAPException e)
+			{
+				throw new ConfigurationException("The additional search query '" + key 
+						+ "' filter is invalid: " + filter, e);
+			}
+			spec.setBaseDN(ldapProperties.getValue(key+LdapProperties.ADV_SEARCH_BASE));
+			String attrs = ldapProperties.getValue(key+LdapProperties.ADV_SEARCH_ATTRIBUTES);
+			String[] attrsA = attrs.split("[ ]+");
+			spec.setAttributes(attrsA);
+			spec.setScope(ldapProperties.getEnumValue(key+LdapProperties.ADV_SEARCH_SCOPE, 
+					pl.edu.icm.unity.ldap.LdapProperties.SearchScope.class));
+			extraSearches.add(spec);
+		}
 	}
 
 	public String[] getServers()
@@ -124,7 +166,8 @@ public class LdapClientConfiguration
 	
 	public String getBindDN(String userName)
 	{
-		return bindTemplate.replace(USERNAME_TOKEN, userName);
+		String sanitized = LdapUnsafeArgsEscaper.escapeForUseAsDN(userName);
+		return bindTemplate.replace(USERNAME_TOKEN, sanitized);
 	}
 	
 	public boolean isBindOnly()
@@ -172,6 +215,16 @@ public class LdapClientConfiguration
 		return groups;
 	}
 	
+	public static String getUsernameToken()
+	{
+		return USERNAME_TOKEN;
+	}
+
+	public List<SearchSpecification> getExtraSearches()
+	{
+		return extraSearches;
+	}
+
 	public String getMemberOfAttribute()
 	{
 		return ldapProperties.getValue(LdapProperties.MEMBER_OF_ATTRIBUTE);		
@@ -212,4 +265,23 @@ public class LdapClientConfiguration
 		return connectionValidator;
 	}
 
+	public boolean isBindAsUser()
+	{
+		return bindAsUser;
+	}
+
+	public String getSystemDN()
+	{
+		return systemDN;
+	}
+
+	public String getSystemPassword()
+	{
+		return systemPassword;
+	}
+
+	public String getUserPasswordAttribute()
+	{
+		return userPasswordAttribute;
+	}
 }
