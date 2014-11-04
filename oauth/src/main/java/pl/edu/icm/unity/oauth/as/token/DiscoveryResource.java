@@ -33,7 +33,7 @@ import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 /**
- * RESTful implementation of the OIDC Discovery endpoint
+ * RESTful implementation of the OIDC Discovery endpoint. Free access.
  * 
  * @author K. Benedyczak
  */

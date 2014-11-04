@@ -23,7 +23,7 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 
 /**
- * Informs about keys used by the AS.
+ * Informs about keys used by the AS. Free access.
  * 
  * @author K. Benedyczak
  */

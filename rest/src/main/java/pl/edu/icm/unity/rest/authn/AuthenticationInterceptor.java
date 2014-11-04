@@ -4,11 +4,14 @@
  */
 package pl.edu.icm.unity.rest.authn;
 
+import java.net.URI;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,6 +21,7 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
+import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.rest.authn.ext.TLSRetrieval;
@@ -49,9 +53,10 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	protected UnsuccessfulAuthenticationCounter unsuccessfulAuthenticationCounter;
 	protected SessionManagement sessionMan;
 	protected AuthenticationRealm realm;
+	protected Set<String> notProtectedPaths = new HashSet<String>();
 	
 	public AuthenticationInterceptor(UnityMessageSource msg, List<Map<String, BindingAuthn>> authenticators,
-			AuthenticationRealm realm, SessionManagement sessionManagement)
+			AuthenticationRealm realm, SessionManagement sessionManagement, Set<String> notProtectedPaths)
 	{
 		super(Phase.PRE_INVOKE);
 		this.msg = msg;
@@ -60,6 +65,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		this.unsuccessfulAuthenticationCounter = new UnsuccessfulAuthenticationCounter(
 				realm.getBlockAfterUnsuccessfulLogins(), realm.getBlockFor()*1000);
 		this.sessionMan = sessionManagement;
+		this.notProtectedPaths.addAll(notProtectedPaths);
 	}
 
 	@Override
@@ -80,6 +86,10 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		InvocationContext.setCurrent(ctx);
 		AuthenticationException firstError = null;
 		AuthenticatedEntity client = null;
+		
+		if (isToNotProtected(message))
+			return;
+		
 		for (Map<String, BindingAuthn> authenticatorSet: authenticators)
 		{
 			try
@@ -105,6 +115,26 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		{
 			authnSuccess(client, ip, ctx);
 		}
+	}
+	
+	private boolean isToNotProtected(Message message)
+	{
+		try
+		{
+			AttributedURIType address = message.getDestination().getAddress().getAddress();
+			URI destination = new URI(address.getValue());
+			for (String notProtected: notProtectedPaths)
+				if (destination.getPath().startsWith(notProtected))
+				{
+					log.debug("Request to a not protected address - " + destination 
+							+ " - invocation will proceed without authentication");
+					return true;
+				}
+		} catch (Exception e)
+		{
+			log.error("Can not establish the destination address", e);
+		}
+		return false;
 	}
 	
 	private void authnSuccess(AuthenticatedEntity client, String ip, InvocationContext ctx)

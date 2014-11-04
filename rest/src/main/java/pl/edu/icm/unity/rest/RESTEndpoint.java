@@ -27,7 +27,6 @@ import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
 import pl.edu.icm.unity.rest.exception.EngineExceptionMapper;
@@ -41,6 +40,7 @@ import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * JAX-RS (REST) endpoint based on CXF.
@@ -58,6 +58,8 @@ public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEnd
 	protected String servletPath;
 	protected SessionManagement sessionMan;
 	protected UnityMessageSource msg;
+	
+	protected Set<String> notProtectedPaths = new HashSet<String>();
 	
 	public RESTEndpoint(UnityMessageSource msg, SessionManagement sessionMan, 
 			EndpointTypeDescription type, String servletPath)
@@ -83,6 +85,16 @@ public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEnd
 		}		
 	}
 
+	/**
+	 * @param paths paths that should have the anonymous access. The paths are relative to the endpoint 
+	 * address (i.e. should start with the servlet's address).
+	 */
+	protected void addNotProtectedPaths(String... paths)
+	{
+		for (String path: paths)
+			notProtectedPaths.add(description.getContextAddress() + path);
+	}
+	
 	protected abstract Application getApplication();
 
 	private void deployResources(Bus bus)
@@ -132,7 +144,8 @@ public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEnd
 			List<Interceptor<? extends Message>> outInterceptors)
 	{
 		AuthenticationRealm realm = description.getRealm();
-		inInterceptors.add(new AuthenticationInterceptor(msg, authenticators, realm, sessionMan));
+		inInterceptors.add(new AuthenticationInterceptor(msg, authenticators, realm, sessionMan, 
+				notProtectedPaths));
 		installAuthnInterceptors(authenticators, inInterceptors);
 	}
 

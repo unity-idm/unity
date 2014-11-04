@@ -35,6 +35,8 @@ import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
 
 /**
  * RESTful implementation of the access token resource.
+ * <p>
+ * Access to this resource should be limited only to authenticated OAuth clients
  * 
  * @author K. Benedyczak
  */
