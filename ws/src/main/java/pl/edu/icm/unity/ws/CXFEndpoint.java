@@ -6,6 +6,7 @@ package pl.edu.icm.unity.ws;
 
 import java.io.ByteArrayInputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -96,7 +97,8 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 	{
 		outInterceptors.add(new XmlBeansNsHackOutHandler());
 		AuthenticationRealm realm = description.getRealm();
-		inInterceptors.add(new AuthenticationInterceptor(msg, authenticators, realm, sessionMan));
+		inInterceptors.add(new AuthenticationInterceptor(msg, authenticators, realm, sessionMan, 
+				new HashSet<String>()));
 		RESTEndpoint.installAuthnInterceptors(authenticators, inInterceptors);
 	}
 	

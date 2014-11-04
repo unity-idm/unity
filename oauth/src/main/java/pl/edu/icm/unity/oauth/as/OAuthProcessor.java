@@ -68,7 +68,7 @@ public class OAuthProcessor
 			OAuthAuthzContext ctx)
 	{
 		Set<Attribute<?>> ret = filterNotRequestedAttributes(userInfo, ctx);
-		return filterUnupportedAttributes(ret);
+		return filterUnsupportedAttributes(ret);
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class OAuthProcessor
 		{
 			UserInfo userInfo = prepareUserInfoClaimSet(identity.getValue(), attributes);
 			IDTokenClaimsSet idToken = prepareIdInfoClaimSet(identity.getValue(), ctx, userInfo, now);
-			internalToken.setUserInfo(userInfo.toString());
+			internalToken.setUserInfo(userInfo.toJSONObject().toJSONString());
 			idTokenSigned = signIdToken(idToken, ctx);
 			internalToken.setOpenidToken(idTokenSigned.serialize());
 			//we record OpenID token in internal state always in open id mode. However it may happen
@@ -147,7 +147,7 @@ public class OAuthProcessor
 			//in hybrid mode authz code is returned always
 			AuthorizationCode authzCode = new AuthorizationCode();
 			internalToken.setAuthzCode(authzCode.getValue());
-			Date codeExpiration = new Date(now.getTime() + ctx.getAccessTokenValidity() * 1000);
+			Date codeExpiration = new Date(now.getTime() + ctx.getCodeTokenValidity() * 1000);
 			tokensMan.addToken(INTERNAL_CODE_TOKEN, authzCode.getValue(), 
 					new EntityParam(identity), internalToken.getSerialized(), 
 					now, codeExpiration);
@@ -179,7 +179,7 @@ public class OAuthProcessor
 	 * Returns a collection of attributes including only those attributes for which there is an OAuth 
 	 * representation.
 	 */
-	private Set<Attribute<?>> filterUnupportedAttributes(Set<Attribute<?>> src)
+	private Set<Attribute<?>> filterUnsupportedAttributes(Set<Attribute<?>> src)
 	{
 		Set<Attribute<?>> ret = new HashSet<Attribute<?>>();
 		OAuthAttributeMapper mapper = new DefaultOAuthAttributeMapper();

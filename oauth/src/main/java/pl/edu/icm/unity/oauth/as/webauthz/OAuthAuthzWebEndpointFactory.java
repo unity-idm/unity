@@ -47,7 +47,7 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 			OAuthEndpointsCoordinator coordinator,
 			@Qualifier("insecure") IdentitiesManagement identitiesManagement, 
 			@Qualifier("insecure") AttributesManagement attributesManagement,
-			@Qualifier("insecure") PKIManagement pkiManagement)
+			PKIManagement pkiManagement)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;

@@ -132,6 +132,11 @@ public class CustomProviderProperties extends PropertiesHelper
 				throw new ConfigurationException(getKeyDescription(PROFILE_ENDPOINT) + 
 						" is mandatory in non OpenID Connect mode");
 		}
+		
+		if (!isSet(PROVIDER_NAME))
+			throw new ConfigurationException(getKeyDescription(PROVIDER_NAME) + 
+					" is mandatory");
+			
 	}
 
 	public Properties getProperties()

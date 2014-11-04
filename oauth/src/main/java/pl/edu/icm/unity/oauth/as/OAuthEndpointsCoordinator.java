@@ -8,12 +8,11 @@ import java.util.HashMap;
 
 import org.springframework.stereotype.Component;
 
-import eu.unicore.util.configuration.ConfigurationException;
-
 /**
  * Singleton, coordinating pairs of co-working OAuth Unity endpoints. Each web authorization endpoint should have
- * a single matching token (rest) endpoint. This class allows for detection of misconfiguration (missing peer, 
- * doubled peers) and discovering authz endpoint path by the token endpoint (namely its discovery subsystem).
+ * a single matching token (rest) endpoint. This class allows for discovering authz endpoint path by the token 
+ * endpoint (namely its discovery subsystem). In future should detect misconfigurations (missing peer, 
+ * doubled peers).
  * <p>
  * Thread-safe.
  * 
@@ -32,9 +31,6 @@ public class OAuthEndpointsCoordinator
 			pair = new EndpointsPair();
 			pairs.put(issuer, pair);
 		}
-		if (pair.getAuthZPath() != null)
-			throw new ConfigurationException("There are two OAuth authorization endpoints defined with an "
-					+ "issuer " + issuer);
 		pair.setAuthZPath(path);
 	}
 	
@@ -46,9 +42,6 @@ public class OAuthEndpointsCoordinator
 			pair = new EndpointsPair();
 			pairs.put(issuer, pair);
 		}
-		if (pair.getTokenPath() != null)
-			throw new ConfigurationException("There are two OAuth token endpoints defined with an "
-					+ "issuer " + issuer);
 		pair.setTokenPath(path);
 	}
 	

@@ -67,7 +67,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		{
 			oauthProperties = new OAuthASProperties(this.properties, pkiManagement, 
 					getServletUrl(OAuthAuthzWebEndpointFactory.OAUTH_CONSUMER_SERVLET_PATH));
-			coordinator.registerTokenEndpoint(oauthProperties.getValue(OAuthASProperties.ISSUER_URI), 
+			coordinator.registerAuthzEndpoint(oauthProperties.getValue(OAuthASProperties.ISSUER_URI), 
 					getServletUrl(consumerServletPath));
 		} catch (Exception e)
 		{

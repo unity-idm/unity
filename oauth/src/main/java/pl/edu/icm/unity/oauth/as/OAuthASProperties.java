@@ -103,7 +103,7 @@ public class OAuthASProperties extends PropertiesHelper
 		String credential = getValue(CREDENTIAL);
 		try
 		{
-			if (!pkiManamgenet.getCertificateNames().contains(credential))
+			if (!pkiManamgenet.getCredentialNames().contains(credential))
 				throw new ConfigurationException("There is no credential named '" + credential + 
 						"' which is configured in the OAuth endpoint.");
 			this.credential = pkiManamgenet.getCredential(credential);

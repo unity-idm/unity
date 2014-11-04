@@ -26,7 +26,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 @Component
 public class OAuthTokenEndpointFactory implements EndpointFactory
 {
-	public static final String NAME = "OAuthToken";
+	public static final String NAME = "OAuth2Token";
 	public static final String PATH = "";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(
 			NAME, "A RESTful endpoint exposing OAuth and OIDC related, client-focused endpoints.", 
