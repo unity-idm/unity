@@ -40,6 +40,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.ext.JpegImageAttributeHandler;
@@ -60,7 +61,6 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -177,7 +177,7 @@ public class OAuthAuthzUI extends UnityUIBase
 
 	private void createExposedDataPart(OAuthAuthzContext ctx, VerticalLayout contents) throws EopException
 	{
-		Panel exposedInfoPanel = new Panel();
+		SafePanel exposedInfoPanel = new SafePanel();
 		contents.addComponent(exposedInfoPanel);
 		VerticalLayout eiLayout = new VerticalLayout();
 		eiLayout.setMargin(true);

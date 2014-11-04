@@ -37,6 +37,7 @@ import pl.edu.icm.unity.unicore.samlidp.saml.AuthnWithETDResponseProcessor;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.HtmlTag;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -46,7 +47,6 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
@@ -100,7 +100,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	@Override
 	protected void createExposedDataPart(SAMLAuthnContext samlCtx, VerticalLayout contents) throws EopException
 	{
-		Panel exposedInfoPanel = new Panel();
+		SafePanel exposedInfoPanel = new SafePanel();
 		contents.addComponent(exposedInfoPanel);
 		VerticalLayout eiLayout = new VerticalLayout();
 		eiLayout.setMargin(true);

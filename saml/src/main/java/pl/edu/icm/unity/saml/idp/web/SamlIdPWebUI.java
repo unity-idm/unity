@@ -46,6 +46,7 @@ import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.HtmlTag;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.provider.ExposedAttributesComponent;
@@ -61,7 +62,6 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -192,7 +192,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 
 	protected void createExposedDataPart(SAMLAuthnContext samlCtx, VerticalLayout contents) throws EopException
 	{
-		Panel exposedInfoPanel = new Panel();
+		SafePanel exposedInfoPanel = new SafePanel();
 		contents.addComponent(exposedInfoPanel);
 		VerticalLayout eiLayout = new VerticalLayout();
 		eiLayout.setMargin(true);
