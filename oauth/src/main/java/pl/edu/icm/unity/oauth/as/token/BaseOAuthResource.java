@@ -84,7 +84,7 @@ public class BaseOAuthResource
 		return toResponse(Response.status(httpResp.getStatusCode()).entity(httpResp.getContent()));
 	}
 	
-	private Response toResponse(ResponseBuilder respBuilder)
+	protected Response toResponse(ResponseBuilder respBuilder)
 	{
 		return respBuilder.header("Pragma", "no-cache").header("Cache-Control", "no-store").build();
 	}

@@ -4,46 +4,29 @@
  */
 package pl.edu.icm.unity.oauth.as.token;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.text.ParseException;
-import java.util.Date;
-
+import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.http.HttpStatus;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.types.basic.EntityParam;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ErrorObject;
-import com.nimbusds.oauth2.sdk.GrantType;
-import com.nimbusds.oauth2.sdk.OAuth2Error;
-import com.nimbusds.oauth2.sdk.SerializeException;
-import com.nimbusds.oauth2.sdk.TokenErrorResponse;
-import com.nimbusds.oauth2.sdk.http.HTTPResponse;
-import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerTokenError;
-import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
 
 /**
  * RESTful implementation of the user information token resource
@@ -51,22 +34,20 @@ import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
  * @author K. Benedyczak
  */
 @Produces("application/json")
-@Path("/userinfo")
+@Path(OAuthTokenEndpoint.USER_INFO_PATH)
 public class UserInfoResource extends BaseOAuthResource
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, UserInfoResource.class);
 	
 	private TokensManagement tokensManagement;
-	private OAuthASProperties config;
 	
-	public UserInfoResource(TokensManagement tokensManagement, OAuthASProperties config)
+	public UserInfoResource(TokensManagement tokensManagement)
 	{
 		this.tokensManagement = tokensManagement;
-		this.config = config;
 	}
 
 	@Path("/")
-	@POST
+	@GET
 	public Response getToken(@HeaderParam("Authorization") String bearerToken) 
 			throws EngineException, JsonProcessingException
 	{
@@ -95,23 +76,15 @@ public class UserInfoResource extends BaseOAuthResource
 		
 		OAuthToken parsedAccessToken = parseInternalToken(internalAccessToken);
 		
-		
-		
-		
-		Date now = new Date();
-		AccessToken accessToken = new BearerAccessToken();
-		OAuthToken internalToken = new OAuthToken(parsedAuthzCodeToken);
-		internalToken.setAccessToken(accessToken.getValue());
-		
-		int accessTokenValidity = config.getIntValue(OAuthASProperties.ACCESS_TOKEN_VALIDITY);
-		Date expiration = new Date(now.getTime() + accessTokenValidity * 1000);
-		
-		JWT signedJWT = decodeIDToken(internalToken);
-		AuthenticationSuccessResponse oauthResponse = new AuthenticationSuccessResponse(
-					toURI(redirectUri), null, signedJWT, accessToken, null);
-		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN, accessToken.getValue(), 
-				new EntityParam(accessToken.getOwner()), internalToken.getSerialized(), now, expiration);
-		
-		return toResponse(Response.ok(getResponseContent(oauthResponse)));
+		JWT signedJWT = decodeIDToken(parsedAccessToken);
+		try
+		{	String contents = signedJWT.getJWTClaimsSet().toJSONObject().toJSONString();
+			return toResponse(Response.ok(contents));
+		} catch (java.text.ParseException e)
+		{
+			ErrorObject internal = new ErrorObject(null, "desc", HttpStatus.INTERNAL_SERVER_ERROR_500, null);
+			log.error("Can't parse the JWT to JSON from the token", e);
+			return makeError(internal, "Internal error decoding authorization token");
+		}
 	}
 }

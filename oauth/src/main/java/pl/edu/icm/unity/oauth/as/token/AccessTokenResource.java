@@ -4,9 +4,6 @@
  */
 package pl.edu.icm.unity.oauth.as.token;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.text.ParseException;
 import java.util.Date;
 
 import javax.ws.rs.POST;
@@ -14,12 +11,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
@@ -32,13 +27,8 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
-import com.nimbusds.oauth2.sdk.SerializeException;
-import com.nimbusds.oauth2.sdk.TokenErrorResponse;
-import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
@@ -49,8 +39,8 @@ import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
  * @author K. Benedyczak
  */
 @Produces("application/json")
-@Path("/token")
-public class AccessTokenResource
+@Path(OAuthTokenEndpoint.TOKEN_PATH)
+public class AccessTokenResource extends BaseOAuthResource
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, AccessTokenResource.class);
 	
@@ -77,22 +67,28 @@ public class AccessTokenResource
 			return makeError(OAuth2Error.INVALID_GRANT, "wrong grant_type value");
 
 		Token codeToken;
+		OAuthToken parsedAuthzCodeToken;
+		Object transaction = tokensManagement.startTokenTransaction();
 		try
 		{
-			codeToken = tokensManagement.getTokenById(OAuthProcessor.INTERNAL_CODE_TOKEN, code);
+			codeToken = tokensManagement.getTokenById(OAuthProcessor.INTERNAL_CODE_TOKEN, code, transaction);
+			parsedAuthzCodeToken = parseInternalToken(codeToken);
+			
+			long callerEntityId = InvocationContext.getCurrent().getLoginSession().getEntityId();
+			if (parsedAuthzCodeToken.getClientId() != callerEntityId)
+			{
+				log.warn("Client with id " + callerEntityId + " presented authorization code issued "
+						+ "for client " + parsedAuthzCodeToken.getClientId());
+				return makeError(OAuth2Error.INVALID_GRANT, "wrong code"); //intended - we mask the reason
+			}
+			tokensManagement.removeToken(OAuthProcessor.INTERNAL_CODE_TOKEN, code, transaction);
+			tokensManagement.commitTokenTransaction(transaction);
 		} catch (WrongArgumentException e)
 		{
 			return makeError(OAuth2Error.INVALID_GRANT, "wrong code");
-		}
-		
-		OAuthToken parsedAuthzCodeToken = parseInternalToken(codeToken);
-		
-		long callerEntityId = InvocationContext.getCurrent().getLoginSession().getEntityId();
-		if (parsedAuthzCodeToken.getClientId() != callerEntityId)
+		} finally
 		{
-			log.warn("Client with id " + callerEntityId + " presented authorization code issued "
-					+ "for client " + parsedAuthzCodeToken.getClientId());
-			return makeError(OAuth2Error.INVALID_GRANT, "wrong code"); //intended - we mask the reason
+			tokensManagement.closeTokenTransaction(transaction);
 		}
 		
 		if (parsedAuthzCodeToken.getRedirectUri() != null)
@@ -118,64 +114,5 @@ public class AccessTokenResource
 				new EntityParam(codeToken.getOwner()), internalToken.getSerialized(), now, expiration);
 		
 		return toResponse(Response.ok(getResponseContent(oauthResponse)));
-	}
-
-	private String getResponseContent(AuthenticationSuccessResponse oauthResponse)
-	{
-		try
-		{
-			return oauthResponse.toHTTPResponse().getContent();
-		} catch (SerializeException e)
-		{
-			throw new InternalException("Can not serialize OAuth success response", e);
-		}
-	}
-	
-	private URI toURI(String raw)
-	{
-		try
-		{
-			return new URI(raw);
-		} catch (URISyntaxException e)
-		{
-			throw new InternalException("uri can not be reparsed" + raw, e);
-		}
-	}
-	
-	private JWT decodeIDToken(OAuthToken internalToken)
-	{
-		try
-		{
-			return internalToken.getOpenidInfo() == null ? null : 
-				SignedJWT.parse(internalToken.getOpenidInfo());
-		} catch (ParseException e)
-		{
-			throw new InternalException("Can not parse the internal id token", e);
-		}
-	}
-	
-	private OAuthToken parseInternalToken(Token codeToken)
-	{
-		try
-		{
-			return OAuthToken.getInstanceFromJson(codeToken.getContents());
-		} catch (Exception e)
-		{
-			throw new InternalException("Can not parse the internal code token", e);
-		}
-	}
-	
-	private Response makeError(ErrorObject baseError, String description)
-	{
-		if (description != null)
-			baseError = baseError.appendDescription(description);
-		TokenErrorResponse eResp = new TokenErrorResponse(baseError);
-		HTTPResponse httpResp = eResp.toHTTPResponse();
-		return toResponse(Response.status(httpResp.getStatusCode()).entity(httpResp.getContent()));
-	}
-	
-	private Response toResponse(ResponseBuilder respBuilder)
-	{
-		return respBuilder.header("Pragma", "no-cache").header("Cache-Control", "no-store").build();
 	}
 }

@@ -57,8 +57,7 @@ public class OAuthASProperties extends PropertiesHelper
 	{
 		defaults.put(ISSUER_URI, new PropertyMD().setMandatory().
 				setDescription("This property controls the server's URI which is used in tokens to identify the Authorization Server. "
-						+ "It should be a unique URI which identifies the server. It should start with the 'https://' prefix. "
-						+ "The best approach is to use the server's URL of the OAuth endpoint."));
+						+ "To be compliant with OAuth&OIDC specifications it should be the server's URL of the OAuth endpoint."));
 		defaults.put(CODE_TOKEN_VALIDITY, new PropertyMD("600").setPositive().
 				setDescription("Controls the maximum validity period of a code token returned to a client (in seconds)."));
 		defaults.put(ID_TOKEN_VALIDITY, new PropertyMD("3600").setPositive().
@@ -94,11 +93,13 @@ public class OAuthASProperties extends PropertiesHelper
 	}
 	
 	private X509Credential credential;
+	private String baseAddress; 
 	
-	public OAuthASProperties(Properties properties, PKIManagement pkiManamgenet) throws ConfigurationException
+	public OAuthASProperties(Properties properties, PKIManagement pkiManamgenet, 
+			String baseAddress) throws ConfigurationException
 	{
 		super(P, properties, defaults, log);
-		
+		this.baseAddress = baseAddress;
 		String credential = getValue(CREDENTIAL);
 		try
 		{
@@ -116,6 +117,11 @@ public class OAuthASProperties extends PropertiesHelper
 		}
 	}
 
+	public String getBaseAddress()
+	{
+		return baseAddress;
+	}
+	
 	public X509Credential getCredential()
 	{
 		return credential;

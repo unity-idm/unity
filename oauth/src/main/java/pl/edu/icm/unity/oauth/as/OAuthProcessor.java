@@ -95,6 +95,8 @@ public class OAuthProcessor
 		internalToken.setScope(ctx.getEffectiveRequestedScopesList());
 		internalToken.setClientId(ctx.getClientEntityId());
 		internalToken.setRedirectUri(ctx.getReturnURI().toASCIIString());
+		internalToken.setClientName(ctx.getClientName());
+		internalToken.setSubject(identity.getValue());
 		Date now = new Date();
 		
 		JWT idTokenSigned = null;
@@ -248,12 +250,21 @@ public class OAuthProcessor
 	private JWT signIdToken(IDTokenClaimsSet idTokenClaims, OAuthAuthzContext ctx) 
 			throws ParseException, JOSEException
 	{
-		SignedJWT ret = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), idTokenClaims.toJWTClaimsSet());
-		
 		PrivateKey pk = ctx.getCredential().getKey();
+		SignedJWT ret;
+		JWSSigner signer;
 		
-		JWSSigner signer = pk instanceof RSAPrivateKey ? new RSASSASigner((RSAPrivateKey)pk) : 
-			new ECDSASigner(((ECPrivateKey)pk).getS());
+		if (pk instanceof RSAPrivateKey)
+		{
+			ret = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), idTokenClaims.toJWTClaimsSet());
+			signer = new RSASSASigner((RSAPrivateKey)pk);
+		} else 
+		{
+			ret = new SignedJWT(new JWSHeader(JWSAlgorithm.ES256), 
+					idTokenClaims.toJWTClaimsSet());
+			signer = new ECDSASigner(((ECPrivateKey)pk).getS());
+		}
+
 		ret.sign(signer);
 		return ret;
 	}

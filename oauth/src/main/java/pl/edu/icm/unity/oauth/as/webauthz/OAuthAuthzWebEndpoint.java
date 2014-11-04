@@ -16,6 +16,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
+import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
@@ -41,12 +42,13 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 	private IdentitiesManagement identitiesManagement;
 	private AttributesManagement attributesManagement;
 	private PKIManagement pkiManagement;
+	private OAuthEndpointsCoordinator coordinator;
 	
 	public OAuthAuthzWebEndpoint(EndpointTypeDescription type,
 			ApplicationContext applicationContext, String uiServletPath,
 			String consumerServletPath, FreemarkerHandler freemarkerHandler,
 			IdentitiesManagement identitiesManagement, AttributesManagement attributesManagement,
-			PKIManagement pkiManagement)
+			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator)
 	{
 		super(type, applicationContext, OAuthAuthzUI.class.getSimpleName(), uiServletPath);
 		this.consumerServletPath = consumerServletPath;
@@ -54,6 +56,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		this.attributesManagement = attributesManagement;
 		this.identitiesManagement = identitiesManagement;
 		this.pkiManagement = pkiManagement;
+		this.coordinator = coordinator;
 	}
 
 	@Override
@@ -62,7 +65,10 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		super.setSerializedConfiguration(properties);
 		try
 		{
-			oauthProperties = new OAuthASProperties(this.properties, pkiManagement);
+			oauthProperties = new OAuthASProperties(this.properties, pkiManagement, 
+					getServletUrl(OAuthAuthzWebEndpointFactory.OAUTH_CONSUMER_SERVLET_PATH));
+			coordinator.registerTokenEndpoint(oauthProperties.getValue(OAuthASProperties.ISSUER_URI), 
+					getServletUrl(consumerServletPath));
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("Can't initialize the OAuth 2 AS endpoint's configuration", e);

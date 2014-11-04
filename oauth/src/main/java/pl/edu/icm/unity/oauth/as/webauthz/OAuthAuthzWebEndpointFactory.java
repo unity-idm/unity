@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
@@ -39,10 +40,11 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 	private IdentitiesManagement identitiesManagement;
 	private AttributesManagement attributesManagement;
 	private PKIManagement pkiManagement;
-
+	private OAuthEndpointsCoordinator coordinator;
 	
 	@Autowired
 	public OAuthAuthzWebEndpointFactory(ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
+			OAuthEndpointsCoordinator coordinator,
 			@Qualifier("insecure") IdentitiesManagement identitiesManagement, 
 			@Qualifier("insecure") AttributesManagement attributesManagement,
 			@Qualifier("insecure") PKIManagement pkiManagement)
@@ -52,6 +54,7 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 		this.attributesManagement = attributesManagement;
 		this.identitiesManagement = identitiesManagement;
 		this.pkiManagement = pkiManagement;
+		this.coordinator = coordinator;
 		
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
@@ -72,6 +75,6 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 	{
 		return new OAuthAuthzWebEndpoint(description, applicationContext, OAUTH_UI_SERVLET_PATH, 
 				OAUTH_CONSUMER_SERVLET_PATH, freemarkerHandler, identitiesManagement, 
-				attributesManagement, pkiManagement);
+				attributesManagement, pkiManagement, coordinator);
 	}
 }

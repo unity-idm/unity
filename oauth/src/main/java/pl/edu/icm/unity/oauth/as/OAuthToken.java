@@ -25,8 +25,10 @@ public class OAuthToken
 	private String authzCode;
 	private String accessToken;
 	private String[] scope;
-	private long clientId;
+	private long clientEntityId;
 	private String redirectUri;
+	private String subject;
+	private String clientName;
 	
 	public OAuthToken()
 	{
@@ -45,6 +47,8 @@ public class OAuthToken
 		setRedirectUri(source.getRedirectUri());
 		setScope(source.getScope());
 		setUserInfo(source.getUserInfo());
+		setClientName(source.getClientName());
+		setSubject(source.getSubject());
 	}
 	
 	public static OAuthToken getInstanceFromJson(byte[] json) 
@@ -117,13 +121,13 @@ public class OAuthToken
 
 	public long getClientId()
 	{
-		return clientId;
+		return clientEntityId;
 	}
 
 
 	public void setClientId(long clientId)
 	{
-		this.clientId = clientId;
+		this.clientEntityId = clientId;
 	}
 
 
@@ -136,5 +140,25 @@ public class OAuthToken
 	public void setRedirectUri(String redirectUri)
 	{
 		this.redirectUri = redirectUri;
+	}
+
+	public String getSubject()
+	{
+		return subject;
+	}
+
+	public void setSubject(String subject)
+	{
+		this.subject = subject;
+	}
+
+	public String getClientName()
+	{
+		return clientName;
+	}
+
+	public void setClientName(String clientName)
+	{
+		this.clientName = clientName;
 	}
 }
