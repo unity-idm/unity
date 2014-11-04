@@ -40,6 +40,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -57,7 +58,6 @@ import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
@@ -169,7 +169,7 @@ public class OAuthAuthzUI extends UnityUIBase
 		
 		SPInfoComponent spInfo = new SPInfoComponent(msg, clientLogo, oauthRequester, returnAddress);
 		
-		Label spc1 = new Label("<br>", ContentMode.HTML);
+		Label spc1 = HtmlTag.br();
 		Label info2 = new Label(msg.getMessage("OAuthAuthzUI.info2"));
 		
 		contents.addComponents(info1, spInfo, spc1, info2);
@@ -192,8 +192,7 @@ public class OAuthAuthzUI extends UnityUIBase
 				scopeDesc.addStyleName(Reindeer.LABEL_SMALL);
 				eiLayout.addComponents(scope, scopeDesc);
 			}
-			Label spacer = new Label("<br>");
-			spacer.setContentMode(ContentMode.HTML);
+			Label spacer = HtmlTag.br();
 			spacer.addStyleName(Reindeer.LABEL_SMALL);
 			eiLayout.addComponent(spacer);
 			
