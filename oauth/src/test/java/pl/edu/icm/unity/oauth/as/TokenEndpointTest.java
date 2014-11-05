@@ -4,7 +4,19 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
-public class TokenEndpointTest
-{
+import org.junit.Test;
 
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+
+/**
+ * A big integration test.
+ * @author K. Benedyczak
+ */
+public class TokenEndpointTest extends DBIntegrationTestBase
+{
+	@Test
+	public void testcodeFlow()
+	{
+		
+	}
 }

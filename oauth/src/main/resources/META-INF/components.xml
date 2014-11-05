@@ -22,5 +22,8 @@
 	<bean class="pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpointFactory"/>
 	<bean class="pl.edu.icm.unity.oauth.as.webauthz.FreemarkerHandler"/>
 	
+	<bean class="pl.edu.icm.unity.oauth.as.OAuthDemoContentsInitializer"/>
+	
+	
 	<bean scope="prototype" id="OAuthAuthzUI" class="pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzUI"/>
 </beans>
