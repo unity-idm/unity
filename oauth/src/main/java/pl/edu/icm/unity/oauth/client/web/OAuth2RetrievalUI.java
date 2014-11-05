@@ -26,7 +26,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCal
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
-import pl.edu.icm.unity.webui.common.HtmlLabel;
+import pl.edu.icm.unity.webui.common.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.idpselector.IdPsSpecification;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent;
@@ -61,7 +61,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 	private IdpSelectorComponent idpSelector;
 	private Label messageLabel;
-	private HtmlLabel errorDetailLabel;
+	private HtmlSimplifiedLabel errorDetailLabel;
 	
 	public OAuth2RetrievalUI(UnityMessageSource msg, OAuthExchange credentialExchange,
 			OAuthContextsManagement contextManagement, ExecutorsService executorsService)
@@ -124,7 +124,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		
 		messageLabel = new Label();
 		messageLabel.addStyleName(Styles.error.toString());
-		errorDetailLabel = new HtmlLabel(msg);
+		errorDetailLabel = new HtmlSimplifiedLabel();
 		errorDetailLabel.addStyleName(Styles.italic.toString());
 		errorDetailLabel.setVisible(false);
 		ret.addComponents(messageLabel, errorDetailLabel);
@@ -190,11 +190,11 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		if (msgKey == null)
 		{
 			errorDetailLabel.setVisible(false);
-			errorDetailLabel.resetValue();
+			errorDetailLabel.setValue("");
 			return;
 		}
 		errorDetailLabel.setVisible(true);
-		errorDetailLabel.setHtmlValue(msgKey, args);
+		errorDetailLabel.setValue(msg.getMessage(msgKey, args));
 	}
 	
 	private String installRequestHandler()
