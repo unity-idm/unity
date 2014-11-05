@@ -21,7 +21,7 @@ import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.TokenErrorResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
-import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
+import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 
 /**
  * Common code inherited by OAuth resources
@@ -30,7 +30,7 @@ import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
  */
 public class BaseOAuthResource
 {
-	protected String getResponseContent(AuthenticationSuccessResponse oauthResponse)
+	protected String getResponseContent(com.nimbusds.oauth2.sdk.Response oauthResponse)
 	{
 		try
 		{
@@ -78,12 +78,24 @@ public class BaseOAuthResource
 	protected Response makeError(ErrorObject baseError, String description)
 	{
 		if (description != null)
-			baseError = baseError.appendDescription(description);
+			baseError = baseError.appendDescription("; " + description);
 		TokenErrorResponse eResp = new TokenErrorResponse(baseError);
 		HTTPResponse httpResp = eResp.toHTTPResponse();
 		return toResponse(Response.status(httpResp.getStatusCode()).entity(httpResp.getContent()));
 	}
 	
+	protected Response makeBearerError(BearerTokenError error)
+	{
+		String header = error.toWWWAuthenticateHeader();
+		return toResponse(Response.status(error.getHTTPStatusCode()).header("WWW-Authenticate", header));
+	}
+	
+	protected Response makeBearerError(BearerTokenError error, String description)
+	{
+		error.appendDescription(" " + description);
+		return makeBearerError(error);
+	}
+
 	protected Response toResponse(ResponseBuilder respBuilder)
 	{
 		return respBuilder.header("Pragma", "no-cache").header("Cache-Control", "no-store").build();

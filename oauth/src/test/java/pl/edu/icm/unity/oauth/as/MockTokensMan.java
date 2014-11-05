@@ -100,6 +100,8 @@ public class MockTokensMan implements TokensManagement
 	@Override
 	public Token getTokenById(String type, String value) throws WrongArgumentException
 	{
+		if (!tokens.containsKey(type+value))
+			throw new WrongArgumentException("no such token");
 		return tokens.get(type+value);
 	}
 

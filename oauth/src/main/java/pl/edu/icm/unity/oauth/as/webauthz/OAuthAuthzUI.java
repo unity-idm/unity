@@ -198,7 +198,7 @@ public class OAuthAuthzUI extends UnityUIBase
 			
 			TranslationResult translationResult = getUserInfo(ctx);
 			
-			createIdentityPart(translationResult, contents);
+			createIdentityPart(translationResult, eiLayout);
 			
 			attrsPresenter = new ExposedAttributesComponent(msg, handlersRegistry, 
 					oauthProcessor.filterAttributes(translationResult, ctx), false);

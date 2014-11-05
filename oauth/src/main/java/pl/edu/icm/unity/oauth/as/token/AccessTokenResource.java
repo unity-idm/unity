@@ -27,11 +27,12 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.jwt.JWT;
+import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
-import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
+import com.nimbusds.openid.connect.sdk.OIDCAccessTokenResponse;
 
 /**
  * RESTful implementation of the access token resource.
@@ -110,8 +111,9 @@ public class AccessTokenResource extends BaseOAuthResource
 		Date expiration = new Date(now.getTime() + accessTokenValidity * 1000);
 		
 		JWT signedJWT = decodeIDToken(internalToken);
-		AuthenticationSuccessResponse oauthResponse = new AuthenticationSuccessResponse(
-					toURI(redirectUri), null, signedJWT, accessToken, null);
+		AccessTokenResponse oauthResponse = signedJWT == null ? 
+				new AccessTokenResponse(accessToken, null) : 
+				new OIDCAccessTokenResponse(accessToken, null, signedJWT);
 		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN, accessToken.getValue(), 
 				new EntityParam(codeToken.getOwner()), internalToken.getSerialized(), now, expiration);
 		

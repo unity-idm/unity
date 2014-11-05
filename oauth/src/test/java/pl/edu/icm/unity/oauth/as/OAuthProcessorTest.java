@@ -9,7 +9,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -27,17 +26,11 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
-import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.ResponseType;
-import com.nimbusds.oauth2.sdk.id.ClientID;
-import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
-
-import eu.emi.security.authn.x509.X509Credential;
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
 
 /**
  * Tests of the authz endpoint logic.
@@ -53,7 +46,7 @@ public class OAuthProcessorTest
 		attributes.add(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com"));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
-		OAuthAuthzContext ctx = createContext(new ResponseType(ResponseType.Value.CODE),
+		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode);
 		
 		long start = System.currentTimeMillis();
@@ -77,7 +70,7 @@ public class OAuthProcessorTest
 		attributes.add(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com"));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
-		OAuthAuthzContext ctx = createContext(new ResponseType(ResponseType.Value.TOKEN),
+		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.TOKEN),
 				GrantFlow.implicit);
 		
 		long start = System.currentTimeMillis();
@@ -102,7 +95,7 @@ public class OAuthProcessorTest
 		attributes.add(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com"));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
-		OAuthAuthzContext ctx = createContext(new ResponseType(ResponseType.Value.TOKEN, 
+		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.TOKEN, 
 				OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
 				GrantFlow.openidHybrid);
 		
@@ -154,25 +147,5 @@ public class OAuthProcessorTest
 		assertNotNull(userInfo.getSubject());
 		assertEquals("userA", userInfo.getSubject().getValue());		
 	}
-	
-	private OAuthAuthzContext createContext(ResponseType respType, GrantFlow grant) throws Exception
-	{
-		AuthorizationRequest request = new AuthorizationRequest(null, respType, 
-				new ClientID("clientC"), null, null, new State("state123"));
-		X509Credential credential = new KeystoreCredential("src/test/resources/demoKeystore.p12", 
-				"the!uvos".toCharArray(), "the!uvos".toCharArray(), null, "pkcs12");
-		OAuthAuthzContext ctx = new OAuthAuthzContext(
-				request, 
-				100, 
-				200, 
-				300, 
-				"https://localhost:2443/oauth-as", 
-				credential);
-		ctx.setClientEntityId(100);
-		ctx.setClientName("clientC");
-		ctx.setFlow(grant);
-		ctx.setOpenIdMode(true);
-		ctx.setReturnURI(new URI("https://return.host.com/foo"));
-		return ctx;
-	}
+
 }

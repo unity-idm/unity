@@ -70,7 +70,7 @@ public class TokenInfoResource extends BaseOAuthResource
 			throws EngineException, JsonProcessingException
 	{
 		if (bearerToken == null)
-			return makeError(BearerTokenError.MISSING_TOKEN, "To access the token info endpoint "
+			return makeBearerError(BearerTokenError.MISSING_TOKEN, "To access the token info endpoint "
 					+ "an access token must be used for authorization");
 		
 		BearerAccessToken accessToken;
@@ -79,7 +79,7 @@ public class TokenInfoResource extends BaseOAuthResource
 			accessToken = BearerAccessToken.parse(bearerToken);
 		} catch (ParseException e)
 		{
-			return makeError(BearerTokenError.INVALID_TOKEN, "must use Bearer access token");
+			return makeBearerError(BearerTokenError.INVALID_TOKEN, "Must use Bearer access token");
 		}
 		
 		Token internalAccessToken;
@@ -89,7 +89,7 @@ public class TokenInfoResource extends BaseOAuthResource
 					accessToken.getValue());
 		} catch (WrongArgumentException e)
 		{
-			return makeError(BearerTokenError.INVALID_TOKEN, "wrong token");
+			return makeBearerError(BearerTokenError.INVALID_TOKEN, "Wrong token");
 		}
 		
 		OAuthToken parsedAccessToken = parseInternalToken(internalAccessToken);
