@@ -20,12 +20,10 @@ import pl.edu.icm.unity.webui.authn.CancelHandler;
 public class SamlAuthnCancelHandler implements CancelHandler
 {
 	private FreemarkerHandler freemarkerHandler;
-	private String address;
 	
-	public SamlAuthnCancelHandler(FreemarkerHandler freemarkerHandler, String address)
+	public SamlAuthnCancelHandler(FreemarkerHandler freemarkerHandler)
 	{
 		this.freemarkerHandler = freemarkerHandler;
-		this.address = address;
 	}
 
 	@Override
@@ -33,7 +31,7 @@ public class SamlAuthnCancelHandler implements CancelHandler
 	{
 		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(SamlResponseHandler.getContext(), 
 				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-		SamlResponseHandler responseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor, address);
+		SamlResponseHandler responseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor);
 		AuthenticationException ea = new AuthenticationException("Authentication was declined");
 		try
 		{
