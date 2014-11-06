@@ -39,14 +39,12 @@ public class SamlResponseHandler
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlResponseHandler.class);
 	protected FreemarkerHandler freemarkerHandler;
 	protected AuthnResponseProcessor samlProcessor;
-	protected String thisAddress;
 	
 	public SamlResponseHandler(FreemarkerHandler freemarkerHandler,
-			AuthnResponseProcessor samlProcessor, String contextAddress)
+			AuthnResponseProcessor samlProcessor)
 	{
 		this.freemarkerHandler = freemarkerHandler;
 		this.samlProcessor = samlProcessor;
-		this.thisAddress = contextAddress;
 	}
 
 	public void handleException(Exception e, boolean destroySession) throws EopException
@@ -69,7 +67,7 @@ public class SamlResponseHandler
 	{
 		VaadinSession.getCurrent().setAttribute(ResponseDocument.class, respDoc);
 		VaadinSession.getCurrent().addRequestHandler(new SendResponseRequestHandler());
-		Page.getCurrent().open(thisAddress, null);		
+		Page.getCurrent().reload();		
 	}
 	
 	/**

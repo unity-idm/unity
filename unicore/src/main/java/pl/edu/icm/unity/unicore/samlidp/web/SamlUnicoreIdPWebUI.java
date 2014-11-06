@@ -213,13 +213,6 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	}
 	
 	@Override
-	protected String getMyAddress()
-	{
-		return endpointDescription.getContextAddress() +
-				SamlUnicoreIdPWebEndpointFactory.SAML_UI_SERVLET_PATH;
-	}
-	
-	@Override
 	protected void confirm() throws EopException
 	{
 		storePreferences(true);
