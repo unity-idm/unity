@@ -153,9 +153,8 @@ public class RegistrationRequestEditor extends CustomComponent
 		{
 			for (AttributeRegistrationParam aParam: aParams)
 			{
-				if (!aParam.isOptional() && 
-						(aParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic
-						|| aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden))
+				if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic
+						|| aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
 				{
 					Collection<Attribute<?>> attrs = remotelyAuthenticated.getAttributes();
 					boolean found = false;
@@ -168,7 +167,7 @@ public class RegistrationRequestEditor extends CustomComponent
 									a.getName(), a);
 							break;
 						}
-					if (!found)
+					if (!found && !aParam.isOptional())
 						throw new AuthenticationException("This registration form may be used only by " +
 								"users which were remotely authenticated first and who have " +
 								aParam.getAttributeType() + " in group " + aParam.getGroup() 

@@ -24,5 +24,15 @@ public enum ParameterRetrievalSettings
 	/**
 	 * as automatic, but the automatically collected value is not shown in the registration form
 	 */
-	automaticHidden
+	automaticHidden,
+	
+	/**
+	 * if system not set value user can enter value manually
+	 */
+	automaticOrInteractive,
+	
+	/**
+	 * system set default value automatically but user can edit this value
+	 */
+	automaticAndInteractive
 }
