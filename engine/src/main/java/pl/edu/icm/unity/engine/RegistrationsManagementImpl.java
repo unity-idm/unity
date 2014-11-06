@@ -869,6 +869,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	        {
 	            if (id == null)
 	        	    continue;
+	            if (id.getTypeId() == null || id.getValue() == null)
+	        	    continue;
 	            List<String> vals = idsByType.get(id.getTypeId());
 	            if (vals == null)
 	            {
@@ -885,6 +887,10 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		List<Attribute<?>> attributes = request.getAttributes();
 		for (Attribute<?> atr : attributes)
 		{
+			if (atr == null)
+				continue;
+			if (atr.getValues() == null || atr.getName() == null)
+				continue;
 			Object v = atr.getValues().isEmpty() ? "" : atr.getValues().get(0);
 			attr.put(atr.getName(), v);
 			attrs.put(atr.getName(), atr.getValues());

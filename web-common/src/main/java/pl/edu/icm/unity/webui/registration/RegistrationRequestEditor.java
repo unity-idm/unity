@@ -126,9 +126,8 @@ public class RegistrationRequestEditor extends CustomComponent
 		remoteIdentitiesByType = new HashMap<>();
 		for (IdentityRegistrationParam idParam: idParams)
 		{
-			if (!idParam.isOptional() && 
-					(idParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic
-					|| idParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden))
+			if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic
+					|| idParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
 			{
 				Collection<IdentityTaV> identities = remotelyAuthenticated.getIdentities();
 				boolean found = false;
@@ -139,7 +138,7 @@ public class RegistrationRequestEditor extends CustomComponent
 						found = true;
 						break;
 					}
-				if (!found)
+				if (!found && !idParam.isOptional())
 					throw new AuthenticationException("This registration form may be used only by " +
 							"users which were remotely authenticated first and who have " +
 							idParam.getIdentityType() + 
@@ -206,7 +205,8 @@ public class RegistrationRequestEditor extends CustomComponent
 				ip = id == null ? null : new IdentityParam(regParam.getIdentityType(), id);
 			} else
 			{
-				id = remoteIdentitiesByType.get(regParam.getIdentityType()).getValue();
+				id = remoteIdentitiesByType.get(regParam.getIdentityType()) == null ? null
+						: remoteIdentitiesByType.get(regParam.getIdentityType()).getValue();
 				ip = id == null ? null : new IdentityParam(regParam.getIdentityType(), id, 
 						remotelyAuthenticated.getRemoteIdPName(), 
 						remotelyAuthenticated.getInputTranslationProfile());
@@ -260,8 +260,13 @@ public class RegistrationRequestEditor extends CustomComponent
 				{
 					attr = remoteAttributes.get(
 							aparam.getGroup() + "//" + aparam.getAttributeType());
-					attr.setTranslationProfile(remotelyAuthenticated.getInputTranslationProfile());
-					attr.setRemoteIdp(remotelyAuthenticated.getRemoteIdPName());
+					if (attr != null)
+					{
+						attr.setTranslationProfile(remotelyAuthenticated
+								.getInputTranslationProfile());
+						attr.setRemoteIdp(remotelyAuthenticated
+								.getRemoteIdPName());
+					}
 				}
 
 				if (attr != null)
