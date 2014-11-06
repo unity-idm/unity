@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
-
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -27,7 +25,8 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.utils.DemoContentInitializer;
+
+import com.google.common.collect.Lists;
 
 /**
  * Insert demonstrative contents for the OAuth AS functionality.
@@ -36,7 +35,7 @@ import pl.edu.icm.unity.utils.DemoContentInitializer;
 @Component
 public class OAuthDemoContentsInitializer implements ServerInitializer
 {
-	private static Logger log = Log.getLogger(Log.U_SERVER, DemoContentInitializer.class);
+	private static Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthDemoContentsInitializer.class);
 	public static final String NAME = "oauthDemoInitializer";
 	private GroupsManagement groupsMan;
 	private IdentitiesManagement idsMan;

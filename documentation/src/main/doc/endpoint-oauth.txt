@@ -1,0 +1,79 @@
+[[endp-oauth-as]]
+=== OAuth 2 Authorization Server and OpenId Connect endpoints
+
+Endpoint 1 type:: +OAuth2Authz+
+Binding :: Web (Vaadin)
+Exposed paths:: +/oauth2-authz+
+
+Endpoint 2 type:: +OAuth2Token+
+Binding:: RESTful (CXF)
+Exposed paths:: +/token+, +/userinfo+, +/jwk+, +/tokeninfo+, +.well-known/openid-configuration+
+
+
+The OAuth 2 endpoints expose a functionality of a generic Authorization Server with a support for the OpenID
+Connect specification. The _code_, _implicit_ and _hybrid_ flows are supported.    
+
+The functionality is provided by two Unity endpoints, which shouldn't be mixed with endpoints in OAuth sense 
+which are equivalent to particular paths exposed by Unity endpoints. The first Unity endpoint, +OAuth2Authz+,
+exposes the OAuth authorization endpoint functionality. It is a web endpoint. It is used by end-users and 
+the authentication of this endpoint should be configured so that OAuth users can authenticate themselves.
+
+The second Unity endpoint, +OAuth2Token+, supports all remaining OAuth endpoints, including the most important 
+token endpoint. The authentication settings of this endpoint should allow for authenticating OAuth clients accessing
+the +/token+ path as required by OAuth specification. Note however that some of the operations needs to 
+be authorized/authenticated by providing an OAuth access token only and this fact is handled internally - 
+nothing has to be configured. Also two of the paths require neither 
+authentication nor access token: +/jwk+ and +.well-known/openid-configuration+. This is also handled automatically. 
+
+==== Configuration
+
+Both OAuth endpoints create a pair, both must use the same configuration file. Configuration example:
+
+----
+unity.oauth2.as.issuerUri=https://example.com:2443/oauth2-token
+unity.oauth2.as.signingCredential=MAIN
+
+unity.oauth2.as.clientsGroup=/oauth-clients
+unity.oauth2.as.usersGroup=/oauth-users
+unity.oauth2.as.translationProfile=oauthOutputProfile
+
+unity.oauth2.as.scopes.1.name=scope1
+unity.oauth2.as.scopes.1.description=Provides access to base info
+unity.oauth2.as.scopes.1.attributes.1=cn
+unity.oauth2.as.scopes.1.attributes.2=o
+unity.oauth2.as.scopes.1.attributes.3=email
+---- 
+ 
+The issuer should be equal to the base URL of the OAuth token endpoint in order to be compatible with OpenID Connect 
+Discovery specification. 
+
+OAuth clients are configured as regular Unity entities. To make an ordinary entity an OAuth client one must 
+place it in the configured OAuth clients groups (+/oauth-clients+ in the above example). Additionally the
+client:
+
+ - must have a credential so it can authenticate at the token endpoint in the way it was configured,
+ - must possess the +sys:oauth:allowedGrantFlows+ attribute (in OAuth clients group) with allowed flows,
+ - must possess the +sys:oauth:allowedReturnURI+ attribute (in OAuth clients group) with allowed return URI,
+ - can have logo and/or displayed name OAuth attributes assigned to improve client's presentation during user's consent.
+ 
+OAuth users must belong to a group specified in the configuration file. If no restrictions are required the '/' group
+can be used. In case that there are different groups of users for different OAuth clients, those groups can be 
+configured with client's attribute +sys:oauth:groupForClient+.  
+ 
+OAuth scopes should be defined next. Each scope includes a list of Unity attributes (use the Unity name) that should be
+exposed when the client asks for the scope and the user gives her consent. 
+
+Finally an output translation profile can be configured. It is highly useful to map Unity's internal attribute names 
+to names used by OAauth consumers. Standard OAuth/OIDC attribute names can be found in the OIDC specification: 
+http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
+
+The options for both endpoints (besides the standard options for all Web endpoints) are:
+
+include::ref-oauthASProperties.txt[]
+
+    
+==== Usage
+
+
+
+
