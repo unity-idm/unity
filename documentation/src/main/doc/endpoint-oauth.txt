@@ -74,6 +74,35 @@ include::ref-oauthASProperties.txt[]
     
 ==== Usage
 
+Unity as Authorization Server usage is mostly regulated with the OAuth or OIDC specifications. In short the client
+redirects the user's browser to the authorization endpoint. There user should accept the client's request and 
+Unity redirects the user back to the client. Depending on the flow used, the client receives an OAuth _access token_
+immediately (the _implicit_ or _hybrid_ flows) or has to ask Unity's token endpoint about it (the _code_ flow). 
+The _access token_ is then used by the client to access resources owned by the user. 
 
+At this point the OAuth specification doesn't specify how the access token presented to a resource server can be
+validated. This missing step of the specification results from a common use case when a Resource Server and 
+Authorization Server are the same. With Unity this is not the case so the Resource Server needs to contact Unity to 
+verify if the received _access token_ is genuine and valid.
 
+To validate an _access token_ a client (any, not necessarily the 'OAuth client') has to send a GET request to 
++/tokeninfo+ path at the OAuth token endpoint. 
 
+'''
+
++@Path("/tokeninfo")+ +
++@Authorization("Bearer access token")+ +
++@GET+ +
+
+Returns status of a given access token, which must be provided in the Authorization header according to 
+the RFC 6750). If the token is invalid then the HTTP 401 error is returned (see RFC 6750, section 3.1). If the token
+is valid then the following JSON document is returned:  
+
+----
+{
+  "sub": "subject id",
+  "client_id": "client id",
+  "exp": "12345678",
+  "scope": ["scope1", "scope2"]
+}
+----
