@@ -123,12 +123,17 @@ public class SamlIdpProperties extends SamlProperties
 		defaults.put(RETURN_SINGLE_ASSERTION, new PropertyMD("true").setCategory(samlCat).
 				setDescription("If true then a single SAML assertion is returned what provides a better interoperability with 3rd party solutions. If false then attributes are returned in a separate assertion, what is required by certain consumers as UNICORE."));
 		
-		defaults.put(SP_ACCEPT_POLICY, new PropertyMD(RequestAcceptancePolicy.all).setCategory(samlCat).
+		defaults.put(SP_ACCEPT_POLICY, new PropertyMD(RequestAcceptancePolicy.validRequester).setCategory(samlCat).
 				setDescription("Controls which requests are authorized. +all+ accepts all, +validSigner+ " +
 				"accepts all requests which are signed with a trusted certificate, " +
 				"+validRequester+ accepts all requests (even unsigned) which are issued by a known " +
 				"entity with a fixed response address, " +
-				"finally +strict+ allows only requests signed by one of the enumerated issuers."));
+				"finally +strict+ allows only requests signed by one of the enumerated issuers. " +
+				"Important: this setting fully works for web endpoints only, for SOAP endpoints only "
+				+ "+validRequester+ and +all+ acceptance policies can be used. "
+				+ "All other will be treated as +all+. This is because you can control the "
+				+ "access with authentication and authorization of the client, additional SAML "
+				+ "level configuraiton is not neccessary."));
 		defaults.put(ALLOWED_SP, new PropertyMD().setStructuredList(false).setCategory(samlCat).
 				setDescription("List of entries defining allowed Service Providers (clients). Used " +
 				"only for +validRequester+ and +strict+ acceptance policies."));
