@@ -152,18 +152,12 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		return ret;
 	}
 	
-	protected String getMyAddress()
-	{
-		return endpointDescription.getContextAddress()+SamlIdPWebEndpointFactory.SAML_UI_SERVLET_PATH;
-	}
-	
 	@Override
 	protected void appInit(VaadinRequest request)
 	{
 		SAMLAuthnContext samlCtx = SamlResponseHandler.getContext();
 		samlProcessor = new AuthnResponseProcessor(samlCtx, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-		samlResponseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor, 
-				getMyAddress());
+		samlResponseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor);
 		
 		VerticalLayout vmain = new VerticalLayout();
 		TopHeaderLight header = new TopHeaderLight(endpointDescription.getId(), msg);
