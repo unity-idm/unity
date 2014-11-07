@@ -29,7 +29,7 @@ function forceContinue()
 		<input type="hidden" name="RelayState" value="${RelayState?xhtml}"/>
 	</#if>
 
-	<input type="hidden" name="SAMLRequest" value="${originalRequest}"/>
+	<input type="hidden" name="SAMLRequest" value="${originalRequest?xhtml}"/>
 	<input id="force" type="hidden" name="force" value="false"/>
 	</div>
 
