@@ -10,6 +10,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
+import org.apache.http.HttpHeaders;
+
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
@@ -67,7 +69,9 @@ public class UserInfoResource extends BaseOAuthResource
 		}
 		
 		OAuthToken parsedAccessToken = parseInternalToken(internalAccessToken);
-		String contents = parsedAccessToken.getUserInfo();;
-		return toResponse(Response.ok(contents));
+		String contents = parsedAccessToken.getUserInfo();
+		if (contents == null)
+			return makeBearerError(BearerTokenError.INSUFFICIENT_SCOPE);
+		return toResponse(Response.ok(contents).header(HttpHeaders.CONTENT_TYPE, "application/json"));
 	}
 }

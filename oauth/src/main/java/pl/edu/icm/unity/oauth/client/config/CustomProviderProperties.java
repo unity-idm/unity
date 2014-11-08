@@ -10,13 +10,17 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
+import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
+import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 
 /**
  * Configuration of OAuth client for custom provider.
@@ -47,6 +51,8 @@ public class CustomProviderProperties extends PropertiesHelper
 	public static final String REGISTRATION_FORM = "registrationFormForUnknown";
 	public static final String TRANSLATION_PROFILE = "translationProfile";
 	public static final String ICON_URL = "iconUrl";
+	public static final String CLIENT_TRUSTSTORE = "httpClientTruststore";
+	public static final String CLIENT_HOSTNAME_CHECKING = "httpClientHostnameChecking";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
@@ -106,9 +112,19 @@ public class CustomProviderProperties extends PropertiesHelper
 		META.put(TRANSLATION_PROFILE, new PropertyMD().setMandatory().
 				setDescription("Translation profile which will be used to map received user "
 						+ "information to a local representation."));
+		META.put(CLIENT_HOSTNAME_CHECKING, new PropertyMD(ServerHostnameCheckingMode.FAIL).
+				setDescription("Controls how to react on the DNS name mismatch with "
+						+ "the server's certificate. Unless in testing environment "
+						+ "should be left on the default setting."));
+		META.put(CLIENT_TRUSTSTORE, new PropertyMD().setDescription("Name of the truststore which should be used"
+				+ " to validate TLS peer's certificates. "
+				+ "If undefined then the system Java tuststore is used."));
 	}
 	
-	public CustomProviderProperties(Properties properties, String prefix) throws ConfigurationException
+	private X509CertChainValidator validator = null;
+	
+	public CustomProviderProperties(Properties properties, String prefix, PKIManagement pkiManagement) 
+			throws ConfigurationException
 	{
 		super(prefix, properties, META, log);
 		boolean openIdConnect = getBooleanValue(OPENID_CONNECT);
@@ -136,11 +152,33 @@ public class CustomProviderProperties extends PropertiesHelper
 		if (!isSet(PROVIDER_NAME))
 			throw new ConfigurationException(getKeyDescription(PROVIDER_NAME) + 
 					" is mandatory");
-			
+		
+		String validatorName = getValue(CLIENT_TRUSTSTORE);
+		if (validatorName != null)
+		{
+			try
+			{
+				if (!pkiManagement.getValidatorNames().contains(validatorName))
+					throw new ConfigurationException("The validator " + 
+							validatorName + 
+							" for the OAuth verification client does not exist");
+				validator = pkiManagement.getValidator(validatorName);
+			} catch (EngineException e)
+			{
+				throw new ConfigurationException("Can not establish the validator " + 
+						validatorName + " for the OAuth verification client", e);
+			}
+		}
 	}
 
 	public Properties getProperties()
 	{
 		return properties;
+	}
+	
+	
+	public X509CertChainValidator getValidator()
+	{
+		return validator;
 	}
 }

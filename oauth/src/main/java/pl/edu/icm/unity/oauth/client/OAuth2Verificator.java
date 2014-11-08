@@ -56,11 +56,13 @@ import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
@@ -84,14 +86,16 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	private String responseConsumerAddress;
 	private OAuthContextsManagement contextManagement;
 	private OpenIdProviderMetadataManager metadataManager;
+	private PKIManagement pkiManagement;
 	
 	public OAuth2Verificator(String name, String description, OAuthContextsManagement contextManagement,
 			TranslationProfileManagement profileManagement, InputTranslationEngine trEngine,
-			URL baseAddress, String baseContext)
+			PKIManagement pkiManagement, URL baseAddress, String baseContext)
 	{
 		super(name, description, OAuthExchange.ID, profileManagement, trEngine);
 		this.responseConsumerAddress = baseAddress + baseContext + ResponseConsumerServlet.PATH;
 		this.contextManagement = contextManagement;
+		this.pkiManagement = pkiManagement;
 	}
 
 	@Override
@@ -115,7 +119,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			Properties properties = new Properties();
 			properties.load(new StringReader(source));
-			config = new OAuthClientProperties(properties);
+			config = new OAuthClientProperties(properties, pkiManagement);
 			metadataManager = new OpenIdProviderMetadataManager();
 			Set<String> keys = config.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
 			for (String key: keys)
@@ -248,13 +252,17 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				new URI(tokenEndpoint),
 				clientAuthn,
 				authzCodeGrant);
-		HTTPRequest httpRequest = request.toHTTPRequest(); 
+		HTTPRequest httpRequest = wrapRequest(request.toHTTPRequest(), context); 
 		if (log.isTraceEnabled())
 		{
 			String notSecretQuery = httpRequest.getQuery().replaceFirst(
 					"client_secret=[^&]*", "client_secret=xxxxxx");
-			log.trace("Exchanging authorization code for access token with request to: " + httpRequest.getURL() + 
-				"?" + notSecretQuery);
+			log.trace("Exchanging authorization code for access token with request to: " + 
+					httpRequest.getURL() + "?" + notSecretQuery);
+		} else if (log.isDebugEnabled())
+		{
+			log.debug("Exchanging authorization code for access token with request to: " + 
+					httpRequest.getURL());
 		}
 		HTTPResponse response = httpRequest.send();
 		
@@ -311,7 +319,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 		if (userInfoEndpoint != null)
 		{
-			fetchOpenIdUserInfo(accessToken, userInfoEndpoint, ret);
+			fetchOpenIdUserInfo(accessToken, userInfoEndpoint, ret, context);
 		}
 		
 		log.debug("Received the following attributes from the OAuth provider: " + ret);
@@ -353,11 +361,13 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return selectedMethod;
 	}
 	
-	private void fetchOpenIdUserInfo(BearerAccessToken accessToken, URI userInfoEndpoint, Map<String, String> ret) 
+	private void fetchOpenIdUserInfo(BearerAccessToken accessToken, URI userInfoEndpoint, Map<String, String> ret, 
+			OAuthContext context) 
 			throws AuthenticationException, SerializeException, IOException, ParseException, java.text.ParseException
 	{
 		UserInfoRequest uiRequest = new UserInfoRequest(userInfoEndpoint, accessToken);
-		HTTPResponse uiHttpResponse = uiRequest.toHTTPRequest().send();
+		HTTPRequest httpsRequest = wrapRequest(uiRequest.toHTTPRequest(), context); 
+		HTTPResponse uiHttpResponse = httpsRequest.send();
 		UserInfoResponse uiResponse = UserInfoResponse.parse(uiHttpResponse);
 		if (uiResponse instanceof UserInfoErrorResponse)
 		{
@@ -380,10 +390,11 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	}
 	
 	private void fetchUserInfo(BearerAccessToken accessToken, ClientAuthnMode selectedMethod,
-			String userInfoEndpoint, Map<String, String> ret) 
+			String userInfoEndpoint, Map<String, String> ret, OAuthContext context) 
 					throws AuthenticationException, IOException, ParseException
 	{
-		HTTPRequest httpReq = new HTTPRequest(Method.GET, new URL(userInfoEndpoint));
+		HTTPRequest httpReq = wrapRequest(new HTTPRequest(Method.GET, new URL(userInfoEndpoint)),
+				context);
 		if (selectedMethod == ClientAuthnMode.secretPost)
 			httpReq.setQuery("access_token=" + accessToken.getValue());
 		else
@@ -400,7 +411,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		if (log.isTraceEnabled())
 			log.trace("Received user's profile:\n" + resp.getContent());
 
-		if (!"application/json".equals(resp.getContentType().getBaseType().toString()))
+		if (resp.getContentType() == null || 
+				!"application/json".equals(resp.getContentType().getBaseType().toString()))
 			throw new AuthenticationException("Authentication was successful "
 					+ "but there was a problem fetching user's profile information. "
 					+ "It has non-JSON content type: " + resp.getContentType());
@@ -461,7 +473,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		String userInfoEndpoint = providerCfg.getValue(CustomProviderProperties.PROFILE_ENDPOINT);
 		if (userInfoEndpoint != null)
 		{
-			fetchUserInfo(accessToken, selectedMethod, userInfoEndpoint, ret);
+			fetchUserInfo(accessToken, selectedMethod, userInfoEndpoint, ret, context);
 		}
 		
 		log.debug("Received the following attributes from the OAuth provider: " + ret);
@@ -507,6 +519,15 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			input.addAttribute(new RemoteAttribute(attr.getKey(), attr.getValue()));
 		}
 		return input;
+	}
+	
+	private HTTPRequest wrapRequest(HTTPRequest httpRequest, OAuthContext context)
+	{
+		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
+		ServerHostnameCheckingMode checkingMode = providerCfg.getEnumValue(
+				CustomProviderProperties.CLIENT_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);
+		
+		return new CustomHTTPSRequest(httpRequest, providerCfg.getValidator(), checkingMode); 
 	}
 }
 

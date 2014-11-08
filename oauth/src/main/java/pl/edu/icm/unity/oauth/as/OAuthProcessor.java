@@ -101,11 +101,13 @@ public class OAuthProcessor
 		
 		JWT idTokenSigned = null;
 		ResponseType responseType = ctx.getRequest().getResponseType();
+		
+		UserInfo userInfo = prepareUserInfoClaimSet(identity.getValue(), attributes);
+		internalToken.setUserInfo(userInfo.toJSONObject().toJSONString());
+
 		if (ctx.isOpenIdMode())
 		{
-			UserInfo userInfo = prepareUserInfoClaimSet(identity.getValue(), attributes);
 			IDTokenClaimsSet idToken = prepareIdInfoClaimSet(identity.getValue(), ctx, userInfo, now);
-			internalToken.setUserInfo(userInfo.toJSONObject().toJSONString());
 			idTokenSigned = signIdToken(idToken, ctx);
 			internalToken.setOpenidToken(idTokenSigned.serialize());
 			//we record OpenID token in internal state always in open id mode. However it may happen

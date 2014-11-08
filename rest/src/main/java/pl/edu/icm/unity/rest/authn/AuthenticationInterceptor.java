@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.rest.authn;
 
-import java.net.URI;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +20,6 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
-import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.rest.authn.ext.TLSRetrieval;
@@ -37,8 +35,8 @@ import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
  * Performs a final authentication, basing on the endpoint's configuration.
@@ -121,12 +119,11 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	{
 		try
 		{
-			AttributedURIType address = message.getDestination().getAddress().getAddress();
-			URI destination = new URI(address.getValue());
+			String addressPath = (String) message.get(Message.REQUEST_URI);
 			for (String notProtected: notProtectedPaths)
-				if (destination.getPath().startsWith(notProtected))
+				if (addressPath.equals(notProtected))
 				{
-					log.debug("Request to a not protected address - " + destination 
+					log.debug("Request to a not protected address - " + addressPath 
 							+ " - invocation will proceed without authentication");
 					return true;
 				}

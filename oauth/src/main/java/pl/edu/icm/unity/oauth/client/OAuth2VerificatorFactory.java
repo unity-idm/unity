@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
@@ -30,6 +31,7 @@ public class OAuth2VerificatorFactory implements CredentialVerificatorFactory
 	public static final String NAME = "oauth2";
 	
 	private TranslationProfileManagement profileManagement;
+	private PKIManagement pkiManagement;
 	private InputTranslationEngine trEngine;
 	private URL baseAddress;
 	private String baseContext;
@@ -39,13 +41,14 @@ public class OAuth2VerificatorFactory implements CredentialVerificatorFactory
 	public OAuth2VerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement,
 			InputTranslationEngine trEngine, NetworkServer jettyServer,
 			SharedEndpointManagement sharedEndpointManagement,
-			OAuthContextsManagement contextManagement) throws EngineException
+			OAuthContextsManagement contextManagement, PKIManagement pkiManagement) throws EngineException
 	{
 		this.profileManagement = profileManagement;
 		this.trEngine = trEngine;
 		this.baseAddress = jettyServer.getAdvertisedAddress();
 		this.baseContext = sharedEndpointManagement.getBaseContextPath();
 		this.contextManagement = contextManagement;
+		this.pkiManagement = pkiManagement;
 		
 		ServletHolder servlet = new ServletHolder(new ResponseConsumerServlet(contextManagement));
 		sharedEndpointManagement.deployInternalEndpointServlet(ResponseConsumerServlet.PATH, servlet);
@@ -68,7 +71,7 @@ public class OAuth2VerificatorFactory implements CredentialVerificatorFactory
 	public CredentialVerificator newInstance()
 	{
 		return new OAuth2Verificator(NAME, getDescription(), contextManagement, 
-				profileManagement, trEngine, baseAddress, baseContext);
+				profileManagement, trEngine, pkiManagement, baseAddress, baseContext);
 	}
 
 }

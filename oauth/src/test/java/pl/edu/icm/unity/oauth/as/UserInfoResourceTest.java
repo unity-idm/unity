@@ -48,6 +48,7 @@ public class UserInfoResourceTest
 		
 		String token = new BearerAccessToken(respInit.getAccessToken().getValue()).toAuthorizationHeader();
 		Response resp = tested.getToken(token);
+		assertEquals("application/json", resp.getHeaderString("Content-Type"));
 		UserInfo parsed = UserInfo.parse(resp.getEntity().toString());
 		assertEquals("userA", parsed.getSubject().getValue());
 		assertEquals("example@example.com", parsed.getEmail().getAddress());

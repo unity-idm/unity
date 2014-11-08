@@ -6,10 +6,10 @@ package pl.edu.icm.unity.oauth.as.token;
 
 import java.util.Date;
 
+import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.apache.log4j.Logger;
@@ -58,9 +58,9 @@ public class AccessTokenResource extends BaseOAuthResource
 
 	@Path("/")
 	@POST
-	public Response getToken(@QueryParam("grant_type") String grantType, 
-			@QueryParam("code") String code,
-			@QueryParam("redirect_uri") String redirectUri) throws EngineException, JsonProcessingException
+	public Response getToken(@FormParam("grant_type") String grantType, 
+			@FormParam("code") String code,
+			@FormParam("redirect_uri") String redirectUri) throws EngineException, JsonProcessingException
 	{
 		if (code == null)
 			return makeError(OAuth2Error.INVALID_REQUEST, "code is required");
