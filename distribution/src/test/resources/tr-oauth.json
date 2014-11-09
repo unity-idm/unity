@@ -1,0 +1,37 @@
+{
+	"ver": "2",
+	"name": "localOAuthProfile",
+	"description": "For translation of localOAuth authn (loopback)",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			}, 
+			"action": {
+				"name": "mapIdentity",
+				"parameters": [
+					"identifier",
+					"attr['sub']",
+					"Password requirement",
+					"CREATE_OR_MATCH"
+				]
+			}
+		},
+			
+		{
+			"condition": {
+				"conditionValue": "true"
+			}, 
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"cn",
+					"/",
+					"attr['cn']",
+					"full",
+					"CREATE_OR_UPDATE"
+				]
+			}			
+		}
+	]
+}

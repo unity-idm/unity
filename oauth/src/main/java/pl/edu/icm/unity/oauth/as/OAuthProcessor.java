@@ -218,10 +218,11 @@ public class OAuthProcessor
 	private IDTokenClaimsSet prepareIdInfoClaimSet(String userIdentity, OAuthAuthzContext context, 
 			ClaimsSet regularAttributes, Date now)
 	{
+		String clientId = context.getRequest().getClientID().getValue();
 		IDTokenClaimsSet idToken = new IDTokenClaimsSet(
 				new Issuer(context.getIssuerName()), 
 				new Subject(userIdentity), 
-				Lists.newArrayList(new Audience(context.getClientName())), 
+				Lists.newArrayList(new Audience(clientId)), 
 				new Date(now.getTime() + context.getIdTokenValidity()*1000), 
 				now);
 		ResponseType responseType = context.getRequest().getResponseType(); 

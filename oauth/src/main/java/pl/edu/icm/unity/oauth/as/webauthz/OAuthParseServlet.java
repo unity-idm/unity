@@ -315,16 +315,19 @@ public class OAuthParseServlet extends HttpServlet
 		
 		Set<String> scopeKeys = oauthConfig.getStructuredListKeys(OAuthASProperties.SCOPES);
 		Scope requestedScopes = authzRequest.getScope();
-		for (String scopeKey: scopeKeys)
+		if (requestedScopes != null)
 		{
-			String scope = oauthConfig.getValue(scopeKey+OAuthASProperties.SCOPE_NAME);
-			
-			if (requestedScopes.contains(scope))
+			for (String scopeKey: scopeKeys)
 			{
-				String desc = oauthConfig.getValue(scopeKey+OAuthASProperties.SCOPE_DESCRIPTION);
-				List<String> attributes = oauthConfig.getListOfValues(
-						scopeKey+OAuthASProperties.SCOPE_ATTRIBUTES);
-				context.addScopeInfo(new ScopeInfo(scope, desc, attributes));
+				String scope = oauthConfig.getValue(scopeKey+OAuthASProperties.SCOPE_NAME);
+
+				if (requestedScopes.contains(scope))
+				{
+					String desc = oauthConfig.getValue(scopeKey+OAuthASProperties.SCOPE_DESCRIPTION);
+					List<String> attributes = oauthConfig.getListOfValues(
+							scopeKey+OAuthASProperties.SCOPE_ATTRIBUTES);
+					context.addScopeInfo(new ScopeInfo(scope, desc, attributes));
+				}
 			}
 		}
 	}
@@ -344,7 +347,7 @@ public class OAuthParseServlet extends HttpServlet
 		ResponseType responseType = authzRequest.getResponseType();
 		Scope requestedScopes = authzRequest.getScope();
 
-		context.setOpenIdMode(requestedScopes.contains(OIDCScopeValue.OPENID));
+		context.setOpenIdMode(requestedScopes != null && requestedScopes.contains(OIDCScopeValue.OPENID));
 
 		if (context.isOpenIdMode() && responseType.contains(ResponseType.Value.TOKEN)
 				&& responseType.size() == 1)

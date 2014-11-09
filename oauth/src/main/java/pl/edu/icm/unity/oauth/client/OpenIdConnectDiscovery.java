@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.StringTokenizer;
 
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
+
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
@@ -31,17 +33,17 @@ public class OpenIdConnectDiscovery
 		this.providerMetadataEndpoint = providerMetadataEndpoint;
 	}
 	
-	public OIDCProviderMetadata getMetadata() throws IOException, ParseException
+	public OIDCProviderMetadata getMetadata(CustomProviderProperties config) throws IOException, ParseException
 	{
 		if (providerMeta == null || expiresAt < System.currentTimeMillis())
-			downloadMetadata();
+			downloadMetadata(config);
 		
 		return providerMeta;
 	}
 	
-	private void downloadMetadata() throws IOException, ParseException
+	private void downloadMetadata(CustomProviderProperties config) throws IOException, ParseException
 	{
-		HTTPRequest request = new HTTPRequest(Method.GET, providerMetadataEndpoint);
+		HTTPRequest request = wrapRequest(new HTTPRequest(Method.GET, providerMetadataEndpoint), config);
 		HTTPResponse response = request.send();
 		String cacheControl = response.getCacheControl();
 		StringTokenizer stok = new StringTokenizer(cacheControl, " ");
@@ -60,5 +62,11 @@ public class OpenIdConnectDiscovery
 		}
 		
 		providerMeta = OIDCProviderMetadata.parse(response.getContent());
+	}
+	
+	
+	private HTTPRequest wrapRequest(HTTPRequest httpRequest, CustomProviderProperties config)
+	{
+		return CustomHTTPSRequest.wrapRequest(httpRequest, config); 
 	}
 }

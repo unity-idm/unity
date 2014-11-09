@@ -17,6 +17,8 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import net.minidev.json.JSONObject;
 
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -49,9 +51,25 @@ public class CustomHTTPSRequest extends HTTPRequest
 	{
 		super(wrapped.getMethod(), wrapped.getURL());
 		this.wrapped = wrapped;
-		factory = SocketFactoryCreator.getSocketFactory(null, validator);
+		if (validator != null)
+			factory = SocketFactoryCreator.getSocketFactory(null, validator);
 		verifier = new CanlHostnameVerifierJDK(mode);
 	}
+	
+	public static HTTPRequest wrapRequest(HTTPRequest httpRequest, OAuthContext context, 
+			OAuthClientProperties config)
+	{
+		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
+		return wrapRequest(httpRequest, providerCfg);
+	}
+	
+	public static HTTPRequest wrapRequest(HTTPRequest httpRequest, CustomProviderProperties providerCfg)
+	{
+		ServerHostnameCheckingMode checkingMode = providerCfg.getEnumValue(
+				CustomProviderProperties.CLIENT_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);
+		
+		return new CustomHTTPSRequest(httpRequest, providerCfg.getValidator(), checkingMode); 
+	}	
 	
 	@Override
 	public HttpURLConnection toHttpURLConnection() throws IOException
@@ -101,7 +119,6 @@ public class CustomHTTPSRequest extends HTTPRequest
 				writer.close();
 			}
 		}
-System.err.println();
 		return conn;
 	}
 
@@ -130,7 +147,7 @@ System.err.println();
 			// properly set, and we'll be able to retrieve it.
 			statusCode = conn.getResponseCode();
 
-			if (statusCode == -1) {
+			if (statusCode == -1 || conn.getErrorStream() == null) {
 				// Rethrow IO exception
 				throw e;
 			} else {

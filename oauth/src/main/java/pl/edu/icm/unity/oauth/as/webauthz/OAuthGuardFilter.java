@@ -70,15 +70,15 @@ public class OAuthGuardFilter implements Filter
 		if (context == null)
 		{
 			if (log.isDebugEnabled())
-				log.debug("Request to SAML post-processing address, without SAML context: " 
+				log.debug("Request to OAuth post-processing address, without OAuth context: " 
 						+ request.getRequestURI());
-			errorHandler.showErrorPage("No SAML context", null, 
+			errorHandler.showErrorPage("No OAuth context", null, 
 					(HttpServletResponse) response);
 			return;
 		} else
 		{
 			if (log.isTraceEnabled())
-				log.trace("Request to SAML post-processing address, with SAML context: " 
+				log.trace("Request to OAuth post-processing address, with OAuth context: " 
 						+ request.getRequestURI());
 			chain.doFilter(request, response);
 			return;
