@@ -89,6 +89,24 @@ public class IdentitySelectorComponent extends CustomComponent
 		return selectedIdentity;
 	}
 	
+	/**
+	 * @return identity value which should be stored in preferences or null if the selected
+	 * identity should not be stored in preferences (e.g. it is a dynamic identity).
+	 */
+	public String getSelectedIdentityForPreferences()
+	{
+		String identityValue = selectedIdentity.getValue();
+		if (selectedIdentity instanceof Identity)
+		{
+			Identity casted = (Identity) selectedIdentity;
+			identityValue = casted.getComparableValue();
+			IdentityTypeDefinition idType = casted.getType().getIdentityTypeProvider();
+			if (idType.isDynamic() || idType.isTargeted())
+				return null;
+		}
+		return identityValue;
+	}
+	
 	private void initUI()
 	{
 		selectedIdentity = validIdentities.get(0);

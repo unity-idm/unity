@@ -24,6 +24,7 @@
 	
 	<bean class="pl.edu.icm.unity.oauth.as.OAuthDemoContentsInitializer"/>
 	
+	<bean class="pl.edu.icm.unity.oauth.as.preferences.OAuthPreferencesHandler"/>
 	
 	<bean scope="prototype" id="OAuthAuthzUI" class="pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzUI"/>
 </beans>

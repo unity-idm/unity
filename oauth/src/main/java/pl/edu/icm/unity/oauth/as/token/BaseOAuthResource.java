@@ -11,9 +11,12 @@ import java.text.ParseException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.apache.log4j.Logger;
+
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.server.api.internal.Token;
+import pl.edu.icm.unity.server.utils.Log;
 
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.SignedJWT;
@@ -30,6 +33,8 @@ import com.nimbusds.oauth2.sdk.token.BearerTokenError;
  */
 public class BaseOAuthResource
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, BaseOAuthResource.class);
+	
 	protected String getResponseContent(com.nimbusds.oauth2.sdk.Response oauthResponse)
 	{
 		try
@@ -80,6 +85,8 @@ public class BaseOAuthResource
 		if (description != null)
 			baseError = baseError.appendDescription("; " + description);
 		TokenErrorResponse eResp = new TokenErrorResponse(baseError);
+		log.debug("Retuning OAuth error response: " + baseError.getCode() + 
+				": " + baseError.getDescription());
 		HTTPResponse httpResp = eResp.toHTTPResponse();
 		return toResponse(Response.status(httpResp.getStatusCode()).entity(httpResp.getContent()));
 	}
@@ -87,6 +94,7 @@ public class BaseOAuthResource
 	protected Response makeBearerError(BearerTokenError error)
 	{
 		String header = error.toWWWAuthenticateHeader();
+		log.debug("Retuning OAuth bearer error response: " + header);
 		return toResponse(Response.status(error.getHTTPStatusCode()).header("WWW-Authenticate", header));
 	}
 	

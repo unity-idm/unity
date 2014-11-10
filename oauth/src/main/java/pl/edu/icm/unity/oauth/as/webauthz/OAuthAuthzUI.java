@@ -20,7 +20,7 @@ import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
-import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.SPSettings;
+import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
@@ -282,7 +282,7 @@ public class OAuthAuthzUI extends UnityUIBase
 		try
 		{
 			OAuthPreferences preferences = OAuthPreferences.getPreferences(preferencesMan);
-			SPSettings settings = preferences.getSPSettings(ctx.getRequest().getClientID().getValue());
+			OAuthClientSettings settings = preferences.getSPSettings(ctx.getRequest().getClientID().getValue());
 			updateUIFromPreferences(settings);
 		} catch (EopException e)
 		{
@@ -298,11 +298,14 @@ public class OAuthAuthzUI extends UnityUIBase
 		}
 	}
 	
-	private void updateUIFromPreferences(SPSettings settings) throws EngineException, EopException
+	private void updateUIFromPreferences(OAuthClientSettings settings) throws EngineException, EopException
 	{
 		if (settings == null)
 			return;
-
+		
+		String selId = settings.getSelectedIdentity();
+		idSelector.setSelected(selId);
+		
 		if (settings.isDoNotAsk())
 		{
 			if (settings.isDefaultAccept())
@@ -325,9 +328,12 @@ public class OAuthAuthzUI extends UnityUIBase
 		if (!rememberCB.getValue())
 			return;
 		String reqIssuer = ctx.getRequest().getClientID().getValue();
-		SPSettings settings = preferences.getSPSettings(reqIssuer);
+		OAuthClientSettings settings = preferences.getSPSettings(reqIssuer);
 		settings.setDefaultAccept(defaultAccept);
 		settings.setDoNotAsk(true);
+		String identityValue = idSelector.getSelectedIdentityForPreferences();
+		if (identityValue != null)
+			settings.setSelectedIdentity(identityValue);
 		preferences.setSPSettings(reqIssuer, settings);
 	}
 	

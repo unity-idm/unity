@@ -30,7 +30,7 @@ import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.OIDCAccessTokenResponse;
 
-public class TokenResourceTest 
+public class AccessTokenResourceTest 
 {
 	@Test
 	public void userInfoFailsWithWrongClient() throws Exception
@@ -40,7 +40,8 @@ public class TokenResourceTest
 		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config);
 		setupInvocationContext(111);
 		
-		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement);
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
+				100);
 		
 		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), "https://return.host.com/foo");
@@ -55,7 +56,8 @@ public class TokenResourceTest
 		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config);
 		setupInvocationContext(100);
 		
-		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement);
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
+				100);
 		
 		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), "https://wrong.com");
@@ -85,7 +87,8 @@ public class TokenResourceTest
 		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config);
 		setupInvocationContext(100);
 
-		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement);
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
+				100);
 		
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), "https://return.host.com/foo");

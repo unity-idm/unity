@@ -47,7 +47,7 @@ public class OAuthProcessorTest
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.CODE),
-				GrantFlow.authorizationCode);
+				GrantFlow.authorizationCode, 100);
 		
 		long start = System.currentTimeMillis();
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
@@ -71,7 +71,7 @@ public class OAuthProcessorTest
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.TOKEN),
-				GrantFlow.implicit);
+				GrantFlow.implicit, 100);
 		
 		long start = System.currentTimeMillis();
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
@@ -97,7 +97,7 @@ public class OAuthProcessorTest
 		TokensManagement tokensMan = new MockTokensMan();
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.TOKEN, 
 				OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
-				GrantFlow.openidHybrid);
+				GrantFlow.openidHybrid, 100);
 		
 		long start = System.currentTimeMillis();
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(

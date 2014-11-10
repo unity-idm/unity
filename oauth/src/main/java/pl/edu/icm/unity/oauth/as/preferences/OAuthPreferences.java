@@ -27,13 +27,13 @@ public class OAuthPreferences extends IdPPreferences
 	public static final String ID = OAuthPreferences.class.getName();
 	protected final ObjectMapper mapper = Constants.MAPPER;
 
-	private Map<String, SPSettings> spSettings = new HashMap<String, OAuthPreferences.SPSettings>();
+	private Map<String, OAuthClientSettings> spSettings = new HashMap<String, OAuthPreferences.OAuthClientSettings>();
 	
 	@Override
 	protected void serializeAll(ObjectNode main)
 	{
 		ObjectNode settingsN = main.with("spSettings");
-		for (Map.Entry<String, SPSettings> entry: spSettings.entrySet())
+		for (Map.Entry<String, OAuthClientSettings> entry: spSettings.entrySet())
 			settingsN.set(entry.getKey(), entry.getValue().serialize());
 	}
 	
@@ -45,7 +45,7 @@ public class OAuthPreferences extends IdPPreferences
 		for (String key; keys.hasNext();)
 		{
 			key=keys.next();
-			spSettings.put(key, new SPSettings(spSettingsNode.with(key)));
+			spSettings.put(key, new OAuthClientSettings(spSettingsNode.with(key)));
 		}
 	}
 	
@@ -62,11 +62,11 @@ public class OAuthPreferences extends IdPPreferences
 		savePreferencesGeneric(preferencesMan, preferences, OAuthPreferences.ID);
 	}
 	
-	public SPSettings getSPSettings(String sp)
+	public OAuthClientSettings getSPSettings(String sp)
 	{
-		SPSettings ret = spSettings.get(sp);
+		OAuthClientSettings ret = spSettings.get(sp);
 		if (ret == null)
-			ret = new SPSettings();
+			ret = new OAuthClientSettings();
 		return ret;
 	}
 	
@@ -75,7 +75,7 @@ public class OAuthPreferences extends IdPPreferences
 		return spSettings.keySet();
 	}
 	
-	public void setSPSettings(String sp, SPSettings settings)
+	public void setSPSettings(String sp, OAuthClientSettings settings)
 	{
 		spSettings.put(sp, settings);
 	}
@@ -85,19 +85,22 @@ public class OAuthPreferences extends IdPPreferences
 		spSettings.remove(sp);
 	}
 	
-	public static class SPSettings
+	public static class OAuthClientSettings
 	{
 		private boolean doNotAsk=false;
 		private boolean defaultAccept=true;
+		private String selectedIdentity;
 		
-		protected SPSettings()
+		protected OAuthClientSettings()
 		{
 		}
 
-		protected SPSettings(ObjectNode from)
+		protected OAuthClientSettings(ObjectNode from)
 		{
 			setDefaultAccept(from.get("defaultAccept").asBoolean());
 			setDoNotAsk(from.get("doNotAsk").asBoolean());
+			if (from.has("selectedIdentity"))
+				setSelectedIdentity(from.get("selectedIdentity").asText());
 		}
 
 		public boolean isDoNotAsk()
@@ -116,12 +119,22 @@ public class OAuthPreferences extends IdPPreferences
 		{
 			this.defaultAccept = defaultAccept;
 		}
-		
+		public String getSelectedIdentity()
+		{
+			return selectedIdentity;
+		}
+		public void setSelectedIdentity(String selectedIdentity)
+		{
+			this.selectedIdentity = selectedIdentity;
+		}
+
 		protected ObjectNode serialize()
 		{
 			ObjectNode main = Constants.MAPPER.createObjectNode();
 			main.put("doNotAsk", doNotAsk);
 			main.put("defaultAccept", defaultAccept);
+			if (selectedIdentity != null)
+				main.put("selectedIdentity", selectedIdentity);
 			return main;
 		}
 	}

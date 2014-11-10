@@ -37,9 +37,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
@@ -319,18 +317,8 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		
 		settings.setHiddenAttribtues(attrsPresenter.getHidden());
 
-		IdentityParam selectedIdentity = idSelector.getSelectedIdentity();
-		boolean dynamic = false;
-		String identityValue = selectedIdentity.getValue();
-		if (selectedIdentity instanceof Identity)
-		{
-			Identity casted = (Identity) selectedIdentity;
-			identityValue = casted.getComparableValue();
-			IdentityTypeDefinition idType = casted.getType().getIdentityTypeProvider();
-			if (idType.isDynamic() || idType.isTargeted())
-				dynamic = true;
-		}
-		if (!dynamic)
+		String identityValue = idSelector.getSelectedIdentityForPreferences();
+		if (identityValue != null)
 			settings.setSelectedIdentity(identityValue);
 		preferences.setSPSettings(reqIssuer, settings);
 	}

@@ -50,7 +50,8 @@ public class OAuthTestUtils
 				"https://localhost:233/foo");
 	}
 	
-	public static OAuthAuthzContext createContext(ResponseType respType, GrantFlow grant) throws Exception
+	public static OAuthAuthzContext createContext(ResponseType respType, GrantFlow grant, 
+			long clientEntityId) throws Exception
 	{
 		AuthorizationRequest request = new AuthorizationRequest(null, respType, 
 				new ClientID("clientC"), new URI("https://return.host.com/foo"), 
@@ -64,7 +65,7 @@ public class OAuthTestUtils
 				300, 
 				"https://localhost:2443/oauth-as", 
 				credential);
-		ctx.setClientEntityId(100);
+		ctx.setClientEntityId(clientEntityId);
 		ctx.setClientName("clientC");
 		ctx.setFlow(grant);
 		ctx.setOpenIdMode(true);
@@ -82,19 +83,21 @@ public class OAuthTestUtils
 		IdentityParam identity = new IdentityParam("username", "userA");
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.TOKEN, 
 				OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
-				GrantFlow.openidHybrid);
+				GrantFlow.openidHybrid, 100);
 		
 		return processor.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, tokensMan);
 	}
 	
-	public static AuthorizationSuccessResponse initOAuthFlowAccessCode(TokensManagement tokensMan) throws Exception
+	public static AuthorizationSuccessResponse initOAuthFlowAccessCode(TokensManagement tokensMan, 
+			long clientEntityId) throws Exception
 	{
 		OAuthProcessor processor = new OAuthProcessor();
 		Collection<Attribute<?>> attributes = new ArrayList<>();
 		attributes.add(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com"));
-		IdentityParam identity = new IdentityParam("username", "userA");
+		attributes.add(new StringAttribute("c", "/", AttributeVisibility.full, "PL"));
+		IdentityParam identity = new IdentityParam("userName", "userA");
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.CODE),
-				GrantFlow.authorizationCode);
+				GrantFlow.authorizationCode, clientEntityId);
 
 		return processor.prepareAuthzResponseAndRecordInternalState(
 				attributes, identity, ctx, tokensMan);
