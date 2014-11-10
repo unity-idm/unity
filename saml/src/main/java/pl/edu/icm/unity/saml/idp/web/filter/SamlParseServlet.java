@@ -20,10 +20,10 @@ import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 import org.bouncycastle.util.encoders.Base64;
 
+import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
-import pl.edu.icm.unity.saml.idp.web.EopException;
 import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
 import pl.edu.icm.unity.server.utils.Log;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;

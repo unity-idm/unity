@@ -178,6 +178,7 @@
 								<argument>pl.edu.icm.unity.oauth.client.config.CustomProviderProperties|ref-oauthProviderProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.db.DBConfiguration|ref-dbProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties|ref-JWTManProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.oauth.as.OAuthASProperties|ref-oauthASProperties.txt|</argument>
 							</arguments>
 						</configuration>
 						<goals>

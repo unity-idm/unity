@@ -10,6 +10,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
+
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
@@ -26,8 +28,8 @@ public class OpenIdProviderMetadataManager
 		providers.put(url, new OpenIdConnectDiscovery(new URL(url)));
 	}
 	
-	public OIDCProviderMetadata getMetadata(String url) throws ParseException, IOException
+	public OIDCProviderMetadata getMetadata(String url, CustomProviderProperties cfg) throws ParseException, IOException
 	{
-		return providers.get(url).getMetadata();
+		return providers.get(url).getMetadata(cfg);
 	}
 }

@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -110,6 +111,13 @@ public class UsernameIdentity extends AbstractStaticIdentityTypeProvider
 		return from;
 	}
 
+
+	@Override
+	public String getHumanFriendlyDescription(MessageSource msg)
+	{
+		return msg.getMessage("UsernameIdentity.description");
+	}
+	
 	@Override
 	public boolean isDynamic()
 	{

@@ -13,10 +13,11 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.apache.xml.security.utils.Base64;
 
+import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import pl.edu.icm.unity.saml.idp.web.filter.SamlGuardFilter;
+import pl.edu.icm.unity.saml.idp.web.filter.SamlParseServlet;
 import pl.edu.icm.unity.server.utils.Log;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
@@ -126,7 +127,8 @@ public class SamlResponseHandler
 	public static SAMLAuthnContext getContext()
 	{
 		WrappedSession httpSession = VaadinSession.getCurrent().getSession();
-		SAMLAuthnContext ret = (SAMLAuthnContext) httpSession.getAttribute(SamlGuardFilter.SESSION_SAML_CONTEXT);
+		SAMLAuthnContext ret = (SAMLAuthnContext) httpSession.getAttribute(
+				SamlParseServlet.SESSION_SAML_CONTEXT);
 		if (ret == null)
 			throw new IllegalStateException("No SAML context in UI");
 		return ret;
@@ -137,7 +139,7 @@ public class SamlResponseHandler
 		VaadinSession vSession = VaadinSession.getCurrent();
 		vSession.setAttribute(ResponseDocument.class, null);
 		WrappedSession httpSession = vSession.getSession();
-		httpSession.removeAttribute(SamlGuardFilter.SESSION_SAML_CONTEXT);
+		httpSession.removeAttribute(SamlParseServlet.SESSION_SAML_CONTEXT);
 	}
 	
 	private static class SessionDisposal

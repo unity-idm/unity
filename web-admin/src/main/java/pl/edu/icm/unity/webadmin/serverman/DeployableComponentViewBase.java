@@ -12,6 +12,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -47,7 +48,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 	protected HorizontalLayout header;
 	protected FormLayout content;
 	protected HorizontalLayout footer;
-	protected Button showHideContentButton;
+	protected ExpandCollapseButton showHideContentButton;
 	protected Button undeplyButton;
 	protected Button reloadButton;
 	protected Button deployButton;
@@ -94,28 +95,13 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		main.addComponent(footer);
 		
 		setCompositionRoot(main);
-		showHideContentButton = new Button();
-		showHideContentButton.setIcon(Images.zoomin.getResource());
-		showHideContentButton.addStyleName(Reindeer.BUTTON_LINK);
-		showHideContentButton.addClickListener(new ClickListener()
+		showHideContentButton = new ExpandCollapseButton(true, content, footer);
+		showHideContentButton.setCustomListener(new ClickListener()
 		{
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				if (content.isVisible())
-				{
-					showHideContentButton.setIcon(Images.zoomin.getResource());
-					separator.setVisible(true);
-					content.setVisible(false);
-					footer.setVisible(false);
-				} else
-				{
-					showHideContentButton.setIcon(Images.zoomout.getResource());
-					separator.setVisible(false);
-					content.setVisible(true);
-					footer.setVisible(true);
-				}
-
+				separator.setVisible(!content.isVisible());
 			}
 		});
 

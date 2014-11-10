@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 
 /**
@@ -22,7 +23,7 @@ import pl.edu.icm.unity.server.authn.InvocationContext;
  * @author K. Benedyczak
  */
 @Component
-public class UnityMessageSource extends ResourceBundleMessageSource
+public class UnityMessageSource extends ResourceBundleMessageSource implements MessageSource
 {
 	private UnityServerConfiguration config;
 
@@ -40,6 +41,7 @@ public class UnityMessageSource extends ResourceBundleMessageSource
 		setDefaultEncoding("UTF-8");
 	}
 	
+	@Override
 	public String getMessage(String code, Object... args)
 	{
 		Locale loc = getLocale();
@@ -52,6 +54,7 @@ public class UnityMessageSource extends ResourceBundleMessageSource
 	 * @param args
 	 * @return
 	 */
+	@Override
 	public String getMessageNullArg(String code, Object... args)
 	{
 		for (Object a: args)
@@ -60,11 +63,13 @@ public class UnityMessageSource extends ResourceBundleMessageSource
 		return getMessage(code, args);
 	}
 	
+	@Override
 	public String getYesNo(boolean value)
 	{
 		return value ? getMessage("yes") : getMessage("no");
 	}
 	
+	@Override
 	public Locale getLocale()
 	{
 		return getLocale(config.getDefaultLocale());

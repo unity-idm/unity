@@ -26,7 +26,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCal
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
-import pl.edu.icm.unity.webui.common.HtmlLabel;
+import pl.edu.icm.unity.webui.common.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.idpselector.IdPsSpecification;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent;
@@ -61,7 +61,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	
 	private IdpSelectorComponent idpSelector;
 	private Label messageLabel;
-	private HtmlLabel errorDetailLabel;
+	private HtmlSimplifiedLabel errorDetailLabel;
 	private SamlContextManagement samlContextManagement;
 	
 	
@@ -132,7 +132,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		
 		messageLabel = new Label();
 		messageLabel.addStyleName(Styles.error.toString());
-		errorDetailLabel = new HtmlLabel(msg);
+		errorDetailLabel = new HtmlSimplifiedLabel();
 		errorDetailLabel.addStyleName(Styles.italic.toString());
 		errorDetailLabel.setVisible(false);
 		ret.addComponents(messageLabel, errorDetailLabel);
@@ -187,11 +187,11 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		if (message == null)
 		{
 			errorDetailLabel.setVisible(false);
-			errorDetailLabel.resetValue();
+			errorDetailLabel.setValue("");
 			return;
 		}
 		errorDetailLabel.setVisible(true);
-		errorDetailLabel.setHtmlValue(message, args);
+		errorDetailLabel.setValue(msg.getMessage(message, args));
 	}
 	
 	private void startLogin(String idpKey)
