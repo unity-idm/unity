@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import pl.edu.icm.unity.webui.authn.CancelHandler;
+
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
-
-import pl.edu.icm.unity.webui.authn.CancelHandler;
 
 /**
  * Implements handling of cancellation of authentication in the context of OAuth processing.
@@ -23,7 +23,8 @@ public class OAuthCancelHandler implements CancelHandler
 
 		OAuthAuthzContext ctx = OAuthResponseHandler.getContext();
 		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
-				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getState());
+				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getResponseType(), 
+				ctx.getRequest().getState());
 		responseH.returnOauthResponse(oauthResponse, false);
 	}
 }

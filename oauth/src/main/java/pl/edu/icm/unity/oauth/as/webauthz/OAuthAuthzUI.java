@@ -208,7 +208,8 @@ public class OAuthAuthzUI extends UnityUIBase
 			log.error("Engine problem when handling client request", e);
 			//we kill the session as the user may want to log as different user if has access to several entities.
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
-					OAuth2Error.SERVER_ERROR, ctx.getRequest().getState());
+					OAuth2Error.SERVER_ERROR, ctx.getRequest().getResponseType(), 
+					ctx.getRequest().getState());
 			oauthResponseHandler.returnOauthResponse(oauthResponse, true);
 			return;
 		}
@@ -292,7 +293,8 @@ public class OAuthAuthzUI extends UnityUIBase
 			log.error("Engine problem when processing stored preferences", e);
 			//we kill the session as the user may want to log as different user if has access to several entities.
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
-					OAuth2Error.SERVER_ERROR, ctx.getRequest().getState());
+					OAuth2Error.SERVER_ERROR, ctx.getRequest().getResponseType(), 
+					ctx.getRequest().getState());
 			oauthResponseHandler.returnOauthResponse(oauthResponse, true);
 			return;
 		}
@@ -356,7 +358,8 @@ public class OAuthAuthzUI extends UnityUIBase
 		OAuthAuthzContext ctx = OAuthResponseHandler.getContext();
 		storePreferences(false);
 		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
-				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getState());
+				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getResponseType(), 
+				ctx.getRequest().getState());
 		oauthResponseHandler.returnOauthResponse(oauthResponse, false);
 	}
 	
@@ -378,7 +381,8 @@ public class OAuthAuthzUI extends UnityUIBase
 		{
 			log.error("Error during OAuth processing", e);
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
-					OAuth2Error.SERVER_ERROR, ctx.getRequest().getState());
+					OAuth2Error.SERVER_ERROR, ctx.getRequest().getResponseType(), 
+					ctx.getRequest().getState());
 			oauthResponseHandler.returnOauthResponse(oauthResponse, false);
 		}
 	}

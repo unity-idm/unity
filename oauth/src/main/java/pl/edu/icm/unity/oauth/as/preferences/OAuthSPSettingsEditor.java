@@ -108,7 +108,7 @@ public class OAuthSPSettingsEditor extends FormLayout
 		} else
 		{
 			clientLabel = new Label(initialSp);
-			clientLabel.setCaption(msg.getMessage("OAuthPreferences.Client"));
+			clientLabel.setCaption(msg.getMessage("OAuthPreferences.client"));
 			addComponent(clientLabel);
 		}
 		

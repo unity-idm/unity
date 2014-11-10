@@ -66,6 +66,8 @@ public class OAuthPreferences extends IdPPreferences
 	{
 		OAuthClientSettings ret = spSettings.get(sp);
 		if (ret == null)
+			ret = spSettings.get("");
+		if (ret == null)
 			ret = new OAuthClientSettings();
 		return ret;
 	}

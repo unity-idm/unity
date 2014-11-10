@@ -67,10 +67,20 @@ Finally an output translation profile can be configured. It is highly useful to 
 to names used by OAauth consumers. Standard OAuth/OIDC attribute names can be found in the OIDC specification: 
 http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
 
+Note that currently Unity requires you to configure all profiles and assign attributes to them manually.
+
 The options for both endpoints (besides the standard options for all Web endpoints) are:
 
 include::ref-oauthASProperties.txt[]
 
+==== OpenID Connect
+
+Unity supports OpenID Connect (OIDC) protocol nearly out of the box. The only requirement to enable OIDC 
+is to define a scope with a special name +openid+. Typically the +openid+ scope has no attributes assigned. 
+
+Clients requesting the +openid+ scope trigger OpenID Connect compatibility mode. In this mode the OIDC _id token_ 
+is generated and returned in the implicit grant from the authorization endpoint or in the
+code grant from the token endpoint.  
     
 ==== Usage
 
