@@ -52,4 +52,10 @@ public class UsernameIdentityEditor implements IdentityEditor
 		field.setComponentError(null);		
 		return username;
 	}
+
+	@Override
+	public void setDefaultValue(String value)
+	{
+		field.setValue(value);	
+	}
 }

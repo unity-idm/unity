@@ -123,12 +123,14 @@ public class RegistrationRequestEditor extends CustomComponent
 	private void checkRemotelyObtainedData() throws AuthenticationException
 	{
 		List<IdentityRegistrationParam> idParams = form.getIdentityParams();
-		remoteIdentitiesByType = new HashMap<>();
-		for (IdentityRegistrationParam idParam: idParams)
+		remoteIdentitiesByType = new HashMap<>();	
+		if (idParams != null)
 		{
-			if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic
-					|| idParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
-			{
+			for (IdentityRegistrationParam idParam: idParams)
+			{	
+				if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.interactive)
+					continue;
+				
 				Collection<IdentityTaV> identities = remotelyAuthenticated.getIdentities();
 				boolean found = false;
 				for (IdentityTaV id: identities)
@@ -138,40 +140,44 @@ public class RegistrationRequestEditor extends CustomComponent
 						found = true;
 						break;
 					}
-				if (!found && !idParam.isOptional())
+				if (!found && !idParam.isOptional() 
+						&& (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic
+						|| idParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden))
 					throw new AuthenticationException("This registration form may be used only by " +
 							"users which were remotely authenticated first and who have " +
 							idParam.getIdentityType() + 
 							" identity provided by the remote authentication source.");
+
 			}
-		}
 		
+		}
+			
 		List<AttributeRegistrationParam> aParams = form.getAttributeParams();
 		remoteAttributes = new HashMap<>();
 		if (aParams != null)
 		{
 			for (AttributeRegistrationParam aParam: aParams)
 			{
-				if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic
-						|| aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
-				{
-					Collection<Attribute<?>> attrs = remotelyAuthenticated.getAttributes();
-					boolean found = false;
-					for (Attribute<?> a: attrs)
-						if (a.getName().equals(aParam.getAttributeType()) && 
-								a.getGroupPath().equals(aParam.getGroup()))
-						{
-							found = true;
-							remoteAttributes.put(a.getGroupPath()+"//"+
-									a.getName(), a);
-							break;
-						}
-					if (!found && !aParam.isOptional())
-						throw new AuthenticationException("This registration form may be used only by " +
-								"users which were remotely authenticated first and who have " +
-								aParam.getAttributeType() + " in group " + aParam.getGroup() 
-								+ " provided by the remote authentication source.");
-				}
+				if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.interactive)
+					continue;
+				Collection<Attribute<?>> attrs = remotelyAuthenticated.getAttributes();
+				boolean found = false;
+				for (Attribute<?> a: attrs)
+					if (a.getName().equals(aParam.getAttributeType()) && 
+							a.getGroupPath().equals(aParam.getGroup()))
+					{
+						found = true;
+						remoteAttributes.put(a.getGroupPath()+"//"+
+								a.getName(), a);
+						break;
+					}
+				if (!found && !aParam.isOptional() 
+						&& (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic
+						|| aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden))
+					throw new AuthenticationException("This registration form may be used only by " +
+							"users which were remotely authenticated first and who have " +
+							aParam.getAttributeType() + " in group " + aParam.getGroup() 
+							+ " provided by the remote authentication source.");
 			}
 		}
 	}
@@ -191,7 +197,10 @@ public class RegistrationRequestEditor extends CustomComponent
 		{
 			IdentityRegistrationParam regParam = form.getIdentityParams().get(i);
 			String id;
-			if (regParam.getRetrievalSettings() == ParameterRetrievalSettings.interactive)
+			IdentityTaV rid = remoteIdentitiesByType.get(regParam.getIdentityType());
+			if (regParam.getRetrievalSettings() == ParameterRetrievalSettings.interactive
+					|| regParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive
+					|| (regParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticOrInteractive && rid == null))
 			{
 				IdentityEditor editor = identityParamEditors.get(j++);
 				try
@@ -205,8 +214,7 @@ public class RegistrationRequestEditor extends CustomComponent
 				ip = id == null ? null : new IdentityParam(regParam.getIdentityType(), id);
 			} else
 			{
-				id = remoteIdentitiesByType.get(regParam.getIdentityType()) == null ? null
-						: remoteIdentitiesByType.get(regParam.getIdentityType()).getValue();
+				id = rid == null ? null : rid.getValue();
 				ip = id == null ? null : new IdentityParam(regParam.getIdentityType(), id, 
 						remotelyAuthenticated.getRemoteIdPName(), 
 						remotelyAuthenticated.getInputTranslationProfile());
@@ -245,7 +253,10 @@ public class RegistrationRequestEditor extends CustomComponent
 				AttributeRegistrationParam aparam = form.getAttributeParams().get(i);
 				
 				Attribute<?> attr;
-				if (aparam.getRetrievalSettings() == ParameterRetrievalSettings.interactive)
+				Attribute<?> rattr = remoteAttributes.get(aparam.getGroup()+ "//" + aparam.getAttributeType());
+				if (aparam.getRetrievalSettings() == ParameterRetrievalSettings.interactive
+						|| aparam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive
+						|| (aparam.getRetrievalSettings() == ParameterRetrievalSettings.automaticOrInteractive && rattr == null))
 				{
 					FixedAttributeEditor ae = attributeEditor.get(interactiveIndex++);
 					try
@@ -258,8 +269,7 @@ public class RegistrationRequestEditor extends CustomComponent
 					}
 				} else
 				{
-					attr = remoteAttributes.get(
-							aparam.getGroup() + "//" + aparam.getAttributeType());
+					attr = rattr;
 					if (attr != null)
 					{
 						attr.setTranslationProfile(remotelyAuthenticated
@@ -284,7 +294,10 @@ public class RegistrationRequestEditor extends CustomComponent
 			for (int i=0; i<form.getGroupParams().size(); i++)
 			{
 				GroupRegistrationParam gp = form.getGroupParams().get(i);
-				if (gp.getRetrievalSettings() == ParameterRetrievalSettings.interactive)
+				if (gp.getRetrievalSettings() == ParameterRetrievalSettings.interactive
+						|| gp.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive
+						|| (gp.getRetrievalSettings() == ParameterRetrievalSettings.automaticOrInteractive && !remotelyAuthenticated
+								.getGroups().contains(gp.getGroupPath())))
 				{
 					g.add(new Selection(groupSelectors.get(interactiveIndex++).getValue()));
 				} else
@@ -393,8 +406,13 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<idParams.size(); i++)
 		{
 			IdentityRegistrationParam idParam = idParams.get(i);
-			if (idParam.getRetrievalSettings() != ParameterRetrievalSettings.interactive)
+			if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic)
 				continue;
+				
+			IdentityTaV rid = remoteIdentitiesByType.get(idParam.getIdentityType());
+			if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticOrInteractive && rid != null)
+				continue;
+				
 			if (!headerAdded)
 			{
 				Label identityL = new Label(msg.getMessage("RegistrationRequest.identities"));
@@ -402,10 +420,17 @@ public class RegistrationRequestEditor extends CustomComponent
 				layout.addComponent(identityL);
 				headerAdded = true;
 			}
+			
 			IdentityEditor editor = identityEditorRegistry.getEditor(idParam.getIdentityType());
 			identityParamEditors.add(editor);
 			ComponentsContainer editorUI = editor.getEditor(!idParam.isOptional());
 			layout.addComponents(editorUI.getComponents());
+			
+			if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive && rid != null)
+			{
+				 if (rid.getValue() != null)
+					 editor.setDefaultValue(rid.getValue());
+			}
 			if (idParam.getLabel() != null)
 				editorUI.setCaption(idParam.getLabel());
 			if (idParam.getDescription() != null)
@@ -456,8 +481,13 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<attributeParams.size(); i++)
 		{
 			AttributeRegistrationParam aParam = attributeParams.get(i);
-			if (aParam.getRetrievalSettings() != ParameterRetrievalSettings.interactive)
+			if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic)
 				continue;
+				
+			Attribute<?> rattr = remoteAttributes.get(aParam.getGroup() + "//" + aParam.getAttributeType());
+			if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticOrInteractive && rattr != null)
+				continue;
+			
 			if (!headerAdded)
 			{
 				Label identityL = new Label(msg.getMessage("RegistrationRequest.attributes"));
@@ -471,6 +501,10 @@ public class RegistrationRequestEditor extends CustomComponent
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
 					at, aParam.isShowGroups(), aParam.getGroup(), AttributeVisibility.full, 
 					aName, description, !aParam.isOptional(), layout);
+			if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive && rattr != null)
+			{	
+				editor.setAttributeValues(rattr.getValues());
+			}
 			attributeEditor.add(editor);
 		}
 		createExternalAttributesUI(layout);
@@ -485,8 +519,12 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<groupParams.size(); i++)
 		{
 			GroupRegistrationParam gParam = groupParams.get(i);
-			if (gParam.getRetrievalSettings() != ParameterRetrievalSettings.interactive)
+			if (gParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic)
 				continue;
+			boolean conGroup = remotelyAuthenticated.getGroups().contains(gParam.getGroupPath());
+			if (gParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticOrInteractive && conGroup)
+				continue;
+			
 			if (!headerAdded)
 			{
 				Label titleL = new Label(msg.getMessage("RegistrationRequest.groups"));
@@ -498,6 +536,11 @@ public class RegistrationRequestEditor extends CustomComponent
 			cb.setCaption(isEmpty(gParam.getLabel()) ? gParam.getGroupPath() : gParam.getLabel());
 			if (gParam.getDescription() != null)
 				cb.setDescription(HtmlEscapers.htmlEscaper().escape(gParam.getDescription()));
+			
+			if (gParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive && conGroup)
+			{
+				cb.setValue(conGroup);
+			}			
 			groupSelectors.add(cb);
 			layout.addComponent(cb);
 		}
@@ -545,7 +588,8 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<idParams.size(); i++)
 		{
 			IdentityRegistrationParam idParam = idParams.get(i);
-			if (idParam.getRetrievalSettings() != ParameterRetrievalSettings.automatic)
+			if (idParam.getRetrievalSettings() != ParameterRetrievalSettings.automatic &&
+					idParam.getRetrievalSettings() != ParameterRetrievalSettings.automaticOrInteractive)
 				continue;
 			IdentityTaV id = remoteIdentitiesByType.get(idParam.getIdentityType());
 			if (id == null)
@@ -575,7 +619,8 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<attributeParams.size(); i++)
 		{
 			AttributeRegistrationParam aParam = attributeParams.get(i);
-			if (aParam.getRetrievalSettings() != ParameterRetrievalSettings.automatic)
+			if (aParam.getRetrievalSettings() != ParameterRetrievalSettings.automatic &&
+					aParam.getRetrievalSettings() != ParameterRetrievalSettings.automaticOrInteractive)
 				continue;
 			Attribute<?> a = remoteAttributes.get(aParam.getGroup() + "//" + aParam.getAttributeType());
 			if (a == null)
@@ -606,7 +651,8 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<groupParams.size(); i++)
 		{
 			GroupRegistrationParam gParam = groupParams.get(i);
-			if (gParam.getRetrievalSettings() != ParameterRetrievalSettings.automatic)
+			if (gParam.getRetrievalSettings() != ParameterRetrievalSettings.automatic  &&
+					gParam.getRetrievalSettings() != ParameterRetrievalSettings.automaticOrInteractive)
 				continue;
 			if (remotelyAuthenticated.getGroups().contains(gParam.getGroupPath()))
 				groupsList.addEntry(gParam.getGroupPath());
