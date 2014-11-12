@@ -27,7 +27,6 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 
 import com.unboundid.ldap.sdk.Attribute;
-import com.unboundid.ldap.sdk.CompareResult;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.ExtendedResult;
@@ -52,8 +51,17 @@ import eu.unicore.security.canl.SSLContextCreator;
 /**
  * LDAP v3 client code. Immutable -> thread safe.
  * <p>
- * The code first binds with the provided username and password credentials. If this succeeds then 
- * (depending on configuration) user's attributes are retrieved and/or user's groups are assembled.
+ * Depending on configuration, it's possible to bind as normal user, or as a privileged (system) user
+ * who is allowed to search a whole (sub-)tree
+ * <p>
+ * When binding as user, the code first binds with the provided username and password credentials. 
+ * If this succeeds then (depending on configuration) user's attributes are retrieved and/or user's 
+ * groups are assembled.
+ * <p>
+ * When binding as system user, the code first binds with the provided system username and password credentials.
+ * The requested user is then searched. If found, the code checks the user password by attempting to
+ * bind as the user. If this succeeds, the code again binds as system user, and proceeds to retrieve user
+ * attributes as above. 
  * <p>
  * The attributes searching is pretty straightforward. The most of the code in this class is responsible for
  * flexible group retrieval. Both 'memberOf' style and 'member' means of expressing group membership are supported,
@@ -113,14 +121,15 @@ public class LdapClient
 						extendedResult.toString());
 			}
 		}
-		
-		String dn;
+
 		if (configuration.isBindAsUser())
-			dn = bindAsUser(connection, user, password, configuration);
+			bindAsUser(connection, user, password, configuration);
 		else
-			dn = bindAsSystemAndVerifyPassword(connection, user, password, configuration);
-		
-		if (configuration.isBindOnly())
+			bindAsSystem(connection, configuration);
+
+		String dn = configuration.getBindDN(user);
+
+		if (configuration.isBindOnly() && configuration.isBindAsUser())
 		{
 			RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);
 			ret.addIdentity(new RemoteIdentity(dn, X500Identity.ID));
@@ -142,7 +151,14 @@ public class LdapClient
 		SearchResultEntry entry = result.getSearchEntry(dn);
 		if (entry == null)
 			throw new LdapAuthenticationException("User is not matching the valid users filter");
-		
+
+		// check password now
+		if(!configuration.isBindAsUser()){
+			connection.bind(dn, password);
+			// and back to system
+			bindAsSystem(connection, configuration);
+		}
+
 		RemotelyAuthenticatedInput ret = assembleBaseResult(entry);
 		findGroupsMembership(connection, entry, configuration, ret.getGroups());
 		
@@ -152,10 +168,10 @@ public class LdapClient
 		return ret;
 		
 	}
-	
-	
-	private String bindAsUser(LDAPConnection connection, String user, String password, 
-			LdapClientConfiguration configuration) throws LdapAuthenticationException
+
+
+	private void bindAsUser(LDAPConnection connection, String user, String password, 
+			LdapClientConfiguration configuration) throws LdapAuthenticationException, LDAPException
 	{
 		String dn = configuration.getBindDN(user);
 		try
@@ -165,12 +181,12 @@ public class LdapClient
 		{
 			if (ResultCode.INVALID_CREDENTIALS.equals(e.getResultCode()))
 				throw new LdapAuthenticationException("Wrong username or credentials", e);
+			else throw e;
 		}
-		return dn;
 	}
 
-	private String bindAsSystemAndVerifyPassword(LDAPConnection connection, String user, String password, 
-			LdapClientConfiguration configuration) throws LdapAuthenticationException
+	private void bindAsSystem(LDAPConnection connection, LdapClientConfiguration configuration) 
+	throws LdapAuthenticationException, LDAPException
 	{
 		String systemDN = configuration.getSystemDN();
 		String systemPassword = configuration.getSystemPassword();
@@ -183,22 +199,11 @@ public class LdapClient
 				throw new LdapAuthenticationException("Wrong username or credentials of the "
 						+ "system LDAP client "
 						+ "(system, not the ones provided by the user)", e);
+			else
+				throw e;
 		}
-		
-		String usersDN = configuration.getBindDN(user);
-		String passwordAttribute = configuration.getUserPasswordAttribute();
-		try
-		{
-			CompareResult result = connection.compare(usersDN, passwordAttribute, password);
-			if (ResultCode.COMPARE_FALSE.equals(result.getResultCode()))
-				throw new LdapAuthenticationException("Wrong username or credentials");
-		} catch (LDAPException e)
-		{
-			throw new LdapAuthenticationException("Can't check username/credentials", e);
-		}
-		return usersDN;
 	}
-	
+
 	private RemotelyAuthenticatedInput assembleBaseResult(SearchResultEntry entry)
 	{
 		RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);
