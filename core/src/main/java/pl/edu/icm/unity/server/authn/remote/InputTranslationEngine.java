@@ -182,7 +182,7 @@ public class InputTranslationEngine
 		Set<String> currentGroups = new HashSet<String>(idsMan.getGroups(entity));
 		for (MappedGroup gm: result.getGroups())
 		{
-			if (!currentGroups.contains(gm))
+		        if (!currentGroups.contains(gm.getGroup()))
 			{
 				Deque<String> missingGroups = GroupUtils.getMissingGroups(gm.getGroup(), currentGroups);
 				log.info("Adding to group " + gm);

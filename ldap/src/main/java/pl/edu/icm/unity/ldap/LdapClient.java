@@ -152,11 +152,9 @@ public class LdapClient
 		if (entry == null)
 			throw new LdapAuthenticationException("User is not matching the valid users filter");
 
-		// check password now
 		if(!configuration.isBindAsUser()){
-			connection.bind(dn, password);
-			// and back to system
-			bindAsSystem(connection, configuration);
+			// check user's password now
+			verifyUserCredentials(connection, dn, password, configuration);
 		}
 
 		RemotelyAuthenticatedInput ret = assembleBaseResult(entry);
@@ -166,7 +164,6 @@ public class LdapClient
 		
 		connection.close();
 		return ret;
-		
 	}
 
 
@@ -204,6 +201,26 @@ public class LdapClient
 		}
 	}
 
+	/**
+	 * verify user credentials by performing a bind. If successful, the bind is reverted to the system user  
+	 */
+	private void verifyUserCredentials(LDAPConnection connection, String userDN, String password, LdapClientConfiguration configuration) 
+	throws LdapAuthenticationException, LDAPException
+	{
+		try
+		{
+			connection.bind(userDN, password);
+		} catch (LDAPException e)
+		{
+			if (ResultCode.INVALID_CREDENTIALS.equals(e.getResultCode()))
+				throw new LdapAuthenticationException("Wrong username or credentials!", e);
+			else
+				throw e;
+		}
+		// and back to system
+		bindAsSystem(connection, configuration);
+	}
+	
 	private RemotelyAuthenticatedInput assembleBaseResult(SearchResultEntry entry)
 	{
 		RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);
