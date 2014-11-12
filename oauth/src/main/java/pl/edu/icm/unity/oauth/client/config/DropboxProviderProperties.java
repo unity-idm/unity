@@ -6,6 +6,7 @@ package pl.edu.icm.unity.oauth.client.config;
 
 import java.util.Properties;
 
+import pl.edu.icm.unity.oauth.client.UserProfileFetcher.ClientAuthnMode;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import eu.unicore.util.configuration.ConfigurationException;
 

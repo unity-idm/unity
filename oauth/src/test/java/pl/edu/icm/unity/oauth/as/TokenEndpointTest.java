@@ -23,7 +23,6 @@ import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
@@ -87,8 +86,6 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 	
 	public static final String REALM_NAME = "testr";
 	
-	@Autowired
-	private TranslationActionsRegistry tactionReg;
 	@Autowired
 	private TokensManagement tokensMan;
 	@Autowired
