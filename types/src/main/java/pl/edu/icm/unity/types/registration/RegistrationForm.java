@@ -203,7 +203,40 @@ public class RegistrationForm extends DescribedObjectImpl
 	{
 		this.attributeClassAssignments = attributeClassAssignments;
 	}
+	
+	public boolean containsAutomaticAndMandatoryParams()
+	{
+		for (IdentityRegistrationParam id : identityParams)
+		{
+			if (checkAutoParam(id))
+				return true;
+		}
 
+		for (AttributeRegistrationParam at : attributeParams)
+		{
+			if (checkAutoParam(at))
+				return true;
+		}
+		
+		for (GroupRegistrationParam gr:groupParams)
+		{
+			if (gr.getRetrievalSettings() == ParameterRetrievalSettings.automatic
+					|| gr.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
+				return true;
+		}
+		return false;
+	}
+	
+	private boolean checkAutoParam(OptionalRegistrationParam param)
+	{
+		if (!param.isOptional()
+				&& (param.getRetrievalSettings() == ParameterRetrievalSettings.automatic || param
+						.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden))
+			return true;
+
+		return false;
+	}
+	
 	@Override
 	public int hashCode()
 	{

@@ -57,6 +57,7 @@ import pl.edu.icm.unity.webui.common.attributes.SelectableAttributeEditor;
 
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.data.validator.AbstractStringValidator;
+import com.vaadin.data.validator.AbstractValidator;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
@@ -185,9 +186,10 @@ public class RegistrationFormEditor extends VerticalLayout
 	public RegistrationForm getForm() throws FormValidationException
 	{
 		if (!autoAcceptCondition.isValid())
-		  return null;
-		RegistrationForm ret = new RegistrationForm();
-		
+			return null;
+		if (!publiclyAvailable.isValid())
+			return null;
+		RegistrationForm ret = new RegistrationForm();	
 		ret.setAgreements(agreements.getElements());
 		ret.setAttributeAssignments(attributeAssignments.getElements());
 		ret.setAttributeClassAssignments(attributeClassAssignments.getElements());
@@ -248,6 +250,37 @@ public class RegistrationFormEditor extends VerticalLayout
 		description = new DescriptionTextArea(msg.getMessage("RegistrationFormViewer.description"));
 		
 		publiclyAvailable = new CheckBox(msg.getMessage("RegistrationFormEditor.publiclyAvailable"));
+		publiclyAvailable.addValidator(new AbstractValidator<Boolean>(msg
+				.getMessage("RegistrationFormEditor.publiclyValidationFalse"))
+		{
+
+			@Override
+			protected boolean isValidValue(Boolean value)
+			{
+				RegistrationForm empty = new RegistrationForm();
+				try
+				{
+					empty.setGroupParams(groupParams.getElements());
+					empty.setAttributeParams(attributeParams.getElements());
+					empty.setIdentityParams(identityParams.getElements());
+				} catch (FormValidationException e)
+				{
+					return false;
+				}
+
+				if (value == true && empty.containsAutomaticAndMandatoryParams())
+					return false;
+				return true;
+			}
+
+			@Override
+			public Class<Boolean> getType()
+			{
+				return Boolean.class;
+			}
+		});
+		publiclyAvailable.setValidationVisible(true);
+		publiclyAvailable.setImmediate(true);
 		
 		channel = new ComboBox(msg.getMessage("RegistrationFormViewer.channel"));
 		Set<String> channels = notificationsMan.getNotificationChannels().keySet();
