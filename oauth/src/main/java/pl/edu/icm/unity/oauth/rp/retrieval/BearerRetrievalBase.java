@@ -73,7 +73,7 @@ public abstract class BearerRetrievalBase implements CredentialRetrieval, CXFAut
 			return credentialExchange.checkToken(authnToken);
 		} catch (Exception e)
 		{
-			log.trace("HTTP Bearer access token is invalid");
+			log.debug("HTTP Bearer access token is invalid or its processing failed", e);
 			return new AuthenticationResult(Status.deny, null);
 		}
 

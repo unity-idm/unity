@@ -19,6 +19,7 @@ import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpUtils;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.exceptions.EngineException;
 
 public abstract class TestRESTBase extends DBIntegrationTestBase
 {
@@ -58,7 +59,7 @@ public abstract class TestRESTBase extends DBIntegrationTestBase
 		return (DefaultHttpClient) HttpUtils.createClient("https://localhost:53456", clientCfg);
 	}
 	
-	protected void setupPasswordAuthn() throws Exception
+	protected void setupPasswordAuthn() throws EngineException
 	{
 		super.setupPasswordAuthn();
 		authnMan.createAuthenticator(AUTHENTICATOR_REST_PASS, "password with rest-httpbasic", 

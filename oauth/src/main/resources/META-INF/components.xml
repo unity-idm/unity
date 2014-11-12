@@ -25,9 +25,9 @@
 	
 	<bean class="pl.edu.icm.unity.oauth.as.preferences.OAuthPreferencesHandler"/>
 	
-	<bean class="pl.edu.icm.unity.oauth.as.rp.retrieval.RESTBearerTokenRetrievalFactory"/>
-	<bean class="pl.edu.icm.unity.oauth.as.rp.retrieval.SOAPBearerTokenRetrievalFactory"/>
-	<bean class="pl.edu.icm.unity.oauth.as.rp.verificator.BearerTokenVerificatorFactory"/>
+	<bean class="pl.edu.icm.unity.oauth.rp.retrieval.RESTBearerTokenRetrievalFactory"/>
+	<bean class="pl.edu.icm.unity.oauth.rp.retrieval.SOAPBearerTokenRetrievalFactory"/>
+	<bean class="pl.edu.icm.unity.oauth.rp.verificator.BearerTokenVerificatorFactory"/>
 	
 	
 	<bean scope="prototype" id="OAuthAuthzUI" class="pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzUI"/>

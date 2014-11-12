@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.rp.verificator;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +28,7 @@ public class BearerTokenVerificatorFactory implements CredentialVerificatorFacto
 	private InputTranslationEngine trEngine;
 	private PKIManagement pkiManagement;
 	
+	@Autowired
 	public BearerTokenVerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement, 
 			InputTranslationEngine trEngine, PKIManagement pkiManagement)
 	{

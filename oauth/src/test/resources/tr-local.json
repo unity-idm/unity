@@ -1,0 +1,36 @@
+{
+	"ver": "2",
+	"name": "tr-oauth",
+	"description": "Useful on loopback login (Unity->Unity)",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			}, 
+			"action": {
+				"name": "mapIdentity",
+				"parameters": [
+					"identifier",
+					"id",
+					"Password requirement",
+					"CREATE_OR_MATCH"
+				]
+			}			
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			}, 
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"sys:AuthorizationRole",
+					"/",
+					"'Regular User'",
+					"local",
+					"CREATE_OR_UPDATE"
+				]
+			}			
+		}
+	]
+}

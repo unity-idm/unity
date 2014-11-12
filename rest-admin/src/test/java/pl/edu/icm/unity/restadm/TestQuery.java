@@ -37,6 +37,7 @@ import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpUtils;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
@@ -175,7 +176,7 @@ public class TestQuery extends DBIntegrationTestBase
 	}
 	
 	@Override
-	protected void setupPasswordAuthn() throws Exception
+	protected void setupPasswordAuthn() throws EngineException
 	{
 		super.setupPasswordAuthn();
 		authnMan.createAuthenticator("ApassREST", "password with rest-httpbasic", 

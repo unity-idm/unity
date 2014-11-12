@@ -100,8 +100,11 @@ public class UnityTokenVerificator implements TokenVerificatorProtocol
 			}
 		}
 		
-		if (exp != null && exp.after(new Date()))
+		if (exp != null && new Date().after(exp))
+		{
+			log.trace("The token information states that the token expired at " + exp);
 			return new TokenStatus();
+		}
 		
 		return new TokenStatus(true, exp, scope, subject);
 	}
