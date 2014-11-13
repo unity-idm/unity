@@ -20,16 +20,16 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.util.EntityUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
@@ -172,17 +172,19 @@ public class TestECP extends AbstractTestIdpBase
 		DefaultClientConfiguration clientCfg = getClientCfg();
 		clientCfg.setSslAuthn(false);
 
-		DefaultHttpClient httpclient = (DefaultHttpClient) HttpUtils.createClient(authnWSUrl, clientCfg);
+		HttpClient httpclient = HttpUtils.createClient(authnWSUrl, clientCfg);
 		
 		HttpHost targetHost = new HttpHost("localhost", 52443, "https");
-		httpclient.getCredentialsProvider().setCredentials(
+		CredentialsProvider credsProvider = new BasicCredentialsProvider();
+		credsProvider.setCredentials(
 				new AuthScope(targetHost.getHostName(), targetHost.getPort()),
 				new UsernamePasswordCredentials("user1", "mockPassword1"));
 		AuthCache authCache = new BasicAuthCache();
 		BasicScheme basicAuth = new BasicScheme();
 		authCache.put(targetHost, basicAuth);
-		BasicHttpContext localcontext = new BasicHttpContext();
-		localcontext.setAttribute(ClientContext.AUTH_CACHE, authCache);
+		HttpClientContext context = HttpClientContext.create();
+		context.setCredentialsProvider(credsProvider);
+		context.setAuthCache(authCache);
 
 		HttpPost httpPost = new HttpPost(authnWSUrl);
 		
@@ -192,7 +194,7 @@ public class TestECP extends AbstractTestIdpBase
 		
 		httpPost.setEntity(new StringEntity(envDoc2.xmlText(), ContentType.APPLICATION_XML));
 		
-		HttpResponse response = httpclient.execute(targetHost, httpPost, localcontext);
+		HttpResponse response = httpclient.execute(targetHost, httpPost, context);
 		HttpEntity entity = response.getEntity();
 		if (entity != null) 
 		{

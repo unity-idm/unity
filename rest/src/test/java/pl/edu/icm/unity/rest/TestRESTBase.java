@@ -8,17 +8,18 @@ import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
-import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpUtils;
-import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 
 public abstract class TestRESTBase extends DBIntegrationTestBase
 {
@@ -27,25 +28,29 @@ public abstract class TestRESTBase extends DBIntegrationTestBase
 	
 	
 	
-	protected BasicHttpContext getClientContext(DefaultHttpClient client, HttpHost host)
+	protected HttpClientContext getClientContext(HttpClient client, HttpHost host)
 	{
 		return getClientContext(client, host, "user1","mockPassword1");
 	}
 		
-	protected BasicHttpContext getClientContext(DefaultHttpClient client, HttpHost host, String user, String pass)
+	protected HttpClientContext getClientContext(HttpClient client, HttpHost host, String user, String pass)
 	{
-		client.getCredentialsProvider().setCredentials(
+		CredentialsProvider credsProvider = new BasicCredentialsProvider();
+		credsProvider.setCredentials(
 				new AuthScope(host.getHostName(), host.getPort()),
 				new UsernamePasswordCredentials(user, pass));
+
 		AuthCache authCache = new BasicAuthCache();
 		BasicScheme basicAuth = new BasicScheme();
 		authCache.put(host, basicAuth);
-		BasicHttpContext localcontext = new BasicHttpContext();
-		localcontext.setAttribute(ClientContext.AUTH_CACHE, authCache);
-		return localcontext;
+
+		HttpClientContext context = HttpClientContext.create();
+		context.setCredentialsProvider(credsProvider);
+		context.setAuthCache(authCache);
+		return context;
 	}
 	
-	protected DefaultHttpClient getClient() throws Exception
+	protected HttpClient getClient() throws Exception
 	{
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
 		clientCfg.setCredential(new KeystoreCredential("src/test/resources/demoKeystore.p12", 
@@ -55,9 +60,10 @@ public abstract class TestRESTBase extends DBIntegrationTestBase
 		clientCfg.setSslEnabled(true);
 		clientCfg.setSslAuthn(false);
 		clientCfg.setHttpAuthn(true);
-		return (DefaultHttpClient) HttpUtils.createClient("https://localhost:53456", clientCfg);
+		return HttpUtils.createClient("https://localhost:53456", clientCfg);
 	}
 	
+	@Override
 	protected void setupPasswordAuthn() throws Exception
 	{
 		super.setupPasswordAuthn();
