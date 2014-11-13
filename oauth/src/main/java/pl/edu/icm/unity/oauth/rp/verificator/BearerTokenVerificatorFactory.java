@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
@@ -27,14 +28,16 @@ public class BearerTokenVerificatorFactory implements CredentialVerificatorFacto
 	private TranslationProfileManagement profileManagement;
 	private InputTranslationEngine trEngine;
 	private PKIManagement pkiManagement;
+	private TokensManagement tokensMan;
 	
 	@Autowired
 	public BearerTokenVerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement, 
-			InputTranslationEngine trEngine, PKIManagement pkiManagement)
+			InputTranslationEngine trEngine, PKIManagement pkiManagement, TokensManagement tokensMan)
 	{
 		this.profileManagement = profileManagement;
 		this.trEngine = trEngine;
 		this.pkiManagement = pkiManagement;
+		this.tokensMan = tokensMan;
 	}
 
 	@Override
@@ -53,6 +56,6 @@ public class BearerTokenVerificatorFactory implements CredentialVerificatorFacto
 	public CredentialVerificator newInstance()
 	{
 		return new BearerTokenVerificator(getName(), getDescription(), profileManagement, pkiManagement,
-				trEngine);
+				trEngine, tokensMan);
 	}
 }

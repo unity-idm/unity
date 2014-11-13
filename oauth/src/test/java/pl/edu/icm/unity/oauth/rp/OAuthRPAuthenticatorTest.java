@@ -84,6 +84,19 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			+ "unity.oauth2-rp.httpClientHostnameChecking=NONE\n"
 			+ "unity.oauth2-rp.translationProfile=tr-oauth\n";
 
+	private static final String OAUTH_RP_CFG_INTERNAL = 
+			"unity.oauth2-rp.profileEndpoint=https://localhost:52443/oauth/userinfo\n"
+			+ "unity.oauth2-rp.cacheTime=20\n"
+			+ "unity.oauth2-rp.verificationProtocol=internal\n"
+			+ "#unity.oauth2-rp.verificationEndpoint=https://localhost:52443/oauth/tokeninfo\n"
+			+ "unity.oauth2-rp.clientId=\n"
+			+ "unity.oauth2-rp.clientSecret=\n"
+			+ "#unity.oauth2-rp.clientAuthenticationMode=\n"
+			+ "unity.oauth2-rp.opeinidConnectMode=true\n"
+			+ "unity.oauth2-rp.httpClientTruststore=MAIN\n"
+			+ "unity.oauth2-rp.httpClientHostnameChecking=NONE\n"
+			+ "unity.oauth2-rp.translationProfile=tr-oauth\n";
+	
 	private static final String JWT_ENDP_CFG = 
 			"unity.jwtauthn.credential=MAIN\n";
 
@@ -107,6 +120,8 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			
 			authnMan.createAuthenticator("a-rp", "oauth-rp with rest-oauth-bearer", OAUTH_RP_CFG, 
 					"", null);
+			authnMan.createAuthenticator("a-rp-int", "oauth-rp with rest-oauth-bearer", 
+					OAUTH_RP_CFG_INTERNAL, "", null);
 			authnMan.createAuthenticator("Apass", "password with rest-httpbasic", null, "", "credential1");
 			
 			idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "userA"), 
@@ -128,9 +143,14 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			authnCfg2.add(new AuthenticatorSet(Collections.singleton("a-rp")));
 			endpointMan.deploy(JWTManagementEndpointFactory.NAME, "endpointJWT", "/jwt", "desc", 
 					authnCfg2, JWT_ENDP_CFG, REALM_NAME);
+
+			List<AuthenticatorSet> authnCfg3 = new ArrayList<AuthenticatorSet>();
+			authnCfg3.add(new AuthenticatorSet(Collections.singleton("a-rp-int")));
+			endpointMan.deploy(JWTManagementEndpointFactory.NAME, "endpointJWT-int", "/jwt-int", "desc", 
+					authnCfg3, JWT_ENDP_CFG, REALM_NAME);
 			
 			List<EndpointDescription> endpoints = endpointMan.getEndpoints();
-			assertEquals(2, endpoints.size());
+			assertEquals(3, endpoints.size());
 
 			httpServer.start();
 		} catch (Exception e)
@@ -140,13 +160,12 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	}
 	
 
-	@Test
-	public void OauthRPAuthnWorksWithUnity() throws Exception
+	private void performAuthentication(String endpoint) throws Exception
 	{
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(tokensMan);
 		AccessToken ac = resp1.getAccessToken();
 		
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL("https://localhost:52443/jwt/token"));
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(endpoint));
 		httpReqRaw.setAuthorization(ac.toAuthorizationHeader());
 		HTTPRequest httpReq = new CustomHTTPSRequest(httpReqRaw, new BinaryCertChainValidator(true), 
 				ServerHostnameCheckingMode.NONE);
@@ -154,4 +173,15 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		Assert.assertEquals(200, response.getStatusCode());
 	}
 	
+	@Test
+	public void OauthRPAuthnWorksWithUnity() throws Exception
+	{
+		performAuthentication("https://localhost:52443/jwt/token");
+	}
+	
+	@Test
+	public void OauthRPAuthnWorksWithInternal() throws Exception
+	{
+		performAuthentication("https://localhost:52443/jwt-int/token");
+	}
 }

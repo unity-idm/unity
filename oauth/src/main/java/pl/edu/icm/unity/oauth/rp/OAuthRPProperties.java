@@ -12,10 +12,12 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher.ClientAuthnMode;
+import pl.edu.icm.unity.oauth.rp.verificator.InternalTokenVerificator;
 import pl.edu.icm.unity.oauth.rp.verificator.MitreTokenVerificator;
 import pl.edu.icm.unity.oauth.rp.verificator.TokenVerificatorProtocol;
 import pl.edu.icm.unity.oauth.rp.verificator.UnityTokenVerificator;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.configuration.ConfigurationException;
@@ -33,7 +35,7 @@ public class OAuthRPProperties extends PropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthRPProperties.class);
 	
-	public enum VerificationProtocol {mitre, unity};
+	public enum VerificationProtocol {mitre, unity, internal};
 	
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.oauth2-rp.";
@@ -65,7 +67,7 @@ public class OAuthRPProperties extends PropertiesHelper
 		META.put(VERIFICATION_PROTOCOL, new PropertyMD(VerificationProtocol.unity).
 				setDescription("OAuth token verification is not standardised. "
 						+ "Unity supports several protocols, you can set the proper one here."));
-		META.put(VERIFICATION_ENDPOINT, new PropertyMD().setMandatory().
+		META.put(VERIFICATION_ENDPOINT, new PropertyMD().
 				setDescription("OAuth token verification endpoint address."));
 		META.put(CLIENT_ID, new PropertyMD().
 				setDescription("Client identifier, used to authenticate when performing validation. "
@@ -96,10 +98,13 @@ public class OAuthRPProperties extends PropertiesHelper
 	}
 	
 	private X509CertChainValidator validator = null;
+	private TokensManagement tokensMan;
 	
-	public OAuthRPProperties(Properties properties, PKIManagement pkiManagement) throws ConfigurationException
+	public OAuthRPProperties(Properties properties, PKIManagement pkiManagement,
+			TokensManagement tokensMan) throws ConfigurationException
 	{
 		super(PREFIX, properties, META, log);
+		this.tokensMan = tokensMan;
 		String validatorName = getValue(CLIENT_TRUSTSTORE);
 		if (validatorName != null)
 		{
@@ -116,7 +121,11 @@ public class OAuthRPProperties extends PropertiesHelper
 						validatorName + " for the OAuth verification client", e);
 			}
 		}
-
+		VerificationProtocol proto = getEnumValue(VERIFICATION_PROTOCOL, VerificationProtocol.class);
+		if (proto != VerificationProtocol.internal && !isSet(VERIFICATION_ENDPOINT))
+			throw new ConfigurationException("The " + getKeyDescription(VERIFICATION_ENDPOINT) +
+					" property is mandatory unless the '" + VerificationProtocol.internal +
+					"' verification protocol is used");
 	}
 	
 	public Properties getProperties()
@@ -138,6 +147,8 @@ public class OAuthRPProperties extends PropertiesHelper
 			return new MitreTokenVerificator(this);
 		case unity:
 			return new UnityTokenVerificator(this);
+		case internal:
+			return new InternalTokenVerificator(tokensMan);
 		}
 		throw new IllegalStateException("Bug: unhandled protocol");
 	}

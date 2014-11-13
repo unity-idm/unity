@@ -21,6 +21,7 @@ import pl.edu.icm.unity.oauth.rp.AccessTokenExchange;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
@@ -50,15 +51,18 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	private OAuthRPProperties verificatorProperties;
 	private TokenVerificatorProtocol tokenChecker;
 	private PKIManagement pkiMan;
+	private TokensManagement tokensMan;
 	private String translationProfile;
+	
 	
 	public BearerTokenVerificator(String name, String description,
 			TranslationProfileManagement profileManagement,
-			PKIManagement pkiMan,
-			InputTranslationEngine trEngine)
+			PKIManagement pkiMan, InputTranslationEngine trEngine,
+			TokensManagement tokensMan)
 	{
 		super(name, description, AccessTokenExchange.ID, profileManagement, trEngine);
 		this.pkiMan = pkiMan;
+		this.tokensMan = tokensMan;
 	}
 
 	@Override
@@ -82,7 +86,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 		{
 			Properties properties = new Properties();
 			properties.load(new StringReader(source));
-			verificatorProperties = new OAuthRPProperties(properties, pkiMan);
+			verificatorProperties = new OAuthRPProperties(properties, pkiMan, tokensMan);
 			tokenChecker = verificatorProperties.getTokenChecker();
 			translationProfile = verificatorProperties.getValue(OAuthRPProperties.TRANSLATION_PROFILE);
 		} catch(ConfigurationException e)
