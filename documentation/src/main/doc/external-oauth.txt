@@ -67,6 +67,9 @@ include::ref-oauthProviderProperties.txt[]
 
 === Simple OAuth2 (Unity as OAuth Resource Provider)
 
+Credential verificator name:: +oauth-rp+
+Compatible credentials:: +OAuth2 access token+
+
 The standard OAuth authentication is the best choice whenever it is possible to use it. Unfortunately 
 there are cases when it is not suitable, e.g. if the authentication of a non web browser 
 based user/client shall be performed.
