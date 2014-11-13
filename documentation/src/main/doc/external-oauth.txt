@@ -1,4 +1,4 @@
-=== OAuth2
+=== Standard OAuth2 (Unity as OAuth Client)
 
 Credential verificator name:: +oauth2+
 Compatible credentials:: +OAuth2 tokens+
@@ -63,3 +63,78 @@ the whole authenticator, then a separate table shows the options which can be se
 include::ref-oauthClientProperties.txt[]
 
 include::ref-oauthProviderProperties.txt[]
+
+
+=== Simple OAuth2 (Unity as OAuth Resource Provider)
+
+The standard OAuth authentication is the best choice whenever it is possible to use it. Unfortunately 
+there are cases when it is not suitable, e.g. if the authentication of a non web browser 
+based user/client shall be performed.
+
+Unity can authenticate its clients by consuming an OAuth2 access token, more precisely the bearer access token
+as defined by the http://tools.ietf.org/html/rfc6750. The access token can be issued by a remote OAuth Authorization
+Server or by the local Unity instance. 
+
+As a remote access token validation is not defined in OAuth protocol and there is no well established standard 
+currently, the verification method depends on the OAuth AS implementation. If you want to use another 
+OAuth AS which is unsupported let us know.
+
+The validation work as follows:
+
+. The access token is validated using a remote service. Usually this means: one HTTP GET to a token validation
+endpoint of a remote AS.
+. If the token is valid then another query to a profile endpoint at the OAuth AS is performed,
+to obtain information about the user initiated token generation. 
+
+Of course Unity supports caching the verification results.
+
+[IMPORTANT]
+The current implementation authenticates the client in somewhat simplistic way: as the
+user who issued the access token. This approach called 'impersonation' is not the best one as we loose
+the ability to distinguish the identity of the actual Unity client who is providing the access token.
+Therefore the current implementation of the OAuth RP authenticator will be modified in future to fully 
+support a 'delegation' approach, instead of impersonation.
+ 
+
+The typical authenticator's configuration looks as follows:
+
+----
+unityServer.core.authenticators.x.authenticatorName=oauthRP-Rest
+unityServer.core.authenticators.x.authenticatorType=oauth-rp with rest-oauth-bearer
+unityServer.core.authenticators.x.verificatorConfigurationFile=conf/authenticators/remoteOAuth-RP.properties
+----
+
+An example configuration of the OAuth2 RP verificator 
+in file +conf/authenticators/remoteOAuth-RP.properties+ follows:
+
+----
+unity.oauth2-rp.verificationProtocol=mitre
+unity.oauth2-rp.profileEndpoint=https://mitreid.org/userinfo
+unity.oauth2-rp.verificationEndpoint=https://mitreid.org/introspect
+unity.oauth2-rp.cacheTime=20
+unity.oauth2-rp.clientId=unity
+unity.oauth2-rp.clientSecret=unity-pass
+unity.oauth2-rp.translationProfile=tr-oauth
+----
+
+In this example the demo MITRE service is configured. The first three lines are the most important: 
+the verification protocol is chosen and the validation and user profile endpoints are defined. 
+The +clientId+ and +clientSecret+ are obtained 
+at registration time (note that in this case there is bit of ambiguity in naming: the client mentioned her 
+in OAuth terminology is not is 'OAuth Resource Provider' not the 'OAuth client'). Finally a translation profile
+is set to process the user's information and to map it to a local representation. 
+
+The following table lists all currently implemented validation protocols:
+
+[cols="m,n", options="header"]
+|====
+|Validation protocol| Description 
+|internal			| Validates a token using the internal Unity's database of tokens issued by its own OAuth AS endpoint. This method doesn't require any endpoints to be defined. 
+|unity				| Validates a token using an external Unity OAuth AS endpoint. 
+|mitre				| Validates a token using an external MITRE OAuth Authorization Server.
+|==== 
+
+
+A full reference of configuration parameters: 
+
+include::ref-oauthRPProperties.txt[]

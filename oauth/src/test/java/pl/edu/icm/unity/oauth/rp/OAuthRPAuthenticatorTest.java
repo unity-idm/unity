@@ -88,7 +88,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			+ "unity.oauth2-rp.translationProfile=tr-oauth\n";
 
 	private static final String OAUTH_RP_CFG_INTERNAL = 
-			"unity.oauth2-rp.profileEndpoint=https://localhost:52443/oauth/userinfo\n"
+			"#unity.oauth2-rp.profileEndpoint=https://localhost:52443/oauth/userinfo\n"
 			+ "unity.oauth2-rp.cacheTime=2\n"
 			+ "unity.oauth2-rp.verificationProtocol=internal\n"
 			+ "#unity.oauth2-rp.verificationEndpoint=https://localhost:52443/oauth/tokeninfo\n"

@@ -193,6 +193,11 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 				ServerHostnameCheckingMode.class);
 		X509CertChainValidator validator = verificatorProperties.getValidator();
 		Map<String, String> attrs = new HashMap<>();
+		if (profileEndpoint == null)
+		{
+			log.debug("The profile endpoint is not defined, skipping the profile fetching");
+			return attrs;
+		}
 		if (openIdMode)
 		{
 			try
