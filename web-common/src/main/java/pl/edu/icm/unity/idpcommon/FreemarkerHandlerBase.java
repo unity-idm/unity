@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Map;
 
+import freemarker.ext.beans.BeansWrapperBuilder;
 import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
@@ -24,9 +24,10 @@ public class FreemarkerHandlerBase
 	
 	public FreemarkerHandlerBase(Class<?> clazzForTemplates, String pathPrefix)
 	{
-		cfg = new Configuration();
+		cfg = new Configuration(Configuration.VERSION_2_3_21);
 		cfg.setClassForTemplateLoading(clazzForTemplates, pathPrefix);
-		cfg.setObjectWrapper(new DefaultObjectWrapper());
+		BeansWrapperBuilder builder = new BeansWrapperBuilder(Configuration.VERSION_2_3_21);
+		cfg.setObjectWrapper(builder.build());
 	}
 	
 	public void process(String view, Map<String, String> datamodel, Writer out) 
