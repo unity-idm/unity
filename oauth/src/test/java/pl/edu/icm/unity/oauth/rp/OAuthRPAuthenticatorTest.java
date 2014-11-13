@@ -92,6 +92,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			+ "unity.oauth2-rp.clientId=\n"
 			+ "unity.oauth2-rp.clientSecret=\n"
 			+ "#unity.oauth2-rp.clientAuthenticationMode=\n"
+			+ "unity.oauth2-rp.requiredScopes.1=sc1\n"
 			+ "unity.oauth2-rp.opeinidConnectMode=true\n"
 			+ "unity.oauth2-rp.httpClientTruststore=MAIN\n"
 			+ "unity.oauth2-rp.httpClientHostnameChecking=NONE\n"

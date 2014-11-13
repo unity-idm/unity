@@ -9,6 +9,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -119,6 +120,8 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 		TokenStatus status = tokenChecker.checkToken(token);
 		if (status.isValid())
 		{
+			if (!checkScopes(status))
+				return new AuthenticationResult(Status.deny, null, null);
 			Map<String, String> attrs = getUserProfileInformation(token);
 			RemotelyAuthenticatedInput input = assembleBaseResult(status, attrs, getName());
 			return getResult(input, translationProfile);
@@ -128,6 +131,22 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 		}
 	}
 	
+	private boolean checkScopes(TokenStatus status)
+	{
+		List<String> required = verificatorProperties.getListOfValues(OAuthRPProperties.REQUIRED_SCOPES);
+		if (!required.isEmpty() && status.getScope() == null)
+		{
+			log.debug("The token validation didn't provide any scope, but there are required scopes");
+			return false;
+		}
+		required.removeAll(status.getScope().toStringList());
+		if (!required.isEmpty())
+		{
+			log.debug("The following required scopes are not present: " + required);
+			return false;
+		}
+		return true;
+	}
 	
 	private Map<String, String> getUserProfileInformation(BearerAccessToken accessToken) throws AuthenticationException
 	{

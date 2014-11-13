@@ -53,6 +53,7 @@ public class OAuthRPProperties extends PropertiesHelper
 	public static final String CLIENT_TRUSTSTORE = "httpClientTruststore";
 	public static final String CLIENT_HOSTNAME_CHECKING = "httpClientHostnameChecking";
 	public static final String TRANSLATION_PROFILE = "translationProfile";
+	public static final String REQUIRED_SCOPES = "requiredScopes.";
 	
 	static
 	{
@@ -79,6 +80,9 @@ public class OAuthRPProperties extends PropertiesHelper
 						+ "authorize the call."));
 		META.put(CLIENT_AUTHN_MODE, new PropertyMD(ClientAuthnMode.secretBasic).
 				setDescription("Defines how the client access token should be passed to the AS."));
+		META.put(REQUIRED_SCOPES, new PropertyMD().setList(false).
+				setDescription("Optional list of scopes which must be associated with the validated"
+						+ " access token to make the authentication successful"));
 		META.put(OPENID_MODE, new PropertyMD("false").
 				setDescription("If true then the profile is fetched from the profile endpoint"
 						+ " with assumption that the server is working in the OpenID Connect "
