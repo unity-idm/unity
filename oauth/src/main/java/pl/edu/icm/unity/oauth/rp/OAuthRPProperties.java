@@ -33,7 +33,7 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
  */
 public class OAuthRPProperties extends PropertiesHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthRPProperties.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, OAuthRPProperties.class);
 	
 	public enum VerificationProtocol {mitre, unity, internal};
 	
@@ -59,11 +59,12 @@ public class OAuthRPProperties extends PropertiesHelper
 	
 	static
 	{
-		META.put(CACHE_TIME, new PropertyMD().
+		META.put(CACHE_TIME, new PropertyMD().setInt().setNonNegative().
 				setDescription("Per-token validation result cache time in seconds. "
 						+ "If unset then the cache time will be equal "
 						+ "to the discovered token lifetime or to " + DEFAULT_CACHE_TTL
-						+ "s if it is impossible to establish the lifetime"));
+						+ "s if it is impossible to establish the lifetime. "
+						+ "Set to zero to disable caching."));
 		META.put(PROFILE_ENDPOINT, new PropertyMD().
 				setDescription("Location (URL) of OAuth2 provider's user's profile endpoint. "
 						+ "It is used to obtain token issuer's attributes."));
