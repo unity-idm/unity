@@ -14,6 +14,7 @@ import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
+import pl.edu.icm.unity.server.utils.CacheProvider;
 
 /**
  * Factory of {@link BearerTokenVerificator}.
@@ -29,15 +30,18 @@ public class BearerTokenVerificatorFactory implements CredentialVerificatorFacto
 	private InputTranslationEngine trEngine;
 	private PKIManagement pkiManagement;
 	private TokensManagement tokensMan;
+	private CacheProvider cacheProvider;
 	
 	@Autowired
 	public BearerTokenVerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement, 
-			InputTranslationEngine trEngine, PKIManagement pkiManagement, TokensManagement tokensMan)
+			InputTranslationEngine trEngine, PKIManagement pkiManagement, TokensManagement tokensMan,
+			CacheProvider cacheProvider)
 	{
 		this.profileManagement = profileManagement;
 		this.trEngine = trEngine;
 		this.pkiManagement = pkiManagement;
 		this.tokensMan = tokensMan;
+		this.cacheProvider = cacheProvider;
 	}
 
 	@Override
@@ -56,6 +60,6 @@ public class BearerTokenVerificatorFactory implements CredentialVerificatorFacto
 	public CredentialVerificator newInstance()
 	{
 		return new BearerTokenVerificator(getName(), getDescription(), profileManagement, pkiManagement,
-				trEngine, tokensMan);
+				trEngine, tokensMan, cacheProvider);
 	}
 }

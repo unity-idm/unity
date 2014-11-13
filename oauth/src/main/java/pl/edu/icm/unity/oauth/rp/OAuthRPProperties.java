@@ -37,6 +37,8 @@ public class OAuthRPProperties extends PropertiesHelper
 	
 	public enum VerificationProtocol {mitre, unity, internal};
 	
+	public static final int DEFAULT_CACHE_TTL = 60;
+	
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.oauth2-rp.";
 	@DocumentationReferenceMeta
@@ -60,8 +62,8 @@ public class OAuthRPProperties extends PropertiesHelper
 		META.put(CACHE_TIME, new PropertyMD().
 				setDescription("Per-token validation result cache time in seconds. "
 						+ "If unset then the cache time will be equal "
-						+ "to the discovered token lifetime or to 60s if it is impossible to "
-						+ "establish the lifetime"));
+						+ "to the discovered token lifetime or to " + DEFAULT_CACHE_TTL
+						+ "s if it is impossible to establish the lifetime"));
 		META.put(PROFILE_ENDPOINT, new PropertyMD().
 				setDescription("Location (URL) of OAuth2 provider's user's profile endpoint. "
 						+ "It is used to obtain token issuer's attributes."));

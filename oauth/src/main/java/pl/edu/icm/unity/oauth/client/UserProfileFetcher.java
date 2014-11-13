@@ -147,8 +147,6 @@ public class UserProfileFetcher
 		{
 			if (claim.getValue() != null)
 				attributes.put(claim.getKey(), claim.getValue().toString());
-			else
-				attributes.put(claim.getKey(), "");
 		}
 	}
 }

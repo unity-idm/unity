@@ -20,6 +20,7 @@ import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.rp.AccessTokenExchange;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
+import pl.edu.icm.unity.oauth.rp.verificator.ResultsCache.CacheEntry;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
@@ -31,6 +32,7 @@ import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.utils.CacheProvider;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 
@@ -54,16 +56,19 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	private PKIManagement pkiMan;
 	private TokensManagement tokensMan;
 	private String translationProfile;
+	private CacheProvider cacheProvider;
+	private ResultsCache cache;
 	
 	
 	public BearerTokenVerificator(String name, String description,
 			TranslationProfileManagement profileManagement,
 			PKIManagement pkiMan, InputTranslationEngine trEngine,
-			TokensManagement tokensMan)
+			TokensManagement tokensMan, CacheProvider cacheProvider)
 	{
 		super(name, description, AccessTokenExchange.ID, profileManagement, trEngine);
 		this.pkiMan = pkiMan;
 		this.tokensMan = tokensMan;
+		this.cacheProvider = cacheProvider;
 	}
 
 	@Override
@@ -90,6 +95,10 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 			verificatorProperties = new OAuthRPProperties(properties, pkiMan, tokensMan);
 			tokenChecker = verificatorProperties.getTokenChecker();
 			translationProfile = verificatorProperties.getValue(OAuthRPProperties.TRANSLATION_PROFILE);
+			int ttl = -1;
+			if (verificatorProperties.isSet(OAuthRPProperties.CACHE_TIME))
+				ttl = verificatorProperties.getIntValue(OAuthRPProperties.CACHE_TIME);
+			cache = new ResultsCache(cacheProvider.getManager(), ttl);
 		} catch(ConfigurationException e)
 		{
 			throw new InternalException("Invalid configuration of the OAuth RP verificator", e);
@@ -117,19 +126,46 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	
 	public AuthenticationResult checkTokenInterruptible(BearerAccessToken token) throws Exception
 	{
+		CacheEntry cached = cache.getCached(token.getValue());
+		if (cached != null)
+		{
+			TokenStatus status = cached.getTokenStatus();
+			if (cached.getTokenStatus().isValid())
+			{
+				if (!checkScopes(status))
+				{
+					return new AuthenticationResult(Status.deny, null, null);
+				}
+				RemotelyAuthenticatedInput input = assembleBaseResult(status, 
+						cached.getAttributes(), getName());
+				return getResult(input, translationProfile);				
+			} else
+			{
+				return new AuthenticationResult(Status.deny, null, null);
+			}
+		}
+		
 		TokenStatus status = tokenChecker.checkToken(token);
 		if (status.isValid())
 		{
 			if (!checkScopes(status))
+			{
+				cache.cache(token.getValue(), status, null);
 				return new AuthenticationResult(Status.deny, null, null);
-			Map<String, String> attrs = getUserProfileInformation(token);
+			}
+			
+			Map<String, String> attrs;
+			attrs = getUserProfileInformation(token);
+			cache.cache(token.getValue(), status, attrs);
 			RemotelyAuthenticatedInput input = assembleBaseResult(status, attrs, getName());
 			return getResult(input, translationProfile);
 		} else
 		{
+			cache.cache(token.getValue(), status, null);
 			return new AuthenticationResult(Status.deny, null, null);
 		}
 	}
+
 	
 	private boolean checkScopes(TokenStatus status)
 	{

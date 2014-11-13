@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpointFactory;
 import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
@@ -86,7 +87,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 
 	private static final String OAUTH_RP_CFG_INTERNAL = 
 			"unity.oauth2-rp.profileEndpoint=https://localhost:52443/oauth/userinfo\n"
-			+ "unity.oauth2-rp.cacheTime=20\n"
+			+ "unity.oauth2-rp.cacheTime=2\n"
 			+ "unity.oauth2-rp.verificationProtocol=internal\n"
 			+ "#unity.oauth2-rp.verificationEndpoint=https://localhost:52443/oauth/tokeninfo\n"
 			+ "unity.oauth2-rp.clientId=\n"
@@ -184,5 +185,39 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	public void OauthRPAuthnWorksWithInternal() throws Exception
 	{
 		performAuthentication("https://localhost:52443/jwt-int/token");
+	}
+
+	/**
+	 * Authentication is performed normally. Then the token is removed and the authN is repeated 
+	 * - cached results should be used. Tests wait for cache expiration and repeats authN once more - should fail.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void OauthRPAuthnWithCache() throws Exception
+	{
+		//normal
+		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(tokensMan);
+		AccessToken ac = resp1.getAccessToken();
+		
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL("https://localhost:52443/jwt-int/token"));
+		httpReqRaw.setAuthorization(ac.toAuthorizationHeader());
+		HTTPRequest httpReq = new CustomHTTPSRequest(httpReqRaw, new BinaryCertChainValidator(true), 
+				ServerHostnameCheckingMode.NONE);
+		HTTPResponse response = httpReq.send();
+		Assert.assertEquals(200, response.getStatusCode());
+		
+		//remove
+		tokensMan.removeToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN, ac.getValue());
+		
+		//test cached
+		HTTPResponse response2 = httpReq.send();
+		Assert.assertEquals(200, response2.getStatusCode());
+
+		//wait and re-test
+		Thread.sleep(2001);
+		
+		HTTPResponse response3 = httpReq.send();
+		Assert.assertNotEquals(200, response3.getStatusCode());
 	}
 }
