@@ -15,6 +15,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -41,6 +42,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
@@ -98,6 +100,20 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			+ "unity.oauth2-rp.httpClientTruststore=MAIN\n"
 			+ "unity.oauth2-rp.httpClientHostnameChecking=NONE\n"
 			+ "unity.oauth2-rp.translationProfile=tr-oauth\n";
+
+	private static final String OAUTH_RP_CFG_MITRE = 
+			"unity.oauth2-rp.profileEndpoint=https://mitreid.org/userinfo\n"
+			+ "unity.oauth2-rp.cacheTime=20\n"
+			+ "unity.oauth2-rp.verificationProtocol=mitre\n"
+			+ "unity.oauth2-rp.verificationEndpoint=https://mitreid.org/introspect\n"
+			+ "unity.oauth2-rp.clientId=unity\n"
+			+ "unity.oauth2-rp.clientSecret=unity-pass\n"
+			+ "#unity.oauth2-rp.clientAuthenticationMode=\n"
+			+ "unity.oauth2-rp.opeinidConnectMode=false\n"
+			+ "#unity.oauth2-rp.httpClientTruststore=MAIN\n"
+			+ "unity.oauth2-rp.httpClientHostnameChecking=NONE\n"
+			+ "unity.oauth2-rp.translationProfile=tr-oauth\n";
+
 	
 	private static final String JWT_ENDP_CFG = 
 			"unity.jwtauthn.credential=MAIN\n";
@@ -124,6 +140,8 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 					"", null);
 			authnMan.createAuthenticator("a-rp-int", "oauth-rp with rest-oauth-bearer", 
 					OAUTH_RP_CFG_INTERNAL, "", null);
+			authnMan.createAuthenticator("a-rp-mitre", "oauth-rp with rest-oauth-bearer", 
+					OAUTH_RP_CFG_MITRE, "", null);
 			authnMan.createAuthenticator("Apass", "password with rest-httpbasic", null, "", "credential1");
 			
 			idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "userA"), 
@@ -150,9 +168,14 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			authnCfg3.add(new AuthenticatorSet(Collections.singleton("a-rp-int")));
 			endpointMan.deploy(JWTManagementEndpointFactory.NAME, "endpointJWT-int", "/jwt-int", "desc", 
 					authnCfg3, JWT_ENDP_CFG, REALM_NAME);
+
+			List<AuthenticatorSet> authnCfg4 = new ArrayList<AuthenticatorSet>();
+			authnCfg4.add(new AuthenticatorSet(Collections.singleton("a-rp-mitre")));
+			endpointMan.deploy(JWTManagementEndpointFactory.NAME, "endpointJWT-mitre", "/jwt-mitre", "desc", 
+					authnCfg4, JWT_ENDP_CFG, REALM_NAME);
 			
 			List<EndpointDescription> endpoints = endpointMan.getEndpoints();
-			assertEquals(3, endpoints.size());
+			assertEquals(4, endpoints.size());
 
 			httpServer.start();
 		} catch (Exception e)
@@ -168,6 +191,20 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		AccessToken ac = resp1.getAccessToken();
 		
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(endpoint));
+		httpReqRaw.setAuthorization(ac.toAuthorizationHeader());
+		HTTPRequest httpReq = new CustomHTTPSRequest(httpReqRaw, new BinaryCertChainValidator(true), 
+				ServerHostnameCheckingMode.NONE);
+		HTTPResponse response = httpReq.send();
+		Assert.assertEquals(200, response.getStatusCode());
+	}
+
+	@Ignore
+	@Test
+	public void OauthRPAuthnWorksWithMitre() throws Exception
+	{
+		AccessToken ac = new BearerAccessToken("----FILL-ME-----");
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, 
+				new URL("https://localhost:52443/jwt-mitre/token"));
 		httpReqRaw.setAuthorization(ac.toAuthorizationHeader());
 		HTTPRequest httpReq = new CustomHTTPSRequest(httpReqRaw, new BinaryCertChainValidator(true), 
 				ServerHostnameCheckingMode.NONE);

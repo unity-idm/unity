@@ -6,8 +6,9 @@ package pl.edu.icm.unity.oauth.rp.verificator;
 
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Map.Entry;
 
 import net.minidev.json.JSONObject;
@@ -37,7 +38,7 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 public class MitreTokenVerificator implements TokenVerificatorProtocol
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, MitreTokenVerificator.class);
-	
+	private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
 	private OAuthRPProperties config;
 	
 	public MitreTokenVerificator(OAuthRPProperties config)
@@ -93,13 +94,12 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 			
 			if ("exp".equals(entry.getKey()))
 			{
-				long expSec = Long.parseLong(entry.getValue().toString());
-				exp = new Date(expSec*1000);
+				DateFormat fd = new SimpleDateFormat(DATE_PATTERN);
+				exp = fd.parse(entry.getValue().toString());
 			} else if ("scope".equals(entry.getKey()))
 			{
-				@SuppressWarnings("unchecked")
-				List<String> scopes = (List<String>) entry.getValue();
-				for (String s: scopes)
+				String scopes = (String) entry.getValue();
+				for (String s: scopes.split(" "))
 					scope.add(s);
 			} else if ("active".equals(entry.getKey()))
 			{
