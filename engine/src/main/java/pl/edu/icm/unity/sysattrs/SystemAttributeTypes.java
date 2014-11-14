@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassUtil;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
+import pl.edu.icm.unity.server.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -25,7 +25,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
  * @author K. Benedyczak
  */
 @Component
-public class SystemAttributeTypes
+public class SystemAttributeTypes implements SystemAttributesProvider
 {
 	public static final String CREDENTIAL_REQUIREMENTS = "sys:CredentialRequirements"; 
 	public static final String ATTRIBUTE_CLASSES = AttributeClassUtil.ATTRIBUTE_CLASSES_ATTRIBUTE; 
@@ -38,7 +38,7 @@ public class SystemAttributeTypes
 	private List<AttributeType> systemAttributes = new ArrayList<AttributeType>();
 	
 	@Autowired
-	public SystemAttributeTypes(AuthenticatorsRegistry authReg, AuthorizationManager authz)
+	public SystemAttributeTypes(AuthorizationManager authz)
 	{
 		this.authz = authz;
 		systemAttributes.add(getCredentialRequirementsAT());

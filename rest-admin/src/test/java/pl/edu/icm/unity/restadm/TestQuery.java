@@ -16,27 +16,13 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
-import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
-import eu.unicore.util.httpclient.DefaultClientConfiguration;
-import eu.unicore.util.httpclient.HttpUtils;
-import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.rest.TestRESTBase;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
@@ -59,7 +45,12 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
-public class TestQuery extends DBIntegrationTestBase
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+public class TestQuery extends TestRESTBase
 {
 	private ObjectMapper m = new ObjectMapper();
 	
@@ -76,9 +67,9 @@ public class TestQuery extends DBIntegrationTestBase
 		deployEndpoint();
 		long e = createTestContents();
 		
-		DefaultHttpClient client = getClient();
+		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		BasicHttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(client, host);
 
 		HttpGet getGroups = new HttpGet("/restadm/v1/entity/"+e+"/groups");
 		HttpResponse response = client.execute(host, getGroups, localcontext);
@@ -149,37 +140,6 @@ public class TestQuery extends DBIntegrationTestBase
 		assertEquals(1, endpoints.size());
 
 		httpServer.start();
-	}
-	
-	protected BasicHttpContext getClientContext(DefaultHttpClient client, HttpHost host)
-	{
-		client.getCredentialsProvider().setCredentials(
-				new AuthScope(host.getHostName(), host.getPort()),
-				new UsernamePasswordCredentials("user1", "mockPassword1"));
-		AuthCache authCache = new BasicAuthCache();
-		BasicScheme basicAuth = new BasicScheme();
-		authCache.put(host, basicAuth);
-		BasicHttpContext localcontext = new BasicHttpContext();
-		localcontext.setAttribute(ClientContext.AUTH_CACHE, authCache);
-		return localcontext;
-	}
-	
-	protected DefaultHttpClient getClient() throws Exception
-	{
-		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
-		clientCfg.setValidator(new KeystoreCertChainValidator("src/test/resources/demoTruststore.jks", 
-				"unicore".toCharArray(), "JKS", -1));
-		clientCfg.setSslEnabled(true);
-		clientCfg.setSslAuthn(false);
-		return (DefaultHttpClient) HttpUtils.createClient("https://localhost:53456", clientCfg);
-	}
-	
-	@Override
-	protected void setupPasswordAuthn() throws Exception
-	{
-		super.setupPasswordAuthn();
-		authnMan.createAuthenticator("ApassREST", "password with rest-httpbasic", 
-				null, "", "credential1");
 	}
 	
 	public String formatJson(String contents) throws JsonProcessingException, IOException

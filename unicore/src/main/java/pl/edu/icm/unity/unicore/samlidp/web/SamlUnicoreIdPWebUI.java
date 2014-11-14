@@ -15,16 +15,17 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
-import pl.edu.icm.unity.saml.idp.web.EopException;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebUI;
 import pl.edu.icm.unity.saml.idp.web.SamlResponseHandler;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -36,6 +37,7 @@ import pl.edu.icm.unity.unicore.samlidp.saml.AuthnWithETDResponseProcessor;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.HtmlTag;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -45,7 +47,6 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
@@ -71,9 +72,11 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	@Autowired
 	public SamlUnicoreIdPWebUI(UnityMessageSource msg, FreemarkerHandler freemarkerHandler,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
-			AuthenticationProcessor authnProcessor, IdPEngine idpEngine)
+			AuthenticationProcessor authnProcessor, IdPEngine idpEngine, 
+			IdentityTypesRegistry idTypesRegistry)
 	{
-		super(msg, freemarkerHandler, handlersRegistry, preferencesMan,	authnProcessor, idpEngine);
+		super(msg, freemarkerHandler, handlersRegistry, preferencesMan,	authnProcessor, idpEngine,
+				idTypesRegistry);
 	}
 
 	@Override
@@ -97,7 +100,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	@Override
 	protected void createExposedDataPart(SAMLAuthnContext samlCtx, VerticalLayout contents) throws EopException
 	{
-		Panel exposedInfoPanel = new Panel();
+		SafePanel exposedInfoPanel = new SafePanel();
 		contents.addComponent(exposedInfoPanel);
 		VerticalLayout eiLayout = new VerticalLayout();
 		eiLayout.setMargin(true);
@@ -213,21 +216,14 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	}
 	
 	@Override
-	protected String getMyAddress()
-	{
-		return endpointDescription.getContextAddress() +
-				SamlUnicoreIdPWebEndpointFactory.SAML_UI_SERVLET_PATH;
-	}
-	
-	@Override
 	protected void confirm() throws EopException
 	{
 		storePreferences(true);
 		ResponseDocument respDoc;
 		try
 		{
-			Collection<Attribute<?>> attributes = getUserFilteredAttributes();
-			respDoc = samlWithEtdProcessor.processAuthnRequest(selectedIdentity, attributes, 
+			Collection<Attribute<?>> attributes = attrsPresenter.getUserFilteredAttributes();
+			respDoc = samlWithEtdProcessor.processAuthnRequest(idSelector.getSelectedIdentity(), attributes, 
 					getRestrictions());
 		} catch (Exception e)
 		{

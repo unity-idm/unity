@@ -18,9 +18,9 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
-import pl.edu.icm.unity.saml.idp.web.EopException;
 import pl.edu.icm.unity.server.utils.Log;
 
 /**
@@ -35,16 +35,6 @@ public class SamlGuardFilter implements Filter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlGuardFilter.class);
 	
-	/**
-	 * Under this key the SAMLContext object is stored in the session.
-	 */
-	public static final String SESSION_SAML_CONTEXT = "samlAuthnContextKey";
-	
-	/**
-	 * key used by hold on form to mark that the new authn session should be started even 
-	 * when an existing auth is in progress. 
-	 */
-	public static final String REQ_FORCE = "force";
 	protected String samlUiPath;
 	protected ErrorHandler errorHandler;
 
@@ -76,7 +66,8 @@ public class SamlGuardFilter implements Filter
 		HttpServletRequest request = (HttpServletRequest) requestBare;
 		HttpServletResponse response = (HttpServletResponse) responseBare;
 		HttpSession session = request.getSession();
-		SAMLAuthnContext context = (SAMLAuthnContext) session.getAttribute(SESSION_SAML_CONTEXT); 
+		SAMLAuthnContext context = (SAMLAuthnContext) session.getAttribute(
+				SamlParseServlet.SESSION_SAML_CONTEXT); 
 
 		if (context == null)
 		{

@@ -12,9 +12,9 @@ import java.util.List;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 import org.junit.Test;
 
 import pl.edu.icm.unity.rest.MockRESTEndpointFactory;
@@ -55,8 +55,8 @@ public class TestPerfLogin extends IntegrationTestBase
 		// warn-up ...login user
 		for (int i = 0; i < WARM_SIZE; i++)
 		{
-			DefaultHttpClient client = getClient();
-			BasicHttpContext localcontext = getClientContext(client, host, "user" + i,
+			HttpClient client = getClient();
+			HttpContext localcontext = getClientContext(client, host, "user" + i,
 					"PassWord8743#%$^&*");
 			HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
 			HttpResponse response = client.execute(host, get, localcontext);
@@ -73,8 +73,8 @@ public class TestPerfLogin extends IntegrationTestBase
 			for (int i = 0; i < jump; i++)
 			{
 				
-				DefaultHttpClient client = getClient();
-				BasicHttpContext localcontext = getClientContext(client, host,
+				HttpClient client = getClient();
+				HttpContext localcontext = getClientContext(client, host,
 						"user" + index, "PassWord8743#%$^&*");
 				index++;
 				HttpGet get = new HttpGet("/mock/mock-rest/test/r1");

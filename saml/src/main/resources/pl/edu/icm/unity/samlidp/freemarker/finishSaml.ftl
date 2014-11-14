@@ -27,13 +27,13 @@
 </noscript>
 
 
-<form action="${samlService}" method="post">
+<form action="${samlService?xhtml}" method="post">
 	<div>
 	<#if RelayState??>
 		<input type="hidden" name="RelayState" value="${RelayState?xhtml}"/>
 	</#if>
 
-	<input type="hidden" name="SAMLResponse" value="${SAMLResponse}"/>
+	<input type="hidden" name="SAMLResponse" value="${SAMLResponse?xhtml}"/>
 	</div>
 
 	<noscript>

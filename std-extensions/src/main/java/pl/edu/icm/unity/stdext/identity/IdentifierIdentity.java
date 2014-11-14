@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -97,5 +98,11 @@ public class IdentifierIdentity extends AbstractStaticIdentityTypeProvider
 	public boolean isDynamic()
 	{
 		return false;
+	}
+
+	@Override
+	public String getHumanFriendlyDescription(MessageSource msg)
+	{
+		return msg.getMessage("IdentifierIdentity.description");
 	}
 }

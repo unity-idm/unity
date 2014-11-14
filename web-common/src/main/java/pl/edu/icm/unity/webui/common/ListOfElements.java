@@ -38,7 +38,12 @@ public class ListOfElements<T> extends VerticalLayout
 		this.labelConverter = labelConverter;
 		this.components = new ArrayList<>();
 	}
-
+	
+	public ListOfElements(UnityMessageSource msg)
+	{
+		this(msg, new DefaultLabelConverter<T>());
+	}
+	
 	public void setEditHandler(EditHandler<T> editHandler)
 	{
 		this.editHandler = editHandler;
@@ -157,6 +162,20 @@ public class ListOfElements<T> extends VerticalLayout
 		}
 	}
 
+	/**
+	 * Converts generic object to string with its toString method.
+	 * @author K. Benedyczak
+	 * @param <T>
+	 */
+	public static class DefaultLabelConverter<T> implements LabelConverter<T>
+	{
+		@Override
+		public Label toLabel(T value)
+		{
+			return new Label(value.toString());
+		}
+	}
+	
 	public interface LabelConverter<T>
 	{
 		public Label toLabel(T value);

@@ -6,6 +6,7 @@ package pl.edu.icm.unity.oauth.client.config;
 
 import java.util.Properties;
 
+import pl.edu.icm.unity.server.api.PKIManagement;
 import eu.unicore.util.configuration.ConfigurationException;
 
 /**
@@ -15,9 +16,10 @@ import eu.unicore.util.configuration.ConfigurationException;
 public class GoogleProviderProperties extends CustomProviderProperties
 {
 
-	public GoogleProviderProperties(Properties properties, String prefix) throws ConfigurationException
+	public GoogleProviderProperties(Properties properties, String prefix, PKIManagement pkiManagement) 
+			throws ConfigurationException
 	{
-		super(addDefaults(properties, prefix), prefix);
+		super(addDefaults(properties, prefix), prefix, pkiManagement);
 	}
 	
 	private static Properties addDefaults(Properties properties, String prefix)

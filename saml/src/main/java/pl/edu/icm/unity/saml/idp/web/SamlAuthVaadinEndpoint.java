@@ -108,8 +108,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 				AuthenticationUI.class.getSimpleName(), description, authenticators,
 				registrationConfiguration);
 		
-		CancelHandler cancelHandler = new SamlAuthnCancelHandler(freemarkerHandler,
-				description.getContextAddress()+SamlIdPWebEndpointFactory.SAML_UI_SERVLET_PATH);
+		CancelHandler cancelHandler = new SamlAuthnCancelHandler(freemarkerHandler);
 		authenticationServlet.setCancelHandler(cancelHandler);
 		
 		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true); 

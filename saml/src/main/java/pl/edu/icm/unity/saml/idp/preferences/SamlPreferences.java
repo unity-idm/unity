@@ -10,29 +10,25 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.webui.common.provider.IdPPreferences;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.types.JsonSerializable;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
 
 /**
  * User's preferences for the SAML endpoints.
  * @author K. Benedyczak
  */
-public class SamlPreferences implements JsonSerializable
+public class SamlPreferences extends IdPPreferences
 {
 	public static final String ID = SamlPreferences.class.getName();
 	protected final ObjectMapper mapper = Constants.MAPPER;
@@ -40,19 +36,6 @@ public class SamlPreferences implements JsonSerializable
 	private Map<String, SPSettings> spSettings = new HashMap<String, SamlPreferences.SPSettings>();
 	
 	@Override
-	public String getSerializedConfiguration() throws InternalException
-	{
-		ObjectNode main = mapper.createObjectNode();
-		serializeAll(main);
-		try
-		{
-			return mapper.writeValueAsString(main);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't perform JSON serialization", e);
-		}
-	}
-
 	protected void serializeAll(ObjectNode main)
 	{
 		ObjectNode settingsN = main.with("spSettings");
@@ -74,23 +57,6 @@ public class SamlPreferences implements JsonSerializable
 	}
 	
 	@Override
-	public void setSerializedConfiguration(String json) throws InternalException
-	{
-		if (json == null || json.equals(""))
-		{
-			spSettings = new HashMap<String, SamlPreferences.SPSettings>();
-			return;
-		}
-		try
-		{
-			ObjectNode main = mapper.readValue(json, ObjectNode.class);
-			deserializeAll(main);
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't perform JSON deserialization", e);
-		}
-	}
-
 	protected void deserializeAll(ObjectNode main)
 	{
 		ObjectNode spSettingsNode = main.with("spSettings");
@@ -115,23 +81,6 @@ public class SamlPreferences implements JsonSerializable
 		if (from.has("selectedIdentity"))
 			ret.setSelectedIdentity(from.get("selectedIdentity").asText());
 		return ret;
-	}
-
-	public static void initPreferencesGeneric(PreferencesManagement preferencesMan, JsonSerializable toInit, String id) 
-			throws EngineException
-	{
-		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		EntityParam entity = new EntityParam(ae.getEntityId());
-		String raw = preferencesMan.getPreference(entity, id);
-		toInit.setSerializedConfiguration(raw);
-	}
-	
-	public static void savePreferencesGeneric(PreferencesManagement preferencesMan, JsonSerializable preferences, String id) 
-			throws EngineException
-	{
-		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		EntityParam entity = new EntityParam(ae.getEntityId());
-		preferencesMan.setPreference(entity, id, preferences.getSerializedConfiguration());
 	}
 
 	public static SamlPreferences getPreferences(PreferencesManagement preferencesMan) throws EngineException

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,11 +12,11 @@ import java.util.List;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
@@ -55,9 +55,9 @@ public class TestJWTAuthentication extends TestRESTBase
 
 		httpServer.start();
 		
-		DefaultHttpClient client = getClient();
+		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		BasicHttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(client, host);
 		
 		HttpGet get = new HttpGet("/jwt/token");
 		HttpResponse response = client.execute(host, get, localcontext);

@@ -87,7 +87,7 @@ public class HtmlLabel extends Label
 	
 	private Object[] escapeArgs(Object... unsafeArgs)
 	{
-		Object[] escapedArgs = new String[unsafeArgs.length];
+		Object[] escapedArgs = new Object[unsafeArgs.length];
 		for (int i=0; i<unsafeArgs.length; i++)
 			escapedArgs[i] = unsafeArgs[i] instanceof String ? 
 					HtmlEscapers.htmlEscaper().escape((String)unsafeArgs[i]) :

@@ -19,7 +19,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
@@ -28,9 +28,9 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpUtils;
-import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
 /**
  * Downloads remote metadata, stores it in a local filesystem (caching in workspace). The cached file is loaded
@@ -98,7 +98,8 @@ public class RemoteMetadataProvider
 			return;
 		}
 		log.debug("Downloading metadata from " + url + " to " + cachedFilePart.toString());
-		HttpClient client = url.startsWith("https:") ? getSSLClient(url, customTruststore) : new DefaultHttpClient();
+		HttpClient client = url.startsWith("https:") ? getSSLClient(url, customTruststore) : 
+			HttpClientBuilder.create().build();
 		HttpGet request = new HttpGet(url);
 		HttpResponse response = client.execute(request);
 		if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
@@ -138,7 +139,7 @@ public class RemoteMetadataProvider
 			return HttpUtils.createClient(url, config);
 		} else
 		{
-			return new DefaultHttpClient();
+			return HttpClientBuilder.create().build();
 		}
 	}
 }

@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 
 /**
@@ -30,7 +31,19 @@ public abstract class AbstractIdentityTypeProvider implements IdentityTypeDefini
 	{
 		return toPrettyString(from);
 	}
-
+	
+	/**
+	 * Delegated to {@link #toPrettyStringNoPrefix(String)}
+	 * @param msg
+	 * @param from
+	 * @return
+	 */
+	@Override
+	public String toHumanFriendlyString(MessageSource msg, String from)
+	{
+		return toPrettyStringNoPrefix(from);
+	}
+	
 	/**
 	 * Most of the implementations are removable
 	 */

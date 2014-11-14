@@ -42,7 +42,7 @@ public class ResponseConsumerServlet extends HttpServlet
 		
 		if (state == null)
 		{
-			log.warn("Got a rerequest to the OAuth response consumer endpoint " +
+			log.warn("Got a request to the OAuth response consumer endpoint " +
 					"without state parameter");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Wrong HTTP request - no state");
 			return;
