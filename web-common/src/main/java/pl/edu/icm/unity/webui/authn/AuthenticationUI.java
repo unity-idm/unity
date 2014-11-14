@@ -194,6 +194,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				dialog.show();
 			}
 		});
+		register.setId("AuthenticationUI.registerButton");
 		return register;
 	}
 	

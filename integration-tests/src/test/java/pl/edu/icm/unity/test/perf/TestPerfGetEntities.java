@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.tests;
+package pl.edu.icm.unity.test.perf;
 
 import java.io.IOException;
 
@@ -16,7 +16,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
  * @author P.Piernik
  * 
  */
-public class TestPerfGetEntities extends IntegrationTestBase
+public class TestPerfGetEntities extends IntegrationPerfTestBase
 {	
 	@Test
 	public void testGetEntities() throws EngineException, IOException

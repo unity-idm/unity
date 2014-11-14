@@ -53,9 +53,9 @@ public abstract class TestRESTBase extends DBIntegrationTestBase
 	protected HttpClient getClient() throws Exception
 	{
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
-		clientCfg.setCredential(new KeystoreCredential("src/test/resources/demoKeystore.p12", 
+		clientCfg.setCredential(new KeystoreCredential("src/test/resources/pki/demoKeystore.p12", 
 				"the!uvos".toCharArray(), "the!uvos".toCharArray(), "uvos", "PKCS12"));
-		clientCfg.setValidator(new KeystoreCertChainValidator("src/test/resources/demoTruststore.jks", 
+		clientCfg.setValidator(new KeystoreCertChainValidator("src/test/resources/pki/demoTruststore.jks", 
 				"unicore".toCharArray(), "JKS", -1));
 		clientCfg.setSslEnabled(true);
 		clientCfg.setSslAuthn(false);

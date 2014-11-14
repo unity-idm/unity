@@ -33,6 +33,7 @@ public class UsernameIdentityEditor implements IdentityEditor
 	{
 		field = new TextField(msg.getMessage("UsernameIdentityEditor.username"));
 		field.setRequired(required);
+		field.setId("UsernameIdentityEditor.username");
 		this.required = required;
 		return new ComponentsContainer(field);
 	}

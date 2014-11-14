@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.tests;
+package pl.edu.icm.unity.test.perf;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ import pl.edu.icm.unity.types.basic.GroupContents;
  * @author P.Piernik
  * 
  */
-public class TestPerfGetAttrWithStatment extends IntegrationTestBase
+public class TestPerfGetAttrWithStatment extends IntegrationPerfTestBase
 {
 	@Test
 	public void testGetAttributesWithStatment() throws EngineException, IOException

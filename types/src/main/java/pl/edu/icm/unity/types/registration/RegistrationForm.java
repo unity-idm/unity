@@ -206,23 +206,30 @@ public class RegistrationForm extends DescribedObjectImpl
 	
 	public boolean containsAutomaticAndMandatoryParams()
 	{
-		for (IdentityRegistrationParam id : identityParams)
+		if (identityParams != null)
 		{
-			if (checkAutoParam(id))
-				return true;
+			for (IdentityRegistrationParam id : identityParams)
+			{
+				if (checkAutoParam(id))
+					return true;
+			}
 		}
-
-		for (AttributeRegistrationParam at : attributeParams)
+		if (attributeParams != null)
 		{
-			if (checkAutoParam(at))
-				return true;
+			for (AttributeRegistrationParam at : attributeParams)
+			{
+				if (checkAutoParam(at))
+					return true;
+			}
 		}
-		
-		for (GroupRegistrationParam gr:groupParams)
+		if (groupParams != null)
 		{
-			if (gr.getRetrievalSettings() == ParameterRetrievalSettings.automatic
-					|| gr.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
-				return true;
+			for (GroupRegistrationParam gr : groupParams)
+			{
+				if (gr.getRetrievalSettings() == ParameterRetrievalSettings.automatic
+						|| gr.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
+					return true;
+			}
 		}
 		return false;
 	}

@@ -54,6 +54,7 @@
 		<module>ldap</module>
 		<module>oauth</module>
 		<module>distribution</module>
+		<module>integration-tests</module>
 	</modules>
 
 	<developers>
