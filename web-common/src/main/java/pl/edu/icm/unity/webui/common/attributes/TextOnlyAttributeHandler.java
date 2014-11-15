@@ -11,7 +11,6 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 
-import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -110,7 +109,7 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 			StringBuilder sb = new StringBuilder();
 			for (String hint: getHints(syntax))
 				sb.append(hint).append("<br>");
-			field.setDescription(HtmlEscapers.htmlEscaper().escape(sb.toString()));
+			field.setDescription(sb.toString());
 			
 			return new ComponentsContainer(field);
 		}
