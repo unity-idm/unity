@@ -22,7 +22,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 import com.vaadin.server.Page;
-import com.vaadin.server.RequestHandler;
+import com.vaadin.server.SynchronizedRequestHandler;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinSession;
@@ -77,11 +77,11 @@ public class SamlResponseHandler
 	 * back to the requesting SP.
 	 * @author K. Benedyczak
 	 */
-	public class SendResponseRequestHandler implements RequestHandler
+	public class SendResponseRequestHandler extends SynchronizedRequestHandler
 	{
 		@Override
-		public boolean handleRequest(VaadinSession session, VaadinRequest request, VaadinResponse response)
-						throws IOException
+		public boolean synchronizedHandleRequest(VaadinSession session, VaadinRequest request, 
+				VaadinResponse response) throws IOException
 		{
 			ResponseDocument samlResponse = session.getAttribute(ResponseDocument.class);
 			if (samlResponse == null)
