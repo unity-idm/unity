@@ -75,24 +75,69 @@ Unity allows its administrators to define and deploy so called _registration for
 form can be used in three cases:
 
 . To collect registration information from prospective users. This can be seen as a classic
-registration feature use case.
+registration feature use case. Such forms are called as 'public'.
 . To quickly and conveniently create entities with common characteristics. In this case
 administrator can define what data needs to be entered for the created user and also automate 
 some of the actions which should be performed for newly added users.
 . To collect additional information from users who are authenticated by a remote IdP, so the user can be 
-added to the local database.
+added to the local database.   
 
-The first step is to define a registration form. The form definition consists of three parts:
+After creation a registration form can be tested and also filled (use case no 2 above) directly from 
+the Admin Web UI. If the form is public it can be associated with any endpoint with the Web (Vaadin) binding.
+Then a link to register a new account will appear on the login screen of the endpoint. Finally 
+a form can be associated with a remote authenticator as a "handler" for unknown users who were 
+correctly authenticated remotely. For this last case typically the form should not be public. It is also
+crucial to configure the input translation profile of the authenticator so it _does not_ create local user 
+automatically. Otherwise the configured form won't be launched as the local user will be always present 
+after translation profile execution. 
 
-. General settings as name, notifications configuration, auto accept condition and decision whether the form is publicly available.
+An example of registration form creation:
+
+image::./figures/regFormMan.png[alt="Definition of registration form in Unity",align="center",scaledwidth="50%"]
+
+A simple registration form in action:
+
+image::./figures/regFormFill1.png[alt="Filling of a registration form in Unity",align="center",scaledwidth="50%"]
+
+Note that the above screenshot is showing the form as activated from the Web Admin UI; the form 
+launched other way will not allow for automatic acceptance.
+
+
+==== Defining a registration form
+
+The form definition consists of three parts:
+
+. General settings as name, notifications configuration, auto accept condition and 
+decision whether the form is publicly available.
 . Collected information settings, which define what needs to be provided to the form. This information
 is usually collected interactively by filling a web form, but some data can be also collected from a
 remote IdP. This latter option is possible only if a form is used for unknown remote users.
 . Settings which are automatically assigned for each user whose registration request is accepted.
 For instance this feature may be used to add all users to a specified group.    
 
-Registration request can be automatically accepted after submission, if it meets the 'Auto accept' condition defined in the associated 
-registration form. The 'Auto accept' condition is given as an MVEL expression, which must evaluate to a boolean value (true or false).
+The most important are the settings of the 2nd point, i.e. the data collected about the user. Each
+of the identities, group memberships and attributes can be collected in different modes. Some of the modes
+are only relevant for a case when a registration form is presented to an unknown user who 
+was authenticated by a remote IdP. The modes are as follows:
+
+Collected interactively:: A user interface component is displayed to collect the information from a user.
+Must be provided by remote IdP and is shown in the form (read only):: The information must be provided by a remote IdP.
+It is then shown to a user in the form, but can not be edited.
+Must be provided by remote IdP and is hidden during form filling:: As above but the information is 
+not shown on the form filling screen. 
+Can be provided by remote IdP, if not collected interactively:: In this mode the user can fill the data 
+only if it was not provided by a remote IdP.
+Can be provided by remote IdP and is editable:: The field is always editable, but if a remote IdP provided a value 
+then it is used as a default.
+
+Additionally all pieces of collected information can be made optional. The other types of collected information:
+agreements and credentials can be only collected interactively, therefore there is no mode selection in their case. 
+
+==== Automatic request acceptance
+
+Registration request can be automatically accepted after submission, if it meets the 
+'Auto accept' condition defined in the associated registration form. The 'Auto accept' condition is given 
+as an MVEL expression, which must evaluate to a boolean value (+true+ or +false+).
 Condition operates on a data structure filled during registration request creation, which contains:
 
 . +attr+ Map indexed with attribute names. Value of each entry is a single value of the attribute. If the attribute
@@ -121,24 +166,6 @@ Accept a request only if the first agreement was accepted.
 ------
 agrs[0] == true
 ------
-
-After creation a registration form can be tested and also filled (use case no 2 above) directly from 
-the Admin Web UI. If the form is public it can be associated with any endpoint with the Web (Vaadin) binding.
-Then a link to register a new account will appear on the login screen of the endpoint. Finally 
-a form can be associated with a remote authenticator as a "handler" for unknown users who were 
-correctly authenticated remotely.
-
-An example of registration form creation:
-
-image::./figures/regFormMan.png[alt="Definition of registration form in Unity",align="center",scaledwidth="50%"]
-
-A simple registration form in action:
-
-image::./figures/regFormFill1.png[alt="Filling of a registration form in Unity",align="center",scaledwidth="50%"]
-
-Note that the above screenshot is showing the form as activated from the Web Admin UI; the form 
-launched other way will not allow for automatic acceptance.
-
 
 === Identities and entities
 
