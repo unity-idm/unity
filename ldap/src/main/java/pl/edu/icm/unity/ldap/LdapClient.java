@@ -85,56 +85,19 @@ public class LdapClient
 			LdapClientConfiguration configuration) throws LDAPException, LdapAuthenticationException, 
 			KeyManagementException, NoSuchAlgorithmException
 	{
-		LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
-		connectionOptions.setConnectTimeoutMillis(configuration.getSocketConnectTimeout());
-		connectionOptions.setFollowReferrals(configuration.isFollowReferral());
-		connectionOptions.setReferralHopLimit(configuration.getReferralHopCount());
-		connectionOptions.setResponseTimeoutMillis(configuration.getSocketReadTimeout());
+		LDAPConnection connection = createConnection(configuration);
 		
-		FailoverServerSet failoverSet;
-		if (configuration.getConnectionMode() == ConnectionMode.SSL)
-		{
-			X509CertChainValidator validator = configuration.getTlsValidator();
-			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, "TLS", "LDAP client", log);
-			failoverSet = new FailoverServerSet(configuration.getServers(), 
-					configuration.getPorts(), ctx.getSocketFactory(), connectionOptions);
-		} else
-		{
-			failoverSet = new FailoverServerSet(configuration.getServers(), 
-				configuration.getPorts(), connectionOptions);
-		}
-		
-		LDAPConnection connection = failoverSet.getConnection();
-		
-		if (configuration.getConnectionMode() == ConnectionMode.startTLS)
-		{
-			X509CertChainValidator validator = configuration.getTlsValidator();
-			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, "TLSv1.2", "LDAP client", log);
-			ExtendedResult extendedResult = connection.processExtendedOperation(
-					new StartTLSExtendedRequest(ctx));
-
-			if (extendedResult.getResultCode() != ResultCode.SUCCESS)
-			{
-				connection.close();
-				throw new LDAPException(extendedResult.getResultCode(), "Unable to esablish " +
-						"a secure TLS connection to the LDAP server: " + 
-						extendedResult.toString());
-			}
-		}
-
-		if (configuration.isBindAsUser())
-			bindAsUser(connection, user, password, configuration);
-		else
-			bindAsSystem(connection, configuration);
-
 		String dn = configuration.getBindDN(user);
-
-		if (configuration.isBindOnly() && configuration.isBindAsUser())
+		bindAsUser(connection, user, password, configuration);
+		if (configuration.isBindOnly())
 		{
 			RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);
 			ret.addIdentity(new RemoteIdentity(dn, X500Identity.ID));
 			return ret;
 		}
+		
+		if (!configuration.isBindAsUser())
+			bindAsSystem(connection, configuration);
 		
 		String[] queriedAttributes = configuration.getQueriedAttributes();
 		SearchScope searchScope = configuration.getSearchScope();
@@ -152,11 +115,6 @@ public class LdapClient
 		if (entry == null)
 			throw new LdapAuthenticationException("User is not matching the valid users filter");
 
-		if(!configuration.isBindAsUser()){
-			// check user's password now
-			verifyUserCredentials(connection, dn, password, configuration);
-		}
-
 		RemotelyAuthenticatedInput ret = assembleBaseResult(entry);
 		findGroupsMembership(connection, entry, configuration, ret.getGroups());
 		
@@ -166,6 +124,57 @@ public class LdapClient
 		return ret;
 	}
 
+	/**
+	 * Creates an ladp connection and secures it. Failover settings from configuration are taken into account.
+	 * @param configuration
+	 * @return
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 * @throws LDAPException
+	 */
+	private LDAPConnection createConnection(LdapClientConfiguration configuration) 
+			throws KeyManagementException, NoSuchAlgorithmException, LDAPException
+	{
+		LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
+		connectionOptions.setConnectTimeoutMillis(configuration.getSocketConnectTimeout());
+		connectionOptions.setFollowReferrals(configuration.isFollowReferral());
+		connectionOptions.setReferralHopLimit(configuration.getReferralHopCount());
+		connectionOptions.setResponseTimeoutMillis(configuration.getSocketReadTimeout());
+		
+		FailoverServerSet failoverSet;
+		if (configuration.getConnectionMode() == ConnectionMode.SSL)
+		{
+			X509CertChainValidator validator = configuration.getTlsValidator();
+			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, 
+					"TLS", "LDAP client", log);
+			failoverSet = new FailoverServerSet(configuration.getServers(), 
+					configuration.getPorts(), ctx.getSocketFactory(), connectionOptions);
+		} else
+		{
+			failoverSet = new FailoverServerSet(configuration.getServers(), 
+				configuration.getPorts(), connectionOptions);
+		}
+		
+		LDAPConnection connection = failoverSet.getConnection();
+		
+		if (configuration.getConnectionMode() == ConnectionMode.startTLS)
+		{
+			X509CertChainValidator validator = configuration.getTlsValidator();
+			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, 
+					"TLSv1.2", "LDAP client", log);
+			ExtendedResult extendedResult = connection.processExtendedOperation(
+					new StartTLSExtendedRequest(ctx));
+
+			if (extendedResult.getResultCode() != ResultCode.SUCCESS)
+			{
+				connection.close();
+				throw new LDAPException(extendedResult.getResultCode(), "Unable to esablish " +
+						"a secure TLS connection to the LDAP server: " + 
+						extendedResult.toString());
+			}
+		}
+		return connection;
+	}
 
 	private void bindAsUser(LDAPConnection connection, String user, String password, 
 			LdapClientConfiguration configuration) throws LdapAuthenticationException, LDAPException
@@ -201,26 +210,6 @@ public class LdapClient
 		}
 	}
 
-	/**
-	 * verify user credentials by performing a bind. If successful, the bind is reverted to the system user  
-	 */
-	private void verifyUserCredentials(LDAPConnection connection, String userDN, String password, LdapClientConfiguration configuration) 
-	throws LdapAuthenticationException, LDAPException
-	{
-		try
-		{
-			connection.bind(userDN, password);
-		} catch (LDAPException e)
-		{
-			if (ResultCode.INVALID_CREDENTIALS.equals(e.getResultCode()))
-				throw new LdapAuthenticationException("Wrong username or credentials!", e);
-			else
-				throw e;
-		}
-		// and back to system
-		bindAsSystem(connection, configuration);
-	}
-	
 	private RemotelyAuthenticatedInput assembleBaseResult(SearchResultEntry entry)
 	{
 		RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);

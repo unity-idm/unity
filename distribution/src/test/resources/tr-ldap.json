@@ -20,7 +20,7 @@
 			
 		{
 			"condition": {
-				"conditionValue": "groups contains 'student'"
+				"conditionValue": "groups contains 'gr1'"
 			},
 			"action": {
 				"name": "mapGroup",
