@@ -84,32 +84,36 @@ public class AuthenticationFilter implements Filter
 		
 		HttpSession httpSession = httpRequest.getSession(false);
 		String loginSessionId;
+		
 		if (httpSession != null)
 		{
 			LoginSession loginSession = (LoginSession) httpSession.getAttribute(
 					LoginToHttpSessionBinder.USER_SESSION_KEY);
-			if (loginSession != null && !loginSession.isUsedOutdatedCredential())
+			if (loginSession != null)
 			{
-				loginSessionId = loginSession.getId();
-				try
+				if (!loginSession.isUsedOutdatedCredential())
 				{
-					if (!hasPathPrefix(httpRequest.getPathInfo(), 
-							ApplicationConstants.HEARTBEAT_PATH + '/'))
+					loginSessionId = loginSession.getId();
+					try
 					{
-						log.trace("Update session activity for " + loginSessionId);
-						sessionMan.updateSessionActivity(loginSessionId);
-					}
-					gotoProtectedResource(httpRequest, response, chain);
-					return;
-				} catch (WrongArgumentException e)
-				{
-					log.debug("Can't update session activity ts for " + loginSessionId + 
+						if (!hasPathPrefix(httpRequest.getPathInfo(), 
+								ApplicationConstants.HEARTBEAT_PATH + '/'))
+						{
+							log.trace("Update session activity for " + loginSessionId);
+							sessionMan.updateSessionActivity(loginSessionId);
+						}
+						gotoProtectedResource(httpRequest, response, chain);
+						return;
+					} catch (WrongArgumentException e)
+					{
+						log.debug("Can't update session activity ts for " + loginSessionId + 
 							" - expired(?), HTTP session " + httpSession.getId(), e);
+					}
+				} else
+				{
+					forwardtoAuthn(httpRequest, httpResponse);
+					return;
 				}
-			} else 
-			{
-				forwardtoAuthn(httpRequest, httpResponse);
-				return;
 			}
 		}
 
