@@ -208,7 +208,7 @@ public class JWTManagement
 		Entity entity;
 		try
 		{
-			entity = identitiesMan.getEntity(entityId, null, true);
+			entity = identitiesMan.getEntity(entityId, null, true, "/");
 		} catch (EngineException e)
 		{
 			log.error("Can't resolve entities of the authenticated client, "

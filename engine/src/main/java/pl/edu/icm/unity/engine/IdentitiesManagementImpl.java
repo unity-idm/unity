@@ -295,22 +295,27 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	@Override
 	public Entity getEntity(EntityParam entity) throws EngineException
 	{
-		return getEntity(entity, null, true);
+		return getEntity(entity, null, true, "/");
 	}
 	
 	@Override
-	public Entity getEntityNoContext(EntityParam entity) throws EngineException
+	public Entity getEntityNoContext(EntityParam entity, String group) throws EngineException
 	{
 		entity.validateInitialization();
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.readHidden);
-			Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
-			CredentialInfo credInfo = getCredentialInfo(entityId, sqlMap);
-			EntityState theState = dbIdentities.getEntityStatus(entityId, sqlMap);
-			Entity ret = new Entity(entityId, identities, theState, credInfo);
+			Entity ret;
+			try
+			{
+				authz.checkAuthorization(authz.isSelf(entityId), group, AuthzCapability.readHidden);
+				Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
+				ret = assembleEntity(entityId, identities, sqlMap);
+			} catch (AuthorizationException e)
+			{
+				ret = resolveEntityBasic(entityId, null, false, group, sqlMap);
+			}
 			sqlMap.commit();
 			return ret;
 		} finally
@@ -320,7 +325,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	}
 	
 	@Override
-	public Entity getEntity(EntityParam entity, String target, boolean allowCreate)
+	public Entity getEntity(EntityParam entity, String target, boolean allowCreate, String group)
 			throws EngineException
 	{
 		entity.validateInitialization();
@@ -328,12 +333,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
-			Identity[] identities = dbIdentities.getIdentitiesForEntity(entityId, target, allowCreate, 
-					sqlMap);
-			CredentialInfo credInfo = getCredentialInfo(entityId, sqlMap);
-			EntityState theState = dbIdentities.getEntityStatus(entityId, sqlMap);
-			Entity ret = new Entity(entityId, identities, theState, credInfo);
+			Entity ret = resolveEntityBasic(entityId, target, allowCreate, group, sqlMap);
 			sqlMap.commit();
 			return ret;
 		} finally
@@ -341,7 +341,40 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			db.releaseSqlSession(sqlMap);
 		}
 	}
+
+	/**
+	 * Checks if read cap is set and resolved the entity: identities and credential with respect to the
+	 * given target.
+	 * @param entityId
+	 * @param target
+	 * @param allowCreate
+	 * @param sqlMap
+	 * @return
+	 * @throws EngineException
+	 */
+	private Entity resolveEntityBasic(long entityId, String target, boolean allowCreate, String group, 
+			SqlSession sqlMap) throws EngineException
+	{
+		authz.checkAuthorization(authz.isSelf(entityId), group, AuthzCapability.read);
+		Identity[] identities = dbIdentities.getIdentitiesForEntity(entityId, target, allowCreate, 
+				sqlMap);
+		return assembleEntity(entityId, identities, sqlMap);
+	}
 	
+	/**
+	 * assembles the final entity by adding the credential and state info.
+	 * @param entityId
+	 * @param identities
+	 * @param sqlMap
+	 * @return
+	 * @throws EngineException
+	 */
+	private Entity assembleEntity(long entityId, Identity[] identities, SqlSession sqlMap) throws EngineException
+	{
+		CredentialInfo credInfo = getCredentialInfo(entityId, sqlMap);
+		EntityState theState = dbIdentities.getEntityStatus(entityId, sqlMap);
+		return new Entity(entityId, identities, theState, credInfo);
+	}
 	
 	/**
 	 * {@inheritDoc}

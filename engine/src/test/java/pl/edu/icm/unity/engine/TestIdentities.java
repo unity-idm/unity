@@ -122,23 +122,23 @@ public class TestIdentities extends DBIntegrationTestBase
 		
 		EntityParam entityParam = new EntityParam(id.getEntityId());
 		
-		Entity e1 = idsMan.getEntity(entityParam, null, false);
+		Entity e1 = idsMan.getEntity(entityParam, null, false, "/");
 		assertEquals(1, e1.getIdentities().length);
 		assertEquals(X500Identity.ID, e1.getIdentities()[0].getTypeId());
 		
-		Entity e2 = idsMan.getEntity(entityParam, null, true);
+		Entity e2 = idsMan.getEntity(entityParam, null, true, "/");
 		assertEquals(2, e2.getIdentities().length);
 		assertNotNull(getByType(e2, X500Identity.ID));
 		assertTrue(getByType(e2, PersistentIdentity.ID).getValue().length() > 0);
 		
-		Entity e3 = idsMan.getEntity(entityParam, "target1", true);
+		Entity e3 = idsMan.getEntity(entityParam, "target1", true, "/");
 		assertEquals(4, e3.getIdentities().length);
 		assertNotNull(getByType(e3, X500Identity.ID));
 		assertTrue(getByType(e3, PersistentIdentity.ID).getValue().length() > 0);
 		assertTrue(getByType(e3, TargetedPersistentIdentity.ID).getValue().length() > 0);
 		assertTrue(getByType(e3, TransientIdentity.ID).getValue().length() > 0);
 		
-		Entity e4 = idsMan.getEntity(entityParam, "target2", true);
+		Entity e4 = idsMan.getEntity(entityParam, "target2", true, "/");
 		assertEquals(4, e4.getIdentities().length);
 		assertNotNull(getByType(e4, X500Identity.ID));
 		assertTrue(getByType(e4, PersistentIdentity.ID).getValue().length() > 0);

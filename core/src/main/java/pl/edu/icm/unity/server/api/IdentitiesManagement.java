@@ -111,7 +111,7 @@ public interface IdentitiesManagement
 			throws EngineException;
 	
 	/**
-	 * Returns information about an entity along with its all identities.
+	 * Returns information about an entity along with its all identities with authorization in '/'.
 	 * @param entity
 	 * @return
 	 * @throws EngineException
@@ -122,11 +122,14 @@ public interface IdentitiesManagement
 	 * Returns information about an entity along with its all identities.
 	 * This version supports dynamic identities as it allows for specifying a receiver of the information 
 	 * and whether it is allowed to establish a new identifier.
-	 * @param entity
-	 * @return
+	 * @param entity who to resolve
+	 * @param target for whom the information is targeted
+	 * @param allowCreate whether dynamic identities can be created
+	 * @param group group wrt which authorization should be performed.
+	 * @return 
 	 * @throws EngineException
 	 */
-	public Entity getEntity(EntityParam entity, String target, boolean allowCreate) throws EngineException;
+	public Entity getEntity(EntityParam entity, String target, boolean allowCreate, String group) throws EngineException;
 
 	/**
 	 * Returns information about an entity along with its identities.
@@ -136,7 +139,7 @@ public interface IdentitiesManagement
 	 * @return
 	 * @throws EngineException
 	 */
-	Entity getEntityNoContext(EntityParam entity) throws EngineException;
+	Entity getEntityNoContext(EntityParam entity, String group) throws EngineException;
 
 	
 	/**
