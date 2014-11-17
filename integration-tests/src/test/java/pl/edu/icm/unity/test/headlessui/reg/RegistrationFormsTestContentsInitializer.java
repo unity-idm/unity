@@ -18,8 +18,10 @@ import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
+import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -76,6 +78,18 @@ public class RegistrationFormsTestContentsInitializer implements ServerInitializ
 			acA.setGroup("/");
 			form.setAttributeClassAssignments(Collections.singletonList(acA));
 			
+			AgreementRegistrationParam agreement = new AgreementRegistrationParam();
+			agreement.setManatory(false);
+			agreement.setText("a");
+			form.setAgreements(Collections.singletonList(agreement));
+			
+			
+			form.setCredentialParams(null);
+			
+			
+			
+			
+			form.setAutoAcceptCondition("true");
 			
 			regMan.addForm(form);
 		} catch (EngineException e)

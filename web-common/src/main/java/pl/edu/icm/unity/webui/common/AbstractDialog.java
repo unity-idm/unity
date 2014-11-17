@@ -64,6 +64,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		super(caption);
 		this.msg = msg;
 		confirm = new Button(confirmM, this);
+		confirm.setId("AbstractDialog.confirm");
 		if (cancelM != null)
 			cancel = new Button(cancelM, this);		
 	}

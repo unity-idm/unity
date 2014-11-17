@@ -2,13 +2,14 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.test.perf;
+package pl.edu.icm.unity.test.performance;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -20,7 +21,7 @@ import pl.edu.icm.unity.types.basic.Entity;
  * @author P.Piernik
  * 
  */
-public class TestPerfGetAttributes extends IntegrationPerfTestBase
+public class TstPerfGetAttributes extends PerformanceTestBase
 {
 		
 	@Test

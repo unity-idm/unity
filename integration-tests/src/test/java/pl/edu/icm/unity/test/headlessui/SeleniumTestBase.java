@@ -36,6 +36,7 @@ import pl.edu.icm.unity.server.JettyServer;
 @ActiveProfiles("test")
 public class SeleniumTestBase
 {
+	protected String baseUrl = "https://localhost:2443";
 	public static final int WAIT_TIME_S = 15;
 	protected WebDriver driver;
 
@@ -94,4 +95,16 @@ public class SeleniumTestBase
 			return false;
 		}
 	}
+	
+	protected void simpleWait(int ms)
+	{
+		try
+		{
+			Thread.sleep(ms);
+		} catch (InterruptedException e)
+		{
+			//OK
+		}
+	}
+	
 }

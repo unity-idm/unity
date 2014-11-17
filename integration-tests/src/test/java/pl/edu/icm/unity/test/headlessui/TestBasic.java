@@ -16,8 +16,6 @@ import org.openqa.selenium.Cookie;
  */
 public class TestBasic extends SeleniumTestBase
 {
-	private String baseUrl = "https://localhost:2443/admin/admin";
-
 	@Test
 	public void loginTest() throws Exception
 	{

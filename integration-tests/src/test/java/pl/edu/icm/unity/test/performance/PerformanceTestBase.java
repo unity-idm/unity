@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.test.perf;
+package pl.edu.icm.unity.test.performance;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -60,7 +60,7 @@ import pl.edu.icm.unity.types.basic.attrstmnt.MemberOfStatement;
  * Contains all necessary db and time method for integration tests
  * @author P.Piernik
  */
-public class IntegrationPerfTestBase extends TestRESTBase
+public class PerformanceTestBase extends TestRESTBase
 {
 	public final int TEST_REPETITIONS = 10;
 	

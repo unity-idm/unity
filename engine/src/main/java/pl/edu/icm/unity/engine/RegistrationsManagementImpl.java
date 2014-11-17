@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
@@ -424,14 +424,20 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		}
 
 		Set<String> sortedGroups = new TreeSet<>();
-		for (String group: form.getGroupAssignments())
-			sortedGroups.add(group);
-		for (int i=0; i<form.getGroupParams().size(); i++)
+		if (form.getGroupAssignments() != null)
 		{
-			if (req.getGroupSelections().get(i).isSelected())
-				sortedGroups.add(form.getGroupParams().get(i).getGroupPath());
+			for (String group : form.getGroupAssignments())
+				sortedGroups.add(group);
 		}
-			
+		if (form.getGroupParams() != null)
+		{
+			for (int i = 0; i < form.getGroupParams().size(); i++)
+			{
+				if (req.getGroupSelections().get(i).isSelected())
+					sortedGroups.add(form.getGroupParams().get(i)
+							.getGroupPath());
+			}
+		}	
 		EntityParam entity = new EntityParam(initial.getEntityId());
 		for (String group: sortedGroups)
 		{
@@ -443,18 +449,24 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			engineHelper.addAttributesList(attributes, initial.getEntityId(), sql);
 		}
 		
-		for (AttributeClassAssignment aca: form.getAttributeClassAssignments())
+		if (form.getAttributeClassAssignments() != null)
 		{
-			attributesHelper.setAttributeClasses(initial.getEntityId(), aca.getGroup(), 
-					Collections.singleton(aca.getAcName()), sql);
+			for (AttributeClassAssignment aca : form.getAttributeClassAssignments())
+			{
+				attributesHelper.setAttributeClasses(initial.getEntityId(),
+						aca.getGroup(),
+						Collections.singleton(aca.getAcName()), sql);
+			}
 		}
-		
-		for (CredentialParamValue c: req.getCredentials())
+		if (req.getCredentials() != null)
 		{
-			engineHelper.setPreviouslyPreparedEntityCredentialInternal(
-					initial.getEntityId(), c.getSecrets(), c.getCredentialId(), sql);
+			for (CredentialParamValue c : req.getCredentials())
+			{
+				engineHelper.setPreviouslyPreparedEntityCredentialInternal(
+						initial.getEntityId(), c.getSecrets(),
+						c.getCredentialId(), sql);
+			}
 		}
-		
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		sendProcessingNotification(notificationsCfg.getAcceptedTemplate(),
 				currentRequest, currentRequest.getRequestId(), form.getName(), true,
@@ -492,6 +504,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			throw new WrongArgumentException("This registration " +
 					"form doesn't allow for passing comments.");
 
+		if (form.getGroupParams() == null)
+			return;
 		if (request.getGroupSelections().size() != form.getGroupParams().size())
 			throw new WrongArgumentException("Wrong amount of group selections, should be: " + 
 					form.getGroupParams().size());
@@ -500,6 +514,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private void validateRequestAgreements(RegistrationForm form, RegistrationRequest request) 
 			throws WrongArgumentException
 	{
+		if (form.getAgreements() == null)
+			return;	
 		if (form.getAgreements().size() != request.getAgreements().size())
 			throw new WrongArgumentException("Number of agreements in the" +
 					" request does not match the form agreements.");
@@ -563,6 +579,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	{
 		List<CredentialParamValue> requestedCreds = request.getCredentials();
 		List<CredentialRegistrationParam> formCreds = form.getCredentialParams();
+		if (formCreds == null)
+			return;
 		if (formCreds.size() != requestedCreds.size())
 			throw new WrongArgumentException("There should be " + formCreds.size() + 
 					" credential parameters");
@@ -897,15 +915,18 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		}
 		ctx.put("attr", attr);
 		ctx.put("attrs", attrs);
-
+		
 		List<Selection> groupSelections = request.getGroupSelections();
 		Map<String, Group> groups = new HashMap<String, Group>();
-		for (int i = 0; i < form.getGroupParams().size(); i++)
+		if (form.getGroupParams() != null)
 		{
-			if (groupSelections.get(i).isSelected())
+			for (int i = 0; i < form.getGroupParams().size(); i++)
 			{
-				GroupRegistrationParam gr = form.getGroupParams().get(i);
-				groups.put(gr.getGroupPath(), new Group(gr.getGroupPath()));
+				if (groupSelections.get(i).isSelected())
+				{
+					GroupRegistrationParam gr = form.getGroupParams().get(i);
+					groups.put(gr.getGroupPath(), new Group(gr.getGroupPath()));
+				}
 			}
 		}
 		ctx.put("groups", new ArrayList<String>(groups.keySet()));

@@ -11,7 +11,7 @@
 				"name": "mapIdentity",
 				"parameters": [
 					"userName",
-					"attr['memberOf']",
+					"'xxxxxxxxxxx'",
 					"Password requirement",
 					"MATCH"
 				]
@@ -26,7 +26,7 @@
 				"parameters": [
 					"email",
 					"/",
-					"attr['memberOf']",
+					"'xxxx@xx.pl'",
 					"full",
 					"CREATE_OR_UPDATE"
 				]
