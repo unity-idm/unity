@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.rewrite.handler.HeaderPatternRule;
-import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -31,7 +29,6 @@ import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration.XFrameOptions;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.jetty.JettyServerBase;
 
@@ -62,43 +59,6 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		initServer();
 		getServer().setSendServerVersion(false);
 		getServer().addBean(new UnityErrorHandler());
-	}
-
-	private Handler configureHttpHeaders(Handler toWrap)
-	{
-		RewriteHandler rewriter = new RewriteHandler();
-		rewriter.setRewriteRequestURI(false);
-		rewriter.setRewritePathInfo(false);
-		rewriter.setHandler(toWrap);
-
-		if (extraSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_HSTS))
-		{
-			HeaderPatternRule hstsRule = new HeaderPatternRule();
-			hstsRule.setName("Strict-Transport-Security");
-			hstsRule.setValue("max-age=31536000; includeSubDomains");
-			hstsRule.setPattern("*");
-			rewriter.addRule(hstsRule);
-		}
-		
-		XFrameOptions frameOpts = extraSettings.getEnumValue(
-				UnityHttpServerConfiguration.FRAME_OPTIONS, XFrameOptions.class);
-		if (frameOpts != XFrameOptions.allow)
-		{
-			HeaderPatternRule frameOriginRule = new HeaderPatternRule();
-			frameOriginRule.setName("X-Frame-Options");
-			
-			StringBuilder sb = new StringBuilder(frameOpts.toHttp());
-			if (frameOpts == XFrameOptions.allowFrom)
-			{
-				String allowedOrigin = extraSettings.getValue(
-						UnityHttpServerConfiguration.ALLOWED_TO_EMBED);
-				sb.append(" ").append(allowedOrigin);
-			}
-			frameOriginRule.setValue(sb.toString());
-			frameOriginRule.setPattern("*");
-			rewriter.addRule(frameOriginRule);
-		}
-		return rewriter;
 	}
 	
 	private static URL[] createURLs(UnityHttpServerConfiguration conf)
@@ -152,7 +112,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		deployedEndpoints = new ArrayList<WebAppEndpointInstance>(16);
 		mainContextHandler.addHandler(new UnityDefaultHandler());
 		
-		return configureHttpHeaders(mainContextHandler);
+		return mainContextHandler;
 	}
 
 	/**
