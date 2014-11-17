@@ -87,8 +87,10 @@ public class LdapClient
 	{
 		LDAPConnection connection = createConnection(configuration);
 		
-		String dn = configuration.getBindDN(user);
-		bindAsUser(connection, user, password, configuration);
+		String dn = establishUserDN(user, configuration, connection);
+		log.debug("Esablished user's DN is: " + dn);
+		
+		bindAsUser(connection, dn, password, configuration);
 		if (configuration.isBindOnly())
 		{
 			RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);
@@ -125,6 +127,43 @@ public class LdapClient
 	}
 
 	/**
+	 * Returns DN of the user. Depending on configuration the user's DN can be simply formed from a 
+	 * configured template or can be discovered with a custom search run as admin user. 
+	 * @param username
+	 * @param configuration
+	 * @param connection
+	 * @return
+	 * @throws LDAPException
+	 * @throws LdapAuthenticationException
+	 */
+	private String establishUserDN(String username, LdapClientConfiguration configuration, 
+			LDAPConnection connection) throws LDAPException, LdapAuthenticationException
+	{
+		SearchSpecification searchForUser = configuration.getSearchForUserSpec(); 
+		if (searchForUser == null)
+			return configuration.getBindDN(username);
+
+		bindAsSystem(connection, configuration);
+		int timeLimit = configuration.getSearchTimeLimit();
+		int sizeLimit = configuration.getAttributesLimit();
+		DereferencePolicy derefPolicy = configuration.getDereferencePolicy();
+		SearchResult result = performSearch(connection, searchForUser, username, 
+				timeLimit, sizeLimit, derefPolicy);
+		if (result.getEntryCount() == 0)
+		{
+			log.debug("Search for the user DN returned no results");
+			throw new LdapAuthenticationException("User was not found");
+		} else if (result.getEntryCount() > 1)
+		{
+			log.debug("Search for the user DN returned moe than one results");
+			throw new LdapAuthenticationException("Too many users found");
+		} else
+		{
+			return result.getSearchEntries().get(0).getDN();			
+		}
+	}
+	
+	/**
 	 * Creates an ladp connection and secures it. Failover settings from configuration are taken into account.
 	 * @param configuration
 	 * @return
@@ -157,6 +196,7 @@ public class LdapClient
 		
 		LDAPConnection connection = failoverSet.getConnection();
 		
+		log.debug("Established connection to LDAP server");
 		if (configuration.getConnectionMode() == ConnectionMode.startTLS)
 		{
 			X509CertChainValidator validator = configuration.getTlsValidator();
@@ -172,23 +212,26 @@ public class LdapClient
 						"a secure TLS connection to the LDAP server: " + 
 						extendedResult.toString());
 			}
+			log.debug("Connection upgraded to TLS");
 		}
 		return connection;
 	}
 
-	private void bindAsUser(LDAPConnection connection, String user, String password, 
+	private void bindAsUser(LDAPConnection connection, String dn, String password, 
 			LdapClientConfiguration configuration) throws LdapAuthenticationException, LDAPException
 	{
-		String dn = configuration.getBindDN(user);
 		try
 		{
 			connection.bind(dn, password);
 		} catch (LDAPException e)
 		{
 			if (ResultCode.INVALID_CREDENTIALS.equals(e.getResultCode()))
+			{
+				log.debug("LDAP bind as user " + dn + " was not successful - invalid password");
 				throw new LdapAuthenticationException("Wrong username or credentials", e);
-			else throw e;
+			} else throw e;
 		}
+		log.debug("LDAP bind as user " + dn + " was successful");
 	}
 
 	private void bindAsSystem(LDAPConnection connection, LdapClientConfiguration configuration) 
@@ -208,6 +251,7 @@ public class LdapClient
 			else
 				throw e;
 		}
+		log.debug("LDAP bind as system user was successful");
 	}
 
 	private RemotelyAuthenticatedInput assembleBaseResult(SearchResultEntry entry)
@@ -382,15 +426,24 @@ public class LdapClient
 		List<SearchSpecification> searchSpecs = configuration.getExtraSearches();
 		for (SearchSpecification searchSpec: searchSpecs)
 		{
-			String[] queriedAttributes = searchSpec.getAttributes();
-			Filter validUsersFilter = searchSpec.getFilter(user);
-			String base = searchSpec.getBaseDN(user);
-			SearchScope scope = searchSpec.getScope().getInternalScope();
-			ReadOnlySearchRequest searchRequest = new SearchRequest(base, scope, derefPolicy, 
-					sizeLimit, timeLimit, false, validUsersFilter, queriedAttributes);
-			SearchResult result = connection.search(searchRequest);
+			SearchResult result = performSearch(connection, searchSpec, user, 
+					timeLimit, sizeLimit, derefPolicy);
 			consolidateAttributes(result, principalData);
 		}
+	}
+	
+	private SearchResult performSearch(LDAPConnection connection, SearchSpecification searchSpec,
+			String username, int timeLimit, int sizeLimit, DereferencePolicy derefPolicy) throws LDAPException
+	{
+		String[] queriedAttributes = searchSpec.getAttributes();
+		Filter validUsersFilter = searchSpec.getFilter(username);
+		String base = searchSpec.getBaseDN(username);
+		SearchScope scope = searchSpec.getScope().getInternalScope();
+		log.debug("Performing LDAP search filter: [" + validUsersFilter + "] base: [" + base + 
+				"] scope: [" + scope +"]");
+		ReadOnlySearchRequest searchRequest = new SearchRequest(base, scope, derefPolicy, 
+				sizeLimit, timeLimit, false, validUsersFilter, queriedAttributes);
+		return connection.search(searchRequest);
 	}
 	
 	private void consolidateAttributes(SearchResult result, RemotelyAuthenticatedInput principalData)

@@ -9,6 +9,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 import eu.unicore.security.AuthenticationException;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -21,6 +23,7 @@ import pl.edu.icm.unity.server.authn.CredentialReset;
 import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 
 /**
@@ -31,6 +34,7 @@ import pl.edu.icm.unity.stdext.credential.PasswordExchange;
  */
 public class LdapVerificator extends AbstractRemoteVerificator implements PasswordExchange
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapVerificator.class);
 	private LdapProperties ldapProperties;
 	private LdapClient client;
 	private LdapClientConfiguration clientConfiguration;
@@ -89,6 +93,7 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 			input = client.bindAndSearch(username, password, clientConfiguration);
 		} catch (LdapAuthenticationException e)
 		{
+			log.debug("LDAP authentication failed", e);
 			return new AuthenticationResult(Status.deny, null, null);
 		} catch (Exception e)
 		{
