@@ -30,6 +30,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.jetty.JettyDefaultHandler;
 import eu.unicore.util.jetty.JettyServerBase;
 
 /**
@@ -57,8 +58,6 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		super(createURLs(cfg.getJettyProperties()), pkiManagement.getMainAuthnAndTrust(), 
 				cfg.getJettyProperties(), null);
 		initServer();
-		getServer().setSendServerVersion(false);
-		getServer().addBean(new UnityErrorHandler());
 	}
 	
 	private static URL[] createURLs(UnityHttpServerConfiguration conf)
@@ -110,7 +109,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		usedContextPaths = new HashMap<String, ServletContextHandler>();
 		mainContextHandler = new ContextHandlerCollection();
 		deployedEndpoints = new ArrayList<WebAppEndpointInstance>(16);
-		mainContextHandler.addHandler(new UnityDefaultHandler());
+		mainContextHandler.addHandler(new JettyDefaultHandler());
 		
 		return mainContextHandler;
 	}
