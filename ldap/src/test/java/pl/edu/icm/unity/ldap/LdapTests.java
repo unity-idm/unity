@@ -459,6 +459,31 @@ public class LdapTests
 	}
 
 	@Test
+	public void testUserDNSearch() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+USER_DN_SEARCH_KEY, "1");
+		p.setProperty(PREFIX+ATTRIBUTES+"1", "sn");
+		p.setProperty(PREFIX+SYSTEM_DN, "cn=user1,ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+SYSTEM_PASSWORD, "user1");	
+
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_BASE, "ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_FILTER, "(sn={USERNAME})");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
+		
+		LdapProperties lp = new LdapProperties(p);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		LdapClient client = new LdapClient("test");
+		RemotelyAuthenticatedInput ret = client.bindAndSearch("User2 Surname", "user1", clientConfig);
+
+		assertEquals(5, ret.getAttributes().size());
+		assertTrue(containsAttribute(ret.getAttributes(), "sn", "User2 Surname"));
+	}
+
+	
+	@Test
 	public void testBindAsSystem() throws Exception
 	{
 		Properties p = new Properties();
@@ -470,7 +495,6 @@ public class LdapTests
 		p.setProperty(PREFIX+BIND_AS, "system");
 		p.setProperty(PREFIX+SYSTEM_DN, "cn=user1,ou=users,dc=unity-example,dc=com");
 		p.setProperty(PREFIX+SYSTEM_PASSWORD, "user1");	
-		p.setProperty(PREFIX+USER_PASSWORD_ATTRIBUTE, "userPassword");
 		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
 		
 		LdapProperties lp = new LdapProperties(p);

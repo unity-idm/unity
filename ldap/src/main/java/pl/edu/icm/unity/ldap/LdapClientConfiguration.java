@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.ldap;
 
+import static pl.edu.icm.unity.ldap.LdapProperties.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +39,7 @@ public class LdapClientConfiguration
 	private int[] ports;
 	private String[] queriedAttributes;
 	private String bindTemplate;
+	private SearchSpecification searchUserQuery;
 	private List<GroupSpecification> groups;
 	private Filter validUsersFilter;
 	private X509CertChainValidator connectionValidator;
@@ -50,10 +53,10 @@ public class LdapClientConfiguration
 	public LdapClientConfiguration(LdapProperties ldapProperties, PKIManagement pkiManagement)
 	{
 		this.ldapProperties = ldapProperties;
-		List<String> servers = ldapProperties.getListOfValues(LdapProperties.SERVERS);
+		List<String> servers = ldapProperties.getListOfValues(SERVERS);
 		this.servers = servers.toArray(new String[servers.size()]);
 
-		List<String> ports = ldapProperties.getListOfValues(LdapProperties.PORTS);
+		List<String> ports = ldapProperties.getListOfValues(PORTS);
 		this.ports = new int[ports.size()];
 		for (int i=0; i<ports.size(); i++)
 			try
@@ -68,24 +71,46 @@ public class LdapClientConfiguration
 
 		if (this.servers.length != this.ports.length)
 			throw new ConfigurationException("LDAP server ports number is not equal the number of servers.");
+
+		if (!(ldapProperties.isSet(USER_DN_TEMPLATE) ^ ldapProperties.isSet(USER_DN_SEARCH_KEY)))
+			throw new ConfigurationException("One and only one of " + 
+					ldapProperties.getKeyDescription(USER_DN_SEARCH_KEY) + 
+					" and " + ldapProperties.getKeyDescription(USER_DN_TEMPLATE) + 
+					" must be defined");
+		String searchUserQueryKey = null;
+		if (ldapProperties.isSet(USER_DN_SEARCH_KEY))
+		{
+			if (!ldapProperties.isSet(SYSTEM_DN) || !ldapProperties.isSet(SYSTEM_PASSWORD))
+				throw new ConfigurationException("To search for users with " + 
+						ldapProperties.getKeyDescription(USER_DN_SEARCH_KEY) + 
+						" system credentials must be defined");
+			searchUserQueryKey = LdapProperties.ADV_SEARCH_PFX + 
+					ldapProperties.getValue(USER_DN_SEARCH_KEY) + ".";
+			Set<String> skeys = ldapProperties.getStructuredListKeys(LdapProperties.ADV_SEARCH_PFX);
+			if (!skeys.contains(searchUserQueryKey))
+				throw new ConfigurationException("A search with the key " + searchUserQueryKey + 
+						" used for searching users is not defined");
+		} else
+		{
+			bindTemplate = ldapProperties.getValue(LdapProperties.USER_DN_TEMPLATE);
+			if (!bindTemplate.contains(USERNAME_TOKEN))
+				throw new ConfigurationException("DN template doesn't contain the mandatory token " + 
+						USERNAME_TOKEN + ": " + bindTemplate);
+		}
+		
 		
 		List<String> attributes = ldapProperties.getListOfValues(LdapProperties.ATTRIBUTES);
 		queriedAttributes = attributes.toArray(new String[attributes.size()]);
 		
-		bindTemplate = ldapProperties.getValue(LdapProperties.USER_DN_TEMPLATE);
-		if (!bindTemplate.contains(USERNAME_TOKEN))
-			throw new ConfigurationException("DN template doesn't contain the mandatory token " + 
-					USERNAME_TOKEN + ": " + bindTemplate);
 		bindAsUser = true;
 		if (ldapProperties.getEnumValue(LdapProperties.BIND_AS, BindAs.class) == BindAs.system)
 		{
 			bindAsUser = false;
 			systemDN = ldapProperties.getValue(LdapProperties.SYSTEM_DN);
 			systemPassword = ldapProperties.getValue(LdapProperties.SYSTEM_PASSWORD);
-			userPasswordAttribute = ldapProperties.getValue(LdapProperties.USER_PASSWORD_ATTRIBUTE);
-			if (systemDN == null || systemPassword == null || userPasswordAttribute == null)
-				throw new ConfigurationException("When binding as system all system DN, password "
-						+ "and user's password attribute name must be configured.");
+			if (systemDN == null || systemPassword == null)
+				throw new ConfigurationException("When binding as system all system DN and password "
+						+ "name must be configured.");
 		}
 		
 		Set<String> keys = ldapProperties.getStructuredListKeys(LdapProperties.GROUP_DEFINITION_PFX);
@@ -146,11 +171,13 @@ public class LdapClientConfiguration
 			}
 			spec.setBaseDN(ldapProperties.getValue(key+LdapProperties.ADV_SEARCH_BASE));
 			String attrs = ldapProperties.getValue(key+LdapProperties.ADV_SEARCH_ATTRIBUTES);
-			String[] attrsA = attrs.split("[ ]+");
+			String[] attrsA = attrs!= null ? attrs.split("[ ]+") : new String[0];
 			spec.setAttributes(attrsA);
 			spec.setScope(ldapProperties.getEnumValue(key+LdapProperties.ADV_SEARCH_SCOPE, 
 					pl.edu.icm.unity.ldap.LdapProperties.SearchScope.class));
 			extraSearches.add(spec);
+			if (searchUserQueryKey != null && searchUserQueryKey.equals(key))
+				searchUserQuery = spec;
 		}
 	}
 
@@ -168,6 +195,11 @@ public class LdapClientConfiguration
 	{
 		String sanitized = LdapUnsafeArgsEscaper.escapeForUseAsDN(userName);
 		return bindTemplate.replace(USERNAME_TOKEN, sanitized);
+	}
+	
+	public SearchSpecification getSearchForUserSpec()
+	{
+		return searchUserQuery;
 	}
 	
 	public boolean isBindOnly()

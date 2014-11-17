@@ -64,6 +64,8 @@ public class LdapProperties extends PropertiesHelper
 	public static final String BIND_AS = "bindAs";
 	
 	public static final String USER_DN_TEMPLATE = "userDNTemplate";
+	public static final String USER_DN_SEARCH_KEY = "userDNSearchKey";
+	
 	public static final String BIND_ONLY = "authenticateOnly";
 	public static final String ATTRIBUTES = "attributes.";
 	public static final String SEARCH_TIME_LIMIT = "searchTimeLimit";
@@ -73,7 +75,6 @@ public class LdapProperties extends PropertiesHelper
 
 	public static final String SYSTEM_DN = "systemDN";
 	public static final String SYSTEM_PASSWORD = "systemPassword";
-	public static final String USER_PASSWORD_ATTRIBUTE = "userPasswordAttribute";
 	
 	public static final String ADV_SEARCH_PFX = "additionalSearch.";
 	public static final String ADV_SEARCH_ATTRIBUTES = "selectedAttributes";
@@ -123,10 +124,19 @@ public class LdapProperties extends PropertiesHelper
 				+ "(and LDAP authorization) is run as the designated system user. In this mode, "
 				+ "the system user's DN, password and user's password attribute must be configured."));
 		
-		META.put(USER_DN_TEMPLATE, new PropertyMD().setMandatory().setCategory(main).setDescription("Template of a DN of " +
+		META.put(USER_DN_TEMPLATE, new PropertyMD().setCategory(main).setDescription("Template of a DN of " +
 				"the user that should be used to log in. The tempalte must possess a single occurence " +
 				"of a special string: '{USERNAME}' (without quotation). The username provided by the client" +
-				" will be substituted."));
+				" will be substituted. Mutually exclusive with " + USER_DN_TEMPLATE + " and at least one of them must be defined."));
+		META.put(USER_DN_SEARCH_KEY, new PropertyMD().setCategory(main).setDescription("A key of one of "
+				+ "the advanced search definitions. The search must be defined and must return "
+				+ "a single entry. The DN of this entry will be treated as a DN of the user being "
+				+ "authenticated. This is useful when the username is not present in the user's DN or "
+				+ "when users can have different DN templates. Using this mode is slower then " + USER_DN_TEMPLATE + 
+				". Mutually exclusive with " + USER_DN_TEMPLATE + " and at least one of them must be defined."
+				+ " To use this mode the " + SYSTEM_DN + " and " + SYSTEM_PASSWORD + " must be also set "
+				+ "to run the initial search."));
+		
 		META.put(BIND_ONLY, new PropertyMD("false").setCategory(main).setDescription("If true then the user is only authenticated" +
 				" and no LDAP attributes (including groups) are collected for the user. " +
 				"This is much faster but maximally limits an information imported to Unity."));
@@ -143,9 +153,6 @@ public class LdapProperties extends PropertiesHelper
 		META.put(SYSTEM_PASSWORD, new PropertyMD().setCategory(main).setDescription("Relevant and mandatory only if " +
 				BIND_AS + " is set to " + BindAs.system + ". The value must be the password of the system "
 				+ "user to authenticate as before performing any queries."));
-		META.put(USER_PASSWORD_ATTRIBUTE, new PropertyMD().setCategory(main).setDescription("Relevant and mandatory only if " +
-				BIND_AS + " is set to " + BindAs.system + ". The value must be the "
-				+ "name of the attribute in which user's password is kept."));
 		
 		META.put(GROUPS_BASE_NAME, new PropertyMD().setCategory(groups).setDescription("Base DN under which all groups are defined. " +
 				"Groups need not to be immediatelly under this DN. If not defined, then groups " +
@@ -190,7 +197,7 @@ public class LdapProperties extends PropertiesHelper
 				setDescription("Filter in LDAP syntax, to match requested entries. The filter can include a special"
 				+ "string: '{USERNAME}' (without quotation). The username provided by the client" +
 				" will be substituted."));
-		META.put(ADV_SEARCH_ATTRIBUTES, new PropertyMD().setStructuredListEntry(ADV_SEARCH_PFX).setMandatory().setCategory(advSearch).
+		META.put(ADV_SEARCH_ATTRIBUTES, new PropertyMD().setStructuredListEntry(ADV_SEARCH_PFX).setCategory(advSearch).
 				setDescription("Space separated list of attributes to be searched. "
 						+ "Attributes from the query will have all values unified from all returned entries by the query."
 						+ "Duplicate values will be removed and finally attributes will be added "

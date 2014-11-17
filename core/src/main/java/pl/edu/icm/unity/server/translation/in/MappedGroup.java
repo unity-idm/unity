@@ -37,4 +37,7 @@ public class MappedGroup
 	{
 		this.createIfMissing = createIfMissing;
 	}
+        public String toString(){
+	    return group;
+        }
 }
