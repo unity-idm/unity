@@ -108,10 +108,9 @@ public class LdapClientConfiguration
 			bindAsUser = false;
 			systemDN = ldapProperties.getValue(LdapProperties.SYSTEM_DN);
 			systemPassword = ldapProperties.getValue(LdapProperties.SYSTEM_PASSWORD);
-			userPasswordAttribute = ldapProperties.getValue(LdapProperties.USER_PASSWORD_ATTRIBUTE);
-			if (systemDN == null || systemPassword == null || userPasswordAttribute == null)
-				throw new ConfigurationException("When binding as system all system DN, password "
-						+ "and user's password attribute name must be configured.");
+			if (systemDN == null || systemPassword == null)
+				throw new ConfigurationException("When binding as system all system DN and password "
+						+ "name must be configured.");
 		}
 		
 		Set<String> keys = ldapProperties.getStructuredListKeys(LdapProperties.GROUP_DEFINITION_PFX);

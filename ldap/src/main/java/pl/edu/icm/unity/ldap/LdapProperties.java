@@ -75,7 +75,6 @@ public class LdapProperties extends PropertiesHelper
 
 	public static final String SYSTEM_DN = "systemDN";
 	public static final String SYSTEM_PASSWORD = "systemPassword";
-	public static final String USER_PASSWORD_ATTRIBUTE = "userPasswordAttribute";
 	
 	public static final String ADV_SEARCH_PFX = "additionalSearch.";
 	public static final String ADV_SEARCH_ATTRIBUTES = "selectedAttributes";
@@ -154,9 +153,6 @@ public class LdapProperties extends PropertiesHelper
 		META.put(SYSTEM_PASSWORD, new PropertyMD().setCategory(main).setDescription("Relevant and mandatory only if " +
 				BIND_AS + " is set to " + BindAs.system + ". The value must be the password of the system "
 				+ "user to authenticate as before performing any queries."));
-		META.put(USER_PASSWORD_ATTRIBUTE, new PropertyMD().setCategory(main).setDescription("Relevant and mandatory only if " +
-				BIND_AS + " is set to " + BindAs.system + ". The value must be the "
-				+ "name of the attribute in which user's password is kept."));
 		
 		META.put(GROUPS_BASE_NAME, new PropertyMD().setCategory(groups).setDescription("Base DN under which all groups are defined. " +
 				"Groups need not to be immediatelly under this DN. If not defined, then groups " +

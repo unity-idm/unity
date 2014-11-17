@@ -495,7 +495,6 @@ public class LdapTests
 		p.setProperty(PREFIX+BIND_AS, "system");
 		p.setProperty(PREFIX+SYSTEM_DN, "cn=user1,ou=users,dc=unity-example,dc=com");
 		p.setProperty(PREFIX+SYSTEM_PASSWORD, "user1");	
-		p.setProperty(PREFIX+USER_PASSWORD_ATTRIBUTE, "userPassword");
 		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
 		
 		LdapProperties lp = new LdapProperties(p);
