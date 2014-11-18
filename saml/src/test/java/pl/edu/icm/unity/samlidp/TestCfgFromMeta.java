@@ -102,6 +102,14 @@ public class TestCfgFromMeta extends DBIntegrationTestBase
 		assertEquals("false", ret.getValue(pfx + IDP_SIGN_REQUEST));
 		assertEquals("metaTrP", ret.getValue(pfx + IDP_TRANSLATION_PROFILE));
 		
+		pfx = getPrefixOf("https://aai-login.phbern.ch/idp/shibboleth", ret);
+		assertEquals("https://aai-login.phbern.ch/idp/profile/SAML2/Redirect/SLO", 
+				ret.getValue(pfx + IDP_REDIRECT_LOGOUT_URL));
+		assertEquals("https://aai-login.phbern.ch/idp/profile/SAML2/POST/SLO", 
+				ret.getValue(pfx + IDP_POST_LOGOUT_URL));
+		assertEquals("https://aai-login.phbern.ch:8443/idp/profile/SAML2/SOAP/SLO", 
+				ret.getValue(pfx + IDP_SOAP_LOGOUT_URL));
+		
 	}
 	
 	private String getPrefixOf(String entity, SAMLSPProperties cfg)

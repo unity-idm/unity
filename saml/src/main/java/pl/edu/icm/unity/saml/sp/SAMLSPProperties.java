@@ -21,7 +21,6 @@ import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
 import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.trust.StrictSamlTrustChecker;
@@ -39,13 +38,7 @@ public class SAMLSPProperties extends SamlProperties
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, SAMLSPProperties.class);
 	
-	/**
-	 * Note: it is intended that {@link SAMLBindings} is not used here: we want to have only the 
-	 * supported bindings here. However the names here must be exactly the same as in {@link SAMLBindings}.
-	 * Note that adding a new binding here requires a couple of changes in the code. 
-	 * E.g. support in SAML Metadata-> config conversion, ECP, web retrieval, ....
-	 */
-	public enum Binding {HTTP_REDIRECT, HTTP_POST, SOAP};
+
 	
 	public enum MetadataSignatureValidation {require, ignore};
 	
@@ -81,6 +74,9 @@ public class SAMLSPProperties extends SamlProperties
 	public static final String IDP_ID = "samlId";
 	public static final String IDP_ADDRESS = "address";
 	public static final String IDP_BINDING = "binding";
+	public static final String IDP_REDIRECT_LOGOUT_URL = "redirectLogoutEndpoint";
+	public static final String IDP_POST_LOGOUT_URL = "postLogoutEndpoint";
+	public static final String IDP_SOAP_LOGOUT_URL = "soapLogoutEndpoint";
 	public static final String IDP_CERTIFICATE = "certificate";
 	public static final String IDP_CERTIFICATES = "certificates.";
 	public static final String IDP_SIGN_REQUEST = "signRequest";
@@ -107,6 +103,12 @@ public class SAMLSPProperties extends SamlProperties
 				"Address of the IdP endpoint."));
 		META.put(IDP_BINDING, new PropertyMD(Binding.HTTP_REDIRECT).setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
 				"SAML binding to be used to send a request to the IdP. If you use 'SOAP' here then the IdP will be available only for ECP logins, not via the web browser login."));
+		META.put(IDP_REDIRECT_LOGOUT_URL, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
+				"Address of the IdP Single Logout Endpoint supporting HTTP Redirect binding."));
+		META.put(IDP_POST_LOGOUT_URL, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
+				"Address of the IdP Single Logout Endpoint supporting HTTP POST binding."));
+		META.put(IDP_SOAP_LOGOUT_URL, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
+				"Address of the IdP Single Logout Endpoint supporting SOAP binding."));
 		META.put(IDP_NAME, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setCanHaveSubkeys().setDescription(
 				"Displayed name of the IdP. If not defined then the name is created " +
 				"from the IdP address (what is rather not user friendly). The property can have subkeys being "

@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -74,6 +75,7 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String ALLOWED_SP_RETURN_URL = "returnURL";
 	public static final String ALLOWED_SP_CERT = "certificate";
 	public static final String ALLOWED_SP_ENCRYPT = "encryptAssertion";
+	public static final String ALLOWED_SP_LOGOUT_ENDPOINT = "logoutEndpoint.";
 	
 	public static final String GROUP_PFX = "groupMapping.";
 	public static final String GROUP_TARGET = "serviceProvider";
@@ -153,7 +155,13 @@ public class SamlIdpProperties extends SamlProperties
 				setDescription("Response consumer address of the SP. Mandatory when acceptance " +
 				"policy is +validRequester+, optional otherwise as SAML requesters may send this address" +
 				"with a request."));
-
+		defaults.put(ALLOWED_SP_LOGOUT_ENDPOINT, new PropertyMD().setStructuredListEntry(ALLOWED_SP).
+				setList(false).setCategory(samlCat).
+				setDescription("List with values being Single Logout Endpoints supported by the SP. "
+						+ "Each value should be encoded as BINDING:URL, where binding is one of "
+						+ Arrays.toString(Binding.values()) + 
+						" and URL is a full address of the endpoint."));
+		
 		defaults.put(TRANSLATION_PROFILE, new PropertyMD().setCategory(samlCat).
 				setDescription("Name of an output translation profile which can be used to dynamically modify the "
 						+ "data being returned on this endpoint. When not defined the default profile is used: "

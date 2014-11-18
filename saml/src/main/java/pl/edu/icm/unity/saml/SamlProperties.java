@@ -14,6 +14,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
@@ -27,6 +28,14 @@ import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 public abstract class SamlProperties extends PropertiesHelper
 {
 	public static final String P = "unity.saml.";
+	
+	/**
+	 * Note: it is intended that {@link SAMLBindings} is not used here: we want to have only the 
+	 * supported bindings here. However the names here must be exactly the same as in {@link SAMLBindings}.
+	 * Note that adding a new binding here requires a couple of changes in the code. 
+	 * E.g. support in SAML Metadata-> config conversion, ECP, web retrieval, ....
+	 */
+	public enum Binding {HTTP_REDIRECT, HTTP_POST, SOAP};
 	
 	public static final String PUBLISH_METADATA = "publishMetadata";
 	public static final String SIGN_METADATA = "signMetadata";
