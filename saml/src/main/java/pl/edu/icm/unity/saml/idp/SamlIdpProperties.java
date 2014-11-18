@@ -23,7 +23,6 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
 import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
@@ -103,8 +102,6 @@ public class SamlIdpProperties extends SamlProperties
 	
 	static
 	{
-		DocumentationCategory remoteMeta = new DocumentationCategory("Configuration from trusted SAML metadata", "02");
-		
 		DocumentationCategory sp = new DocumentationCategory("Manual settings of allowed Sps", "03");
 		
 		DocumentationCategory samlCat = new DocumentationCategory("SAML subsystem settings", "5");
@@ -180,28 +177,15 @@ public class SamlIdpProperties extends SamlProperties
 						+ "data being returned on this endpoint. When not defined the default profile is used: "
 						+ "attributes are not filtered, memberOf attribute is added with group membership"));
 		defaults.put(TRUSTSTORE, new PropertyMD().setCategory(samlCat).
-				setDescription("Truststore name to setup SAML trust settings. The truststore is used to verify request signature issuer, " +
+				setDescription("Truststore name to setup SAML trust settings. The truststore "
+						+ "is used to verify request signature issuer, " +
 						"if the Service Provider accept policy requires so."));
 		defaults.put(CREDENTIAL, new PropertyMD().setMandatory().setCategory(samlCat).
 				setDescription("SAML IdP credential name, which is used to sign responses."));	
-		
-		defaults.put(SPMETA_PREFIX, new PropertyMD().setCategory(remoteMeta).setStructuredList(false).setDescription(
-				"Under this prefix you can configure the remote trusted SAML Sps however not providing all their details but only their metadata."));	
-		defaults.put(METADATA_URL, new PropertyMD().setCategory(remoteMeta).setMandatory().setStructuredListEntry(SPMETA_PREFIX).setDescription(
-				"URL with the metadata location. Can be local or HTTP(s) URL. "
-				+ "In case of HTTPS the server's certificate will be checked against the main Unity server's truststore"
-				+ " only if ."));
-		defaults.put(METADATA_REFRESH, new PropertyMD("3600").setCategory(remoteMeta).setDescription(
-				"How often the metadata should be reloaded."));
-		defaults.put(METADATA_HTTPS_TRUSTSTORE, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(SPMETA_PREFIX).setDescription(
-				"If set then the given truststore will be used for HTTPS connection validation during metadata fetching. Otherwise the default Java trustststore will beused."));
-		defaults.put(METADATA_SIGNATURE, new PropertyMD(MetadataSignatureValidation.ignore).setCategory(remoteMeta).setStructuredListEntry(SPMETA_PREFIX).setDescription(
-				"Controls whether metadata signatures should be checked. If checking is turned on then the validation certificate must be set."));
-		defaults.put(METADATA_ISSUER_CERT, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(SPMETA_PREFIX).setDescription(
-				"Name of certificate to check metadata signature. Used only if signatures checking is turned on."));
-		
-		defaults.putAll(SamlProperties.defaults);
-		
+
+		defaults.putAll(SamlProperties.getDefaults(SPMETA_PREFIX, 
+				"Under this prefix you can configure the remote trusted SAML Sps however not "
+				+ "providing all their details but only their metadata."));
 	}
 
 	private boolean signRespNever;

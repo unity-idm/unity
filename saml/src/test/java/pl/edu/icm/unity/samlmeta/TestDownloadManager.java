@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -52,6 +53,7 @@ public class TestDownloadManager extends DBIntegrationTestBase
 	@Autowired
 	private MetaDownloadManager downloadManager;
 	
+	@Ignore
 	@Test
 	public void testDownload() throws IOException, EngineException, InterruptedException
 	{
