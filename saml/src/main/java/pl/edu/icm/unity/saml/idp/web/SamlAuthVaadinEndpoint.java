@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.idp.web;
 
 import java.util.EnumSet;
+import java.util.Map;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
@@ -15,8 +16,6 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
@@ -25,10 +24,14 @@ import pl.edu.icm.unity.saml.idp.web.filter.SamlParseServlet;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataServlet;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
+import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityVaadinServlet;
@@ -37,6 +40,8 @@ import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Extends a simple {@link VaadinEndpoint} with configuration of SAML authn filter. Also SAML configuration
@@ -52,11 +57,18 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	protected ExecutorsService executorsService;
 	protected String samlConsumerPath;
 	protected String samlMetadataPath;
+	protected RemoteMetaManager myMetadataManager;
+	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private MetaDownloadManager downloadManager;
+	private UnityServerConfiguration mainConfig;
 	
-	public SamlAuthVaadinEndpoint(EndpointTypeDescription type, ApplicationContext applicationContext,
-			FreemarkerHandler freemarkerHandler, Class<?> uiClass, String samlUiServletPath, 
-			PKIManagement pkiManagement, ExecutorsService executorsService, 
-			String samlConsumerPath, String samlMetadataPath)
+	public SamlAuthVaadinEndpoint(EndpointTypeDescription type,
+			ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
+			Class<?> uiClass, String samlUiServletPath, PKIManagement pkiManagement,
+			ExecutorsService executorsService, UnityServerConfiguration mainConfig,
+			Map<String, RemoteMetaManager> remoteMetadataManagers,
+			MetaDownloadManager downloadManager, String samlConsumerPath,
+			String samlMetadataPath)
 	{
 		super(type, applicationContext, uiClass.getSimpleName(), samlUiServletPath);
 		this.freemarkerHandler = freemarkerHandler;
@@ -64,6 +76,10 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		this.executorsService = executorsService;
 		this.samlConsumerPath = samlConsumerPath;
 		this.samlMetadataPath = samlMetadataPath;
+		this.remoteMetadataManagers = remoteMetadataManagers;
+		this.downloadManager = downloadManager;
+		this.mainConfig = mainConfig;
+		
 	}
 	
 	@Override
@@ -77,6 +93,22 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		{
 			throw new ConfigurationException("Can't initialize the SAML Web IdP endpoint's configuration", e);
 		}
+		
+		String id = getEndpointDescription().getId();
+		if (!remoteMetadataManagers.containsKey(id))
+		{
+			myMetadataManager = new RemoteMetaManager(samlProperties, 
+					mainConfig, executorsService, pkiManagement, 
+					new MetaToIDPConfigConverter(pkiManagement), downloadManager, 
+					SamlIdpProperties.SPMETA_PREFIX);
+			remoteMetadataManagers.put(id, myMetadataManager);
+			myMetadataManager.start();
+		} else
+		{
+			myMetadataManager = remoteMetadataManagers.get(id);
+			myMetadataManager.setBaseConfiguration(samlProperties);
+		}
+		
 	}
 
 	@Override
@@ -129,7 +161,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	
 	protected Servlet getSamlParseServlet(String endpointURL, String uiUrl)
 	{
-		return new SamlParseServlet(samlProperties, 
+		return new SamlParseServlet(myMetadataManager, 
 				endpointURL, uiUrl, new ErrorHandler(freemarkerHandler));
 	}
 	

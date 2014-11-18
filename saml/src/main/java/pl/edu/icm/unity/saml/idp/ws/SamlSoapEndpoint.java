@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.saml.idp.ws;
 
+import java.util.Map;
+
 import javax.servlet.Servlet;
 
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -13,12 +15,16 @@ import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataServlet;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
+import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.ws.CXFEndpoint;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
@@ -40,12 +46,17 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	protected PKIManagement pkiManagement;
 	protected ExecutorsService executorsService;
 	protected String samlMetadataPath;
+	protected RemoteMetaManager myMetadataManager;
+	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private MetaDownloadManager downloadManager;
+	private UnityServerConfiguration mainConfig;
 	
 	public SamlSoapEndpoint(UnityMessageSource msg, EndpointTypeDescription type,
-			String servletPath,  String metadataPath,
-			IdPEngine idpEngine,
-			PreferencesManagement preferencesMan, PKIManagement pkiManagement, 
-			ExecutorsService executorsService, SessionManagement sessionMan)
+			String servletPath, String metadataPath, IdPEngine idpEngine,
+			PreferencesManagement preferencesMan, PKIManagement pkiManagement,
+			ExecutorsService executorsService, SessionManagement sessionMan,
+			Map<String, RemoteMetaManager> remoteMetadataManagers,
+			MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig)
 	{
 		super(msg, sessionMan, type, servletPath);
 		this.idpEngine = idpEngine;
@@ -53,6 +64,9 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		this.pkiManagement = pkiManagement;
 		this.samlMetadataPath = metadataPath;
 		this.executorsService = executorsService;
+		this.remoteMetadataManagers = remoteMetadataManagers;
+		this.downloadManager = downloadManager;
+		this.mainConfig = mainConfig;
 	}
 
 	@Override
@@ -67,6 +81,21 @@ public class SamlSoapEndpoint extends CXFEndpoint
 			throw new ConfigurationException("Can't initialize the SAML SOAP" +
 					" IdP endpoint's configuration", e);
 		}
+		String id = getEndpointDescription().getId();
+		if (!remoteMetadataManagers.containsKey(id))
+		{
+			
+			myMetadataManager = new RemoteMetaManager(samlProperties, 
+					mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement), downloadManager, SamlIdpProperties.SPMETA_PREFIX);
+			remoteMetadataManagers.put(id, myMetadataManager);
+			myMetadataManager.start();
+		} else
+		{
+			myMetadataManager = remoteMetadataManagers.get(id);
+			myMetadataManager.setBaseConfiguration(samlProperties);
+		}
+		
+		
 	}
 	
 	@Override
@@ -86,10 +115,11 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	protected void configureServices()
 	{
 		String endpointURL = getServletUrl(servletPath);
-		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(samlProperties, 
+		SamlIdpProperties virtualConf = (SamlIdpProperties) myMetadataManager.getVirtualConfiguration();
+		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(virtualConf, 
 				endpointURL, idpEngine, preferencesMan);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
-		SAMLAuthnImpl authnImpl = new SAMLAuthnImpl(samlProperties, endpointURL, 
+		SAMLAuthnImpl authnImpl = new SAMLAuthnImpl(virtualConf, endpointURL, 
 				idpEngine, preferencesMan);
 		addWebservice(SAMLAuthnInterface.class, authnImpl);		
 	}

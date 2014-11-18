@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
@@ -49,13 +50,14 @@ public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 	private URL baseAddress;
 	private String baseContext;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private MetaDownloadManager downloadManager;
 	
 	@Autowired
 	public SAMLVerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement,
 			InputTranslationEngine trEngine, 
 			PKIManagement pkiMan, ReplayAttackChecker replayAttackChecker,
 			SharedEndpointManagement sharedEndpointManagement, SamlContextManagement contextManagement,
-			NetworkServer jettyServer, ExecutorsService executorsService, 
+			NetworkServer jettyServer, ExecutorsService executorsService, MetaDownloadManager downloadManager,
 			UnityServerConfiguration mainConfig) 
 					throws EngineException
 	{
@@ -67,6 +69,7 @@ public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 		this.baseAddress = jettyServer.getAdvertisedAddress();
 		this.baseContext = sharedEndpointManagement.getBaseContextPath();
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
+		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
 		
 		ServletHolder servlet = new ServletHolder(new SAMLResponseConsumerServlet(contextManagement));
@@ -95,6 +98,6 @@ public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 		
 		return new SAMLVerificator(NAME, getDescription(), profileManagement, trEngine, pkiMan, 
 				replayAttackChecker, executorsService, metadataServlet,
-				baseAddress, baseContext, remoteMetadataManagers, mainConfig);
+				baseAddress, baseContext, remoteMetadataManagers, downloadManager, mainConfig);
 	}
 }

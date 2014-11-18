@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.samlidp;
+package pl.edu.icm.unity.samlmeta;
 
 import java.io.ByteArrayInputStream;
 import java.security.cert.X509Certificate;
@@ -18,13 +18,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaToSPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 
-public class TestCfgFromMeta extends DBIntegrationTestBase
+public class TestSpCfgFromMeta extends DBIntegrationTestBase
 {
 	@Autowired
 	private ExecutorsService executorsService;
@@ -35,6 +37,9 @@ public class TestCfgFromMeta extends DBIntegrationTestBase
 	@Autowired
 	private PKIManagement pkiManagement;
 	
+	@Autowired
+	private MetaDownloadManager downloadManager;
+	
 	@Test
 	public void testConfigureSPFromMetadata() throws Exception
 	{
@@ -43,13 +48,13 @@ public class TestCfgFromMeta extends DBIntegrationTestBase
 		p.setProperty(P+REQUESTER_ID, "me");
 		p.setProperty(P+PUBLISH_METADATA, "false");
 
-		p.setProperty(P+IDPMETA_PREFIX+"1." + IDPMETA_URL, "file:src/test/resources/metadata.switchaai.xml");
+		p.setProperty(P+IDPMETA_PREFIX+"1." + METADATA_URL, "file:src/test/resources/metadata.switchaai.xml");
 		p.setProperty(P+IDPMETA_PREFIX+"1." + IDPMETA_TRANSLATION_PROFILE, "metaTrP");
 		p.setProperty(P+IDPMETA_PREFIX+"1." + IDPMETA_REGISTRATION_FORM, "metaRegForm");
-		p.setProperty(P+IDPMETA_PREFIX+"1." + IDPMETA_SIGNATURE, "require");
+		p.setProperty(P+IDPMETA_PREFIX+"1." + METADATA_SIGNATURE, "require");
 		X509Certificate cert = CertificateUtils.loadCertificate(new ByteArrayInputStream(CERT.getBytes()), Encoding.PEM);
 		pkiManagement.addCertificate("issuerCert", cert);
-		p.setProperty(P+IDPMETA_PREFIX+"1." + IDPMETA_ISSUER_CERT, "issuerCert");
+		p.setProperty(P+IDPMETA_PREFIX+"1." + METADATA_ISSUER_CERT, "issuerCert");
 
 		p.setProperty(P+IDP_PREFIX+"1." + IDP_ADDRESS, "https://aai.unifr.ch/idp/profile/SAML2/Redirect/SSO");
 		p.setProperty(P+IDP_PREFIX+"1." + IDP_BINDING, "HTTP_POST");
@@ -69,10 +74,10 @@ public class TestCfgFromMeta extends DBIntegrationTestBase
 
 		SAMLSPProperties configuration = new SAMLSPProperties(p, pkiManagement);
 		RemoteMetaManager manager = new RemoteMetaManager(configuration, 
-				mainConfig, executorsService, pkiManagement);
+				mainConfig, executorsService, pkiManagement, new MetaToSPConfigConverter(pkiManagement), downloadManager, SAMLSPProperties.IDPMETA_PREFIX);
 		manager.reloadAll();
 		
-		SAMLSPProperties ret = manager.getVirtualConfiguration();
+		SAMLSPProperties ret = (SAMLSPProperties) manager.getVirtualConfiguration();
 		
 		String pfx = getPrefixOf("https://aai.unifr.ch/idp/shibboleth", ret);
 		assertEquals("https://aai.unifr.ch/idp/profile/SAML2/Redirect/SSO", ret.getValue(pfx + IDP_ADDRESS));

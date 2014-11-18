@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.web;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,10 +17,13 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
+import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
@@ -39,17 +43,23 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	private FreemarkerHandler freemarkerHandler;
 	private PKIManagement pkiManagement;
 	protected ExecutorsService executorsService;
+	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private MetaDownloadManager downloadManager;
+	private UnityServerConfiguration mainConfig;
 
 	
 	@Autowired
 	public SamlUnicoreIdPWebEndpointFactory(ApplicationContext applicationContext, 
 			FreemarkerHandler freemarkerHandler, PKIManagement pkiManagement, 
-			ExecutorsService executorsService)
+			ExecutorsService executorsService, MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;
 		this.pkiManagement = pkiManagement;
 		this.executorsService = executorsService;
+		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
+		this.mainConfig = mainConfig;
+		this.downloadManager = downloadManager;
 		
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
@@ -70,8 +80,10 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new SamlAuthETDVaadinEndpoint(getDescription(), applicationContext, freemarkerHandler,
-				SamlUnicoreIdPWebUI.class, SAML_UI_SERVLET_PATH, pkiManagement, executorsService,
-				SAML_CONSUMER_SERVLET_PATH, SamlIdPWebEndpointFactory.SAML_META_SERVLET_PATH);
+		return new SamlAuthETDVaadinEndpoint(getDescription(), applicationContext,
+				freemarkerHandler, SamlUnicoreIdPWebUI.class, SAML_UI_SERVLET_PATH,
+				pkiManagement, executorsService, remoteMetadataManagers, downloadManager, 
+				mainConfig, SAML_CONSUMER_SERVLET_PATH,
+				SamlIdPWebEndpointFactory.SAML_META_SERVLET_PATH);
 	}
 }

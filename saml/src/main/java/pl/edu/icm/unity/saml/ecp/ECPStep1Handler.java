@@ -81,7 +81,7 @@ public class ECPStep1Handler
 		EnvelopeDocument envDoc = EnvelopeDocument.Factory.newInstance();
 		Envelope env = envDoc.addNewEnvelope();
 		
-		SAMLSPProperties samlProperties = metadataManager.getVirtualConfiguration();
+		SAMLSPProperties samlProperties = (SAMLSPProperties) metadataManager.getVirtualConfiguration();
 		
 		Header header = env.addNewHeader();
 		XmlCursor curH = header.newCursor();
