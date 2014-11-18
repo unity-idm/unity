@@ -56,7 +56,8 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 
 		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_URL, "file:src/test/resources/metadata.switchaai.xml");
 		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_SIGNATURE, "require");
-		X509Certificate cert = CertificateUtils.loadCertificate(new ByteArrayInputStream(CERT.getBytes()), Encoding.PEM);
+		X509Certificate cert = CertificateUtils.loadCertificate(new ByteArrayInputStream(CERT.getBytes()), 
+				Encoding.PEM);
 		pkiManagement.addCertificate("issuerCert2", cert);
 		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_ISSUER_CERT, "issuerCert2");
 
@@ -71,7 +72,9 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 		
 		
 		RemoteMetaManager manager = new RemoteMetaManager(configuration, 
-				mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement), downloadManager, SamlIdpProperties.SPMETA_PREFIX);
+				mainConfig, executorsService, pkiManagement, 
+				new MetaToIDPConfigConverter(pkiManagement), 
+					downloadManager, SamlIdpProperties.SPMETA_PREFIX);
 		manager.reloadAll();
 		
 		SamlIdpProperties ret = (SamlIdpProperties) manager.getVirtualConfiguration();
@@ -85,7 +88,8 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 
 		
 		pfx = getPrefixOf("https://attribute-viewer.aai.switch.ch/interfederation-test/shibboleth", ret);
-		assertEquals("https://aai-viewer.switch.ch/interfederation-test/Shibboleth.sso/SAML2/POST", ret.getValue(pfx + ALLOWED_SP_RETURN_URL));
+		assertEquals("https://aai-viewer.switch.ch/interfederation-test/Shibboleth.sso/SAML2/POST", 
+				ret.getValue(pfx + ALLOWED_SP_RETURN_URL));
 		String certName = ret.getValue(pfx + ALLOWED_SP_CERTIFICATES + "1");
 		assertNotNull(pkiManagement.getCertificate(certName));
 	

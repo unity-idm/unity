@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
@@ -65,6 +66,8 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 	{
 		SamlIdpProperties realConfig = (SamlIdpProperties) realConfigG;
 		SPSSODescriptorType[] spDefs = meta.getSPSSODescriptorArray();
+		RequestAcceptancePolicy trustMode = realConfig.getEnumValue(SamlIdpProperties.SP_ACCEPT_POLICY, 
+				RequestAcceptancePolicy.class);
 		if (spDefs == null || spDefs.length == 0)
 			return;
 	
@@ -80,26 +83,27 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 			
 			KeyDescriptorType[] keys = spDef.getKeyDescriptorArray();
 			List<X509Certificate> certs = getSigningCerts(keys, entityId);
-			if (certs.isEmpty())
+			if (!certs.isEmpty())
 			{
-				log.info("No signing certificate found for sp, skipping it: " + 
-						entityId);
+				try
+				{
+					updatePKICerts(certs, entityId, IDP_META_CERT );
+				} catch (EngineException e)
+				{
+					log.error("Adding remote SPs certs to local certs store failed, "
+							+ "skipping IdP: " + entityId, e);
+					continue;
+				}
+			} else if (trustMode == RequestAcceptancePolicy.strict)
+			{
+				log.info("No signing certificate found for SP, skipping it as "
+						+ "the 'strict' trust model is used: " + entityId);
 				continue;
 			}
 			
 			IndexedEndpointType aserServ = selectHttpPostService(spDef);
 			if (aserServ == null)
 				continue;
-			
-			try
-			{
-				updatePKICerts(certs, entityId, IDP_META_CERT );
-			} catch (EngineException e)
-			{
-				log.error("Adding remote SPs certs to local certs store failed, "
-						+ "skipping IdP: " + entityId, e);
-				continue;
-			}
 		
 			UIInfoType uiInfo = parseMDUIInfo(spDef.getExtensions(), entityId);
 			Map<String, String> names = getLocalizedNames(uiInfo, spDef);
