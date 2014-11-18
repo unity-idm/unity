@@ -97,9 +97,10 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		String id = getEndpointDescription().getId();
 		if (!remoteMetadataManagers.containsKey(id))
 		{
-			
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
-					mainConfig, executorsService, pkiManagement, new MetaToIDPConfigConverter(pkiManagement), downloadManager, SamlIdpProperties.SPMETA_PREFIX);
+					mainConfig, executorsService, pkiManagement, 
+					new MetaToIDPConfigConverter(pkiManagement), downloadManager, 
+					SamlIdpProperties.SPMETA_PREFIX);
 			remoteMetadataManagers.put(id, myMetadataManager);
 			myMetadataManager.start();
 		} else
@@ -161,8 +162,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	
 	protected Servlet getSamlParseServlet(String endpointURL, String uiUrl)
 	{
-		SamlIdpProperties virtualConf = (SamlIdpProperties) myMetadataManager.getVirtualConfiguration();
-		return new SamlParseServlet(virtualConf, 
+		return new SamlParseServlet(myMetadataManager, 
 				endpointURL, uiUrl, new ErrorHandler(freemarkerHandler));
 	}
 	

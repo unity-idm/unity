@@ -38,7 +38,7 @@ import eu.unicore.samly2.SAMLConstants;
 
 public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MetaToSPConfigConverter.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MetaToIDPConfigConverter.class);
 	private static final String IDP_META_CERT = "_IDP_METADATA_CERT_";
 	
 	public MetaToIDPConfigConverter(PKIManagement pkiManagement)
@@ -159,8 +159,8 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 						logo.getValue().getStringValue());
 		}
 					
-		log.debug("Added a accepted SP loaded from SAML metadata: " + entityId + " with " + 
-				serviceEndpoint.getLocation() + " returnl url");		
+		log.debug("Added an accepted SP loaded from SAML metadata: " + entityId + " with " + 
+				serviceEndpoint.getLocation() + " return url");		
 	}
 		
 	private String getExistingKey(String entityId, SamlIdpProperties realConfig)
