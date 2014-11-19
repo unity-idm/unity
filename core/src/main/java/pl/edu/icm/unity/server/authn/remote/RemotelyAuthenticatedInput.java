@@ -9,6 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import pl.edu.icm.unity.server.api.internal.SessionParticipant;
+
 /**
  * Holds a raw information obtained from an upstream IdP. The purpose of this class is to provide a common interchange
  * format between a pluggable upstream IdP implementation and a fixed code of RemoteVerficator. 
@@ -22,6 +24,7 @@ import java.util.Map;
 public class RemotelyAuthenticatedInput
 {
 	private String idpName;
+	private SessionParticipant sessionParticipant;
 	private Map<String, RemoteGroupMembership> groups;
 	private Map<String, RemoteAttribute> attributes;
 	private Map<String, RemoteIdentity> identities;
@@ -86,6 +89,16 @@ public class RemotelyAuthenticatedInput
 		return identities;
 	}
 	
+	public SessionParticipant getSessionParticipant()
+	{
+		return sessionParticipant;
+	}
+
+	public void setSessionParticipant(SessionParticipant sessionParticipant)
+	{
+		this.sessionParticipant = sessionParticipant;
+	}
+
 	@Override
 	public String toString()
 	{

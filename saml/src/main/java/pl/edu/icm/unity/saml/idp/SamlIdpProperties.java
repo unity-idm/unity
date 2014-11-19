@@ -419,30 +419,11 @@ public class SamlIdpProperties extends SamlProperties
 
 	public String getReturnAddressForRequester(NameIDType requester)
 	{
-		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
-		boolean dnName = requester.getFormat() != null && requester.getFormat().equals(
-				SAMLConstants.NFORMAT_DN); 
-		for (String allowedKey: allowedKeys)
-		{
-			if (dnName)
-			{
-				String name = getValue(allowedKey + ALLOWED_SP_DN);
-				if (name == null)
-					continue;
-				if (!X500NameUtils.equal(name, requester.getStringValue()))
-					continue;
-			} else
-			{
-				String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
-				if (name == null)
-					continue;
-				if (!name.equals(requester.getStringValue()))
-					continue;
-			}
-			
-			return getValue(allowedKey + ALLOWED_SP_RETURN_URL);
-		}
-		return null;
+		String spKey = getSPConfigKey(requester);
+		if (spKey == null)
+			return null;
+
+		return getValue(spKey + ALLOWED_SP_RETURN_URL);
 	}
 	
 	/**
@@ -453,54 +434,36 @@ public class SamlIdpProperties extends SamlProperties
 	public X509Certificate getEncryptionCertificateForRequester(NameIDType requester)
 	{
 		X509Certificate rc = null;
-		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
-		boolean dnName = requester.getFormat() != null && requester.getFormat().equals(
-				SAMLConstants.NFORMAT_DN); 
-		for (String allowedKey: allowedKeys)
-		{
-			if (dnName)
-			{
-				String name = getValue(allowedKey + ALLOWED_SP_DN);
-				if (name == null)
-					continue;
-				if (!X500NameUtils.equal(name, requester.getStringValue()))
-					continue;
-			} else
-			{
-				String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
-				if (name == null)
-					continue;
-				if (!name.equals(requester.getStringValue()))
-					continue;
-			}
-			
-			if (!getBooleanValue(allowedKey + ALLOWED_SP_ENCRYPT))
-				return null;
+		String spKey = getSPConfigKey(requester);
+		if (spKey == null)
+			return null;
+		
+		if (!getBooleanValue(spKey + ALLOWED_SP_ENCRYPT))
+			return null;
 						
-			Set<String> spCertNames = getAllowedSpCerts(allowedKey);
-			Set<X509Certificate> certs = new HashSet<X509Certificate>();
-			for (String spCertName: spCertNames)
+		Set<String> spCertNames = getAllowedSpCerts(spKey);
+		Set<X509Certificate> certs = new HashSet<X509Certificate>();
+		for (String spCertName: spCertNames)
+		{
+			try
+			{	 
+				certs.add(pkiManagement.getCertificate(spCertName));
+
+			} catch (EngineException e)
 			{
-				try
-				{	 
-					certs.add(pkiManagement.getCertificate(spCertName));
-					
-				} catch (EngineException e)
-				{
-					throw new InternalException("Can't retrieve SAML encryption certificate " + spCertName +
-							 " for requester with config key " + allowedKey, e);
-				}	
-			}
-			
-			for (X509Certificate c : certs)
+				throw new InternalException("Can't retrieve SAML encryption certificate " + spCertName +
+						" for requester with config key " + spKey, e);
+			}	
+		}
+
+		for (X509Certificate c : certs)
+		{
+			if (rc == null)
 			{
-				if (rc == null)
-				{
-					rc = c;
-				} else if (c.getNotAfter().compareTo(rc.getNotAfter()) > 0)
-				{
-					rc = c;
-				}
+				rc = c;
+			} else if (c.getNotAfter().compareTo(rc.getNotAfter()) > 0)
+			{
+				rc = c;
 			}
 		}
 		return rc;
@@ -513,6 +476,33 @@ public class SamlIdpProperties extends SamlProperties
 			spCertNames.add(getValue(key + ALLOWED_SP_CERTIFICATE));
 		spCertNames.addAll(getListOfValues(key + ALLOWED_SP_CERTIFICATES));
 		return spCertNames;
+	}
+	
+	public String getSPConfigKey(NameIDType requester)
+	{
+		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
+		boolean dnName = requester.getFormat() != null && requester.getFormat().equals(
+				SAMLConstants.NFORMAT_DN); 
+		for (String allowedKey: allowedKeys)
+		{
+			if (dnName)
+			{
+				String name = getValue(allowedKey + ALLOWED_SP_DN);
+				if (name == null)
+					continue;
+				if (!X500NameUtils.equal(name, requester.getStringValue()))
+					continue;
+			} else
+			{
+				String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
+				if (name == null)
+					continue;
+				if (!name.equals(requester.getStringValue()))
+					continue;
+			}
+			return allowedKey;
+		}
+		return null;
 	}
 
 	public SamlTrustChecker getSoapTrustChecker()

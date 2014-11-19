@@ -4,8 +4,10 @@
  */
 package pl.edu.icm.unity.server.authn;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import pl.edu.icm.unity.server.api.internal.SessionParticipant;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
 
@@ -53,4 +55,22 @@ public class AuthenticationProcessorUtil
 		return logInfo;
 	}
 
+	/**
+	 * Extracts and returns all remote {@link SessionParticipant}s from the {@link AuthenticationResult}s.
+	 * @param results
+	 * @return
+	 * @throws AuthenticationException
+	 */
+	public static List<SessionParticipant> extractParticipants(List<AuthenticationResult> results) 
+			throws AuthenticationException
+	{
+		List<SessionParticipant> ret = new ArrayList<>();
+		for (AuthenticationResult result: results)
+		{
+			if (result.getRemoteAuthnContext() != null && 
+					result.getRemoteAuthnContext().getSessionParticipant() != null)
+				ret.add(result.getRemoteAuthnContext().getSessionParticipant());
+		}
+		return ret;
+	}
 }

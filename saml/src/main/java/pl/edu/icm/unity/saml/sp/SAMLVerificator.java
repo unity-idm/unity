@@ -190,7 +190,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDocument, 
 				context.getRequestId(), 
 				SAMLBindings.valueOf(context.getResponseBinding().toString()), 
-				context.getGroupAttribute());
+				context.getGroupAttribute(), idpKey);
 		return getResult(input, config.getValue(idpKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE));
 	}
 	

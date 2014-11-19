@@ -52,7 +52,8 @@ public class SAMLResponseValidatorUtil
 
 
 	public RemotelyAuthenticatedInput verifySAMLResponse(ResponseDocument responseDocument,
-			String requestId, SAMLBindings binding, String groupAttribute) throws AuthenticationException
+			String requestId, SAMLBindings binding, String groupAttribute, String configKey) 
+					throws AuthenticationException
 	{
 		String consumerSamlName = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
 		
@@ -83,12 +84,12 @@ public class SAMLResponseValidatorUtil
 					"by an untrusted identity provider.", e);
 		}
 
-		return convertAssertion(responseDocument, validator, groupAttribute);
+		return convertAssertion(responseDocument, validator, groupAttribute, configKey);
 	}
 	
 	
 	private RemotelyAuthenticatedInput convertAssertion(ResponseDocument responseDocument,
-			SSOAuthnResponseValidator validator, String groupA) throws AuthenticationException
+			SSOAuthnResponseValidator validator, String groupA, String configKey) throws AuthenticationException
 	{
 		NameIDType issuer = responseDocument.getResponse().getIssuer();
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput(issuer.getStringValue());
@@ -97,6 +98,15 @@ public class SAMLResponseValidatorUtil
 		List<RemoteAttribute> remoteAttributes = getAttributes(validator);
 		input.setAttributes(remoteAttributes);
 		input.setGroups(getGroups(remoteAttributes, groupA));
+		
+		
+		String postSlo = samlProperties.getValue(configKey + SAMLSPProperties.IDP_POST_LOGOUT_URL);
+		String redirectSlo = samlProperties.getValue(configKey + SAMLSPProperties.IDP_REDIRECT_LOGOUT_URL);
+		String soapSlo = samlProperties.getValue(configKey + SAMLSPProperties.IDP_SOAP_LOGOUT_URL);
+			
+		SAMLSessionParticipant participant = new SAMLSessionParticipant(issuer.getStringValue(), 
+				soapSlo, postSlo, redirectSlo);
+		input.setSessionParticipant(participant);
 		
 		return input;
 	}

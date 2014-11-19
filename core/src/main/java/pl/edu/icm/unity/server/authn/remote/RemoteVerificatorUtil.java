@@ -134,6 +134,7 @@ public class RemoteVerificatorUtil
 		ret.addIdentities(extractIdentities(result));
 		ret.addGroups(extractGroups(result));
 		ret.setPrimaryIdentity(extractPrimaryIdentity(result));
+		ret.setSessionParticipant(input.getSessionParticipant());
 		return ret;
 	}
 	

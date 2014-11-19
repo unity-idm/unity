@@ -18,11 +18,15 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.api.internal.SessionParticipant;
+import pl.edu.icm.unity.server.api.internal.SessionParticipants;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessorUtil;
@@ -98,7 +102,7 @@ public class AuthenticationProcessor
 			throw e;
 		}
 		
-		logged(logInfo, realm, rememberMe);
+		logged(logInfo, realm, rememberMe, AuthenticationProcessorUtil.extractParticipants(results));
 
 		if (logInfo.isUsedOutdatedCredential())
 		{
@@ -134,7 +138,7 @@ public class AuthenticationProcessor
 	}
 	
 	private void logged(AuthenticatedEntity authenticatedEntity, final AuthenticationRealm realm, 
-			final boolean rememberMe) throws AuthenticationException
+			final boolean rememberMe, List<SessionParticipant> participants) throws AuthenticationException
 	{
 		long entityId = authenticatedEntity.getEntityId();
 		String label = getLabel(entityId);
@@ -143,6 +147,17 @@ public class AuthenticationProcessor
 		final LoginSession ls = sessionMan.getCreateSession(entityId, realm, 
 				label, authenticatedEntity.isUsedOutdatedCredential(), 
 				absoluteExpiration);
+		
+		try
+		{
+			sessionMan.updateSessionAttributes(ls.getId(), 
+					new SessionParticipants.AddParticipantToSessionTask(
+							participants.toArray(new SessionParticipant[participants.size()])));
+		} catch (WrongArgumentException e)
+		{
+			log.error("Can't store session participants", e);
+			throw new AuthenticationException("AuthenticationProcessor.authnInternalError");
+		}
 		VaadinSession vss = VaadinSession.getCurrent();
 		if (vss == null)
 		{
@@ -232,5 +247,19 @@ public class AuthenticationProcessor
 		HttpSession httpSession = ((WrappedHttpSession)VaadinSession.getCurrent().getSession()).getHttpSession();
 		return (UnsuccessfulAuthenticationCounter) httpSession.getServletContext().getAttribute(
 				UnsuccessfulAuthenticationCounter.class.getName());
+	}
+	
+	public void addSessionParticipant(SessionParticipant... participant)
+	{
+		InvocationContext invocationContext = InvocationContext.getCurrent();
+		LoginSession ls = invocationContext.getLoginSession();
+		try
+		{
+			sessionMan.updateSessionAttributes(ls.getId(), 
+					new SessionParticipants.AddParticipantToSessionTask(participant));
+		} catch (WrongArgumentException e)
+		{
+			throw new InternalException("Can not add session participant to the existing session?", e);
+		}
 	}
 }

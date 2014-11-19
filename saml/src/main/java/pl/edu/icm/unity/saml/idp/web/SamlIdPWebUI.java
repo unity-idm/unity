@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.idpcommon.EopException;
+import pl.edu.icm.unity.saml.SAMLSessionParticipant;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -154,7 +155,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 
 			createExposedDataPart(samlCtx, contents);
 
-			createButtonsPart(contents);
+			createButtonsPart(samlCtx, contents);
 
 			setContent(vmain);
 
@@ -230,7 +231,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		contents.addComponent(attrsPresenter);
 	}
 	
-	protected void createButtonsPart(VerticalLayout contents)
+	protected void createButtonsPart(final SAMLAuthnContext samlCtx, VerticalLayout contents)
 	{
 		IdPButtonsBar buttons = new IdPButtonsBar(msg, authnProcessor, new IdPButtonsBar.ActionListener()
 		{
@@ -240,7 +241,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 				try
 				{
 					if (Action.ACCEPT == action)
-						confirm();
+						confirm(samlCtx);
 					else if (Action.DENY == action)
 						decline();
 				} catch (EopException e) 
@@ -286,7 +287,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		if (settings.isDoNotAsk())
 		{
 			if (settings.isDefaultAccept())
-				confirm();
+				confirm(samlCtx);
 			else
 				decline();
 		}
@@ -338,7 +339,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		samlResponseHandler.handleException(ea, false);
 	}
 	
-	protected void confirm() throws EopException
+	protected void confirm(SAMLAuthnContext samlCtx) throws EopException
 	{
 		storePreferences(true);
 		ResponseDocument respDoc;
@@ -351,6 +352,27 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			samlResponseHandler.handleException(e, false);
 			return;
 		}
+		addSessionParticipant(samlCtx);
 		samlResponseHandler.returnSamlResponse(respDoc);
+	}
+	
+	protected void addSessionParticipant(SAMLAuthnContext samlCtx)
+	{
+		String participantId = samlCtx.getRequest().getIssuer().getStringValue();
+		String configKey = samlCtx.getSamlConfiguration().getSPConfigKey(samlCtx.getRequest().getIssuer());
+		String postSlo = null;
+		String redirectSlo = null;
+		String soapSlo = null;
+		if (configKey != null)
+		{
+			postSlo = samlCtx.getSamlConfiguration().getValue(configKey + 
+				SamlIdpProperties.ALLOWED_SP_POST_LOGOUT_URL);
+			redirectSlo = samlCtx.getSamlConfiguration().getValue(configKey + 
+				SamlIdpProperties.ALLOWED_SP_REDIRECT_LOGOUT_URL);
+			soapSlo = samlCtx.getSamlConfiguration().getValue(configKey + 
+				SamlIdpProperties.ALLOWED_SP_SOAP_LOGOUT_URL);
+		}
+		authnProcessor.addSessionParticipant(new SAMLSessionParticipant(participantId, soapSlo,
+				postSlo, redirectSlo));
 	}
 }

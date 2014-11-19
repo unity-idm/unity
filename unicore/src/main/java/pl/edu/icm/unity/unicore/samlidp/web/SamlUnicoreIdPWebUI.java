@@ -216,7 +216,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	}
 	
 	@Override
-	protected void confirm() throws EopException
+	protected void confirm(SAMLAuthnContext samlCtx) throws EopException
 	{
 		storePreferences(true);
 		ResponseDocument respDoc;
@@ -230,6 +230,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 			samlResponseHandler.handleException(e, false);
 			return;
 		}
+		addSessionParticipant(samlCtx);
 		samlResponseHandler.returnSamlResponse(respDoc);
 	}
 }
