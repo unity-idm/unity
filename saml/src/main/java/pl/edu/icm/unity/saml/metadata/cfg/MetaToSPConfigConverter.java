@@ -201,19 +201,6 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 		log.debug("Added a trusted IdP loaded from SAML metadata: " + entityId + " with " + 
 				endpoint.getBinding() + " binding");
 	}
-	
-	private void setSLOProperty(Properties properties, String configKey, boolean noPerIdpConfig,
-			EndpointType sloEndpoint, String SLOProperty)
-	{
-		if (noPerIdpConfig || !properties.containsKey(configKey + SLOProperty))
-		{
-			if (sloEndpoint != null)
-			{
-				properties.setProperty(configKey + SLOProperty, 
-					sloEndpoint.getLocation());
-			}
-		}
-	}
 		
 	private String getExistingKey(String entityId, SAMLSPProperties realConfig)
 	{

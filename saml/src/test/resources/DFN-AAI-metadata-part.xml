@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EntitiesDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:idpdisc="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol" xmlns:mdattr="urn:oasis:names:tc:SAML:metadata:attribute" xmlns:mdrpi="urn:oasis:names:tc:SAML:metadata:rpi" xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:saml1md="urn:mace:shibboleth:metadata:1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="DFN-AAI_20141119130028" Name="https://www.aai.dfn.de/DFN-AAI" validUntil="2014-11-24T13:00:28Z" xsi:schemaLocation="urn:oasis:names:tc:SAML:2.0:metadata saml-schema-metadata-2.0.xsd urn:mace:shibboleth:metadata:1.0 shibboleth-metadata-1.0.xsd http://www.w3.org/2000/09/xmldsig# xmldsig-core-schema.xsd">
+  <EntityDescriptor entityID="http://shibboleth.metapress.com/shibboleth-sp">
+    <Extensions>
+      <mdrpi:RegistrationInfo registrationAuthority="https://www.aai.dfn.de" registrationInstant="2009-05-26T08:35:32Z">
+        <mdrpi:RegistrationPolicy xml:lang="en">https://www.aai.dfn.de/en/join/</mdrpi:RegistrationPolicy>
+        <mdrpi:RegistrationPolicy xml:lang="de">https://www.aai.dfn.de/teilnahme/</mdrpi:RegistrationPolicy>
+      </mdrpi:RegistrationInfo>
+    </Extensions>
+    <SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol urn:oasis:names:tc:SAML:2.0:protocol">
+      <Extensions>
+        <mdui:UIInfo>
+          <mdui:DisplayName xml:lang="de">MetaPress</mdui:DisplayName>
+          <mdui:DisplayName xml:lang="en">MetaPress</mdui:DisplayName>
+          <mdui:Description xml:lang="de">MetaPress is one of the world's largest electronic content hosts with over 31,000 publications from over 180 publishers worldwide. MetaPress offers electronic academic content published in the areas of science, technology, medicine, business, and humanities. MetaPress offers a variety of online platforms that are tailored for specific content like journals, books, reference works, conferences, and A&amp;I databases.&lt;br/&gt;MetaPress is the online host for many different publisher websites, including SpringerLink, which is one of the world's leading interactive databases for high-quality STM journals, book series, books, reference works and the Online Archives Collection. SpringerLink is a powerful central access point for researchers and scientists.</mdui:Description>
+          <mdui:Description xml:lang="en">MetaPress is one of the world's largest electronic content hosts with over 31,000 publications from over 180 publishers worldwide. MetaPress offers electronic academic content published in the areas of science, technology, medicine, business, and humanities. MetaPress offers a variety of online platforms that are tailored for specific content like journals, books, reference works, conferences, and A&amp;I databases.&lt;br/&gt;MetaPress is the online host for many different publisher websites, including SpringerLink, which is one of the world's leading interactive databases for high-quality STM journals, book series, books, reference works and the Online Archives Collection. SpringerLink is a powerful central access point for researchers and scientists.</mdui:Description>
+          <mdui:InformationURL xml:lang="de">http://www.metapress.com</mdui:InformationURL>
+          <mdui:InformationURL xml:lang="en">http://www.metapress.com</mdui:InformationURL>
+        </mdui:UIInfo>
+      </Extensions>
+      <KeyDescriptor use="signing">
+        <ds:KeyInfo>
+          <ds:KeyName>shibboleth.metapress.com</ds:KeyName>
+          <ds:X509Data>
+            <ds:X509SubjectName>CN=shibboleth.metapress.com</ds:X509SubjectName>
+            <ds:X509Certificate>MIIDPjCCAiagAwIBAgIJAKTDQvdm67vhMA0GCSqGSIb3DQEBBQUAMCMxITAfBgNV
+BAMTGHNoaWJib2xldGgubWV0YXByZXNzLmNvbTAeFw0xMjA2MjUxNTI5NDFaFw0y
+MjA2MjMxNTI5NDFaMCMxITAfBgNVBAMTGHNoaWJib2xldGgubWV0YXByZXNzLmNv
+bTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANCgbbfHnyWZP//SKjok
+oNxy7YAFDxFysMjUBJnoeSN0J/nD8XvggcO10PpL+g1RnUAnc9L/2Zp0A6DpQSbN
+9RUX3o+lG4X9bQGBntImQcRx37joWq6bEKuMNxJzf42gqUCGYbUyXIRfPpjAgqEE
+5MEmjt7qK3j1NsE7NPoLpXtgNGSl9TM2dClruZiSGVPeYjA1GFW6cAk6CWy17KyB
+CZMF0d+FLEu5RQnJZOYz4fCSdhdn4lOw1gjNRI02zhMtfwgJt4Haq5H/qtsJyaPW
+9kcz1EqeX88QpJKB/eDYwQ5cLcQXuNex3eaPuzF4lwS+Ybh3CDCBg3k+VPCNVgx5
+0zECAwEAAaN1MHMwUgYDVR0RBEswSYIYc2hpYmJvbGV0aC5tZXRhcHJlc3MuY29t
+hi1odHRwOi8vc2hpYmJvbGV0aC5tZXRhcHJlc3MuY29tL3NoaWJib2xldGgtc3Aw
+HQYDVR0OBBYEFPmH00sX6+2+UJXx2FEPf008kLDjMA0GCSqGSIb3DQEBBQUAA4IB
+AQAu+UyC9yMgDkfRYmLOzgIu6lUExX7JNN1tAjU6mXUb59cSs0nnk6s6lHab2DD4
+tc4i9aWS0e5q4UXnzV04+tr2Cr6AYDBS05d1trKAb3QZLBxeC9h+DGw23nLRwKTg
+YCELf07nXYSUr6KfLpNCH3d+ws+urhZtpFeElipKJQXdUnV1oe7be4ZveCaqqLm4
+yAJJ+ag8LeAszHnxACtNDd7cMvM0vgEc9WosMsBoMhY02dXSniM/9aMeKUNx6vLO
+w4MgU2zatZCHJjjn+lIwK4I5nJ36/jGx9bMJS7j0LxkEu1ITvZkaNre256n8JQKB
+ZO4eKkKd2NI2Sm3qkNxfiLv6
+</ds:X509Certificate>
+          </ds:X509Data>
+        </ds:KeyInfo>
+      </KeyDescriptor>
+      <KeyDescriptor use="encryption">
+        <ds:KeyInfo>
+          <ds:KeyName>shibboleth.metapress.com</ds:KeyName>
+          <ds:X509Data>
+            <ds:X509SubjectName>CN=shibboleth.metapress.com</ds:X509SubjectName>
+            <ds:X509Certificate>MIIDPjCCAiagAwIBAgIJAKTDQvdm67vhMA0GCSqGSIb3DQEBBQUAMCMxITAfBgNV
+BAMTGHNoaWJib2xldGgubWV0YXByZXNzLmNvbTAeFw0xMjA2MjUxNTI5NDFaFw0y
+MjA2MjMxNTI5NDFaMCMxITAfBgNVBAMTGHNoaWJib2xldGgubWV0YXByZXNzLmNv
+bTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANCgbbfHnyWZP//SKjok
+oNxy7YAFDxFysMjUBJnoeSN0J/nD8XvggcO10PpL+g1RnUAnc9L/2Zp0A6DpQSbN
+9RUX3o+lG4X9bQGBntImQcRx37joWq6bEKuMNxJzf42gqUCGYbUyXIRfPpjAgqEE
+5MEmjt7qK3j1NsE7NPoLpXtgNGSl9TM2dClruZiSGVPeYjA1GFW6cAk6CWy17KyB
+CZMF0d+FLEu5RQnJZOYz4fCSdhdn4lOw1gjNRI02zhMtfwgJt4Haq5H/qtsJyaPW
+9kcz1EqeX88QpJKB/eDYwQ5cLcQXuNex3eaPuzF4lwS+Ybh3CDCBg3k+VPCNVgx5
+0zECAwEAAaN1MHMwUgYDVR0RBEswSYIYc2hpYmJvbGV0aC5tZXRhcHJlc3MuY29t
+hi1odHRwOi8vc2hpYmJvbGV0aC5tZXRhcHJlc3MuY29tL3NoaWJib2xldGgtc3Aw
+HQYDVR0OBBYEFPmH00sX6+2+UJXx2FEPf008kLDjMA0GCSqGSIb3DQEBBQUAA4IB
+AQAu+UyC9yMgDkfRYmLOzgIu6lUExX7JNN1tAjU6mXUb59cSs0nnk6s6lHab2DD4
+tc4i9aWS0e5q4UXnzV04+tr2Cr6AYDBS05d1trKAb3QZLBxeC9h+DGw23nLRwKTg
+YCELf07nXYSUr6KfLpNCH3d+ws+urhZtpFeElipKJQXdUnV1oe7be4ZveCaqqLm4
+yAJJ+ag8LeAszHnxACtNDd7cMvM0vgEc9WosMsBoMhY02dXSniM/9aMeKUNx6vLO
+w4MgU2zatZCHJjjn+lIwK4I5nJ36/jGx9bMJS7j0LxkEu1ITvZkaNre256n8JQKB
+ZO4eKkKd2NI2Sm3qkNxfiLv6
+</ds:X509Certificate>
+          </ds:X509Data>
+        </ds:KeyInfo>
+      </KeyDescriptor>
+      <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="https://shibboleth.metapress.com/Shibboleth.sso/SLO/Artifact"/>
+      <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://shibboleth.metapress.com/Shibboleth.sso/SLO/POST"/>
+      <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://shibboleth.metapress.com/Shibboleth.sso/SLO/Redirect"/>
+      <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://shibboleth.metapress.com/Shibboleth.sso/SLO/SOAP"/>
+      <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://shibboleth.metapress.com/Shibboleth.sso/SAML2/POST" index="1"/>
+      <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://shibboleth.metapress.com/Shibboleth.sso/SAML2/POST-SimpleSign" index="2"/>
+      <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="https://shibboleth.metapress.com/Shibboleth.sso/SAML2/Artifact" index="3"/>
+      <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS" Location="https://shibboleth.metapress.com/Shibboleth.sso/SAML2/ECP" index="4"/>
+      <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:1.0:profiles:browser-post" Location="https://shibboleth.metapress.com/Shibboleth.sso/SAML/POST" index="5"/>
+      <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:1.0:profiles:artifact-01" Location="https://shibboleth.metapress.com/Shibboleth.sso/SAML/Artifact" index="6"/>
+    </SPSSODescriptor>
+    <Organization>
+      <OrganizationName xml:lang="de">e76</OrganizationName>
+      <OrganizationName xml:lang="en">e76</OrganizationName>
+      <OrganizationDisplayName xml:lang="de">Metapress</OrganizationDisplayName>
+      <OrganizationDisplayName xml:lang="en">Metapress</OrganizationDisplayName>
+      <OrganizationURL xml:lang="de">http://www.metapress.com</OrganizationURL>
+      <OrganizationURL xml:lang="en">http://www.metapress.com</OrganizationURL>
+    </Organization>
+    <ContactPerson contactType="technical">
+      <GivenName>Metapress</GivenName>
+      <SurName>Support</SurName>
+      <EmailAddress>mailto:support@metapress.com</EmailAddress>
+    </ContactPerson>
+    <ContactPerson contactType="support">
+      <GivenName>Metapress</GivenName>
+      <SurName>Support</SurName>
+      <EmailAddress>mailto:support@metapress.com</EmailAddress>
+    </ContactPerson>
+  </EntityDescriptor>
+</EntitiesDescriptor>

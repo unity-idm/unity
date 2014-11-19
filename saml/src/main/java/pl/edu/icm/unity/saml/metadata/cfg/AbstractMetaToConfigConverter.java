@@ -26,6 +26,7 @@ import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
+import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
@@ -256,5 +257,19 @@ public abstract class AbstractMetaToConfigConverter
 		if (SAMLConstants.BINDING_SOAP.equals(samlBinding))
 			return Binding.SOAP.toString();
 		throw new IllegalStateException("Unsupported binding: " + samlBinding);
-	}		
+	}
+	
+	
+	protected void setSLOProperty(Properties properties, String configKey, boolean noPerEntryConfig,
+			EndpointType sloEndpoint, String SLOProperty)
+	{
+		if (noPerEntryConfig || !properties.containsKey(configKey + SLOProperty))
+		{
+			if (sloEndpoint != null)
+			{
+				properties.setProperty(configKey + SLOProperty, 
+					sloEndpoint.getLocation());
+			}
+		}
+	}
 }

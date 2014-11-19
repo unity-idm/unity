@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -78,7 +77,9 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String ALLOWED_SP_ENTITY = "entity";
 	public static final String ALLOWED_SP_RETURN_URL = "returnURL";
 	public static final String ALLOWED_SP_ENCRYPT = "encryptAssertion";
-	public static final String ALLOWED_SP_LOGOUT_ENDPOINT = "logoutEndpoint.";
+	public static final String ALLOWED_SP_REDIRECT_LOGOUT_URL = "redirectLogoutEndpoint";
+	public static final String ALLOWED_SP_POST_LOGOUT_URL = "postLogoutEndpoint";
+	public static final String ALLOWED_SP_SOAP_LOGOUT_URL = "soapLogoutEndpoint";
 	public static final String ALLOWED_SP_NAME = "name";
 	public static final String ALLOWED_SP_LOGO = "logoURI";
 	public static final String ALLOWED_SP_CERTIFICATE = "certificate";
@@ -165,12 +166,12 @@ public class SamlIdpProperties extends SamlProperties
 				setDescription("Response consumer address of the SP. Mandatory when acceptance " +
 				"policy is +validRequester+, optional otherwise as SAML requesters may send this address" +
 				"with a request."));
-		defaults.put(ALLOWED_SP_LOGOUT_ENDPOINT, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).
-				setList(false).setCategory(samlCat).
-				setDescription("List with values being Single Logout Endpoints supported by the SP. "
-						+ "Each value should be encoded as BINDING:URL, where binding is one of "
-						+ Arrays.toString(Binding.values()) + 
-						" and URL is a full address of the endpoint."));
+		defaults.put(ALLOWED_SP_SOAP_LOGOUT_URL, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).
+				setCategory(samlCat).setDescription("SOAP Single Logout Endpoint of the SP."));
+		defaults.put(ALLOWED_SP_REDIRECT_LOGOUT_URL, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).
+				setCategory(samlCat).setDescription("HTTP Redirect Single Logout Endpoint of the SP."));
+		defaults.put(ALLOWED_SP_POST_LOGOUT_URL, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).
+				setCategory(samlCat).setDescription("HTTP POST Single Logout Endpoint of the SP."));
 		
 		defaults.put(ALLOWED_SP_NAME, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(sp).setCanHaveSubkeys().setDescription(
 				"Displayed name of the Sp. If not defined then the name is created " +
