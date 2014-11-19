@@ -140,7 +140,7 @@ public class ECPStep2Handler
 			return;
 		}
 		
-		SAMLSPProperties samlProperties = metadataManager.getVirtualConfiguration();
+		SAMLSPProperties samlProperties = (SAMLSPProperties) metadataManager.getVirtualConfiguration();
 		AuthenticationResult authenticationResult;
 		try
 		{

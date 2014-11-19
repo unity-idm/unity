@@ -4,14 +4,20 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.ws;
 
+import java.util.Map;
+
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ws.SAMLAssertionQueryImpl;
 import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
+import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
@@ -28,11 +34,12 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 	public SamlUnicoreSoapEndpoint(UnityMessageSource msg, EndpointTypeDescription type,
 			String servletPath, String metadataServletPath, IdPEngine idpEngine,
 			PreferencesManagement preferencesMan,
-			PKIManagement pkiManagement, ExecutorsService executorsService, SessionManagement sessionMan)
+			PKIManagement pkiManagement, ExecutorsService executorsService, SessionManagement sessionMan,
+			Map<String, RemoteMetaManager> remoteMetadataManagers, MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig)
 	{
 		super(msg, type, servletPath, metadataServletPath, 
 				idpEngine, preferencesMan, 
-				pkiManagement, executorsService, sessionMan);
+				pkiManagement, executorsService, sessionMan, remoteMetadataManagers, downloadManager, mainConfig);
 	}
 
 
@@ -40,10 +47,11 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 	protected void configureServices()
 	{
 		String endpointURL = getServletUrl(servletPath);
-		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(samlProperties, 
+		SamlIdpProperties virtualConf = (SamlIdpProperties) myMetadataManager.getVirtualConfiguration();
+		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(virtualConf, 
 				endpointURL, idpEngine, preferencesMan);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
-		SAMLETDAuthnImpl authnImpl = new SAMLETDAuthnImpl(samlProperties, endpointURL, 
+		SAMLETDAuthnImpl authnImpl = new SAMLETDAuthnImpl(virtualConf, endpointURL, 
 				idpEngine, preferencesMan);
 		addWebservice(SAMLAuthnInterface.class, authnImpl);
 	}

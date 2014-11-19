@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
@@ -63,15 +64,17 @@ public class ECPEndpointFactory implements EndpointFactory
 	private UnityServerConfiguration mainCfg;
 	private ExecutorsService executorsService;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private MetaDownloadManager downloadManager;
 	
 	@Autowired
 	public ECPEndpointFactory(PKIManagement pkiManagement, NetworkServer jettyServer,
 			ECPContextManagement samlContextManagement,
 			ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
-			@Qualifier("insecure") TranslationProfileManagement profileManagement, 
-			InputTranslationEngine trEngine,
-			TokensManagement tokensMan, IdentitiesManagement identitiesMan,
-			SessionManagement sessionMan, UnityServerConfiguration mainCfg, 
+			@Qualifier("insecure")
+			TranslationProfileManagement profileManagement,
+			InputTranslationEngine trEngine, TokensManagement tokensMan,
+			IdentitiesManagement identitiesMan, SessionManagement sessionMan,
+			UnityServerConfiguration mainCfg, MetaDownloadManager downloadManager,
 			ExecutorsService executorsService, SharedEndpointManagement sharedEndpointManagement) 
 					throws EngineException
 	{
@@ -99,6 +102,7 @@ public class ECPEndpointFactory implements EndpointFactory
 		sharedEndpointManagement.deployInternalEndpointServlet(METADATA_SERVLET_PATH, 
 				new ServletHolder(metadataServlet));
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
+		this.downloadManager = downloadManager;
 	}
 	
 	@Override
@@ -113,7 +117,7 @@ public class ECPEndpointFactory implements EndpointFactory
 		return new ECPEndpoint(description, SERVLET_PATH, pkiManagement, samlContextManagement, baseAddress,
 				baseContext, replayAttackChecker, identityResolver, profileManagement, trEngine, 
 				tokensMan, identitiesMan, sessionMan, remoteMetadataManagers, 
-				mainCfg, executorsService, metadataServlet);
+				mainCfg, downloadManager, executorsService, metadataServlet);
 	}
 
 }

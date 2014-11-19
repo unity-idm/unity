@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.ws;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -13,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
+import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
@@ -21,6 +24,7 @@ import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
 
@@ -41,12 +45,15 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 	private PKIManagement pkiManagement;
 	private ExecutorsService executorsService;
 	private SessionManagement sessionMan;
-	
+	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private MetaDownloadManager downloadManager;
+	private UnityServerConfiguration mainConfig;
 	
 	@Autowired
-	public SamlUnicoreIdPSoapEndpointFactory(UnityMessageSource msg, IdPEngine idpEngine, 
-			PreferencesManagement preferencesMan,
-			PKIManagement pkiManagement, ExecutorsService executorsService, SessionManagement sessionMan)
+	public SamlUnicoreIdPSoapEndpointFactory(UnityMessageSource msg, IdPEngine idpEngine,
+			PreferencesManagement preferencesMan, PKIManagement pkiManagement,
+			ExecutorsService executorsService, SessionManagement sessionMan,
+			MetaDownloadManager dowloadManager, UnityServerConfiguration mainConfig)
 	{
 		super();
 		this.msg = msg;
@@ -55,6 +62,9 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 		this.pkiManagement = pkiManagement;
 		this.executorsService = executorsService;
 		this.sessionMan = sessionMan;
+		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
+		this.downloadManager = dowloadManager;
+		this.mainConfig = mainConfig;
 
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(WebServiceAuthentication.NAME);
@@ -75,8 +85,9 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new SamlUnicoreSoapEndpoint(msg, getDescription(), SERVLET_PATH, 
-				SamlIdPSoapEndpointFactory.METADATA_SERVLET_PATH, idpEngine, 
-				preferencesMan, pkiManagement, executorsService, sessionMan);
+		return new SamlUnicoreSoapEndpoint(msg, getDescription(), SERVLET_PATH,
+				SamlIdPSoapEndpointFactory.METADATA_SERVLET_PATH, idpEngine,
+				preferencesMan, pkiManagement, executorsService, sessionMan,
+				remoteMetadataManagers, downloadManager, mainConfig);
 	}
 }

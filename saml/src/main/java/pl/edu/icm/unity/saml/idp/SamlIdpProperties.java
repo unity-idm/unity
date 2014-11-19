@@ -14,6 +14,7 @@ import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -69,13 +70,19 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String ISSUER_URI = "issuerURI";
 	public static final String RETURN_SINGLE_ASSERTION = "returnSingleAssertion";
 	public static final String SP_ACCEPT_POLICY = "spAcceptPolicy";
-	public static final String ALLOWED_SP = "acceptedSP.";
+	
+	public static final String SPMETA_PREFIX = "acceptedSPMetadataSource.";
+	
+	public static final String ALLOWED_SP_PREFIX = "acceptedSP.";
 	public static final String ALLOWED_SP_DN = "dn";
 	public static final String ALLOWED_SP_ENTITY = "entity";
 	public static final String ALLOWED_SP_RETURN_URL = "returnURL";
-	public static final String ALLOWED_SP_CERT = "certificate";
 	public static final String ALLOWED_SP_ENCRYPT = "encryptAssertion";
 	public static final String ALLOWED_SP_LOGOUT_ENDPOINT = "logoutEndpoint.";
+	public static final String ALLOWED_SP_NAME = "name";
+	public static final String ALLOWED_SP_LOGO = "logoURI";
+	public static final String ALLOWED_SP_CERTIFICATE = "certificate";
+	public static final String ALLOWED_SP_CERTIFICATES = "certificates.";
 	
 	public static final String GROUP_PFX = "groupMapping.";
 	public static final String GROUP_TARGET = "serviceProvider";
@@ -90,10 +97,17 @@ public class SamlIdpProperties extends SamlProperties
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
+
+	
+	
+	private Properties sourceProperties;
 	
 	static
 	{
+		DocumentationCategory sp = new DocumentationCategory("Manual settings of allowed Sps", "03");
+		
 		DocumentationCategory samlCat = new DocumentationCategory("SAML subsystem settings", "5");
+		
 
 		defaults.put(GROUP_PFX, new PropertyMD().setStructuredList(false).setCategory(samlCat).
 				setDescription("Prefix used to mark requester to group mappings."));
@@ -103,15 +117,13 @@ public class SamlIdpProperties extends SamlProperties
 				setDescription("Group for the requester."));
 		defaults.put(DEFAULT_GROUP, new PropertyMD().setMandatory().setCategory(samlCat).
 				setDescription("Default group to be used for all requesers without an explicite mapping."));
-
 		defaults.put(IDENTITY_MAPPING_PFX, new PropertyMD().setStructuredList(false).setCategory(samlCat).
 				setDescription("Prefix used to store mappings of SAML identity types to Unity identity types. Those mappings can override and/or complement the default mapping."));
 		defaults.put(IDENTITY_LOCAL, new PropertyMD().setStructuredListEntry(IDENTITY_MAPPING_PFX).setMandatory().setCategory(samlCat).
 				setDescription("Unity identity to which the SAML identity is mapped. If it is set to an empty value, then the mapping is disabled, "
 						+ "what is useful for turning off the default mappings."));
 		defaults.put(IDENTITY_SAML, new PropertyMD().setStructuredListEntry(IDENTITY_MAPPING_PFX).setMandatory().setCategory(samlCat).
-				setDescription("SAML identity to be mapped"));
-		
+				setDescription("SAML identity to be mapped"));	
 		defaults.put(SAML_REQUEST_VALIDITY, new PropertyMD("600").setPositive().setCategory(samlCat).
 				setDescription("Defines maximum validity period (in seconds) of a SAML request. Requests older than this value are denied. It also controls the validity of an authentication assertion."));
 		defaults.put(AUTHENTICATION_TIMEOUT, new PropertyMD("600").setPositive().setCategory(samlCat).
@@ -136,43 +148,60 @@ public class SamlIdpProperties extends SamlProperties
 				+ "All other will be treated as +all+. This is because you can control the "
 				+ "access with authentication and authorization of the client, additional SAML "
 				+ "level configuraiton is not neccessary."));
-		defaults.put(ALLOWED_SP, new PropertyMD().setStructuredList(false).setCategory(samlCat).
+		defaults.put(ALLOWED_SP_PREFIX, new PropertyMD().setStructuredList(false).setCategory(samlCat).
 				setDescription("List of entries defining allowed Service Providers (clients). Used " +
 				"only for +validRequester+ and +strict+ acceptance policies."));
-		defaults.put(ALLOWED_SP_DN, new PropertyMD().setStructuredListEntry(ALLOWED_SP).setCategory(samlCat).
+				
+		defaults.put(ALLOWED_SP_DN, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCanHaveSubkeys().setCategory(samlCat).
 				setDescription("Rarely useful: for SPs which use DN SAML identifiers as UNICORE portal. " +
 				"Typically " + ALLOWED_SP_ENTITY + " is used instead. " +
 				"Value must be the X.500 DN of the trusted SP."));
-		defaults.put(ALLOWED_SP_ENTITY, new PropertyMD().setStructuredListEntry(ALLOWED_SP).setCategory(samlCat).
-				setDescription("Entity ID (typically an URI) of a trusted SAML requester (SP)."));
-		defaults.put(ALLOWED_SP_CERT, new PropertyMD().setStructuredListEntry(ALLOWED_SP).setCategory(samlCat).
-				setDescription("Certificate of the SP. Used only when acceptance policy is +strict+ "
-						+ "and when assertion encryption is turned on for this SP."));
-		defaults.put(ALLOWED_SP_ENCRYPT, new PropertyMD("false").setStructuredListEntry(ALLOWED_SP).setCategory(samlCat).
+		defaults.put(ALLOWED_SP_ENTITY, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(samlCat).
+				setDescription("Entity ID (typically an URI) of a trusted SAML requester (SP)."));	
+		defaults.put(ALLOWED_SP_ENCRYPT, new PropertyMD("false").setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(samlCat).
 				setDescription("Whether to encrypt assertions sent to this peer. "
 						+ "Usually not needed as Unity uses TLS. If turned on, then certificate of the peer must be also set."));
-		defaults.put(ALLOWED_SP_RETURN_URL, new PropertyMD().setStructuredListEntry(ALLOWED_SP).setCategory(samlCat).
+		defaults.put(ALLOWED_SP_RETURN_URL, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(samlCat).
 				setDescription("Response consumer address of the SP. Mandatory when acceptance " +
 				"policy is +validRequester+, optional otherwise as SAML requesters may send this address" +
 				"with a request."));
-		defaults.put(ALLOWED_SP_LOGOUT_ENDPOINT, new PropertyMD().setStructuredListEntry(ALLOWED_SP).
+		defaults.put(ALLOWED_SP_LOGOUT_ENDPOINT, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).
 				setList(false).setCategory(samlCat).
 				setDescription("List with values being Single Logout Endpoints supported by the SP. "
 						+ "Each value should be encoded as BINDING:URL, where binding is one of "
 						+ Arrays.toString(Binding.values()) + 
 						" and URL is a full address of the endpoint."));
 		
+		defaults.put(ALLOWED_SP_NAME, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(sp).setCanHaveSubkeys().setDescription(
+				"Displayed name of the Sp. If not defined then the name is created " +
+				"from the Sp address (what is rather not user friendly). The property can have subkeys being "
+				+ "locale names; then the localized value is used if it is matching the selected locale of the UI."));	
+		defaults.put(ALLOWED_SP_LOGO, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(sp).setCanHaveSubkeys().setDescription(
+				"Displayed logo of the SP. If not defined then only the name is used. "
+				+ "The value can be a file:, http(s): or data: URI. The last option allows for embedding the logo in the configuration. "
+				+ "The property can have subkeys being "
+				+ "locale names; then the localized value is used if it is matching the selected locale of the UI."));
+		defaults.put(ALLOWED_SP_CERTIFICATE, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(samlCat).
+				setDescription("Certificate of the SP. Used only when acceptance policy is +strict+ "
+						+ "and when assertion encryption is turned on for this SP."));
+		defaults.put(ALLOWED_SP_CERTIFICATES, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(sp).setList(false).setDescription(
+				"Using this property additional trusted certificates of an SP can be added (when SP uses more then one). See " 
+						+ ALLOWED_SP_CERTIFICATE + " for details. Those properties can be used together or alternatively."));
+
 		defaults.put(TRANSLATION_PROFILE, new PropertyMD().setCategory(samlCat).
 				setDescription("Name of an output translation profile which can be used to dynamically modify the "
 						+ "data being returned on this endpoint. When not defined the default profile is used: "
 						+ "attributes are not filtered, memberOf attribute is added with group membership"));
-
 		defaults.put(TRUSTSTORE, new PropertyMD().setCategory(samlCat).
-				setDescription("Truststore name to setup SAML trust settings. The truststore is used to verify request signature issuer, " +
+				setDescription("Truststore name to setup SAML trust settings. The truststore "
+						+ "is used to verify request signature issuer, " +
 						"if the Service Provider accept policy requires so."));
 		defaults.put(CREDENTIAL, new PropertyMD().setMandatory().setCategory(samlCat).
-				setDescription("SAML IdP credential name, which is used to sign responses."));
-		defaults.putAll(SamlProperties.defaults);
+				setDescription("SAML IdP credential name, which is used to sign responses."));	
+
+		defaults.putAll(SamlProperties.getDefaults(SPMETA_PREFIX, 
+				"Under this prefix you can configure the remote trusted SAML Sps however not "
+				+ "providing all their details but only their metadata."));
 	}
 
 	private boolean signRespNever;
@@ -190,6 +219,8 @@ public class SamlIdpProperties extends SamlProperties
 	public SamlIdpProperties(Properties src, PKIManagement pkiManagement) throws ConfigurationException, IOException
 	{
 		super(P, cleanupLegacyProperties(src), defaults, log);
+		sourceProperties = new Properties();
+		sourceProperties.putAll(properties);
 		this.pkiManagement = pkiManagement;
 		checkIssuer();
 		try
@@ -243,13 +274,10 @@ public class SamlIdpProperties extends SamlProperties
 		} else if (spPolicy == RequestAcceptancePolicy.strict)
 		{
 			authnTrustChecker = new StrictSamlTrustChecker();
-			Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP);
+			Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
 			for (String allowedKey: allowedKeys)
 			{
-				String certificate = getValue(allowedKey + ALLOWED_SP_CERT);
-				if (certificate == null)
-					throw new ConfigurationException("Invalid specification of allowed Service " +
-							"Provider " + allowedKey + " must have the certificate defined.");
+				
 				String type = SAMLConstants.NFORMAT_ENTITY;
 				String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
 				if (name == null)
@@ -260,16 +288,23 @@ public class SamlIdpProperties extends SamlProperties
 				if (name == null)
 					throw new ConfigurationException("Invalid specification of allowed Service " +
 							"Provider " + allowedKey + ", neither Entity ID nor DN is set.");
-				try
+				
+				Set<String> spCertNames = getAllowedSpCerts(allowedKey);
+				for (String spCertName: spCertNames)
 				{
-					X509Certificate cert = pkiManagement.getCertificate(certificate);
-					((StrictSamlTrustChecker)authnTrustChecker).addTrustedIssuer(
-							name, type, cert.getPublicKey());
-				} catch (EngineException e)
-				{
-					throw new ConfigurationException("Can't set certificate of trusted " +
-							"issuer named " + certificate, e);
+					X509Certificate spCert;
+					try
+					{
+						 spCert = pkiManagement.getCertificate(spCertName);
+						((StrictSamlTrustChecker)authnTrustChecker).addTrustedIssuer(
+								name, type, spCert.getPublicKey());
+					} catch (EngineException e)
+					{
+						throw new ConfigurationException("Can't set certificate of trusted " +
+								"issuer named " + spCertName, e);
+					}
 				}
+				
 				log.debug("SP authorized to submit authentication requests: " + name);
 			}
 		} else
@@ -277,7 +312,7 @@ public class SamlIdpProperties extends SamlProperties
 			EnumeratedTrustChecker authnTrustChecker = new EnumeratedTrustChecker();
 			this.authnTrustChecker = authnTrustChecker;
 			
-			Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP);
+			Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
 			for (String allowedKey: allowedKeys)
 			{
 				String returnAddress = getValue(allowedKey + ALLOWED_SP_RETURN_URL);
@@ -302,14 +337,16 @@ public class SamlIdpProperties extends SamlProperties
 			}
 		}
 		
-		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP);
+		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
 		for (String allowedKey: allowedKeys)
 		{
-			String certificate = getValue(allowedKey + ALLOWED_SP_CERT);
-			if (getBooleanValue(allowedKey + ALLOWED_SP_ENCRYPT) && certificate == null)
-				throw new ConfigurationException("Invalid specification of allowed Service " +
-						"Provider " + allowedKey + 
-						" must have the certificate defined to be able to encrypt assertions.");
+			Set<String> spCertNames = getAllowedSpCerts(allowedKey);
+			if (getBooleanValue(allowedKey + ALLOWED_SP_ENCRYPT) && spCertNames.isEmpty())
+				throw new ConfigurationException(
+						"Invalid specification of allowed Service "
+								+ "Provider "
+								+ allowedKey
+								+ " must have the certificate defined to be able to encrypt assertions.");
 		}
 		
 		if (trustedValidator != null)
@@ -367,7 +404,7 @@ public class SamlIdpProperties extends SamlProperties
 	
 	public void configureKnownRequesters(UnityAuthnRequestValidator validator)
 	{
-		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP);
+		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
 		for (String allowedKey: allowedKeys)
 		{
 			String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
@@ -381,7 +418,7 @@ public class SamlIdpProperties extends SamlProperties
 
 	public String getReturnAddressForRequester(NameIDType requester)
 	{
-		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP);
+		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
 		boolean dnName = requester.getFormat() != null && requester.getFormat().equals(
 				SAMLConstants.NFORMAT_DN); 
 		for (String allowedKey: allowedKeys)
@@ -414,7 +451,8 @@ public class SamlIdpProperties extends SamlProperties
 	 */
 	public X509Certificate getEncryptionCertificateForRequester(NameIDType requester)
 	{
-		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP);
+		X509Certificate rc = null;
+		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
 		boolean dnName = requester.getFormat() != null && requester.getFormat().equals(
 				SAMLConstants.NFORMAT_DN); 
 		for (String allowedKey: allowedKeys)
@@ -437,19 +475,45 @@ public class SamlIdpProperties extends SamlProperties
 			
 			if (!getBooleanValue(allowedKey + ALLOWED_SP_ENCRYPT))
 				return null;
-			String cert = getValue(allowedKey + ALLOWED_SP_CERT);
-			try
+						
+			Set<String> spCertNames = getAllowedSpCerts(allowedKey);
+			Set<X509Certificate> certs = new HashSet<X509Certificate>();
+			for (String spCertName: spCertNames)
 			{
-				return pkiManagement.getCertificate(cert);
-			} catch (EngineException e)
+				try
+				{	 
+					certs.add(pkiManagement.getCertificate(spCertName));
+					
+				} catch (EngineException e)
+				{
+					throw new InternalException("Can't retrieve SAML encryption certificate " + spCertName +
+							 " for requester with config key " + allowedKey, e);
+				}	
+			}
+			
+			for (X509Certificate c : certs)
 			{
-				throw new InternalException("Can't retrieve SAML encryption certificate " + cert +
-						 " for requester with config key " + allowedKey, e);
+				if (rc == null)
+				{
+					rc = c;
+				} else if (c.getNotAfter().compareTo(rc.getNotAfter()) > 0)
+				{
+					rc = c;
+				}
 			}
 		}
-		return null;
+		return rc;
 	}
 	
+	private Set<String> getAllowedSpCerts(String key)
+	{
+		Set<String> spCertNames = new HashSet<String>();
+		if (isSet(key + ALLOWED_SP_CERTIFICATE))
+			spCertNames.add(getValue(key + ALLOWED_SP_CERTIFICATE));
+		spCertNames.addAll(getListOfValues(key + ALLOWED_SP_CERTIFICATES));
+		return spCertNames;
+	}
+
 	public SamlTrustChecker getSoapTrustChecker()
 	{
 		return soapTrustChecker;
@@ -500,4 +564,26 @@ public class SamlIdpProperties extends SamlProperties
 	{
 		return attributesMapper;
 	}
+
+	@Override
+	public SamlProperties clone()
+	{
+		try
+		{
+			return new SamlIdpProperties(getProperties(), pkiManagement);
+		} catch (Exception e)
+		{
+			log.error("Can not clone SAMLIDPProperties");
+			return null;
+		} 
+		
+	}
+
+	public Properties getSourceProperties()
+	{
+		Properties configProps = new Properties();
+		configProps.putAll(sourceProperties);
+		return configProps;
+	}
+
 }

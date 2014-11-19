@@ -24,6 +24,7 @@ import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
+import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
 import pl.edu.icm.unity.server.utils.Log;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
@@ -55,16 +56,16 @@ public class SamlParseServlet extends HttpServlet
 	 * when an existing auth is in progress. 
 	 */
 	public static final String REQ_FORCE = "force";
-	protected SamlIdpProperties samlConfig;
+	protected RemoteMetaManager samlConfigProvider;
 	protected String endpointAddress;
 	protected String samlUiServletPath;
 	protected ErrorHandler errorHandler;
 
-	public SamlParseServlet(SamlIdpProperties samlConfig, String endpointAddress,
+	public SamlParseServlet(RemoteMetaManager samlConfigProvider, String endpointAddress,
 			String samlUiServletPath, ErrorHandler errorHandler)
 	{
 		super();
-		this.samlConfig = samlConfig;
+		this.samlConfigProvider = samlConfigProvider;
 		this.endpointAddress = endpointAddress;
 		this.samlUiServletPath = samlUiServletPath;
 		this.errorHandler = errorHandler;
@@ -110,6 +111,7 @@ public class SamlParseServlet extends HttpServlet
 			throws IOException, ServletException, EopException
 	{
 		log.trace("Starting SAML request processing");
+		SamlIdpProperties samlConfig = (SamlIdpProperties) samlConfigProvider.getVirtualConfiguration();
 		HttpSession session = request.getSession();
 		SAMLAuthnContext context = (SAMLAuthnContext) session.getAttribute(SESSION_SAML_CONTEXT); 
 
@@ -160,8 +162,8 @@ public class SamlParseServlet extends HttpServlet
 			AuthnRequestDocument samlRequest = parse(request);
 			if (log.isTraceEnabled())
 				log.trace("Parsed SAML request:\n" + samlRequest.xmlText());
-			context = createSamlContext(request, samlRequest);
-			validate(context, response);
+			context = createSamlContext(request, samlRequest, samlConfig);
+			validate(context, response, samlConfig);
 		} catch (SAMLProcessingException e)
 		{
 			if (log.isDebugEnabled())
@@ -174,10 +176,10 @@ public class SamlParseServlet extends HttpServlet
 		if (log.isTraceEnabled())
 			log.trace("Request with SAML input handled successfully");
 		response.sendRedirect(samlUiServletPath);
-		//request.getRequestDispatcher(samlUiServletPath).forward(request, response);
 	}
 	
-	protected SAMLAuthnContext createSamlContext(HttpServletRequest request, AuthnRequestDocument samlRequest)
+	protected SAMLAuthnContext createSamlContext(HttpServletRequest request, AuthnRequestDocument samlRequest,
+			SamlIdpProperties samlConfig)
 	{
 		SAMLAuthnContext ret = new SAMLAuthnContext(samlRequest, samlConfig);
 		String rs = request.getParameter(SAMLConstants.RELAY_STATE);
@@ -220,7 +222,8 @@ public class SamlParseServlet extends HttpServlet
 		return reqDoc;
 	}
 
-	protected void validate(SAMLAuthnContext context, HttpServletResponse servletResponse) 
+	protected void validate(SAMLAuthnContext context, HttpServletResponse servletResponse,
+			SamlIdpProperties samlConfig) 
 			throws SAMLProcessingException, IOException, EopException
 	{
 		WebAuthRequestValidator validator = new WebAuthRequestValidator(endpointAddress, 
