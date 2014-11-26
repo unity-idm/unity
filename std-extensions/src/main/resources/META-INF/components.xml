@@ -23,6 +23,7 @@
 	<bean class="pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntaxFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntaxFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntaxFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntaxFactory"/>
 	
 	<bean class="pl.edu.icm.unity.stdext.attr.StandardLDAPConverter"/>
 	

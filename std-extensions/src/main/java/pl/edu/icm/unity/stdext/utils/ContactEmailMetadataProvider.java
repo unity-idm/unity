@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.server.attributes.AttributeMetadataProvider;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
@@ -36,9 +37,10 @@ public class ContactEmailMetadataProvider implements AttributeMetadataProvider
 	@Override
 	public void verify(String metadata, AttributeType at) throws IllegalAttributeTypeException
 	{
-		if (!StringAttributeSyntax.ID.equals(at.getValueType().getValueSyntaxId()))
+		if (!(StringAttributeSyntax.ID.equals(at.getValueType().getValueSyntaxId()) ||
+				VerifiableEmailAttributeSyntax.ID.equals(at.getValueType().getValueSyntaxId())))
 			throw new IllegalAttributeTypeException("The " + NAME + " designator can be applied only " +
-					"to string type attribute types.");
+					"to string or verifiableEmail type attribute types.");
 		if (at.getMaxElements() != 1 || at.getMinElements() != 1)
 			throw new IllegalAttributeTypeException("The " + NAME + " designator can be applied only " +
 					"to attribute types with exactly one value.");

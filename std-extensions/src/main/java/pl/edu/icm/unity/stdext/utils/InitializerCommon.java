@@ -22,6 +22,7 @@ import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
@@ -45,6 +46,7 @@ public class InitializerCommon
 	public static final String CN_ATTR = "cn";
 	public static final String ORG_ATTR = "o";
 	public static final String EMAIL_ATTR = "email";
+	public static final String VERIFIABLE_EMAIL_ATTR = "verifiableEmail";
 	
 	public static final String MAIN_AC = "Common attributes";
 	public static final String NAMING_AC = "Common identification attributes";
@@ -131,9 +133,20 @@ public class InitializerCommon
 		((StringAttributeSyntax)email.getValueType()).setMaxLength(33);
 		((StringAttributeSyntax)email.getValueType()).setMinLength(5);
 		((StringAttributeSyntax)email.getValueType()).setRegexp("[^@]+@.+\\..+");
-		email.getMetadata().put(ContactEmailMetadataProvider.NAME, "");
+		//email.getMetadata().put(ContactEmailMetadataProvider.NAME, "");
 		if (!existingATs.contains(email))
 			attrMan.addAttributeType(email);
+		
+		
+		AttributeType verifiableEmail = new AttributeType(VERIFIABLE_EMAIL_ATTR, new VerifiableEmailAttributeSyntax());
+		verifiableEmail.setMinElements(1);
+		verifiableEmail.setDescription("Verifiable e-mail");
+		verifiableEmail.getMetadata().put(ContactEmailMetadataProvider.NAME, "");
+		
+		if (!existingATs.contains(verifiableEmail))
+			attrMan.addAttributeType(verifiableEmail);
+		
+		
 	}
 	
 	public void assignCnToAdmin() throws EngineException

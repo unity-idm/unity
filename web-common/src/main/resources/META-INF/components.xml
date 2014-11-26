@@ -15,6 +15,8 @@
 	<bean class="pl.edu.icm.unity.webui.common.attributes.ext.IntegerAttributeHandler"/>
 	<bean class="pl.edu.icm.unity.webui.common.attributes.ext.FloatingPointAttributeHandler"/>
 	<bean class="pl.edu.icm.unity.webui.common.attributes.ext.JpegImageAttributeHandler"/>
+	<bean class="pl.edu.icm.unity.webui.common.attributes.ext.VerifiableEmailAttributeHandler"/>
+	
 
 	<bean class="pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry"/>
 	<bean class="pl.edu.icm.unity.webui.common.identities.ext.UsernameIdentityEditorFactory"/>

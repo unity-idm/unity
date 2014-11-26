@@ -19,6 +19,7 @@ import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -115,7 +116,7 @@ public class DemoContentInitializer implements ServerInitializer
 			StringAttribute orgA = new StringAttribute("o", "/", AttributeVisibility.full, "Example organization");
 			attrMan.setAttribute(new EntityParam(base.getEntityId()), orgA, false);
 
-			StringAttribute emailA = new StringAttribute("email", "/", AttributeVisibility.full, "some@email.com");
+			VerifiableEmailAttribute emailA = new VerifiableEmailAttribute("verifiableEmail", "/", AttributeVisibility.full, "some@email.com");
 			attrMan.setAttribute(new EntityParam(base.getEntityId()), emailA, false);
 
 			StringAttribute cnA = new StringAttribute("cn", "/", AttributeVisibility.full, "Hiper user");
