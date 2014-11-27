@@ -84,9 +84,14 @@ public class LogoutProcessor
 	public LogoutResponseDocument handleSynchronousLogout(LogoutRequestDocument request) 
 			throws SAMLServerException
 	{
-		SAMLLogoutContext ctx = init(request, null, Binding.SOAP);
-		logoutSynchronousParticipants(ctx);
-		LogoutResponseDocument finalResponse = performLocalLogout(ctx);
+		SAMLExternalLogoutContext externalCtx = initFromSAML(request, null, Binding.SOAP, false);
+		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(externalCtx.getSession(), 
+				externalCtx.getLocalSessionAuthorityId(), 
+				request.getLogoutRequest().getIssuer().getStringValue());
+		logoutSynchronousParticipants(internalCtx);
+		boolean allLoggedOut = internalCtx.getFailed().isEmpty();
+		sessionManagement.removeSession(internalCtx.getSession().getId(), false);
+		LogoutResponseDocument finalResponse = prepareFinalLogoutResponse(externalCtx, !allLoggedOut);
 		return finalResponse;
 	}
 	
@@ -103,17 +108,23 @@ public class LogoutProcessor
 	public void handleAsyncLogout(LogoutRequestDocument request, String relayState, 
 			HttpServletResponse response, Binding binding) throws IOException, EopException
 	{
-		SAMLLogoutContext ctx;
+		SAMLExternalLogoutContext externalCtx;
 		try
 		{
-			ctx = init(request, relayState, binding);
+			externalCtx = initFromSAML(request, relayState, binding, true);
 		} catch (SAMLServerException e)
 		{
 			responseHandler.showError(new SAMLProcessingException(
 					"A logout process can not be started", e), response);
 			return;
 		}
-		continueAsyncLogout(ctx, response);
+		
+		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(externalCtx.getSession(), 
+				externalCtx.getLocalSessionAuthorityId(), 
+				request.getLogoutRequest().getIssuer().getStringValue());
+		contextsStore.addInternalContext(externalCtx.getRequestersRelayState(), internalCtx);
+		
+		continueAsyncLogout(internalCtx, response);
 	}
 	
 	/**
@@ -135,7 +146,7 @@ public class LogoutProcessor
 					+ "was received without relay state. It can not be processed."), response);
 			return;
 		}
-		SAMLLogoutContext ctx = contextsStore.getContext(state);
+		SAMLInternalLogoutContext ctx = contextsStore.getInternalContext(state);
 		if (ctx == null)
 		{
 			responseHandler.showError(new SAMLProcessingException("A logout response "
@@ -177,18 +188,19 @@ public class LogoutProcessor
 	}
 
 	/**
-	 * Initializes the logout process: request is validated, login session resolved, authorization is checked.
-	 * Then the logout context is created, stored and persisted.  
+	 * Initializes the logout process when started by means of SAML protocol: 
+	 * request is validated, login session resolved, authorization is checked.
+	 *  Then the logout context is created, stored and persisted.  
 	 * @param request
 	 * @return
 	 * @throws SAMLServerException
 	 */
-	private SAMLLogoutContext init(LogoutRequestDocument request, String requesterRelayState, Binding binding)
-			throws SAMLServerException
+	private SAMLExternalLogoutContext initFromSAML(LogoutRequestDocument request, String requesterRelayState, 
+			Binding binding, boolean persistContext) throws SAMLServerException
 	{
 		LoginSession session = resolveRequest(request);
-		SAMLLogoutContext ctx = new SAMLLogoutContext(request, session, localSamlId, requesterRelayState,
-				binding);
+		SAMLExternalLogoutContext ctx = new SAMLExternalLogoutContext(localSamlId, request,  
+				requesterRelayState, binding, session);
 		if (ctx.getInitiator() == null)
 			throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_REQUEST_DENIED,
 					"The request issuer is not among session participants");
@@ -196,7 +208,8 @@ public class LogoutProcessor
 			throw new SAMLResponderException(SAMLConstants.SubStatus.STATUS2_REQUEST_DENIED,
 					"The request issuer has no logout endpoint defined "
 					+ "with a binding used to submit the request: " + binding);
-		contextsStore.addContext(ctx);
+		if (persistContext)
+			contextsStore.addExternalContext(ctx);
 		return ctx;
 	}
 	
@@ -207,7 +220,7 @@ public class LogoutProcessor
 	 *   
 	 * @param ctx
 	 */
-	private InterimLogoutRequest selectNextAsyncParticipantForLogout(SAMLLogoutContext ctx) 
+	private InterimLogoutRequest selectNextAsyncParticipantForLogout(SAMLInternalLogoutContext ctx) 
 	{
 		SAMLSessionParticipant participant;
 		LogoutRequest request = null;
@@ -235,7 +248,7 @@ public class LogoutProcessor
 		return new InterimLogoutRequest(request.getXMLBeanDoc(), ctx.getRelayState(), logoutEndpoint);
 	}
 	
-	private SAMLSessionParticipant findNextForAsyncLogout(SAMLLogoutContext ctx)
+	private SAMLSessionParticipant findNextForAsyncLogout(SAMLInternalLogoutContext ctx)
 	{
 		List<SAMLSessionParticipant> toBeLoggedOut = ctx.getToBeLoggedOut();
 		SAMLSessionParticipant participant = null;
@@ -262,7 +275,7 @@ public class LogoutProcessor
 	 * @throws IOException
 	 * @throws EopException 
 	 */
-	private void continueAsyncLogout(SAMLLogoutContext ctx, HttpServletResponse response) 
+	private void continueAsyncLogout(SAMLInternalLogoutContext ctx, HttpServletResponse response) 
 			throws IOException, EopException
 	{
 		InterimLogoutRequest interimReq = selectNextAsyncParticipantForLogout(ctx);
@@ -278,28 +291,45 @@ public class LogoutProcessor
 		
 		logoutSynchronousParticipants(ctx);
 
+		contextsStore.removeInternalContext(ctx.getRelayState());
+		sessionManagement.removeSession(ctx.getSession().getId(), false);
+		
+		SAMLExternalLogoutContext externalCtx = contextsStore.getExternalContext(ctx.getRelayState());
+		if (externalCtx != null)
+			finishAsyncLogoutFromSAML(externalCtx, !ctx.getFailed().isEmpty(), 
+					response, ctx.getRelayState());
+	}
+
+	/**
+	 * Prepares the final response and sends it back via async binding
+	 * @throws EopException 
+	 * @throws IOException 
+	 */
+	private void finishAsyncLogoutFromSAML(SAMLExternalLogoutContext ctx, boolean partial, 
+			HttpServletResponse response, String externalContextKey) throws IOException, EopException
+	{
 		Binding binding = ctx.getRequestBinding();
 		SAMLEndpointDefinition endpoint = ctx.getInitiator().getLogoutEndpoints().get(binding);
 		LogoutResponseDocument finalResponse;
 		try
 		{
-			finalResponse = performLocalLogout(ctx);
+			finalResponse = prepareFinalLogoutResponse(ctx, partial);
 		} catch (SAMLResponderException e)
 		{
 			responseHandler.sendErrorResponse(binding, e, endpoint.getReturnUrl(), ctx, response);
 			return;
 		}
 
+		contextsStore.removeExternalContext(externalContextKey);
 		responseHandler.sendResponse(binding, finalResponse, endpoint.getReturnUrl(), ctx, response);
 	}
-
 	
 	/**
 	 * Logs out all unprocessed participants who support soap binding.
 	 * @param ctx
 	 * @throws SAMLResponderException 
 	 */
-	private void logoutSynchronousParticipants(SAMLLogoutContext ctx)
+	private void logoutSynchronousParticipants(SAMLInternalLogoutContext ctx)
 	{
 		List<SAMLSessionParticipant> toBeLoggedOut = ctx.getToBeLoggedOut();
 		SAMLSessionParticipant participant = null;
@@ -330,17 +360,17 @@ public class LogoutProcessor
 	}
 	
 	/**
-	 * Destroys the local login session and prepares the final logout response, taking into account 
+	 * Prepares the final logout response, taking into account 
 	 * the overall logout state from the context.
 	 * @param ctx
 	 * @return
 	 * @throws SAMLResponderException 
 	 */
-	private LogoutResponseDocument performLocalLogout(SAMLLogoutContext ctx) throws SAMLResponderException
+	private LogoutResponseDocument prepareFinalLogoutResponse(SAMLExternalLogoutContext ctx, boolean partial) 
+			throws SAMLResponderException
 	{
-		sessionManagement.removeSession(ctx.getSession().getId(), false);
 		LogoutResponse response = new LogoutResponse(getIssuer(), ctx.getRequest().getID());
-		if (!ctx.getFailed().isEmpty())
+		if (partial)
 			response.setPartialLogout();
 		try
 		{
@@ -424,7 +454,7 @@ public class LogoutProcessor
 		return request;
 	}
 	
-	private void updateContextAfterParicipantLogout(SAMLLogoutContext ctx, SAMLSessionParticipant participant,
+	private void updateContextAfterParicipantLogout(SAMLInternalLogoutContext ctx, SAMLSessionParticipant participant,
 			LogoutResponseDocument resp)
 	{
 		StatusType status = resp.getLogoutResponse().getStatus();

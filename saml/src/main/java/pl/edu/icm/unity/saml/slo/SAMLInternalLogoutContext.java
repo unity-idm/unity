@@ -9,65 +9,48 @@
 package pl.edu.icm.unity.saml.slo;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import pl.edu.icm.unity.saml.SAMLSessionParticipant;
-import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionParticipant;
 import pl.edu.icm.unity.server.api.internal.SessionParticipants;
-import xmlbeans.org.oasis.saml2.protocol.LogoutRequestDocument;
-import xmlbeans.org.oasis.saml2.protocol.LogoutRequestType;
 
 /**
  * SAML Context for single logout protocol. Quite complicated as the process may happen asynchronously.
- * This context is used to track state during logout, where Unity is session authority. 
+ * This context is used to track state during logout, where Unity is session authority.
+ * <p>
+ * This class is used to keep track of logging out of external SAML session participants, which process
+ * can be initialized with SAML request or not (e.g. by logging out directly).
  * 
  * @author K. Benedyczak
  */
-public class SAMLLogoutContext
+public class SAMLInternalLogoutContext extends AbstractSAMLLogoutContext
 {
-	private String requestersRelayState;
 	private String relayState;
-	private Date creationTs;
-	protected LogoutRequestType request;
-	protected LogoutRequestDocument requestDoc;
-	protected Binding requestBinding;
 	private List<SAMLSessionParticipant> toBeLoggedOut = new ArrayList<SAMLSessionParticipant>();
 	private List<SAMLSessionParticipant> loggedOut = new ArrayList<SAMLSessionParticipant>();
 	private List<SAMLSessionParticipant> failed = new ArrayList<SAMLSessionParticipant>();
 	private SAMLSessionParticipant current;
 	private String currentRequestId;
-	private SAMLSessionParticipant initiator;
-	private LoginSession session;
-	private String localSessionAuthorityId;
 	
-	public SAMLLogoutContext(LogoutRequestDocument reqDoc, LoginSession loginSession,
-			String localSessionAuthorityId, String requesterRelayState, Binding requestBinding)
+	public SAMLInternalLogoutContext(LoginSession loginSession, String localSessionAuthorityId,
+			String excludedFromLogout)
 	{
-		this.requestDoc = reqDoc;
-		this.request = reqDoc.getLogoutRequest();
-		creationTs = new Date();
-		this.session = loginSession;
+		super(localSessionAuthorityId, loginSession);
 		this.localSessionAuthorityId = localSessionAuthorityId;
-		this.requestersRelayState = requesterRelayState;
-		this.requestBinding = requestBinding;
-		initialize();
+		initialize(excludedFromLogout);
 	}
 
-	private void initialize()
+	private void initialize(String excludedFromLogout)
 	{
 		SessionParticipants participants = SessionParticipants.getFromSession(session.getSessionData());
-		String issuer = request.getIssuer().getStringValue();
 		for (SessionParticipant p: participants.getParticipants())
 		{
 			if (SAMLSessionParticipant.TYPE.equals(p.getProtocolType()))
 			{
 				SAMLSessionParticipant samlP = (SAMLSessionParticipant) p;
-				if (issuer.equals(samlP.getIdentifier()))
-					this.initiator = samlP;
-				else
+				if (excludedFromLogout == null || !excludedFromLogout.equals(samlP.getIdentifier()))
 					toBeLoggedOut.add(samlP);
 			}
 		}
@@ -88,30 +71,6 @@ public class SAMLLogoutContext
 		this.relayState = relayState;
 	}
 
-	/**
-	 * @return null or the relay state which was provided by a session participant 
-	 * which requested logout from Unity.
-	 */
-	public String getRequestersRelayState()
-	{
-		return requestersRelayState;
-	}
-
-	public Date getCreationTs()
-	{
-		return creationTs;
-	}
-	
-	public LogoutRequestType getRequest()
-	{
-		return request;
-	}
-
-	public LogoutRequestDocument getRequestDoc()
-	{
-		return requestDoc;
-	}
-
 	public List<SAMLSessionParticipant> getToBeLoggedOut()
 	{
 		return toBeLoggedOut;
@@ -125,26 +84,6 @@ public class SAMLLogoutContext
 	public List<SAMLSessionParticipant> getFailed()
 	{
 		return failed;
-	}
-
-	public SAMLSessionParticipant getInitiator()
-	{
-		return initiator;
-	}
-
-	public LoginSession getSession()
-	{
-		return session;
-	}
-	
-	public String getLocalSessionAuthorityId()
-	{
-		return localSessionAuthorityId;
-	}
-
-	public Binding getRequestBinding()
-	{
-		return requestBinding;
 	}
 
 	public SAMLSessionParticipant getCurrent()
@@ -170,6 +109,6 @@ public class SAMLLogoutContext
 	@Override
 	public String toString()
 	{
-		return "Logout request of " + initiator.getIdentifier() + " for " + session;
+		return "Logout request for " + session;
 	}
 }

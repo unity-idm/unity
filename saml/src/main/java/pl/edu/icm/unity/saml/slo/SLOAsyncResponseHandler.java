@@ -68,20 +68,21 @@ public class SLOAsyncResponseHandler extends ResponseHandlerBase
 	 * @throws EopException
 	 */
 	public void sendErrorResponse(Binding binding, SAMLServerException error, String serviceUrl, 
-			SAMLLogoutContext context, HttpServletResponse response) throws IOException, EopException
+			SAMLExternalLogoutContext context, HttpServletResponse response) throws IOException, EopException
 	{
 		log.debug("SAML error is going to be returned to the SAML requester from SLO endpoint", error);
-		LogoutResponseDocument errorResp = convertExceptionToResponse(context, error);
+		LogoutResponseDocument errorResp = convertExceptionToResponse(context.getLocalSessionAuthorityId(), 
+				context.getRequest().getID(), error);
 		
 		switch (binding)
 		{
 		case HTTP_POST:
 			handlePostGeneric(errorResp.xmlText(), "Logout Error", SAMLMessageType.SAMLResponse, 
-					serviceUrl, context, response);
+					serviceUrl, context.getRequestersRelayState(), response);
 			break;
 		case HTTP_REDIRECT:
 			handleRedirectGeneric(errorResp.xmlText(), "Logout Error", SAMLMessageType.SAMLResponse, 
-					serviceUrl, context, response);
+					serviceUrl, context.getRequestersRelayState(), response);
 			break;
 		default:
 			throw new IllegalStateException("Unsupported binding: " + binding);
@@ -89,17 +90,17 @@ public class SLOAsyncResponseHandler extends ResponseHandlerBase
 	}
 
 	public void sendRequest(Binding binding, LogoutRequestDocument requestDoc, String serviceUrl, 
-			SAMLLogoutContext context, HttpServletResponse response) throws IOException, EopException
+			SAMLInternalLogoutContext context, HttpServletResponse response) throws IOException, EopException
 	{
 		switch (binding)
 		{
 		case HTTP_POST:
 			handlePostGeneric(requestDoc.xmlText(), "Logout", SAMLMessageType.SAMLRequest, 
-					serviceUrl, context, response);
+					serviceUrl, context.getRelayState(), response);
 			break;
 		case HTTP_REDIRECT:
 			handleRedirectGeneric(requestDoc.xmlText(), "Logout", SAMLMessageType.SAMLRequest, 
-					serviceUrl, context, response);
+					serviceUrl, context.getRelayState(), response);
 			break;
 		default:
 			throw new IllegalStateException("Unsupported binding: " + binding);
@@ -107,17 +108,17 @@ public class SLOAsyncResponseHandler extends ResponseHandlerBase
 	}
 
 	public void sendResponse(Binding binding, LogoutResponseDocument responseDoc, String serviceUrl, 
-			SAMLLogoutContext context, HttpServletResponse response) throws IOException, EopException
+			SAMLExternalLogoutContext context, HttpServletResponse response) throws IOException, EopException
 	{
 		switch (binding)
 		{
 		case HTTP_POST:
 			handlePostGeneric(responseDoc.xmlText(), "Logout", SAMLMessageType.SAMLResponse, 
-					serviceUrl, context, response);
+					serviceUrl, context.getRequestersRelayState(), response);
 			break;
 		case HTTP_REDIRECT:
 			handleRedirectGeneric(responseDoc.xmlText(), "Logout", SAMLMessageType.SAMLResponse, 
-					serviceUrl, context, response);
+					serviceUrl, context.getRequestersRelayState(), response);
 			break;
 		default:
 			throw new IllegalStateException("Unsupported binding: " + binding);
@@ -126,12 +127,12 @@ public class SLOAsyncResponseHandler extends ResponseHandlerBase
 	}
 
 	protected void handleRedirectGeneric(String xml, String info, SAMLMessageType type, String serviceUrl, 
-			SAMLLogoutContext context, HttpServletResponse response) throws IOException, EopException
+			String relayState, HttpServletResponse response) throws IOException, EopException
 	{
 		setCommonHeaders(response);
 		log.debug("Returning " + info + " " + type + " with HTTP Redirect binding to " + serviceUrl);
 		String redirectURL = HttpRedirectBindingSupport.getRedirectURL(type, 
-				context.getRelayState(), xml, serviceUrl);
+				relayState, xml, serviceUrl);
 		if (log.isTraceEnabled())
 		{
 			log.trace("SAML " + type + " is:\n" + xml);
@@ -143,7 +144,7 @@ public class SLOAsyncResponseHandler extends ResponseHandlerBase
 
 
 	protected void handlePostGeneric(String xml, String info, SAMLMessageType type, String serviceUrl, 
-			SAMLLogoutContext context, HttpServletResponse response) throws IOException, EopException
+			String relayState, HttpServletResponse response) throws IOException, EopException
 	{
 		response.setContentType("text/html; charset=utf-8");
 		setCommonHeaders(response);
@@ -151,7 +152,7 @@ public class SLOAsyncResponseHandler extends ResponseHandlerBase
 
 		log.debug("Returning " + info + " " + type + " with HTTP POST binding to " + serviceUrl);
 		String htmlResponse = HttpPostBindingSupport.getHtmlPOSTFormContents(
-				type, serviceUrl, xml, context.getRelayState());
+				type, serviceUrl, xml, relayState);
 		if (log.isTraceEnabled())
 		{
 			log.trace("SAML " + info + " is:\n" + xml);
@@ -167,13 +168,13 @@ public class SLOAsyncResponseHandler extends ResponseHandlerBase
 	 * @param error
 	 * @return
 	 */
-	private LogoutResponseDocument convertExceptionToResponse(SAMLLogoutContext context, SAMLServerException error) 
+	private LogoutResponseDocument convertExceptionToResponse(String issuer, String inReplyTo, 
+			SAMLServerException error) 
 	{
 		
 		LogoutResponse responseDoc = new LogoutResponse(
-				new NameID(context.getLocalSessionAuthorityId(), null).getXBean(), 
-				context.getRequest().getID(),
-				error);
+				new NameID(issuer, null).getXBean(), 
+				inReplyTo, error);
 		return responseDoc.getXMLBeanDoc();
 	}
 	

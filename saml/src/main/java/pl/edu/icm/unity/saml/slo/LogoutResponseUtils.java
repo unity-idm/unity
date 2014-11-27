@@ -17,7 +17,7 @@ import eu.unicore.samly2.proto.LogoutResponse;
  */
 public class LogoutResponseUtils
 {
-	public static LogoutResponseDocument getErrorResponse(SAMLLogoutContext ctx, SAMLServerException e)
+	public static LogoutResponseDocument getErrorResponse(SAMLExternalLogoutContext ctx, SAMLServerException e)
 	{
 		String id = null;
 		LogoutRequestType request = ctx.getRequest();

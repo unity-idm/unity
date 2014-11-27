@@ -24,25 +24,66 @@ public class LogoutContextsStore
 	public static final long MAX_AGE = 180000;
 	public static final long CLEANUP_EVERY = 30000;
 	
-	private Map<String, SAMLLogoutContext> contexts = new HashMap<String, SAMLLogoutContext>(64);
+	private Map<String, SAMLInternalLogoutContext> intContexts = new HashMap<String, SAMLInternalLogoutContext>(64);
+	private Map<String, SAMLExternalLogoutContext> extContexts = new HashMap<String, SAMLExternalLogoutContext>(64);
 	private long lastCleanup;
 	
-	public synchronized SAMLLogoutContext getContext(String id)
+	public synchronized SAMLInternalLogoutContext getInternalContext(String id)
 	{
 		cleanup();
-		return contexts.get(id);
+		return intContexts.get(id);
+	}
+
+	public synchronized SAMLExternalLogoutContext getExternalContext(String id)
+	{
+		cleanup();
+		return extContexts.get(id);
 	}
 	
 	/**
-	 * The identifier of the context is set in the context's relay state.
+	 * The identifier of the context is set in the context's relay state. Useful for logouts not started
+	 * with saml.
 	 * @param context
 	 */
-	public synchronized void addContext(SAMLLogoutContext context)
+	public synchronized void addInternalContext(SAMLInternalLogoutContext context)
 	{
 		cleanup();
 		String key = UUID.randomUUID().toString();
 		context.setRelayState(key);
-		contexts.put(key, context);
+		intContexts.put(key, context);
+	}
+
+	public synchronized void removeInternalContext(String key)
+	{
+		intContexts.remove(key);
+	}
+
+	public synchronized void removeExternalContext(String key)
+	{
+		extContexts.remove(key);
+	}
+
+	/**
+	 * The identifier of the context must be provided. Useful for logouts started with SAML.
+	 * @param context
+	 */
+	public synchronized void addInternalContext(String key, SAMLInternalLogoutContext context)
+	{
+		cleanup();
+		intContexts.put(key, context);
+	}
+	
+	/**
+	 * Adds a new external logout context, the key is returned.
+	 * @param key
+	 * @param context
+	 */
+	public synchronized String addExternalContext(SAMLExternalLogoutContext context)
+	{
+		cleanup();
+		String key = UUID.randomUUID().toString();
+		extContexts.put(key, context);
+		return key;
 	}
 	
 	private void cleanup()
@@ -51,10 +92,16 @@ public class LogoutContextsStore
 			return;
 		log.debug("Running SAML logout contexts expiration task");
 		lastCleanup = System.currentTimeMillis();
-		Iterator<SAMLLogoutContext> mapIt = contexts.values().iterator();
+		cleanup(extContexts);
+		cleanup(intContexts);
+	}
+	
+	private void cleanup(Map<String, ? extends AbstractSAMLLogoutContext> contexts)
+	{
+		Iterator<? extends AbstractSAMLLogoutContext> mapIt = contexts.values().iterator();
 		while (mapIt.hasNext())
 		{
-			SAMLLogoutContext ctx = mapIt.next();
+			AbstractSAMLLogoutContext ctx = mapIt.next();
 			if (ctx.getCreationTs().getTime() + MAX_AGE < lastCleanup)
 			{
 				if (log.isDebugEnabled())
