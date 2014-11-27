@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.utils;
 
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -117,6 +119,9 @@ public class DemoContentInitializer implements ServerInitializer
 			attrMan.setAttribute(new EntityParam(base.getEntityId()), orgA, false);
 
 			VerifiableEmailAttribute emailA = new VerifiableEmailAttribute("verifiableEmail", "/", AttributeVisibility.full, "some@email.com");
+			Date d = new Date();
+			emailA.getValues().get(0).setVerificationDate(d.getTime());
+			emailA.getValues().get(0).setVerified(true);
 			attrMan.setAttribute(new EntityParam(base.getEntityId()), emailA, false);
 
 			StringAttribute cnA = new StringAttribute("cn", "/", AttributeVisibility.full, "Hiper user");

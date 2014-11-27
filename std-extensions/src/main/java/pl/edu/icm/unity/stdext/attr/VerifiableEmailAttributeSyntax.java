@@ -20,13 +20,11 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	private Pattern pattern = null;
 	
 	
-	
 	public VerifiableEmailAttributeSyntax()
 	{
 		pattern = Pattern.compile(EMAIL_REGEXP);
 	}
-	
-	
+		
 	/**
 	 * {@inheritDoc}
 	 */
@@ -36,19 +34,27 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		return ID;
 	}
 
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean areEqual(VerifiableEmail value, Object another)
 	{
 		return value.equals(another);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode(Object value)
 	{
 		return value.hashCode();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public byte[] serialize(VerifiableEmail value) throws InternalException
 	{
@@ -65,12 +71,18 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Object serializeSimple(VerifiableEmail value) throws InternalException
 	{
 		return serialize(value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public VerifiableEmail deserialize(byte[] raw) throws InternalException
 	{
@@ -86,9 +98,7 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		email.setValue(jsonN.get("value").asText());
 		email.setVerified(jsonN.get("verified").asBoolean(false));
 		email.setVerificationDate(jsonN.get("verificationDate").asLong());
-		
 		return email;
-		
 	}
 	
 	/**
@@ -111,14 +121,18 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 						"regualr expression: " + EMAIL_REGEXP);
 	}
 
-	//TODO
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getSerializedConfiguration() throws InternalException
 	{
-		return null;
+		return "{}";
 	}
 
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setSerializedConfiguration(String json) throws InternalException
 	{
