@@ -105,10 +105,4 @@ public class SAMLInternalLogoutContext extends AbstractSAMLLogoutContext
 	{
 		this.currentRequestId = currentRequestId;
 	}
-
-	@Override
-	public String toString()
-	{
-		return "Logout request for " + session;
-	}
 }

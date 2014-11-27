@@ -26,6 +26,8 @@ public class LogoutContextsStore
 	
 	private Map<String, SAMLInternalLogoutContext> intContexts = new HashMap<String, SAMLInternalLogoutContext>(64);
 	private Map<String, SAMLExternalLogoutContext> extContexts = new HashMap<String, SAMLExternalLogoutContext>(64);
+	private Map<String, PlainExternalLogoutContext> plainExtContexts = 
+			new HashMap<String, PlainExternalLogoutContext>(64);
 	private long lastCleanup;
 	
 	public synchronized SAMLInternalLogoutContext getInternalContext(String id)
@@ -39,20 +41,13 @@ public class LogoutContextsStore
 		cleanup();
 		return extContexts.get(id);
 	}
-	
-	/**
-	 * The identifier of the context is set in the context's relay state. Useful for logouts not started
-	 * with saml.
-	 * @param context
-	 */
-	public synchronized void addInternalContext(SAMLInternalLogoutContext context)
+
+	public synchronized PlainExternalLogoutContext getPlainExternalContext(String id)
 	{
 		cleanup();
-		String key = UUID.randomUUID().toString();
-		context.setRelayState(key);
-		intContexts.put(key, context);
+		return plainExtContexts.get(id);
 	}
-
+	
 	public synchronized void removeInternalContext(String key)
 	{
 		intContexts.remove(key);
@@ -61,6 +56,11 @@ public class LogoutContextsStore
 	public synchronized void removeExternalContext(String key)
 	{
 		extContexts.remove(key);
+	}
+
+	public synchronized void removePlainExternalContext(String key)
+	{
+		plainExtContexts.remove(key);
 	}
 
 	/**
@@ -84,6 +84,12 @@ public class LogoutContextsStore
 		String key = UUID.randomUUID().toString();
 		extContexts.put(key, context);
 		return key;
+	}
+
+	public synchronized void addPlainExternalContext(String key, PlainExternalLogoutContext context)
+	{
+		cleanup();
+		plainExtContexts.put(key, context);
 	}
 	
 	private void cleanup()

@@ -39,4 +39,10 @@ public abstract class AbstractSAMLLogoutContext
 	{
 		return session;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "Logout request for " + session;
+	}
 }

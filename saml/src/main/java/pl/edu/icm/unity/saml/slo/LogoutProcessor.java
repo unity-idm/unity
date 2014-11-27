@@ -81,7 +81,7 @@ public class LogoutProcessor
 	 * @return
 	 * @throws SAMLServerException 
 	 */
-	public LogoutResponseDocument handleSynchronousLogout(LogoutRequestDocument request) 
+	public LogoutResponseDocument handleSynchronousLogoutFromSAML(LogoutRequestDocument request) 
 			throws SAMLServerException
 	{
 		SAMLExternalLogoutContext externalCtx = initFromSAML(request, null, Binding.SOAP, false);
@@ -105,7 +105,7 @@ public class LogoutProcessor
 	 * @throws EopException 
 	 * @throws IOException 
 	 */
-	public void handleAsyncLogout(LogoutRequestDocument request, String relayState, 
+	public void handleAsyncLogoutFromSAML(LogoutRequestDocument request, String relayState, 
 			HttpServletResponse response, Binding binding) throws IOException, EopException
 	{
 		SAMLExternalLogoutContext externalCtx;
@@ -124,7 +124,41 @@ public class LogoutProcessor
 				request.getLogoutRequest().getIssuer().getStringValue());
 		contextsStore.addInternalContext(externalCtx.getRequestersRelayState(), internalCtx);
 		
-		continueAsyncLogout(internalCtx, response);
+		continueAsyncLogout(internalCtx, response, true);
+	}
+
+	/**
+	 * Performs async logout of SAML peers attached to the current login session. It is assumed that the logout 
+	 * itself was not initiated with SAML. After the full logout the browser is redirected to a given return URL
+	 * with relayState given as parameter. The login session itself is not terminated here.
+	 * @param relayState
+	 * @param response
+	 * @param returnUrl
+	 * @throws IOException
+	 * @throws EopException
+	 */
+	public void handleAsyncLogout(LoginSession session, String relayState, String returnUrl, 
+			HttpServletResponse response) throws IOException, EopException
+	{
+		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(session, 
+				localSamlId, null);
+		contextsStore.addInternalContext(relayState, internalCtx);
+		
+		continueAsyncLogout(internalCtx, response, false);
+	}
+
+	/**
+	 * Performs sync logout of SAML peers attached to the current login session. It is assumed that the logout 
+	 * itself was not initiated with SAML. The login session itself is not terminated here.
+	 * @return if all participants were logged out
+	 */
+	public boolean handleSynchronousLogout(LoginSession session)
+	{
+		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(session, 
+				localSamlId, null);
+		logoutSynchronousParticipants(internalCtx);
+		boolean allLoggedOut = internalCtx.getFailed().isEmpty();
+		return allLoggedOut;
 	}
 	
 	/**
@@ -184,7 +218,7 @@ public class LogoutProcessor
 		
 		updateContextAfterParicipantLogout(ctx, ctx.getCurrent(), samlResponse);
 		
-		continueAsyncLogout(ctx, response);
+		continueAsyncLogout(ctx, response, true);
 	}
 
 	/**
@@ -275,7 +309,8 @@ public class LogoutProcessor
 	 * @throws IOException
 	 * @throws EopException 
 	 */
-	private void continueAsyncLogout(SAMLInternalLogoutContext ctx, HttpServletResponse response) 
+	private void continueAsyncLogout(SAMLInternalLogoutContext ctx, HttpServletResponse response, 
+			boolean performFinalLogout) 
 			throws IOException, EopException
 	{
 		InterimLogoutRequest interimReq = selectNextAsyncParticipantForLogout(ctx);
@@ -292,12 +327,24 @@ public class LogoutProcessor
 		logoutSynchronousParticipants(ctx);
 
 		contextsStore.removeInternalContext(ctx.getRelayState());
-		sessionManagement.removeSession(ctx.getSession().getId(), false);
+		
+		if (performFinalLogout)
+			sessionManagement.removeSession(ctx.getSession().getId(), false);
 		
 		SAMLExternalLogoutContext externalCtx = contextsStore.getExternalContext(ctx.getRelayState());
 		if (externalCtx != null)
 			finishAsyncLogoutFromSAML(externalCtx, !ctx.getFailed().isEmpty(), 
 					response, ctx.getRelayState());
+		else
+		{
+			PlainExternalLogoutContext plainCtx = contextsStore.getPlainExternalContext(
+					ctx.getRelayState());
+			if (plainCtx != null)
+				finishAsyncLogoutNoSAML(plainCtx, response, ctx.getRelayState());
+			else
+				log.error("SAML logout is finished but it seems "
+						+ "there is no associated external context. This means there is a bug");
+		}
 	}
 
 	/**
@@ -322,6 +369,21 @@ public class LogoutProcessor
 
 		contextsStore.removeExternalContext(externalContextKey);
 		responseHandler.sendResponse(binding, finalResponse, endpoint.getReturnUrl(), ctx, response);
+	}
+
+	/**
+	 * Performs a final redirect to a requested address after the SAML logout part is completed. 
+	 * @throws EopException 
+	 * @throws IOException 
+	 */
+	private void finishAsyncLogoutNoSAML(PlainExternalLogoutContext ctx, HttpServletResponse response, 
+			String externalContextKey) throws IOException, EopException
+	{
+		contextsStore.removeExternalContext(externalContextKey);
+		
+		StringBuilder ret = new StringBuilder(ctx.getReturnUrl());
+		ret.append("?").append("RelayState=").append(ctx.getRequestersRelayState());
+		response.sendRedirect(ret.toString());
 	}
 	
 	/**
