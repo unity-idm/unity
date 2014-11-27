@@ -261,7 +261,7 @@ public abstract class AbstractMetaToConfigConverter
 	
 	
 	protected void setSLOProperty(Properties properties, String configKey, boolean noPerEntryConfig,
-			EndpointType sloEndpoint, String SLOProperty)
+			EndpointType sloEndpoint, String SLOProperty, String SLORetProperty)
 	{
 		if (noPerEntryConfig || !properties.containsKey(configKey + SLOProperty))
 		{
@@ -269,6 +269,9 @@ public abstract class AbstractMetaToConfigConverter
 			{
 				properties.setProperty(configKey + SLOProperty, 
 					sloEndpoint.getLocation());
+				if (SLORetProperty != null && sloEndpoint.getResponseLocation() != null)
+					properties.setProperty(configKey + SLORetProperty, 
+						sloEndpoint.getResponseLocation());
 			}
 		}
 	}

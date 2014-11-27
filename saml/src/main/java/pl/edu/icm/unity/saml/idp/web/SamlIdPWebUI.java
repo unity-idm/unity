@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.idpcommon.EopException;
+import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
 import pl.edu.icm.unity.saml.SAMLSessionParticipant;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
@@ -352,27 +354,20 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			samlResponseHandler.handleException(e, false);
 			return;
 		}
-		addSessionParticipant(samlCtx);
+		addSessionParticipant(samlCtx, samlProcessor.getAuthenticatedSubject().getNameID(), 
+				samlProcessor.getSessionId());
 		samlResponseHandler.returnSamlResponse(respDoc);
 	}
 	
-	protected void addSessionParticipant(SAMLAuthnContext samlCtx)
+	protected void addSessionParticipant(SAMLAuthnContext samlCtx, NameIDType returnedSubject,
+			String sessionId)
 	{
 		String participantId = samlCtx.getRequest().getIssuer().getStringValue();
 		String configKey = samlCtx.getSamlConfiguration().getSPConfigKey(samlCtx.getRequest().getIssuer());
-		String postSlo = null;
-		String redirectSlo = null;
-		String soapSlo = null;
-		if (configKey != null)
-		{
-			postSlo = samlCtx.getSamlConfiguration().getValue(configKey + 
-				SamlIdpProperties.ALLOWED_SP_POST_LOGOUT_URL);
-			redirectSlo = samlCtx.getSamlConfiguration().getValue(configKey + 
-				SamlIdpProperties.ALLOWED_SP_REDIRECT_LOGOUT_URL);
-			soapSlo = samlCtx.getSamlConfiguration().getValue(configKey + 
-				SamlIdpProperties.ALLOWED_SP_SOAP_LOGOUT_URL);
-		}
-		authnProcessor.addSessionParticipant(new SAMLSessionParticipant(participantId, soapSlo,
-				postSlo, redirectSlo));
+		List<SAMLEndpointDefinition> logoutEndpoints = configKey == null ? 
+				new ArrayList<SAMLEndpointDefinition>(0) :
+				samlCtx.getSamlConfiguration().getLogoutEndpointsFromStructuredList(configKey);
+		authnProcessor.addSessionParticipant(new SAMLSessionParticipant(participantId, 
+				returnedSubject, sessionId, logoutEndpoints));
 	}
 }

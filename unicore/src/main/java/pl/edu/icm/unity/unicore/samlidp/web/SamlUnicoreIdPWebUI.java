@@ -230,7 +230,8 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 			samlResponseHandler.handleException(e, false);
 			return;
 		}
-		addSessionParticipant(samlCtx);
+		addSessionParticipant(samlCtx, samlProcessor.getAuthenticatedSubject().getNameID(), 
+				samlProcessor.getSessionId());
 		samlResponseHandler.returnSamlResponse(respDoc);
 	}
 }

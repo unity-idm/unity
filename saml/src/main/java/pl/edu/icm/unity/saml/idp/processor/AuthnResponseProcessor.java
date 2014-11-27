@@ -37,6 +37,9 @@ import eu.unicore.samly2.proto.AssertionResponse;
  */
 public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDocument, AuthnRequestType>
 {
+	private String sessionId;
+	private SubjectType authenticatedSubject;
+	
 	public AuthnResponseProcessor(SAMLAuthnContext context)
 	{
 		this(context, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
@@ -145,12 +148,14 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 	protected Assertion createAuthenticationAssertion(SubjectType authenticatedOne, 
 			Collection<Attribute<?>> attributes) throws SAMLProcessingException
 	{
+		this.authenticatedSubject = authenticatedOne;
 		AuthnContextType authContext = setupAuthnContext();
 		Assertion assertion = new Assertion();
 		assertion.setIssuer(samlConfiguration.getValue(SamlIdpProperties.ISSUER_URI), 
 				SAMLConstants.NFORMAT_ENTITY);
 		assertion.setSubject(authenticatedOne);
-		assertion.addAuthStatement(getAuthnTime(), authContext);
+		this.sessionId = assertion.getXMLBean().getID();
+		assertion.addAuthStatement(getAuthnTime(), authContext, sessionId, null, null);
 		assertion.setAudienceRestriction(new String[] {context.getRequest().getIssuer().getStringValue()});
 
 		if (attributes != null)
@@ -188,5 +193,21 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		if (requestedFormat == null)
 			return SAMLConstants.NFORMAT_UNSPEC;
 		return requestedFormat;
-	}	
+	}
+
+	/**
+	 * @return assigned session ID. Note that it will return null until the final authN assertion is produced.
+	 */
+	public String getSessionId()
+	{
+		return sessionId;
+	}
+
+	/**
+	 * @return returned user's ID. Note that it will return null until the final authN assertion is produced.
+	 */
+	public SubjectType getAuthenticatedSubject()
+	{
+		return authenticatedSubject;
+	}
 }

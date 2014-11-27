@@ -8,13 +8,16 @@
 
 package pl.edu.icm.unity.saml;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
 import eu.unicore.samly2.SAMLBindings;
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.PropertiesHelper;
@@ -49,6 +52,12 @@ public abstract class SamlProperties extends PropertiesHelper
 	public static final String METADATA_SIGNATURE = "signaturVerification";
 	public static final String METADATA_ISSUER_CERT = "signatureVerificationCertificate";
 	
+	//defined here and used in SP and IDP properties
+	public static final String REDIRECT_LOGOUT_URL = "redirectLogoutEndpoint";
+	public static final String POST_LOGOUT_URL = "postLogoutEndpoint";
+	public static final String REDIRECT_LOGOUT_RET_URL = "redirectLogoutResponseEndpoint";
+	public static final String POST_LOGOUT_RET_URL = "postLogoutResponseEndpoint";
+	public static final String SOAP_LOGOUT_URL = "soapLogoutEndpoint";
 	
 	public static final DocumentationCategory samlMetaCat = new DocumentationCategory("SAML metadata settings", "6");
 	public static final DocumentationCategory remoteMeta = new DocumentationCategory(
@@ -113,4 +122,27 @@ public abstract class SamlProperties extends PropertiesHelper
 	public abstract SamlProperties clone();	
 	
 	public abstract Properties getSourceProperties();
+	
+	public List<SAMLEndpointDefinition> getLogoutEndpointsFromStructuredList(String configKey)
+	{
+		String postSlo = getValue(configKey + SAMLSPProperties.POST_LOGOUT_URL);
+		String redirectSlo = getValue(configKey + SAMLSPProperties.REDIRECT_LOGOUT_URL);
+		String postRetSlo = getValue(configKey + SAMLSPProperties.POST_LOGOUT_RET_URL);
+		String redirectRetSlo = getValue(configKey + SAMLSPProperties.REDIRECT_LOGOUT_RET_URL);
+		String soapSlo = getValue(configKey + SAMLSPProperties.SOAP_LOGOUT_URL);
+
+		if (redirectRetSlo == null)
+			redirectRetSlo = redirectSlo;
+		if (postRetSlo == null)
+			postRetSlo = postSlo;
+		
+		List<SAMLEndpointDefinition> ret = new ArrayList<SAMLEndpointDefinition>(3);
+		if (postSlo != null)
+			ret.add(new SAMLEndpointDefinition(Binding.HTTP_POST, postSlo, postRetSlo));
+		if (redirectSlo != null)
+			ret.add(new SAMLEndpointDefinition(Binding.HTTP_REDIRECT, redirectSlo, redirectRetSlo));
+		if (soapSlo != null)
+			ret.add(new SAMLEndpointDefinition(Binding.SOAP, soapSlo, soapSlo));
+		return ret;
+	}
 }

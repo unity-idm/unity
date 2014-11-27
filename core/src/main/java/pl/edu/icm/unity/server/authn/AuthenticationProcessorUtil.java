@@ -68,8 +68,8 @@ public class AuthenticationProcessorUtil
 		for (AuthenticationResult result: results)
 		{
 			if (result.getRemoteAuthnContext() != null && 
-					result.getRemoteAuthnContext().getSessionParticipant() != null)
-				ret.add(result.getRemoteAuthnContext().getSessionParticipant());
+					result.getRemoteAuthnContext().getSessionParticipants() != null)
+				ret.addAll(result.getRemoteAuthnContext().getSessionParticipants());
 		}
 		return ret;
 	}

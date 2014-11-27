@@ -69,9 +69,6 @@ public class SAMLSPProperties extends SamlProperties
 	public static final String IDP_ID = "samlId";
 	public static final String IDP_ADDRESS = "address";
 	public static final String IDP_BINDING = "binding";
-	public static final String IDP_REDIRECT_LOGOUT_URL = "redirectLogoutEndpoint";
-	public static final String IDP_POST_LOGOUT_URL = "postLogoutEndpoint";
-	public static final String IDP_SOAP_LOGOUT_URL = "soapLogoutEndpoint";
 	public static final String IDP_CERTIFICATE = "certificate";
 	public static final String IDP_CERTIFICATES = "certificates.";
 	public static final String IDP_SIGN_REQUEST = "signRequest";
@@ -96,11 +93,17 @@ public class SAMLSPProperties extends SamlProperties
 				"Address of the IdP endpoint."));
 		META.put(IDP_BINDING, new PropertyMD(Binding.HTTP_REDIRECT).setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
 				"SAML binding to be used to send a request to the IdP. If you use 'SOAP' here then the IdP will be available only for ECP logins, not via the web browser login."));
-		META.put(IDP_REDIRECT_LOGOUT_URL, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
+		META.put(REDIRECT_LOGOUT_URL, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
 				"Address of the IdP Single Logout Endpoint supporting HTTP Redirect binding."));
-		META.put(IDP_POST_LOGOUT_URL, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
+		META.put(REDIRECT_LOGOUT_RET_URL, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
+				"Address of the IdP Single Logout response endpoint supporting HTTP Redirect binding. "
+				+ "If undefined the base redirect endpoint address is used."));
+		META.put(POST_LOGOUT_URL, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
 				"Address of the IdP Single Logout Endpoint supporting HTTP POST binding."));
-		META.put(IDP_SOAP_LOGOUT_URL, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
+		META.put(POST_LOGOUT_RET_URL, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
+				"Address of the IdP Single Logout response endpoint supporting HTTP POST binding. "
+				+ "If undefined the base redirect endpoint address is used."));
+		META.put(SOAP_LOGOUT_URL, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
 				"Address of the IdP Single Logout Endpoint supporting SOAP binding."));
 		META.put(IDP_NAME, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setCanHaveSubkeys().setDescription(
 				"Displayed name of the IdP. If not defined then the name is created " +

@@ -155,11 +155,11 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			properties.setProperty(configKey + SAMLSPProperties.IDP_ADDRESS, 
 					endpoint.getLocation());
 		setSLOProperty(properties, configKey, noPerIdpConfig, sloSoapEndpoint, 
-				SAMLSPProperties.IDP_SOAP_LOGOUT_URL);
+				SamlProperties.SOAP_LOGOUT_URL, null);
 		setSLOProperty(properties, configKey, noPerIdpConfig, sloPostEndpoint, 
-				SAMLSPProperties.IDP_POST_LOGOUT_URL);
+				SamlProperties.POST_LOGOUT_URL, SamlProperties.POST_LOGOUT_RET_URL);
 		setSLOProperty(properties, configKey, noPerIdpConfig, sloRedirectEndpoint, 
-				SAMLSPProperties.IDP_REDIRECT_LOGOUT_URL);
+				SamlProperties.REDIRECT_LOGOUT_URL, SamlProperties.REDIRECT_LOGOUT_RET_URL);
 		if (noPerIdpConfig || !properties.containsKey(configKey + SAMLSPProperties.IDP_CERTIFICATE))
 		{
 			int i = 1;

@@ -122,11 +122,13 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 		
 		String pfx = getPrefixOf("http://shibboleth.metapress.com/shibboleth-sp", ret);
 		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/POST", 
-				ret.getValue(pfx + ALLOWED_SP_POST_LOGOUT_URL));
+				ret.getValue(pfx + POST_LOGOUT_URL));
 		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/Redirect", 
-				ret.getValue(pfx + ALLOWED_SP_REDIRECT_LOGOUT_URL));
+				ret.getValue(pfx + REDIRECT_LOGOUT_URL));
+		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/Redirect-RESP", 
+				ret.getValue(pfx + REDIRECT_LOGOUT_RET_URL));
 		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/SOAP", 
-				ret.getValue(pfx + ALLOWED_SP_SOAP_LOGOUT_URL));
+				ret.getValue(pfx + SOAP_LOGOUT_URL));
 
 	}
 	

@@ -15,6 +15,8 @@ import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import xmlbeans.org.oasis.saml2.assertion.AssertionDocument;
+import xmlbeans.org.oasis.saml2.assertion.AssertionType;
+import xmlbeans.org.oasis.saml2.assertion.AuthnStatementType;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 import eu.emi.security.authn.x509.X509Credential;
@@ -91,22 +93,16 @@ public class SAMLResponseValidatorUtil
 	private RemotelyAuthenticatedInput convertAssertion(ResponseDocument responseDocument,
 			SSOAuthnResponseValidator validator, String groupA, String configKey) throws AuthenticationException
 	{
-		NameIDType issuer = responseDocument.getResponse().getIssuer();
+		xmlbeans.org.oasis.saml2.protocol.ResponseType resp = responseDocument.getResponse();
+		NameIDType issuer = resp.getIssuer();
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput(issuer.getStringValue());
 		
 		input.setIdentities(getAuthenticatedIdentities(validator));
 		List<RemoteAttribute> remoteAttributes = getAttributes(validator);
 		input.setAttributes(remoteAttributes);
 		input.setGroups(getGroups(remoteAttributes, groupA));
-		
-		
-		String postSlo = samlProperties.getValue(configKey + SAMLSPProperties.IDP_POST_LOGOUT_URL);
-		String redirectSlo = samlProperties.getValue(configKey + SAMLSPProperties.IDP_REDIRECT_LOGOUT_URL);
-		String soapSlo = samlProperties.getValue(configKey + SAMLSPProperties.IDP_SOAP_LOGOUT_URL);
-			
-		SAMLSessionParticipant participant = new SAMLSessionParticipant(issuer.getStringValue(), 
-				soapSlo, postSlo, redirectSlo);
-		input.setSessionParticipant(participant);
+
+		addSessionParticipants(validator, issuer, input, configKey);
 		
 		return input;
 	}
@@ -121,6 +117,31 @@ public class SAMLResponseValidatorUtil
 			ret.add(new RemoteIdentity(samlName.getStringValue(), samlName.getFormat()));
 		}
 		return ret;
+	}
+
+	private void addSessionParticipants(SSOAuthnResponseValidator validator,
+			NameIDType issuer, RemotelyAuthenticatedInput input, String configKey)
+	{
+		List<SAMLEndpointDefinition> logoutEndpoints = samlProperties.
+				getLogoutEndpointsFromStructuredList(configKey);
+		List<AssertionDocument> authnAssertions = validator.getAuthNAssertions();
+		for (int i=0; i<authnAssertions.size(); i++)
+		{
+			AssertionType authNAss = authnAssertions.get(i).getAssertion();
+			String sessionIndex = null;
+			for (AuthnStatementType authNStatement: authNAss.getAuthnStatementArray())
+			{
+				sessionIndex = authNStatement.getSessionIndex();
+				if (sessionIndex != null)
+				{
+					SAMLSessionParticipant participant = new SAMLSessionParticipant(
+							issuer.getStringValue(), 
+							authNAss.getSubject().getNameID(), sessionIndex,
+							logoutEndpoints);
+					input.addSessionParticipant(participant);
+				}
+			}
+		}
 	}
 	
 	private List<RemoteAttribute> getAttributes(SSOAuthnResponseValidator validator) throws AuthenticationException

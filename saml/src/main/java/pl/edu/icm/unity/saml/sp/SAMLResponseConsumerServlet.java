@@ -7,17 +7,15 @@ package pl.edu.icm.unity.saml.sp;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.bouncycastle.util.encoders.Base64;
 
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.saml.SamlHttpServlet;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.server.utils.Log;
-import eu.unicore.samly2.binding.HttpRedirectBindingSupport;
 
 /**
  * Custom servlet which awaits SAML authn response from IdP, which should be 
@@ -28,7 +26,7 @@ import eu.unicore.samly2.binding.HttpRedirectBindingSupport;
  * 
  * @author K. Benedyczak
  */
-public class SAMLResponseConsumerServlet extends HttpServlet
+public class SAMLResponseConsumerServlet extends SamlHttpServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLResponseConsumerServlet.class);
 	public static final String PATH = "/spSAMLResponseConsumer";
@@ -96,11 +94,7 @@ public class SAMLResponseConsumerServlet extends HttpServlet
 	
 	private void handlePostBinding(String samlResponseEncoded, RemoteAuthnContext context)
 	{
-		String samlResponse = new String(Base64.decode(samlResponseEncoded));
-		if (log.isTraceEnabled())
-			log.trace("Got SAML response using the HTTP POST binding:\n" + samlResponse);
-		else
-			log.debug("Got SAML response using the HTTP POST binding");
+		String samlResponse = extractResponseFromPostBinding(samlResponseEncoded);
 		context.setResponse(samlResponse, Binding.HTTP_POST);
 	}
 	
@@ -109,17 +103,13 @@ public class SAMLResponseConsumerServlet extends HttpServlet
 		String samlResponseDecoded;
 		try
 		{
-			samlResponseDecoded = HttpRedirectBindingSupport.inflateSAMLRequest(samlResponseEncoded);
+			samlResponseDecoded = extractResponseFromRedirectBinding(samlResponseEncoded);
 		} catch (IOException e)
 		{
 			log.warn("Got an improperly encoded SAML response (using HTTP Redirect binding), " +
 					"ignoring it.", e);
 			return;
 		}
-		if (log.isTraceEnabled())
-			log.trace("Got SAML response using the HTTP Redirect binding:\n" + samlResponseDecoded);
-		else
-			log.debug("Got SAML response using the HTTP Redirect binding");
 		context.setResponse(samlResponseDecoded, Binding.HTTP_REDIRECT);
 	}
 }
