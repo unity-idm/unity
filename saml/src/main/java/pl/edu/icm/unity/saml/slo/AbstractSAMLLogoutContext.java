@@ -14,20 +14,13 @@ import pl.edu.icm.unity.server.api.internal.LoginSession;
  */
 public abstract class AbstractSAMLLogoutContext
 {
-	protected String localSessionAuthorityId;
 	protected Date creationTs;
 	protected LoginSession session;
 	
-	public AbstractSAMLLogoutContext(String localSessionAuthorityId, LoginSession session)
+	public AbstractSAMLLogoutContext(LoginSession session)
 	{
-		this.localSessionAuthorityId = localSessionAuthorityId;
 		this.creationTs = new Date();
 		this.session = session;
-	}
-
-	public String getLocalSessionAuthorityId()
-	{
-		return localSessionAuthorityId;
 	}
 
 	public Date getCreationTs()

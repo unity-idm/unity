@@ -22,10 +22,10 @@ public class PlainExternalLogoutContext extends AbstractSAMLLogoutContext
 	private String requestersRelayState;
 	private String returnUrl;
 	
-	public PlainExternalLogoutContext(String localIssuer, String requesterRelayState, 
+	public PlainExternalLogoutContext(String requesterRelayState, 
 			String retunUrl, LoginSession loginSession)
 	{
-		super(localIssuer, loginSession);
+		super(loginSession);
 		this.requestersRelayState = requesterRelayState;
 		this.returnUrl = retunUrl;
 	}

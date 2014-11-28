@@ -23,20 +23,22 @@ import xmlbeans.org.oasis.saml2.protocol.LogoutRequestType;
  */
 public class SAMLExternalLogoutContext extends AbstractSAMLLogoutContext
 {
+	private String localSessionAuthorityId;
 	private String requestersRelayState;
-	protected LogoutRequestType request;
-	protected LogoutRequestDocument requestDoc;
-	protected Binding requestBinding;
+	private LogoutRequestType request;
+	private LogoutRequestDocument requestDoc;
+	private Binding requestBinding;
 	private SAMLSessionParticipant initiator;
 	
 	public SAMLExternalLogoutContext(String localIssuer, LogoutRequestDocument reqDoc, String requesterRelayState, 
 			Binding requestBinding, LoginSession loginSession)
 	{
-		super(localIssuer, loginSession);
+		super(loginSession);
 		this.requestDoc = reqDoc;
 		this.request = reqDoc.getLogoutRequest();
 		this.requestersRelayState = requesterRelayState;
 		this.requestBinding = requestBinding;
+		this.localSessionAuthorityId = localIssuer;
 	}
 
 	/**
@@ -66,6 +68,11 @@ public class SAMLExternalLogoutContext extends AbstractSAMLLogoutContext
 	public Binding getRequestBinding()
 	{
 		return requestBinding;
+	}
+
+	public String getLocalSessionAuthorityId()
+	{
+		return localSessionAuthorityId;
 	}
 
 	@Override

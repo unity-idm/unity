@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.Log;
 
@@ -18,6 +19,7 @@ import pl.edu.icm.unity.server.utils.Log;
  * Thread safe.
  * @author K. Benedyczak
  */
+@Component
 public class LogoutContextsStore
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, LogoutContextsStore.class);

@@ -34,11 +34,9 @@ public class SAMLInternalLogoutContext extends AbstractSAMLLogoutContext
 	private SAMLSessionParticipant current;
 	private String currentRequestId;
 	
-	public SAMLInternalLogoutContext(LoginSession loginSession, String localSessionAuthorityId,
-			String excludedFromLogout)
+	public SAMLInternalLogoutContext(LoginSession loginSession, String excludedFromLogout)
 	{
-		super(localSessionAuthorityId, loginSession);
-		this.localSessionAuthorityId = localSessionAuthorityId;
+		super(loginSession);
 		initialize(excludedFromLogout);
 	}
 

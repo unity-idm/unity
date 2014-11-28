@@ -124,6 +124,7 @@ public class SAMLResponseValidatorUtil
 	{
 		List<SAMLEndpointDefinition> logoutEndpoints = samlProperties.
 				getLogoutEndpointsFromStructuredList(configKey);
+		String localSPSamlId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
 		List<AssertionDocument> authnAssertions = validator.getAuthNAssertions();
 		for (int i=0; i<authnAssertions.size(); i++)
 		{
@@ -137,7 +138,7 @@ public class SAMLResponseValidatorUtil
 					SAMLSessionParticipant participant = new SAMLSessionParticipant(
 							issuer.getStringValue(), 
 							authNAss.getSubject().getNameID(), sessionIndex,
-							logoutEndpoints);
+							logoutEndpoints, localSPSamlId);
 					input.addSessionParticipant(participant);
 				}
 			}

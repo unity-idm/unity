@@ -24,6 +24,7 @@ public class SAMLSessionParticipant implements SessionParticipant
 	private Map<Binding, SAMLEndpointDefinition> logoutEndpoints = new HashMap<Binding, SAMLEndpointDefinition>();
 	private String principalNameAtParticipant;
 	private String sessionIndex;
+	private String localSamlId;
 	
 	public SAMLSessionParticipant()
 	{
@@ -31,7 +32,7 @@ public class SAMLSessionParticipant implements SessionParticipant
 	}
 
 	public SAMLSessionParticipant(String identifier, NameIDType subjectAtParticipant, String sessionIndex,
-			List<SAMLEndpointDefinition> logoutEndpoints)
+			List<SAMLEndpointDefinition> logoutEndpoints, String localSamlEntityId)
 	{
 		super();
 		this.identifier = identifier;
@@ -39,6 +40,7 @@ public class SAMLSessionParticipant implements SessionParticipant
 			this.logoutEndpoints.put(logout.getBinding(), logout);
 		this.principalNameAtParticipant = subjectAtParticipant.xmlText();
 		this.sessionIndex = sessionIndex;
+		this.localSamlId = localSamlEntityId;
 	}
 
 	@Override
@@ -86,6 +88,11 @@ public class SAMLSessionParticipant implements SessionParticipant
 	public void setSessionIndex(String sessionIndex)
 	{
 		this.sessionIndex = sessionIndex;
+	}
+
+	public String getLocalSamlId()
+	{
+		return localSamlId;
 	}
 
 	@Override

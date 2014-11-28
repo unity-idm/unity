@@ -89,7 +89,7 @@ public class SamlIdpProperties extends SamlProperties
 	
 	public static final String IDENTITY_MAPPING_PFX = "identityMapping.";
 	public static final String IDENTITY_LOCAL = "localIdentity";
-	public static final String IDENTITY_SAML = "samlIdntity";
+	public static final String IDENTITY_SAML = "samlIdentity";
 	
 	public static final String TRANSLATION_PROFILE = "translationProfile";
 	
