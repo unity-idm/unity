@@ -364,12 +364,15 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	{
 		String participantId = samlCtx.getRequest().getIssuer().getStringValue();
 		SamlIdpProperties samlIdpProperties = samlCtx.getSamlConfiguration();
+		String credentialName = samlIdpProperties.getValue(SamlIdpProperties.CREDENTIAL);
 		String configKey = samlIdpProperties.getSPConfigKey(samlCtx.getRequest().getIssuer());
 		String localIdpSamlId = samlIdpProperties.getValue(SamlIdpProperties.ISSUER_URI);
+		Set<String> allowedCerts = samlIdpProperties.getAllowedSpCerts(configKey);
 		List<SAMLEndpointDefinition> logoutEndpoints = configKey == null ? 
 				new ArrayList<SAMLEndpointDefinition>(0) :
 				samlCtx.getSamlConfiguration().getLogoutEndpointsFromStructuredList(configKey);
 		authnProcessor.addSessionParticipant(new SAMLSessionParticipant(participantId, 
-				returnedSubject, sessionId, logoutEndpoints, localIdpSamlId));
+				returnedSubject, sessionId, logoutEndpoints, localIdpSamlId,
+				credentialName, allowedCerts));
 	}
 }

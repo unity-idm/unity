@@ -472,13 +472,9 @@ public class SamlIdpProperties extends SamlProperties
 		return rc;
 	}
 	
-	private Set<String> getAllowedSpCerts(String key)
+	public Set<String> getAllowedSpCerts(String idpKey)
 	{
-		Set<String> spCertNames = new HashSet<String>();
-		if (isSet(key + ALLOWED_SP_CERTIFICATE))
-			spCertNames.add(getValue(key + ALLOWED_SP_CERTIFICATE));
-		spCertNames.addAll(getListOfValues(key + ALLOWED_SP_CERTIFICATES));
-		return spCertNames;
+		return getCertificateNames(idpKey, ALLOWED_SP_CERTIFICATE, ALLOWED_SP_CERTIFICATES);
 	}
 	
 	public String getSPConfigKey(NameIDType requester)

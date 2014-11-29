@@ -11,6 +11,8 @@ package pl.edu.icm.unity.saml.slo;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import pl.edu.icm.unity.saml.SAMLSessionParticipant;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionParticipant;
@@ -33,10 +35,13 @@ public class SAMLInternalLogoutContext extends AbstractSAMLLogoutContext
 	private List<SAMLSessionParticipant> failed = new ArrayList<SAMLSessionParticipant>();
 	private SAMLSessionParticipant current;
 	private String currentRequestId;
+	private AsyncLogoutFinishCallback finishCallback;
 	
-	public SAMLInternalLogoutContext(LoginSession loginSession, String excludedFromLogout)
+	public SAMLInternalLogoutContext(LoginSession loginSession, String excludedFromLogout,
+			AsyncLogoutFinishCallback finishCallback)
 	{
 		super(loginSession);
+		this.finishCallback = finishCallback;
 		initialize(excludedFromLogout);
 	}
 
@@ -102,5 +107,19 @@ public class SAMLInternalLogoutContext extends AbstractSAMLLogoutContext
 	public void setCurrentRequestId(String currentRequestId)
 	{
 		this.currentRequestId = currentRequestId;
+	}
+	
+	public AsyncLogoutFinishCallback getFinishCallback()
+	{
+		return finishCallback;
+	}
+
+	/**
+	 * Used after the async logout is finished to notify the initiator that the response can be returned.
+	 * @author K. Benedyczak
+	 */
+	public interface AsyncLogoutFinishCallback
+	{
+		public void finished(HttpServletResponse response, SAMLInternalLogoutContext finalInternalContext);
 	}
 }

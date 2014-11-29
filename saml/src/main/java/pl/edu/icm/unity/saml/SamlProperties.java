@@ -10,9 +10,11 @@ package pl.edu.icm.unity.saml;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -145,4 +147,15 @@ public abstract class SamlProperties extends PropertiesHelper
 			ret.add(new SAMLEndpointDefinition(Binding.SOAP, soapSlo, soapSlo));
 		return ret;
 	}
+	
+	protected Set<String> getCertificateNames(String idpKey, String singleProp, String multiProp)
+	{
+		Set<String> idpCertNames = new HashSet<String>();
+		if (isSet(idpKey+singleProp))
+			idpCertNames.add(getValue(idpKey+singleProp));
+		idpCertNames.addAll(getListOfValues(idpKey+multiProp));
+		return idpCertNames;
+	}
+	
+
 }

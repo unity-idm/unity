@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml;
 import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
@@ -125,6 +126,8 @@ public class SAMLResponseValidatorUtil
 		List<SAMLEndpointDefinition> logoutEndpoints = samlProperties.
 				getLogoutEndpointsFromStructuredList(configKey);
 		String localSPSamlId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
+		String localCredential = samlProperties.getValue(SAMLSPProperties.CREDENTIAL);
+		Set<String> validCerts = samlProperties.getCertificateNames(configKey);
 		List<AssertionDocument> authnAssertions = validator.getAuthNAssertions();
 		for (int i=0; i<authnAssertions.size(); i++)
 		{
@@ -138,7 +141,8 @@ public class SAMLResponseValidatorUtil
 					SAMLSessionParticipant participant = new SAMLSessionParticipant(
 							issuer.getStringValue(), 
 							authNAss.getSubject().getNameID(), sessionIndex,
-							logoutEndpoints, localSPSamlId);
+							logoutEndpoints, localSPSamlId, 
+							localCredential, validCerts);
 					input.addSessionParticipant(participant);
 				}
 			}

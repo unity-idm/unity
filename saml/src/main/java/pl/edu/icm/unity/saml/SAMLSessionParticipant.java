@@ -5,8 +5,10 @@
 package pl.edu.icm.unity.saml;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.server.api.internal.SessionParticipant;
@@ -25,6 +27,8 @@ public class SAMLSessionParticipant implements SessionParticipant
 	private String principalNameAtParticipant;
 	private String sessionIndex;
 	private String localSamlId;
+	private String localCredentialName;
+	private Set<String> participantsCertificates;
 	
 	public SAMLSessionParticipant()
 	{
@@ -32,7 +36,8 @@ public class SAMLSessionParticipant implements SessionParticipant
 	}
 
 	public SAMLSessionParticipant(String identifier, NameIDType subjectAtParticipant, String sessionIndex,
-			List<SAMLEndpointDefinition> logoutEndpoints, String localSamlEntityId)
+			List<SAMLEndpointDefinition> logoutEndpoints, String localSamlEntityId,
+			String localCredentialName, Set<String> participantsCertificates)
 	{
 		super();
 		this.identifier = identifier;
@@ -41,6 +46,8 @@ public class SAMLSessionParticipant implements SessionParticipant
 		this.principalNameAtParticipant = subjectAtParticipant.xmlText();
 		this.sessionIndex = sessionIndex;
 		this.localSamlId = localSamlEntityId;
+		this.localCredentialName = localCredentialName;
+		this.participantsCertificates = new HashSet<>(participantsCertificates);
 	}
 
 	@Override
@@ -93,6 +100,16 @@ public class SAMLSessionParticipant implements SessionParticipant
 	public String getLocalSamlId()
 	{
 		return localSamlId;
+	}
+
+	public String getLocalCredentialName()
+	{
+		return localCredentialName;
+	}
+
+	public Set<String> getParticipantsCertificates()
+	{
+		return participantsCertificates;
 	}
 
 	@Override

@@ -6,7 +6,6 @@ package pl.edu.icm.unity.saml.sp;
 
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -283,10 +282,7 @@ public class SAMLSPProperties extends SamlProperties
 		for (String idpKey: idpKeys)
 		{
 			String idpId = getValue(idpKey+IDP_ID);
-			Set<String> idpCertNames = new HashSet<String>();
-			if (isSet(idpKey+IDP_CERTIFICATE))
-				idpCertNames.add(getValue(idpKey+IDP_CERTIFICATE));
-			idpCertNames.addAll(getListOfValues(idpKey+IDP_CERTIFICATES));
+			Set<String> idpCertNames = getCertificateNames(idpKey);
 			
 			for (String idpCertName: idpCertNames)
 			{
@@ -304,6 +300,11 @@ public class SAMLSPProperties extends SamlProperties
 			}
 		}
 		return trustChecker;
+	}
+	
+	public Set<String> getCertificateNames(String idpKey)
+	{
+		return getCertificateNames(idpKey, IDP_CERTIFICATE, IDP_CERTIFICATES);
 	}
 	
 	public boolean isSignRequest(String idpKey)
@@ -341,7 +342,7 @@ public class SAMLSPProperties extends SamlProperties
 			log.warn("No address for " + entityId + " ignoring IdP");
 			return false;
 		}
-		if (!isSet(key + IDP_CERTIFICATE) && getListOfValues(key+IDP_CERTIFICATES).size() == 0)
+		if (getCertificateNames(key).size() == 0)
 		{
 			log.warn("No certificate for " + entityId + " ignoring IdP");
 			return false;
