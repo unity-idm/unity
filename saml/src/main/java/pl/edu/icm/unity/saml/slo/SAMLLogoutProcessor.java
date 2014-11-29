@@ -56,16 +56,54 @@ public class SAMLLogoutProcessor
 	private ReplayAttackChecker replayChecker;
 	private SLOAsyncResponseHandler responseHandler;
 	private InternalLogoutProcessor internalProcessor;
-	private IdentityTypeMapper identityTypeMapper;	//should be configurable by both SP and IdP with ability to perform reverse mapping of mapped or released individual.
-	
+	private IdentityTypeMapper identityTypeMapper;
 	private String consumerEndpointUri;
 	private long requestValidity;
 	private String localSamlId;
 	private X509Credential localSamlCredential;
 	private SamlTrustChecker trustChecker;
-	private String realm;	//how to set this when configured from SP?
+	private String realm;
 
-	
+	/**
+	 * Ouch ;-) Probably we should encapsulate non bean params into a config class. But we have a factory to help.
+	 * @param sessionManagement
+	 * @param idResolver
+	 * @param contextsStore
+	 * @param replayChecker
+	 * @param responseHandler
+	 * @param internalProcessor
+	 * @param identityTypeMapper
+	 * @param consumerEndpointUri
+	 * @param requestValidity
+	 * @param localSamlId
+	 * @param localSamlCredential
+	 * @param trustChecker
+	 * @param realm
+	 */
+	public SAMLLogoutProcessor(SessionManagement sessionManagement,
+			IdentityResolver idResolver, LogoutContextsStore contextsStore,
+			ReplayAttackChecker replayChecker, SLOAsyncResponseHandler responseHandler,
+			InternalLogoutProcessor internalProcessor,
+			IdentityTypeMapper identityTypeMapper, String consumerEndpointUri,
+			long requestValidity, String localSamlId,
+			X509Credential localSamlCredential, SamlTrustChecker trustChecker,
+			String realm)
+	{
+		this.sessionManagement = sessionManagement;
+		this.idResolver = idResolver;
+		this.contextsStore = contextsStore;
+		this.replayChecker = replayChecker;
+		this.responseHandler = responseHandler;
+		this.internalProcessor = internalProcessor;
+		this.identityTypeMapper = identityTypeMapper;
+		this.consumerEndpointUri = consumerEndpointUri;
+		this.requestValidity = requestValidity;
+		this.localSamlId = localSamlId;
+		this.localSamlCredential = localSamlCredential;
+		this.trustChecker = trustChecker;
+		this.realm = realm;
+	}
+
 	/**
 	 * Handles logout request initiated by a synchronous (SOAP) binding. All logouts of session participants 
 	 * can happen only using the synchronous binding. After performing the logout a response is returned. 
@@ -74,16 +112,25 @@ public class SAMLLogoutProcessor
 	 * @throws SAMLServerException 
 	 */
 	public LogoutResponseDocument handleSynchronousLogoutFromSAML(LogoutRequestDocument request) 
-			throws SAMLServerException
 	{
-		SAMLExternalLogoutContext externalCtx = initFromSAML(request, null, Binding.SOAP, false);
-		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(externalCtx.getSession(), 
-				request.getLogoutRequest().getIssuer().getStringValue(), null);
-		internalProcessor.logoutSynchronousParticipants(internalCtx);
-		boolean allLoggedOut = internalCtx.getFailed().isEmpty();
-		sessionManagement.removeSession(internalCtx.getSession().getId(), false);
-		LogoutResponseDocument finalResponse = prepareFinalLogoutResponse(externalCtx, !allLoggedOut);
-		return finalResponse;
+		try
+		{
+			SAMLExternalLogoutContext externalCtx = initFromSAML(request, null, Binding.SOAP, false);
+			SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(externalCtx.getSession(), 
+					request.getLogoutRequest().getIssuer().getStringValue(), null);
+			internalProcessor.logoutSynchronousParticipants(internalCtx);
+			boolean allLoggedOut = internalCtx.getFailed().isEmpty();
+			sessionManagement.removeSession(internalCtx.getSession().getId(), false);
+			LogoutResponseDocument finalResponse = prepareFinalLogoutResponse(externalCtx, !allLoggedOut);
+			return finalResponse;
+		} catch (SAMLServerException e)
+		{
+			log.debug("SOAP Logout request processing finished with error, "
+					+ "converting it to SAML error response", e);
+			LogoutResponse responseDoc = new LogoutResponse(getIssuer(localSamlId), 
+					request.getLogoutRequest().getID(), e);
+			return responseDoc.getXMLBeanDoc();
+		}
 	}
 	
 	/**

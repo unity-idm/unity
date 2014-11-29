@@ -30,13 +30,14 @@ public class MetadataProviderFactory
 	 */
 	public static MetadataProvider newIdpInstance(SamlIdpProperties samlProperties, 
 			ExecutorsService executorsService, EndpointType[] ssoEndpoints, 
-			EndpointType[] attributeQueryEndpoints)
+			EndpointType[] attributeQueryEndpoints, EndpointType[] sloEndpoints)
 	{
 		MetadataProvider metaProvider;
 		File metadataFile = samlProperties.getFileValue(SamlProperties.METADATA_SOURCE, false);
 		if (metadataFile == null)
 		{
-			metaProvider = new IdpMetadataGenerator(samlProperties, ssoEndpoints, attributeQueryEndpoints);
+			metaProvider = new IdpMetadataGenerator(samlProperties, ssoEndpoints, 
+					attributeQueryEndpoints, sloEndpoints);
 		} else
 		{
 			try

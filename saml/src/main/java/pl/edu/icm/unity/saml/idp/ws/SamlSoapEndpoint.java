@@ -18,6 +18,8 @@ import pl.edu.icm.unity.saml.metadata.MetadataServlet;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
+import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor;
+import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
@@ -30,6 +32,7 @@ import pl.edu.icm.unity.ws.CXFEndpoint;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
+import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
 import eu.unicore.util.configuration.ConfigurationException;
 
@@ -50,13 +53,15 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
+	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	
 	public SamlSoapEndpoint(UnityMessageSource msg, EndpointTypeDescription type,
 			String servletPath, String metadataPath, IdPEngine idpEngine,
 			PreferencesManagement preferencesMan, PKIManagement pkiManagement,
 			ExecutorsService executorsService, SessionManagement sessionMan,
 			Map<String, RemoteMetaManager> remoteMetadataManagers,
-			MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig)
+			MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig,
+			SAMLLogoutProcessorFactory logoutProcessorFactory)
 	{
 		super(msg, sessionMan, type, servletPath);
 		this.idpEngine = idpEngine;
@@ -67,6 +72,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		this.remoteMetadataManagers = remoteMetadataManagers;
 		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
+		this.logoutProcessorFactory = logoutProcessorFactory;
 	}
 
 	@Override
@@ -94,8 +100,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 			myMetadataManager = remoteMetadataManagers.get(id);
 			myMetadataManager.setBaseConfiguration(samlProperties);
 		}
-		
-		
+
 	}
 	
 	@Override
@@ -121,7 +126,17 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
 		SAMLAuthnImpl authnImpl = new SAMLAuthnImpl(virtualConf, endpointURL, 
 				idpEngine, preferencesMan);
-		addWebservice(SAMLAuthnInterface.class, authnImpl);		
+		addWebservice(SAMLAuthnInterface.class, authnImpl);
+		
+		SAMLLogoutProcessor logoutProcessor = logoutProcessorFactory.getInstance(virtualConf.getIdTypeMapper(), 
+				endpointURL, 
+				virtualConf.getLongValue(SamlIdpProperties.SAML_REQUEST_VALIDITY), 
+				virtualConf.getValue(SamlIdpProperties.ISSUER_URI), 
+				virtualConf.getSamlIssuerCredential(), 
+				virtualConf.getSoapTrustChecker(), 
+				getEndpointDescription().getRealm().getName());
+		SAMLSingleLogoutImpl logoutImpl = new SAMLSingleLogoutImpl(logoutProcessor);
+		addWebservice(SAMLLogoutInterface.class, logoutImpl);
 	}
 	
 	protected Servlet getMetadataServlet(String samlEndpointURL)
@@ -135,9 +150,14 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		attributeSoap.setLocation(samlEndpointURL);
 		attributeSoap.setBinding(SAMLConstants.BINDING_SOAP);
 		EndpointType[] attributeQueryEndpoints = new EndpointType[] {attributeSoap};
+
+		EndpointType sloSoap = EndpointType.Factory.newInstance();
+		sloSoap.setLocation(samlEndpointURL);
+		sloSoap.setBinding(SAMLConstants.BINDING_SOAP);
+		EndpointType[] sloEndpoints = new EndpointType[] {sloSoap};
 		
 		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(samlProperties, 
-				executorsService, ssoEndpoints, attributeQueryEndpoints);
+				executorsService, ssoEndpoints, attributeQueryEndpoints, sloEndpoints);
 		return new MetadataServlet(provider);
 	}
 }

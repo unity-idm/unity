@@ -177,7 +177,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		EndpointType[] endpoints = new EndpointType[] {ssoPost, ssoRedirect};
 		
 		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(samlProperties, 
-				executorsService, endpoints, null);
+				executorsService, endpoints, null, null); //TODO - last should be fixed after SLO is added
 		return new MetadataServlet(provider);
 	}
 }
