@@ -28,7 +28,13 @@ public class LogoutProcessor
 	private LogoutContextsStore contextsStore;
 	private InternalLogoutProcessor internalProcessor;
 
-	
+	public LogoutProcessor(LogoutContextsStore contextsStore,
+			InternalLogoutProcessor internalProcessor)
+	{
+		this.contextsStore = contextsStore;
+		this.internalProcessor = internalProcessor;
+	}
+
 	/**
 	 * Performs async logout of SAML peers attached to the current login session. It is assumed that the logout 
 	 * itself was not initiated with SAML. After the full logout the browser is redirected to a given return URL

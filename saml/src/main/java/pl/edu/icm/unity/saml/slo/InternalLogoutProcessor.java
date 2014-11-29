@@ -54,14 +54,22 @@ public class InternalLogoutProcessor
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, InternalLogoutProcessor.class);
 	private static final long DEF_LOGOUT_REQ_VALIDITY = 60000;
 	
-	//coworkers - beans
 	private PKIManagement pkiManagement;
 	private LogoutContextsStore contextsStore;
-	private SLOAsyncResponseHandler responseHandler; //directly obtainable from a bean
+	private SLOAsyncResponseHandler responseHandler;
 	
-	//configuration
-	private String consumerEndpointUri;		//correct, should be common for the whole system (under unitygw)
+	private String consumerEndpointUri;
 	
+
+	public InternalLogoutProcessor(PKIManagement pkiManagement,
+			LogoutContextsStore contextsStore, SLOAsyncResponseHandler responseHandler,
+			String consumerEndpointUri)
+	{
+		this.pkiManagement = pkiManagement;
+		this.contextsStore = contextsStore;
+		this.responseHandler = responseHandler;
+		this.consumerEndpointUri = consumerEndpointUri;
+	}
 
 	/**
 	 * Takes the next async participant and starts its async logout. If there are no available async participants

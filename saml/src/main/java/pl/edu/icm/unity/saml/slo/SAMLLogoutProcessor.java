@@ -50,17 +50,15 @@ public class SAMLLogoutProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLLogoutProcessor.class);
 	
-	//coworkers - beans
 	private SessionManagement sessionManagement;
 	private IdentityResolver idResolver;
 	private LogoutContextsStore contextsStore;
 	private ReplayAttackChecker replayChecker;
-	private SLOAsyncResponseHandler responseHandler; //directly obtainable from a bean
+	private SLOAsyncResponseHandler responseHandler;
 	private InternalLogoutProcessor internalProcessor;
 	private IdentityTypeMapper identityTypeMapper;	//should be configurable by both SP and IdP with ability to perform reverse mapping of mapped or released individual.
 	
-	//configuration
-	private String consumerEndpointUri;		//should be common for the whole system (under unitygw)
+	private String consumerEndpointUri;
 	private long requestValidity;
 	private String localSamlId;
 	private X509Credential localSamlCredential;

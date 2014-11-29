@@ -232,4 +232,12 @@ public class SamlParseServlet extends SamlHttpServlet
 			errorHandler.commitErrorResponse(context, e, servletResponse);
 		}
 	}
+
+	@Override
+	protected void postProcess(boolean isGet, HttpServletRequest req, HttpServletResponse resp,
+			String samlResponse, String relayState) throws IOException
+	{
+		//ignored. Actually this servlet should be refactored a bit to have better 
+		//reuse of generic code from super class.
+	}
 }

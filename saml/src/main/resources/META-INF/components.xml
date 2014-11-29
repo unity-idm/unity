@@ -24,7 +24,7 @@
 	<bean class="pl.edu.icm.unity.saml.ecp.ECPContextManagement"/>
 	<bean class="pl.edu.icm.unity.saml.sp.SAMLVerificatorFactory"/>
 	<bean class="pl.edu.icm.unity.saml.sp.web.SAMLRetrievalFactory"/>
-	
+	<bean class="pl.edu.icm.unity.saml.slo.LogoutContextsStore"/>
 	
 	<bean scope="prototype" id="SamlIdPWebUI" class="pl.edu.icm.unity.saml.idp.web.SamlIdPWebUI"/>
 </beans>
