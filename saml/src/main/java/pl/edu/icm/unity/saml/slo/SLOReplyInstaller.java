@@ -56,4 +56,9 @@ public class SLOReplyInstaller
 		sharedEndpointManagement.deployInternalEndpointServlet(PATH, servlet);
 		enabled = true;
 	}
+	
+	public String getServletURL()
+	{
+		return sharedEndpointManagement.getServletUrl(PATH);
+	}
 }

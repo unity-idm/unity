@@ -61,6 +61,10 @@ public abstract class SamlProperties extends PropertiesHelper
 	public static final String POST_LOGOUT_RET_URL = "postLogoutResponseEndpoint";
 	public static final String SOAP_LOGOUT_URL = "soapLogoutEndpoint";
 	
+	public static final String IDENTITY_MAPPING_PFX = "identityMapping.";
+	public static final String IDENTITY_LOCAL = "localIdentity";
+	public static final String IDENTITY_SAML = "samlIdentity";
+	
 	public static final DocumentationCategory samlMetaCat = new DocumentationCategory("SAML metadata settings", "6");
 	public static final DocumentationCategory remoteMeta = new DocumentationCategory(
 			"Configuration read from trusted SAML metadata", "02");

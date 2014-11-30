@@ -11,23 +11,29 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SAMLHelper;
 import pl.edu.icm.unity.saml.SAMLResponseValidatorUtil;
 import pl.edu.icm.unity.saml.SamlProperties;
+import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToSPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
+import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
+import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
@@ -36,7 +42,9 @@ import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
@@ -47,6 +55,8 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
  */
 public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLExchange
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLVerificator.class);
+	
 	private UnityServerConfiguration mainConfig;
 	private SAMLSPProperties samlProperties;
 	private PKIManagement pkiMan;
@@ -57,6 +67,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	private MetaDownloadManager downloadManager;
 	private RemoteMetaManager myMetadataManager;
 	private ReplayAttackChecker replayAttackChecker;
+	private SLOSPManager sloManager;
+	private SLOReplyInstaller sloReplyInstaller;
 	
 	public SAMLVerificator(String name, String description,
 			TranslationProfileManagement profileManagement,
@@ -64,7 +76,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			ReplayAttackChecker replayAttackChecker, ExecutorsService executorsService,
 			MultiMetadataServlet metadataServlet, URL baseAddress, String baseContext,
 			Map<String, RemoteMetaManager> remoteMetadataManagers,
-			MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig)
+			MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig, 
+			SLOSPManager sloManager, SLOReplyInstaller sloReplyInstaller)
 	{
 		super(name, description, SAMLExchange.ID, profileManagement, trEngine);
 		this.remoteMetadataManagers = remoteMetadataManagers;
@@ -75,6 +88,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		this.executorsService = executorsService;
 		this.responseConsumerAddress = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
 		this.replayAttackChecker = replayAttackChecker;
+		this.sloManager = sloManager;
+		this.sloReplyInstaller = sloReplyInstaller;
 	}
 
 	@Override
@@ -116,9 +131,10 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			exposeMetadata();
 		if (!remoteMetadataManagers.containsKey(instanceName))
 		{
-			
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
-					mainConfig, executorsService, pkiMan, new MetaToSPConfigConverter(pkiMan), downloadManager, SAMLSPProperties.IDPMETA_PREFIX);
+					mainConfig, executorsService, pkiMan, 
+					new MetaToSPConfigConverter(pkiMan), downloadManager, 
+						SAMLSPProperties.IDPMETA_PREFIX);
 			remoteMetadataManagers.put(instanceName, myMetadataManager);
 			myMetadataManager.start();
 		} else
@@ -126,8 +142,51 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			myMetadataManager = remoteMetadataManagers.get(instanceName);
 			myMetadataManager.setBaseConfiguration(samlProperties);
 		}
+		
+		try
+		{
+			initSLO();
+		} catch (EngineException e)
+		{
+			throw new InternalException("Can't initialize Single Logout subsystem for "
+					+ "the authenticator " + getName(), e);
+		}
 	}
 
+	private void initSLO() throws EngineException
+	{
+		SamlTrustProvider samlTrustProvider = new SamlTrustProvider()
+		{
+			@Override
+			public SamlTrustChecker getTrustChecker()
+			{
+				SAMLSPProperties config = getSamlValidatorSettings();
+				return config.getTrustChecker();
+			}
+		};
+		
+		String sloPath = samlProperties.getValue(SAMLSPProperties.SLO_PATH);
+		String sloRealm = samlProperties.getValue(SAMLSPProperties.SLO_REALM);
+		
+		if (sloPath == null || sloRealm == null)
+		{
+			log.warn("Single Logout functionality will be disabled for SAML authenticator "
+					+ getName() + " as its path and/or realm are/is undefined.");
+			return;
+		}
+		
+		
+		sloManager.deployAsyncServlet(sloPath,  
+				new IdentityTypeMapper(samlProperties), 
+				600000, 
+				samlProperties.getValue(SAMLSPProperties.REQUESTER_ID), 
+				samlProperties.getRequesterCredential(), 
+				samlTrustProvider, 
+				sloRealm);
+		
+		sloReplyInstaller.enable();
+	}
+	
 	private void exposeMetadata()
 	{
 		String metaPath = samlProperties.getValue(SAMLSPProperties.METADATA_PATH);
@@ -143,10 +202,26 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		consumerEndpoint2.setLocation(responseConsumerAddress);
 		consumerEndpoint2.setIsDefault(false);
 
+		EndpointType[] sloEndpoints = null;
+		String sloPath = samlProperties.getValue(SAMLSPProperties.SLO_PATH);
+		String sloEndpointURL = sloPath != null ? sloManager.getAsyncServletURL(sloPath) : null;
+		if (sloEndpointURL != null)
+		{
+			EndpointType sloPost = EndpointType.Factory.newInstance();
+			sloPost.setLocation(sloEndpointURL);
+			sloPost.setBinding(SAMLConstants.BINDING_HTTP_POST);
+			sloPost.setResponseLocation(sloReplyInstaller.getServletURL());
+			EndpointType sloRedirect = EndpointType.Factory.newInstance();
+			sloRedirect.setLocation(sloEndpointURL);
+			sloRedirect.setResponseLocation(sloReplyInstaller.getServletURL());
+			sloRedirect.setBinding(SAMLConstants.BINDING_HTTP_REDIRECT);
+			sloEndpoints = new EndpointType[] {sloPost, sloRedirect};
+		}
+		
 		IndexedEndpointType[] assertionConsumerEndpoints = new IndexedEndpointType[] {consumerEndpoint,
 				consumerEndpoint2};
 		MetadataProvider provider = MetadataProviderFactory.newSPInstance(samlProperties, 
-				executorsService, assertionConsumerEndpoints);
+				executorsService, assertionConsumerEndpoints, sloEndpoints);
 		metadataServlet.addProvider("/" + metaPath, provider);
 	}
 	
@@ -200,13 +275,5 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		return (SAMLSPProperties) myMetadataManager.getVirtualConfiguration();
 	}
 }
-
-
-
-
-
-
-
-
 
 

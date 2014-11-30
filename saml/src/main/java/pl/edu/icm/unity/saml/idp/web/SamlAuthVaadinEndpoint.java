@@ -203,8 +203,10 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		EndpointType sloPost = EndpointType.Factory.newInstance();
 		sloPost.setLocation(sloEndpointURL);
 		sloPost.setBinding(SAMLConstants.BINDING_HTTP_POST);
+		sloPost.setResponseLocation(sloReplyInstaller.getServletURL());
 		EndpointType sloRedirect = EndpointType.Factory.newInstance();
 		sloRedirect.setLocation(sloEndpointURL);
+		sloRedirect.setResponseLocation(sloReplyInstaller.getServletURL());
 		sloRedirect.setBinding(SAMLConstants.BINDING_HTTP_REDIRECT);
 		EndpointType[] sloEndpoints = new EndpointType[] {sloPost, sloRedirect};
 		
