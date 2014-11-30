@@ -175,12 +175,21 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			return;
 		}
 		
-		
+		String samlId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
+		X509Credential credential = samlProperties.getRequesterCredential();
+		IdentityTypeMapper idMapper = new IdentityTypeMapper(samlProperties);
 		sloManager.deployAsyncServlet(sloPath,  
-				new IdentityTypeMapper(samlProperties), 
+				idMapper, 
 				600000, 
-				samlProperties.getValue(SAMLSPProperties.REQUESTER_ID), 
-				samlProperties.getRequesterCredential(), 
+				samlId, 
+				credential, 
+				samlTrustProvider, 
+				sloRealm);
+		sloManager.deploySyncServlet(sloPath, 
+				idMapper, 
+				600000, 
+				samlId, 
+				credential, 
 				samlTrustProvider, 
 				sloRealm);
 		
@@ -205,17 +214,24 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		EndpointType[] sloEndpoints = null;
 		String sloPath = samlProperties.getValue(SAMLSPProperties.SLO_PATH);
 		String sloEndpointURL = sloPath != null ? sloManager.getAsyncServletURL(sloPath) : null;
-		if (sloEndpointURL != null)
+		String sloSoapPath = sloPath != null ? sloManager.getSyncServletURL(sloPath) : null; 
+		if (sloEndpointURL != null && sloSoapPath != null)
 		{
 			EndpointType sloPost = EndpointType.Factory.newInstance();
 			sloPost.setLocation(sloEndpointURL);
 			sloPost.setBinding(SAMLConstants.BINDING_HTTP_POST);
 			sloPost.setResponseLocation(sloReplyInstaller.getServletURL());
+			
 			EndpointType sloRedirect = EndpointType.Factory.newInstance();
 			sloRedirect.setLocation(sloEndpointURL);
 			sloRedirect.setResponseLocation(sloReplyInstaller.getServletURL());
 			sloRedirect.setBinding(SAMLConstants.BINDING_HTTP_REDIRECT);
-			sloEndpoints = new EndpointType[] {sloPost, sloRedirect};
+			
+			EndpointType sloSoap = EndpointType.Factory.newInstance();
+			sloSoap.setLocation(sloSoapPath);
+			sloSoap.setBinding(SAMLConstants.BINDING_SOAP);
+			
+			sloEndpoints = new EndpointType[] {sloPost, sloRedirect, sloSoap};
 		}
 		
 		IndexedEndpointType[] assertionConsumerEndpoints = new IndexedEndpointType[] {consumerEndpoint,
