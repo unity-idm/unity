@@ -26,6 +26,7 @@
 	<bean class="pl.edu.icm.unity.saml.sp.web.SAMLRetrievalFactory"/>
 	<bean class="pl.edu.icm.unity.saml.slo.LogoutContextsStore"/>
 	<bean class="pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory"/>
+	<bean class="pl.edu.icm.unity.saml.slo.SLOReplyInstaller"/>
 	
 	<bean scope="prototype" id="SamlIdPWebUI" class="pl.edu.icm.unity.saml.idp.web.SamlIdPWebUI"/>
 </beans>

@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
+import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
+import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
@@ -35,6 +37,7 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 	public static final String SAML_CONSUMER_SERVLET_PATH = "/saml2idp-web";
 	public static final String SAML_UI_SERVLET_PATH = "/saml2idp-web-ui";
 	public static final String SAML_META_SERVLET_PATH = "/metadata";
+	public static final String SAML_SLO_SERVLET_PATH = "/SLO";
 	public static final String NAME = "SAMLWebIdP";
 	
 
@@ -46,10 +49,14 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
+	private SAMLLogoutProcessorFactory logoutProcessorFactory;
+	private SLOReplyInstaller sloReplyInstaller;
 	
 	@Autowired
 	public SamlIdPWebEndpointFactory(ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
-			PKIManagement pkiManagement, MetaDownloadManager downloadManager, ExecutorsService executorsService, UnityServerConfiguration mainConfig)
+			PKIManagement pkiManagement, MetaDownloadManager downloadManager, 
+			ExecutorsService executorsService, UnityServerConfiguration mainConfig,
+			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;
@@ -58,6 +65,8 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
 		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
+		this.logoutProcessorFactory = logoutProcessorFactory;
+		this.sloReplyInstaller = sloReplyInstaller;
 		
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
@@ -79,7 +88,9 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 	{
 		return new SamlAuthVaadinEndpoint(getDescription(), applicationContext, freemarkerHandler,
 				SamlIdPWebUI.class, SAML_UI_SERVLET_PATH, pkiManagement, executorsService, mainConfig,
-				remoteMetadataManagers, downloadManager, SAML_CONSUMER_SERVLET_PATH, SAML_META_SERVLET_PATH);
+				remoteMetadataManagers, downloadManager, SAML_CONSUMER_SERVLET_PATH, 
+				SAML_META_SERVLET_PATH, SAML_SLO_SERVLET_PATH, 
+				logoutProcessorFactory, sloReplyInstaller);
 	}
 
 }

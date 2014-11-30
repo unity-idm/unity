@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
+import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 
 /**
@@ -48,13 +48,17 @@ public class SAMLLogoutProcessorFactory
 
 	public SAMLLogoutProcessor getInstance(IdentityTypeMapper identityTypeMapper, String consumerEndpointUri,
 			long requestValidity, String localSamlId,
-			X509Credential localSamlCredential, SamlTrustChecker trustChecker,
+			X509Credential localSamlCredential, SamlTrustProvider samlTrustProvider,
 			String realm)
 	{
-		InternalLogoutProcessor internalProcessor = new InternalLogoutProcessor(pkiManagement, 
-				contextsStore, responseHandler, consumerEndpointUri);
+		InternalLogoutProcessor internalProcessor = getInternalProcessorInstance(consumerEndpointUri);
 		return new SAMLLogoutProcessor(sessionManagement, idResolver, contextsStore, replayChecker, 
 				responseHandler, internalProcessor, identityTypeMapper, consumerEndpointUri, 
-				requestValidity, localSamlId, localSamlCredential, trustChecker, realm);
+				requestValidity, localSamlId, localSamlCredential, samlTrustProvider, realm);
+	}
+	
+	public InternalLogoutProcessor getInternalProcessorInstance(String consumerEndpointUri)
+	{
+		return new InternalLogoutProcessor(pkiManagement, contextsStore, responseHandler, consumerEndpointUri);
 	}
 }

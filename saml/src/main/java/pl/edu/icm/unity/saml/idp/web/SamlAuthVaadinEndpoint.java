@@ -16,6 +16,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
@@ -27,6 +28,11 @@ import pl.edu.icm.unity.saml.metadata.MetadataServlet;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
+import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor;
+import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
+import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
+import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
+import pl.edu.icm.unity.saml.slo.SLOSAMLServlet;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
@@ -41,6 +47,7 @@ import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.util.configuration.ConfigurationException;
 
 /**
@@ -56,11 +63,14 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	protected PKIManagement pkiManagement;
 	protected ExecutorsService executorsService;
 	protected String samlConsumerPath;
+	protected String samlSLOPath;
 	protected String samlMetadataPath;
 	protected RemoteMetaManager myMetadataManager;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
+	private SAMLLogoutProcessorFactory logoutProcessorFactory;
+	private SLOReplyInstaller sloReplyInstaller;
 	
 	public SamlAuthVaadinEndpoint(EndpointTypeDescription type,
 			ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
@@ -68,7 +78,8 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			ExecutorsService executorsService, UnityServerConfiguration mainConfig,
 			Map<String, RemoteMetaManager> remoteMetadataManagers,
 			MetaDownloadManager downloadManager, String samlConsumerPath,
-			String samlMetadataPath)
+			String samlMetadataPath, String samlSLOPath, 
+			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller)
 	{
 		super(type, applicationContext, uiClass.getSimpleName(), samlUiServletPath);
 		this.freemarkerHandler = freemarkerHandler;
@@ -76,10 +87,12 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		this.executorsService = executorsService;
 		this.samlConsumerPath = samlConsumerPath;
 		this.samlMetadataPath = samlMetadataPath;
+		this.samlSLOPath = samlSLOPath;
 		this.remoteMetadataManagers = remoteMetadataManagers;
 		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
-		
+		this.logoutProcessorFactory = logoutProcessorFactory;
+		this.sloReplyInstaller = sloReplyInstaller;
 	}
 	
 	@Override
@@ -109,12 +122,19 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			myMetadataManager.setBaseConfiguration(samlProperties);
 		}
 		
+		try
+		{
+			sloReplyInstaller.enable();
+		} catch (EngineException e)
+		{
+			throw new ConfigurationException("Can't initialize the SAML SLO Reply servlet", e);
+		}	
 	}
 
 	@Override
 	public ServletContextHandler getServletContextHandler()
-	{
-	 	ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+	{	
+		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath(description.getContextAddress());
 
 		String endpointURL = getServletUrl(samlConsumerPath);
@@ -126,6 +146,11 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		Servlet samlParseServlet = getSamlParseServlet(endpointURL, uiURL);
 		ServletHolder samlParseHolder = createServletHolder(samlParseServlet, true);
 		context.addServlet(samlParseHolder, samlConsumerPath + "/*");
+		
+		String sloURL = getServletUrl(samlSLOPath);
+		Servlet samlSLOServlet = getSLORequestServlet(sloURL);
+		ServletHolder samlSLOHolder = createServletHolder(samlSLOServlet, true);
+		context.addServlet(samlSLOHolder, samlSLOPath + "/*");
 		
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
@@ -153,7 +178,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		
 		if (samlProperties.getBooleanValue(SamlIdpProperties.PUBLISH_METADATA))
 		{
-			Servlet metadataServlet = getMetadataServlet(endpointURL);
+			Servlet metadataServlet = getMetadataServlet(endpointURL, sloURL);
 			context.addServlet(createServletHolder(metadataServlet, true), samlMetadataPath + "/*");
 		}
 		return context;
@@ -165,7 +190,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 				endpointURL, uiUrl, new ErrorHandler(freemarkerHandler));
 	}
 	
-	protected Servlet getMetadataServlet(String samlEndpointURL)
+	protected Servlet getMetadataServlet(String samlEndpointURL, String sloEndpointURL)
 	{
 		EndpointType ssoPost = EndpointType.Factory.newInstance();
 		ssoPost.setLocation(samlEndpointURL);
@@ -173,11 +198,42 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		EndpointType ssoRedirect = EndpointType.Factory.newInstance();
 		ssoRedirect.setLocation(samlEndpointURL);
 		ssoRedirect.setBinding(SAMLConstants.BINDING_HTTP_REDIRECT);
-
-		EndpointType[] endpoints = new EndpointType[] {ssoPost, ssoRedirect};
+		EndpointType[] authnEndpoints = new EndpointType[] {ssoPost, ssoRedirect};
+		
+		EndpointType sloPost = EndpointType.Factory.newInstance();
+		sloPost.setLocation(sloEndpointURL);
+		sloPost.setBinding(SAMLConstants.BINDING_HTTP_POST);
+		EndpointType sloRedirect = EndpointType.Factory.newInstance();
+		sloRedirect.setLocation(sloEndpointURL);
+		sloRedirect.setBinding(SAMLConstants.BINDING_HTTP_REDIRECT);
+		EndpointType[] sloEndpoints = new EndpointType[] {sloPost, sloRedirect};
 		
 		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(samlProperties, 
-				executorsService, endpoints, null, null); //TODO - last should be fixed after SLO is added
+				executorsService, authnEndpoints, null, sloEndpoints);
 		return new MetadataServlet(provider);
+	}
+	
+	protected Servlet getSLORequestServlet(String endpointURL)
+	{
+		SamlTrustProvider trustProvider = new SamlTrustProvider()
+		{
+			@Override
+			public SamlTrustChecker getTrustChecker()
+			{
+				SamlIdpProperties virtualConf = (SamlIdpProperties) 
+						myMetadataManager.getVirtualConfiguration();
+				return virtualConf.getAuthnTrustChecker();
+			}
+		};
+		SamlIdpProperties virtualConf = (SamlIdpProperties) myMetadataManager.getVirtualConfiguration();
+		SAMLLogoutProcessor logoutProcessor = logoutProcessorFactory.getInstance(virtualConf.getIdTypeMapper(), 
+				endpointURL, 
+				virtualConf.getLongValue(SamlIdpProperties.SAML_REQUEST_VALIDITY), 
+				virtualConf.getValue(SamlIdpProperties.ISSUER_URI), 
+				virtualConf.getSamlIssuerCredential(), 
+				trustProvider, 
+				getEndpointDescription().getRealm().getName());
+		
+		return new SLOSAMLServlet(logoutProcessor);
 	}
 }

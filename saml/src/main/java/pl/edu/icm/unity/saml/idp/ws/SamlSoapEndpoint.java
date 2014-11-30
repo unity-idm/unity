@@ -20,6 +20,7 @@ import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
+import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
@@ -31,6 +32,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.ws.CXFEndpoint;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
@@ -128,12 +130,28 @@ public class SamlSoapEndpoint extends CXFEndpoint
 				idpEngine, preferencesMan);
 		addWebservice(SAMLAuthnInterface.class, authnImpl);
 		
+		configureSLOService(virtualConf, endpointURL);
+	}
+	
+	protected void configureSLOService(SamlIdpProperties virtualConf, String endpointURL)
+	{
+		SamlTrustProvider trustProvider = new SamlTrustProvider()
+		{
+			@Override
+			public SamlTrustChecker getTrustChecker()
+			{
+				SamlIdpProperties virtualConf = (SamlIdpProperties) 
+						myMetadataManager.getVirtualConfiguration();
+				return virtualConf.getAuthnTrustChecker();
+			}
+		};
+		
 		SAMLLogoutProcessor logoutProcessor = logoutProcessorFactory.getInstance(virtualConf.getIdTypeMapper(), 
 				endpointURL, 
 				virtualConf.getLongValue(SamlIdpProperties.SAML_REQUEST_VALIDITY), 
 				virtualConf.getValue(SamlIdpProperties.ISSUER_URI), 
 				virtualConf.getSamlIssuerCredential(), 
-				virtualConf.getSoapTrustChecker(), 
+				trustProvider, 
 				getEndpointDescription().getRealm().getName());
 		SAMLSingleLogoutImpl logoutImpl = new SAMLSingleLogoutImpl(logoutProcessor);
 		addWebservice(SAMLLogoutInterface.class, logoutImpl);

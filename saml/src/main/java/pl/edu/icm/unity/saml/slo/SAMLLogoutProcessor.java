@@ -61,7 +61,7 @@ public class SAMLLogoutProcessor
 	private long requestValidity;
 	private String localSamlId;
 	private X509Credential localSamlCredential;
-	private SamlTrustChecker trustChecker;
+	private SamlTrustProvider trustProvider;
 	private String realm;
 
 	/**
@@ -86,7 +86,7 @@ public class SAMLLogoutProcessor
 			InternalLogoutProcessor internalProcessor,
 			IdentityTypeMapper identityTypeMapper, String consumerEndpointUri,
 			long requestValidity, String localSamlId,
-			X509Credential localSamlCredential, SamlTrustChecker trustChecker,
+			X509Credential localSamlCredential, SamlTrustProvider trustProvider,
 			String realm)
 	{
 		this.sessionManagement = sessionManagement;
@@ -100,7 +100,7 @@ public class SAMLLogoutProcessor
 		this.requestValidity = requestValidity;
 		this.localSamlId = localSamlId;
 		this.localSamlCredential = localSamlCredential;
-		this.trustChecker = trustChecker;
+		this.trustProvider = trustProvider;
 		this.realm = realm;
 	}
 
@@ -278,7 +278,7 @@ public class SAMLLogoutProcessor
 	private LoginSession resolveRequest(LogoutRequestDocument request) throws SAMLServerException
 	{
 		LogoutRequestValidator validator = new LogoutRequestValidator(consumerEndpointUri, 
-				trustChecker, requestValidity, replayChecker);
+				trustProvider.getTrustChecker(), requestValidity, replayChecker);
 		validator.validate(request);
 		
 		LogoutRequestType logoutRequest = request.getLogoutRequest();
@@ -312,5 +312,15 @@ public class SAMLLogoutProcessor
 	private NameIDType getIssuer(String localSamlId)
 	{
 		return new NameID(localSamlId, SAMLConstants.NFORMAT_ENTITY).getXBean();
+	}
+	
+	/**
+	 * Implementation provides access to saml trust checker. It is used as SAML trust settings may easily 
+	 * change at runtime.
+	 * @author K. Benedyczak
+	 */
+	public interface SamlTrustProvider
+	{
+		SamlTrustChecker getTrustChecker();
 	}
 }
