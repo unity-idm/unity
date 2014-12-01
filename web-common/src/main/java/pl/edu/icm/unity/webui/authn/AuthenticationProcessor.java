@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
@@ -33,6 +34,8 @@ import pl.edu.icm.unity.server.authn.AuthenticationProcessorUtil;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
+import pl.edu.icm.unity.server.authn.LogoutProcessor;
+import pl.edu.icm.unity.server.authn.LogoutProcessorFactory;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.server.utils.Log;
@@ -71,12 +74,13 @@ public class AuthenticationProcessor
 	private CredentialEditorRegistry credEditorReg;
 	private SessionManagement sessionMan;
 	private LoginToHttpSessionBinder sessionBinder;
+	private LogoutProcessor logoutProcessor;
 	
 	@Autowired
 	public AuthenticationProcessor(UnityMessageSource msg, AuthenticationManagement authnMan,
 			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder,
 			IdentitiesManagement idsMan, AttributesInternalProcessing attrMan,
-			CredentialEditorRegistry credEditorReg)
+			CredentialEditorRegistry credEditorReg, LogoutProcessorFactory logoutProcessorFactory)
 	{
 		this.msg = msg;
 		this.authnMan = authnMan;
@@ -85,6 +89,7 @@ public class AuthenticationProcessor
 		this.credEditorReg = credEditorReg;
 		this.sessionMan = sessionMan;
 		this.sessionBinder = sessionBinder;
+		this.logoutProcessor = logoutProcessorFactory.getInstance();
 	}
 
 	public void processResults(List<AuthenticationResult> results, String clientIp, AuthenticationRealm realm,
@@ -227,11 +232,13 @@ public class AuthenticationProcessor
 			throw new IllegalStateException("There is no login session");
 	}
 	
+	//TODO -> redirect to logout(false)?
 	public void logout()
 	{
 		Page p = Page.getCurrent();
-		URI currentLocation = p.getLocation();
+		URI currentLocation = p.getLocation();		
 		destroySession(false);
+		logoutSessionPeers(currentLocation);
 		p.setLocation(currentLocation);
 	}
 
@@ -239,7 +246,22 @@ public class AuthenticationProcessor
 	{
 		Page p = Page.getCurrent();
 		destroySession(soft);
+		logoutSessionPeers(p.getLocation());
 		p.reload();
+	}
+	
+	private void logoutSessionPeers(URI currentLocation)
+	{
+		LoginSession session = InvocationContext.getCurrent().getLoginSession();
+		VaadinServletResponse resp = (VaadinServletResponse) VaadinService.getCurrentResponse();
+		try
+		{
+			logoutProcessor.handleAsyncLogout(session, "", currentLocation.toASCIIString(), 
+					resp.getHttpServletResponse());
+		} catch (IOException e)
+		{
+			log.warn("Logout of session peers failed", e);
+		}
 	}
 	
 	public static UnsuccessfulAuthenticationCounter getLoginCounter()

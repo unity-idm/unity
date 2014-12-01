@@ -13,40 +13,31 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.slo.SAMLInternalLogoutContext.AsyncLogoutFinishCallback;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.authn.LogoutProcessor;
 import pl.edu.icm.unity.server.utils.Log;
 
 /**
- * Performs a logout, including logout of additional session participants, in case of logout initiated directly
- * in Unity.
+ * Performs a logout of additional session participants, in case of logout initiated directly in Unity.
  * 
  * @author K. Benedyczak
  */
-public class LogoutProcessor
+public class LogoutProcessorImpl implements LogoutProcessor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, LogoutProcessor.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, LogoutProcessorImpl.class);
 	
 	private LogoutContextsStore contextsStore;
 	private InternalLogoutProcessor internalProcessor;
 
-	public LogoutProcessor(LogoutContextsStore contextsStore,
+	public LogoutProcessorImpl(LogoutContextsStore contextsStore,
 			InternalLogoutProcessor internalProcessor)
 	{
 		this.contextsStore = contextsStore;
 		this.internalProcessor = internalProcessor;
 	}
 
-	/**
-	 * Performs async logout of SAML peers attached to the current login session. It is assumed that the logout 
-	 * itself was not initiated with SAML. After the full logout the browser is redirected to a given return URL
-	 * with relayState given as parameter. The login session itself is not terminated here.
-	 * @param relayState
-	 * @param response
-	 * @param returnUrl
-	 * @throws IOException
-	 * @throws EopException
-	 */
+	@Override
 	public void handleAsyncLogout(LoginSession session, String relayState, String returnUrl, 
-			HttpServletResponse response) throws IOException, EopException
+			HttpServletResponse response) throws IOException
 	{
 		PlainExternalLogoutContext externalContext = new PlainExternalLogoutContext(relayState, 
 				returnUrl, session);
@@ -65,14 +56,16 @@ public class LogoutProcessor
 		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(session, null, finishCallback);
 		contextsStore.addInternalContext(relayState, internalCtx);
 		
-		internalProcessor.continueAsyncLogout(internalCtx, response);
+		try
+		{
+			internalProcessor.continueAsyncLogout(internalCtx, response);
+		} catch (EopException e)
+		{
+			//ok
+		}
 	}
 
-	/**
-	 * Performs sync logout of SAML peers attached to the current login session. It is assumed that the logout 
-	 * itself was not initiated with SAML. The login session itself is not terminated here.
-	 * @return if all participants were logged out
-	 */
+	@Override
 	public boolean handleSynchronousLogout(LoginSession session)
 	{
 		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(session, null, null);
