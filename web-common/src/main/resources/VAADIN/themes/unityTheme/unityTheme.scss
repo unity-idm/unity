@@ -179,14 +179,12 @@
 	}
 	
 	/* green background for translation profile test */
-	.v-textfield-u-green-bg {
+	.v-textfield-u-green-bg.v-readonly {
 		background: $green;
 	}
 	
-	.v-filterselect-u-green-bg {
-		.v-filterselect-input {
-			background: $green;
-		}
+	.v-filterselect-u-green-bg.v-readonly {
+		background: $green;
 	}
 
 	.v-ddwrapper-u-green-bg {
@@ -196,14 +194,12 @@
 	}
 	
 	/* gray background for translation profile test */
-	.v-textfield-u-gray-bg {
+	.v-textfield-u-gray-bg.v-readonly {
 		background: $gray;
 	}
 	
-	.v-filterselect-u-gray-bg {
-		.v-filterselect-input {
-			background: $gray;
-		}
+	.v-filterselect-u-gray-bg.v-readonly {
+		background: $gray;
 	}
 	
 	.v-ddwrapper-u-gray-bg {
@@ -213,14 +209,12 @@
 	}
 	
 	/* red background for translation profile test */
-	.v-textfield-u-red-bg {
+	.v-textfield-u-red-bg.v-readonly  {
 		background: $red;
 	}
 	
-	.v-filterselect-u-red-bg {
-		.v-filterselect-input {
-			background: $red;
-		}
+	.v-filterselect-u-red-bg.v-readonly {
+		background: $red;
 	}
 	
 	.v-ddwrapper-u-red-bg {

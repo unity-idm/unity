@@ -192,7 +192,7 @@ public class RuleComponent extends VerticalLayout
 		toolbar.setWidth(100, Unit.PERCENTAGE);
 
 		paramsList = new FormLayout();
-		paramsList.setSpacing(false);
+		paramsList.setSpacing(true);
 
 		condition = new RequiredTextField(msg);
 		condition.setCaption(msg.getMessage("TranslationProfileEditor.ruleCondition"));
@@ -452,7 +452,7 @@ public class RuleComponent extends VerticalLayout
 
 	public void test(RemotelyAuthenticatedInput remoteAuthnInput) 
 	{
-		
+		setReadOnlyStyle(true);
 		InputTranslationRule rule = null;
 		try 
 		{
@@ -531,6 +531,7 @@ public class RuleComponent extends VerticalLayout
 	{
 		removeRuleComponentEvaluationStyle();	
 		hideMappingResultComponent();
+		setReadOnlyStyle(false);
 	}
 	
 	private void setColorForInputComponents(String color)
@@ -580,6 +581,18 @@ public class RuleComponent extends VerticalLayout
 	private void hideMappingResultComponent() 
 	{
 		mappingResultComponent.setVisible(false);
+	}
+	
+	private void setReadOnlyStyle(boolean readOnly)
+	{
+		condition.setReadOnly(readOnly);
+		actions.setReadOnly(readOnly);
+		Iterator<Component> iter = paramsList.iterator();
+		while (iter.hasNext())
+		{
+			Component c = iter.next();
+			c.setReadOnly(readOnly);
+		}			
 	}
 
 	public interface Callback

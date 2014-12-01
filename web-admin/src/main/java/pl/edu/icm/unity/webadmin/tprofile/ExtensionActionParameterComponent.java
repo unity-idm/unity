@@ -142,4 +142,11 @@ public class ExtensionActionParameterComponent extends CustomField<String> imple
 		super.removeStyleName(style);
 		parameter.removeStyleName(style);
 	}
+
+	@Override
+	public void setReadOnly(boolean readOnly) 
+	{
+		super.setReadOnly(readOnly);
+		parameter.setReadOnly(readOnly);
+	}
 }
