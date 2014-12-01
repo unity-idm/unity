@@ -117,7 +117,7 @@ public class SLOSPManager
 		cxfEndpoint.getOutInterceptors().add(new XmlBeansNsHackOutHandler());
 
 		sharedEndpointManagement.deployInternalEndpointServlet(prefixed, holder);
-		deployedAsyncServlets.put(pathSuffix, cxfServlet);
+		deployedSyncServlets.put(pathSuffix, cxfServlet);
 	}
 
 	public String getSyncServletURL(String suffix)

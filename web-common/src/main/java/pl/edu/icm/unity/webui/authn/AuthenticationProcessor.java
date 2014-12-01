@@ -40,6 +40,8 @@ import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration.LogoutMode;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -68,6 +70,7 @@ public class AuthenticationProcessor
 	
 	
 	private UnityMessageSource msg;
+	private UnityServerConfiguration config;
 	private AuthenticationManagement authnMan;
 	private IdentitiesManagement idsMan;
 	private AttributesInternalProcessing attrProcessor;
@@ -80,7 +83,8 @@ public class AuthenticationProcessor
 	public AuthenticationProcessor(UnityMessageSource msg, AuthenticationManagement authnMan,
 			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder,
 			IdentitiesManagement idsMan, AttributesInternalProcessing attrMan,
-			CredentialEditorRegistry credEditorReg, LogoutProcessorFactory logoutProcessorFactory)
+			CredentialEditorRegistry credEditorReg, LogoutProcessorFactory logoutProcessorFactory,
+			UnityServerConfiguration config)
 	{
 		this.msg = msg;
 		this.authnMan = authnMan;
@@ -89,6 +93,7 @@ public class AuthenticationProcessor
 		this.credEditorReg = credEditorReg;
 		this.sessionMan = sessionMan;
 		this.sessionBinder = sessionBinder;
+		this.config = config;
 		this.logoutProcessor = logoutProcessorFactory.getInstance();
 	}
 
@@ -237,30 +242,41 @@ public class AuthenticationProcessor
 	{
 		Page p = Page.getCurrent();
 		URI currentLocation = p.getLocation();		
-		destroySession(false);
 		logoutSessionPeers(currentLocation);
+		destroySession(false);
 		p.setLocation(currentLocation);
 	}
 
 	public void logout(boolean soft)
 	{
 		Page p = Page.getCurrent();
-		destroySession(soft);
 		logoutSessionPeers(p.getLocation());
+		destroySession(soft);
 		p.reload();
 	}
 	
 	private void logoutSessionPeers(URI currentLocation)
 	{
+		LogoutMode mode = config.getEnumValue(UnityServerConfiguration.LOGOUT_MODE, LogoutMode.class);
+		
+		if (mode == LogoutMode.internalOnly)
+			return;
+
 		LoginSession session = InvocationContext.getCurrent().getLoginSession();
-		VaadinServletResponse resp = (VaadinServletResponse) VaadinService.getCurrentResponse();
-		try
+		if (mode == LogoutMode.internalAndSyncPeers)
 		{
-			logoutProcessor.handleAsyncLogout(session, "", currentLocation.toASCIIString(), 
-					resp.getHttpServletResponse());
-		} catch (IOException e)
+			logoutProcessor.handleSynchronousLogout(session);
+		} else
 		{
-			log.warn("Logout of session peers failed", e);
+			VaadinServletResponse resp = (VaadinServletResponse) VaadinService.getCurrentResponse();
+			try
+			{
+				logoutProcessor.handleAsyncLogout(session, "", currentLocation.toASCIIString(), 
+						resp.getHttpServletResponse());
+			} catch (IOException e)
+			{
+				log.warn("Logout of session peers failed", e);
+			}
 		}
 	}
 	
