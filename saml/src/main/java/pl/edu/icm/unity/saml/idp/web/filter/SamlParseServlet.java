@@ -58,7 +58,7 @@ public class SamlParseServlet extends SamlHttpServlet
 	public SamlParseServlet(RemoteMetaManager samlConfigProvider, String endpointAddress,
 			String samlUiServletPath, ErrorHandler errorHandler)
 	{
-		super();
+		super(true, false);
 		this.samlConfigProvider = samlConfigProvider;
 		this.endpointAddress = endpointAddress;
 		this.samlUiServletPath = samlUiServletPath;
@@ -231,13 +231,5 @@ public class SamlParseServlet extends SamlHttpServlet
 		{
 			errorHandler.commitErrorResponse(context, e, servletResponse);
 		}
-	}
-
-	@Override
-	protected void postProcess(boolean isGet, HttpServletRequest req, HttpServletResponse resp,
-			String samlResponse, String relayState) throws IOException
-	{
-		//ignored. Actually this servlet should be refactored a bit to have better 
-		//reuse of generic code from super class.
 	}
 }

@@ -159,6 +159,7 @@ public class SAMLLogoutProcessor
 					"A logout process can not be started", e), response);
 			return;
 		}
+		log.debug("Handling SAML logout request from " + externalCtx.getRequest().getIssuer().getStringValue());
 		
 		AsyncLogoutFinishCallback finishCallback = new AsyncLogoutFinishCallback()
 		{

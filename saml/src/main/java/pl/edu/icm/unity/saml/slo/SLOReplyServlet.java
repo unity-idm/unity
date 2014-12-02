@@ -29,11 +29,12 @@ public class SLOReplyServlet extends SamlHttpServlet
 	
 	public SLOReplyServlet(InternalLogoutProcessor logoutProcessor)
 	{
+		super(false, true);
 		this.logoutProcessor = logoutProcessor;
 	}
 
 	@Override
-	protected void postProcess(boolean isGet, HttpServletRequest req, HttpServletResponse resp,
+	protected void postProcessResponse(boolean isGet, HttpServletRequest req, HttpServletResponse resp,
 			String samlResponse, String relayState) throws IOException
 	{
 		try

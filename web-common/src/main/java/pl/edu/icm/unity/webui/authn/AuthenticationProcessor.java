@@ -321,7 +321,6 @@ public class AuthenticationProcessor
 				LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
 				try
 				{
-					destroySession(softLogout);
 					logoutProcessor.handleAsyncLogout(loginSession, null, 
 							returnUri, 
 							response.getHttpServletResponse());
@@ -329,6 +328,7 @@ public class AuthenticationProcessor
 				{
 					log.warn("Logout of session peers failed", e);
 				}
+				destroySession(softLogout);
 				return true;
 			}
 			return false;

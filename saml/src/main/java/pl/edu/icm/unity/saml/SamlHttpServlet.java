@@ -27,6 +27,15 @@ public abstract class SamlHttpServlet extends HttpServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlHttpServlet.class);
 	
+	private boolean requireSamlRequest;
+	private boolean requireSamlResponse;
+	
+	protected SamlHttpServlet(boolean requireSamlRequest, boolean requireSamlResponse)
+	{
+		this.requireSamlRequest = requireSamlRequest;
+		this.requireSamlResponse = requireSamlResponse;
+	}
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException
@@ -44,13 +53,29 @@ public abstract class SamlHttpServlet extends HttpServlet
 	protected void process(boolean isGet, HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{
 		String samlResponse = req.getParameter("SAMLResponse");
-		if (samlResponse == null)
+		if (samlResponse == null && requireSamlResponse)
 		{
 			log.warn("Got a request to the SAML response consumer endpoint, " +
 					"but no 'SAMLResponse' is present in HTTP message parameters.");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "No 'SAMLResponse' parameter");
 			return;
 		}
+		String samlRequest = req.getParameter("SAMLRequest");
+		if (samlRequest == null && requireSamlRequest)
+		{
+			log.warn("Got a request to the SAML request consumer endpoint, " +
+					"but no 'SAMLRequest' is present in HTTP message parameters.");
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "No 'SAMLRequest' parameter");
+			return;
+		}
+		
+		if (samlRequest != null && samlResponse != null)
+		{
+			log.warn("Got a request to the SAML endpoint with both SAML request and response. What?");
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Decide what you want, please");
+			return;
+		}
+		
 		String relayState = req.getParameter("RelayState");
 		if (relayState == null)
 		{
@@ -59,9 +84,18 @@ public abstract class SamlHttpServlet extends HttpServlet
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "No 'RelayState' parameter");
 			return;
 		}
-		String decoded = isGet ? extractResponseFromRedirectBinding(samlResponse) : 
-			extractResponseFromPostBinding(samlResponse);
-		postProcess(isGet, req, resp, decoded, relayState);
+		
+		if (samlResponse != null)
+		{
+			String decoded = isGet ? extractResponseFromRedirectBinding(samlResponse) : 
+				extractResponseFromPostBinding(samlResponse);
+			postProcessResponse(isGet, req, resp, decoded, relayState);
+		} else if (samlRequest != null)
+		{
+			String decoded = isGet ? extractRequestFromRedirectBinding(samlRequest) : 
+				extractRequestFromPostBinding(samlRequest);
+			postProcessRequest(isGet, req, resp, decoded, relayState);
+		}
 	}
 	
 	/**
@@ -75,8 +109,26 @@ public abstract class SamlHttpServlet extends HttpServlet
 	 * @param relayState
 	 * @throws IOException
 	 */
-	protected abstract void postProcess(boolean isGet, HttpServletRequest req, HttpServletResponse resp,
-			String samlResponse, String relayState) throws IOException;
+	protected void postProcessResponse(boolean isGet, HttpServletRequest req, HttpServletResponse resp,
+			String samlResponse, String relayState) throws IOException
+	{	
+	}
+
+	/**
+	 * Needs to be implemented to perform a final processing. Arguments provide information on the binding,
+	 * gives an extracted saml request and relay state which are guaranteed to be non-null.
+	 * The SAML request is already decoded, i.e. it is raw XML. 
+	 * @param isGet
+	 * @param req
+	 * @param resp
+	 * @param samlResponse
+	 * @param relayState
+	 * @throws IOException
+	 */
+	protected void postProcessRequest(boolean isGet, HttpServletRequest req, HttpServletResponse resp,
+			String samlRequest, String relayState) throws IOException
+	{	
+	}
 	
 	protected String extractResponseFromPostBinding(String samlResponseEncoded)
 	{

@@ -230,7 +230,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		SamlIdpProperties virtualConf = (SamlIdpProperties) myMetadataManager.getVirtualConfiguration();
 		SAMLLogoutProcessor logoutProcessor = logoutProcessorFactory.getInstance(virtualConf.getIdTypeMapper(), 
 				endpointURL, 
-				virtualConf.getLongValue(SamlIdpProperties.SAML_REQUEST_VALIDITY), 
+				virtualConf.getLongValue(SamlIdpProperties.SAML_REQUEST_VALIDITY) * 1000, 
 				virtualConf.getValue(SamlIdpProperties.ISSUER_URI), 
 				virtualConf.getSamlIssuerCredential(), 
 				trustProvider, 

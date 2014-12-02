@@ -34,11 +34,12 @@ public class SAMLResponseConsumerServlet extends SamlHttpServlet
 	
 	public SAMLResponseConsumerServlet(SamlContextManagement contextManagement)
 	{
+		super(false, true);
 		this.contextManagement = contextManagement;
 	}
 
 	@Override
-	protected void postProcess(boolean isGet, HttpServletRequest req, HttpServletResponse resp,
+	protected void postProcessResponse(boolean isGet, HttpServletRequest req, HttpServletResponse resp,
 			String samlResponse, String relayState) throws IOException
 	{
 		RemoteAuthnContext context;
