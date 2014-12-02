@@ -49,6 +49,9 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 import com.vaadin.server.Page;
+import com.vaadin.server.RequestHandler;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
@@ -67,7 +70,10 @@ public class AuthenticationProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationProcessor.class);
 	public static final String UNITY_SESSION_COOKIE_PFX = "USESSIONID_";
-	
+	private static final String LOGOUT_REDIRECT_TRIGGERING = AuthenticationProcessor.class.getName() + 
+			".invokeLogout";
+	private static final String LOGOUT_REDIRECT_RET_URI = AuthenticationProcessor.class.getName() + 
+			".returnUri";
 	
 	private UnityMessageSource msg;
 	private UnityServerConfiguration config;
@@ -237,46 +243,40 @@ public class AuthenticationProcessor
 			throw new IllegalStateException("There is no login session");
 	}
 	
-	//TODO -> redirect to logout(false)?
 	public void logout()
 	{
-		Page p = Page.getCurrent();
-		URI currentLocation = p.getLocation();		
-		logoutSessionPeers(currentLocation);
-		destroySession(false);
-		p.setLocation(currentLocation);
+		logout(false);
 	}
 
 	public void logout(boolean soft)
 	{
 		Page p = Page.getCurrent();
-		logoutSessionPeers(p.getLocation());
-		destroySession(soft);
+		logoutSessionPeers(p.getLocation(), soft);
 		p.reload();
 	}
 	
-	private void logoutSessionPeers(URI currentLocation)
+	private void logoutSessionPeers(URI currentLocation, boolean soft)
 	{
 		LogoutMode mode = config.getEnumValue(UnityServerConfiguration.LOGOUT_MODE, LogoutMode.class);
 		
 		if (mode == LogoutMode.internalOnly)
+		{
+			destroySession(soft);
 			return;
-
+		}
+		
 		LoginSession session = InvocationContext.getCurrent().getLoginSession();
 		if (mode == LogoutMode.internalAndSyncPeers)
 		{
 			logoutProcessor.handleSynchronousLogout(session);
+			destroySession(soft);
 		} else
 		{
-			VaadinServletResponse resp = (VaadinServletResponse) VaadinService.getCurrentResponse();
-			try
-			{
-				logoutProcessor.handleAsyncLogout(session, "", currentLocation.toASCIIString(), 
-						resp.getHttpServletResponse());
-			} catch (IOException e)
-			{
-				log.warn("Logout of session peers failed", e);
-			}
+			VaadinSession vSession = VaadinSession.getCurrent(); 
+			vSession.addRequestHandler(new LogoutRedirectHandler());
+			vSession.setAttribute(LOGOUT_REDIRECT_TRIGGERING, new Boolean(soft));
+			vSession.setAttribute(LOGOUT_REDIRECT_RET_URI, Page.getCurrent().getLocation().toASCIIString());
+			Page.getCurrent().reload();
 		}
 	}
 	
@@ -298,6 +298,35 @@ public class AuthenticationProcessor
 		} catch (WrongArgumentException e)
 		{
 			throw new InternalException("Can not add session participant to the existing session?", e);
+		}
+	}
+	
+	public class LogoutRedirectHandler implements RequestHandler
+	{
+		@Override
+		public boolean handleRequest(VaadinSession session, VaadinRequest request,
+				VaadinResponse responseO) throws IOException
+		{
+			Boolean softLogout = (Boolean) session.getAttribute(LOGOUT_REDIRECT_TRIGGERING); 
+			if (softLogout != null)
+			{
+				String returnUri = (String) session.getAttribute(LOGOUT_REDIRECT_RET_URI); 
+				session.removeRequestHandler(this);
+				VaadinServletResponse response = (VaadinServletResponse) responseO;
+				LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
+				try
+				{
+					destroySession(softLogout);
+					logoutProcessor.handleAsyncLogout(loginSession, null, 
+							returnUri, 
+							response.getHttpServletResponse());
+				} catch (IOException e)
+				{
+					log.warn("Logout of session peers failed", e);
+				}
+				return true;
+			}
+			return false;
 		}
 	}
 }

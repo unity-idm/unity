@@ -36,12 +36,12 @@ public class LogoutProcessorImpl implements LogoutProcessor
 	}
 
 	@Override
-	public void handleAsyncLogout(LoginSession session, String relayState, String returnUrl, 
+	public void handleAsyncLogout(LoginSession session, String requestersRelayState, String returnUrl, 
 			HttpServletResponse response) throws IOException
 	{
-		PlainExternalLogoutContext externalContext = new PlainExternalLogoutContext(relayState, 
+		PlainExternalLogoutContext externalContext = new PlainExternalLogoutContext(requestersRelayState, 
 				returnUrl, session);
-		contextsStore.addPlainExternalContext(relayState, externalContext);
+		String relayState = contextsStore.addPlainExternalContext(externalContext);
 		
 		AsyncLogoutFinishCallback finishCallback = new AsyncLogoutFinishCallback()
 		{
@@ -109,7 +109,8 @@ public class LogoutProcessorImpl implements LogoutProcessor
 		contextsStore.removeExternalContext(externalContextKey);
 		
 		StringBuilder ret = new StringBuilder(ctx.getReturnUrl());
-		ret.append("?").append("RelayState=").append(ctx.getRequestersRelayState());
+		if (ctx.getRequestersRelayState() != null)
+			ret.append("?").append("RelayState=").append(ctx.getRequestersRelayState());
 		response.sendRedirect(ret.toString());
 	}
 }

@@ -89,10 +89,12 @@ public class LogoutContextsStore
 		return key;
 	}
 
-	public synchronized void addPlainExternalContext(String key, PlainExternalLogoutContext context)
+	public synchronized String addPlainExternalContext(PlainExternalLogoutContext context)
 	{
 		cleanup();
+		String key = UUID.randomUUID().toString();
 		plainExtContexts.put(key, context);
+		return key;
 	}
 	
 	private void cleanup()
