@@ -23,7 +23,8 @@
 	<bean class="pl.edu.icm.unity.server.registries.NotificationFacilitiesRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.TranslationActionsRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry"/>
-
+	<bean class="pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry"/>
+	
 	<bean class="pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder"/>
 
 	<bean class="pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef"/>

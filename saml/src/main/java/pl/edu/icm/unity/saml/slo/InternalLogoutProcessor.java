@@ -260,7 +260,7 @@ public class InternalLogoutProcessor
 	private SAMLSessionParticipant findNextForAsyncLogout(SAMLInternalLogoutContext ctx)
 	{
 		List<SAMLSessionParticipant> toBeLoggedOut = ctx.getToBeLoggedOut();
-		SAMLSessionParticipant participant = null;
+		SAMLSessionParticipant participant;
 		for (int i=0; i<toBeLoggedOut.size(); i++)
 		{
 			participant = toBeLoggedOut.get(i);
@@ -271,8 +271,9 @@ public class InternalLogoutProcessor
 			}
 			
 			toBeLoggedOut.remove(i);
+			return participant;
 		}
-		return participant;
+		return null;
 	}
 
 	private NameIDType getIssuer(String localSamlId)

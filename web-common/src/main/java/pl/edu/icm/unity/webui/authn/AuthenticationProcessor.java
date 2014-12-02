@@ -38,6 +38,7 @@ import pl.edu.icm.unity.server.authn.LogoutProcessor;
 import pl.edu.icm.unity.server.authn.LogoutProcessorFactory;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
+import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -81,6 +82,7 @@ public class AuthenticationProcessor
 	private IdentitiesManagement idsMan;
 	private AttributesInternalProcessing attrProcessor;
 	private CredentialEditorRegistry credEditorReg;
+	private SessionParticipantTypesRegistry participantTypesRegistry;
 	private SessionManagement sessionMan;
 	private LoginToHttpSessionBinder sessionBinder;
 	private LogoutProcessor logoutProcessor;
@@ -90,7 +92,7 @@ public class AuthenticationProcessor
 			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder,
 			IdentitiesManagement idsMan, AttributesInternalProcessing attrMan,
 			CredentialEditorRegistry credEditorReg, LogoutProcessorFactory logoutProcessorFactory,
-			UnityServerConfiguration config)
+			UnityServerConfiguration config, SessionParticipantTypesRegistry participantTypesRegistry)
 	{
 		this.msg = msg;
 		this.authnMan = authnMan;
@@ -100,6 +102,7 @@ public class AuthenticationProcessor
 		this.sessionMan = sessionMan;
 		this.sessionBinder = sessionBinder;
 		this.config = config;
+		this.participantTypesRegistry = participantTypesRegistry;
 		this.logoutProcessor = logoutProcessorFactory.getInstance();
 	}
 
@@ -168,6 +171,7 @@ public class AuthenticationProcessor
 		{
 			sessionMan.updateSessionAttributes(ls.getId(), 
 					new SessionParticipants.AddParticipantToSessionTask(
+							participantTypesRegistry,
 							participants.toArray(new SessionParticipant[participants.size()])));
 		} catch (WrongArgumentException e)
 		{
@@ -294,7 +298,8 @@ public class AuthenticationProcessor
 		try
 		{
 			sessionMan.updateSessionAttributes(ls.getId(), 
-					new SessionParticipants.AddParticipantToSessionTask(participant));
+					new SessionParticipants.AddParticipantToSessionTask(participantTypesRegistry,
+							participant));
 		} catch (WrongArgumentException e)
 		{
 			throw new InternalException("Can not add session participant to the existing session?", e);

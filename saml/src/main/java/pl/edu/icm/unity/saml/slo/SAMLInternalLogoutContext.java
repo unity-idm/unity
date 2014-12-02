@@ -17,6 +17,7 @@ import pl.edu.icm.unity.saml.SAMLSessionParticipant;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionParticipant;
 import pl.edu.icm.unity.server.api.internal.SessionParticipants;
+import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
 
 /**
  * SAML Context for single logout protocol. Quite complicated as the process may happen asynchronously.
@@ -38,16 +39,17 @@ public class SAMLInternalLogoutContext extends AbstractSAMLLogoutContext
 	private AsyncLogoutFinishCallback finishCallback;
 	
 	public SAMLInternalLogoutContext(LoginSession loginSession, String excludedFromLogout,
-			AsyncLogoutFinishCallback finishCallback)
+			AsyncLogoutFinishCallback finishCallback, SessionParticipantTypesRegistry registry)
 	{
 		super(loginSession);
 		this.finishCallback = finishCallback;
-		initialize(excludedFromLogout);
+		initialize(excludedFromLogout, registry);
 	}
 
-	private void initialize(String excludedFromLogout)
+	private void initialize(String excludedFromLogout, SessionParticipantTypesRegistry registry)
 	{
-		SessionParticipants participants = SessionParticipants.getFromSession(session.getSessionData());
+		SessionParticipants participants = SessionParticipants.getFromSession(session.getSessionData(),
+				registry);
 		for (SessionParticipant p: participants.getParticipants())
 		{
 			if (SAMLSessionParticipant.TYPE.equals(p.getProtocolType()))

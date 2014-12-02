@@ -11,6 +11,8 @@
 
 	<bean class="eu.unicore.samly2.validators.ReplayAttackChecker"/>
 
+	<bean class="pl.edu.icm.unity.saml.SAMLSessionParticipantFactory"/>
+
 	<bean class="pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager"/>
 	
 	<bean class="pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory"/>
@@ -30,6 +32,6 @@
 	<bean class="pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory"/>
 	<bean class="pl.edu.icm.unity.saml.slo.SLOReplyInstaller"/>
 	<bean class="pl.edu.icm.unity.saml.slo.LogoutProcessorFactoryImpl"/>
-		
+	
 	<bean scope="prototype" id="SamlIdPWebUI" class="pl.edu.icm.unity.saml.idp.web.SamlIdPWebUI"/>
 </beans>

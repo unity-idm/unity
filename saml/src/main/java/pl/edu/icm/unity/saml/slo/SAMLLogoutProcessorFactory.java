@@ -13,6 +13,7 @@ import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 
@@ -30,11 +31,13 @@ public class SAMLLogoutProcessorFactory
 	private ReplayAttackChecker replayChecker;
 	private PKIManagement pkiManagement;
 	private SLOAsyncResponseHandler responseHandler;
+	private SessionParticipantTypesRegistry registry;
 	
 	@Autowired
 	public SAMLLogoutProcessorFactory(SessionManagement sessionManagement, PKIManagement pkiManagement,
 			IdentityResolver idResolver, LogoutContextsStore contextsStore,
-			ReplayAttackChecker replayChecker, FreemarkerHandler freemarker)
+			ReplayAttackChecker replayChecker, FreemarkerHandler freemarker, 
+			SessionParticipantTypesRegistry registry)
 	{
 		super();
 		this.sessionManagement = sessionManagement;
@@ -43,6 +46,7 @@ public class SAMLLogoutProcessorFactory
 		this.replayChecker = replayChecker;
 		this.responseHandler = new SLOAsyncResponseHandler(freemarker);
 		this.pkiManagement = pkiManagement;
+		this.registry = registry;
 	}
 
 
@@ -52,7 +56,7 @@ public class SAMLLogoutProcessorFactory
 			String realm)
 	{
 		InternalLogoutProcessor internalProcessor = getInternalProcessorInstance(consumerEndpointUri);
-		return new SAMLLogoutProcessor(sessionManagement, idResolver, contextsStore, replayChecker, 
+		return new SAMLLogoutProcessor(sessionManagement, registry, idResolver, contextsStore, replayChecker, 
 				responseHandler, internalProcessor, identityTypeMapper, consumerEndpointUri, 
 				requestValidity, localSamlId, localSamlCredential, samlTrustProvider, realm);
 	}

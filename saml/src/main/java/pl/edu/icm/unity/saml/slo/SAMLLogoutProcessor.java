@@ -20,6 +20,7 @@ import pl.edu.icm.unity.saml.slo.SAMLInternalLogoutContext.AsyncLogoutFinishCall
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -51,6 +52,7 @@ public class SAMLLogoutProcessor
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLLogoutProcessor.class);
 	
 	private SessionManagement sessionManagement;
+	private SessionParticipantTypesRegistry registry;
 	private IdentityResolver idResolver;
 	private LogoutContextsStore contextsStore;
 	private ReplayAttackChecker replayChecker;
@@ -80,7 +82,7 @@ public class SAMLLogoutProcessor
 	 * @param trustChecker
 	 * @param realm
 	 */
-	public SAMLLogoutProcessor(SessionManagement sessionManagement,
+	public SAMLLogoutProcessor(SessionManagement sessionManagement, SessionParticipantTypesRegistry registry,
 			IdentityResolver idResolver, LogoutContextsStore contextsStore,
 			ReplayAttackChecker replayChecker, SLOAsyncResponseHandler responseHandler,
 			InternalLogoutProcessor internalProcessor,
@@ -90,6 +92,7 @@ public class SAMLLogoutProcessor
 			String realm)
 	{
 		this.sessionManagement = sessionManagement;
+		this.registry = registry;
 		this.idResolver = idResolver;
 		this.contextsStore = contextsStore;
 		this.replayChecker = replayChecker;
@@ -117,7 +120,7 @@ public class SAMLLogoutProcessor
 		{
 			SAMLExternalLogoutContext externalCtx = initFromSAML(request, null, Binding.SOAP, false);
 			SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(externalCtx.getSession(), 
-					request.getLogoutRequest().getIssuer().getStringValue(), null);
+					request.getLogoutRequest().getIssuer().getStringValue(), null, registry);
 			internalProcessor.logoutSynchronousParticipants(internalCtx);
 			boolean allLoggedOut = internalCtx.getFailed().isEmpty();
 			sessionManagement.removeSession(internalCtx.getSession().getId(), false);
@@ -168,7 +171,7 @@ public class SAMLLogoutProcessor
 		};
 		
 		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(externalCtx.getSession(), 
-				request.getLogoutRequest().getIssuer().getStringValue(), finishCallback);
+				request.getLogoutRequest().getIssuer().getStringValue(), finishCallback, registry);
 		contextsStore.addInternalContext(externalCtx.getRequestersRelayState(), internalCtx);
 		
 		internalProcessor.continueAsyncLogout(internalCtx, response);

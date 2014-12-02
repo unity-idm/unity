@@ -13,6 +13,7 @@ import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.authn.LogoutProcessor;
 import pl.edu.icm.unity.server.authn.LogoutProcessorFactory;
+import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
 
 /**
  * Factory of {@link LogoutProcessor}s.
@@ -25,17 +26,19 @@ public class LogoutProcessorFactoryImpl implements LogoutProcessorFactory
 	private PKIManagement pkiManagement;
 	private FreemarkerHandler freemarker;
 	private String consumerUri;
+	private SessionParticipantTypesRegistry registry;
 	
 	@Autowired
 	public LogoutProcessorFactoryImpl(LogoutContextsStore contextsStore,
 			PKIManagement pkiManagement, FreemarkerHandler freemarker,
-			SLOReplyInstaller sloReplyInstaller)
+			SLOReplyInstaller sloReplyInstaller, SessionParticipantTypesRegistry registry)
 	{
 		super();
 		this.contextsStore = contextsStore;
 		this.pkiManagement = pkiManagement;
 		this.freemarker = freemarker;
-
+		this.registry = registry;
+		
 		try
 		{
 			sloReplyInstaller.enable();
@@ -52,6 +55,6 @@ public class LogoutProcessorFactoryImpl implements LogoutProcessorFactory
 		SLOAsyncResponseHandler responseHandler = new SLOAsyncResponseHandler(freemarker);
 		InternalLogoutProcessor internalProcessor = new InternalLogoutProcessor(pkiManagement, contextsStore, 
 				responseHandler, consumerUri);
-		return new LogoutProcessorImpl(contextsStore, internalProcessor);
+		return new LogoutProcessorImpl(contextsStore, internalProcessor, registry);
 	}
 }

@@ -14,6 +14,7 @@ import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.slo.SAMLInternalLogoutContext.AsyncLogoutFinishCallback;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.LogoutProcessor;
+import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
 
 /**
@@ -27,12 +28,14 @@ public class LogoutProcessorImpl implements LogoutProcessor
 	
 	private LogoutContextsStore contextsStore;
 	private InternalLogoutProcessor internalProcessor;
-
+	private SessionParticipantTypesRegistry registry;
+	
 	public LogoutProcessorImpl(LogoutContextsStore contextsStore,
-			InternalLogoutProcessor internalProcessor)
+			InternalLogoutProcessor internalProcessor, SessionParticipantTypesRegistry registry)
 	{
 		this.contextsStore = contextsStore;
 		this.internalProcessor = internalProcessor;
+		this.registry = registry;
 	}
 
 	@Override
@@ -53,7 +56,8 @@ public class LogoutProcessorImpl implements LogoutProcessor
 			}
 		};
 		
-		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(session, null, finishCallback);
+		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(session, null, finishCallback,
+				registry);
 		contextsStore.addInternalContext(relayState, internalCtx);
 		
 		try
@@ -68,7 +72,7 @@ public class LogoutProcessorImpl implements LogoutProcessor
 	@Override
 	public boolean handleSynchronousLogout(LoginSession session)
 	{
-		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(session, null, null);
+		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(session, null, null, registry);
 		internalProcessor.logoutSynchronousParticipants(internalCtx);
 		boolean allLoggedOut = internalCtx.getFailed().isEmpty();
 		return allLoggedOut;

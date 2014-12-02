@@ -4,19 +4,22 @@
  */
 package pl.edu.icm.unity.server.api.internal;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.internal.SessionManagement.AttributeUpdater;
+import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Holds multiple {@link SessionParticipant}s. Is stored as a {@link LoginSession} attribute. 
@@ -28,36 +31,55 @@ public class SessionParticipants
 	
 	private Set<SessionParticipant> participants = new HashSet<>();
 	private ObjectMapper jsonMapper = new ObjectMapper();
+	private SessionParticipantTypesRegistry registry;
 	
-	public SessionParticipants(String serializedState)
+	public SessionParticipants(String serializedState, SessionParticipantTypesRegistry registry)
 	{
+		this.registry = registry;
 		try
 		{
-			participants = jsonMapper.readValue(serializedState, 
-					new TypeReference<Set<SessionParticipant>>(){});
+			ArrayNode root = (ArrayNode) jsonMapper.readTree(serializedState);
+			for (int i=0; i<root.size(); i++)
+			{
+				ObjectNode entry = (ObjectNode) root.get(i);
+				String type = entry.get("type").asText();
+				String entryValue = entry.get("value").asText();
+				SessionParticipantType factory = registry.getByName(type);
+				participants.add(factory.getInstance(entryValue));
+			}
 		} catch (Exception e)
 		{
 			throw new InternalException("Can not deserialize session participants from JSON", e);
 		}
 	}
 	
-	public SessionParticipants()
+	public SessionParticipants(SessionParticipantTypesRegistry registry)
 	{
+		this.registry = registry;
 	}
 	
-	public static SessionParticipants getFromSession(Map<String, String> sessionAttributes)
+	public static SessionParticipants getFromSession(Map<String, String> sessionAttributes, 
+			SessionParticipantTypesRegistry registry)
 	{
 		String participantsSerialized = sessionAttributes.get(KEY);
-		return participantsSerialized == null ? 
-				new SessionParticipants() : new SessionParticipants(participantsSerialized);
+		return participantsSerialized == null ? new SessionParticipants(registry) 
+				: new SessionParticipants(participantsSerialized, registry);
 	}
 	
 	public String serialize()
 	{
 		try
 		{
-			return jsonMapper.writeValueAsString(participants);
-		} catch (JsonProcessingException e)
+			ArrayNode root = jsonMapper.createArrayNode();
+			for (SessionParticipant sp: participants)
+			{
+				ObjectNode entry = root.addObject();
+				entry.put("type", sp.getProtocolType());
+				SessionParticipantType factory = registry.getByName(sp.getProtocolType());
+				entry.put("value", factory.serialize(sp));
+			}
+			return jsonMapper.writeValueAsString(root);
+		} catch (IOException | IllegalTypeException e)
 		{
 			throw new InternalException("Can not serialize session participants to JSON", e);
 		}
@@ -95,16 +117,19 @@ public class SessionParticipants
 				SessionParticipants.AddParticipantToSessionTask.class);
 		
 		private SessionParticipant[] toBeAdded;
+		private SessionParticipantTypesRegistry registry;
 		
-		public AddParticipantToSessionTask(SessionParticipant... toBeAdded)
+		public AddParticipantToSessionTask(SessionParticipantTypesRegistry registry, 
+				SessionParticipant... toBeAdded)
 		{
 			this.toBeAdded = toBeAdded;
+			this.registry = registry;
 		}
 
 		@Override
 		public void updateAttributes(Map<String, String> sessionAttributes)
 		{
-			SessionParticipants participants = getFromSession(sessionAttributes);
+			SessionParticipants participants = getFromSession(sessionAttributes, registry);
 			for (SessionParticipant p: toBeAdded)
 				participants.addParticipant(p);
 			if (log.isDebugEnabled())

@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.server.api.internal.SessionParticipant;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -51,6 +53,7 @@ public class SAMLSessionParticipant implements SessionParticipant
 	}
 
 	@Override
+	@JsonIgnore
 	public String getProtocolType()
 	{
 		return TYPE;
