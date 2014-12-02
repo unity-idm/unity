@@ -72,6 +72,7 @@ public class LogoutContextsStore
 	public synchronized void addInternalContext(String key, SAMLInternalLogoutContext context)
 	{
 		cleanup();
+		context.setRelayState(key);
 		intContexts.put(key, context);
 	}
 	
