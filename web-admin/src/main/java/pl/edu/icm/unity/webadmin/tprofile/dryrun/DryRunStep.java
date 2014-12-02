@@ -54,6 +54,7 @@ public class DryRunStep implements WizardStep
 	@Override
 	public boolean onBack() 
 	{
+		dryRunComponent.indicateProgress();
 		return true;
 	}
 }
