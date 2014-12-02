@@ -499,7 +499,7 @@ public class RuleComponent extends VerticalLayout
 	
 	private void displayMappingResult(MappingResult mappingResult) 
 	{
-		mappingResultComponent.displeyMappingResult(mappingResult);
+		mappingResultComponent.displayMappingResult(mappingResult);
 		mappingResultComponent.setVisible(true);
 	}
 	

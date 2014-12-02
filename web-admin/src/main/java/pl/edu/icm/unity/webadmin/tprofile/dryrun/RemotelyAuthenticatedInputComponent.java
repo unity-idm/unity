@@ -2,14 +2,15 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.tprofile;
+package pl.edu.icm.unity.webadmin.tprofile.dryrun;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
-import pl.edu.icm.unity.server.translation.in.MappedAttribute;
-import pl.edu.icm.unity.server.translation.in.MappedIdentity;
-import pl.edu.icm.unity.server.translation.in.MappingResult;
+import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
+import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
+import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -21,11 +22,11 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 
 /**
- * Component that displays Mapping Result.
+ * Component that displays RemotelyAuthenticatedInput.
  * 
  * @author Roman Krysinski
  */
-public class MappingResultComponent extends CustomComponent 
+public class RemotelyAuthenticatedInputComponent extends CustomComponent 
 {
 
 	/*- VaadinEditorProperties={"grid":"RegularGrid,20","showGrid":true,"snapToGrid":true,"snapToObject":true,"movingGuides":false,"snappingDistance":10} */
@@ -67,7 +68,7 @@ public class MappingResultComponent extends CustomComponent
 	 * visual editor.
 	 * @param msg 
 	 */
-	public MappingResultComponent(UnityMessageSource msg) 
+	public RemotelyAuthenticatedInputComponent(UnityMessageSource msg) 
 	{
 		buildMainLayout();
 		setCompositionRoot(mainLayout);
@@ -81,7 +82,6 @@ public class MappingResultComponent extends CustomComponent
 
 	private void initLabels() 
 	{
-		titleLabel.setValue(msg.getMessage("MappingResultComponent.title"));
 		idsTitleLabel.setValue(msg.getMessage("MappingResultComponent.idsTitle"));
 		attrsTitleLabel.setValue(msg.getMessage("MappingResultComponent.attrsTitle"));
 		groupsTitleLabel.setValue(msg.getMessage("MappingResultComponent.groupsTitle"));
@@ -91,96 +91,90 @@ public class MappingResultComponent extends CustomComponent
 	
 	private void initTables() 
 	{
-		idsTable.addContainerProperty(msg.getMessage("MappingResultComponent.idsTable.mode"), String.class, null);
 		idsTable.addContainerProperty(msg.getMessage("MappingResultComponent.idsTable.type"), String.class, null);
 		idsTable.addContainerProperty(msg.getMessage("MappingResultComponent.idsTable.value"), String.class, null);
 		
 		attrsTable.addContainerProperty(msg.getMessage("MappingResultComponent.attrsTable.name"), String.class, null);
 		attrsTable.addContainerProperty(msg.getMessage("MappingResultComponent.attrsTable.value"), String.class, null);
 	}
-	
 
-	public void displayMappingResult(MappingResult mappingResult, String inputTranslationProfile) 
+	public void displayAuthnInput(RemotelyAuthenticatedInput input)
 	{
-		titleLabel.setValue(msg.getMessage("DryRun.MappingResultComponent.title", inputTranslationProfile));
-		displayMappingResult(mappingResult);
-	}	
-	
-	public void displayMappingResult(MappingResult mappingResult)
-	{
-		if (mappingResult == null 
-				|| (mappingResult.getIdentities().isEmpty()
-					&& mappingResult.getAttributes().isEmpty()
-					&& mappingResult.getGroups().isEmpty()))
+		titleLabel.setValue(msg.getMessage("DryRun.RemotelyAuthenticatedContextComponent.title", input.getIdpName()));
+		if (input == null 
+				|| (input.getIdentities().isEmpty()
+					&& input.getAttributes().isEmpty()
+					&& input.getGroups().isEmpty()))
 		{
-			displayItsTables(Collections.<MappedIdentity>emptyList());
-			displayAttrsTable(Collections.<MappedAttribute>emptyList());
-			displayGroups(Collections.<String>emptyList());
+			displayItsTables(Collections.<RemoteIdentity>emptyList());
+			displayAttrsTable(Collections.<RemoteAttribute>emptyList());
+			displayGroups(Collections.<RemoteGroupMembership>emptyList());
 			noneLabel.setVisible(true);
 		} else
 		{
-			displayItsTables(mappingResult.getIdentities());
-			displayAttrsTable(mappingResult.getAttributes());
-			displayGroups(mappingResult.getGroups());
+			displayItsTables(input.getIdentities().values());
+			displayAttrsTable(input.getAttributes().values());
+			displayGroups(input.getGroups().values());
 			noneLabel.setVisible(false);
 		}
 		setVisible(true);
 	}
 
-	private void displayItsTables(List<MappedIdentity> identities) 
+	private void displayItsTables(Collection<RemoteIdentity> collection) 
 	{
 		idsTable.removeAllItems();
-		if (identities.isEmpty())
+		if (collection.isEmpty())
 		{
 			idsWrap.setVisible(false);
 		} else
 		{
 			idsWrap.setVisible(true);
-			for (int i=0; i < identities.size(); ++i)
+			RemoteIdentity[] identityArray = collection.toArray(new RemoteIdentity[collection.size()]);
+			for (int i=0; i < identityArray.length; ++i)
 			{
-				MappedIdentity identity = identities.get(i);
+				RemoteIdentity identity = identityArray[i];
 				idsTable.addItem(new Object[] {
-								identity.getMode().toString(),
-								identity.getIdentity().getTypeId().toString(),
-								identity.getIdentity().getValue().toString()}, i);
+								identity.getIdentityType().toString(),
+								identity.getName().toString()}, i);
 			}
 			
-			idsTable.setPageLength(identities.size());
+			idsTable.setPageLength(collection.size());
 	
 			idsTable.refreshRowCache();
 		}
 	}
 	
-	private void displayAttrsTable(List<MappedAttribute> attributes) 
+	private void displayAttrsTable(Collection<RemoteAttribute> collection) 
 	{
 		attrsTable.removeAllItems();
-		if (attributes.isEmpty())
+		if (collection.isEmpty())
 		{
 			attrsWrap.setVisible(false);
 		} else
 		{
 			attrsWrap.setVisible(true);
-			for (int i=0; i < attributes.size(); ++i)
+			RemoteAttribute[] attributeArray = collection.toArray(new RemoteAttribute[collection.size()]);
+			for (int i=0; i < collection.size(); ++i)
 			{
-				MappedAttribute attr = attributes.get(i);
+				RemoteAttribute attr = attributeArray[i];
 				attrsTable.addItem(new Object[] {
-									attr.getAttribute().getName().toString(),
-									attr.getAttribute().getValues().toString()}, i);
+									attr.getName().toString(),
+									attr.getValues().toString()}, i);
 			}
-			attrsTable.setPageLength(attributes.size());
+			attrsTable.setPageLength(collection.size());
 			attrsTable.refreshRowCache();
 		}
 	}
 	
-	private void displayGroups(List<String> groups) 
+	private void displayGroups(Collection<RemoteGroupMembership> collection) 
 	{
-		if (groups.isEmpty())
+		if (collection.isEmpty())
 		{
 			groupsWrap.setVisible(false);
 		} else
 		{
 			groupsWrap.setVisible(true);
-			groupsLabel.setValue(groups.toString());
+			groupsLabel.setValue(collection.toString());
 		}
 	}
 	
@@ -349,4 +343,5 @@ public class MappingResultComponent extends CustomComponent
 		
 		return groupsWrap;
 	}
+
 }

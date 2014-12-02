@@ -28,6 +28,7 @@ public class RemotelyAuthenticatedContext
 	private Collection<Attribute<?>> attributes = new ArrayList<>();
 	private Collection<String> groups = new ArrayList<>();
 	private MappingResult mappingResult;
+	private RemotelyAuthenticatedInput input;
 
 	public RemotelyAuthenticatedContext(String remoteIdPName, String inputTranslationProfile)
 	{
@@ -90,5 +91,13 @@ public class RemotelyAuthenticatedContext
 	public void setMappingResult(MappingResult mappingResult) 
 	{
 		this.mappingResult = mappingResult;
-	}	
+	}
+	public void setAuthnInput(RemotelyAuthenticatedInput input) 
+	{
+		this.input = input;
+	}
+	public RemotelyAuthenticatedInput getAuthnInput()
+	{
+		return input;
+	}
 }
