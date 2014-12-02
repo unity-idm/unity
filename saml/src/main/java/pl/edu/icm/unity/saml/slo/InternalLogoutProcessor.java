@@ -87,6 +87,7 @@ public class InternalLogoutProcessor
 		
 		if (interimReq != null)
 		{
+			log.debug("Logging out participant in async mode: " + interimReq.getEndpoint());
 			responseHandler.sendRequest(interimReq.getEndpoint().getBinding(),
 						interimReq.getRequest(), 
 						interimReq.getEndpoint().getUrl(), 
@@ -95,7 +96,8 @@ public class InternalLogoutProcessor
 		}
 		
 		logoutSynchronousParticipants(ctx);
-
+		
+		log.debug("Async logout process of session peers is completed");
 		contextsStore.removeInternalContext(ctx.getRelayState());
 		ctx.getFinishCallback().finished(response, ctx);
 	}
@@ -122,6 +124,7 @@ public class InternalLogoutProcessor
 			
 			try
 			{
+				log.debug("Logging out participant via SOAP: " + participant);
 				LogoutRequest logoutRequest = createLogoutRequest(participant);
 				IClientConfiguration soapClientConfig = createSoapClientConfig(participant);
 				SAMLLogoutClient client = new SAMLLogoutClient(soapLogoutEndpoint.getUrl(), 
@@ -264,8 +267,8 @@ public class InternalLogoutProcessor
 		for (int i=0; i<toBeLoggedOut.size(); i++)
 		{
 			participant = toBeLoggedOut.get(i);
-			if (!participant.getLogoutEndpoints().containsKey(Binding.HTTP_POST.toString()) &&
-					!participant.getLogoutEndpoints().containsKey(Binding.HTTP_REDIRECT.toString()))
+			if (!participant.getLogoutEndpoints().containsKey(Binding.HTTP_POST) &&
+					!participant.getLogoutEndpoints().containsKey(Binding.HTTP_REDIRECT))
 			{
 				continue;
 			}

@@ -66,7 +66,7 @@ public class SLOSPManager
 	{
 		if (deployedAsyncServlets.containsKey(pathSuffix))
 		{
-			log.debug("SLO HTTP servlet at " + pathSuffix + " already installed, skipping re-installation");
+			log.trace("SLO HTTP servlet at " + pathSuffix + " already installed, skipping re-installation");
 			return;
 		}
 		String prefixed = HTTP_PATH + pathSuffix;
@@ -97,7 +97,7 @@ public class SLOSPManager
 	{
 		if (deployedSyncServlets.containsKey(pathSuffix))
 		{
-			log.debug("SLO SOAP servlet at " + pathSuffix + " already installed, skipping re-installation");
+			log.trace("SLO SOAP servlet at " + pathSuffix + " already installed, skipping re-installation");
 			return;
 		}
 		String prefixed = SOAP_PATH + pathSuffix;

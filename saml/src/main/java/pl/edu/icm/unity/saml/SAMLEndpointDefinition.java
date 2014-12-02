@@ -57,4 +57,11 @@ public class SAMLEndpointDefinition
 	{
 		this.returnUrl = returnUrl;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "SAMLEndpointDefinition [binding=" + binding + ", url=" + url
+				+ ", returnUrl=" + returnUrl + "]";
+	}
 }

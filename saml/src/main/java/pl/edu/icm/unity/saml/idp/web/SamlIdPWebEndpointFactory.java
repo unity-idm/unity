@@ -73,6 +73,7 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 		Map<String,String> paths = new HashMap<String, String>();
 		paths.put(SAML_CONSUMER_SERVLET_PATH, "SAML 2 identity provider web endpoint");
 		paths.put(SAML_META_SERVLET_PATH, "Metadata of the SAML 2 identity provider web endpoint");
+		paths.put(SAML_SLO_SERVLET_PATH, "Single Logout web endpoint (supports POST and Redirect bindings)");
 		description = new EndpointTypeDescription(NAME, 
 				"SAML 2 identity provider web endpoint", supportedAuthn, paths);
 	}

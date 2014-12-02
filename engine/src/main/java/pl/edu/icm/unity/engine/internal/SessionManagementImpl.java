@@ -22,6 +22,7 @@ import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
@@ -131,6 +132,9 @@ public class SessionManagementImpl implements SessionManagement
 			LoginSession session = token2session(token);
 			
 			updater.updateAttributes(session.getSessionData());
+			LoginSession current = InvocationContext.getCurrent().getLoginSession();
+			if (current != null && current.getId().equals(session.getId()))
+				updater.updateAttributes(current.getSessionData());
 
 			byte[] contents = session.getTokenContents();
 			tokensManagement.updateToken(SESSION_TOKEN_TYPE, id, null, contents, transaction);

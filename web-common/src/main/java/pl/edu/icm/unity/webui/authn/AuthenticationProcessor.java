@@ -166,7 +166,7 @@ public class AuthenticationProcessor
 		final LoginSession ls = sessionMan.getCreateSession(entityId, realm, 
 				label, authenticatedEntity.isUsedOutdatedCredential(), 
 				absoluteExpiration);
-		
+		InvocationContext.getCurrent().setLoginSession(ls);
 		try
 		{
 			sessionMan.updateSessionAttributes(ls.getId(), 
