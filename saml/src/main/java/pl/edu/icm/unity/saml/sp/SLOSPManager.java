@@ -85,8 +85,6 @@ public class SLOSPManager
 	
 	public String getAsyncServletURL(String suffix)
 	{
-		if (!deployedAsyncServlets.containsKey(suffix))
-			return null;
 		return sharedEndpointManagement.getServletUrl(HTTP_PATH + suffix);
 	}
 	

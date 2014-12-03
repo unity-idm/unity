@@ -38,7 +38,7 @@ public class LogoutContextsStore
 		return intContexts.get(id);
 	}
 
-	public synchronized SAMLExternalLogoutContext getExternalContext(String id)
+	public synchronized SAMLExternalLogoutContext getSAMLExternalContext(String id)
 	{
 		cleanup();
 		return extContexts.get(id);
@@ -55,7 +55,7 @@ public class LogoutContextsStore
 		intContexts.remove(key);
 	}
 
-	public synchronized void removeExternalContext(String key)
+	public synchronized void removeSAMLExternalContext(String key)
 	{
 		extContexts.remove(key);
 	}
@@ -81,11 +81,12 @@ public class LogoutContextsStore
 	 * @param key
 	 * @param context
 	 */
-	public synchronized String addExternalContext(SAMLExternalLogoutContext context)
+	public synchronized String addSAMLExternalContext(SAMLExternalLogoutContext context)
 	{
 		cleanup();
 		String key = UUID.randomUUID().toString();
 		extContexts.put(key, context);
+		context.setInternalRelayState(key);
 		return key;
 	}
 

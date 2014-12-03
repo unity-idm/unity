@@ -167,13 +167,19 @@ public class SAMLLogoutProcessor
 			public void finished(HttpServletResponse response,
 					SAMLInternalLogoutContext finalInternalContext)
 			{
-				internalLogoutFinished(response, finalInternalContext);
+				try
+				{
+					internalLogoutFinished(response, finalInternalContext);
+				} catch (EopException e)
+				{
+					//ok
+				}
 			}
 		};
 		
 		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(externalCtx.getSession(), 
 				request.getLogoutRequest().getIssuer().getStringValue(), finishCallback, registry);
-		contextsStore.addInternalContext(externalCtx.getRequestersRelayState(), internalCtx);
+		contextsStore.addInternalContext(externalCtx.getInternalRelayState(), internalCtx);
 		
 		internalProcessor.continueAsyncLogout(internalCtx, response);
 	}
@@ -191,7 +197,7 @@ public class SAMLLogoutProcessor
 	{
 		LoginSession session = resolveRequest(request);
 		SAMLExternalLogoutContext ctx = new SAMLExternalLogoutContext(localSamlId, request,  
-				requesterRelayState, binding, session);
+				requesterRelayState, binding, session, registry);
 		if (ctx.getInitiator() == null)
 			throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_REQUEST_DENIED,
 					"The request issuer is not among session participants");
@@ -200,26 +206,38 @@ public class SAMLLogoutProcessor
 					"The request issuer has no logout endpoint defined "
 					+ "with a binding used to submit the request: " + binding);
 		if (persistContext)
-			contextsStore.addExternalContext(ctx);
+			contextsStore.addSAMLExternalContext(ctx);
 		return ctx;
 	}
 	
 	private void internalLogoutFinished(HttpServletResponse response,
-			SAMLInternalLogoutContext finalInternalContext)
+			SAMLInternalLogoutContext finalInternalContext) throws EopException
 	{
 		String relayState = finalInternalContext.getRelayState();
 		boolean partial = !finalInternalContext.getFailed().isEmpty();
-		SAMLExternalLogoutContext externalCtx = contextsStore.getExternalContext(
+		SAMLExternalLogoutContext externalCtx = contextsStore.getSAMLExternalContext(
 				relayState);
 		try
 		{
+			if (externalCtx == null)
+			{
+				log.error("Can not find SAML external logout context " + relayState);
+				responseHandler.showError(new SAMLProcessingException(
+						"Can not find SAML external logout context"), response);
+				return;
+			}
 			finishAsyncLogoutFromSAML(externalCtx, partial,	response, relayState);
 		} catch (IOException e)
 		{
 			log.error("Finalization of logout failed", e);
-		} catch (EopException e)
-		{
-			//ok
+			try
+			{
+				responseHandler.showError(new SAMLProcessingException(
+						"Internal error handling logout request"), response);
+			} catch (IOException ee)
+			{
+				log.error("Showing error failed", ee);
+			}
 		}
 	}
 	
@@ -244,7 +262,7 @@ public class SAMLLogoutProcessor
 			return;
 		}
 
-		contextsStore.removeExternalContext(externalContextKey);
+		contextsStore.removeSAMLExternalContext(externalContextKey);
 		responseHandler.sendResponse(binding, finalResponse, endpoint.getReturnUrl(), ctx, response);
 	}
 

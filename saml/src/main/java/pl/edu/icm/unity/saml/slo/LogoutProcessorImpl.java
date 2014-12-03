@@ -110,7 +110,7 @@ public class LogoutProcessorImpl implements LogoutProcessor
 	private void finishAsyncLogoutNoSAML(PlainExternalLogoutContext ctx, HttpServletResponse response, 
 			String externalContextKey) throws IOException, EopException
 	{
-		contextsStore.removeExternalContext(externalContextKey);
+		contextsStore.removeSAMLExternalContext(externalContextKey);
 		
 		StringBuilder ret = new StringBuilder(ctx.getReturnUrl());
 		if (ctx.getRequestersRelayState() != null)
