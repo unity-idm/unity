@@ -166,7 +166,6 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 		return createExpresionValueMap(mvelCtx);
 	}
 	
-	@SuppressWarnings("rawtypes")
 	public static Map<String, String> createExpresionValueMap(Map<String, Object> mvelCtx)
 	{
 		Map<String, String> exprValMap = new LinkedHashMap<String, String>();
@@ -184,16 +183,7 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 				HashMap<String, Object> value = (HashMap<String, Object>) mvelCtx.get(contextKey);
 				for (String key : value.keySet())
 				{
-					if (value.get(key) instanceof List)
-					{
-						for (Object item: (List) value.get(key))
-						{
-							exprValMap.put(String.format("%s['%s']", contextKey, key), item.toString());
-						}
-					} else
-					{
-						exprValMap.put(String.format("%s['%s']", contextKey, key), value.get(key).toString());
-					}
+					exprValMap.put(String.format("%s['%s']", contextKey, key), value.get(key).toString());
 				}
 			} else if (mvelCtx.get(contextKey) instanceof List)
 			{
