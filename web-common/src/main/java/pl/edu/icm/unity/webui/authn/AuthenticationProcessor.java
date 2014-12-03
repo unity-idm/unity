@@ -50,7 +50,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 import com.vaadin.server.Page;
-import com.vaadin.server.RequestHandler;
+import com.vaadin.server.SynchronizedRequestHandler;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinService;
@@ -280,7 +280,6 @@ public class AuthenticationProcessor
 			vSession.addRequestHandler(new LogoutRedirectHandler());
 			vSession.setAttribute(LOGOUT_REDIRECT_TRIGGERING, new Boolean(soft));
 			vSession.setAttribute(LOGOUT_REDIRECT_RET_URI, Page.getCurrent().getLocation().toASCIIString());
-			Page.getCurrent().reload();
 		}
 	}
 	
@@ -306,11 +305,11 @@ public class AuthenticationProcessor
 		}
 	}
 	
-	public class LogoutRedirectHandler implements RequestHandler
+	public class LogoutRedirectHandler extends SynchronizedRequestHandler
 	{
 		@Override
-		public boolean handleRequest(VaadinSession session, VaadinRequest request,
-				VaadinResponse responseO) throws IOException
+		public boolean synchronizedHandleRequest(VaadinSession session,
+				VaadinRequest request, VaadinResponse responseO) throws IOException
 		{
 			Boolean softLogout = (Boolean) session.getAttribute(LOGOUT_REDIRECT_TRIGGERING); 
 			if (softLogout != null)

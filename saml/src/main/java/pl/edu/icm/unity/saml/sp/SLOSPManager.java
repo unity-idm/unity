@@ -65,10 +65,7 @@ public class SLOSPManager
 			String realm) throws EngineException
 	{
 		if (deployedAsyncServlets.containsKey(pathSuffix))
-		{
-			log.trace("SLO HTTP servlet at " + pathSuffix + " already installed, skipping re-installation");
 			return;
-		}
 		String prefixed = HTTP_PATH + pathSuffix;
 		log.info("Enabling SAML HTTP Single Logout servlet for SP side (athenticator) at " + prefixed);
 		
@@ -94,10 +91,7 @@ public class SLOSPManager
 			String realm) throws EngineException
 	{
 		if (deployedSyncServlets.containsKey(pathSuffix))
-		{
-			log.trace("SLO SOAP servlet at " + pathSuffix + " already installed, skipping re-installation");
 			return;
-		}
 		String prefixed = SOAP_PATH + pathSuffix;
 		log.info("Enabling SAML SOAP Single Logout servlet for SP side (athenticator) at " + prefixed);
 		
