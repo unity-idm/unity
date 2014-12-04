@@ -272,7 +272,6 @@
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>secutils-cxf</artifactId>
 				<version>1.1.1-SNAPSHOT</version>
-				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>postgresql</groupId>

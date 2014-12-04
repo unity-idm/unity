@@ -62,7 +62,7 @@ import com.vaadin.ui.UI;
 /**
  * Handles results of authentication and if it is all right, redirects to the source application.
  * 
- * TODO - this is far from being complete: needs to support fragments.
+ * TODO - we should support fragments here.
  * 
  * @author K. Benedyczak
  */
@@ -270,6 +270,17 @@ public class AuthenticationProcessor
 		}
 		
 		LoginSession session = InvocationContext.getCurrent().getLoginSession();
+		try
+		{
+			session = sessionMan.getSession(session.getId());
+		} catch (WrongArgumentException e)
+		{
+			log.warn("Can not refresh the state of the current session. Logout of session participants "
+					+ "won't be performed", e);
+			destroySession(soft);
+			return;
+		}
+		
 		if (mode == LogoutMode.internalAndSyncPeers)
 		{
 			logoutProcessor.handleSynchronousLogout(session);
@@ -318,6 +329,17 @@ public class AuthenticationProcessor
 				session.removeRequestHandler(this);
 				VaadinServletResponse response = (VaadinServletResponse) responseO;
 				LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
+				try
+				{
+					loginSession = sessionMan.getSession(loginSession.getId());
+				} catch (WrongArgumentException e)
+				{
+					log.warn("Can not refresh the state of the current session. "
+							+ "Logout of session participants won't be performed", e);
+					destroySession(softLogout);
+					return false;
+				}
+
 				try
 				{
 					logoutProcessor.handleAsyncLogout(loginSession, null, 
