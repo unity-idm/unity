@@ -36,12 +36,12 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 			PKIManagement pkiManagement, ExecutorsService executorsService,
 			Map<String, RemoteMetaManager> remoteMetadataManagers, MetaDownloadManager downloadManager, 
 			UnityServerConfiguration mainConfig, String samlConsumerPath, String samlMetadataPath, 
-			String samlSLOPath, SAMLLogoutProcessorFactory logoutProcessorFactory, 
+			String samlSLOPath, String samlSLOSoapPath, SAMLLogoutProcessorFactory logoutProcessorFactory, 
 			SLOReplyInstaller sloReplyInstaller)
 	{
 		super(type, applicationContext, freemarkerHandler, uiClass, servletPath, pkiManagement, 
 				executorsService, mainConfig, remoteMetadataManagers, downloadManager, 
-				samlConsumerPath, samlMetadataPath, samlSLOPath, logoutProcessorFactory, 
+				samlConsumerPath, samlMetadataPath, samlSLOPath, samlSLOSoapPath, logoutProcessorFactory, 
 				sloReplyInstaller);
 	}
 

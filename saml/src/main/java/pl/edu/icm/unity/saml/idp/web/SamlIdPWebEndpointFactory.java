@@ -37,7 +37,8 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 	public static final String SAML_CONSUMER_SERVLET_PATH = "/saml2idp-web";
 	public static final String SAML_UI_SERVLET_PATH = "/saml2idp-web-ui";
 	public static final String SAML_META_SERVLET_PATH = "/metadata";
-	public static final String SAML_SLO_SERVLET_PATH = "/SLO";
+	public static final String SAML_SLO_ASYNC_SERVLET_PATH = "/SLO-WEB";
+	public static final String SAML_SLO_SOAP_SERVLET_PATH = "/SLO-SOAP";
 	public static final String NAME = "SAMLWebIdP";
 	
 
@@ -73,7 +74,9 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 		Map<String,String> paths = new HashMap<String, String>();
 		paths.put(SAML_CONSUMER_SERVLET_PATH, "SAML 2 identity provider web endpoint");
 		paths.put(SAML_META_SERVLET_PATH, "Metadata of the SAML 2 identity provider web endpoint");
-		paths.put(SAML_SLO_SERVLET_PATH, "Single Logout web endpoint (supports POST and Redirect bindings)");
+		paths.put(SAML_SLO_ASYNC_SERVLET_PATH, "Single Logout web endpoint "
+				+ "(supports POST and Redirect bindings)");
+		paths.put(SAML_SLO_SOAP_SERVLET_PATH, "Single Logout web endpoint (supports SOAP binding)");
 		description = new EndpointTypeDescription(NAME, 
 				"SAML 2 identity provider web endpoint", supportedAuthn, paths);
 	}
@@ -90,7 +93,7 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 		return new SamlAuthVaadinEndpoint(getDescription(), applicationContext, freemarkerHandler,
 				SamlIdPWebUI.class, SAML_UI_SERVLET_PATH, pkiManagement, executorsService, mainConfig,
 				remoteMetadataManagers, downloadManager, SAML_CONSUMER_SERVLET_PATH, 
-				SAML_META_SERVLET_PATH, SAML_SLO_SERVLET_PATH, 
+				SAML_META_SERVLET_PATH, SAML_SLO_ASYNC_SERVLET_PATH, SAML_SLO_SOAP_SERVLET_PATH,
 				logoutProcessorFactory, sloReplyInstaller);
 	}
 
