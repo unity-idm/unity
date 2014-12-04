@@ -320,15 +320,15 @@ public class InternalLogoutProcessor
 			LogoutResponseDocument resp)
 	{
 		StatusType status = resp.getLogoutResponse().getStatus();
-		if (SAMLConstants.Status.STATUS_OK.equals(status.getStatusCode()))
+		if (SAMLConstants.Status.STATUS_OK.toString().equals(status.getStatusCode().getValue()))
 		{
-			log.debug("Successful SOAP logout of participant " + participant);
+			log.debug("Successful logout of participant " + participant);
 			ctx.getLoggedOut().add(participant);
 		} else
 		{
 			log.debug("Logging out the participant " + participant + 
-					" via SOAP failed, returned status is: " + 
-					status.getStatusCode() + " - " + status.getStatusMessage() + 
+					" failed, received status is: " + 
+					status.getStatusCode().getValue() + " - " + status.getStatusMessage() + 
 					" " + status.getStatusDetail());
 			ctx.getFailed().add(participant);
 		}
