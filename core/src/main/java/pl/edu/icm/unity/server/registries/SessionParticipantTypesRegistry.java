@@ -19,10 +19,15 @@ import pl.edu.icm.unity.server.api.internal.SessionParticipantType;
 @Component
 public class SessionParticipantTypesRegistry extends TypesRegistryBase<SessionParticipantType>
 {
-	@Autowired
+	@Autowired(required=false)
 	public SessionParticipantTypesRegistry(List<SessionParticipantType> typeElements)
 	{
 		super(typeElements);
+	}
+
+	public SessionParticipantTypesRegistry()
+	{
+		super(null);
 	}
 
 	@Override
