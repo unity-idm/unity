@@ -118,6 +118,6 @@ public class SAMLSessionParticipant implements SessionParticipant
 	@Override
 	public String toString()
 	{
-		return identifier + " SLO: " + logoutEndpoints;
+		return identifier;
 	}
 }

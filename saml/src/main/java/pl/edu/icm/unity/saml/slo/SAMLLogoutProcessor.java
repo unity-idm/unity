@@ -23,6 +23,8 @@ import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration.LogoutMode;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.LogoutRequestDocument;
@@ -53,6 +55,7 @@ public class SAMLLogoutProcessor
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLLogoutProcessor.class);
 	
 	private SessionManagement sessionManagement;
+	private LogoutMode logoutMode;
 	private SessionParticipantTypesRegistry registry;
 	private IdentityResolver idResolver;
 	private LogoutContextsStore contextsStore;
@@ -90,7 +93,7 @@ public class SAMLLogoutProcessor
 			IdentityTypeMapper identityTypeMapper, String consumerEndpointUri,
 			long requestValidity, String localSamlId,
 			X509Credential localSamlCredential, SamlTrustProvider trustProvider,
-			String realm)
+			String realm, UnityServerConfiguration mainConfig)
 	{
 		this.sessionManagement = sessionManagement;
 		this.registry = registry;
@@ -106,6 +109,7 @@ public class SAMLLogoutProcessor
 		this.localSamlCredential = localSamlCredential;
 		this.trustProvider = trustProvider;
 		this.realm = realm;
+		this.logoutMode = mainConfig.getEnumValue(UnityServerConfiguration.LOGOUT_MODE, LogoutMode.class);
 	}
 
 	/**
@@ -122,12 +126,15 @@ public class SAMLLogoutProcessor
 			SAMLExternalLogoutContext externalCtx = initFromSAML(request, null, Binding.SOAP, false);
 			SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(externalCtx.getSession(), 
 					request.getLogoutRequest().getIssuer().getStringValue(), null, registry);
-			internalProcessor.logoutSynchronousParticipants(internalCtx);
-			boolean allLoggedOut = internalCtx.getFailed().isEmpty();
+			if (logoutMode != LogoutMode.internalOnly)
+			{
+				internalProcessor.logoutSynchronousParticipants(internalCtx);
+			}
+			boolean partial = !internalCtx.allCorrectlyLoggedOut();
 			sessionManagement.removeSession(internalCtx.getSession().getId(), false);
 			LogoutResponseDocument finalResponse = prepareFinalLogoutResponse(externalCtx, 
 					externalCtx.getInitiator().getLogoutEndpoints().get(Binding.SOAP), 
-					!allLoggedOut);
+					partial);
 			return finalResponse;
 		} catch (SAMLServerException e)
 		{
@@ -181,9 +188,21 @@ public class SAMLLogoutProcessor
 		
 		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(externalCtx.getSession(), 
 				request.getLogoutRequest().getIssuer().getStringValue(), finishCallback, registry);
-		contextsStore.addInternalContext(externalCtx.getInternalRelayState(), internalCtx);
 		
-		internalProcessor.continueAsyncLogout(internalCtx, response);
+		switch (logoutMode)
+		{
+		case internalAndAsyncPeers:
+			contextsStore.addInternalContext(externalCtx.getInternalRelayState(), internalCtx);
+			internalProcessor.continueAsyncLogout(internalCtx, response);
+			break;
+		case internalAndSyncPeers:
+			internalProcessor.logoutSynchronousParticipants(internalCtx);
+			internalLogoutFinished(response, internalCtx);
+			break;
+		case internalOnly:
+			internalLogoutFinished(response, internalCtx);
+			break;
+		}
 	}
 
 	/**
@@ -253,7 +272,7 @@ public class SAMLLogoutProcessor
 			SAMLInternalLogoutContext finalInternalContext) throws EopException
 	{
 		String relayState = finalInternalContext.getRelayState();
-		boolean partial = !finalInternalContext.getFailed().isEmpty();
+		boolean partial = !finalInternalContext.allCorrectlyLoggedOut();
 		SAMLExternalLogoutContext externalCtx = contextsStore.getSAMLExternalContext(
 				relayState);
 		try

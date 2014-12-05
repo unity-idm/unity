@@ -241,7 +241,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	
 	protected Servlet getSLOSyncServlet(String endpointURL)
 	{
-		SAMLLogoutProcessor logoutProcessor = createLogoutProcessor(endpointURL);
+		SAMLLogoutProcessor logoutProcessor = createLogoutProcessor(endpointURL + "/SingleLogoutService");
 		SAMLSingleLogoutImpl webService = new SAMLSingleLogoutImpl(logoutProcessor);
 		
 		CXFNonSpringServlet cxfServlet = new CXFNonSpringServlet();

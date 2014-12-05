@@ -30,7 +30,7 @@ public class IdpSamlTrustProvider implements SamlTrustProvider
 	{
 		SamlIdpProperties virtualConf = (SamlIdpProperties) 
 				myMetadataManager.getVirtualConfiguration();
-		return virtualConf.getAuthnTrustChecker();
+		return virtualConf.getSloTrustChecker();
 	}
 
 	@Override

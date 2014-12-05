@@ -91,6 +91,11 @@ public class SAMLInternalLogoutContext extends AbstractSAMLLogoutContext
 		return failed;
 	}
 
+	public boolean allCorrectlyLoggedOut()
+	{
+		return failed.isEmpty() && toBeLoggedOut.isEmpty();
+	}
+	
 	public SAMLSessionParticipant getCurrent()
 	{
 		return current;

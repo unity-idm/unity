@@ -96,7 +96,7 @@ public class SLOSPManager
 		log.info("Enabling SAML SOAP Single Logout servlet for SP side (athenticator) at " + prefixed);
 		
 		SAMLLogoutProcessor logoutProcessor = logoutProcessorFactory.getInstance(
-				identityTypeMapper, getAsyncServletURL(pathSuffix), requestValidity, localSamlId, 
+				identityTypeMapper, getSyncServletURL(pathSuffix), requestValidity, localSamlId, 
 				localSamlCredential, samlTrustProvider, realm);
 		
 		SAMLSingleLogoutImpl webService = new SAMLSingleLogoutImpl(logoutProcessor);
@@ -116,7 +116,7 @@ public class SLOSPManager
 	{
 		if (!deployedAsyncServlets.containsKey(suffix))
 			return null;
-		return sharedEndpointManagement.getServletUrl(SOAP_PATH + suffix);
+		return sharedEndpointManagement.getServletUrl(SOAP_PATH + suffix + "/SingleLogoutService");
 	}
 	
 	

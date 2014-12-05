@@ -209,6 +209,7 @@ public class SamlIdpProperties extends SamlProperties
 	private ReplayAttackChecker replayChecker;
 	private SamlTrustChecker authnTrustChecker;
 	private SamlTrustChecker soapTrustChecker;
+	private SamlTrustChecker sloTrustChecker;
 	private long requestValidity;
 	private X509CertChainValidator trustedValidator;
 	private GroupChooser groupChooser;
@@ -266,47 +267,17 @@ public class SamlIdpProperties extends SamlProperties
 		if (spPolicy == RequestAcceptancePolicy.all)
 		{
 			authnTrustChecker = new AcceptingSamlTrustChecker();
+			sloTrustChecker = new AcceptingSamlTrustChecker();
 			log.debug("All SPs will be authorized to submit authentication requests");
 		} else if (spPolicy == RequestAcceptancePolicy.validSigner)
 		{
 			authnTrustChecker = new PKISamlTrustChecker(trustedValidator);
+			sloTrustChecker = new PKISamlTrustChecker(trustedValidator);
 			log.debug("All SPs using a valid certificate will be authorized to submit authentication requests");
 		} else if (spPolicy == RequestAcceptancePolicy.strict)
 		{
-			authnTrustChecker = new StrictSamlTrustChecker();
-			Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
-			for (String allowedKey: allowedKeys)
-			{
-				
-				String type = SAMLConstants.NFORMAT_ENTITY;
-				String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
-				if (name == null)
-				{
-					name = getValue(allowedKey + ALLOWED_SP_DN);
-					type = SAMLConstants.NFORMAT_DN;
-				}
-				if (name == null)
-					throw new ConfigurationException("Invalid specification of allowed Service " +
-							"Provider " + allowedKey + ", neither Entity ID nor DN is set.");
-				
-				Set<String> spCertNames = getAllowedSpCerts(allowedKey);
-				for (String spCertName: spCertNames)
-				{
-					X509Certificate spCert;
-					try
-					{
-						 spCert = pkiManagement.getCertificate(spCertName);
-						((StrictSamlTrustChecker)authnTrustChecker).addTrustedIssuer(
-								name, type, spCert.getPublicKey());
-					} catch (EngineException e)
-					{
-						throw new ConfigurationException("Can't set certificate of trusted " +
-								"issuer named " + spCertName, e);
-					}
-				}
-				
-				log.debug("SP authorized to submit authentication requests: " + name);
-			}
+			authnTrustChecker = createStrickTrustChecker();
+			sloTrustChecker = authnTrustChecker;
 		} else
 		{
 			EnumeratedTrustChecker authnTrustChecker = new EnumeratedTrustChecker();
@@ -335,6 +306,7 @@ public class SamlIdpProperties extends SamlProperties
 				
 				log.debug("SP authorized to submit authentication requests: " + name);
 			}
+			this.sloTrustChecker = createStrickTrustChecker();
 		}
 		
 		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
@@ -377,6 +349,45 @@ public class SamlIdpProperties extends SamlProperties
 		String credential = getValue(CREDENTIAL);
 		if (!pkiManagement.getCredentialNames().contains(credential))
 			throw new ConfigurationException("The SAML credential " + credential + " is unknown");
+	}
+	
+	private StrictSamlTrustChecker createStrickTrustChecker()
+	{
+		StrictSamlTrustChecker authnTrustChecker = new StrictSamlTrustChecker();
+		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
+		for (String allowedKey: allowedKeys)
+		{
+			
+			String type = SAMLConstants.NFORMAT_ENTITY;
+			String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
+			if (name == null)
+			{
+				name = getValue(allowedKey + ALLOWED_SP_DN);
+				type = SAMLConstants.NFORMAT_DN;
+			}
+			if (name == null)
+				throw new ConfigurationException("Invalid specification of allowed Service " +
+						"Provider " + allowedKey + ", neither Entity ID nor DN is set.");
+			
+			Set<String> spCertNames = getAllowedSpCerts(allowedKey);
+			for (String spCertName: spCertNames)
+			{
+				X509Certificate spCert;
+				try
+				{
+					spCert = pkiManagement.getCertificate(spCertName);
+					authnTrustChecker.addTrustedIssuer(
+							name, type, spCert.getPublicKey());
+				} catch (EngineException e)
+				{
+					throw new ConfigurationException("Can't set certificate of trusted " +
+							"issuer named " + spCertName, e);
+				}
+			}
+			
+			log.debug("SP authorized to submit authentication requests: " + name);
+		}
+		return authnTrustChecker;
 	}
 	
 	private void checkIssuer()
@@ -503,6 +514,11 @@ public class SamlIdpProperties extends SamlProperties
 	public SamlTrustChecker getSoapTrustChecker()
 	{
 		return soapTrustChecker;
+	}
+
+	public SamlTrustChecker getSloTrustChecker()
+	{
+		return sloTrustChecker;
 	}
 
 	public X509Credential getSamlIssuerCredential()

@@ -139,9 +139,9 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("If this options is true then all endpoints are initialized from configuration at each startup." +
 				" If it is false then the previously persisted endpoints are loaded."));
 		defaults.put(LOGOUT_MODE, new PropertyMD(LogoutMode.internalAndSyncPeers).setCategory(mainCat).
-				setDescription("Controls the effect of logout initiated in Unity interface. "
+				setDescription("Controls the way how the logout operation is performed. "
 				+ "+internalOnly+ will perform only a local logout. +internalAndSyncPeers+ will also logout"
-				+ " all remote session participants using a synchronous binding. Finally "
+				+ " all remote session participants but only using a synchronous binding. Finally "
 				+ "+internalAndAsyncPeers+ will logout remote session participants also using asynchronous"
 				+ " protocols (with web browser redirects) if needed. This last option is risky as it may"
 				+ " happen that a faulty peer won't redirect the web agent back."));

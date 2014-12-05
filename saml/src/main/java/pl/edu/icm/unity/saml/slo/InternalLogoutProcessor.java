@@ -31,6 +31,7 @@ import xmlbeans.org.oasis.saml2.protocol.StatusType;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.elements.NameID;
+import eu.unicore.samly2.exceptions.SAMLErrorResponseException;
 import eu.unicore.samly2.exceptions.SAMLResponderException;
 import eu.unicore.samly2.exceptions.SAMLValidationException;
 import eu.unicore.samly2.proto.LogoutRequest;
@@ -191,6 +192,9 @@ public class InternalLogoutProcessor
 		try
 		{
 			validator.validate(samlResponse);
+		} catch (SAMLErrorResponseException e)
+		{
+			//ok - we will handle this accordingly later on
 		} catch (SAMLValidationException e)
 		{
 			responseHandler.showError(new SAMLProcessingException("An invalid logout response "

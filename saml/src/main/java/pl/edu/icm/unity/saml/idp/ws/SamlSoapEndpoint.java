@@ -137,7 +137,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	{
 		SamlTrustProvider trustProvider = new IdpSamlTrustProvider(myMetadataManager);
 		SAMLLogoutProcessor logoutProcessor = logoutProcessorFactory.getInstance(virtualConf.getIdTypeMapper(), 
-				endpointURL, 
+				endpointURL + "/SingleLogoutService", 
 				virtualConf.getLongValue(SamlIdpProperties.SAML_REQUEST_VALIDITY), 
 				virtualConf.getValue(SamlIdpProperties.ISSUER_URI), 
 				virtualConf.getSamlIssuerCredential(), 
