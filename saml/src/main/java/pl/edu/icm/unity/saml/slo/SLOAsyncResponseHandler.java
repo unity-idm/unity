@@ -70,19 +70,27 @@ public class SLOAsyncResponseHandler extends ResponseHandlerBase
 	public void sendErrorResponse(Binding binding, SAMLServerException error, String serviceUrl, 
 			SAMLExternalLogoutContext context, HttpServletResponse response) throws IOException, EopException
 	{
+		sendErrorResponse(binding, error, serviceUrl, context.getLocalSessionAuthorityId(), 
+				context.getRequestersRelayState(), context.getRequest().getID(), response);
+	}
+
+	public void sendErrorResponse(Binding binding, SAMLServerException error, String serviceUrl, 
+			String localIssuer, String relayState, String requestId, 
+			HttpServletResponse response) throws IOException, EopException
+	{
 		log.debug("SAML error is going to be returned to the SAML requester from SLO endpoint", error);
-		LogoutResponseDocument errorResp = convertExceptionToResponse(context.getLocalSessionAuthorityId(), 
-				context.getRequest().getID(), error);
+		LogoutResponseDocument errorResp = convertExceptionToResponse(localIssuer, 
+				requestId, error);
 		
 		switch (binding)
 		{
 		case HTTP_POST:
 			handlePostGeneric(errorResp.xmlText(), "Logout Error", SAMLMessageType.SAMLResponse, 
-					serviceUrl, context.getRequestersRelayState(), response);
+					serviceUrl, relayState, response);
 			break;
 		case HTTP_REDIRECT:
 			handleRedirectGeneric(errorResp.xmlText(), "Logout Error", SAMLMessageType.SAMLResponse, 
-					serviceUrl, context.getRequestersRelayState(), response);
+					serviceUrl, relayState, response);
 			break;
 		default:
 			throw new IllegalStateException("Unsupported binding: " + binding);

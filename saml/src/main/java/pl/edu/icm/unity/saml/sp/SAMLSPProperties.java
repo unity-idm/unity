@@ -19,6 +19,7 @@ import pl.edu.icm.unity.saml.ecp.SAMLECPProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.trust.SamlTrustChecker;
@@ -377,6 +378,21 @@ public class SAMLSPProperties extends SamlProperties
 			return false;
 		}		
 		return true;
+	}
+	
+	public String getIdPConfigKey(NameIDType requester)
+	{
+		Set<String> allowedKeys = getStructuredListKeys(IDP_PREFIX);
+		for (String allowedKey: allowedKeys)
+		{
+			String name = getValue(allowedKey + IDP_ID);
+			if (name == null)
+				continue;
+			if (!name.equals(requester.getStringValue()))
+				continue;
+			return allowedKey;
+		}
+		return null;
 	}
 	
 	/**

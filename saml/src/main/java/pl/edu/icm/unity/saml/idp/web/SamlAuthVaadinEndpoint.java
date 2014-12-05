@@ -22,6 +22,7 @@ import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
+import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
 import pl.edu.icm.unity.saml.idp.web.filter.SamlGuardFilter;
@@ -54,7 +55,6 @@ import pl.edu.icm.unity.ws.CXFUtils;
 import pl.edu.icm.unity.ws.XmlBeansNsHackOutHandler;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 import eu.unicore.util.configuration.ConfigurationException;
 
@@ -255,16 +255,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	
 	private SAMLLogoutProcessor createLogoutProcessor(String endpointURL)
 	{
-		SamlTrustProvider trustProvider = new SamlTrustProvider()
-		{
-			@Override
-			public SamlTrustChecker getTrustChecker()
-			{
-				SamlIdpProperties virtualConf = (SamlIdpProperties) 
-						myMetadataManager.getVirtualConfiguration();
-				return virtualConf.getAuthnTrustChecker();
-			}
-		};
+		SamlTrustProvider trustProvider = new IdpSamlTrustProvider(myMetadataManager);
 		SamlIdpProperties virtualConf = (SamlIdpProperties) myMetadataManager.getVirtualConfiguration();
 		return logoutProcessorFactory.getInstance(
 				virtualConf.getIdTypeMapper(), 

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 
@@ -22,6 +23,7 @@ import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
 import pl.edu.icm.unity.saml.SAMLHelper;
 import pl.edu.icm.unity.saml.SAMLResponseValidatorUtil;
 import pl.edu.icm.unity.saml.SamlProperties;
@@ -44,6 +46,7 @@ import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
@@ -162,6 +165,16 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			{
 				SAMLSPProperties config = getSamlValidatorSettings();
 				return config.getTrustChecker();
+			}
+
+			@Override
+			public Collection<SAMLEndpointDefinition> getSLOEndpoints(NameIDType samlId)
+			{
+				SAMLSPProperties config = getSamlValidatorSettings();
+				String configKey = config.getIdPConfigKey(samlId);
+				if (configKey == null)
+					return null;
+				return config.getLogoutEndpointsFromStructuredList(configKey);
 			}
 		};
 		

@@ -18,9 +18,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import eu.unicore.samly2.SAMLBindings;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
+import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
@@ -131,11 +130,11 @@ public abstract class SamlProperties extends PropertiesHelper
 	
 	public List<SAMLEndpointDefinition> getLogoutEndpointsFromStructuredList(String configKey)
 	{
-		String postSlo = getValue(configKey + SAMLSPProperties.POST_LOGOUT_URL);
-		String redirectSlo = getValue(configKey + SAMLSPProperties.REDIRECT_LOGOUT_URL);
-		String postRetSlo = getValue(configKey + SAMLSPProperties.POST_LOGOUT_RET_URL);
-		String redirectRetSlo = getValue(configKey + SAMLSPProperties.REDIRECT_LOGOUT_RET_URL);
-		String soapSlo = getValue(configKey + SAMLSPProperties.SOAP_LOGOUT_URL);
+		String postSlo = getValue(configKey + POST_LOGOUT_URL);
+		String redirectSlo = getValue(configKey + REDIRECT_LOGOUT_URL);
+		String postRetSlo = getValue(configKey + POST_LOGOUT_RET_URL);
+		String redirectRetSlo = getValue(configKey + REDIRECT_LOGOUT_RET_URL);
+		String soapSlo = getValue(configKey + SOAP_LOGOUT_URL);
 
 		if (redirectRetSlo == null)
 			redirectRetSlo = redirectSlo;

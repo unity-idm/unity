@@ -11,6 +11,7 @@ import javax.servlet.Servlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
+import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
@@ -19,8 +20,8 @@ import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor;
-import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
+import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
@@ -32,7 +33,6 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.ws.CXFEndpoint;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
@@ -135,17 +135,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	
 	protected void configureSLOService(SamlIdpProperties virtualConf, String endpointURL)
 	{
-		SamlTrustProvider trustProvider = new SamlTrustProvider()
-		{
-			@Override
-			public SamlTrustChecker getTrustChecker()
-			{
-				SamlIdpProperties virtualConf = (SamlIdpProperties) 
-						myMetadataManager.getVirtualConfiguration();
-				return virtualConf.getAuthnTrustChecker();
-			}
-		};
-		
+		SamlTrustProvider trustProvider = new IdpSamlTrustProvider(myMetadataManager);
 		SAMLLogoutProcessor logoutProcessor = logoutProcessorFactory.getInstance(virtualConf.getIdTypeMapper(), 
 				endpointURL, 
 				virtualConf.getLongValue(SamlIdpProperties.SAML_REQUEST_VALIDITY), 

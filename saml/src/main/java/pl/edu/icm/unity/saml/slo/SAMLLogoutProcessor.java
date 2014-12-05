@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.slo;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -157,12 +158,7 @@ public class SAMLLogoutProcessor
 			externalCtx = initFromSAML(request, relayState, binding, true);
 		} catch (SAMLServerException e)
 		{
-			//FIXME - we should redirect back whenever it is possible with error.
-			//however currently it is difficult as the return URL is stored in the session, which is 
-			//unknown until the initMethod returns... 
-			//Need to store SAML peer endpoints in additional place.
-			responseHandler.showError(new SAMLProcessingException(
-					"A logout process can not be started", e), response);
+			handleEarlyError(e, request, relayState, response, binding);
 			return;
 		}
 		log.debug("Handling SAML logout request from " + externalCtx.getRequest().getIssuer().getStringValue());
@@ -190,6 +186,43 @@ public class SAMLLogoutProcessor
 		internalProcessor.continueAsyncLogout(internalCtx, response);
 	}
 
+	/**
+	 * Careful handling of early errors when handling the SAML request. This code does not assume request is valid 
+	 * nor trusted. If it is possible the error response is sent back. If not an error page is presented.
+	 * @param e
+	 * @param request
+	 * @param relayState
+	 * @param response
+	 * @param binding
+	 * @throws EopException 
+	 * @throws IOException 
+	 */
+	private void handleEarlyError(SAMLServerException error, LogoutRequestDocument request, String relayState, 
+			HttpServletResponse response, Binding binding) throws IOException, EopException
+	{
+		NameIDType issuer = request.getLogoutRequest().getIssuer();
+		if (issuer == null || issuer.getStringValue() == null)
+			responseHandler.showError(new SAMLProcessingException(
+					"A logout process can not be started", error), response);
+		
+		Collection<SAMLEndpointDefinition> sloEndpoints = trustProvider.getSLOEndpoints(issuer);
+		if (sloEndpoints == null)
+			responseHandler.showError(new SAMLProcessingException(
+					"A logout process can not be started", error), response);
+		SAMLEndpointDefinition sloEndpoint = null;
+		for (SAMLEndpointDefinition samlEndpoint: sloEndpoints)
+			if (samlEndpoint.getBinding() == binding)
+			{
+				sloEndpoint = samlEndpoint;
+				break;
+			}
+		if (sloEndpoint == null)
+			responseHandler.showError(new SAMLProcessingException(
+					"A logout process can not be started", error), response);
+		responseHandler.sendErrorResponse(binding, error, sloEndpoint.getReturnUrl(), localSamlId,
+				relayState, request.getLogoutRequest().getID(), response);
+	}
+	
 	/**
 	 * Initializes the logout process when started by means of SAML protocol: 
 	 * request is validated, login session resolved, authorization is checked.
@@ -353,5 +386,6 @@ public class SAMLLogoutProcessor
 	public interface SamlTrustProvider
 	{
 		SamlTrustChecker getTrustChecker();
+		Collection<SAMLEndpointDefinition> getSLOEndpoints(NameIDType samlEntity);
 	}
 }
