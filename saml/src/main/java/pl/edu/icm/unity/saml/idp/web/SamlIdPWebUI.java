@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.idpcommon.EopException;
+import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
+import pl.edu.icm.unity.saml.SAMLSessionParticipant;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -154,7 +157,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 
 			createExposedDataPart(samlCtx, contents);
 
-			createButtonsPart(contents);
+			createButtonsPart(samlCtx, contents);
 
 			setContent(vmain);
 
@@ -230,7 +233,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		contents.addComponent(attrsPresenter);
 	}
 	
-	protected void createButtonsPart(VerticalLayout contents)
+	protected void createButtonsPart(final SAMLAuthnContext samlCtx, VerticalLayout contents)
 	{
 		IdPButtonsBar buttons = new IdPButtonsBar(msg, authnProcessor, new IdPButtonsBar.ActionListener()
 		{
@@ -240,7 +243,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 				try
 				{
 					if (Action.ACCEPT == action)
-						confirm();
+						confirm(samlCtx);
 					else if (Action.DENY == action)
 						decline();
 				} catch (EopException e) 
@@ -286,7 +289,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		if (settings.isDoNotAsk())
 		{
 			if (settings.isDefaultAccept())
-				confirm();
+				confirm(samlCtx);
 			else
 				decline();
 		}
@@ -338,7 +341,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		samlResponseHandler.handleException(ea, false);
 	}
 	
-	protected void confirm() throws EopException
+	protected void confirm(SAMLAuthnContext samlCtx) throws EopException
 	{
 		storePreferences(true);
 		ResponseDocument respDoc;
@@ -351,6 +354,25 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			samlResponseHandler.handleException(e, false);
 			return;
 		}
+		addSessionParticipant(samlCtx, samlProcessor.getAuthenticatedSubject().getNameID(), 
+				samlProcessor.getSessionId());
 		samlResponseHandler.returnSamlResponse(respDoc);
+	}
+	
+	protected void addSessionParticipant(SAMLAuthnContext samlCtx, NameIDType returnedSubject,
+			String sessionId)
+	{
+		String participantId = samlCtx.getRequest().getIssuer().getStringValue();
+		SamlIdpProperties samlIdpProperties = samlCtx.getSamlConfiguration();
+		String credentialName = samlIdpProperties.getValue(SamlIdpProperties.CREDENTIAL);
+		String configKey = samlIdpProperties.getSPConfigKey(samlCtx.getRequest().getIssuer());
+		String localIdpSamlId = samlIdpProperties.getValue(SamlIdpProperties.ISSUER_URI);
+		Set<String> allowedCerts = samlIdpProperties.getAllowedSpCerts(configKey);
+		List<SAMLEndpointDefinition> logoutEndpoints = configKey == null ? 
+				new ArrayList<SAMLEndpointDefinition>(0) :
+				samlCtx.getSamlConfiguration().getLogoutEndpointsFromStructuredList(configKey);
+		authnProcessor.addSessionParticipant(new SAMLSessionParticipant(participantId, 
+				returnedSubject, sessionId, logoutEndpoints, localIdpSamlId,
+				credentialName, allowedCerts));
 	}
 }

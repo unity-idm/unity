@@ -92,7 +92,8 @@ public class RemoteVerificatorUtil
 		try
 		{
 			long resolved = identityResolver.resolveIdentity(remoteIdentityMapped.getValue(), 
-					new String[] {remoteIdentityMapped.getTypeId()});
+					new String[] {remoteIdentityMapped.getTypeId()}, 
+					null, null);
 			AuthenticatedEntity authenticatedEntity = new AuthenticatedEntity(resolved, 
 					remoteIdentityMapped.getValue(), false);
 			return new AuthenticationResult(Status.success, remoteContext, authenticatedEntity);
@@ -134,6 +135,7 @@ public class RemoteVerificatorUtil
 		ret.addIdentities(extractIdentities(result));
 		ret.addGroups(extractGroups(result));
 		ret.setPrimaryIdentity(extractPrimaryIdentity(result));
+		ret.setSessionParticipants(input.getSessionParticipants());
 		return ret;
 	}
 	

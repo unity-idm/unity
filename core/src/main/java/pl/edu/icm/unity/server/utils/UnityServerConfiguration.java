@@ -42,6 +42,7 @@ import eu.unicore.util.jetty.HttpServerProperties;
 @Component
 public class UnityServerConfiguration extends FilePropertiesHelper
 {
+	public enum LogoutMode {internalOnly, internalAndSyncPeers, internalAndAsyncPeers}
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final String CONFIGURATION_FILE = "conf/unityServer.conf";
 	public static final String DEFAULT_EMAIL_CHANNEL = "Default e-mail channel";
@@ -58,6 +59,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String PKI_CONF = "pkiConfigFile";
 	public static final String THREAD_POOL_SIZE = "threadPoolSize";
 	public static final String RECREATE_ENDPOINTS_ON_STARTUP = "recreateEndpointsOnStartup";
+	public static final String LOGOUT_MODE = "logoutMode";
 	
 	public static final String ENDPOINTS = "endpoints.";
 	public static final String ENDPOINT_DESCRIPTION = "endpointDescription";
@@ -136,6 +138,13 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		defaults.put(RECREATE_ENDPOINTS_ON_STARTUP, new PropertyMD("true").setCategory(mainCat).
 				setDescription("If this options is true then all endpoints are initialized from configuration at each startup." +
 				" If it is false then the previously persisted endpoints are loaded."));
+		defaults.put(LOGOUT_MODE, new PropertyMD(LogoutMode.internalAndSyncPeers).setCategory(mainCat).
+				setDescription("Controls the way how the logout operation is performed. "
+				+ "+internalOnly+ will perform only a local logout. +internalAndSyncPeers+ will also logout"
+				+ " all remote session participants but only using a synchronous binding. Finally "
+				+ "+internalAndAsyncPeers+ will logout remote session participants also using asynchronous"
+				+ " protocols (with web browser redirects) if needed. This last option is risky as it may"
+				+ " happen that a faulty peer won't redirect the web agent back."));
 		defaults.put(THREAD_POOL_SIZE, new PropertyMD("4").setCategory(mainCat).setDescription(
 				"Number of threads used by internal processes of the server. HTTP server threads use a separate pool."));
 		defaults.put(INITIALIZERS, new PropertyMD().setList(true).setCategory(mainCat).setDescription(

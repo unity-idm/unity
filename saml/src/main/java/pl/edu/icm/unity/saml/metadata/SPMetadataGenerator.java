@@ -15,6 +15,7 @@ import org.apache.xmlbeans.XmlOptions;
 
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import xmlbeans.org.oasis.saml2.metadata.AnyURIListType;
+import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
@@ -36,11 +37,14 @@ public class SPMetadataGenerator implements MetadataProvider
 	private SAMLSPProperties samlConfig;
 	private EntityDescriptorDocument document;
 	private IndexedEndpointType[] assertionConsumerEndpoints;
+	private EndpointType[] sloEndpoints;
 	
-	public SPMetadataGenerator(SAMLSPProperties samlConfig, IndexedEndpointType[] assertionConsumerEndpoints)
+	public SPMetadataGenerator(SAMLSPProperties samlConfig, IndexedEndpointType[] assertionConsumerEndpoints, 
+			EndpointType[] sloEndpoints)
 	{
 		this.samlConfig = samlConfig;
 		this.assertionConsumerEndpoints = assertionConsumerEndpoints;
+		this.sloEndpoints = sloEndpoints;
 		generateMetadata();
 	}
 
@@ -83,6 +87,8 @@ public class SPMetadataGenerator implements MetadataProvider
 		fillSPDescriptor(spDesc);
 		
 		spDesc.setAssertionConsumerServiceArray(assertionConsumerEndpoints);
+		if (sloEndpoints != null && sloEndpoints.length > 0)
+			spDesc.setSingleLogoutServiceArray(sloEndpoints);
 	}
 	
 	private void fillSPDescriptor(SPSSODescriptorType idpDesc)

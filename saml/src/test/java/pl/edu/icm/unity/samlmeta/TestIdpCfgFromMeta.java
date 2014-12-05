@@ -97,6 +97,40 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 		assertEquals("AAI Viewer Interfederation Test", ret.getValue(pfx + ALLOWED_SP_NAME+".en"));
 		
 	}
+
+	@Test
+	public void testConfigureSLOFromSPsMetadata() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(P+CREDENTIAL, "MAIN");
+		p.setProperty(P+PUBLISH_METADATA, "false");
+		p.setProperty(P+ISSUER_URI, "me");
+		p.setProperty(P+GROUP, "group");
+		p.setProperty(P+DEFAULT_GROUP,"group");
+		
+		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_URL, "file:src/test/resources/DFN-AAI-metadata-part.xml");
+		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_SIGNATURE, "ignore");
+		SamlIdpProperties configuration = new SamlIdpProperties(p, pkiManagement);
+		
+		RemoteMetaManager manager = new RemoteMetaManager(configuration, 
+				mainConfig, executorsService, pkiManagement, 
+				new MetaToIDPConfigConverter(pkiManagement), 
+					downloadManager, SamlIdpProperties.SPMETA_PREFIX);
+		manager.reloadAll();
+		
+		SamlIdpProperties ret = (SamlIdpProperties) manager.getVirtualConfiguration();
+		
+		String pfx = getPrefixOf("http://shibboleth.metapress.com/shibboleth-sp", ret);
+		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/POST", 
+				ret.getValue(pfx + POST_LOGOUT_URL));
+		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/Redirect", 
+				ret.getValue(pfx + REDIRECT_LOGOUT_URL));
+		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/Redirect-RESP", 
+				ret.getValue(pfx + REDIRECT_LOGOUT_RET_URL));
+		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/SOAP", 
+				ret.getValue(pfx + SOAP_LOGOUT_URL));
+
+	}
 	
 	private String getPrefixOf(String entity, SamlIdpProperties cfg)
 	{

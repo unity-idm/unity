@@ -11,21 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.jws.WebService;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.interceptor.Interceptor;
-import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
-import org.apache.cxf.xmlbeans.XmlBeansDataBinding;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
@@ -35,6 +27,7 @@ import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Web service endpoint based on CXF
@@ -80,15 +73,7 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 	
 	private void deployWebservice(Bus bus, Class<?> iface, Object impl)
 	{
-		JaxWsServerFactoryBean factory=new JaxWsServerFactoryBean();
-		factory.getServiceFactory().setDataBinding(new XmlBeansDataBinding());
-		factory.setServiceBean(impl);
-		factory.setServiceClass(impl.getClass());
-		factory.setBus(bus);
-		String name = iface.getAnnotation(WebService.class).name();
-		factory.setAddress("/"+name);
-		Server server = factory.create();
-		Endpoint cxfEndpoint = server.getEndpoint();
+		Endpoint cxfEndpoint = CXFUtils.deployWebservice(bus, iface, impl);
 		addInterceptors(cxfEndpoint.getInInterceptors(), cxfEndpoint.getOutInterceptors());
 	}
 	
@@ -108,14 +93,11 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 	public ServletContextHandler getServletContextHandler()
 	{
 		configureServices();
-		
-		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		context.setContextPath(description.getContextAddress());
-		CXFNonSpringServlet cxfServlet = new CXFNonSpringServlet();
+
 		Bus bus = BusFactory.newInstance().createBus();
-		cxfServlet.setBus(bus);
-		ServletHolder holder = new ServletHolder(cxfServlet);
-		context.addServlet(holder, servletPath + "/*");
+
+		ServletContextHandler context = CXFUtils.getServletContextHandler(
+				description.getContextAddress(), servletPath, bus);
 		
 		for (Map.Entry<Class<?>, Object> service: services.entrySet())
 			deployWebservice(bus, service.getKey(), service.getValue());

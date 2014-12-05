@@ -44,5 +44,6 @@ public interface IdentityResolver
 	 * @return
 	 * @throws EngineException
 	 */
-	public long resolveIdentity(String identity, String[] identityTypes) throws EngineException;
+	public long resolveIdentity(String identity, String[] identityTypes, String target, String realm) 
+			throws EngineException;
 }

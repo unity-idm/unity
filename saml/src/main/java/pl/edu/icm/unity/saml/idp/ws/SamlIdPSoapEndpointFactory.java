@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
+import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
@@ -48,13 +49,14 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
+	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	
 	@Autowired
 	public SamlIdPSoapEndpointFactory(UnityMessageSource msg,
 			PreferencesManagement preferencesMan, IdPEngine idpEngine,
 			PKIManagement pkiManagement, ExecutorsService executorsService,
 			SessionManagement sessionMan, MetaDownloadManager downloadManager,
-			UnityServerConfiguration mainConfig)
+			UnityServerConfiguration mainConfig, SAMLLogoutProcessorFactory logoutProcessorFactory)
 	{
 		super();
 		this.msg = msg;
@@ -66,6 +68,7 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
 		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
+		this.logoutProcessorFactory = logoutProcessorFactory;
 		
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(WebServiceAuthentication.NAME);
@@ -87,7 +90,8 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 	{
 		return new SamlSoapEndpoint(msg, getDescription(), SERVLET_PATH,
 				METADATA_SERVLET_PATH, idpEngine, preferencesMan, pkiManagement,
-				executorsService, sessionMan, remoteMetadataManagers, downloadManager, mainConfig);
+				executorsService, sessionMan, remoteMetadataManagers, downloadManager, mainConfig,
+				logoutProcessorFactory);
 	}
 
 }

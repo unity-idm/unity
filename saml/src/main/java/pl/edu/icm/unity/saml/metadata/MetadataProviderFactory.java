@@ -30,13 +30,14 @@ public class MetadataProviderFactory
 	 */
 	public static MetadataProvider newIdpInstance(SamlIdpProperties samlProperties, 
 			ExecutorsService executorsService, EndpointType[] ssoEndpoints, 
-			EndpointType[] attributeQueryEndpoints)
+			EndpointType[] attributeQueryEndpoints, EndpointType[] sloEndpoints)
 	{
 		MetadataProvider metaProvider;
 		File metadataFile = samlProperties.getFileValue(SamlProperties.METADATA_SOURCE, false);
 		if (metadataFile == null)
 		{
-			metaProvider = new IdpMetadataGenerator(samlProperties, ssoEndpoints, attributeQueryEndpoints);
+			metaProvider = new IdpMetadataGenerator(samlProperties, ssoEndpoints, 
+					attributeQueryEndpoints, sloEndpoints);
 		} else
 		{
 			try
@@ -58,13 +59,15 @@ public class MetadataProviderFactory
 	 * @return metadata of a SP
 	 */
 	public static MetadataProvider newSPInstance(SAMLSPProperties samlProperties, 
-			ExecutorsService executorsService, IndexedEndpointType[] assertionConsumerEndpoints)
+			ExecutorsService executorsService, IndexedEndpointType[] assertionConsumerEndpoints, 
+			EndpointType[] sloEndpoints)
 	{
 		MetadataProvider metaProvider;
 		File metadataFile = samlProperties.getFileValue(SamlProperties.METADATA_SOURCE, false);
 		if (metadataFile == null)
 		{
-			metaProvider = new SPMetadataGenerator(samlProperties, assertionConsumerEndpoints);
+			metaProvider = new SPMetadataGenerator(samlProperties, assertionConsumerEndpoints,
+					sloEndpoints);
 		} else
 		{
 			try

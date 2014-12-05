@@ -19,9 +19,9 @@ import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
+import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
-import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 import xmlbeans.org.oasis.saml2.metadata.KeyDescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.SPSSODescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.extui.LogoType;
@@ -101,19 +101,30 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 				continue;
 			}
 			
-			IndexedEndpointType aserServ = selectHttpPostService(spDef);
+			EndpointType aserServ = selectEndpointByBinding(spDef.getAssertionConsumerServiceArray(), 
+					SAMLConstants.BINDING_HTTP_POST);
 			if (aserServ == null)
 				continue;
+
+			EndpointType redirectSLOEndpoint = selectEndpointByBinding(spDef.getSingleLogoutServiceArray(),
+					SAMLConstants.BINDING_HTTP_REDIRECT);
+			EndpointType postSLOEndpoint = selectEndpointByBinding(spDef.getSingleLogoutServiceArray(),
+					SAMLConstants.BINDING_HTTP_POST);
+			EndpointType soapSLOEndpoint = selectEndpointByBinding(spDef.getSingleLogoutServiceArray(), 
+					SAMLConstants.BINDING_SOAP);
 		
 			UIInfoType uiInfo = parseMDUIInfo(spDef.getExtensions(), entityId);
 			Map<String, String> names = getLocalizedNames(uiInfo, spDef);
 			Map<String, LogoType> logos = getLocalizedLogos(uiInfo);
 				
-			addEntryToProperties(entityId, aserServ, realConfig, configKey, properties, r, certs, names, logos);					
+			addEntryToProperties(entityId, aserServ, soapSLOEndpoint, postSLOEndpoint, redirectSLOEndpoint,
+					realConfig, configKey, properties, r, 
+					certs, names, logos);					
 		}		
 	}
 	
-	private void addEntryToProperties(String entityId, IndexedEndpointType serviceEndpoint,
+	private void addEntryToProperties(String entityId, EndpointType serviceEndpoint,
+			EndpointType sloSoapEndpoint, EndpointType sloPostEndpoint, EndpointType sloRedirectEndpoint,
 			SamlIdpProperties realConfig, String metaConfigKey, Properties properties,
 			Random r, List<X509Certificate> certs, Map<String, String> names,
 			Map<String, LogoType> logos)
@@ -130,7 +141,14 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 					entityId);
 		if (noPerSpConfig || !properties.containsKey(configKey + SamlIdpProperties.ALLOWED_SP_RETURN_URL))
 			properties.setProperty(configKey + SamlIdpProperties.ALLOWED_SP_RETURN_URL, 
-					serviceEndpoint.getLocation());		
+					serviceEndpoint.getLocation());
+		setSLOProperty(properties, configKey, noPerSpConfig, sloSoapEndpoint, 
+				SamlProperties.SOAP_LOGOUT_URL, null);
+		setSLOProperty(properties, configKey, noPerSpConfig, sloPostEndpoint, 
+				SamlProperties.POST_LOGOUT_URL, SamlProperties.POST_LOGOUT_RET_URL);
+		setSLOProperty(properties, configKey, noPerSpConfig, sloRedirectEndpoint, 
+				SamlProperties.REDIRECT_LOGOUT_URL, SamlProperties.REDIRECT_LOGOUT_RET_URL);
+		
 		if (noPerSpConfig || !properties.containsKey(configKey + SamlIdpProperties.ALLOWED_SP_CERTIFICATE))
 		{
 			int i = 1;
@@ -174,14 +192,14 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 		return null;
 	}
 
-	private IndexedEndpointType selectHttpPostService(SPSSODescriptorType spDef)
+	private EndpointType selectEndpointByBinding(EndpointType[] endpoints, String binding)
 	{
-		for (IndexedEndpointType endpoint: spDef.getAssertionConsumerServiceArray())
+		for (EndpointType endpoint: endpoints)
 		{
 			if (endpoint.getBinding() == null || endpoint.getLocation() == null)
 				continue;
 			
-			if(endpoint.getBinding().equals(SAMLConstants.BINDING_HTTP_POST))
+			if(endpoint.getBinding().equals(binding))
 				return endpoint;
 		}
 		return null;

@@ -6,8 +6,11 @@ package pl.edu.icm.unity.server.authn.remote;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.api.internal.SessionParticipant;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -22,6 +25,7 @@ public class RemotelyAuthenticatedContext
 {
 	private String remoteIdPName;
 	private String inputTranslationProfile;
+	private Set<SessionParticipant> sessionParticipants;
 	private Collection<IdentityTaV> identities = new ArrayList<>();
 	private IdentityTaV primaryIdentity;
 	private Collection<Attribute<?>> attributes = new ArrayList<>();
@@ -80,5 +84,14 @@ public class RemotelyAuthenticatedContext
 	public String getInputTranslationProfile()
 	{
 		return inputTranslationProfile;
+	}
+	public Set<SessionParticipant> getSessionParticipants()
+	{
+		return sessionParticipants;
+	}
+	public void setSessionParticipants(Set<SessionParticipant> sessionParticipants)
+	{
+		this.sessionParticipants = new HashSet<SessionParticipant>();
+		this.sessionParticipants.addAll(sessionParticipants);
 	}
 }

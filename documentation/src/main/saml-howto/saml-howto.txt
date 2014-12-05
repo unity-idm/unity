@@ -1,7 +1,7 @@
 Unity SAML HowTo
 ================
 Unity Team <unity-idm-discuss@lists.sourceforge.net>
-:revnumber: 1.0.0
+:revnumber: 1.1.0
 :numbered:
 :toc: left
 :linkcss:
@@ -53,17 +53,12 @@ Of course any other SAML 2 compliant service should be also able to work with Un
 
 === Limitations aka what is not supported in Unity YET
 
-As of version 1.3.0 of Unity there are several restrictions related to SAML integration. 
-We enumerate here the most important ones:
+As of version 1.4.0 of Unity there are some minor restrictions related to SAML integration. 
+The most important one is:
 
 . Discovery Service functionality is not supported in Unity yet. This will be improved in upcoming versions. 
 However Unity comes with a decent Discovery Service functionality embedded, so there is no real need to use external
-service.
-. Unity fully supports publishing SAML metadata (of each SAML endpoint and of each SAML authenticator), as well
-as configuring trusted external SAML IdPs from federation metadata. It is not
-yet possible to configure Unity SAML IdP endpoint trust (i.e. the trusted SPs) from federation metadata. 
-It will be also improved in future.   
-. Single Logout functionality is not supported in Unity yet. This SAML sub-protocol will be also enabled in future.
+service and therefore we treat this missing functionality as low priority. 
 
 
 == Using Unity as SAML IdP: configuring SAML endpoints
@@ -494,3 +489,74 @@ $metadata['https://unity.example.com/unitygw/saml-sp-metadata/metadata1'] = arra
 ----
 
 Of course IdP functionality must be enabled in SimpleSAMLPhp.
+
+
+== Using Single Logout (SLO)
+
+Since version 1.4.0 Unity does support SAML Single Logout protocol. The protocol implementation is mostly complete. 
+That is Unity is able to:
+
+. Log out all SAML session participants supporting SLO, regardless whether they are SPs or upstream IdPs, using 
+any of the SOAP, HTTP Redirect and HTTP POST bindings.
+. Initiate the logout process by receiving a logout request for the SP address (i.e. for Unity's remote SAML 
+authenticator), IdP address and directly by logging out in any of the Unity's own UI.
+
+Note however, that SLO is a terribly complicated and problematic protocol. Be aware about some of the most
+important issues:
+
+. When logging out session participants with asynchronous bindings (i.e. with web browser redirects) it may happen that
+one peer is misbehaving, what will break the logout process, probably leaving user's browser in a strange state.
+. Many SAML implementations either do not support SLO fully (if at all) - Shibboleth IdP being a notable example - 
+or their installations are not configured to support SLO.
+. Unity is not presenting an information whether the logout process was performed partially or fully. 
+As a rule of thumb it can be assumed that logout was partial only. Therefore the feature should be considered 
+as the best effort only.
+. Some SAML implementations implement logout over SOAP in simplified way, so that the SOAP logout is not fully functional.
+Unity fully supports SOAP logout, and from Unity perspective this is by far the safest bet, however sadly not
+fully interoperable with 3rd party implementations.
+
+The fundamental option related to SLO is located in the main config file +unityServer.conf+:
+
+----
+unityServer.core.logoutMode=internalAndSyncPeers
+----
+
+It can take three values: +internalOnly+, +internalAndSyncPeers+ and +internalAndAsyncPeers+. The first one turns off
+logout of external peers. That is, remote peers still can request logout from Unity, but Unity won't 
+propagate it to further session participants. The second one performs a safe, synchronous logout of those session peers 
+which support SOAP logout binding. The final one offers the largest interoperability at the same time being the most 
+risky as during the logout the user's browser can be even multiple times redirected to other session participants,
+with assumption that those participants will redirect the browser back.
+
+To configure Single Logout and to discover all the settings of Unity SLO endpoints the easiest method 
+is to use SAML metadata. Unity's metadata of both IdP and SP provide all necessary information. The 
+manual configuration of trusted peers addresses is also possible, see the reference documentation table
+of respective SAML configuration file. 
+
+In the case of authenticator (SAML SP) the will be enabled only if two simple properties are defined:
+
+----
+unity.saml.requester.sloPath=slo1
+unity.saml.requester.sloRealm=default
+----
+
+Those settings define the key part of all the SLO endpoints for the authenticator (to distinguish them from 
+SLO endpoints of other possible authenticators configured) and binds the authenticator to a concrete realm.
+This last settings is necessary as logout is destroying a session which is realm scoped. 
+
+Example manual (i.e. not taken from federation metadata) configuration of SLO paths for trusted SP 
+(in IdP endpoint configuration):
+
+----
+unity.saml.acceptedSP.4.redirectLogoutEndpoint=https://example.com/Shibboleth.sso/SLO/Redirect
+unity.saml.acceptedSP.4.postLogoutEndpoint=https://example.com/Shibboleth.sso/SLO/POST
+unity.saml.acceptedSP.4.soapLogoutEndpoint=https://example.com/Shibboleth.sso/SLO/SOAP
+----
+
+The same for a trusted IdP (in authenticator configuration):
+
+----
+unity.saml.requester.remoteIdp.EX.redirectLogoutEndpoint=https://example.com/idp/profile/SAML2/Redirect/SLO
+unity.saml.requester.remoteIdp.EX.postLogoutEndpoint=https://example.com/idp/profile/SAML2/POST/SLO
+unity.saml.requester.remoteIdp.EX.soapLogoutEndpoint=https://example.com/idp/profile/SAML2/SOAP/SLO
+----

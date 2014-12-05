@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
+import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
@@ -48,12 +49,14 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
+	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	
 	@Autowired
 	public SamlUnicoreIdPSoapEndpointFactory(UnityMessageSource msg, IdPEngine idpEngine,
 			PreferencesManagement preferencesMan, PKIManagement pkiManagement,
 			ExecutorsService executorsService, SessionManagement sessionMan,
-			MetaDownloadManager dowloadManager, UnityServerConfiguration mainConfig)
+			MetaDownloadManager dowloadManager, UnityServerConfiguration mainConfig,
+			SAMLLogoutProcessorFactory logoutProcessorFactory)
 	{
 		super();
 		this.msg = msg;
@@ -65,6 +68,7 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
 		this.downloadManager = dowloadManager;
 		this.mainConfig = mainConfig;
+		this.logoutProcessorFactory = logoutProcessorFactory;
 
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(WebServiceAuthentication.NAME);
@@ -88,6 +92,6 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 		return new SamlUnicoreSoapEndpoint(msg, getDescription(), SERVLET_PATH,
 				SamlIdPSoapEndpointFactory.METADATA_SERVLET_PATH, idpEngine,
 				preferencesMan, pkiManagement, executorsService, sessionMan,
-				remoteMetadataManagers, downloadManager, mainConfig);
+				remoteMetadataManagers, downloadManager, mainConfig, logoutProcessorFactory);
 	}
 }
