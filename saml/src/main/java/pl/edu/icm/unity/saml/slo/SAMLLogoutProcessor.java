@@ -155,6 +155,10 @@ public class SAMLLogoutProcessor
 			externalCtx = initFromSAML(request, relayState, binding, true);
 		} catch (SAMLServerException e)
 		{
+			//FIXME - we should redirect back whenever it is possible with error.
+			//however currently it is difficult as the return URL is stored in the session, which is 
+			//unknown until the initMethod returns... 
+			//Need to store SAML peer endpoints in additional place.
 			responseHandler.showError(new SAMLProcessingException(
 					"A logout process can not be started", e), response);
 			return;

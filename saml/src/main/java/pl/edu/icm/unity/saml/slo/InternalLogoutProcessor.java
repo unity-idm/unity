@@ -125,7 +125,7 @@ public class InternalLogoutProcessor
 			try
 			{
 				log.debug("Logging out participant via SOAP: " + participant);
-				LogoutRequest logoutRequest = createLogoutRequest(participant);
+				LogoutRequest logoutRequest = createLogoutRequest(participant, soapLogoutEndpoint);
 				IClientConfiguration soapClientConfig = createSoapClientConfig(participant);
 				SAMLLogoutClient client = new SAMLLogoutClient(soapLogoutEndpoint.getUrl(), 
 						soapClientConfig);
@@ -236,14 +236,18 @@ public class InternalLogoutProcessor
 	{
 		SAMLSessionParticipant participant;
 		LogoutRequest request = null;
+		SAMLEndpointDefinition logoutEndpoint = null;
 		do
 		{
 			participant = findNextForAsyncLogout(ctx);
 			if (participant == null)
 				return null;
+			logoutEndpoint = participant.getLogoutEndpoints().get(Binding.HTTP_POST);
+			if (logoutEndpoint == null)
+				logoutEndpoint = participant.getLogoutEndpoints().get(Binding.HTTP_REDIRECT);
 			try
 			{
-				request = createLogoutRequest(participant);
+				request = createLogoutRequest(participant, logoutEndpoint);
 				break;
 			} catch (SAMLResponderException e)
 			{
@@ -252,9 +256,7 @@ public class InternalLogoutProcessor
 			}
 		} while (request == null);
 		
-		SAMLEndpointDefinition logoutEndpoint = participant.getLogoutEndpoints().get(Binding.HTTP_POST);
-		if (logoutEndpoint == null)
-			logoutEndpoint = participant.getLogoutEndpoints().get(Binding.HTTP_REDIRECT);
+
 		ctx.setCurrent(participant);
 		ctx.setCurrentRequestId(request.getXMLBean().getID());
 		return new InterimLogoutRequest(request.getXMLBeanDoc(), ctx.getRelayState(), logoutEndpoint);
@@ -284,7 +286,8 @@ public class InternalLogoutProcessor
 		return new NameID(localSamlId, SAMLConstants.NFORMAT_ENTITY).getXBean();
 	}
 	
-	private LogoutRequest createLogoutRequest(SAMLSessionParticipant participant) throws SAMLResponderException
+	private LogoutRequest createLogoutRequest(SAMLSessionParticipant participant,
+			SAMLEndpointDefinition logoutEndpoint) throws SAMLResponderException
 	{
 		String toBeLoggedOut = participant.getPrincipalNameAtParticipant();
 		NameIDType toBeLoggedOutXml;
@@ -299,6 +302,8 @@ public class InternalLogoutProcessor
 		LogoutRequest request = new LogoutRequest(getIssuer(participant.getLocalSamlId()), toBeLoggedOutXml);
 		request.setNotAfter(new Date(System.currentTimeMillis() + DEF_LOGOUT_REQ_VALIDITY));
 		request.setSessionIds(participant.getSessionIndex());
+		request.getXMLBean().setDestination(logoutEndpoint.getUrl());
+		
 		try
 		{
 			X509Credential credential = pkiManagement.getCredential(participant.getLocalCredentialName());
