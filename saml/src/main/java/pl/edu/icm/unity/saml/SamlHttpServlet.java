@@ -29,11 +29,13 @@ public abstract class SamlHttpServlet extends HttpServlet
 	
 	private boolean requireSamlRequest;
 	private boolean requireSamlResponse;
+	private boolean requireRelayState = true;
 	
-	protected SamlHttpServlet(boolean requireSamlRequest, boolean requireSamlResponse)
+	protected SamlHttpServlet(boolean requireSamlRequest, boolean requireSamlResponse, boolean requireRelayState)
 	{
 		this.requireSamlRequest = requireSamlRequest;
 		this.requireSamlResponse = requireSamlResponse;
+		this.requireRelayState = requireRelayState;
 	}
 
 	@Override
@@ -77,7 +79,7 @@ public abstract class SamlHttpServlet extends HttpServlet
 		}
 		
 		String relayState = req.getParameter("RelayState");
-		if (relayState == null)
+		if (requireRelayState && relayState == null)
 		{
 			log.warn("Got a request to the SAML response consumer endpoint, " +
 					"but no 'RelayState' is present in HTTP message parameters.");

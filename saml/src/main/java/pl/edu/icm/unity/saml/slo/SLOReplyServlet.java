@@ -29,7 +29,7 @@ public class SLOReplyServlet extends SamlHttpServlet
 	
 	public SLOReplyServlet(InternalLogoutProcessor logoutProcessor)
 	{
-		super(false, true);
+		super(false, true, true);
 		this.logoutProcessor = logoutProcessor;
 	}
 

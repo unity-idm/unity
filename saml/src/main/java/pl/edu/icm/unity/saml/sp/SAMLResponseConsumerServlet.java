@@ -34,7 +34,7 @@ public class SAMLResponseConsumerServlet extends SamlHttpServlet
 	
 	public SAMLResponseConsumerServlet(SamlContextManagement contextManagement)
 	{
-		super(false, true);
+		super(false, true, true);
 		this.contextManagement = contextManagement;
 	}
 

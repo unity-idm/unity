@@ -58,7 +58,7 @@ public class SamlParseServlet extends SamlHttpServlet
 	public SamlParseServlet(RemoteMetaManager samlConfigProvider, String endpointAddress,
 			String samlUiServletPath, ErrorHandler errorHandler)
 	{
-		super(true, false);
+		super(true, false, false);
 		this.samlConfigProvider = samlConfigProvider;
 		this.endpointAddress = endpointAddress;
 		this.samlUiServletPath = samlUiServletPath;

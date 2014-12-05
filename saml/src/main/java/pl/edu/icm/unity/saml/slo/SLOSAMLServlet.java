@@ -29,7 +29,7 @@ public class SLOSAMLServlet extends SamlHttpServlet
 
 	public SLOSAMLServlet(SAMLLogoutProcessor logoutProcessor)
 	{
-		super(true, false);
+		super(true, false, false);
 		this.logoutProcessor = logoutProcessor;
 	}
 
