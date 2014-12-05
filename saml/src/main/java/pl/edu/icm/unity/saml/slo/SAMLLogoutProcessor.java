@@ -124,7 +124,9 @@ public class SAMLLogoutProcessor
 			internalProcessor.logoutSynchronousParticipants(internalCtx);
 			boolean allLoggedOut = internalCtx.getFailed().isEmpty();
 			sessionManagement.removeSession(internalCtx.getSession().getId(), false);
-			LogoutResponseDocument finalResponse = prepareFinalLogoutResponse(externalCtx, !allLoggedOut);
+			LogoutResponseDocument finalResponse = prepareFinalLogoutResponse(externalCtx, 
+					externalCtx.getInitiator().getLogoutEndpoints().get(Binding.SOAP), 
+					!allLoggedOut);
 			return finalResponse;
 		} catch (SAMLServerException e)
 		{
@@ -259,7 +261,7 @@ public class SAMLLogoutProcessor
 		LogoutResponseDocument finalResponse;
 		try
 		{
-			finalResponse = prepareFinalLogoutResponse(ctx, partial);
+			finalResponse = prepareFinalLogoutResponse(ctx, endpoint, partial);
 		} catch (SAMLResponderException e)
 		{
 			responseHandler.sendErrorResponse(binding, e, endpoint.getReturnUrl(), ctx, response);
@@ -277,11 +279,13 @@ public class SAMLLogoutProcessor
 	 * @return
 	 * @throws SAMLResponderException 
 	 */
-	private LogoutResponseDocument prepareFinalLogoutResponse(SAMLExternalLogoutContext ctx, boolean partial) 
+	private LogoutResponseDocument prepareFinalLogoutResponse(SAMLExternalLogoutContext ctx, 
+			SAMLEndpointDefinition endpoint, boolean partial) 
 			throws SAMLResponderException
 	{
 		LogoutResponse response = new LogoutResponse(getIssuer(ctx.getLocalSessionAuthorityId()), 
 				ctx.getRequest().getID());
+		response.getXMLBean().setDestination(endpoint.getReturnUrl());
 		if (partial)
 			response.setPartialLogout();
 		try
@@ -318,7 +322,8 @@ public class SAMLLogoutProcessor
 		long localEntity;
 		try
 		{
-			localEntity = idResolver.resolveIdentity(identity, new String[] {unityType});
+			localEntity = idResolver.resolveIdentity(identity, new String[] {unityType}, 
+					request.getLogoutRequest().getIssuer().getStringValue(), realm);
 		} catch (EngineException e)
 		{
 			throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_UNKNOWN_PRINCIPIAL,

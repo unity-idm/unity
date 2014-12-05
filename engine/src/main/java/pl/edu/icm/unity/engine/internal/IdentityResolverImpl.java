@@ -59,7 +59,7 @@ public class IdentityResolverImpl implements IdentityResolver
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			long entityId = getEntity(identity, identityTypes, sql);
+			long entityId = getEntity(identity, identityTypes, null, null, sql);
 			EntityState entityState = dbIdentities.getEntityStatus(entityId, sql);
 			if (entityState == EntityState.authenticationDisabled || entityState == EntityState.disabled)
 				throw new IllegalIdentityValueException("Authentication is disabled for this entity");
@@ -102,12 +102,13 @@ public class IdentityResolverImpl implements IdentityResolver
 	}
 	
 	@Override
-	public long resolveIdentity(String identity, String[] identityTypes) throws IllegalIdentityValueException
+	public long resolveIdentity(String identity, String[] identityTypes, String target, String realm) 
+			throws IllegalIdentityValueException
 	{
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			long entityId = getEntity(identity, identityTypes, sql);
+			long entityId = getEntity(identity, identityTypes, target, realm, sql);
 			sql.commit();
 			return entityId;
 		} finally
@@ -116,12 +117,13 @@ public class IdentityResolverImpl implements IdentityResolver
 		}
 	}
 	
-	private long getEntity(String identity, String[] identityTypes, SqlSession sqlMap) 
+	private long getEntity(String identity, String[] identityTypes, String target, String realm, SqlSession sqlMap) 
 			throws IllegalIdentityValueException
 	{
 		for (String identityType: identityTypes)
 		{
-			EntityParam entityParam = new EntityParam(new IdentityTaV(identityType, identity));
+			EntityParam entityParam = new EntityParam(new IdentityTaV(identityType, identity, 
+					target, realm));
 			try
 			{
 				return dbResolver.getEntityId(entityParam, sqlMap);
