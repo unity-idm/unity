@@ -39,6 +39,7 @@ import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
+import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent;
 
@@ -47,7 +48,6 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.JavaScript;
-import com.vaadin.ui.Notification;
 
 /**
  * Vaadin UI of the sandbox application. This servlet is based on AuthenticationUI 
@@ -114,58 +114,60 @@ public class SandboxUI extends AuthenticationUI
 		
 	}
 	
+	private class SandboxAuthnResultCallbackImpl implements SandboxAuthnResultCallback
+	{
+		@Override
+		public void handleAuthnInput(RemotelyAuthenticatedInput input) 
+		{
+			if (isPopup())
+			{
+				fireAuthnEvent(input);
+			}
+			cancelAuthentication();
+			if (isPopup())
+			{
+				JavaScript.getCurrent().execute("window.close();");
+			} else
+			{
+				ErrorPopup.showNotice(msg, msg.getMessage("notice"), input.getTextDump());
+			}
+		}
+
+		@Override
+		public void handleAuthnError(AuthenticationException e) 
+		{
+			cancelAuthentication();
+			ErrorPopup.showError(msg, msg.getMessage("SandboxUI.veryImportantMessage"), e);
+		}
+
+		@Override
+		public boolean validateProfile() 
+		{
+			return isProfileValidation();
+		}
+
+		@Override
+		public void handleProfileValidation(AuthenticationResult authnResult, StringBuffer capturedLogs) 
+		{
+			fireAuthnEvent(authnResult, capturedLogs);
+			cancelAuthentication();
+			if (isPopup()) 
+			{
+				JavaScript.getCurrent().execute("window.close();");
+			}
+		}
+	}
+	
 	private void setSandboxCallbackForAuthenticators() 
 	{
-		if (authenticators != null) 
+		if (authenticators == null)
+			return;
+
+		for (Map<String, VaadinAuthenticationUI> auth : authenticators)
 		{
-			for (Map<String, VaadinAuthenticationUI> auth : authenticators)
+			for (VaadinAuthenticationUI authUI : auth.values())
 			{
-				for (VaadinAuthenticationUI authUI : auth.values())
-				{
-					authUI.setSandboxAuthnResultCallback(new SandboxAuthnResultCallback() 
-					{
-						@Override
-						public void handleAuthnInput(RemotelyAuthenticatedInput input) 
-						{
-							if (isPopup())
-							{
-								fireAuthnEvent(input);
-							}
-							cancelAuthentication();
-							if (isPopup())
-							{
-								JavaScript.getCurrent().execute("window.close();");
-							} else
-							{
-								Notification.show(input.getTextDump(), Notification.Type.HUMANIZED_MESSAGE);
-							}
-						}
-						
-						@Override
-						public void handleAuthnError(AuthenticationException e) 
-						{
-							cancelAuthentication();
-							Notification.show(msg.getMessage("very.important.message", e.getMessage()), Notification.Type.ERROR_MESSAGE);
-						}
-
-						@Override
-						public boolean validateProfile() 
-						{
-							return isProfileValidation();
-						}
-
-						@Override
-						public void handleProfileValidation(AuthenticationResult authnResult, StringBuffer capturedLogs) 
-						{
-							fireAuthnEvent(authnResult, capturedLogs);
-							cancelAuthentication();
-							if (isPopup()) 
-							{
-								JavaScript.getCurrent().execute("window.close();");
-							}
-						}
-					});
-				}
+				authUI.setSandboxAuthnResultCallback(new SandboxAuthnResultCallbackImpl());
 			}
 		}
 	}
@@ -201,14 +203,16 @@ public class SandboxUI extends AuthenticationUI
 		
 		try 
 		{
-			Collection<AuthenticatorInstance> authnInstances = authnManagement.getAuthenticators(VaadinAuthentication.NAME);
+			Collection<AuthenticatorInstance> authnInstances = authnManagement.getAuthenticators(
+					VaadinAuthentication.NAME);
 			for (AuthenticatorInstance instance : authnInstances)
 			{
 				CredentialVerificatorFactory factory = authnRegistry.getCredentialVerificatorFactory(
 						instance.getTypeDescription().getVerificationMethod());
 				if (!(factory instanceof LocalCredentialVerificatorFactory)) 
 				{
-					AuthenticatorSet authnSet = new AuthenticatorSet(Collections.singleton(instance.getId()));
+					AuthenticatorSet authnSet = new AuthenticatorSet(
+							Collections.singleton(instance.getId()));
 					vaadinAuthenticators.add(authnSet);
 				}
 			}
@@ -238,7 +242,8 @@ public class SandboxUI extends AuthenticationUI
 			db.releaseSqlSession(sql);
 		}
 		
-		ArrayList<Map<String, VaadinAuthenticationUI>> authenticatorUIs = new ArrayList<Map<String, VaadinAuthenticationUI>>();
+		ArrayList<Map<String, VaadinAuthenticationUI>> authenticatorUIs = 
+				new ArrayList<Map<String, VaadinAuthenticationUI>>();
 		for (int i=0; i<authenticators.size(); i++)
 		{
 			Map<String, VaadinAuthenticationUI> map = new HashMap<String, VaadinAuthenticationUI>();

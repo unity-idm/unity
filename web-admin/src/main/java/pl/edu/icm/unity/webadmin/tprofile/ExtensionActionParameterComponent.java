@@ -23,15 +23,14 @@ import com.vaadin.ui.DragAndDropWrapper;
 
 /**
  * 
- * In high level view, this class implements the {@link DefaultActionParameterComponent} with
- * drag'n'drop support.
+ * Decorates the {@link DefaultActionParameterComponent} with drag'n'drop support.
  *  
  * @author Roman Krysinski
  *
  */
 public class ExtensionActionParameterComponent extends CustomField<String> implements ActionParameterComponent
 {
-	DefaultActionParameterComponent parameter;
+	private DefaultActionParameterComponent parameter;
 
 	public ExtensionActionParameterComponent(ActionParameterDesc desc, UnityMessageSource msg) 
 	{
@@ -102,6 +101,8 @@ public class ExtensionActionParameterComponent extends CustomField<String> imple
 			@Override
 			public void drop(DragAndDropEvent event) 
 			{
+				if (parameter.isReadOnly())
+					return;
 				DataBoundTransferable t = (DataBoundTransferable) event.getTransferable();
 				Object sourceItemId = t.getData("itemId");
 				
