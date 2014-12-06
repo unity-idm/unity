@@ -26,7 +26,7 @@ function forceContinue()
     </div>
 	<div>
 	
-	<input type="hidden" name="oAuthRequest" value="${originalRequest}"/>
+	<input type="hidden" name="oAuthRequest" value="${originalRequest?xhtml}"/>
 	<input id="force" type="hidden" name="force" value="false"/>
 	</div>
 

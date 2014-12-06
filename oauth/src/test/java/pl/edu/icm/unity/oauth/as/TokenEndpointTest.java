@@ -17,27 +17,15 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpointFactory;
 import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
-import pl.edu.icm.unity.stdext.attr.EnumAttribute;
-import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.stdext.credential.PasswordToken;
-import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
@@ -88,8 +76,6 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 	public static final String REALM_NAME = "testr";
 	
 	@Autowired
-	private TranslationActionsRegistry tactionReg;
-	@Autowired
 	private TokensManagement tokensMan;
 	@Autowired
 	private PKIManagement pkiMan;
@@ -104,7 +90,7 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 		try
 		{
 			setupMockAuthn();
-			createClient();
+			clientId = OAuthTestUtils.createOauthClient(idsMan, attrsMan, groupsMan);
 			createUser();
 			AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
 					10, 100, -1, 600);
@@ -125,41 +111,12 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 
 	protected void setupMockAuthn() throws Exception
 	{
-		CredentialDefinition credDef = new CredentialDefinition(
-				PasswordVerificatorFactory.NAME, "credential1", "");
-		credDef.setJsonConfiguration("{\"minLength\": 4, " +
-				"\"historySize\": 5," +
-				"\"minClassesNum\": 1," +
-				"\"denySequences\": true," +
-				"\"maxAge\": 30758400}");
-		authnMan.addCredentialDefinition(credDef);
-
-		CredentialRequirements cr = new CredentialRequirements("cr-pass", "", 
-				Collections.singleton(credDef.getName()));
-		authnMan.addCredentialRequirement(cr);
+		setupPasswordAuthn();
 		
 		authnMan.createAuthenticator("Apass", "password with rest-httpbasic", null, "", "credential1");
 	}
 	
-	protected void createClient() throws Exception
-	{
-		clientId = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "client1"), 
-				"cr-pass", EntityState.valid, false);
-		EntityParam e1 = new EntityParam(clientId);
-		idsMan.setEntityCredential(e1, "credential1", new PasswordToken("clientPass").toJson());
 
-		groupsMan.addGroup(new Group("/oauth-clients"));
-		groupsMan.addMemberFromParent("/oauth-clients", e1);
-		
-		attrsMan.setAttribute(e1, new EnumAttribute(OAuthSystemAttributesProvider.ALLOWED_FLOWS, 
-				"/oauth-clients", AttributeVisibility.local, GrantFlow.authorizationCode.name()), 
-				false);
-		attrsMan.setAttribute(e1, new StringAttribute(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI, 
-				"/oauth-clients", AttributeVisibility.local, "https://dummy-return.net"), false);
-
-		attrsMan.setAttribute(e1, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE, 
-				"/", AttributeVisibility.local, "Regular User"), false);
-	}
 
 	/**
 	 * Only simple add user so the token may be added - 

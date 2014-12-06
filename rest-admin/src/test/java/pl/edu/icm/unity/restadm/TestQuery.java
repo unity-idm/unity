@@ -23,6 +23,11 @@ import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
 import pl.edu.icm.unity.rest.TestRESTBase;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
@@ -45,10 +50,6 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class TestQuery extends TestRESTBase
 {
@@ -141,7 +142,39 @@ public class TestQuery extends TestRESTBase
 
 		httpServer.start();
 	}
+
+	/*
+	protected BasicHttpContext getClientContext(DefaultHttpClient client, HttpHost host)
+	{
+		client.getCredentialsProvider().setCredentials(
+				new AuthScope(host.getHostName(), host.getPort()),
+				new UsernamePasswordCredentials("user1", "mockPassword1"));
+		AuthCache authCache = new BasicAuthCache();
+		BasicScheme basicAuth = new BasicScheme();
+		authCache.put(host, basicAuth);
+		BasicHttpContext localcontext = new BasicHttpContext();
+		localcontext.setAttribute(ClientContext.AUTH_CACHE, authCache);
+		return localcontext;
+	}
 	
+	protected DefaultHttpClient getClient() throws Exception
+	{
+		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
+		clientCfg.setValidator(new KeystoreCertChainValidator("src/test/resources/demoTruststore.jks", 
+				"unicore".toCharArray(), "JKS", -1));
+		clientCfg.setSslEnabled(true);
+		clientCfg.setSslAuthn(false);
+		return (DefaultHttpClient) HttpUtils.createClient("https://localhost:53456", clientCfg);
+	}
+	
+	@Override
+	protected void setupPasswordAuthn() throws EngineException
+	{
+		super.setupPasswordAuthn();
+		authnMan.createAuthenticator("ApassREST", "password with rest-httpbasic", 
+				null, "", "credential1");
+	}
+	*/
 	public String formatJson(String contents) throws JsonProcessingException, IOException
 	{
 		JsonNode n = m.readTree(contents);
