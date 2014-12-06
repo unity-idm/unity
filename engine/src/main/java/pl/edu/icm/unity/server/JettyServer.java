@@ -59,7 +59,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 				cfg.getJettyProperties(), null);
 		initServer();
 	}
-	
+
 	private static URL[] createURLs(UnityHttpServerConfiguration conf)
 	{
 		try

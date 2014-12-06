@@ -42,6 +42,7 @@ public class IdPButtonsBar extends CustomComponent
 		HorizontalLayout buttons = new HorizontalLayout();
 		
 		Button confirmB = new Button(msg.getMessage("IdPButtonsBar.confirm"));
+		confirmB.setId("IdpButtonsBar.confirmButton");
 		confirmB.addClickListener(new ClickListener()
 		{
 			@Override

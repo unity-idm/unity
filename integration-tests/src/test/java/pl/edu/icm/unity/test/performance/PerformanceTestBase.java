@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.tests;
+package pl.edu.icm.unity.test.performance;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -16,7 +16,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.junit.Before;
+
+
+
+
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.rest.TestRESTBase;
@@ -54,7 +60,7 @@ import pl.edu.icm.unity.types.basic.attrstmnt.MemberOfStatement;
  * Contains all necessary db and time method for integration tests
  * @author P.Piernik
  */
-public class IntegrationTestBase extends TestRESTBase
+public class PerformanceTestBase extends TestRESTBase
 {
 	public final int TEST_REPETITIONS = 10;
 	
@@ -72,6 +78,7 @@ public class IntegrationTestBase extends TestRESTBase
 	@Before
 	public void setup() throws Exception
 	{
+		Logger.getLogger("unity.server").setLevel(Level.OFF);
 		setupPasswordAuthn();
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 		Calendar c = Calendar.getInstance();
@@ -362,7 +369,7 @@ public class IntegrationTestBase extends TestRESTBase
 		for (int i = 0; i < imageAttr; i++)
 		{
 			BufferedImage im = new BufferedImage(1000, 1000, 1);
-			String typeName = "jpeg_" + r.nextInt(nDefAttr / 4 - 1);
+			String typeName = "jpeg_" + r.nextInt((nDefAttr / 4) - 2);
 			Attribute<?> a = new JpegImageAttribute(typeName, enInGroup.get(i%NU),
 					AttributeVisibility.full, Collections.singletonList(im));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
@@ -372,7 +379,7 @@ public class IntegrationTestBase extends TestRESTBase
 
 		for (int i = 0; i < stringAttr; i++)
 		{
-			String typeName = "string_" + r.nextInt((nDefAttr ) / 4 - 1);
+			String typeName = "string_" + r.nextInt((nDefAttr  / 4) - 2);
 			Attribute<?> a = new StringAttribute(typeName, enInGroup.get(i%NU),
 					AttributeVisibility.full,
 					Collections.singletonList(new String(typeName)));
@@ -383,7 +390,7 @@ public class IntegrationTestBase extends TestRESTBase
 
 		for (int i = 0; i < intAttr; i++)
 		{
-			String typeName = "int_" + r.nextInt(nDefAttr / 4 - 1);
+			String typeName = "int_" + r.nextInt((nDefAttr / 4) - 2);
 			Attribute<?> a = new IntegerAttribute(typeName, enInGroup.get(i%NU),
 					AttributeVisibility.full,
 					Collections.singletonList(new Long(i + 100)));
@@ -394,7 +401,7 @@ public class IntegrationTestBase extends TestRESTBase
 
 		for (int i = 0; i < floatAttr; i++)
 		{
-			String typeName = "float_" + r.nextInt(nDefAttr / 4 - 1);
+			String typeName = "float_" + r.nextInt((nDefAttr / 4) - 2);
 			Attribute<?> a = new FloatingPointAttribute(typeName, enInGroup.get(i%NU),
 					AttributeVisibility.full,
 					Collections.singletonList(new Double(i + 100)));

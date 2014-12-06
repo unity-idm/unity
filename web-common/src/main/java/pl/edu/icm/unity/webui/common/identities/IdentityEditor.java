@@ -24,4 +24,9 @@ public interface IdentityEditor
 	 * @throws IllegalIdentityValueException if the entered data is incomplete or invalid.
 	 */
 	public String getValue() throws IllegalIdentityValueException;
+	
+	/**
+	 * @param value 
+	 */
+	public void setDefaultValue(String value);
 }

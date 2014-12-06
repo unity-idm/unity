@@ -51,6 +51,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	protected RegistrationFormLauncher formLauncher;
 
 	protected boolean showNonPublic;
+	protected boolean showWithAutomaticParams;
 	protected Collection<String> allowedForms;
 	protected List<RegistrationForm> displayedForms;
 	protected VerticalLayout main;
@@ -87,6 +88,11 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 		this.showNonPublic = showNonPublic;
 	}
 	
+	public void setShowWithAutomaticParams(boolean showWithAutomaticParams)
+	{
+		this.showWithAutomaticParams = showWithAutomaticParams;
+	}
+	
 	public void setAddAutoAccept(boolean addAutoAccept)
 	{
 		formLauncher.setAddAutoAccept(addAutoAccept);
@@ -102,6 +108,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 		return displayedForms;
 	}
 	
+	
 	protected void refresh() throws EngineException
 	{
 		if (main == null)
@@ -116,6 +123,8 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 				continue;
 			if (allowedForms != null && !allowedForms.contains(form.getName()))
 				continue;
+			if (!showWithAutomaticParams && form.containsAutomaticAndMandatoryParams())
+				continue;	
 			Button button = new Button(form.getName());
 			button.setStyleName(Reindeer.BUTTON_LINK);
 			button.addClickListener(new ButtonListener(form));

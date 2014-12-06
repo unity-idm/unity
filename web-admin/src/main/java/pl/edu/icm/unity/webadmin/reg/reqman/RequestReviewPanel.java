@@ -163,7 +163,10 @@ public class RequestReviewPanel extends CustomComponent
 		{
 			if (idParam == null)
 				continue;
-			identities.addEntry(idParam.toString());
+			String representation = idParam.toString();
+			if (idParam.getRemoteIdp() != null)
+				representation = "[from: " + idParam.getRemoteIdp() + "] " + representation;
+			identities.addEntry(representation);
 		}
 		
 		agreements.clearContents();

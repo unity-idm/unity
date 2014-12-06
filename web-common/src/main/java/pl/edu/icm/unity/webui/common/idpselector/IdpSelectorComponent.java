@@ -203,7 +203,7 @@ public class IdpSelectorComponent extends CustomComponent
 		providerB.setStyleName(Reindeer.BUTTON_LINK);
 		providerB.addStyleName(Styles.verticalMargins6.toString());
 		providerB.addStyleName(Styles.horizontalMargins6.toString());
-
+		providerB.setId("IdpSelector." + idpKey);
 		Resource logo = getLogoResource(idpKey, locale);
 		if (logo == null && name == null)
 		{

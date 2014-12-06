@@ -21,7 +21,6 @@ import com.vaadin.ui.Upload.SucceededListener;
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
-
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -120,5 +119,11 @@ public class X500IdentityEditor implements IdentityEditor
 				fos = null;
 			}
 		}
+	}
+
+	@Override
+	public void setDefaultValue(String value)
+	{
+		field.setValue(value);	
 	};
 }
