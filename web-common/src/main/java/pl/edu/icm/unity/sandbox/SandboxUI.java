@@ -11,16 +11,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
 import pl.edu.icm.unity.callbacks.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.db.DBSessionManager;
-import pl.edu.icm.unity.engine.authn.AuthenticatorLoader;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.api.internal.AuthenticatorsManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
@@ -75,14 +73,13 @@ public class SandboxUI extends AuthenticationUI
 			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService,
 			AuthenticationManagement authnManagement,
-			AuthenticatorLoader authnLoader,
-			DBSessionManager db,
+			AuthenticatorsManagement authenticatorsManagement,
 			AuthenticatorsRegistry authnRegistry)
 	{
 		super(msg, localeChoice, authnProcessor, formsChooser, formLauncher, execService);
 		
 		authnList      = getAllVaadinAuthenticators(authnManagement, authnRegistry);
-		authenticators = getAuthenticatorUIs(authnList, authnLoader, db);
+		authenticators = getAuthenticatorUIs(authnList, authenticatorsManagement);
 	}
 
 	@Override
@@ -226,23 +223,18 @@ public class SandboxUI extends AuthenticationUI
 	}
 	
 	private List<Map<String, VaadinAuthenticationUI>> getAuthenticatorUIs(
-			List<AuthenticatorSet> authnList, AuthenticatorLoader authnLoader, DBSessionManager db) 
+			List<AuthenticatorSet> authnList, AuthenticatorsManagement authenticatorsMan) 
 	{
-		SqlSession sql = db.getSqlSession(true);
-		List<Map<String, BindingAuthn>> authenticators = null;
-		try 
+		List<Map<String, BindingAuthn>> authenticators;
+		try
 		{
-			authenticators = authnLoader.getAuthenticators(authnList, sql);
-			sql.rollback();
-		} catch (Exception e)
+			authenticators = authenticatorsMan.getAuthenticatorUIs(authnList);
+		} catch (EngineException e)
 		{
-			throw new IllegalStateException("Unable to initialize sandbox servlet: " + e.getMessage(), e);
-		} finally
-		{
-			db.releaseSqlSession(sql);
+			throw new IllegalStateException("Can not initialize sandbox UI", e);
 		}
-		
-		ArrayList<Map<String, VaadinAuthenticationUI>> authenticatorUIs = 
+
+		List<Map<String, VaadinAuthenticationUI>> authenticatorUIs = 
 				new ArrayList<Map<String, VaadinAuthenticationUI>>();
 		for (int i=0; i<authenticators.size(); i++)
 		{
