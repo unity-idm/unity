@@ -44,7 +44,6 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	private Button escapeButton;
 	protected Component contentsComponent;
 	protected UnityMessageSource msg;
-	protected boolean defaultSizeUndfined = false;
 	protected boolean lightweightWrapperPanel = false;
 	
 	
@@ -143,7 +142,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	
 	
 	
-	protected void initGUI(boolean sizeUndefined) throws Exception
+	protected void initGUI() throws Exception
 	{
 		setModal(true);
 		setClosable(false);
@@ -159,14 +158,10 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		contentsComponent = getContents();
 		internal.addComponent(contentsComponent);
 		internal.setComponentAlignment(contentsComponent, Alignment.MIDDLE_CENTER);
-		if (!sizeUndefined)
-			internal.setSizeFull();
 		internal.setExpandRatio(contentsComponent, 1.0f);
 		internal.setMargin(true);
 		
 		contentsPanel.setContent(internal);
-		if (!sizeUndefined)
-			contentsPanel.setSizeFull();
 		vl.addComponent(contentsPanel);
 		
 		Layout hl = getButtonsBar();
@@ -174,8 +169,6 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		vl.setComponentAlignment(hl, Alignment.BOTTOM_RIGHT);
 		
 		vl.setExpandRatio(contentsPanel, 4.0f);
-		if (!sizeUndefined)
-			vl.setSizeFull();
 		setContent(vl);
 		
 		enterButton = getDefaultOKButton();
@@ -197,11 +190,11 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		return hl;
 	}
 	
-	public void show(boolean sizeUndefined)
+	public void show()
 	{
 		try
 		{
-			initGUI(sizeUndefined);
+			initGUI();
 		} catch (Exception e)
 		{
 			if (e instanceof RuntimeException)
@@ -213,11 +206,6 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		AbstractField<?> toFocus = getFocussedComponent();
 		if (toFocus != null)
 			toFocus.focus();
-	}
-	
-	public void show()
-	{
-		show(defaultSizeUndfined);
 	}
 	
 	public void close()

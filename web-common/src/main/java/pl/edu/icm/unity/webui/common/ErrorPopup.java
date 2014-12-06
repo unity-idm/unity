@@ -96,7 +96,6 @@ public class ErrorPopup
 			this.header = header;
 			this.message = message;
 			this.type = type;
-			this.defaultSizeUndfined = true;
 			this.lightweightWrapperPanel = true;
 		}
 

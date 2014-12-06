@@ -31,7 +31,6 @@ public class MessageTemplateEditDialog extends AbstractDialog
 		this.editor = editor;
 		this.callback = callback;
 		setWidth(50, Unit.PERCENTAGE);
-		defaultSizeUndfined = true;
 	}
 
 	@Override

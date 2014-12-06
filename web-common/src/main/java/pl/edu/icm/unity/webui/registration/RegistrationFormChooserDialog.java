@@ -24,7 +24,6 @@ public class RegistrationFormChooserDialog extends AbstractDialog
 	{
 		super(msg, caption, msg.getMessage("close"));
 		this.editor = editor;
-		defaultSizeUndfined = true;
 	}
 
 	@Override

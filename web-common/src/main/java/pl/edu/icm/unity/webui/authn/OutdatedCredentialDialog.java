@@ -43,7 +43,6 @@ public class OutdatedCredentialDialog extends AbstractDialog
 		this.idsMan = idsMan;
 		this.credEditorReg = credEditorReg;
 		this.authnProcessor = authnProcessor;
-		this.defaultSizeUndfined = true;
 	}
 
 	@Override
@@ -85,10 +84,6 @@ public class OutdatedCredentialDialog extends AbstractDialog
 		new AbstractDialog(msg,	msg.getMessage("OutdatedCredentialDialog.finalCaption"), 
 				msg.getMessage("ok"))
 		{
-			{
-				this.defaultSizeUndfined = true;
-			}
-			
 			@Override
 			protected void onConfirm()
 			{

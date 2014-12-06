@@ -54,7 +54,6 @@ public class IdentityCreationDialog extends AbstractDialog
 		this.identityEditorReg = identityEditorReg;
 		this.identitiesMan = identitiesMan;
 		this.callback = callback;
-		this.defaultSizeUndfined = true;
 	}
 
 	

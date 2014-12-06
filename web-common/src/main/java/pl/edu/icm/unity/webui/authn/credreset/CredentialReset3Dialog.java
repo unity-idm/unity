@@ -49,7 +49,6 @@ public class CredentialReset3Dialog extends AbstractDialog
 		super(msg, msg.getMessage("CredentialReset.title"), msg.getMessage("continue"),
 				msg.getMessage("cancel"));
 		this.msg = msg;
-		this.defaultSizeUndfined = true;
 		this.backend = backend;
 		this.username = username;
 		this.credEditor = credEditor;

@@ -22,7 +22,6 @@ public class SPSettingsDialog extends AbstractDialog
 	public SPSettingsDialog(UnityMessageSource msg, SPSettingsEditor editor, Callback callback)
 	{
 		super(msg, msg.getMessage("SAMLPreferences.spDialogCaption"));
-		defaultSizeUndfined = true;
 		this.editor = editor;
 		this.callback = callback;
 	}

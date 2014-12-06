@@ -42,7 +42,6 @@ public class CredentialRequirementDialog extends AbstractDialog
 		this.authnMan = authnMan;
 		this.callback = callback;
 		this.initialCR = initialCR;
-		this.defaultSizeUndfined = true;
 	}
 
 	@Override

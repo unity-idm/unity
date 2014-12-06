@@ -24,7 +24,6 @@ public class SPSettingsWithETDDialog extends AbstractDialog
 	public SPSettingsWithETDDialog(UnityMessageSource msg, SPSettingsWithETDEditor editor, Callback callback)
 	{
 		super(msg, msg.getMessage("SAMLPreferences.spDialogCaption"));
-		defaultSizeUndfined = true;
 		this.editor = editor;
 		this.callback = callback;
 	}

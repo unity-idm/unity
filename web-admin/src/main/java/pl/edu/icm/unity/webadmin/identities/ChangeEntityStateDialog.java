@@ -30,7 +30,6 @@ public class ChangeEntityStateDialog extends AbstractDialog
 		super(msg, msg.getMessage("ChangeEntityStateDialog.caption"));
 		this.entity = entity;
 		this.callback = callback;
-		this.defaultSizeUndfined = true;
 		this.initialState = currentState;
 	}
 

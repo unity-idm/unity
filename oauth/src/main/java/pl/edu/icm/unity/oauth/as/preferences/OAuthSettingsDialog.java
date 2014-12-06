@@ -22,7 +22,6 @@ public class OAuthSettingsDialog extends AbstractDialog
 	public OAuthSettingsDialog(UnityMessageSource msg, OAuthSPSettingsEditor editor, Callback callback)
 	{
 		super(msg, msg.getMessage("OAuthPreferences.clientDialogCaption"));
-		defaultSizeUndfined = true;
 		this.editor = editor;
 		this.callback = callback;
 	}
