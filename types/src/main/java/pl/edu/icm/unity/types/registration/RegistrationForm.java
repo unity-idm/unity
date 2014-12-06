@@ -226,8 +226,7 @@ public class RegistrationForm extends DescribedObjectImpl
 		{
 			for (GroupRegistrationParam gr : groupParams)
 			{
-				if (gr.getRetrievalSettings() == ParameterRetrievalSettings.automatic
-						|| gr.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
+				if (gr.getRetrievalSettings().isAutomaticOnly())
 					return true;
 			}
 		}
@@ -236,9 +235,7 @@ public class RegistrationForm extends DescribedObjectImpl
 	
 	private boolean checkAutoParam(OptionalRegistrationParam param)
 	{
-		if (!param.isOptional()
-				&& (param.getRetrievalSettings() == ParameterRetrievalSettings.automatic || param
-						.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden))
+		if (!param.isOptional() && (param.getRetrievalSettings().isAutomaticOnly()))
 			return true;
 
 		return false;

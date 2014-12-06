@@ -27,12 +27,29 @@ public enum ParameterRetrievalSettings
 	automaticHidden,
 	
 	/**
-	 * if system not set value user can enter value manually
+	 * if system does not set value user can enter value manually
 	 */
 	automaticOrInteractive,
 	
 	/**
-	 * system set default value automatically but user can edit this value
+	 * system sets default value automatically but user can edit it
 	 */
-	automaticAndInteractive
+	automaticAndInteractive;
+	
+	/**
+	 * @return true only if the parameter can be obtained from remote source only
+	 */
+	public boolean isAutomaticOnly()
+	{
+		return this == automatic || this == automaticHidden;
+	}
+	
+	/**
+	 * @return true only if the parameter can be obtained from remote source and should be shown.
+	 */
+	public boolean isPotentiallyAutomaticAndVisible()
+	{
+		return this == automatic || this == automaticOrInteractive;
+	}
+	
 }

@@ -140,11 +140,9 @@ public class RegistrationRequestEditor extends CustomComponent
 						found = true;
 						break;
 					}
-				if (!found && !idParam.isOptional() 
-						&& (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic
-						|| idParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden))
+				if (!found && !idParam.isOptional() && (idParam.getRetrievalSettings().isAutomaticOnly()))
 					throw new AuthenticationException("This registration form may be used only by " +
-							"users which were remotely authenticated first and who have " +
+							"users who were remotely authenticated first and who have " +
 							idParam.getIdentityType() + 
 							" identity provided by the remote authentication source.");
 
@@ -171,13 +169,11 @@ public class RegistrationRequestEditor extends CustomComponent
 								a.getName(), a);
 						break;
 					}
-				if (!found && !aParam.isOptional() 
-						&& (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic
-						|| aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden))
+				if (!found && !aParam.isOptional() && (aParam.getRetrievalSettings().isAutomaticOnly()))
 					throw new AuthenticationException("This registration form may be used only by " +
-							"users which were remotely authenticated first and who have " +
-							aParam.getAttributeType() + " in group " + aParam.getGroup() 
-							+ " provided by the remote authentication source.");
+							"users who were remotely authenticated first and who have attribute '" +
+							aParam.getAttributeType() + "' in group '" + aParam.getGroup() 
+							+ "' provided by the remote authentication source.");
 			}
 		}
 	}
@@ -406,7 +402,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<idParams.size(); i++)
 		{
 			IdentityRegistrationParam idParam = idParams.get(i);
-			if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic)
+			if (idParam.getRetrievalSettings().isAutomaticOnly())
 				continue;
 				
 			IdentityTaV rid = remoteIdentitiesByType.get(idParam.getIdentityType());
@@ -481,7 +477,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<attributeParams.size(); i++)
 		{
 			AttributeRegistrationParam aParam = attributeParams.get(i);
-			if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic)
+			if (aParam.getRetrievalSettings().isAutomaticOnly())
 				continue;
 				
 			Attribute<?> rattr = remoteAttributes.get(aParam.getGroup() + "//" + aParam.getAttributeType());
@@ -519,7 +515,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<groupParams.size(); i++)
 		{
 			GroupRegistrationParam gParam = groupParams.get(i);
-			if (gParam.getRetrievalSettings() == ParameterRetrievalSettings.automatic)
+			if (gParam.getRetrievalSettings().isAutomaticOnly())
 				continue;
 			boolean conGroup = remotelyAuthenticated.getGroups().contains(gParam.getGroupPath());
 			if (gParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticOrInteractive && conGroup)
@@ -588,8 +584,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<idParams.size(); i++)
 		{
 			IdentityRegistrationParam idParam = idParams.get(i);
-			if (idParam.getRetrievalSettings() != ParameterRetrievalSettings.automatic &&
-					idParam.getRetrievalSettings() != ParameterRetrievalSettings.automaticOrInteractive)
+			if (!idParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible())
 				continue;
 			IdentityTaV id = remoteIdentitiesByType.get(idParam.getIdentityType());
 			if (id == null)
@@ -619,8 +614,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<attributeParams.size(); i++)
 		{
 			AttributeRegistrationParam aParam = attributeParams.get(i);
-			if (aParam.getRetrievalSettings() != ParameterRetrievalSettings.automatic &&
-					aParam.getRetrievalSettings() != ParameterRetrievalSettings.automaticOrInteractive)
+			if (!aParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible())
 				continue;
 			Attribute<?> a = remoteAttributes.get(aParam.getGroup() + "//" + aParam.getAttributeType());
 			if (a == null)
@@ -651,8 +645,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<groupParams.size(); i++)
 		{
 			GroupRegistrationParam gParam = groupParams.get(i);
-			if (gParam.getRetrievalSettings() != ParameterRetrievalSettings.automatic  &&
-					gParam.getRetrievalSettings() != ParameterRetrievalSettings.automaticOrInteractive)
+			if (!gParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible())
 				continue;
 			if (remotelyAuthenticated.getGroups().contains(gParam.getGroupPath()))
 				groupsList.addEntry(gParam.getGroupPath());

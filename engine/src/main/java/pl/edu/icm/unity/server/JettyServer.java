@@ -64,7 +64,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		getServer().addBean(new UnityErrorHandler());
 	}
 
-	private Handler configureHttpHeaders(Handler toWrap)
+	protected Handler configureHttpHeaders(Handler toWrap)
 	{
 		RewriteHandler rewriter = new RewriteHandler();
 		rewriter.setRewriteRequestURI(false);
