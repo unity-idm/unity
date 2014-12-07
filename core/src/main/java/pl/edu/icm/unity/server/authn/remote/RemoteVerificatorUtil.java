@@ -63,7 +63,7 @@ public class RemoteVerificatorUtil
 			context = processRemoteInput(input, profile);
 		} catch (EngineException e)
 		{
-			throw new AuthenticationException("The mapping of the remtely authenticated " +
+			throw new AuthenticationException("The mapping of the remotely authenticated " +
 					"principal to a local representation failed", e);
 		}
 		return assembleAuthenticationResult(context);

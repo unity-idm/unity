@@ -207,11 +207,9 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		{
 			LogRecorder logRecorder = new LogRecorder();
 			logRecorder.startLogRecording();
-			
 			AuthenticationResult authnResult = getAuthenticationResult(username, password);
-			sandboxCallback.handleProfileValidation(authnResult, logRecorder.getCapturedLogs());
-			
 			logRecorder.stopLogRecording();
+			sandboxCallback.handleProfileValidation(authnResult, logRecorder.getCapturedLogs());
 		}
 
 		private void handleSandboxAuthn(String username, String password) 

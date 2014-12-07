@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.tprofile.dryrun;
 
 import pl.edu.icm.unity.sandbox.SandboxAuthnResultEvent;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.MappingResultComponent;
 import pl.edu.icm.unity.webui.common.Images;
@@ -97,10 +98,14 @@ public class DryRunStepComponent extends CustomComponent
 			authnResultLabel.setStyleName(Styles.error.toString());
 		}
 		logsLabel.setValue(msg.getMessage("DryRun.DryRunStepComponent.logsLabel"));
-		remoteIdpInput.displayAuthnInput(event.getAuthnResult().getRemoteAuthnContext().getAuthnInput());
-		mappingResult.displayMappingResult(event.getAuthnResult().getRemoteAuthnContext().getMappingResult(), 
-				event.getAuthnResult().getRemoteAuthnContext().getInputTranslationProfile());
-		capturedLogs.setValue(event.getCapturedLogs().toString());
+		RemotelyAuthenticatedContext remoteAuthnContext = event.getAuthnResult().getRemoteAuthnContext();
+		if (remoteAuthnContext != null)
+		{
+			remoteIdpInput.displayAuthnInput(remoteAuthnContext.getAuthnInput());
+			mappingResult.displayMappingResult(remoteAuthnContext.getMappingResult(), 
+				remoteAuthnContext.getInputTranslationProfile());
+			capturedLogs.setValue(event.getCapturedLogs().toString());
+		}
 		hideProgressShowResult();
 	}
 
