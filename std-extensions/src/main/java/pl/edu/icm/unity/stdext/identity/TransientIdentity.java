@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -206,6 +207,19 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	{
 		String[] split = Escaper.decode(comparableValue);
 		return split[3];
+	}
+	
+
+	@Override
+	public String toHumanFriendlyString(MessageSource msg, String from)
+	{
+		return msg.getMessage("TransientIdentity.random");
+	}
+
+	@Override
+	public String getHumanFriendlyDescription(MessageSource msg)
+	{
+		return msg.getMessage("TransientIdentity.description");
 	}
 }
 

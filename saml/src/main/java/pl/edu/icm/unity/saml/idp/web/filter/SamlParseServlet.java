@@ -4,26 +4,22 @@
  */
 package pl.edu.icm.unity.saml.idp.web.filter;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterOutputStream;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
-import org.bouncycastle.util.encoders.Base64;
 
-import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
+import pl.edu.icm.unity.saml.SamlHttpServlet;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
-import pl.edu.icm.unity.saml.idp.web.EopException;
+import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
 import pl.edu.icm.unity.server.utils.Log;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
@@ -40,7 +36,7 @@ import eu.unicore.samly2.exceptions.SAMLServerException;
  * or request can not be parsed).
  * @author K. Benedyczak
  */
-public class SamlParseServlet extends HttpServlet
+public class SamlParseServlet extends SamlHttpServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlParseServlet.class);
 	
@@ -54,16 +50,16 @@ public class SamlParseServlet extends HttpServlet
 	 * when an existing auth is in progress. 
 	 */
 	public static final String REQ_FORCE = "force";
-	protected SamlIdpProperties samlConfig;
+	protected RemoteMetaManager samlConfigProvider;
 	protected String endpointAddress;
 	protected String samlUiServletPath;
 	protected ErrorHandler errorHandler;
 
-	public SamlParseServlet(SamlIdpProperties samlConfig, String endpointAddress,
+	public SamlParseServlet(RemoteMetaManager samlConfigProvider, String endpointAddress,
 			String samlUiServletPath, ErrorHandler errorHandler)
 	{
-		super();
-		this.samlConfig = samlConfig;
+		super(true, false, false);
+		this.samlConfigProvider = samlConfigProvider;
 		this.endpointAddress = endpointAddress;
 		this.samlUiServletPath = samlUiServletPath;
 		this.errorHandler = errorHandler;
@@ -109,6 +105,7 @@ public class SamlParseServlet extends HttpServlet
 			throws IOException, ServletException, EopException
 	{
 		log.trace("Starting SAML request processing");
+		SamlIdpProperties samlConfig = (SamlIdpProperties) samlConfigProvider.getVirtualConfiguration();
 		HttpSession session = request.getSession();
 		SAMLAuthnContext context = (SAMLAuthnContext) session.getAttribute(SESSION_SAML_CONTEXT); 
 
@@ -159,8 +156,8 @@ public class SamlParseServlet extends HttpServlet
 			AuthnRequestDocument samlRequest = parse(request);
 			if (log.isTraceEnabled())
 				log.trace("Parsed SAML request:\n" + samlRequest.xmlText());
-			context = createSamlContext(request, samlRequest);
-			validate(context, response);
+			context = createSamlContext(request, samlRequest, samlConfig);
+			validate(context, response, samlConfig);
 		} catch (SAMLProcessingException e)
 		{
 			if (log.isDebugEnabled())
@@ -173,10 +170,10 @@ public class SamlParseServlet extends HttpServlet
 		if (log.isTraceEnabled())
 			log.trace("Request with SAML input handled successfully");
 		response.sendRedirect(samlUiServletPath);
-		//request.getRequestDispatcher(samlUiServletPath).forward(request, response);
 	}
 	
-	protected SAMLAuthnContext createSamlContext(HttpServletRequest request, AuthnRequestDocument samlRequest)
+	protected SAMLAuthnContext createSamlContext(HttpServletRequest request, AuthnRequestDocument samlRequest,
+			SamlIdpProperties samlConfig)
 	{
 		SAMLAuthnContext ret = new SAMLAuthnContext(samlRequest, samlConfig);
 		String rs = request.getParameter(SAMLConstants.RELAY_STATE);
@@ -197,14 +194,14 @@ public class SamlParseServlet extends HttpServlet
 		try
 		{
 			if (req.getMethod().equals("POST"))
-				decodedReq = new String(Base64.decode(samlRequest));
+				decodedReq = extractRequestFromPostBinding(samlRequest);
 			else if (req.getMethod().equals("GET"))
-				decodedReq = inflateSAMLRequest(samlRequest);
+				decodedReq = extractRequestFromRedirectBinding(samlRequest);
 			else
 				throw new SAMLProcessingException("Received a request which is neither POST nor GET");
 		} catch (Exception e)
 		{
-			throw new SAMLProcessingException("Received a request which can't be translated into XML form", e);
+			throw new SAMLProcessingException("Received a request which can't be decoded", e);
 		}
 		
 		AuthnRequestDocument reqDoc;
@@ -219,7 +216,8 @@ public class SamlParseServlet extends HttpServlet
 		return reqDoc;
 	}
 
-	protected void validate(SAMLAuthnContext context, HttpServletResponse servletResponse) 
+	protected void validate(SAMLAuthnContext context, HttpServletResponse servletResponse,
+			SamlIdpProperties samlConfig) 
 			throws SAMLProcessingException, IOException, EopException
 	{
 		WebAuthRequestValidator validator = new WebAuthRequestValidator(endpointAddress, 
@@ -233,18 +231,5 @@ public class SamlParseServlet extends HttpServlet
 		{
 			errorHandler.commitErrorResponse(context, e, servletResponse);
 		}
-	}
-	
-	protected String inflateSAMLRequest(String samlRequest) throws Exception
-	{
-		byte[] third = Base64.decode(samlRequest);
-		Inflater decompressor = new Inflater(true);
-		decompressor.setInput(third, 0, third.length);
-		ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-		InflaterOutputStream os = new InflaterOutputStream(baos, decompressor);
-		os.write(third);
-		os.finish();
-		os.close();
-		return new String(baos.toByteArray(), Constants.UTF);
 	}
 }

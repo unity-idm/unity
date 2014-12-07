@@ -16,14 +16,10 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.Lifecycle;
 import org.springframework.stereotype.Component;
-
-import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.jetty.JettyServerBase;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -33,6 +29,9 @@ import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.jetty.JettyDefaultHandler;
+import eu.unicore.util.jetty.JettyServerBase;
 
 /**
  * Manages HTTP server. Mostly responsible for creating proper hierarchy of HTTP handlers for deployed
@@ -41,7 +40,8 @@ import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
  * Jetty structure which is used:
  *  {@link ContextHandlerCollection} is used to manage all deployed contexts (fixed, one instance)
  *  Endpoints provide a single {@link ServletContextHandler} which describes an endpoint's web application.
- * 
+ * <p>
+ *  If needed it is wrapped in some rewrite handler.
  * @author K. Benedyczak
  */
 @Component
@@ -50,6 +50,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 	private static final Logger log = Log.getLogger(Log.U_SERVER, UnityApplication.class);
 	private List<WebAppEndpointInstance> deployedEndpoints;
 	private Map<String, ServletContextHandler> usedContextPaths;
+	private ContextHandlerCollection mainContextHandler;
 	
 	@Autowired
 	public JettyServer(UnityServerConfiguration cfg, PKIManagement pkiManagement)
@@ -106,11 +107,11 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 	protected synchronized Handler createRootHandler() throws ConfigurationException
 	{
 		usedContextPaths = new HashMap<String, ServletContextHandler>();
-		ContextHandlerCollection handlersCollection = new ContextHandlerCollection();
+		mainContextHandler = new ContextHandlerCollection();
 		deployedEndpoints = new ArrayList<WebAppEndpointInstance>(16);
-		//TODO a custom default handler is needed
-		handlersCollection.addHandler(new DefaultHandler());
-		return handlersCollection;
+		mainContextHandler.addHandler(new JettyDefaultHandler());
+		
+		return mainContextHandler;
 	}
 
 	/**
@@ -141,14 +142,13 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 					"applications configured at the same context path: " + contextPath);
 		}
 		
-		ContextHandlerCollection root = (ContextHandlerCollection) getRootHandler();
-		root.addHandler(handler);
+		mainContextHandler.addHandler(handler);
 		try
 		{
 			handler.start();
 		} catch (Exception e)
 		{
-			root.removeHandler(handler);
+			mainContextHandler.removeHandler(handler);
 			throw new EngineException("Can not start handler", e);
 		}
 		usedContextPaths.put(contextPath, handler);
@@ -174,8 +174,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		{
 			throw new EngineException("Can not stop handler", e);
 		}
-		ContextHandlerCollection root = (ContextHandlerCollection) getRootHandler();
-		root.removeHandler(handler);
+		mainContextHandler.removeHandler(handler);
 		usedContextPaths.remove(handler.getContextPath());
 		deployedEndpoints.remove(endpoint);
 	}

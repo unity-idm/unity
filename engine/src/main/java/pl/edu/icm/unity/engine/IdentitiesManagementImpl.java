@@ -25,10 +25,12 @@ import pl.edu.icm.unity.engine.authn.CredentialRequirementsHolder;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.internal.EngineHelper;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -293,22 +295,27 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	@Override
 	public Entity getEntity(EntityParam entity) throws EngineException
 	{
-		return getEntity(entity, null, true);
+		return getEntity(entity, null, true, "/");
 	}
 	
 	@Override
-	public Entity getEntityNoContext(EntityParam entity) throws EngineException
+	public Entity getEntityNoContext(EntityParam entity, String group) throws EngineException
 	{
 		entity.validateInitialization();
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.readHidden);
-			Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
-			CredentialInfo credInfo = getCredentialInfo(entityId, sqlMap);
-			EntityState theState = dbIdentities.getEntityStatus(entityId, sqlMap);
-			Entity ret = new Entity(entityId, identities, theState, credInfo);
+			Entity ret;
+			try
+			{
+				authz.checkAuthorization(authz.isSelf(entityId), group, AuthzCapability.readHidden);
+				Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
+				ret = assembleEntity(entityId, identities, sqlMap);
+			} catch (AuthorizationException e)
+			{
+				ret = resolveEntityBasic(entityId, null, false, group, sqlMap);
+			}
 			sqlMap.commit();
 			return ret;
 		} finally
@@ -318,7 +325,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	}
 	
 	@Override
-	public Entity getEntity(EntityParam entity, String target, boolean allowCreate)
+	public Entity getEntity(EntityParam entity, String target, boolean allowCreate, String group)
 			throws EngineException
 	{
 		entity.validateInitialization();
@@ -326,12 +333,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
-			Identity[] identities = dbIdentities.getIdentitiesForEntity(entityId, target, allowCreate, 
-					sqlMap);
-			CredentialInfo credInfo = getCredentialInfo(entityId, sqlMap);
-			EntityState theState = dbIdentities.getEntityStatus(entityId, sqlMap);
-			Entity ret = new Entity(entityId, identities, theState, credInfo);
+			Entity ret = resolveEntityBasic(entityId, target, allowCreate, group, sqlMap);
 			sqlMap.commit();
 			return ret;
 		} finally
@@ -339,7 +341,40 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			db.releaseSqlSession(sqlMap);
 		}
 	}
+
+	/**
+	 * Checks if read cap is set and resolved the entity: identities and credential with respect to the
+	 * given target.
+	 * @param entityId
+	 * @param target
+	 * @param allowCreate
+	 * @param sqlMap
+	 * @return
+	 * @throws EngineException
+	 */
+	private Entity resolveEntityBasic(long entityId, String target, boolean allowCreate, String group, 
+			SqlSession sqlMap) throws EngineException
+	{
+		authz.checkAuthorization(authz.isSelf(entityId), group, AuthzCapability.read);
+		Identity[] identities = dbIdentities.getIdentitiesForEntity(entityId, target, allowCreate, 
+				sqlMap);
+		return assembleEntity(entityId, identities, sqlMap);
+	}
 	
+	/**
+	 * assembles the final entity by adding the credential and state info.
+	 * @param entityId
+	 * @param identities
+	 * @param sqlMap
+	 * @return
+	 * @throws EngineException
+	 */
+	private Entity assembleEntity(long entityId, Identity[] identities, SqlSession sqlMap) throws EngineException
+	{
+		CredentialInfo credInfo = getCredentialInfo(entityId, sqlMap);
+		EntityState theState = dbIdentities.getEntityStatus(entityId, sqlMap);
+		return new Entity(entityId, identities, theState, credInfo);
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -370,7 +405,6 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
 			engineHelper.setEntityCredentialRequirements(entityId, requirementId, sqlMap);
 			sqlMap.commit();
 		} finally
@@ -380,7 +414,40 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	}
 
 	@Override
-	public void setEntityCredential(EntityParam entity, String credentialId, String rawCredential) throws EngineException
+	public boolean isCurrentCredentialRequiredForChange(EntityParam entity, String credentialId)
+			throws EngineException
+	{
+		SqlSession sqlMap = db.getSqlSession(true);
+		try
+		{
+			boolean fullAuthz = false;
+			try
+			{
+				authz.checkAuthorization(AuthzCapability.credentialModify);
+				fullAuthz = true;
+			} catch (AuthorizationException e)
+			{
+				//OK
+			}
+			sqlMap.commit();
+			return !fullAuthz;
+		} finally
+		{
+			db.releaseSqlSession(sqlMap);
+		}
+
+	}
+	
+	@Override
+	public void setEntityCredential(EntityParam entity, String credentialId, String rawCredential) 
+			throws EngineException
+	{
+		setEntityCredential(entity, credentialId, rawCredential, null);
+	}
+	
+	@Override
+	public void setEntityCredential(EntityParam entity, String credentialId, String rawCredential,
+			String currentRawCredential) throws EngineException
 	{
 		if (rawCredential == null)
 			throw new IllegalCredentialException("The credential can not be null");
@@ -389,8 +456,25 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.credentialModify);
-			engineHelper.setEntityCredentialInternal(entityId, credentialId, rawCredential, sqlMap);
+			boolean fullAuthz = false;
+			try
+			{
+				authz.checkAuthorization(AuthzCapability.credentialModify);
+				fullAuthz = true;
+			} catch (AuthorizationException e)
+			{
+				authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.credentialModify);
+			}
+			
+			if (!fullAuthz && currentRawCredential == null)
+				throw new IllegalPreviousCredentialException(
+						"The current credential must be provided");
+			//we don't check it 
+			if (fullAuthz)
+				currentRawCredential = null;
+			
+			engineHelper.setEntityCredentialInternal(entityId, credentialId, rawCredential, 
+					currentRawCredential, sqlMap);
 			sqlMap.commit();
 		} finally
 		{

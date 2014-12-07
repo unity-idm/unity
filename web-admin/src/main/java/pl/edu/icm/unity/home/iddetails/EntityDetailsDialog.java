@@ -20,7 +20,6 @@ public class EntityDetailsDialog extends AbstractDialog
 		super(msg, msg.getMessage("IdentityDetails.entityDetailsCaption"),
 				msg.getMessage("close"));
 		this.contents = contents;
-		defaultSizeUndfined = true;
 	}
 	
 	@Override

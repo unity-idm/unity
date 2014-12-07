@@ -20,6 +20,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsDialog;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsPanel;
@@ -399,7 +400,16 @@ public class IdentitiesTable extends TreeTable
 		this.entityNameAttribute = nameAt == null ? null : nameAt.getName();
 		data.clear();
 		for (Long entity : entities)
-			resolveEntity(entity);
+		{
+			try
+			{
+				resolveEntity(entity);
+			} catch (AuthorizationException e)
+			{
+				log.debug("Entity " + entity + " information can not be loaded, "
+						+ "won't be in the identities table", e);
+			}
+		}
 		updateContents();
 	}
 
@@ -624,12 +634,20 @@ public class IdentitiesTable extends TreeTable
 	private void resolveEntity(long entity) throws EngineException
 	{		
 		Entity resolvedEntity = showTargeted ? identitiesMan
-				.getEntityNoContext(new EntityParam(entity)) : identitiesMan
-				.getEntity(new EntityParam(entity));
-		Collection<AttributeExt<?>> rawRootAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
-				true, "/", null, true);
+				.getEntityNoContext(new EntityParam(entity), this.group) : identitiesMan
+				.getEntity(new EntityParam(entity), null, false, this.group);
 		Collection<AttributeExt<?>> rawCurAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
 				true, this.group, null, true);
+		Collection<AttributeExt<?>> rawRootAttrs = new ArrayList<AttributeExt<?>>();
+		try
+		{
+			rawRootAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
+				true, "/", null, true);
+		} catch (AuthorizationException e)
+		{
+			log.debug("can not resolve attributes in '/' for entity, " + entity + 
+					" only group's attributes will be available: " + e.toString());
+		}
 		Map<String, Attribute<?>> rootAttrs = new HashMap<String, Attribute<?>>(rawRootAttrs.size());
 		Map<String, Attribute<?>> curAttrs = new HashMap<String, Attribute<?>>(rawRootAttrs.size());
 		for (Attribute<?> a: rawRootAttrs)

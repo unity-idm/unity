@@ -140,7 +140,7 @@ public class ECPStep2Handler
 			return;
 		}
 		
-		SAMLSPProperties samlProperties = metadataManager.getVirtualConfiguration();
+		SAMLSPProperties samlProperties = (SAMLSPProperties) metadataManager.getVirtualConfiguration();
 		AuthenticationResult authenticationResult;
 		try
 		{
@@ -237,7 +237,7 @@ public class ECPStep2Handler
 		SAMLResponseValidatorUtil responseValidatorUtil = new SAMLResponseValidatorUtil(samlProperties, 
 				replayAttackChecker, myAddress);
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDoc, 
-				ctx.getRequestId(), SAMLBindings.PAOS, groupAttr);
+				ctx.getRequestId(), SAMLBindings.PAOS, groupAttr, key);
 		return remoteVerificatorUtil.getResult(input, profile);
 	}
 	

@@ -36,6 +36,7 @@ import pl.edu.icm.unity.webui.common.RequiredComboBox;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.Styles;
 
+import com.google.common.html.HtmlEscapers;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.validator.AbstractStringValidator;
@@ -301,13 +302,13 @@ public class RuleComponent extends VerticalLayout
 			return;
 		}
 		
-		helpAction.setDescription(msg.getMessage(factory.getDescriptionKey()));
+		helpAction.setDescription(HtmlEscapers.htmlEscaper().escape(msg.getMessage(factory.getDescriptionKey())));
 		ActionParameterDesc[] params = factory.getParameters();	
 		for (int i = 0; i < params.length; i++)
 		{
 			ActionParameterComponent p = getParameterComponent(params[i]);
 			p.setValidationVisible(false);
-			if (values != null && values[i] != null)
+			if (values != null && values.length > i && values[i] != null)
 			{
 				p.setActionValue(values[i]);
 			}		

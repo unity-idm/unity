@@ -19,10 +19,12 @@ import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.webadmin.msgtemplate.SimpleMessageTemplateViewer;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.HtmlLabel;
+import pl.edu.icm.unity.webui.common.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.ListOfElements;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -176,8 +178,7 @@ public class RegistrationFormViewer extends VerticalLayout
 
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
 		
-		formInformation = new Label();
-		formInformation.setContentMode(ContentMode.HTML);
+		formInformation = new HtmlSimplifiedLabel();
 		formInformation.setCaption(msg.getMessage("RegistrationFormViewer.formInformation"));
 		registrationCode = new Label();
 		registrationCode.setCaption(msg.getMessage("RegistrationFormViewer.registrationCode"));
@@ -189,25 +190,29 @@ public class RegistrationFormViewer extends VerticalLayout
 			@Override
 			public Label toLabel(AgreementRegistrationParam value)
 			{
-				String content = getOptionalStr(!value.isManatory()) + "<br>" + value.getText();
-				return new Label(content, ContentMode.HTML);
+				String content = getOptionalStr(!value.isManatory());
+				HtmlLabel ret = new HtmlLabel(msg);
+				ret.setHtmlValue("RegistrationFormViewer.twoLines", content, value.getText());
+				return ret;			
 			}
 		});
 		agreements.setMargin(true);
-		Panel agreementsP = new Panel(msg.getMessage("RegistrationFormViewer.agreements"), agreements);
+		Panel agreementsP = new SafePanel(msg.getMessage("RegistrationFormViewer.agreements"), agreements);
 
 		identityParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<IdentityRegistrationParam>()
 		{
 			@Override
 			public Label toLabel(IdentityRegistrationParam value)
 			{
-				String content = msg.getMessage("RegistrationFormViewer.identityType", value.getIdentityType())
-						 + "<br>" + toHTMLLabel(value);
-				return new Label(content, ContentMode.HTML);
+				String content = msg.getMessage("RegistrationFormViewer.identityType", 
+						value.getIdentityType());
+				HtmlLabel ret = new HtmlLabel(msg);
+				ret.setHtmlValue("RegistrationFormViewer.twoLines", content, toHTMLLabel(value));
+				return ret;
 			}
 		});
 		identityParams.setMargin(true);
-		Panel identityParamsP = new Panel(msg.getMessage("RegistrationFormViewer.identityParams"), identityParams);
+		Panel identityParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.identityParams"), identityParams);
 		
 		attributeParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<AttributeRegistrationParam>()
 		{
@@ -218,14 +223,15 @@ public class RegistrationFormViewer extends VerticalLayout
 						("[" + msg.getMessage("RegistrationFormViewer.useAttributeTypeDescription") +"]") : ""; 
 				String showGroup = value.isShowGroups() ? 
 						"[" + msg.getMessage("RegistrationFormViewer.showAttributeGroup")+"]" : ""; 
-				String content = value.getAttributeType() + " @ " + value.getGroup() + " " +
-						useDescription + " " + showGroup  + 
-						"<br>" + toHTMLLabel(value);
-				return new Label(content, ContentMode.HTML);
+				HtmlLabel ret = new HtmlLabel(msg);
+				String line1 = value.getAttributeType() + " @ " + value.getGroup() + " " +
+						useDescription + " " + showGroup;
+				ret.setHtmlValue("RegistrationFormViewer.twoLines", line1, toHTMLLabel(value));
+				return ret;
 			}
 		});
 		attributeParams.setMargin(true);
-		Panel attributeParamsP = new Panel(msg.getMessage("RegistrationFormViewer.attributeParams"), 
+		Panel attributeParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.attributeParams"), 
 				attributeParams);
 		
 		
@@ -234,26 +240,29 @@ public class RegistrationFormViewer extends VerticalLayout
 			@Override
 			public Label toLabel(GroupRegistrationParam value)
 			{
-				String content = value.getGroupPath()  + "<br>" + toHTMLLabel(value);
-				return new Label(content, ContentMode.HTML);
+				HtmlLabel ret = new HtmlLabel(msg);
+				ret.setHtmlValue("RegistrationFormViewer.twoLines", value.getGroupPath(), 
+						toHTMLLabel(value));
+				return ret;
 			}
 		});
 		groupParams.setMargin(true);
-		Panel groupParamsP = new Panel(msg.getMessage("RegistrationFormViewer.groupParams"), groupParams);
+		Panel groupParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.groupParams"), groupParams);
 		
 		credentialParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<CredentialRegistrationParam>()
 		{
 			@Override
 			public Label toLabel(CredentialRegistrationParam value)
 			{
-				String content = value.getCredentialName() + "<br>" + 
+				HtmlLabel ret = new HtmlLabel(msg);
+				ret.setHtmlValue("RegistrationFormViewer.twoLines", value.getCredentialName(), 
 						"[" + emptyNull(value.getLabel()) +  "] ["+
-						emptyNull(value.getDescription()) + "]";
-				return new Label(content, ContentMode.HTML);
+								emptyNull(value.getDescription()) + "]");
+				return ret;
 			}
 		});
 		credentialParams.setMargin(true);
-		Panel credentialParamsP = new Panel(msg.getMessage("RegistrationFormViewer.credentialParams"), 
+		Panel credentialParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.credentialParams"), 
 				credentialParams);
 		
 		main.addComponents(formInformation, registrationCode, collectComments);
@@ -280,11 +289,11 @@ public class RegistrationFormViewer extends VerticalLayout
 			{
 				String content = attrHandlerRegistry.getSimplifiedAttributeRepresentation(
 						value, 64) + " @ " + value.getGroupPath();
-				return new Label(content, ContentMode.HTML);
+				return new Label(content);
 			}
 		});
 		attributeAssignments.setMargin(true);
-		Panel attributeAssignmentsP = new Panel(msg.getMessage("RegistrationFormViewer.attributeAssignments"),
+		Panel attributeAssignmentsP = new SafePanel(msg.getMessage("RegistrationFormViewer.attributeAssignments"),
 				attributeAssignments);
 
 		groupAssignments = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
@@ -296,7 +305,7 @@ public class RegistrationFormViewer extends VerticalLayout
 			}
 		});
 		groupAssignments.setMargin(true);
-		Panel groupAssignmentsP = new Panel(msg.getMessage("RegistrationFormViewer.groupAssignments"), 
+		Panel groupAssignmentsP = new SafePanel(msg.getMessage("RegistrationFormViewer.groupAssignments"), 
 				groupAssignments);
 
 		attributeClassAssignments = new ListOfElements<>(msg, new ListOfElements.LabelConverter<AttributeClassAssignment>()
@@ -308,7 +317,7 @@ public class RegistrationFormViewer extends VerticalLayout
 			}
 		});
 		attributeClassAssignments.setMargin(true);
-		Panel attributeClassAssignmentsP = new Panel(msg.getMessage("RegistrationFormViewer.attributeClassAssignments"),
+		Panel attributeClassAssignmentsP = new SafePanel(msg.getMessage("RegistrationFormViewer.attributeClassAssignments"),
 				attributeClassAssignments);
 		
 		main.addComponents(credentialRequirementAssignment, initialState);

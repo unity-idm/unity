@@ -14,6 +14,7 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataEditor;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandler;
@@ -21,14 +22,13 @@ import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandler;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -178,7 +178,7 @@ public class MetadataEditor extends VerticalLayout
 	{
 		private MetaUpdated parent;
 		private AttributeMetadataEditor editor;
-		private Panel editorPanel;
+		private SafePanel editorPanel;
 		private final String initialKey;
 		private String key;
 		private final String initialValue;
@@ -190,14 +190,13 @@ public class MetadataEditor extends VerticalLayout
 			this.parent = parent;
 			this.initialKey = key;
 			this.initialValue = initial;
-			this.defaultSizeUndfined = true;
 		}
 
 		@Override
 		protected Component getContents() throws Exception
 		{
 			FormLayout main = new FormLayout();
-			editorPanel = new Panel();
+			editorPanel = new SafePanel();
 			editorPanel.setStyleName(Reindeer.PANEL_LIGHT);
 			if (initialKey != null)
 			{

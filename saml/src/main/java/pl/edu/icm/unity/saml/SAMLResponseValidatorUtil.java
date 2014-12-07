@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml;
 import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
@@ -15,6 +16,8 @@ import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import xmlbeans.org.oasis.saml2.assertion.AssertionDocument;
+import xmlbeans.org.oasis.saml2.assertion.AssertionType;
+import xmlbeans.org.oasis.saml2.assertion.AuthnStatementType;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 import eu.emi.security.authn.x509.X509Credential;
@@ -52,7 +55,8 @@ public class SAMLResponseValidatorUtil
 
 
 	public RemotelyAuthenticatedInput verifySAMLResponse(ResponseDocument responseDocument,
-			String requestId, SAMLBindings binding, String groupAttribute) throws AuthenticationException
+			String requestId, SAMLBindings binding, String groupAttribute, String configKey) 
+					throws AuthenticationException
 	{
 		String consumerSamlName = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
 		
@@ -83,20 +87,23 @@ public class SAMLResponseValidatorUtil
 					"by an untrusted identity provider.", e);
 		}
 
-		return convertAssertion(responseDocument, validator, groupAttribute);
+		return convertAssertion(responseDocument, validator, groupAttribute, configKey);
 	}
 	
 	
 	private RemotelyAuthenticatedInput convertAssertion(ResponseDocument responseDocument,
-			SSOAuthnResponseValidator validator, String groupA) throws AuthenticationException
+			SSOAuthnResponseValidator validator, String groupA, String configKey) throws AuthenticationException
 	{
-		NameIDType issuer = responseDocument.getResponse().getIssuer();
+		xmlbeans.org.oasis.saml2.protocol.ResponseType resp = responseDocument.getResponse();
+		NameIDType issuer = resp.getIssuer();
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput(issuer.getStringValue());
 		
 		input.setIdentities(getAuthenticatedIdentities(validator));
 		List<RemoteAttribute> remoteAttributes = getAttributes(validator);
 		input.setAttributes(remoteAttributes);
 		input.setGroups(getGroups(remoteAttributes, groupA));
+
+		addSessionParticipants(validator, issuer, input, configKey);
 		
 		return input;
 	}
@@ -111,6 +118,35 @@ public class SAMLResponseValidatorUtil
 			ret.add(new RemoteIdentity(samlName.getStringValue(), samlName.getFormat()));
 		}
 		return ret;
+	}
+
+	private void addSessionParticipants(SSOAuthnResponseValidator validator,
+			NameIDType issuer, RemotelyAuthenticatedInput input, String configKey)
+	{
+		List<SAMLEndpointDefinition> logoutEndpoints = samlProperties.
+				getLogoutEndpointsFromStructuredList(configKey);
+		String localSPSamlId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
+		String localCredential = samlProperties.getValue(SAMLSPProperties.CREDENTIAL);
+		Set<String> validCerts = samlProperties.getCertificateNames(configKey);
+		List<AssertionDocument> authnAssertions = validator.getAuthNAssertions();
+		for (int i=0; i<authnAssertions.size(); i++)
+		{
+			AssertionType authNAss = authnAssertions.get(i).getAssertion();
+			String sessionIndex = null;
+			for (AuthnStatementType authNStatement: authNAss.getAuthnStatementArray())
+			{
+				sessionIndex = authNStatement.getSessionIndex();
+				if (sessionIndex != null)
+				{
+					SAMLSessionParticipant participant = new SAMLSessionParticipant(
+							issuer.getStringValue(), 
+							authNAss.getSubject().getNameID(), sessionIndex,
+							logoutEndpoints, localSPSamlId, 
+							localCredential, validCerts);
+					input.addSessionParticipant(participant);
+				}
+			}
+		}
 	}
 	
 	private List<RemoteAttribute> getAttributes(SSOAuthnResponseValidator validator) throws AuthenticationException

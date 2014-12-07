@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
@@ -40,15 +41,15 @@ public class IdentityTypeMapper
 		DEFAULTS.put("unity:userName", UsernameIdentity.ID);
 	}
 
-	public IdentityTypeMapper(SamlIdpProperties config)
+	public IdentityTypeMapper(SamlProperties config)
 	{
-		Set<String> keys = config.getStructuredListKeys(SamlIdpProperties.IDENTITY_MAPPING_PFX);
+		Set<String> keys = config.getStructuredListKeys(SamlProperties.IDENTITY_MAPPING_PFX);
 		configuredMappings = new HashMap<String, String>(keys.size());
 		configuredMappings.putAll(DEFAULTS);
 		for (String key: keys)
 		{
-			String localId = config.getValue(key+SamlIdpProperties.IDENTITY_LOCAL);
-			String samlId = config.getValue(key+SamlIdpProperties.IDENTITY_SAML);
+			String localId = config.getValue(key+SamlProperties.IDENTITY_LOCAL);
+			String samlId = config.getValue(key+SamlProperties.IDENTITY_SAML);
 			if (localId.trim().equals(""))
 				configuredMappings.remove(samlId);
 			else

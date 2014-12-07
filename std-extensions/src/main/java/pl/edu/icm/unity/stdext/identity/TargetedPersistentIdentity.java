@@ -14,6 +14,7 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.utils.Log;
@@ -138,6 +139,19 @@ public class TargetedPersistentIdentity extends AbstractIdentityTypeProvider
 	public boolean isExpired(IdentityRepresentation representation)
 	{
 		return false;
+	}
+	
+	@Override
+	public String getHumanFriendlyDescription(MessageSource msg)
+	{
+		return msg.getMessage("TargetedPersistentIdentity.description");
+	}
+	
+
+	@Override
+	public String toHumanFriendlyString(MessageSource msg, String from)
+	{
+		return msg.getMessage("TargetedPersistentIdentity.fullyAnonymous");
 	}
 }
 

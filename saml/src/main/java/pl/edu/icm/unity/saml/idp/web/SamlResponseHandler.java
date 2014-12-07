@@ -6,21 +6,23 @@ package pl.edu.icm.unity.saml.idp.web;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.apache.xml.security.utils.Base64;
 
+import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import pl.edu.icm.unity.saml.idp.web.filter.SamlGuardFilter;
+import pl.edu.icm.unity.saml.idp.web.filter.SamlParseServlet;
 import pl.edu.icm.unity.server.utils.Log;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 import com.vaadin.server.Page;
-import com.vaadin.server.RequestHandler;
+import com.vaadin.server.SynchronizedRequestHandler;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinSession;
@@ -38,14 +40,12 @@ public class SamlResponseHandler
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlResponseHandler.class);
 	protected FreemarkerHandler freemarkerHandler;
 	protected AuthnResponseProcessor samlProcessor;
-	protected String thisAddress;
 	
 	public SamlResponseHandler(FreemarkerHandler freemarkerHandler,
-			AuthnResponseProcessor samlProcessor, String contextAddress)
+			AuthnResponseProcessor samlProcessor)
 	{
 		this.freemarkerHandler = freemarkerHandler;
 		this.samlProcessor = samlProcessor;
-		this.thisAddress = contextAddress;
 	}
 
 	public void handleException(Exception e, boolean destroySession) throws EopException
@@ -68,7 +68,7 @@ public class SamlResponseHandler
 	{
 		VaadinSession.getCurrent().setAttribute(ResponseDocument.class, respDoc);
 		VaadinSession.getCurrent().addRequestHandler(new SendResponseRequestHandler());
-		Page.getCurrent().open(thisAddress, null);		
+		Page.getCurrent().reload();		
 	}
 	
 	/**
@@ -77,17 +77,17 @@ public class SamlResponseHandler
 	 * back to the requesting SP.
 	 * @author K. Benedyczak
 	 */
-	public class SendResponseRequestHandler implements RequestHandler
+	public class SendResponseRequestHandler extends SynchronizedRequestHandler
 	{
 		@Override
-		public boolean handleRequest(VaadinSession session, VaadinRequest request, VaadinResponse response)
-						throws IOException
+		public boolean synchronizedHandleRequest(VaadinSession session, VaadinRequest request, 
+				VaadinResponse response) throws IOException
 		{
 			ResponseDocument samlResponse = session.getAttribute(ResponseDocument.class);
 			if (samlResponse == null)
 				return false;
 			String assertion = samlResponse.xmlText();
-			String encodedAssertion = Base64.encode(assertion.getBytes());
+			String encodedAssertion = Base64.encode(assertion.getBytes(StandardCharsets.UTF_8));
 			SessionDisposal error = session.getAttribute(SessionDisposal.class);
 			
 			SAMLAuthnContext samlCtx = getContext();
@@ -127,7 +127,8 @@ public class SamlResponseHandler
 	public static SAMLAuthnContext getContext()
 	{
 		WrappedSession httpSession = VaadinSession.getCurrent().getSession();
-		SAMLAuthnContext ret = (SAMLAuthnContext) httpSession.getAttribute(SamlGuardFilter.SESSION_SAML_CONTEXT);
+		SAMLAuthnContext ret = (SAMLAuthnContext) httpSession.getAttribute(
+				SamlParseServlet.SESSION_SAML_CONTEXT);
 		if (ret == null)
 			throw new IllegalStateException("No SAML context in UI");
 		return ret;
@@ -138,7 +139,7 @@ public class SamlResponseHandler
 		VaadinSession vSession = VaadinSession.getCurrent();
 		vSession.setAttribute(ResponseDocument.class, null);
 		WrappedSession httpSession = vSession.getSession();
-		httpSession.removeAttribute(SamlGuardFilter.SESSION_SAML_CONTEXT);
+		httpSession.removeAttribute(SamlParseServlet.SESSION_SAML_CONTEXT);
 	}
 	
 	private static class SessionDisposal

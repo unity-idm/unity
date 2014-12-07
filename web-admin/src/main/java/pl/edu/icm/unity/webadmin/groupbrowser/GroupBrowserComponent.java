@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.webadmin.groupbrowser;
 
-import org.springframework.context.annotation.Scope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -15,10 +15,10 @@ import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.bus.RefreshEvent;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.Toolbar;
 
 import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -29,7 +29,7 @@ import com.vaadin.ui.themes.Reindeer;
 @SuppressWarnings("serial")
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class GroupBrowserComponent extends Panel
+public class GroupBrowserComponent extends SafePanel
 {
 	private GroupsTree groupsTree;
 	private UnityMessageSource msg;

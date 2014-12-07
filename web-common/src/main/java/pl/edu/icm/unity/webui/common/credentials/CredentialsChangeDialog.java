@@ -34,7 +34,6 @@ public class CredentialsChangeDialog extends AbstractDialog
 			Callback callback)
 	{
 		super(msg, msg.getMessage("CredentialChangeDialog.caption"), msg.getMessage("close"));
-		this.defaultSizeUndfined = true;
 		this.authnMan = authnMan;
 		this.idsMan = idsMan;
 		this.entityId = entityId;

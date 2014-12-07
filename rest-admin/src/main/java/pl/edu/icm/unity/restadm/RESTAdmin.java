@@ -36,7 +36,7 @@ import pl.edu.icm.unity.types.basic.GroupContents;
  * @author K. Benedyczak
  */
 @Produces("application/json")
-@Path("/v1")
+@Path(RESTAdminEndpointFactory.V1_PATH)
 public class RESTAdmin
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, RESTAdmin.class);

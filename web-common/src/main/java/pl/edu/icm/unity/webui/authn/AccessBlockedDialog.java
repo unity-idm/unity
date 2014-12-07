@@ -4,8 +4,15 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
+import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.HtmlTag;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.UIBgThread;
+
 import com.vaadin.server.VaadinService;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
@@ -14,13 +21,6 @@ import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-
-import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.server.utils.ExecutorsService;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.UIBgThread;
 
 /**
  * Shows a dialog box with information about temporarily blocked access. After the timer goes off, 
@@ -56,7 +56,7 @@ public class AccessBlockedDialog extends Window
 		img.setSource(Images.stderror64.getResource());
 		main.addComponent(img);
 		main.setComponentAlignment(img, Alignment.MIDDLE_CENTER);
-		main.addComponent(new Label("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", ContentMode.HTML));
+		main.addComponent(HtmlTag.hspaceEm(4));
 		
 		VerticalLayout vl = new VerticalLayout();
 		vl.setSpacing(true);

@@ -111,7 +111,7 @@ public interface IdentitiesManagement
 			throws EngineException;
 	
 	/**
-	 * Returns information about an entity along with its all identities.
+	 * Returns information about an entity along with its all identities with authorization in '/'.
 	 * @param entity
 	 * @return
 	 * @throws EngineException
@@ -122,11 +122,14 @@ public interface IdentitiesManagement
 	 * Returns information about an entity along with its all identities.
 	 * This version supports dynamic identities as it allows for specifying a receiver of the information 
 	 * and whether it is allowed to establish a new identifier.
-	 * @param entity
-	 * @return
+	 * @param entity who to resolve
+	 * @param target for whom the information is targeted
+	 * @param allowCreate whether dynamic identities can be created
+	 * @param group group wrt which authorization should be performed.
+	 * @return 
 	 * @throws EngineException
 	 */
-	public Entity getEntity(EntityParam entity, String target, boolean allowCreate) throws EngineException;
+	public Entity getEntity(EntityParam entity, String target, boolean allowCreate, String group) throws EngineException;
 
 	/**
 	 * Returns information about an entity along with its identities.
@@ -136,7 +139,7 @@ public interface IdentitiesManagement
 	 * @return
 	 * @throws EngineException
 	 */
-	Entity getEntityNoContext(EntityParam entity) throws EngineException;
+	Entity getEntityNoContext(EntityParam entity, String group) throws EngineException;
 
 	
 	/**
@@ -151,10 +154,12 @@ public interface IdentitiesManagement
 	 * Sets authentication secretes for the entity. After the change, the credential will be in correct state.  
 	 * @param entity to be modified
 	 * @param credentialId credential id to be changed. 
-	 * @param secrets the credential type specific value of the credential. 
+	 * @param secrets the credential type specific value of the credential.
+	 * @param previousSecrets used to check if the previous credential is known to the caller. 
 	 * @throws EngineException
 	 */
-	public void setEntityCredential(EntityParam entity, String credentialId, String secrets) throws EngineException;
+	public void setEntityCredential(EntityParam entity, String credentialId, String secrets,
+			String previousSecrets) throws EngineException;
 
 	/**
 	 * Sets local credential state. 
@@ -177,5 +182,28 @@ public interface IdentitiesManagement
 	 * @throws EngineException
 	 */
 	public Collection<String> getGroups(EntityParam entity) throws EngineException;
+
+	/**
+	 * As {@link #setEntityCredential(EntityParam, String, String, String)}
+	 * but works only when invoked with super administrative role, so that the 
+	 * current credential is not used. 
+	 * @param entity
+	 * @param credentialId
+	 * @param rawCredential
+	 * @throws EngineException
+	 */
+	void setEntityCredential(EntityParam entity, String credentialId, String rawCredential)
+			throws EngineException;
+
+	/**
+	 * @param entity
+	 * @param credentialId
+	 * @return true only if the {@link #setEntityCredential(EntityParam, String, String)} method can 
+	 * be used. If false then the {@link #setEntityCredential(EntityParam, String, String, String)}
+	 * version must be used.
+	 * @throws EngineException
+	 */
+	boolean isCurrentCredentialRequiredForChange(EntityParam entity, String credentialId)
+			throws EngineException;
 }
 

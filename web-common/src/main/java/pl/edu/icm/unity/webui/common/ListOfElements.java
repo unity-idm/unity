@@ -9,13 +9,12 @@ import java.util.List;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -38,8 +37,14 @@ public class ListOfElements<T> extends VerticalLayout
 		this.msg = msg;
 		this.labelConverter = labelConverter;
 		this.components = new ArrayList<>();
+		this.setId("ListOfElements");
 	}
-
+	
+	public ListOfElements(UnityMessageSource msg)
+	{
+		this(msg, new DefaultLabelConverter<T>());
+	}
+	
 	public void setEditHandler(EditHandler<T> editHandler)
 	{
 		this.editHandler = editHandler;
@@ -145,8 +150,7 @@ public class ListOfElements<T> extends VerticalLayout
 			VerticalLayout main = new VerticalLayout(cont);
 			if (addSeparatorLine)
 			{
-				Label line = new Label("<hr>", ContentMode.HTML);
-				main.addComponent(line);
+				main.addComponent(HtmlTag.hr());
 			}
 			main.setSpacing(true);
 			setCompositionRoot(main);
@@ -159,6 +163,20 @@ public class ListOfElements<T> extends VerticalLayout
 		}
 	}
 
+	/**
+	 * Converts generic object to string with its toString method.
+	 * @author K. Benedyczak
+	 * @param <T>
+	 */
+	public static class DefaultLabelConverter<T> implements LabelConverter<T>
+	{
+		@Override
+		public Label toLabel(T value)
+		{
+			return new Label(value.toString());
+		}
+	}
+	
 	public interface LabelConverter<T>
 	{
 		public Label toLabel(T value);

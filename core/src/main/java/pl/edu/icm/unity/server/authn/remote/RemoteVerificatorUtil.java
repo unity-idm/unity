@@ -5,7 +5,9 @@
 package pl.edu.icm.unity.server.authn.remote;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -17,6 +19,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.MappedAttribute;
+import pl.edu.icm.unity.server.translation.in.MappedGroup;
 import pl.edu.icm.unity.server.translation.in.MappedIdentity;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -89,7 +92,8 @@ public class RemoteVerificatorUtil
 		try
 		{
 			long resolved = identityResolver.resolveIdentity(remoteIdentityMapped.getValue(), 
-					new String[] {remoteIdentityMapped.getTypeId()});
+					new String[] {remoteIdentityMapped.getTypeId()}, 
+					null, null);
 			AuthenticatedEntity authenticatedEntity = new AuthenticatedEntity(resolved, 
 					remoteIdentityMapped.getValue(), false);
 			return new AuthenticationResult(Status.success, remoteContext, authenticatedEntity);
@@ -129,10 +133,11 @@ public class RemoteVerificatorUtil
 		RemotelyAuthenticatedContext ret = new RemotelyAuthenticatedContext(input.getIdpName(), profile);
 		ret.addAttributes(extractAttributes(result));
 		ret.addIdentities(extractIdentities(result));
-		ret.addGroups(result.getGroups());
+		ret.addGroups(extractGroups(result));
 		ret.setPrimaryIdentity(extractPrimaryIdentity(result));
 		ret.setMappingResult(result);
 		ret.setAuthnInput(input);
+		ret.setSessionParticipants(input.getSessionParticipants());
 		return ret;
 	}
 	
@@ -149,6 +154,17 @@ public class RemoteVerificatorUtil
 			return ret;
 		for (MappedIdentity ri: identities)
 			ret.add(ri.getIdentity());
+		return ret;
+	}
+
+	private Set<String> extractGroups(MappingResult input)
+	{
+		List<MappedGroup> groups = input.getGroups();
+		Set<String> ret = new HashSet<>();
+		if (groups == null)
+			return ret;
+		for (MappedGroup rg: groups)
+			ret.add(rg.getGroup());
 		return ret;
 	}
 	

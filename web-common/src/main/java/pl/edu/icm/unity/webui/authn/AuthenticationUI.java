@@ -28,6 +28,7 @@ import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent;
@@ -40,13 +41,12 @@ import com.vaadin.server.VaadinService;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.Reindeer;
 
 
@@ -196,13 +196,14 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				dialog.show();
 			}
 		});
+		register.setId("AuthenticationUI.registerButton");
 		return register;
 	}
 	
 	private Component buildAllSetsUI(final Button registrationButton, final Component... setComponents)
 	{
 		HorizontalLayout all = new HorizontalLayout();
-		final Panel currentAuthnSet = new Panel();
+		final SafePanel currentAuthnSet = new SafePanel();
 		AuthenticatorSetChangedListener setChangeListener = new AuthenticatorSetChangedListener()
 		{
 			private ActivationListener last = null;

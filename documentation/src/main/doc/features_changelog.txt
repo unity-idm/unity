@@ -45,8 +45,8 @@
 |Web user profile management	| icon:check[role="green"]		| Available however more functionality is required
 |SAML 2, Web binding + UNICORE profile | icon:check[role="green"]	|
 |SAML 2, SOAP binding + UNICORE profile	| icon:check[role="green"]	|
-|OpenID Connect					| icon:exclamation[role="red"]	| Not yet available
-|OAuth 2						| icon:exclamation[role="red"]	| Not yet available
+|OpenID Connect					| icon:check[role="green"]		| 
+|OAuth 2						| icon:check[role="green"]		| Tokens management UI not yet available
 |Other access protocols			| icon:exclamation[role="red"]	| Not yet available
 |===
 
@@ -58,7 +58,7 @@
 |Feature 						| Status 						| Notes
 |LDAP							| icon:check[role="green"]		|
 |SAML 2, Web SSO profile		| icon:check[role="green"]		|
-|OAuth 2						| icon:check[role="green"]		| Tested with Facebook and Microsoft Live 
+|OAuth 2						| icon:check[role="green"]		| Tested with Facebook, Microsoft Live, MITRE 
 |OpenID Connect					| icon:check[role="green"]		| Tested with Google
 |OpenID 2						| icon:exclamation[role="red"]	| Not yet available
 |OAuth 1						| icon:exclamation[role="red"]	| Not yet available

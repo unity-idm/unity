@@ -19,6 +19,8 @@ import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaToSPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.sp.SAMLResponseConsumerServlet;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
@@ -50,6 +52,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 	private SAMLECPProperties samlProperties;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private RemoteMetaManager myMetadataManager;
+	private MetaDownloadManager downloadManager;
 	private String servletPath;
 	private PKIManagement pkiManagement;
 	private ECPContextManagement samlContextManagement;
@@ -66,12 +69,15 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 	private String responseConsumerAddress;
 	private MultiMetadataServlet metadataServlet;
 	
-	public ECPEndpoint(EndpointTypeDescription type, String servletPath, PKIManagement pkiManagement,
-			ECPContextManagement samlContextManagement, URL baseAddress, String baseContext, 
+	public ECPEndpoint(EndpointTypeDescription type, String servletPath,
+			PKIManagement pkiManagement, ECPContextManagement samlContextManagement,
+			URL baseAddress, String baseContext,
 			ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
-			TranslationProfileManagement profileManagement, InputTranslationEngine trEngine,
-			TokensManagement tokensMan, IdentitiesManagement identitiesMan, SessionManagement sessionMan, 
-			Map<String, RemoteMetaManager> remoteMetadataManagers, UnityServerConfiguration mainCfg,
+			TranslationProfileManagement profileManagement,
+			InputTranslationEngine trEngine, TokensManagement tokensMan,
+			IdentitiesManagement identitiesMan, SessionManagement sessionMan,
+			Map<String, RemoteMetaManager> remoteMetadataManagers,
+			UnityServerConfiguration mainCfg, MetaDownloadManager downloadManager,
 			ExecutorsService executorsService, MultiMetadataServlet metadataServlet)
 	{
 		super(type);
@@ -87,6 +93,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 		this.identitiesMan = identitiesMan;
 		this.sessionMan = sessionMan;
 		this.remoteMetadataManagers = remoteMetadataManagers;
+		this.downloadManager = downloadManager;
 		this.mainCfg = mainCfg;
 		this.executorsService = executorsService;
 		this.responseConsumerAddress = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
@@ -113,7 +120,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 		if (!remoteMetadataManagers.containsKey(myId))
 		{
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
-					mainCfg, executorsService, pkiManagement);
+					mainCfg, executorsService, pkiManagement, new MetaToSPConfigConverter(pkiManagement), downloadManager, SAMLECPProperties.IDPMETA_PREFIX);
 			remoteMetadataManagers.put(myId, myMetadataManager);
 			myMetadataManager.start();
 		} else
@@ -131,7 +138,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 
 		IndexedEndpointType[] assertionConsumerEndpoints = new IndexedEndpointType[] {consumerEndpoint};
 		MetadataProvider provider = MetadataProviderFactory.newSPInstance(samlProperties, 
-				executorsService, assertionConsumerEndpoints);
+				executorsService, assertionConsumerEndpoints, null);
 		metadataServlet.addProvider("/" + metaPath, provider);
 	}
 	

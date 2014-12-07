@@ -3,7 +3,7 @@
 
 Endpoint type:: +SAMLWebIdP+
 Binding:: Web (Vaadin)
-Exposed paths:: +/saml2idp-web+, +/metadata+
+Exposed paths:: +/saml2idp-web+, +/metadata+, +/SLO-WEB+, +/SLO-SOAP+
 
 This endpoint exposes the SAML 2 authentication interface, implementing the SSO profile with the support for 
 the SAML HTTP-POST and HTTP-Redirect bindings.
@@ -62,7 +62,7 @@ The SAML options and metadata notes are the same as in the case of the <<endp-we
 
 Endpoint type:: +SAMLUnicoreWebIdP+
 Binding:: Web (Vaadin)
-Exposed paths:: +/saml2unicoreIdp-web+, +metadata+
+Exposed paths:: +/saml2unicoreIdp-web+, +metadata+, +/SLO-WEB+, +/SLO-SOAP+
 
 This endpoint is a slightly enhanced <<endp-web-saml>>, with the UNICORE 7 Grid middleware support.
 It is useful for UNICORE portal SAML authentication, so if you don't integrate UNICORE portal with Unity 

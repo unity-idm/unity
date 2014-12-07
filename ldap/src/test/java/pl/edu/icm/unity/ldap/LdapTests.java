@@ -357,6 +357,20 @@ public class LdapTests
 		assertEquals(2, ret.getAttributes().size());
 		assertTrue(containsAttribute(ret.getAttributes(), "sn", "User1 surname"));
 		assertTrue(containsAttribute(ret.getAttributes(), "cn", "user1"));
+		
+
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_BASE, "ou=groups,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_FILTER, "(memberUid={USERNAME})");
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_ATTRIBUTES, "dummy  gidNumber");
+		
+		lp = new LdapProperties(p);
+		clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		client = new LdapClient("test");
+		ret = client.bindAndSearch("user1", "user1", clientConfig);
+		assertEquals(3, ret.getAttributes().size());
+		assertTrue(containsAttribute(ret.getAttributes(), "sn", "User1 surname"));
+		assertTrue(containsAttribute(ret.getAttributes(), "cn", "user1"));
+		assertTrue(containsAttribute(ret.getAttributes(), "gidNumber", "1"));
 	}
 
 	@Test
@@ -418,6 +432,78 @@ public class LdapTests
 		assertTrue(containsGroup(ret.getGroups(), "gr1"));
 		assertTrue(containsGroup(ret.getGroups(), "g1"));
 		assertTrue(containsGroup(ret.getGroups(), "g2"));
+	}
+
+	@Test
+	public void testExtraSearches() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+ATTRIBUTES+"1", "sn");
+
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_BASE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_FILTER, "(sn={USERNAME})");
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_ATTRIBUTES, "secretary");	
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
+		
+		LdapProperties lp = new LdapProperties(p);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		LdapClient client = new LdapClient("test");
+		RemotelyAuthenticatedInput ret = client.bindAndSearch("user2", "user1", clientConfig);
+
+		assertEquals(2, ret.getAttributes().size());
+		assertTrue(containsAttribute(ret.getAttributes(), "secretary", "cn=extra2,dc=org"));
+		assertTrue(containsAttribute(ret.getAttributes(), "sn", "User2 Surname"));
+	}
+
+	@Test
+	public void testUserDNSearch() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+USER_DN_SEARCH_KEY, "1");
+		p.setProperty(PREFIX+ATTRIBUTES+"1", "sn");
+		p.setProperty(PREFIX+SYSTEM_DN, "cn=user1,ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+SYSTEM_PASSWORD, "user1");	
+
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_BASE, "ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_FILTER, "(sn={USERNAME})");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
+		
+		LdapProperties lp = new LdapProperties(p);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		LdapClient client = new LdapClient("test");
+		RemotelyAuthenticatedInput ret = client.bindAndSearch("User2 Surname", "user1", clientConfig);
+
+		assertEquals(5, ret.getAttributes().size());
+		assertTrue(containsAttribute(ret.getAttributes(), "sn", "User2 Surname"));
+	}
+
+	
+	@Test
+	public void testBindAsSystem() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+ATTRIBUTES+"1", "sn");
+
+		p.setProperty(PREFIX+BIND_AS, "system");
+		p.setProperty(PREFIX+SYSTEM_DN, "cn=user1,ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+SYSTEM_PASSWORD, "user1");	
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
+		
+		LdapProperties lp = new LdapProperties(p);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		LdapClient client = new LdapClient("test");
+		RemotelyAuthenticatedInput ret = client.bindAndSearch("user2", "user1", clientConfig);
+
+		assertEquals(1, ret.getAttributes().size());
+		assertTrue(containsAttribute(ret.getAttributes(), "sn", "User2 Surname"));
 	}
 	
 	private boolean containsGroup(Map<String, RemoteGroupMembership> groups, String group)

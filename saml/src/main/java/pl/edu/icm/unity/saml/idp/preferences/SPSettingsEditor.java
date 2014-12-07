@@ -125,13 +125,13 @@ public class SPSettingsEditor extends FormLayout
 		{
 			sp = new ComboBox(msg.getMessage("SAMLPreferences.SP"));
 			sp.setInputPrompt(msg.getMessage("SAMLPreferences.SPprompt"));
+			sp.setDescription(msg.getMessage("SAMLPreferences.SPdesc"));
 			sp.setWidth(100, Unit.PERCENTAGE);
 			sp.setTextInputAllowed(true);
 			sp.setFilteringMode(FilteringMode.OFF);
 			sp.setNewItemsAllowed(true);
-			sp.setNullSelectionAllowed(false);
+			sp.setNullSelectionAllowed(true);
 			sp.setImmediate(true);
-			sp.setRequired(true);
 			for (String spName: allSps)
 				sp.addItem(spName);
 			addComponent(sp);
@@ -240,7 +240,6 @@ public class SPSettingsEditor extends FormLayout
 		public SelectAttributeDialog(UnityMessageSource msg)
 		{
 			super(msg, msg.getMessage("SAMLPreferences.selectAttribute"));
-			defaultSizeUndfined = true;
 		}
 
 		@Override

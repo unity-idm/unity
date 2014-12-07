@@ -11,18 +11,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.vaadin.server.Page;
-import com.vaadin.server.RequestHandler;
-import com.vaadin.server.Resource;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
-import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
-
 import pl.edu.icm.unity.callbacks.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthContextsManagement;
@@ -41,10 +29,22 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCal
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.idpselector.IdPsSpecification;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
+
+import com.vaadin.server.Page;
+import com.vaadin.server.RequestHandler;
+import com.vaadin.server.Resource;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinSession;
+import com.vaadin.server.WrappedSession;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * UI part of OAuth retrieval. Shows available providers, redirects to the chosen one.
@@ -66,7 +66,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 	private IdpSelectorComponent idpSelector;
 	private Label messageLabel;
-	private Label errorDetailLabel;
+	private HtmlSimplifiedLabel errorDetailLabel;
 	
 	public OAuth2RetrievalUI(UnityMessageSource msg, OAuthExchange credentialExchange,
 			OAuthContextsManagement contextManagement, ExecutorsService executorsService)
@@ -128,10 +128,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		ret.addComponent(idpSelector);
 		
 		messageLabel = new Label();
-		messageLabel.setContentMode(ContentMode.HTML);
 		messageLabel.addStyleName(Styles.error.toString());
-		errorDetailLabel = new Label();
-		errorDetailLabel.setContentMode(ContentMode.HTML);
+		errorDetailLabel = new HtmlSimplifiedLabel();
 		errorDetailLabel.addStyleName(Styles.italic.toString());
 		errorDetailLabel.setVisible(false);
 		ret.addComponents(messageLabel, errorDetailLabel);
@@ -192,16 +190,16 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		messageLabel.setValue(message);
 	}
 
-	private void showErrorDetail(String message)
+	private void showErrorDetail(String msgKey, Object... args)
 	{
-		if (message == null)
+		if (msgKey == null)
 		{
 			errorDetailLabel.setVisible(false);
 			errorDetailLabel.setValue("");
 			return;
 		}
 		errorDetailLabel.setVisible(true);
-		errorDetailLabel.setValue(message);
+		errorDetailLabel.setValue(msg.getMessage(msgKey, args));
 	}
 	
 	private String installRequestHandler()
@@ -323,7 +321,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			else
 				log.warn("OAuth2 authorization code verification or processing failed");
 			if (reason != null)
-				showErrorDetail(msg.getMessage("OAuth2Retrieval.authnFailedDetailInfo", reason));
+				showErrorDetail("OAuth2Retrieval.authnFailedDetailInfo", reason);
 			showError(msg.getMessage("OAuth2Retrieval.authnFailedError"));
 			breakLogin(false);
 		}

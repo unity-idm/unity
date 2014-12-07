@@ -55,7 +55,9 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.attributes.SelectableAttributeEditor;
 
+import com.google.common.html.HtmlEscapers;
 import com.vaadin.data.validator.AbstractStringValidator;
+import com.vaadin.data.validator.AbstractValidator;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
@@ -103,7 +105,7 @@ public class RegistrationFormEditor extends VerticalLayout
 	private GroupComboBox adminsNotificationGroup;
 	private AbstractTextField autoAcceptCondition;
 	
-	private DescriptionTextArea formInformation;
+	private TextArea formInformation;
 	private TextField registrationCode;
 	private CheckBox collectComments;
 	private ListOfEmbeddedElements<AgreementRegistrationParam> agreements;	
@@ -184,9 +186,10 @@ public class RegistrationFormEditor extends VerticalLayout
 	public RegistrationForm getForm() throws FormValidationException
 	{
 		if (!autoAcceptCondition.isValid())
-		  return null;
-		RegistrationForm ret = new RegistrationForm();
-		
+			return null;
+		if (!publiclyAvailable.isValid())
+			return null;
+		RegistrationForm ret = new RegistrationForm();	
 		ret.setAgreements(agreements.getElements());
 		ret.setAttributeAssignments(attributeAssignments.getElements());
 		ret.setAttributeClassAssignments(attributeClassAssignments.getElements());
@@ -194,7 +197,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		ret.setCollectComments(collectComments.getValue());
 		ret.setCredentialParams(credentialParams.getElements());
 		ret.setCredentialRequirementAssignment((String) credentialRequirementAssignment.getValue());
-		ret.setDescription(description.getValue());
+		ret.setDescription(HtmlEscapers.htmlEscaper().escape(description.getValue()));
 		ret.setFormInformation(formInformation.getValue());
 		ret.setGroupAssignments(groupAssignments.getElements());
 		ret.setGroupParams(groupParams.getElements());
@@ -247,6 +250,37 @@ public class RegistrationFormEditor extends VerticalLayout
 		description = new DescriptionTextArea(msg.getMessage("RegistrationFormViewer.description"));
 		
 		publiclyAvailable = new CheckBox(msg.getMessage("RegistrationFormEditor.publiclyAvailable"));
+		publiclyAvailable.addValidator(new AbstractValidator<Boolean>(msg
+				.getMessage("RegistrationFormEditor.publiclyValidationFalse"))
+		{
+
+			@Override
+			protected boolean isValidValue(Boolean value)
+			{
+				RegistrationForm empty = new RegistrationForm();
+				try
+				{
+					empty.setGroupParams(groupParams.getElements());
+					empty.setAttributeParams(attributeParams.getElements());
+					empty.setIdentityParams(identityParams.getElements());
+				} catch (FormValidationException e)
+				{
+					return false;
+				}
+
+				if (value == true && empty.containsAutomaticAndMandatoryParams())
+					return false;
+				return true;
+			}
+
+			@Override
+			public Class<Boolean> getType()
+			{
+				return Boolean.class;
+			}
+		});
+		publiclyAvailable.setValidationVisible(true);
+		publiclyAvailable.setImmediate(true);
 		
 		channel = new ComboBox(msg.getMessage("RegistrationFormViewer.channel"));
 		Set<String> channels = notificationsMan.getNotificationChannels().keySet();
@@ -317,7 +351,9 @@ public class RegistrationFormEditor extends VerticalLayout
 		wrapper.setMargin(true);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
 		
-		formInformation = new DescriptionTextArea(msg.getMessage("RegistrationFormViewer.formInformation"));
+		formInformation = new TextArea(msg.getMessage("RegistrationFormViewer.formInformation"));
+		formInformation.setWordwrap(true);
+		formInformation.setWidth(100, Unit.PERCENTAGE);
 		registrationCode = new TextField(msg.getMessage("RegistrationFormViewer.registrationCode"));
 		collectComments = new CheckBox(msg.getMessage("RegistrationFormEditor.collectComments"));
 		
@@ -604,7 +640,7 @@ public class RegistrationFormEditor extends VerticalLayout
 			if (!label.getValue().isEmpty())
 				ret.setLabel(label.getValue());
 			if (!description.getValue().isEmpty())
-				ret.setDescription(description.getValue());
+				ret.setDescription(HtmlEscapers.htmlEscaper().escape(description.getValue()));
 			return ret;
 		}
 
@@ -643,7 +679,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		protected void fill(RegistrationParam v)
 		{
 			if (!description.getValue().isEmpty())
-				v.setDescription(description.getValue());
+				v.setDescription(HtmlEscapers.htmlEscaper().escape(description.getValue()));
 			if (!label.getValue().isEmpty())
 				v.setLabel(label.getValue());
 			v.setRetrievalSettings(retrievalSettings.getSelectedValue());

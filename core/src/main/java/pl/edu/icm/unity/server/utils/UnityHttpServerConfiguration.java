@@ -49,7 +49,7 @@ public class UnityHttpServerConfiguration extends HttpServerProperties
 				setDescription("The hostname or IP address which is advertised externally whenever " +
 						"the server has to provide its address. By default it is set to the listen address, " + 
 						"however it must be set when the listen address is 0.0.0.0 and " +
-						"also should be set whenver the server is listening on private interface accessible via DNAT or similar solutions."));
+						"also should be set whenver the server is listening on private interface accessible via DNAT or similar solutions."));		
 
 		for (Map.Entry<String, PropertyMD> entry: HttpServerProperties.defaults.entrySet())
 			defaults.put(entry.getKey(), entry.getValue().setCategory(advancedCat));

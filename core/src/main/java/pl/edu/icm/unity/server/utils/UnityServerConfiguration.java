@@ -42,6 +42,7 @@ import eu.unicore.util.jetty.HttpServerProperties;
 @Component
 public class UnityServerConfiguration extends FilePropertiesHelper
 {
+	public enum LogoutMode {internalOnly, internalAndSyncPeers, internalAndAsyncPeers}
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final String CONFIGURATION_FILE = "conf/unityServer.conf";
 	public static final String DEFAULT_EMAIL_CHANNEL = "Default e-mail channel";
@@ -58,6 +59,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String PKI_CONF = "pkiConfigFile";
 	public static final String THREAD_POOL_SIZE = "threadPoolSize";
 	public static final String RECREATE_ENDPOINTS_ON_STARTUP = "recreateEndpointsOnStartup";
+	public static final String LOGOUT_MODE = "logoutMode";
 	
 	public static final String ENDPOINTS = "endpoints.";
 	public static final String ENDPOINT_DESCRIPTION = "endpointDescription";
@@ -106,6 +108,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	
 	public static final String TRANSLATION_PROFILES = "translationProfiles.";
 	
+	public static final String WIPE_DB_AT_STARTUP = "wipeDbAtStartup";
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -135,6 +138,13 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 		defaults.put(RECREATE_ENDPOINTS_ON_STARTUP, new PropertyMD("true").setCategory(mainCat).
 				setDescription("If this options is true then all endpoints are initialized from configuration at each startup." +
 				" If it is false then the previously persisted endpoints are loaded."));
+		defaults.put(LOGOUT_MODE, new PropertyMD(LogoutMode.internalAndSyncPeers).setCategory(mainCat).
+				setDescription("Controls the way how the logout operation is performed. "
+				+ "+internalOnly+ will perform only a local logout. +internalAndSyncPeers+ will also logout"
+				+ " all remote session participants but only using a synchronous binding. Finally "
+				+ "+internalAndAsyncPeers+ will logout remote session participants also using asynchronous"
+				+ " protocols (with web browser redirects) if needed. This last option is risky as it may"
+				+ " happen that a faulty peer won't redirect the web agent back."));
 		defaults.put(THREAD_POOL_SIZE, new PropertyMD("4").setCategory(mainCat).setDescription(
 				"Number of threads used by internal processes of the server. HTTP server threads use a separate pool."));
 		defaults.put(INITIALIZERS, new PropertyMD().setList(true).setCategory(mainCat).setDescription(
@@ -228,8 +238,11 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("Credential requirement name"));
 		defaults.put(CREDENTIAL_REQ_DESCRIPTION, new PropertyMD("").setStructuredListEntry(CREDENTIAL_REQS).setCategory(initCredReqCat).
 				setDescription("Credential requirement description"));
-		defaults.put(CREDENTIAL_REQ_CONTENTS, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setList(false).setMandatory().setCategory(initCredReqCat).
+		defaults.put(CREDENTIAL_REQ_CONTENTS, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setList(false).setCategory(initCredReqCat).
 				setDescription("Credential requirement contents, i.e. credentials that belongs to it"));
+		
+		defaults.put(WIPE_DB_AT_STARTUP, new PropertyMD("false").setHidden().
+				setDescription("For testing: if set to true then DB will be fully cleared at server startup"));
 		
 		defaults.put(MAIN_TRUSTSTORE, new PropertyMD().setMandatory().setCategory(mainCat).
 				setDescription("Name of the truststore to be used by the server."));

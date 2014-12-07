@@ -26,8 +26,8 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
+import pl.edu.icm.unity.webui.common.SafePanel;
 
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.themes.Reindeer;
 
 
@@ -38,7 +38,7 @@ import com.vaadin.ui.themes.Reindeer;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class AttributesComponent extends Panel
+public class AttributesComponent extends SafePanel
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AttributesComponent.class);
 	private UnityMessageSource msg;

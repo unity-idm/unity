@@ -75,7 +75,7 @@ public class IdPEngine
 		Collection<String> allGroups = identitiesMan.getGroups(entity);
 		Collection<AttributeExt<?>> allAttributes = attributesMan.getAttributes(
 				entity, group, null);
-		Entity fullEntity = identitiesMan.getEntity(entity, requester, allowIdentityCreate);
+		Entity fullEntity = identitiesMan.getEntity(entity, requester, allowIdentityCreate, group);
 		if (log.isTraceEnabled())
 			log.trace("Attributes to be returned (before postprocessing): " + 
 					allAttributes + "\nGroups: " + allGroups + "\nIdentities: " + 

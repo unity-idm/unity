@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.webadmin.credentials;
 
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
+
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
 
 /**
  * Shows a single {@link CredentialDefinition}
@@ -24,7 +24,7 @@ public class CredentialDefinitionViewer extends FormLayout
 	private Label name;
 	private DescriptionTextArea description;
 	private Label type;
-	private Panel typeSpecific;
+	private SafePanel typeSpecific;
 	
 	public CredentialDefinitionViewer(UnityMessageSource msg)
 	{
@@ -40,7 +40,7 @@ public class CredentialDefinitionViewer extends FormLayout
 		description = new DescriptionTextArea(msg.getMessage("CredentialDefinition.description"), true, "");
 		type = new Label();
 		type.setCaption(msg.getMessage("CredentialDefinition.type"));
-		typeSpecific = new Panel(msg.getMessage("CredentialDefinition.typeSettings"));
+		typeSpecific = new SafePanel(msg.getMessage("CredentialDefinition.typeSettings"));
 		addComponents(name, description, type, typeSpecific);
 		setContentVisible(false);
 	}

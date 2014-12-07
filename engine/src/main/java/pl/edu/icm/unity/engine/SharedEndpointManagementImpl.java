@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,6 +31,7 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 	private static final Logger log = Log.getLogger(Log.U_SERVER, SharedEndpointManagementImpl.class);
 	public static final String CONTEXT_PATH = "/unitygw";
 	private ServletContextHandler sharedHandler;
+	private URL advertisedAddress;
 	private Set<String> usedPaths;
 	
 	@Autowired
@@ -39,6 +41,7 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 		sharedHandler.setContextPath(CONTEXT_PATH);
 		httpServer.deployHandler(sharedHandler);
 		usedPaths = new HashSet<>();
+		this.advertisedAddress = httpServer.getAdvertisedAddress();
 	}
 
 	@Override
@@ -56,5 +59,13 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 	public String getBaseContextPath()
 	{
 		return CONTEXT_PATH;
+	}
+	
+	@Override
+	public String getServletUrl(String servletPath)
+	{
+		return advertisedAddress.toExternalForm() +
+				getBaseContextPath() + 
+				servletPath;
 	}
 }

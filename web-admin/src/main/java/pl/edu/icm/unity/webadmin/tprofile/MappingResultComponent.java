@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 import pl.edu.icm.unity.server.translation.in.MappedAttribute;
+import pl.edu.icm.unity.server.translation.in.MappedGroup;
 import pl.edu.icm.unity.server.translation.in.MappedIdentity;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -115,7 +116,7 @@ public class MappingResultComponent extends CustomComponent
 		{
 			displayItsTables(Collections.<MappedIdentity>emptyList());
 			displayAttrsTable(Collections.<MappedAttribute>emptyList());
-			displayGroups(Collections.<String>emptyList());
+			displayGroups(Collections.<MappedGroup>emptyList());
 			noneLabel.setVisible(true);
 		} else
 		{
@@ -172,7 +173,7 @@ public class MappingResultComponent extends CustomComponent
 		}
 	}
 	
-	private void displayGroups(List<String> groups) 
+	private void displayGroups(List<MappedGroup> groups) 
 	{
 		if (groups.isEmpty())
 		{

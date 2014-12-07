@@ -57,6 +57,7 @@ import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.RealmsManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
@@ -140,7 +141,7 @@ public class EngineInitialization extends LifecycleBase
 	@Qualifier("insecure")
 	private AttributesManagement attrManagement;
 	@Autowired
-	private SystemAttributeTypes sysTypes;
+	private List<SystemAttributesProvider> sysTypeProviders;
 	@Autowired
 	private IdentityTypesRegistry idTypesReg;
 	@Autowired
@@ -178,6 +179,10 @@ public class EngineInitialization extends LifecycleBase
 	public void start()
 	{
 		updateDatabase();
+		
+		if (config.getBooleanValue(UnityServerConfiguration.WIPE_DB_AT_STARTUP))
+			initDB.resetDatabase();
+		
 		initializeDatabaseContents();
 		initializeBackgroundTasks();
 		super.start();
@@ -221,7 +226,10 @@ public class EngineInitialization extends LifecycleBase
 			}
 		};
 		int interval = config.getIntValue(UnityServerConfiguration.UPDATE_INTERVAL);
-		updater.setLastUpdate(endpointsLoadTime);
+		updater.setLastUpdate(endpointsLoadTime + 1000); //hack. We set the last update to +1s then the 
+		//real value is, to ensure that no immediate endpoint update will take place. This is due to fact that
+		//the update precision is stored with 1s granularity. The negative outcome is that any endpoint update
+		//in the very first second won't be found. Though chances are minimal (server is still starting...)
 		executors.getService().scheduleWithFixedDelay(endpointsUpdater, interval+interval/10, 
 				interval, TimeUnit.SECONDS);
 
@@ -386,14 +394,15 @@ public class EngineInitialization extends LifecycleBase
 		try
 		{
 			Map<String, AttributeType> existing = dbAttributes.getAttributeTypes(sql);
-			for (AttributeType at: sysTypes.getSystemAttributes())
-			{
-				if (!existing.containsKey(at.getName()))
+			for (SystemAttributesProvider attrTypesProvider: sysTypeProviders)
+				for (AttributeType at: attrTypesProvider.getSystemAttributes())
 				{
-					log.info("Adding a system attribute type: " + at.getName());
-					dbAttributes.addAttributeType(at, sql);
+					if (!existing.containsKey(at.getName()))
+					{
+						log.info("Adding a system attribute type: " + at.getName());
+						dbAttributes.addAttributeType(at, sql);
+					}
 				}
-			}
 			sql.commit();
 		} catch (EngineException e)
 		{
@@ -598,7 +607,8 @@ public class EngineInitialization extends LifecycleBase
 		{
 			log.fatal("Can't list loaded endpoints", e);
 			throw new InternalException("Can't list loaded endpoints", e);
-		}		endpointsLoadTime = System.currentTimeMillis();
+		}		
+		endpointsLoadTime = System.currentTimeMillis();
 	}
 	
 	private void loadEndpointsFromConfiguration() throws IOException, EngineException

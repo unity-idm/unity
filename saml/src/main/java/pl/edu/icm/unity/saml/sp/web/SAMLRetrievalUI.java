@@ -13,10 +13,10 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.callbacks.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties.Binding;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
@@ -29,6 +29,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCal
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.idpselector.IdPsSpecification;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent;
@@ -40,7 +41,6 @@ import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -66,7 +66,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	
 	private IdpSelectorComponent idpSelector;
 	private Label messageLabel;
-	private Label errorDetailLabel;
+	private HtmlSimplifiedLabel errorDetailLabel;
 	private SamlContextManagement samlContextManagement;
 	
 	
@@ -136,10 +136,8 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		ret.addComponent(idpSelector);
 		
 		messageLabel = new Label();
-		messageLabel.setContentMode(ContentMode.HTML);
 		messageLabel.addStyleName(Styles.error.toString());
-		errorDetailLabel = new Label();
-		errorDetailLabel.setContentMode(ContentMode.HTML);
+		errorDetailLabel = new HtmlSimplifiedLabel();
 		errorDetailLabel.addStyleName(Styles.italic.toString());
 		errorDetailLabel.setVisible(false);
 		ret.addComponents(messageLabel, errorDetailLabel);
@@ -189,7 +187,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		messageLabel.setValue(message);
 	}
 
-	private void showErrorDetail(String message)
+	private void showErrorDetail(String message, Object... args)
 	{
 		if (message == null)
 		{
@@ -198,7 +196,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			return;
 		}
 		errorDetailLabel.setVisible(true);
-		errorDetailLabel.setValue(message);
+		errorDetailLabel.setValue(msg.getMessage(message, args));
 	}
 	
 	private void startLogin(String idpKey)
@@ -285,7 +283,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			else
 				log.warn("SAML response verification or processing failed");
 			if (reason != null)
-				showErrorDetail(msg.getMessage("WebSAMLRetrieval.authnFailedDetailInfo", reason));
+				showErrorDetail("WebSAMLRetrieval.authnFailedDetailInfo", reason);
 			showError(msg.getMessage("WebSAMLRetrieval.authnFailedError"));
 			breakLogin(false);
 		}

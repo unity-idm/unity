@@ -11,6 +11,6 @@ public class MockConfig implements ConfigurationLocationProvider
 	@Override
 	public String getConfigurationLocation()
 	{
-		return "src/test/resources/unityServer.conf";
+		return "src/test/resources/unityServerRest.conf";
 	}
 }

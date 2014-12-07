@@ -19,7 +19,8 @@ public interface CredentialEditor
 	/**
 	 * @return the editor component
 	 */
-	public ComponentsContainer getEditor(String credentialConfiguration, boolean required);
+	public ComponentsContainer getEditor(boolean askAboutCurrent, 
+			String credentialConfiguration, boolean required);
 	
 	/**
 	 * @param credentialInfo extra information about the credential as returned by the credential's verificator
@@ -34,4 +35,29 @@ public interface CredentialEditor
 	 * @throws IllegalCredentialException if the entered data is incomplete or invalid.
 	 */
 	public String getValue() throws IllegalCredentialException;
+	
+	/**
+	 * It is guaranteed that this method will be called only if the editor was 
+	 * created with askAboutCurrent==true.
+	 * @return the current credential entered by the user.
+	 * @throws IllegalCredentialException 
+	 */
+	public String getCurrentValue() throws IllegalCredentialException;
+	
+	/**
+	 * Signals that the UI should render an error on the dialog with credentials.
+	 * Additionally the previousy entered values should be reset.
+	 * @param message either an error message or null to clear the previous error.
+	 */
+	public void setCredentialError(String message);
+	
+	/**
+	 * Signals that the UI should render an error on the dialog with the previous credential.
+	 * Only called when previous credential UI is displayed.
+	 * Additionally the previously entered value should be reset.
+	 * @param message either an error message or null to clear the previous error.
+	 */
+	public void setPreviousCredentialError(String message);
+	
+	
 }

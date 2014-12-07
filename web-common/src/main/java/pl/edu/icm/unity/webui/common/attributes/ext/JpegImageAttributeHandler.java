@@ -30,6 +30,7 @@ import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
+import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
@@ -40,8 +41,8 @@ import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 import com.vaadin.event.MouseEvents;
 import com.vaadin.event.MouseEvents.ClickEvent;
 import com.vaadin.server.Resource;
-import com.vaadin.server.StreamResource;
 import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.server.StreamResource;
 import com.vaadin.server.StreamResource.StreamSource;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
@@ -106,7 +107,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 	public Component getRepresentation(BufferedImage value,
 			AttributeValueSyntax<BufferedImage> syntax)
 	{
-		Panel ret = new Panel();
+		Panel ret = new SafePanel();
 		Image image = new Image();
 		image.setSource(getValueAsImage(value, syntax, value.getWidth(), value.getHeight()));
 		ret.setContent(image);
@@ -301,7 +302,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 						syntax.getMaxHeight()));
 	}
 	
-	public class SimpleImageSource implements StreamSource
+	public static class SimpleImageSource implements StreamSource
 	{
 		private static final long serialVersionUID = 1L;
 		private final byte[] isData;

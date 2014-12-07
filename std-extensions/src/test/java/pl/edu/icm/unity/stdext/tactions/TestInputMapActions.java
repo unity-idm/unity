@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.stdext.tactions;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -20,9 +19,11 @@ import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.translation.in.AttributeEffectMode;
+import pl.edu.icm.unity.server.translation.in.GroupEffectMode;
 import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.server.translation.in.MappedGroup;
 import pl.edu.icm.unity.server.translation.in.MappedIdentity;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -67,13 +68,17 @@ public class TestInputMapActions
 	public void testMapGroup() throws EngineException
 	{
 		MapGroupActionFactory factory = new MapGroupActionFactory();
-		InputTranslationAction mapAction = factory.getInstance("'/A/B/' + attr['attribute']");
+		InputTranslationAction mapAction = factory.getInstance("'/A/B/' + attr['attribute']", 
+				GroupEffectMode.CREATE_GROUP_IF_MISSING.name());
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		input.addAttribute(new RemoteAttribute("attribute", "a1"));
 		
 		MappingResult result = mapAction.invoke(input, InputTranslationProfile.createMvelContext(input), "testProf");
 		
-		assertTrue(result.getGroups().contains("/A/B/a1"));
+		assertEquals(1, result.getGroups().size());
+		MappedGroup mg = result.getGroups().iterator().next();
+		assertEquals("/A/B/a1", mg.getGroup());
+		assertEquals(GroupEffectMode.CREATE_GROUP_IF_MISSING, mg.getCreateIfMissing());
 	}
 	
 	@Test

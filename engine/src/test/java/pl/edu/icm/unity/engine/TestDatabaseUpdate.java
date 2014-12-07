@@ -54,7 +54,7 @@ public class TestDatabaseUpdate
 		for (long mem: contents.getMembers())
 		{
 			EntityParam entityP = new EntityParam(mem);
-			Entity entity = idsMan.getEntityNoContext(entityP);
+			Entity entity = idsMan.getEntityNoContext(entityP, "/");
 			Identity[] ids = entity.getIdentities();
 			boolean perFound = false;
 			for (Identity id: ids)

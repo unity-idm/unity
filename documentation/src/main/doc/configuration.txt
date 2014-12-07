@@ -79,7 +79,8 @@ The setup of MySQL requires creation of a database with a separate user which is
 In mysql console (when logged with admin privileges) execute:
  
  CREATE DATABASE unitydb;
- GRANT ALL PRIVILEGES ON unitydb.* to 'unity'@'localhost' IDENTIFIED BY 'unitypass';
+ GRANT ALTER, CREATE, DELETE, DROP, EXECUTE, INDEX, INSERT, LOCK TABLES, 
+  SELECT, TRIGGER, UPDATE PRIVILEGES ON unitydb.* to 'unity'@'localhost' IDENTIFIED BY 'unitypass';
  
 using the desired database name, username and password. If the database is on a different host then the Unity instance,
 change to localhost to a proper host of Unity installation or use +%+ to allow connections from any host.  
@@ -293,6 +294,8 @@ assuming the same credential is exchanged.
 |certificate		| X.509 certificate | Local verificator.
 |saml2				| SAML assertions 	| External verificator, interacts via associated retrieval with a remote SAML IdP.
 |jwt				| JWT			 	| Local verificator, not bound to any local credential. Validated tokens are self contained.
+|oauth2				| OAuth tokens		| External verificator, using OAuth Authorization Server or OpenID Connect provider. 
+|oauth-rp			| OAuth access token| External verificator, using OAuth Authorization Server or OpenID Connect provider.
 |==== 
 
 [cols="m,n,n,n", options="header"]
@@ -300,13 +303,16 @@ assuming the same credential is exchanged.
 |Retrieval			| Exchanges			| Compatible binding 	| Description 
 |web-password		| Password			| Web (Vaadin) 			| Uses textfield to collect a password
 |web-certificate	| X.509 certificate	| Web (Vaadin) 			| Uses client-authenticated TLS/SSL certificate
-|web-saml2			| SAML assertions	| Web (Vaadin) 			| Allows to choose remote SAML IdP, redirects the user to authenticate there and collects the received authentication data.
+|web-saml2			| SAML assertions	| Web (Vaadin) 			| Allows to choose a remote SAML IdP, redirects the user to authenticate there and collects the received authentication data.
+|web-auth2			| OAuth tokens		| Web (Vaadin) 			| Allows to choose a remote OAuth Authorization Server redirects the user to authenticate there and collects the received authentication data.
 |cxf-httpbasic		| Password			| Web Service (CXF stack)| Uses HTTP BASIC submitted password
 |cxf-certificate	| X.509 certificate	| Web Service (CXF stack)| Uses client-authenticated TLS/SSL certificate
 |cxf-jwt			| JWT				| Web Service (CXF stack)| Uses HTTP Bearer JWT tokens 
+|cxf-oauth-bearer	| OAuth access token| Web Service (CXF stack)| Uses OAuth bearer access token from HTTP Authorization header 
 |rest-httpbasic		| Password			| RESTful (CXF stack)	| Uses HTTP BASIC submitted password
 |rest-certificate	| X.509 certificate	| RESTful (CXF stack)	| Uses client-authenticated TLS/SSL certificate
 |rest-jwt			| JWT				| RESTful (CXF stack)	| Uses HTTP Bearer JWT tokens 
+|rest-oauth-bearer	| OAuth access token| RESTful (CXF stack)	| Uses OAuth bearer access token from HTTP Authorization header
 |==== 
 
 Examples of some of the allowed combinations:

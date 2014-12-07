@@ -1,3 +1,4 @@
+[[quick_start]]
 == Quick start
 
 This section is fairly standalone and serves as a first-read, hands-on introduction to Unity.
@@ -26,6 +27,8 @@ Here we list the most important facts about the default configuration:
 All of those parameters need an update before going into production.
 - The server uses an insecure credential (its private key is well known) issued by an insecure CA, which is the only
 one trusted CA. A real credential and truststore should be used for production.
+- When a proper certificate is installed it is strongly advised to consider turning on the HSTS mechanism to improve
+server's security (with +unityServer.core.httpServer.enableHsts=true+ ).
 - The server uses an embedded H2 database. Its performance is fine, however it is not recommended in production 
 deployments where DB backups and high availability may easily become a requirement.
 - The server should be started by an unprivileged user. It is not required in case of using 
@@ -68,11 +71,11 @@ if you accidentally remove your last user with administrative privileges.
 
 
 === How to work with unity
--> make note on what you want to do with Unity, concentrating on
---> what will be the clients, using what protocols
---> whether external authentication services are going to be used, which ones, and with what protocols?
---> 
--> design internal DB schema (attribute types, groups structure, attribute classes)
+
+. Make note on what you want to do with Unity:
+.. what are the planned clients, what protocols are going to be used to access Unity by those clients?
+.. whether external authentication services are going to be used, which ones, and with what protocols?
+. Design the internal DB schema (attribute types, groups structure, attribute classes).
 
 
 === Understanding Unity

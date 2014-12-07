@@ -6,7 +6,6 @@ package pl.edu.icm.unity.saml.sp;
 
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -20,8 +19,8 @@ import pl.edu.icm.unity.saml.ecp.SAMLECPProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.trust.StrictSamlTrustChecker;
@@ -39,13 +38,7 @@ public class SAMLSPProperties extends SamlProperties
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, SAMLSPProperties.class);
 	
-	/**
-	 * Note: it is intended that {@link SAMLBindings} is not used here: we want to have only the 
-	 * supported bindings here. However the names here must be exactly the same as in {@link SAMLBindings}.
-	 * Note that adding a new binding here requires a couple of changes in the code. 
-	 * E.g. support in SAML Metadata-> config conversion, ECP, web retrieval, ....
-	 */
-	public enum Binding {HTTP_REDIRECT, HTTP_POST, SOAP};
+
 	
 	public enum MetadataSignatureValidation {require, ignore};
 	
@@ -62,16 +55,13 @@ public class SAMLSPProperties extends SamlProperties
 	public static final String PROVIDERS_IN_ROW = "idpsInRow";
 	public static final String ICON_SCALE = "iconScale";
 	public static final String METADATA_PATH = "metadataPath";
+	public static final String SLO_PATH = "sloPath";
+	public static final String SLO_REALM = "sloRealm";
 	
 	public static final String DEF_SIGN_REQUEST = "defaultSignRequest";
 	public static final String DEF_REQUESTED_NAME_FORMAT = "defaultRequestedNameFormat";
 
 	public static final String IDPMETA_PREFIX = "metadataSource.";
-	public static final String IDPMETA_URL = "url";
-	public static final String IDPMETA_HTTPS_TRUSTSTORE = "httpsTruststore";
-	public static final String IDPMETA_REFRESH = "refreshInterval";
-	public static final String IDPMETA_SIGNATURE = "signaturVerification";
-	public static final String IDPMETA_ISSUER_CERT = "signatureVerificationCertificate";
 	public static final String IDPMETA_TRANSLATION_PROFILE = "perMetadataTranslationProfile";
 	public static final String IDPMETA_REGISTRATION_FORM = "perMetadataRegistrationForm";
 	
@@ -93,8 +83,6 @@ public class SAMLSPProperties extends SamlProperties
 	{
 		DocumentationCategory common = new DocumentationCategory(
 				"Common settings", "01");
-		DocumentationCategory remoteMeta = new DocumentationCategory(
-				"Configuration from trusted SAML metadata", "02");
 		DocumentationCategory idp = new DocumentationCategory(
 				"Manual settings of trusted IdPs", "03");
 		DocumentationCategory webRetrieval = new DocumentationCategory(
@@ -107,11 +95,22 @@ public class SAMLSPProperties extends SamlProperties
 				"Address of the IdP endpoint."));
 		META.put(IDP_BINDING, new PropertyMD(Binding.HTTP_REDIRECT).setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
 				"SAML binding to be used to send a request to the IdP. If you use 'SOAP' here then the IdP will be available only for ECP logins, not via the web browser login."));
+		META.put(REDIRECT_LOGOUT_URL, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
+				"Address of the IdP Single Logout Endpoint supporting HTTP Redirect binding."));
+		META.put(REDIRECT_LOGOUT_RET_URL, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
+				"Address of the IdP Single Logout response endpoint supporting HTTP Redirect binding. "
+				+ "If undefined the base redirect endpoint address is used."));
+		META.put(POST_LOGOUT_URL, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
+				"Address of the IdP Single Logout Endpoint supporting HTTP POST binding."));
+		META.put(POST_LOGOUT_RET_URL, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
+				"Address of the IdP Single Logout response endpoint supporting HTTP POST binding. "
+				+ "If undefined the base redirect endpoint address is used."));
+		META.put(SOAP_LOGOUT_URL, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
+				"Address of the IdP Single Logout Endpoint supporting SOAP binding."));
 		META.put(IDP_NAME, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setCanHaveSubkeys().setDescription(
 				"Displayed name of the IdP. If not defined then the name is created " +
 				"from the IdP address (what is rather not user friendly). The property can have subkeys being "
-				+ "locale names; then the localized value is used if it is matching the selected locale of the UI."));
-		
+				+ "locale names; then the localized value is used if it is matching the selected locale of the UI."));	
 		META.put(IDP_LOGO, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setCanHaveSubkeys().setDescription(
 				"Displayed logo of the IdP. If not defined then only the name is used. "
 				+ "The value can be a file:, http(s): or data: URI. The last option allows for embedding the logo in the configuration. "
@@ -144,62 +143,78 @@ public class SAMLSPProperties extends SamlProperties
 				" to the local counterparts. The profile should at least map the remote identity."));
 		META.put(IDP_REGISTRATION_FORM, new PropertyMD().setCategory(idp).setStructuredListEntry(IDP_PREFIX).setDescription(
 				"Name of a registration form to be shown for a remotely authenticated principal who " +
-				"has no local account. If unset such users will be denied."));
-		
+				"has no local account. If unset such users will be denied."));	
 		META.put(REQUESTER_ID, new PropertyMD().setMandatory().setCategory(common).setDescription(
 				"SAML entity ID (must be a URI) of the lcoal SAML requester (or service provider)."));
 		META.put(CREDENTIAL, new PropertyMD().setCategory(common).setDescription(
 				"Local credential, used to sign requests. If signing is disabled it is not used."));
+		META.put(SLO_PATH, new PropertyMD().setCategory(common).setDescription(
+				"Last element of the URL, under which the SAML Single Logout functionality should "
+				+ "be published for this SAML authenticator. Any suffix can be used, however it "
+				+ "must be unique for all SAML authenticators in the system. If undefined the SLO functionality won't be enabled."));
+		META.put(SLO_REALM, new PropertyMD().setCategory(common).setDescription(
+				"Name of the authentication realm of the endpoints using this authenticator. "
+				+ "This is needed to enable Single Logout functionality (if undefined the SLO "
+				+ "functionality will be disabled). If this authenticator is used by endpoints placed in different realms and "
+				+ "you still want to have SLO functionality you have to define one authenticator per realm."));
 		META.put(METADATA_PATH, new PropertyMD().setCategory(SamlProperties.samlMetaCat).setDescription(
 				"Last element of the URL, under which the SAML metadata should be published for this SAML authenticator." +
 				"Used only if metadata publication is enabled. See the SAML Metadata section for more details."));
 		META.put(ACCEPTED_NAME_FORMATS, new PropertyMD().setList(false).setCategory(common).setDescription(
 				"If defined then specifies what SAML name formatd are accepted from IdP. " +
 				"Useful when the property " + IDP_REQUESTED_NAME_FORMAT + " is undefined for at least one IdP. "));
-
 		META.put(DEF_SIGN_REQUEST, new PropertyMD("false").setCategory(common).setDescription(
 				"Default setting of request signing. Used for those IdPs, for which the setting is not set explicitly."));
 		META.put(DEF_REQUESTED_NAME_FORMAT, new PropertyMD().setCategory(common).setDescription(
-				"Default setting of requested identity format. Used for those IdPs, for which the setting is not set explicitly."));
-
-		
+				"Default setting of requested identity format. Used for those IdPs, for which the setting is not set explicitly."));	
 		META.put(DISPLAY_NAME, new PropertyMD("SAML authentication").setCategory(webRetrieval).setDescription(
 				"Name of the SAML authentication GUI component"));
 		META.put(PROVIDERS_IN_ROW, new PropertyMD("2").setPositive().setCategory(webRetrieval).setDescription(
 				"How many IdPs should be displayed in a single row on the IdP selection screen. Relevant only if you define multiple providers."));
 		META.put(ICON_SCALE, new PropertyMD(ScaleMode.height100).setDescription("Controls whether and how "
 				+ "the icons of providers should be scalled."));
+		META.put(SAMLECPProperties.JWT_P, new PropertyMD().setCanHaveSubkeys().setHidden());	
+			
+		META.put(IDPMETA_TRANSLATION_PROFILE, new PropertyMD().setCategory(remoteMeta).
+				setStructuredListEntry(IDPMETA_PREFIX).setDescription(
+				"Deafult translation profile for all the IdPs from the metadata. "
+				+ "Can be overwritten by individual IdP configuration entries."));
+		META.put(IDPMETA_REGISTRATION_FORM, new PropertyMD().setCategory(remoteMeta).
+				setStructuredListEntry(IDPMETA_PREFIX).setDescription(
+				"Deafult registration form for all the IdPs from the metadata. Can be overwritten by "
+				+ "individual IdP configuraiton entries."));
 		
-		META.put(IDPMETA_PREFIX, new PropertyMD().setCategory(remoteMeta).setStructuredList(false).setDescription(
-				"Under this prefix you can configure the remote trusted SAML IdPs however not providing all their details but only their metadata."));
-		META.put(IDPMETA_REFRESH, new PropertyMD("3600").setCategory(remoteMeta).setDescription(
-				"How often the metadata should be reloaded."));
-		META.put(IDPMETA_URL, new PropertyMD().setCategory(remoteMeta).setMandatory().setStructuredListEntry(IDPMETA_PREFIX).setDescription(
-				"URL with the metadata location. Can be local or HTTP(s) URL. "
-				+ "In case of HTTPS the server's certificate will be checked against the main Unity server's truststore"
-				+ " only if ."));
-		META.put(IDPMETA_HTTPS_TRUSTSTORE, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
-				"If set then the given truststore will be used for HTTPS connection validation during metadata fetching. Otherwise the default Java trustststore will beused."));
-		META.put(IDPMETA_TRANSLATION_PROFILE, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
-				"Deafult translation profile for all the IdPs from the metadata. Can be overwritten by individual IdP configuration entries."));
-		META.put(IDPMETA_REGISTRATION_FORM, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
-				"Deafult registration form for all the IdPs from the metadata. Can be overwritten by individual IdP configuraiton entries."));
-		META.put(IDPMETA_SIGNATURE, new PropertyMD(MetadataSignatureValidation.ignore).setCategory(remoteMeta).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
-				"Controls whether metadata signatures should be checked. If checking is turned on then the validation certificate must be set."));
-		META.put(IDPMETA_ISSUER_CERT, new PropertyMD().setCategory(remoteMeta).setStructuredListEntry(IDPMETA_PREFIX).setDescription(
-				"Name of certificate to check metadata signature. Used only if signatures checking is turned on."));
+		META.put(IDENTITY_MAPPING_PFX, new PropertyMD().setStructuredList(false).setCategory(common).
+				setDescription("Prefix used to store mappings of SAML identity types to Unity identity types. "
+						+ "Those mappings are used to reverse the mapping process of remote identity "
+						+ "mapping into Unity representation (as configured with an input translation profile). "
+						+ "This is used solely to provide a single logout functionality, "
+						+ "where remote peer may request to logout an identity previously "
+						+ "authenticated. Unity needs to be able to find this person's session to terminate it."));
+		META.put(IDENTITY_LOCAL, new PropertyMD().setStructuredListEntry(IDENTITY_MAPPING_PFX).setMandatory().setCategory(common).
+				setDescription("Unity identity to which the SAML identity is mapped. If it is set to an empty value, then the mapping is disabled, "
+						+ "what is useful for turning off the default mappings."));
+		META.put(IDENTITY_SAML, new PropertyMD().setStructuredListEntry(IDENTITY_MAPPING_PFX).setMandatory().setCategory(common).
+				setDescription("SAML identity to be mapped"));	
+
 		
-		META.put(SAMLECPProperties.JWT_P, new PropertyMD().setCanHaveSubkeys().setHidden());
-		
-		META.putAll(SamlProperties.defaults);
+		META.putAll(SamlProperties.getDefaults(IDPMETA_PREFIX, "Under this prefix you can configure "
+				+ "the remote trusted SAML IdPs however not providing all their details but only "
+				+ "their metadata."));
 	}
 	
 	private PKIManagement pkiManagement;
 	private Properties sourceProperties;
-	
+
 	public SAMLSPProperties(Properties properties, PKIManagement pkiMan) throws ConfigurationException
 	{
-		super(P, properties, META, log);
+		this(properties, META, pkiMan);
+	}
+	
+	protected SAMLSPProperties(Properties properties, Map<String, PropertyMD> meta, 
+			PKIManagement pkiMan) throws ConfigurationException
+	{
+		super(P, properties, meta, log);
 		sourceProperties = new Properties();
 		sourceProperties.putAll(properties);
 		this.pkiManagement = pkiMan;
@@ -248,11 +263,11 @@ public class SAMLSPProperties extends SamlProperties
 		}
 		for (String metaKey: metaKeys)
 		{
-			MetadataSignatureValidation validation = getEnumValue(metaKey + IDPMETA_SIGNATURE, 
+			MetadataSignatureValidation validation = getEnumValue(metaKey + METADATA_SIGNATURE, 
 					MetadataSignatureValidation.class);
 			if (validation == MetadataSignatureValidation.require)
 			{
-				String certName = getValue(metaKey + IDPMETA_ISSUER_CERT);
+				String certName = getValue(metaKey + METADATA_ISSUER_CERT);
 				if (certName == null)
 					throw new ConfigurationException("For the " + metaKey + 
 						" entry the certificate for metadata signature verification is not set");
@@ -292,10 +307,7 @@ public class SAMLSPProperties extends SamlProperties
 		for (String idpKey: idpKeys)
 		{
 			String idpId = getValue(idpKey+IDP_ID);
-			Set<String> idpCertNames = new HashSet<String>();
-			if (isSet(idpKey+IDP_CERTIFICATE))
-				idpCertNames.add(getValue(idpKey+IDP_CERTIFICATE));
-			idpCertNames.addAll(getListOfValues(idpKey+IDP_CERTIFICATES));
+			Set<String> idpCertNames = getCertificateNames(idpKey);
 			
 			for (String idpCertName: idpCertNames)
 			{
@@ -313,6 +325,11 @@ public class SAMLSPProperties extends SamlProperties
 			}
 		}
 		return trustChecker;
+	}
+	
+	public Set<String> getCertificateNames(String idpKey)
+	{
+		return getCertificateNames(idpKey, IDP_CERTIFICATE, IDP_CERTIFICATES);
 	}
 	
 	public boolean isSignRequest(String idpKey)
@@ -350,7 +367,7 @@ public class SAMLSPProperties extends SamlProperties
 			log.warn("No address for " + entityId + " ignoring IdP");
 			return false;
 		}
-		if (!isSet(key + IDP_CERTIFICATE) && getListOfValues(key+IDP_CERTIFICATES).size() == 0)
+		if (getCertificateNames(key).size() == 0)
 		{
 			log.warn("No certificate for " + entityId + " ignoring IdP");
 			return false;
@@ -361,6 +378,21 @@ public class SAMLSPProperties extends SamlProperties
 			return false;
 		}		
 		return true;
+	}
+	
+	public String getIdPConfigKey(NameIDType requester)
+	{
+		Set<String> allowedKeys = getStructuredListKeys(IDP_PREFIX);
+		for (String allowedKey: allowedKeys)
+		{
+			String name = getValue(allowedKey + IDP_ID);
+			if (name == null)
+				continue;
+			if (!name.equals(requester.getStringValue()))
+				continue;
+			return allowedKey;
+		}
+		return null;
 	}
 	
 	/**

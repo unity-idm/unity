@@ -14,13 +14,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.apache.xml.security.utils.Base64;
 
+import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import pl.edu.icm.unity.saml.idp.web.EopException;
+import pl.edu.icm.unity.saml.web.ResponseHandlerBase;
 import pl.edu.icm.unity.server.utils.Log;
-
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 
@@ -30,15 +30,15 @@ import eu.unicore.samly2.exceptions.SAMLServerException;
  * 
  * @author K. Benedyczak
  */
-public class ErrorHandler
+public class ErrorHandler extends ResponseHandlerBase
 {
 	private Logger log = Log.getLogger(Log.U_SERVER_SAML, ErrorHandler.class);
-	private FreemarkerHandler freemarker;
-	
+
 	public ErrorHandler(FreemarkerHandler freemarker)
 	{
-		this.freemarker = freemarker;
+		super(freemarker);
 	}
+
 
 	/**
 	 * Creates a Base64 encoded SAML error response, which can be returned to the requester
@@ -81,17 +81,7 @@ public class ErrorHandler
 		AuthnResponseProcessor errorResponseProcessor = new AuthnResponseProcessor(samlCtx);
 		String encodedSamlError = processError(errorResponseProcessor, error);
 		
-		Map<String, String> data = new HashMap<String, String>();
-		data.put("SAMLResponse", encodedSamlError);
-		data.put("samlService", serviceUrl);
-		data.put("samlError", error.getMessage());
-		if (samlCtx.getRelayState() != null)
-			data.put("RelayState", samlCtx.getRelayState());
-		
-		response.setContentType("application/xhtml+xml; charset=utf-8");
-		PrintWriter w = response.getWriter();
-		freemarker.process("finishSaml.ftl", data, w);
-		throw new EopException();
+		sendBackErrorResponse(error, serviceUrl, encodedSamlError, samlCtx.getRelayState(), response);
 	}
 	
 	public void showErrorPage(SAMLProcessingException reason, HttpServletResponse response) 
@@ -99,14 +89,7 @@ public class ErrorHandler
 	{
 		log.debug("SAML error is going to be shown to the user redirected to Unity IdP by the " +
 				"SAML requester", reason);
-		response.setContentType("application/xhtml+xml; charset=utf-8");
-		PrintWriter w = response.getWriter();
-		Map<String, String> data = new HashMap<String, String>();
-		data.put("error", reason.getMessage());
-		if (reason.getCause() != null)
-			data.put("errorCause", reason.getCause().toString());
-		freemarker.process("finishError.ftl", data, w);
-		throw new EopException();
+		super.showError(reason, response);
 	}
 
 	public void showHoldOnPage(String request, String relayState, String method, HttpServletResponse response) 

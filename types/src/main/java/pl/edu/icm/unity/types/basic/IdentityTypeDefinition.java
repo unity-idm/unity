@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 
@@ -100,6 +101,20 @@ public interface IdentityTypeDefinition
 	 * @return full String representation
 	 */
 	public String toString(String from);
+	
+	/**
+	 * @param msg
+	 * @param from
+	 * @return string representation which is most useful for end-user. Note that this representation may
+	 * even hide the actual value if it is considered cryptic.
+	 */
+	public String toHumanFriendlyString(MessageSource msg, String from);
+
+	/**
+	 * @param msg
+	 * @return Description of the type which can be presented to end user.
+	 */
+	public String getHumanFriendlyDescription(MessageSource msg);
 	
 	/**
 	 * Converts the in-DB representation to external form. The implementation may perform arbitrary modifications

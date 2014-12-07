@@ -12,15 +12,14 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 import com.vaadin.event.MouseEvents.ClickEvent;
 import com.vaadin.event.MouseEvents.ClickListener;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.VerticalLayout;
 
 
 /**
@@ -97,7 +96,6 @@ public class ErrorPopup
 			this.header = header;
 			this.message = message;
 			this.type = type;
-			this.defaultSizeUndfined = true;
 			this.lightweightWrapperPanel = true;
 		}
 
@@ -128,13 +126,13 @@ public class ErrorPopup
 			main.addComponent(img);
 			main.setComponentAlignment(img, Alignment.MIDDLE_CENTER);
 			
-			main.addComponent(new Label("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", ContentMode.HTML));
+			main.addComponent(HtmlTag.hspaceEm(4));
 			
 			VerticalLayout right = new VerticalLayout();
 			right.setSpacing(true);
 			if (header != null)
 			{
-				Label headerL = new Label(header, ContentMode.HTML);
+				Label headerL = new Label(header);
 				headerL.addStyleName(Styles.textXLarge.toString());
 				headerL.addStyleName(Styles.bold.toString());
 				headerL.setWidth(20, Unit.EM);
@@ -147,7 +145,7 @@ public class ErrorPopup
 			
 			if (message != null)
 			{
-				Label msgL = new Label(message, ContentMode.HTML);
+				Label msgL = new Label(message);
 				msgL.addStyleName(Styles.textLarge.toString());
 				msgL.setWidth(30, Unit.EM);
 				right.addComponent(msgL);

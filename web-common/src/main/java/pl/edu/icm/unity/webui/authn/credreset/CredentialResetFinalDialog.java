@@ -34,7 +34,6 @@ public class CredentialResetFinalDialog extends AbstractDialog
 		super(msg, msg.getMessage("CredentialReset.title"), msg.getMessage("CredentialReset.updateCredential"),
 				msg.getMessage("cancel"));
 		this.msg = msg;
-		this.defaultSizeUndfined = true;
 		this.backend = backend;
 		this.credEditor = credEditor;
 	}
@@ -51,7 +50,8 @@ public class CredentialResetFinalDialog extends AbstractDialog
 		VerticalLayout ret = new VerticalLayout();
 		ret.addComponent(new Label(msg.getMessage("CredentialReset.updateCredentialInfo")));
 		FormLayout internal = new FormLayout();
-		internal.addComponents(credEditor.getEditor(backend.getCredentialConfiguration(), true).getComponents());
+		internal.addComponents(credEditor.getEditor(false, 
+				backend.getCredentialConfiguration(), true).getComponents());
 		ret.addComponent(internal);
 		return ret;
 	}

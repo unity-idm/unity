@@ -7,10 +7,10 @@ package pl.edu.icm.unity.stdext.credential;
 import java.security.cert.X509Certificate;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
@@ -50,7 +50,8 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 	}
 
 	@Override
-	public String prepareCredential(String rawCredential, String currentCredential)
+	public String prepareCredential(String rawCredential, String previousCredential, 
+			String currentCredential)
 			throws IllegalCredentialException
 	{
 		return "";
@@ -84,6 +85,13 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 	public String invalidate(String currentCredential)
 	{
 		throw new IllegalStateException("This credential doesn't support invalidation");
+	}
+
+	@Override
+	public String prepareCredential(String rawCredential, String currentCredential)
+			throws IllegalCredentialException, InternalException
+	{
+		return prepareCredential(rawCredential, null, currentCredential);
 	}
 }
 
