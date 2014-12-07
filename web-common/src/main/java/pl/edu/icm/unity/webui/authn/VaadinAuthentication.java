@@ -57,7 +57,7 @@ public interface VaadinAuthentication extends BindingAuthn
 		
 		/**
 		 * Sets a callback object which is used to indicate sandbox authentication. The result of 
-		 * authn is returned back to the sandbox servlet and handled property. 
+		 * authn is returned back to the sandbox servlet. 
 		 * @param callback
 		 */
 		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback);

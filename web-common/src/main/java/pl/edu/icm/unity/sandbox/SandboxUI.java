@@ -64,6 +64,8 @@ public class SandboxUI extends AuthenticationUI
 	public static final String PROFILE_VALIDATION = "validate";
 
 	private List<AuthenticatorSet> authnList;
+	private boolean debug;
+	private boolean validationMode;
 
 	@Autowired
 	public SandboxUI(UnityMessageSource msg,
@@ -100,6 +102,10 @@ public class SandboxUI extends AuthenticationUI
 		super.appInit(request);
 		
 		setHeaderTitle(msg.getMessage("SandboxUI.headerTitle"));
+		
+		VaadinRequest vaadinRequest = VaadinService.getCurrentRequest();
+		validationMode = vaadinRequest.getParameter(PROFILE_VALIDATION) != null;
+		debug = vaadinRequest.getParameter(DEBUG_ID) == null;
 		
 		if (isProfileValidation())
 		{
@@ -257,21 +263,11 @@ public class SandboxUI extends AuthenticationUI
 	 */
 	private boolean isPopup() 
 	{
-		boolean isPopup = true;
-		if (VaadinService.getCurrentRequest().getParameter(DEBUG_ID) != null)
-		{
-			isPopup = false;
-		}
-		return isPopup;
+		return debug;
 	}	
 	
 	private boolean isProfileValidation()
 	{
-		boolean isProfileValidation = false;
-		if (VaadinService.getCurrentRequest().getParameter(PROFILE_VALIDATION) != null)
-		{
-			isProfileValidation = true;
-		}		
-		return isProfileValidation;
+		return validationMode;
 	}
 }
