@@ -165,7 +165,7 @@ public class OAuthAuthzUI extends UnityUIBase
 					logoAttr.getAttributeSyntax(), "jpg").getResource();
 		
 		Label info1 = new Label(msg.getMessage("OAuthAuthzUI.info1"));
-		info1.setStyleName(Reindeer.LABEL_H1);
+		info1.addStyleName(Reindeer.LABEL_H1);
 		
 		SPInfoComponent spInfo = new SPInfoComponent(msg, clientLogo, oauthRequester, returnAddress);
 		

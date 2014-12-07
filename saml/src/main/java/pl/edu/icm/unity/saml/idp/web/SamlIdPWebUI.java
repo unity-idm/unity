@@ -177,7 +177,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 					samlCtx.getRequest().getIssuer());
 
 		Label info1 = new Label(msg.getMessage("SamlIdPWebUI.info1"));
-		info1.setStyleName(Reindeer.LABEL_H1);
+		info1.addStyleName(Reindeer.LABEL_H1);
 		SPInfoComponent spInfo = new SPInfoComponent(msg, null, samlRequester, returnAddress);
 		Label spc1 = HtmlTag.br();
 		Label info2 = new Label(msg.getMessage("SamlIdPWebUI.info2"));

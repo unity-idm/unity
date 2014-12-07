@@ -135,7 +135,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	protected void createETDPart(VerticalLayout eiLayout)
 	{
 		Label titleL = new Label(msg.getMessage("SamlUnicoreIdPWebUI.gridSettings"));
-		titleL.setStyleName(Styles.bold.toString());
+		titleL.addStyleName(Styles.bold.toString());
 		eiLayout.addComponents(titleL);
 		etdEditor = new ETDSettingsEditor(msg, eiLayout);
 	}

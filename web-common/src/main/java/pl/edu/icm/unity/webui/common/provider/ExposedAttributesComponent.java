@@ -15,13 +15,14 @@ import java.util.Set;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
+import pl.edu.icm.unity.webui.common.HtmlLabel;
+import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
@@ -112,12 +113,11 @@ public class ExposedAttributesComponent extends CustomComponent
 		final ExpandCollapseButton showDetails = new ExpandCollapseButton(true, details);
 
 		Label attributesL = new Label(msg.getMessage("ExposedAttributesComponent.attributes"));
-		attributesL.setStyleName(Styles.bold.toString());
+		attributesL.addStyleName(Styles.bold.toString());
 		
-		
-		Label credInfo = new Label(msg.getMessage("ExposedAttributesComponent.credInfo"));
-		credInfo.setStyleName(Reindeer.LABEL_SMALL);
-		credInfo.setContentMode(ContentMode.HTML);
+		HtmlLabel credInfo = new HtmlLabel(msg);
+		credInfo.setHtmlValue("ExposedAttributesComponent.credInfo");
+		credInfo.addStyleName(Reindeer.LABEL_SMALL);
 		
 		contents.addComponent(attributesL);
 		contents.addComponent(showDetails);
@@ -126,9 +126,8 @@ public class ExposedAttributesComponent extends CustomComponent
 		details.addComponent(credInfo);
 		if (allowHiding)
 		{
-			Label attributesInfo = new Label(msg.getMessage("ExposedAttributesComponent.attributesInfo"));
-			attributesInfo.setStyleName(Reindeer.LABEL_SMALL);
-			attributesInfo.setContentMode(ContentMode.HTML);
+			HtmlLabel attributesInfo = new HtmlLabel(msg, "ExposedAttributesComponent.attributesInfo");
+			attributesInfo.addStyleName(Reindeer.LABEL_SMALL);
 			details.addComponent(attributesInfo);
 			
 			Label hideL = new Label(msg.getMessage("ExposedAttributesComponent.hide"));
@@ -143,9 +142,8 @@ public class ExposedAttributesComponent extends CustomComponent
 			details.addComponent(attributesHiding);
 		} else
 		{
-			Label spacer = new Label("<br>");
+			Label spacer = HtmlTag.br();
 			spacer.setStyleName(Reindeer.LABEL_SMALL);
-			spacer.setContentMode(ContentMode.HTML);
 			details.addComponent(spacer);
 			
 			ListOfElements<String> attributesList = new ListOfElements<String>(msg);
