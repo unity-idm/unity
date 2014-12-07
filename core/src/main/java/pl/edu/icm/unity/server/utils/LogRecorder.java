@@ -26,7 +26,9 @@ public class LogRecorder
 		Log.U_SERVER_SAML,
 		Log.U_SERVER_OAUTH,
 		Log.U_SERVER_LDAP,
+		Log.U_SERVER_WEB
 	};
+	
 
 	public void startLogRecording() 
 	{

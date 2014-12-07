@@ -104,8 +104,8 @@ public class DryRunStepComponent extends CustomComponent
 			remoteIdpInput.displayAuthnInput(remoteAuthnContext.getAuthnInput());
 			mappingResult.displayMappingResult(remoteAuthnContext.getMappingResult(), 
 				remoteAuthnContext.getInputTranslationProfile());
-			capturedLogs.setValue(event.getCapturedLogs().toString());
 		}
+		capturedLogs.setValue(event.getCapturedLogs().toString());
 		hideProgressShowResult();
 	}
 
