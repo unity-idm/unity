@@ -319,6 +319,11 @@
 				<version>${vaadin.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.vaadin.addons</groupId>
+				<artifactId>wizards-for-vaadin</artifactId>
+				<version>1.1.0</version>
+			</dependency>
+			<dependency>
 				<groupId>edu.vt.middleware</groupId>
 				<artifactId>vt-password</artifactId>
 				<version>3.1.2</version>
