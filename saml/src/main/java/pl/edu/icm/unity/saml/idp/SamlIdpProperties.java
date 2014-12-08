@@ -573,10 +573,9 @@ public class SamlIdpProperties extends SamlProperties
 		try
 		{
 			return new SamlIdpProperties(getProperties(), pkiManagement);
-		} catch (Exception e)
+		} catch (IOException e)
 		{
-			log.error("Can not clone SAMLIDPProperties");
-			return null;
+			throw new ConfigurationException("Can not clone saml properties", e);
 		} 
 		
 	}

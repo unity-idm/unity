@@ -95,5 +95,9 @@ Note also that this format is undocumented and this feature is going to be depre
 
 There were no incompatible database or configuration changes. However to enable some of the 
 new features (as Single Logout on SAML authenticator) additional configuration settings must be added according to 
-documentation.
+documentation. 
+
+It can be noted that the maximum memory limit previously set to 256MB in +startup.properties+ should be increased to 
++512MB+.
+ 
   
