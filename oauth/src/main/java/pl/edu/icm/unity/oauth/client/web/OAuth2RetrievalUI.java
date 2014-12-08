@@ -271,7 +271,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	 */
 	private void onAuthzAnswer(OAuthContext authnContext)
 	{
-		boolean isProfileValidationOnly = sandboxCallback != null && sandboxCallback.validateProfile();
+		boolean isProfileValidationOnly = sandboxCallback != null && sandboxCallback.isProfileValidationMode();
 		if (isProfileValidationOnly)
 		{
 			logRecorder = new LogRecorder();
@@ -370,7 +370,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			log.debug("Authentication started but OAuth2 response not arrived (user back button)");
 		} else 
 		{
-			if (sandboxCallback != null && !sandboxCallback.validateProfile())
+			if (sandboxCallback != null && !sandboxCallback.isProfileValidationMode())
 			{
 				handleSandboxAuthn(context);
 			} else

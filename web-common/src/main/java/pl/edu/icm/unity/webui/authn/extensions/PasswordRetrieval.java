@@ -188,7 +188,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 			
 			if (sandboxCallback != null)
 			{
-				if (sandboxCallback.validateProfile())
+				if (sandboxCallback.isProfileValidationMode())
 				{
 					handleProfileValidation(username, password);
 					

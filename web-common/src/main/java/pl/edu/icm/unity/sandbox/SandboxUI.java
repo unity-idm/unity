@@ -144,7 +144,7 @@ public class SandboxUI extends AuthenticationUI
 		}
 
 		@Override
-		public boolean validateProfile() 
+		public boolean isProfileValidationMode() 
 		{
 			return isProfileValidation();
 		}

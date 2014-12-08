@@ -14,7 +14,7 @@ public interface SandboxAuthnResultCallback
 
 	public void handleAuthnError(AuthenticationException e);
 	
-	public boolean validateProfile();
+	public boolean isProfileValidationMode();
 	
 	public void handleProfileValidation(AuthenticationResult authnResult, StringBuffer capturedLogs);
 }

@@ -243,7 +243,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		String reason = null;
 		Exception savedException = null;
 		
-		boolean isProfileValidationOnly = sandboxCallback != null && sandboxCallback.validateProfile();
+		boolean isProfileValidationOnly = sandboxCallback != null && sandboxCallback.isProfileValidationMode();
 		if (isProfileValidationOnly)
 		{
 			logRecorder = new LogRecorder();
@@ -338,7 +338,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			log.debug("Authentication started but SAML response not arrived (user back button)");
 		} else 
 		{
-			if (sandboxCallback != null && !sandboxCallback.validateProfile())
+			if (sandboxCallback != null && !sandboxCallback.isProfileValidationMode())
 			{
 				handleSandboxAuthn(context);
 			} else
