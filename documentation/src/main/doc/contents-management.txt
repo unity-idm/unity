@@ -121,11 +121,11 @@ are only relevant for a case when a registration form is presented to an unknown
 was authenticated by a remote IdP. The modes are as follows:
 
 Collected interactively:: A user interface component is displayed to collect the information from a user.
-Must be provided by remote IdP and is shown in the form (read only):: The information must be provided by a remote IdP.
+Provided by remote IdP only and is shown in the form:: The information must be provided by a remote IdP.
 It is then shown to a user in the form, but can not be edited.
-Must be provided by remote IdP and is hidden during form filling:: As above but the information is 
+Provided by remote IdP only and is hidden in the form:: As above but the information is 
 not shown on the form filling screen. 
-Can be provided by remote IdP, if not collected interactively:: In this mode the user can fill the data 
+Can be provided by remote IdP; if not then collected interactively:: In this mode the user can fill the data 
 only if it was not provided by a remote IdP.
 Can be provided by remote IdP and is editable:: The field is always editable, but if a remote IdP provided a value 
 then it is used as a default.
@@ -191,9 +191,4 @@ The following table describes all available identity types:
 |targetedPersistent		| automatic	| An automatically assigned anonymous identifier. It is different from the persistent type as for each of Unity clients (targets) a different identifier is maintained. 
 |transient				| automatic	| An automatically assigned anonymous identifier. It is very similar to targetedPersistent, the only difference is that the identifier is regenerated for each login session. 
 |===
- 
-
-  
-What is more 
-identities can be categorized as automatic: Unity 
  

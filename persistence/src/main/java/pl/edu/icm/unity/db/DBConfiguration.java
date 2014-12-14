@@ -102,10 +102,11 @@ public class DBConfiguration extends PropertiesHelper
 		try
 		{
 			p.load(is);
+			is.close();
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("Cannot load alternative DB config", e);
-		}	
+		}
 		return p;
 	}
 	
