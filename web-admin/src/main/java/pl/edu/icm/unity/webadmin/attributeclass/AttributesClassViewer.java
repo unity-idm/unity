@@ -54,11 +54,14 @@ public class AttributesClassViewer extends FormLayout
 				String.class, null);
 		allowed.setWidth(90, Unit.PERCENTAGE);
 		allowed.setHeight(12, Unit.EM);
+		allowed.setSortContainerPropertyId(msg.getMessage("AttributesClass.allowed"));
+		
 		mandatory = new Table();
 		mandatory.addContainerProperty(msg.getMessage("AttributesClass.mandatory"), 
 				String.class, null);
 		mandatory.setWidth(90, Unit.PERCENTAGE);
 		mandatory.setHeight(12, Unit.EM);
+		mandatory.setSortContainerPropertyId(msg.getMessage("AttributesClass.mandatory"));
 		
 		effectiveViewer = new EffectiveAttrClassViewer(msg);
 		effectiveWrapper = new SafePanel(effectiveViewer);
@@ -90,9 +93,12 @@ public class AttributesClassViewer extends FormLayout
 			for (String a: ac.getAllowed())
 				allowed.addItem(new String[] {a}, a);
 		}
+		allowed.sort();
+		
 		mandatory.removeAllItems();
 		for (String m: ac.getMandatory())
 			mandatory.addItem(new String[] {m}, m);
+		mandatory.sort();
 	}
 	
 	private void setContentsVisible(boolean how)

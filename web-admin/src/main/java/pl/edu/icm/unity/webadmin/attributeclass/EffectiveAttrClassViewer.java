@@ -60,11 +60,14 @@ public class EffectiveAttrClassViewer extends HorizontalSplitPanel
 		allowed.setHeight(9, Unit.EM);
 		allowed.addContainerProperty(msg.getMessage("AttributesClass.allowed"), 
 				String.class, null);
+		allowed.setSortContainerPropertyId(msg.getMessage("AttributesClass.allowed"));
+		
 		mandatory = new Table();
 		mandatory.setWidth(90, Unit.PERCENTAGE);
 		mandatory.setHeight(9, Unit.EM);
 		mandatory.addContainerProperty(msg.getMessage("AttributesClass.mandatory"), 
 				String.class, null);
+		mandatory.setSortContainerPropertyId(msg.getMessage("AttributesClass.mandatory"));
 		
 		FormLayout rightC = new FormLayout();
 		rightC.addComponents(allAllowed, allowed, mandatory);
@@ -143,10 +146,12 @@ public class EffectiveAttrClassViewer extends HorizontalSplitPanel
 			for (String al: helper.getEffectiveAllowed())
 				allowed.addItem(new String[] {al}, al);
 		}
+		allowed.sort();
+		
 		mandatory.removeAllItems();
 		for (String al: helper.getEffectiveMandatory())
 			mandatory.addItem(new String[] {al}, al);
-		
+		mandatory.sort();
 	}
 	
 	private static class Node
