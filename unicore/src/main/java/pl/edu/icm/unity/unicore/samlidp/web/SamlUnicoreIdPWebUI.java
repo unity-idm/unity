@@ -108,7 +108,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		exposedInfoPanel.setContent(eiLayout);
 		try
 		{
-			TranslationResult translationResult = getUserInfo(samlCtx, samlProcessor);
+			TranslationResult translationResult = getUserInfo(samlCtx, samlWithEtdProcessor);
 			createIdentityPart(translationResult, eiLayout);
 			eiLayout.addComponent(HtmlTag.br());
 			createAttributesPart(translationResult, eiLayout);
@@ -230,8 +230,8 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 			samlResponseHandler.handleException(e, false);
 			return;
 		}
-		addSessionParticipant(samlCtx, samlProcessor.getAuthenticatedSubject().getNameID(), 
-				samlProcessor.getSessionId());
+		addSessionParticipant(samlCtx, samlWithEtdProcessor.getAuthenticatedSubject().getNameID(), 
+				samlWithEtdProcessor.getSessionId());
 		samlResponseHandler.returnSamlResponse(respDoc);
 	}
 }
