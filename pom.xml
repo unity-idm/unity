@@ -3,11 +3,11 @@
 	<groupId>pl.edu.icm.unity</groupId>
 	<artifactId>unity-server-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>1.4.0-SNAPSHOT</version>
+	<version>1.5.0-SNAPSHOT</version>
 	<name>UNITY aggregation and parent module</name>
 	<organization>
 		<name>Unity</name>
-		<!-- url>http://www.unicore.eu</url> -->
+		<url>http://unity-idm.eu</url>
 	</organization>
 
 
@@ -22,7 +22,7 @@
 		<jetty.version>8.1.16.v20140903</jetty.version>
 		<slf4j.version>1.7.7</slf4j.version>
 		<spring.version>4.1.2.RELEASE</spring.version>
-		<vaadin.version>7.3.4</vaadin.version>
+		<vaadin.version>7.3.6</vaadin.version>
 		<cxf.version>2.7.13</cxf.version>
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -53,7 +53,8 @@
 		<module>unicore</module>
 		<module>ldap</module>
 		<module>oauth</module>
-		<module>distribution</module>
+		<module>integration-tests</module>
+		<module>distribution</module>		
 	</modules>
 
 	<developers>
@@ -113,12 +114,12 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
-					<version>2.1</version>
+					<version>2.4</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.1</version>
+					<version>3.2</version>
 					<configuration>
 						<source>1.7</source>
 						<target>1.7</target>
@@ -131,7 +132,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.3</version>
+					<version>3.4</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
@@ -141,27 +142,27 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>2.4</version>
+					<version>2.5</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
-					<version>2.6</version>
+					<version>2.7</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>exec-maven-plugin</artifactId>
-					<version>1.2.1</version>
+					<version>1.3.2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>0.6.4.201312101107</version>
+					<version>0.7.2.201409121644</version>
 				</plugin>
 				<plugin>
 				    <groupId>org.apache.maven.plugins</groupId>
 				    <artifactId>maven-surefire-plugin</artifactId>
-				    <version>2.17</version>
+				    <version>2.18</version>
 				    <configuration>
 				        <forkCount>1</forkCount>
 				    </configuration>
@@ -186,7 +187,7 @@
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
-				<version>4.11</version>
+				<version>4.12</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -251,17 +252,17 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.4.3</version>
+				<version>2.4.4</version>
 			</dependency>
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>4.1.0-SNAPSHOT</version>
+				<version>4.1.1</version>
 			</dependency>
 			<dependency>
 				<groupId>pl.edu.icm.saml</groupId>
 				<artifactId>samly2</artifactId>
-				<version>2.2.0-SNAPSHOT</version>
+				<version>2.2.0</version>
 			</dependency>
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
@@ -271,8 +272,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>secutils-cxf</artifactId>
-				<version>1.1.0-SNAPSHOT</version>
-				<scope>test</scope>
+				<version>1.1.1</version>
 			</dependency>
 			<dependency>
 				<groupId>postgresql</groupId>
@@ -373,7 +373,7 @@
 			<dependency>
 				<groupId>com.unboundid</groupId>
 				<artifactId>unboundid-ldapsdk</artifactId>
-				<version>2.3.7</version>
+				<version>2.3.8</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mvel</groupId>
@@ -426,6 +426,22 @@
 								</goals>
 							</execution>
 						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>performance</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<configuration>
+							<includes>
+								<include>**/test/performance/Tst*.java</include>
+							</includes>
+						</configuration>
 					</plugin>
 				</plugins>
 			</build>

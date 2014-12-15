@@ -203,7 +203,44 @@ public class RegistrationForm extends DescribedObjectImpl
 	{
 		this.attributeClassAssignments = attributeClassAssignments;
 	}
+	
+	public boolean containsAutomaticAndMandatoryParams()
+	{
+		if (identityParams != null)
+		{
+			for (IdentityRegistrationParam id : identityParams)
+			{
+				if (checkAutoParam(id))
+					return true;
+			}
+		}
+		if (attributeParams != null)
+		{
+			for (AttributeRegistrationParam at : attributeParams)
+			{
+				if (checkAutoParam(at))
+					return true;
+			}
+		}
+		if (groupParams != null)
+		{
+			for (GroupRegistrationParam gr : groupParams)
+			{
+				if (gr.getRetrievalSettings().isAutomaticOnly())
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean checkAutoParam(OptionalRegistrationParam param)
+	{
+		if (!param.isOptional() && (param.getRetrievalSettings().isAutomaticOnly()))
+			return true;
 
+		return false;
+	}
+	
 	@Override
 	public int hashCode()
 	{

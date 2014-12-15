@@ -18,11 +18,22 @@ import java.util.Properties;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
+import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.credential.PasswordToken;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
 import com.google.common.collect.Lists;
@@ -80,7 +91,7 @@ public class OAuthTestUtils
 		OAuthProcessor processor = new OAuthProcessor();
 		Collection<Attribute<?>> attributes = new ArrayList<>();
 		attributes.add(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com"));
-		IdentityParam identity = new IdentityParam("username", "userA");
+		IdentityParam identity = new IdentityParam(UsernameIdentity.ID, "userA");
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.TOKEN, 
 				OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
 				GrantFlow.openidHybrid, 100);
@@ -103,4 +114,26 @@ public class OAuthTestUtils
 				attributes, identity, ctx, tokensMan);
 	}
 
+	public static Identity createOauthClient(IdentitiesManagement idsMan, AttributesManagement attrsMan,
+			GroupsManagement groupsMan) throws Exception
+	{
+		Identity clientId = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "client1"), 
+				"cr-pass", EntityState.valid, false);
+		EntityParam e1 = new EntityParam(clientId);
+		idsMan.setEntityCredential(e1, "credential1", new PasswordToken("clientPass").toJson());
+
+		groupsMan.addGroup(new Group("/oauth-clients"));
+		groupsMan.addMemberFromParent("/oauth-clients", e1);
+		
+		attrsMan.setAttribute(e1, new EnumAttribute(OAuthSystemAttributesProvider.ALLOWED_FLOWS, 
+				"/oauth-clients", AttributeVisibility.local, GrantFlow.authorizationCode.name()), 
+				false);
+		attrsMan.setAttribute(e1, new StringAttribute(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI, 
+				"/oauth-clients", AttributeVisibility.local, "https://dummy-return.net"), false);
+
+		attrsMan.setAttribute(e1, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE, 
+				"/", AttributeVisibility.local, "Regular User"), false);
+		return clientId;
+	}
+	
 }

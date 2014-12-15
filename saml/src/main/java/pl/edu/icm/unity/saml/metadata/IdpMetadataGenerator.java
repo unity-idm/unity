@@ -40,13 +40,15 @@ public class IdpMetadataGenerator implements MetadataProvider
 	private EntityDescriptorDocument document;
 	private EndpointType[] ssoEndpoints;
 	private EndpointType[] attributeQueryEndpoints;
+	private EndpointType[] sloEndpoints;
 	
 	public IdpMetadataGenerator(SamlIdpProperties samlConfig, EndpointType[] ssoEndpoints, 
-			EndpointType[] attributeQueryEndpoints)
+			EndpointType[] attributeQueryEndpoints, EndpointType[] sloEndpoints)
 	{
 		this.samlConfig = samlConfig;
 		this.ssoEndpoints = ssoEndpoints;
 		this.attributeQueryEndpoints = attributeQueryEndpoints;
+		this.sloEndpoints = sloEndpoints;
 		generateMetadata();
 	}
 
@@ -101,6 +103,8 @@ public class IdpMetadataGenerator implements MetadataProvider
 				acceptancePolicy == RequestAcceptancePolicy.validSigner);
 		
 		idpDesc.setSingleSignOnServiceArray(ssoEndpoints);
+		if (sloEndpoints != null && sloEndpoints.length > 0)
+			idpDesc.setSingleLogoutServiceArray(sloEndpoints);
 	}
 	
 	private void addIdpAttributeAuthorityDescriptor(EntityDescriptorType meta)

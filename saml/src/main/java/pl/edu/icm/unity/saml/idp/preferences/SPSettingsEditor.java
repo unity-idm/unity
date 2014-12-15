@@ -240,7 +240,6 @@ public class SPSettingsEditor extends FormLayout
 		public SelectAttributeDialog(UnityMessageSource msg)
 		{
 			super(msg, msg.getMessage("SAMLPreferences.selectAttribute"));
-			defaultSizeUndfined = true;
 		}
 
 		@Override

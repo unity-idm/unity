@@ -26,10 +26,18 @@ public interface SharedEndpointManagement
 	 * @param servlet the servlet to deploy
 	 * @throws EngineException
 	 */
-	public void deployInternalEndpointServlet(String contextPath, ServletHolder servlet) throws EngineException;
+	void deployInternalEndpointServlet(String contextPath, ServletHolder servlet) throws EngineException;
 	
 	/**
 	 * @return the first element of the servlet's path, with a leading '/' and no trailing '/'.
 	 */
-	public String getBaseContextPath();
+	String getBaseContextPath();
+
+	/**
+	 * 
+	 * @param servletPath last path element of the servlet, without context prefix.
+	 * @return URL in string form, including the server's address, shared context address and 
+	 * the servlet's address. 
+	 */
+	String getServletUrl(String servletPath);
 }

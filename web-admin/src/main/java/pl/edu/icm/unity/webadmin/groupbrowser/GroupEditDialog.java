@@ -39,7 +39,6 @@ public class GroupEditDialog extends AbstractDialog
 		this.originalName = edit ? group.getName() : "";
 		this.originalDesc = edit ? group.getDescription() : "";
 		this.callback = callback;
-		this.defaultSizeUndfined = true;
 	}
 
 	@Override

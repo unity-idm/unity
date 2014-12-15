@@ -99,7 +99,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 		}
 	}
 	
-	protected void createCertUser() throws Exception
+	protected void createCertUser() throws EngineException
 	{
 		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user2"), 
 				"cr-certpass", EntityState.valid, false);
@@ -109,7 +109,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 				new PasswordToken("mockPassword2").toJson());
 	}
 		
-	protected void setupPasswordAuthn() throws Exception
+	protected void setupPasswordAuthn() throws EngineException
 	{
 		CredentialDefinition credDef = new CredentialDefinition(
 				PasswordVerificatorFactory.NAME, "credential1", "");
@@ -130,7 +130,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 
 	
 	
-	protected void setupPasswordAndCertAuthn() throws Exception
+	protected void setupPasswordAndCertAuthn() throws EngineException
 	{
 		CredentialDefinition credDef2 = new CredentialDefinition(
 				CertificateVerificatorFactory.NAME, "credential2", "");

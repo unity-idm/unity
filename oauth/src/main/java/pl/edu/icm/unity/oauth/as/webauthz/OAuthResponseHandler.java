@@ -9,7 +9,7 @@ import java.io.IOException;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.SerializeException;
 import com.vaadin.server.Page;
-import com.vaadin.server.RequestHandler;
+import com.vaadin.server.SynchronizedRequestHandler;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinServletResponse;
@@ -31,7 +31,7 @@ public class OAuthResponseHandler
 		Page.getCurrent().reload();
 	}
 	
-	public class SendResponseRequestHandler implements RequestHandler
+	public class SendResponseRequestHandler extends SynchronizedRequestHandler
 	{
 		private boolean destroySession;
 		
@@ -41,8 +41,8 @@ public class OAuthResponseHandler
 		}
 
 		@Override
-		public boolean handleRequest(VaadinSession session, VaadinRequest request, VaadinResponse responseO)
-						throws IOException
+		public boolean synchronizedHandleRequest(VaadinSession session, VaadinRequest request, 
+				VaadinResponse responseO) throws IOException
 		{
 			VaadinServletResponse response = (VaadinServletResponse) responseO;
 			AuthorizationResponse oauthResponse = session.getAttribute(AuthorizationResponse.class);

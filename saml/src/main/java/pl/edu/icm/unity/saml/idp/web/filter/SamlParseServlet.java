@@ -4,24 +4,19 @@
  */
 package pl.edu.icm.unity.saml.idp.web.filter;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterOutputStream;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
-import org.bouncycastle.util.encoders.Base64;
 
 import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
+import pl.edu.icm.unity.saml.SamlHttpServlet;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
@@ -30,7 +25,6 @@ import pl.edu.icm.unity.server.utils.Log;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLServerException;
-import eu.unicore.samly2.exceptions.SAMLValidationException;
 
 /**
  * Low level servlet performing the initial SAML handling. Supports both POST and HTTP-Redirect (GET) 
@@ -42,7 +36,7 @@ import eu.unicore.samly2.exceptions.SAMLValidationException;
  * or request can not be parsed).
  * @author K. Benedyczak
  */
-public class SamlParseServlet extends HttpServlet
+public class SamlParseServlet extends SamlHttpServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlParseServlet.class);
 	
@@ -64,7 +58,7 @@ public class SamlParseServlet extends HttpServlet
 	public SamlParseServlet(RemoteMetaManager samlConfigProvider, String endpointAddress,
 			String samlUiServletPath, ErrorHandler errorHandler)
 	{
-		super();
+		super(true, false, false);
 		this.samlConfigProvider = samlConfigProvider;
 		this.endpointAddress = endpointAddress;
 		this.samlUiServletPath = samlUiServletPath;
@@ -200,14 +194,14 @@ public class SamlParseServlet extends HttpServlet
 		try
 		{
 			if (req.getMethod().equals("POST"))
-				decodedReq = new String(Base64.decode(samlRequest));
+				decodedReq = extractRequestFromPostBinding(samlRequest);
 			else if (req.getMethod().equals("GET"))
-				decodedReq = inflateSAMLRequest(samlRequest);
+				decodedReq = extractRequestFromRedirectBinding(samlRequest);
 			else
 				throw new SAMLProcessingException("Received a request which is neither POST nor GET");
 		} catch (Exception e)
 		{
-			throw new SAMLProcessingException("Received a request which can't be translated into XML form", e);
+			throw new SAMLProcessingException("Received a request which can't be decoded", e);
 		}
 		
 		AuthnRequestDocument reqDoc;
@@ -235,24 +229,7 @@ public class SamlParseServlet extends HttpServlet
 			validator.validate(context.getRequestDocument());
 		} catch (SAMLServerException e)
 		{
-			//security measure: if the request is invalid (usually not trusted) don't send the response,
-			//as it may happen that the response URL is evil.
-			if (e.getCause() != null && e.getCause() instanceof SAMLValidationException)
-				throw new SAMLProcessingException(e);
 			errorHandler.commitErrorResponse(context, e, servletResponse);
 		}
-	}
-	
-	protected String inflateSAMLRequest(String samlRequest) throws Exception
-	{
-		byte[] third = Base64.decode(samlRequest);
-		Inflater decompressor = new Inflater(true);
-		decompressor.setInput(third, 0, third.length);
-		ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-		InflaterOutputStream os = new InflaterOutputStream(baos, decompressor);
-		os.write(third);
-		os.finish();
-		os.close();
-		return new String(baos.toByteArray(), StandardCharsets.UTF_8);
 	}
 }

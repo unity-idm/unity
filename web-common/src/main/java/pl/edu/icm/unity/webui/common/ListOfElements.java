@@ -37,6 +37,7 @@ public class ListOfElements<T> extends VerticalLayout
 		this.msg = msg;
 		this.labelConverter = labelConverter;
 		this.components = new ArrayList<>();
+		this.setId("ListOfElements");
 	}
 	
 	public ListOfElements(UnityMessageSource msg)

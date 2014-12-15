@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.server.registries;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,8 @@ public abstract class TypesRegistryBase<T>
 	public TypesRegistryBase(List<T> typeElements)
 	{
 		this.elements = new HashMap<String, T>(10);
+		if (typeElements == null)
+			typeElements = new ArrayList<T>();
 		for (T idDef: typeElements)
 			this.elements.put(getId(idDef), idDef);
 	}

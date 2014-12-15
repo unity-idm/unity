@@ -190,7 +190,6 @@ public class MetadataEditor extends VerticalLayout
 			this.parent = parent;
 			this.initialKey = key;
 			this.initialValue = initial;
-			this.defaultSizeUndfined = true;
 		}
 
 		@Override

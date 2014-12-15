@@ -2,7 +2,7 @@
 	<parent>
 		<groupId>pl.edu.icm.unity</groupId>
 		<artifactId>unity-server-parent</artifactId>
-		<version>1.4.0-SNAPSHOT</version>
+		<version>1.5.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -43,17 +43,6 @@
 			<scope>test</scope>
 			<classifier>tests</classifier>
 		</dependency>
-		<dependency>
-			<groupId>eu.unicore.security</groupId>
-			<artifactId>secutils-cxf</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<scope>test</scope>
-		</dependency>
-		
 		
 		<!-- compile -->
 		<dependency>
@@ -73,6 +62,10 @@
 		<dependency>
 			<groupId>eu.unicore.security</groupId>
 			<artifactId>securityLibrary</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>eu.unicore.security</groupId>
+			<artifactId>secutils-cxf</artifactId>
 		</dependency>
 		<dependency>
 		 		<groupId>org.apache.httpcomponents</groupId>

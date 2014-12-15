@@ -8,7 +8,8 @@ import com.vaadin.ui.TextArea;
 
 /**
  * {@link TextArea} specialization with settings common for description areas.
- * If it has an empty string set as a value, the component becomes automatically invisible (and vice versa).
+ * If it has an empty string set as a value, and the component is read only, 
+ * the component becomes automatically invisible.
  * @author K. Benedyczak
  */
 public class DescriptionTextArea extends TextArea
@@ -78,7 +79,7 @@ public class DescriptionTextArea extends TextArea
 			setRows(4);
 		if (ro)
 			setReadOnly(true);
-		if (value.equals(""))
+		if (value.equals("") && ro)
 			setVisible(false);
 		else
 			setVisible(true);

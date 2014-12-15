@@ -11,6 +11,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.client.UserProfileFetcher.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
@@ -30,7 +31,6 @@ public class CustomProviderProperties extends PropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, CustomProviderProperties.class);
 	
-	public enum ClientAuthnMode {secretPost, secretBasic};
 	public enum AccessTokenFormat {standard, httpParams};
 	
 	@DocumentationReferencePrefix

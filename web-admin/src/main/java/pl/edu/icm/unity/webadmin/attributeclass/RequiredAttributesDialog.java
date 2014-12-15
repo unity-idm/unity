@@ -54,7 +54,6 @@ public class RequiredAttributesDialog extends AbstractDialog
 		this.attributeTypes = attributeTypes;
 		this.attrHandlerRegistry = attrHandlerRegistry;
 		this.callback = callback;
-		this.defaultSizeUndfined = true;
 	}
 
 	@Override

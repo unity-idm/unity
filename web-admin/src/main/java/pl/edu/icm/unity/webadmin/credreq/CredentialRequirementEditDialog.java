@@ -28,7 +28,6 @@ public class CredentialRequirementEditDialog extends AbstractDialog
 		super(msg, caption);
 		this.editor = attributeEditor;
 		this.callback = callback;
-		this.defaultSizeUndfined = true;
 	}
 
 	@Override

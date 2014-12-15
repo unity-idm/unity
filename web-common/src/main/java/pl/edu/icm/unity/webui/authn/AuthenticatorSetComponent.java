@@ -326,6 +326,11 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 			{
 				dialog = formLauncher.getDialog(ee.getFormForUser(), ee.getRemoteContext());
 				dialog.show();
+			} catch (AuthenticationException e)
+			{
+				log.debug("Can't show a registration form for the remotely authenticated user - "
+						+ "user does not meet form requirements.", e);
+				handleError(msg.getMessage("AuthenticationUI.infufficientRegistrationInput"));
 			} catch (EngineException e)
 			{
 				log.error("Can't show a registration form for the remotely authenticated user as configured. " +

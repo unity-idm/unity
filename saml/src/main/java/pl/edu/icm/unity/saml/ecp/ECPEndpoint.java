@@ -138,7 +138,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 
 		IndexedEndpointType[] assertionConsumerEndpoints = new IndexedEndpointType[] {consumerEndpoint};
 		MetadataProvider provider = MetadataProviderFactory.newSPInstance(samlProperties, 
-				executorsService, assertionConsumerEndpoints);
+				executorsService, assertionConsumerEndpoints, null);
 		metadataServlet.addProvider("/" + metaPath, provider);
 	}
 	

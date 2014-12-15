@@ -37,7 +37,6 @@ public class RemoveAttributeColumnDialog extends AbstractDialog
 		this.alreadyUsedInCurrent = alreadyUsedInCurrent;
 		this.alreadyUsedInRoot = alreadyUsedInRoot;
 		this.callback = callback;
-		this.defaultSizeUndfined = true;
 		this.currentGroup = currentGroup;
 	}
 

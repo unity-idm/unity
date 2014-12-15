@@ -5,9 +5,13 @@
 package pl.edu.icm.unity.server.authn.remote;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import pl.edu.icm.unity.server.api.internal.SessionParticipant;
 
 /**
  * Holds a raw information obtained from an upstream IdP. The purpose of this class is to provide a common interchange
@@ -22,6 +26,7 @@ import java.util.Map;
 public class RemotelyAuthenticatedInput
 {
 	private String idpName;
+	private Set<SessionParticipant> sessionParticipants = new HashSet<SessionParticipant>();
 	private Map<String, RemoteGroupMembership> groups;
 	private Map<String, RemoteAttribute> attributes;
 	private Map<String, RemoteIdentity> identities;
@@ -86,6 +91,16 @@ public class RemotelyAuthenticatedInput
 		return identities;
 	}
 	
+	public Set<SessionParticipant> getSessionParticipants()
+	{
+		return sessionParticipants;
+	}
+
+	public void addSessionParticipant(SessionParticipant sessionParticipant)
+	{
+		this.sessionParticipants.add(sessionParticipant);
+	}
+
 	@Override
 	public String toString()
 	{

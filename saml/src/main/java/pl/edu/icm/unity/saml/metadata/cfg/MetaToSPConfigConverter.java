@@ -84,8 +84,15 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 				continue;
 			}
 			boolean requireSignedReq = idpDef.isSetWantAuthnRequestsSigned();
-			EndpointType webEndpoint = selectWebEndpoint(idpDef);
-			EndpointType soapEndpoint = selectSOAPEndpoint(idpDef);
+			EndpointType webEndpoint = selectWebEndpoint(idpDef.getSingleSignOnServiceArray());
+			EndpointType soapEndpoint = selectEndpointByBinding(idpDef.getSingleSignOnServiceArray(), 
+					SAMLConstants.BINDING_SOAP);
+			EndpointType redirectSLOEndpoint = selectEndpointByBinding(idpDef.getSingleLogoutServiceArray(),
+					SAMLConstants.BINDING_HTTP_REDIRECT);
+			EndpointType postSLOEndpoint = selectEndpointByBinding(idpDef.getSingleLogoutServiceArray(),
+					SAMLConstants.BINDING_HTTP_POST);
+			EndpointType soapSLOEndpoint = selectEndpointByBinding(idpDef.getSingleLogoutServiceArray(), 
+					SAMLConstants.BINDING_SOAP);
 			if (webEndpoint == null && soapEndpoint == null)
 				continue;
 			
@@ -104,19 +111,25 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			
 			if (webEndpoint != null)
 			{
-				addEntryToProperties(entityId, webEndpoint, requireSignedReq, realConfig, 
+				addEntryToProperties(entityId, webEndpoint, soapSLOEndpoint,
+						postSLOEndpoint, redirectSLOEndpoint,
+						requireSignedReq, realConfig, 
 						configKey, properties, r, certs, names, logos);
 			}
 			
 			if (soapEndpoint != null)
 			{
-				addEntryToProperties(entityId, soapEndpoint, requireSignedReq, realConfig, 
+				addEntryToProperties(entityId, soapEndpoint, soapSLOEndpoint, 
+						postSLOEndpoint, redirectSLOEndpoint,
+						requireSignedReq, realConfig, 
 						configKey, properties, r, certs, names, logos);
 			}
 		}
 	}
 	
-	private void addEntryToProperties(String entityId, EndpointType endpoint, boolean requireSignedReq,
+	private void addEntryToProperties(String entityId, EndpointType endpoint, 
+			EndpointType sloSoapEndpoint, EndpointType sloPostEndpoint, EndpointType sloRedirectEndpoint,
+			boolean requireSignedReq,
 			SAMLSPProperties realConfig, String metaConfigKey, Properties properties, Random r, 
 			List<X509Certificate> certs,
 			Map<String, String> names, Map<String, LogoType> logos)
@@ -141,6 +154,12 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 		if (noPerIdpConfig || !properties.containsKey(configKey + SAMLSPProperties.IDP_ADDRESS))
 			properties.setProperty(configKey + SAMLSPProperties.IDP_ADDRESS, 
 					endpoint.getLocation());
+		setSLOProperty(properties, configKey, noPerIdpConfig, sloSoapEndpoint, 
+				SamlProperties.SOAP_LOGOUT_URL, null);
+		setSLOProperty(properties, configKey, noPerIdpConfig, sloPostEndpoint, 
+				SamlProperties.POST_LOGOUT_URL, SamlProperties.POST_LOGOUT_RET_URL);
+		setSLOProperty(properties, configKey, noPerIdpConfig, sloRedirectEndpoint, 
+				SamlProperties.REDIRECT_LOGOUT_URL, SamlProperties.REDIRECT_LOGOUT_RET_URL);
 		if (noPerIdpConfig || !properties.containsKey(configKey + SAMLSPProperties.IDP_CERTIFICATE))
 		{
 			int i = 1;
@@ -194,10 +213,10 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 		return null;
 	}
 	
-	private EndpointType selectWebEndpoint(IDPSSODescriptorType idpDef)
+	private EndpointType selectWebEndpoint(EndpointType[] endpoints)
 	{
 		EndpointType selectedEndpoint = null;
-		for (EndpointType endpoint: idpDef.getSingleSignOnServiceArray())
+		for (EndpointType endpoint: endpoints)
 		{
 			if (endpoint.getBinding() == null || endpoint.getLocation() == null)
 				continue;
@@ -208,14 +227,14 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 		}
 		return selectedEndpoint;
 	}
-
-	private EndpointType selectSOAPEndpoint(IDPSSODescriptorType idpDef)
+	
+	private EndpointType selectEndpointByBinding(EndpointType[] endpoints, String requestedBinding)
 	{
-		for (EndpointType endpoint: idpDef.getSingleSignOnServiceArray())
+		for (EndpointType endpoint: endpoints)
 		{
 			if (endpoint.getBinding() == null || endpoint.getLocation() == null)
 				continue;
-			if (endpoint.getBinding().equals(SAMLConstants.BINDING_SOAP))
+			if (endpoint.getBinding().equals(requestedBinding))
 				return endpoint;
 		}
 		return null;

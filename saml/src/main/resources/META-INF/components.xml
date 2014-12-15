@@ -9,22 +9,29 @@
 		<property name="bundle" value="pl/edu/icm/unity/samlidp/messages/messages"/>
 	</bean>		
 
+	<bean class="eu.unicore.samly2.validators.ReplayAttackChecker"/>
+
+	<bean class="pl.edu.icm.unity.saml.SAMLSessionParticipantFactory"/>
+
 	<bean class="pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager"/>
 	
 	<bean class="pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory"/>
-	<bean class="pl.edu.icm.unity.saml.ecp.ECPEndpointFactory"/>
-	
 	<bean class="pl.edu.icm.unity.saml.idp.FreemarkerHandler"/>	
-	<bean class="pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory"/>
-	
+	<bean class="pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory"/>	
 	<bean class="pl.edu.icm.unity.saml.idp.preferences.SamlPreferencesHandler"/>
-	
-	<bean class="eu.unicore.samly2.validators.ReplayAttackChecker"/>
+
 	<bean class="pl.edu.icm.unity.saml.sp.SamlContextManagement"/>
-	<bean class="pl.edu.icm.unity.saml.ecp.ECPContextManagement"/>
 	<bean class="pl.edu.icm.unity.saml.sp.SAMLVerificatorFactory"/>
 	<bean class="pl.edu.icm.unity.saml.sp.web.SAMLRetrievalFactory"/>
-	
+	<bean class="pl.edu.icm.unity.saml.sp.SLOSPManager"/>
+
+	<bean class="pl.edu.icm.unity.saml.ecp.ECPEndpointFactory"/>
+	<bean class="pl.edu.icm.unity.saml.ecp.ECPContextManagement"/>
+
+	<bean class="pl.edu.icm.unity.saml.slo.LogoutContextsStore"/>
+	<bean class="pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory"/>
+	<bean class="pl.edu.icm.unity.saml.slo.SLOReplyInstaller"/>
+	<bean class="pl.edu.icm.unity.saml.slo.LogoutProcessorFactoryImpl"/>
 	
 	<bean scope="prototype" id="SamlIdPWebUI" class="pl.edu.icm.unity.saml.idp.web.SamlIdPWebUI"/>
 </beans>
