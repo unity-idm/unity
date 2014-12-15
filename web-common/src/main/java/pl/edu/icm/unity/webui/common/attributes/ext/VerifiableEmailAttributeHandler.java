@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.webui.common.attributes.ext;
 
 import java.sql.Date;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +24,12 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 
 import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * VerifiableEmail attribute handler for the web
@@ -110,7 +109,10 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 	@Override
 	public Component getSyntaxViewer(AttributeValueSyntax<VerifiableEmail> syntax)
 	{
-		return new FormLayout();
+		VerticalLayout ret = new VerticalLayout();
+		Label info = new Label(msg.getMessage("VerifiableEmailAttributeHandler.info"));
+		ret.addComponent(info);
+		return ret;
 	}
 
 	@Override
@@ -126,7 +128,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 		@Override
 		public Component getEditor()
 		{
-			return new FormLayout();
+			return new VerticalLayout();
 		}
 
 		@Override

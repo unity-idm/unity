@@ -181,7 +181,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			
 			if (provider.isSingleton())
 			{
-				if (existing.containsKey(metaE.getKey()))
+				if (existing.containsKey(metaE.getKey()) && !existing.get(metaE.getKey()).equals(at.getName()))
 					throw new IllegalAttributeTypeException("The attribute type metadata " + 
 							metaE.getKey() + " can be assigned to a single attribute type only" +
 							" and it is already assigned to attribute type " + 
