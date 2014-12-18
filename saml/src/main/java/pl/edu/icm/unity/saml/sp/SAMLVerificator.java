@@ -276,6 +276,27 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	@Override
 	public AuthenticationResult verifySAMLResponse(RemoteAuthnContext context) throws AuthenticationException
 	{
+		RemoteAuthnState state = startAuthnResponseProcessing(context.getSandboxCallback(), 
+				Log.U_SERVER_TRANSLATION, Log.U_SERVER_SAML);
+		
+		try
+		{
+			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
+			SAMLSPProperties config = context.getContextConfig();
+			String idpKey = context.getContextIdpKey();
+		
+			return getResult(input, config.getValue(idpKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE), 
+					state);
+		} catch (Exception e)
+		{
+			finishAuthnResponseProcessing(state, e);
+			throw e;
+		}
+	}
+	
+	private RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(RemoteAuthnContext context) 
+			throws AuthenticationException 
+	{
 		ResponseDocument responseDocument;
 		try
 		{
@@ -286,16 +307,14 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 					"XML data is corrupted", e);
 		}
 		
-		SAMLSPProperties config = context.getContextConfig();
-		String idpKey = context.getContextIdpKey();
 		SAMLResponseValidatorUtil responseValidatorUtil = new SAMLResponseValidatorUtil(
 				getSamlValidatorSettings(), 
 				replayAttackChecker, responseConsumerAddress);
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDocument, 
 				context.getRequestId(), 
 				SAMLBindings.valueOf(context.getResponseBinding().toString()), 
-				context.getGroupAttribute(), idpKey);
-		return getResult(input, config.getValue(idpKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE));
+				context.getGroupAttribute(), context.getContextIdpKey());
+		return input;
 	}
 	
 	@Override

@@ -12,6 +12,7 @@ import java.util.Set;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.internal.SessionParticipant;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
@@ -30,6 +31,8 @@ public class RemotelyAuthenticatedContext
 	private IdentityTaV primaryIdentity;
 	private Collection<Attribute<?>> attributes = new ArrayList<>();
 	private Collection<String> groups = new ArrayList<>();
+	private MappingResult mappingResult;
+	private RemotelyAuthenticatedInput input;
 
 	public RemotelyAuthenticatedContext(String remoteIdPName, String inputTranslationProfile)
 	{
@@ -84,6 +87,22 @@ public class RemotelyAuthenticatedContext
 	public String getInputTranslationProfile()
 	{
 		return inputTranslationProfile;
+	}
+	public MappingResult getMappingResult() 
+	{
+		return mappingResult;
+	}
+	public void setMappingResult(MappingResult mappingResult) 
+	{
+		this.mappingResult = mappingResult;
+	}
+	public void setAuthnInput(RemotelyAuthenticatedInput input) 
+	{
+		this.input = input;
+	}
+	public RemotelyAuthenticatedInput getAuthnInput()
+	{
+		return input;
 	}
 	public Set<SessionParticipant> getSessionParticipants()
 	{

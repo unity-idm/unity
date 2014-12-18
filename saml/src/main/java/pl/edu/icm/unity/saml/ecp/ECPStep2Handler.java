@@ -238,7 +238,7 @@ public class ECPStep2Handler
 				replayAttackChecker, myAddress);
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDoc, 
 				ctx.getRequestId(), SAMLBindings.PAOS, groupAttr, key);
-		return remoteVerificatorUtil.getResult(input, profile);
+		return remoteVerificatorUtil.getResult(input, profile, false);
 	}
 	
 	private String findIdPKey(SAMLSPProperties samlProperties, ResponseDocument responseDoc) throws ServletException

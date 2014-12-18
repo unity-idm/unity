@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -14,8 +15,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
@@ -23,6 +26,11 @@ import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.webadmin.WebAdminEndpointFactory;
+import pl.edu.icm.unity.webadmin.WebAdminVaadinEndpoint;
+import pl.edu.icm.unity.webadmin.tprofile.dryrun.DryRunDialog;
+import pl.edu.icm.unity.webadmin.tprofile.wizard.WizardDialog;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -44,9 +52,8 @@ import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.VerticalLayout;
 
 /**
- * Responsible for message templates management
+ * Responsible for translation profiles management.
  * @author P. Piernik
- *
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -64,11 +71,14 @@ public class TranslationProfilesComponent extends VerticalLayout
 	private IdentitiesManagement idMan;
 	private AuthenticationManagement authnMan;
 	private GroupsManagement groupsMan;
+
+	private SandboxAuthnNotifier sandboxNotifier;
+	private String sandboxURL;
 	
 	@Autowired
 	public TranslationProfilesComponent(UnityMessageSource msg, TranslationProfileManagement profileMan,
 			TranslationActionsRegistry tc, AttributesManagement attrsMan, IdentitiesManagement idMan, 
-			AuthenticationManagement authnMan, GroupsManagement groupsMan)
+			AuthenticationManagement authnMan, GroupsManagement groupsMan, EndpointManagement endpointMan)
 	{
 		this.msg = msg;
 		this.profileMan = profileMan;
@@ -77,9 +87,42 @@ public class TranslationProfilesComponent extends VerticalLayout
 		this.idMan = idMan;
 		this.authnMan = authnMan;
 		this.groupsMan = groupsMan;
+
+		setCaption(msg.getMessage("TranslationProfilesComponent.capion"));		
 		
+		try 
+		{
+			establishSandboxURL(endpointMan);
+		} catch (EngineException e) 
+		{
+			ErrorComponent error = new ErrorComponent();
+			error.setError(msg.getMessage("TranslationProfilesComponent.errorGetEndpoints"), e);
+			removeAllComponents();
+			addComponent(error);
+			return;
+		}
+
+		buildUI();
+		
+		refresh();
+	}
+	
+	private void establishSandboxURL(EndpointManagement endpointMan) throws EngineException
+	{
+			List<EndpointDescription> endpointList = endpointMan.getEndpoints();
+			for (EndpointDescription endpoint : endpointList) {
+				if (endpoint.getType().getName().equals(WebAdminEndpointFactory.NAME))
+				{
+					sandboxURL = endpoint.getContextAddress() + WebAdminVaadinEndpoint.SANDBOX_PATH;
+					break;
+				}
+			}
+	}
+	
+	
+	private void buildUI()
+	{
 		HorizontalLayout hl = new HorizontalLayout();
-		setCaption(msg.getMessage("TranslationProfilesComponent.capion"));
 		table = new GenericElementsTable<TranslationProfile>(msg.getMessage("TranslationProfilesComponent.profilesTable"),
 				TranslationProfile.class, new GenericElementsTable.NameProvider<TranslationProfile>()
 				{
@@ -109,15 +152,6 @@ public class TranslationProfilesComponent extends VerticalLayout
 				viewer.setInput(item);
 			}
 		});
-		table.addActionHandler(new RefreshActionHandler());
-		table.addActionHandler(new AddActionHandler());
-		table.addActionHandler(new EditActionHandler());
-		table.addActionHandler(new DeleteActionHandler());
-		
-		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
-		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
-		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		
 		profileType = new OptionGroup();
 		profileType.setImmediate(true);
@@ -138,6 +172,20 @@ public class TranslationProfilesComponent extends VerticalLayout
 			}
 		});
 		
+		table.addActionHandler(new RefreshActionHandler());
+		table.addActionHandler(new AddActionHandler());
+		table.addActionHandler(new EditActionHandler());
+		table.addActionHandler(new DeleteActionHandler());
+		table.addActionHandler(new WizardActionHandler());
+		table.addActionHandler(new DryRunActionHandler());
+		
+		
+		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
+		toolbar.addActionHandlers(table.getActionHandlers());
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
+		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
+		profileType.addValueChangeListener(toolbar.getValueChangeListener());
+		
 		VerticalLayout left = new VerticalLayout();
 		left.setSpacing(true);
 		left.addComponents(profileType, tableWithToolbar);
@@ -150,7 +198,6 @@ public class TranslationProfilesComponent extends VerticalLayout
 		main = hl;
 		hl.setExpandRatio(left, 0.3f);
 		hl.setExpandRatio(viewer, 0.7f);
-		refresh();
 	}
 	
 	private void refresh()
@@ -298,7 +345,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 					new TranslationProfileEditDialog.Callback()
 					{
 						@Override
-						public boolean newProfile(TranslationProfile profile)
+						public boolean handleProfile(TranslationProfile profile)
 						{
 							return addProfile(profile);
 						}
@@ -335,7 +382,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 					new TranslationProfileEditDialog.Callback()
 					{
 						@Override
-						public boolean newProfile(TranslationProfile profile)
+						public boolean handleProfile(TranslationProfile profile)
 						{
 							return updateProfile(profile);
 						}
@@ -373,5 +420,93 @@ public class TranslationProfilesComponent extends VerticalLayout
 				}
 			}).show();
 		}
+	}
+	
+	private class WizardActionHandler extends SingleActionHandler
+	{
+		private TranslationProfileEditDialog.Callback addCallback;
+		
+		public WizardActionHandler()
+		{
+			super(msg.getMessage("TranslationProfilesComponent.wizardAction"), Images.wizard.getResource());
+			setNeedsTarget(false);
+			callback = new SingleActionHandler.ActionButtonCallback() 
+			{
+				@Override
+				public boolean showActionButton() 
+				{
+					return isInputProfileSelection();
+				}
+			};
+			addCallback = new TranslationProfileEditDialog.Callback()
+			{
+				@Override
+				public boolean handleProfile(TranslationProfile profile)
+				{
+					return addProfile(profile);
+				}
+			};			
+		}
+
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{
+			TranslationProfileEditor editor;
+			try
+			{
+				editor = getProfileEditor(null);				
+			} catch (EngineException e)
+			{
+				ErrorPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorReadData"),
+						e);
+				return;
+			}
+
+			WizardDialog wizard = new WizardDialog(msg, sandboxURL, sandboxNotifier, editor, addCallback);
+			wizard.show();
+		}
+	}
+	
+	private class DryRunActionHandler extends SingleActionHandler
+	{
+		public DryRunActionHandler()
+		{
+			super(msg.getMessage("TranslationProfilesComponent.dryrunAction"), Images.dryrun.getResource());
+			setNeedsTarget(false);
+			callback = new SingleActionHandler.ActionButtonCallback() 
+			{
+				@Override
+				public boolean showActionButton() 
+				{
+					return isInputProfileSelection();
+				}
+			};
+		}
+
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{
+			DryRunDialog wizard = new DryRunDialog(msg, sandboxURL, sandboxNotifier, tc, profileMan);
+			wizard.show();
+		}
+	}	
+	
+	private boolean isInputProfileSelection()
+	{
+		boolean isInputProfile = false;
+		if (profileType != null) 
+		{
+			ProfileType pt = (ProfileType) profileType.getValue();
+			if (pt == ProfileType.INPUT) 
+			{
+				isInputProfile = true;
+			}
+		}
+		return isInputProfile;		
+	}
+
+	public void setSandboxNotifier(SandboxAuthnNotifier sandboxNotifier) 
+	{
+		this.sandboxNotifier = sandboxNotifier;
 	}
 }

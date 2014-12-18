@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.springframework.context.ApplicationContext;
 
+import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
@@ -31,6 +32,7 @@ public class VaadinUIProvider extends UIProvider
 	private transient EndpointDescription description;
 	private transient List<Map<String, BindingAuthn>> authenticators;
 	private transient CancelHandler cancelHandler;
+	private transient SandboxAuthnRouter sandboxRouter;
 	private transient EndpointRegistrationConfiguration registrationConfiguraiton;
 
 	public VaadinUIProvider(ApplicationContext applicationContext, String uiBeanName,
@@ -45,9 +47,15 @@ public class VaadinUIProvider extends UIProvider
 		this.registrationConfiguraiton = registrationConfiguraiton;
 	}
 
+
 	public void setCancelHandler(CancelHandler cancelHandler)
 	{
 		this.cancelHandler = cancelHandler;
+	}
+
+	public void setSandboxRouter(SandboxAuthnRouter sandboxRouter) 
+	{
+		this.sandboxRouter = sandboxRouter;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -65,7 +73,13 @@ public class VaadinUIProvider extends UIProvider
 		{
 			((UnityWebUI)ui).configure(description, authenticators, registrationConfiguraiton);
 			if (cancelHandler != null)
+			{
 				((UnityWebUI)ui).setCancelHandler(cancelHandler);
+			}
+			if (sandboxRouter != null) 
+			{
+				((UnityWebUI)ui).setSandboxRouter(sandboxRouter);
+			}
 		}
 		return ui;
 	}

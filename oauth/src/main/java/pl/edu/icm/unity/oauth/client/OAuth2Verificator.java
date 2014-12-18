@@ -196,6 +196,27 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	@Override
 	public AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context) throws AuthenticationException
 	{
+		RemoteAuthnState state = startAuthnResponseProcessing(context.getSandboxCallback(), 
+				Log.U_SERVER_TRANSLATION, Log.U_SERVER_OAUTH);
+		try
+		{
+			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
+			String translationProfile = config.getProvider(context.getProviderConfigKey()).getValue( 
+				CustomProviderProperties.TRANSLATION_PROFILE);
+		
+			return getResult(input, translationProfile, state);
+		} catch (Exception e)
+		{
+			finishAuthnResponseProcessing(state, e);
+			throw e;
+		}
+		
+	}
+	
+
+	private RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(OAuthContext context) 
+			throws AuthenticationException 
+	{
 		String error = context.getErrorCode();
 		if (error != null)
 		{
@@ -218,12 +239,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			throw new AuthenticationException("Problem during user information retrieval", e);
 		}
 
-		RemotelyAuthenticatedInput input = convertInput(context, attributes);
-
-		String translationProfile = config.getProvider(context.getProviderConfigKey()).getValue( 
-				CustomProviderProperties.TRANSLATION_PROFILE);
-		
-		return getResult(input, translationProfile);
+		return convertInput(context, attributes);
 	}
 	
 	private HTTPResponse retrieveAccessTokenGeneric(OAuthContext context, String tokenEndpoint, 

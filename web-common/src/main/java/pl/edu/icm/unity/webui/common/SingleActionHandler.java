@@ -25,6 +25,7 @@ public abstract class SingleActionHandler implements Handler
 	private Action[] action;
 	private boolean needsTarget = true;
 	private boolean multiTarget = false;
+	protected ActionButtonCallback callback;
 	
 	public SingleActionHandler(String caption, Resource icon)
 	{
@@ -107,5 +108,19 @@ public abstract class SingleActionHandler implements Handler
 		handleAction(sender, wrTarget);
 	}
 	
+	public boolean isNeeded()
+	{
+		if (callback != null)
+		{
+			return callback.showActionButton();
+		}
+		return true;
+	}
+	
 	protected abstract void handleAction(Object sender, Object target);
+	
+	public interface ActionButtonCallback 
+	{
+		boolean showActionButton(); 
+	}
 }

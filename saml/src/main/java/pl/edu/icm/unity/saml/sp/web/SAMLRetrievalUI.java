@@ -20,6 +20,7 @@ import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
@@ -57,6 +58,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private UnityMessageSource msg;
 	private SAMLExchange credentialExchange;
 	private AuthenticationResultCallback callback;
+	private SandboxAuthnResultCallback sandboxCallback;
 	private String redirectParam;
 	
 	private IdpSelectorComponent idpSelector;
@@ -212,6 +214,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		try
 		{
 			context = credentialExchange.createSAMLRequest(idpKey, currentRelativeURI);
+			context.setSandboxCallback(sandboxCallback);
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage("WebSAMLRetrieval.configurationError"), e);
@@ -237,6 +240,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		showError(null);
 		String reason = null;
 		Exception savedException = null;
+		
 		try
 		{
 			authnResult = credentialExchange.verifySAMLResponse(authnContext);
@@ -321,7 +325,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			onSamlAnswer(context);
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -344,5 +348,11 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	public void clear()
 	{
 		//nop
+	}
+
+	@Override
+	public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+	{
+		sandboxCallback = callback;
 	}
 }

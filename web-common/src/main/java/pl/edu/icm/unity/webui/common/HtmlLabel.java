@@ -29,6 +29,12 @@ public class HtmlLabel extends Label
 		super.setContentMode(ContentMode.HTML);
 		resetValue();
 	}
+
+	public HtmlLabel(UnityMessageSource msg, String msgKey, Object... unsafeArgs)
+	{
+		this(msg);
+		setHtmlValue(msgKey, unsafeArgs);
+	}
 	
 	public final void setContentMode(ContentMode cm)
 	{

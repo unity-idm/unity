@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
 
@@ -170,7 +172,8 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		
-		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
+		AuthenticationFilter authnFilter = new AuthenticationFilter(
+				Collections.unmodifiableList(Arrays.asList(servletPath)), 
 				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST));

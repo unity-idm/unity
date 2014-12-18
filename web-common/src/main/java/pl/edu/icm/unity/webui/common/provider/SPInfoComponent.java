@@ -5,9 +5,9 @@
 package pl.edu.icm.unity.webui.common.provider;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.HtmlTag;
 
 import com.vaadin.server.Resource;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Image;
@@ -60,9 +60,8 @@ public class SPInfoComponent extends CustomComponent
 			main.addComponent(logoI);
 			main.setComponentAlignment(logoI, Alignment.TOP_CENTER);
 
-			Label spacer = new Label("<br>");
+			Label spacer = HtmlTag.br();
 			spacer.addStyleName(Reindeer.LABEL_SMALL);
-			spacer.setContentMode(ContentMode.HTML);
 			main.addComponent(spacer);
 		}
 		

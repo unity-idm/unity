@@ -9,6 +9,7 @@ import java.util.Queue;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
@@ -38,6 +39,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	
 	protected UnityMessageSource msg;
 	protected CancelHandler cancelHandler;
+	protected SandboxAuthnRouter sandboxRouter;
 	
 	private Stack<Integer> pollings = new Stack<>();
 	
@@ -54,11 +56,16 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 		appInit(request);
 	}
 
-
 	@Override
 	public void setCancelHandler(CancelHandler handler)
 	{
 		this.cancelHandler = handler;
+	}
+	
+	@Override
+	public void setSandboxRouter(SandboxAuthnRouter sandboxRouter) 
+	{
+		this.sandboxRouter = sandboxRouter;
 	}
 	
 	/**

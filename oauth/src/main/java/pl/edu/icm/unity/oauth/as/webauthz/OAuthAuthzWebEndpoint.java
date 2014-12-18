@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import java.util.Collections;
 import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
@@ -96,7 +97,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		
-		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
+		AuthenticationFilter authnFilter = new AuthenticationFilter(Collections.singletonList(servletPath), 
 				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST));

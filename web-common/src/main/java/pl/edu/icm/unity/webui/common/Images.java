@@ -14,6 +14,7 @@ import com.vaadin.server.Resource;
 public enum Images
 {
 	logo		(I.PB + "logo.png"),
+	loader		(I.PB + "loader.gif"),
 	
 	info64		(I.PH + "64/bullet_info.png"),
 	key64		(I.PH + "64/key.png"),
@@ -67,6 +68,11 @@ public enum Images
 	topArrow	(I.P + "16/topArrow.png"),
 	downArrow       (I.P + "16/down.png"),
 	bottomArrow	(I.P + "16/bottomArrow.png"),
+	wizard		(I.P + "16/wizard.png"),
+	dryrun		(I.P + "16/dryrun.png"),
+	play		(I.P + "16/play.png"),
+	pause		(I.P + "16/pause.png"),
+	cross		(I.P + "16/cross.png"),
 	help       	(I.P + "16/help.png");
 	
 	

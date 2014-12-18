@@ -69,7 +69,8 @@ public abstract class HttpBasicRetrievalBase implements CredentialRetrieval, CXF
 		log.trace("HTTP BASIC auth header found");
 		try
 		{
-			return credentialExchange.checkPassword(authnTokens.getUserName(), authnTokens.getPasswd());
+			return credentialExchange.checkPassword(authnTokens.getUserName(), authnTokens.getPasswd(),
+					null);
 		} catch (Exception e)
 		{
 			log.trace("HTTP BASIC credential is invalid");

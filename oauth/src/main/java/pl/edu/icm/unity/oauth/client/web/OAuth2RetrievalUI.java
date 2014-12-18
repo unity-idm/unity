@@ -19,6 +19,7 @@ import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -57,6 +58,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private OAuthContextsManagement contextManagement;
 	
 	private AuthenticationResultCallback callback;
+	private SandboxAuthnResultCallback sandboxCallback;
 	private String redirectParam;
 
 	private IdpSelectorComponent idpSelector;
@@ -248,6 +250,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			context = credentialExchange.createRequest(providerKey);
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
+			context.setSandboxCallback(sandboxCallback);
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage("OAuth2Retrieval.configurationError"), e);
@@ -270,9 +273,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		AuthenticationResult authnResult;
 		showError(null);
 		
-		log.debug("RetrievalUI will validate OAuth response");
 		String reason = null;
-		Exception savedException = null;
+		AuthenticationException savedException = null;
 		try
 		{
 			authnResult = credentialExchange.verifyOAuthAuthzResponse(authnContext);
@@ -336,6 +338,12 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		{
 			onAuthzAnswer(context);
 		}
+	}
+
+	@Override
+	public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+	{
+		this.sandboxCallback = callback;
 	}
 
 }

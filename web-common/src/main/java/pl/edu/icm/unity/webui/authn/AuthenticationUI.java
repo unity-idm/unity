@@ -20,6 +20,7 @@ import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.ActivationListener;
@@ -64,14 +65,16 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationUI.class);
-	private EndpointDescription description;
-	private List<Map<String, VaadinAuthenticationUI>> authenticators;
-	private LocaleChoiceComponent localeChoice;
-	private AuthenticationProcessor authnProcessor;
-	private EndpointRegistrationConfiguration registrationConfiguration;
-	private InsecureRegistrationFormsChooserComponent formsChooser;
-	private InsecureRegistrationFormLauncher formLauncher;
-	private ExecutorsService execService;
+	protected LocaleChoiceComponent localeChoice;
+	protected AuthenticationProcessor authnProcessor;
+	protected InsecureRegistrationFormsChooserComponent formsChooser;
+	protected InsecureRegistrationFormLauncher formLauncher;
+	protected ExecutorsService execService;
+	protected TopHeaderLight headerUIComponent;
+	protected AuthenticatorSetSelectComponent authnSelectionUIComponent;
+	protected List<Map<String, VaadinAuthenticationUI>> authenticators;
+	protected EndpointDescription description;
+	protected EndpointRegistrationConfiguration registrationConfiguration;
 	
 	@Autowired
 	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,
@@ -106,15 +109,14 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		}
 	}
 
-	
 	@Override
 	protected void appInit(final VaadinRequest request)
 	{
 		Component[] components = new Component[authenticators.size()];
 		for (int i=0; i<components.length; i++)
-			components[i] = new AuthenticatorSetComponent(authenticators.get(i), 
-					description.getAuthenticatorSets().get(i), msg, authnProcessor, 
-					formLauncher, execService, cancelHandler, description.getRealm());
+			components[i] = buildAuthenticatorSetComponent(description, authenticators.get(i), 
+					description.getAuthenticatorSets().get(i)); 
+		
 		Button registrationButton = buildRegistrationButton();
 		Component all = buildAllSetsUI(registrationButton, components);
 		
@@ -135,9 +137,9 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		main.setSizeFull();
 
 		VerticalLayout topLevel = new VerticalLayout();
-		TopHeaderLight header = new TopHeaderLight(msg.getMessage("AuthenticationUI.login",
+		headerUIComponent = new TopHeaderLight(msg.getMessage("AuthenticationUI.login", 
 				description.getId()), msg);
-		topLevel.addComponents(header, main);
+		topLevel.addComponents(headerUIComponent, main);
 		topLevel.setSizeFull();
 		topLevel.setExpandRatio(main, 1.0f);
 		
@@ -148,6 +150,14 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		// if this UI expired in the meantime. Shouldn't happen often as heart of authentication UI
 		// is beating very slowly but in case of very slow user we may still need to refresh.
 		refresh(VaadinService.getCurrentRequest()); 
+	}
+	
+	protected AuthenticatorSetComponent buildAuthenticatorSetComponent(EndpointDescription description,
+			Map<String, VaadinAuthenticationUI> authenticator, AuthenticatorSet authenticatorSet)
+	{
+		return new AuthenticatorSetComponent(authenticator, 
+				authenticatorSet, msg, authnProcessor, 
+				formLauncher, execService, cancelHandler, description.getRealm());
 	}
 	
 	private Button buildRegistrationButton()
@@ -217,22 +227,22 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				currentAuthnSet.setContent(getSingleSetUI(registrationButton, c));
 			}
 		};
-		AuthenticatorSetSelectComponent setSelection = new AuthenticatorSetSelectComponent(msg, 
+		authnSelectionUIComponent = new AuthenticatorSetSelectComponent(msg, 
 				setChangeListener, description, authenticators);
 
 		currentAuthnSet.setContent(getSingleSetUI(registrationButton, setComponents[0]));
 		
-		all.addComponent(setSelection);
-		all.setComponentAlignment(setSelection, Alignment.TOP_CENTER);
+		all.addComponent(authnSelectionUIComponent);
+		all.setComponentAlignment(authnSelectionUIComponent, Alignment.TOP_CENTER);
 		all.addComponent(currentAuthnSet);
 		all.setComponentAlignment(currentAuthnSet, Alignment.TOP_CENTER);
 		all.setSpacing(true);
 		all.setSizeFull();
-		all.setExpandRatio(setSelection, 1.0f);
+		all.setExpandRatio(authnSelectionUIComponent, 1.0f);
 		all.setExpandRatio(currentAuthnSet, 1.0f);
 		if (setComponents.length == 1)
 		{
-			setSelection.setVisible(false);
+			authnSelectionUIComponent.setVisible(false);
 			currentAuthnSet.setWidth(50, Unit.PERCENTAGE);
 			all.setComponentAlignment(currentAuthnSet, Alignment.TOP_RIGHT);
 		}
@@ -258,7 +268,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	@Override
 	protected void refresh(VaadinRequest request) 
 	{
-		if (authenticators != null) {
+		if (authenticators != null) 
+		{
 			for (Map<String, VaadinAuthenticationUI> auth : authenticators)
 			{
 				for (VaadinAuthenticationUI authUI : auth.values())
@@ -266,6 +277,22 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 					authUI.refresh(request);
 				}
 			}
+		}
+	}
+	
+	protected void setHeaderTitle(String title) 
+	{
+		if (headerUIComponent != null)
+		{
+			headerUIComponent.setHeaderTitle(title);
+		}
+	}
+	
+	protected void setSelectionTitle(String title)
+	{
+		if (authnSelectionUIComponent != null)
+		{
+			authnSelectionUIComponent.setSelectionTitle(title);
 		}
 	}	
 }

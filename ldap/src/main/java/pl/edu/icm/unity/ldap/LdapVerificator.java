@@ -11,20 +11,20 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import eu.unicore.security.AuthenticationException;
-import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialReset;
 import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
+import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Supports {@link PasswordExchange} and verifies the password and username against a configured LDAP 
@@ -84,24 +84,45 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 	}
 
 	@Override
-	public AuthenticationResult checkPassword(String username, String password)
-			throws EngineException
+	public AuthenticationResult checkPassword(String username, String password, SandboxAuthnResultCallback callback)
+			throws AuthenticationException
 	{
-		RemotelyAuthenticatedInput input;
+		RemoteAuthnState state = startAuthnResponseProcessing(callback, 
+				Log.U_SERVER_TRANSLATION, Log.U_SERVER_LDAP);
+		
 		try
 		{
-			input = client.bindAndSearch(username, password, clientConfiguration);
+			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(username, password);
+			return getResult(input, translationProfile, state);
 		} catch (LdapAuthenticationException e)
 		{
-			log.debug("LDAP authentication failed", e);
+			finishAuthnResponseProcessing(state, e);
 			return new AuthenticationResult(Status.deny, null, null);
+		} catch (Exception e)
+		{
+			finishAuthnResponseProcessing(state, e);
+			throw e;
+		}
+	}
+	
+
+	private RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(
+			String username, String password) throws AuthenticationException, LdapAuthenticationException
+	{
+		RemotelyAuthenticatedInput input = null;
+		try 
+		{
+			input = client.bindAndSearch(username, password, clientConfiguration);
+		} catch (LdapAuthenticationException e) 
+		{
+			log.debug("LDAP authentication failed", e);
+			throw new AuthenticationException("Authentication has failed", e);
 		} catch (Exception e)
 		{
 			throw new AuthenticationException("Problem when authenticating against the LDAP server", e);
 		}
-
-		return getResult(input, translationProfile);
-	}
+		return input;
+	}	
 
 	@Override
 	public CredentialReset getCredentialResetBackend()

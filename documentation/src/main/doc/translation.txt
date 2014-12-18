@@ -11,7 +11,7 @@ as for instance SAML web endpoint.  In this case
 translation is performed by so called _output translation profiles_.
 
 For instance, an input translation profile can change remote attribute 'size' name to
-'width' and insert a remotely authenticated user to the local database (to the correct group)
+'width' and insert a remotely authenticated user to the local database (to a desired group)
 if the user is not yet there. An output profile can return an additional dynamic identity named 'email' 
 with a value of an email attribute.   
 
@@ -45,7 +45,7 @@ Actions are different for each type of the profile. The editor provides you with
 
 An input translation profile is always associated with a _remote authenticator in its configuration_.
 It is a mandatory setting, all remote authenticators must have one profile associated. This is because it is
-typically not possible to provide sensible default mapping of arbitrary remote data to the configurable schema used in 
+typically not possible to provide a sensible default mapping of remote data to the configurable schema used in 
 Unity.  
 
 Input translation profile (both conditions and rules) operate on a data structure which is initially
@@ -63,6 +63,29 @@ the remote identity should be matched against the local one and/or automatically
 
 Additionally the actions allow for creating Unity's attributes, identities and assigning the remote user to groups. 
 
+==== Translation profile creation wizard and dry-run
+
+Unity provides two sophisticated features helping in input translation profile management. First of all it is possible
+to use a translation profile creation *wizard*.
+
+The wizard can be activated from the Server management->Translation profiles view. Currently the wizard can be used
+to create a profile basing on an available remote authenticator, so you need to configure it first in a regular way.
+However any (even empty) translation profile can be initially set for this authenticator.   
+
+After launching the wizard a popup window appears allowing you to select any of the remote authenticators available
+in the system (regardless of their assignment to endpoints). The authentication is performed in a sandbox environment
+so it is not influencing the running system. After finishing the remote authentication the popup window disappears
+and a visual translation profile editor is displayed. The whole information received from the remote IdP is shown,
+and can be dragged into expressions of the profile being created. After the profile is configured it must be saved
+and can be assigned to the authenticator.
+
+Besides the wizard it is also possible to perform a detailed testing of an already existing translation profile. 
+This *gry run* feature is available from the same menu as the wizard and begins in the same way: with a sandboxed 
+authentication. However, the last step is different: instead of an editor a detailed information on the profile's 
+application to the data provided by remote IdP is presented, including even the relevant server's log.   
+
+
+==== Reference
 MVEL context reference:
 
 . +idp+ Name of the IdP which provided the data 

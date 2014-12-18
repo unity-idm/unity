@@ -19,7 +19,7 @@ public interface SAMLExchange extends CredentialExchange
 {
 	public static final String ID = "SAML2 exchange";
 	
-	public RemoteAuthnContext createSAMLRequest(String idpKey, String servletPAth);
-	public SAMLSPProperties getSamlValidatorSettings();
-	public AuthenticationResult verifySAMLResponse(RemoteAuthnContext authnContext) throws AuthenticationException;
+	RemoteAuthnContext createSAMLRequest(String idpKey, String servletPAth);
+	SAMLSPProperties getSamlValidatorSettings();
+	AuthenticationResult verifySAMLResponse(RemoteAuthnContext authnContext) throws AuthenticationException;
 }

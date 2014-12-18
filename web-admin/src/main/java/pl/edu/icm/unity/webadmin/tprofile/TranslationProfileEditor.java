@@ -16,6 +16,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
 import pl.edu.icm.unity.server.translation.ProfileType;
@@ -25,6 +26,8 @@ import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webadmin.tprofile.RuleComponent.Callback;
+import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStartEvent;
+import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStopEvent;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.Images;
@@ -60,6 +63,9 @@ public abstract class TranslationProfileEditor extends VerticalLayout
 	protected DescriptionTextArea description;
 	protected FormLayout rulesLayout;
 	protected List<RuleComponent> rules;
+	
+	private RemotelyAuthenticatedInput remoteAuthnInput;
+	private StartStopButton testProfileButton;
 	
 	public TranslationProfileEditor(UnityMessageSource msg,
 			TranslationActionsRegistry registry, TranslationProfile toEdit,
@@ -137,9 +143,27 @@ public abstract class TranslationProfileEditor extends VerticalLayout
 				addRuleComponent(null);
 			}
 		});
+		
+		testProfileButton = new StartStopButton();
+		testProfileButton.setVisible(false);
+		testProfileButton.setDescription(msg.getMessage("TranslationProfileEditor.testProfile"));
+		testProfileButton.addClickListener(new StartStopButton.StartStopListener() 
+		{
+			@Override
+			public void onStop(ClickStopEvent event) 
+			{
+				clearTestResults();
+			}
+			
+			@Override
+			public void onStart(ClickStartEvent event) 
+			{
+				testRules();
+			}
+		});
 
 		Label t = new Label(msg.getMessage("TranslationProfileEditor.rules"));
-		hl.addComponents(t, addRule);
+		hl.addComponents(t, addRule, testProfileButton);
 
 		FormLayout main = new FormLayout();
 		main.addComponents(name, description);
@@ -152,6 +176,22 @@ public abstract class TranslationProfileEditor extends VerticalLayout
 
 		addComponents(wrapper);
 		refreshRules();
+	}
+
+	protected void testRules() 
+	{
+		for (RuleComponent rule : rules)
+		{
+			rule.test(remoteAuthnInput);
+		}
+	}
+
+	protected void clearTestResults() 
+	{
+		for (RuleComponent rule : rules)
+		{
+			rule.clearTestResult();
+		}		
 	}
 
 	private void addRuleComponent(AbstractTranslationRule<?> trule)
@@ -257,6 +297,12 @@ public abstract class TranslationProfileEditor extends VerticalLayout
 		{
 			rulesLayout.addComponent(r);
 		}
+	}
+	
+	public void setRemoteAuthnInput(RemotelyAuthenticatedInput remoteAuthnInput)
+	{
+		this.remoteAuthnInput = remoteAuthnInput;
+		this.testProfileButton.setVisible(true);
 	}
 
 	public abstract TranslationProfile getProfile();

@@ -8,6 +8,7 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 
 /**
  * Interface for validation of an access token obtained by a credential retrieval.
@@ -17,6 +18,6 @@ public interface AccessTokenExchange
 {
 	public static final String ID = "access token exchange";
 	
-	public AuthenticationResult checkToken(BearerAccessToken token) 
+	public AuthenticationResult checkToken(BearerAccessToken token, SandboxAuthnResultCallback sandboxCallback) 
 			throws EngineException;
 }

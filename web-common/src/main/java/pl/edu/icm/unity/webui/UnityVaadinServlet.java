@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.context.ApplicationContext;
 
+import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
@@ -67,6 +68,7 @@ public class UnityVaadinServlet extends VaadinServlet
 	private transient EndpointDescription description;
 	private transient List<Map<String, BindingAuthn>> authenticators;
 	private transient CancelHandler cancelHandler;
+	private transient SandboxAuthnRouter sandboxRouter;
 	private transient EndpointRegistrationConfiguration registrationConfiguration;
 	
 	public UnityVaadinServlet(ApplicationContext applicationContext, String uiBeanName,
@@ -172,6 +174,11 @@ public class UnityVaadinServlet extends VaadinServlet
 		this.cancelHandler = cancelHandler;
 	}
 	
+	public void setSandboxRouter(SandboxAuthnRouter sandboxRouter) 
+	{
+		this.sandboxRouter = sandboxRouter;
+	}
+	
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response) 
 			throws ServletException, IOException 
@@ -245,6 +252,7 @@ public class UnityVaadinServlet extends VaadinServlet
 				VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, uiBeanName,
 						description, getAuthenticators(), registrationConfiguration);
 				uiProv.setCancelHandler(cancelHandler);
+				uiProv.setSandboxRouter(sandboxRouter);
 				event.getSession().addUIProvider(uiProv);
 				DeploymentConfiguration depCfg = event.getService().getDeploymentConfiguration();
 				Properties properties = depCfg.getInitParameters();
