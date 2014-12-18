@@ -12,9 +12,11 @@ import org.vaadin.teemu.wizards.event.WizardProgressListener;
 import org.vaadin.teemu.wizards.event.WizardStepActivationEvent;
 import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
-import pl.edu.icm.unity.sandbox.SandboxAuthnResultEvent;
+import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.sandbox.SandboxUI;
+import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.wizard.SandboxPopup;
 
@@ -40,13 +42,14 @@ public class DryRunDialog extends Window implements WizardProgressListener
 	private SandboxAuthnNotifier.AuthnResultListener sandboxListener;
 	private String callerId;
 
-	public DryRunDialog(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier)
+	public DryRunDialog(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier, 
+			TranslationActionsRegistry registry, TranslationProfileManagement tpMan)
 	{
 		this.sandboxURL      = sandboxURL + "?" + SandboxUI.PROFILE_VALIDATION + "=true";
 		this.sandboxNotifier = sandboxNotifier;
 		this.callerId        = VaadinService.getCurrentRequest().getWrappedSession().getId();
 		isAuthnEventArrived  = new AtomicBoolean(false);
-		wizardComponent      = new DryRunComponent(msg, sandboxURL);
+		wizardComponent      = new DryRunComponent(msg, sandboxURL, registry, tpMan);
 		wizardComponent.addWizardListener(this);
 		
 		openSandboxPopupOnNextButton();
@@ -71,10 +74,10 @@ public class DryRunDialog extends Window implements WizardProgressListener
 	
 	private void addSandboxListener() 
 	{
-		sandboxListener = new SandboxAuthnNotifier.AuthnResultListener() 
+		sandboxListener = new SandboxAuthnNotifier.AuthnResultListener()
 		{
 			@Override
-			public void handle(SandboxAuthnResultEvent event) 
+			public void handle(SandboxAuthnEvent event) 
 			{
 				
 				if (!callerId.equals(event.getCallerId()))

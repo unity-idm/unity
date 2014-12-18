@@ -7,7 +7,6 @@ package pl.edu.icm.unity.saml.sp;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 
 /**
  * Credential exchange between verificator and retrieval for SAML credential.
@@ -20,8 +19,7 @@ public interface SAMLExchange extends CredentialExchange
 {
 	public static final String ID = "SAML2 exchange";
 	
-	public RemoteAuthnContext createSAMLRequest(String idpKey, String servletPAth);
-	public SAMLSPProperties getSamlValidatorSettings();
-	public AuthenticationResult verifySAMLResponse(RemoteAuthnContext authnContext) throws AuthenticationException;
-	public RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(RemoteAuthnContext authnContext) throws AuthenticationException;
+	RemoteAuthnContext createSAMLRequest(String idpKey, String servletPAth);
+	SAMLSPProperties getSamlValidatorSettings();
+	AuthenticationResult verifySAMLResponse(RemoteAuthnContext authnContext) throws AuthenticationException;
 }

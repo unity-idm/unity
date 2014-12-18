@@ -7,6 +7,8 @@ package pl.edu.icm.unity.server.utils;
 import java.util.Date;
 import java.util.UUID;
 
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
+
 /**
  * Base class for storing some context information related to external login.
  * @author K. Benedyczak
@@ -15,6 +17,7 @@ public class RemoteAuthnState
 {
 	private String relayState;
 	private Date creationTime;
+	private SandboxAuthnResultCallback sandboxCallback;
 	
 	public RemoteAuthnState()
 	{
@@ -30,5 +33,15 @@ public class RemoteAuthnState
 	public Date getCreationTime()
 	{
 		return creationTime;
+	}
+
+	public SandboxAuthnResultCallback getSandboxCallback()
+	{
+		return sandboxCallback;
+	}
+
+	public void setSandboxCallback(SandboxAuthnResultCallback sandboxCallback)
+	{
+		this.sandboxCallback = sandboxCallback;
 	}
 }

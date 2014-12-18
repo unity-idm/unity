@@ -15,15 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
-import pl.edu.icm.unity.callbacks.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.internal.AuthenticatorsManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnContext;
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
@@ -34,10 +32,10 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
+import pl.edu.icm.unity.webui.authn.AuthenticatorSetComponent;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent;
 
@@ -85,6 +83,15 @@ public class SandboxUI extends AuthenticationUI
 	}
 
 	@Override
+	protected AuthenticatorSetComponent buildAuthenticatorSetComponent(EndpointDescription description,
+			Map<String, VaadinAuthenticationUI> authenticator, AuthenticatorSet authenticatorSet)
+	{
+		return new SandboxAuthenticatorSetComponent(authenticator, 
+				authenticatorSet, msg, authnProcessor, 
+				formLauncher, execService, cancelHandler, description.getRealm());
+	}
+	
+	@Override
 	public void configure(EndpointDescription description,
 			List<Map<String, BindingAuthn>> authenticators,
 			EndpointRegistrationConfiguration regCfg) 
@@ -120,41 +127,11 @@ public class SandboxUI extends AuthenticationUI
 	private class SandboxAuthnResultCallbackImpl implements SandboxAuthnResultCallback
 	{
 		@Override
-		public void handleAuthnInput(RemotelyAuthenticatedInput input) 
+		public void sandboxedAuthenticationDone(SandboxAuthnContext ctx)
 		{
-			if (isPopup())
-			{
-				fireAuthnEvent(input);
-			}
+			sandboxRouter.fireEvent(new SandboxAuthnEvent(ctx));
 			cancelAuthentication();
-			if (isPopup())
-			{
-				JavaScript.getCurrent().execute("window.close();");
-			} else
-			{
-				ErrorPopup.showNotice(msg, msg.getMessage("notice"), input.getTextDump());
-			}
-		}
-
-		@Override
-		public void handleAuthnError(AuthenticationException e) 
-		{
-			cancelAuthentication();
-			ErrorPopup.showError(msg, msg.getMessage("SandboxUI.veryImportantMessage"), e);
-		}
-
-		@Override
-		public boolean isProfileValidationMode() 
-		{
-			return isProfileValidation();
-		}
-
-		@Override
-		public void handleProfileValidation(AuthenticationResult authnResult, StringBuffer capturedLogs) 
-		{
-			fireAuthnEvent(authnResult, capturedLogs);
-			cancelAuthentication();
-			if (isPopup()) 
+			if (isDebug()) 
 			{
 				JavaScript.getCurrent().execute("window.close();");
 			}
@@ -175,16 +152,6 @@ public class SandboxUI extends AuthenticationUI
 		}
 	}
 
-	private void fireAuthnEvent(RemotelyAuthenticatedInput input) 
-	{
-		sandboxRouter.fireEvent(new SandboxRemoteAuthnInputEvent(input));
-	}
-
-	private void fireAuthnEvent(AuthenticationResult authnResult, StringBuffer capturedLogs)
-	{
-		sandboxRouter.fireEvent(new SandboxAuthnResultEvent(authnResult, capturedLogs));
-	}
-	
 	private void cancelAuthentication() 
 	{
 		if (authenticators != null) 
@@ -261,7 +228,7 @@ public class SandboxUI extends AuthenticationUI
 	 * 
 	 * @return false if debug mode assumed
 	 */
-	private boolean isPopup() 
+	private boolean isDebug() 
 	{
 		return debug;
 	}	

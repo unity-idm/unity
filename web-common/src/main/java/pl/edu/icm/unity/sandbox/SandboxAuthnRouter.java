@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.sandbox;
 
+
 /**
  * Main sandbox authentication router interface. It's divided into 
  * {@link SandboxAuthnNotifier} to have a clear separation between 
@@ -13,7 +14,5 @@ package pl.edu.icm.unity.sandbox;
  */
 public interface SandboxAuthnRouter extends SandboxAuthnNotifier
 {
-	void fireEvent(SandboxRemoteAuthnInputEvent event);
-	
-	void fireEvent(SandboxAuthnResultEvent event);
+	void fireEvent(SandboxAuthnEvent event);
 }

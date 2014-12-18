@@ -12,7 +12,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.callbacks.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
@@ -21,9 +20,8 @@ import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.LogRecorder;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
@@ -61,7 +59,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private SAMLExchange credentialExchange;
 	private AuthenticationResultCallback callback;
 	private SandboxAuthnResultCallback sandboxCallback;
-	private LogRecorder logRecorder;
 	private String redirectParam;
 	
 	private IdpSelectorComponent idpSelector;
@@ -217,6 +214,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		try
 		{
 			context = credentialExchange.createSAMLRequest(idpKey, currentRelativeURI);
+			context.setSandboxCallback(sandboxCallback);
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage("WebSAMLRetrieval.configurationError"), e);
@@ -242,13 +240,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		showError(null);
 		String reason = null;
 		Exception savedException = null;
-		
-		boolean isProfileValidationOnly = sandboxCallback != null && sandboxCallback.isProfileValidationMode();
-		if (isProfileValidationOnly)
-		{
-			logRecorder = new LogRecorder();
-			logRecorder.startLogRecording();
-		}
 		
 		try
 		{
@@ -288,14 +279,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			breakLogin(false);
 		}
 
-		if (isProfileValidationOnly)
-		{
-			sandboxCallback.handleProfileValidation(authnResult, logRecorder.getCapturedLogs());
-			logRecorder.stopLogRecording();
-		} else
-		{
-			callback.setAuthenticationResult(authnResult);
-		}
+		callback.setAuthenticationResult(authnResult);
 	}
 	
 	@Override
@@ -338,32 +322,10 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			log.debug("Authentication started but SAML response not arrived (user back button)");
 		} else 
 		{
-			if (sandboxCallback != null && !sandboxCallback.isProfileValidationMode())
-			{
-				handleSandboxAuthn(context);
-			} else
-			{
-				onSamlAnswer(context);
-			}
+			onSamlAnswer(context);
 		}
 	}
 
-	/**
-	 * Called when a SAML response is received and sandbox callback is set.
-	 * @param context
-	 */
-	private void handleSandboxAuthn(RemoteAuthnContext context) 
-	{
-		try 
-		{
-			RemotelyAuthenticatedInput input = credentialExchange.getRemotelyAuthenticatedInput(context);
-			sandboxCallback.handleAuthnInput(input);
-		} catch (AuthenticationException e) 
-		{
-			sandboxCallback.handleAuthnError(e);
-		}
-	}
-	
 	/**
 	 * {@inheritDoc}
 	 */

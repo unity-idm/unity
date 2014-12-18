@@ -486,7 +486,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			DryRunDialog wizard = new DryRunDialog(msg, sandboxURL, sandboxNotifier);
+			DryRunDialog wizard = new DryRunDialog(msg, sandboxURL, sandboxNotifier, tc, profileMan);
 			wizard.show();
 		}
 	}	

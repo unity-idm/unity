@@ -276,15 +276,25 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	@Override
 	public AuthenticationResult verifySAMLResponse(RemoteAuthnContext context) throws AuthenticationException
 	{
-		RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
-		SAMLSPProperties config = context.getContextConfig();
-		String idpKey = context.getContextIdpKey();
+		RemoteAuthnState state = startAuthnResponseProcessing(context.getSandboxCallback(), 
+				Log.U_SERVER_TRANSLATION, Log.U_SERVER_SAML);
 		
-		return getResult(input, config.getValue(idpKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE));
+		try
+		{
+			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
+			SAMLSPProperties config = context.getContextConfig();
+			String idpKey = context.getContextIdpKey();
+		
+			return getResult(input, config.getValue(idpKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE), 
+					state);
+		} catch (Exception e)
+		{
+			finishAuthnResponseProcessing(state, e);
+			throw e;
+		}
 	}
 	
-	@Override
-	public RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(RemoteAuthnContext context) 
+	private RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(RemoteAuthnContext context) 
 			throws AuthenticationException 
 	{
 		ResponseDocument responseDocument;

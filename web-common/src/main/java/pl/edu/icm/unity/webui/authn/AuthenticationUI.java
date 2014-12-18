@@ -20,6 +20,7 @@ import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.ActivationListener;
@@ -64,13 +65,13 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationUI.class);
-	private LocaleChoiceComponent localeChoice;
-	private AuthenticationProcessor authnProcessor;
-	private InsecureRegistrationFormsChooserComponent formsChooser;
-	private InsecureRegistrationFormLauncher formLauncher;
-	private ExecutorsService execService;
-	private TopHeaderLight headerUIComponent;
-	private AuthenticatorSetSelectComponent authnSelectionUIComponent;
+	protected LocaleChoiceComponent localeChoice;
+	protected AuthenticationProcessor authnProcessor;
+	protected InsecureRegistrationFormsChooserComponent formsChooser;
+	protected InsecureRegistrationFormLauncher formLauncher;
+	protected ExecutorsService execService;
+	protected TopHeaderLight headerUIComponent;
+	protected AuthenticatorSetSelectComponent authnSelectionUIComponent;
 	protected List<Map<String, VaadinAuthenticationUI>> authenticators;
 	protected EndpointDescription description;
 	protected EndpointRegistrationConfiguration registrationConfiguration;
@@ -113,9 +114,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	{
 		Component[] components = new Component[authenticators.size()];
 		for (int i=0; i<components.length; i++)
-			components[i] = new AuthenticatorSetComponent(authenticators.get(i), 
-					description.getAuthenticatorSets().get(i), msg, authnProcessor, 
-					formLauncher, execService, cancelHandler, description.getRealm());
+			components[i] = buildAuthenticatorSetComponent(description, authenticators.get(i), 
+					description.getAuthenticatorSets().get(i)); 
 		
 		Button registrationButton = buildRegistrationButton();
 		Component all = buildAllSetsUI(registrationButton, components);
@@ -150,6 +150,14 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		// if this UI expired in the meantime. Shouldn't happen often as heart of authentication UI
 		// is beating very slowly but in case of very slow user we may still need to refresh.
 		refresh(VaadinService.getCurrentRequest()); 
+	}
+	
+	protected AuthenticatorSetComponent buildAuthenticatorSetComponent(EndpointDescription description,
+			Map<String, VaadinAuthenticationUI> authenticator, AuthenticatorSet authenticatorSet)
+	{
+		return new AuthenticatorSetComponent(authenticator, 
+				authenticatorSet, msg, authnProcessor, 
+				formLauncher, execService, cancelHandler, description.getRealm());
 	}
 	
 	private Button buildRegistrationButton()

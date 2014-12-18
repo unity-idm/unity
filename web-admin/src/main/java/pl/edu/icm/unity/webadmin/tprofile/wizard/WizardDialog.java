@@ -12,7 +12,7 @@ import org.vaadin.teemu.wizards.event.WizardProgressListener;
 import org.vaadin.teemu.wizards.event.WizardStepActivationEvent;
 import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
-import pl.edu.icm.unity.sandbox.SandboxRemoteAuthnInputEvent;
+import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditDialog.Callback;
@@ -37,7 +37,7 @@ public class WizardDialog extends Window implements WizardProgressListener
 	private String sandboxURL;
 	private AtomicBoolean isAuthnEventArrived;
 	private SandboxAuthnNotifier sandboxNotifier;
-	private SandboxAuthnNotifier.RemoteAuthnInputListener sandboxListener;
+	private SandboxAuthnNotifier.AuthnResultListener sandboxListener;
 	private String callerId;
 
 	public WizardDialog(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier, 
@@ -72,10 +72,10 @@ public class WizardDialog extends Window implements WizardProgressListener
 	
 	private void addSandboxListener() 
 	{
-		sandboxListener = new SandboxAuthnNotifier.RemoteAuthnInputListener() 
+		sandboxListener = new SandboxAuthnNotifier.AuthnResultListener() 
 		{
 			@Override
-			public void handle(SandboxRemoteAuthnInputEvent event) 
+			public void handle(SandboxAuthnEvent event) 
 			{
 				
 				if (!callerId.equals(event.getCallerId()))

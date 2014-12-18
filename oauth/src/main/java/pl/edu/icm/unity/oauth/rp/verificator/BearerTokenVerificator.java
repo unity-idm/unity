@@ -32,6 +32,7 @@ import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.CacheProvider;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
@@ -110,21 +111,27 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	}
 
 	@Override
-	public AuthenticationResult checkToken(BearerAccessToken token) throws AuthenticationException
+	public AuthenticationResult checkToken(BearerAccessToken token, SandboxAuthnResultCallback sandboxCallback) 
+			throws AuthenticationException
 	{
+		RemoteAuthnState state = startAuthnResponseProcessing(sandboxCallback, 
+				Log.U_SERVER_TRANSLATION, Log.U_SERVER_OAUTH);
 		try
 		{
-			return checkTokenInterruptible(token);
+			return checkTokenInterruptible(token, state);
 		} catch (AuthenticationException e)
 		{
+			finishAuthnResponseProcessing(state, e);
 			throw e;
 		} catch (Exception e)
 		{
+			finishAuthnResponseProcessing(state, e);
 			throw new AuthenticationException("Authentication error ocurred", e);
 		}
 	}
 	
-	public AuthenticationResult checkTokenInterruptible(BearerAccessToken token) throws Exception
+	public AuthenticationResult checkTokenInterruptible(BearerAccessToken token, RemoteAuthnState state) 
+			throws Exception
 	{
 		CacheEntry cached = cache.getCached(token.getValue());
 		if (cached != null)
@@ -138,7 +145,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 				}
 				RemotelyAuthenticatedInput input = assembleBaseResult(status, 
 						cached.getAttributes(), getName());
-				return getResult(input, translationProfile);				
+				return getResult(input, translationProfile, state);				
 			} else
 			{
 				return new AuthenticationResult(Status.deny, null, null);
@@ -158,7 +165,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 			attrs = getUserProfileInformation(token);
 			cache.cache(token.getValue(), status, attrs);
 			RemotelyAuthenticatedInput input = assembleBaseResult(status, attrs, getName());
-			return getResult(input, translationProfile);
+			return getResult(input, translationProfile, state);
 		} else
 		{
 			cache.cache(token.getValue(), status, null);

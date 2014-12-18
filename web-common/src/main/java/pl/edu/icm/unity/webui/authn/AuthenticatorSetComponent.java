@@ -22,7 +22,6 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.HtmlTag;
@@ -30,7 +29,6 @@ import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.RegistrationRequestEditorDialog;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.server.UserError;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -39,7 +37,6 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.ProgressBar;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -55,7 +52,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 	private static final long serialVersionUID = 1L;
 	private UnityMessageSource msg;
 	private AuthenticationProcessor authnProcessor;
-	private AuthenticationResultCallbackImpl authnResultCallback;
+	private AuthenticationResultProcessor authnResultCallback;
 	private Button authenticateButton;
 	private Button cancelButton;
 	private ProgressBar progress;
@@ -122,7 +119,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		usernameComponent = null;
 		if (needCommonUsername)
 		{
-			usernameComponent = new UsernameComponent();
+			usernameComponent = new UsernameComponent(msg);
 			addComponent(usernameComponent);
 			for (String authenticator: set.getAuthenticators())
 			{
@@ -132,7 +129,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 			}
 		}
 
-		authnResultCallback = new AuthenticationResultCallbackImpl(authenticators, usernameComponent);
+		authnResultCallback = createAuthnResultCallback(authenticators, usernameComponent);
 		for (String authenticator: set.getAuthenticators())
 		{
 			VaadinAuthenticationUI vaadinAuth = authenticators.get(authenticator); 
@@ -167,19 +164,25 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 	}
 
-	private void showAuthnProgress(boolean inProgress)
+	protected void showAuthnProgress(boolean inProgress)
 	{
 		log.trace("Authn progress visible: " + inProgress);
 		progress.setVisible(inProgress);
 		cancelButton.setVisible(inProgress);
 	}
 	
-	private void clearAuthenticators(Map<String, VaadinAuthenticationUI> authenticators)
+	protected void clearAuthenticators(Map<String, VaadinAuthenticationUI> authenticators)
 	{
 		for (VaadinAuthenticationUI vaadinAuth: authenticators.values())
 			vaadinAuth.clear();
 		if (usernameComponent != null)
 			usernameComponent.clear();
+	}
+	
+	protected AuthenticationResultProcessor createAuthnResultCallback(
+			Map<String, VaadinAuthenticationUI> authenticators, UsernameComponent usernameComponent)
+	{
+		return new AuthenticationResultCallbackImpl(authenticators, usernameComponent);
 	}
 	
 	private class LoginButtonListener implements ClickListener
@@ -233,7 +236,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 	 * 
 	 * @author K. Benedyczak
 	 */
-	private class AuthenticationResultCallbackImpl implements AuthenticationResultCallback
+	protected class AuthenticationResultCallbackImpl implements AuthenticationResultProcessor
 	{
 		private List<AuthenticationResult> results = new ArrayList<AuthenticationResult>();
 		private Map<String, VaadinAuthenticationUI> authenticators;
@@ -287,14 +290,19 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 			return authnDone;
 		}
 		
-		private void authnDone()
+		protected void cleanAuthentication()
 		{
-			log.trace("Authentication completed, starting processing.");
-			List<AuthenticationResult> results = new ArrayList<>(this.results);
 			this.results.clear();
 			authenticateButton.setEnabled(true);
 			authnDone = true;
 			clearAuthenticators(authenticators);
+		}
+		
+		protected void authnDone()
+		{
+			log.trace("Authentication completed, starting processing.");
+			List<AuthenticationResult> results = new ArrayList<>(this.results);
+			cleanAuthentication();
 			try
 			{
 				authnProcessor.processResults(results, clientIp, realm, rememberMe.getValue());
@@ -319,7 +327,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 			showAuthnProgress(false);
 		}
 		
-		private void showRegistration(UnknownRemoteUserException ee)
+		protected void showRegistration(UnknownRemoteUserException ee)
 		{
 			RegistrationRequestEditorDialog dialog;
 			try
@@ -339,7 +347,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 			}
 		}
 		
-		private void handleError(String error)
+		protected void handleError(String error)
 		{
 			if (usernameComp != null)
 				usernameComp.setError(error);
@@ -347,42 +355,6 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		}
 	}
 	
-	
-	
-	private class UsernameComponent extends HorizontalLayout implements UsernameProvider
-	{
-		private static final long serialVersionUID = 1L;
-		private TextField username;
-		
-		public UsernameComponent()
-		{
-			username = new TextField(msg.getMessage("AuthenticationUI.username"));
-			username.setId("AuthenticationUI.username");
-			addComponent(username);
-		}
-
-		@Override
-		public String getUsername()
-		{
-			return username.getValue();
-		}
-		
-		public void setError(String error)
-		{
-			username.setComponentError(new UserError(error));
-		}
-		
-		public void setFocus()
-		{
-			username.focus();
-		}
-		
-		public void clear()
-		{
-			username.setValue("");
-		}
-	}
-
 	@Override
 	public void stateChanged(boolean enabled)
 	{
@@ -395,5 +367,19 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		{
 			authenticateButton.removeClickShortcut();
 		}
+	}
+	
+	/**
+	 * Extends {@link AuthenticationResultCallback} with internal operations needed by the 
+	 * {@link AuthenticatorSetComponent}: handling of authentication finish.
+	 * @author K. Benedyczak
+	 */
+	public interface AuthenticationResultProcessor extends AuthenticationResultCallback
+	{
+		void authenticationCancelled(boolean signalAuthenticators);
+		
+		void resetAuthnDone();
+		
+		boolean isAuthnDone();
 	}
 }

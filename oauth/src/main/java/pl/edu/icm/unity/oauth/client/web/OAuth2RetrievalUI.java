@@ -11,7 +11,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.callbacks.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthContextsManagement;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
@@ -20,10 +19,9 @@ import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.LogRecorder;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
@@ -61,7 +59,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	
 	private AuthenticationResultCallback callback;
 	private SandboxAuthnResultCallback sandboxCallback;
-	private LogRecorder logRecorder;
 	private String redirectParam;
 
 	private IdpSelectorComponent idpSelector;
@@ -253,6 +250,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			context = credentialExchange.createRequest(providerKey);
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
+			context.setSandboxCallback(sandboxCallback);
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg, msg.getMessage("OAuth2Retrieval.configurationError"), e);
@@ -271,20 +269,12 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	 */
 	private void onAuthzAnswer(OAuthContext authnContext)
 	{
-		boolean isProfileValidationOnly = sandboxCallback != null && sandboxCallback.isProfileValidationMode();
-		if (isProfileValidationOnly)
-		{
-			logRecorder = new LogRecorder();
-			logRecorder.startLogRecording();
-		}
-		
 		log.debug("RetrievalUI received OAuth response");
 		AuthenticationResult authnResult;
 		showError(null);
 		
-		log.debug("RetrievalUI will validate OAuth response");
 		String reason = null;
-		Exception savedException = null;
+		AuthenticationException savedException = null;
 		try
 		{
 			authnResult = credentialExchange.verifyOAuthAuthzResponse(authnContext);
@@ -326,33 +316,9 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			breakLogin(false);
 		}
 
-		if (isProfileValidationOnly)
-		{
-			sandboxCallback.handleProfileValidation(authnResult, logRecorder.getCapturedLogs());
-			logRecorder.stopLogRecording();
-		} else
-		{
-			callback.setAuthenticationResult(authnResult);
-		}
+		callback.setAuthenticationResult(authnResult);
 	}
 
-
-	/**
-	 * Called when a OAuth response is received and sandbox callback is set.
-	 * @param context
-	 */
-	private void handleSandboxAuthn(OAuthContext context) 
-	{
-		try 
-		{
-			RemotelyAuthenticatedInput input = credentialExchange.getRemotelyAuthenticatedInput(context);
-			sandboxCallback.handleAuthnInput(input);
-		} catch (AuthenticationException e) 
-		{
-			sandboxCallback.handleAuthnError(e);
-		}
-	}
-	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -370,20 +336,14 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			log.debug("Authentication started but OAuth2 response not arrived (user back button)");
 		} else 
 		{
-			if (sandboxCallback != null && !sandboxCallback.isProfileValidationMode())
-			{
-				handleSandboxAuthn(context);
-			} else
-			{
-				onAuthzAnswer(context);
-			}
+			onAuthzAnswer(context);
 		}
 	}
 
 	@Override
 	public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
 	{
-		sandboxCallback = callback;
+		this.sandboxCallback = callback;
 	}
 
 }

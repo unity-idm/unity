@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webadmin.tprofile.wizard;
 import org.vaadin.teemu.wizards.Wizard;
 import org.vaadin.teemu.wizards.event.WizardProgressListener;
 
-import pl.edu.icm.unity.sandbox.SandboxRemoteAuthnInputEvent;
+import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
@@ -68,9 +68,9 @@ public class WizardDialogComponent extends CustomComponent
 		return wizard.getNextButton();
 	}
 
-	public void handle(SandboxRemoteAuthnInputEvent event) 
+	public void handle(SandboxAuthnEvent event) 
 	{
-		profileStep.handle(event.getAuthnInput());
+		profileStep.handle(event.getCtx().getAuthnContext().getAuthnInput());
 		sandboxStep.enableNext();
 		wizard.next();
 		disableBackButton();

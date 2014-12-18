@@ -8,6 +8,17 @@ import java.security.cert.X509Certificate;
 
 import javax.servlet.http.HttpServletRequest;
 
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
+import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.server.authn.CredentialExchange;
+import pl.edu.icm.unity.server.authn.CredentialRetrieval;
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.stdext.credential.CertificateExchange;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -22,16 +33,6 @@ import com.vaadin.ui.themes.Reindeer;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.callbacks.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.CredentialExchange;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.stdext.credential.CertificateExchange;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
 /**
  * Retrieves the authenticated user from the TLS. The login happens on the HTTP connection level 

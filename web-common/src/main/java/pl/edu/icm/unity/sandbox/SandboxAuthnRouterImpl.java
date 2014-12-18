@@ -26,12 +26,10 @@ import com.vaadin.server.VaadinService;
 public class SandboxAuthnRouterImpl implements SandboxAuthnRouter 
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, SandboxAuthnRouterImpl.class);
-	private Map<String, RemoteAuthnInputListener> inputListenerList;
 	private Map<String, AuthnResultListener> authnListenerList;
 
 	public SandboxAuthnRouterImpl()
 	{
-		inputListenerList = new HashMap<String, RemoteAuthnInputListener>();
 		authnListenerList = new HashMap<String, AuthnResultListener>();
 		if (LOG.isDebugEnabled()) 
 		{
@@ -42,18 +40,11 @@ public class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 				{
 					while (true)
 					{
-						int inputSize = 0;
 						int authnSize = 0;
-						synchronized (inputListenerList)
-						{
-							inputSize = inputListenerList.size();
-						}
 						synchronized (authnListenerList)
 						{
 							authnSize = authnListenerList.size();
 						}						
-						if (inputSize > 0)
-							LOG.debug("inputListenerList.size()==" + inputSize);
 						if (authnSize > 0)
 							LOG.debug("authnListenerList.size()==" + authnSize);
 						try 
@@ -72,19 +63,7 @@ public class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 	}
 	
 	@Override
-	public void fireEvent(SandboxRemoteAuthnInputEvent event) 
-	{
-		synchronized (inputListenerList)
-		{
-			for (RemoteAuthnInputListener listener : inputListenerList.values())
-			{
-				listener.handle(event);
-			}
-		}
-	}
-
-	@Override
-	public void fireEvent(SandboxAuthnResultEvent event) 
+	public void fireEvent(SandboxAuthnEvent event) 
 	{
 		synchronized (authnListenerList)
 		{
@@ -95,32 +74,6 @@ public class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 		}
 	}
 	
-	@Override
-	public void addListener(RemoteAuthnInputListener listener) 
-	{
-		final String sessionId = VaadinService.getCurrentRequest().getWrappedSession().getId();
-		LOG.debug("addin RemoteAuthnInputListener: " + sessionId);
-		synchronized (inputListenerList)
-		{
-			inputListenerList.put(sessionId, listener);
-		}
-		final VaadinService vaadinService = VaadinService.getCurrent();
-		vaadinService.addSessionDestroyListener(new SessionDestroyListener()
-		{
-			@Override
-			public void sessionDestroy(SessionDestroyEvent event) 
-			{
-				LOG.debug("removing RemoteAuthnInputListener: " + sessionId);
-				synchronized (inputListenerList)
-				{
-					inputListenerList.remove(sessionId);
-				}				
-				vaadinService.removeSessionDestroyListener(this);
-				
-			}
-		}); 
-	}
-
 	@Override
 	public void addListener(AuthnResultListener listener) 
 	{
@@ -142,7 +95,6 @@ public class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 					authnListenerList.remove(sessionId);
 				}				
 				vaadinService.removeSessionDestroyListener(this);
-				
 			}
 		}); 	
 	}

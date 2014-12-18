@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.sandbox;
 
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnContext;
+
 import com.vaadin.server.VaadinService;
 
 
@@ -16,14 +18,21 @@ import com.vaadin.server.VaadinService;
 public class SandboxAuthnEvent 
 {
 	private String callerId;
+	private SandboxAuthnContext ctx;
 	
-	public SandboxAuthnEvent()
+	public SandboxAuthnEvent(SandboxAuthnContext ctx)
 	{
 		this.callerId = VaadinService.getCurrentRequest().getWrappedSession().getId();
+		this.ctx = ctx;
 	}
 
 	public String getCallerId()
 	{
 		return callerId;
+	}
+
+	public SandboxAuthnContext getCtx()
+	{
+		return ctx;
 	}
 }

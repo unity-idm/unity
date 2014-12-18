@@ -57,19 +57,20 @@ public class RemoteVerificatorUtil
 	 * @return
 	 * @throws EngineException 
 	 */
-	public AuthenticationResult getResult(RemotelyAuthenticatedInput input, String profile) 
+	public AuthenticationResult getResult(RemotelyAuthenticatedInput input, String profile, boolean dryRun) 
 			throws AuthenticationException
 	{
 		RemotelyAuthenticatedContext context;
 		try
 		{
-			context = processRemoteInput(input, profile);
+			context = processRemoteInput(input, profile, dryRun);
 		} catch (EngineException e)
 		{
 			throw new AuthenticationException("The mapping of the remotely authenticated " +
 					"principal to a local representation failed", e);
 		}
-		return assembleAuthenticationResult(context);
+		return dryRun ? new AuthenticationResult(Status.success, context, null) : 
+			assembleAuthenticationResult(context);
 	}
 	
 	/**
@@ -120,7 +121,7 @@ public class RemoteVerificatorUtil
 	 * @throws EngineException
 	 */
 	public final RemotelyAuthenticatedContext processRemoteInput(RemotelyAuthenticatedInput input, 
-			String profile)	throws EngineException
+			String profile, boolean dryRun) throws EngineException
 	{
 		InputTranslationProfile translationProfile = profileManagement.listInputProfiles().get(profile);
 		if (translationProfile == null)
@@ -128,7 +129,8 @@ public class RemoteVerificatorUtil
 					"' configured for the authenticator does not exist");
 		MappingResult result = translationProfile.translate(input);
 
-		trEngine.process(result);
+		if (!dryRun)
+			trEngine.process(result);
 		
 		RemotelyAuthenticatedContext ret = new RemotelyAuthenticatedContext(input.getIdpName(), profile);
 		ret.addAttributes(extractAttributes(result));

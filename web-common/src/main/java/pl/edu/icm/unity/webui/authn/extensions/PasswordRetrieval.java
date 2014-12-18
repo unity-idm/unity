@@ -6,6 +6,24 @@ package pl.edu.icm.unity.webui.authn.extensions;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
+import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.server.authn.CredentialExchange;
+import pl.edu.icm.unity.server.authn.CredentialRetrieval;
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.stdext.credential.PasswordExchange;
+import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.authn.credreset.CredentialReset1Dialog;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -14,34 +32,14 @@ import com.vaadin.server.UserError;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.callbacks.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.authn.CredentialExchange;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.LogRecorder;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.stdext.credential.PasswordExchange;
-import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.authn.credreset.CredentialReset1Dialog;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 /**
  * Retrieves passwords using a Vaadin widget.
@@ -186,48 +184,9 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 						msg.getMessage("WebPasswordRetrieval.noPassword")));
 			}
 			
-			if (sandboxCallback != null)
-			{
-				if (sandboxCallback.isProfileValidationMode())
-				{
-					handleProfileValidation(username, password);
-					
-				} else
-				{
-					handleSandboxAuthn(username, password);
-				}
-			} else
-			{
-				callback.setAuthenticationResult(getAuthenticationResult(username, password));
-			}
+			callback.setAuthenticationResult(getAuthenticationResult(username, password));
 		}
 		
-
-		private void handleProfileValidation(String username, String password) 
-		{
-			LogRecorder logRecorder = new LogRecorder();
-			logRecorder.startLogRecording();
-			AuthenticationResult authnResult = getAuthenticationResult(username, password);
-			logRecorder.stopLogRecording();
-			sandboxCallback.handleProfileValidation(authnResult, logRecorder.getCapturedLogs());
-		}
-
-		private void handleSandboxAuthn(String username, String password) 
-		{
-			if (username.equals("") && password.equals(""))
-			{
-				return;
-			}
-			try 
-			{
-				RemotelyAuthenticatedInput input = credentialExchange.getRemotelyAuthenticatedInput(
-						username, password);
-				sandboxCallback.handleAuthnInput(input);
-			} catch (AuthenticationException e) 
-			{
-				sandboxCallback.handleAuthnError(e);
-			}
-		}
 
 		private AuthenticationResult getAuthenticationResult(String username, String password)
 		{
@@ -237,7 +196,8 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 			}
 			try
 			{
-				AuthenticationResult authenticationResult = credentialExchange.checkPassword(username, password);
+				AuthenticationResult authenticationResult = credentialExchange.checkPassword(
+						username, password, sandboxCallback);
 				if (authenticationResult.getStatus() == Status.success)
 					passwordField.setComponentError(null);
 				else if (authenticationResult.getStatus() == Status.unknownRemotePrincipal && 

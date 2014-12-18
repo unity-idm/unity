@@ -196,18 +196,26 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	@Override
 	public AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context) throws AuthenticationException
 	{
-		RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
-
-		String translationProfile = config.getProvider(context.getProviderConfigKey()).getValue( 
+		RemoteAuthnState state = startAuthnResponseProcessing(context.getSandboxCallback(), 
+				Log.U_SERVER_TRANSLATION, Log.U_SERVER_OAUTH);
+		try
+		{
+			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
+			String translationProfile = config.getProvider(context.getProviderConfigKey()).getValue( 
 				CustomProviderProperties.TRANSLATION_PROFILE);
 		
-		return getResult(input, translationProfile);
+			return getResult(input, translationProfile, state);
+		} catch (Exception e)
+		{
+			finishAuthnResponseProcessing(state, e);
+			throw e;
+		}
+		
 	}
 	
 
-	@Override
-	public RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(
-			OAuthContext context) throws AuthenticationException 
+	private RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(OAuthContext context) 
+			throws AuthenticationException 
 	{
 		String error = context.getErrorCode();
 		if (error != null)
