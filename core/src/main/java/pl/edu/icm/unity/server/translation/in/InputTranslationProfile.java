@@ -170,33 +170,40 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 	{
 		Map<String, String> exprValMap = new LinkedHashMap<String, String>();
 
-		for (String contextKey : mvelCtx.keySet())
+		for (Map.Entry<String, Object> context : mvelCtx.entrySet())
 		{
-			if (ContextKey.valueOf(contextKey) == null)
+			String contextKey = context.getKey();
+			Object contextValue = context.getValue();
+			try
 			{
-				throw new IllegalArgumentException("Incorrect MVEL context, uknnown context key: " + contextKey);
+				ContextKey.valueOf(contextKey);
+			} catch (Exception e)
+			{
+				throw new IllegalArgumentException("Incorrect MVEL context, unknown context key: " + 
+						context.getKey());
 			}
 			
-			if (mvelCtx.get(contextKey) instanceof Map)
+			if (contextValue instanceof Map)
 			{
 				@SuppressWarnings("unchecked")
-				HashMap<String, Object> value = (HashMap<String, Object>) mvelCtx.get(contextKey);
+				HashMap<String, Object> value = (HashMap<String, Object>) contextValue;
 				for (String key : value.keySet())
 				{
-					exprValMap.put(String.format("%s['%s']", contextKey, key), value.get(key).toString());
+					exprValMap.put(String.format("%s['%s']", contextKey, key), 
+							value.get(key).toString());
 				}
-			} else if (mvelCtx.get(contextKey) instanceof List)
+			} else if (contextValue instanceof List)
 			{
-				exprValMap.put(contextKey, mvelCtx.get(contextKey).toString());
+				exprValMap.put(contextKey, contextValue.toString());
 				
-			} else if (mvelCtx.get(contextKey) instanceof String)
+			} else if (contextValue instanceof String)
 			{
-				exprValMap.put(contextKey, mvelCtx.get(contextKey).toString());
+				exprValMap.put(contextKey, contextValue.toString());
 				
 			} else
 			{
 				throw new IllegalArgumentException("Incorrect MVEL context: unexpected: \"" 
-						+ mvelCtx.get(contextKey).getClass() 
+						+ contextValue.getClass() 
 						+ "\" type for context key: \"" 
 						+ contextKey 
 						+ "\"");
