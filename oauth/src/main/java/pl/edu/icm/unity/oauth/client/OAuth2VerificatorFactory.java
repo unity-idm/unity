@@ -51,7 +51,7 @@ public class OAuth2VerificatorFactory implements CredentialVerificatorFactory
 		this.pkiManagement = pkiManagement;
 		
 		ServletHolder servlet = new ServletHolder(new ResponseConsumerServlet(contextManagement));
-		sharedEndpointManagement.deployInternalEndpointServlet(ResponseConsumerServlet.PATH, servlet);
+		sharedEndpointManagement.deployInternalEndpointServlet(ResponseConsumerServlet.PATH, servlet, false);
 	}
 
 	@Override

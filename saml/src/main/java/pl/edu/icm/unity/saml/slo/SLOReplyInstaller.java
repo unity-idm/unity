@@ -53,7 +53,7 @@ public class SLOReplyInstaller
 		SLOReplyServlet replyServlet = new SLOReplyServlet(internalProcessor);
 		ServletHolder servlet = new ServletHolder(replyServlet);
 
-		sharedEndpointManagement.deployInternalEndpointServlet(PATH, servlet);
+		sharedEndpointManagement.deployInternalEndpointServlet(PATH, servlet, false);
 		enabled = true;
 	}
 	

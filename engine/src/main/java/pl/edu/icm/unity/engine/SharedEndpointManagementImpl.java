@@ -37,7 +37,8 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 	@Autowired
 	public SharedEndpointManagementImpl(JettyServer httpServer) throws EngineException
 	{
-		sharedHandler = new ServletContextHandler();
+		//TODO CHECK
+		sharedHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		sharedHandler.setContextPath(CONTEXT_PATH);
 		httpServer.deployHandler(sharedHandler);
 		usedPaths = new HashSet<>();
@@ -45,16 +46,18 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 	}
 
 	@Override
-	public void deployInternalEndpointServlet(String contextPath, ServletHolder servlet)
+	public void deployInternalEndpointServlet(String contextPath, ServletHolder servlet, boolean mapVaadinResource)
 			throws EngineException
 	{
 		if (usedPaths.contains(contextPath))
 			throw new WrongArgumentException("The context path " + contextPath + " is already assigned.");
 		sharedHandler.addServlet(servlet, contextPath + "/*");
+		if (mapVaadinResource)
+			sharedHandler.addServlet(servlet, "/VAADIN/*");
 		log.debug("Deployed internal servlet " + servlet.getClassName() + " at: " +
 				CONTEXT_PATH + contextPath);
 	}
-
+	
 	@Override
 	public String getBaseContextPath()
 	{

@@ -76,7 +76,7 @@ public class SLOSPManager
 		SLOSAMLServlet servlet = new SLOSAMLServlet(logoutProcessor);
 		ServletHolder servletHolder = new ServletHolder(servlet);
 
-		sharedEndpointManagement.deployInternalEndpointServlet(prefixed, servletHolder);
+		sharedEndpointManagement.deployInternalEndpointServlet(prefixed, servletHolder, false);
 		deployedAsyncServlets.put(pathSuffix, servlet);
 	}
 	
@@ -108,7 +108,7 @@ public class SLOSPManager
 		Endpoint cxfEndpoint = CXFUtils.deployWebservice(bus, SAMLLogoutInterface.class, webService);
 		cxfEndpoint.getOutInterceptors().add(new XmlBeansNsHackOutHandler());
 
-		sharedEndpointManagement.deployInternalEndpointServlet(prefixed, holder);
+		sharedEndpointManagement.deployInternalEndpointServlet(prefixed, holder, false);
 		deployedSyncServlets.put(pathSuffix, cxfServlet);
 	}
 

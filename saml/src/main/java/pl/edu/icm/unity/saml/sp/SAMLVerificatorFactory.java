@@ -79,11 +79,11 @@ public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 		this.sloReplyInstaller = sloReplyInstaller;
 		
 		ServletHolder servlet = new ServletHolder(new SAMLResponseConsumerServlet(contextManagement));
-		sharedEndpointManagement.deployInternalEndpointServlet(SAMLResponseConsumerServlet.PATH, servlet);
+		sharedEndpointManagement.deployInternalEndpointServlet(SAMLResponseConsumerServlet.PATH, servlet, false);
 		
 		metadataServlet = new MultiMetadataServlet(METADATA_SERVLET_PATH);
 		sharedEndpointManagement.deployInternalEndpointServlet(METADATA_SERVLET_PATH, 
-				new ServletHolder(metadataServlet));
+				new ServletHolder(metadataServlet), false);
 	}
 
 	@Override

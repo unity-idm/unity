@@ -26,8 +26,8 @@ public interface SharedEndpointManagement
 	 * @param servlet the servlet to deploy
 	 * @throws EngineException
 	 */
-	void deployInternalEndpointServlet(String contextPath, ServletHolder servlet) throws EngineException;
-	
+	void deployInternalEndpointServlet(String contextPath, ServletHolder servlet, boolean mapVaadinResource) throws EngineException;
+		
 	/**
 	 * @return the first element of the servlet's path, with a leading '/' and no trailing '/'.
 	 */

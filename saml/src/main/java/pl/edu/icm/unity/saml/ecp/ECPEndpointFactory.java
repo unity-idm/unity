@@ -100,7 +100,7 @@ public class ECPEndpointFactory implements EndpointFactory
 		
 		metadataServlet = new MultiMetadataServlet(METADATA_SERVLET_PATH);
 		sharedEndpointManagement.deployInternalEndpointServlet(METADATA_SERVLET_PATH, 
-				new ServletHolder(metadataServlet));
+				new ServletHolder(metadataServlet), false);
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
 		this.downloadManager = downloadManager;
 	}
