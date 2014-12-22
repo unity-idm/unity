@@ -25,7 +25,6 @@ import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
@@ -114,25 +113,7 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 			throws EngineException, SAMLRequesterException
 	{
 		List<IdentityParam> validIdentities = samlProcessor.getCompatibleIdentities(userInfo.getIdentities());
-		if (validIdentities.size() > 0)
-		{
-			for (IdentityParam id: validIdentities)
-			{
-				if (id instanceof Identity)
-				{
-					if (((Identity)id).getComparableValue().equals(
-							preferences.getSelectedIdentity()))
-					{
-						return id;
-					}
-				} else
-				{
-					if (id.getValue().equals(preferences.getSelectedIdentity()))
-						return id;
-				}
-			}
-		}
-		return validIdentities.get(0);
+		return IdPEngine.getIdentity(validIdentities, preferences.getSelectedIdentity());
 	}
 	
 	protected void validate(SAMLAuthnContext context) throws SAMLServerException

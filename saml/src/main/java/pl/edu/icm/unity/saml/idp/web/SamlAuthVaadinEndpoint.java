@@ -27,6 +27,8 @@ import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
+import pl.edu.icm.unity.saml.idp.web.filter.IdpDispatcherServlet;
+import pl.edu.icm.unity.saml.idp.web.filter.IdpDispatcherServletFactory;
 import pl.edu.icm.unity.saml.idp.web.filter.SamlGuardFilter;
 import pl.edu.icm.unity.saml.idp.web.filter.SamlParseServlet;
 import pl.edu.icm.unity.saml.idp.ws.SAMLSingleLogoutImpl;
@@ -68,38 +70,40 @@ import eu.unicore.util.configuration.ConfigurationException;
  */
 public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 {
+	public static final String SAML_CONSUMER_SERVLET_PATH = "/saml2idp-web";
+	public static final String SAML_UI_SERVLET_PATH = "/saml2idp-web-ui";
+	public static final String SAML_DISPATCHER_SERVLET_PATH = "/saml2idp-web-entry";
+	public static final String SAML_META_SERVLET_PATH = "/metadata";
+	public static final String SAML_SLO_ASYNC_SERVLET_PATH = "/SLO-WEB";
+	public static final String SAML_SLO_SOAP_SERVLET_PATH = "/SLO-SOAP";
+	
 	protected SamlIdpProperties samlProperties;
 	protected FreemarkerHandler freemarkerHandler;
 	protected PKIManagement pkiManagement;
 	protected ExecutorsService executorsService;
-	protected String samlConsumerPath;
-	protected String samlSLOAsyncPath;
-	protected String samlSLOSyncPath;
-	protected String samlMetadataPath;
 	protected RemoteMetaManager myMetadataManager;
+	protected IdpDispatcherServletFactory dispatcherServletFactory;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	private SLOReplyInstaller sloReplyInstaller;
 	
+	
 	public SamlAuthVaadinEndpoint(EndpointTypeDescription type,
 			ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
-			Class<?> uiClass, String samlUiServletPath, PKIManagement pkiManagement,
+			Class<?> uiClass, PKIManagement pkiManagement,
 			ExecutorsService executorsService, UnityServerConfiguration mainConfig,
+			IdpDispatcherServletFactory dispatcherServletFactory,
 			Map<String, RemoteMetaManager> remoteMetadataManagers,
-			MetaDownloadManager downloadManager, String samlConsumerPath,
-			String samlMetadataPath, String samlSLOAsyncPath, String samlSLOSyncPath,
+			MetaDownloadManager downloadManager, 
 			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller)
 	{
-		super(type, applicationContext, uiClass.getSimpleName(), samlUiServletPath);
+		super(type, applicationContext, uiClass.getSimpleName(), SAML_UI_SERVLET_PATH);
 		this.freemarkerHandler = freemarkerHandler;
+		this.dispatcherServletFactory = dispatcherServletFactory;
 		this.pkiManagement = pkiManagement;
 		this.executorsService = executorsService;
-		this.samlConsumerPath = samlConsumerPath;
-		this.samlMetadataPath = samlMetadataPath;
-		this.samlSLOAsyncPath = samlSLOAsyncPath;
-		this.samlSLOSyncPath = samlSLOSyncPath;
 		this.remoteMetadataManagers = remoteMetadataManagers;
 		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
@@ -149,25 +153,32 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath(description.getContextAddress());
 
-		String endpointURL = getServletUrl(samlConsumerPath);
-		String uiURL = getServletUrl(servletPath);
-		Filter samlGuardFilter = new SamlGuardFilter(servletPath, new ErrorHandler(freemarkerHandler));
-		context.addFilter(new FilterHolder(samlGuardFilter), servletPath + "/*", 
+		String endpointURL = getServletUrl(SAML_CONSUMER_SERVLET_PATH);
+		String dispatcherURL = getServletUrl(SAML_DISPATCHER_SERVLET_PATH);
+		Filter samlGuardFilter = new SamlGuardFilter(SAML_DISPATCHER_SERVLET_PATH, 
+				new ErrorHandler(freemarkerHandler));
+		context.addFilter(new FilterHolder(samlGuardFilter), SAML_DISPATCHER_SERVLET_PATH + "/*", 
 				EnumSet.of(DispatcherType.REQUEST));
 		
-		Servlet samlParseServlet = getSamlParseServlet(endpointURL, uiURL);
+		Servlet samlParseServlet = getSamlParseServlet(endpointURL, dispatcherURL);
 		ServletHolder samlParseHolder = createServletHolder(samlParseServlet, true);
-		context.addServlet(samlParseHolder, samlConsumerPath + "/*");
+		context.addServlet(samlParseHolder, SAML_CONSUMER_SERVLET_PATH + "/*");
+
+		Servlet samlDispatcherServlet = dispatcherServletFactory.getInstance(
+				getEndpointDescription().getContextAddress() + SAML_UI_SERVLET_PATH);
+		ServletHolder samlDispatcherHolder = createServletHolder(samlDispatcherServlet, true);
+		context.addServlet(samlDispatcherHolder, SAML_DISPATCHER_SERVLET_PATH + "/*");
 		
-		String sloAsyncURL = getServletUrl(samlSLOAsyncPath);
+		
+		String sloAsyncURL = getServletUrl(SAML_SLO_ASYNC_SERVLET_PATH);
 		Servlet samlSLOAsyncServlet = getSLOAsyncServlet(sloAsyncURL);
 		ServletHolder samlSLOAsyncHolder = createServletHolder(samlSLOAsyncServlet, true);
-		context.addServlet(samlSLOAsyncHolder, samlSLOAsyncPath + "/*");
+		context.addServlet(samlSLOAsyncHolder, SAML_SLO_ASYNC_SERVLET_PATH + "/*");
 
-		String sloSyncURL = getServletUrl(samlSLOSyncPath);
+		String sloSyncURL = getServletUrl(SAML_SLO_SOAP_SERVLET_PATH);
 		Servlet samlSLOSyncServlet = getSLOSyncServlet(sloSyncURL);
 		ServletHolder samlSLOSyncHolder = createServletHolder(samlSLOSyncServlet, true);
-		context.addServlet(samlSLOSyncHolder, samlSLOSyncPath + "/*");
+		context.addServlet(samlSLOSyncHolder, SAML_SLO_SOAP_SERVLET_PATH + "/*");
 		
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
@@ -197,17 +208,17 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		if (samlProperties.getBooleanValue(SamlIdpProperties.PUBLISH_METADATA))
 		{
 			Servlet metadataServlet = getMetadataServlet(endpointURL, sloAsyncURL, sloSyncURL);
-			context.addServlet(createServletHolder(metadataServlet, true), samlMetadataPath + "/*");
+			context.addServlet(createServletHolder(metadataServlet, true), SAML_META_SERVLET_PATH + "/*");
 		}
 		return context;
 	}
 	
-	protected Servlet getSamlParseServlet(String endpointURL, String uiUrl)
+	protected Servlet getSamlParseServlet(String endpointURL, String dispatcherUrl)
 	{
 		return new SamlParseServlet(myMetadataManager, 
-				endpointURL, uiUrl, new ErrorHandler(freemarkerHandler));
+				endpointURL, dispatcherUrl, new ErrorHandler(freemarkerHandler));
 	}
-	
+
 	protected Servlet getMetadataServlet(String samlEndpointURL, String sloEndpointURL, String sloSoapEndpointURL)
 	{
 		EndpointType ssoPost = EndpointType.Factory.newInstance();

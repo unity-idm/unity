@@ -12,17 +12,22 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.apache.xmlbeans.XmlObject;
 
 import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.binding.HttpPostBindingSupport;
+import eu.unicore.samly2.binding.HttpRedirectBindingSupport;
+import eu.unicore.samly2.binding.SAMLMessageType;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
+import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.server.utils.Log;
 
 /**
- * Base code for producing responses which are returned with the help of Freemarker to the user's browser.
- * Some of the responses (low level errors) are shown as an error page. Other responses (ligh level errors 
+ * Base code for producing responses which are returned (some with the help of Freemarker) to the user's browser.
+ * Some of the responses (low level errors) are shown as an error page. Other responses (high level errors 
  * and correct responses) are producing a web page which is redirecting the user to the final destination.
  * @author K. Benedyczak
  */
@@ -82,5 +87,88 @@ public abstract class ResponseHandlerBase
 		PrintWriter w = response.getWriter();
 		freemarker.process("finishSaml.ftl", data, w);
 		throw new EopException();
+	}
+	
+	
+	protected void sendRequest(Binding binding, XmlObject requestDoc, String serviceUrl, 
+			String relayState, HttpServletResponse response, String info) 
+					throws IOException, EopException
+	{
+		switch (binding)
+		{
+		case HTTP_POST:
+			handlePostGeneric(requestDoc.xmlText(), info, SAMLMessageType.SAMLRequest, 
+					serviceUrl, relayState, response);
+			break;
+		case HTTP_REDIRECT:
+			handleRedirectGeneric(requestDoc.xmlText(), info, SAMLMessageType.SAMLRequest, 
+					serviceUrl, relayState, response);
+			break;
+		default:
+			throw new IllegalStateException("Unsupported binding: " + binding);
+		}
+	}
+
+	protected void sendResponse(Binding binding, XmlObject responseDoc, String serviceUrl, 
+			String relayState, HttpServletResponse response, String info) 
+					throws IOException, EopException
+	{
+		switch (binding)
+		{
+		case HTTP_POST:
+			handlePostGeneric(responseDoc.xmlText(), info, SAMLMessageType.SAMLResponse, 
+					serviceUrl, relayState, response);
+			break;
+		case HTTP_REDIRECT:
+			handleRedirectGeneric(responseDoc.xmlText(), info, SAMLMessageType.SAMLResponse, 
+					serviceUrl, relayState, response);
+			break;
+		default:
+			throw new IllegalStateException("Unsupported binding: " + binding);
+		}
+
+	}
+
+	protected void handleRedirectGeneric(String xml, String info, SAMLMessageType type, String serviceUrl, 
+			String relayState, HttpServletResponse response) throws IOException, EopException
+	{
+		setCommonHeaders(response);
+		log.debug("Returning " + info + " " + type + " with HTTP Redirect binding to " + serviceUrl);
+		String redirectURL = HttpRedirectBindingSupport.getRedirectURL(type, 
+				relayState, xml, serviceUrl);
+		if (log.isTraceEnabled())
+		{
+			log.trace("SAML " + type + " is:\n" + xml);
+			log.trace("Returned Redirect URL is:\n" + redirectURL);
+		}
+		response.sendRedirect(redirectURL);
+		throw new EopException();
+	}
+
+
+	protected void handlePostGeneric(String xml, String info, SAMLMessageType type, String serviceUrl, 
+			String relayState, HttpServletResponse response) throws IOException, EopException
+	{
+		response.setContentType("text/html; charset=utf-8");
+		setCommonHeaders(response);
+		response.setDateHeader("Expires", -1);
+
+		log.debug("Returning " + info + " " + type + " with HTTP POST binding to " + serviceUrl);
+		String htmlResponse = HttpPostBindingSupport.getHtmlPOSTFormContents(
+				type, serviceUrl, xml, relayState);
+		if (log.isTraceEnabled())
+		{
+			log.trace("SAML " + info + " is:\n" + xml);
+			log.trace("Returned POST form is:\n" + htmlResponse);
+		}
+		response.getWriter().append(htmlResponse);
+		throw new EopException();
+	}
+	
+	
+	protected void setCommonHeaders(HttpServletResponse response)
+	{
+		response.setHeader("Cache-Control","no-cache,no-store");
+		response.setHeader("Pragma","no-cache");
 	}
 }

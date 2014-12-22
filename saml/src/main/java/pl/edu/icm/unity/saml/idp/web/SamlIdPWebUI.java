@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
@@ -20,14 +19,13 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.idpcommon.EopException;
-import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
-import pl.edu.icm.unity.saml.SAMLSessionParticipant;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.saml.idp.web.filter.IdpDispatcherServlet;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
@@ -81,7 +79,7 @@ import eu.unicore.samly2.exceptions.SAMLRequesterException;
 @Theme("unityTheme")
 public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 {
-	private static Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebUI.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebUI.class);
 	protected UnityMessageSource msg;
 	protected EndpointDescription endpointDescription;
 	protected IdPEngine idpEngine;
@@ -362,17 +360,6 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	protected void addSessionParticipant(SAMLAuthnContext samlCtx, NameIDType returnedSubject,
 			String sessionId)
 	{
-		String participantId = samlCtx.getRequest().getIssuer().getStringValue();
-		SamlIdpProperties samlIdpProperties = samlCtx.getSamlConfiguration();
-		String credentialName = samlIdpProperties.getValue(SamlIdpProperties.CREDENTIAL);
-		String configKey = samlIdpProperties.getSPConfigKey(samlCtx.getRequest().getIssuer());
-		String localIdpSamlId = samlIdpProperties.getValue(SamlIdpProperties.ISSUER_URI);
-		Set<String> allowedCerts = samlIdpProperties.getAllowedSpCerts(configKey);
-		List<SAMLEndpointDefinition> logoutEndpoints = configKey == null ? 
-				new ArrayList<SAMLEndpointDefinition>(0) :
-				samlCtx.getSamlConfiguration().getLogoutEndpointsFromStructuredList(configKey);
-		authnProcessor.addSessionParticipant(new SAMLSessionParticipant(participantId, 
-				returnedSubject, sessionId, logoutEndpoints, localIdpSamlId,
-				credentialName, allowedCerts));
+		IdpDispatcherServlet.addSessionParticipant(samlCtx, returnedSubject, sessionId, authnProcessor);
 	}
 }
