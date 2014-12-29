@@ -56,7 +56,7 @@ public abstract class TLSRetrievalBase implements CredentialRetrieval, CXFAuthen
 		}
 		try
 		{
-			return credentialExchange.checkCertificate(certificates);
+			return credentialExchange.checkCertificate(certificates, null);
 		} catch (Exception e)
 		{
 			return new AuthenticationResult(Status.deny, null);

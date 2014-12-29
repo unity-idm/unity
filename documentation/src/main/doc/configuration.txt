@@ -291,6 +291,7 @@ assuming the same credential is exchanged.
 |Verificator		| Exchanges			| Description 
 |password			| Password 			| Local verificator.
 |ldap				| Password			| External verificator, uses LDAP.
+|ldap-cert			| X.509 certificate	| External verificator, uses LDAP to resolve attributes of a given certificate subject.
 |certificate		| X.509 certificate | Local verificator.
 |saml2				| SAML assertions 	| External verificator, interacts via associated retrieval with a remote SAML IdP.
 |jwt				| JWT			 	| Local verificator, not bound to any local credential. Validated tokens are self contained.

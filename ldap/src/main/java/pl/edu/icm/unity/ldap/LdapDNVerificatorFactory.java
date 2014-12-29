@@ -13,24 +13,25 @@ import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
-import pl.edu.icm.unity.stdext.credential.PasswordExchange;
+import pl.edu.icm.unity.stdext.credential.CertificateExchange;
 
 /**
- * Produces verificators of passwords using remote LDAP server.
+ * Produces pseudo verificators which search for and resolve attributes of an externally verified certificate 
+ * (typically via authenticated TLS).
  * 
  * @author K. Benedyczak
  */
 @Component
-public class LdapVerificatorFactory implements CredentialVerificatorFactory
+public class LdapDNVerificatorFactory implements CredentialVerificatorFactory
 {
-	public static final String NAME = "ldap";
+	public static final String NAME = "ldap-cert";
 	
 	private TranslationProfileManagement profileManagement;
 	private InputTranslationEngine trEngine;
 	private PKIManagement pkiManagement;
 
 	@Autowired
-	public LdapVerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement, 
+	public LdapDNVerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement, 
 			InputTranslationEngine trEngine, PKIManagement pkiManagement)
 	{
 		this.profileManagement = profileManagement;
@@ -47,13 +48,13 @@ public class LdapVerificatorFactory implements CredentialVerificatorFactory
 	@Override
 	public String getDescription()
 	{
-		return "Verifies password using LDAPv3 protocol";
+		return "Resolves certificate subject's information using LDAPv3 protocol";
 	}
 
 	@Override
 	public CredentialVerificator newInstance()
 	{
 		return new LdapVerificator(getName(), getDescription(), profileManagement, trEngine, pkiManagement,
-				PasswordExchange.ID);
+				CertificateExchange.ID);
 	}
 }

@@ -15,6 +15,7 @@ import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
@@ -64,7 +65,8 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 	}
 
 	@Override
-	public AuthenticationResult checkCertificate(X509Certificate[] chain)
+	public AuthenticationResult checkCertificate(X509Certificate[] chain, 
+			SandboxAuthnResultCallback sandboxCallback)
 			throws EngineException
 	{
 		String identity = chain[0].getSubjectX500Principal().getName();

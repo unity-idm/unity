@@ -111,7 +111,8 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 	{
 		private TLSAuthnComponent component;
 		private AuthenticationResultCallback callback;
-
+		private SandboxAuthnResultCallback sandboxCallback;
+		
 		@Override
 		public boolean needsCommonUsernameComponent()
 		{
@@ -152,7 +153,8 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 			}
 			try
 			{
-				AuthenticationResult authenticationResult = credentialExchange.checkCertificate(clientCert);
+				AuthenticationResult authenticationResult = credentialExchange.checkCertificate(
+						clientCert, sandboxCallback);
 				component.setError(authenticationResult.getStatus() != Status.success);
 				return authenticationResult;
 			} catch (Exception e)
@@ -232,7 +234,7 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 		@Override
 		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
 		{
-			//nop
+			sandboxCallback = callback;
 		}
 	}	
 }

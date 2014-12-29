@@ -126,7 +126,7 @@ public class LdapProperties extends PropertiesHelper
 		
 		META.put(USER_DN_TEMPLATE, new PropertyMD().setCategory(main).setDescription("Template of a DN of " +
 				"the user that should be used to log in. The tempalte must possess a single occurence " +
-				"of a special string: '{USERNAME}' (without quotation). The username provided by the client" +
+				"of a special string: '\\{USERNAME\\}'. The username provided by the client" +
 				" will be substituted. Mutually exclusive with " + USER_DN_TEMPLATE + " and at least one of them must be defined."));
 		META.put(USER_DN_SEARCH_KEY, new PropertyMD().setCategory(main).setDescription("A key of one of "
 				+ "the advanced search definitions. The search must be defined and must return "
@@ -191,11 +191,11 @@ public class LdapProperties extends PropertiesHelper
 				setDescription("Advanced attribute searches can be defined with this prefix."));
 		META.put(ADV_SEARCH_BASE, new PropertyMD().setStructuredListEntry(ADV_SEARCH_PFX).setMandatory().setCategory(advSearch).
 				setDescription("Base DN for the search.  The value can include a special"
-				+ "string: '{USERNAME}' (without quotation). The username provided by the client" +
+				+ "string: '\\{USERNAME\\}'. The username provided by the client" +
 				" will be substituted."));
 		META.put(ADV_SEARCH_FILTER, new PropertyMD().setStructuredListEntry(ADV_SEARCH_PFX).setMandatory().setCategory(advSearch).
 				setDescription("Filter in LDAP syntax, to match requested entries. The filter can include a special"
-				+ "string: '{USERNAME}' (without quotation). The username provided by the client" +
+				+ "string: '\\{USERNAME\\}'. The username provided by the client" +
 				" will be substituted."));
 		META.put(ADV_SEARCH_ATTRIBUTES, new PropertyMD().setStructuredListEntry(ADV_SEARCH_PFX).setCategory(advSearch).
 				setDescription("Space separated list of attributes to be searched. "
