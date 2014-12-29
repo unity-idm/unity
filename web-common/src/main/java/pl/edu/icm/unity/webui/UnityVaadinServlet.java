@@ -70,11 +70,13 @@ public class UnityVaadinServlet extends VaadinServlet
 	private transient CancelHandler cancelHandler;
 	private transient SandboxAuthnRouter sandboxRouter;
 	private transient EndpointRegistrationConfiguration registrationConfiguration;
+	private transient Properties endpointProperties;
 	
 	public UnityVaadinServlet(ApplicationContext applicationContext, String uiBeanName,
 			EndpointDescription description,
 			List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration registrationConfiguration)
+			EndpointRegistrationConfiguration registrationConfiguration,
+			Properties endpointProperties)
 	{
 		super();
 		this.applicationContext = applicationContext;
@@ -83,6 +85,7 @@ public class UnityVaadinServlet extends VaadinServlet
 		this.authenticators = authenticators;
 		this.config = applicationContext.getBean(UnityServerConfiguration.class);
 		this.registrationConfiguration = registrationConfiguration;
+		this.endpointProperties = endpointProperties;
 	}
 	
 	@Override
@@ -250,7 +253,8 @@ public class UnityVaadinServlet extends VaadinServlet
 			public void sessionInit(SessionInitEvent event) throws ServiceException
 			{
 				VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, uiBeanName,
-						description, getAuthenticators(), registrationConfiguration);
+						description, getAuthenticators(), registrationConfiguration,
+						endpointProperties);
 				uiProv.setCancelHandler(cancelHandler);
 				uiProv.setSandboxRouter(sandboxRouter);
 				event.getSession().addUIProvider(uiProv);

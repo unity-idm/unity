@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -68,7 +69,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 	@Override
 	public void configure(EndpointDescription description,
 			List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration regCfg)
+			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
 	{
 		this.endpointDescription = description;
 	}

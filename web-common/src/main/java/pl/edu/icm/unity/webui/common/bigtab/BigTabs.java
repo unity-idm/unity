@@ -39,6 +39,11 @@ public class BigTabs extends VerticalLayout
 		setStyleName(Styles.bigTabs.toString());
 	}
 	
+	public int getTabsCount()
+	{
+		return tabs.size();
+	}
+	
 	public void addTab(String label, String description, Resource image, final TabCallback callback)
 	{
 		BigTab tab = new BigTab(width, unit, label, description, image, new TabCallback()

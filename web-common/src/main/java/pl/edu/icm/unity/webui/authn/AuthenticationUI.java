@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,7 +95,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	@Override
 	public void configure(EndpointDescription description,
 			List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration regCfg)
+			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
 	{
 		this.description = description;
 		this.authenticators = new ArrayList<Map<String,VaadinAuthenticationUI>>();

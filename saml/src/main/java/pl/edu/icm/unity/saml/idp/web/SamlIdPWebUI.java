@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -116,7 +117,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	@Override
 	public void configure(EndpointDescription description,
 			List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration regCfg)
+			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
 	{
 		this.endpointDescription = description;
 	}

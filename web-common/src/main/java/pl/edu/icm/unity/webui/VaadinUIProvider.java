@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.springframework.context.ApplicationContext;
 
@@ -34,10 +35,12 @@ public class VaadinUIProvider extends UIProvider
 	private transient CancelHandler cancelHandler;
 	private transient SandboxAuthnRouter sandboxRouter;
 	private transient EndpointRegistrationConfiguration registrationConfiguraiton;
+	private transient Properties endpointProperties;
 
 	public VaadinUIProvider(ApplicationContext applicationContext, String uiBeanName,
 			EndpointDescription description, List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration registrationConfiguraiton)
+			EndpointRegistrationConfiguration registrationConfiguraiton,
+			Properties properties)
 	{
 		super();
 		this.applicationContext = applicationContext;
@@ -45,6 +48,7 @@ public class VaadinUIProvider extends UIProvider
 		this.description = description;
 		this.authenticators = authenticators;
 		this.registrationConfiguraiton = registrationConfiguraiton;
+		this.endpointProperties = properties;
 	}
 
 
@@ -71,7 +75,8 @@ public class VaadinUIProvider extends UIProvider
 		UI ui = (UI) applicationContext.getBean(uiBeanName);
 		if (ui instanceof UnityWebUI)
 		{
-			((UnityWebUI)ui).configure(description, authenticators, registrationConfiguraiton);
+			((UnityWebUI)ui).configure(description, authenticators, registrationConfiguraiton,
+					endpointProperties);
 			if (cancelHandler != null)
 			{
 				((UnityWebUI)ui).setCancelHandler(cancelHandler);
