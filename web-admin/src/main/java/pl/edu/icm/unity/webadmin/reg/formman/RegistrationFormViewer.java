@@ -54,6 +54,7 @@ public class RegistrationFormViewer extends VerticalLayout
 	private Label channel;
 	private Label adminsNotificationGroup;
 	private Label autoAcceptCondition;
+	private Label captcha;
 	
 	private Label formInformation;
 	private Label registrationCode;
@@ -92,6 +93,9 @@ public class RegistrationFormViewer extends VerticalLayout
 		name.setValue(form.getName());
 		description.setValue(form.getDescription());
 		autoAcceptCondition.setValue(form.getAutoAcceptCondition());
+		captcha.setValue(form.getCaptchaLength() > 0 ? 
+				msg.getMessage("RegistrationFormViewer.captchaLength", form.getCaptchaLength()) : 
+				msg.getMessage("no"));
 		publiclyAvailable.setValue(msg.getYesNo(form.isPubliclyAvailable()));
 		
 		RegistrationFormNotifications notCfg = form.getNotificationsConfiguration();
@@ -136,6 +140,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		description.setValue("");
 		publiclyAvailable.setValue("");
 		autoAcceptCondition.setValue("");
+		captcha.setValue("");
 		
 		submittedTemplate.setInput(null);
 		updatedTemplate.setInput(null);
@@ -339,6 +344,9 @@ public class RegistrationFormViewer extends VerticalLayout
 		autoAcceptCondition = new Label();
 		autoAcceptCondition.setCaption(msg.getMessage("RegistrationFormViewer.autoAcceptCondition"));
 		
+		captcha = new Label();
+		captcha.setCaption(msg.getMessage("RegistrationFormViewer.captcha"));
+		
 		publiclyAvailable = new Label();
 		publiclyAvailable.setCaption(msg.getMessage("RegistrationFormViewer.publiclyAvailable"));
 		
@@ -358,7 +366,8 @@ public class RegistrationFormViewer extends VerticalLayout
 				msg, msgTempMan);
 		
 		main.addComponents(name, description, publiclyAvailable, channel, adminsNotificationGroup,
-				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, autoAcceptCondition);
+				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, captcha,
+				autoAcceptCondition);
 	}
 	
 	private String toHTMLLabel(OptionalRegistrationParam value)

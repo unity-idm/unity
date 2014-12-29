@@ -77,6 +77,7 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 			root.set("NotificationsConfiguration", jsonMapper.valueToTree(value.getNotificationsConfiguration()));
 			root.put("PubliclyAvailable", value.isPubliclyAvailable());
 			root.put("RegistrationCode", value.getRegistrationCode());
+			root.put("CaptchaLength", value.getCaptchaLength());
 			byte[] contents = jsonMapper.writeValueAsBytes(root);
 			return new GenericObjectBean(value.getName(), contents, supportedType);
 		} catch (JsonProcessingException e)
@@ -207,6 +208,15 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 			ret.setPubliclyAvailable(n.asBoolean());
 			n = root.get("RegistrationCode");
 			ret.setRegistrationCode((n == null || n.isNull()) ? null : n.asText());
+			
+			if (root.has("CaptchaLength"))
+			{
+				n = root.get("CaptchaLength");
+				ret.setCaptchaLength(n.asInt());
+			} else
+			{
+				ret.setCaptchaLength(0);
+			}
 			
 			return ret;
 		} catch (Exception e)

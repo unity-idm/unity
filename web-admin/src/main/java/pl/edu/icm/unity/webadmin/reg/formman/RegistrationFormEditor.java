@@ -63,6 +63,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Slider;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
@@ -103,6 +104,7 @@ public class RegistrationFormEditor extends VerticalLayout
 	private ComboBox acceptedTemplate;
 	private ComboBox channel;
 	private GroupComboBox adminsNotificationGroup;
+	private Slider captcha;
 	private AbstractTextField autoAcceptCondition;
 	
 	private TextArea formInformation;
@@ -204,7 +206,9 @@ public class RegistrationFormEditor extends VerticalLayout
 		ret.setIdentityParams(identityParams.getElements());
 		ret.setInitialEntityState(initialState.getSelectedValue());
 		ret.setName(name.getValue());
-		ret.setAutoAcceptCondition(autoAcceptCondition.getValue().equals("") ? "false" : autoAcceptCondition.getValue() );
+		ret.setAutoAcceptCondition(autoAcceptCondition.getValue().equals("") ? 
+				"false" : autoAcceptCondition.getValue() );
+		ret.setCaptchaLength(captcha.getValue().intValue());
 				
 		RegistrationFormNotifications notCfg = ret.getNotificationsConfiguration();
 		notCfg.setAcceptedTemplate((String) acceptedTemplate.getValue());
@@ -303,6 +307,10 @@ public class RegistrationFormEditor extends VerticalLayout
 		acceptedTemplate =  new CompatibleTemplatesComboBox(AcceptRegistrationTemplateDef.NAME, msgTempMan);
 		acceptedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.acceptedTemplate"));
 		
+		captcha = new Slider(msg.getMessage("RegistrationFormViewer.captcha"), 0, 8);
+		captcha.setWidth(10, Unit.EM);
+		captcha.setDescription(msg.getMessage("RegistrationFormEditor.captchaDescription"));
+		
 		autoAcceptCondition = new TextField();
 		autoAcceptCondition.setCaption(msg.getMessage("RegistrationFormViewer.autoAcceptCondition"));
 		autoAcceptCondition.setValue("false");
@@ -327,7 +335,8 @@ public class RegistrationFormEditor extends VerticalLayout
 		autoAcceptCondition.setValidationVisible(true);
 		autoAcceptCondition.setImmediate(true);
 		main.addComponents(name, description, publiclyAvailable, channel, adminsNotificationGroup,
-				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, autoAcceptCondition);
+				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, 
+				captcha, autoAcceptCondition);
 		
 		if (toEdit != null)
 		{
@@ -341,6 +350,7 @@ public class RegistrationFormEditor extends VerticalLayout
 			rejectedTemplate.setValue(notCfg.getRejectedTemplate());
 			acceptedTemplate.setValue(notCfg.getAcceptedTemplate());
 			autoAcceptCondition.setValue(toEdit.getAutoAcceptCondition());
+			captcha.setValue(Double.valueOf(toEdit.getCaptchaLength()));
 		}
 	}
 	
