@@ -11,6 +11,8 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.server.Page;
+
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
@@ -77,7 +79,7 @@ public class RegistrationFormLauncher
 		this.addAutoAccept = addAutoAccept;
 	}
 
-	protected boolean addRequest(RegistrationRequest request, boolean andAccept)
+	protected boolean addRequest(RegistrationRequest request, boolean andAccept, RegistrationForm form)
 	{
 		String id;
 		try
@@ -86,10 +88,8 @@ public class RegistrationFormLauncher
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(
-					msg,
-					msg.getMessage("RegistrationFormsChooserComponent.errorRequestSubmit"),
-					e);
+			ErrorPopup.showError(msg,
+					msg.getMessage("RegistrationFormsChooserComponent.errorRequestSubmit"), e);
 			return false;
 		}
 
@@ -111,16 +111,28 @@ public class RegistrationFormLauncher
 					if (r.getRequestId().equals(id)
 							&& r.getStatus() == RegistrationRequestStatus.accepted)
 					{
-						ErrorPopup.showNotice(msg,
+						String redirect = form.getRedirectAfterSubmitAndAccept(); 
+						if (redirect != null)
+						{
+							Page.getCurrent().open(redirect, null);
+						} else
+						{
+							ErrorPopup.showNotice(msg,
 								msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"),
 								msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoWithAccept"));
+						}
 						return true;
 					}
 				}
-							
-				ErrorPopup.showNotice(msg, msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"),
+				String redirect = form.getRedirectAfterSubmit(); 
+				if (redirect != null)
+				{
+					Page.getCurrent().open(redirect, null);
+				} else
+				{
+					ErrorPopup.showNotice(msg, msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"),
 						msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoNoAccept"));
-
+				}
 			}	
 			
 			return true;
@@ -132,7 +144,10 @@ public class RegistrationFormLauncher
 		}
 	}
 	
-	
+	protected void handleFailure(EngineException e, RegistrationForm form)
+	{
+		
+	}
 
 	public RegistrationRequestEditorDialog getDialog(String formName, RemotelyAuthenticatedContext remoteContext) 
 			throws EngineException
@@ -146,7 +161,7 @@ public class RegistrationFormLauncher
 		throw new WrongArgumentException("There is no registration form " + formName);
 	}
 	
-	public RegistrationRequestEditorDialog getDialog(RegistrationForm form, 
+	public RegistrationRequestEditorDialog getDialog(final RegistrationForm form, 
 			RemotelyAuthenticatedContext remoteContext) throws EngineException
 	{
 			RegistrationRequestEditor editor = new RegistrationRequestEditor(msg, form, 
@@ -160,7 +175,7 @@ public class RegistrationFormLauncher
 						@Override
 						public boolean newRequest(RegistrationRequest request, boolean autoAccept)
 						{
-							return addRequest(request, autoAccept);
+							return addRequest(request, autoAccept, form);
 						}
 					});
 			return dialog;

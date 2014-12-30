@@ -55,6 +55,8 @@ public class RegistrationFormViewer extends VerticalLayout
 	private Label adminsNotificationGroup;
 	private Label autoAcceptCondition;
 	private Label captcha;
+	private Label redirectAfterSubmit;
+	private Label redirectAfterSubmitAndAccept;
 	
 	private Label formInformation;
 	private Label registrationCode;
@@ -96,6 +98,10 @@ public class RegistrationFormViewer extends VerticalLayout
 		captcha.setValue(form.getCaptchaLength() > 0 ? 
 				msg.getMessage("RegistrationFormViewer.captchaLength", form.getCaptchaLength()) : 
 				msg.getMessage("no"));
+		redirectAfterSubmit.setValue(form.getRedirectAfterSubmit() == null ? 
+				"-" : form.getRedirectAfterSubmit());
+		redirectAfterSubmitAndAccept.setValue(form.getRedirectAfterSubmitAndAccept() == null ? 
+				"-" : form.getRedirectAfterSubmitAndAccept());
 		publiclyAvailable.setValue(msg.getYesNo(form.isPubliclyAvailable()));
 		
 		RegistrationFormNotifications notCfg = form.getNotificationsConfiguration();
@@ -112,6 +118,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		formInformation.setValue(form.getFormInformation());
 		String code = form.getRegistrationCode() == null ? "-" : form.getRegistrationCode();
 		registrationCode.setValue(code);
+		
 		collectComments.setValue(msg.getYesNo(form.isCollectComments()));
 		for (AgreementRegistrationParam ap: form.getAgreements())
 			agreements.addEntry(ap);
@@ -141,6 +148,8 @@ public class RegistrationFormViewer extends VerticalLayout
 		publiclyAvailable.setValue("");
 		autoAcceptCondition.setValue("");
 		captcha.setValue("");
+		redirectAfterSubmit.setValue("");
+		redirectAfterSubmitAndAccept.setValue("");
 		
 		submittedTemplate.setInput(null);
 		updatedTemplate.setInput(null);
@@ -347,6 +356,12 @@ public class RegistrationFormViewer extends VerticalLayout
 		captcha = new Label();
 		captcha.setCaption(msg.getMessage("RegistrationFormViewer.captcha"));
 		
+		redirectAfterSubmit = new Label();
+		redirectAfterSubmit.setCaption(msg.getMessage("RegistrationFormViewer.redirectAfterSubmit"));
+
+		redirectAfterSubmitAndAccept = new Label();
+		redirectAfterSubmitAndAccept.setCaption(msg.getMessage("RegistrationFormViewer.redirectAfterSubmitAndAccept"));
+		
 		publiclyAvailable = new Label();
 		publiclyAvailable.setCaption(msg.getMessage("RegistrationFormViewer.publiclyAvailable"));
 		
@@ -367,7 +382,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		
 		main.addComponents(name, description, publiclyAvailable, channel, adminsNotificationGroup,
 				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, captcha,
-				autoAcceptCondition);
+				redirectAfterSubmit, redirectAfterSubmitAndAccept, autoAcceptCondition);
 	}
 	
 	private String toHTMLLabel(OptionalRegistrationParam value)

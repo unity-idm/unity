@@ -37,6 +37,8 @@ public class RegistrationForm extends DescribedObjectImpl
 	private int captchaLength;
 	private String formInformation;
 	private String registrationCode;
+	private String redirectAfterSubmit;
+	private String redirectAfterSubmitAndAccept;
 	
 	private String credentialRequirementAssignment;
 	private List<Attribute<?>> attributeAssignments;
@@ -215,6 +217,26 @@ public class RegistrationForm extends DescribedObjectImpl
 		this.captchaLength = captchaLength;
 	}
 
+	public String getRedirectAfterSubmit()
+	{
+		return redirectAfterSubmit;
+	}
+
+	public void setRedirectAfterSubmit(String redirectAfterSubmit)
+	{
+		this.redirectAfterSubmit = redirectAfterSubmit;
+	}
+
+	public String getRedirectAfterSubmitAndAccept()
+	{
+		return redirectAfterSubmitAndAccept;
+	}
+
+	public void setRedirectAfterSubmitAndAccept(String redirectAfterSubmitAndAccept)
+	{
+		this.redirectAfterSubmitAndAccept = redirectAfterSubmitAndAccept;
+	}
+
 	public boolean containsAutomaticAndMandatoryParams()
 	{
 		if (identityParams != null)
@@ -295,6 +317,14 @@ public class RegistrationForm extends DescribedObjectImpl
 				+ ((notificationsConfiguration == null) ? 0
 						: notificationsConfiguration.hashCode());
 		result = prime * result + (publiclyAvailable ? 1231 : 1237);
+		result = prime
+				* result
+				+ ((redirectAfterSubmit == null) ? 0 : redirectAfterSubmit
+						.hashCode());
+		result = prime
+				* result
+				+ ((redirectAfterSubmitAndAccept == null) ? 0
+						: redirectAfterSubmitAndAccept.hashCode());
 		result = prime * result
 				+ ((registrationCode == null) ? 0 : registrationCode.hashCode());
 		return result;
@@ -390,6 +420,18 @@ public class RegistrationForm extends DescribedObjectImpl
 		} else if (!notificationsConfiguration.equals(other.notificationsConfiguration))
 			return false;
 		if (publiclyAvailable != other.publiclyAvailable)
+			return false;
+		if (redirectAfterSubmit == null)
+		{
+			if (other.redirectAfterSubmit != null)
+				return false;
+		} else if (!redirectAfterSubmit.equals(other.redirectAfterSubmit))
+			return false;
+		if (redirectAfterSubmitAndAccept == null)
+		{
+			if (other.redirectAfterSubmitAndAccept != null)
+				return false;
+		} else if (!redirectAfterSubmitAndAccept.equals(other.redirectAfterSubmitAndAccept))
 			return false;
 		if (registrationCode == null)
 		{
