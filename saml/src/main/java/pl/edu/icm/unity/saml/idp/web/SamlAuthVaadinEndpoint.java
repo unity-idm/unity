@@ -27,7 +27,6 @@ import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
-import pl.edu.icm.unity.saml.idp.web.filter.IdpDispatcherServlet;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpDispatcherServletFactory;
 import pl.edu.icm.unity.saml.idp.web.filter.SamlGuardFilter;
 import pl.edu.icm.unity.saml.idp.web.filter.SamlParseServlet;

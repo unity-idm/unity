@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
-import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory;
+import pl.edu.icm.unity.saml.idp.web.filter.IdpDispatcherServletFactory;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
@@ -50,12 +50,13 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	private UnityServerConfiguration mainConfig;
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	private SLOReplyInstaller sloReplyInstaller;
+	private IdpDispatcherServletFactory dispatcherServletFactory;
 	
 	@Autowired
 	public SamlUnicoreIdPWebEndpointFactory(ApplicationContext applicationContext, 
 			FreemarkerHandler freemarkerHandler, PKIManagement pkiManagement, 
 			ExecutorsService executorsService, MetaDownloadManager downloadManager, 
-			UnityServerConfiguration mainConfig, 
+			UnityServerConfiguration mainConfig, IdpDispatcherServletFactory dispatcherServletFactory,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller)
 	{
 		this.applicationContext = applicationContext;
@@ -67,16 +68,17 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 		this.downloadManager = downloadManager;
 		this.logoutProcessorFactory = logoutProcessorFactory;
 		this.sloReplyInstaller = sloReplyInstaller;
+		this.dispatcherServletFactory = dispatcherServletFactory;
 		
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
 		Map<String,String> paths=new HashMap<String, String>();
 		paths.put(SAML_CONSUMER_SERVLET_PATH,"SAML 2 UNICORE identity provider web endpoint");
-		paths.put(SamlIdPWebEndpointFactory.SAML_META_SERVLET_PATH, 
+		paths.put(SamlAuthVaadinEndpoint.SAML_META_SERVLET_PATH, 
 				"Metadata of the SAML 2 identity provider web endpoint");
-		paths.put(SamlIdPWebEndpointFactory.SAML_SLO_ASYNC_SERVLET_PATH, "Single Logout web endpoint "
+		paths.put(SamlAuthVaadinEndpoint.SAML_SLO_ASYNC_SERVLET_PATH, "Single Logout web endpoint "
 				+ "(supports POST and Redirect bindings)");
-		paths.put(SamlIdPWebEndpointFactory.SAML_SLO_SOAP_SERVLET_PATH, 
+		paths.put(SamlAuthVaadinEndpoint.SAML_SLO_SOAP_SERVLET_PATH, 
 				"Single Logout web endpoint (supports SOAP binding)");
 		description = new EndpointTypeDescription(NAME, 
 				"SAML 2 UNICORE identity provider web endpoint", supportedAuthn,paths);
@@ -92,12 +94,9 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new SamlAuthETDVaadinEndpoint(getDescription(), applicationContext,
-				freemarkerHandler, SamlUnicoreIdPWebUI.class, SAML_UI_SERVLET_PATH,
-				pkiManagement, executorsService, remoteMetadataManagers, downloadManager, 
-				mainConfig, SAML_CONSUMER_SERVLET_PATH,
-				SamlIdPWebEndpointFactory.SAML_META_SERVLET_PATH,
-				SamlIdPWebEndpointFactory.SAML_SLO_ASYNC_SERVLET_PATH,
-				SamlIdPWebEndpointFactory.SAML_SLO_SOAP_SERVLET_PATH,
-				logoutProcessorFactory, sloReplyInstaller);
+				freemarkerHandler, 
+				pkiManagement, executorsService, 
+				remoteMetadataManagers, downloadManager, mainConfig,  
+				logoutProcessorFactory, sloReplyInstaller, dispatcherServletFactory);
 	}
 }

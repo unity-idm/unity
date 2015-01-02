@@ -12,15 +12,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 
 /**
- * Java dynamic proxy builder, decorating wrapped objects with event generation. This is the same as 
- * {@link EventProxyBuilder}, but for other classes - we can't have all in one builder as then we would easily 
- * get circular dependencies.
+ * Java dynamic proxy builder, decorating wrapped objects with event generation: message templates management
  *   
  * @author K. Benedyczak
  */
-public class EventProxyBuilderFL
+public class EventProxyBuilderTemplate
 {
-	private static final ClassLoader classLoader = EventProxyBuilderFL.class.getClassLoader();
+	private static final ClassLoader classLoader = EventProxyBuilderTemplate.class.getClassLoader();
 	
 	@Autowired @Qualifier("plain")
 	private MessageTemplateManagement msgTempMan;
