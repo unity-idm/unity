@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.server.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -101,11 +103,14 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);		
 		
+		context.addFilter(new FilterHolder(new HiddenResourcesFilter(
+				Collections.unmodifiableList(Arrays.asList(AUTHENTICATION_PATH)))), 
+				"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(
 				new ArrayList<String>(Arrays.asList(servletPath)), 
 				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
-				EnumSet.of(DispatcherType.REQUEST));
+				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		contextSetupFilter = new InvocationContextSetupFilter(config, description.getRealm());
 		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));

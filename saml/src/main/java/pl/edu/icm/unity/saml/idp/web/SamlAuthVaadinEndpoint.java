@@ -27,7 +27,7 @@ import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
-import pl.edu.icm.unity.saml.idp.web.filter.IdpDispatcherServletFactory;
+import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServletFactory;
 import pl.edu.icm.unity.saml.idp.web.filter.SamlGuardFilter;
 import pl.edu.icm.unity.saml.idp.web.filter.SamlParseServlet;
 import pl.edu.icm.unity.saml.idp.ws.SAMLSingleLogoutImpl;
@@ -75,7 +75,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	public static final String SAML_ENTRY_SERVLET_PATH = "/saml2idp-web-entry";
 	public static final String SAML_CONSUMER_SERVLET_PATH = "/saml2idp-web";
 	public static final String SAML_UI_SERVLET_PATH = "/saml2idp-web-ui";
-	public static final String SAML_DISPATCHER_SERVLET_PATH = "/saml2idp-web-dispatcher";
+	public static final String SAML_CONSENT_DECIDER_SERVLET_PATH = "/saml2idp-web-consentdecider";
 	public static final String SAML_META_SERVLET_PATH = "/metadata";
 	public static final String SAML_SLO_ASYNC_SERVLET_PATH = "/SLO-WEB";
 	public static final String SAML_SLO_SOAP_SERVLET_PATH = "/SLO-SOAP";
@@ -85,7 +85,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	protected PKIManagement pkiManagement;
 	protected ExecutorsService executorsService;
 	protected RemoteMetaManager myMetadataManager;
-	protected IdpDispatcherServletFactory dispatcherServletFactory;
+	protected IdpConsentDeciderServletFactory dispatcherServletFactory;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
@@ -97,7 +97,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
 			Class<?> uiClass, PKIManagement pkiManagement,
 			ExecutorsService executorsService, UnityServerConfiguration mainConfig,
-			IdpDispatcherServletFactory dispatcherServletFactory,
+			IdpConsentDeciderServletFactory dispatcherServletFactory,
 			Map<String, RemoteMetaManager> remoteMetadataManagers,
 			MetaDownloadManager downloadManager, 
 			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller)
@@ -167,12 +167,12 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		ServletHolder routingServletHolder = createServletHolder(
-				new RoutingServlet(SAML_DISPATCHER_SERVLET_PATH), true);
+				new RoutingServlet(SAML_CONSENT_DECIDER_SERVLET_PATH), true);
 		context.addServlet(routingServletHolder, SAML_ENTRY_SERVLET_PATH + "/*");
 		
-		Servlet samlDispatcherServlet = dispatcherServletFactory.getInstance(SAML_UI_SERVLET_PATH);
-		ServletHolder samlDispatcherHolder = createServletHolder(samlDispatcherServlet, true);
-		context.addServlet(samlDispatcherHolder, SAML_DISPATCHER_SERVLET_PATH + "/*");
+		Servlet samlConsentDeciderServlet = dispatcherServletFactory.getInstance(SAML_UI_SERVLET_PATH);
+		ServletHolder samlConsentDeciderHolder = createServletHolder(samlConsentDeciderServlet, true);
+		context.addServlet(samlConsentDeciderHolder, SAML_CONSENT_DECIDER_SERVLET_PATH + "/*");
 		
 		String sloAsyncURL = getServletUrl(SAML_SLO_ASYNC_SERVLET_PATH);
 		Servlet samlSLOAsyncServlet = getSLOAsyncServlet(sloAsyncURL);
@@ -190,7 +190,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		
 		context.addFilter(new FilterHolder(new HiddenResourcesFilter(
 				Collections.unmodifiableList(Arrays.asList(AUTHENTICATION_PATH, 
-						SAML_DISPATCHER_SERVLET_PATH, SAML_UI_SERVLET_PATH)))), 
+						SAML_CONSENT_DECIDER_SERVLET_PATH, SAML_UI_SERVLET_PATH)))), 
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(
 				Collections.unmodifiableList(Arrays.asList(SAML_ENTRY_SERVLET_PATH)), 

@@ -13,7 +13,7 @@ import org.springframework.context.ApplicationContext;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
-import pl.edu.icm.unity.saml.idp.web.filter.IdpDispatcherServletFactory;
+import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServletFactory;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
@@ -37,7 +37,7 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 			PKIManagement pkiManagement, ExecutorsService executorsService,
 			Map<String, RemoteMetaManager> remoteMetadataManagers, MetaDownloadManager downloadManager, 
 			UnityServerConfiguration mainConfig, SAMLLogoutProcessorFactory logoutProcessorFactory, 
-			SLOReplyInstaller sloReplyInstaller, IdpDispatcherServletFactory dispatcherServletFactory)
+			SLOReplyInstaller sloReplyInstaller, IdpConsentDeciderServletFactory dispatcherServletFactory)
 	{
 		super(type, applicationContext, freemarkerHandler, SamlUnicoreIdPWebUI.class, pkiManagement, 
 				executorsService, mainConfig, dispatcherServletFactory, 

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
-import pl.edu.icm.unity.saml.idp.web.filter.IdpDispatcherServletFactory;
+import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServletFactory;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
@@ -50,13 +50,13 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	private UnityServerConfiguration mainConfig;
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	private SLOReplyInstaller sloReplyInstaller;
-	private IdpDispatcherServletFactory dispatcherServletFactory;
+	private IdpConsentDeciderServletFactory dispatcherServletFactory;
 	
 	@Autowired
 	public SamlUnicoreIdPWebEndpointFactory(ApplicationContext applicationContext, 
 			FreemarkerHandler freemarkerHandler, PKIManagement pkiManagement, 
 			ExecutorsService executorsService, MetaDownloadManager downloadManager, 
-			UnityServerConfiguration mainConfig, IdpDispatcherServletFactory dispatcherServletFactory,
+			UnityServerConfiguration mainConfig, IdpConsentDeciderServletFactory dispatcherServletFactory,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller)
 	{
 		this.applicationContext = applicationContext;

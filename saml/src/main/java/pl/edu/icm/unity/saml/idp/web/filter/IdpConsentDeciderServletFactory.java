@@ -13,12 +13,12 @@ import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 
 /**
- * Creates {@link IdpDispatcherServlet}s.
+ * Creates {@link IdpConsentDeciderServlet}s.
  * 
  * @author K. Benedyczak
  */
 @Component
-public class IdpDispatcherServletFactory
+public class IdpConsentDeciderServletFactory
 {
 	protected PreferencesManagement preferencesMan;
 	protected IdPEngine idpEngine;
@@ -26,7 +26,7 @@ public class IdpDispatcherServletFactory
 	protected SessionManagement sessionMan;
 
 	@Autowired
-	public IdpDispatcherServletFactory(PreferencesManagement preferencesMan,
+	public IdpConsentDeciderServletFactory(PreferencesManagement preferencesMan,
 			IdPEngine idpEngine, FreemarkerHandler freemarker,
 			SessionManagement sessionMan)
 	{
@@ -36,9 +36,9 @@ public class IdpDispatcherServletFactory
 		this.sessionMan = sessionMan;
 	}
 	
-	public IdpDispatcherServlet getInstance(String uiServletPath)
+	public IdpConsentDeciderServlet getInstance(String uiServletPath)
 	{
-		return new IdpDispatcherServlet(preferencesMan, idpEngine, freemarker, sessionMan, uiServletPath);
+		return new IdpConsentDeciderServlet(preferencesMan, idpEngine, freemarker, sessionMan, uiServletPath);
 	}
 	
 }

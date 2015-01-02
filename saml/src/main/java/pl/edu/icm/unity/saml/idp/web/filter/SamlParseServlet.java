@@ -171,7 +171,8 @@ public class SamlParseServlet extends SamlHttpServlet
 		if (log.isTraceEnabled())
 			log.trace("Request with SAML input handled successfully");
 		//Note - this is intended, even taking into account the overhead. We don't want to pass alongside
-		//original HTTP query params, we want a clean URL.
+		//original HTTP query params, we want a clean URL in HTTP redirect case. In HTTP POST case it is
+		//even more important: web browser would warn the user about doubled POST.
 		response.sendRedirect(samlDispatcherServletPath);
 	}
 	

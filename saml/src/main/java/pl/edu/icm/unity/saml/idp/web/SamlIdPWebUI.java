@@ -25,7 +25,7 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import pl.edu.icm.unity.saml.idp.web.filter.IdpDispatcherServlet;
+import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServlet;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
@@ -363,6 +363,6 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	protected void addSessionParticipant(SAMLAuthnContext samlCtx, NameIDType returnedSubject,
 			String sessionId)
 	{
-		IdpDispatcherServlet.addSessionParticipant(samlCtx, returnedSubject, sessionId, sessionMan);
+		IdpConsentDeciderServlet.addSessionParticipant(samlCtx, returnedSubject, sessionId, sessionMan);
 	}
 }

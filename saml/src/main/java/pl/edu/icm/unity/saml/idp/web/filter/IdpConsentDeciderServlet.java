@@ -54,9 +54,9 @@ import eu.unicore.samly2.exceptions.SAMLRequesterException;
  * 
  * @author K. Benedyczak
  */
-public class IdpDispatcherServlet extends HttpServlet
+public class IdpConsentDeciderServlet extends HttpServlet
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, IdpDispatcherServlet.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, IdpConsentDeciderServlet.class);
 	
 	protected PreferencesManagement preferencesMan;
 	protected IdPEngine idpEngine;
@@ -64,7 +64,7 @@ public class IdpDispatcherServlet extends HttpServlet
 	protected SessionManagement sessionMan;
 	protected String samlUiServletPath;
 	
-	public IdpDispatcherServlet(PreferencesManagement preferencesMan, IdPEngine idpEngine,
+	public IdpConsentDeciderServlet(PreferencesManagement preferencesMan, IdPEngine idpEngine,
 			FreemarkerHandler freemarker,
 			SessionManagement sessionMan, String samlUiServletPath)
 	{

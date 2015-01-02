@@ -19,7 +19,7 @@
 	<bean class="pl.edu.icm.unity.saml.idp.FreemarkerHandler"/>	
 	<bean class="pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory"/>	
 	<bean class="pl.edu.icm.unity.saml.idp.preferences.SamlPreferencesHandler"/>
-	<bean class="pl.edu.icm.unity.saml.idp.web.filter.IdpDispatcherServletFactory"/>
+	<bean class="pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServletFactory"/>
 
 	<bean class="pl.edu.icm.unity.saml.sp.SamlContextManagement"/>
 	<bean class="pl.edu.icm.unity.saml.sp.SAMLVerificatorFactory"/>
