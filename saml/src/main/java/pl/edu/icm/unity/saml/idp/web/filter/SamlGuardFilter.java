@@ -35,14 +35,12 @@ public class SamlGuardFilter implements Filter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlGuardFilter.class);
 	
-	protected String samlUiPath;
 	protected ErrorHandler errorHandler;
 
-	public SamlGuardFilter(String samlUiPath, ErrorHandler errorHandler)
+	public SamlGuardFilter(ErrorHandler errorHandler)
 	{
 		super();
 		this.errorHandler = errorHandler;
-		this.samlUiPath = samlUiPath;
 	}
 
 	@Override

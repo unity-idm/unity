@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
@@ -30,17 +31,17 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import pl.edu.icm.unity.saml.idp.web.SamlResponseHandler;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.RoutingServlet;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 import eu.unicore.samly2.SAMLConstants;
@@ -60,17 +61,17 @@ public class IdpDispatcherServlet extends HttpServlet
 	protected PreferencesManagement preferencesMan;
 	protected IdPEngine idpEngine;
 	protected SSOResponseHandler ssoResponseHandler;
-	protected AuthenticationProcessor authnProcessor;
+	protected SessionManagement sessionMan;
 	protected String samlUiServletPath;
 	
 	public IdpDispatcherServlet(PreferencesManagement preferencesMan, IdPEngine idpEngine,
 			FreemarkerHandler freemarker,
-			AuthenticationProcessor authnProcessor, String samlUiServletPath)
+			SessionManagement sessionMan, String samlUiServletPath)
 	{
 		this.preferencesMan = preferencesMan;
 		this.idpEngine = idpEngine;
 		this.ssoResponseHandler = new SSOResponseHandler(freemarker);
-		this.authnProcessor = authnProcessor;
+		this.sessionMan = sessionMan;
 		this.samlUiServletPath = samlUiServletPath;
 	}
 
@@ -80,17 +81,30 @@ public class IdpDispatcherServlet extends HttpServlet
 	{
 		try
 		{
-			doGetInterruptible(req, resp);
+			serviceInterruptible(req, resp);
 		} catch (EopException e)
 		{
 			//OK
 		}
 	}
-
-	protected void doGetInterruptible(HttpServletRequest req, HttpServletResponse resp)
+	
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException
+	{
+		try
+		{
+			serviceInterruptible(req, resp);
+		} catch (EopException e)
+		{
+			//OK
+		}
+	}
+	
+	protected void serviceInterruptible(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException, EopException
 	{
-		SAMLAuthnContext samlCtx = SamlResponseHandler.getContext();
+		SAMLAuthnContext samlCtx = getSamlContext(req);
 		SPSettings preferences;
 		try
 		{
@@ -107,9 +121,11 @@ public class IdpDispatcherServlet extends HttpServlet
 		}
 		if (isConsentRequired(preferences, samlCtx))
 		{
-			req.getRequestDispatcher(samlUiServletPath).forward(req, resp);
+			log.trace("Consent is required for SAML request, forwarding to consent UI");
+			RoutingServlet.forwardTo(samlUiServletPath, req, resp);
 		} else
 		{
+			log.trace("Consent is not required for SAML request, processing immediatelly");
 			autoReplay(preferences, samlCtx, req, resp);
 		}
 	}
@@ -162,7 +178,7 @@ public class IdpDispatcherServlet extends HttpServlet
 			return;
 		}
 		addSessionParticipant(samlCtx, samlProcessor.getAuthenticatedSubject().getNameID(), 
-				samlProcessor.getSessionId(), authnProcessor);
+				samlProcessor.getSessionId(), sessionMan);
 		ssoResponseHandler.sendResponse(Binding.HTTP_POST, respDoc, serviceUrl, 
 				samlCtx.getRelayState(), request, response);
 	}
@@ -189,7 +205,7 @@ public class IdpDispatcherServlet extends HttpServlet
 	}
 	
 	public static void addSessionParticipant(SAMLAuthnContext samlCtx, NameIDType returnedSubject,
-			String sessionId, AuthenticationProcessor authnProcessor)
+			String sessionId, SessionManagement sessionMan)
 	{
 		String participantId = samlCtx.getRequest().getIssuer().getStringValue();
 		SamlIdpProperties samlIdpProperties = samlCtx.getSamlConfiguration();
@@ -200,7 +216,7 @@ public class IdpDispatcherServlet extends HttpServlet
 		List<SAMLEndpointDefinition> logoutEndpoints = configKey == null ? 
 				new ArrayList<SAMLEndpointDefinition>(0) :
 				samlCtx.getSamlConfiguration().getLogoutEndpointsFromStructuredList(configKey);
-		authnProcessor.addSessionParticipant(new SAMLSessionParticipant(participantId, 
+		sessionMan.addSessionParticipant(new SAMLSessionParticipant(participantId, 
 				returnedSubject, sessionId, logoutEndpoints, localIdpSamlId,
 				credentialName, allowedCerts));
 	}
@@ -212,5 +228,15 @@ public class IdpDispatcherServlet extends HttpServlet
 			serviceUrl = samlCtx.getSamlConfiguration().getReturnAddressForRequester(
 					samlCtx.getRequest().getIssuer());
 		return serviceUrl;
+	}
+	
+	private SAMLAuthnContext getSamlContext(HttpServletRequest req)
+	{
+		HttpSession httpSession = req.getSession();
+		SAMLAuthnContext ret = (SAMLAuthnContext) httpSession.getAttribute(
+				SamlParseServlet.SESSION_SAML_CONTEXT);
+		if (ret == null)
+			throw new IllegalStateException("No SAML context in UI");
+		return ret;
 	}
 }

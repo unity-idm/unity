@@ -29,6 +29,7 @@ import pl.edu.icm.unity.saml.idp.web.filter.IdpDispatcherServlet;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
@@ -88,6 +89,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	protected IdentityTypesRegistry identityTypesRegistry;
 	protected PreferencesManagement preferencesMan;
 	protected AuthenticationProcessor authnProcessor;
+	protected SessionManagement sessionMan;
 	protected IdentitySelectorComponent idSelector;
 	protected ExposedAttributesComponent attrsPresenter;
 	
@@ -99,7 +101,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	public SamlIdPWebUI(UnityMessageSource msg, FreemarkerHandler freemarkerHandler,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
 			AuthenticationProcessor authnProcessor, IdPEngine idpEngine,
-			IdentityTypesRegistry identityTypesRegistry)
+			IdentityTypesRegistry identityTypesRegistry, SessionManagement sessionMan)
 	{
 		super(msg);
 		this.msg = msg;
@@ -109,6 +111,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		this.authnProcessor = authnProcessor;
 		this.idpEngine = idpEngine;
 		this.identityTypesRegistry = identityTypesRegistry;
+		this.sessionMan = sessionMan;
 	}
 
 	@Override
@@ -360,6 +363,6 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	protected void addSessionParticipant(SAMLAuthnContext samlCtx, NameIDType returnedSubject,
 			String sessionId)
 	{
-		IdpDispatcherServlet.addSessionParticipant(samlCtx, returnedSubject, sessionId, authnProcessor);
+		IdpDispatcherServlet.addSessionParticipant(samlCtx, returnedSubject, sessionId, sessionMan);
 	}
 }

@@ -70,7 +70,7 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
 		Map<String,String> paths = new HashMap<String, String>();
-		paths.put(SamlAuthVaadinEndpoint.SAML_CONSUMER_SERVLET_PATH, 
+		paths.put(SamlAuthVaadinEndpoint.SAML_ENTRY_SERVLET_PATH, 
 				"SAML 2 identity provider web endpoint");
 		paths.put(SamlAuthVaadinEndpoint.SAML_META_SERVLET_PATH, 
 				"Metadata of the SAML 2 identity provider web endpoint");

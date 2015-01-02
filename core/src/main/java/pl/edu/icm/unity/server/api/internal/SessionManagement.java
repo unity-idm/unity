@@ -74,6 +74,12 @@ public interface SessionManagement
 	LoginSession getOwnedSession(EntityParam owner, String realm) throws WrongArgumentException, EngineException;
 	
 	/**
+	 * Adds given participands to the current login session
+	 * @param participant
+	 */
+	void addSessionParticipant(SessionParticipant... participant);
+	
+	/**
 	 * Callback interface. Implementation can update the attributes. It should return quickly as 
 	 * it is invoked inside of a DB transaction.
 	 * @author K. Benedyczak

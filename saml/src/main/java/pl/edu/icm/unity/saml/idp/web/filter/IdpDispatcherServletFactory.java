@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
-import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 
 /**
  * Creates {@link IdpDispatcherServlet}s.
@@ -23,22 +23,22 @@ public class IdpDispatcherServletFactory
 	protected PreferencesManagement preferencesMan;
 	protected IdPEngine idpEngine;
 	protected FreemarkerHandler freemarker;
-	protected AuthenticationProcessor authnProcessor;
+	protected SessionManagement sessionMan;
 
 	@Autowired
 	public IdpDispatcherServletFactory(PreferencesManagement preferencesMan,
 			IdPEngine idpEngine, FreemarkerHandler freemarker,
-			AuthenticationProcessor authnProcessor)
+			SessionManagement sessionMan)
 	{
 		this.preferencesMan = preferencesMan;
 		this.idpEngine = idpEngine;
 		this.freemarker = freemarker;
-		this.authnProcessor = authnProcessor;
+		this.sessionMan = sessionMan;
 	}
 	
 	public IdpDispatcherServlet getInstance(String uiServletPath)
 	{
-		return new IdpDispatcherServlet(preferencesMan, idpEngine, freemarker, authnProcessor, uiServletPath);
+		return new IdpDispatcherServlet(preferencesMan, idpEngine, freemarker, sessionMan, uiServletPath);
 	}
 	
 }

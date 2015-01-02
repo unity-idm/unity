@@ -31,9 +31,11 @@ import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
+import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 
 /**
  * Vaadin endpoint is used by all Vaadin based web endpoints. It is not a component:
@@ -60,6 +62,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	protected UnityVaadinServlet theServlet;
 	protected UnityVaadinServlet authenticationServlet;
 	protected AuthenticationFilter authnFilter;
+	protected InvocationContextSetupFilter contextSetupFilter;
 	
 	public VaadinEndpoint(EndpointTypeDescription type, ApplicationContext applicationContext,
 			String uiBeanName, String servletPath)
@@ -96,13 +99,16 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
-		
+		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);		
 		
 		authnFilter = new AuthenticationFilter(
 				new ArrayList<String>(Arrays.asList(servletPath)), 
 				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST));
+		contextSetupFilter = new InvocationContextSetupFilter(config, description.getRealm());
+		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 
+				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
 
