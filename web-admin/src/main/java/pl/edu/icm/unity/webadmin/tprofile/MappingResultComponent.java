@@ -108,6 +108,7 @@ public class MappingResultComponent extends CustomComponent
 	public void displayMappingResult(MappingResult mappingResult, String inputTranslationProfile) 
 	{
 		titleLabel.setHtmlValue("DryRun.MappingResultComponent.title", inputTranslationProfile);
+		noneLabel.setValue("");
 		displayMappingResult(mappingResult);
 	}	
 	
