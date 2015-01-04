@@ -157,5 +157,12 @@
 	<bean class="pl.edu.icm.unity.engine.endpoints.EndpointHandler"/>
 	<bean class="pl.edu.icm.unity.engine.endpoints.EndpointDB"/>
 	<bean class="pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement"/>
+	
+	<bean class="pl.edu.icm.unity.engine.confirmations.AttributeFacility" />
+	<bean class="pl.edu.icm.unity.engine.confirmations.IdentityFacility" />
+	<bean class="pl.edu.icm.unity.engine.confirmations.RegistrationRequestFacility" />
+	<bean class="pl.edu.icm.unity.engine.confirmations.ConfirmationManagerImpl" />
+	
+	
 
 </beans>

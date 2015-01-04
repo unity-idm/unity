@@ -5,12 +5,14 @@
 
 package pl.edu.icm.unity.stdext.attr;
 
+import pl.edu.icm.unity.server.api.confirmations.VerifiableElement;
+
 
 /**
  * Email with verification state and verification date
  * @author P. Piernik
  */
-public class VerifiableEmail
+public class VerifiableEmail implements VerifiableElement
 {
 	private String value;
 	private long verificationDate;
@@ -43,6 +45,7 @@ public class VerifiableEmail
 	{
 		return verified;
 	}
+	@Override
 	public void setVerified(boolean verified)
 	{
 		this.verified = verified;

@@ -32,21 +32,39 @@ public class DBTokens
 		this.limits = db.getDBLimits();
 	}
 
-	public long addToken(String id, String type, byte[] contents, long entityId, Date created, Date expires,
-			SqlSession sqlMap) throws WrongArgumentException
+	private void checkLimits(String id, String type, byte[] contents) throws WrongArgumentException
 	{
 		limits.checkNameLimit(id);
 		limits.checkNameLimit(type);
 		if (contents == null)
 			contents = new byte[0];
 		limits.checkContentsLimit(contents);
-		
-		TokenBean toAdd = new TokenBean(id, contents, type, entityId, created);
-		toAdd.setExpires(expires);
+	}
+	
+	private Long addTokenBean(TokenBean toAdd, SqlSession sqlMap) throws WrongArgumentException
+	{
 		TokensMapper mapper = sqlMap.getMapper(TokensMapper.class);
 		checkExists(toAdd, mapper, false);
 		mapper.insertToken(toAdd);
 		return toAdd.getId();
+	}
+	
+	public long addToken(String id, String type, byte[] contents, long entityId, Date created, Date expires,
+			SqlSession sqlMap) throws WrongArgumentException
+	{
+		checkLimits(id, type, contents);	
+		TokenBean toAdd = new TokenBean(id, contents, type, entityId, created);
+		toAdd.setExpires(expires);
+		return addTokenBean(toAdd, sqlMap);
+	}
+	
+	public long addToken(String id, String type, byte[] contents, Date created, Date expires,
+			SqlSession sqlMap) throws WrongArgumentException
+	{
+		checkLimits(id, type, contents);		
+		TokenBean toAdd = new TokenBean(id, contents, type, created);
+		toAdd.setExpires(expires);
+		return addTokenBean(toAdd, sqlMap);
 	}
 	
 	public void removeToken(String id, String type, SqlSession sqlMap)

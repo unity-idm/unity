@@ -1,4 +1,4 @@
-package pl.edu.icm.unity.verifiers;
+package pl.edu.icm.unity.confirmations;
 
 import java.util.Properties;
 
@@ -25,17 +25,17 @@ import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.VaadinServletService;
 
 @Component
-public class EmailVerificatorInitializer implements ServerInitializer
+public class ConfirmationInitializer implements ServerInitializer
 {
-	private static Logger log = Log.getLogger(Log.U_SERVER, EmailVerificatorInitializer.class);
+	private static Logger log = Log.getLogger(Log.U_SERVER, ConfirmationInitializer.class);
 	public static final String SERVLET_PATH = "/confirmation";	
-	public static final String NAME = "emailVerificatorInitializer";	
+	public static final String NAME = "confirmationInitializer";	
 	private ApplicationContext applicationContext;
 
 	private SharedEndpointManagement sharedEndpointManagement;
 
 	@Autowired
-	public EmailVerificatorInitializer(ApplicationContext applicationContext,
+	public ConfirmationInitializer(ApplicationContext applicationContext,
 			SharedEndpointManagement sharedEndpointManagement)
 	{
 		this.applicationContext = applicationContext;
@@ -76,7 +76,7 @@ public class EmailVerificatorInitializer implements ServerInitializer
 				@Override
 				public void sessionInit(SessionInitEvent event) throws ServiceException
 				{
-					VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, EmailVerificationUI.class.getSimpleName(),
+					VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, ConfirmationUI.class.getSimpleName(),
 							null, null, null);
 					//uiProv.setCancelHandler(cancelHandler);
 					event.getSession().addUIProvider(uiProv);

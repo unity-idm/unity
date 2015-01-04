@@ -131,4 +131,21 @@ public class MockTokensMan implements TokensManagement
 	{
 		throw new RuntimeException("unimplemented");
 	}
+
+	@Override
+	public void addToken(String type, String value, byte[] contents, Date created,
+			Date expires, Object transaction) throws WrongArgumentException,
+			IllegalTypeException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addToken(String type, String value, byte[] contents, Date created, Date expires)
+			throws WrongArgumentException, IllegalTypeException
+	{
+		// TODO Auto-generated method stub
+		
+	}
 }

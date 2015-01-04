@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.attribute;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.api.confirmations.ConfirmationManager;
+import pl.edu.icm.unity.server.api.confirmations.VerifiableElement;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -79,6 +82,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private AttributeHandlerRegistry registry;
 	private AttributesManagement attributesManagement;
 	private GroupsManagement groupsManagement;
+	private ConfirmationManager confirmationMan;
 	
 	private VerticalLayout left;
 	private CheckBox showEffective;
@@ -97,12 +101,13 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	@Autowired
 	public AttributesPanel(UnityMessageSource msg, AttributeHandlerRegistry registry, 
-			AttributesManagement attributesManagement, GroupsManagement groupsManagement)
+			AttributesManagement attributesManagement, GroupsManagement groupsManagement, ConfirmationManager confirmationMan)
 	{
 		this.msg = msg;
 		this.registry = registry;
 		this.attributesManagement = attributesManagement;
 		this.groupsManagement = groupsManagement;
+		this.confirmationMan = confirmationMan;
 		this.bus = WebSession.getCurrent().getEventBus();
 		setStyleName(Reindeer.SPLITPANEL_SMALL);
 		attributesTable = new Table();
@@ -137,7 +142,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(attributesTable, toolbar);
 		tableWithToolbar.setSizeFull();
 		SingleActionHandler[] handlers = new SingleActionHandler[] {new AddAttributeActionHandler(), 
-				new EditAttributeActionHandler(), new RemoveAttributeActionHandler()};
+				new EditAttributeActionHandler(), new RemoveAttributeActionHandler(), new ConfirmAttributeActionHandler()};
 		for (SingleActionHandler handler: handlers)
 			attributesTable.addActionHandler(handler);
 		toolbar.addActionHandlers(handlers);
@@ -554,6 +559,70 @@ public class AttributesPanel extends HorizontalSplitPanel
 			dialog.show();
 		}
 	}
+	
+	private class ConfirmAttributeActionHandler extends AbstractAttributeActionHandler
+	{	
+		public ConfirmAttributeActionHandler()
+		{
+			super(msg.getMessage("Attribute.verifyAttribute"), 
+					Images.userMagnifier.getResource());
+			setMultiTarget(false);
+		}
+	
+		@Override
+		public Action[] getActions(Object target, Object sender)
+		{
+			if (target == null)
+			{
+				return EMPTY;
+			}			
+			
+			if (!(target instanceof Collection<?>))
+				target = Collections.singleton(target);
+			
+			Collection<?> targets = (Collection<?>) target;
+			for (Object ta : targets)
+			{
+				Attribute<?> attr = ((AttributeItem)ta).getAttribute();
+				if (!(attr.getValues().size() > 0 && attr.getValues().get(0) instanceof VerifiableElement))
+				{
+					return EMPTY;
+				}
+			}	
+			return super.getActions(target, sender);
+		}
+		
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{
+			Attribute<VerifiableElement> attribute = (Attribute<VerifiableElement>) ((AttributeItem) target).getAttribute();
+			
+			String state;
+			//TODO
+			try
+			{
+				state = confirmationMan.prepareAttributeState(owner.getEntityId()
+						.toString(), attribute.getName(), groupPath);
+				if (attribute.getValues().size() > 0)
+				{
+					String value = attribute.getValues().get(0).getValue();
+					confirmationMan.sendConfirmationRequest(value,
+							attribute.getName(), state);
+				}
+				ErrorPopup.showNotice(msg, "", msg.getMessage("Attribute.confirmationSended"));
+				
+
+			} catch (EngineException e)
+			{
+				ErrorPopup.showError(msg, msg.getMessage("Attribute.cannotSendConfirmation") , e);
+
+			}
+			
+			
+			
+		}
+	}
+
 
 	private static class EffectiveAttributesFilter implements Container.Filter
 	{

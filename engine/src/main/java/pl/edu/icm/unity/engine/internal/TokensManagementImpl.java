@@ -81,7 +81,25 @@ public class TokensManagementImpl implements TokensManagement
 				db.releaseSqlSession(sql);
 		}
 	}
-
+	
+	@Override
+	public void addToken(String type, String value, byte[] contents,
+			Date created, Date expires, Object transaction) 
+			throws WrongArgumentException, IllegalTypeException
+	{
+		SqlSession sql = transaction == null ? db.getSqlSession(true) : (SqlSession)transaction;
+		try
+		{
+			dbTokens.addToken(value, type, contents, created, expires, sql);
+			if (transaction == null)
+				sql.commit();
+		} finally
+		{
+			if (transaction == null)
+				db.releaseSqlSession(sql);
+		}
+	}
+	
 	@Override
 	public void removeToken(String type, String value, Object transaction) throws WrongArgumentException
 	{
@@ -240,6 +258,13 @@ public class TokensManagementImpl implements TokensManagement
 			IllegalTypeException
 	{
 		addToken(type, value, owner, contents, created, expires, null);
+	}
+	
+	@Override
+	public void addToken(String type, String value, byte[] contents,
+			Date created, Date expires) throws WrongArgumentException, IllegalTypeException
+	{
+		addToken(type, value, contents, created, expires, null);
 	}
 
 	@Override

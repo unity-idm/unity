@@ -46,6 +46,8 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.api.confirmations.ConfirmationManager;
+import pl.edu.icm.unity.server.api.confirmations.VerifiableElement;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.BaseRegistrationTemplateDef;
@@ -112,6 +114,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private EngineHelper engineHelper;
 	private AttributesHelper attributesHelper;
 	private NotificationProducerImpl notificationProducer;
+	private ConfirmationManager confirmationManager;
 
 	@Autowired
 	public RegistrationsManagementImpl(DBSessionManager db, RegistrationFormDB formsDB,
@@ -121,7 +124,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			GroupResolver groupsResolver, IdentityTypesRegistry identityTypesRegistry,
 			LocalCredentialsRegistry authnRegistry, AuthorizationManager authz,
 			EngineHelper engineHelper, AttributesHelper attributesHelper,
-			NotificationProducerImpl notificationProducer, MessageTemplateDB msgTplDB)
+			NotificationProducerImpl notificationProducer,ConfirmationManager confirmationManager, MessageTemplateDB msgTplDB)
 	{
 		this.db = db;
 		this.formsDB = formsDB;
@@ -139,6 +142,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		this.engineHelper = engineHelper;
 		this.attributesHelper = attributesHelper;
 		this.notificationProducer = notificationProducer;
+		this.confirmationManager = confirmationManager;
 		this.msgTplDB = msgTplDB;
 	}
 
@@ -254,6 +258,17 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 					notificationsCfg.getSubmittedTemplate(),
 					getBaseNotificationParams(form.getName(), requestFull.getRequestId()));
 			}
+			
+			for (Attribute<?> attr: requestFull.getRequest().getAttributes())
+			{
+				if (attr.getValues().size() > 0 && attr.getValues().get(0) instanceof VerifiableElement)
+				{
+					Attribute<VerifiableElement> vattr = (Attribute<VerifiableElement>) attr;
+					String state = confirmationManager.prepareAttributeFromRegistrationState(requestFull.getRequestId(), vattr.getName(), vattr.getGroupPath());
+					confirmationManager.sendConfirmationRequest(vattr.getValues().get(0).getValue(), vattr.getName(), state);		
+				}
+			}			
+			
 			
 		} finally
 		{

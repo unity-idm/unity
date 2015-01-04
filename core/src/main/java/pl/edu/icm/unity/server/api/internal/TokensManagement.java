@@ -66,6 +66,30 @@ public interface TokensManagement
 			throws WrongArgumentException, IllegalIdentityValueException, IllegalTypeException;
 
 	/**
+	 * Adds a new token without owner - transactional
+	 * @param type type or category of the token
+	 * @param value
+	 * @param contents
+	 * @param created creation timestamp. It is guaranteed to be stored with second precision, though implementation
+	 * might also store the full time.
+	 * @param expires precision as in created case.
+	 * @param transaction
+	 * @throws WrongArgumentException
+	 * @throws IllegalIdentityValueException
+	 * @throws IllegalTypeException
+	 */
+	void addToken(String type, String value, byte[] contents, Date created, Date expires, 
+			Object transaction) 
+			throws WrongArgumentException, IllegalTypeException;
+	
+	/**
+	 * @see #addToken(String, String, byte[], Date, Date, Object) - standalone version, without
+	 * wrapping transaction.
+	 */
+	void addToken(String type, String value, byte[] contents, Date created, Date expires) 
+			throws WrongArgumentException, IllegalTypeException;
+	
+	/**
 	 * Removes the token
 	 * Transactional.
 	 * @param type

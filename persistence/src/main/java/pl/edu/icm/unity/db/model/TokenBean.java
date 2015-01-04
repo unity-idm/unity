@@ -29,6 +29,13 @@ public class TokenBean extends BaseBean
 		this.owner = owner;
 		this.created = created;
 	}
+	
+	public TokenBean(String name, byte[] contents, String type, Date created)
+	{
+		super(name, contents);
+		this.type = type;
+		this.created = created;
+	}
 
 	public String getType()
 	{
