@@ -47,7 +47,7 @@ public class WebAdminVaadinEndpoint extends VaadinEndpoint
 		SandboxAuthnRouter sandboxRouter = new SandboxAuthnRouterImpl();
 		
 		UnityVaadinServlet sandboxServlet = new UnityVaadinServlet(applicationContext, 
-				SandboxUI.class.getSimpleName(), description, null, null);
+				SandboxUI.class.getSimpleName(), description, null, null, properties);
 		sandboxServlet.setSandboxRouter(sandboxRouter);
 		ServletHolder sandboxServletHolder = createVaadinServletHolder(sandboxServlet, true);
 		sandboxServletHolder.setInitParameter("closeIdleSessions", "true");

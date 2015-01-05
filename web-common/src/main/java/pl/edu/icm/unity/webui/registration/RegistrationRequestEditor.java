@@ -13,6 +13,7 @@ import java.util.Map;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
@@ -34,6 +35,7 @@ import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.Selection;
+import pl.edu.icm.unity.webui.common.CaptchaComponent;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.HtmlSimplifiedLabel;
@@ -86,6 +88,7 @@ public class RegistrationRequestEditor extends CustomComponent
 	private List<CheckBox> agreementSelectors;
 	private TextArea comment;
 	private TextField registrationCode;
+	private CaptchaComponent captcha;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
@@ -329,6 +332,17 @@ public class RegistrationRequestEditor extends CustomComponent
 				registrationCode.setComponentError(null);
 		}
 		
+		if (captcha != null)
+		{
+			try
+			{
+				captcha.verify();
+			} catch (WrongArgumentException e)
+			{
+				hasFormException = true;
+			}
+		}
+		
 		if (hasFormException)
 			throw new FormValidationException();
 		
@@ -389,6 +403,13 @@ public class RegistrationRequestEditor extends CustomComponent
 		{
 			createAgreementsUI(mainFormLayout);
 			mainFormLayout.addComponent(HtmlTag.br());
+		}
+		
+		if (form.getCaptchaLength() > 0)
+		{
+			captcha = new CaptchaComponent(msg, form.getCaptchaLength());
+			mainFormLayout.addComponent(HtmlTag.br());
+			mainFormLayout.addComponent(captcha.getAsComponent());
 		}
 		
 		setCompositionRoot(main);

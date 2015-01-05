@@ -204,7 +204,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
 		UnityVaadinServlet authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticators,
-				registrationConfiguration);
+				registrationConfiguration, properties);
 		
 		CancelHandler cancelHandler = new SamlAuthnCancelHandler(freemarkerHandler);
 		authenticationServlet.setCancelHandler(cancelHandler);
@@ -214,7 +214,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
 		UnityVaadinServlet theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
-				description, authenticators, registrationConfiguration);
+				description, authenticators, registrationConfiguration, properties);
 		context.addServlet(createVaadinServletHolder(theServlet, false), servletPath + "/*");
 		
 		if (samlProperties.getBooleanValue(SamlIdpProperties.PUBLISH_METADATA))

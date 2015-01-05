@@ -336,14 +336,14 @@ public class SAMLSPProperties extends SamlProperties
 	{
 		return isSet(idpKey + IDP_SIGN_REQUEST) ? 
 				getBooleanValue(idpKey + IDP_SIGN_REQUEST) : 
-				getBooleanValue(idpKey + DEF_SIGN_REQUEST);
+				getBooleanValue(DEF_SIGN_REQUEST);
 	}
 	
 	public String getRequestedNameFormat(String idpKey)
 	{
 		return isSet(idpKey + IDP_REQUESTED_NAME_FORMAT) ? 
 				getValue(idpKey + IDP_REQUESTED_NAME_FORMAT) : 
-				getValue(idpKey + DEF_REQUESTED_NAME_FORMAT);
+				getValue(DEF_REQUESTED_NAME_FORMAT);
 	}
 	
 	/**

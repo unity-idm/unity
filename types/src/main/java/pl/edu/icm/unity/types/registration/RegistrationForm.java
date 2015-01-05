@@ -34,8 +34,11 @@ public class RegistrationForm extends DescribedObjectImpl
 	private List<CredentialRegistrationParam> credentialParams;
 	private List<AgreementRegistrationParam> agreements;
 	private boolean collectComments;
+	private int captchaLength;
 	private String formInformation;
 	private String registrationCode;
+	private String redirectAfterSubmit;
+	private String redirectAfterSubmitAndAccept;
 	
 	private String credentialRequirementAssignment;
 	private List<Attribute<?>> attributeAssignments;
@@ -203,7 +206,37 @@ public class RegistrationForm extends DescribedObjectImpl
 	{
 		this.attributeClassAssignments = attributeClassAssignments;
 	}
-	
+
+	public int getCaptchaLength()
+	{
+		return captchaLength;
+	}
+
+	public void setCaptchaLength(int captchaLength)
+	{
+		this.captchaLength = captchaLength;
+	}
+
+	public String getRedirectAfterSubmit()
+	{
+		return redirectAfterSubmit;
+	}
+
+	public void setRedirectAfterSubmit(String redirectAfterSubmit)
+	{
+		this.redirectAfterSubmit = redirectAfterSubmit;
+	}
+
+	public String getRedirectAfterSubmitAndAccept()
+	{
+		return redirectAfterSubmitAndAccept;
+	}
+
+	public void setRedirectAfterSubmitAndAccept(String redirectAfterSubmitAndAccept)
+	{
+		this.redirectAfterSubmitAndAccept = redirectAfterSubmitAndAccept;
+	}
+
 	public boolean containsAutomaticAndMandatoryParams()
 	{
 		if (identityParams != null)
@@ -240,7 +273,7 @@ public class RegistrationForm extends DescribedObjectImpl
 
 		return false;
 	}
-	
+
 	@Override
 	public int hashCode()
 	{
@@ -257,6 +290,11 @@ public class RegistrationForm extends DescribedObjectImpl
 						: attributeClassAssignments.hashCode());
 		result = prime * result
 				+ ((attributeParams == null) ? 0 : attributeParams.hashCode());
+		result = prime
+				* result
+				+ ((autoAcceptCondition == null) ? 0 : autoAcceptCondition
+						.hashCode());
+		result = prime * result + captchaLength;
 		result = prime * result + (collectComments ? 1231 : 1237);
 		result = prime * result
 				+ ((credentialParams == null) ? 0 : credentialParams.hashCode());
@@ -279,13 +317,16 @@ public class RegistrationForm extends DescribedObjectImpl
 				+ ((notificationsConfiguration == null) ? 0
 						: notificationsConfiguration.hashCode());
 		result = prime * result + (publiclyAvailable ? 1231 : 1237);
+		result = prime
+				* result
+				+ ((redirectAfterSubmit == null) ? 0 : redirectAfterSubmit
+						.hashCode());
+		result = prime
+				* result
+				+ ((redirectAfterSubmitAndAccept == null) ? 0
+						: redirectAfterSubmitAndAccept.hashCode());
 		result = prime * result
 				+ ((registrationCode == null) ? 0 : registrationCode.hashCode());
-		
-		result = prime * result
-				+ ((autoAcceptCondition == null) ? 0 : autoAcceptCondition
-						.hashCode());
-		
 		return result;
 	}
 
@@ -322,6 +363,14 @@ public class RegistrationForm extends DescribedObjectImpl
 			if (other.attributeParams != null)
 				return false;
 		} else if (!attributeParams.equals(other.attributeParams))
+			return false;
+		if (autoAcceptCondition == null)
+		{
+			if (other.autoAcceptCondition != null)
+				return false;
+		} else if (!autoAcceptCondition.equals(other.autoAcceptCondition))
+			return false;
+		if (captchaLength != other.captchaLength)
 			return false;
 		if (collectComments != other.collectComments)
 			return false;
@@ -372,20 +421,24 @@ public class RegistrationForm extends DescribedObjectImpl
 			return false;
 		if (publiclyAvailable != other.publiclyAvailable)
 			return false;
+		if (redirectAfterSubmit == null)
+		{
+			if (other.redirectAfterSubmit != null)
+				return false;
+		} else if (!redirectAfterSubmit.equals(other.redirectAfterSubmit))
+			return false;
+		if (redirectAfterSubmitAndAccept == null)
+		{
+			if (other.redirectAfterSubmitAndAccept != null)
+				return false;
+		} else if (!redirectAfterSubmitAndAccept.equals(other.redirectAfterSubmitAndAccept))
+			return false;
 		if (registrationCode == null)
 		{
 			if (other.registrationCode != null)
 				return false;
 		} else if (!registrationCode.equals(other.registrationCode))
 			return false;
-		
-		if (autoAcceptCondition == null)
-		{
-			if (other.autoAcceptCondition != null)
-				return false;
-		} else if (!autoAcceptCondition.equals(other.autoAcceptCondition))
-			return false;
-		
 		return true;
 	}
 }

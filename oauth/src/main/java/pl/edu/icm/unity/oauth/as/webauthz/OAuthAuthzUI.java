@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,7 +109,7 @@ public class OAuthAuthzUI extends UnityUIBase
 	@Override
 	public void configure(EndpointDescription description,
 			List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration registrationConfiguration)
+			EndpointRegistrationConfiguration registrationConfiguration, Properties endpointProperties)
 	{
 		this.endpointDescription = description;
 	}

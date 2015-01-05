@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
@@ -102,4 +103,30 @@ public class TestDownloadManager extends DBIntegrationTestBase
 
 		Thread.sleep(5 * refreshTime * 500);
 	}
+	
+	@Ignore
+	@Test
+	public void testDownloadFromHttps() throws IOException, EngineException, InterruptedException
+	{
+		Properties p = new Properties();
+		p.setProperty(P + CREDENTIAL, "MAIN");
+		p.setProperty(P + PUBLISH_METADATA, "false");
+		p.setProperty(P + ISSUER_URI, "me");
+		p.setProperty(P + GROUP, "group");
+		p.setProperty(P + DEFAULT_GROUP, "group");
+		p.setProperty(P + METADATA_REFRESH, "100");
+		p.setProperty(P + SPMETA_PREFIX + "1." + SamlProperties.METADATA_HTTPS_TRUSTSTORE, "EGI");
+		p.setProperty(P + SPMETA_PREFIX + "1." + METADATA_URL,
+				new String("https://engine.egipilot.lab.surf.net/authentication/proxy/idps-metadata"));
+
+		SamlIdpProperties configuration = new SamlIdpProperties(p, pkiManagement);
+
+		RemoteMetaManager manager = new RemoteMetaManager(configuration,
+					mainConfig, executorsService, pkiManagement,
+					new MetaToIDPConfigConverter(pkiManagement),
+					downloadManager, SamlIdpProperties.SPMETA_PREFIX);
+		manager.start();
+		Thread.sleep(5 * 1000*3);
+	}
+
 }

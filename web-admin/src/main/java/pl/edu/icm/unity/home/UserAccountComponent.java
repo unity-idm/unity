@@ -6,6 +6,7 @@ package pl.edu.icm.unity.home;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,13 @@ public class UserAccountComponent extends VerticalLayout
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UserAccountComponent.class);
 	private UnityMessageSource msg;
+	private AuthenticationManagement authnMan;
+	private IdentitiesManagement idsMan;
+	private CredentialEditorRegistry credEditorReg;
+	private PreferencesHandlerRegistry registry;
+	private PreferencesManagement prefMan;
+	private EndpointManagement endpMan; 
+	private AttributesInternalProcessing attrMan;
 	
 	@Autowired
 	public UserAccountComponent(AuthenticationManagement authnMan, IdentitiesManagement idsMan,
@@ -61,7 +69,17 @@ public class UserAccountComponent extends VerticalLayout
 			AttributesInternalProcessing attrMan)
 	{
 		this.msg = msg;
-		
+		this.authnMan = authnMan;
+		this.idsMan = idsMan;
+		this.credEditorReg = credEditorReg;
+		this.registry = registry;
+		this.prefMan = prefMan;
+		this.endpMan = endpMan;
+		this.attrMan = attrMan;
+	}
+
+	public void initUI(HomeEndpointProperties config)
+	{
 		Label spacer = new Label();
 		spacer.setHeight(20, Unit.PIXELS);
 		addComponent(spacer);
@@ -70,9 +88,25 @@ public class UserAccountComponent extends VerticalLayout
 		addComponent(tabPanel);
 		setExpandRatio(tabPanel, 1.0f);
 
+		Set<String> disabled = config.getDisabledComponents();
+		
 		LoginSession theUser = InvocationContext.getCurrent().getLoginSession();
 
+		if (!disabled.contains(HomeEndpointProperties.Components.userDetails.toString()))
+			addUserInfo(tabPanel, theUser);
 		
+		if (!disabled.contains(HomeEndpointProperties.Components.credential.toString()))
+			addCredentials(tabPanel, theUser);
+
+		if (!disabled.contains(HomeEndpointProperties.Components.preferences.toString()))
+			addPreferences(tabPanel);
+		
+		if (tabPanel.getTabsCount() > 0)
+			tabPanel.select(0);
+	}
+	
+	private void addUserInfo(BigTabPanel tabPanel, LoginSession theUser)
+	{
 		try
 		{
 			com.vaadin.ui.Component userInfo = getUserInfoComponent(theUser.getEntityId(), idsMan, attrMan);
@@ -89,7 +123,10 @@ public class UserAccountComponent extends VerticalLayout
 			tabPanel.addTab("UserHomeUI.accountInfoLabel", "UserHomeUI.accountInfoDesc", 
 					Images.info64.getResource(), errorC);
 		}
-		
+	}
+	
+	private void addCredentials(BigTabPanel tabPanel, LoginSession theUser)
+	{
 		try
 		{
 			CredentialsPanel credentialsPanel = new CredentialsPanel(msg, theUser.getEntityId(), 
@@ -108,12 +145,13 @@ public class UserAccountComponent extends VerticalLayout
 					Images.key64.getResource(), errorC);
 			}
 		}
-
+	}
+	
+	private void addPreferences(BigTabPanel tabPanel)
+	{
 		PreferencesComponent preferencesComponent = new PreferencesComponent(msg, registry, prefMan, endpMan);
 		tabPanel.addTab("UserHomeUI.preferencesLabel", "UserHomeUI.preferencesDesc", 
 				Images.settings64.getResource(), preferencesComponent);
-		
-		tabPanel.select(0);
 	}
 	
 	private com.vaadin.ui.Component getUserInfoComponent(long entityId, IdentitiesManagement idsMan, 

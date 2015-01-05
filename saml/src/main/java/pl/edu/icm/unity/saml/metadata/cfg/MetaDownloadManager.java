@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -48,7 +49,7 @@ public class MetaDownloadManager
 	private PKIManagement pkiManagement;
 	private UnityServerConfiguration mainConfig;
 	private Map<String, Long> downloadedFiles;
-	private HashSet<String> downlodingFiles;
+	private Set<String> downlodingFiles;
 
 	@Autowired
 	public MetaDownloadManager(PKIManagement pkiManagement, UnityServerConfiguration mainConfig)
@@ -87,7 +88,7 @@ public class MetaDownloadManager
 			download(url, customTruststore);
 		} catch (Exception ex)
 		{
-			log.debug("Downloading file from " + url + " fail", ex);
+			log.warn("Downloading file from " + url + " failed", ex);
 			endDownloading(url, false);
 			log.debug("Trying get file from cache");
 			return getFromCache(url, "");
@@ -228,13 +229,11 @@ public class MetaDownloadManager
 
 	private File getLocalFile(String uri, String suffix)
 	{
-		File dir = new File(
-				mainConfig.getValue(UnityServerConfiguration.WORKSPACE_DIRECTORY),
+		File dir = new File(mainConfig.getValue(UnityServerConfiguration.WORKSPACE_DIRECTORY),
 				CACHE_DIR);
 		if (!dir.exists())
 			dir.mkdirs();
-		File ret = new File(dir, DigestUtils.md5Hex(uri) + suffix);
-		return ret;
+		return new File(dir, DigestUtils.md5Hex(uri) + suffix);
 	}
 
 	private HttpClient getSSLClient(String url, String customTruststore) throws EngineException
