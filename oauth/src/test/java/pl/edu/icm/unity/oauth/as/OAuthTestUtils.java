@@ -75,7 +75,8 @@ public class OAuthTestUtils
 				200, 
 				300, 
 				"https://localhost:2443/oauth-as", 
-				credential);
+				credential,
+				false);
 		ctx.setClientEntityId(clientEntityId);
 		ctx.setClientName("clientC");
 		ctx.setFlow(grant);

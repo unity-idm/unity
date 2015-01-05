@@ -32,7 +32,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 /**
  * Servlet filter responsible merely for setting up {@link InvocationContext}. All servlets relaying on 
  * {@link InvocationContext} should be wrapped by this filter. This filter must be installed after the authentication
- * filter, it the latter is used.
+ * filter, if the latter is used.
  * @author K. Benedyczak
  */
 public class InvocationContextSetupFilter implements Filter

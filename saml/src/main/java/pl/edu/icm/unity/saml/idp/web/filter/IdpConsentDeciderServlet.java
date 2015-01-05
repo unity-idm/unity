@@ -35,6 +35,7 @@ import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
@@ -161,6 +162,13 @@ public class IdpConsentDeciderServlet extends HttpServlet
 				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		
 		String serviceUrl = getServiceUrl(samlCtx);
+		
+		if (!spPreferences.isDefaultAccept())
+		{
+			AuthenticationException ea = new AuthenticationException("Authentication was declined");
+			ssoResponseHandler.handleException(samlProcessor, ea, Binding.HTTP_POST, 
+					serviceUrl, samlCtx.getRelayState(), request, response, false);
+		}
 		
 		ResponseDocument respDoc;
 		try
