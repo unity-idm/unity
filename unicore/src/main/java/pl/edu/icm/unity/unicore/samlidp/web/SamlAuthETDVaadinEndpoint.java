@@ -32,6 +32,8 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
  */
 public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 {
+	public static final String SAML_CONSUMER_SERVLET_PATH = "/saml2unicoreIdp-web";
+	
 	public SamlAuthETDVaadinEndpoint(EndpointTypeDescription type, ApplicationContext applicationContext,
 			FreemarkerHandler freemarkerHandler,
 			PKIManagement pkiManagement, ExecutorsService executorsService,
@@ -39,7 +41,8 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 			UnityServerConfiguration mainConfig, SAMLLogoutProcessorFactory logoutProcessorFactory, 
 			SLOReplyInstaller sloReplyInstaller, IdpConsentDeciderServletFactory dispatcherServletFactory)
 	{
-		super(type, applicationContext, freemarkerHandler, SamlUnicoreIdPWebUI.class, pkiManagement, 
+		super(SAML_CONSUMER_SERVLET_PATH, 
+				type, applicationContext, freemarkerHandler, SamlUnicoreIdPWebUI.class, pkiManagement, 
 				executorsService, mainConfig, dispatcherServletFactory, 
 				remoteMetadataManagers, downloadManager, 
 				logoutProcessorFactory, 

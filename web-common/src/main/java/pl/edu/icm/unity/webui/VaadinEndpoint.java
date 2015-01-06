@@ -57,7 +57,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	public static final String PRODUCTION_MODE_PARAM = "productionMode";
 	protected ApplicationContext applicationContext;
 	protected String uiBeanName;
-	protected String servletPath;
+	protected String uiServletPath;
 	protected VaadinEndpointProperties genericEndpointProperties;
 
 	protected ServletContextHandler context = null;
@@ -72,7 +72,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		super(type);
 		this.applicationContext = applicationContext;
 		this.uiBeanName = uiBeanName;
-		this.servletPath = servletPath;
+		this.uiServletPath = servletPath;
 	}
 
 	@Override
@@ -107,7 +107,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 				Collections.unmodifiableList(Arrays.asList(AUTHENTICATION_PATH)))), 
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(
-				new ArrayList<String>(Arrays.asList(servletPath)), 
+				new ArrayList<String>(Arrays.asList(uiServletPath)), 
 				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
@@ -127,7 +127,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		
 		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
 				description, authenticators, registrationConfiguration, properties);
-		context.addServlet(createVaadinServletHolder(theServlet, false), servletPath + "/*");
+		context.addServlet(createVaadinServletHolder(theServlet, false), uiServletPath + "/*");
 
 		return context;
 	}

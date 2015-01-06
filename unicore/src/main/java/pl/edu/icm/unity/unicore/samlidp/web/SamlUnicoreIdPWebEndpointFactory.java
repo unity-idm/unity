@@ -36,8 +36,6 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 @Component
 public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 {
-	public static final String SAML_CONSUMER_SERVLET_PATH = "/saml2unicoreIdp-web";
-	public static final String SAML_UI_SERVLET_PATH = "/saml2unicoreIdp-web-ui";
 	public static final String NAME = "SAMLUnicoreWebIdP";
 	
 	private EndpointTypeDescription description;
@@ -73,7 +71,8 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
 		Map<String,String> paths=new HashMap<String, String>();
-		paths.put(SAML_CONSUMER_SERVLET_PATH,"SAML 2 UNICORE identity provider web endpoint");
+		paths.put(SamlAuthETDVaadinEndpoint.SAML_CONSUMER_SERVLET_PATH,
+				"SAML 2 UNICORE identity provider web endpoint");
 		paths.put(SamlAuthVaadinEndpoint.SAML_META_SERVLET_PATH, 
 				"Metadata of the SAML 2 identity provider web endpoint");
 		paths.put(SamlAuthVaadinEndpoint.SAML_SLO_ASYNC_SERVLET_PATH, "Single Logout web endpoint "

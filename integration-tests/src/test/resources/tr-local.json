@@ -10,7 +10,7 @@
 			"action": {
 				"name": "mapIdentity",
 				"parameters": [
-					"persistent",
+					"identifier",
 					"id",
 					"Password requirement",
 					"CREATE_OR_MATCH"
