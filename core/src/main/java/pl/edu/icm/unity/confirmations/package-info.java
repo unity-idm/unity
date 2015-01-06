@@ -10,4 +10,4 @@
  * Common code related to email verifications 
  * @author P. Piernik
  */
-package pl.edu.icm.unity.server.api.confirmations;
+package pl.edu.icm.unity.confirmations;

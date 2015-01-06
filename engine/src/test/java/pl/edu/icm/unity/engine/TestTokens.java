@@ -50,7 +50,7 @@ public class TestTokens extends DBIntegrationTestBase
 		Token token = tokensMan.getTokenById("t", "1234");
 		assertEquals("t", token.getType());
 		assertEquals("1234", token.getValue());
-		assertEquals(id.getEntityId().longValue(), token.getOwner());
+		assertEquals(id.getEntityId(), token.getOwner());
 		assertEquals('a', token.getContents()[0]);
 		assertNotNull(token.getCreated());
 		assertEquals(TimeUtil.roundToS(exp), TimeUtil.roundToS(token.getExpires()));
@@ -59,7 +59,7 @@ public class TestTokens extends DBIntegrationTestBase
 		token = tokensMan.getTokenById("t", "1234");
 		assertEquals("t", token.getType());
 		assertEquals("1234", token.getValue());
-		assertEquals(id.getEntityId().longValue(), token.getOwner());
+		assertEquals(id.getEntityId(), token.getOwner());
 		assertEquals('b', token.getContents()[0]);
 		assertNotNull(token.getCreated());
 		assertEquals(TimeUtil.roundToS(exp), TimeUtil.roundToS(token.getExpires()));

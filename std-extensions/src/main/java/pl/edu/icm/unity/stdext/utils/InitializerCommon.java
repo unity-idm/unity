@@ -78,7 +78,7 @@ public class InitializerCommon
 		AttributesClass namingAC = new AttributesClass(NAMING_AC, 
 				"Identification attributes, should be set for everybody to enable common system features", 
 				new HashSet<String>(), 
-				new HashSet<String>(Arrays.asList(CN_ATTR, EMAIL_ATTR)), false, 
+				new HashSet<String>(Arrays.asList(CN_ATTR, EMAIL_ATTR, VERIFIABLE_EMAIL_ATTR)), false, 
 				new HashSet<String>());
 		if (!allAcs.containsKey(NAMING_AC))
 			attrMan.addAttributeClass(namingAC);

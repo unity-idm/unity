@@ -2,10 +2,10 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.server.api.confirmations;
+package pl.edu.icm.unity.confirmations;
 
 /**
- * Confirmation status. Contains user friendly message about confirmation
+ * Confirmation status. Contains key for user friendly message about confirmation
  * process
  * 
  * @author P. Piernik
@@ -25,21 +25,21 @@ public class ConfirmationStatus
 		this.success = success;
 	}
 
-	private String userMessage;
+	private String userMessageKey;
 
 	public ConfirmationStatus(boolean status, String userMessage)
 	{
 		this.success = status;
-		this.userMessage = userMessage;
+		this.userMessageKey = userMessage;
 	}
 
 	public String getUserMessage()
 	{
-		return userMessage;
+		return userMessageKey;
 	}
 
 	public void setUserMessage(String userMessage)
 	{
-		this.userMessage = userMessage;
+		this.userMessageKey = userMessage;
 	}
 }

@@ -18,11 +18,12 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.confirmations.ConfirmationManager;
+import pl.edu.icm.unity.confirmations.VerifiableElement;
+import pl.edu.icm.unity.confirmations.states.AttribiuteState;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.confirmations.ConfirmationManager;
-import pl.edu.icm.unity.server.api.confirmations.VerifiableElement;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -82,7 +83,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private AttributeHandlerRegistry registry;
 	private AttributesManagement attributesManagement;
 	private GroupsManagement groupsManagement;
-	private ConfirmationManager confirmationMan;
+	private ConfirmationManager confirmationManager;
 	
 	private VerticalLayout left;
 	private CheckBox showEffective;
@@ -101,13 +102,13 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	@Autowired
 	public AttributesPanel(UnityMessageSource msg, AttributeHandlerRegistry registry, 
-			AttributesManagement attributesManagement, GroupsManagement groupsManagement, ConfirmationManager confirmationMan)
+			AttributesManagement attributesManagement, GroupsManagement groupsManagement, ConfirmationManager confirmationManager)
 	{
 		this.msg = msg;
 		this.registry = registry;
 		this.attributesManagement = attributesManagement;
 		this.groupsManagement = groupsManagement;
-		this.confirmationMan = confirmationMan;
+		this.confirmationManager = confirmationManager;
 		this.bus = WebSession.getCurrent().getEventBus();
 		setStyleName(Reindeer.SPLITPANEL_SMALL);
 		attributesTable = new Table();
@@ -596,30 +597,25 @@ public class AttributesPanel extends HorizontalSplitPanel
 		public void handleAction(Object sender, final Object target)
 		{
 			Attribute<VerifiableElement> attribute = (Attribute<VerifiableElement>) ((AttributeItem) target).getAttribute();
-			
-			String state;
-			//TODO
 			try
-			{
-				state = confirmationMan.prepareAttributeState(owner.getEntityId()
-						.toString(), attribute.getName(), groupPath);
-				if (attribute.getValues().size() > 0)
+			{	
+				AttribiuteState state = new AttribiuteState();
+				state.setOwner(owner.getEntityId().toString());
+				state.setGroup(groupPath);
+				state.setType(attribute.getName());
+				for (VerifiableElement val:attribute.getValues())
 				{
-					String value = attribute.getValues().get(0).getValue();
-					confirmationMan.sendConfirmationRequest(value,
-							attribute.getName(), state);
-				}
-				ErrorPopup.showNotice(msg, "", msg.getMessage("Attribute.confirmationSended"));
-				
+					state.setValue(val.getValue());
+					confirmationManager.sendConfirmationRequest(val.getValue(), state.getType(), state.getSerializedConfiguration());				
+				}		
+		
+				ErrorPopup.showNotice(msg, "", msg.getMessage("Attribute.confirmationSended"));	
 
 			} catch (EngineException e)
 			{
 				ErrorPopup.showError(msg, msg.getMessage("Attribute.cannotSendConfirmation") , e);
 
-			}
-			
-			
-			
+			}			
 		}
 	}
 

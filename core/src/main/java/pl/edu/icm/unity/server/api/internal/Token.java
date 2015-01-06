@@ -15,12 +15,12 @@ public class Token
 {
 	private String type;
 	private String value;
-	private long owner;
+	private Long owner;
 	private Date created;
 	private Date expires;
 	private byte[] contents;
 
-	public Token(String type, String value, long owner)
+	public Token(String type, String value, Long owner)
 	{
 		this.type = type;
 		this.value = value;
@@ -43,11 +43,11 @@ public class Token
 	{
 		this.value = value;
 	}
-	public long getOwner()
+	public Long getOwner()
 	{
 		return owner;
 	}
-	public void setOwner(long owner)
+	public void setOwner(Long owner)
 	{
 		this.owner = owner;
 	}

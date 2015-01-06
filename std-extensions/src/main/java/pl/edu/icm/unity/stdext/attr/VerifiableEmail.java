@@ -5,7 +5,9 @@
 
 package pl.edu.icm.unity.stdext.attr;
 
-import pl.edu.icm.unity.server.api.confirmations.VerifiableElement;
+import java.util.Date;
+
+import pl.edu.icm.unity.confirmations.VerifiableElement;
 
 
 /**
@@ -87,4 +89,11 @@ public class VerifiableEmail implements VerifiableElement
 		result = prime * result + (verified ? 1231 : 1237);
 		return result;
 	}
+
+//	@Override
+//	public void updateVerificationDate(Date verificationDate)
+//	{
+//		setVerificationDate(verificationDate.getTime());
+//		
+//	}
 }

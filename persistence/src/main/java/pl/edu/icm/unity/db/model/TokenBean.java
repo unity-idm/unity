@@ -9,7 +9,7 @@ import java.util.Date;
 public class TokenBean extends BaseBean
 {
 	private String type;
-	private long owner;
+	private Long owner;
 	private Date created;
 	private Date expires;
 
@@ -22,7 +22,7 @@ public class TokenBean extends BaseBean
 		super(name, null);
 		this.type = type;
 	}
-	public TokenBean(String name, byte[] contents, String type, long owner, Date created)
+	public TokenBean(String name, byte[] contents, String type, Long owner, Date created)
 	{
 		super(name, contents);
 		this.type = type;
@@ -46,11 +46,11 @@ public class TokenBean extends BaseBean
 	{
 		this.type = type;
 	}
-	public long getOwner()
+	public Long getOwner()
 	{
 		return owner;
 	}
-	public void setOwner(long owner)
+	public void setOwner(Long owner)
 	{
 		this.owner = owner;
 	}

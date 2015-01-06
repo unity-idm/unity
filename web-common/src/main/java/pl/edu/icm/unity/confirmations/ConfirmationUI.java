@@ -12,9 +12,8 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.confirmations.ConfirmationManager;
-import pl.edu.icm.unity.server.api.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -53,16 +52,16 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 
 	}
 	
-	private void setFail(String info)
+	private void setFail(String msg)
 	{
-		Label l = new Label(info);
+		Label l = new Label("FAIL " + msg);
 		main.removeAllComponents();
 		main.addComponent(l);
 	}
 	
-	private void setSuccess(String info)
+	private void setSuccess(String msg)
 	{
-		Label l = new Label(info);
+		Label l = new Label("SUCCESSFULL" + msg);
 		main.removeAllComponents();
 		main.addComponent(l);
 	}
@@ -77,11 +76,13 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 			if (status.isSuccess())
 				setSuccess(status.getUserMessage());
 			else
-				setFail(status.getUserMessage());
+				setFail("FAIL");
 			
 		} catch (EngineException e)
 		{
-			setFail("INTERNAL PROBLEM");
+		//	setFail(e.printStackTrace());
+			e.printStackTrace();
+			
 		}	
 		setContent(main);
 	}
