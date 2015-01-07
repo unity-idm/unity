@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;

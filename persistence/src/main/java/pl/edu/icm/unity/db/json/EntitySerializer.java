@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.EntityInformation;
+import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
 
 /**
@@ -33,12 +34,10 @@ public class EntitySerializer
 	{
 		ObjectNode main = mapper.createObjectNode();
 		main.put("state", src.getState().name());
-		if (src.getTimeToDisableAdmin() != null)
-			main.put("TimeToDisableAdmin", src.getTimeToDisableAdmin().getTime());
-		if (src.getTimeToRemoveAdmin() != null)
-			main.put("TimeToRemoveAdmin", src.getTimeToRemoveAdmin().getTime());
-		if (src.getTimeToRemoveUser() != null)
-			main.put("TimeToRemoveUser", src.getTimeToRemoveUser().getTime());
+		if (src.getScheduledOperationTime() != null)
+			main.put("ScheduledOperationTime", src.getScheduledOperationTime().getTime());
+		if (src.getScheduledOperation() != null)
+			main.put("ScheduledOperation", src.getScheduledOperation().name());
 		try
 		{
 			return mapper.writeValueAsBytes(main);
@@ -68,12 +67,11 @@ public class EntitySerializer
 
 		String stateStr = main.get("state").asText();
 		EntityInformation ret = new EntityInformation(EntityState.valueOf(stateStr));
-		if (main.has("TimeToDisableAdmin"))
-			ret.setTimeToDisableAdmin(new Date(main.get("TimeToDisableAdmin").asLong()));
-		if (main.has("TimeToRemoveAdmin"))
-			ret.setTimeToRemoveAdmin(new Date(main.get("TimeToRemoveAdmin").asLong()));
-		if (main.has("TimeToRemoveUser"))
-			ret.setTimeToRemoveUser(new Date(main.get("TimeToRemoveUser").asLong()));
+		if (main.has("ScheduledOperationTime"))
+			ret.setScheduledOperationTime(new Date(main.get("ScheduledOperationTime").asLong()));
+		if (main.has("ScheduledOperation"))
+			ret.setScheduledOperation(EntityScheduledOperation.valueOf(
+					main.get("ScheduledOperation").asText()));
 		return ret;
 	}
 }

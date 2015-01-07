@@ -13,9 +13,8 @@ import java.util.Date;
 public class EntityInformation
 {
 	private EntityState state;
-	private Date timeToRemoveAdmin;
-	private Date timeToDisableAdmin;
-	private Date timeToRemoveUser;
+	private Date scheduledOperationTime;
+	private EntityScheduledOperation scheduledOperation;
 	
 	public EntityInformation(EntityState state)
 	{
@@ -32,33 +31,23 @@ public class EntityInformation
 		this.state = state;
 	}
 
-	public Date getTimeToRemoveAdmin()
+	public Date getScheduledOperationTime()
 	{
-		return timeToRemoveAdmin;
+		return scheduledOperationTime;
 	}
 
-	public void setTimeToRemoveAdmin(Date timeToRemoveAdmin)
+	public void setScheduledOperationTime(Date scheduledOperationTime)
 	{
-		this.timeToRemoveAdmin = timeToRemoveAdmin;
+		this.scheduledOperationTime = scheduledOperationTime;
 	}
 
-	public Date getTimeToDisableAdmin()
+	public EntityScheduledOperation getScheduledOperation()
 	{
-		return timeToDisableAdmin;
+		return scheduledOperation;
 	}
 
-	public void setTimeToDisableAdmin(Date timeToDisableAdmin)
+	public void setScheduledOperation(EntityScheduledOperation scheduledOperation)
 	{
-		this.timeToDisableAdmin = timeToDisableAdmin;
-	}
-
-	public Date getTimeToRemoveUser()
-	{
-		return timeToRemoveUser;
-	}
-
-	public void setTimeToRemoveUser(Date timeToRemoveUser)
-	{
-		this.timeToRemoveUser = timeToRemoveUser;
+		this.scheduledOperation = scheduledOperation;
 	}
 }

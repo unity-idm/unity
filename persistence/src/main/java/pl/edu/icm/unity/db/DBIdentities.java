@@ -27,10 +27,10 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.api.EntityScheduledOperation;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.EntityInformation;
+import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -333,7 +333,8 @@ public class DBIdentities
 		log.debug("Removing scheduled removal of an account [as the user is being logged] for entity " + 
 			entityId);
 		info.setState(EntityState.valid);
-		info.setTimeToRemoveUser(null);
+		info.setScheduledOperation(null);
+		info.setScheduledOperationTime(null);
 		byte[] infoJson = entitySerializer.toJson(info);
 		bean.setContents(infoJson);
 		mapper.updateEntity(bean);
@@ -347,18 +348,16 @@ public class DBIdentities
 		BaseBean bean = mapper.getEntityById(entityId);
 		EntityInformation info = entitySerializer.fromJson(bean.getContents());
 
-		switch (operation)
+		if (operation == null)
 		{
-		case FORCED_DISABLE:
-			info.setTimeToDisableAdmin(when);
-			break;
-		case FORCED_REMOVAL:
-			info.setTimeToRemoveAdmin(when);
-			break;
-		case REMOVAL_AFTER_GRACE_PERIOD:
-			info.setTimeToRemoveUser(when);
-			info.setState(EntityState.onlyLoginPermitted);
-			break;
+			info.setScheduledOperation(null);
+			info.setScheduledOperationTime(null);
+		} else
+		{
+			info.setScheduledOperation(operation);
+			info.setScheduledOperationTime(when);
+			if (operation == EntityScheduledOperation.REMOVAL_AFTER_GRACE_PERIOD)
+				info.setState(EntityState.onlyLoginPermitted);
 		}
 
 		byte[] infoJson = entitySerializer.toJson(info);
@@ -403,18 +402,24 @@ public class DBIdentities
 		for (BaseBean entityBean: rawRet)
 		{
 			EntityInformation entityInfo = entitySerializer.fromJson(entityBean.getContents());
-			if (isSetAndAfter(now, entityInfo.getTimeToDisableAdmin()))
+			if (isSetAndAfter(now, entityInfo.getScheduledOperationTime()))
 			{
-				log.info("Performing scheduled disable of entity " + entityBean.getId());
-				disableInternal(entityInfo, entityBean, mapper);
-			} else if (isSetAndAfter(now, entityInfo.getTimeToRemoveAdmin()) ||
-					isSetAndAfter(now, entityInfo.getTimeToRemoveUser()))
-			{
-				log.info("Performing scheduled removal of entity " + entityBean.getId());
-				mapper.deleteEntity(entityBean.getId());
+				EntityScheduledOperation op = entityInfo.getScheduledOperation();
+				switch (op)
+				{
+				case FORCED_DISABLE:
+					log.info("Performing scheduled disable of entity " + entityBean.getId());
+					disableInternal(entityInfo, entityBean, mapper);
+					break;
+				case FORCED_REMOVAL:
+				case REMOVAL_AFTER_GRACE_PERIOD:
+					log.info("Performing scheduled removal of entity " + entityBean.getId());
+					mapper.deleteEntity(entityBean.getId());
+					break;
+				}
 			}
-			Date nextOp = getMinNextOpDate(entityInfo);
-			if (nextOp.before(ret))
+			Date nextOp = entityInfo.getScheduledOperationTime();
+			if (nextOp != null && nextOp.before(ret))
 				ret = nextOp;
 		}
 		return ret;
@@ -423,24 +428,11 @@ public class DBIdentities
 	private void disableInternal(EntityInformation entityInfo, BaseBean entityBean, IdentitiesMapper mapper)
 	{
 		entityInfo.setState(EntityState.disabled);
-		entityInfo.setTimeToDisableAdmin(null);
+		entityInfo.setScheduledOperation(null);
+		entityInfo.setScheduledOperationTime(null);
 		byte[] infoJson = entitySerializer.toJson(entityInfo);
 		entityBean.setContents(infoJson);
 		mapper.updateEntity(entityBean);
-	}
-	
-	private Date getMinNextOpDate(EntityInformation entityInfo)
-	{
-		Date ret = entityInfo.getTimeToDisableAdmin();
-		if (ret == null)
-			ret = new Date(Long.MAX_VALUE);
-		Date ttra = entityInfo.getTimeToRemoveAdmin();
-		if (ttra != null && ttra.before(ret))
-			ret = ttra;
-		Date ttru = entityInfo.getTimeToRemoveUser();
-		if (ttru != null && ttru.before(ret))
-			ret = ttru;
-		return ret;
 	}
 	
 	private boolean isSetAndAfter(Date now, Date date)
