@@ -11,18 +11,18 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.json.EntitySerializer;
 import pl.edu.icm.unity.db.mapper.IdentitiesMapper;
 import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.EntityInformation;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Handles import/export of entities table.
@@ -66,7 +66,7 @@ public class EntitiesIE extends AbstractIE
 			deserializeBaseBeanFromJson(input, bean);
 			JsonUtils.nextExpect(input, JsonToken.END_OBJECT);
 			
-			EntityState s = entitySerializer.fromJson(bean.getContents());
+			EntityInformation s = entitySerializer.fromJson(bean.getContents());
 			bean.setContents(entitySerializer.toJson(s));
 			dbIdentities.insertEntity(bean, sql);
 		}

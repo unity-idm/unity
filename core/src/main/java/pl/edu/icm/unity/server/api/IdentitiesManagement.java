@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.server.api;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -109,6 +110,22 @@ public interface IdentitiesManagement
 	 */
 	public void setEntityStatus(EntityParam toChange, EntityState state) 
 			throws EngineException;
+
+	
+	/**
+	 * Schedules an operation to be invoked at a given time on an entity. 
+	 * Authorization depends on the operation: the {@link EntityScheduledOperation#REMOVAL_AFTER_GRACE_PERIOD}
+	 * requires only the attributeModify capability (allowed for selfAccess), 
+	 * other require regular identityModify capability (not assigned for self access).
+	 * 
+	 * @param toChange
+	 * @param changeTime
+	 * @param operation
+	 * @throws EngineException
+	 */
+	public void scheduleEntityChange(EntityParam toChange, Date changeTime, EntityScheduledOperation operation) 
+			throws EngineException;
+	
 	
 	/**
 	 * Returns information about an entity along with its all identities with authorization in '/'.

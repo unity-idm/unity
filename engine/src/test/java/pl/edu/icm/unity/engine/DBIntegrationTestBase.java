@@ -85,7 +85,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 				"For tests", 5, 10, -1, 30*60);
 	}
 	
-	protected void createUsernameUser(String role) throws Exception
+	protected Identity createUsernameUser(String role) throws Exception
 	{
 		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user1"), 
 				"cr-pass", EntityState.valid, false);
@@ -97,6 +97,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 				"/", AttributeVisibility.local, role);
 			attrsMan.setAttribute(new EntityParam(added1), sa, false);
 		}
+		return added1;
 	}
 	
 	protected void createCertUser() throws EngineException

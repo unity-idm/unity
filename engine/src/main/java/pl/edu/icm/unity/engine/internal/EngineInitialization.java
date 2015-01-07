@@ -14,6 +14,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -149,6 +150,8 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private EndpointsUpdater updater;
 	@Autowired
+	EntitiesScheduledUpdater entitiesUpdater;
+	@Autowired
 	private AttributeStatementsCleaner attributeStatementsCleaner;
 	@Autowired
 	@Qualifier("insecure")
@@ -274,6 +277,25 @@ public class EngineInitialization extends LifecycleBase
 		};
 		executors.getService().scheduleWithFixedDelay(expiredIdentitiesCleaner, 
 				interval*100, interval*100, TimeUnit.SECONDS);
+		
+		
+		Runnable entitiesUpdaterTask = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					Date nextUpdate = entitiesUpdater.updateEntities();
+					executors.getService().schedule(this, 
+						nextUpdate.getTime()-System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+				} catch (Exception e)
+				{
+					log.error("Can't perform the scheduled entity operations", e);
+				}
+			}			
+		};
+		executors.getService().schedule(entitiesUpdaterTask, (int)(interval*0.5), TimeUnit.SECONDS);
 	}
 	
 	public void initializeDatabaseContents()

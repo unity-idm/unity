@@ -144,6 +144,7 @@
 	<bean class="pl.edu.icm.unity.engine.internal.TokensManagementImpl"/>
 	<bean class="pl.edu.icm.unity.engine.internal.SessionManagementImpl"/>
 	<bean class="pl.edu.icm.unity.engine.internal.AuthenticatorsManagementImpl"/>
+	<bean class="pl.edu.icm.unity.engine.internal.EntitiesScheduledUpdater"/>
 	
 	<bean primary="true" class="pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl"/>
 	<bean primary="false" name="noauthz" class="pl.edu.icm.unity.engine.authz.InternalNoAuthzImpl"/>

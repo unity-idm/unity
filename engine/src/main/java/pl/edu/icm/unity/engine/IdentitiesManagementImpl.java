@@ -33,6 +33,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.api.EntityScheduledOperation;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
@@ -278,7 +279,10 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			throws EngineException
 	{
 		toChange.validateInitialization();
-		
+		if (status == EntityState.onlyLoginPermitted)
+			throw new IllegalArgumentException("The new entity status 'only login permitted' "
+					+ "can be only set as a side effect of scheduling an account "
+					+ "removal with a grace period.");
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
@@ -566,5 +570,29 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		}
 		
 		return new CredentialInfo(credentialRequirementId, credentialsState);
+	}
+	
+
+	@Override
+	public void scheduleEntityChange(EntityParam toChange, Date changeTime,
+			EntityScheduledOperation operation) throws EngineException
+	{
+		toChange.validateInitialization();
+		SqlSession sqlMap = db.getSqlSession(true);
+		try
+		{
+			long entityId = idResolver.getEntityId(toChange, sqlMap);
+
+			AuthzCapability requiredCap = (operation == EntityScheduledOperation.REMOVAL_AFTER_GRACE_PERIOD) ?
+					AuthzCapability.attributeModify : AuthzCapability.identityModify;
+			authz.checkAuthorization(authz.isSelf(entityId), requiredCap);
+			
+			dbIdentities.setScheduledRemovalStatus(entityId, changeTime, operation, sqlMap);
+			
+			sqlMap.commit();
+		} finally
+		{
+			db.releaseSqlSession(sqlMap);
+		}
 	}
 }

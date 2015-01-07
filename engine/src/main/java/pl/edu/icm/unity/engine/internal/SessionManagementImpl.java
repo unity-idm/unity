@@ -11,10 +11,13 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.db.DBIdentities;
+import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -45,6 +48,8 @@ public class SessionManagementImpl implements SessionManagement
 	private TokensManagement tokensManagement;
 	private LoginToHttpSessionBinder sessionBinder;
 	private SessionParticipantTypesRegistry participantTypesRegistry;
+	private DBIdentities dbIdentities;
+	private DBSessionManager db;
 	
 	/**
 	 * map of timestamps indexed by session ids, when the last activity update was written to DB.
@@ -54,11 +59,14 @@ public class SessionManagementImpl implements SessionManagement
 	@Autowired
 	public SessionManagementImpl(TokensManagement tokensManagement, ExecutorsService execService,
 			LoginToHttpSessionBinder sessionBinder, 
-			SessionParticipantTypesRegistry participantTypesRegistry)
+			SessionParticipantTypesRegistry participantTypesRegistry, 
+			DBIdentities dbIdentities, DBSessionManager db)
 	{
 		this.tokensManagement = tokensManagement;
 		this.sessionBinder = sessionBinder;
 		this.participantTypesRegistry = participantTypesRegistry;
+		this.dbIdentities = dbIdentities;
+		this.db = db;
 		execService.getService().scheduleWithFixedDelay(new TerminateInactiveSessions(), 
 				20, 30, TimeUnit.SECONDS);
 	}
@@ -103,6 +111,23 @@ public class SessionManagementImpl implements SessionManagement
 		} finally
 		{
 			tokensManagement.closeTokenTransaction(transaction);
+			cleanScheduledRemoval(loggedEntity);
+		}
+	}
+	
+	private void cleanScheduledRemoval(long loggedEntity)
+	{
+		SqlSession sqlMap = db.getSqlSession(true);
+		try
+		{
+			dbIdentities.clearScheduledRemovalStatus(loggedEntity, sqlMap);
+			sqlMap.commit();
+		} catch (EngineException e)
+		{
+			log.error("Can not clear automatic removal (if any) from the user being logged in", e);
+		} finally
+		{
+			db.releaseSqlSession(sqlMap);
 		}
 	}
 	

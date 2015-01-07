@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.types.basic;
 
+import pl.edu.icm.unity.types.EntityInformation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 
@@ -14,16 +15,21 @@ import pl.edu.icm.unity.types.authn.CredentialInfo;
 public class Entity
 {
 	private Long id;
-	private EntityState state;
+	private EntityInformation information;
 	private Identity[] identities;
 	private CredentialInfo credentialInfo;
 	
-	public Entity(Long id, Identity[] identities, EntityState state, CredentialInfo credentialInfo)
+	public Entity(Long id, Identity[] identities, EntityInformation info, CredentialInfo credentialInfo)
 	{
 		this.id = id;
 		this.identities = identities;
 		this.credentialInfo = credentialInfo;
-		this.state = state;
+		this.information = info;
+	}
+
+	public Entity(Long id, Identity[] identities, EntityState state, CredentialInfo credentialInfo)
+	{
+		this(id, identities, new EntityInformation(state), credentialInfo);
 	}
 
 	public Long getId()
@@ -42,7 +48,7 @@ public class Entity
 
 	public EntityState getState()
 	{
-		return state;
+		return information.getState();
 	}
 
 	@Override
