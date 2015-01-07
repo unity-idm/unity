@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.confirmations;
 
-import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
@@ -13,7 +11,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
  * 
  * @author P. Piernik
  */
-@Component
 public interface ConfirmationManager
 {
 	public void sendConfirmationRequest(String recipientAddress, String type, String state) throws EngineException;

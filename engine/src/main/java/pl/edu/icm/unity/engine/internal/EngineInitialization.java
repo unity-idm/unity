@@ -27,16 +27,19 @@ import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.confirmations.ConfirmationServlet;
 import pl.edu.icm.unity.db.ContentsUpdater;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.InitDB;
+import pl.edu.icm.unity.engine.SharedEndpointManagementImpl;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.endpoints.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
@@ -169,7 +172,10 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	@Qualifier("insecure")
 	private MessageTemplateManagement msgTemplatesManagement;
-	
+	@Autowired
+	private SharedEndpointManagementImpl sharedEndpointManagement;
+	@Autowired
+	private ConfirmationServlet confirmationServlet;
 	
 	
 	private long endpointsLoadTime;
@@ -185,6 +191,7 @@ public class EngineInitialization extends LifecycleBase
 		
 		initializeDatabaseContents();
 		initializeBackgroundTasks();
+		deployConfirmationServlet();
 		super.start();
 	}
 	
@@ -290,6 +297,19 @@ public class EngineInitialization extends LifecycleBase
 		initializeEndpoints();
 		initializeNotifications();
 		startLogConfigurationMonitoring();
+	}
+	
+	private void deployConfirmationServlet()
+	{
+		log.info("Deploing confirmation servlet");
+		ServletHolder holder = new ServletHolder(confirmationServlet.getServiceServlet());
+		try
+		{
+			sharedEndpointManagement.deployInternalEndpointServlet(ConfirmationServlet.SERVLET_PATH, holder, true);	
+		} catch (EngineException e)
+		{
+			throw new InternalException("Cannot deploy internal confirmation servlet", e);
+		}
 	}
 	
 	private void initializeMsgTemplates()

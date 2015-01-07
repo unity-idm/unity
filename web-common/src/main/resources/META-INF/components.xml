@@ -6,8 +6,8 @@
 
 	<context:annotation-config/>
 
-	<bean scope="prototype" id="ConfirmationUI" class="pl.edu.icm.unity.confirmations.ConfirmationUI" />
-	<bean class="pl.edu.icm.unity.confirmations.ConfirmationInitializer" />
+	<bean scope="prototype" id="ConfirmationUI" class="pl.edu.icm.unity.webui.confirmations.ConfirmationUI" />
+	<bean class="pl.edu.icm.unity.webui.confirmations.ConfirmationServletImpl" />
 
 	<bean class="pl.edu.icm.unity.webui.authn.extensions.PasswordRetrievalFactory"/>
 	<bean class="pl.edu.icm.unity.webui.authn.extensions.TLSRetrievalFactory"/>

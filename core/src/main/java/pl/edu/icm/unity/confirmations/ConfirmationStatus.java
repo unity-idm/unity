@@ -33,13 +33,13 @@ public class ConfirmationStatus
 		this.userMessageKey = userMessage;
 	}
 
-	public String getUserMessage()
+	public String getUserMessageKey()
 	{
 		return userMessageKey;
 	}
 
-	public void setUserMessage(String userMessage)
+	public void setUserMessageKey(String userMessageKey)
 	{
-		this.userMessageKey = userMessage;
+		this.userMessageKey = userMessageKey;
 	}
 }

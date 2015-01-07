@@ -161,6 +161,7 @@
 	<bean class="pl.edu.icm.unity.engine.confirmations.facilities.AttributeFacility" />
 	<bean class="pl.edu.icm.unity.engine.confirmations.facilities.IdentityFacility" />
 	<bean class="pl.edu.icm.unity.engine.confirmations.facilities.AttributeFromRegistrationRequestFacility" />
+	<bean class="pl.edu.icm.unity.engine.confirmations.facilities.IdentityFromRegistrationRequestFacility" />
 	<bean class="pl.edu.icm.unity.engine.confirmations.ConfirmationManagerImpl" />
 	
 	<bean class="pl.edu.icm.unity.engine.registrations.InternalRegistrationManagment"/>

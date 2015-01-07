@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
+import pl.edu.icm.unity.confirmations.ConfirmationServlet;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.ConfirmationTemplateDef;
 import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
@@ -108,13 +109,13 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			throw new WrongArgumentException("Illegal type of template");
 
 		
-		// TODO BUILD CONFIRMATION LINK/ CONFIRMATION ENDPOINT
 		String link = advertisedAddress.toExternalForm()
-				+ SharedEndpointManagementImpl.CONTEXT_PATH + "/confirmation";
+				+ SharedEndpointManagementImpl.CONTEXT_PATH + ConfirmationServlet.SERVLET_PATH;
 		HashMap<String, String> params = new HashMap<>();
-		params.put(ConfirmationTemplateDef.CONFIRMATION_LINK, link + "?token=" + token);
-	
-		log.debug("Send confirmation email to " + recipientAddress + "with token = "
+		params.put(ConfirmationTemplateDef.CONFIRMATION_LINK, link + "?"
+				+ ConfirmationServlet.CONFIRMATION_TOKEN_ARG + "=" + token);
+
+		log.debug("Send confirmation request to " + recipientAddress + "with token = "
 				+ token);
 
 		notificationProducer.sendNotification(recipientAddress, channelName, templateId,
@@ -176,16 +177,19 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	@Override
 	public ConfirmationStatus proccessConfirmation(String token) throws EngineException
 	{
-
+		if (token == null)
+			return new ConfirmationStatus(false, "ConfirmationStatus.invalidToken");
+		
 		Token tk = null;
 		try
 		{
 			tk = tokensMan.getTokenById(ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token);
 		} catch (WrongArgumentException e)
 		{
-			log.error("Illegal token");
-			throw e;
+			log.error("Illegal token", e);
+			return new ConfirmationStatus(false, "ConfirmationStatus.invalidToken");
 		}
+		
 
 		Date today = new Date();
 		if (tk.getExpires().compareTo(today) < 0)

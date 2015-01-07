@@ -25,7 +25,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 
 /**
- * Verifiable attribute from registration request facility.
+ * Attribute from registration request confirmation facility.
  * 
  * @author P. Piernik
  * 
@@ -53,9 +53,15 @@ public class AttributeFromRegistrationRequestFacility implements ConfirmationFac
 	}
 
 	@Override
-	public String getId()
+	public String getName()
 	{
 		return AttribiuteFromRegState.FACILITY_ID;
+	}
+	
+	@Override
+	public String getDescription()
+	{
+		return "Confirms attribute from registration request with verifiable value";
 	}
 
 	@Override

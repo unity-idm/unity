@@ -5,9 +5,15 @@
 package pl.edu.icm.unity.confirmations;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.DescribedObject;
 
-public interface ConfirmationFacility
+/**
+ * Implementations are providing confirmation functionality.
+ *
+ * @author P. Piernik
+ *
+ */
+public interface ConfirmationFacility extends DescribedObject
 {
 	public ConfirmationStatus confirm(String state) throws EngineException;
-	public String getId();
 }

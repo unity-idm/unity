@@ -17,13 +17,12 @@ import pl.edu.icm.unity.confirmations.states.AttribiuteState;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.engine.internal.AttributesHelper;
-import pl.edu.icm.unity.engine.registrations.InternalRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 
 /**
- * Verifiable attribute facility.
+ * Attribute confirmation facility.
  * 
  * @author P. Piernik
  */
@@ -44,15 +43,20 @@ public class AttributeFacility implements ConfirmationFacility
 	}
 
 	@Override
-	public String getId()
+	public String getName()
 	{
 		return AttribiuteState.FACILITY_ID;
+	}
+	
+	@Override
+	public String getDescription()
+	{
+		return "Confirms attribute with verifiable value";
 	}
 
 	@Override
 	public ConfirmationStatus confirm(String state) throws EngineException
 	{
-		log.debug("Attribiute confirmation");
 		AttribiuteState attrState = new AttribiuteState();
 		attrState.setSerializedConfiguration(state);
 

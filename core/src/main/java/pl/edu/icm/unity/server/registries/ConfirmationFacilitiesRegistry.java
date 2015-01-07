@@ -29,7 +29,7 @@ public class ConfirmationFacilitiesRegistry extends TypesRegistryBase<Confirmati
 	@Override
 	protected String getId(ConfirmationFacility from)
 	{
-		return from.getId();
+		return from.getName();
 	}
 
 }

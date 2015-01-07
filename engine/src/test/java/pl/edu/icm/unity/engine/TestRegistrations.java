@@ -24,6 +24,7 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -335,20 +336,29 @@ public class TestRegistrations extends DBIntegrationTestBase
 		clearDB();
 		idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test"));
 		
-		initAndCreateForm(false, "attrs[\"email\"][0] == \"foo@a.b\"");
+//		initAndCreateForm(false, "attrs[\"email\"][0] == \"foo@a.b\"");
+//		request = getRequest();
+//		registrationsMan.submitRegistrationRequest(request, true);
+//		fromDb = registrationsMan.getRegistrationRequests().get(0);
+//		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
+//		clearDB();
+//		idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test"));
+//		
+//		initAndCreateForm(false, "attrs[\"email\"][0] == \"NoAccept\"");
+//		request = getRequest();
+//		registrationsMan.submitRegistrationRequest(request, true);
+//		fromDb = registrationsMan.getRegistrationRequests().get(0);
+//		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
+//		clearDB();
+		
+		
+		initAndCreateForm(false, "attr[\"verifiableEmail\"].verified == false");
 		request = getRequest();
 		registrationsMan.submitRegistrationRequest(request, true);
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
 		clearDB();
 		idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test"));
-		
-		initAndCreateForm(false, "attrs[\"email\"][0] == \"NoAccept\"");
-		request = getRequest();
-		registrationsMan.submitRegistrationRequest(request, true);
-		fromDb = registrationsMan.getRegistrationRequests().get(0);
-		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
-		clearDB();
 		
 		initAndCreateForm(false, "agrs[0] == true");
 		request = getRequest();
@@ -386,7 +396,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		form.setAttributeClassAssignments(Collections.singletonList(acA));
 		
 		AttributeRegistrationParam attrReg = new AttributeRegistrationParam();
-		attrReg.setAttributeType("email");
+		attrReg.setAttributeType("verifiableEmail");
 		attrReg.setDescription("description");
 		attrReg.setGroup("/");
 		attrReg.setLabel("label");
@@ -443,7 +453,8 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		request.setAgreements(Collections.singletonList(new Selection(true)));
 		List<Attribute<?>> attrs = new ArrayList<Attribute<?>>();
-		attrs.add(new StringAttribute("email", "/", AttributeVisibility.full, "foo@a.b"));
+		//	attrs.add(new StringAttribute("verifiabeEmail", "/", AttributeVisibility.full, "foo@a.b"));
+		attrs.add(new VerifiableEmailAttribute("verifiableEmail", "/", AttributeVisibility.full, "foo@a.b"));
 		request.setAttributes(attrs);
 		request.setComments("comments");
 		CredentialParamValue cp = new CredentialParamValue();

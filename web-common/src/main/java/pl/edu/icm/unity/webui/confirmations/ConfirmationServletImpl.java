@@ -1,17 +1,18 @@
-package pl.edu.icm.unity.confirmations;
+/*
+ * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+package pl.edu.icm.unity.webui.confirmations;
 
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-import org.eclipse.jetty.servlet.ServletHolder;
+import javax.servlet.Servlet;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.ServerInitializer;
+import pl.edu.icm.unity.confirmations.ConfirmationServlet;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.VaadinUIProvider;
 import pl.edu.icm.unity.webui.WebSession;
@@ -24,45 +25,29 @@ import com.vaadin.server.SessionInitListener;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.VaadinServletService;
 
+/**
+ * Contains confirmation servlet implementation
+ * @author P. Piernik
+ *
+ */
 @Component
-public class ConfirmationInitializer implements ServerInitializer
+public class ConfirmationServletImpl implements ConfirmationServlet
 {
-	private static Logger log = Log.getLogger(Log.U_SERVER, ConfirmationInitializer.class);
-	public static final String SERVLET_PATH = "/confirmation";	
-	public static final String NAME = "confirmationInitializer";	
 	private ApplicationContext applicationContext;
 
-	private SharedEndpointManagement sharedEndpointManagement;
-
 	@Autowired
-	public ConfirmationInitializer(ApplicationContext applicationContext,
-			SharedEndpointManagement sharedEndpointManagement)
+	public ConfirmationServletImpl(ApplicationContext applicationContext)
 	{
 		this.applicationContext = applicationContext;
-		this.sharedEndpointManagement = sharedEndpointManagement;
 	}
-
+	
 	@Override
-	public void run()
+	public Servlet getServiceServlet()
 	{
-		VaadinServlet emailServlet = new ConfirmationServlet();	
-		ServletHolder holder = new ServletHolder(emailServlet);
-		try
-		{
-			sharedEndpointManagement.deployInternalEndpointServlet(SERVLET_PATH, holder, true);	
-		} catch (EngineException e)
-		{
-			log.error("Cannot deploy internal email verificator servlet", e);
-		}
+		return new ConfirmationVaadinServlet();
 	}
-
-	@Override
-	public String getName()
-	{
-		return NAME;
-	}
-
-	public class ConfirmationServlet extends VaadinServlet
+	
+	private class ConfirmationVaadinServlet extends VaadinServlet
 	{
 				
 		@Override
@@ -97,4 +82,5 @@ public class ConfirmationInitializer implements ServerInitializer
 			return service;
 		}
 	}
+
 }
