@@ -51,6 +51,11 @@ public class Entity
 		return information.getState();
 	}
 
+	public EntityInformation getEntityInformation()
+	{
+		return information;
+	}
+	
 	@Override
 	public int hashCode()
 	{

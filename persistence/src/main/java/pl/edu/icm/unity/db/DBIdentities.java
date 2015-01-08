@@ -344,6 +344,8 @@ public class DBIdentities
 			SqlSession sqlMap) 
 			throws IllegalIdentityValueException, IllegalTypeException
 	{
+		if (operation != null && when == null)
+			throw new IllegalArgumentException("Date must be set for the scheduled operation");
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
 		BaseBean bean = mapper.getEntityById(entityId);
 		EntityInformation info = entitySerializer.fromJson(bean.getContents());

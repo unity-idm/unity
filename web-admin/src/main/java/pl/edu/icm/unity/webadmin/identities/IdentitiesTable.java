@@ -35,7 +35,7 @@ import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
-import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.EntityInformation;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -75,7 +75,8 @@ public class IdentitiesTable extends TreeTable
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesTable.class);
 	
-	enum BaseColumnId {entity, type, identity, status, local, dynamic, credReq, remoteIdP, profile, target, realm};
+	enum BaseColumnId {entity, type, identity, status, local, dynamic, credReq, remoteIdP, profile, target, realm,
+		scheduledOperation};
 	public static final String ATTR_COL_PREFIX = "a::";
 	public static final String ATTR_ROOT_COL_PREFIX = ATTR_COL_PREFIX + "root::";
 	public static final String ATTR_CURRENT_COL_PREFIX = ATTR_COL_PREFIX + "current::";
@@ -131,6 +132,7 @@ public class IdentitiesTable extends TreeTable
 		addContainerProperty(BaseColumnId.realm.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.remoteIdP.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.profile.toString(), String.class, "");
+		addContainerProperty(BaseColumnId.scheduledOperation.toString(), String.class, "");
 
 		setColumnHeader(BaseColumnId.entity.toString(), msg.getMessage("Identities.entity"));
 		setColumnHeader(BaseColumnId.type.toString(), msg.getMessage("Identities.type"));
@@ -143,6 +145,8 @@ public class IdentitiesTable extends TreeTable
 		setColumnHeader(BaseColumnId.realm.toString(), msg.getMessage("Identities.realm"));
 		setColumnHeader(BaseColumnId.remoteIdP.toString(), msg.getMessage("Identities.remoteIdP"));
 		setColumnHeader(BaseColumnId.profile.toString(), msg.getMessage("Identities.profile"));
+		setColumnHeader(BaseColumnId.scheduledOperation.toString(), 
+				msg.getMessage("Identities.scheduledOperation"));
 		
 		setSelectable(true);
 		setMultiSelect(true);	
@@ -156,6 +160,7 @@ public class IdentitiesTable extends TreeTable
 		setColumnCollapsed(BaseColumnId.realm.toString(), true);
 		setColumnCollapsed(BaseColumnId.remoteIdP.toString(), true);
 		setColumnCollapsed(BaseColumnId.profile.toString(), true);
+		setColumnCollapsed(BaseColumnId.scheduledOperation.toString(), true);
 
 		setColumnWidth(BaseColumnId.entity.toString(), 200);
 		setColumnWidth(BaseColumnId.type.toString(), 100);
@@ -167,6 +172,7 @@ public class IdentitiesTable extends TreeTable
 		setColumnWidth(BaseColumnId.realm.toString(), 100);
 		setColumnWidth(BaseColumnId.remoteIdP.toString(), 200);
 		setColumnWidth(BaseColumnId.profile.toString(), 100);
+		setColumnWidth(BaseColumnId.scheduledOperation.toString(), 200);
 
 		loadPreferences();
 
@@ -568,6 +574,13 @@ public class IdentitiesTable extends TreeTable
 				ent.getCredentialInfo().getCredentialRequirementId());
 		newItem.getItemProperty(BaseColumnId.status.toString()).setValue(
 				msg.getMessage("EntityState."+ent.getState().name()));
+		EntityInformation entInfo = ent.getEntityInformation();
+		String scheduledOpTxt = entInfo.getScheduledOperation() == null ? "" : 
+			msg.getMessage("EntityScheduledOperationWithDateShort."+
+				entInfo.getScheduledOperation().name(),
+				entInfo.getScheduledOperationTime());
+		newItem.getItemProperty(BaseColumnId.scheduledOperation.toString()).setValue(scheduledOpTxt);
+		
 		if (id != null)
 		{
 			newItem.getItemProperty(BaseColumnId.type.toString()).setValue(
@@ -701,11 +714,14 @@ public class IdentitiesTable extends TreeTable
 		}
 	}
 
-	private boolean setEntityStatus(long entityId, EntityState newState)
+	private boolean setEntityStatus(long entityId, EntityInformation newState)
 	{
 		try
 		{
-			identitiesMan.setEntityStatus(new EntityParam(entityId), newState);
+			EntityParam entity = new EntityParam(entityId);
+			identitiesMan.setEntityStatus(entity, newState.getState());
+			identitiesMan.scheduleEntityChange(entity, newState.getScheduledOperationTime(), 
+					newState.getScheduledOperation());
 			refresh();
 			return true;
 		} catch (Exception e)
@@ -938,13 +954,11 @@ public class IdentitiesTable extends TreeTable
 		public void handleAction(Object sender, Object target)
 		{
 			final EntityWithLabel entity = getSingleSelect(target);
-			EntityState currentState = data.get(entity.getEntity().getId()).getEntity()
-					.getState();
-			new ChangeEntityStateDialog(msg, entity, currentState,
+			new ChangeEntityStateDialog(msg, entity, 
 					new ChangeEntityStateDialog.Callback()
 					{
 						@Override
-						public boolean onChanged(EntityState newState)
+						public boolean onChanged(EntityInformation newState)
 						{
 							return setEntityStatus(entity.getEntity()
 									.getId(), newState);
