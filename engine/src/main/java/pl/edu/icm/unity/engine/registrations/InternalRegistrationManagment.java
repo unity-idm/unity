@@ -232,6 +232,20 @@ public class InternalRegistrationManagment
 		}
 	}
 	
+	public RegistrationRequestState getRequest(String requestId) throws EngineException
+	{
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			RegistrationRequestState ret = requestDB.get(requestId, sql);
+			sql.commit();
+			return ret;
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
+	}
+	
 	public void validateRequestContents(RegistrationForm form, RegistrationRequest request, boolean doCredentialCheckAndUpdate,
 			SqlSession sql) throws EngineException
 	{

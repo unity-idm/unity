@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.confirmations.facilities;
 
+import java.util.List;
+
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,16 +71,28 @@ public class AttributeFromRegistrationRequestFacility implements ConfirmationFac
 	{
 		AttribiuteFromRegState attrState = new AttribiuteFromRegState();
 		attrState.setSerializedConfiguration(state);
-
-		SqlSession sql = db.getSqlSession(false);
+		String requestId = attrState.getOwner();
+		String attrName = attrState.getType();
+		
+				
+		RegistrationRequestState reqState = null;
 		try
 		{
-			RegistrationRequestState reqState = requestDB
-					.get(attrState.getOwner(), sql);
+			reqState = internalRegistrationManagment.getRequest(requestId);
+
+		} catch (EngineException e)
+		{
+			return new ConfirmationStatus(false, "ConfirmationStatus.requestDeleted"
+					+ attrState.getType());
+		}
+		
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
 			RegistrationRequest req = reqState.getRequest();
 			for (Attribute<?> attr : req.getAttributes())
 			{
-				if (attr.getName().equals(attrState.getType())
+				if (attr.getName().equals(attrName)
 						&& attr.getGroupPath().equals(attrState.getGroup()))
 				{
 					Attribute<VerifiableElement> vattr = (Attribute<VerifiableElement>) attr;
@@ -92,8 +106,7 @@ public class AttributeFromRegistrationRequestFacility implements ConfirmationFac
 
 				}
 			}
-
-			requestDB.update(attrState.getOwner(), reqState, sql);
+			
 			if (internalRegistrationManagment.checkAutoAcceptCondition(req))
 			{
 				//TODO
@@ -103,6 +116,9 @@ public class AttributeFromRegistrationRequestFacility implements ConfirmationFac
 				reqState.getAdminComments().add(internalComment);
 				internalRegistrationManagment.acceptRequest(form, reqState, null,
 						internalComment, sql);
+			} else
+			{
+				requestDB.update(requestId, reqState, sql);
 			}
 
 		} finally
@@ -112,5 +128,5 @@ public class AttributeFromRegistrationRequestFacility implements ConfirmationFac
 
 		return new ConfirmationStatus(true, "SUCCESSFULL CONFIRM ATTRIBUTE "
 				+ attrState.getType());
-	}
+	}	
 }

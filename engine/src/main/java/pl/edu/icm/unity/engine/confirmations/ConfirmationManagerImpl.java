@@ -17,7 +17,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
@@ -41,8 +40,6 @@ import pl.edu.icm.unity.server.registries.ConfirmationFacilitiesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Confirmation manager
@@ -115,7 +112,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		params.put(ConfirmationTemplateDef.CONFIRMATION_LINK, link + "?"
 				+ ConfirmationServlet.CONFIRMATION_TOKEN_ARG + "=" + token);
 
-		log.debug("Send confirmation request to " + recipientAddress + "with token = "
+		log.debug("Send confirmation request to " + recipientAddress + " with token = "
 				+ token);
 
 		notificationProducer.sendNotification(recipientAddress, channelName, templateId,
@@ -186,14 +183,14 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			tk = tokensMan.getTokenById(ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token);
 		} catch (WrongArgumentException e)
 		{
-			log.error("Illegal token", e);
+			log.error("Illegal token used during confirmation", e);
 			return new ConfirmationStatus(false, "ConfirmationStatus.invalidToken");
 		}
 		
 
 		Date today = new Date();
 		if (tk.getExpires().compareTo(today) < 0)
-			throw new WrongArgumentException("Token expired");
+			return new ConfirmationStatus(false, "ConfirmationStatus.expiredToken");
 
 		String rowState = new String(tk.getContents());
 		BaseConfirmationState state = new BaseConfirmationState();
@@ -205,13 +202,13 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			facility = confirmationFacilitiesRegistry.getByName(state.getFacilityId());
 		} catch (IllegalTypeException e)
 		{
-			throw new InternalException("Can't find verificator", e);
+			throw new InternalException("Can't find facility with name " + state.getFacilityId(), e);
 		}
 		
+		ConfirmationStatus status = facility.confirm(rowState);
 		tokensMan.removeToken(ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token);
-		
-		return facility.confirm(rowState);
-
+				
+		return status;
 	}
 
 }
