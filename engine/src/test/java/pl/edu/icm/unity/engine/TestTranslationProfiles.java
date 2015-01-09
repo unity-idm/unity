@@ -9,6 +9,7 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.stdext.tactions.in.EntityChangeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapAttributeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapGroupActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapIdentityActionFactory;
@@ -49,6 +51,7 @@ import pl.edu.icm.unity.stdext.tactions.out.CreateAttributeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.out.CreatePersistentAttributeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.out.CreatePersistentIdentityActionFactory;
 import pl.edu.icm.unity.stdext.tactions.out.FilterAttributeActionFactory;
+import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -177,6 +180,9 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 				"o", "/A", "groups",
 				AttributeVisibility.full.toString(), AttributeEffectMode.CREATE_OR_UPDATE.toString()); 
 		rules.add(new InputTranslationRule(action3, new TranslationCondition()));
+		InputTranslationAction action4 = (InputTranslationAction) tactionReg.getByName(EntityChangeActionFactory.NAME).getInstance(
+				EntityScheduledOperation.FORCED_REMOVAL.toString(), "1000"); 
+		rules.add(new InputTranslationRule(action4, new TranslationCondition()));
 		
 		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules, ProfileMode.UPDATE_ONLY);
 		
@@ -191,6 +197,10 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		
 		EntityParam ep = new EntityParam(new IdentityTaV(X500Identity.ID, "CN=foo,O=ICM,UID=someUser"));
 		Entity entity = idsMan.getEntity(ep);
+		assertEquals(EntityScheduledOperation.FORCED_REMOVAL, 
+				entity.getEntityInformation().getScheduledOperation());
+		assertEquals(new Date(1000), 
+				entity.getEntityInformation().getScheduledOperationTime());
 		assertEquals(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				entity.getCredentialInfo().getCredentialRequirementId());
 		assertEquals(2, entity.getIdentities().length);

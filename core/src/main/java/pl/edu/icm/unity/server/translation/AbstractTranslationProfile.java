@@ -116,7 +116,7 @@ public abstract class AbstractTranslationProfile<T extends AbstractTranslationRu
 		ArrayNode jsonAParams = (ArrayNode) jsonAction.get("parameters");
 		String[] parameters = new String[jsonAParams.size()];
 		for (int j=0; j<jsonAParams.size(); j++)
-			parameters[j] = jsonAParams.get(j).asText();
+			parameters[j] = jsonAParams.get(j).isNull() ? null : jsonAParams.get(j).asText();
 		return parameters;
 	}
 }

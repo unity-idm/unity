@@ -43,10 +43,10 @@ public class BaseEnumActionParameterComponent extends ComboBox implements Action
 	{
 		this.msg = msg;
 		this.desc = desc;
-		setNullSelectionAllowed(false);
+		setNullSelectionAllowed(desc.getMinValues() != 1);
 		if (def != null)
 			select(def);
-		setRequired(true);
+		setRequired(desc.getMinValues() == 1);
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
 		setCaption(desc.getName() + ":");
 	}
@@ -64,7 +64,7 @@ public class BaseEnumActionParameterComponent extends ComboBox implements Action
 	@Override
 	public void setActionValue(String value)
 	{
-		if (!getItemIds().contains(value))
+		if (!getItemIds().contains(value) && value != null)
 		{
 			String def = (String) getItemIds().iterator().next();
 			setComponentError(new UserError(msg.getMessage("TranslationProfileEditor.outdatedValue", 

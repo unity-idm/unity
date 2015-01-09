@@ -12,7 +12,7 @@ package pl.edu.icm.unity.server.translation;
  */
 public class ActionParameterDesc
 {
-	public enum Type {UNITY_ATTRIBUTE, EXPRESSION, UNITY_GROUP, UNITY_ID_TYPE, UNITY_CRED_REQ, ENUM}
+	public enum Type {UNITY_ATTRIBUTE, EXPRESSION, UNITY_GROUP, UNITY_ID_TYPE, UNITY_CRED_REQ, ENUM, DAYS}
 	
 	private String name;
 	private String descriptionKey;

@@ -47,7 +47,7 @@ public class AttributeActionParameterComponent extends AttributeSelectionComboBo
 	@Override
 	public void setActionValue(String value)
 	{
-		if (!getItemIds().contains(value))
+		if (!getItemIds().contains(value) && value != null)
 		{
 			String def = (String) getItemIds().iterator().next();
 			setComponentError(new UserError(msg.getMessage("TranslationProfileEditor.outdatedValue", 

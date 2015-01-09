@@ -13,9 +13,10 @@ import java.util.List;
  */
 public class MappingResult
 {
-	private List<MappedGroup> groups = new ArrayList<MappedGroup>();
-	private List<MappedIdentity> identities = new ArrayList<MappedIdentity>();
-	private List<MappedAttribute> attributes = new ArrayList<MappedAttribute>();
+	private List<MappedGroup> groups = new ArrayList<>();
+	private List<MappedIdentity> identities = new ArrayList<>();
+	private List<MappedAttribute> attributes = new ArrayList<>();
+	private List<EntityChange> entityChanges = new ArrayList<>();
 	
 	public MappingResult()
 	{
@@ -36,6 +37,11 @@ public class MappingResult
 		attributes.add(attr);
 	}
 
+	public void addEntityChange(EntityChange change)
+	{
+		entityChanges.add(change);
+	}
+	
 	public List<MappedGroup> getGroups()
 	{
 		return groups;
@@ -51,10 +57,16 @@ public class MappingResult
 		return attributes;
 	}
 	
+	public List<EntityChange> getEntityChanges()
+	{
+		return entityChanges;
+	}
+
 	public void mergeWith(MappingResult result)
 	{
 		groups.addAll(result.getGroups());
 		identities.addAll(result.getIdentities());
 		attributes.addAll(result.getAttributes());
+		entityChanges.addAll(result.getEntityChanges());
 	}
 }

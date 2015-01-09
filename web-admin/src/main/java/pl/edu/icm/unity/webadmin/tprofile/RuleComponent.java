@@ -308,7 +308,7 @@ public class RuleComponent extends VerticalLayout
 		{
 			ActionParameterComponent p = getParameterComponent(params[i]);
 			p.setValidationVisible(false);
-			if (values != null && values.length > i && values[i] != null)
+			if (values != null && values.length > i)
 			{
 				p.setActionValue(values[i]);
 			}		
@@ -333,6 +333,8 @@ public class RuleComponent extends VerticalLayout
 			return new BaseEnumActionParameterComponent(param, msg, idTypes);
 		case EXPRESSION:
 			return new ExtensionActionParameterComponent(param, msg);
+		case DAYS:
+			return new DaysActionParameterComponent(param, msg);
 		default: 
 			return new DefaultActionParameterComponent(param, msg);
 		}

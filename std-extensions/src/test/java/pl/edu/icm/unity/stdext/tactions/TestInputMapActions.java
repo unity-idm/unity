@@ -8,6 +8,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.translation.in.AttributeEffectMode;
+import pl.edu.icm.unity.server.translation.in.EntityChange;
 import pl.edu.icm.unity.server.translation.in.GroupEffectMode;
 import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
@@ -27,9 +29,11 @@ import pl.edu.icm.unity.server.translation.in.MappedGroup;
 import pl.edu.icm.unity.server.translation.in.MappedIdentity;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.tactions.in.EntityChangeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapAttributeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapGroupActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapIdentityActionFactory;
+import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -100,5 +104,22 @@ public class TestInputMapActions
 		assertEquals(IdentityEffectMode.REQUIRE_MATCH, mi.getMode());
 		assertEquals("userName", mi.getIdentity().getTypeId());
 		assertEquals("a1-a2-idvalue", mi.getIdentity().getValue());
+	}
+	
+	@Test
+	public void testEntityChange() throws EngineException
+	{
+		EntityChangeActionFactory factory = new EntityChangeActionFactory();
+		InputTranslationAction mapAction = factory.getInstance(
+				EntityScheduledOperation.FORCED_REMOVAL.toString(), 
+				"10000");
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
+		
+		MappingResult result = mapAction.invoke(input, InputTranslationProfile.createMvelContext(input), 
+				"testProf");
+		
+		EntityChange mi = result.getEntityChanges().get(0);
+		assertEquals(EntityScheduledOperation.FORCED_REMOVAL, mi.getScheduledOperation());
+		assertEquals(new Date(10000L), mi.getScheduledTime());
 	}
 }
