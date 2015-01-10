@@ -29,7 +29,7 @@ public class HomeEndpointProperties extends PropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, HomeEndpointProperties.class);
 
-	public enum Components {credential, preferences, userDetails};
+	public enum Components {credential, preferences, userDetails, accountRemoval};
 	
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.userhome.";

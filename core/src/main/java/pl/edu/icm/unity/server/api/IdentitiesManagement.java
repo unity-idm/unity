@@ -115,9 +115,7 @@ public interface IdentitiesManagement
 	
 	/**
 	 * Schedules an operation to be invoked at a given time on an entity. 
-	 * Authorization depends on the operation: the {@link EntityScheduledOperation#REMOVAL_AFTER_GRACE_PERIOD}
-	 * requires only the attributeModify capability (allowed for selfAccess), 
-	 * other require regular identityModify capability (not assigned for self access).
+	 * Requires regular identityModify capability (not assigned for self access).
 	 * 
 	 * @param toChange
 	 * @param changeTime
@@ -127,6 +125,16 @@ public interface IdentitiesManagement
 	public void scheduleEntityChange(EntityParam toChange, Date changeTime, EntityScheduledOperation operation) 
 			throws EngineException;
 	
+	/**
+	 * Sets the entity in the {@link EntityState#onlyLoginPermitted} and schedules the entity removal at given 
+	 * time unless the user logs in before this time. 
+	 * Requires only the attributeModify capability (allowed for selfAccess).
+	 * 
+	 * @param toChange
+	 * @param changeTime
+	 * @throws EngineException
+	 */
+	public void scheduleRemovalByUser(EntityParam toChange, Date changeTime) throws EngineException;	
 	
 	/**
 	 * Returns information about an entity along with its all identities with authorization in '/'.

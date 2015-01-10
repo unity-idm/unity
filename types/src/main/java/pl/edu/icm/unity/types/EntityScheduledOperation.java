@@ -10,5 +10,5 @@ package pl.edu.icm.unity.types;
  */
 public enum EntityScheduledOperation
 {
-	FORCED_REMOVAL, REMOVAL_AFTER_GRACE_PERIOD, FORCED_DISABLE
+	REMOVE, DISABLE
 }

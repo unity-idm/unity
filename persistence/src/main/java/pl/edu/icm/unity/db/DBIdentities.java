@@ -333,15 +333,14 @@ public class DBIdentities
 		log.debug("Removing scheduled removal of an account [as the user is being logged] for entity " + 
 			entityId);
 		info.setState(EntityState.valid);
-		info.setScheduledOperation(null);
-		info.setScheduledOperationTime(null);
+		info.setRemovalByUserTime(null);
 		byte[] infoJson = entitySerializer.toJson(info);
 		bean.setContents(infoJson);
 		mapper.updateEntity(bean);
 	}
 
-	public void setScheduledRemovalStatus(long entityId, Date when, EntityScheduledOperation operation, 
-			SqlSession sqlMap) 
+	public void setScheduledOperationByAdmin(long entityId, Date when,
+			EntityScheduledOperation operation, SqlSession sqlMap) 
 			throws IllegalIdentityValueException, IllegalTypeException
 	{
 		if (operation != null && when == null)
@@ -358,8 +357,27 @@ public class DBIdentities
 		{
 			info.setScheduledOperation(operation);
 			info.setScheduledOperationTime(when);
-			if (operation == EntityScheduledOperation.REMOVAL_AFTER_GRACE_PERIOD)
-				info.setState(EntityState.onlyLoginPermitted);
+		}
+
+		byte[] infoJson = entitySerializer.toJson(info);
+		bean.setContents(infoJson);
+		mapper.updateEntity(bean);
+	}
+
+	public void setScheduledRemovalByUser(long entityId, Date when, SqlSession sqlMap) 
+			throws IllegalIdentityValueException, IllegalTypeException
+	{
+		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
+		BaseBean bean = mapper.getEntityById(entityId);
+		EntityInformation info = entitySerializer.fromJson(bean.getContents());
+
+		if (when == null)
+		{
+			info.setRemovalByUserTime(null);
+		} else
+		{
+			info.setRemovalByUserTime(when);
+			info.setState(EntityState.onlyLoginPermitted);
 		}
 
 		byte[] infoJson = entitySerializer.toJson(info);
@@ -407,24 +425,42 @@ public class DBIdentities
 			if (isSetAndAfter(now, entityInfo.getScheduledOperationTime()))
 			{
 				EntityScheduledOperation op = entityInfo.getScheduledOperation();
-				switch (op)
-				{
-				case FORCED_DISABLE:
-					log.info("Performing scheduled disable of entity " + entityBean.getId());
-					disableInternal(entityInfo, entityBean, mapper);
-					break;
-				case FORCED_REMOVAL:
-				case REMOVAL_AFTER_GRACE_PERIOD:
-					log.info("Performing scheduled removal of entity " + entityBean.getId());
-					mapper.deleteEntity(entityBean.getId());
-					break;
-				}
+				performScheduledOperationInternal(entityBean, op, entityInfo, mapper);
+			} else if (isSetAndAfter(now, entityInfo.getRemovalByUserTime()))
+			{
+				performScheduledOperationInternal(entityBean, 
+						EntityScheduledOperation.REMOVE, entityInfo, mapper);
 			}
+			
 			Date nextOp = entityInfo.getScheduledOperationTime();
 			if (nextOp != null && nextOp.before(ret))
 				ret = nextOp;
 		}
 		return ret;
+	}
+
+	public void performScheduledOperation(long entityId, EntityScheduledOperation op, SqlSession sqlMap)
+	{
+		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
+		BaseBean entityBean = mapper.getEntityById(entityId);
+		EntityInformation entityInfo = entitySerializer.fromJson(entityBean.getContents());
+		performScheduledOperationInternal(entityBean, op, entityInfo, mapper);
+	}
+	
+	private void performScheduledOperationInternal(BaseBean entityBean, EntityScheduledOperation op,
+			EntityInformation entityInfo, IdentitiesMapper mapper)
+	{
+		switch (op)
+		{
+		case DISABLE:
+			log.info("Performing scheduled disable of entity " + entityBean.getId());
+			disableInternal(entityInfo, entityBean, mapper);
+			break;
+		case REMOVE:
+			log.info("Performing scheduled removal of entity " + entityBean.getId());
+			mapper.deleteEntity(entityBean.getId());
+			break;
+		}
 	}
 	
 	private void disableInternal(EntityInformation entityInfo, BaseBean entityBean, IdentitiesMapper mapper)
@@ -432,6 +468,7 @@ public class DBIdentities
 		entityInfo.setState(EntityState.disabled);
 		entityInfo.setScheduledOperation(null);
 		entityInfo.setScheduledOperationTime(null);
+		entityInfo.setRemovalByUserTime(null);
 		byte[] infoJson = entitySerializer.toJson(entityInfo);
 		entityBean.setContents(infoJson);
 		mapper.updateEntity(entityBean);

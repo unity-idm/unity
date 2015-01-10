@@ -584,16 +584,42 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		{
 			long entityId = idResolver.getEntityId(toChange, sqlMap);
 
-			AuthzCapability requiredCap = (operation == EntityScheduledOperation.REMOVAL_AFTER_GRACE_PERIOD) ?
-					AuthzCapability.attributeModify : AuthzCapability.identityModify;
-			authz.checkAuthorization(authz.isSelf(entityId), requiredCap);
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
 			
-			dbIdentities.setScheduledRemovalStatus(entityId, changeTime, operation, sqlMap);
+			if (changeTime.getTime() <= System.currentTimeMillis())
+				dbIdentities.performScheduledOperation(entityId, operation, sqlMap);
+			else
+				dbIdentities.setScheduledOperationByAdmin(entityId, changeTime, operation, sqlMap);
 			
 			sqlMap.commit();
 		} finally
 		{
 			db.releaseSqlSession(sqlMap);
 		}
+	}
+
+	@Override
+	public void scheduleRemovalByUser(EntityParam toChange, Date changeTime)
+			throws EngineException
+	{
+		toChange.validateInitialization();
+		SqlSession sqlMap = db.getSqlSession(true);
+		try
+		{
+			long entityId = idResolver.getEntityId(toChange, sqlMap);
+
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.attributeModify);
+			
+			if (changeTime.getTime() <= System.currentTimeMillis())
+				dbIdentities.performScheduledOperation(entityId, 
+						EntityScheduledOperation.REMOVE, sqlMap);
+			else
+				dbIdentities.setScheduledRemovalByUser(entityId, changeTime, sqlMap);
+			
+			sqlMap.commit();
+		} finally
+		{
+			db.releaseSqlSession(sqlMap);
+		}		
 	}
 }

@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsPanel;
+import pl.edu.icm.unity.home.iddetails.EntityDetailsWithActions;
+import pl.edu.icm.unity.home.iddetails.EntityRemovalButton;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -31,6 +33,7 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webadmin.preferences.PreferencesComponent;
+import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
@@ -60,13 +63,14 @@ public class UserAccountComponent extends VerticalLayout
 	private PreferencesManagement prefMan;
 	private EndpointManagement endpMan; 
 	private AttributesInternalProcessing attrMan;
+	private AuthenticationProcessor authnProcessor;
 	
 	@Autowired
 	public UserAccountComponent(AuthenticationManagement authnMan, IdentitiesManagement idsMan,
 			CredentialEditorRegistry credEditorReg,
 			PreferencesHandlerRegistry registry, PreferencesManagement prefMan, 
 			UnityMessageSource msg, EndpointManagement endpMan, 
-			AttributesInternalProcessing attrMan)
+			AttributesInternalProcessing attrMan, AuthenticationProcessor authnProcessor)
 	{
 		this.msg = msg;
 		this.authnMan = authnMan;
@@ -76,6 +80,7 @@ public class UserAccountComponent extends VerticalLayout
 		this.prefMan = prefMan;
 		this.endpMan = endpMan;
 		this.attrMan = attrMan;
+		this.authnProcessor = authnProcessor;
 	}
 
 	public void initUI(HomeEndpointProperties config)
@@ -93,7 +98,7 @@ public class UserAccountComponent extends VerticalLayout
 		LoginSession theUser = InvocationContext.getCurrent().getLoginSession();
 
 		if (!disabled.contains(HomeEndpointProperties.Components.userDetails.toString()))
-			addUserInfo(tabPanel, theUser);
+			addUserInfo(tabPanel, theUser, disabled);
 		
 		if (!disabled.contains(HomeEndpointProperties.Components.credential.toString()))
 			addCredentials(tabPanel, theUser);
@@ -105,13 +110,17 @@ public class UserAccountComponent extends VerticalLayout
 			tabPanel.select(0);
 	}
 	
-	private void addUserInfo(BigTabPanel tabPanel, LoginSession theUser)
+	private void addUserInfo(BigTabPanel tabPanel, LoginSession theUser, Set<String> disabled)
 	{
 		try
 		{
-			com.vaadin.ui.Component userInfo = getUserInfoComponent(theUser.getEntityId(), idsMan, attrMan);
+			EntityDetailsPanel userInfo = getUserInfoComponent(theUser.getEntityId(), idsMan, attrMan);
+			EntityRemovalButton removalButton = new EntityRemovalButton(msg, 
+					theUser.getEntityId(), idsMan, authnProcessor);
+			EntityDetailsWithActions tabRoot = new EntityDetailsWithActions(disabled, 
+					userInfo, removalButton);
 			tabPanel.addTab("UserHomeUI.accountInfoLabel", "UserHomeUI.accountInfoDesc", 
-					Images.info64.getResource(), userInfo);
+					Images.info64.getResource(), tabRoot);
 		} catch (AuthorizationException e)
 		{
 			//OK - rather shouldn't happen but the user is not authorized to even see the entity details.
@@ -154,7 +163,7 @@ public class UserAccountComponent extends VerticalLayout
 				Images.settings64.getResource(), preferencesComponent);
 	}
 	
-	private com.vaadin.ui.Component getUserInfoComponent(long entityId, IdentitiesManagement idsMan, 
+	private EntityDetailsPanel getUserInfoComponent(long entityId, IdentitiesManagement idsMan, 
 			AttributesInternalProcessing attrMan) throws EngineException
 	{
 		EntityDetailsPanel ret = new EntityDetailsPanel(msg, false);

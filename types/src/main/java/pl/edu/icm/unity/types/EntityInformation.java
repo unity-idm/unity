@@ -15,6 +15,7 @@ public class EntityInformation
 	private EntityState state;
 	private Date scheduledOperationTime;
 	private EntityScheduledOperation scheduledOperation;
+	private Date removalByUserTime;
 	
 	public EntityInformation(EntityState state)
 	{
@@ -49,5 +50,15 @@ public class EntityInformation
 	public void setScheduledOperation(EntityScheduledOperation scheduledOperation)
 	{
 		this.scheduledOperation = scheduledOperation;
+	}
+
+	public Date getRemovalByUserTime()
+	{
+		return removalByUserTime;
+	}
+
+	public void setRemovalByUserTime(Date removalByUserTime)
+	{
+		this.removalByUserTime = removalByUserTime;
 	}
 }

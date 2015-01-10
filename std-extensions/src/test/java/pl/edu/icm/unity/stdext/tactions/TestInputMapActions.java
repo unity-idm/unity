@@ -111,7 +111,7 @@ public class TestInputMapActions
 	{
 		EntityChangeActionFactory factory = new EntityChangeActionFactory();
 		InputTranslationAction mapAction = factory.getInstance(
-				EntityScheduledOperation.FORCED_REMOVAL.toString(), 
+				EntityScheduledOperation.REMOVE.toString(), 
 				"10000");
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		
@@ -119,7 +119,7 @@ public class TestInputMapActions
 				"testProf");
 		
 		EntityChange mi = result.getEntityChanges().get(0);
-		assertEquals(EntityScheduledOperation.FORCED_REMOVAL, mi.getScheduledOperation());
+		assertEquals(EntityScheduledOperation.REMOVE, mi.getScheduledOperation());
 		assertEquals(new Date(10000L), mi.getScheduledTime());
 	}
 }

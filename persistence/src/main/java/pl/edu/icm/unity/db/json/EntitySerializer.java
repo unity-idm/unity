@@ -38,6 +38,9 @@ public class EntitySerializer
 			main.put("ScheduledOperationTime", src.getScheduledOperationTime().getTime());
 		if (src.getScheduledOperation() != null)
 			main.put("ScheduledOperation", src.getScheduledOperation().name());
+		if (src.getRemovalByUserTime() != null)
+			main.put("RemovalByUserTime", src.getRemovalByUserTime().getTime());
+		
 		try
 		{
 			return mapper.writeValueAsBytes(main);
@@ -72,6 +75,8 @@ public class EntitySerializer
 		if (main.has("ScheduledOperation"))
 			ret.setScheduledOperation(EntityScheduledOperation.valueOf(
 					main.get("ScheduledOperation").asText()));
+		if (main.has("RemovalByUserTime"))
+			ret.setRemovalByUserTime(new Date(main.get("RemovalByUserTime").asLong()));		
 		return ret;
 	}
 }

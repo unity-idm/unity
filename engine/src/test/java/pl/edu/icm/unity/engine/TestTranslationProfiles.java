@@ -181,7 +181,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 				AttributeVisibility.full.toString(), AttributeEffectMode.CREATE_OR_UPDATE.toString()); 
 		rules.add(new InputTranslationRule(action3, new TranslationCondition()));
 		InputTranslationAction action4 = (InputTranslationAction) tactionReg.getByName(EntityChangeActionFactory.NAME).getInstance(
-				EntityScheduledOperation.FORCED_REMOVAL.toString(), "1000"); 
+				EntityScheduledOperation.REMOVE.toString(), "1000"); 
 		rules.add(new InputTranslationRule(action4, new TranslationCondition()));
 		
 		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules, ProfileMode.UPDATE_ONLY);
@@ -197,7 +197,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		
 		EntityParam ep = new EntityParam(new IdentityTaV(X500Identity.ID, "CN=foo,O=ICM,UID=someUser"));
 		Entity entity = idsMan.getEntity(ep);
-		assertEquals(EntityScheduledOperation.FORCED_REMOVAL, 
+		assertEquals(EntityScheduledOperation.REMOVE, 
 				entity.getEntityInformation().getScheduledOperation());
 		assertEquals(new Date(1000), 
 				entity.getEntityInformation().getScheduledOperationTime());

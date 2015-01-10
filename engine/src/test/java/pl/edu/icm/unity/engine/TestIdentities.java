@@ -4,7 +4,12 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Collection;
 import java.util.Date;
@@ -13,8 +18,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.internal.EntitiesScheduledUpdater;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -41,6 +48,9 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 
 public class TestIdentities extends DBIntegrationTestBase
 {
+	@Autowired
+	private EntitiesScheduledUpdater entitiesUpdater;
+	
 	@Test
 	public void scheduledOpsWork() throws Exception
 	{
@@ -51,21 +61,21 @@ public class TestIdentities extends DBIntegrationTestBase
 		Identity id2 = idsMan.addEntity(idParam2, "crMock", EntityState.valid, false);
 		
 		EntityParam ep1 = new EntityParam(id.getEntityId());
-		Date scheduledTime = new Date(System.currentTimeMillis()+10);
-		idsMan.scheduleEntityChange(ep1, scheduledTime, 
-				EntityScheduledOperation.FORCED_DISABLE);
+		Date scheduledTime = new Date(System.currentTimeMillis()+100);
+		idsMan.scheduleEntityChange(ep1, scheduledTime, EntityScheduledOperation.DISABLE);
 		
 		Entity retrieved = idsMan.getEntity(new EntityParam(idParam));
-		assertEquals(EntityScheduledOperation.FORCED_DISABLE,
+		assertEquals(EntityScheduledOperation.DISABLE,
 				retrieved.getEntityInformation().getScheduledOperation());
 		assertEquals(scheduledTime,
 				retrieved.getEntityInformation().getScheduledOperationTime());
 		
 		EntityParam ep2 = new EntityParam(id2.getEntityId());
-		idsMan.scheduleEntityChange(ep2, new Date(System.currentTimeMillis()+10), 
-				EntityScheduledOperation.FORCED_REMOVAL);
-		Thread.sleep(2100);
-
+		idsMan.scheduleEntityChange(ep2, new Date(System.currentTimeMillis()+100), 
+				EntityScheduledOperation.REMOVE);
+		Thread.sleep(200);
+		entitiesUpdater.updateEntities();
+		
 		Entity updated = idsMan.getEntity(ep1);
 		assertEquals(EntityState.disabled, updated.getState());
 		
@@ -88,11 +98,31 @@ public class TestIdentities extends DBIntegrationTestBase
 		
 		setupUserContext("user1", false);
 		
-		idsMan.scheduleEntityChange(ep1, new Date(System.currentTimeMillis()+500), 
-				EntityScheduledOperation.REMOVAL_AFTER_GRACE_PERIOD);
-		Thread.sleep(200);
+		idsMan.scheduleRemovalByUser(ep1, new Date(System.currentTimeMillis()+200));
 		idsMan.getEntity(ep1);
-		Thread.sleep(1900);
+		Thread.sleep(200);
+		entitiesUpdater.updateEntities();
+		
+		try
+		{
+			idsMan.getEntity(ep1);
+			fail("Entity not removed");
+		} catch (IllegalIdentityValueException e)
+		{
+			//ok
+		}
+	}
+
+	@Test
+	public void scheduledRemovalWorksForUserImmediately() throws Exception
+	{
+		setupPasswordAuthn();
+		Identity id = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		EntityParam ep1 = new EntityParam(id.getEntityId());
+		
+		setupUserContext("user1", false);
+		
+		idsMan.scheduleRemovalByUser(ep1, new Date(System.currentTimeMillis()));
 		try
 		{
 			idsMan.getEntity(ep1);
@@ -111,12 +141,10 @@ public class TestIdentities extends DBIntegrationTestBase
 		EntityParam ep1 = new EntityParam(id.getEntityId());
 
 		setupUserContext("user1", false);
-		idsMan.scheduleEntityChange(ep1, new Date(System.currentTimeMillis()+500), 
-				EntityScheduledOperation.REMOVAL_AFTER_GRACE_PERIOD);
-		Thread.sleep(200);
+		idsMan.scheduleRemovalByUser(ep1, new Date(System.currentTimeMillis()+500));
 		setupUserContext("user1", false);
-		Thread.sleep(1900);
-
+		entitiesUpdater.updateEntities();
+		
 		Entity entity = idsMan.getEntity(ep1);
 		assertEquals(EntityState.valid, entity.getState());
 	}

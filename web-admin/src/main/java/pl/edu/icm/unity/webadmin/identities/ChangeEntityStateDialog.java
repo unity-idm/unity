@@ -68,7 +68,7 @@ public class ChangeEntityStateDialog extends AbstractDialog
 		schedulePanel.setContent(schedLay);
 		EntityInformation initial = entity.getEntity().getEntityInformation();
 		EntityScheduledOperation initialOp = initial.getScheduledOperation() != null ? 
-				initial.getScheduledOperation() : EntityScheduledOperation.FORCED_DISABLE;
+				initial.getScheduledOperation() : EntityScheduledOperation.DISABLE;
 		entityScheduledChange = new EnumComboBox<EntityScheduledOperation>(
 				msg.getMessage("ChangeEntityStateDialog.scheduledOperation"),
 				msg, 
