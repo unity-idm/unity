@@ -16,8 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
-import pl.edu.icm.unity.confirmations.VerifiableElement;
 import pl.edu.icm.unity.confirmations.states.AttribiuteFromRegState;
+import pl.edu.icm.unity.confirmations.states.IdentityFromRegState;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
@@ -44,8 +44,10 @@ import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
+import pl.edu.icm.unity.types.VerifiableElement;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
@@ -216,22 +218,47 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 					internalManagment.getBaseNotificationParams(form.getName(), requestFull.getRequestId()));
 			}
 			
-			for (Attribute<?> attr: requestFull.getRequest().getAttributes())
-			{	
-				if (attr.getValues().size() > 0 && attr.getValues().get(0) instanceof VerifiableElement)
+			boolean update = false;
+			for (Attribute<?> attr : requestFull.getRequest().getAttributes())
+			{
+				if (attr.getValues().size() > 0
+						&& attr.getValues().get(0) instanceof VerifiableElement)
 				{
 					Attribute<VerifiableElement> verifiableAttr = (Attribute<VerifiableElement>) attr;
 					AttribiuteFromRegState state = new AttribiuteFromRegState();
 					state.setOwner(requestFull.getRequestId());
 					state.setGroup(verifiableAttr.getGroupPath());
 					state.setType(verifiableAttr.getName());
-					for (VerifiableElement val:verifiableAttr.getValues())
+					for (VerifiableElement val : verifiableAttr.getValues())
 					{
 						state.setValue(val.getValue());
-						confirmationManager.sendConfirmationRequest(val.getValue(), state.getType(), state.getSerializedConfiguration());				
-					}		
+						confirmationManager.sendConfirmationRequest(
+								val.getValue(), state.getType(),
+								state.getSerializedConfiguration());
+						val.getConfirmationData().setSendedRequestAmount(1);
+					}
 				}
-			}			
+			}
+			for (IdentityParam id : requestFull.getRequest().getIdentities())
+			{
+				if (identityTypesRegistry.getByName(id.getTypeId()).isVerifiable())
+				{
+					IdentityFromRegState state = new IdentityFromRegState();
+					state.setOwner(requestFull.getRequestId());
+					state.setType(id.getTypeId());
+					state.setValue(id.getValue());
+					confirmationManager.sendConfirmationRequest(id.getValue(),
+							id.getTypeId(),
+							state.getSerializedConfiguration());
+					id.getConfirmationData().setSendedRequestAmount(1);
+				}
+
+			}
+			if (update)
+			{
+				requestDB.update(requestFull.getRequestId(), requestFull, sql);
+				sql.commit();
+			}
 			
 			
 		} finally

@@ -120,8 +120,8 @@ public class DemoContentInitializer implements ServerInitializer
 
 			VerifiableEmailAttribute emailA = new VerifiableEmailAttribute("verifiableEmail", "/", AttributeVisibility.full, "some@email.com");
 			Date d = new Date();
-			emailA.getValues().get(0).setVerificationDate(d.getTime());
-			emailA.getValues().get(0).setVerified(true);
+			emailA.getValues().get(0).getConfirmationData().setConfirmationDate(d.getTime());
+			emailA.getValues().get(0).getConfirmationData().setConfirmed(true);
 			attrMan.setAttribute(new EntityParam(base.getEntityId()), emailA, false);
 
 			StringAttribute cnA = new StringAttribute("cn", "/", AttributeVisibility.full, "Hiper user");

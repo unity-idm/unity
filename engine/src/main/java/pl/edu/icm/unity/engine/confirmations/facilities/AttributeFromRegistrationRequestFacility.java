@@ -4,16 +4,18 @@
  */
 package pl.edu.icm.unity.engine.confirmations.facilities;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
-import pl.edu.icm.unity.confirmations.VerifiableElement;
 import pl.edu.icm.unity.confirmations.states.AttribiuteFromRegState;
+import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
@@ -25,6 +27,7 @@ import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 
 /**
  * Attribute from registration request confirmation facility.
@@ -32,11 +35,13 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
  * @author P. Piernik
  * 
  */
-public class AttributeFromRegistrationRequestFacility implements ConfirmationFacility
+@Component
+public class AttributeFromRegistrationRequestFacility extends FacilityBase implements ConfirmationFacility
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			AttributeFromRegistrationRequestFacility.class);
 	public static final String NAME = "registrationRequestVerificator";
+	private final String autoAcceptComment = "System - after confirmation";
 
 	private RegistrationRequestDB requestDB;
 	private DBSessionManager db;
@@ -59,22 +64,33 @@ public class AttributeFromRegistrationRequestFacility implements ConfirmationFac
 	{
 		return AttribiuteFromRegState.FACILITY_ID;
 	}
-	
+
 	@Override
 	public String getDescription()
 	{
-		return "Confirms attribute from registration request with verifiable value";
+		return "Confirms attributes from registration request with verifiable values";
 	}
 
-	@Override
-	public ConfirmationStatus confirm(String state) throws EngineException
+	protected ConfirmationStatus confirmElements(RegistrationRequest req, String state) throws EngineException
 	{
 		AttribiuteFromRegState attrState = new AttribiuteFromRegState();
 		attrState.setSerializedConfiguration(state);
-		String requestId = attrState.getOwner();
-		String attrName = attrState.getType();
+		Collection<Attribute<?>> confirmedList = confirmAttribute(req.getAttributes(), attrState.getType(),
+				attrState.getGroup(), attrState.getValue());	
+		boolean confirmed = (confirmedList.size() > 0);
+		return new ConfirmationStatus(confirmed ,
+				confirmed ? "ConfirmationStatus.successAttribute"
+						: "ConfirmationStatus.attributeChanged");
 		
-				
+	}
+	
+	@Override
+	public ConfirmationStatus confirm(String state) throws EngineException
+	{
+		BaseConfirmationState baseState = new BaseConfirmationState();
+		baseState.setSerializedConfiguration(state);
+		String requestId = baseState.getOwner();
+
 		RegistrationRequestState reqState = null;
 		try
 		{
@@ -82,37 +98,27 @@ public class AttributeFromRegistrationRequestFacility implements ConfirmationFac
 
 		} catch (EngineException e)
 		{
-			return new ConfirmationStatus(false, "ConfirmationStatus.requestDeleted"
-					+ attrState.getType());
+			return new ConfirmationStatus(false, "ConfirmationStatus.requestDeleted");
 		}
-		
+
+		ConfirmationStatus status;
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
 			RegistrationRequest req = reqState.getRequest();
-			for (Attribute<?> attr : req.getAttributes())
-			{
-				if (attr.getName().equals(attrName)
-						&& attr.getGroupPath().equals(attrState.getGroup()))
-				{
-					Attribute<VerifiableElement> vattr = (Attribute<VerifiableElement>) attr;
-					for (VerifiableElement el : vattr.getValues())
-					{
-						if (el.getValue().equals(attrState.getValue()))
-						{
-							el.setVerified(true);
-						}
-					}
-
-				}
-			}
+			status = confirmElements(req, state);
+			requestDB.update(requestId, reqState, sql);
+			sql.commit();
 			
-			if (internalRegistrationManagment.checkAutoAcceptCondition(req))
+			if (status.isSuccess()
+					&& reqState.getStatus() == RegistrationRequestStatus.pending
+					&& internalRegistrationManagment
+							.checkAutoAcceptCondition(req))
+
 			{
-				//TODO
 				RegistrationForm form = formsDB.get(req.getFormId(), sql);
-				AdminComment internalComment = new AdminComment(
-						"AUTO ACCEPT AFTER CONFIRM", 0, false);
+				AdminComment internalComment = new AdminComment(autoAcceptComment,
+						0, false);
 				reqState.getAdminComments().add(internalComment);
 				internalRegistrationManagment.acceptRequest(form, reqState, null,
 						internalComment, sql);
@@ -120,13 +126,13 @@ public class AttributeFromRegistrationRequestFacility implements ConfirmationFac
 			{
 				requestDB.update(requestId, reqState, sql);
 			}
+			sql.commit();
 
 		} finally
 		{
 			db.releaseSqlSession(sql);
 		}
 
-		return new ConfirmationStatus(true, "SUCCESSFULL CONFIRM ATTRIBUTE "
-				+ attrState.getType());
-	}	
+		return status;
+	}
 }

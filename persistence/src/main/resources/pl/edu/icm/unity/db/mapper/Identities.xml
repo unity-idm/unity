@@ -67,7 +67,7 @@
 	</insert>
 	
 	<update id="updateIdentity" parameterType="IdentityB">
-		UPDATE IDENTITIES SET CONTENTS = #{contents} WHERE ID = #{id}
+		UPDATE IDENTITIES SET CONTENTS = #{contents} WHERE NAME = #{name}
 	</update>
 	
 	<delete id="deleteIdentity" parameterType="string">

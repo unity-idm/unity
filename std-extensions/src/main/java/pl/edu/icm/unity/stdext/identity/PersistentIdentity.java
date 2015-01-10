@@ -140,4 +140,10 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	{
 		return msg.getMessage("PersistentIdentity.anonymous");
 	}
+	
+	@Override
+	public boolean isVerifiable()
+	{
+		return false;
+	}
 }

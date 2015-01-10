@@ -49,4 +49,10 @@ public abstract class AbstractStaticIdentityTypeProvider extends AbstractIdentit
 	{
 		return false;
 	}
+	
+	@Override
+	public boolean isVerifiable()
+	{
+		return false;
+	}
 }

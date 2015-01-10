@@ -16,6 +16,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.types.basic.ConfirmationData;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
@@ -81,20 +82,34 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 	{
 		FormLayout main = new FormLayout();
 		Label val = new Label(value.getValue());
-		Label ver = new Label(String.valueOf(value.isVerified()));
-		ver.setCaption(msg.getMessage("VerifiableEmailAttributeHandler.verified"));
+		Label con = new Label();
+		con.setCaption(msg.getMessage("VerifiableEmailAttributeHandler.verified"));
 		Label date = new Label();
 		date.setCaption(msg.getMessage("VerifiableEmailAttributeHandler.verificationDate"));
-		if (value.isVerified() && value.getVerificationDate() != 0)
+		Label sendedReq = new Label();
+		sendedReq.setCaption(msg.getMessage("VerifiableEmailAttributeHandler.sendedRequests"));
+		ConfirmationData conData = value.getConfirmationData();
+		if (conData != null)
 		{
-			Date dt = new Date(value.getVerificationDate());
-			date.setValue(new SimpleDateFormat(Constants.AMPM_DATE_FORMAT).format(dt));
-			main.addComponents(val, ver, date);
-		} else
-		{
-			main.addComponents(val, ver);
-		}
+			con.setValue(String.valueOf(conData.isConfirmed()));
+			sendedReq.setValue(String.valueOf(conData.getSendedRequestAmount()));
+			if (conData.getConfirmationDate() != 0)
+			{
+				Date dt = new Date(conData.getConfirmationDate());
+				date.setValue(new SimpleDateFormat(Constants.AMPM_DATE_FORMAT)
+						.format(dt));
+				main.addComponents(val, con, date, sendedReq);
+			} else
+			{
+				main.addComponents(val, con, sendedReq);
+			}
 
+		}else
+		{
+			main.addComponent(val);
+		}
+		
+		
 		return main;
 	}
 
@@ -176,7 +191,8 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 			try
 			{
 				VerifiableEmail email = new VerifiableEmail();
-				email.setValue(field.getValue());;
+				email.setValue(field.getValue());
+				;
 				syntax.validate(email);
 				field.setComponentError(null);
 				return email;

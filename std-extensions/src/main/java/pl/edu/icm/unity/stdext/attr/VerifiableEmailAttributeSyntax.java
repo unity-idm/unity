@@ -10,6 +10,7 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.types.basic.ConfirmationData;
 
 public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<VerifiableEmail> 
 {
@@ -60,8 +61,7 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	{
 		ObjectNode main = Constants.MAPPER.createObjectNode();
 		main.put("value",value.getValue());
-		main.put("verified", value.isVerified());
-		main.put("verificationDate", value.getVerificationDate());
+		main.put("confirmationData", value.getConfirmationData().getSerializedConfiguration());
 		try
 		{
 			return Constants.MAPPER.writeValueAsString(main).getBytes();
@@ -96,8 +96,9 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		}
 		VerifiableEmail email = new VerifiableEmail();
 		email.setValue(jsonN.get("value").asText());
-		email.setVerified(jsonN.get("verified").asBoolean(false));
-		email.setVerificationDate(jsonN.get("verificationDate").asLong());
+		ConfirmationData confirmationData = new ConfirmationData();
+		confirmationData.setSerializedConfiguration(jsonN.get("confirmationData").asText());
+		email.setConfirmationData(confirmationData);
 		return email;
 	}
 	

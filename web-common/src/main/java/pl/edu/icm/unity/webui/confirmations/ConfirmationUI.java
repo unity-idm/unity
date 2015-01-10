@@ -139,7 +139,7 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 		{
 			status = confirmationMan.proccessConfirmation(token);
 
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			log.error("Internal unity problem with confirmation", e);
 			status = new ConfirmationStatus(false, "ConfirmationStatus.internalError");

@@ -216,6 +216,8 @@ public class EngineHelper
 		IdentityTypeDefinition typeProvider = idType.getIdentityTypeProvider();
 		Map<String, String> toExtract = idType.getExtractedAttributes();
 		List<Attribute<?>> extractedList = typeProvider.extractAttributes(from.getValue(), toExtract);
+		if (extractedList == null)
+			return;
 		long entityId = from.getEntityId();
 		for (Attribute<?> extracted: extractedList)
 		{

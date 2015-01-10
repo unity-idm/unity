@@ -30,6 +30,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.basic.ConfirmationData;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityRepresentation;
@@ -183,7 +184,38 @@ public class DBIdentities
 		return new Identity(idType, toAdd.getValue(), entityId, toAdd.getRealm(), toAdd.getTarget(),
 				toAdd.getRemoteIdp(), toAdd.getTranslationProfile(), ts, ts);
 	}
-
+	
+	public Identity updateIdentityConfirmationData (IdentityTaV idTav, ConfirmationData newConfirmation ,SqlSession sqlMap) throws IllegalTypeException, IllegalIdentityValueException
+	{
+		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
+		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(idTav.getTypeId());
+		if (idTypeDef == null)
+			throw new IllegalIdentityValueException("The identity type is unknown");
+		String cmpVal = IdentitiesResolver.getComparableIdentityValue(idTav, idTypeDef);
+		IdentityBean idBean = mapper.getIdentityByName(cmpVal);
+		if (idBean == null)
+			throw new IllegalIdentityValueException("The identity with this value is not available in db");
+		Identity resolved = null;
+		try
+		{
+			resolved = idResolver.resolveIdentityBeanNoExternalize(idBean, mapper);
+		} catch (IllegalTypeException e)
+		{
+			log.error("Can't resolve an identity stored in DB", e);
+		}
+		if (resolved != null)
+			resolved.setConfirmationData(newConfirmation);
+		
+		IdentityBean idB = new IdentityBean();
+		idB.setEntityId(idBean.getEntityId());
+		idB.setName(cmpVal);
+		idB.setTypeId(idBean.getTypeId());
+		Date ts = new Date();
+		idB.setContents(idSerializer.toJson(resolved, resolved.getCreationTs(), ts));
+		log.debug("Update identity " + new String(idSerializer.toJson(resolved, resolved.getCreationTs(), ts)) );
+		mapper.updateIdentity(idB);
+		return resolved;
+	}
 	
 	public Identity[] getIdentitiesForEntity(long entityId, String target, boolean allowCreate, SqlSession sqlMap) 
 			throws IllegalTypeException

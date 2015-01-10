@@ -5,54 +5,56 @@
 
 package pl.edu.icm.unity.stdext.attr;
 
-import java.util.Date;
-
-import pl.edu.icm.unity.confirmations.VerifiableElement;
-
+import pl.edu.icm.unity.types.VerifiableElement;
+import pl.edu.icm.unity.types.basic.ConfirmationData;
 
 /**
  * Email with verification state and verification date
+ * 
  * @author P. Piernik
  */
 public class VerifiableEmail implements VerifiableElement
 {
 	private String value;
-	private long verificationDate;
-	private boolean verified;
-	
-	public VerifiableEmail() {};
-	
+	private ConfirmationData confirmationData;
+
+	public VerifiableEmail()
+	{
+		this.confirmationData = new ConfirmationData();
+	}
+
 	public VerifiableEmail(String value)
 	{
 		this.value = value;
+		this.confirmationData = new ConfirmationData();
 	}
-	
+
+	public VerifiableEmail(String value, ConfirmationData confirmationData)
+	{
+		this.value = value;
+		this.confirmationData = confirmationData;
+	}
+	@Override
+	public ConfirmationData getConfirmationData()
+	{
+		return confirmationData;
+	}
+
+	public void setConfirmationData(ConfirmationData confirmationData)
+	{
+		this.confirmationData = confirmationData;
+	}
+
 	public String getValue()
 	{
 		return value;
 	}
+
 	public void setValue(String value)
 	{
 		this.value = value;
 	}
-	public Long getVerificationDate()
-	{
-		return verificationDate;
-	}
-	public void setVerificationDate(Long verificationDate)
-	{
-		this.verificationDate = verificationDate;
-	}
-	public boolean isVerified()
-	{
-		return verified;
-	}
-	@Override
-	public void setVerified(boolean verified)
-	{
-		this.verified = verified;
-	}
-	
+
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -69,31 +71,23 @@ public class VerifiableEmail implements VerifiableElement
 				return false;
 		} else if (!value.equals(other.value))
 			return false;
-		
-		if (verified != other.isVerified())
+
+		if (confirmationData == null)
+		{
+			if (other.getConfirmationData() != null)
+				return false;
+		} else if (!confirmationData.equals(other.getConfirmationData()))
 			return false;
-		
-		if (verificationDate != other.getVerificationDate())
-			return false;
-		
 		return true;
 	}
-	
+
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((value == null) ? 0 : value.hashCode());
-		result = prime * result + (int) (verificationDate ^ (verificationDate >>> 32));
-		result = prime * result + (verified ? 1231 : 1237);
+		result = prime * result + confirmationData.hashCode();
 		return result;
 	}
-
-//	@Override
-//	public void updateVerificationDate(Date verificationDate)
-//	{
-//		setVerificationDate(verificationDate.getTime());
-//		
-//	}
 }

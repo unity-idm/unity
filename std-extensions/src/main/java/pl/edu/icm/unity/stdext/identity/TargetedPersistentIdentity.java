@@ -153,6 +153,12 @@ public class TargetedPersistentIdentity extends AbstractIdentityTypeProvider
 	{
 		return msg.getMessage("TargetedPersistentIdentity.fullyAnonymous");
 	}
+	
+	@Override
+	public boolean isVerifiable()
+	{
+		return false;
+	}
 }
 
 

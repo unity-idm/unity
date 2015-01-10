@@ -153,5 +153,10 @@ public interface IdentityTypeDefinition
 	 * @return true if expired, false otherwise 
 	 */
 	public boolean isExpired(IdentityRepresentation representation); 
+	
+	/**
+	 * @return if true then identities of this type can be confirmed. 
+	 */
+	public boolean isVerifiable();
 }
 

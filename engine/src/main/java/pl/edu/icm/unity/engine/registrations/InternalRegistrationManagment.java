@@ -41,9 +41,11 @@ import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.VerifiableElement;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.ConfirmationData;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -477,25 +479,26 @@ public class InternalRegistrationManagment
 		return result.booleanValue();
 	}
 	
-	private Map<String, Object> createMvelContext(RegistrationRequest request, RegistrationForm form)
+	private Map<String, Object> createMvelContext(RegistrationRequest request, RegistrationForm form) throws IllegalTypeException
 	{
 		HashMap<String, Object> ctx = new HashMap<String, Object>();
 
 		List<IdentityParam> identities = request.getIdentities();	
-		Map<String, List<String>> idsByType = new HashMap<String, List<String>>();
+		Map<String, List<Object>> idsByType = new HashMap<String, List<Object>>();
 	        for (IdentityParam id: identities)
 	        {
 	            if (id == null)
 	        	    continue;
 	            if (id.getTypeId() == null || id.getValue() == null)
 	        	    continue;
-	            List<String> vals = idsByType.get(id.getTypeId());
+	            boolean isVerifiable = identityTypesRegistry.getByName(id.getTypeId()).isVerifiable();
+	            List<Object> vals = idsByType.get(id.getTypeId());
 	            if (vals == null)
 	            {
-	                vals = new ArrayList<String>();
+	                vals = new ArrayList<Object>();
 	                idsByType.put(id.getTypeId(), vals);
 	            }
-	            vals.add(id.getValue());
+	            vals.add( isVerifiable?new VerifiableValue(id):id.getValue());
 	        }
 	        ctx.put("idsByType", idsByType);
 				
@@ -510,8 +513,30 @@ public class InternalRegistrationManagment
 			if (atr.getValues() == null || atr.getName() == null)
 				continue;
 			Object v = atr.getValues().isEmpty() ? "" : atr.getValues().get(0);
-			attr.put(atr.getName(), v);
-			attrs.put(atr.getName(), atr.getValues());
+			if (v instanceof VerifiableElement)
+			{
+				VerifiableElement c = (VerifiableElement) v;
+				attr.put(atr.getName(), new VerifiableValue(c));
+			}
+			else
+			{
+				attr.put(atr.getName(), v);
+			}
+			List<Object> ctxObj = new ArrayList<Object>();
+			for (Object val : atr.getValues())
+			{
+				if (val instanceof VerifiableElement)
+				{
+					VerifiableElement c = (VerifiableElement) val;
+					ctxObj.add(new VerifiableValue(c));
+				}
+				else
+				{
+					ctxObj.add(val);
+				}
+				
+			}
+			attrs.put(atr.getName(), ctxObj);
 		}
 		ctx.put("attr", attr);
 		ctx.put("attrs", attrs);
@@ -542,6 +567,23 @@ public class InternalRegistrationManagment
 	}
 	
 	
-
-	
+	private class VerifiableValue
+	{
+		private ConfirmationData confirmationData;
+		private String value;
+		public VerifiableValue(VerifiableElement ctx)
+		{
+			this.value =  ctx.getValue();
+			this.confirmationData = ctx.getConfirmationData();
+		}
+		public String getValue()
+		{
+			return value;
+		}
+		public boolean getConfirmed()
+		{
+			return confirmationData.isConfirmed();
+		}
+		
+	}
 }

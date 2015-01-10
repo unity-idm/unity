@@ -26,6 +26,8 @@ import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
 import pl.edu.icm.unity.engine.SharedEndpointManagementImpl;
+import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.notifications.NotificationProducerImpl;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
@@ -60,13 +62,14 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 
 	private MessageTemplateDB mtDB;
 	private DBSessionManager db;
+	private AuthorizationManager authz;
 
 	@Autowired
 	public ConfirmationManagerImpl(TokensManagement tokensMan,
 			MessageTemplateManagement templateMan,
 			NotificationProducerImpl notificationProducer,
 			ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry, JettyServer httpServer,
-			MessageTemplateDB mtDB, DBSessionManager db)
+			MessageTemplateDB mtDB, DBSessionManager db, AuthorizationManager authz)
 	{
 		this.tokensMan = tokensMan;
 		this.notificationProducer = notificationProducer;
@@ -74,6 +77,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		this.advertisedAddress = httpServer.getAdvertisedAddress();
 		this.mtDB = mtDB;
 		this.db = db;
+		this.authz = authz;
 	}
 
 	private void sendConfirmationRequest(String recipientAddress, String channelName,
@@ -113,7 +117,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 				+ ConfirmationServlet.CONFIRMATION_TOKEN_ARG + "=" + token);
 
 		log.debug("Send confirmation request to " + recipientAddress + " with token = "
-				+ token);
+				+ token + " and state=" + state);
 
 		notificationProducer.sendNotification(recipientAddress, channelName, templateId,
 				params);
@@ -139,6 +143,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		ConfigEntry entry = new ConfigEntry(UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL,
 				template);
 		configuration.put(VerifiableEmailAttributeSyntax.ID, entry);
+		configuration.put("email", entry);
 
 		
 		ConfigEntry cfg = configuration.get(type);

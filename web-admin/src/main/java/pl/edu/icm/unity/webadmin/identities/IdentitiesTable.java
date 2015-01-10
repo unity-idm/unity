@@ -20,6 +20,8 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.confirmations.ConfirmationManager;
+import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsDialog;
@@ -75,7 +77,7 @@ public class IdentitiesTable extends TreeTable
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesTable.class);
 	
-	enum BaseColumnId {entity, type, identity, status, local, dynamic, credReq, remoteIdP, profile, target, realm};
+	enum BaseColumnId {entity, type, identity, status, local, dynamic, credReq, remoteIdP, profile, target, realm, confirmed};
 	public static final String ATTR_COL_PREFIX = "a::";
 	public static final String ATTR_ROOT_COL_PREFIX = ATTR_COL_PREFIX + "root::";
 	public static final String ATTR_CURRENT_COL_PREFIX = ATTR_COL_PREFIX + "current::";
@@ -98,13 +100,14 @@ public class IdentitiesTable extends TreeTable
 	private List<Filter> containerFilters;
 	private String entityNameAttribute = null;
 	private List<SingleActionHandler> actionHandlers;
+	private ConfirmationManager confirmationManager;
 	
 	@Autowired
 	public IdentitiesTable(IdentitiesManagement identitiesMan, GroupsManagement groupsMan, 
 			AuthenticationManagement authnMan, AttributesManagement attrMan,PreferencesManagement preferencesMan,
 			AttributesInternalProcessing attrProcessor,
 			IdentityEditorRegistry identityEditorReg, CredentialEditorRegistry credEditorsRegistry,
-			AttributeHandlerRegistry attrHandlerReg, UnityMessageSource msg)
+			AttributeHandlerRegistry attrHandlerReg, ConfirmationManager confirmationManager, UnityMessageSource msg)
 	{
 		this.preferencesMan = preferencesMan;
 		this.identitiesMan = identitiesMan;
@@ -119,6 +122,7 @@ public class IdentitiesTable extends TreeTable
 		this.containerFilters = new ArrayList<Container.Filter>();
 		this.credEditorsRegistry = credEditorsRegistry;
 		this.actionHandlers = new ArrayList<>();
+		this.confirmationManager = confirmationManager;
 		
 		addContainerProperty(BaseColumnId.entity.toString(), String.class, null);
 		addContainerProperty(BaseColumnId.type.toString(), String.class, "");
@@ -131,6 +135,7 @@ public class IdentitiesTable extends TreeTable
 		addContainerProperty(BaseColumnId.realm.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.remoteIdP.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.profile.toString(), String.class, "");
+		addContainerProperty(BaseColumnId.confirmed.toString(), String.class, "");
 
 		setColumnHeader(BaseColumnId.entity.toString(), msg.getMessage("Identities.entity"));
 		setColumnHeader(BaseColumnId.type.toString(), msg.getMessage("Identities.type"));
@@ -143,6 +148,7 @@ public class IdentitiesTable extends TreeTable
 		setColumnHeader(BaseColumnId.realm.toString(), msg.getMessage("Identities.realm"));
 		setColumnHeader(BaseColumnId.remoteIdP.toString(), msg.getMessage("Identities.remoteIdP"));
 		setColumnHeader(BaseColumnId.profile.toString(), msg.getMessage("Identities.profile"));
+		setColumnHeader(BaseColumnId.confirmed.toString(), msg.getMessage("Identities.confirmed"));
 		
 		setSelectable(true);
 		setMultiSelect(true);	
@@ -156,6 +162,7 @@ public class IdentitiesTable extends TreeTable
 		setColumnCollapsed(BaseColumnId.realm.toString(), true);
 		setColumnCollapsed(BaseColumnId.remoteIdP.toString(), true);
 		setColumnCollapsed(BaseColumnId.profile.toString(), true);
+		setColumnCollapsed(BaseColumnId.confirmed.toString(), true);
 
 		setColumnWidth(BaseColumnId.entity.toString(), 200);
 		setColumnWidth(BaseColumnId.type.toString(), 100);
@@ -167,6 +174,7 @@ public class IdentitiesTable extends TreeTable
 		setColumnWidth(BaseColumnId.realm.toString(), 100);
 		setColumnWidth(BaseColumnId.remoteIdP.toString(), 200);
 		setColumnWidth(BaseColumnId.profile.toString(), 100);
+		setColumnWidth(BaseColumnId.confirmed.toString(), 100);
 
 		loadPreferences();
 
@@ -181,6 +189,7 @@ public class IdentitiesTable extends TreeTable
 		addActionHandler(new ChangeCredentialHandler());
 		addActionHandler(new ChangeCredentialRequirementHandler());
 		addActionHandler(new EntityAttributesClassesHandler());
+		addActionHandler(new SendConfirmationReqIdentityHandler());
 		setDragMode(TableDragMode.ROW);
 
 		setImmediate(true);
@@ -584,7 +593,12 @@ public class IdentitiesTable extends TreeTable
 			newItem.getItemProperty(BaseColumnId.profile.toString()).setValue(prof);
 			newItem.getItemProperty(BaseColumnId.target.toString()).setValue(id.getTarget());
 			newItem.getItemProperty(BaseColumnId.realm.toString()).setValue(id.getRealm());
-		} else
+			newItem.getItemProperty(BaseColumnId.confirmed.toString())
+					.setValue(id.getType().getIdentityTypeProvider()
+							.isVerifiable() && id.getConfirmationData() != null ? new Boolean(id
+							.getConfirmationData().isConfirmed())
+							.toString() : "");
+	} else
 		{
 			newItem.getItemProperty(BaseColumnId.type.toString()).setValue("");
 			newItem.getItemProperty(BaseColumnId.identity.toString()).setValue("");
@@ -594,6 +608,7 @@ public class IdentitiesTable extends TreeTable
 			newItem.getItemProperty(BaseColumnId.realm.toString()).setValue("");
 			newItem.getItemProperty(BaseColumnId.remoteIdP.toString()).setValue("");
 			newItem.getItemProperty(BaseColumnId.profile.toString()).setValue("");
+			newItem.getItemProperty(BaseColumnId.confirmed.toString()).setValue("");
 		}
 
 		Collection<?> propertyIds = newItem.getItemPropertyIds();
@@ -923,6 +938,71 @@ public class IdentitiesTable extends TreeTable
 					refresh();
 				}
 			}).show();
+		}
+	}
+	
+	private class SendConfirmationReqIdentityHandler extends SingleActionHandler
+	{
+		public SendConfirmationReqIdentityHandler()
+		{
+			super(msg.getMessage("Identities.sendConfirmationReqIdentityAction"),
+					Images.confirmation.getResource());
+			setMultiTarget(true);
+		}
+
+		@Override
+		public Action[] getActions(Object target, Object sender)
+		{
+			if (target == null)
+				return EMPTY;
+			
+			if (!(target instanceof Collection<?>))
+				target = Collections.singleton(target);
+			
+			Collection<?> targets = (Collection<?>) target;
+			for (Object ta : targets)
+			{
+				if (ta != null && !(ta instanceof IdentityWithEntity))
+					return EMPTY;
+				IdentityWithEntity ide = (IdentityWithEntity) ta;
+				if (!ide.getIdentity().getType().getIdentityTypeProvider().isVerifiable())
+					return EMPTY;
+			}
+			return super.getActions(target, sender);
+		}
+
+		@Override
+		public void handleAction(Object sender, Object target)
+		{
+			Collection<?> nodes = (Collection<?>) target;
+			final List<IdentityWithEntity> filteredNodes = new ArrayList<>();
+			for (Object o : nodes)
+			{
+				IdentityWithEntity node = (IdentityWithEntity) o;
+				filteredNodes.add(node);
+			}
+
+			for (IdentityWithEntity ide : filteredNodes)
+			{
+				IdentityConfirmationState state = new IdentityConfirmationState();
+				state.setOwner(ide.getEntityWithLabel().getEntity().getId()
+						.toString());
+				state.setType(ide.getIdentity().getTypeId());
+				state.setValue(ide.getIdentity().getValue());
+				try
+				{
+					confirmationManager.sendConfirmationRequest(ide
+							.getIdentity().getValue(), ide
+							.getIdentity().getTypeId(), state
+							.getSerializedConfiguration());
+					
+				} catch (EngineException e)
+				{
+					ErrorPopup.showError(msg, msg.getMessage("Identities.cannotSendConfirmation"), e);
+					return;
+				}
+			}
+			ErrorPopup.showNotice(msg, "", msg.getMessage("Identities.confirmationSended"));	
 		}
 	}
 	

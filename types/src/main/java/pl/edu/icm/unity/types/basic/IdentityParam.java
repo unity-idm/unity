@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types.basic;
 
+import pl.edu.icm.unity.types.VerifiableElement;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
@@ -12,10 +14,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * 
  * @author K. Benedyczak
  */
-public class IdentityParam extends IdentityTaV
+public class IdentityParam extends IdentityTaV implements VerifiableElement
 {
 	private String translationProfile;
 	private String remoteIdp;
+	private ConfirmationData confirmationData;
 	
 	public IdentityParam()
 	{
@@ -24,11 +27,12 @@ public class IdentityParam extends IdentityTaV
 	public IdentityParam(String type, String value) 
 	{
 		super(type, value);
+		this.confirmationData = new ConfirmationData();
 	}
 
 	public IdentityParam(String type, String value, String remoteIdp, String translationProfile) 
 	{
-		super(type, value);
+		this(type, value);
 		this.translationProfile = translationProfile;
 		this.remoteIdp = remoteIdp;
 	}
@@ -59,6 +63,16 @@ public class IdentityParam extends IdentityTaV
 		this.remoteIdp = remoteIdp;
 	}
 
+	public void setConfirmationData(ConfirmationData confirmationData)
+	{
+		this.confirmationData = confirmationData;
+	}
+
+	public ConfirmationData getConfirmationData()
+	{
+		return confirmationData;
+	}
+	
 	@Override
 	public int hashCode()
 	{
@@ -68,6 +82,9 @@ public class IdentityParam extends IdentityTaV
 		result = prime
 				* result
 				+ ((translationProfile == null) ? 0 : translationProfile.hashCode());
+		result = prime
+				* result
+				+ ((confirmationData == null) ? 0 : confirmationData.hashCode());
 		return result;
 	}
 
@@ -92,6 +109,12 @@ public class IdentityParam extends IdentityTaV
 			if (other.translationProfile != null)
 				return false;
 		} else if (!translationProfile.equals(other.translationProfile))
+			return false;
+		if (confirmationData == null)
+		{
+			if (other.confirmationData!= null)
+				return false;
+		} else if (!confirmationData.equals(other.confirmationData))
 			return false;
 		return true;
 	}

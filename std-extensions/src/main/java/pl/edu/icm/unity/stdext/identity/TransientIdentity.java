@@ -221,6 +221,12 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	{
 		return msg.getMessage("TransientIdentity.description");
 	}
+	
+	@Override
+	public boolean isVerifiable()
+	{
+		return false;
+	}
 }
 
 

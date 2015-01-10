@@ -2,7 +2,9 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.confirmations;
+package pl.edu.icm.unity.types;
+
+import pl.edu.icm.unity.types.basic.ConfirmationData;
 
 /**
  * Represent element which can be confirmed
@@ -11,6 +13,7 @@ package pl.edu.icm.unity.confirmations;
  */
 public interface VerifiableElement
 {
-	public void setVerified(boolean verified);
+	public ConfirmationData getConfirmationData();
+	public void setConfirmationData(ConfirmationData confirmationData);
 	public String getValue();
 }
