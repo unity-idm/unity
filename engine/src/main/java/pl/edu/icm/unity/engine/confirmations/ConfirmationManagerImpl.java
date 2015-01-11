@@ -27,7 +27,6 @@ import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
 import pl.edu.icm.unity.engine.SharedEndpointManagementImpl;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
-import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.notifications.NotificationProducerImpl;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
@@ -53,7 +52,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 {
 	private static final Logger log = Log
 			.getLogger(Log.U_SERVER, ConfirmationManagerImpl.class);
-	
+
 	public static final String CONFIRMATION_TOKEN_TYPE = "Confirmation";
 	private TokensManagement tokensMan;
 	private NotificationProducerImpl notificationProducer;
@@ -68,8 +67,9 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	public ConfirmationManagerImpl(TokensManagement tokensMan,
 			MessageTemplateManagement templateMan,
 			NotificationProducerImpl notificationProducer,
-			ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry, JettyServer httpServer,
-			MessageTemplateDB mtDB, DBSessionManager db, AuthorizationManager authz)
+			ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry,
+			JettyServer httpServer, MessageTemplateDB mtDB, DBSessionManager db,
+			AuthorizationManager authz)
 	{
 		this.tokensMan = tokensMan;
 		this.notificationProducer = notificationProducer;
@@ -98,7 +98,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			log.error("Cannot add token to db", e);
 			throw e;
 		}
-		
+
 		MessageTemplate template = null;
 		for (MessageTemplate tpl : getAllTemplatesFromDB())
 		{
@@ -109,9 +109,9 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 				ConfirmationTemplateDef.NAME)))
 			throw new WrongArgumentException("Illegal type of template");
 
-		
 		String link = advertisedAddress.toExternalForm()
-				+ SharedEndpointManagementImpl.CONTEXT_PATH + ConfirmationServlet.SERVLET_PATH;
+				+ SharedEndpointManagementImpl.CONTEXT_PATH
+				+ ConfirmationServlet.SERVLET_PATH;
 		HashMap<String, String> params = new HashMap<>();
 		params.put(ConfirmationTemplateDef.CONFIRMATION_LINK, link + "?"
 				+ ConfirmationServlet.CONFIRMATION_TOKEN_ARG + "=" + token);
@@ -121,6 +121,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 
 		notificationProducer.sendNotification(recipientAddress, channelName, templateId,
 				params);
+		ConfirmationFacility facility = getFacility(state);
+		facility.updateSendedRequest(state);
 	}
 
 	@Override
@@ -145,7 +147,6 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		configuration.put(VerifiableEmailAttributeSyntax.ID, entry);
 		configuration.put("email", entry);
 
-		
 		ConfigEntry cfg = configuration.get(type);
 		sendConfirmationRequest(recipientAddress, cfg.channel, cfg.template, state);
 
@@ -163,7 +164,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			db.releaseSqlSession(sql);
 		}
 	}
-	
+
 	private class ConfigEntry
 	{
 		private String channel;
@@ -175,45 +176,53 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			this.template = template;
 		}
 	}
-	
+
 	@Override
 	public ConfirmationStatus proccessConfirmation(String token) throws EngineException
 	{
 		if (token == null)
 			return new ConfirmationStatus(false, "ConfirmationStatus.invalidToken");
-		
+
 		Token tk = null;
 		try
 		{
-			tk = tokensMan.getTokenById(ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token);
+			tk = tokensMan.getTokenById(
+					ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token);
 		} catch (WrongArgumentException e)
 		{
 			log.error("Illegal token used during confirmation", e);
 			return new ConfirmationStatus(false, "ConfirmationStatus.invalidToken");
 		}
-		
 
 		Date today = new Date();
 		if (tk.getExpires().compareTo(today) < 0)
 			return new ConfirmationStatus(false, "ConfirmationStatus.expiredToken");
 
 		String rowState = new String(tk.getContents());
-		BaseConfirmationState state = new BaseConfirmationState();
-		state.setSerializedConfiguration(rowState);
-		
+		ConfirmationFacility facility = getFacility(rowState);
+
+		ConfirmationStatus status = facility.confirm(rowState);
+		tokensMan.removeToken(ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token);
+
+		return status;
+	}
+
+	private ConfirmationFacility getFacility(String state) throws InternalException
+	{
+		BaseConfirmationState baseState = new BaseConfirmationState();
+		baseState.setSerializedConfiguration(state);
+
 		ConfirmationFacility facility = null;
 		try
 		{
-			facility = confirmationFacilitiesRegistry.getByName(state.getFacilityId());
+			facility = confirmationFacilitiesRegistry.getByName(baseState
+					.getFacilityId());
 		} catch (IllegalTypeException e)
 		{
-			throw new InternalException("Can't find facility with name " + state.getFacilityId(), e);
+			throw new InternalException("Can't find facility with name "
+					+ baseState.getFacilityId(), e);
 		}
-		
-		ConfirmationStatus status = facility.confirm(rowState);
-		tokensMan.removeToken(ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token);
-				
-		return status;
+		return facility;
 	}
 
 }

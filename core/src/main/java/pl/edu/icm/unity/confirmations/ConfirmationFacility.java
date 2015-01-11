@@ -16,4 +16,5 @@ import pl.edu.icm.unity.types.DescribedObject;
 public interface ConfirmationFacility extends DescribedObject
 {
 	public ConfirmationStatus confirm(String state) throws EngineException;
+	public void updateSendedRequest(String state) throws EngineException;
 }

@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.engine.confirmations.facilities;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
@@ -22,6 +21,7 @@ import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.engine.registrations.InternalRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.VerifiableElement;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -36,17 +36,18 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
  * 
  */
 @Component
-public class AttributeFromRegistrationRequestFacility extends FacilityBase implements ConfirmationFacility
+public class AttributeFromRegistrationRequestFacility extends FacilityBase implements
+		ConfirmationFacility
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			AttributeFromRegistrationRequestFacility.class);
 	public static final String NAME = "registrationRequestVerificator";
 	private final String autoAcceptComment = "System - after confirmation";
 
-	private RegistrationRequestDB requestDB;
-	private DBSessionManager db;
+	protected RegistrationRequestDB requestDB;
+	protected DBSessionManager db;
 	private RegistrationFormDB formsDB;
-	private InternalRegistrationManagment internalRegistrationManagment;
+	protected InternalRegistrationManagment internalRegistrationManagment;
 
 	@Autowired
 	public AttributeFromRegistrationRequestFacility(DBSessionManager db,
@@ -71,19 +72,26 @@ public class AttributeFromRegistrationRequestFacility extends FacilityBase imple
 		return "Confirms attributes from registration request with verifiable values";
 	}
 
-	protected ConfirmationStatus confirmElements(RegistrationRequest req, String state) throws EngineException
+	private AttribiuteFromRegState getState(String state)
 	{
 		AttribiuteFromRegState attrState = new AttribiuteFromRegState();
 		attrState.setSerializedConfiguration(state);
-		Collection<Attribute<?>> confirmedList = confirmAttribute(req.getAttributes(), attrState.getType(),
-				attrState.getGroup(), attrState.getValue());	
+		return attrState;
+	}
+
+	protected ConfirmationStatus confirmElements(RegistrationRequest req, String state)
+			throws EngineException
+	{
+		AttribiuteFromRegState attrState = getState(state);
+		Collection<Attribute<?>> confirmedList = confirmAttribute(req.getAttributes(),
+				attrState.getType(), attrState.getGroup(), attrState.getValue());
 		boolean confirmed = (confirmedList.size() > 0);
-		return new ConfirmationStatus(confirmed ,
+		return new ConfirmationStatus(confirmed,
 				confirmed ? "ConfirmationStatus.successAttribute"
 						: "ConfirmationStatus.attributeChanged");
-		
+
 	}
-	
+
 	@Override
 	public ConfirmationStatus confirm(String state) throws EngineException
 	{
@@ -109,7 +117,7 @@ public class AttributeFromRegistrationRequestFacility extends FacilityBase imple
 			status = confirmElements(req, state);
 			requestDB.update(requestId, reqState, sql);
 			sql.commit();
-			
+
 			if (status.isSuccess()
 					&& reqState.getStatus() == RegistrationRequestStatus.pending
 					&& internalRegistrationManagment
@@ -134,5 +142,32 @@ public class AttributeFromRegistrationRequestFacility extends FacilityBase imple
 		}
 
 		return status;
+	}
+
+	@Override
+	public void updateSendedRequest(String state) throws EngineException
+	{
+		AttribiuteFromRegState attrState = getState(state);
+		String requestId = attrState.getOwner();
+		RegistrationRequestState reqState = internalRegistrationManagment
+				.getRequest(requestId);
+		for (Attribute<?> attr : reqState.getRequest().getAttributes())
+		{
+			for (Object val : attr.getValues())
+			{
+				updateConfirmationAmount((VerifiableElement) val,
+						attrState.getValue());
+			}
+		}
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			requestDB.update(requestId, reqState, sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
+
 	}
 }

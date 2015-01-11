@@ -9,9 +9,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.types.VerifiableElement;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.ConfirmationData;
@@ -19,11 +17,27 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
  * Contains methods used in all facilities
+ * 
  * @author P. Piernik
- *
+ * 
  */
 public abstract class FacilityBase
 {
+
+	protected void updateConfirmationAmount(VerifiableElement el, String value)
+	{
+		if (el.getValue().equals(value))
+		{
+			if (el.getConfirmationData() != null)
+			{
+				int amount = el.getConfirmationData().getSendedRequestAmount();
+				el.getConfirmationData().setSendedRequestAmount(amount + 1);
+			} else
+			{
+				el.setConfirmationData(new ConfirmationData(1));
+			}
+		}
+	}
 
 	private boolean confirmSingleElement(VerifiableElement verifiable, String value)
 	{
@@ -38,9 +52,8 @@ public abstract class FacilityBase
 		return false;
 	}
 
-	
-	protected Collection<Attribute<?>> confirmAttribute(Collection<Attribute<?>> attrs, String attrName,
-			String group, String value) throws EngineException
+	protected Collection<Attribute<?>> confirmAttribute(Collection<Attribute<?>> attrs,
+			String attrName, String group, String value) throws EngineException
 	{
 		List<Attribute<?>> confirmed = new ArrayList<Attribute<?>>();
 		for (Attribute<?> attr : attrs)
@@ -63,22 +76,16 @@ public abstract class FacilityBase
 		return confirmed;
 	}
 
-	protected Collection<IdentityParam> confirmIdentity(IdentityTypesRegistry identityTypesRegistry,
-			Collection<IdentityParam> identities, String type, String value)
-			throws EngineException
+	protected Collection<IdentityParam> confirmIdentity(Collection<IdentityParam> identities,
+			String type, String value) throws EngineException
 	{
-		
-
 		ArrayList<IdentityParam> confirmed = new ArrayList<IdentityParam>();
 		for (IdentityParam id : identities)
 		{
-			if (id.getTypeId().equals(type) && id.getValue().equals(value))
+			if (id.getTypeId().equals(type))
 			{
-				ConfirmationData confirmationData = id.getConfirmationData();
-				confirmationData.setConfirmed(true);
-				Date today = new Date();
-				confirmationData.setConfirmationDate(today.getTime());
-				confirmed.add(id);
+				if (confirmSingleElement(id, value))
+					confirmed.add(id);	
 			}
 		}
 		return confirmed;

@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.confirmations.facilities;
 
 import java.util.Collection;
 
+import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
+import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 
 /**
  * Identity from registration confirmation facility.
@@ -55,22 +57,53 @@ public class IdentityFromRegistrationRequestFacility extends
 		return "Confirms verifiable identity from registration request";
 	}
 
-	protected ConfirmationStatus confirmElements(RegistrationRequest req, String state)
-			throws EngineException
+	private IdentityFromRegState getState(String state)
 	{
 		IdentityFromRegState idState = new IdentityFromRegState();
 		idState.setSerializedConfiguration(state);
-		if (!identityTypesRegistry.getByName(idState.getType()).isVerifiable())
-			return new ConfirmationStatus(false, "ConfirmationStatus.identityChanged");
+		return idState;
+	}
 
-		Collection<IdentityParam> confirmedList = confirmIdentity(identityTypesRegistry,
-				req.getIdentities(), idState.getType(), idState.getValue());
+	@Override
+	protected ConfirmationStatus confirmElements(RegistrationRequest req, String state)
+			throws EngineException
+	{
+		IdentityFromRegState idState = getState(state);
+		if (!(identityTypesRegistry.getByName(idState.getType()).isVerifiable()))
+			return new ConfirmationStatus(false, "ConfirmationStatus.identityChanged");
+		System.out.println("Try confirm" + idState.getSerializedConfiguration());
+		Collection<IdentityParam> confirmedList = confirmIdentity(req.getIdentities(),
+				idState.getType(), idState.getValue());
 
 		boolean confirmed = (confirmedList.size() > 0);
 		return new ConfirmationStatus(confirmed,
 				confirmed ? "ConfirmationStatus.successIdentity"
 						: "ConfirmationStatus.identityChanged");
 
+	}
+
+	@Override
+	public void updateSendedRequest(String state) throws EngineException
+	{
+		IdentityFromRegState idState = getState(state);
+		String requestId = idState.getOwner();
+		RegistrationRequestState reqState = internalRegistrationManagment
+				.getRequest(requestId);
+		for (IdentityParam id : reqState.getRequest().getIdentities())
+		{
+
+			updateConfirmationAmount(id, id.getValue());
+
+		}
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			requestDB.update(requestId, reqState, sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
 	}
 
 }

@@ -217,8 +217,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 					notificationsCfg.getSubmittedTemplate(),
 					internalManagment.getBaseNotificationParams(form.getName(), requestFull.getRequestId()));
 			}
-			
-			boolean update = false;
+		
 			for (Attribute<?> attr : requestFull.getRequest().getAttributes())
 			{
 				if (attr.getValues().size() > 0
@@ -235,7 +234,6 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 						confirmationManager.sendConfirmationRequest(
 								val.getValue(), state.getType(),
 								state.getSerializedConfiguration());
-						val.getConfirmationData().setSendedRequestAmount(1);
 					}
 				}
 			}
@@ -250,16 +248,9 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 					confirmationManager.sendConfirmationRequest(id.getValue(),
 							id.getTypeId(),
 							state.getSerializedConfiguration());
-					id.getConfirmationData().setSendedRequestAmount(1);
 				}
 
-			}
-			if (update)
-			{
-				requestDB.update(requestFull.getRequestId(), requestFull, sql);
-				sql.commit();
-			}
-			
+			}		
 			
 		} finally
 		{

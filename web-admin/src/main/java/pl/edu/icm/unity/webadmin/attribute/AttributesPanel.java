@@ -32,7 +32,6 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.AttributesClass;
-import pl.edu.icm.unity.types.basic.ConfirmationData;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -566,7 +565,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	{	
 		public ConfirmAttributeActionHandler()
 		{
-			super(msg.getMessage("Attribute.verifyAttribute"), 
+			super(msg.getMessage("Attribute.sendConfirmationReq"), 
 					Images.confirmation.getResource());
 			setMultiTarget(false);
 		}
@@ -600,7 +599,6 @@ public class AttributesPanel extends HorizontalSplitPanel
 			Attribute<VerifiableElement> attribute = (Attribute<VerifiableElement>) ((AttributeItem) target).getAttribute();
 			try
 			{	
-				boolean updated = false;
 				AttribiuteState state = new AttribiuteState();
 				state.setOwner(owner.getEntityId().toString());
 				state.setGroup(groupPath);
@@ -609,19 +607,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 				{	
 					state.setValue(val.getValue());
 					confirmationManager.sendConfirmationRequest(val.getValue(), state.getType(), state.getSerializedConfiguration());				
-					if (val.getConfirmationData() == null)
-					{
-						val.setConfirmationData(new ConfirmationData(1));
-					}
-					else
-					{
-						int amount = val.getConfirmationData().getSendedRequestAmount();
-						val.getConfirmationData().setSendedRequestAmount(amount +1);
-						updated = true;
-					}	
-				}
-				if (updated)
-					attributesManagement.setAttribute(new EntityParam(owner.getEntityId()), attribute, true);
+				}	
 				
 				ErrorPopup.showNotice(msg, "", msg.getMessage("Attribute.confirmationSended"));	
 

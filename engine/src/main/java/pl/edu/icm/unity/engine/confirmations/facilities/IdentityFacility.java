@@ -5,24 +5,20 @@
 package pl.edu.icm.unity.engine.confirmations.facilities;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.ibatis.session.SqlSession;
-import org.apache.xml.security.utils.IdResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
-import pl.edu.icm.unity.confirmations.states.AttribiuteState;
+import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.basic.ConfirmationData;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
@@ -34,17 +30,14 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 @Component
 public class IdentityFacility extends FacilityBase implements ConfirmationFacility
 {
-	private DBSessionManager db;
-	private DBIdentities dbIdentities;
-	private IdentityTypesRegistry identityTypesRegistry;
+	protected DBSessionManager db;
+	protected DBIdentities dbIdentities;
 
 	@Autowired
-	protected IdentityFacility(DBSessionManager db, DBIdentities dbIdentities,
-			IdentityTypesRegistry identityTypesRegistry)
+	protected IdentityFacility(DBSessionManager db, DBIdentities dbIdentities)
 	{
 		this.db = db;
 		this.dbIdentities = dbIdentities;
-		this.identityTypesRegistry = identityTypesRegistry;
 	}
 
 	@Override
@@ -62,15 +55,15 @@ public class IdentityFacility extends FacilityBase implements ConfirmationFacili
 	@Override
 	public ConfirmationStatus confirm(String state) throws EngineException
 	{
-		IdentityConfirmationState idState = new IdentityConfirmationState();
-		idState.setSerializedConfiguration(state);
+		BaseConfirmationState baseState = new BaseConfirmationState();
+		baseState.setSerializedConfiguration(state);
 
 		SqlSession sql = db.getSqlSession(false);
 		// TODO CHECK ENTITY VALID.
 		try
 		{
 			EntityState entityState = dbIdentities.getEntityStatus(
-					Long.parseLong(idState.getOwner()), sql);
+					Long.parseLong(baseState.getOwner()), sql);
 
 		} catch (Exception e)
 		{
@@ -80,15 +73,35 @@ public class IdentityFacility extends FacilityBase implements ConfirmationFacili
 		{
 			db.releaseSqlSession(sql);
 		}
+
+		return confirmElements(state);
+	}
+
+	private IdentityConfirmationState getState(String state)
+	{
+		IdentityConfirmationState idState = new IdentityConfirmationState();
+		idState.setSerializedConfiguration(state);
+		return idState;
+	}
+
+	protected ConfirmationStatus confirmElements(String state) throws EngineException
+	{
+		IdentityConfirmationState idState = getState(state);
 		ConfirmationStatus status;
-		sql = db.getSqlSession(true);
+		SqlSession sql = db.getSqlSession(true);
 		try
 		{
 			Identity[] ids = dbIdentities.getIdentitiesForEntityNoContext(
 					Long.parseLong(idState.getOwner()), sql);
-			Collection<IdentityParam> confirmedList = confirmIdentity(
-					identityTypesRegistry,
-					new ArrayList<IdentityParam>(Arrays.asList(ids)),
+
+			ArrayList<IdentityParam> idsA = new ArrayList<IdentityParam>();
+			for (Identity id : ids)
+			{
+				if (id.getType().getIdentityTypeProvider().isVerifiable())
+					idsA.add(id);
+			}
+
+			Collection<IdentityParam> confirmedList = confirmIdentity(idsA,
 					idState.getType(), idState.getValue());
 			for (IdentityParam id : confirmedList)
 			{
@@ -97,14 +110,34 @@ public class IdentityFacility extends FacilityBase implements ConfirmationFacili
 			}
 			sql.commit();
 			boolean confirmed = (confirmedList.size() > 0);
-			status = new  ConfirmationStatus(confirmed,
+			status = new ConfirmationStatus(confirmed,
 					confirmed ? "ConfirmationStatus.successIdentity"
 							: "ConfirmationStatus.identityChanged");
+
 		} finally
 		{
 			db.releaseSqlSession(sql);
 		}
 		return status;
+	}
+
+	@Override
+	public void updateSendedRequest(String state) throws EngineException
+	{
+		IdentityConfirmationState idState = getState(state);
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			Identity[] ids = dbIdentities.getIdentitiesForEntityNoContext(
+					Long.parseLong(idState.getOwner()), sql);
+			for (IdentityParam id : ids)
+			{
+				updateConfirmationAmount(id, idState.getValue());
+			}
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
 	}
 
 }
