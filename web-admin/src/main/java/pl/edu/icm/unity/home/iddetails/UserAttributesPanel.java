@@ -84,17 +84,21 @@ public class UserAttributesPanel extends CustomComponent
 		}
 		
 		root.addComponent(attributeFL);
-		Button save = new Button(msg.getMessage("save"));
-		save.setIcon(Images.save.getResource());
-		save.addClickListener(new ClickListener()
+		
+		if (attributeEditors.size() > 0)
 		{
-			@Override
-			public void buttonClick(ClickEvent event)
+			Button save = new Button(msg.getMessage("save"));
+			save.setIcon(Images.save.getResource());
+			save.addClickListener(new ClickListener()
 			{
-				saveChanges();
-			}
-		});
-		root.addComponent(save);
+				@Override
+				public void buttonClick(ClickEvent event)
+				{
+					saveChanges();
+				}
+			});
+			root.addComponent(save);
+		}
 		setCompositionRoot(root);
 	}
 	
