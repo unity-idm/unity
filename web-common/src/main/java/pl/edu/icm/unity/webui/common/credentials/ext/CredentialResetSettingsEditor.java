@@ -11,8 +11,7 @@ import pl.edu.icm.unity.stdext.credential.PasswordResetTemplateDef;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.ListOfElements;
-import pl.edu.icm.unity.webui.common.ListOfElementsStub;
-import pl.edu.icm.unity.webui.common.ListOfElementsStub.RemoveHandler;
+import pl.edu.icm.unity.webui.common.ListOfElements.RemoveHandler;
 import pl.edu.icm.unity.webui.common.TextFieldWithButton;
 import pl.edu.icm.unity.webui.common.TextFieldWithButton.ButtonHandler;
 
@@ -161,7 +160,7 @@ public class CredentialResetSettingsEditor
 						return true;
 					}
 				});
-		questions = new ListOfElements<>(msg, new ListOfElementsStub.LabelConverter<String>()
+		questions = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
 		{
 			@Override
 			public Label toLabel(String value)

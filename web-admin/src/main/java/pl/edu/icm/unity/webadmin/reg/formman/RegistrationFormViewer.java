@@ -22,7 +22,6 @@ import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.HtmlLabel;
 import pl.edu.icm.unity.webui.common.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.ListOfElements;
-import pl.edu.icm.unity.webui.common.ListOfElementsStub;
 import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
@@ -200,7 +199,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		collectComments = new Label();
 		collectComments.setCaption(msg.getMessage("RegistrationFormViewer.collectComments"));
 
-		agreements = new ListOfElements<>(msg, new ListOfElementsStub.LabelConverter<AgreementRegistrationParam>()
+		agreements = new ListOfElements<>(msg, new ListOfElements.LabelConverter<AgreementRegistrationParam>()
 		{
 			@Override
 			public Label toLabel(AgreementRegistrationParam value)
@@ -214,7 +213,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		agreements.setMargin(true);
 		Panel agreementsP = new SafePanel(msg.getMessage("RegistrationFormViewer.agreements"), agreements);
 
-		identityParams = new ListOfElements<>(msg, new ListOfElementsStub.LabelConverter<IdentityRegistrationParam>()
+		identityParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<IdentityRegistrationParam>()
 		{
 			@Override
 			public Label toLabel(IdentityRegistrationParam value)
@@ -229,7 +228,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		identityParams.setMargin(true);
 		Panel identityParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.identityParams"), identityParams);
 		
-		attributeParams = new ListOfElements<>(msg, new ListOfElementsStub.LabelConverter<AttributeRegistrationParam>()
+		attributeParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<AttributeRegistrationParam>()
 		{
 			@Override
 			public Label toLabel(AttributeRegistrationParam value)
@@ -250,7 +249,7 @@ public class RegistrationFormViewer extends VerticalLayout
 				attributeParams);
 		
 		
-		groupParams = new ListOfElements<>(msg, new ListOfElementsStub.LabelConverter<GroupRegistrationParam>()
+		groupParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<GroupRegistrationParam>()
 		{
 			@Override
 			public Label toLabel(GroupRegistrationParam value)
@@ -264,7 +263,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		groupParams.setMargin(true);
 		Panel groupParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.groupParams"), groupParams);
 		
-		credentialParams = new ListOfElements<>(msg, new ListOfElementsStub.LabelConverter<CredentialRegistrationParam>()
+		credentialParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<CredentialRegistrationParam>()
 		{
 			@Override
 			public Label toLabel(CredentialRegistrationParam value)
@@ -297,7 +296,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		initialState = new Label();
 		initialState.setCaption(msg.getMessage("RegistrationFormViewer.initialState"));
 
-		attributeAssignments = new ListOfElements<>(msg, new ListOfElementsStub.LabelConverter<Attribute<?>>()
+		attributeAssignments = new ListOfElements<>(msg, new ListOfElements.LabelConverter<Attribute<?>>()
 		{
 			@Override
 			public Label toLabel(Attribute<?> value)
@@ -311,7 +310,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		Panel attributeAssignmentsP = new SafePanel(msg.getMessage("RegistrationFormViewer.attributeAssignments"),
 				attributeAssignments);
 
-		groupAssignments = new ListOfElements<>(msg, new ListOfElementsStub.LabelConverter<String>()
+		groupAssignments = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
 		{
 			@Override
 			public Label toLabel(String value)
@@ -323,7 +322,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		Panel groupAssignmentsP = new SafePanel(msg.getMessage("RegistrationFormViewer.groupAssignments"), 
 				groupAssignments);
 
-		attributeClassAssignments = new ListOfElements<>(msg, new ListOfElementsStub.LabelConverter<AttributeClassAssignment>()
+		attributeClassAssignments = new ListOfElements<>(msg, new ListOfElements.LabelConverter<AttributeClassAssignment>()
 		{
 			@Override
 			public Label toLabel(AttributeClassAssignment value)
