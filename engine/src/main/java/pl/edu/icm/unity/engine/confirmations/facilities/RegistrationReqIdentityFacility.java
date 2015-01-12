@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
-import pl.edu.icm.unity.confirmations.states.IdentityFromRegState;
+import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityState;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
@@ -29,14 +29,13 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
  * @author P. Piernik
  */
 @Component
-public class IdentityFromRegistrationRequestFacility extends
-		AttributeFromRegistrationRequestFacility implements ConfirmationFacility
+public class RegistrationReqIdentityFacility extends
+		RegistrationReqAttributeFacility implements ConfirmationFacility
 {
-
 	private IdentityTypesRegistry identityTypesRegistry;
 
 	@Autowired
-	public IdentityFromRegistrationRequestFacility(DBSessionManager db,
+	public RegistrationReqIdentityFacility(DBSessionManager db,
 			RegistrationRequestDB requestDB, RegistrationFormDB formsDB,
 			InternalRegistrationManagment internalRegistrationManagment,
 			IdentityTypesRegistry identityTypesRegistry)
@@ -48,7 +47,7 @@ public class IdentityFromRegistrationRequestFacility extends
 	@Override
 	public String getName()
 	{
-		return IdentityFromRegState.FACILITY_ID;
+		return RegistrationReqIdentityState.FACILITY_ID;
 	}
 
 	@Override
@@ -57,9 +56,9 @@ public class IdentityFromRegistrationRequestFacility extends
 		return "Confirms verifiable identity from registration request";
 	}
 
-	private IdentityFromRegState getState(String state)
+	private RegistrationReqIdentityState getState(String state)
 	{
-		IdentityFromRegState idState = new IdentityFromRegState();
+		RegistrationReqIdentityState idState = new RegistrationReqIdentityState();
 		idState.setSerializedConfiguration(state);
 		return idState;
 	}
@@ -68,10 +67,9 @@ public class IdentityFromRegistrationRequestFacility extends
 	protected ConfirmationStatus confirmElements(RegistrationRequest req, String state)
 			throws EngineException
 	{
-		IdentityFromRegState idState = getState(state);
+		RegistrationReqIdentityState idState = getState(state);
 		if (!(identityTypesRegistry.getByName(idState.getType()).isVerifiable()))
 			return new ConfirmationStatus(false, "ConfirmationStatus.identityChanged");
-		System.out.println("Try confirm" + idState.getSerializedConfiguration());
 		Collection<IdentityParam> confirmedList = confirmIdentity(req.getIdentities(),
 				idState.getType(), idState.getValue());
 
@@ -83,9 +81,9 @@ public class IdentityFromRegistrationRequestFacility extends
 	}
 
 	@Override
-	public void updateSendedRequest(String state) throws EngineException
+	public void updateSentRequest(String state) throws EngineException
 	{
-		IdentityFromRegState idState = getState(state);
+		RegistrationReqIdentityState idState = getState(state);
 		String requestId = idState.getOwner();
 		RegistrationRequestState reqState = internalRegistrationManagment
 				.getRequest(requestId);

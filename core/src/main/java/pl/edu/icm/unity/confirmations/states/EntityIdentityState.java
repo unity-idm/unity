@@ -12,9 +12,9 @@ package pl.edu.icm.unity.confirmations.states;
  * @author P. Piernik
  * 
  */
-public class IdentityConfirmationState extends BaseConfirmationState
+public class EntityIdentityState extends BaseConfirmationState
 {
-	public static final String FACILITY_ID = "identityFacility";
+	public static final String FACILITY_ID = "EntityIdentityFacility";
 	
 	@Override
 	public String getFacilityId()

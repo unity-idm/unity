@@ -86,22 +86,22 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 		con.setCaption(msg.getMessage("VerifiableEmailAttributeHandler.verified"));
 		Label date = new Label();
 		date.setCaption(msg.getMessage("VerifiableEmailAttributeHandler.verificationDate"));
-		Label sendedReq = new Label();
-		sendedReq.setCaption(msg.getMessage("VerifiableEmailAttributeHandler.sendedRequests"));
+		Label sentReq = new Label();
+		sentReq.setCaption(msg.getMessage("VerifiableEmailAttributeHandler.sentRequests"));
 		ConfirmationData conData = value.getConfirmationData();
 		if (conData != null)
 		{
 			con.setValue(String.valueOf(conData.isConfirmed()));
-			sendedReq.setValue(String.valueOf(conData.getSendedRequestAmount()));
+			sentReq.setValue(String.valueOf(conData.getSentRequestAmount()));
 			if (conData.getConfirmationDate() != 0)
 			{
 				Date dt = new Date(conData.getConfirmationDate());
 				date.setValue(new SimpleDateFormat(Constants.AMPM_DATE_FORMAT)
 						.format(dt));
-				main.addComponents(val, con, date, sendedReq);
+				main.addComponents(val, con, date, sentReq);
 			} else
 			{
-				main.addComponents(val, con, sendedReq);
+				main.addComponents(val, con, sentReq);
 			}
 
 		}else
@@ -192,9 +192,10 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 			{
 				VerifiableEmail email = new VerifiableEmail();
 				email.setValue(field.getValue());
-				;
 				syntax.validate(email);
-				field.setComponentError(null);
+				field.setComponentError(null);		
+				if (value != null && field.getValue().equals(value.getValue()))
+					email.setConfirmationData(value.getConfirmationData());
 				return email;
 			} catch (IllegalAttributeValueException e)
 			{

@@ -11,9 +11,9 @@ package pl.edu.icm.unity.confirmations.states;
  * @author P. Piernik
  * 
  */
-public class AttribiuteFromRegState extends AttribiuteState
+public class RegistrationReqAttribiuteState extends EntityAttribiuteState
 {
-	public static final String FACILITY_ID = "attributeFromRegistrationFacility";
+	public static final String FACILITY_ID = "RegistrationAttributeFacility";
 	
 	@Override
 	public String getFacilityId()

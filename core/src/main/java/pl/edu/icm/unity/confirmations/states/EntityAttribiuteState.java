@@ -14,9 +14,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author P. Piernik
  * 
  */
-public class AttribiuteState extends IdentityConfirmationState
+public class EntityAttribiuteState extends BaseConfirmationState
 {
-	public static final String FACILITY_ID = "attributeFacility";
+	public static final String FACILITY_ID = "EntityAttributeFacility";
 	private String group;
 
 	@Override
@@ -34,7 +34,7 @@ public class AttribiuteState extends IdentityConfirmationState
 	{
 		this.group = group;
 	}
-
+	
 	@Override
 	protected ObjectNode createState()
 	{

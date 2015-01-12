@@ -22,14 +22,14 @@ public class ConfirmationData implements JsonSerializable
 {
 	private boolean confirmed;
 	private long confirmationDate;
-	private int sendedRequestAmount;
+	private int sentRequestAmount;
 
 	public ConfirmationData()
 	{	
 	}
-	public ConfirmationData(int sendedRequestAmount)
+	public ConfirmationData(int sentRequestAmount)
 	{
-		this.sendedRequestAmount = sendedRequestAmount;
+		this.sentRequestAmount = sentRequestAmount;
 	}
 	
 	public boolean isConfirmed()
@@ -52,14 +52,14 @@ public class ConfirmationData implements JsonSerializable
 		this.confirmationDate = confirmationDate;
 	}
 
-	public int getSendedRequestAmount()
+	public int getSentRequestAmount()
 	{
-		return sendedRequestAmount;
+		return sentRequestAmount;
 	}
 
-	public void setSendedRequestAmount(int sendedRequestAmount)
+	public void setSentRequestAmount(int sendedRequestAmount)
 	{
-		this.sendedRequestAmount = sendedRequestAmount;
+		this.sentRequestAmount = sendedRequestAmount;
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class ConfirmationData implements JsonSerializable
 		ObjectNode main = Constants.MAPPER.createObjectNode();
 		main.put("confirmed", isConfirmed());
 		main.put("confirmationDate", getConfirmationDate());
-		main.put("sendedRequestAmount", getSendedRequestAmount());
+		main.put("sentRequestAmount", getSentRequestAmount());
 		try
 		{
 			return Constants.MAPPER.writeValueAsString(main);
@@ -93,7 +93,7 @@ public class ConfirmationData implements JsonSerializable
 
 		setConfirmed(jsonN.get("confirmed").asBoolean(false));
 		setConfirmationDate(jsonN.get("confirmationDate").asLong());
-		setSendedRequestAmount(jsonN.get("sendedRequestAmount").asInt());
+		setSentRequestAmount(jsonN.get("sentRequestAmount").asInt());
 	}
 
 	@Override
@@ -111,7 +111,7 @@ public class ConfirmationData implements JsonSerializable
 			return false;
 		if (confirmationDate != other.getConfirmationDate())
 			return false;
-		if (sendedRequestAmount != other.getSendedRequestAmount())
+		if (sentRequestAmount != other.getSentRequestAmount())
 			return false;
 		return true;
 	}
@@ -123,7 +123,7 @@ public class ConfirmationData implements JsonSerializable
 		int result = 1;
 		result = prime * result + (int) (confirmationDate ^ (confirmationDate >>> 32));
 		result = prime * result + (confirmed ? 1231 : 1237);
-		result = prime * result + sendedRequestAmount;
+		result = prime * result + sentRequestAmount;
 		return result;
 	}
 }

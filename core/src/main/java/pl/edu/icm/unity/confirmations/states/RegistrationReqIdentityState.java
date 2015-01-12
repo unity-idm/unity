@@ -12,10 +12,10 @@ package pl.edu.icm.unity.confirmations.states;
  * @author P. Piernik
  * 
  */
-public class IdentityFromRegState extends IdentityConfirmationState
+public class RegistrationReqIdentityState extends EntityIdentityState
 {
 
-	public static final String FACILITY_ID = "identityFromRegistrationFacility";
+	public static final String FACILITY_ID = "RegistrationIdentityFacility";
 
 	@Override
 	public String getFacilityId()

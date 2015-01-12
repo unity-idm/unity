@@ -20,10 +20,10 @@ public class BaseConfirmationState implements JsonSerializable
 {
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	
-	private String facilityId;
-	private String owner;
-	private String type;
-	private String value;
+	protected String facilityId;
+	protected String owner;
+	protected String type;
+	protected String value;
 	
 	public String getFacilityId()
 	{

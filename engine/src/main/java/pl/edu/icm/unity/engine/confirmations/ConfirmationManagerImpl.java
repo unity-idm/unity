@@ -26,7 +26,6 @@ import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
 import pl.edu.icm.unity.engine.SharedEndpointManagementImpl;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.notifications.NotificationProducerImpl;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
@@ -61,15 +60,13 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 
 	private MessageTemplateDB mtDB;
 	private DBSessionManager db;
-	private AuthorizationManager authz;
 
 	@Autowired
 	public ConfirmationManagerImpl(TokensManagement tokensMan,
 			MessageTemplateManagement templateMan,
 			NotificationProducerImpl notificationProducer,
 			ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry,
-			JettyServer httpServer, MessageTemplateDB mtDB, DBSessionManager db,
-			AuthorizationManager authz)
+			JettyServer httpServer, MessageTemplateDB mtDB, DBSessionManager db)
 	{
 		this.tokensMan = tokensMan;
 		this.notificationProducer = notificationProducer;
@@ -77,7 +74,6 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		this.advertisedAddress = httpServer.getAdvertisedAddress();
 		this.mtDB = mtDB;
 		this.db = db;
-		this.authz = authz;
 	}
 
 	private void sendConfirmationRequest(String recipientAddress, String channelName,
@@ -122,12 +118,11 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		notificationProducer.sendNotification(recipientAddress, channelName, templateId,
 				params);
 		ConfirmationFacility facility = getFacility(state);
-		facility.updateSendedRequest(state);
+		facility.updateSentRequest(state);
 	}
 
 	@Override
-	public void sendConfirmationRequest(String recipientAddress, String type, String state)
-			throws EngineException
+	public void sendConfirmationRequest(String state) throws EngineException
 	{
 		// TODO REMOVE SIMPLE INITIALIZE
 		HashMap<String, ConfigEntry> configuration = new HashMap<String, ConfigEntry>();
@@ -147,8 +142,11 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		configuration.put(VerifiableEmailAttributeSyntax.ID, entry);
 		configuration.put("email", entry);
 
-		ConfigEntry cfg = configuration.get(type);
-		sendConfirmationRequest(recipientAddress, cfg.channel, cfg.template, state);
+		BaseConfirmationState baseState = new BaseConfirmationState();
+		baseState.setSerializedConfiguration(state);
+
+		ConfigEntry cfg = configuration.get(baseState.getType());
+		sendConfirmationRequest(baseState.getValue(), cfg.channel, cfg.template, state);
 
 	}
 
@@ -224,5 +222,4 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		}
 		return facility;
 	}
-
 }

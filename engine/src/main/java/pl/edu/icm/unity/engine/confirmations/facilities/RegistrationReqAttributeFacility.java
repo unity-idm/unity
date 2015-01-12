@@ -7,20 +7,18 @@ package pl.edu.icm.unity.engine.confirmations.facilities;
 import java.util.Collection;
 
 import org.apache.ibatis.session.SqlSession;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
-import pl.edu.icm.unity.confirmations.states.AttribiuteFromRegState;
 import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
+import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteState;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.engine.registrations.InternalRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.VerifiableElement;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.registration.AdminComment;
@@ -36,13 +34,10 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
  * 
  */
 @Component
-public class AttributeFromRegistrationRequestFacility extends FacilityBase implements
+public class RegistrationReqAttributeFacility extends BaseFacility implements
 		ConfirmationFacility
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
-			AttributeFromRegistrationRequestFacility.class);
 	public static final String NAME = "registrationRequestVerificator";
-	private final String autoAcceptComment = "System - after confirmation";
 
 	protected RegistrationRequestDB requestDB;
 	protected DBSessionManager db;
@@ -50,7 +45,7 @@ public class AttributeFromRegistrationRequestFacility extends FacilityBase imple
 	protected InternalRegistrationManagment internalRegistrationManagment;
 
 	@Autowired
-	public AttributeFromRegistrationRequestFacility(DBSessionManager db,
+	public RegistrationReqAttributeFacility(DBSessionManager db,
 			RegistrationRequestDB requestDB, RegistrationFormDB formsDB,
 			InternalRegistrationManagment internalRegistrationManagment)
 	{
@@ -63,7 +58,7 @@ public class AttributeFromRegistrationRequestFacility extends FacilityBase imple
 	@Override
 	public String getName()
 	{
-		return AttribiuteFromRegState.FACILITY_ID;
+		return RegistrationReqAttribiuteState.FACILITY_ID;
 	}
 
 	@Override
@@ -72,9 +67,9 @@ public class AttributeFromRegistrationRequestFacility extends FacilityBase imple
 		return "Confirms attributes from registration request with verifiable values";
 	}
 
-	private AttribiuteFromRegState getState(String state)
+	private RegistrationReqAttribiuteState getState(String state)
 	{
-		AttribiuteFromRegState attrState = new AttribiuteFromRegState();
+		RegistrationReqAttribiuteState attrState = new RegistrationReqAttribiuteState();
 		attrState.setSerializedConfiguration(state);
 		return attrState;
 	}
@@ -82,7 +77,7 @@ public class AttributeFromRegistrationRequestFacility extends FacilityBase imple
 	protected ConfirmationStatus confirmElements(RegistrationRequest req, String state)
 			throws EngineException
 	{
-		AttribiuteFromRegState attrState = getState(state);
+		RegistrationReqAttribiuteState attrState = getState(state);
 		Collection<Attribute<?>> confirmedList = confirmAttribute(req.getAttributes(),
 				attrState.getType(), attrState.getGroup(), attrState.getValue());
 		boolean confirmed = (confirmedList.size() > 0);
@@ -125,7 +120,7 @@ public class AttributeFromRegistrationRequestFacility extends FacilityBase imple
 
 			{
 				RegistrationForm form = formsDB.get(req.getFormId(), sql);
-				AdminComment internalComment = new AdminComment(autoAcceptComment,
+				AdminComment internalComment = new AdminComment(InternalRegistrationManagment.AUTO_ACCEPT_COMMENT,
 						0, false);
 				reqState.getAdminComments().add(internalComment);
 				internalRegistrationManagment.acceptRequest(form, reqState, null,
@@ -145,9 +140,9 @@ public class AttributeFromRegistrationRequestFacility extends FacilityBase imple
 	}
 
 	@Override
-	public void updateSendedRequest(String state) throws EngineException
+	public void updateSentRequest(String state) throws EngineException
 	{
-		AttribiuteFromRegState attrState = getState(state);
+		RegistrationReqAttribiuteState attrState = getState(state);
 		String requestId = attrState.getOwner();
 		RegistrationRequestState reqState = internalRegistrationManagment
 				.getRequest(requestId);

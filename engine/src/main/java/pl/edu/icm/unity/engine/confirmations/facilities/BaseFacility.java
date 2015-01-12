@@ -21,7 +21,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  * @author P. Piernik
  * 
  */
-public abstract class FacilityBase
+public abstract class BaseFacility
 {
 
 	protected void updateConfirmationAmount(VerifiableElement el, String value)
@@ -30,8 +30,8 @@ public abstract class FacilityBase
 		{
 			if (el.getConfirmationData() != null)
 			{
-				int amount = el.getConfirmationData().getSendedRequestAmount();
-				el.getConfirmationData().setSendedRequestAmount(amount + 1);
+				int amount = el.getConfirmationData().getSentRequestAmount();
+				el.getConfirmationData().setSentRequestAmount(amount + 1);
 			} else
 			{
 				el.setConfirmationData(new ConfirmationData(1));

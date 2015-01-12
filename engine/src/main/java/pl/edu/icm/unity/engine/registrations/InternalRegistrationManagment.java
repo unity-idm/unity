@@ -74,6 +74,7 @@ import pl.edu.icm.unity.types.registration.Selection;
 public class InternalRegistrationManagment
 {	
 	private static final Logger log = Log.getLogger(Log.U_SERVER, InternalRegistrationManagment.class);
+	public static final String AUTO_ACCEPT_COMMENT = "System";
 
 	private DBSessionManager db;
 	private RegistrationFormDB formsDB;
@@ -130,7 +131,7 @@ public class InternalRegistrationManagment
 	
 	
 
-	public void acceptRequest(RegistrationForm form, RegistrationRequestState currentRequest, 
+	public Long acceptRequest(RegistrationForm form, RegistrationRequestState currentRequest, 
 			AdminComment publicComment, AdminComment internalComment, SqlSession sql) 
 			throws EngineException
 	{
@@ -214,6 +215,8 @@ public class InternalRegistrationManagment
 		sendProcessingNotification(notificationsCfg.getAcceptedTemplate(),
 				currentRequest, currentRequest.getRequestId(), form.getName(), true,
 				publicComment, internalComment,	notificationsCfg, sql);
+		
+		return initial.getEntityId();
 	}
 
 	private void addAttr(Attribute<?> a, List<Attribute<?>> rootAttributes, 

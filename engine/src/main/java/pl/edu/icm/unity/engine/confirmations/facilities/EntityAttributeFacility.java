@@ -8,17 +8,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.ibatis.session.SqlSession;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
-import pl.edu.icm.unity.confirmations.states.AttribiuteState;
+import pl.edu.icm.unity.confirmations.states.EntityAttribiuteState;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.VerifiableElement;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -28,13 +26,12 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
  * 
  * @author P. Piernik
  */
-public class AttributeFacility extends IdentityFacility implements ConfirmationFacility
+public class EntityAttributeFacility extends EntityIdentityFacility implements ConfirmationFacility
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AttributeFacility.class);
 	private DBAttributes dbAttributes;
 
 	@Autowired
-	public AttributeFacility(DBSessionManager db, DBAttributes dbAttributes,
+	public EntityAttributeFacility(DBSessionManager db, DBAttributes dbAttributes,
 			DBIdentities dbIdentities)
 	{
 		super(db, dbIdentities);
@@ -44,7 +41,7 @@ public class AttributeFacility extends IdentityFacility implements ConfirmationF
 	@Override
 	public String getName()
 	{
-		return AttribiuteState.FACILITY_ID;
+		return EntityAttribiuteState.FACILITY_ID;
 	}
 
 	@Override
@@ -56,10 +53,9 @@ public class AttributeFacility extends IdentityFacility implements ConfirmationF
 	@Override
 	protected ConfirmationStatus confirmElements(String state) throws EngineException
 	{
-		AttribiuteState attrState = getState(state);
-		SqlSession sql = db.getSqlSession(false);
+		EntityAttribiuteState attrState = getState(state);
 		ConfirmationStatus status;
-		sql = db.getSqlSession(true);
+		SqlSession sql= db.getSqlSession(true);
 		try
 		{
 
@@ -102,20 +98,19 @@ public class AttributeFacility extends IdentityFacility implements ConfirmationF
 		return attributes;
 	}
 
-	private AttribiuteState getState(String state)
+	private EntityAttribiuteState getState(String state)
 	{
-		AttribiuteState attrState = new AttribiuteState();
+		EntityAttribiuteState attrState = new EntityAttribiuteState();
 		attrState.setSerializedConfiguration(state);
 		return attrState;
 	}
 
 	@Override
-	public void updateSendedRequest(String state) throws EngineException
+	public void updateSentRequest(String state) throws EngineException
 	{
-		AttribiuteState attrState = new AttribiuteState();
+		EntityAttribiuteState attrState = new EntityAttribiuteState();
 		attrState.setSerializedConfiguration(state);
-		SqlSession sql = db.getSqlSession(false);
-		sql = db.getSqlSession(true);
+		SqlSession sql = db.getSqlSession(true);
 		try
 		{
 

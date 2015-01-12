@@ -16,8 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
-import pl.edu.icm.unity.confirmations.states.AttribiuteFromRegState;
-import pl.edu.icm.unity.confirmations.states.IdentityFromRegState;
+import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteState;
+import pl.edu.icm.unity.confirmations.states.EntityAttribiuteState;
+import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
+import pl.edu.icm.unity.confirmations.states.EntityIdentityState;
+import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityState;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
@@ -33,6 +36,7 @@ import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.notifications.NotificationProducerImpl;
 import pl.edu.icm.unity.engine.registrations.InternalRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
@@ -71,7 +75,6 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 @Component
 public class RegistrationsManagementImpl implements RegistrationsManagement
 {
-	private final String autoAcceptComment = "System";
 	private DBSessionManager db;
 	private RegistrationFormDB formsDB;
 	private RegistrationRequestDB requestDB;
@@ -216,55 +219,23 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 					notificationsCfg.getChannel(), 
 					notificationsCfg.getSubmittedTemplate(),
 					internalManagment.getBaseNotificationParams(form.getName(), requestFull.getRequestId()));
-			}
-		
-			for (Attribute<?> attr : requestFull.getRequest().getAttributes())
+			}	
+			Long entityId = null;
+			if (tryAutoAccept && internalManagment.checkAutoAcceptCondition(requestFull.getRequest()))
 			{
-				if (attr.getValues().size() > 0
-						&& attr.getValues().get(0) instanceof VerifiableElement)
-				{
-					Attribute<VerifiableElement> verifiableAttr = (Attribute<VerifiableElement>) attr;
-					AttribiuteFromRegState state = new AttribiuteFromRegState();
-					state.setOwner(requestFull.getRequestId());
-					state.setGroup(verifiableAttr.getGroupPath());
-					state.setType(verifiableAttr.getName());
-					for (VerifiableElement val : verifiableAttr.getValues())
-					{
-						state.setValue(val.getValue());
-						confirmationManager.sendConfirmationRequest(
-								val.getValue(), state.getType(),
-								state.getSerializedConfiguration());
-					}
-				}
+				AdminComment autoAcceptComment = new AdminComment(InternalRegistrationManagment.AUTO_ACCEPT_COMMENT, 0, false);
+				requestFull.getAdminComments().add(autoAcceptComment);
+				entityId = internalManagment.acceptRequest(form, requestFull, null, autoAcceptComment, sql);
 			}
-			for (IdentityParam id : requestFull.getRequest().getIdentities())
-			{
-				if (identityTypesRegistry.getByName(id.getTypeId()).isVerifiable())
-				{
-					IdentityFromRegState state = new IdentityFromRegState();
-					state.setOwner(requestFull.getRequestId());
-					state.setType(id.getTypeId());
-					state.setValue(id.getValue());
-					confirmationManager.sendConfirmationRequest(id.getValue(),
-							id.getTypeId(),
-							state.getSerializedConfiguration());
-				}
-
-			}		
+			sql.commit();
+			sendAttributeConfirmationRequest(requestFull, entityId);
+			sendIdentityConfirmationRequest(requestFull, entityId);	
 			
 		} finally
 		{
 			db.releaseSqlSession(sql);
 		}
 		
-		
-		if (tryAutoAccept && internalManagment.checkAutoAcceptCondition(requestFull.getRequest()))
-		{
-			processRegistrationRequest(requestFull.getRequestId(),
-					requestFull.getRequest(), RegistrationRequestAction.accept,
-					null, autoAcceptComment);
-		}
-			
 		return requestFull.getRequestId();
 	}
 
@@ -539,5 +510,62 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				throw new WrongArgumentException("Template " + tpl + 
 						" is not suitable as the " + purpose + " template");
 		}
-	}	
+	}
+	
+	private void sendAttributeConfirmationRequest(RegistrationRequestState requestState,
+			Long entityId) throws InternalException, EngineException
+	{
+		for (Attribute<?> attr : requestState.getRequest().getAttributes())
+		{
+			if (attr.getValues().size() > 0
+					&& attr.getValues().get(0) instanceof VerifiableElement)
+			{
+				Attribute<VerifiableElement> verifiableAttr = (Attribute<VerifiableElement>) attr;
+				EntityAttribiuteState state;
+				if (entityId == null)
+				{
+					state = new RegistrationReqAttribiuteState();
+					state.setOwner(requestState.getRequestId());
+				} else
+				{
+					state = new EntityAttribiuteState();
+					state.setOwner(entityId.toString());
+				}
+				state.setGroup(verifiableAttr.getGroupPath());
+				state.setType(verifiableAttr.getName());
+				for (VerifiableElement val : verifiableAttr.getValues())
+				{
+					state.setValue(val.getValue());
+					confirmationManager.sendConfirmationRequest(state
+							.getSerializedConfiguration());
+				}
+			}
+		}
+	}
+	
+	private void sendIdentityConfirmationRequest(RegistrationRequestState requestState,
+			Long entityId) throws InternalException, EngineException
+	{
+		for (IdentityParam id : requestState.getRequest().getIdentities())
+		{
+			if (identityTypesRegistry.getByName(id.getTypeId()).isVerifiable())
+			{
+				BaseConfirmationState state;
+				if (entityId == null)
+				{
+					state = new RegistrationReqIdentityState();
+					state.setOwner(requestState.getRequestId());
+				} else
+				{
+					state = new EntityIdentityState();
+					state.setOwner(entityId.toString());
+				}
+				state.setType(id.getTypeId());
+				state.setValue(id.getValue());
+				confirmationManager.sendConfirmationRequest(state
+						.getSerializedConfiguration());
+			}
+
+		}
+	}
 }

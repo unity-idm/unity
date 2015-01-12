@@ -13,7 +13,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
  */
 public interface ConfirmationManager
 {
-	public void sendConfirmationRequest(String recipientAddress, String type, String state) throws EngineException;
+	public void sendConfirmationRequest(String state) throws EngineException;
 	public ConfirmationStatus proccessConfirmation(String token) throws EngineException;
 	
 }

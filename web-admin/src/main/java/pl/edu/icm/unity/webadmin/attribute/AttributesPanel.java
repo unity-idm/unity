@@ -19,8 +19,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
-import pl.edu.icm.unity.confirmations.states.AttribiuteState;
+import pl.edu.icm.unity.confirmations.states.EntityAttribiuteState;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
@@ -543,7 +544,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			Attribute<?> attribute = ((AttributeItem) target).getAttribute();;
+			final Attribute<?> attribute = ((AttributeItem) target).getAttribute();
 			AttributeType attributeType = attributeTypes.get(attribute.getName());
 			AttributeEditor attributeEditor = new AttributeEditor(msg, attributeType, attribute, 
 					registry);
@@ -554,7 +555,17 @@ public class AttributesPanel extends HorizontalSplitPanel
 						@Override
 						public boolean newAttribute(Attribute<?> newAttribute)
 						{
-							return updateAttribute(newAttribute);
+							boolean updated = updateAttribute(newAttribute);
+							if (!newAttribute.equals(attribute))
+							{
+								if (newAttribute.getValues().size() > 0 && newAttribute.getValues().get(0) instanceof VerifiableElement)
+								{
+									Attribute<VerifiableElement> vattr = (Attribute<VerifiableElement>) newAttribute;
+									sendConfirmationRequest(vattr);
+								}
+							}
+							
+							return updated;
 						}
 					}, attributeEditor);
 			dialog.show();
@@ -597,25 +608,31 @@ public class AttributesPanel extends HorizontalSplitPanel
 		public void handleAction(Object sender, final Object target)
 		{
 			Attribute<VerifiableElement> attribute = (Attribute<VerifiableElement>) ((AttributeItem) target).getAttribute();
-			try
-			{	
-				AttribiuteState state = new AttribiuteState();
-				state.setOwner(owner.getEntityId().toString());
-				state.setGroup(groupPath);
-				state.setType(attribute.getName());
-				for (VerifiableElement val:attribute.getValues())
-				{	
-					state.setValue(val.getValue());
-					confirmationManager.sendConfirmationRequest(val.getValue(), state.getType(), state.getSerializedConfiguration());				
-				}	
-				
-				ErrorPopup.showNotice(msg, "", msg.getMessage("Attribute.confirmationSended"));	
-
-			} catch (EngineException e)
+			sendConfirmationRequest(attribute);		
+			
+		}
+	}
+	
+	private void sendConfirmationRequest(Attribute<VerifiableElement> attribute)
+	{
+		try
+		{
+			EntityAttribiuteState state = new EntityAttribiuteState();
+			state.setOwner(owner.getEntityId().toString());
+			state.setGroup(groupPath);
+			state.setType(attribute.getName());
+			for (VerifiableElement val : attribute.getValues())
 			{
-				ErrorPopup.showError(msg, msg.getMessage("Attribute.cannotSendConfirmation") , e);
+				state.setValue(val.getValue());
+				confirmationManager.sendConfirmationRequest(state
+						.getSerializedConfiguration());
+			}
+			ErrorPopup.showNotice(msg, "", msg.getMessage("Attribute.confirmationSended"));	
+		} catch (EngineException e)
+		{
+			ErrorPopup.showError(msg,
+					msg.getMessage("Attribute.cannotSendConfirmation"), e);
 
-			}			
 		}
 	}
 

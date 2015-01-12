@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.Log;
@@ -79,7 +78,7 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 				msg));
 
 		HorizontalLayout infoWrapper = new HorizontalLayout();
-		infoWrapper.setWidth(50, Unit.PERCENTAGE);
+		infoWrapper.setWidth(30, Unit.PERCENTAGE);
 		infoWrapper.addComponent(status == true ? getSuccessfullStatus(info)
 				: getUnsuccessfullStatus(info));
 

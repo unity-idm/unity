@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
-import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
+import pl.edu.icm.unity.confirmations.states.EntityIdentityState;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsDialog;
@@ -984,18 +984,16 @@ public class IdentitiesTable extends TreeTable
 
 			for (IdentityWithEntity ide : filteredNodes)
 			{
-				IdentityConfirmationState state = new IdentityConfirmationState();
+				EntityIdentityState state = new EntityIdentityState();
 				state.setOwner(ide.getEntityWithLabel().getEntity().getId()
 						.toString());
 				state.setType(ide.getIdentity().getTypeId());
 				state.setValue(ide.getIdentity().getValue());
 				try
 				{
-					confirmationManager.sendConfirmationRequest(ide
-							.getIdentity().getValue(), ide
-							.getIdentity().getTypeId(), state
+					confirmationManager.sendConfirmationRequest(state
 							.getSerializedConfiguration());
-					
+	
 				} catch (EngineException e)
 				{
 					ErrorPopup.showError(msg, msg.getMessage("Identities.cannotSendConfirmation"), e);
