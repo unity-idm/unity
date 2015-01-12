@@ -1039,7 +1039,7 @@ public class IdentitiesTable extends TreeTable
 
 	private void showEntityDetails(EntityWithLabel entity)
 	{
-		final EntityDetailsPanel identityDetailsPanel = new EntityDetailsPanel(msg, true);
+		final EntityDetailsPanel identityDetailsPanel = new EntityDetailsPanel(msg);
 		Collection<String> groups;
 		try
 		{

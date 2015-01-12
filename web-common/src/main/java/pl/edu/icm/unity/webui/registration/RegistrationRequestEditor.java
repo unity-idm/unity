@@ -41,6 +41,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.common.ListOfElements;
+import pl.edu.icm.unity.webui.common.ListOfElementsStub;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
@@ -593,7 +594,8 @@ public class RegistrationRequestEditor extends CustomComponent
 	
 	private void createExternalIdentitiesUI(Layout layout)
 	{
-		ListOfElements<String> identitiesList = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
+		ListOfElements<String> identitiesList = new ListOfElements<>(msg, 
+				new ListOfElementsStub.LabelConverter<String>()
 		{
 			@Override
 			public Label toLabel(String value)
@@ -624,7 +626,7 @@ public class RegistrationRequestEditor extends CustomComponent
 	private void createExternalAttributesUI(Layout layout)
 	{
 		List<AttributeRegistrationParam> attributeParams = form.getAttributeParams();
-		ListOfElements<String> attributesList = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
+		ListOfElements<String> attributesList = new ListOfElements<>(msg, new ListOfElementsStub.LabelConverter<String>()
 		{
 			@Override
 			public Label toLabel(String value)
@@ -654,7 +656,7 @@ public class RegistrationRequestEditor extends CustomComponent
 	
 	private void createExternalGroupsUI(Layout layout)
 	{
-		ListOfElements<String> groupsList = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
+		ListOfElements<String> groupsList = new ListOfElements<>(msg, new ListOfElementsStub.LabelConverter<String>()
 		{
 			@Override
 			public Label toLabel(String value)

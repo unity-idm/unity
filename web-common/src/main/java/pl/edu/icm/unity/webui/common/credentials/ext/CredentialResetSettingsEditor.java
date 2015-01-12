@@ -4,6 +4,18 @@
  */
 package pl.edu.icm.unity.webui.common.credentials.ext;
 
+import pl.edu.icm.unity.server.api.MessageTemplateManagement;
+import pl.edu.icm.unity.server.authn.CredentialResetSettings;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.stdext.credential.PasswordResetTemplateDef;
+import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.ListOfElements;
+import pl.edu.icm.unity.webui.common.ListOfElementsStub;
+import pl.edu.icm.unity.webui.common.ListOfElementsStub.RemoveHandler;
+import pl.edu.icm.unity.webui.common.TextFieldWithButton;
+import pl.edu.icm.unity.webui.common.TextFieldWithButton.ButtonHandler;
+
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.Sizeable.Unit;
@@ -12,17 +24,6 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Slider;
-
-import pl.edu.icm.unity.server.api.MessageTemplateManagement;
-import pl.edu.icm.unity.server.authn.CredentialResetSettings;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.stdext.credential.PasswordResetTemplateDef;
-import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.ListOfElements;
-import pl.edu.icm.unity.webui.common.ListOfElements.RemoveHandler;
-import pl.edu.icm.unity.webui.common.TextFieldWithButton;
-import pl.edu.icm.unity.webui.common.TextFieldWithButton.ButtonHandler;
 
 /**
  * Part of UI, insertable into FormLayout, useful for {@link CredentialResetSettings} editing or viewing.
@@ -160,7 +161,7 @@ public class CredentialResetSettingsEditor
 						return true;
 					}
 				});
-		questions = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
+		questions = new ListOfElements<>(msg, new ListOfElementsStub.LabelConverter<String>()
 		{
 			@Override
 			public Label toLabel(String value)

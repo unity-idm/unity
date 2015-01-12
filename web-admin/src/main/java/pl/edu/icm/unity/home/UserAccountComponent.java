@@ -16,10 +16,10 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.home.iddetails.EntityDetailsPanel;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsWithActions;
 import pl.edu.icm.unity.home.iddetails.EntityRemovalButton;
 import pl.edu.icm.unity.home.iddetails.UserAttributesPanel;
+import pl.edu.icm.unity.home.iddetails.UserDetailsPanel;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
@@ -124,7 +124,7 @@ public class UserAccountComponent extends VerticalLayout
 	{
 		try
 		{
-			EntityDetailsPanel userInfo = getUserInfoComponent(theUser.getEntityId(), idsMan, attrMan);
+			UserDetailsPanel userInfo = getUserInfoComponent(theUser.getEntityId(), idsMan, attrMan);
 			EntityRemovalButton removalButton = new EntityRemovalButton(msg, 
 					theUser.getEntityId(), idsMan, authnProcessor);
 			UserAttributesPanel attrsPanel = new UserAttributesPanel(msg, attributeHandlerRegistry, 
@@ -175,10 +175,10 @@ public class UserAccountComponent extends VerticalLayout
 				Images.settings64.getResource(), preferencesComponent);
 	}
 	
-	private EntityDetailsPanel getUserInfoComponent(long entityId, IdentitiesManagement idsMan, 
+	private UserDetailsPanel getUserInfoComponent(long entityId, IdentitiesManagement idsMan, 
 			AttributesInternalProcessing attrMan) throws EngineException
 	{
-		EntityDetailsPanel ret = new EntityDetailsPanel(msg, false);
+		UserDetailsPanel ret = new UserDetailsPanel(msg);
 		EntityParam param = new EntityParam(entityId);
 		Collection<String> groups;
 		try

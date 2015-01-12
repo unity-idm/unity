@@ -45,8 +45,9 @@ public class TopHeader extends TopHeaderLight
 	{
 		LoginSession entity = InvocationContext.getCurrent().getLoginSession();
 		String label = entity.getEntityLabel() == null ? "" : entity.getEntityLabel();
-		Label loggedEntity = new Label(msg.getMessage("MainHeader.loggedAs", label,
-				entity.getEntityId()));
+		Label loggedEntity = new Label(entity.getEntityLabel() != null ? 
+				msg.getMessage("MainHeader.loggedAs", label) :
+				msg.getMessage("MainHeader.loggedAsWithId", entity.getEntityId()));
 		loggedEntity.setId("MainHeader.loggedAs");
 		loggedEntity.setStyleName(Reindeer.LABEL_H2);
 		loggedPanel.addComponent(loggedEntity);

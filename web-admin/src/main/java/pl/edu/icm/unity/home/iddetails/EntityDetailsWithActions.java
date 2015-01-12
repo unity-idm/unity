@@ -20,7 +20,7 @@ import com.vaadin.ui.VerticalLayout;
 public class EntityDetailsWithActions extends CustomComponent
 {
 	public EntityDetailsWithActions(Set<String> disabled,
-			EntityDetailsPanel detailsPanel, UserAttributesPanel attrsPanel, 
+			UserDetailsPanel detailsPanel, UserAttributesPanel attrsPanel, 
 			EntityRemovalButton removalButton)
 	{
 		VerticalLayout main = new VerticalLayout();
