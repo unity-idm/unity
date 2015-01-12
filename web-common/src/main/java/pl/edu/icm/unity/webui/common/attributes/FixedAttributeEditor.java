@@ -60,6 +60,16 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 		valuesComponent.setEntries(labelledValues);
 	}
 	
+	public AttributeType getAttributeType()
+	{
+		return attributeType;
+	}
+
+	public String getGroup()
+	{
+		return group;
+	}
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Attribute<?> getAttribute() throws FormValidationException
 	{

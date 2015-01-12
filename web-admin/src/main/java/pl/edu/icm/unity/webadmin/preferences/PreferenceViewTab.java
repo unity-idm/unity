@@ -125,7 +125,7 @@ public class PreferenceViewTab extends VerticalLayout
 		saveInfo.addStyleName(Styles.error.toString());
 		HorizontalLayout toolbar = new HorizontalLayout();
 		toolbar.setSpacing(true);
-		save = new Button(msg.getMessage("Preferences.save"));
+		save = new Button(msg.getMessage("save"));
 		save.setIcon(Images.save.getResource());
 		save.addClickListener(new ClickListener()
 		{

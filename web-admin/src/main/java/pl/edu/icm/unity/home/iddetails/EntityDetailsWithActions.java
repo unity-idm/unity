@@ -20,11 +20,16 @@ import com.vaadin.ui.VerticalLayout;
 public class EntityDetailsWithActions extends CustomComponent
 {
 	public EntityDetailsWithActions(Set<String> disabled,
-			EntityDetailsPanel detailsPanel, EntityRemovalButton removalButton)
+			EntityDetailsPanel detailsPanel, UserAttributesPanel attrsPanel, 
+			EntityRemovalButton removalButton)
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);
-		main.addComponent(detailsPanel);
+		if (!disabled.contains(HomeEndpointProperties.Components.userInfo.toString()))
+			main.addComponent(detailsPanel);
+		
+		if (!disabled.contains(HomeEndpointProperties.Components.attributesManagement.toString()))
+			main.addComponent(attrsPanel);
 		
 		if (!disabled.contains(HomeEndpointProperties.Components.accountRemoval.toString()))
 		{
