@@ -27,7 +27,7 @@ public class TestBasic extends SeleniumTestBase
 		driver.findElement(By.id("WebPasswordRetrieval.password")).clear();
 		driver.findElement(By.id("WebPasswordRetrieval.password")).sendKeys("a");
 		driver.findElement(By.id("AuthenticationUI.authnenticateButton")).click();
-		assertTrue(driver.findElement(By.id("MainHeader.loggedAs")).getText().contains("[entity id: 1]"));
+		assertTrue(driver.findElement(By.id("MainHeader.loggedAs")).getText().contains("Default Administrator"));
 		driver.findElement(By.id("MainHeader.logout"));
 		Cookie sessionAfter = driver.manage().getCookieNamed("JSESSIONID");
 		assertNotEquals(sessionBefore.getValue(), sessionAfter.getValue());
