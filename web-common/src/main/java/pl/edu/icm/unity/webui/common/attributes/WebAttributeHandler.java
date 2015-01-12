@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.webui.common.attributes;
 
-import com.vaadin.server.Resource;
-import com.vaadin.ui.Component;
-
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+
+import com.vaadin.ui.Component;
 
 /**
  * Vaadin component implementing support for {@link AttributeValueSyntax} implementation.
@@ -20,6 +19,28 @@ public interface WebAttributeHandler<T>
 	public final static int MIN_VALUE_TEXT_LEN = 16;
 	
 	/**
+	 * Defines the size of the returned representation of an attribute value
+	 * @author K. Benedyczak
+	 */
+	public enum RepresentationSize {
+		/**
+		 * no restrictions on size
+		 */
+		ORIGINAL, 
+		
+		/**
+		 * Smallest representation should fit into one line, table line etc
+		 */
+		LINE, 
+		
+		/**
+		 * Can be bigger then one line but should fit into a regular form, typically not more then 
+		 * ca 3 lines in height.
+		 */
+		MEDIUM
+	}
+	
+	/**
 	 * @param value
 	 * @param syntax
 	 * @param limited if more then zero, then the string representation should be no longer then
@@ -30,19 +51,12 @@ public interface WebAttributeHandler<T>
 	public String getValueAsString(T value, AttributeValueSyntax<T> syntax, int limited);
 	
 	/**
-	 * 
 	 * @param value
 	 * @param syntax
-	 * @return image representation or null if not applicable
+	 * @param size
+	 * @return component allowing to present the value
 	 */
-	public Resource getValueAsImage(T value, AttributeValueSyntax<T> syntax, int maxWidth, int maxHeight);
-	
-	/**
-	 * @param value
-	 * @param syntax
-	 * @return component allowing to fully present the value
-	 */
-	public Component getRepresentation(T value, AttributeValueSyntax<T> syntax);
+	public Component getRepresentation(T value, AttributeValueSyntax<T> syntax, RepresentationSize size);
 	
 	/**
 	 * @param initialValue value to be edited or null if value is to be created from scratch

@@ -17,6 +17,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ListOfElements;
+import pl.edu.icm.unity.webui.common.ListOfElementsStub;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
 import pl.edu.icm.unity.webui.common.SafePanel;
@@ -60,7 +61,7 @@ public class RequestReviewPanel extends CustomComponent
 		main.setSpacing(true);
 		main.setMargin(true);
 		
-		identities = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
+		identities = new ListOfElements<>(msg, new ListOfElementsStub.LabelConverter<String>()
 		{
 			@Override
 			public Label toLabel(String value)
@@ -82,7 +83,7 @@ public class RequestReviewPanel extends CustomComponent
 		groups = new ListOfSelectableElements(gLabel,
 				new Label(msg.getMessage("RequestReviewPanel.requestedGroupsIgnore")), DisableMode.WHEN_SELECTED);
 		
-		agreements = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
+		agreements = new ListOfElements<>(msg, new ListOfElementsStub.LabelConverter<String>()
 		{
 			@Override
 			public Label toLabel(String value)

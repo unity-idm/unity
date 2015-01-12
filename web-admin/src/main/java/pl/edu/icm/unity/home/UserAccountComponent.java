@@ -16,9 +16,11 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.home.iddetails.EntityDetailsPanel;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsWithActions;
 import pl.edu.icm.unity.home.iddetails.EntityRemovalButton;
+import pl.edu.icm.unity.home.iddetails.UserAttributesPanel;
+import pl.edu.icm.unity.home.iddetails.UserDetailsPanel;
+import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -38,6 +40,7 @@ import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.bigtab.BigTabPanel;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel;
@@ -64,13 +67,17 @@ public class UserAccountComponent extends VerticalLayout
 	private EndpointManagement endpMan; 
 	private AttributesInternalProcessing attrMan;
 	private AuthenticationProcessor authnProcessor;
+	private AttributeHandlerRegistry attributeHandlerRegistry;
+	private AttributesManagement attributesMan;
 	
 	@Autowired
-	public UserAccountComponent(AuthenticationManagement authnMan, IdentitiesManagement idsMan,
-			CredentialEditorRegistry credEditorReg,
-			PreferencesHandlerRegistry registry, PreferencesManagement prefMan, 
-			UnityMessageSource msg, EndpointManagement endpMan, 
-			AttributesInternalProcessing attrMan, AuthenticationProcessor authnProcessor)
+	public UserAccountComponent(UnityMessageSource msg, AuthenticationManagement authnMan,
+			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg,
+			PreferencesHandlerRegistry registry, PreferencesManagement prefMan,
+			EndpointManagement endpMan, AttributesInternalProcessing attrMan,
+			AuthenticationProcessor authnProcessor,
+			AttributeHandlerRegistry attributeHandlerRegistry,
+			AttributesManagement attributesMan)
 	{
 		this.msg = msg;
 		this.authnMan = authnMan;
@@ -81,6 +88,8 @@ public class UserAccountComponent extends VerticalLayout
 		this.endpMan = endpMan;
 		this.attrMan = attrMan;
 		this.authnProcessor = authnProcessor;
+		this.attributeHandlerRegistry = attributeHandlerRegistry;
+		this.attributesMan = attributesMan;
 	}
 
 	public void initUI(HomeEndpointProperties config)
@@ -97,28 +106,31 @@ public class UserAccountComponent extends VerticalLayout
 		
 		LoginSession theUser = InvocationContext.getCurrent().getLoginSession();
 
-		if (!disabled.contains(HomeEndpointProperties.Components.userDetails.toString()))
-			addUserInfo(tabPanel, theUser, disabled);
+		if (!disabled.contains(HomeEndpointProperties.Components.userDetailsTab.toString()))
+			addUserInfo(tabPanel, theUser, config, disabled);
 		
-		if (!disabled.contains(HomeEndpointProperties.Components.credential.toString()))
+		if (!disabled.contains(HomeEndpointProperties.Components.credentialTab.toString()))
 			addCredentials(tabPanel, theUser);
 
-		if (!disabled.contains(HomeEndpointProperties.Components.preferences.toString()))
+		if (!disabled.contains(HomeEndpointProperties.Components.preferencesTab.toString()))
 			addPreferences(tabPanel);
 		
 		if (tabPanel.getTabsCount() > 0)
 			tabPanel.select(0);
 	}
 	
-	private void addUserInfo(BigTabPanel tabPanel, LoginSession theUser, Set<String> disabled)
+	private void addUserInfo(BigTabPanel tabPanel, LoginSession theUser, HomeEndpointProperties config, 
+			Set<String> disabled)
 	{
 		try
 		{
-			EntityDetailsPanel userInfo = getUserInfoComponent(theUser.getEntityId(), idsMan, attrMan);
+			UserDetailsPanel userInfo = getUserInfoComponent(theUser.getEntityId(), idsMan, attrMan);
 			EntityRemovalButton removalButton = new EntityRemovalButton(msg, 
 					theUser.getEntityId(), idsMan, authnProcessor);
+			UserAttributesPanel attrsPanel = new UserAttributesPanel(msg, attributeHandlerRegistry, 
+					attributesMan, config, theUser.getEntityId());
 			EntityDetailsWithActions tabRoot = new EntityDetailsWithActions(disabled, 
-					userInfo, removalButton);
+					userInfo, attrsPanel, removalButton);
 			tabPanel.addTab("UserHomeUI.accountInfoLabel", "UserHomeUI.accountInfoDesc", 
 					Images.info64.getResource(), tabRoot);
 		} catch (AuthorizationException e)
@@ -163,10 +175,10 @@ public class UserAccountComponent extends VerticalLayout
 				Images.settings64.getResource(), preferencesComponent);
 	}
 	
-	private EntityDetailsPanel getUserInfoComponent(long entityId, IdentitiesManagement idsMan, 
+	private UserDetailsPanel getUserInfoComponent(long entityId, IdentitiesManagement idsMan, 
 			AttributesInternalProcessing attrMan) throws EngineException
 	{
-		EntityDetailsPanel ret = new EntityDetailsPanel(msg, false);
+		UserDetailsPanel ret = new UserDetailsPanel(msg);
 		EntityParam param = new EntityParam(entityId);
 		Collection<String> groups;
 		try

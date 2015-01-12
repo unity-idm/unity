@@ -71,7 +71,8 @@ public class HtmlLabel extends Label
 	{
 		Object[] escapedArgs = escapeArgs(unsafeArgs);
 		StringBuilder current = new StringBuilder(getValue());
-		current.append("<br>");
+		if (current.length() > 0)
+			current.append("<br>");
 		current.append(msg.getMessageNullArg(msgKey, escapedArgs));
 		super.setValue(current.toString());
 	}

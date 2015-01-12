@@ -10,17 +10,13 @@ import java.util.List;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
+import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.server.Resource;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Image;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 
 /**
@@ -32,8 +28,6 @@ public class ValuesTable extends Table
 	private AttributeValueSyntax<?> syntax;
 	@SuppressWarnings("rawtypes")
 	private WebAttributeHandler handler;
-	private static final int MAX_TABLE_IMG = 32;
-	private static final int MAX_TEXT_LEN = 30;
 	
 	public ValuesTable(UnityMessageSource msg)
 	{
@@ -126,21 +120,7 @@ public class ValuesTable extends Table
 		public ValueItem(Object value)
 		{
 			this.value = value;
-			Resource imgR = handler.getValueAsImage(value, syntax, MAX_TABLE_IMG, MAX_TABLE_IMG);
-			String caption = handler.getValueAsString(value, syntax, MAX_TEXT_LEN);
-			Label label = new Label(caption);
-			if (imgR != null)
-			{
-				HorizontalLayout hl = new HorizontalLayout();
-				Image img = new Image();
-				img.setSource(imgR);
-				hl.addComponent(img);
-				hl.addComponent(label);
-				hl.setComponentAlignment(label, Alignment.MIDDLE_LEFT);
-				hl.setSpacing(true);
-				contents = hl;
-			} else
-				contents = label;
+			contents = handler.getRepresentation(value, syntax, RepresentationSize.LINE);
 		}
 		
 		public Component getContents()

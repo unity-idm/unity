@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.themes.Reindeer;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -60,6 +61,16 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 		valuesComponent.setEntries(labelledValues);
 	}
 	
+	public AttributeType getAttributeType()
+	{
+		return attributeType;
+	}
+
+	public String getGroup()
+	{
+		return group;
+	}
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Attribute<?> getAttribute() throws FormValidationException
 	{
@@ -87,6 +98,7 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 		if (showGroup)
 		{
 			groupLabel = new Label(msg.getMessage("Attributes.groupOfAttribute", group));
+			groupLabel.addStyleName(Reindeer.LABEL_SMALL);
 			parent.addComponent(groupLabel);
 		}
 
