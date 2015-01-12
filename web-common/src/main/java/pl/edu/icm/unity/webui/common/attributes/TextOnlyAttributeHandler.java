@@ -11,9 +11,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 
-import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
@@ -48,15 +46,22 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 	}
 	
 	@Override
-	public Resource getValueAsImage(T value, AttributeValueSyntax<T> syntax, int maxWidth, int maxHeight)
+	public Component getRepresentation(T value, AttributeValueSyntax<T> syntax, RepresentationSize size)
 	{
-		return null;
-	}
-
-	@Override
-	public Component getRepresentation(T value, AttributeValueSyntax<T> syntax)
-	{
-		return new Label(value.toString(), ContentMode.PREFORMATTED);
+		String trimmed = "";
+		switch (size)
+		{
+		case ORIGINAL:
+			trimmed = value.toString();
+			break;
+		case MEDIUM:
+			trimmed = trimString(value.toString(), LARGE_STRING);
+			break;
+		case LINE:
+			trimmed = trimString(value.toString(), SMALL_STRING);			
+			break;
+		}
+		return new Label(trimmed);
 	}
 	
 	@Override

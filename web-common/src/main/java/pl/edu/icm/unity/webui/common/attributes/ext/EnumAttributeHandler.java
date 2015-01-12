@@ -23,11 +23,11 @@ import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 
-import com.vaadin.server.Resource;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -36,7 +36,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 
 /**
  * Enum attribute handler for the web
@@ -60,7 +59,7 @@ public class EnumAttributeHandler implements WebAttributeHandler<String>, WebAtt
 	}
 	
 	@Override
-	public Component getRepresentation(String value, AttributeValueSyntax<String> syntax)
+	public Component getRepresentation(String value, AttributeValueSyntax<String> syntax, RepresentationSize size)
 	{
 		return new Label(value.toString(), ContentMode.PREFORMATTED);
 	}
@@ -139,13 +138,6 @@ public class EnumAttributeHandler implements WebAttributeHandler<String>, WebAtt
 	public String getValueAsString(String value, AttributeValueSyntax<String> syntax, int limited)
 	{
 		return TextOnlyAttributeHandler.trimString(value.toString(), limited);
-	}
-
-	@Override
-	public Resource getValueAsImage(String value, AttributeValueSyntax<String> syntax,
-			int maxWidth, int maxHeight)
-	{
-		return null;
 	}
 
 	@Override

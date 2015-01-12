@@ -30,7 +30,6 @@ import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
-import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
@@ -49,7 +48,6 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.SucceededEvent;
@@ -67,6 +65,8 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 	private static final Random r = new Random();
 	private static final int PREVIEW_WIDTH = 256;
 	private static final int PREVIEW_HEIGHT = 128;
+	private static final int MINIATURE_WIDTH = 64;
+	private static final int MINIATURE_HEIGHT = 48;
 	private UnityMessageSource msg;
 	
 	@Autowired
@@ -88,8 +88,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		return "Jpeg image";
 	}
 
-	@Override
-	public Resource getValueAsImage(BufferedImage value,
+	private Resource getValueAsImage(BufferedImage value,
 			AttributeValueSyntax<BufferedImage> syntax, int maxWidth, int maxHeight)
 	{
 		try
@@ -106,13 +105,31 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 
 	@Override
 	public Component getRepresentation(BufferedImage value,
-			AttributeValueSyntax<BufferedImage> syntax)
+			AttributeValueSyntax<BufferedImage> syntax, RepresentationSize size)
 	{
-		Panel ret = new SafePanel();
 		Image image = new Image();
-		image.setSource(getValueAsImage(value, syntax, value.getWidth(), value.getHeight()));
-		ret.setContent(image);
-		return ret;
+		int width;
+		int height;
+		
+		switch (size)
+		{
+		case LINE:
+			width = MINIATURE_WIDTH;
+			height = MINIATURE_HEIGHT;
+			break;
+		case MEDIUM:
+			width = PREVIEW_WIDTH;
+			height = PREVIEW_HEIGHT;
+			break;
+		case ORIGINAL:
+		default:
+			width = value.getWidth();
+			height = value.getHeight();
+			break;
+		}
+		
+		image.setSource(getValueAsImage(value, syntax, width, height));
+		return image;
 	}
 
 	private BufferedImage scaleIfNeeded(BufferedImage value, int maxWidth, int maxHeight)

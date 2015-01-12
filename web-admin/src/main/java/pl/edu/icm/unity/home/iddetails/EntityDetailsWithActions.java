@@ -6,11 +6,13 @@ package pl.edu.icm.unity.home.iddetails;
 
 import java.util.Set;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
 
 /**
  * Shows {@link EntityDetailsPanel} and the {@link EntityRemovalButton} under it. This class also controls whether to
@@ -21,20 +23,24 @@ public class EntityDetailsWithActions extends CustomComponent
 {
 	public EntityDetailsWithActions(Set<String> disabled,
 			UserDetailsPanel detailsPanel, UserAttributesPanel attrsPanel, 
-			EntityRemovalButton removalButton)
+			EntityRemovalButton removalButton) throws EngineException
 	{
-		VerticalLayout main = new VerticalLayout();
-		main.setSpacing(true);
+		FormLayout main = new FormLayout();
 		if (!disabled.contains(HomeEndpointProperties.Components.userInfo.toString()))
-			main.addComponent(detailsPanel);
+			detailsPanel.addIntoLayout(main);
 		
 		if (!disabled.contains(HomeEndpointProperties.Components.attributesManagement.toString()))
-			main.addComponent(attrsPanel);
+			attrsPanel.addIntoLayout(main);
+		
+		HorizontalLayout actions = new HorizontalLayout();
+		actions.setSpacing(true);
+		actions.setWidth(100, Unit.PERCENTAGE);
+		main.addComponent(actions);
 		
 		if (!disabled.contains(HomeEndpointProperties.Components.accountRemoval.toString()))
 		{
-			main.addComponent(removalButton);
-			main.setComponentAlignment(removalButton, Alignment.BOTTOM_RIGHT);
+			actions.addComponent(removalButton);
+			actions.setComponentAlignment(removalButton, Alignment.BOTTOM_RIGHT);
 		}
 		setCompositionRoot(main);
 	}

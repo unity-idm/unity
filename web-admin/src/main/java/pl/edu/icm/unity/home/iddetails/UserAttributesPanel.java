@@ -27,23 +27,20 @@ import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
 import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 
 /**
  * Shows (optionally in edit mode) all configured attributes.
  * 
  * @author K. Benedyczak
  */
-public class UserAttributesPanel extends CustomComponent
+public class UserAttributesPanel
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UserAttributesPanel.class);
 	private UnityMessageSource msg;
@@ -53,6 +50,8 @@ public class UserAttributesPanel extends CustomComponent
 	private long entityId;
 	
 	private List<FixedAttributeEditor> attributeEditors;
+
+	private AbstractOrderedLayout parent;
 	
 	public UserAttributesPanel(UnityMessageSource msg,
 			AttributeHandlerRegistry attributeHandlerRegistry,
@@ -64,26 +63,24 @@ public class UserAttributesPanel extends CustomComponent
 		this.attributesMan = attributesMan;
 		this.config = config;
 		this.entityId = entityId;
-		
-		initUI();
 	}
 
+	public void addIntoLayout(AbstractOrderedLayout layout) throws EngineException
+	{
+		this.parent = layout;
+		initUI();
+	}
+	
 	private void initUI() throws EngineException
 	{
 		attributeEditors = new ArrayList<FixedAttributeEditor>();
 		Set<String> keys = config.getStructuredListKeys(HomeEndpointProperties.ATTRIBUTES);
 		Map<String, AttributeType> atTypes = attributesMan.getAttributeTypesAsMap();
 
-		VerticalLayout root = new VerticalLayout();
-		root.setSpacing(true);
-		
-		FormLayout attributeFL = new FormLayout();
 		for (String aKey: keys)
 		{
-			addAttribute(attributeFL, atTypes, aKey);
+			addAttribute(atTypes, aKey);
 		}
-		
-		root.addComponent(attributeFL);
 		
 		if (attributeEditors.size() > 0)
 		{
@@ -97,12 +94,11 @@ public class UserAttributesPanel extends CustomComponent
 					saveChanges();
 				}
 			});
-			root.addComponent(save);
+			parent.addComponent(save);
 		}
-		setCompositionRoot(root);
 	}
 	
-	private void addAttribute(AbstractOrderedLayout layout, Map<String, AttributeType> atTypes, String key)
+	private void addAttribute(Map<String, AttributeType> atTypes, String key)
 	{		
 		String group = config.getValue(key+HomeEndpointProperties.GWA_GROUP);
 		String attributeName = config.getValue(key+HomeEndpointProperties.GWA_ATTRIBUTE);
@@ -117,7 +113,7 @@ public class UserAttributesPanel extends CustomComponent
 		{
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
 				at, showGroup, group, AttributeVisibility.full, 
-				null, null, false, layout);
+				null, null, false, parent);
 			if (attribute != null)
 				editor.setAttributeValues(attribute.getValues());
 			attributeEditors.add(editor);
@@ -125,8 +121,10 @@ public class UserAttributesPanel extends CustomComponent
 		{
 			if (attribute == null)
 				return;
-			String aString = attributeHandlerRegistry.getSimplifiedAttributeRepresentation(attribute, 120);
-			layout.addComponent(new Label(aString));
+			
+			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, at, 
+					attribute, showGroup);
+			viewer.addToLayout(parent);
 		}
 	}
 	

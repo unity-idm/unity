@@ -43,6 +43,7 @@ public enum Styles
 	grayBackground("u-gray-bg"),
 	redBackground("u-red-bg"),
 	smallMargin("u-smallMargin"),
+	negativeMargin5("u-negativeMargin5"),
 	captionBold("bold");
 	
 	

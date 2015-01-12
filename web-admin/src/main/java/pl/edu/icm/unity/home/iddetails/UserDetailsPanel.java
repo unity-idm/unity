@@ -16,7 +16,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.HtmlLabel;
 
-import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Label;
 
 /**
@@ -25,7 +25,7 @@ import com.vaadin.ui.Label;
  * 
  * @author K. Benedyczak
  */
-public class UserDetailsPanel extends FormLayout
+public class UserDetailsPanel
 {
 	private UnityMessageSource msg;
 	private Label id;
@@ -53,7 +53,12 @@ public class UserDetailsPanel extends FormLayout
 		groups = new HtmlLabel(msg);
 		groups.setCaption(msg.getMessage("IdentityDetails.groups"));
 		
-		addComponents(id, scheduledAction, identities, credStatus, groups);
+		
+	}
+	
+	public void addIntoLayout(AbstractOrderedLayout layout)
+	{
+		layout.addComponents(id, scheduledAction, identities, credStatus, groups);
 	}
 	
 	public void setInput(EntityWithLabel entityWithLabel, Collection<String> groups)

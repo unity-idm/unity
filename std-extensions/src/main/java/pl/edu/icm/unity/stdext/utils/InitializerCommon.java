@@ -119,6 +119,7 @@ public class InitializerCommon
 
 		AttributeType org = new AttributeType(ORG_ATTR, new StringAttributeSyntax());
 		org.setMinElements(1);
+		org.setMaxElements(10);
 		org.setDescription("Organization");
 		((StringAttributeSyntax)org.getValueType()).setMaxLength(33);
 		((StringAttributeSyntax)org.getValueType()).setMinLength(2);
