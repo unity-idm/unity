@@ -4,12 +4,13 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -18,11 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.translation.in.AttributeEffectMode;
@@ -181,7 +182,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 				AttributeVisibility.full.toString(), AttributeEffectMode.CREATE_OR_UPDATE.toString()); 
 		rules.add(new InputTranslationRule(action3, new TranslationCondition()));
 		InputTranslationAction action4 = (InputTranslationAction) tactionReg.getByName(EntityChangeActionFactory.NAME).getInstance(
-				EntityScheduledOperation.REMOVE.toString(), "1000"); 
+				EntityScheduledOperation.REMOVE.toString(), "1"); 
 		rules.add(new InputTranslationRule(action4, new TranslationCondition()));
 		
 		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules, ProfileMode.UPDATE_ONLY);
@@ -199,8 +200,10 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		Entity entity = idsMan.getEntity(ep);
 		assertEquals(EntityScheduledOperation.REMOVE, 
 				entity.getEntityInformation().getScheduledOperation());
-		assertEquals(new Date(1000), 
-				entity.getEntityInformation().getScheduledOperationTime());
+		
+		long nextDay = System.currentTimeMillis() + 3600L*24*1000;
+		assertTrue(nextDay >= entity.getEntityInformation().getScheduledOperationTime().getTime());
+		assertTrue(nextDay - 1000 < entity.getEntityInformation().getScheduledOperationTime().getTime());
 		assertEquals(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				entity.getCredentialInfo().getCredentialRequirementId());
 		assertEquals(2, entity.getIdentities().length);

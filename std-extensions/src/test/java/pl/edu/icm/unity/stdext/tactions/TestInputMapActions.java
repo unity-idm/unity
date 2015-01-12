@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.stdext.tactions;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -112,7 +113,7 @@ public class TestInputMapActions
 		EntityChangeActionFactory factory = new EntityChangeActionFactory();
 		InputTranslationAction mapAction = factory.getInstance(
 				EntityScheduledOperation.REMOVE.toString(), 
-				"10000");
+				"1");
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		
 		MappingResult result = mapAction.invoke(input, InputTranslationProfile.createMvelContext(input), 
@@ -120,6 +121,8 @@ public class TestInputMapActions
 		
 		EntityChange mi = result.getEntityChanges().get(0);
 		assertEquals(EntityScheduledOperation.REMOVE, mi.getScheduledOperation());
-		assertEquals(new Date(10000L), mi.getScheduledTime());
+		Date nextDay = new Date(System.currentTimeMillis() + 3600L*24*1000); 
+		assertTrue(nextDay.getTime() >= mi.getScheduledTime().getTime());
+		assertTrue(nextDay.getTime()-1000 < mi.getScheduledTime().getTime());
 	}
 }
