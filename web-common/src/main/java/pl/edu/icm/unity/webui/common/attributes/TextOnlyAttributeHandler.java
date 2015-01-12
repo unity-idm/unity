@@ -28,8 +28,8 @@ import com.vaadin.ui.VerticalLayout;
  */
 public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler<T>
 {
-	private static final int LARGE_STRING = 100;
-	private static final int SMALL_STRING = 50;
+	private static final int LARGE_STRING = 200;
+	private static final int SMALL_STRING = 30;
 	
 	public static String trimString(String full, int limited)
 	{
@@ -92,8 +92,10 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 				StringAttributeSyntax sas = (StringAttributeSyntax) syntax;
 				if (sas.getMaxLength() > LARGE_STRING)
 					large = true;
-				if (sas.getMaxLength() < SMALL_STRING)
+				else if (sas.getMaxLength() < SMALL_STRING)
 					limitedWidth = sas.getMaxLength();
+				else
+					limitedWidth = SMALL_STRING;
 			}
 			
 			field = large ? new TextArea() : new TextField();

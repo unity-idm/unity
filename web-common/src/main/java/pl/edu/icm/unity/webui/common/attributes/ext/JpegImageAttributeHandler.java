@@ -53,6 +53,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.SucceededEvent;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Jpeg image attribute handler for the web
@@ -296,10 +297,12 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 	
 	private Component getHints(JpegImageAttributeSyntax syntax)
 	{
-		return new Label(msg.getMessage("JpegAttributeHandler.maxSize", syntax.getMaxSize())
+		Label ret = new Label(msg.getMessage("JpegAttributeHandler.maxSize", syntax.getMaxSize())
 				+ "  " + 
 				msg.getMessage("JpegAttributeHandler.maxDim", syntax.getMaxWidth(), 
 						syntax.getMaxHeight()));
+		ret.addStyleName(Reindeer.LABEL_SMALL);
+		return ret;
 	}
 	
 	public static class SimpleImageSource implements StreamSource
