@@ -9,6 +9,7 @@ import java.lang.reflect.Proxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 
 /**
@@ -25,6 +26,9 @@ public class EventProxyBuilderFL
 	@Autowired @Qualifier("plain")
 	private MessageTemplateManagement msgTempMan;
 	
+	@Autowired @Qualifier("plain")
+	private ConfirmationConfigurationManagement configMan; 
+	
 	@Autowired
 	private EventProcessor eventProcessor;
 	
@@ -35,5 +39,14 @@ public class EventProxyBuilderFL
 				new EventDecoratingHandler(msgTempMan, eventProcessor, 
 						MessageTemplateManagement.class.getSimpleName()));
 	}
+	
+	public ConfirmationConfigurationManagement getConfirmationConfigurationManagementInstance()
+	{
+		return (ConfirmationConfigurationManagement) Proxy.newProxyInstance(classLoader, 
+				new Class[] {ConfirmationConfigurationManagement.class}, 
+				new EventDecoratingHandler(configMan, eventProcessor, 
+						ConfirmationConfigurationManagement.class.getSimpleName()));
+	}
+	
 	
 }

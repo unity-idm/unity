@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webadmin.confirmation.ConfirmationConfigurationsComponent;
 import pl.edu.icm.unity.webadmin.msgtemplate.MessageTemplatesComponent;
 import pl.edu.icm.unity.webadmin.serverman.AuthenticatorsComponent;
 import pl.edu.icm.unity.webadmin.serverman.EndpointsComponent;
@@ -32,11 +33,14 @@ public class ServerManagementTab  extends VerticalLayout
 	private MainTabPanel tabs;
 
 	@Autowired
-	public ServerManagementTab(UnityMessageSource msg, ImportExportComponent ieComponent,EndpointsComponent eComponent,AuthenticatorsComponent aComponent,TranslationProfilesComponent tComponent, MessageTemplatesComponent msgComponent)
+	public ServerManagementTab(UnityMessageSource msg, ImportExportComponent ieComponent,
+			EndpointsComponent eComponent, AuthenticatorsComponent aComponent,
+			TranslationProfilesComponent tComponent, MessageTemplatesComponent msgComponent, 
+			ConfirmationConfigurationsComponent confirmCfgComponent)
 	{
 		super();
 		this.msg = msg;
-		this.tabs = new MainTabPanel(eComponent, aComponent, tComponent, msgComponent, ieComponent);
+		this.tabs = new MainTabPanel(eComponent, aComponent, tComponent, msgComponent, ieComponent, confirmCfgComponent);
 		this.tabs.setStyleName(Reindeer.TABSHEET_MINIMAL);
 		initUI();
 	}

@@ -34,6 +34,7 @@
 	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getNotificationsManagementInstance"/>
 	<bean primary="true" factory-bean="proxyBuilder3" factory-method="getTranslationProfileManagementInstance"/>
     <bean primary="true" factory-bean="proxyBuilder4" factory-method="getMessageTemplateManagementInstance"/> 
+	<bean primary="true" factory-bean="proxyBuilder4" factory-method="getConfirmationConfigurationManagementInstance"/> 
 	 
 
 	<!-- The real implementation, with a real authorization module injected. However those beans are plain,
@@ -72,6 +73,9 @@
 		<qualifier value="plain"/>
 	</bean>
 	<bean primary="false" class="pl.edu.icm.unity.engine.MessageTemplateManagementImpl">
+		<qualifier value="plain"/>
+	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.ConfirmationConfigurationManagementImpl">
 		<qualifier value="plain"/>
 	</bean>
 	
@@ -125,6 +129,11 @@
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.ConfirmationConfigurationManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	
 
 	<!-- Currently simplistic -->
 	<bean class="pl.edu.icm.unity.engine.PKIManagementImpl"/>
