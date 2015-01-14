@@ -7,6 +7,9 @@ package pl.edu.icm.unity.types;
 import java.util.HashMap;
 import java.util.Map;
 
+import pl.edu.icm.unity.MessageSource;
+
+
 /**
  * String in several languages. Besides localized versions can store also a default value which is returned when there
  * is no version for the requested locale and default locale. 
@@ -26,6 +29,11 @@ public class I18nString
 	{
 		this();
 		this.defaultValue = defaultValue;
+	}
+
+	public String getValue(MessageSource msg)
+	{
+		return getValue(msg.getLocaleCode(), msg.getDefaultLocaleCode());
 	}
 
 	public String getValue(String locale, String defaultLocale)

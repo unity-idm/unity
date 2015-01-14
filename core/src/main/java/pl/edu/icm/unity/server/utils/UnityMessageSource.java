@@ -80,10 +80,17 @@ public class UnityMessageSource extends ResourceBundleMessageSource implements M
 	{
 		return config.getEnabledLocales();
 	}
-	
+
+	@Override
 	public String getDefaultLocaleCode()
 	{
 		return config.getDefaultLocale().toString();
+	}
+
+	@Override
+	public String getLocaleCode()
+	{
+		return getLocale().toString();
 	}
 	
 	public static Locale getLocale(Locale fallback)

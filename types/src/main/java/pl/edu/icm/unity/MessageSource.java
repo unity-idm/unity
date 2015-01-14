@@ -17,4 +17,6 @@ public interface MessageSource
 	String getMessageNullArg(String code, Object... args);
 	String getYesNo(boolean value);
 	Locale getLocale();
+	String getDefaultLocaleCode();
+	String getLocaleCode();
 }

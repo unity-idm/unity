@@ -43,7 +43,7 @@ public class AttributeViewer
 
 	public void addToLayout(AbstractOrderedLayout parent)
 	{
-		String caption = attributeType.getName();
+		String caption = attributeType.getDisplayedName().getValue(msg);
 		String description = attributeType.getDescription();
 		
 		if (showGroup)

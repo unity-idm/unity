@@ -514,7 +514,7 @@ public class RegistrationRequestEditor extends CustomComponent
 			}
 			AttributeType at = atTypes.get(aParam.getAttributeType());
 			String description = aParam.isUseDescription() ? at.getDescription() : aParam.getDescription();
-			String aName = isEmpty(aParam.getLabel()) ? (aParam.getAttributeType()+":") : aParam.getLabel();
+			String aName = isEmpty(aParam.getLabel()) ? null : aParam.getLabel();
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
 					at, aParam.isShowGroups(), aParam.getGroup(), AttributeVisibility.full, 
 					aName, description, !aParam.isOptional(), layout);
@@ -524,7 +524,7 @@ public class RegistrationRequestEditor extends CustomComponent
 			}
 			attributeEditor.add(editor);
 		}
-		createExternalAttributesUI(layout);
+		createExternalAttributesUI(layout, atTypes);
 	}
 	
 	private void createGroupsUI(Layout layout)
@@ -622,7 +622,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		}
 	}
 	
-	private void createExternalAttributesUI(Layout layout)
+	private void createExternalAttributesUI(Layout layout, Map<String, AttributeType> atTypes)
 	{
 		List<AttributeRegistrationParam> attributeParams = form.getAttributeParams();
 		ListOfElements<String> attributesList = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
@@ -641,7 +641,9 @@ public class RegistrationRequestEditor extends CustomComponent
 			Attribute<?> a = remoteAttributes.get(aParam.getGroup() + "//" + aParam.getAttributeType());
 			if (a == null)
 				continue;
-			String aString = attributeHandlerRegistry.getSimplifiedAttributeRepresentation(a, 120);
+			String displayedName = atTypes.get(aParam.getAttributeType()).getDisplayedName().getValue(msg);
+			String aString = attributeHandlerRegistry.getSimplifiedAttributeRepresentation(a, 120,
+					displayedName);
 			attributesList.addEntry(aString);
 		}
 		if (attributesList.size() > 0)
