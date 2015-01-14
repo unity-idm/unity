@@ -131,4 +131,11 @@ public class IntegerAttributeSyntax implements AttributeValueSyntax<Long>
 	{
 		return value;
 	}
+
+	@Override
+	public boolean hasValuesVerifiable()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

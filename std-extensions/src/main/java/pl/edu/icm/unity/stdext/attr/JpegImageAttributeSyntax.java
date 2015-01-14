@@ -235,6 +235,13 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 	{
 		return serialize(value);
 	}
+
+	@Override
+	public boolean hasValuesVerifiable()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
 
 

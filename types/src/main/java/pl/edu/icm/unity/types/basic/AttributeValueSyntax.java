@@ -70,4 +70,12 @@ public interface AttributeValueSyntax<T> extends JsonSerializable
 	 * @throws InternalException 
 	 */
 	public T deserialize(byte []raw) throws InternalException;
+	
+	
+	/**
+	 * @return true if values can be confirmed by user
+	 */
+	
+	public boolean hasValuesVerifiable();
+	
 }

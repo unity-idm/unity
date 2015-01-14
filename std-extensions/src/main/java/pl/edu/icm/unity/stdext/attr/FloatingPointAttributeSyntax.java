@@ -132,4 +132,10 @@ public class FloatingPointAttributeSyntax implements AttributeValueSyntax<Double
 	{
 		return value;
 	}
+
+	@Override
+	public boolean hasValuesVerifiable()
+	{
+		return false;
+	}
 }

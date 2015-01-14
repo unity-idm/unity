@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.confirmations.states.EntityAttribiuteState;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
@@ -596,7 +595,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			for (Object ta : targets)
 			{
 				Attribute<?> attr = ((AttributeItem)ta).getAttribute();
-				if (!(attr.getValues().size() > 0 && attr.getValues().get(0) instanceof VerifiableElement))
+				if (!(attr.getValues().size() > 0 && attr.getAttributeSyntax().hasValuesVerifiable()))
 				{
 					return EMPTY;
 				}

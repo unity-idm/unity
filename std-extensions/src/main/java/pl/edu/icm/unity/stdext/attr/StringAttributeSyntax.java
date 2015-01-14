@@ -151,4 +151,11 @@ public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 			throw new WrongArgumentException("Maximal string length must not be less then the minimal");
 		this.maxLength = maxLength;
 	}
+
+	@Override
+	public boolean hasValuesVerifiable()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

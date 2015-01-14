@@ -6,6 +6,9 @@ package pl.edu.icm.unity.webadmin.confirmation;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+
+import javax.management.AttributeNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -13,11 +16,14 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
@@ -48,6 +54,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 	private MessageTemplateManagement msgMan;
 	private IdentityTypesRegistry identityTypesRegistry;
 	private NotificationsManagement notificationsMan;
+	private AttributesManagement attrsMan;
 
 	private GenericElementsTable<ConfirmationConfiguration> table;
 	private com.vaadin.ui.Component main;
@@ -59,13 +66,14 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 			ConfirmationConfigurationManagement configMan,
 			MessageTemplateManagement msgMan,
 			IdentityTypesRegistry identityTypesRegistry,
-			NotificationsManagement notificationsMan)
+			NotificationsManagement notificationsMan, AttributesManagement attrsMan)
 	{
 		this.msg = msg;
 		this.configMan = configMan;
 		this.msgMan = msgMan;
 		this.identityTypesRegistry = identityTypesRegistry;
 		this.notificationsMan = notificationsMan;
+		this.attrsMan = attrsMan;
 
 		HorizontalLayout hl = new HorizontalLayout();
 		setCaption(msg.getMessage("ConfirmationConfigurationsComponent.capion"));
@@ -78,7 +86,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 					public Label toRepresentation(
 							ConfirmationConfiguration element)
 					{
-						return new Label(element.getTypeToConfirm());
+						return new Label(element.getNameToConfirm());
 					}
 				});
 		table.setMultiSelect(true);
@@ -155,6 +163,28 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 			items.add((ConfirmationConfiguration) i.getElement());
 		}
 		return items;
+	}
+	
+	private List<AttributeType> getVerifiableAttrTypes()
+	{
+		List<AttributeType> vtypes = new ArrayList<AttributeType>();
+		try
+		{
+			
+			Collection<AttributeType>  allTypes = attrsMan.getAttributeTypes();
+			for (AttributeType t : allTypes)
+			{
+				if (t.getValueType().hasValuesVerifiable())
+					vtypes.add(t);
+			}
+		} catch (EngineException e)
+		{
+			ErrorComponent error = new ErrorComponent();
+			error.setError(msg
+					.getMessage("ConfirmationConfigurationsComponent.errorGetAttributeTypes"),
+					e);
+		}
+		return vtypes;
 	}
 
 	private void refresh()

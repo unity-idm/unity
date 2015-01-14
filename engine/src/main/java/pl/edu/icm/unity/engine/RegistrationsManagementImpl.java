@@ -518,7 +518,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		for (Attribute<?> attr : requestState.getRequest().getAttributes())
 		{
 			if (attr.getValues().size() > 0
-					&& attr.getValues().get(0) instanceof VerifiableElement)
+					&& attr.getAttributeSyntax().hasValuesVerifiable())
 			{
 				Attribute<VerifiableElement> verifiableAttr = (Attribute<VerifiableElement>) attr;
 				EntityAttribiuteState state;

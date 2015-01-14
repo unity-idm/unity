@@ -62,4 +62,10 @@ public class MockAttributeSyntax implements AttributeValueSyntax<String> {
 	{
 		return null;
 	}
+
+	@Override
+	public boolean hasValuesVerifiable()
+	{
+		return false;
+	}
 }
