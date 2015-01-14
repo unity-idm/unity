@@ -133,7 +133,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		BaseConfirmationState baseState = new BaseConfirmationState();
 		baseState.setSerializedConfiguration(state);
 		String facilityId = baseState.getFacilityId();
-		ConfirmationFacility facility = getFacility(baseState.getFacilityId());
+		ConfirmationFacility facility = getFacility(facilityId);
 		ConfirmationConfiguration configEntry;
 		if (facilityId.equals(EntityAttribiuteState.FACILITY_ID)
 				|| facilityId.equals(RegistrationReqAttribiuteState.FACILITY_ID))
@@ -199,9 +199,11 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		Date today = new Date();
 		if (tk.getExpires().compareTo(today) < 0)
 			return new ConfirmationStatus(false, "ConfirmationStatus.expiredToken");
-
+		
 		String rowState = new String(tk.getContents());
-		ConfirmationFacility facility = getFacility(rowState);
+		BaseConfirmationState baseState = new BaseConfirmationState();
+		baseState.setSerializedConfiguration(rowState);
+		ConfirmationFacility facility = getFacility(baseState.getFacilityId());
 
 		ConfirmationStatus status = facility.confirm(rowState);
 		tokensMan.removeToken(ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token);
@@ -209,20 +211,18 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		return status;
 	}
 
-	private ConfirmationFacility getFacility(String state) throws InternalException
+	private ConfirmationFacility getFacility(String id) throws InternalException
 	{
-		BaseConfirmationState baseState = new BaseConfirmationState();
-		baseState.setSerializedConfiguration(state);
+		
 
 		ConfirmationFacility facility = null;
 		try
 		{
-			facility = confirmationFacilitiesRegistry.getByName(baseState
-					.getFacilityId());
+			facility = confirmationFacilitiesRegistry.getByName(id);
 		} catch (IllegalTypeException e)
 		{
 			throw new InternalException("Can't find facility with name "
-					+ baseState.getFacilityId(), e);
+					+ id, e);
 		}
 		return facility;
 	}

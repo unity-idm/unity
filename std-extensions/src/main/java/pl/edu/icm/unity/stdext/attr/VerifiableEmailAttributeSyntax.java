@@ -143,8 +143,7 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	@Override
 	public boolean hasValuesVerifiable()
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 }
