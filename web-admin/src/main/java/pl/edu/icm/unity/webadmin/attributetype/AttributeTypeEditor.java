@@ -23,6 +23,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
 import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -50,6 +51,7 @@ public class AttributeTypeEditor extends FormLayout
 	private AttributeMetadataHandlerRegistry attrMetaHandlerReg;
 	
 	private AbstractTextField name;
+	private I18nTextField displayedName;
 	private DescriptionTextArea typeDescription;
 	private TextField min;
 	private IntegerBoundEditor max;
@@ -92,6 +94,9 @@ public class AttributeTypeEditor extends FormLayout
 			name.setValue(msg.getMessage("AttributeType.defaultName"));
 		name.setCaption(msg.getMessage("AttributeType.name"));
 		addComponent(name);
+		
+		displayedName = new I18nTextField(msg, msg.getMessage("AttributeType.displayedName"));
+		addComponent(displayedName);
 		
 		typeDescription = new DescriptionTextArea(msg.getMessage("AttributeType.description"));
 		addComponent(typeDescription);
@@ -183,6 +188,7 @@ public class AttributeTypeEditor extends FormLayout
 		syntaxPanel.removeAllComponents();
 		syntaxPanel.addComponent(editor.getEditor());
 		metaEditor.setInput(aType.getMetadata());
+		displayedName.setValue(aType.getDisplayedName());
 	}
 	
 	public AttributeType getAttributeType() throws IllegalAttributeTypeException
@@ -206,6 +212,7 @@ public class AttributeTypeEditor extends FormLayout
 		ret.setValueType(syntax);
 		ret.setVisibility(visibility.getSelectedValue());
 		ret.setMetadata(metaEditor.getValue());
+		ret.setDisplayedName(displayedName.getValue());
 		return ret;
 	}
 }

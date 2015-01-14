@@ -1,5 +1,12 @@
 @import "../reindeer/reindeer.scss";
 
+@mixin flag-bg-template($flagpath) {
+	background-image: $flagpath;
+	background-repeat: no-repeat;
+	background-position: right center;
+	background-origin: content-box;
+}
+
 @mixin unityTheme {
 
 	/* Include all the styles from the reindeer theme */
@@ -225,5 +232,24 @@
 		.v-textfield {
 			background: $red;
 		}
+	}
+	
+	.u-smallSpacing {
+		.v-spacing {
+			height: 2px;
+			width: 2px;
+		}	
+	}
+	
+	.u-flag-bg-en {
+		@include flag-bg-template(url(../unityTheme/img/flag/en.png));
+	}
+
+	.u-flag-bg-pl {
+		@include flag-bg-template(url(../unityTheme/img/flag/pl.png));
+	}
+
+	.u-flag-bg-de {
+		@include flag-bg-template(url(../unityTheme/img/flag/de.png));
 	}
 }

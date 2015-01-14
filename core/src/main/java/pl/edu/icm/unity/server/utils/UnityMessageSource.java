@@ -7,6 +7,7 @@ package pl.edu.icm.unity.server.utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ResourceBundleMessageSource;
@@ -73,6 +74,16 @@ public class UnityMessageSource extends ResourceBundleMessageSource implements M
 	public Locale getLocale()
 	{
 		return getLocale(config.getDefaultLocale());
+	}
+	
+	public Map<String, Locale> getEnabledLocales()
+	{
+		return config.getEnabledLocales();
+	}
+	
+	public String getDefaultLocaleCode()
+	{
+		return config.getDefaultLocale().toString();
 	}
 	
 	public static Locale getLocale(Locale fallback)

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.types.DescribedObject;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.InitializationValidator;
 
 /**
@@ -36,6 +37,7 @@ public class AttributeType implements InitializationValidator, DescribedObject
 	
 	private String description = "";
 	private String name;
+	private I18nString displayedName;
 	private AttributeValueSyntax<?> valueType;
 	private int minElements = 0;
 	private int maxElements = 1;
@@ -54,12 +56,12 @@ public class AttributeType implements InitializationValidator, DescribedObject
 	{
 		this.name = name;
 		this.valueType = syntax;
+		this.displayedName = new I18nString(name);
 	}
 	
 	public AttributeType(String name, AttributeValueSyntax<?> syntax, String description)
 	{
-		this.name = name;
-		this.valueType = syntax;
+		this(name, syntax);
 		this.description = description;
 	}
 	
@@ -171,6 +173,8 @@ public class AttributeType implements InitializationValidator, DescribedObject
 			throw new IllegalAttributeTypeException("Max elements limit can not be less then min elements limit");
 		if (name == null || name.trim().equals(""))
 			throw new IllegalAttributeTypeException("Attribute type name must be set");
+		if (displayedName == null)
+			throw new IllegalAttributeTypeException("Attribute displayed name must be set");
 	}
 
 	public Map<String, String> getMetadata()
@@ -181,6 +185,18 @@ public class AttributeType implements InitializationValidator, DescribedObject
 	public void setMetadata(Map<String, String> metadata)
 	{
 		this.metadata = metadata;
+	}
+
+	public I18nString getDisplayedName()
+	{
+		return displayedName;
+	}
+
+	public void setDisplayedName(I18nString displayedName)
+	{
+		if (displayedName == null)
+			throw new IllegalArgumentException("Attribute displayed name must not be null");
+		this.displayedName = displayedName;
 	}
 
 	@Override

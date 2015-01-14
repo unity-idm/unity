@@ -14,6 +14,7 @@ import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandler;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -30,6 +31,7 @@ public class AttributeTypeViewer extends FormLayout
 	private UnityMessageSource msg;
 	
 	private Label name;
+	private I18nLabel displayedName;
 	private DescriptionTextArea typeDescription;
 	private Label cardinality;
 	private Label uniqueVals;
@@ -53,6 +55,9 @@ public class AttributeTypeViewer extends FormLayout
 		name = new Label();
 		name.setCaption(msg.getMessage("AttributeType.name"));
 		addComponent(name);
+		
+		displayedName = new I18nLabel(msg, msg.getMessage("AttributeType.displayedName"));
+		addComponent(displayedName);
 		
 		typeDescription = new DescriptionTextArea(msg.getMessage("AttributeType.description"), true, "");
 		addComponent(typeDescription);
@@ -96,6 +101,7 @@ public class AttributeTypeViewer extends FormLayout
 	private void setContentsVisible(boolean how)
 	{
 		name.setVisible(how);
+		displayedName.setVisible(how);
 		typeDescription.setVisible(how);
 		cardinality.setVisible(how);
 		uniqueVals.setVisible(how);
@@ -119,6 +125,7 @@ public class AttributeTypeViewer extends FormLayout
 		
 		setContentsVisible(true);
 		name.setValue(aType.getName());
+		displayedName.setValue(aType.getDisplayedName());
 		typeDescription.setValue(aType.getDescription());
 		cardinality.setValue(AttributeTypeUtils.getBoundsDesc(msg, aType.getMinElements(), aType.getMaxElements()));
 		uniqueVals.setValue(AttributeTypeUtils.getBooleanDesc(msg, aType.isUniqueValues()));

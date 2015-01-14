@@ -41,6 +41,7 @@ public class AttributeTypeSerializer
 		root.put("uniqueValues", src.isUniqueValues());
 		root.put("visibility", src.getVisibility().name());
 		root.put("syntaxState", src.getValueType().getSerializedConfiguration());
+		root.set("displayedName", I18nStringJsonUtil.toJson(src.getDisplayedName()));
 		ObjectNode metaN = root.putObject("metadata");
 		for (Map.Entry<String, String> entry: src.getMetadata().entrySet())
 			metaN.put(entry.getKey(), entry.getValue());
@@ -76,6 +77,7 @@ public class AttributeTypeSerializer
 		target.setUniqueValues(main.get("uniqueValues").asBoolean());
 		target.setVisibility(AttributeVisibility.valueOf(main.get("visibility").asText()));
 		target.getValueType().setSerializedConfiguration(main.get("syntaxState").asText());
+		target.setDisplayedName(I18nStringJsonUtil.fromJson(main.get("displayedName")));
 		if (main.has("metadata"))
 		{
 			JsonNode metaNode = main.get("metadata");
