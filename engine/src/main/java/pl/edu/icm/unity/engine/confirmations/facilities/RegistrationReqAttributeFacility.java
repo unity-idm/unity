@@ -140,7 +140,7 @@ public class RegistrationReqAttributeFacility extends BaseFacility implements
 	}
 
 	@Override
-	public void updateSentRequest(String state) throws EngineException
+	public void updateAfterSendRequest(String state) throws EngineException
 	{
 		RegistrationReqAttribiuteState attrState = getState(state);
 		String requestId = attrState.getOwner();
@@ -150,7 +150,7 @@ public class RegistrationReqAttributeFacility extends BaseFacility implements
 		{
 			for (Object val : attr.getValues())
 			{
-				updateConfirmationAmount((VerifiableElement) val,
+				updateConfirmationData((VerifiableElement) val,
 						attrState.getValue());
 			}
 		}

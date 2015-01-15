@@ -21,7 +21,9 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.confirmations.states.EntityAttribiuteState;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.utils.Log;
@@ -84,6 +86,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private AttributesManagement attributesManagement;
 	private GroupsManagement groupsManagement;
 	private ConfirmationManager confirmationManager;
+	private ConfirmationConfigurationManagement confirmationCfgMan;
 	
 	private VerticalLayout left;
 	private CheckBox showEffective;
@@ -102,13 +105,14 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	@Autowired
 	public AttributesPanel(UnityMessageSource msg, AttributeHandlerRegistry registry, 
-			AttributesManagement attributesManagement, GroupsManagement groupsManagement, ConfirmationManager confirmationManager)
+			AttributesManagement attributesManagement, GroupsManagement groupsManagement, ConfirmationManager confirmationManager, ConfirmationConfigurationManagement confirmationCfgMan)
 	{
 		this.msg = msg;
 		this.registry = registry;
 		this.attributesManagement = attributesManagement;
 		this.groupsManagement = groupsManagement;
 		this.confirmationManager = confirmationManager;
+		this.confirmationCfgMan = confirmationCfgMan;
 		this.bus = WebSession.getCurrent().getEventBus();
 		setStyleName(Reindeer.SPLITPANEL_SMALL);
 		attributesTable = new Table();
@@ -557,10 +561,20 @@ public class AttributesPanel extends HorizontalSplitPanel
 							boolean updated = updateAttribute(newAttribute);
 							if (!newAttribute.equals(attribute))
 							{
-								if (newAttribute.getValues().size() > 0 && newAttribute.getValues().get(0) instanceof VerifiableElement)
+								if (newAttribute.getValues().size() > 0 && newAttribute.getAttributeSyntax().hasValuesVerifiable())
 								{
 									Attribute<VerifiableElement> vattr = (Attribute<VerifiableElement>) newAttribute;
-									sendConfirmationRequest(vattr);
+									try
+									{
+										sendConfirmationRequest(vattr);
+									} catch (EngineException e)
+									{
+										ErrorPopup.showError(
+												msg,
+												msg.getMessage("Attribute.cannotSendConfirmation"),
+												e);
+
+									}
 								}
 							}
 							
@@ -577,7 +591,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		{
 			super(msg.getMessage("Attribute.sendConfirmationReq"), 
 					Images.confirmation.getResource());
-			setMultiTarget(false);
+			setMultiTarget(true);
 		}
 	
 		@Override
@@ -606,35 +620,87 @@ public class AttributesPanel extends HorizontalSplitPanel
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			Attribute<VerifiableElement> attribute = (Attribute<VerifiableElement>) ((AttributeItem) target).getAttribute();
-			sendConfirmationRequest(attribute);		
-			
-		}
-	}
-	
-	private void sendConfirmationRequest(Attribute<VerifiableElement> attribute)
-	{
-		try
-		{
-			EntityAttribiuteState state = new EntityAttribiuteState();
-			state.setOwner(owner.getEntityId().toString());
-			state.setGroup(groupPath);
-			state.setType(attribute.getName());
-			for (VerifiableElement val : attribute.getValues())
+			final Collection<AttributeItem> items = getItems(target);
+			String confirmText = MessageUtils.createConfirmFromStrings(msg, items);
+
+			if (!checkAvailableConfirmationConfiguration(
+					ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
+					items))
+				return;
+
+			for (AttributeItem item : items)
 			{
-				state.setValue(val.getValue());
-				confirmationManager.sendConfirmationRequest(state
-						.getSerializedConfiguration());
-			}
-			ErrorPopup.showNotice(msg, "", msg.getMessage("Attribute.confirmationSended"));	
-		} catch (EngineException e)
-		{
-			ErrorPopup.showError(msg,
-					msg.getMessage("Attribute.cannotSendConfirmation"), e);
+				try
+				{
+					Attribute<VerifiableElement> attribute = (Attribute<VerifiableElement>) item
+							.getAttribute();
+					sendConfirmationRequest(attribute);
+				} catch (EngineException e)
+				{
+					ErrorPopup.showError(
+							msg,
+							msg.getMessage("Attribute.cannotSendConfirmation"),
+							e);
 
+				}
+			}
+			ErrorPopup.showNotice(msg, "",
+					msg.getMessage("Attribute.confirmationSent", confirmText));
+
+		}
+
+		private boolean checkAvailableConfirmationConfiguration(String type,
+				Collection<AttributeItem> items)
+		{
+			StringBuilder typesWithoutConfig = new StringBuilder();
+			int count = 0;
+			for (AttributeItem id : items)
+			{
+				try
+				{
+					confirmationCfgMan.getConfiguration(type, id.getAttribute()
+							.getName());
+				} catch (Exception e)
+				{
+					if (count < 4)
+					{
+						typesWithoutConfig.append(", "
+								+ id.getAttribute().getName());
+					}
+				}
+			}
+			if (count > 3)
+				typesWithoutConfig.append(msg.getMessage("MessageUtils.andMore",
+						count - 3));
+
+			if (!typesWithoutConfig.toString().isEmpty())
+			{
+				ErrorPopup.showError(
+						msg,
+						" ",
+						msg.getMessage("Attribute.cannotSendConfirmationConfigNotAvailable",
+								typesWithoutConfig.toString()
+										.substring(2)));
+				return false;
+			}
+			return true;
 		}
 	}
 
+	private void sendConfirmationRequest(Attribute<VerifiableElement> attribute)
+			throws EngineException
+	{
+		EntityAttribiuteState state = new EntityAttribiuteState();
+		state.setOwner(owner.getEntityId().toString());
+		state.setGroup(groupPath);
+		state.setType(attribute.getName());
+		for (VerifiableElement val : attribute.getValues())
+		{
+			state.setValue(val.getValue());
+			confirmationManager.sendConfirmationRequest(state
+					.getSerializedConfiguration());
+		}
+	}
 
 	private static class EffectiveAttributesFilter implements Container.Filter
 	{

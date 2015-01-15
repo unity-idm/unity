@@ -23,8 +23,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  */
 public abstract class BaseFacility
 {
-
-	protected void updateConfirmationAmount(VerifiableElement el, String value)
+	protected void updateConfirmationData(VerifiableElement el, String value)
 	{
 		if (el.getValue().equals(value))
 		{
@@ -32,12 +31,16 @@ public abstract class BaseFacility
 			{
 				int amount = el.getConfirmationData().getSentRequestAmount();
 				el.getConfirmationData().setSentRequestAmount(amount + 1);
+				el.getConfirmationData().setConfirmed(false);
+				el.getConfirmationData().setConfirmationDate(0);
 			} else
 			{
 				el.setConfirmationData(new ConfirmationData(1));
 			}
 		}
 	}
+	
+	
 
 	private boolean confirmSingleElement(VerifiableElement verifiable, String value)
 	{

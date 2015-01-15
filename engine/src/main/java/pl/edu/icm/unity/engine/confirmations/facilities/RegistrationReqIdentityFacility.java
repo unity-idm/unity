@@ -81,7 +81,7 @@ public class RegistrationReqIdentityFacility extends
 	}
 
 	@Override
-	public void updateSentRequest(String state) throws EngineException
+	public void updateAfterSendRequest(String state) throws EngineException
 	{
 		RegistrationReqIdentityState idState = getState(state);
 		String requestId = idState.getOwner();
@@ -90,7 +90,7 @@ public class RegistrationReqIdentityFacility extends
 		for (IdentityParam id : reqState.getRequest().getIdentities())
 		{
 
-			updateConfirmationAmount(id, id.getValue());
+			updateConfirmationData(id, id.getValue());
 
 		}
 		SqlSession sql = db.getSqlSession(true);

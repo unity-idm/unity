@@ -1,17 +1,22 @@
+/*
+ * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
 package pl.edu.icm.unity.webadmin.confirmation;
 
-import com.vaadin.server.Sizeable.Unit;
+import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
+
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
-import pl.edu.icm.unity.server.translation.TranslationProfile;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webadmin.msgtemplate.MessageTemplateEditor;
-import pl.edu.icm.unity.webadmin.msgtemplate.MessageTemplateEditDialog.Callback;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
-
+/**
+ * Responsible for confirmation configuration edit
+ * @author P. Piernik
+ *
+ */
 public class ConfirmationConfigurationEditDialog extends AbstractDialog
 {
 	private ConfirmationConfigurationEditor editor;

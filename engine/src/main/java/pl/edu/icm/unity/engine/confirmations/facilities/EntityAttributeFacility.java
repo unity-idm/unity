@@ -106,7 +106,7 @@ public class EntityAttributeFacility extends EntityIdentityFacility implements C
 	}
 
 	@Override
-	public void updateSentRequest(String state) throws EngineException
+	public void updateAfterSendRequest(String state) throws EngineException
 	{
 		EntityAttribiuteState attrState = new EntityAttribiuteState();
 		attrState.setSerializedConfiguration(state);
@@ -122,7 +122,7 @@ public class EntityAttributeFacility extends EntityIdentityFacility implements C
 			{
 				for (Object val : attr.getValues())
 				{
-					updateConfirmationAmount((VerifiableElement) val, attrState.getValue());
+					updateConfirmationData((VerifiableElement) val, attrState.getValue());
 				}
 				dbAttributes.addAttribute(Long.parseLong(attrState.getOwner()),
 						attr, true, sql);

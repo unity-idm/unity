@@ -122,7 +122,7 @@ public class EntityIdentityFacility extends BaseFacility implements Confirmation
 	}
 
 	@Override
-	public void updateSentRequest(String state) throws EngineException
+	public void updateAfterSendRequest(String state) throws EngineException
 	{
 		EntityIdentityState idState = getState(state);
 		SqlSession sql = db.getSqlSession(true);
@@ -132,7 +132,7 @@ public class EntityIdentityFacility extends BaseFacility implements Confirmation
 					Long.parseLong(idState.getOwner()), sql);
 			for (IdentityParam id : ids)
 			{
-				updateConfirmationAmount(id, idState.getValue());
+				updateConfirmationData(id, idState.getValue());
 			}
 			sql.commit();
 		} finally

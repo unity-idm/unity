@@ -1,39 +1,48 @@
+/*
+ * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
 package pl.edu.icm.unity.webadmin.confirmation;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
 import pl.edu.icm.unity.confirmations.ConfirmationTemplateDef;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
-import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.webui.common.RequiredComboBox;
 
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 
+/**
+ * Component to edit or add confirmation configuration
+ * 
+ * @author P. Piernik
+ * 
+ */
 public class ConfirmationConfigurationEditor extends FormLayout
 {
 
 	private UnityMessageSource msg;
-	private NotificationsManagement notificationsMan;
-	private MessageTemplateManagement msgMan;
-	private String forType;
 
-	private ComboBox name;
+	private NotificationsManagement notificationsMan;
+
+	private MessageTemplateManagement msgMan;
+
+	private ComboBox type;
+
 	private ComboBox msgTemplate;
+
 	private ComboBox notificationChannel;
+
+	private String forType;
 
 	protected ConfirmationConfigurationEditor(UnityMessageSource msg,
 			NotificationsManagement notificationsMan, AttributesManagement attrsMan,
@@ -52,20 +61,26 @@ public class ConfirmationConfigurationEditor extends FormLayout
 	{
 		boolean editMode = toEdit != null;
 
-		name = new RequiredComboBox(
-				msg.getMessage("ConfirmationConfigurationViewer.forName"), msg);
-		name.setImmediate(true);
-		name.setValidationVisible(false);
-		name.setNullSelectionAllowed(false);
+		type = new RequiredComboBox(msg);
+		if (forType.equals(ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE))
+			type.setCaption(msg
+					.getMessage("ConfirmationConfigurationViewer.forAttributeType"));
+		else
+			type.setCaption(msg
+					.getMessage("ConfirmationConfigurationViewer.forIdentityType"));
+
+		type.setImmediate(true);
+		type.setValidationVisible(false);
+		type.setNullSelectionAllowed(false);
 
 		if (names != null)
 			for (String n : names)
 			{
-				name.addItem(n);
+				type.addItem(n);
 			}
-		if (name.size() > 0)
+		if (type.size() > 0)
 		{
-			name.setValue(name.getItemIds().toArray()[0]);
+			type.setValue(type.getItemIds().toArray()[0]);
 		}
 
 		notificationChannel = new RequiredComboBox(
@@ -98,20 +113,27 @@ public class ConfirmationConfigurationEditor extends FormLayout
 
 		if (editMode)
 		{
-			name.addItem(toEdit.getNameToConfirm());
-			name.setValue(toEdit.getNameToConfirm());
-			name.setReadOnly(true);
+			type.addItem(toEdit.getNameToConfirm());
+			type.setValue(toEdit.getNameToConfirm());
+			type.setReadOnly(true);
 			msgTemplate.setValue(toEdit.getMsgTemplate());
 			notificationChannel.setValue(toEdit.getNotificationChannel());
 		}
 
-		addComponents(name, msgTemplate, notificationChannel);
+		addComponents(type, msgTemplate, notificationChannel);
 		setSizeFull();
 	}
 
+	private boolean validate()
+	{
+		return type.isValid() && msgTemplate.isValid() && notificationChannel.isValid();
+	}
+	
 	public ConfirmationConfiguration getConfirmationConfiguration()
 	{
-		return new ConfirmationConfiguration(forType, name.getValue().toString(),
+		if (!validate())
+			return null;
+		return new ConfirmationConfiguration(forType, type.getValue().toString(),
 				notificationChannel.getValue().toString(), msgTemplate.getValue()
 						.toString());
 	}

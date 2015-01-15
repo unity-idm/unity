@@ -8,14 +8,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import org.mvel2.asm.util.CheckAnnotationAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
+import pl.edu.icm.unity.confirmations.ConfirmationTemplateDef;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -63,7 +67,6 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 	private IdentitiesManagement idMan;
 	private NotificationsManagement notificationsMan;
 	private AttributesManagement attrsMan;
-
 	private GenericElementsTable<ConfirmationConfiguration> table;
 	private com.vaadin.ui.Component main;
 	private OptionGroup toConfirmType;
@@ -197,6 +200,11 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 				if (t.getValueType().hasValuesVerifiable())
 					vtypes.add(t.getName());
 			}
+			if (vtypes.size() == 0)
+				ErrorPopup.showNotice(
+						msg,
+						"",
+						msg.getMessage("ConfirmationConfigurationsComponent.firstAddAttribute"));
 		} catch (EngineException e)
 		{
 			ErrorComponent error = new ErrorComponent();
@@ -218,6 +226,11 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 				if (t.getIdentityTypeProvider().isVerifiable())
 					vtypes.add(t.getIdentityTypeProvider().getId());
 			}
+			if (vtypes.size() == 0)
+				ErrorPopup.showNotice(
+						msg,
+						"",
+						msg.getMessage("ConfirmationConfigurationsComponent.firstAddIdentity"));
 
 		} catch (EngineException e)
 		{
@@ -305,8 +318,31 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		{
 			ErrorPopup.showError(
 					msg,
-					msg.getMessage("ConfirmationConfigurationsComponent.errorAdd"),
+					msg.getMessage("ConfirmationConfigurationsComponent.errorRemove"),
 					e);
+			return false;
+		}
+	}
+
+	private boolean checkAvailableMsqTemplate()
+	{
+		try
+		{
+			Map<String, MessageTemplate> compatibleTemplates = msgMan
+					.getCompatibleTemplates(ConfirmationTemplateDef.NAME);
+			if (compatibleTemplates.size() == 0)
+			{
+				ErrorPopup.showNotice(
+						msg,
+						"",
+						msg.getMessage("ConfirmationConfigurationsComponent.firstAddMsqTemplate",
+								ConfirmationTemplateDef.NAME));
+				return false;
+			}
+			return true;
+
+		} catch (Exception e)
+		{
 			return false;
 		}
 	}
@@ -322,7 +358,9 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 
 		@Override
 		public void handleAction(Object sender, final Object target)
-		{
+		{	
+			if (!checkAvailableMsqTemplate())
+				return;
 			ConfirmationConfigurationEditor editor = null;
 			List<String> names = null;
 			boolean attrConfig = toConfirmType.getValue().equals(
@@ -334,6 +372,9 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 			{
 				names = getVerifiableIdTypes();
 			}
+
+			if (names.size() == 0)
+			   return;
 
 			try
 			{
@@ -431,7 +472,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 
 			new ConfirmDialog(msg, msg.getMessage(
 					"ConfirmationConfigurationsComponent.confirmDelete",
-					confirmText), new ConfirmDialog.Callback()
+					confirmText.substring(2)), new ConfirmDialog.Callback()
 			{
 
 				@Override

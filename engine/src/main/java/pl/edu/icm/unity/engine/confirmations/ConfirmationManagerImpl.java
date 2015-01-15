@@ -124,7 +124,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 
 		notificationProducer.sendNotification(recipientAddress, channelName, templateId,
 				params);
-		facility.updateSentRequest(state);
+		facility.updateAfterSendRequest(state);
 	}
 
 	@Override
@@ -134,17 +134,26 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		baseState.setSerializedConfiguration(state);
 		String facilityId = baseState.getFacilityId();
 		ConfirmationFacility facility = getFacility(facilityId);
-		ConfirmationConfiguration configEntry;
-		if (facilityId.equals(EntityAttribiuteState.FACILITY_ID)
-				|| facilityId.equals(RegistrationReqAttribiuteState.FACILITY_ID))
-			configEntry = getConfiguration(
-					ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
-					baseState.getType());
-		else
-			configEntry = getConfiguration(
-					ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE,
-					baseState.getType());
+		ConfirmationConfiguration configEntry = null;
+		try
+		{
+			if (facilityId.equals(EntityAttribiuteState.FACILITY_ID)
+					|| facilityId.equals(RegistrationReqAttribiuteState.FACILITY_ID))
+				configEntry = getConfiguration(
+						ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
+						baseState.getType());
+			else
+				configEntry = getConfiguration(
+						ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE,
+						baseState.getType());
 
+		} catch (Exception e)
+		{
+			log.debug("Cannot get confirmation configuration for " + baseState.getType() + " skiping sendig confirmation request to " + baseState.getValue());
+		}
+		if (configEntry == null)
+			return;
+		
 		sendConfirmationRequest(baseState.getValue(), configEntry.getNotificationChannel(),
 				configEntry.getMsgTemplate(), state, facility);
 
