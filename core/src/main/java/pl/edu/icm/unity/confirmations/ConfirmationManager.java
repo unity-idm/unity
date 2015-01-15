@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.confirmations;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 
 /**
  * Confirmation manager
@@ -15,5 +16,7 @@ public interface ConfirmationManager
 {
 	public void sendConfirmationRequest(String state) throws EngineException;
 	public ConfirmationStatus proccessConfirmation(String token) throws EngineException;
+	void rewriteRequestToken(RegistrationRequestState finalReguest, String entityId)
+			throws EngineException;
 	
 }

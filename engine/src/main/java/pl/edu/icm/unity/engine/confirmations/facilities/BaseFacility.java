@@ -39,8 +39,6 @@ public abstract class BaseFacility
 			}
 		}
 	}
-	
-	
 
 	private boolean confirmSingleElement(VerifiableElement verifiable, String value)
 	{
@@ -50,6 +48,7 @@ public abstract class BaseFacility
 			confirmationData.setConfirmed(true);
 			Date today = new Date();
 			confirmationData.setConfirmationDate(today.getTime());
+			confirmationData.setSentRequestAmount(0);
 			return true;
 		}
 		return false;
@@ -62,16 +61,14 @@ public abstract class BaseFacility
 		for (Attribute<?> attr : attrs)
 		{
 			if (attr.getName().equals(attrName) && attr.getGroupPath().equals(group)
-					&& attr.getValues() != null)
+					&& attr.getValues() != null
+					&& attr.getAttributeSyntax().hasValuesVerifiable())
 			{
 				for (Object el : attr.getValues())
 				{
-					if (el instanceof VerifiableElement)
-					{
-						VerifiableElement verifiable = (VerifiableElement) el;
-						if (confirmSingleElement(verifiable, value))
-							confirmed.add(attr);
-					}
+					VerifiableElement verifiable = (VerifiableElement) el;
+					if (confirmSingleElement(verifiable, value))
+						confirmed.add(attr);
 				}
 
 			}
@@ -88,7 +85,7 @@ public abstract class BaseFacility
 			if (id.getTypeId().equals(type))
 			{
 				if (confirmSingleElement(id, value))
-					confirmed.add(id);	
+					confirmed.add(id);
 			}
 		}
 		return confirmed;

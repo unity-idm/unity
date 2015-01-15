@@ -316,7 +316,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				updateRequest(form, currentRequest, publicComment, internalComment, sql);
 				break;
 			case accept:
-				internalManagment.acceptRequest(form, currentRequest, publicComment, internalComment, sql);
+				Long entityId = internalManagment.acceptRequest(form, currentRequest, publicComment, internalComment, sql);
+				confirmationManager.rewriteRequestToken(currentRequest, entityId.toString());
 				break;
 			}
 			sql.commit();

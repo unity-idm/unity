@@ -20,7 +20,7 @@ import pl.edu.icm.unity.server.api.internal.TokensManagement;
 
 /**
  * Warning: this test works really only after mvn clean. Otherwise it barely test anything
- * @author K. Benedyczak
+ * @author P. Piernik
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml", "classpath:dbUpdate/to2_1_2/test-components.xml"})

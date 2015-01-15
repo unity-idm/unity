@@ -174,7 +174,7 @@ public class EngineInitialization extends LifecycleBase
 	private MessageTemplateManagement msgTemplatesManagement;
 	@Autowired
 	private SharedEndpointManagementImpl sharedEndpointManagement;
-	@Autowired
+	@Autowired(required = false)
 	private ConfirmationServlet confirmationServlet;
 	
 	
@@ -301,6 +301,12 @@ public class EngineInitialization extends LifecycleBase
 	
 	private void deployConfirmationServlet()
 	{
+		if (confirmationServlet == null)
+		{
+			log.info("Confirmation servlet is not available, skipping deploing");
+			return;
+		}	
+		
 		log.info("Deploing confirmation servlet");
 		ServletHolder holder = new ServletHolder(confirmationServlet.getServiceServlet());
 		try

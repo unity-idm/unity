@@ -43,7 +43,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void testSyntaxes() throws Exception
 	{
 		List<IdentityType> idTypes = idsMan.getIdentityTypes();
-		assertEquals(6, idTypes.size());
+		assertEquals(7, idTypes.size());
 		assertNotNull(getIdentityTypeByName(idTypes, PersistentIdentity.ID));
 		assertNotNull(getIdentityTypeByName(idTypes, TargetedPersistentIdentity.ID));
 		assertNotNull(getIdentityTypeByName(idTypes, X500Identity.ID));

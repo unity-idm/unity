@@ -178,7 +178,7 @@ public class RequestProcessingPanel extends CustomComponent
 			bus.fireEvent(new RegistrationRequestChangedEvent(requestState.getRequestId()));
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("RequestProcessingPanel.errorRequestProcess"), e);
+			ErrorPopup.showError(msg, msg.getMessage("RequestProcessingPanel.errorRequestProccess"), e);
 		}
 	}
 }

@@ -5,7 +5,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<beans profile="test">
-		<bean class="pl.edu.icm.unity.engine.mock.MockConfigDB2_1_1"/>
+		<bean class="pl.edu.icm.unity.engine.mock.MockConfigDB2_1_2"/>
 		<bean class="pl.edu.icm.unity.engine.mock.MockEndpointFactory"/>
 		<bean class="pl.edu.icm.unity.engine.mock.MockPasswordRetrievalFactory"/>
 		<bean class="pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory"/>

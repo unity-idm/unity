@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.confirmations.states.EntityAttribiuteState;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -559,9 +558,18 @@ public class AttributesPanel extends HorizontalSplitPanel
 						public boolean newAttribute(Attribute<?> newAttribute)
 						{
 							boolean updated = updateAttribute(newAttribute);
+						
 							if (!newAttribute.equals(attribute))
 							{
-								if (newAttribute.getValues().size() > 0 && newAttribute.getAttributeSyntax().hasValuesVerifiable())
+								List<Attribute<?>> tattrs = new ArrayList<Attribute<?>>();
+								tattrs.add(newAttribute);
+								if (!checkAvailableConfirmationConfiguration(
+										ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
+										tattrs)
+										&& newAttribute.getValues()
+												.size() > 0
+										&& newAttribute.getAttributeSyntax()
+												.hasValuesVerifiable())
 								{
 									Attribute<VerifiableElement> vattr = (Attribute<VerifiableElement>) newAttribute;
 									try
@@ -622,18 +630,22 @@ public class AttributesPanel extends HorizontalSplitPanel
 		{
 			final Collection<AttributeItem> items = getItems(target);
 			String confirmText = MessageUtils.createConfirmFromStrings(msg, items);
+			List<Attribute<?>> allAttrs = new ArrayList<Attribute<?>>();
+			for (AttributeItem item : items)
+			{
+				allAttrs.add(item.getAttribute());
+			}
 
 			if (!checkAvailableConfirmationConfiguration(
 					ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
-					items))
+					allAttrs))
 				return;
 
-			for (AttributeItem item : items)
+			for (Attribute<?> attr : allAttrs)
 			{
 				try
 				{
-					Attribute<VerifiableElement> attribute = (Attribute<VerifiableElement>) item
-							.getAttribute();
+					Attribute<VerifiableElement> attribute = (Attribute<VerifiableElement>) attr;
 					sendConfirmationRequest(attribute);
 				} catch (EngineException e)
 				{
@@ -649,42 +661,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 
 		}
 
-		private boolean checkAvailableConfirmationConfiguration(String type,
-				Collection<AttributeItem> items)
-		{
-			StringBuilder typesWithoutConfig = new StringBuilder();
-			int count = 0;
-			for (AttributeItem id : items)
-			{
-				try
-				{
-					confirmationCfgMan.getConfiguration(type, id.getAttribute()
-							.getName());
-				} catch (Exception e)
-				{
-					if (count < 4)
-					{
-						typesWithoutConfig.append(", "
-								+ id.getAttribute().getName());
-					}
-				}
-			}
-			if (count > 3)
-				typesWithoutConfig.append(msg.getMessage("MessageUtils.andMore",
-						count - 3));
-
-			if (!typesWithoutConfig.toString().isEmpty())
-			{
-				ErrorPopup.showError(
-						msg,
-						" ",
-						msg.getMessage("Attribute.cannotSendConfirmationConfigNotAvailable",
-								typesWithoutConfig.toString()
-										.substring(2)));
-				return false;
-			}
-			return true;
-		}
+		
 	}
 
 	private void sendConfirmationRequest(Attribute<VerifiableElement> attribute)
@@ -719,6 +696,43 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 	}
 
+	private boolean checkAvailableConfirmationConfiguration(String type,
+			Collection<Attribute<?>> items)
+	{
+		StringBuilder typesWithoutConfig = new StringBuilder();
+		int count = 0;
+		for (Attribute<?> id : items)
+		{
+			try
+			{
+				confirmationCfgMan.getConfiguration(type, id.
+						getName());
+			} catch (Exception e)
+			{
+				if (count < 4)
+				{
+					typesWithoutConfig.append(", "
+							+ id.getName());
+				}
+			}
+		}
+		if (count > 3)
+			typesWithoutConfig.append(msg.getMessage("MessageUtils.andMore",
+					count - 3));
+
+		if (!typesWithoutConfig.toString().isEmpty())
+		{
+			ErrorPopup.showError(
+					msg,
+					" ",
+					msg.getMessage("Attribute.cannotSendConfirmationConfigNotAvailable",
+							typesWithoutConfig.toString()
+									.substring(2)));
+			return false;
+		}
+		return true;
+	}
+	
 	private class InternalAttributesFilter implements Container.Filter
 	{		
 		@Override
