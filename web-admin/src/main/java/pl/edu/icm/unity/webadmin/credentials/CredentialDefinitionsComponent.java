@@ -32,7 +32,6 @@ import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
-import com.google.common.html.HtmlEscapers;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
@@ -260,7 +259,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 			GenericItem<?> item = (GenericItem<?>) target;
 			CredentialDefinition cr = (CredentialDefinition) item.getElement();
 			CredentialDefinition crClone = new CredentialDefinition();
-			crClone.setDescription(HtmlEscapers.htmlEscaper().escape(cr.getDescription()));
+			crClone.setDescription(cr.getDescription());
 			crClone.setName(cr.getName());
 			crClone.setTypeId(cr.getTypeId());
 			crClone.setJsonConfiguration(cr.getJsonConfiguration());

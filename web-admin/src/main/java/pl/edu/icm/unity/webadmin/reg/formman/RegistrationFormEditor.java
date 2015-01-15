@@ -47,16 +47,15 @@ import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
-import pl.edu.icm.unity.webui.common.URLValidator;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.URLValidator;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.attributes.SelectableAttributeEditor;
 
-import com.google.common.html.HtmlEscapers;
 import com.vaadin.data.validator.AbstractStringValidator;
 import com.vaadin.data.validator.AbstractValidator;
 import com.vaadin.ui.AbstractTextField;
@@ -204,7 +203,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		ret.setCollectComments(collectComments.getValue());
 		ret.setCredentialParams(credentialParams.getElements());
 		ret.setCredentialRequirementAssignment((String) credentialRequirementAssignment.getValue());
-		ret.setDescription(HtmlEscapers.htmlEscaper().escape(description.getValue()));
+		ret.setDescription(description.getValue());
 		ret.setFormInformation(formInformation.getValue());
 		ret.setGroupAssignments(groupAssignments.getElements());
 		ret.setGroupParams(groupParams.getElements());
@@ -689,7 +688,7 @@ public class RegistrationFormEditor extends VerticalLayout
 			if (!label.getValue().isEmpty())
 				ret.setLabel(label.getValue());
 			if (!description.getValue().isEmpty())
-				ret.setDescription(HtmlEscapers.htmlEscaper().escape(description.getValue()));
+				ret.setDescription(description.getValue());
 			return ret;
 		}
 
@@ -728,7 +727,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		protected void fill(RegistrationParam v)
 		{
 			if (!description.getValue().isEmpty())
-				v.setDescription(HtmlEscapers.htmlEscaper().escape(description.getValue()));
+				v.setDescription(description.getValue());
 			if (!label.getValue().isEmpty())
 				v.setLabel(label.getValue());
 			v.setRetrievalSettings(retrievalSettings.getSelectedValue());

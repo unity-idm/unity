@@ -36,8 +36,23 @@ public class I18nStringJsonUtil
 	
 	public static I18nString fromJson(JsonNode node)
 	{
-		ObjectNode root = (ObjectNode) node;
 		I18nString ret = new I18nString();
+		return fromJson(ret, node);
+	}
+
+	public static I18nString fromJson(JsonNode node, JsonNode defaultVal)
+	{
+		String defaultValStr = defaultVal != null && !defaultVal.isNull() ? defaultVal.asText() : null;
+		I18nString ret = new I18nString(defaultValStr);
+		return fromJson(ret, node);
+	}
+	
+	private static I18nString fromJson(I18nString ret, JsonNode node)
+	{
+		if (node == null || node.isNull())
+			return ret;
+
+		ObjectNode root = (ObjectNode) node;
 		JsonNode defV = root.get("DefaultValue");
 		ret.setDefaultValue(defV.isNull() ? null : defV.asText());
 		ObjectNode mapN = (ObjectNode) root.get("Map");
@@ -50,4 +65,5 @@ public class I18nStringJsonUtil
 		}
 		return ret;
 	}
+
 }

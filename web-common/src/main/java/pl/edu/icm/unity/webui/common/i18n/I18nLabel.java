@@ -10,6 +10,7 @@ import java.util.Map;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.webui.common.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -28,11 +29,13 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class I18nLabel extends CustomField<I18nString>
 {
+	private static final int MAX_LINE = 80;
+	
 	private String defaultLocaleCode;
 	private Map<String, Locale> enabledLocales;
 	private Label defaultTf;
 	private Map<String, HPairLayout> translationTFs = new HashMap<String, HPairLayout>();
-	private Component main;
+	private VerticalLayout main;
 	
 	public I18nLabel(UnityMessageSource msg)
 	{
@@ -50,15 +53,13 @@ public class I18nLabel extends CustomField<I18nString>
 	private void initUI()
 	{
 		HPairLayout defL = new HPairLayout();
-		defaultTf = new Label();
+		defaultTf = new HtmlSimplifiedLabel();
 		Resource defStyle = Images.getFlagForLocale(defaultLocaleCode);
 		if (defStyle != null)
 			defL.addImage(defStyle);
 		defL.addLabel(defaultTf);
 		
 		VerticalLayout main = new VerticalLayout();
-//		main.setSpacing(true);
-//		main.addStyleName(Styles.smallSpacing.toString());
 		main.addComponent(defL);
 
 		for (Map.Entry<String, Locale> locE: enabledLocales.entrySet())
@@ -68,7 +69,7 @@ public class I18nLabel extends CustomField<I18nString>
 				continue;
 
 			HPairLayout pair = new HPairLayout();
-			Label tf = new Label();
+			Label tf = new HtmlSimplifiedLabel();
 			pair.addLabel(tf);
 			Resource image = Images.getFlagForLocale(localeKey);
 			if (image != null)
@@ -94,18 +95,21 @@ public class I18nLabel extends CustomField<I18nString>
 		for (HPairLayout locE: translationTFs.values())
 			locE.setVisible(false);
 		defaultTf.setVisible(false);
+		main.setSpacing(false);
 		for (Map.Entry<String, String> vE: value.getMap().entrySet())
 		{
+			if (vE.getValue().length() > MAX_LINE)
+				main.setSpacing(true);
 			if (vE.getKey().equals(defaultLocaleCode))
 			{
-				defaultTf.setValue(vE.getValue());
+				defaultTf.setValue(changeNewLines(vE.getValue()));
 				defaultTf.setVisible(true);
 			} else
 			{
 				HPairLayout tf = translationTFs.get(vE.getKey());
 				if (tf != null)
 				{
-					tf.setLabelValue(vE.getValue());
+					tf.setLabelValue(changeNewLines(vE.getValue()));
 					tf.setVisible(true);
 				}
 			}
@@ -115,6 +119,39 @@ public class I18nLabel extends CustomField<I18nString>
 			defaultTf.setValue(value.getDefaultValue());
 			defaultTf.setVisible(true);
 		}
+	}
+	
+	public static String changeNewLines(String src)
+	{
+		return breakLines(src, MAX_LINE).replace("\n", "<br>");
+	}
+	
+	public static String breakLines(String src, int maxLine)
+	{
+		StringBuilder sb = new StringBuilder();
+		int start = 0;
+		int breakPos;
+		do
+		{
+			breakPos = src.indexOf('\n', start);
+			if (breakPos == -1)
+				breakPos = src.length();
+			if (breakPos - start > maxLine)
+			{
+				int lastSpace = src.lastIndexOf(' ', start + maxLine - 1);
+				if (lastSpace <= start)
+					lastSpace = start + maxLine - 1;
+				sb.append(src.subSequence(start, lastSpace + 1)).append("\n");
+				start = lastSpace + 1;
+			} else
+			{
+				sb.append(src.subSequence(start, breakPos));
+				if (breakPos < src.length())
+					sb.append("\n");
+				start = breakPos + 1;
+			}
+		} while(start < src.length());
+		return sb.toString();
 	}
 	
 	@Override

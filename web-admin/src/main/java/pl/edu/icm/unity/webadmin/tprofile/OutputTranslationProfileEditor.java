@@ -8,8 +8,6 @@ package pl.edu.icm.unity.webadmin.tprofile;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.html.HtmlEscapers;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
@@ -66,7 +64,7 @@ public class OutputTranslationProfileEditor extends TranslationProfileEditor
 
 		}
 		OutputTranslationProfile profile = new OutputTranslationProfile(n, trules);
-		profile.setDescription(HtmlEscapers.htmlEscaper().escape(desc));
+		profile.setDescription(desc);
 		return profile;
 	}
 

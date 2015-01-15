@@ -513,7 +513,7 @@ public class RegistrationRequestEditor extends CustomComponent
 				headerAdded = true;
 			}
 			AttributeType at = atTypes.get(aParam.getAttributeType());
-			String description = aParam.isUseDescription() ? at.getDescription() : aParam.getDescription();
+			String description = aParam.isUseDescription() ? null : aParam.getDescription();
 			String aName = isEmpty(aParam.getLabel()) ? null : aParam.getLabel();
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
 					at, aParam.isShowGroups(), aParam.getGroup(), AttributeVisibility.full, 

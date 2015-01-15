@@ -33,7 +33,6 @@ public class AttributeTypeSerializer
 	public byte[] toJson(AttributeType src)
 	{
 		ObjectNode root = mapper.createObjectNode();
-		root.put("description", src.getDescription());
 		root.put("flags", src.getFlags());
 		root.put("maxElements", src.getMaxElements());
 		root.put("minElements", src.getMinElements());
@@ -42,6 +41,7 @@ public class AttributeTypeSerializer
 		root.put("visibility", src.getVisibility().name());
 		root.put("syntaxState", src.getValueType().getSerializedConfiguration());
 		root.set("displayedName", I18nStringJsonUtil.toJson(src.getDisplayedName()));
+		root.set("i18nDescription", I18nStringJsonUtil.toJson(src.getDescription()));
 		ObjectNode metaN = root.putObject("metadata");
 		for (Map.Entry<String, String> entry: src.getMetadata().entrySet())
 			metaN.put(entry.getKey(), entry.getValue());
@@ -69,7 +69,6 @@ public class AttributeTypeSerializer
 		{
 			throw new InternalException("Can't perform JSON deserialization", e);
 		}
-		target.setDescription(main.get("description").asText());
 		target.setFlags(main.get("flags").asInt());
 		target.setMaxElements(main.get("maxElements").asInt());
 		target.setMinElements(main.get("minElements").asInt());
@@ -78,6 +77,8 @@ public class AttributeTypeSerializer
 		target.setVisibility(AttributeVisibility.valueOf(main.get("visibility").asText()));
 		target.getValueType().setSerializedConfiguration(main.get("syntaxState").asText());
 		target.setDisplayedName(I18nStringJsonUtil.fromJson(main.get("displayedName")));
+		target.setDescription(I18nStringJsonUtil.fromJson(main.get("i18nDescription"), 
+				main.get("description")));
 		if (main.has("metadata"))
 		{
 			JsonNode metaNode = main.get("metadata");

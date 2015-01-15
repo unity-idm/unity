@@ -5,12 +5,16 @@
 package pl.edu.icm.unity.types.basic;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
+import org.springframework.context.NoSuchMessageException;
+
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.types.DescribedObject;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.InitializationValidator;
+import pl.edu.icm.unity.types.NamedObject;
 
 /**
  * Attribute type defines rules for handling attributes. Particular values
@@ -20,7 +24,7 @@ import pl.edu.icm.unity.types.InitializationValidator;
  * <p>
  * The class is compared only using the name.
  */
-public class AttributeType implements InitializationValidator, DescribedObject
+public class AttributeType implements InitializationValidator, NamedObject
 {
 	/**
 	 * The attribute type can not be changed using management API (it is created
@@ -35,7 +39,7 @@ public class AttributeType implements InitializationValidator, DescribedObject
 	 */
 	public static final int INSTANCES_IMMUTABLE_FLAG = 0x02;
 	
-	private String description = "";
+	private I18nString description;
 	private String name;
 	private I18nString displayedName;
 	private AttributeValueSyntax<?> valueType;
@@ -59,10 +63,60 @@ public class AttributeType implements InitializationValidator, DescribedObject
 		this.displayedName = new I18nString(name);
 	}
 	
-	public AttributeType(String name, AttributeValueSyntax<?> syntax, String description)
+	public AttributeType(String name, AttributeValueSyntax<?> syntax, I18nString description)
 	{
 		this(name, syntax);
 		this.description = description;
+	}
+
+	/**
+	 * This version resolves the descriptions of the attribute from the message bundles. The key must be
+	 * AttrType.ATTR_NAME.desc.
+	 * @param name
+	 * @param syntax
+	 * @param msg
+	 */
+	public AttributeType(String name, AttributeValueSyntax<?> syntax, MessageSource msg)
+	{
+		this(name, syntax, loadDescriptions(name, msg, null, new Object[]{}));
+	}
+	
+	/**
+	 * This version resolves the descriptions of the attribute from the message bundles. The key must be
+	 * AttrType.msgKey.desc. It is possible to provide message arguments
+	 * @param name
+	 * @param syntax
+	 * @param msg
+	 */
+	public AttributeType(String name, AttributeValueSyntax<?> syntax, MessageSource msg, String msgKey, 
+			Object[] args)
+	{
+		this(name, syntax, loadDescriptions(name, msg, msgKey, args));
+	}
+	
+	private static I18nString loadDescriptions(String name, MessageSource msg, String msgKey, 
+			Object[] args)
+	{
+		Map<String, Locale> allLocales = msg.getSupportedLocales();
+		String key = "AttrType." + (msgKey == null ? name : msgKey) + ".desc";
+		I18nString ret = new I18nString();
+		
+		String defaultMessage = msg.getMessage(key, args);
+		try
+		{
+			defaultMessage = msg.getMessage(key, args);
+		} catch (NoSuchMessageException e)
+		{
+			return ret;
+		}
+		
+		for (Locale locE: allLocales.values())
+		{
+			String message = msg.getMessage(key, args, locE);
+			if (locE.toString().equals(msg.getDefaultLocaleCode()) || !defaultMessage.equals(message))
+				ret.addValue(locE.toString(), message);
+		}
+		return ret;
 	}
 	
 	public boolean isTypeImmutable()
@@ -75,12 +129,11 @@ public class AttributeType implements InitializationValidator, DescribedObject
 		return (flags & INSTANCES_IMMUTABLE_FLAG) != 0;
 	}
 	
-	@Override
-	public String getDescription()
+	public I18nString getDescription()
 	{
 		return description;
 	}
-	public void setDescription(String description)
+	public void setDescription(I18nString description)
 	{
 		if (description == null)
 			throw new IllegalArgumentException("Argument can not be null");

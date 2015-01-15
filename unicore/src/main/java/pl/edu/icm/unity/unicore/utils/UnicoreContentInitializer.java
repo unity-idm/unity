@@ -18,6 +18,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.ServerInitializer;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
@@ -37,15 +38,18 @@ public class UnicoreContentInitializer implements ServerInitializer
 	private InitializerCommon commonInitializer;
 	private AttributesManagement attrMan;
 	private GroupsManagement groupsMan;
+	private UnityMessageSource msg;
 	
 	@Autowired
 	public UnicoreContentInitializer(InitializerCommon commonInitializer,
 			@Qualifier("insecure") AttributesManagement attrMan, 
-			@Qualifier("insecure") GroupsManagement groupsMan)
+			@Qualifier("insecure") GroupsManagement groupsMan,
+			UnityMessageSource msg)
 	{
 		this.commonInitializer = commonInitializer;
 		this.attrMan = attrMan;
 		this.groupsMan = groupsMan;
+		this.msg = msg;
 	}
 
 	@Override
@@ -79,19 +83,15 @@ public class UnicoreContentInitializer implements ServerInitializer
 			allowedRoles.add("server");
 			allowedRoles.add("banned");
 			AttributeType roleAT = new AttributeType("urn:unicore:attrType:role", 
-					new EnumAttributeSyntax(allowedRoles));
+					new EnumAttributeSyntax(allowedRoles), msg);
 			roleAT.setMinElements(1);
-			roleAT.setDescription("User or server role used for UNICORE authorization. " +
-					"The 'user' role provides normal access, 'admin' the full access, " +
-					"'server' allows for registering in UNICORE registry, " +
-					"'banned' users have access fully blocked.");
 			if (!existingATs.contains(roleAT))
 				attrMan.addAttributeType(roleAT);
 
-			AttributeType xloginAT = new AttributeType("urn:unicore:attrType:xlogin", new StringAttributeSyntax());
+			AttributeType xloginAT = new AttributeType("urn:unicore:attrType:xlogin", 
+					new StringAttributeSyntax(), msg);
 			xloginAT.setMinElements(1);
 			xloginAT.setMaxElements(16);
-			xloginAT.setDescription("UNIX account name (uid)");
 			((StringAttributeSyntax)xloginAT.getValueType()).setMaxLength(100);
 			((StringAttributeSyntax)xloginAT.getValueType()).setMinLength(1);
 			if (!existingATs.contains(xloginAT))

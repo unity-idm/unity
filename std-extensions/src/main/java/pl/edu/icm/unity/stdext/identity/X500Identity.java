@@ -12,12 +12,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import eu.emi.security.authn.x509.helpers.JavaAndBCStyle;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -33,50 +35,52 @@ public class X500Identity extends AbstractStaticIdentityTypeProvider
 {
 	public static final String ID = "x500Name";
 
-	private static Set<AttributeType> EXTRACTED;
-	private static final Set<String> EXTRACTED_NAMES;
+	private Set<AttributeType> EXTRACTED = new HashSet<AttributeType>(16);
+	private final Set<String> EXTRACTED_NAMES = new HashSet<String>(16);
 	
-	static 
+	@Autowired
+	public X500Identity(UnityMessageSource msg)
 	{
-		EXTRACTED = new HashSet<AttributeType>(16);
-		EXTRACTED_NAMES = new HashSet<String>(16);
-		
 		EXTRACTED_NAMES.add("cn");
-		EXTRACTED.add(new AttributeType("cn", new StringAttributeSyntax(), "Common name"));
+		EXTRACTED.add(new AttributeType("cn", new StringAttributeSyntax(), msg));
 
 		EXTRACTED_NAMES.add("o");
-		EXTRACTED.add(new AttributeType("o", new StringAttributeSyntax(), "Organisation"));
+		EXTRACTED.add(new AttributeType("o", new StringAttributeSyntax(), msg));
 		
 		EXTRACTED_NAMES.add("ou");
-		EXTRACTED.add(new AttributeType("ou", new StringAttributeSyntax(), "Organisational unit"));
+		EXTRACTED.add(new AttributeType("ou", new StringAttributeSyntax(), msg));
 
 		EXTRACTED_NAMES.add("c");
-		EXTRACTED.add(new AttributeType("c", new StringAttributeSyntax(), "Country"));
+		EXTRACTED.add(new AttributeType("c", new StringAttributeSyntax(), msg));
 
 		EXTRACTED_NAMES.add("email");
-		EXTRACTED.add(new AttributeType("email", new StringAttributeSyntax(), "E-mail address"));
+		EXTRACTED.add(new AttributeType("email", new StringAttributeSyntax(), msg));
 
 		EXTRACTED_NAMES.add("l");
-		EXTRACTED.add(new AttributeType("l", new StringAttributeSyntax(), "Locality"));
+		EXTRACTED.add(new AttributeType("l", new StringAttributeSyntax(), msg));
 
 		EXTRACTED_NAMES.add("st");
-		EXTRACTED.add(new AttributeType("st", new StringAttributeSyntax(), "State or province name"));
+		EXTRACTED.add(new AttributeType("st", new StringAttributeSyntax(), msg));
 		
 		EXTRACTED_NAMES.add("surname");
-		EXTRACTED.add(new AttributeType("", new StringAttributeSyntax(), "Surname"));
+		EXTRACTED.add(new AttributeType("surname", new StringAttributeSyntax(), msg));
 		
 		EXTRACTED_NAMES.add("uid");
-		EXTRACTED.add(new AttributeType("", new StringAttributeSyntax(), "User identifier"));
+		EXTRACTED.add(new AttributeType("uid", new StringAttributeSyntax(), msg));
 		
 		EXTRACTED_NAMES.add("dc");
-		EXTRACTED.add(new AttributeType("dc", new StringAttributeSyntax(), "Domain component"));
+		EXTRACTED.add(new AttributeType("dc", new StringAttributeSyntax(), msg));
 
 		EXTRACTED_NAMES.add("t");
-		EXTRACTED.add(new AttributeType("t", new StringAttributeSyntax(), "Title"));
+		EXTRACTED.add(new AttributeType("t", new StringAttributeSyntax(), msg));
 		
 		EXTRACTED = Collections.unmodifiableSet(EXTRACTED);
 	}
 
+	public X500Identity()
+	{
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

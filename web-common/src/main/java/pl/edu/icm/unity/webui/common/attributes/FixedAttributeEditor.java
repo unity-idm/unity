@@ -93,7 +93,7 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 		if (caption == null)
 			caption = attributeType.getDisplayedName().getValue(msg) + ":";
 		if (description == null)
-			description = attributeType.getDescription();
+			description = attributeType.getDescription().getValue(msg);
 		
 		if (showGroup)
 		{

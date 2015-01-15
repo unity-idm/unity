@@ -3,7 +3,7 @@
 @mixin flag-bg-template($flagpath) {
 	background-image: $flagpath;
 	background-repeat: no-repeat;
-	background-position: right center;
+	background-position: 99% top;
 	background-origin: content-box;
 }
 

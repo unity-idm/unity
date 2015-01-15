@@ -8,7 +8,6 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 
-import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -71,7 +70,7 @@ public class GroupEditDialog extends AbstractDialog
 		{
 			String gName = name.getValue();
 			Group group = gName.equals("/") ? new Group("/") : new Group(new Group(parent), name.getValue());
-			group.setDescription(HtmlEscapers.htmlEscaper().escape(description.getValue()));
+			group.setDescription(description.getValue());
 			close();
 			callback.onConfirm(group);
 		} catch (Exception e)

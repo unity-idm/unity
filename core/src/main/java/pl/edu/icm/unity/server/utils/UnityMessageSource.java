@@ -76,6 +76,7 @@ public class UnityMessageSource extends ResourceBundleMessageSource implements M
 		return getLocale(config.getDefaultLocale());
 	}
 	
+	@Override
 	public Map<String, Locale> getEnabledLocales()
 	{
 		return config.getEnabledLocales();
@@ -107,5 +108,11 @@ public class UnityMessageSource extends ResourceBundleMessageSource implements M
 		if (ret == null)
 			return fallback;
 		return ret;
+	}
+
+	@Override
+	public Map<String, Locale> getSupportedLocales()
+	{
+		return UnityServerConfiguration.SUPPORTED_LOCALES;
 	}
 }

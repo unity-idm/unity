@@ -9,7 +9,6 @@ import java.util.Map;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
@@ -32,7 +31,7 @@ public class AttributeTypeViewer extends FormLayout
 	
 	private Label name;
 	private I18nLabel displayedName;
-	private DescriptionTextArea typeDescription;
+	private I18nLabel typeDescription;
 	private Label cardinality;
 	private Label uniqueVals;
 	private Label selfModificable;
@@ -59,7 +58,7 @@ public class AttributeTypeViewer extends FormLayout
 		displayedName = new I18nLabel(msg, msg.getMessage("AttributeType.displayedName"));
 		addComponent(displayedName);
 		
-		typeDescription = new DescriptionTextArea(msg.getMessage("AttributeType.description"), true, "");
+		typeDescription = new I18nLabel(msg, msg.getMessage("AttributeType.description"));
 		addComponent(typeDescription);
 		
 		cardinality = new Label();

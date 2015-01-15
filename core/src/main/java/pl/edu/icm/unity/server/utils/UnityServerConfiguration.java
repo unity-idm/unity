@@ -113,6 +113,8 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
 	
+	public static final Map<String, Locale> SUPPORTED_LOCALES = new HashMap<String, Locale>();
+	
 	static
 	{
 		DocumentationCategory mainCat = new DocumentationCategory("General settings", "1");
@@ -250,6 +252,11 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("Name of the credential to be used by the server."));
 		defaults.put(HttpServerProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).
 				setDescription("Properties starting with this prefix are used to configure Jetty HTTP server settings. See separate table for details."));
+		
+		
+		SUPPORTED_LOCALES.put("en", new Locale("en"));
+		SUPPORTED_LOCALES.put("pl", new Locale("pl"));
+		SUPPORTED_LOCALES.put("de", new Locale("de"));
 	}
 
 	private UnityHttpServerConfiguration jp;
