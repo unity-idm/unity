@@ -85,7 +85,7 @@ public class DemoContentInitializer implements ServerInitializer
 			((JpegImageAttributeSyntax)userPicture.getValueType()).setMaxSize(1400000);
 			((JpegImageAttributeSyntax)userPicture.getValueType()).setMaxWidth(900);
 			((JpegImageAttributeSyntax)userPicture.getValueType()).setMaxHeight(900);
-			userPicture.setMaxElements(1);
+			userPicture.setMaxElements(10);
 			userPicture.setDescription("Picture of the user");
 			attrMan.addAttributeType(userPicture);
 
@@ -115,7 +115,8 @@ public class DemoContentInitializer implements ServerInitializer
 			EnumAttribute a = new EnumAttribute("sys:AuthorizationRole", "/", AttributeVisibility.local, "Regular User");
 			attrMan.setAttribute(new EntityParam(base.getEntityId()), a, false);
 
-			StringAttribute orgA = new StringAttribute("o", "/", AttributeVisibility.full, "Example organization");
+			StringAttribute orgA = new StringAttribute("o", "/", AttributeVisibility.full, 
+					"Example organization", "org2", "org3");
 			attrMan.setAttribute(new EntityParam(base.getEntityId()), orgA, false);
 
 			VerifiableEmailAttribute emailA = new VerifiableEmailAttribute("verifiableEmail", "/", AttributeVisibility.full, "some@email.com");

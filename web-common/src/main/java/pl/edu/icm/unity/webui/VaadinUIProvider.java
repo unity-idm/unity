@@ -6,9 +6,11 @@ package pl.edu.icm.unity.webui;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.springframework.context.ApplicationContext;
 
+import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
@@ -31,11 +33,14 @@ public class VaadinUIProvider extends UIProvider
 	private transient EndpointDescription description;
 	private transient List<Map<String, BindingAuthn>> authenticators;
 	private transient CancelHandler cancelHandler;
+	private transient SandboxAuthnRouter sandboxRouter;
 	private transient EndpointRegistrationConfiguration registrationConfiguraiton;
+	private transient Properties endpointProperties;
 
 	public VaadinUIProvider(ApplicationContext applicationContext, String uiBeanName,
 			EndpointDescription description, List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration registrationConfiguraiton)
+			EndpointRegistrationConfiguration registrationConfiguraiton,
+			Properties properties)
 	{
 		super();
 		this.applicationContext = applicationContext;
@@ -43,11 +48,18 @@ public class VaadinUIProvider extends UIProvider
 		this.description = description;
 		this.authenticators = authenticators;
 		this.registrationConfiguraiton = registrationConfiguraiton;
+		this.endpointProperties = properties;
 	}
+
 
 	public void setCancelHandler(CancelHandler cancelHandler)
 	{
 		this.cancelHandler = cancelHandler;
+	}
+
+	public void setSandboxRouter(SandboxAuthnRouter sandboxRouter) 
+	{
+		this.sandboxRouter = sandboxRouter;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -63,9 +75,16 @@ public class VaadinUIProvider extends UIProvider
 		UI ui = (UI) applicationContext.getBean(uiBeanName);
 		if (ui instanceof UnityWebUI)
 		{
-			((UnityWebUI)ui).configure(description, authenticators, registrationConfiguraiton);
+			((UnityWebUI)ui).configure(description, authenticators, registrationConfiguraiton,
+					endpointProperties);
 			if (cancelHandler != null)
+			{
 				((UnityWebUI)ui).setCancelHandler(cancelHandler);
+			}
+			if (sandboxRouter != null) 
+			{
+				((UnityWebUI)ui).setSandboxRouter(sandboxRouter);
+			}
 		}
 		return ui;
 	}

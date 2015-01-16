@@ -156,7 +156,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		effectiveAttrsFilter = new EffectiveAttributesFilter();
 		showEffective = new CheckBox(msg.getMessage("Attribute.showEffective"), true);
 		showEffective.setImmediate(true);
-		showEffective.setStyleName(Styles.italic.toString());
+		showEffective.addStyleName(Styles.italic.toString());
 		showEffective.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
@@ -167,7 +167,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		});
 		showInternal = new CheckBox(msg.getMessage("Attribute.showInternal"), false);
 		showInternal.setImmediate(true);
-		showInternal.setStyleName(Styles.gray.toString());
+		showInternal.addStyleName(Styles.gray.toString());
 		showInternal.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override

@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.webui.UnityVaadinServlet;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -73,7 +72,7 @@ public class LocaleChoiceComponent extends FormLayout
 					String localeName = (String) chooser.getValue();
 					Locale l = selectableLocales.get(localeName);
 					
-					Cookie languageCookie = new Cookie(UnityVaadinServlet.LANGUAGE_COOKIE, 
+					Cookie languageCookie = new Cookie(InvocationContextSetupFilter.LANGUAGE_COOKIE, 
 							l.toString());
 					languageCookie.setPath("/");
 					languageCookie.setMaxAge(3600*24*31);

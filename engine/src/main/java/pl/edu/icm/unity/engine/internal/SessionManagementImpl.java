@@ -11,18 +11,25 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.db.DBIdentities;
+import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.api.internal.SessionParticipant;
+import pl.edu.icm.unity.server.api.internal.SessionParticipants;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
+import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -40,6 +47,9 @@ public class SessionManagementImpl implements SessionManagement
 	public static final String SESSION_TOKEN_TYPE = "session";
 	private TokensManagement tokensManagement;
 	private LoginToHttpSessionBinder sessionBinder;
+	private SessionParticipantTypesRegistry participantTypesRegistry;
+	private DBIdentities dbIdentities;
+	private DBSessionManager db;
 	
 	/**
 	 * map of timestamps indexed by session ids, when the last activity update was written to DB.
@@ -48,10 +58,15 @@ public class SessionManagementImpl implements SessionManagement
 	
 	@Autowired
 	public SessionManagementImpl(TokensManagement tokensManagement, ExecutorsService execService,
-			LoginToHttpSessionBinder sessionBinder)
+			LoginToHttpSessionBinder sessionBinder, 
+			SessionParticipantTypesRegistry participantTypesRegistry, 
+			DBIdentities dbIdentities, DBSessionManager db)
 	{
 		this.tokensManagement = tokensManagement;
 		this.sessionBinder = sessionBinder;
+		this.participantTypesRegistry = participantTypesRegistry;
+		this.dbIdentities = dbIdentities;
+		this.db = db;
 		execService.getService().scheduleWithFixedDelay(new TerminateInactiveSessions(), 
 				20, 30, TimeUnit.SECONDS);
 	}
@@ -96,6 +111,23 @@ public class SessionManagementImpl implements SessionManagement
 		} finally
 		{
 			tokensManagement.closeTokenTransaction(transaction);
+			cleanScheduledRemoval(loggedEntity);
+		}
+	}
+	
+	private void cleanScheduledRemoval(long loggedEntity)
+	{
+		SqlSession sqlMap = db.getSqlSession(true);
+		try
+		{
+			dbIdentities.clearScheduledRemovalStatus(loggedEntity, sqlMap);
+			sqlMap.commit();
+		} catch (EngineException e)
+		{
+			log.error("Can not clear automatic removal (if any) from the user being logged in", e);
+		} finally
+		{
+			db.releaseSqlSession(sqlMap);
 		}
 	}
 	
@@ -211,6 +243,23 @@ public class SessionManagementImpl implements SessionManagement
 		} finally
 		{
 			tokensManagement.closeTokenTransaction(transaction);
+		}
+	}
+	
+	@Override
+	public void addSessionParticipant(SessionParticipant... participant)
+	{
+		InvocationContext invocationContext = InvocationContext.getCurrent();
+		LoginSession ls = invocationContext.getLoginSession();
+		try
+		{
+			SessionParticipants.AddParticipantToSessionTask addTask = 
+					new SessionParticipants.AddParticipantToSessionTask(participantTypesRegistry,
+					participant); 
+			updateSessionAttributes(ls.getId(), addTask);
+		} catch (WrongArgumentException e)
+		{
+			throw new InternalException("Can not add session participant to the existing session?", e);
 		}
 	}
 	

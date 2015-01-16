@@ -6,22 +6,6 @@ package pl.edu.icm.unity.webui.authn.extensions;
 
 import org.apache.log4j.Logger;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.vaadin.server.Resource;
-import com.vaadin.server.UserError;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.PasswordField;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.themes.Reindeer;
-
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -30,6 +14,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
@@ -38,6 +23,23 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialReset1Dialog;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.vaadin.server.Resource;
+import com.vaadin.server.UserError;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.PasswordField;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
+
+import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Retrieves passwords using a Vaadin widget.
@@ -117,6 +119,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		private PasswordField passwordField;
 		private CredentialEditor credEditor;
 		private AuthenticationResultCallback callback;
+		private SandboxAuthnResultCallback sandboxCallback;
 
 		public PasswordRetrievalUI(CredentialEditor credEditor)
 		{
@@ -173,23 +176,28 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		@Override
 		public void triggerAuthentication()
 		{
-			callback.setAuthenticationResult(getAuthenticationResult());
-		}
-		
-
-		private AuthenticationResult getAuthenticationResult()
-		{
 			String username = usernameProvider.getUsername();
 			String password = passwordField.getValue();
 			if (username.equals("") && password.equals(""))
 			{
 				passwordField.setComponentError(new UserError(
 						msg.getMessage("WebPasswordRetrieval.noPassword")));
+			}
+			
+			callback.setAuthenticationResult(getAuthenticationResult(username, password));
+		}
+		
+
+		private AuthenticationResult getAuthenticationResult(String username, String password)
+		{
+			if (username.equals("") && password.equals(""))
+			{
 				return new AuthenticationResult(Status.notApplicable, null);
 			}
 			try
 			{
-				AuthenticationResult authenticationResult = credentialExchange.checkPassword(username, password);
+				AuthenticationResult authenticationResult = credentialExchange.checkPassword(
+						username, password, sandboxCallback);
 				if (authenticationResult.getStatus() == Status.success)
 					passwordField.setComponentError(null);
 				else if (authenticationResult.getStatus() == Status.unknownRemotePrincipal && 
@@ -257,6 +265,12 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		public void refresh(VaadinRequest request) 
 		{
 			//nop
+		}
+
+		@Override
+		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+		{
+			sandboxCallback = callback;
 		}
 	}
 }

@@ -4,15 +4,24 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.internal.EntitiesScheduledUpdater;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -24,6 +33,7 @@ import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.TransientIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -38,6 +48,106 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 
 public class TestIdentities extends DBIntegrationTestBase
 {
+	@Autowired
+	private EntitiesScheduledUpdater entitiesUpdater;
+	
+	@Test
+	public void scheduledOpsWork() throws Exception
+	{
+		setupMockAuthn();
+		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		IdentityParam idParam2 = new IdentityParam(X500Identity.ID, "CN=golbi2");
+		Identity id2 = idsMan.addEntity(idParam2, "crMock", EntityState.valid, false);
+		
+		EntityParam ep1 = new EntityParam(id.getEntityId());
+		Date scheduledTime = new Date(System.currentTimeMillis()+100);
+		idsMan.scheduleEntityChange(ep1, scheduledTime, EntityScheduledOperation.DISABLE);
+		
+		Entity retrieved = idsMan.getEntity(new EntityParam(idParam));
+		assertEquals(EntityScheduledOperation.DISABLE,
+				retrieved.getEntityInformation().getScheduledOperation());
+		assertEquals(scheduledTime,
+				retrieved.getEntityInformation().getScheduledOperationTime());
+		
+		EntityParam ep2 = new EntityParam(id2.getEntityId());
+		idsMan.scheduleEntityChange(ep2, new Date(System.currentTimeMillis()+100), 
+				EntityScheduledOperation.REMOVE);
+		Thread.sleep(200);
+		entitiesUpdater.updateEntities();
+		
+		Entity updated = idsMan.getEntity(ep1);
+		assertEquals(EntityState.disabled, updated.getState());
+		
+		try
+		{
+			idsMan.getEntity(ep2);
+			fail("Entity not removed");
+		} catch (IllegalIdentityValueException e)
+		{
+			//ok
+		}
+	}
+
+	@Test
+	public void scheduledRemovalWorksForUser() throws Exception
+	{
+		setupPasswordAuthn();
+		Identity id = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		EntityParam ep1 = new EntityParam(id.getEntityId());
+		
+		setupUserContext("user1", false);
+		
+		idsMan.scheduleRemovalByUser(ep1, new Date(System.currentTimeMillis()+200));
+		idsMan.getEntity(ep1);
+		Thread.sleep(200);
+		entitiesUpdater.updateEntities();
+		
+		try
+		{
+			idsMan.getEntity(ep1);
+			fail("Entity not removed");
+		} catch (IllegalIdentityValueException e)
+		{
+			//ok
+		}
+	}
+
+	@Test
+	public void scheduledRemovalWorksForUserImmediately() throws Exception
+	{
+		setupPasswordAuthn();
+		Identity id = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		EntityParam ep1 = new EntityParam(id.getEntityId());
+		
+		setupUserContext("user1", false);
+		
+		idsMan.scheduleRemovalByUser(ep1, new Date(System.currentTimeMillis()));
+		try
+		{
+			idsMan.getEntity(ep1);
+			fail("Entity not removed");
+		} catch (IllegalIdentityValueException e)
+		{
+			//ok
+		}
+	}
+
+	@Test
+	public void scheduledRemovalGraceTimeWorksForUser() throws Exception
+	{
+		setupPasswordAuthn();
+		Identity id = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		EntityParam ep1 = new EntityParam(id.getEntityId());
+
+		setupUserContext("user1", false);
+		idsMan.scheduleRemovalByUser(ep1, new Date(System.currentTimeMillis()+500));
+		setupUserContext("user1", false);
+		entitiesUpdater.updateEntities();
+		
+		Entity entity = idsMan.getEntity(ep1);
+		assertEquals(EntityState.valid, entity.getState());
+	}
 	
 	@Test
 	public void testSyntaxes() throws Exception

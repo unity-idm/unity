@@ -97,9 +97,7 @@ public class SPMetadataGenerator implements MetadataProvider
 		protocolSupport.setStringValue(SAMLConstants.PROTOCOL_NS);
 		idpDesc.setProtocolSupportEnumeration(protocolSupport.getListValue());
 		
-		String idpKey = samlConfig.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX).iterator().next();
-		idpDesc.setAuthnRequestsSigned(samlConfig.isSignRequest(idpKey));
-
+		idpDesc.setAuthnRequestsSigned(samlConfig.getBooleanValue(SAMLSPProperties.DEF_SIGN_REQUEST));
 		idpDesc.setWantAssertionsSigned(true);
 
 		List<String> accepted = samlConfig.getListOfValues(SAMLSPProperties.ACCEPTED_NAME_FORMATS);

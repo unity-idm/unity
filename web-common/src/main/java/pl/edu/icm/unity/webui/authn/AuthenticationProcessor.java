@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -299,21 +298,6 @@ public class AuthenticationProcessor
 		HttpSession httpSession = ((WrappedHttpSession)VaadinSession.getCurrent().getSession()).getHttpSession();
 		return (UnsuccessfulAuthenticationCounter) httpSession.getServletContext().getAttribute(
 				UnsuccessfulAuthenticationCounter.class.getName());
-	}
-	
-	public void addSessionParticipant(SessionParticipant... participant)
-	{
-		InvocationContext invocationContext = InvocationContext.getCurrent();
-		LoginSession ls = invocationContext.getLoginSession();
-		try
-		{
-			sessionMan.updateSessionAttributes(ls.getId(), 
-					new SessionParticipants.AddParticipantToSessionTask(participantTypesRegistry,
-							participant));
-		} catch (WrongArgumentException e)
-		{
-			throw new InternalException("Can not add session participant to the existing session?", e);
-		}
 	}
 	
 	public class LogoutRedirectHandler extends SynchronizedRequestHandler

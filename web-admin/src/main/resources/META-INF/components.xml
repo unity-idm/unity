@@ -17,6 +17,8 @@
 		
 	<bean scope="prototype" id="WebAdminUI" class="pl.edu.icm.unity.webadmin.WebAdminUI"/>
 
+	<bean scope="prototype" id="SandboxUI" class="pl.edu.icm.unity.sandbox.SandboxUI"/>
+	
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.ContentsManagementTab"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.RegistrationsManagementTab"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.SchemaManagementTab"/>

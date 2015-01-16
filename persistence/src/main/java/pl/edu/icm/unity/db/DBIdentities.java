@@ -29,6 +29,8 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.EntityInformation;
+import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.ConfirmationData;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -318,22 +320,100 @@ public class DBIdentities
 		}
 	}
 	
-	public EntityState getEntityStatus(long entityId, SqlSession sqlMap) 
+	public EntityInformation getEntityInformation(long entityId, SqlSession sqlMap) 
 			throws IllegalIdentityValueException, IllegalTypeException
 	{
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
 		BaseBean bean = mapper.getEntityById(entityId);
 		return entitySerializer.fromJson(bean.getContents());
 	}
+
+	public EntityState getEntityStatus(long entityId, SqlSession sqlMap) 
+			throws IllegalIdentityValueException, IllegalTypeException
+	{
+		return getEntityInformation(entityId, sqlMap).getState();
+	}
 	
 	public void setEntityStatus(long entityId, EntityState status, SqlSession sqlMap) 
 			throws IllegalIdentityValueException, IllegalTypeException
 	{
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
-		byte[] statusJson = entitySerializer.toJson(status);
-		
 		BaseBean bean = mapper.getEntityById(entityId);
-		bean.setContents(statusJson);
+		EntityInformation info = entitySerializer.fromJson(bean.getContents());
+		info.setState(status);
+		byte[] infoJson = entitySerializer.toJson(info);
+		bean.setContents(infoJson);
+		mapper.updateEntity(bean);
+	}
+	
+	/**
+	 * If entity is in the state {@link EntityState#onlyLoginPermitted} this method clears the 
+	 *  removal of the entity: state is set to enabled and user ordered removal is removed.
+	 * @param entityId
+	 * @param sqlMap
+	 * @throws IllegalIdentityValueException
+	 * @throws IllegalTypeException
+	 */
+	public void clearScheduledRemovalStatus(long entityId, SqlSession sqlMap) 
+			throws IllegalIdentityValueException, IllegalTypeException
+	{
+		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
+		BaseBean bean = mapper.getEntityById(entityId);
+		EntityInformation info = entitySerializer.fromJson(bean.getContents());
+		if (info.getState() != EntityState.onlyLoginPermitted)
+			return;
+		log.debug("Removing scheduled removal of an account [as the user is being logged] for entity " + 
+			entityId);
+		info.setState(EntityState.valid);
+		info.setRemovalByUserTime(null);
+		byte[] infoJson = entitySerializer.toJson(info);
+		bean.setContents(infoJson);
+		mapper.updateEntity(bean);
+	}
+
+	public void setScheduledOperationByAdmin(long entityId, Date when,
+			EntityScheduledOperation operation, SqlSession sqlMap) 
+			throws IllegalIdentityValueException, IllegalTypeException
+	{
+		if (operation != null && when == null)
+			throw new IllegalArgumentException("Date must be set for the scheduled operation");
+		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
+		BaseBean bean = mapper.getEntityById(entityId);
+		EntityInformation info = entitySerializer.fromJson(bean.getContents());
+
+		if (operation == null)
+		{
+			info.setScheduledOperation(null);
+			info.setScheduledOperationTime(null);
+		} else
+		{
+			info.setScheduledOperation(operation);
+			info.setScheduledOperationTime(when);
+		}
+
+		byte[] infoJson = entitySerializer.toJson(info);
+		bean.setContents(infoJson);
+		mapper.updateEntity(bean);
+	}
+
+	public void setScheduledRemovalByUser(long entityId, Date when, SqlSession sqlMap) 
+			throws IllegalIdentityValueException, IllegalTypeException
+	{
+		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
+		BaseBean bean = mapper.getEntityById(entityId);
+		EntityInformation info = entitySerializer.fromJson(bean.getContents());
+
+		if (when == null)
+		{
+			info.setRemovalByUserTime(null);
+		} else
+		{
+			info.setRemovalByUserTime(when);
+			info.setState(EntityState.onlyLoginPermitted);
+		}
+
+		byte[] infoJson = entitySerializer.toJson(info);
+		bean.setContents(infoJson);
 		mapper.updateEntity(bean);
 	}
 	
@@ -358,7 +438,80 @@ public class DBIdentities
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
 		mapper.deleteEntity(entityId);
 	}
+	
+	/**
+	 * Performs all scheduled operations due by now
+	 * @param sqlMap
+	 * @return the time when the earliest scheduled operation should take place. If there is no such operation 
+	 * returned time is very far in future.
+	 */
+	public Date performScheduledEntityOperations(SqlSession sqlMap)
+	{
+		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
+		List<BaseBean> rawRet = mapper.getEntities();
+		Date now = new Date();
+		Date ret = new Date(Long.MAX_VALUE);
+		for (BaseBean entityBean: rawRet)
+		{
+			EntityInformation entityInfo = entitySerializer.fromJson(entityBean.getContents());
+			if (isSetAndAfter(now, entityInfo.getScheduledOperationTime()))
+			{
+				EntityScheduledOperation op = entityInfo.getScheduledOperation();
+				performScheduledOperationInternal(entityBean, op, entityInfo, mapper);
+			} else if (isSetAndAfter(now, entityInfo.getRemovalByUserTime()))
+			{
+				performScheduledOperationInternal(entityBean, 
+						EntityScheduledOperation.REMOVE, entityInfo, mapper);
+			}
+			
+			Date nextOp = entityInfo.getScheduledOperationTime();
+			if (nextOp != null && nextOp.before(ret))
+				ret = nextOp;
+		}
+		return ret;
+	}
+
+	public void performScheduledOperation(long entityId, EntityScheduledOperation op, SqlSession sqlMap)
+	{
+		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
+		BaseBean entityBean = mapper.getEntityById(entityId);
+		EntityInformation entityInfo = entitySerializer.fromJson(entityBean.getContents());
+		performScheduledOperationInternal(entityBean, op, entityInfo, mapper);
+	}
+	
+	private void performScheduledOperationInternal(BaseBean entityBean, EntityScheduledOperation op,
+			EntityInformation entityInfo, IdentitiesMapper mapper)
+	{
+		switch (op)
+		{
+		case DISABLE:
+			log.info("Performing scheduled disable of entity " + entityBean.getId());
+			disableInternal(entityInfo, entityBean, mapper);
+			break;
+		case REMOVE:
+			log.info("Performing scheduled removal of entity " + entityBean.getId());
+			mapper.deleteEntity(entityBean.getId());
+			break;
+		}
+	}
+	
+	private void disableInternal(EntityInformation entityInfo, BaseBean entityBean, IdentitiesMapper mapper)
+	{
+		entityInfo.setState(EntityState.disabled);
+		entityInfo.setScheduledOperation(null);
+		entityInfo.setScheduledOperationTime(null);
+		entityInfo.setRemovalByUserTime(null);
+		byte[] infoJson = entitySerializer.toJson(entityInfo);
+		entityBean.setContents(infoJson);
+		mapper.updateEntity(entityBean);
+	}
+	
+	private boolean isSetAndAfter(Date now, Date date)
+	{
+		return date != null && !now.before(date);
+	}
 }
+
 
 
 

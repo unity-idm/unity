@@ -4,12 +4,17 @@
  */
 package pl.edu.icm.unity.home.iddetails;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Map;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
+import pl.edu.icm.unity.types.basic.ConfirmationData;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
@@ -20,29 +25,32 @@ import com.vaadin.ui.Label;
 
 /**
  * Presents a complete and comprehensive information about a single entity. No editing is possible.
+ * Targeted for admin user.
  * @author K. Benedyczak
  */
 public class EntityDetailsPanel extends FormLayout
 {
 	private UnityMessageSource msg;
-	private boolean showAdminData;
 	private Label id;
 	private Label status;
+	private Label scheduledAction;
 	private HtmlLabel identities;
 	private Label credReq;
 	private HtmlLabel credStatus;
 	private HtmlLabel groups;
 	
 	
-	public EntityDetailsPanel(UnityMessageSource msg, boolean showAdminData)
+	public EntityDetailsPanel(UnityMessageSource msg)
 	{
 		this.msg = msg;
-		this.showAdminData = showAdminData;
 		id = new Label();
 		id.setCaption(msg.getMessage("IdentityDetails.id"));
 
 		status = new Label();
 		status.setCaption(msg.getMessage("IdentityDetails.status"));
+		
+		scheduledAction = new Label();
+		scheduledAction.setCaption(msg.getMessage("IdentityDetails.expiration"));
 		
 		identities = new HtmlLabel(msg);
 		identities.setCaption(msg.getMessage("IdentityDetails.identities"));
@@ -56,7 +64,7 @@ public class EntityDetailsPanel extends FormLayout
 		groups = new HtmlLabel(msg);
 		groups.setCaption(msg.getMessage("IdentityDetails.groups"));
 		
-		addComponents(id, status, identities, credReq, credStatus, groups);
+		addComponents(id, status, scheduledAction, identities, credReq, credStatus, groups);
 	}
 	
 	public void setInput(EntityWithLabel entityWithLabel, Collection<String> groups)
@@ -66,13 +74,66 @@ public class EntityDetailsPanel extends FormLayout
 		
 		status.setValue(msg.getMessage("EntityState." + entity.getState().toString()));
 		
+		EntityScheduledOperation operation = entity.getEntityInformation().getScheduledOperation();
+		if (operation != null)
+		{
+			scheduledAction.setVisible(true);
+			String action = msg.getMessage("EntityScheduledOperationWithDate." + operation.toString(), 
+					entity.getEntityInformation().getScheduledOperationTime());
+			scheduledAction.setValue(action);
+		} else
+		{
+			scheduledAction.setVisible(false);
+		}
+		
 		identities.resetValue();
 		for (Identity id: entity.getIdentities())
 		{
-			if (!showAdminData || id.isLocal())
+			if (id.isLocal())
 			{
-				identities.addHtmlValueLine("IdentityDetails.identityLocal", id.getTypeId(), 
-					id.getType().getIdentityTypeProvider().toPrettyStringNoPrefix(id.getValue()));
+				if (id.getType().getIdentityTypeProvider().isVerifiable()
+						&& id.getConfirmationData() != null)
+				{
+					ConfirmationData conData = id.getConfirmationData();	
+					if (conData.isConfirmed())
+					{
+						String date = "";
+						Date dt = new Date(conData.getConfirmationDate());
+						date = new SimpleDateFormat(
+								Constants.AMPM_DATE_FORMAT)
+								.format(dt);
+						identities.addHtmlValueLine(
+								"IdentityDetails.identityLocalConfirmed",
+								id.getTypeId(),
+								id.getType()
+										.getIdentityTypeProvider()
+										.toPrettyStringNoPrefix(
+												id.getValue()),
+								date);
+
+					} else
+					{
+						identities.addHtmlValueLine(
+								"IdentityDetails.identityLocalNotConfirmed",
+								id.getTypeId(),
+								id.getType()
+										.getIdentityTypeProvider()
+										.toPrettyStringNoPrefix(
+												id.getValue()),
+								conData.getSentRequestAmount());
+					}
+				}
+				
+				else
+				{
+					identities.addHtmlValueLine(
+							"IdentityDetails.identityLocal",
+							id.getTypeId(),
+							id.getType()
+									.getIdentityTypeProvider()
+									.toPrettyStringNoPrefix(
+											id.getValue()));
+				}
 			} else
 			{
 				String trProfile = id.getTranslationProfile() == null ? 

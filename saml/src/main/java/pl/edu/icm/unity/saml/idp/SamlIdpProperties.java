@@ -88,6 +88,7 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String DEFAULT_GROUP = "defaultGroup";
 	
 	public static final String TRANSLATION_PROFILE = "translationProfile";
+	public static final String SKIP_CONSENT = "skipConsent";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -192,6 +193,11 @@ public class SamlIdpProperties extends SamlProperties
 				setDescription("Name of an output translation profile which can be used to dynamically modify the "
 						+ "data being returned on this endpoint. When not defined the default profile is used: "
 						+ "attributes are not filtered, memberOf attribute is added with group membership"));
+		defaults.put(SKIP_CONSENT, new PropertyMD("false").setCategory(samlCat).
+				setDescription("Controls whether the user being authenticated should see the consent screen"
+						+ " with the information what service requested authentication and what data "
+						+ "is going to be released. Note that user may always choose to disable "
+						+ "the consent screen for each service, even if this setting is set to false."));
 		defaults.put(TRUSTSTORE, new PropertyMD().setCategory(samlCat).
 				setDescription("Truststore name to setup SAML trust settings. The truststore "
 						+ "is used to verify request signature issuer, " +

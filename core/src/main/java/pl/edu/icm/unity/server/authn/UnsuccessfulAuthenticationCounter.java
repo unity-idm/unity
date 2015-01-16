@@ -55,6 +55,7 @@ public class UnsuccessfulAuthenticationCounter
 			accessMap.put(ip, clientInfo);
 		}
 		clientInfo.unsuccessfulAttempts++;
+		log.trace("New unsuccessful attempts count for " + ip + " is " + clientInfo.unsuccessfulAttempts);
 		if (clientInfo.unsuccessfulAttempts >= maxAttepts)
 		{
 			log.info("Blocking access for IP " + ip + " after " + clientInfo.unsuccessfulAttempts +
@@ -65,6 +66,7 @@ public class UnsuccessfulAuthenticationCounter
 	
 	public synchronized void successfulAttempt(String ip)
 	{
+		log.trace("Cleaning unsuccessful attempts for " + ip);
 		accessMap.remove(ip);
 	}
 	

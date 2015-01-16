@@ -6,6 +6,7 @@ package pl.edu.icm.unity.home;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -41,8 +42,7 @@ public class UserHomeUI extends UnityUIBase implements UnityWebUI
 	private UserAccountComponent userAccount;
 	private EndpointDescription endpointDescription;
 	private AuthenticationProcessor authnProcessor;
-
-
+	private HomeEndpointProperties config;
 
 	@Autowired
 	public UserHomeUI(UnityMessageSource msg, UserAccountComponent userAccountComponent,
@@ -56,9 +56,10 @@ public class UserHomeUI extends UnityUIBase implements UnityWebUI
 	@Override
 	public void configure(EndpointDescription description,
 			List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration regCfg)
+			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
 	{
 		this.endpointDescription = description;
+		this.config = new HomeEndpointProperties(endpointProperties);
 	}
 
 	@Override
@@ -68,6 +69,8 @@ public class UserHomeUI extends UnityUIBase implements UnityWebUI
 		TopHeader header = new TopHeader(endpointDescription.getId(), authnProcessor, msg);
 		contents.addComponent(header);
 
+		userAccount.initUI(config);
+		
 		userAccount.setWidth(80, Unit.PERCENTAGE);
 		contents.addComponent(userAccount);
 		contents.setComponentAlignment(userAccount, Alignment.TOP_CENTER);

@@ -63,7 +63,7 @@ public class AttributeHandlerRegistry
 		List<?> values = attribute.getValues();
 		if (values.size() > 0)
 		{
-			sb.append("=");
+			sb.append(": ");
 			sb.append(getSimplifiedAttributeValuesRepresentation(attribute, maxValuesLen));
 		}
 		return sb.toString();

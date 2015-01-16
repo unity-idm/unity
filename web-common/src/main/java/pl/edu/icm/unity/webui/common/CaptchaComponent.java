@@ -47,9 +47,9 @@ import com.vaadin.ui.themes.Reindeer;
 public class CaptchaComponent 
 {
 	private static final char[] CAPTCHA_CHARS = new char[] { 'q', 'w', 'e', 'r',
-		't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h',
+		't', 'y', 'u', 'i', 'p', 'a', 's', 'd', 'f', 'g', 'h',
 		'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm',
-		'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
+		'1', '2', '3', '4', '5', '6', '7', '8', '9'};
 	private static final Random random = new Random();
 	private UnityMessageSource msg;
 	private Captcha engine;
@@ -57,19 +57,27 @@ public class CaptchaComponent
 	private Image challenge;
 	private TextField answer;
 	private Button resetChallenge;
-	
+
+	private int length;
 	
 	public CaptchaComponent(UnityMessageSource msg)
 	{
+		this(msg, 6);
+	}
+
+	public CaptchaComponent(UnityMessageSource msg, int length)
+	{
 		this.msg = msg;
+		this.length = length;
 		initEngine();
 		initUI();
 	}
 	
+	
 	private void initEngine()
 	{
-		engine = new Captcha.Builder(200, 50)
-			.addText(new DefaultTextProducer(6, CAPTCHA_CHARS))
+		engine = new Captcha.Builder(33*length, 50)
+			.addText(new DefaultTextProducer(length, CAPTCHA_CHARS))
 			.addBackground(new GradiatedBackgroundProducer())
 			.gimp(new FishEyeGimpyRenderer())
 			.addBorder()

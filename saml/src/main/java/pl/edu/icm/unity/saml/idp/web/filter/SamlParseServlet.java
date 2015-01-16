@@ -22,6 +22,7 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.RoutingServlet;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLServerException;
@@ -52,16 +53,16 @@ public class SamlParseServlet extends SamlHttpServlet
 	public static final String REQ_FORCE = "force";
 	protected RemoteMetaManager samlConfigProvider;
 	protected String endpointAddress;
-	protected String samlUiServletPath;
+	protected String samlDispatcherServletPath;
 	protected ErrorHandler errorHandler;
 
 	public SamlParseServlet(RemoteMetaManager samlConfigProvider, String endpointAddress,
-			String samlUiServletPath, ErrorHandler errorHandler)
+			String samlDispatcherServletPath, ErrorHandler errorHandler)
 	{
 		super(true, false, false);
 		this.samlConfigProvider = samlConfigProvider;
 		this.endpointAddress = endpointAddress;
-		this.samlUiServletPath = samlUiServletPath;
+		this.samlDispatcherServletPath = samlDispatcherServletPath;
 		this.errorHandler = errorHandler;
 	}
 
@@ -149,8 +150,7 @@ public class SamlParseServlet extends SamlHttpServlet
 		}
 		
 		if (log.isTraceEnabled())
-			log.trace("Request to protected address, with SAML input, will be processed: " + 
-					request.getRequestURI());
+			log.trace("Got request with SAML input to: " + request.getRequestURI());
 		try
 		{
 			AuthnRequestDocument samlRequest = parse(request);
@@ -167,9 +167,13 @@ public class SamlParseServlet extends SamlHttpServlet
 		}
 		
 		session.setAttribute(SESSION_SAML_CONTEXT, context);
+		RoutingServlet.clean(request);
 		if (log.isTraceEnabled())
 			log.trace("Request with SAML input handled successfully");
-		response.sendRedirect(samlUiServletPath);
+		//Note - this is intended, even taking into account the overhead. We don't want to pass alongside
+		//original HTTP query params, we want a clean URL in HTTP redirect case. In HTTP POST case it is
+		//even more important: web browser would warn the user about doubled POST.
+		response.sendRedirect(samlDispatcherServletPath);
 	}
 	
 	protected SAMLAuthnContext createSamlContext(HttpServletRequest request, AuthnRequestDocument samlRequest,

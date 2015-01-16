@@ -13,6 +13,7 @@ import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
+import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 
 /**
  * Produces verificators of passwords using remote LDAP server.
@@ -52,6 +53,7 @@ public class LdapVerificatorFactory implements CredentialVerificatorFactory
 	@Override
 	public CredentialVerificator newInstance()
 	{
-		return new LdapVerificator(getName(), getDescription(), profileManagement, trEngine, pkiManagement);
+		return new LdapVerificator(getName(), getDescription(), profileManagement, trEngine, pkiManagement,
+				PasswordExchange.ID);
 	}
 }

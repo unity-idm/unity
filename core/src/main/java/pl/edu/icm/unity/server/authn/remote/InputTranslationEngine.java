@@ -23,6 +23,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.translation.ExecutionBreakException;
+import pl.edu.icm.unity.server.translation.in.EntityChange;
 import pl.edu.icm.unity.server.translation.in.GroupEffectMode;
 import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.server.translation.in.MappedAttribute;
@@ -82,6 +83,7 @@ public class InputTranslationEngine
 		
 		processGroups(result, principal);
 		processAttributes(result, principal);
+		processEntityChanges(result, principal);
 	}
 	
 	private Identity processIdentities(MappingResult result) throws EngineException
@@ -269,6 +271,23 @@ public class InputTranslationEngine
 				}
 				break;
 			}
+		}
+	}
+	
+	private void processEntityChanges(MappingResult result, Identity principal) throws EngineException
+	{
+		EntityParam entity = new EntityParam(principal);
+		List<EntityChange> changes = result.getEntityChanges();
+		
+		for (EntityChange change: changes)
+		{
+			if (change.getScheduledOperation() != null)
+				log.info("Changing entity scheduled operation to " + 
+					change.getScheduledOperation() + " on " + change.getScheduledTime());
+			else
+				log.info("Clearing entity scheduled change operation");
+			idsMan.scheduleEntityChange(entity, change.getScheduledTime(), 
+					change.getScheduledOperation());
 		}
 	}
 }

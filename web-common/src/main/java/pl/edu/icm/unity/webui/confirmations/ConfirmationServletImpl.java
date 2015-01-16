@@ -62,7 +62,7 @@ public class ConfirmationServletImpl implements ConfirmationServlet
 				public void sessionInit(SessionInitEvent event) throws ServiceException
 				{
 					VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, ConfirmationUI.class.getSimpleName(),
-							null, null, null);
+							null, null, null, null);
 					//uiProv.setCancelHandler(cancelHandler);
 					event.getSession().addUIProvider(uiProv);
 					DeploymentConfiguration depCfg = event.getService().getDeploymentConfiguration();

@@ -38,6 +38,7 @@ public class OAuthAuthzContext
 	private Set<String> requestedAttrs = new HashSet<>();
 	private GrantFlow flow;
 	private boolean openIdMode;
+	private boolean skipConsent;
 	private int codeTokenValidity;
 	private int accessTokenValidity;
 	private int idTokenValidity;
@@ -46,7 +47,7 @@ public class OAuthAuthzContext
 	
 
 	public OAuthAuthzContext(AuthorizationRequest request, int accessTokenValidity, int codeTokenValidity,
-			int idTokenValidity, String issuerName, X509Credential credential)
+			int idTokenValidity, String issuerName, X509Credential credential, boolean skipConsent)
 	{
 		super();
 		this.timestamp = new Date();
@@ -56,6 +57,7 @@ public class OAuthAuthzContext
 		this.idTokenValidity = idTokenValidity;
 		this.issuerName = issuerName;
 		this.credential = credential;
+		this.skipConsent = skipConsent;
 	}
 
 	public X509Credential getCredential()
@@ -161,6 +163,11 @@ public class OAuthAuthzContext
 	public boolean isOpenIdMode()
 	{
 		return openIdMode;
+	}
+
+	public boolean isSkipConsent()
+	{
+		return skipConsent;
 	}
 
 	public void setOpenIdMode(boolean openIdMode)

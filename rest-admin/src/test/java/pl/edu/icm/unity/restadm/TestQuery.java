@@ -72,9 +72,15 @@ public class TestQuery extends TestRESTBase
 		HttpHost host = new HttpHost("localhost", 53456, "https");
 		HttpContext localcontext = getClientContext(client, host);
 
-		HttpGet getGroups = new HttpGet("/restadm/v1/entity/"+e+"/groups");
-		HttpResponse response = client.execute(host, getGroups, localcontext);
+		HttpGet resolve = new HttpGet("/restadm/v1/resolve/userName/admin");
+		HttpResponse response = client.execute(host, resolve, localcontext);
 		String contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		System.out.println("User's info:\n" + formatJson(contents));
+		
+		HttpGet getGroups = new HttpGet("/restadm/v1/entity/"+e+"/groups");
+		response = client.execute(host, getGroups, localcontext);
+		contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
 		System.out.println("User's groups:\n" + contents);
 		

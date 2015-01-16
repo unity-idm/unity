@@ -23,6 +23,19 @@ public class EndpointDescription
 	private EndpointTypeDescription type;
 	private List<AuthenticatorSet> authenticatorSets;
 
+	public EndpointDescription(EndpointDescription endpointDesc) 
+	{
+		id = endpointDesc.getId();
+		contextAddress = endpointDesc.getContextAddress(); 
+		description = endpointDesc.getDescription();
+		realm = endpointDesc.getRealm();
+		type = endpointDesc.getType();
+	}
+	
+	public EndpointDescription() 
+	{
+	}
+
 	public String getId()
 	{
 		return id;

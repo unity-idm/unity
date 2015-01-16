@@ -18,6 +18,48 @@ Example query path can be similar to:
 
 '''
 
++@Path("/resolve/{identityType}/{identityValue}")+ +
++@GET+ +
+
+Resolves a provided identity of a given type. The returned information is the same as in case of the +/entity+ 
+operation.
+
+Example output: 
+----
+{
+  "id" : 3,
+  "state" : "valid",
+  "identities" : [ {
+    "typeId" : "userName",
+    "value" : "tested",
+    "target" : null,
+    "realm" : null,
+    "local" : true,
+    "entityId" : 3,
+    "comparableValue" : "tested"
+  }, {
+    "typeId" : "persistent",
+    "value" : "129ffe63-63b9-4467-ae24-6bc889327b0d",
+    "target" : null,
+    "realm" : null,
+    "local" : true,
+    "entityId" : 3,
+    "comparableValue" : "129ffe63-63b9-4467-ae24-6bc889327b0d"
+  } ],
+  "credentialInfo" : {
+    "credentialRequirementId" : "cr-pass",
+    "credentialsState" : {
+      "credential1" : {
+        "state" : "notSet",
+        "extraInformation" : ""
+      }
+    }
+  }
+}
+----
+
+'''
+
 +@Path("/entity/{entityId}")+ +
 +@GET+ +
 

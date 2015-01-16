@@ -6,6 +6,7 @@ package pl.edu.icm.unity.server.api.internal;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.util.configuration.ConfigurationException;
 
 /**
@@ -93,4 +97,38 @@ public class IdPEngine
 		translationEngine.process(input, result);
 		return result;
 	}
+	
+	/**
+	 * Returns an {@link IdentityParam} out of valid identities which is either equal to the provided selected 
+	 * identity or the first one. This method properly compares the identity values.
+	 * @param userInfo
+	 * @param validIdentities
+	 * @param selectedIdentity
+	 * @return
+	 * @throws EngineException
+	 * @throws SAMLRequesterException
+	 */
+	public static IdentityParam getIdentity(List<IdentityParam> validIdentities, String selectedIdentity) 
+			throws EngineException, SAMLRequesterException
+	{
+		if (validIdentities.size() > 0)
+		{
+			for (IdentityParam id: validIdentities)
+			{
+				if (id instanceof Identity)
+				{
+					if (((Identity)id).getComparableValue().equals(selectedIdentity))
+					{
+						return id;
+					}
+				} else
+				{
+					if (id.getValue().equals(selectedIdentity))
+						return id;
+				}
+			}
+		}
+		return validIdentities.get(0);
+	}
+
 }

@@ -6,7 +6,9 @@ package pl.edu.icm.unity.webui;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
+import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
@@ -20,7 +22,8 @@ public interface UnityWebUI
 {
 	public void configure(EndpointDescription description, 
 			List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration registrationConfiguration);
+			EndpointRegistrationConfiguration registrationConfiguration,
+			Properties genericEndpointConfiguration);
 	
 	/**
 	 * Method invoked only if the endpoint supports cancellation of authentication. Some of the endpoints
@@ -29,4 +32,10 @@ public interface UnityWebUI
 	 * @param handler
 	 */
 	public void setCancelHandler(CancelHandler handler);
+
+	/**
+	 * Method invoked only for SandboxUI and AuthenticationUI.
+	 * @param sandboxRouter
+	 */
+	public void setSandboxRouter(SandboxAuthnRouter sandboxRouter);
 }

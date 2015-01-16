@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeMap;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -24,16 +26,24 @@ public class EnumComboBox<T extends Enum<?>> extends MapComboBox<T>
 	
 	public EnumComboBox(UnityMessageSource msg, String msgPrefix, Class<T> enumClass, T initialValue)
 	{
-		init(msg, msgPrefix, enumClass, initialValue);
+		init(msg, msgPrefix, enumClass, initialValue, new HashSet<T>());
 	}
 	
-	public EnumComboBox(String caption, UnityMessageSource msg, String msgPrefix, Class<T> enumClass, T initialValue)
+	public EnumComboBox(String caption, UnityMessageSource msg, String msgPrefix, Class<T> enumClass, 
+			T initialValue)
+	{
+		this(caption, msg, msgPrefix, enumClass, initialValue, new HashSet<T>());
+	}
+	
+	public EnumComboBox(String caption, UnityMessageSource msg, String msgPrefix, Class<T> enumClass, 
+			T initialValue,	Set<T> hidden)
 	{
 		super(caption);
-		init(msg, msgPrefix, enumClass, initialValue);
+		init(msg, msgPrefix, enumClass, initialValue, hidden);
 	}
-	
-	private void init(UnityMessageSource msg, String msgPrefix, Class<T> enumClass, T initialValue)
+
+	private void init(UnityMessageSource msg, String msgPrefix, Class<T> enumClass, T initialValue, 
+			Set<T> hidden)
 	{
 		this.msg = msg;
 		this.msgPrefix = msgPrefix;
@@ -41,7 +51,8 @@ public class EnumComboBox<T extends Enum<?>> extends MapComboBox<T>
 		T[] consts = enumClass.getEnumConstants();
 		
 		for (T constant: consts)
-			values.put(msg.getMessage(msgPrefix+constant.toString()), constant);
+			if (!hidden.contains(constant))
+				values.put(msg.getMessage(msgPrefix+constant.toString()), constant);
 		super.init(values, msg.getMessage(msgPrefix+initialValue.toString()));
 	}
 	

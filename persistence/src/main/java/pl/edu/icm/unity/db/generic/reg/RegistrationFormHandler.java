@@ -77,6 +77,9 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 			root.set("NotificationsConfiguration", jsonMapper.valueToTree(value.getNotificationsConfiguration()));
 			root.put("PubliclyAvailable", value.isPubliclyAvailable());
 			root.put("RegistrationCode", value.getRegistrationCode());
+			root.put("CaptchaLength", value.getCaptchaLength());
+			root.put("RedirectAfterSubmit", value.getRedirectAfterSubmit());
+			root.put("RedirectAfterSubmitAndAccept", value.getRedirectAfterSubmitAndAccept());
 			byte[] contents = jsonMapper.writeValueAsBytes(root);
 			return new GenericObjectBean(value.getName(), contents, supportedType);
 		} catch (JsonProcessingException e)
@@ -207,6 +210,29 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 			ret.setPubliclyAvailable(n.asBoolean());
 			n = root.get("RegistrationCode");
 			ret.setRegistrationCode((n == null || n.isNull()) ? null : n.asText());
+			
+			if (root.has("CaptchaLength"))
+			{
+				n = root.get("CaptchaLength");
+				ret.setCaptchaLength(n.asInt());
+			} else
+			{
+				ret.setCaptchaLength(0);
+			}
+			
+			if (root.has("RedirectAfterSubmit"))
+			{
+				n = root.get("RedirectAfterSubmit");
+				if (!n.isNull())
+					ret.setRedirectAfterSubmit(n.asText());
+			}
+			
+			if (root.has("RedirectAfterSubmitAndAccept"))
+			{
+				n = root.get("RedirectAfterSubmitAndAccept");
+				if (!n.isNull())
+					ret.setRedirectAfterSubmitAndAccept(n.asText());
+			}
 			
 			return ret;
 		} catch (Exception e)

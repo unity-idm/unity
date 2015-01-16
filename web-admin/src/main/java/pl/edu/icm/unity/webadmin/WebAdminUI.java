@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -13,6 +14,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.home.UserAccountComponent;
+import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
@@ -67,7 +69,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 	@Override
 	public void configure(EndpointDescription description,
 			List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration regCfg)
+			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
 	{
 		this.endpointDescription = description;
 	}
@@ -123,4 +125,9 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 		contents.setExpandRatio(component, 1.0f);		
 	}
 	
+	@Override
+	public void setSandboxRouter(SandboxAuthnRouter sandboxRouter) 
+	{
+		serverManagement.setSandboxNotifier(sandboxRouter);
+	}	
 }

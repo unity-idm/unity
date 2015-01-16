@@ -59,20 +59,26 @@ public class EntityIdentityFacility extends BaseFacility implements Confirmation
 		baseState.setSerializedConfiguration(state);
 
 		SqlSession sql = db.getSqlSession(false);
-		// TODO CHECK ENTITY VALID.
+		
+		EntityState entityState = null;
 		try
 		{
-			EntityState entityState = dbIdentities.getEntityStatus(
+			entityState = dbIdentities.getEntityStatus(
 					Long.parseLong(baseState.getOwner()), sql);
 
 		} catch (Exception e)
 		{
 			return new ConfirmationStatus(false, "ConfirmationStatus.entityRemoved");
-
 		} finally
 		{
 			db.releaseSqlSession(sql);
 		}
+
+		if (!entityState.equals(EntityState.valid))
+		{
+			return new ConfirmationStatus(false, "ConfirmationStatus.entityInvalid");
+		}
+				
 
 		return confirmElements(state);
 	}
@@ -133,7 +139,9 @@ public class EntityIdentityFacility extends BaseFacility implements Confirmation
 			for (IdentityParam id : ids)
 			{
 				updateConfirmationData(id, idState.getValue());
+				dbIdentities.updateIdentityConfirmationData(id, id.getConfirmationData(), sql);
 			}
+			
 			sql.commit();
 		} finally
 		{

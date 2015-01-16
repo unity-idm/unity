@@ -43,6 +43,7 @@ public class OAuthASProperties extends PropertiesHelper
 	public static final String CODE_TOKEN_VALIDITY = "codeTokenValidity";
 	public static final String ID_TOKEN_VALIDITY = "idTokenValidity";
 	public static final String CREDENTIAL = "signingCredential";
+	public static final String SKIP_CONSENT = "skipConsent";
 	
 	public static final String CLIENTS_GROUP = "clientsGroup";
 	public static final String USERS_GROUP = "usersGroup";
@@ -67,6 +68,11 @@ public class OAuthASProperties extends PropertiesHelper
 		defaults.put(CREDENTIAL, new PropertyMD().setMandatory().
 				setDescription("Name of a credential which is used to sign tokens. "
 						+ "Used only for the OpenId Connect mode, but currently it is always required."));
+		defaults.put(SKIP_CONSENT, new PropertyMD("false").
+				setDescription("Controls whether the user being authenticated should see the consent screen"
+						+ " with the information what service requested authorization and what data "
+						+ "is going to be released. Note that user may always choose to disable "
+						+ "the consent screen for each service, even if this setting is set to false."));
 		defaults.put(CLIENTS_GROUP, new PropertyMD("/oauth-clients").
 				setDescription("Group in which authorized OAuth Clients must be present. "
 						+ "OAuth related attributes defined in this group are used"

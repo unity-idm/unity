@@ -12,6 +12,30 @@ import java.util.Random;
 
 import org.bouncycastle.util.Arrays;
 
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.notifications.NotificationProducer;
+import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
+import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.server.authn.AuthenticationException;
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
+import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.server.authn.CredentialHelper;
+import pl.edu.icm.unity.server.authn.CredentialReset;
+import pl.edu.icm.unity.server.authn.EntityWithCredential;
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.stdext.utils.CryptoUtils;
+import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -31,27 +55,6 @@ import edu.vt.middleware.password.RepeatCharacterRegexRule;
 import edu.vt.middleware.password.Rule;
 import edu.vt.middleware.password.RuleResult;
 import edu.vt.middleware.password.UppercaseCharacterRule;
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.notifications.NotificationProducer;
-import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.CredentialHelper;
-import pl.edu.icm.unity.server.authn.CredentialReset;
-import pl.edu.icm.unity.server.authn.EntityWithCredential;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.utils.CryptoUtils;
-import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
-import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
 /**
  * Ordinary password credential verificator. Highly configurable: it is possible to set minimal length,
@@ -73,7 +76,6 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	private Random random = new Random();
 	
 	private PasswordCredential credential = new PasswordCredential();
-
 
 	public PasswordVerificator(String name, String description,
 			NotificationProducer notificationProducer, CredentialHelper credentialHelper)
@@ -116,7 +118,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			try
 			{
 				checkPasswordInternal(checkedToken.getPassword(), current);
-			} catch (IllegalCredentialException e)
+			} catch (AuthenticationException e)
 			{
 				throw new IllegalPreviousCredentialException("The current credential is incorrect", e);
 			}
@@ -211,15 +213,23 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	 * credential state is outdated. 
 	 */
 	@Override
-	public AuthenticationResult checkPassword(String username, String password) throws EngineException
+	public AuthenticationResult checkPassword(String username, String password, 
+			SandboxAuthnResultCallback sandboxCallback) throws AuthenticationException
 	{
-		EntityWithCredential resolved = identityResolver.resolveIdentity(username, 
-				IDENTITY_TYPES, credentialName);
+		EntityWithCredential resolved;
+		try
+		{
+			resolved = identityResolver.resolveIdentity(username, 
+					IDENTITY_TYPES, credentialName);
+		} catch (EngineException e)
+		{
+			throw new AuthenticationException("The entity can not be found", e);
+		}
 		String dbCredential = resolved.getCredentialValue();
 		PasswordCredentialDBState credState = PasswordCredentialDBState.fromJson(dbCredential);
 		Deque<PasswordInfo> credentials = credState.getPasswords();
 		if (credentials.isEmpty())
-			throw new IllegalCredentialException("The entity has no password set");
+			throw new AuthenticationException("The entity has no password set");
 		PasswordInfo current = credentials.getFirst();
 		checkPasswordInternal(password, current);
 		boolean isOutdated = isCurrentPasswordOutdated(password, credState, resolved);
@@ -228,11 +238,11 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	}
 
 	private void checkPasswordInternal(String password, PasswordInfo current) 
-			throws IllegalCredentialException
+			throws AuthenticationException
 	{
 		byte[] testedHash = CryptoUtils.hash(password, current.getSalt());
 		if (!Arrays.areEqual(testedHash, current.getHash()))
-			throw new IllegalCredentialException("The password is incorrect");
+			throw new AuthenticationException("The password is incorrect");
 	}
 	
 	
@@ -260,7 +270,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	 * @throws IllegalAttributeValueException 
 	 */
 	private boolean isCurrentPasswordOutdated(String password, PasswordCredentialDBState credState, 
-			EntityWithCredential resolved) throws EngineException
+			EntityWithCredential resolved) throws AuthenticationException
 	{
 		if (isCurrentCredentialOutdated(credState))
 			return true;
@@ -270,8 +280,14 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		if (!result.isValid())
 		{
 			String invalidated = invalidate(resolved.getCredentialValue());
-			credentialHelper.updateCredential(resolved.getEntityId(), resolved.getCredentialName(), 
-						invalidated);
+			try
+			{
+				credentialHelper.updateCredential(resolved.getEntityId(), resolved.getCredentialName(), 
+							invalidated);
+			} catch (EngineException e)
+			{
+				throw new AuthenticationException("Problem invalidating outdated credential", e);
+			}
 			return true;
 		}
 		return false;

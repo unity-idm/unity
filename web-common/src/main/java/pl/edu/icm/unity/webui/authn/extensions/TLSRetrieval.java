@@ -8,6 +8,17 @@ import java.security.cert.X509Certificate;
 
 import javax.servlet.http.HttpServletRequest;
 
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
+import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.server.authn.CredentialExchange;
+import pl.edu.icm.unity.server.authn.CredentialRetrieval;
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.stdext.credential.CertificateExchange;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -22,15 +33,6 @@ import com.vaadin.ui.themes.Reindeer;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.CredentialExchange;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.stdext.credential.CertificateExchange;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
 /**
  * Retrieves the authenticated user from the TLS. The login happens on the HTTP connection level 
@@ -109,7 +111,8 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 	{
 		private TLSAuthnComponent component;
 		private AuthenticationResultCallback callback;
-
+		private SandboxAuthnResultCallback sandboxCallback;
+		
 		@Override
 		public boolean needsCommonUsernameComponent()
 		{
@@ -150,7 +153,8 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 			}
 			try
 			{
-				AuthenticationResult authenticationResult = credentialExchange.checkCertificate(clientCert);
+				AuthenticationResult authenticationResult = credentialExchange.checkCertificate(
+						clientCert, sandboxCallback);
 				component.setError(authenticationResult.getStatus() != Status.success);
 				return authenticationResult;
 			} catch (Exception e)
@@ -225,6 +229,12 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 		public void refresh(VaadinRequest request) 
 		{
 			//nop
+		}
+
+		@Override
+		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+		{
+			sandboxCallback = callback;
 		}
 	}	
 }

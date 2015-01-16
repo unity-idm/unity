@@ -33,14 +33,12 @@ public class OAuthGuardFilter implements Filter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthGuardFilter.class);
 	
-	protected String oauthUiPath;
 	protected ErrorHandler errorHandler;
 
-	public OAuthGuardFilter(String oauthUiPath, ErrorHandler errorHandler)
+	public OAuthGuardFilter(ErrorHandler errorHandler)
 	{
 		super();
 		this.errorHandler = errorHandler;
-		this.oauthUiPath = oauthUiPath;
 	}
 
 	@Override

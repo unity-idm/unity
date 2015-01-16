@@ -9,24 +9,19 @@ import java.lang.reflect.Proxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 
 /**
- * Java dynamic proxy builder, decorating wrapped objects with event generation. This is the same as 
- * {@link EventProxyBuilder}, but for other classes - we can't have all in one builder as then we would easily 
- * get circular dependencies.
+ * Java dynamic proxy builder, decorating wrapped objects with event generation: profile man
  *   
  * @author K. Benedyczak
  */
-public class EventProxyBuilderHL
+public class EventProxyBuilderProfile
 {
-	private static final ClassLoader classLoader = EventProxyBuilderHL.class.getClassLoader();
+	private static final ClassLoader classLoader = EventProxyBuilderProfile.class.getClassLoader();
 	
 	@Autowired @Qualifier("plain")
 	private TranslationProfileManagement tprofileMan;
-	@Autowired @Qualifier("plain")
-	private MessageTemplateManagement msgTempMan;
 	
 	@Autowired
 	private EventProcessor eventProcessor;
@@ -39,13 +34,4 @@ public class EventProxyBuilderHL
 				new EventDecoratingHandler(tprofileMan, eventProcessor, 
 						TranslationProfileManagement.class.getSimpleName()));
 	}
-	
-	public MessageTemplateManagement getMessageTemplateManagementInstance()
-	{
-		return (MessageTemplateManagement) Proxy.newProxyInstance(classLoader, 
-				new Class[] {MessageTemplateManagement.class}, 
-				new EventDecoratingHandler(msgTempMan, eventProcessor, 
-						MessageTemplateManagement.class.getSimpleName()));
-	}
-	
 }

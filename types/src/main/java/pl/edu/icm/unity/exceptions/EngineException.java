@@ -25,4 +25,9 @@ public class EngineException extends Exception
 	{
 		super(msg, cause);
 	}
+
+	public EngineException(Throwable cause) 
+	{
+		super("", cause);
+	}
 }

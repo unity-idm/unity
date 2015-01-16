@@ -164,8 +164,11 @@ public class AttributesManagementImpl implements AttributesManagement
 			return;
 		Map<String, String> existing = new HashMap<String, String>();
 		for (AttributeType eat: existingAts)
-			for (String eatm: eat.getMetadata().keySet())
-				existing.put(eatm, eat.getName());
+			if (!eat.getName().equals(at.getName()))
+			{
+				for (String eatm: eat.getMetadata().keySet())
+					existing.put(eatm, eat.getName());
+			}
 		
 		for (Map.Entry<String, String> metaE: meta.entrySet())
 		{

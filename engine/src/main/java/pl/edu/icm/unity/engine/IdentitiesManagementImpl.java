@@ -38,6 +38,8 @@ import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
+import pl.edu.icm.unity.types.EntityInformation;
+import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
@@ -278,7 +280,10 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			throws EngineException
 	{
 		toChange.validateInitialization();
-		
+		if (status == EntityState.onlyLoginPermitted)
+			throw new IllegalArgumentException("The new entity status 'only login permitted' "
+					+ "can be only set as a side effect of scheduling an account "
+					+ "removal with a grace period.");
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
@@ -372,7 +377,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	private Entity assembleEntity(long entityId, Identity[] identities, SqlSession sqlMap) throws EngineException
 	{
 		CredentialInfo credInfo = getCredentialInfo(entityId, sqlMap);
-		EntityState theState = dbIdentities.getEntityStatus(entityId, sqlMap);
+		EntityInformation theState = dbIdentities.getEntityInformation(entityId, sqlMap);
 		return new Entity(entityId, identities, theState, credInfo);
 	}
 	
@@ -566,5 +571,55 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		}
 		
 		return new CredentialInfo(credentialRequirementId, credentialsState);
+	}
+	
+
+	@Override
+	public void scheduleEntityChange(EntityParam toChange, Date changeTime,
+			EntityScheduledOperation operation) throws EngineException
+	{
+		toChange.validateInitialization();
+		SqlSession sqlMap = db.getSqlSession(true);
+		try
+		{
+			long entityId = idResolver.getEntityId(toChange, sqlMap);
+
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
+			
+			if (changeTime.getTime() <= System.currentTimeMillis())
+				dbIdentities.performScheduledOperation(entityId, operation, sqlMap);
+			else
+				dbIdentities.setScheduledOperationByAdmin(entityId, changeTime, operation, sqlMap);
+			
+			sqlMap.commit();
+		} finally
+		{
+			db.releaseSqlSession(sqlMap);
+		}
+	}
+
+	@Override
+	public void scheduleRemovalByUser(EntityParam toChange, Date changeTime)
+			throws EngineException
+	{
+		toChange.validateInitialization();
+		SqlSession sqlMap = db.getSqlSession(true);
+		try
+		{
+			long entityId = idResolver.getEntityId(toChange, sqlMap);
+
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.attributeModify);
+			
+			if (changeTime.getTime() <= System.currentTimeMillis())
+				dbIdentities.performScheduledOperation(entityId, 
+						EntityScheduledOperation.REMOVE, sqlMap);
+			else
+				dbIdentities.setScheduledRemovalByUser(entityId, changeTime, sqlMap);
+			
+			sqlMap.commit();
+		} finally
+		{
+			db.releaseSqlSession(sqlMap);
+		}		
 	}
 }

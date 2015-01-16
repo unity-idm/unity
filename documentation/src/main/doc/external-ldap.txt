@@ -1,7 +1,7 @@
 === LDAP 
 
-Credential verificator name:: +ldap+
-Compatible credentials:: +password+
+Credential verificator name:: +ldap+ and +ldap-cert+
+Compatible credentials:: +password+ and +X.509 certificate+
 
 LDAP based authentication allows for outsourcing credential verification to a server 
 talking with the LDAP protocol, as OpenLDAP or Active Directory.
@@ -94,3 +94,27 @@ may be arbitrary complex.
 The complete LDAP options reference follows:
 
 include::ref-ldapProperties.txt[]
+
+
+=== LDAP with certificate-based authentication
+
+Credential verificator name:: +ldap-cert+
+Compatible credentials:: +X.509 certificate+
+
+The +ldap-cert+ verification mechanism shares the same features as the +ldap+ mechanism described above.
+The only difference is that +ldap-cert+ can be used with certificates which were checked on the transport layer (TLS).
+Naturally the password is not checked in this case (as user does not provide any password), and only the certificate's
+subject is searched in LDAP and the attributes are assembled.
+
+To use this verificator all the settings of the classic +ldap+ verificator can be used, however the following 
+rules must be kept in mind:
+
+. The +\{USERNAME\}+ variable (used in configuration) is substituted with a full subject name (DN) 
+of the user's certificate.
+. The LDAP configuration must use the  +ldap.bindAs=system+ setting with all the consequences (binding as user
+is not possible without the password).
+. In the +ldap.authenticateOnly=true+ mode it is only checked if the user is present in the LDAP database.
+. The returned identity (as used in an input translation profile) is the LDAP distinguished name of the principal
+not the DN of the certificate. The DN of the certificate is available as an attribute in the translation context.
+
+ 

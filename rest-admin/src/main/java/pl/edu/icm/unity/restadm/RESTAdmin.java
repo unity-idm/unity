@@ -29,6 +29,7 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
  * RESTful API implementation.
@@ -54,6 +55,18 @@ public class RESTAdmin
 		this.attributesMan = attributesMan;
 	}
 
+	@Path("/resolve/{identityType}/{identityValue}")
+	@GET
+	public String getEntity(@PathParam("identityType") String identityType, 
+			@PathParam("identityValue") String identityValue) 
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("resolve query for " + identityType + ":" + identityValue);
+		Entity entity = identitiesMan.getEntity(new EntityParam(new IdentityTaV(identityType, identityValue)));
+		return mapper.writeValueAsString(entity);
+	}
+
+	
 	@Path("/entity/{entityId}")
 	@GET
 	public String getEntity(@PathParam("entityId") long entityId) throws EngineException, JsonProcessingException

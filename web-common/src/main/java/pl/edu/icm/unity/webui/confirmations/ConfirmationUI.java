@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.confirmations;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,10 +64,11 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 	@Override
 	public void configure(EndpointDescription description,
 			List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration registrationConfiguration)
+			EndpointRegistrationConfiguration registrationConfiguration,
+			Properties genericEndpointConfiguration)
 	{
-		// EMPTY
-
+		// TODO Auto-generated method stub
+		
 	}
 
 	public void initUI(boolean status, String info)

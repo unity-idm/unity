@@ -81,6 +81,17 @@ public class LdapClient
 		this.idpName = idpName;
 	}
 
+	/**
+	 * Performs authentication by binding and searches for all configured attributes.
+	 * @param user
+	 * @param password
+	 * @param configuration
+	 * @return
+	 * @throws LDAPException
+	 * @throws LdapAuthenticationException
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 */
 	public RemotelyAuthenticatedInput bindAndSearch(String user, String password, 
 			LdapClientConfiguration configuration) throws LDAPException, LdapAuthenticationException, 
 			KeyManagementException, NoSuchAlgorithmException
@@ -88,7 +99,7 @@ public class LdapClient
 		LDAPConnection connection = createConnection(configuration);
 		
 		String dn = establishUserDN(user, configuration, connection);
-		log.debug("Esablished user's DN is: " + dn);
+		log.debug("Established user's DN is: " + dn);
 		
 		bindAsUser(connection, dn, password, configuration);
 		if (configuration.isBindOnly())
@@ -101,22 +112,8 @@ public class LdapClient
 		if (!configuration.isBindAsUser())
 			bindAsSystem(connection, configuration);
 		
-		String[] queriedAttributes = configuration.getQueriedAttributes();
-		SearchScope searchScope = configuration.getSearchScope();
+		SearchResultEntry entry = findBaseEntry(configuration, dn, connection);
 		
-		int timeLimit = configuration.getSearchTimeLimit();
-		int sizeLimit = configuration.getAttributesLimit();
-		DereferencePolicy derefPolicy = configuration.getDereferencePolicy();
-		Filter validUsersFilter = configuration.getValidUsersFilter();
-		
-		ReadOnlySearchRequest searchRequest = new SearchRequest(dn, searchScope, derefPolicy, 
-				sizeLimit, timeLimit, false, validUsersFilter, queriedAttributes);
-		SearchResult result = connection.search(searchRequest);
-		
-		SearchResultEntry entry = result.getSearchEntry(dn);
-		if (entry == null)
-			throw new LdapAuthenticationException("User is not matching the valid users filter");
-
 		RemotelyAuthenticatedInput ret = assembleBaseResult(entry);
 		findGroupsMembership(connection, entry, configuration, ret.getGroups());
 		
@@ -126,6 +123,56 @@ public class LdapClient
 		return ret;
 	}
 
+	/**
+	 * Resolves information about a given user, with all the features, but without binding as the user 
+	 * (so the user must be authenticated with other means). This works only when configured to bind as system.
+	 * @param user
+	 * @param configuration
+	 * @return
+	 * @throws LDAPException
+	 * @throws LdapAuthenticationException
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 */
+	public RemotelyAuthenticatedInput search(String user, LdapClientConfiguration configuration) 
+			throws LDAPException, LdapAuthenticationException, 
+			KeyManagementException, NoSuchAlgorithmException
+	{
+		if (configuration.isBindAsUser())
+		{
+			log.error("LDAP verification of externaly verified credentials (as TLS verified certificates)"
+					+ " can be only performed when the LDAP subsystem is configured to bind "
+					+ "with a system credential");
+			throw new LdapAuthenticationException("Can't authenticate");
+		}
+		
+		
+		LDAPConnection connection = createConnection(configuration);
+		
+		String dn = establishUserDN(user, configuration, connection);
+		log.debug("Established user's DN is: " + dn);
+		
+		if (configuration.isBindOnly())
+		{
+			RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);
+			ret.addIdentity(new RemoteIdentity(dn, X500Identity.ID));
+			return ret;
+		}
+		
+		bindAsSystem(connection, configuration);
+		
+		SearchResultEntry entry = findBaseEntry(configuration, dn, connection);
+		
+		RemotelyAuthenticatedInput ret = assembleBaseResult(entry);
+		findGroupsMembership(connection, entry, configuration, ret.getGroups());
+		
+		performAdditionalQueries(connection, configuration, user, ret);
+		
+		connection.close();
+		return ret;
+	}
+	
+	
 	/**
 	 * Returns DN of the user. Depending on configuration the user's DN can be simply formed from a 
 	 * configured template or can be discovered with a custom search run as admin user. 
@@ -254,6 +301,27 @@ public class LdapClient
 		log.debug("LDAP bind as system user was successful");
 	}
 
+	private SearchResultEntry findBaseEntry(LdapClientConfiguration configuration, String dn,
+			LDAPConnection connection) throws LdapAuthenticationException, LDAPException
+	{
+		String[] queriedAttributes = configuration.getQueriedAttributes();
+		SearchScope searchScope = configuration.getSearchScope();
+		
+		int timeLimit = configuration.getSearchTimeLimit();
+		int sizeLimit = configuration.getAttributesLimit();
+		DereferencePolicy derefPolicy = configuration.getDereferencePolicy();
+		Filter validUsersFilter = configuration.getValidUsersFilter();
+		
+		ReadOnlySearchRequest searchRequest = new SearchRequest(dn, searchScope, derefPolicy, 
+				sizeLimit, timeLimit, false, validUsersFilter, queriedAttributes);
+		SearchResult result = connection.search(searchRequest);
+		
+		SearchResultEntry entry = result.getSearchEntry(dn);
+		if (entry == null)
+			throw new LdapAuthenticationException("User is not matching the valid users filter");
+		return entry;
+	}
+	
 	private RemotelyAuthenticatedInput assembleBaseResult(SearchResultEntry entry)
 	{
 		RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);

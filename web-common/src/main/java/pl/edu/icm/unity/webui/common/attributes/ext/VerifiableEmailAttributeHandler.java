@@ -70,51 +70,6 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 	}
 
 	@Override
-	public Resource getValueAsImage(VerifiableEmail value,
-			AttributeValueSyntax<VerifiableEmail> syntax, int maxWidth, int maxHeight)
-	{
-		return null;
-	}
-
-	@Override
-	public Component getRepresentation(VerifiableEmail value,
-			AttributeValueSyntax<VerifiableEmail> syntax)
-	{
-		FormLayout main = new FormLayout();
-		Label val = new Label(value.getValue());
-		Label confirmStatusL = new Label();
-		confirmStatusL.setCaption(msg.getMessage("VerifiableEmailAttributeHandler.verified"));
-		Label confirmationDateL = new Label();
-		confirmationDateL.setCaption(msg.getMessage("VerifiableEmailAttributeHandler.verificationDate"));
-		Label sentReqL = new Label();
-		sentReqL.setCaption(msg.getMessage("VerifiableEmailAttributeHandler.sentRequests"));
-		ConfirmationData conData = value.getConfirmationData();
-		main.addComponent(val);
-		if (conData != null)
-		{
-			confirmStatusL.setValue(String.valueOf(conData.isConfirmed()));
-			sentReqL.setValue(String.valueOf(conData.getSentRequestAmount()));
-			main.addComponent(confirmStatusL);
-
-			if (conData.isConfirmed())
-			{
-				if (conData.getConfirmationDate() != 0)
-				{
-					Date dt = new Date(conData.getConfirmationDate());
-					confirmationDateL.setValue(new SimpleDateFormat(
-							Constants.AMPM_DATE_FORMAT).format(dt));
-					main.addComponent(confirmationDateL);
-				}
-			} else
-			{
-				main.addComponent(sentReqL);
-			}
-
-		}
-		return main;
-	}
-
-	@Override
 	public AttributeValueEditor<VerifiableEmail> getEditorComponent(
 			VerifiableEmail initialValue, String label,
 			AttributeValueSyntax<VerifiableEmail> syntaxDesc)
@@ -215,5 +170,45 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 			field.setCaption(label);
 
 		}
+	}
+
+	@Override
+	public Component getRepresentation(
+			VerifiableEmail value,
+			AttributeValueSyntax<VerifiableEmail> syntax,
+			pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize size)
+	{
+		FormLayout main = new FormLayout();
+		Label val = new Label(value.getValue());
+		Label confirmStatusL = new Label();
+		confirmStatusL.setCaption(msg.getMessage("VerifiableEmailAttributeHandler.verified"));
+		Label confirmationDateL = new Label();
+		confirmationDateL.setCaption(msg.getMessage("VerifiableEmailAttributeHandler.verificationDate"));
+		Label sentReqL = new Label();
+		sentReqL.setCaption(msg.getMessage("VerifiableEmailAttributeHandler.sentRequests"));
+		ConfirmationData conData = value.getConfirmationData();
+		main.addComponent(val);
+		if (conData != null)
+		{
+			confirmStatusL.setValue(String.valueOf(conData.isConfirmed()));
+			sentReqL.setValue(String.valueOf(conData.getSentRequestAmount()));
+			main.addComponent(confirmStatusL);
+
+			if (conData.isConfirmed())
+			{
+				if (conData.getConfirmationDate() != 0)
+				{
+					Date dt = new Date(conData.getConfirmationDate());
+					confirmationDateL.setValue(new SimpleDateFormat(
+							Constants.AMPM_DATE_FORMAT).format(dt));
+					main.addComponent(confirmationDateL);
+				}
+			} else
+			{
+				main.addComponent(sentReqL);
+			}
+
+		}
+		return main;
 	}
 }

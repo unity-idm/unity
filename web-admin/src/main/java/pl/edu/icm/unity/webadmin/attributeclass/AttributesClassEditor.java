@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
@@ -50,8 +51,8 @@ public class AttributesClassEditor extends FormLayout
 			Collection<AttributeType> allTypes)
 	{
 		this.msg = msg;
-		this.allClasses = allClasses;
-		this.types = new HashMap<>(allTypes.size());
+		this.allClasses = new TreeMap<>(allClasses);
+		this.types = new TreeMap<>();
 		for (AttributeType at: allTypes)
 			if (!at.isInstanceImmutable())
 				types.put(at.getName(), at);

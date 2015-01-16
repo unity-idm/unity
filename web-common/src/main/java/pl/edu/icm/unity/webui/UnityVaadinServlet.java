@@ -4,32 +4,20 @@
  */
 package pl.edu.icm.unity.webui;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.security.cert.X509Certificate;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.springframework.context.ApplicationContext;
 
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
+import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
-import pl.edu.icm.unity.server.utils.CookieHelper;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
@@ -60,27 +48,28 @@ import com.vaadin.util.CurrentInstance;
 @SuppressWarnings("serial")
 public class UnityVaadinServlet extends VaadinServlet
 {
-	public static final String LANGUAGE_COOKIE = "language";
 	private transient ApplicationContext applicationContext;
-	private transient UnityServerConfiguration config;
 	private transient String uiBeanName;
 	private transient EndpointDescription description;
 	private transient List<Map<String, BindingAuthn>> authenticators;
 	private transient CancelHandler cancelHandler;
+	private transient SandboxAuthnRouter sandboxRouter;
 	private transient EndpointRegistrationConfiguration registrationConfiguration;
+	private transient Properties endpointProperties;
 	
 	public UnityVaadinServlet(ApplicationContext applicationContext, String uiBeanName,
 			EndpointDescription description,
 			List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration registrationConfiguration)
+			EndpointRegistrationConfiguration registrationConfiguration,
+			Properties endpointProperties)
 	{
 		super();
 		this.applicationContext = applicationContext;
 		this.uiBeanName = uiBeanName;
 		this.description = description;
 		this.authenticators = authenticators;
-		this.config = applicationContext.getBean(UnityServerConfiguration.class);
 		this.registrationConfiguration = registrationConfiguration;
+		this.endpointProperties = endpointProperties;
 	}
 	
 	@Override
@@ -172,63 +161,9 @@ public class UnityVaadinServlet extends VaadinServlet
 		this.cancelHandler = cancelHandler;
 	}
 	
-	@Override
-	protected void service(HttpServletRequest request, HttpServletResponse response) 
-			throws ServletException, IOException 
+	public void setSandboxRouter(SandboxAuthnRouter sandboxRouter) 
 	{
-		InvocationContext ctx = setEmptyInvocationContext(request);
-		setAuthenticationContext(request, ctx);
-		setLocale(request, ctx);
-		try
-		{
-			super.service(request, response);
-		} finally 
-		{
-			InvocationContext.setCurrent(null);
-		}
-	}
-	
-	private InvocationContext setEmptyInvocationContext(HttpServletRequest request)
-	{
-		X509Certificate[] clientCert = (X509Certificate[]) request.getAttribute(
-				"javax.servlet.request.X509Certificate");
-		IdentityTaV tlsId = (clientCert == null) ? null : new IdentityTaV(X500Identity.ID, 
-				clientCert[0].getSubjectX500Principal().getName());
-		InvocationContext context = new InvocationContext(tlsId, description.getRealm());
-		InvocationContext.setCurrent(context);
-		return context;
-	}
-	
-	private void setAuthenticationContext(HttpServletRequest request, InvocationContext ctx)
-	{
-		HttpSession session = request.getSession(false);
-		if (session != null)
-		{
-			LoginSession ls = (LoginSession) session.getAttribute(
-					LoginToHttpSessionBinder.USER_SESSION_KEY);
-			if (ls != null)
-				ctx.setLoginSession(ls);
-		}
-	}
-	
-	/**
-	 * Sets locale in invocation context. If there is cookie with selected and still supported
-	 * locale then it is used. Otherwise a default locale is set.
-	 * @param request
-	 */
-	private void setLocale(HttpServletRequest request, InvocationContext context)
-	{
-		String value = CookieHelper.getCookie(request, LANGUAGE_COOKIE);
-		if (value != null)
-		{
-			Locale locale = UnityServerConfiguration.safeLocaleDecode(value);
-			if (config.isLocaleSupported(locale))
-			{
-				context.setLocale(locale);
-				return;
-			}
-		}
-		context.setLocale(config.getDefaultLocale());
+		this.sandboxRouter = sandboxRouter;
 	}
 	
 	@Override
@@ -243,8 +178,10 @@ public class UnityVaadinServlet extends VaadinServlet
 			public void sessionInit(SessionInitEvent event) throws ServiceException
 			{
 				VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, uiBeanName,
-						description, getAuthenticators(), registrationConfiguration);
+						description, getAuthenticators(), registrationConfiguration,
+						endpointProperties);
 				uiProv.setCancelHandler(cancelHandler);
+				uiProv.setSandboxRouter(sandboxRouter);
 				event.getSession().addUIProvider(uiProv);
 				DeploymentConfiguration depCfg = event.getService().getDeploymentConfiguration();
 				Properties properties = depCfg.getInitParameters();

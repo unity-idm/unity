@@ -31,8 +31,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 {
 	public static final String NAME = "OAuth2Authz";
-	public static final String OAUTH_UI_SERVLET_PATH = "/oauth2-authz-web-ui";
-	public static final String OAUTH_CONSUMER_SERVLET_PATH = "/oauth2-authz";
+
 	private EndpointTypeDescription description;
 	
 	private ApplicationContext applicationContext;
@@ -41,13 +40,14 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 	private AttributesManagement attributesManagement;
 	private PKIManagement pkiManagement;
 	private OAuthEndpointsCoordinator coordinator;
+	private ASConsentDeciderServletFactory dispatcherServletFactory;
 	
 	@Autowired
 	public OAuthAuthzWebEndpointFactory(ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
 			OAuthEndpointsCoordinator coordinator,
 			@Qualifier("insecure") IdentitiesManagement identitiesManagement, 
 			@Qualifier("insecure") AttributesManagement attributesManagement,
-			PKIManagement pkiManagement)
+			PKIManagement pkiManagement, ASConsentDeciderServletFactory dispatcherServletFactory)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;
@@ -55,11 +55,12 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 		this.identitiesManagement = identitiesManagement;
 		this.pkiManagement = pkiManagement;
 		this.coordinator = coordinator;
+		this.dispatcherServletFactory = dispatcherServletFactory;
 		
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
 		Map<String, String> paths = new HashMap<String, String>();
-		paths.put(OAUTH_UI_SERVLET_PATH, "OAuth 2 Authorization Grant web endpoint");
+		paths.put(OAuthAuthzWebEndpoint.OAUTH_CONSUMER_SERVLET_PATH, "OAuth 2 Authorization Grant web endpoint");
 		description = new EndpointTypeDescription(NAME, 
 				"OAuth 2 Server - Authorization Grant endpoint", supportedAuthn, paths);
 	}
@@ -73,8 +74,8 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new OAuthAuthzWebEndpoint(description, applicationContext, OAUTH_UI_SERVLET_PATH, 
-				OAUTH_CONSUMER_SERVLET_PATH, freemarkerHandler, identitiesManagement, 
-				attributesManagement, pkiManagement, coordinator);
+		return new OAuthAuthzWebEndpoint(description, applicationContext,  
+				freemarkerHandler, identitiesManagement, 
+				attributesManagement, pkiManagement, coordinator, dispatcherServletFactory);
 	}
 }

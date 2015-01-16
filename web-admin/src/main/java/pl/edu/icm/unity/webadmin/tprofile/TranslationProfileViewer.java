@@ -100,11 +100,11 @@ public class TranslationProfileViewer extends VerticalLayout
 				{
 					addField(msg.getMessage("TranslationProfileViewer.ruleActionParameters"),
 						"TranslationProfileViewer.ruleActionParameter",
-								pd[j].getName(), par[j]);
+								pd[j].getName(), getParamValue(pd[j], par[j]));
 				}else
 				{
 					addField("", "TranslationProfileViewer.ruleActionParameter",
-							pd[j].getName(), par[j]);
+							pd[j].getName(), getParamValue(pd[j], par[j]));
 				}
 			}		
 		}
@@ -124,7 +124,12 @@ public class TranslationProfileViewer extends VerticalLayout
 		rules.removeAllComponents();
 		name.setValue("");
 		description.setValue("");
-		
 	}
 
+	private Object getParamValue(ActionParameterDesc desc, String value)
+	{
+		if (value == null)
+			return "";
+		return value;
+	}
 }

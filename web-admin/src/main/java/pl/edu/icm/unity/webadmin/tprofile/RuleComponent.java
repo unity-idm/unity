@@ -7,11 +7,14 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.ProfileType;
@@ -20,7 +23,9 @@ import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
+import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
+import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -35,11 +40,13 @@ import com.google.common.html.HtmlEscapers;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.validator.AbstractStringValidator;
+import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
@@ -51,6 +58,7 @@ import com.vaadin.ui.themes.Reindeer;
  * Responsible for editing of a single TranslationRule
  * 
  * @author P. Piernik
+ * @contributor Roman Krysinski
  * 
  */
 public class RuleComponent extends VerticalLayout
@@ -65,6 +73,7 @@ public class RuleComponent extends VerticalLayout
 	private ComboBox actions;
 	private AbstractTextField condition;
 	private FormLayout paramsList;
+	private MappingResultComponent mappingResultComponent;
 	private Callback callback;
 	private Button up;
 	private Button top;
@@ -184,7 +193,7 @@ public class RuleComponent extends VerticalLayout
 		toolbar.setWidth(100, Unit.PERCENTAGE);
 
 		paramsList = new FormLayout();
-		paramsList.setSpacing(false);
+		paramsList.setSpacing(true);
 
 		condition = new RequiredTextField(msg);
 		condition.setCaption(msg.getMessage("TranslationProfileEditor.ruleCondition"));
@@ -253,8 +262,10 @@ public class RuleComponent extends VerticalLayout
 		main.setMargin(false);
 		main.addComponents(condition, actions, actionParams);
 		wrapper.addComponents(main, help);
+		
+		mappingResultComponent = new MappingResultComponent(msg);
 
-		addComponents(separator, toolbar, wrapper, paramsList);
+		addComponents(separator, toolbar, wrapper, paramsList, mappingResultComponent);
 		setSpacing(false);
 		setMargin(false);
 
@@ -297,7 +308,7 @@ public class RuleComponent extends VerticalLayout
 		{
 			ActionParameterComponent p = getParameterComponent(params[i]);
 			p.setValidationVisible(false);
-			if (values != null && values.length > i && values[i] != null)
+			if (values != null && values.length > i)
 			{
 				p.setActionValue(values[i]);
 			}		
@@ -320,6 +331,10 @@ public class RuleComponent extends VerticalLayout
 			return new BaseEnumActionParameterComponent(param, msg, credReqs);
 		case UNITY_ID_TYPE:
 			return new BaseEnumActionParameterComponent(param, msg, idTypes);
+		case EXPRESSION:
+			return new ExtensionActionParameterComponent(param, msg);
+		case DAYS:
+			return new DaysActionParameterComponent(param, msg);
 		default: 
 			return new DefaultActionParameterComponent(param, msg);
 		}
@@ -438,6 +453,151 @@ public class RuleComponent extends VerticalLayout
 
 	}
 
+	public void test(RemotelyAuthenticatedInput remoteAuthnInput) 
+	{
+		setReadOnlyStyle(true);
+		InputTranslationRule rule = null;
+		try 
+		{
+			rule = (InputTranslationRule) getRule();
+		} catch (Exception e)
+		{
+			indicateExtensionError(e);
+			return;
+		}
+		
+		Map<String, Object> mvelCtx = InputTranslationProfile.createMvelContext(remoteAuthnInput);
+		TranslationCondition conditionRule = rule.getCondition();
+		try 
+		{
+			boolean result = conditionRule.evaluate(mvelCtx);
+			setLayoutForEvaludatedCondition(result);
+		} catch (EngineException e) 
+		{
+			indicateConditionError(e);
+		}
+		
+		InputTranslationAction action = rule.getAction();
+		try 
+		{
+			MappingResult mappingResult = action.invoke(remoteAuthnInput, mvelCtx, null);
+			displayMappingResult(mappingResult);
+		} catch (EngineException e) 
+		{
+			indicateExtensionError(e);
+		}
+	}
+	
+	private void setLayoutForEvaludatedCondition(boolean conditionResult) 
+	{
+		removeRuleComponentEvaluationStyle();
+		if (conditionResult)
+		{
+			setColorForInputComponents(Styles.greenBackground.toString());
+		} else
+		{
+			setColorForInputComponents(Styles.grayBackground.toString());
+		}
+	}
+	
+	private void displayMappingResult(MappingResult mappingResult) 
+	{
+		mappingResultComponent.displayMappingResult(mappingResult);
+		mappingResultComponent.setVisible(true);
+	}
+	
+	private void indicateConditionError(Exception e) 
+	{
+		condition.setStyleName(Styles.redBackground.toString());
+		condition.setComponentError(new UserError(ErrorPopup.getHumanMessage(e)));
+		condition.setValidationVisible(true);
+	}
+	
+	private void indicateExtensionError(Exception e) 
+	{
+		Iterator<Component> iter = paramsList.iterator();
+		while (iter.hasNext())
+		{
+			Component c = iter.next();
+			if (c instanceof ExtensionActionParameterComponent)
+			{
+				ExtensionActionParameterComponent extension = (ExtensionActionParameterComponent) c;
+				extension.setStyleName(Styles.redBackground.toString());
+				extension.setComponentError(new UserError(ErrorPopup.getHumanMessage(e)));
+				extension.setValidationVisible(true);
+				break;
+			}
+		}	
+	}
+
+	public void clearTestResult() 
+	{
+		removeRuleComponentEvaluationStyle();	
+		hideMappingResultComponent();
+		setReadOnlyStyle(false);
+	}
+	
+	private void setColorForInputComponents(String color)
+	{
+		condition.setStyleName(color);
+		actions.setStyleName(color);
+		setColorForParamList(color);
+	}
+	
+	private void setColorForParamList(String color)
+	{
+		Iterator<Component> iter = paramsList.iterator();
+		while (iter.hasNext())
+		{
+			Component c = iter.next();
+			c.setStyleName(color);
+		}		
+	}
+	
+	private void removeRuleComponentEvaluationStyle()
+	{
+		condition.removeStyleName(Styles.greenBackground.toString());
+		condition.removeStyleName(Styles.redBackground.toString());
+		condition.removeStyleName(Styles.grayBackground.toString());
+		condition.setComponentError(null);
+		condition.setValidationVisible(false);
+		
+		actions.removeStyleName(Styles.grayBackground.toString());
+		actions.removeStyleName(Styles.greenBackground.toString());
+		
+		Iterator<Component> iter = paramsList.iterator();
+		while (iter.hasNext())
+		{
+			Component c = iter.next();
+			c.removeStyleName(Styles.grayBackground.toString());
+			c.removeStyleName(Styles.greenBackground.toString());
+			c.removeStyleName(Styles.redBackground.toString());
+			if (c instanceof ExtensionActionParameterComponent)
+			{
+				ExtensionActionParameterComponent extension = (ExtensionActionParameterComponent) c;
+				extension.setComponentError(null);
+				extension.setValidationVisible(false);
+			}			
+		}	
+	}
+	
+	private void hideMappingResultComponent() 
+	{
+		mappingResultComponent.setVisible(false);
+	}
+	
+	private void setReadOnlyStyle(boolean readOnly)
+	{
+		condition.setReadOnly(readOnly);
+		actions.setReadOnly(readOnly);
+		Iterator<Component> iter = paramsList.iterator();
+		while (iter.hasNext())
+		{
+			Component c = iter.next();
+			c.setReadOnly(readOnly);
+		}			
+	}
+
 	public interface Callback
 	{
 		public boolean moveUp(RuleComponent rule);
@@ -446,5 +606,6 @@ public class RuleComponent extends VerticalLayout
 		public boolean moveTop(RuleComponent rule);
 		public boolean moveBottom(RuleComponent rule);
 	}
+
 
 }

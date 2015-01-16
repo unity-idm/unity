@@ -44,6 +44,11 @@ public class BigTabPanel extends HorizontalLayout
 		setExpandRatio(mainPanel, 1.0f);
 	}
 	
+	public int getTabsCount()
+	{
+		return tabs.getTabsCount();
+	}
+	
 	public void addTab(String labelKey, String descriptionKey, Resource image, final Component contents)
 	{
 		String label = labelKey == null ? null : msg.getMessage(labelKey);

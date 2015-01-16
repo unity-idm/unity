@@ -17,6 +17,8 @@ import com.vaadin.ui.themes.Reindeer;
  */
 public class TopHeaderLight extends HorizontalLayout
 {
+	private Label titleL;
+	
 	public TopHeaderLight(String title, UnityMessageSource msg)
 	{
 		setStyleName(Styles.header.toString());
@@ -24,10 +26,15 @@ public class TopHeaderLight extends HorizontalLayout
 		setWidth(100, Unit.PERCENTAGE);
 		setHeight(80, Unit.PIXELS);
 		
-		Label titleL = new Label(title);
+		titleL = new Label(title);
 		titleL.setStyleName(Reindeer.LABEL_H1);
 		addComponent(titleL);
 		setComponentAlignment(titleL, Alignment.MIDDLE_LEFT);
 		titleL.setSizeUndefined();
+	}
+	
+	public void setHeaderTitle(String title)
+	{
+		titleL.setValue(title);
 	}
 }

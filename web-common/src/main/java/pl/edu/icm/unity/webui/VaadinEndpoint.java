@@ -5,6 +5,9 @@
 package pl.edu.icm.unity.webui;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -28,10 +31,13 @@ import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.server.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
+import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 
 /**
  * Vaadin endpoint is used by all Vaadin based web endpoints. It is not a component:
@@ -51,12 +57,14 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	public static final String PRODUCTION_MODE_PARAM = "productionMode";
 	protected ApplicationContext applicationContext;
 	protected String uiBeanName;
-	protected String servletPath;
+	protected String uiServletPath;
 	protected VaadinEndpointProperties genericEndpointProperties;
 
 	protected ServletContextHandler context = null;
 	protected UnityVaadinServlet theServlet;
 	protected UnityVaadinServlet authenticationServlet;
+	protected AuthenticationFilter authnFilter;
+	protected InvocationContextSetupFilter contextSetupFilter;
 	
 	public VaadinEndpoint(EndpointTypeDescription type, ApplicationContext applicationContext,
 			String uiBeanName, String servletPath)
@@ -64,7 +72,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		super(type);
 		this.applicationContext = applicationContext;
 		this.uiBeanName = uiBeanName;
-		this.servletPath = servletPath;
+		this.uiServletPath = servletPath;
 	}
 
 	@Override
@@ -93,25 +101,33 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
+		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);		
 		
-		AuthenticationFilter authnFilter = new AuthenticationFilter(servletPath, 
+		context.addFilter(new FilterHolder(new HiddenResourcesFilter(
+				Collections.unmodifiableList(Arrays.asList(AUTHENTICATION_PATH)))), 
+				"/*", EnumSet.of(DispatcherType.REQUEST));
+		authnFilter = new AuthenticationFilter(
+				new ArrayList<String>(Arrays.asList(uiServletPath)), 
 				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
-				EnumSet.of(DispatcherType.REQUEST));
+				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
+		contextSetupFilter = new InvocationContextSetupFilter(config, description.getRealm());
+		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 
+				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
 
 		authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticators, 
-				registrationConfiguration);
+				registrationConfiguration, properties);
 		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true);
 		authnServletHolder.setInitParameter("closeIdleSessions", "true");
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
 		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
-				description, authenticators, registrationConfiguration);
-		context.addServlet(createVaadinServletHolder(theServlet, false), servletPath + "/*");
+				description, authenticators, registrationConfiguration, properties);
+		context.addServlet(createVaadinServletHolder(theServlet, false), uiServletPath + "/*");
 
 		return context;
 	}

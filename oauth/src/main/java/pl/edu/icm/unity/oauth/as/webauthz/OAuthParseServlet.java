@@ -34,6 +34,7 @@ import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.RoutingServlet;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -182,7 +183,8 @@ public class OAuthParseServlet extends HttpServlet
 					oauthConfig.getIntValue(OAuthASProperties.CODE_TOKEN_VALIDITY),
 					oauthConfig.getIntValue(OAuthASProperties.ID_TOKEN_VALIDITY),
 					oauthConfig.getValue(OAuthASProperties.ISSUER_URI),
-					oauthConfig.getCredential());
+					oauthConfig.getCredential(),
+					oauthConfig.getBooleanValue(OAuthASProperties.SKIP_CONSENT));
 			validate(context);
 		} catch (OAuthValidationException e)
 		{
@@ -193,6 +195,7 @@ public class OAuthParseServlet extends HttpServlet
 		}
 		
 		session.setAttribute(SESSION_OAUTH_CONTEXT, context);
+		RoutingServlet.clean(request);
 		if (log.isTraceEnabled())
 			log.trace("Request with OAuth input handled successfully");
 		response.sendRedirect(oauthUiServletPath);

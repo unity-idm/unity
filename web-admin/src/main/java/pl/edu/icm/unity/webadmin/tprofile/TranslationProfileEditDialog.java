@@ -30,7 +30,7 @@ public class TranslationProfileEditDialog extends AbstractDialog
 		super(msg, caption);
 		this.editor = editor;
 		this.callback = callback;
-		setWidth(50, Unit.PERCENTAGE);
+		setWidth(60, Unit.PERCENTAGE);
 		setHeight(85, Unit.PERCENTAGE);
 	}
 
@@ -50,7 +50,7 @@ public class TranslationProfileEditDialog extends AbstractDialog
 		if(profile == null)
 			return;
 			
-		if (callback.newProfile(profile))
+		if (callback.handleProfile(profile))
 			close();
 	}
 	@Override
@@ -62,7 +62,7 @@ public class TranslationProfileEditDialog extends AbstractDialog
 	
 	public interface Callback
 	{
-		public boolean newProfile(TranslationProfile profile);
+		public boolean handleProfile(TranslationProfile profile);
 	}
 	
 }

@@ -29,13 +29,14 @@ import com.vaadin.ui.VerticalLayout;
 public class AuthenticatorSetSelectComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
+	private OptionGroup buttons;
 	
 	public AuthenticatorSetSelectComponent(UnityMessageSource msg, final AuthenticatorSetChangedListener listener,
 			EndpointDescription description,  List<Map<String, VaadinAuthenticationUI>> authenticators)
 	{
 		this.msg = msg;
 		
-		OptionGroup buttons = new OptionGroup(msg.getMessage("AuthenticationUI.selectMethod"));
+		buttons = new OptionGroup(msg.getMessage("AuthenticationUI.selectMethod"));
 		buttons.addStyleName(Styles.authnSetSelect.toString());
 		addComponent(buttons);
 		setSizeUndefined();
@@ -64,6 +65,10 @@ public class AuthenticatorSetSelectComponent extends VerticalLayout
 		buttons.setImmediate(true);
 	}
 
+	public void setSelectionTitle(String title)
+	{
+		buttons.setCaption(title);
+	}
 	
 	private String getAuthenticatorSetName(Set<String> set, 
 			Map<String, VaadinAuthenticationUI> authenticators)

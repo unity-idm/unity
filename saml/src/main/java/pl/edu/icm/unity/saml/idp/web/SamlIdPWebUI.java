@@ -4,11 +4,11 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -20,17 +20,17 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.idpcommon.EopException;
-import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
-import pl.edu.icm.unity.saml.SAMLSessionParticipant;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServlet;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
@@ -81,7 +81,7 @@ import eu.unicore.samly2.exceptions.SAMLRequesterException;
 @Theme("unityTheme")
 public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 {
-	private static Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebUI.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebUI.class);
 	protected UnityMessageSource msg;
 	protected EndpointDescription endpointDescription;
 	protected IdPEngine idpEngine;
@@ -90,6 +90,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	protected IdentityTypesRegistry identityTypesRegistry;
 	protected PreferencesManagement preferencesMan;
 	protected AuthenticationProcessor authnProcessor;
+	protected SessionManagement sessionMan;
 	protected IdentitySelectorComponent idSelector;
 	protected ExposedAttributesComponent attrsPresenter;
 	
@@ -101,7 +102,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	public SamlIdPWebUI(UnityMessageSource msg, FreemarkerHandler freemarkerHandler,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
 			AuthenticationProcessor authnProcessor, IdPEngine idpEngine,
-			IdentityTypesRegistry identityTypesRegistry)
+			IdentityTypesRegistry identityTypesRegistry, SessionManagement sessionMan)
 	{
 		super(msg);
 		this.msg = msg;
@@ -111,12 +112,13 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		this.authnProcessor = authnProcessor;
 		this.idpEngine = idpEngine;
 		this.identityTypesRegistry = identityTypesRegistry;
+		this.sessionMan = sessionMan;
 	}
 
 	@Override
 	public void configure(EndpointDescription description,
 			List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration regCfg)
+			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
 	{
 		this.endpointDescription = description;
 	}
@@ -177,7 +179,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 					samlCtx.getRequest().getIssuer());
 
 		Label info1 = new Label(msg.getMessage("SamlIdPWebUI.info1"));
-		info1.setStyleName(Reindeer.LABEL_H1);
+		info1.addStyleName(Reindeer.LABEL_H1);
 		SPInfoComponent spInfo = new SPInfoComponent(msg, null, samlRequester, returnAddress);
 		Label spc1 = HtmlTag.br();
 		Label info2 = new Label(msg.getMessage("SamlIdPWebUI.info2"));
@@ -362,17 +364,6 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	protected void addSessionParticipant(SAMLAuthnContext samlCtx, NameIDType returnedSubject,
 			String sessionId)
 	{
-		String participantId = samlCtx.getRequest().getIssuer().getStringValue();
-		SamlIdpProperties samlIdpProperties = samlCtx.getSamlConfiguration();
-		String credentialName = samlIdpProperties.getValue(SamlIdpProperties.CREDENTIAL);
-		String configKey = samlIdpProperties.getSPConfigKey(samlCtx.getRequest().getIssuer());
-		String localIdpSamlId = samlIdpProperties.getValue(SamlIdpProperties.ISSUER_URI);
-		Set<String> allowedCerts = samlIdpProperties.getAllowedSpCerts(configKey);
-		List<SAMLEndpointDefinition> logoutEndpoints = configKey == null ? 
-				new ArrayList<SAMLEndpointDefinition>(0) :
-				samlCtx.getSamlConfiguration().getLogoutEndpointsFromStructuredList(configKey);
-		authnProcessor.addSessionParticipant(new SAMLSessionParticipant(participantId, 
-				returnedSubject, sessionId, logoutEndpoints, localIdpSamlId,
-				credentialName, allowedCerts));
+		IdpConsentDeciderServlet.addSessionParticipant(samlCtx, returnedSubject, sessionId, sessionMan);
 	}
 }

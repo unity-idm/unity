@@ -24,6 +24,7 @@ import pl.edu.icm.unity.saml.idp.web.SamlResponseHandler;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
@@ -73,10 +74,10 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	public SamlUnicoreIdPWebUI(UnityMessageSource msg, FreemarkerHandler freemarkerHandler,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
 			AuthenticationProcessor authnProcessor, IdPEngine idpEngine, 
-			IdentityTypesRegistry idTypesRegistry)
+			IdentityTypesRegistry idTypesRegistry, SessionManagement sessionMan)
 	{
 		super(msg, freemarkerHandler, handlersRegistry, preferencesMan,	authnProcessor, idpEngine,
-				idTypesRegistry);
+				idTypesRegistry, sessionMan);
 	}
 
 	@Override
@@ -108,7 +109,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		exposedInfoPanel.setContent(eiLayout);
 		try
 		{
-			TranslationResult translationResult = getUserInfo(samlCtx, samlProcessor);
+			TranslationResult translationResult = getUserInfo(samlCtx, samlWithEtdProcessor);
 			createIdentityPart(translationResult, eiLayout);
 			eiLayout.addComponent(HtmlTag.br());
 			createAttributesPart(translationResult, eiLayout);
@@ -135,7 +136,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	protected void createETDPart(VerticalLayout eiLayout)
 	{
 		Label titleL = new Label(msg.getMessage("SamlUnicoreIdPWebUI.gridSettings"));
-		titleL.setStyleName(Styles.bold.toString());
+		titleL.addStyleName(Styles.bold.toString());
 		eiLayout.addComponents(titleL);
 		etdEditor = new ETDSettingsEditor(msg, eiLayout);
 	}
@@ -230,8 +231,8 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 			samlResponseHandler.handleException(e, false);
 			return;
 		}
-		addSessionParticipant(samlCtx, samlProcessor.getAuthenticatedSubject().getNameID(), 
-				samlProcessor.getSessionId());
+		addSessionParticipant(samlCtx, samlWithEtdProcessor.getAuthenticatedSubject().getNameID(), 
+				samlWithEtdProcessor.getSessionId());
 		samlResponseHandler.returnSamlResponse(respDoc);
 	}
 }

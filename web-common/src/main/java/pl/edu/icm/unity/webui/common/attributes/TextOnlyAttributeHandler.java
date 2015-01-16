@@ -11,9 +11,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 
-import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
@@ -28,8 +26,8 @@ import com.vaadin.ui.VerticalLayout;
  */
 public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler<T>
 {
-	private static final int LARGE_STRING = 100;
-	private static final int SMALL_STRING = 50;
+	private static final int LARGE_STRING = 200;
+	private static final int SMALL_STRING = 30;
 	
 	public static String trimString(String full, int limited)
 	{
@@ -48,15 +46,22 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 	}
 	
 	@Override
-	public Resource getValueAsImage(T value, AttributeValueSyntax<T> syntax, int maxWidth, int maxHeight)
+	public Component getRepresentation(T value, AttributeValueSyntax<T> syntax, RepresentationSize size)
 	{
-		return null;
-	}
-
-	@Override
-	public Component getRepresentation(T value, AttributeValueSyntax<T> syntax)
-	{
-		return new Label(value.toString(), ContentMode.PREFORMATTED);
+		String trimmed = "";
+		switch (size)
+		{
+		case ORIGINAL:
+			trimmed = value.toString();
+			break;
+		case MEDIUM:
+			trimmed = trimString(value.toString(), LARGE_STRING);
+			break;
+		case LINE:
+			trimmed = trimString(value.toString(), SMALL_STRING);			
+			break;
+		}
+		return new Label(trimmed);
 	}
 	
 	@Override
@@ -92,8 +97,10 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 				StringAttributeSyntax sas = (StringAttributeSyntax) syntax;
 				if (sas.getMaxLength() > LARGE_STRING)
 					large = true;
-				if (sas.getMaxLength() < SMALL_STRING)
+				else if (sas.getMaxLength() < SMALL_STRING)
 					limitedWidth = sas.getMaxLength();
+				else
+					limitedWidth = SMALL_STRING;
 			}
 			
 			field = large ? new TextArea() : new TextField();

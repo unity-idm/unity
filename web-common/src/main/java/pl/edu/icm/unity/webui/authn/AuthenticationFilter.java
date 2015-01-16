@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.authn;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Filter;
@@ -21,16 +22,17 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
-import com.vaadin.shared.ApplicationConstants;
-
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.utils.CookieHelper;
+import pl.edu.icm.unity.server.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+
+import com.vaadin.shared.ApplicationConstants;
 
 /**
  * Servlet filter forwarding unauthenticated requests to the protected authentication servlet.
@@ -40,7 +42,7 @@ public class AuthenticationFilter implements Filter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationFilter.class);
 
-	private String protectedServletPath;
+	private List<String> protectedServletPaths;
 	private String authnServletPath;
 	private final String sessionCookie;
 	private UnsuccessfulAuthenticationCounter dosGauard;
@@ -48,10 +50,11 @@ public class AuthenticationFilter implements Filter
 	private LoginToHttpSessionBinder sessionBinder;
 	
 	
-	public AuthenticationFilter(String protectedServletPath, String authnServletPath, AuthenticationRealm realm,
+	public AuthenticationFilter(List<String> protectedServletPaths, String authnServletPath, 
+			AuthenticationRealm realm,
 			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder)
 	{
-		this.protectedServletPath = protectedServletPath;
+		this.protectedServletPaths = protectedServletPaths;
 		this.authnServletPath = authnServletPath;
 		dosGauard = new UnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), 
 				realm.getBlockFor()*1000);
@@ -68,15 +71,8 @@ public class AuthenticationFilter implements Filter
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		
 		String servletPath = httpRequest.getServletPath();
-		if (hasPathPrefix(servletPath, authnServletPath))
-		{
-			log.debug("Direct access to authentication servlet is prohibited");
-			httpResponse.sendError(HttpServletResponse.SC_NOT_FOUND, 
-					"The requested address is not available.");
-			return;
-		}
 		
-		if (!hasPathPrefix(servletPath, protectedServletPath))
+		if (!HiddenResourcesFilter.hasPathPrefix(servletPath, protectedServletPaths))
 		{
 			gotoNotProtectedResource(httpRequest, response, chain);
 			return;
@@ -85,18 +81,21 @@ public class AuthenticationFilter implements Filter
 		HttpSession httpSession = httpRequest.getSession(false);
 		String loginSessionId;
 		
+		String clientIp = request.getRemoteAddr();
+		
 		if (httpSession != null)
 		{
 			LoginSession loginSession = (LoginSession) httpSession.getAttribute(
 					LoginToHttpSessionBinder.USER_SESSION_KEY);
 			if (loginSession != null)
 			{
+				dosGauard.successfulAttempt(clientIp);
 				if (!loginSession.isUsedOutdatedCredential())
 				{
 					loginSessionId = loginSession.getId();
 					try
 					{
-						if (!hasPathPrefix(httpRequest.getPathInfo(), 
+						if (!HiddenResourcesFilter.hasPathPrefix(httpRequest.getPathInfo(), 
 								ApplicationConstants.HEARTBEAT_PATH + '/'))
 						{
 							log.trace("Update session activity for " + loginSessionId);
@@ -125,7 +124,6 @@ public class AuthenticationFilter implements Filter
 			return;
 		}
 		
-		String clientIp = request.getRemoteAddr();
 		long blockedTime = dosGauard.getRemainingBlockedTime(clientIp); 
 		if (blockedTime > 0)
 		{
@@ -174,7 +172,7 @@ public class AuthenticationFilter implements Filter
 		dispatcher.forward(httpRequest, response);
 	}
 
-	private void gotoProtectedResource(HttpServletRequest httpRequest, ServletResponse response, FilterChain chain) 
+	private void gotoProtectedResource(HttpServletRequest httpRequest, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException
 	{
 		if (log.isTraceEnabled())
@@ -201,23 +199,6 @@ public class AuthenticationFilter implements Filter
 		response.addCookie(unitySessionCookie);
 	}
 	
-	public static boolean hasPathPrefix(String pathInfo , String prefix) 
-	{
-		if (pathInfo == null || pathInfo.equals("")) {
-			return false;
-		}
-
-		if (!prefix.startsWith("/")) {
-			prefix = '/' + prefix;
-		}
-
-		if (pathInfo.startsWith(prefix)) {
-			return true;
-		}
-
-		return false;
-	}
-
 	@Override
 	public void destroy()
 	{
@@ -227,4 +208,10 @@ public class AuthenticationFilter implements Filter
 	public void init(FilterConfig filterConfig) throws ServletException
 	{
 	}
+	
+	public void addProtectedPath(String path)
+	{
+		protectedServletPaths.add(path);
+	}
+
 }

@@ -448,6 +448,10 @@ public class TestAttributes extends DBIntegrationTestBase
 		
 		at1.getMetadata().put(EntityNameMetadataProvider.NAME, "");
 		attrsMan.updateAttributeType(at1);
+
+		//let's check again - update should work
+		attrsMan.updateAttributeType(at1);
+		
 		
 		at2.getMetadata().put(EntityNameMetadataProvider.NAME, "");
 		try

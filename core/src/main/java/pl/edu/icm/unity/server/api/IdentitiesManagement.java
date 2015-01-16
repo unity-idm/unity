@@ -5,9 +5,11 @@
 package pl.edu.icm.unity.server.api;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -109,6 +111,30 @@ public interface IdentitiesManagement
 	 */
 	public void setEntityStatus(EntityParam toChange, EntityState state) 
 			throws EngineException;
+
+	
+	/**
+	 * Schedules an operation to be invoked at a given time on an entity. 
+	 * Requires regular identityModify capability (not assigned for self access).
+	 * 
+	 * @param toChange
+	 * @param changeTime
+	 * @param operation
+	 * @throws EngineException
+	 */
+	public void scheduleEntityChange(EntityParam toChange, Date changeTime, EntityScheduledOperation operation) 
+			throws EngineException;
+	
+	/**
+	 * Sets the entity in the {@link EntityState#onlyLoginPermitted} and schedules the entity removal at given 
+	 * time unless the user logs in before this time. 
+	 * Requires only the attributeModify capability (allowed for selfAccess).
+	 * 
+	 * @param toChange
+	 * @param changeTime
+	 * @throws EngineException
+	 */
+	public void scheduleRemovalByUser(EntityParam toChange, Date changeTime) throws EngineException;	
 	
 	/**
 	 * Returns information about an entity along with its all identities with authorization in '/'.

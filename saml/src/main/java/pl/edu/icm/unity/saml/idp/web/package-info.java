@@ -15,11 +15,14 @@
  * ->
  * SAML request is validated by the SamlParseServlet and if fine put in the session-stored SAML context.
  * -> 
- * processing if forwarder to /saml2-idp-web-ui
+ * processing is forwarded to /saml2-idp-web-ui
  * -> 
  * authN filter redirects to authN servlet if needed
  * -> 
- * the SamlIdpWebUI shows the confirmation & info screen and 
+ * The IdpDispatcherServlet (at /saml2-idp-web-ui) decides whether to process the request automatically 
+ * or whether to show a consent screen. In the first case it returns a response and in second it forwards to
+ * ->
+ * the SamlIdpWebUI which shows the confirmation & info screen and 
  * if accepted redirects with a SAML response.  
  * </pre>
  * The {@link pl.edu.icm.unity.saml.idp.web.filter.SamlGuardFilter} protects

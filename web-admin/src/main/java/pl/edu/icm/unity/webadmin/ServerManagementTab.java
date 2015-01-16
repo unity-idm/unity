@@ -9,6 +9,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.confirmation.ConfirmationConfigurationsComponent;
 import pl.edu.icm.unity.webadmin.msgtemplate.MessageTemplatesComponent;
@@ -31,6 +32,7 @@ public class ServerManagementTab  extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private MainTabPanel tabs;
+	private TranslationProfilesComponent tComponent;
 
 	@Autowired
 	public ServerManagementTab(UnityMessageSource msg, ImportExportComponent ieComponent,
@@ -40,6 +42,7 @@ public class ServerManagementTab  extends VerticalLayout
 	{
 		super();
 		this.msg = msg;
+		this.tComponent = tComponent;
 		this.tabs = new MainTabPanel(eComponent, aComponent, tComponent, msgComponent, ieComponent, confirmCfgComponent);
 		this.tabs.setStyleName(Reindeer.TABSHEET_MINIMAL);
 		initUI();
@@ -54,6 +57,11 @@ public class ServerManagementTab  extends VerticalLayout
 		wrapper.setSizeFull();
 		addComponent(wrapper);
 		setSizeFull();
+	}
+
+	public void setSandboxNotifier(SandboxAuthnNotifier sandboxNotifier) 
+	{
+		tComponent.setSandboxNotifier(sandboxNotifier);
 	}
 
 }

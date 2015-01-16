@@ -21,6 +21,7 @@
 	<bean class="pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpointFactory"/>
 	
 	<bean class="pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpointFactory"/>
+	<bean class="pl.edu.icm.unity.oauth.as.webauthz.ASConsentDeciderServletFactory"/>
 	<bean class="pl.edu.icm.unity.oauth.as.webauthz.FreemarkerHandler"/>
 	
 	<bean class="pl.edu.icm.unity.oauth.as.preferences.OAuthPreferencesHandler"/>

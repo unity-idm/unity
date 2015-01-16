@@ -29,5 +29,13 @@ public enum EntityState
 	 * of SAML queries, etc. All other management operations are still possible. It is also possible to 
 	 * get other information about the entity, assuming that authZ level permits.
 	 */
-	disabled
+	disabled,
+	
+	/**
+	 * This state is the same as disabled with one exception: it is possible to authenticate as this entity
+	 * and what's more, immediately after logging the state is changed to valid. This state is used to implement
+	 * scheduled account removal with a grace time, which controlled by end-user. During the grace time
+	 * this status is used and authentication is re-enabling the account.
+	 */
+	onlyLoginPermitted
 }
