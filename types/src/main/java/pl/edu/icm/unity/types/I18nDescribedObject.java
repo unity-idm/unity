@@ -66,7 +66,7 @@ public class I18nDescribedObject
 		Map<String, Locale> allLocales = msg.getSupportedLocales();
 		I18nString ret = new I18nString();
 		
-		String defaultMessage = msg.getMessage(key, args);
+		String defaultMessage;
 		try
 		{
 			defaultMessage = msg.getMessage(key, args);

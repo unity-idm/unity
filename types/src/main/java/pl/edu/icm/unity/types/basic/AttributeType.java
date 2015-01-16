@@ -59,10 +59,11 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 		this.displayedName = new I18nString(name);
 	}
 	
-	public AttributeType(String name, AttributeValueSyntax<?> syntax, I18nString description)
+	public AttributeType(String name, AttributeValueSyntax<?> syntax, I18nString displayedName, I18nString description)
 	{
 		this(name, syntax);
 		this.description = description;
+		this.displayedName = displayedName;
 	}
 
 	/**
@@ -74,7 +75,7 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 	 */
 	public AttributeType(String name, AttributeValueSyntax<?> syntax, MessageSource msg)
 	{
-		this(name, syntax, loadDescriptions(name, msg));
+		this(name, syntax, loadNames(name, msg), loadDescriptions(name, msg));
 	}
 	
 	/**
@@ -87,12 +88,17 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 	public AttributeType(String name, AttributeValueSyntax<?> syntax, MessageSource msg, String msgKey, 
 			Object[] args)
 	{
-		this(name, syntax, loadDescriptions(msgKey, msg, args));
+		this(name, syntax, loadNames(name, msg), loadDescriptions(msgKey, msg, args));
 	}
 	
 	private static I18nString loadDescriptions(String msgKey, MessageSource msg, Object... args)
 	{
 		return loadI18nStringFromBundle("AttrType." + msgKey + ".desc", msg, args);
+	}
+
+	private static I18nString loadNames(String msgKey, MessageSource msg, Object... args)
+	{
+		return loadI18nStringFromBundle("AttrType." + msgKey + ".displayedName", msg, args);
 	}
 	
 	public boolean isTypeImmutable()
