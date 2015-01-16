@@ -24,6 +24,8 @@ public class I18nStringJsonUtil
 	
 	public static ObjectNode toJson(I18nString value)
 	{
+		if (value == null)
+			return null;
 		ObjectNode root = mapper.createObjectNode();
 		root.put("DefaultValue", value.getDefaultValue());
 		ObjectNode mapN = mapper.createObjectNode();

@@ -13,12 +13,6 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import pl.edu.icm.unity.db.mapper.AttributesMapper;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.model.AttributeBean;
@@ -34,12 +28,19 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
 import pl.edu.icm.unity.server.registries.AttributeStatementsRegistry;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Group;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Handles serialization of Groups metadata.
@@ -77,7 +78,8 @@ public class GroupsSerializer
 		try
 		{
 			ObjectNode main = mapper.createObjectNode();
-			main.put("description", src.getDescription());
+			main.set("i18nDescription", I18nStringJsonUtil.toJson(src.getDescription()));
+			main.set("displayedName", I18nStringJsonUtil.toJson(src.getDisplayedName()));
 			ArrayNode ases = main.putArray("attributeStatements");
 			for (AttributeStatement as: src.getAttributeStatements())
 			{
@@ -113,8 +115,11 @@ public class GroupsSerializer
 		try
 		{
 			main = mapper.readValue(json, ObjectNode.class);
-			target.setDescription(main.get("description").asText());
-			
+			target.setDescription(I18nStringJsonUtil.fromJson(main.get("i18nDescription"),
+					main.get("description")));
+			target.setDisplayedName(main.has("displayedName") ? 
+					I18nStringJsonUtil.fromJson(main.get("displayedName")) : 
+					new I18nString(target.toString()));
 			if (attributeMapper != null && groupMapper != null)
 			{
 				JsonNode jsonStatements = main.get("attributeStatements");
@@ -150,6 +155,28 @@ public class GroupsSerializer
 		return outdatedASes;
 	}
 
+	/**
+	 * Only sets displayed name and description
+	 * @param json
+	 * @param target
+	 */
+	public void fillFromJsonMinimal(byte[] json, Group target)
+	{
+		if (json == null)
+			return;
+		try
+		{
+			ObjectNode main = mapper.readValue(json, ObjectNode.class);
+			target.setDescription(I18nStringJsonUtil.fromJson(main.get("i18nDescription"),
+					main.get("description")));
+			target.setDisplayedName(main.has("displayedName") ? 
+					I18nStringJsonUtil.fromJson(main.get("displayedName")) : 
+					new I18nString(target.toString()));
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't perform JSON deserialization", e);
+		}
+	}
 	
 
 	/**

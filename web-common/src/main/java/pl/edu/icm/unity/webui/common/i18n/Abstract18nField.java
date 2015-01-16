@@ -151,7 +151,7 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 	}
 	
 	@Override
-	public void setInternalValue(I18nString value)
+	protected void setInternalValue(I18nString value)
 	{
 		super.setInternalValue(value);
 		if (value == null)
@@ -173,7 +173,7 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 	}
 	
 	@Override
-	public I18nString getInternalValue()
+	protected I18nString getInternalValue()
 	{
 		I18nString ret = new I18nString();
 		if (defaultTf.getValue() != null && !defaultTf.getValue().equals(""))

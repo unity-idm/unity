@@ -5,13 +5,15 @@
 package pl.edu.icm.unity.webadmin.groupbrowser;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 
 /**
@@ -23,10 +25,12 @@ public class GroupEditDialog extends AbstractDialog
 	private static final long serialVersionUID = 1L;
 	private Callback callback;
 	private TextField name;
-	private TextArea description;
+	private I18nTextField displayedName;
+	private I18nTextArea description;
 	private String parent;
 	private String originalName;
-	private String originalDesc;
+	private I18nString originalDispName;
+	private I18nString originalDesc;
 
 	public GroupEditDialog(UnityMessageSource msg, Group group, boolean edit, Callback callback) 
 	{
@@ -36,7 +40,8 @@ public class GroupEditDialog extends AbstractDialog
 				msg.getMessage("cancel"));
 		this.parent = edit ? group.getParentPath() : group.toString();
 		this.originalName = edit ? group.getName() : "";
-		this.originalDesc = edit ? group.getDescription() : "";
+		this.originalDesc = edit ? group.getDescription() : new I18nString();
+		this.originalDispName = edit ? group.getDisplayedName() : new I18nString();
 		this.callback = callback;
 	}
 
@@ -52,10 +57,13 @@ public class GroupEditDialog extends AbstractDialog
 		if (originalName.equals("/"))
 			name.setReadOnly(true);
 		fl.addComponent(name);
-		description = new TextArea(msg.getMessage("GroupEditDialog.groupDesc"));
+		
+		displayedName = new I18nTextField(msg, msg.getMessage("displayedNameF"));
+		displayedName.setValue(originalDispName);
+		
+		description = new I18nTextArea(msg, msg.getMessage("GroupEditDialog.groupDesc"));
 		description.setValue(originalDesc);
-		description.setWidth(100, Unit.PERCENTAGE);
-		fl.addComponent(description);
+		fl.addComponents(displayedName, description);
 		if (name.isReadOnly())
 			description.focus();
 		else
@@ -71,6 +79,9 @@ public class GroupEditDialog extends AbstractDialog
 			String gName = name.getValue();
 			Group group = gName.equals("/") ? new Group("/") : new Group(new Group(parent), name.getValue());
 			group.setDescription(description.getValue());
+			I18nString dispName = displayedName.getValue();
+			dispName.setDefaultValue(group.toString());
+			group.setDisplayedName(dispName);
 			close();
 			callback.onConfirm(group);
 		} catch (Exception e)

@@ -15,6 +15,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -42,12 +43,10 @@ public class TestGroups extends DBIntegrationTestBase
 		setupPasswordAuthn();
 		createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
 		Group a = new Group("/A");
-		a.setDescription("foo");
 		groupsMan.addGroup(a);
 		Group ab = new Group("/A/B");
 		groupsMan.addGroup(ab);
 		Group ac = new Group("/A/C");
-		ac.setDescription("goo");
 		groupsMan.addGroup(ac);
 		
 		EntityParam ep = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user1"));
@@ -98,12 +97,12 @@ public class TestGroups extends DBIntegrationTestBase
 		attrsMan.addAttributeType(atFoo);
 		
 		Group a = new Group("/A");
-		a.setDescription("foo");
+		a.setDescription(new I18nString("foo"));
 		groupsMan.addGroup(a);
 		Group ab = new Group("/A/B");
 		groupsMan.addGroup(ab);
 		Group ac = new Group("/A/C");
-		ac.setDescription("goo");
+		ac.setDescription(new I18nString("goo"));
 		groupsMan.addGroup(ac);
 		Group abd = new Group("/A/B/D");
 		groupsMan.addGroup(abd);
@@ -120,16 +119,16 @@ public class TestGroups extends DBIntegrationTestBase
 		groupsMan.updateGroup("/A", a);
 		
 		Group root = new Group("should be ignored");
-		root.setDescription("root desc");
+		root.setDescription(new I18nString("root desc"));
 		groupsMan.updateGroup("/", root);
 		
 		GroupContents contentRoot = groupsMan.getContents("/", GroupContents.EVERYTHING);
 		assertEquals(1, contentRoot.getSubGroups().size());
 		assertEquals("/A", contentRoot.getSubGroups().get(0));
-		assertEquals("root desc", contentRoot.getGroup().getDescription());
+		assertEquals(new I18nString("root desc"), contentRoot.getGroup().getDescription());
 		
 		GroupContents contentA = groupsMan.getContents("/A", GroupContents.EVERYTHING);
-		assertEquals("foo", contentA.getGroup().getDescription());
+		assertEquals(new I18nString("foo"), contentA.getGroup().getDescription());
 		assertEquals(2, contentA.getSubGroups().size());
 		assertEquals("/A/B", contentA.getSubGroups().get(0));
 		assertEquals("/A/C", contentA.getSubGroups().get(1));
@@ -147,7 +146,7 @@ public class TestGroups extends DBIntegrationTestBase
 
 		GroupContents contentAC = groupsMan.getContents("/A/C", GroupContents.EVERYTHING);
 		assertEquals(0, contentAC.getSubGroups().size());
-		assertEquals("goo", contentAC.getGroup().getDescription());
+		assertEquals(new I18nString("goo"), contentAC.getGroup().getDescription());
 		
 		try
 		{

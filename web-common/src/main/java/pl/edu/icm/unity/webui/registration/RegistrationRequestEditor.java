@@ -16,6 +16,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -23,6 +24,8 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -77,6 +80,7 @@ public class RegistrationRequestEditor extends CustomComponent
 	private CredentialEditorRegistry credentialEditorRegistry;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
 	private AttributesManagement attrsMan;
+	private GroupsManagement groupsMan;
 	private AuthenticationManagement authnMan;
 	
 	private Map<String, IdentityTaV> remoteIdentitiesByType;
@@ -109,7 +113,8 @@ public class RegistrationRequestEditor extends CustomComponent
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
-			AttributesManagement attrsMan, AuthenticationManagement authnMan) throws EngineException
+			AttributesManagement attrsMan, AuthenticationManagement authnMan,
+			GroupsManagement groupsMan) throws EngineException
 	{
 		this.msg = msg;
 		this.form = form;
@@ -119,6 +124,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
 		this.attrsMan = attrsMan;
 		this.authnMan = authnMan;
+		this.groupsMan = groupsMan;
 		checkRemotelyObtainedData();
 		initUI();
 	}
@@ -533,7 +539,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		createExternalAttributesUI(layout, atTypes);
 	}
 	
-	private void createGroupsUI(Layout layout)
+	private void createGroupsUI(Layout layout) throws EngineException
 	{
 		boolean headerAdded = false;
 		
@@ -555,10 +561,17 @@ public class RegistrationRequestEditor extends CustomComponent
 				layout.addComponent(titleL);
 				headerAdded = true;
 			}
+
+			GroupContents contents = groupsMan.getContents(gParam.getGroupPath(), GroupContents.METADATA);
+			Group grp = contents.getGroup();
+
 			CheckBox cb = new CheckBox();
-			cb.setCaption(isEmpty(gParam.getLabel()) ? gParam.getGroupPath() : gParam.getLabel());
+			cb.setCaption(isEmpty(gParam.getLabel()) ? grp.getDisplayedName().getValue(msg) 
+					: gParam.getLabel());
 			if (gParam.getDescription() != null)
-				cb.setDescription(HtmlEscapers.htmlEscaper().escape(gParam.getDescription()));
+				cb.setDescription(HtmlSimplifiedLabel.escape(gParam.getDescription()));
+			else
+				cb.setDescription(HtmlSimplifiedLabel.escape(grp.getDescription().getValue(msg)));
 			
 			if (gParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive && conGroup)
 			{

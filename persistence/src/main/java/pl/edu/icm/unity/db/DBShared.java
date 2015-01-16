@@ -12,9 +12,11 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.db.json.GroupsSerializer;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.db.resolvers.GroupResolver;
+import pl.edu.icm.unity.types.basic.Group;
 
 /**
  * DB operations which are used by multiple DB* classes
@@ -24,11 +26,13 @@ import pl.edu.icm.unity.db.resolvers.GroupResolver;
 public class DBShared
 {
 	private GroupResolver groupResolver;
+	private GroupsSerializer jsonS;
 
 	@Autowired
-	public DBShared(GroupResolver groupResolver)
+	public DBShared(GroupResolver groupResolver, GroupsSerializer groupsSerializer)
 	{
 		this.groupResolver = groupResolver;
+		this.jsonS = groupsSerializer;
 	}
 
 	public Set<String> getAllGroups(long entityId, SqlSession sqlMap)
@@ -43,6 +47,20 @@ public class DBShared
 		Set<String> ret = new HashSet<String>();
 		for (GroupBean group: groups)
 			ret.add(groupResolver.resolveGroupPath(group, gMapper));
+		return ret;
+	}
+	
+	public Set<Group> getAllGroupsWithNames(long entityId, SqlSession sqlMap)
+	{
+		GroupsMapper gMapper = sqlMap.getMapper(GroupsMapper.class);
+		List<GroupBean> groups = gMapper.getGroups4Entity(entityId);
+		Set<Group> ret = new HashSet<Group>();
+		for (GroupBean group: groups)
+		{
+			Group resolved = new Group(groupResolver.resolveGroupPath(group, gMapper));
+			jsonS.fillFromJsonMinimal(group.getContents(), resolved);
+			ret.add(resolved);
+		}
 		return ret;
 	}
 }

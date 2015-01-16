@@ -30,15 +30,16 @@ import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
-import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Component providing Group details. The most complicated part is attribute statements handling which
- * is implemented in {@link AttributeStatementsTable}. This component shows generic data as chosen group and its description and
- * manages events and the overall layout.
+ * is implemented in {@link AttributeStatementsTable}. This component shows generic data as chosen 
+ * group and its description and manages events and the overall layout.
  * 
  * @author K. Benedyczak
  */
@@ -51,6 +52,7 @@ public class GroupDetailsComponent extends SafePanel
 	private GroupsManagement groupsManagement;
 	
 	private VerticalLayout main;
+	private Label displayedName;
 	private DescriptionTextArea description;
 	private GroupAttributesClassesTable acPanel;
 	private AttributeStatementsTable attrStatements;
@@ -66,9 +68,12 @@ public class GroupDetailsComponent extends SafePanel
 		main = new VerticalLayout();
 		main.setSpacing(true);
 		main.setSizeFull();
-		main.setMargin(new MarginInfo(true, false, false, false));
 	
+		FormLayout topLayout = new FormLayout();
+		displayedName = new Label();
+		displayedName.setCaption(msg.getMessage("displayedNameF"));
 		description = new DescriptionTextArea(msg.getMessage("GroupDetails.description"), true, "");
+		topLayout.addComponents(displayedName, description);
 		
 		acPanel = new GroupAttributesClassesTable(msg, groupsManagement, attrsMan);
 		Toolbar acToolbar = new Toolbar(acPanel, Orientation.VERTICAL);
@@ -84,7 +89,7 @@ public class GroupDetailsComponent extends SafePanel
 		ComponentWithToolbar asWithToolbar = new ComponentWithToolbar(attrStatements, asToolbar);
 		asWithToolbar.setSizeFull();
 		
-		main.addComponents(description, acWithToolbar, asWithToolbar);
+		main.addComponents(topLayout, acWithToolbar, asWithToolbar);
 		main.setExpandRatio(acWithToolbar, 0.5f);
 		main.setExpandRatio(asWithToolbar, 0.5f);
 		
@@ -118,7 +123,9 @@ public class GroupDetailsComponent extends SafePanel
 		{
 			GroupContents contents = groupsManagement.getContents(group, GroupContents.METADATA);
 			Group rGroup = contents.getGroup();
-			description.setValue(rGroup.getDescription());
+			displayedName.setValue(rGroup.getDisplayedName().getValue(msg));
+			String desc = rGroup.getDescription().getValue(msg);
+			description.setValue(desc == null ? "" : desc);
 			attrStatements.setInput(rGroup);
 			acPanel.setInput(rGroup);
 			setContent(main);
