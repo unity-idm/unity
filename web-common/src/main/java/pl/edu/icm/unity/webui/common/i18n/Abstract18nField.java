@@ -13,18 +13,18 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
+import com.vaadin.ui.AbstractTextField;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.themes.Reindeer;
-import com.vaadin.ui.AbstractTextField;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Base class for implementations of custom fields allowing for editing an {@link I18nString}, 
@@ -151,8 +151,11 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 	}
 	
 	@Override
-	public void setValue(I18nString value)
+	public void setInternalValue(I18nString value)
 	{
+		super.setInternalValue(value);
+		if (value == null)
+			return;
 		for (Map.Entry<String, String> vE: value.getMap().entrySet())
 		{
 			if (vE.getKey().equals(defaultLocaleCode))
@@ -170,7 +173,7 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 	}
 	
 	@Override
-	public I18nString getValue()
+	public I18nString getInternalValue()
 	{
 		I18nString ret = new I18nString();
 		if (defaultTf.getValue() != null && !defaultTf.getValue().equals(""))

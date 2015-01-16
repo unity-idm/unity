@@ -113,7 +113,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	protected void setupPasswordAuthn() throws EngineException
 	{
 		CredentialDefinition credDef = new CredentialDefinition(
-				PasswordVerificatorFactory.NAME, "credential1", "");
+				PasswordVerificatorFactory.NAME, "credential1");
 		credDef.setJsonConfiguration("{\"minLength\": 4, " +
 				"\"historySize\": 5," +
 				"\"minClassesNum\": 1," +
@@ -134,7 +134,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	protected void setupPasswordAndCertAuthn() throws EngineException
 	{
 		CredentialDefinition credDef2 = new CredentialDefinition(
-				CertificateVerificatorFactory.NAME, "credential2", "");
+				CertificateVerificatorFactory.NAME, "credential2");
 		credDef2.setJsonConfiguration("");
 		authnMan.addCredentialDefinition(credDef2);
 		

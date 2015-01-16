@@ -66,6 +66,7 @@ import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.FileWatcher;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.ServerInitializer;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
@@ -73,6 +74,8 @@ import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nDescribedObject;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
@@ -109,7 +112,8 @@ public class EngineInitialization extends LifecycleBase
 	public static final String DEFAULT_CREDENTIAL = "Password credential";
 	public static final String DEFAULT_CREDENTIAL_REQUIREMENT = "Password requirement";
 
-	
+	@Autowired
+	private UnityMessageSource msg;
 	@Autowired
 	private InternalEndpointManagement internalEndpointManager;
 	@Autowired
@@ -515,8 +519,10 @@ public class EngineInitialization extends LifecycleBase
 			}
 		}
 		
+		I18nString description = I18nDescribedObject.loadI18nStringFromBundle(
+				"CredDef.standardPassword.desc", msg); 
 		CredentialDefinition credDef = new CredentialDefinition(PasswordVerificatorFactory.NAME,
-				adminCredName, "Default password credential with typical security settings.");
+				adminCredName, description, msg);
 		credDef.setJsonConfiguration("{\"minLength\": 1," +
 				"\"historySize\": 1," +
 				"\"minClassesNum\": 1," +
@@ -739,7 +745,9 @@ public class EngineInitialization extends LifecycleBase
 			File configFile = config.getFileValue(credentialKey+UnityServerConfiguration.CREDENTIAL_CONFIGURATION, false);
 
 			String jsonConfiguration = FileUtils.readFileToString(configFile);
-			CredentialDefinition credentialDefinition = new CredentialDefinition(typeId, name, description);
+			CredentialDefinition credentialDefinition = new CredentialDefinition(typeId, name, 
+					new I18nString(name), 
+					new I18nString(description));
 			credentialDefinition.setJsonConfiguration(jsonConfiguration);
 			
 			if (!existing.containsKey(name))

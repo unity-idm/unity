@@ -19,6 +19,7 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
@@ -26,7 +27,6 @@ import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.MapComboBox;
@@ -67,9 +67,8 @@ public class CredentialsPanel extends VerticalLayout
 	
 	private SafePanel statuses;
 	private MapComboBox<CredentialDefinition> credential;
-	private TextField type;
 	private TextField status;
-	private DescriptionTextArea description;
+	private Label description;
 	private SafePanel credentialStateInfo;
 	private SafePanel editor;
 	private Button update;
@@ -114,8 +113,16 @@ public class CredentialsPanel extends VerticalLayout
 
 		Panel credentialPanel = new SafePanel();
 
+		String selected = credentials.keySet().iterator().next();
 		credential = new MapComboBox<CredentialDefinition>(msg.getMessage("CredentialChangeDialog.credential"),
-				credentials, credentials.keySet().iterator().next());
+				credentials, selected, new MapComboBox.LabelResolver<CredentialDefinition>()
+				{
+					@Override
+					public String getDisplayedName(String key, CredentialDefinition value)
+					{
+						return value.getDisplayedName().getValue(msg);
+					}
+				});
 		credential.setImmediate(true);
 		credential.addValueChangeListener(new ValueChangeListener()
 		{
@@ -125,8 +132,8 @@ public class CredentialsPanel extends VerticalLayout
 				updateSelectedCredential();
 			}
 		});
-		type = new TextField(msg.getMessage("CredentialChangeDialog.credType"));
-		description = new DescriptionTextArea(msg.getMessage("CredentialChangeDialog.description"), true, "");
+		description = new Label();
+		description.setCaption(msg.getMessage("CredentialChangeDialog.description"));
 		status = new TextField(msg.getMessage("CredentialChangeDialog.status"));
 		credentialStateInfo = new SafePanel(msg.getMessage("CredentialChangeDialog.credentialStateInfo"));
 		editor = new SafePanel(msg.getMessage("CredentialChangeDialog.value"));
@@ -166,7 +173,7 @@ public class CredentialsPanel extends VerticalLayout
 		});
 		buttonsBar.addComponent(update);
 
-		FormLayout fl = new FormLayout(type, description, status, credentialStateInfo, editor, buttonsBar);
+		FormLayout fl = new FormLayout(description, status, credentialStateInfo, editor, buttonsBar);
 		fl.setMargin(true);
 		credentialPanel.setContent(fl);
 
@@ -179,8 +186,9 @@ public class CredentialsPanel extends VerticalLayout
 			addComponent(credential);
 		} else
 		{
+			CredentialDefinition credDef = credentials.values().iterator().next();
 			addComponent(new Label(msg.getMessage("CredentialChangeDialog.credentialSingle", 
-					credentials.values().iterator().next().getName())));
+					credDef.getDisplayedName().getValue(msg))));
 		}
 		addComponent(credentialPanel);
 		setSpacing(true);
@@ -196,10 +204,7 @@ public class CredentialsPanel extends VerticalLayout
 	private void updateSelectedCredential()
 	{
 		CredentialDefinition chosen = credential.getSelectedValue();
-		description.setValue(chosen.getDescription());
-		type.setReadOnly(false);
-		type.setValue(chosen.getTypeId());
-		type.setReadOnly(true);
+		description.setValue(chosen.getDescription().getValue(msg));
 		status.setReadOnly(false);
 		Map<String, CredentialPublicInformation> s = entity.getCredentialInfo().getCredentialsState();
 		CredentialPublicInformation credPublicInfo = s.get(chosen.getName());
@@ -326,7 +331,8 @@ public class CredentialsPanel extends VerticalLayout
 		Map<String, CredentialPublicInformation> state = entity.getCredentialInfo().getCredentialsState();
 		for (Map.Entry<String, CredentialPublicInformation> s: state.entrySet())
 		{
-			Label label = new Label(s.getKey());
+			I18nString displayedName = credentials.get(s.getKey()).getDisplayedName();
+			Label label = new Label(displayedName.getValue(msg));
 			if (s.getValue().getState() == LocalCredentialState.correct)
 				label.setIcon(Images.ok.getResource());
 			else if (s.getValue().getState() == LocalCredentialState.outdated)

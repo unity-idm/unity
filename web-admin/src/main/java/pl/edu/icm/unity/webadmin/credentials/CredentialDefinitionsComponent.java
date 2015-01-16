@@ -258,11 +258,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 			
 			GenericItem<?> item = (GenericItem<?>) target;
 			CredentialDefinition cr = (CredentialDefinition) item.getElement();
-			CredentialDefinition crClone = new CredentialDefinition();
-			crClone.setDescription(cr.getDescription());
-			crClone.setName(cr.getName());
-			crClone.setTypeId(cr.getTypeId());
-			crClone.setJsonConfiguration(cr.getJsonConfiguration());
+			CredentialDefinition crClone = cr.clone();
 			
 			CredentialDefinitionEditor editor = new CredentialDefinitionEditor(msg, credentialEditorReg,
 					crClone);

@@ -24,6 +24,7 @@ import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
@@ -174,7 +175,9 @@ public class TestAuthentication extends DBIntegrationTestBase
 		
 		//add credential definition
 		CredentialDefinition credDef = new CredentialDefinition(
-				MockPasswordVerificatorFactory.ID, "credential1", "cred req desc");
+				MockPasswordVerificatorFactory.ID, "credential1", 
+				new I18nString("cred disp name"),
+				new I18nString("cred req desc"));
 		credDef.setJsonConfiguration("8");
 		authnMan.addCredentialDefinition(credDef);
 		
@@ -183,12 +186,12 @@ public class TestAuthentication extends DBIntegrationTestBase
 		assertEquals(1+automaticCreds, credDefs.size());
 		CredentialDefinition credDefRet = getDescObjectByName(credDefs, "credential1");
 		assertEquals("credential1", credDefRet.getName());
-		assertEquals("cred req desc", credDefRet.getDescription());
+		assertEquals(new I18nString("cred req desc"), credDefRet.getDescription());
 		assertEquals(MockPasswordVerificatorFactory.ID, credDefRet.getTypeId());
 		assertEquals("8", credDefRet.getJsonConfiguration());
 		
 		//update it and check
-		credDefRet.setDescription("d2");
+		credDefRet.setDescription(new I18nString("d2"));
 		credDefRet.setJsonConfiguration("9");
 		authnMan.updateCredentialDefinition(credDefRet, LocalCredentialState.correct);
 		credDefs = authnMan.getCredentialDefinitions();
@@ -271,7 +274,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 				get("credential1").getState());
 
 		//update credential definition now with identity using it via credential requirements
-		credDefRet.setDescription("d3");
+		credDefRet.setDescription(new I18nString("d3"));
 		credDefRet.setJsonConfiguration("119");
 		authnMan.updateCredentialDefinition(credDefRet, LocalCredentialState.correct);
 		entity = idsMan.getEntity(entityP);
@@ -285,7 +288,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		} catch (IllegalCredentialException e) {}
 
 		CredentialDefinition credDef2 = new CredentialDefinition(
-				MockPasswordVerificatorFactory.ID, "credential2", "cred2 desc");
+				MockPasswordVerificatorFactory.ID, "credential2");
 		credDef2.setJsonConfiguration("10");
 		authnMan.addCredentialDefinition(credDef2);
 		

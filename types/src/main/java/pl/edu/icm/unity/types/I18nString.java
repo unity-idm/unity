@@ -47,6 +47,11 @@ public class I18nString
 		values.put(locale, value);
 	}
 	
+	public void addAllValues(Map<String, String> values)
+	{
+		this.values.putAll(values);
+	}
+	
 	public Map<String, String> getMap()
 	{
 		return new HashMap<String, String>(values);
@@ -68,6 +73,14 @@ public class I18nString
 		return "I18nString [values=" + values + ", defaultValue=" + defaultValue + "]";
 	}
 
+	@Override
+	public I18nString clone()
+	{
+		I18nString ret = new I18nString(defaultValue);
+		ret.addAllValues(values);
+		return ret;
+	}
+	
 	@Override
 	public int hashCode()
 	{

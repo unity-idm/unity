@@ -155,7 +155,7 @@ public class TestSoapETD extends DBIntegrationTestBase
 	protected void setupMockAuthn() throws Exception
 	{
 		CredentialDefinition credDef2 = new CredentialDefinition(
-				CertificateVerificatorFactory.NAME, "credential2", "");
+				CertificateVerificatorFactory.NAME, "credential2");
 		credDef2.setJsonConfiguration("");
 		authnMan.addCredentialDefinition(credDef2);
 		

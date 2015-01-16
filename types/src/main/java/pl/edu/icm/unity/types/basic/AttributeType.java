@@ -5,13 +5,11 @@
 package pl.edu.icm.unity.types.basic;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
-
-import org.springframework.context.NoSuchMessageException;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.InitializationValidator;
 import pl.edu.icm.unity.types.NamedObject;
@@ -24,7 +22,7 @@ import pl.edu.icm.unity.types.NamedObject;
  * <p>
  * The class is compared only using the name.
  */
-public class AttributeType implements InitializationValidator, NamedObject
+public class AttributeType extends I18nDescribedObject implements InitializationValidator, NamedObject
 {
 	/**
 	 * The attribute type can not be changed using management API (it is created
@@ -39,9 +37,7 @@ public class AttributeType implements InitializationValidator, NamedObject
 	 */
 	public static final int INSTANCES_IMMUTABLE_FLAG = 0x02;
 	
-	private I18nString description;
 	private String name;
-	private I18nString displayedName;
 	private AttributeValueSyntax<?> valueType;
 	private int minElements = 0;
 	private int maxElements = 1;
@@ -78,7 +74,7 @@ public class AttributeType implements InitializationValidator, NamedObject
 	 */
 	public AttributeType(String name, AttributeValueSyntax<?> syntax, MessageSource msg)
 	{
-		this(name, syntax, loadDescriptions(name, msg, null, new Object[]{}));
+		this(name, syntax, loadDescriptions(name, msg));
 	}
 	
 	/**
@@ -91,32 +87,12 @@ public class AttributeType implements InitializationValidator, NamedObject
 	public AttributeType(String name, AttributeValueSyntax<?> syntax, MessageSource msg, String msgKey, 
 			Object[] args)
 	{
-		this(name, syntax, loadDescriptions(name, msg, msgKey, args));
+		this(name, syntax, loadDescriptions(msgKey, msg, args));
 	}
 	
-	private static I18nString loadDescriptions(String name, MessageSource msg, String msgKey, 
-			Object[] args)
+	private static I18nString loadDescriptions(String msgKey, MessageSource msg, Object... args)
 	{
-		Map<String, Locale> allLocales = msg.getSupportedLocales();
-		String key = "AttrType." + (msgKey == null ? name : msgKey) + ".desc";
-		I18nString ret = new I18nString();
-		
-		String defaultMessage = msg.getMessage(key, args);
-		try
-		{
-			defaultMessage = msg.getMessage(key, args);
-		} catch (NoSuchMessageException e)
-		{
-			return ret;
-		}
-		
-		for (Locale locE: allLocales.values())
-		{
-			String message = msg.getMessage(key, args, locE);
-			if (locE.toString().equals(msg.getDefaultLocaleCode()) || !defaultMessage.equals(message))
-				ret.addValue(locE.toString(), message);
-		}
-		return ret;
+		return loadI18nStringFromBundle("AttrType." + msgKey + ".desc", msg, args);
 	}
 	
 	public boolean isTypeImmutable()
@@ -129,16 +105,6 @@ public class AttributeType implements InitializationValidator, NamedObject
 		return (flags & INSTANCES_IMMUTABLE_FLAG) != 0;
 	}
 	
-	public I18nString getDescription()
-	{
-		return description;
-	}
-	public void setDescription(I18nString description)
-	{
-		if (description == null)
-			throw new IllegalArgumentException("Argument can not be null");
-		this.description = description;
-	}
 	@Override
 	public String getName()
 	{
@@ -238,18 +204,6 @@ public class AttributeType implements InitializationValidator, NamedObject
 	public void setMetadata(Map<String, String> metadata)
 	{
 		this.metadata = metadata;
-	}
-
-	public I18nString getDisplayedName()
-	{
-		return displayedName;
-	}
-
-	public void setDisplayedName(I18nString displayedName)
-	{
-		if (displayedName == null)
-			throw new IllegalArgumentException("Attribute displayed name must not be null");
-		this.displayedName = displayedName;
 	}
 
 	@Override

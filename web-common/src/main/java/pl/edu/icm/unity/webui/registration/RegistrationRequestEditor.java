@@ -481,9 +481,12 @@ public class RegistrationRequestEditor extends CustomComponent
 			if (param.getLabel() != null)
 				editorUI.setCaption(param.getLabel());
 			else
-				editorUI.setCaption(param.getCredentialName()+":");
+				editorUI.setCaption(credDefinition.getDisplayedName().getValue(msg) + ":");
 			if (param.getDescription() != null)
-				editorUI.setDescription(HtmlEscapers.htmlEscaper().escape(param.getDescription()));
+				editorUI.setDescription(HtmlSimplifiedLabel.escape(param.getDescription()));
+			else
+				editorUI.setDescription(HtmlSimplifiedLabel.escape(
+						credDefinition.getDescription().getValue(msg)));
 			credentialParamEditors.add(editor);
 			layout.addComponents(editorUI.getComponents());
 				
