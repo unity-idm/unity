@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.mvel2.asm.util.CheckAnnotationAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -40,7 +39,6 @@ import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Toolbar;
-import pl.edu.icm.unity.webui.registration.RegistrationRequestChangedEvent;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -346,6 +344,26 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 			return false;
 		}
 	}
+	
+	private boolean checkAvailableChannels()
+	{
+		try
+		{
+			if (notificationsMan.getNotificationChannels().size() == 0)
+			{
+				ErrorPopup.showNotice(
+						msg,
+						"",
+						msg.getMessage("ConfirmationConfigurationsComponent.firstAddNotificationChannel"));
+				return false;
+			}
+			return true;
+
+		} catch (Exception e)
+		{
+			return false;
+		}
+	}
 
 	private class AddActionHandler extends SingleActionHandler
 	{
@@ -359,7 +377,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{	
-			if (!checkAvailableMsqTemplate())
+			if (!(checkAvailableMsqTemplate() && checkAvailableChannels()))
 				return;
 			ConfirmationConfigurationEditor editor = null;
 			List<String> names = null;
