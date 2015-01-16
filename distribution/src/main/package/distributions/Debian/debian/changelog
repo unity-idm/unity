@@ -1,0 +1,5 @@
+@component-prefix@@component-name@@component-suffix@ (@component-version@-@component-release@@component-disttag@) unstable; urgency=low
+
+  * Deb packaging
+
+ -- Bernd Schuller <b.schuller@fz-juelich.de>  Fri, 16 Jan 2015 12:00:00 +0100
