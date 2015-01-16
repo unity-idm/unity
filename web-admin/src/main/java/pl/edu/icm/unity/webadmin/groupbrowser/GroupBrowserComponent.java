@@ -15,8 +15,8 @@ import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.bus.RefreshEvent;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
-import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.themes.Reindeer;

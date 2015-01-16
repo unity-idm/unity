@@ -38,8 +38,6 @@ import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.webui.common.CaptchaComponent;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.HtmlSimplifiedLabel;
-import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -48,6 +46,8 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.UserError;
@@ -355,13 +355,16 @@ public class RegistrationRequestEditor extends CustomComponent
 		main.setSpacing(true);
 		main.setWidth(80, Unit.PERCENTAGE);
 		
-		Label formName = new Label(form.getName());
+		Label formName = new Label(form.getDisplayedName().getValue(msg));
 		formName.addStyleName(Reindeer.LABEL_H1);
 		main.addComponent(formName);
 		
-		String info = form.getFormInformation() == null ? "" : form.getFormInformation();
-		HtmlSimplifiedLabel formInformation = new HtmlSimplifiedLabel(info);
-		main.addComponent(formInformation);
+		String info = form.getFormInformation() == null ? null : form.getFormInformation().getValue(msg);
+		if (info != null)
+		{
+			HtmlSimplifiedLabel formInformation = new HtmlSimplifiedLabel(info);
+			main.addComponent(formInformation);
+		}
 
 		FormLayout mainFormLayout = new FormLayout();
 		main.addComponent(mainFormLayout);

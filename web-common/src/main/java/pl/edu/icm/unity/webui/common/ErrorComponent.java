@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.FormLayout;

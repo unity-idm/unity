@@ -5,8 +5,8 @@
 package pl.edu.icm.unity.webui.common.bigtab;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.bigtab.BigTab.TabCallback;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Component;

@@ -29,6 +29,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -407,7 +408,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		form.setCredentialRequirementAssignment(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT);
 		form.setDescription("description");
-		form.setFormInformation("formInformation");
+		form.setFormInformation(new I18nString("formInformation"));
 		form.setGroupAssignments(Collections.singletonList("/A"));
 		
 		GroupRegistrationParam groupParam = new GroupRegistrationParam();

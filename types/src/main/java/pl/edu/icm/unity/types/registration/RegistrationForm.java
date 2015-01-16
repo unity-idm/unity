@@ -8,6 +8,7 @@ import java.util.List;
 
 import pl.edu.icm.unity.types.DescribedObjectImpl;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
@@ -35,7 +36,8 @@ public class RegistrationForm extends DescribedObjectImpl
 	private List<AgreementRegistrationParam> agreements;
 	private boolean collectComments;
 	private int captchaLength;
-	private String formInformation;
+	private I18nString displayedName;
+	private I18nString formInformation;
 	private String registrationCode;
 	private String redirectAfterSubmit;
 	private String redirectAfterSubmitAndAccept;
@@ -137,14 +139,24 @@ public class RegistrationForm extends DescribedObjectImpl
 		this.collectComments = collectComments;
 	}
 
-	public String getFormInformation()
+	public I18nString getFormInformation()
 	{
 		return formInformation;
 	}
 
-	public void setFormInformation(String formInformation)
+	public void setFormInformation(I18nString formInformation)
 	{
 		this.formInformation = formInformation;
+	}
+
+	public I18nString getDisplayedName()
+	{
+		return displayedName == null ? new I18nString(getName()) : displayedName;
+	}
+
+	public void setDisplayedName(I18nString displayedName)
+	{
+		this.displayedName = displayedName;
 	}
 
 	public String getRegistrationCode()
@@ -302,6 +314,7 @@ public class RegistrationForm extends DescribedObjectImpl
 				* result
 				+ ((credentialRequirementAssignment == null) ? 0
 						: credentialRequirementAssignment.hashCode());
+		result = prime * result + ((displayedName == null) ? 0 : displayedName.hashCode());
 		result = prime * result
 				+ ((formInformation == null) ? 0 : formInformation.hashCode());
 		result = prime * result
@@ -386,6 +399,12 @@ public class RegistrationForm extends DescribedObjectImpl
 				return false;
 		} else if (!credentialRequirementAssignment
 				.equals(other.credentialRequirementAssignment))
+			return false;
+		if (displayedName == null)
+		{
+			if (other.displayedName != null)
+				return false;
+		} else if (!displayedName.equals(other.displayedName))
 			return false;
 		if (formInformation == null)
 		{

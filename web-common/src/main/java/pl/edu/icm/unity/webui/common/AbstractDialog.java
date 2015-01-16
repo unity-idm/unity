@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.common;
 import java.util.Iterator;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbstractField;

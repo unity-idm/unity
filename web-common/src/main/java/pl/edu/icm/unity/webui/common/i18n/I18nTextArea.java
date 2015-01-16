@@ -36,6 +36,7 @@ public class I18nTextArea extends Abstract18nField<TextArea>
 		TextArea ret = new TextArea();
 		ret.setRows(2);
 		ret.setWidth(100, Unit.PERCENTAGE);
+		ret.setWordwrap(true);
 		return ret;
 	}
 }

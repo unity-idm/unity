@@ -24,6 +24,7 @@ import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -55,6 +56,8 @@ import pl.edu.icm.unity.webui.common.URLValidator;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.attributes.SelectableAttributeEditor;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 import com.vaadin.data.validator.AbstractStringValidator;
 import com.vaadin.data.validator.AbstractValidator;
@@ -109,7 +112,8 @@ public class RegistrationFormEditor extends VerticalLayout
 	private AbstractTextField redirectAfterSubmitAndAccept;
 	private AbstractTextField autoAcceptCondition;
 	
-	private TextArea formInformation;
+	private I18nTextField displayedName;
+	private I18nTextArea formInformation;
 	private TextField registrationCode;
 	private CheckBox collectComments;
 	private ListOfEmbeddedElements<AgreementRegistrationParam> agreements;	
@@ -204,6 +208,9 @@ public class RegistrationFormEditor extends VerticalLayout
 		ret.setCredentialParams(credentialParams.getElements());
 		ret.setCredentialRequirementAssignment((String) credentialRequirementAssignment.getValue());
 		ret.setDescription(description.getValue());
+		I18nString displayedNameStr = displayedName.getValue();
+		displayedNameStr.setDefaultValue(name.getValue());
+		ret.setDisplayedName(displayedNameStr);
 		ret.setFormInformation(formInformation.getValue());
 		ret.setGroupAssignments(groupAssignments.getElements());
 		ret.setGroupParams(groupParams.getElements());
@@ -399,9 +406,8 @@ public class RegistrationFormEditor extends VerticalLayout
 		wrapper.setMargin(true);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
 		
-		formInformation = new TextArea(msg.getMessage("RegistrationFormViewer.formInformation"));
-		formInformation.setWordwrap(true);
-		formInformation.setWidth(100, Unit.PERCENTAGE);
+		displayedName = new I18nTextField(msg, msg.getMessage("RegistrationFormViewer.displayedName"));
+		formInformation = new I18nTextArea(msg, msg.getMessage("RegistrationFormViewer.formInformation"));
 		registrationCode = new TextField(msg.getMessage("RegistrationFormViewer.registrationCode"));
 		collectComments = new CheckBox(msg.getMessage("RegistrationFormEditor.collectComments"));
 		
@@ -418,11 +424,12 @@ public class RegistrationFormEditor extends VerticalLayout
 				msg, new GroupEditorAndProvider(), 0, 20, true);
 		credentialParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.credentialParams"),
 				msg, new CredentialEditorAndProvider(), 0, 20, true);
-		main.addComponents(formInformation, registrationCode, collectComments, tabOfLists);
+		main.addComponents(displayedName, formInformation, registrationCode, collectComments, tabOfLists);
 		tabOfLists.addComponents(agreements, identityParams, attributeParams, groupParams, credentialParams);
 		
 		if (toEdit != null)
 		{
+			displayedName.setValue(toEdit.getDisplayedName());
 			formInformation.setValue(toEdit.getFormInformation());
 			if (toEdit.getRegistrationCode() != null)
 				registrationCode.setValue(toEdit.getRegistrationCode());

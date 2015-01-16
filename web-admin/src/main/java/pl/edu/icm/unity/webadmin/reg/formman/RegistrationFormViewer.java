@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
@@ -19,11 +20,11 @@ import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.webadmin.msgtemplate.SimpleMessageTemplateViewer;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
-import pl.edu.icm.unity.webui.common.HtmlLabel;
-import pl.edu.icm.unity.webui.common.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.ListOfElements;
-import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
@@ -58,7 +59,8 @@ public class RegistrationFormViewer extends VerticalLayout
 	private Label redirectAfterSubmit;
 	private Label redirectAfterSubmitAndAccept;
 	
-	private Label formInformation;
+	private I18nLabel displayedName;
+	private I18nLabel formInformation;
 	private Label registrationCode;
 	private Label collectComments;
 	private ListOfElements<AgreementRegistrationParam> agreements;	
@@ -115,6 +117,7 @@ public class RegistrationFormViewer extends VerticalLayout
 			adminsNotificationGroup.setValue(notCfg.getAdminsNotificationGroup());
 		}
 		
+		displayedName.setValue(form.getDisplayedName());
 		formInformation.setValue(form.getFormInformation());
 		String code = form.getRegistrationCode() == null ? "-" : form.getRegistrationCode();
 		registrationCode.setValue(code);
@@ -158,7 +161,8 @@ public class RegistrationFormViewer extends VerticalLayout
 		channel.setValue("");
 		adminsNotificationGroup.setValue("");
 		
-		formInformation.setValue("");
+		displayedName.setValue(new I18nString());
+		formInformation.setValue(new I18nString());
 		registrationCode.setValue("");
 		collectComments.setValue("");
 		agreements.clearContents();
@@ -192,8 +196,8 @@ public class RegistrationFormViewer extends VerticalLayout
 
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
 		
-		formInformation = new HtmlSimplifiedLabel();
-		formInformation.setCaption(msg.getMessage("RegistrationFormViewer.formInformation"));
+		displayedName = new I18nLabel(msg, msg.getMessage("RegistrationFormViewer.displayedName"));
+		formInformation = new I18nLabel(msg, msg.getMessage("RegistrationFormViewer.formInformation"));
 		registrationCode = new Label();
 		registrationCode.setCaption(msg.getMessage("RegistrationFormViewer.registrationCode"));
 		collectComments = new Label();
@@ -279,7 +283,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		Panel credentialParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.credentialParams"), 
 				credentialParams);
 		
-		main.addComponents(formInformation, registrationCode, collectComments);
+		main.addComponents(displayedName, formInformation, registrationCode, collectComments);
 		wrapper.addComponents(agreementsP, identityParamsP, attributeParamsP, groupParamsP, credentialParamsP);
 	}
 	
