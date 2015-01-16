@@ -206,7 +206,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 				}
 			} );
 		}
-		callback.onCreated();
+		callback.onCreated(created);
 		close();
 	}
 }

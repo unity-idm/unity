@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.confirmations.states.EntityAttribiuteState;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -528,7 +529,24 @@ public class AttributesPanel extends HorizontalSplitPanel
 						@Override
 						public boolean newAttribute(Attribute<?> newAttribute)
 						{
-							return addAttribute(newAttribute);
+							boolean added = addAttribute(newAttribute);
+							if (!checkVerifiableAttribute(newAttribute))
+							{
+								return added;
+							}
+							
+							Attribute<VerifiableElement> vattr = (Attribute<VerifiableElement>) newAttribute;
+							try
+							{
+								sendConfirmationRequest(vattr);
+							} catch (Exception e)
+							{
+								ErrorPopup.showError(
+										msg,
+										msg.getMessage("Attribute.cannotSendConfirmation"),
+										e);
+							}	
+							return added;							
 						}
 					}, attributeEditor);
 			dialog.show();
@@ -561,31 +579,23 @@ public class AttributesPanel extends HorizontalSplitPanel
 						
 							if (!newAttribute.equals(attribute))
 							{
-								List<Attribute<?>> tattrs = new ArrayList<Attribute<?>>();
-								tattrs.add(newAttribute);
-								if (!checkAvailableConfirmationConfiguration(
-										ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
-										tattrs)
-										&& newAttribute.getValues()
-												.size() > 0
-										&& newAttribute.getAttributeSyntax()
-												.hasValuesVerifiable())
+								if (!checkVerifiableAttribute(newAttribute))
 								{
-									Attribute<VerifiableElement> vattr = (Attribute<VerifiableElement>) newAttribute;
-									try
-									{
-										sendConfirmationRequest(vattr);
-									} catch (EngineException e)
-									{
-										ErrorPopup.showError(
-												msg,
-												msg.getMessage("Attribute.cannotSendConfirmation"),
-												e);
-
-									}
+									return updated;
 								}
+								Attribute<VerifiableElement> vattr = (Attribute<VerifiableElement>) newAttribute;
+								try
+								{
+									sendConfirmationRequest(vattr);
+								} catch (Exception e)
+								{
+									ErrorPopup.showError(
+											msg,
+											msg.getMessage("Attribute.cannotSendConfirmation"),
+											e);
+								}
+
 							}
-							
 							return updated;
 						}
 					}, attributeEditor);
@@ -645,6 +655,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			{
 				try
 				{
+
 					Attribute<VerifiableElement> attribute = (Attribute<VerifiableElement>) attr;
 					sendConfirmationRequest(attribute);
 				} catch (EngineException e)
@@ -653,32 +664,16 @@ public class AttributesPanel extends HorizontalSplitPanel
 							msg,
 							msg.getMessage("Attribute.cannotSendConfirmation"),
 							e);
-
+					return;
 				}
+
 			}
 			ErrorPopup.showNotice(msg, "",
 					msg.getMessage("Attribute.confirmationSent", confirmText));
 
-		}
-
-		
+		}		
 	}
-
-	private void sendConfirmationRequest(Attribute<VerifiableElement> attribute)
-			throws EngineException
-	{
-		EntityAttribiuteState state = new EntityAttribiuteState();
-		state.setOwner(owner.getEntityId().toString());
-		state.setGroup(groupPath);
-		state.setType(attribute.getName());
-		for (VerifiableElement val : attribute.getValues())
-		{
-			state.setValue(val.getValue());
-			confirmationManager.sendConfirmationRequest(state
-					.getSerializedConfiguration());
-		}
-	}
-
+	
 	private static class EffectiveAttributesFilter implements Container.Filter
 	{
 		@Override
@@ -696,6 +691,45 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 	}
 
+	private class InternalAttributesFilter implements Container.Filter
+	{		
+		@Override
+		public boolean passesFilter(Object itemId, Item item)
+				throws UnsupportedOperationException
+		{
+			AttributeItem ai = (AttributeItem) itemId;
+			AttributeType attributeType = attributeTypes.get(ai.getAttribute().getName());
+			if (attributeType == null)
+			{
+				log.error("Attribute type is not in the map: " + ai.getAttribute().getName());
+				return false;
+			}
+			return !attributeType.isInstanceImmutable();
+		}
+
+		@Override
+		public boolean appliesToProperty(Object propertyId)
+		{
+			return true;
+		}
+	}
+	
+	private void sendConfirmationRequest(Attribute<VerifiableElement> attribute) throws EngineException
+	{
+		EntityAttribiuteState state = new EntityAttribiuteState();
+		state.setOwner(owner.getEntityId().toString());
+		state.setGroup(groupPath);
+		state.setType(attribute.getName());
+		for (VerifiableElement val : attribute.getValues())
+		{
+			state.setValue(val.getValue());
+
+			confirmationManager.sendConfirmationRequest(state
+					.getSerializedConfiguration());
+
+		}
+	}
+	
 	private boolean checkAvailableConfirmationConfiguration(String type,
 			Collection<Attribute<?>> items)
 	{
@@ -733,26 +767,18 @@ public class AttributesPanel extends HorizontalSplitPanel
 		return true;
 	}
 	
-	private class InternalAttributesFilter implements Container.Filter
-	{		
-		@Override
-		public boolean passesFilter(Object itemId, Item item)
-				throws UnsupportedOperationException
-		{
-			AttributeItem ai = (AttributeItem) itemId;
-			AttributeType attributeType = attributeTypes.get(ai.getAttribute().getName());
-			if (attributeType == null)
-			{
-				log.error("Attribute type is not in the map: " + ai.getAttribute().getName());
-				return false;
-			}
-			return !attributeType.isInstanceImmutable();
-		}
-
-		@Override
-		public boolean appliesToProperty(Object propertyId)
-		{
-			return true;
-		}
+	private boolean checkVerifiableAttribute(Attribute<?> attribute)
+	{
+		List<Attribute<?>> attrs = new ArrayList<Attribute<?>>();
+		attrs.add(attribute);
+		if (!checkAvailableConfirmationConfiguration(
+				ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
+				attrs)
+				&& attribute.getValues()
+						.size() > 0
+				&& attribute.getAttributeSyntax()
+						.hasValuesVerifiable())
+			return false;
+		return true;
 	}
 }

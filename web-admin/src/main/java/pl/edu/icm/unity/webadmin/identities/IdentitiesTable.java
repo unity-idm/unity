@@ -45,6 +45,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webadmin.identities.CredentialRequirementDialog.Callback;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
@@ -138,7 +139,6 @@ public class IdentitiesTable extends TreeTable
 		addContainerProperty(BaseColumnId.realm.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.remoteIdP.toString(), String.class, "");
 		addContainerProperty(BaseColumnId.profile.toString(), String.class, "");
-		addContainerProperty(BaseColumnId.confirmed.toString(), String.class, "");
 
 		setColumnHeader(BaseColumnId.entity.toString(), msg.getMessage("Identities.entity"));
 		setColumnHeader(BaseColumnId.type.toString(), msg.getMessage("Identities.type"));
@@ -151,7 +151,6 @@ public class IdentitiesTable extends TreeTable
 		setColumnHeader(BaseColumnId.realm.toString(), msg.getMessage("Identities.realm"));
 		setColumnHeader(BaseColumnId.remoteIdP.toString(), msg.getMessage("Identities.remoteIdP"));
 		setColumnHeader(BaseColumnId.profile.toString(), msg.getMessage("Identities.profile"));
-		setColumnHeader(BaseColumnId.confirmed.toString(), msg.getMessage("Identities.confirmed"));
 		
 		setSelectable(true);
 		setMultiSelect(true);	
@@ -165,7 +164,6 @@ public class IdentitiesTable extends TreeTable
 		setColumnCollapsed(BaseColumnId.realm.toString(), true);
 		setColumnCollapsed(BaseColumnId.remoteIdP.toString(), true);
 		setColumnCollapsed(BaseColumnId.profile.toString(), true);
-		setColumnCollapsed(BaseColumnId.confirmed.toString(), true);
 
 		setColumnWidth(BaseColumnId.entity.toString(), 200);
 		setColumnWidth(BaseColumnId.type.toString(), 100);
@@ -177,7 +175,6 @@ public class IdentitiesTable extends TreeTable
 		setColumnWidth(BaseColumnId.realm.toString(), 100);
 		setColumnWidth(BaseColumnId.remoteIdP.toString(), 200);
 		setColumnWidth(BaseColumnId.profile.toString(), 100);
-		setColumnWidth(BaseColumnId.confirmed.toString(), 100);
 
 		loadPreferences();
 
@@ -596,11 +593,6 @@ public class IdentitiesTable extends TreeTable
 			newItem.getItemProperty(BaseColumnId.profile.toString()).setValue(prof);
 			newItem.getItemProperty(BaseColumnId.target.toString()).setValue(id.getTarget());
 			newItem.getItemProperty(BaseColumnId.realm.toString()).setValue(id.getRealm());
-			newItem.getItemProperty(BaseColumnId.confirmed.toString())
-					.setValue(id.getType().getIdentityTypeProvider()
-							.isVerifiable() && id.getConfirmationData() != null ? new Boolean(id
-							.getConfirmationData().isConfirmed())
-							.toString() : "");
 	} else
 		{
 			newItem.getItemProperty(BaseColumnId.type.toString()).setValue("");
@@ -611,7 +603,6 @@ public class IdentitiesTable extends TreeTable
 			newItem.getItemProperty(BaseColumnId.realm.toString()).setValue("");
 			newItem.getItemProperty(BaseColumnId.remoteIdP.toString()).setValue("");
 			newItem.getItemProperty(BaseColumnId.profile.toString()).setValue("");
-			newItem.getItemProperty(BaseColumnId.confirmed.toString()).setValue("");
 		}
 
 		Collection<?> propertyIds = newItem.getItemPropertyIds();
@@ -744,6 +735,69 @@ public class IdentitiesTable extends TreeTable
 			ErrorPopup.showError(msg, msg.getMessage("Identities.removeFromGroupError"), e);
 		}
 	}
+	
+	private void sendConfirmationRequest(IdentityParam id, String entityId) throws EngineException
+	{
+		EntityIdentityState state = new EntityIdentityState();
+		state.setOwner(entityId);
+		state.setType(id.getTypeId());
+		state.setValue(id.getValue());
+		confirmationManager.sendConfirmationRequest(state.getSerializedConfiguration());
+	}
+	
+	private boolean checkAvailableConfirmationConfiguration(List<String> filteredTypes)	
+	{
+		StringBuilder typesWithoutConfig = new StringBuilder();
+		int count = 0;
+		for (String id : filteredTypes)
+		{
+			try
+			{
+				confirmationCfgMan.getConfiguration(ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE, id);
+			} catch (Exception e)
+			{
+				if (count < 4)
+				{
+					typesWithoutConfig.append(", " + id);
+				}
+			}
+		}
+		if (count > 3)
+			typesWithoutConfig.append(msg.getMessage("MessageUtils.andMore",
+					count - 3));
+
+		if (!typesWithoutConfig.toString().isEmpty())
+		{
+			ErrorPopup.showError(
+					msg,
+					" ",
+					msg.getMessage("Identities.cannotSendConfirmationConfigNotAvailable",
+							typesWithoutConfig.toString()
+									.substring(2)));
+			return false;
+		}
+		return true;
+	}
+	
+	private void sendConfirmationRequestAfterChange(Identity newIdentity)
+	{
+
+		if (!newIdentity.getType().getIdentityTypeProvider().isVerifiable())
+			return;
+		List<String> toCheck = new ArrayList<String>();
+		toCheck.add(newIdentity.getTypeId());
+		if (!checkAvailableConfirmationConfiguration(toCheck))
+			return;
+		try
+		{
+			sendConfirmationRequest(newIdentity, newIdentity.getEntityId().toString());
+		} catch (Exception e)
+		{
+			ErrorPopup.showError(msg,
+					msg.getMessage("Identities.cannotSendConfirmation"), e);
+		}
+
+	}
 
 	private class RemoveFromGroupHandler extends SingleActionHandler
 	{
@@ -799,9 +853,10 @@ public class IdentitiesTable extends TreeTable
 					new EntityCreationDialog.Callback()
 					{
 						@Override
-						public void onCreated()
+						public void onCreated(Identity newIdentity)
 						{
 							bus.fireEvent(new GroupChangedEvent(group));
+							sendConfirmationRequestAfterChange(newIdentity);		
 						}
 					}).show();
 		}
@@ -831,14 +886,15 @@ public class IdentitiesTable extends TreeTable
 					identityEditorReg, new IdentityCreationDialog.Callback()
 					{
 						@Override
-						public void onCreated()
+						public void onCreated(Identity newIdentity)
 						{
 							bus.fireEvent(new GroupChangedEvent(group));
+							sendConfirmationRequestAfterChange(newIdentity);
 						}
 					}).show();
 		}
 	}
-
+	
 	private class DeleteEntityHandler extends SingleActionHandler
 	{
 		public DeleteEntityHandler()
@@ -997,63 +1053,26 @@ public class IdentitiesTable extends TreeTable
 			if (count > 3)
 				infoText.append(msg.getMessage("MessageUtils.andMore", count-3));
 			String infoTextF = infoText.substring(2);
-			if (!checkAvailableConfirmationConfiguration(ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE, filteredTypes))
+			if (!checkAvailableConfirmationConfiguration(filteredTypes))
 				return;
 
 			for (IdentityWithEntity ide : filteredNodes)
 			{
-				EntityIdentityState state = new EntityIdentityState();
-				state.setOwner(ide.getEntityWithLabel().getEntity().getId()
-						.toString());
-				state.setType(ide.getIdentity().getTypeId());
-				state.setValue(ide.getIdentity().getValue());
 				try
 				{
-					confirmationManager.sendConfirmationRequest(state
-							.getSerializedConfiguration());
+					sendConfirmationRequest(ide.getIdentity(), ide.getEntityWithLabel().getEntity().getId()
+							.toString());
 	
 				} catch (EngineException e)
 				{
 					ErrorPopup.showError(msg, msg.getMessage("Identities.cannotSendConfirmation"), e);
+					return;
 				}
 			}
 			ErrorPopup.showNotice(msg, "", msg.getMessage("Identities.confirmationSent", infoTextF));	
 		}
 		
-		private boolean checkAvailableConfirmationConfiguration(String type,
-				List<String> filteredTypes)
-		{
-			StringBuilder typesWithoutConfig = new StringBuilder();
-			int count = 0;
-			for (String id : filteredTypes)
-			{
-				try
-				{
-					confirmationCfgMan.getConfiguration(type, id);
-				} catch (Exception e)
-				{
-					if (count < 4)
-					{
-						typesWithoutConfig.append(", " + id);
-					}
-				}
-			}
-			if (count > 3)
-				typesWithoutConfig.append(msg.getMessage("MessageUtils.andMore",
-						count - 3));
-
-			if (!typesWithoutConfig.toString().isEmpty())
-			{
-				ErrorPopup.showError(
-						msg,
-						" ",
-						msg.getMessage("Identities.cannotSendConfirmationConfigNotAvailable",
-								typesWithoutConfig.toString()
-										.substring(2)));
-				return false;
-			}
-			return true;
-		}
+		
 	}
 	
 	private class ChangeEntityStatusHandler extends SingleActionHandler
@@ -1084,7 +1103,7 @@ public class IdentitiesTable extends TreeTable
 		
 		
 	}
-
+	
 	private class ChangeCredentialRequirementHandler extends SingleActionHandler
 	{
 		public ChangeCredentialRequirementHandler()

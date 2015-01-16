@@ -11,6 +11,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
@@ -107,9 +108,10 @@ public class IdentityCreationDialog extends AbstractDialog
 		}
 		String type = (String) identityType.getValue();
 		IdentityParam toAdd = new IdentityParam(type, value);
+		Identity added = null;
 		try
 		{
-			identitiesMan.addIdentity(toAdd, new EntityParam(entityId), 
+			added = identitiesMan.addIdentity(toAdd, new EntityParam(entityId), 
 					extractAttributes.getValue());
 		} catch (Exception e)
 		{
@@ -117,12 +119,12 @@ public class IdentityCreationDialog extends AbstractDialog
 			return;
 		}
 		
-		callback.onCreated();
+		callback.onCreated(added);
 		close();
 	}
 	
 	public interface Callback 
 	{
-		public void onCreated();
+		public void onCreated(Identity newIdentity);
 	}
 }

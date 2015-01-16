@@ -18,10 +18,13 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.confirmations.ConfirmationManager;
+import pl.edu.icm.unity.confirmations.states.EntityIdentityState;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
@@ -31,6 +34,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webadmin.groupdetails.GroupAttributesClassesDialog;
 import pl.edu.icm.unity.webadmin.identities.EntityCreationDialog;
 import pl.edu.icm.unity.webadmin.identities.IdentitiesTable.IdentityWithEntity;
@@ -71,11 +75,16 @@ public class GroupsTree extends Tree
 	private GroupManagementHelper groupManagementHelper;
 	private EventsBus bus;
 	private List<SingleActionHandler> actionHandlers;
+	private ConfirmationManager confirmationManager;
+	private ConfirmationConfigurationManagement confirmationCfgMan;
 
 	@Autowired
-	public GroupsTree(GroupsManagement groupsMan, IdentitiesManagement identitiesMan, 
-			AuthenticationManagement authnMan, IdentityEditorRegistry identityEditorReg,
+	public GroupsTree(GroupsManagement groupsMan, IdentitiesManagement identitiesMan,
+			AuthenticationManagement authnMan,
+			IdentityEditorRegistry identityEditorReg,
 			AttributeHandlerRegistry attrHandlerRegistry, AttributesManagement attrMan,
+			ConfirmationManager confirmationManager,
+			ConfirmationConfigurationManagement confirmationCfgMan,
 			UnityMessageSource msg)
 	{
 		this.groupsMan = groupsMan;
@@ -86,6 +95,8 @@ public class GroupsTree extends Tree
 		this.groupManagementHelper = new GroupManagementHelper(msg, groupsMan, 
 				attrMan, attrHandlerRegistry);
 		this.actionHandlers = new ArrayList<>();
+		this.confirmationManager = confirmationManager;
+		this.confirmationCfgMan = confirmationCfgMan;
 		addExpandListener(new GroupExpandListener());
 		addValueChangeListener(new ValueChangeListenerImpl());
 		addActionHandler(new RefreshActionHandler());
@@ -426,10 +437,39 @@ public class GroupsTree extends Tree
 					identityEditorReg, new EntityCreationDialog.Callback()
 					{
 						@Override
-						public void onCreated()
+						public void onCreated(Identity newIdentity)
 						{
 							if (node.equals(getValue()))
 								bus.fireEvent(new GroupChangedEvent(node.getPath()));
+							
+							if (!newIdentity.getType().getIdentityTypeProvider().isVerifiable())
+								return;
+							try
+							{
+								confirmationCfgMan.getConfiguration(ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE, newIdentity.getTypeId());
+							} catch (Exception e)
+							{
+								ErrorPopup.showError(
+										msg,
+										" ",
+										msg.getMessage("Identities.cannotSendConfirmationConfigNotAvailable", newIdentity.getTypeId()));
+							}
+							
+							EntityIdentityState state = new EntityIdentityState();
+							state.setOwner(newIdentity.getEntityId()
+									.toString());
+							state.setType(newIdentity.getTypeId());
+							state.setValue(newIdentity.getValue());
+							try
+							{
+								confirmationManager
+										.sendConfirmationRequest(state
+												.getSerializedConfiguration());
+							} catch (Exception e)
+							{
+								ErrorPopup.showError(msg,
+										msg.getMessage("Identities.cannotSendConfirmation"), e);
+							}
 						}
 					}).show();
 		}
