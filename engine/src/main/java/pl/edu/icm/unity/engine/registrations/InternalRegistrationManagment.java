@@ -18,6 +18,12 @@ import org.mvel2.MVEL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.confirmations.ConfirmationManager;
+import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
+import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
+import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
+import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmationState;
+import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmationState;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
@@ -34,6 +40,8 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.api.internal.Token;
+import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.api.registration.BaseRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.RegistrationWithCommentsTemplateDef;
 import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
@@ -45,7 +53,7 @@ import pl.edu.icm.unity.types.VerifiableElement;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.ConfirmationData;
+import pl.edu.icm.unity.types.basic.ConfirmationInfo;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -83,6 +91,7 @@ public class InternalRegistrationManagment
 	private DBAttributes dbAttributes;
 	private DBIdentities dbIdentities;
 	private DBGroups dbGroups;
+	private TokensManagement tokensMan;
 	
 	private IdentityTypesRegistry identityTypesRegistry;
 	private EngineHelper engineHelper;
@@ -97,7 +106,7 @@ public class InternalRegistrationManagment
 			IdentityTypesRegistry identityTypesRegistry, EngineHelper engineHelper,
 			AttributesHelper attributesHelper,
 			NotificationProducerImpl notificationProducer,
-			LocalCredentialsRegistry authnRegistry)
+			LocalCredentialsRegistry authnRegistry, TokensManagement tokensMan)
 	{
 		super();
 		this.db = db;
@@ -112,6 +121,7 @@ public class InternalRegistrationManagment
 		this.attributesHelper = attributesHelper;
 		this.notificationProducer = notificationProducer;
 		this.authnRegistry = authnRegistry;
+		this.tokensMan = tokensMan;
 	}
 	
 	
@@ -132,7 +142,7 @@ public class InternalRegistrationManagment
 	
 
 	public Long acceptRequest(RegistrationForm form, RegistrationRequestState currentRequest, 
-			AdminComment publicComment, AdminComment internalComment, SqlSession sql) 
+			AdminComment publicComment, AdminComment internalComment, boolean rewriteConfirmationToken, SqlSession sql) 
 			throws EngineException
 	{
 		currentRequest.setStatus(RegistrationRequestStatus.accepted);
@@ -215,6 +225,8 @@ public class InternalRegistrationManagment
 		sendProcessingNotification(notificationsCfg.getAcceptedTemplate(),
 				currentRequest, currentRequest.getRequestId(), form.getName(), true,
 				publicComment, internalComment,	notificationsCfg, sql);
+		if (rewriteConfirmationToken)
+			rewriteRequestToken(currentRequest, initial.getEntityId().toString());
 		
 		return initial.getEntityId();
 	}
@@ -569,15 +581,112 @@ public class InternalRegistrationManagment
 		return ctx;
 	}
 	
+	public void rewriteRequestToken(RegistrationRequestState finalReguest,
+			String entityId) throws EngineException
+	{
+
+		List<Token> tks = tokensMan
+				.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE);
+		for (Token tk : tks)
+		{
+			String content = new String(tk.getContents());
+			BaseConfirmationState state = new BaseConfirmationState();
+			state.setSerializedConfiguration(content);
+			if (state.getOwner().equals(finalReguest.getRequestId()))
+			{
+				if (state.getFacilityId().equals(
+						RegistrationReqAttribiuteConfirmationState.FACILITY_ID))
+				{
+					rewriteSingleAttributeToken(finalReguest, tk, entityId);
+				} else if (state.getFacilityId().equals(
+						RegistrationReqIdentityConfirmationState.FACILITY_ID))
+					rewriteSingleIdentityToken(finalReguest, tk, entityId);
+
+			}
+		}
+	}
+
+	private void rewriteSingleIdentityToken(RegistrationRequestState finalReguest, Token tk,
+			String entityId) throws EngineException
+	{
+		RegistrationReqIdentityConfirmationState oldState = new RegistrationReqIdentityConfirmationState();
+		oldState.setSerializedConfiguration(new String(tk.getContents()));
+		boolean inRequest = false;
+		for (IdentityParam id : finalReguest.getRequest().getIdentities())
+		{
+			if (id.getTypeId().equals(oldState.getType())
+					&& id.getValue().equals(oldState.getValue()))
+			{
+				inRequest = true;
+				break;
+			}
+		}
+	
+		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
+		if (inRequest)
+		{
+			IdentityConfirmationState newstate = new IdentityConfirmationState();
+			newstate.setOwner(entityId);
+			newstate.setType(oldState.getType());
+			newstate.setValue(oldState.getValue());
+			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), newstate
+					.getSerializedConfiguration().getBytes(), tk.getCreated(),
+					tk.getExpires());
+		}
+
+	}
+
+	private void rewriteSingleAttributeToken(RegistrationRequestState finalReguest, Token tk,
+			String entityId) throws EngineException
+	{
+
+		RegistrationReqAttribiuteConfirmationState oldState = new RegistrationReqAttribiuteConfirmationState();
+		oldState.setSerializedConfiguration(new String(tk.getContents()));
+		boolean inRequest = false;
+		for (Attribute<?> attribute : finalReguest.getRequest().getAttributes())
+		{
+			if (attribute == null)
+				continue;
+			if (inRequest )
+				break;
+			if (attribute.getAttributeSyntax().isVerifiable()
+					&& attribute.getName().equals(oldState.getType())
+					&& attribute.getValues() != null)
+
+			{
+				for (Object o : attribute.getValues())
+				{
+					VerifiableElement val = (VerifiableElement) o;
+					if (val.getValue().equals(oldState.getValue()))
+					{
+						inRequest = true;
+						break;
+					}
+				}
+			}
+		}
+		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
+		if (inRequest)
+		{
+			AttribiuteConfirmationState newstate = new AttribiuteConfirmationState();
+			newstate.setGroup(oldState.getGroup());
+			newstate.setOwner(entityId);
+			newstate.setType(oldState.getType());
+			newstate.setValue(oldState.getValue());
+			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), newstate
+					.getSerializedConfiguration().getBytes(), tk.getCreated(),
+					tk.getExpires());
+		}
+	}
 	
 	private class VerifiableValue
 	{
-		private ConfirmationData confirmationData;
+		private ConfirmationInfo confirmationInfo;
 		private String value;
 		public VerifiableValue(VerifiableElement ctx)
 		{
 			this.value =  ctx.getValue();
-			this.confirmationData = ctx.getConfirmationData();
+			this.confirmationInfo = ctx.getConfirmationInfo();
 		}
 		public String getValue()
 		{
@@ -585,7 +694,7 @@ public class InternalRegistrationManagment
 		}
 		public boolean getConfirmed()
 		{
-			return confirmationData.isConfirmed();
+			return confirmationInfo.isConfirmed();
 		}
 		
 	}

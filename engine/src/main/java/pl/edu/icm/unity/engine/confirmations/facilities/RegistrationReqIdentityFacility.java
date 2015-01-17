@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
-import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityState;
+import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmationState;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
@@ -47,7 +47,7 @@ public class RegistrationReqIdentityFacility extends
 	@Override
 	public String getName()
 	{
-		return RegistrationReqIdentityState.FACILITY_ID;
+		return RegistrationReqIdentityConfirmationState.FACILITY_ID;
 	}
 
 	@Override
@@ -56,9 +56,9 @@ public class RegistrationReqIdentityFacility extends
 		return "Confirms verifiable identity from registration request";
 	}
 
-	private RegistrationReqIdentityState getState(String state)
+	private RegistrationReqIdentityConfirmationState getState(String state)
 	{
-		RegistrationReqIdentityState idState = new RegistrationReqIdentityState();
+		RegistrationReqIdentityConfirmationState idState = new RegistrationReqIdentityConfirmationState();
 		idState.setSerializedConfiguration(state);
 		return idState;
 	}
@@ -67,31 +67,27 @@ public class RegistrationReqIdentityFacility extends
 	protected ConfirmationStatus confirmElements(RegistrationRequest req, String state)
 			throws EngineException
 	{
-		RegistrationReqIdentityState idState = getState(state);
+		RegistrationReqIdentityConfirmationState idState = getState(state);
 		if (!(identityTypesRegistry.getByName(idState.getType()).isVerifiable()))
-			return new ConfirmationStatus(false, "ConfirmationStatus.identityChanged");
+			return new ConfirmationStatus(false, "ConfirmationStatus.identityChanged", idState.getType());
 		Collection<IdentityParam> confirmedList = confirmIdentity(req.getIdentities(),
 				idState.getType(), idState.getValue());
-
 		boolean confirmed = (confirmedList.size() > 0);
 		return new ConfirmationStatus(confirmed,
 				confirmed ? "ConfirmationStatus.successIdentity"
-						: "ConfirmationStatus.identityChanged");
-
+						: "ConfirmationStatus.identityChanged", idState.getType());
 	}
 
 	@Override
 	public void updateAfterSendRequest(String state) throws EngineException
 	{
-		RegistrationReqIdentityState idState = getState(state);
+		RegistrationReqIdentityConfirmationState idState = getState(state);
 		String requestId = idState.getOwner();
 		RegistrationRequestState reqState = internalRegistrationManagment
 				.getRequest(requestId);
 		for (IdentityParam id : reqState.getRequest().getIdentities())
 		{
-
-			updateConfirmationData(id, id.getValue());
-
+			updateConfirmationInfo(id, id.getValue());
 		}
 		SqlSession sql = db.getSqlSession(true);
 		try

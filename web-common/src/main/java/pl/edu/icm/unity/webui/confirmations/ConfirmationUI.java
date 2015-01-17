@@ -67,23 +67,21 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties genericEndpointConfiguration)
 	{
-		// TODO Auto-generated method stub
-		
 	}
 
-	public void initUI(boolean status, String info)
+	public void initUI(ConfirmationStatus status)
 	{
 		VerticalLayout contents = new VerticalLayout();
 		VerticalLayout mainWrapper = new VerticalLayout();
 		mainWrapper.setSizeFull();
 		mainWrapper.addComponent(new TopHeaderLight(msg.getMessage("ConfirmationUI.title"),
 				msg));
-
 		HorizontalLayout infoWrapper = new HorizontalLayout();
-		infoWrapper.setWidth(30, Unit.PERCENTAGE);
-		infoWrapper.addComponent(status == true ? getSuccessfullStatus(info)
-				: getUnsuccessfullStatus(info));
-
+		infoWrapper.setWidth(50, Unit.PERCENTAGE);
+		String infoKey = status.getUserMessageKey();
+		String[] infoArgs = status.getUserMessageArgs();
+		infoWrapper.addComponent(status.isSuccess() == true ? getSuccessfullStatus(infoKey, infoArgs)
+				: getUnsuccessfullStatus(infoKey, infoArgs));
 		Label spacerB = new Label();
 		Label spacerU = new Label();
 		mainWrapper.addComponent(spacerU);
@@ -101,19 +99,19 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 		setContent(contents);
 	}
 
-	private VerticalLayout getSuccessfullStatus(String infoKey)
+	private VerticalLayout getSuccessfullStatus(String infoKey, String[] infoArgs)
 	{
-		return getStatus(Images.ok.getResource(),
-				msg.getMessage("ConfirmationStatus.successfull"), infoKey);
+		return getStatus(Images.ok32.getResource(),
+				msg.getMessage("ConfirmationStatus.successfull"), infoKey, infoArgs);
 	}
 
-	private VerticalLayout getUnsuccessfullStatus(String infoKey)
+	private VerticalLayout getUnsuccessfullStatus(String infoKey, String[] infoArgs)
 	{
-		return getStatus(Images.error.getResource(),
-				msg.getMessage("ConfirmationStatus.unsuccessfull"), infoKey);
+		return getStatus(Images.error32.getResource(),
+				msg.getMessage("ConfirmationStatus.unsuccessfull"), infoKey, infoArgs);
 	}
 
-	private VerticalLayout getStatus(Resource icon, String title, String infoKey)
+	private VerticalLayout getStatus(Resource icon, String title, String infoKey, Object[] infoArgs)
 	{
 		VerticalLayout mainStatus = new VerticalLayout();
 		HorizontalLayout header = new HorizontalLayout();
@@ -123,11 +121,16 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 		statusIcon.setSource(icon);
 		Label titleL = new Label(title);
 		titleL.addStyleName(Styles.textXLarge.toString());
-		headerWrapper.addComponents(statusIcon, new Label(title));
+		headerWrapper.addComponents(statusIcon, titleL);
+		headerWrapper.setComponentAlignment(statusIcon, Alignment.MIDDLE_CENTER);
+		headerWrapper.setComponentAlignment(titleL, Alignment.MIDDLE_CENTER);
 		header.addComponent(headerWrapper);
 		header.setComponentAlignment(headerWrapper, Alignment.TOP_CENTER);
 		mainStatus.addComponent(header);
-		mainStatus.addComponent(new Label(msg.getMessage(infoKey)));
+		Label info = new Label(msg.getMessage(infoKey, infoArgs));
+		info.addStyleName(Styles.textCenter.toString());
+		info.addStyleName(Styles.textLarge.toString());
+		mainStatus.addComponent(info);
 		return mainStatus;
 	}
 
@@ -145,7 +148,6 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 			log.error("Internal unity problem with confirmation", e);
 			status = new ConfirmationStatus(false, "ConfirmationStatus.internalError");
 		}
-
-		initUI(status.isSuccess(), status.getUserMessageKey());
+		initUI(status);
 	}
 }

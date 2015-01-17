@@ -27,10 +27,11 @@ public class MessageTemplateValidator
 	 * @param consumer
 	 * @param message
 	 * @return
+	 * @throws MandatoryVariablesException 
 	 * @throws WrongArgumentException 
 	 */
 	public static void validateMessages(MessageTemplateDefinition consumer, Map<String, Message> messages) 
-			throws IllegalVariablesException
+			throws IllegalVariablesException, MandatoryVariablesException
 	{
 		for (Message message: messages.values())
 			validateMessage(consumer, message);
@@ -41,16 +42,17 @@ public class MessageTemplateValidator
 	 * @param consumer
 	 * @param message
 	 * @return
+	 * @throws MandatoryVariablesException 
 	 * @throws WrongArgumentException 
 	 */
 	public static void validateMessage(MessageTemplateDefinition consumer, Message message) 
-			throws IllegalVariablesException
+			throws IllegalVariablesException, MandatoryVariablesException
 	{
-		validateText(consumer, message.getSubject());
-		validateText(consumer, message.getBody());
+		validateText(consumer, message.getSubject(), false);
+		validateText(consumer, message.getBody(), true);
 	}
 
-	public static void validateText(MessageTemplateDefinition consumer, String text) throws IllegalVariablesException
+	public static void validateText(MessageTemplateDefinition consumer, String text, boolean checkMandatory) throws IllegalVariablesException, MandatoryVariablesException
 	{
 		ArrayList<String> usedField = new ArrayList<String>();
 		Pattern pattern = Pattern.compile("\\$\\{[a-zA-Z0-9]*\\}");
@@ -62,7 +64,15 @@ public class MessageTemplateValidator
 			usedField.add(b.substring(matcher.start() + 2, matcher.end() - 1));
 
 		}
-		Set<String> knownVariables = consumer.getVariables().keySet();
+		Set<String> knownVariables = new HashSet<String>();
+		Set<String> mandatory = new HashSet<String>();
+		for (MessageTemplateVariable var : consumer.getVariables().values())
+		{
+			knownVariables.add(var.getName());
+			if (var.isMandatory())
+				mandatory.add(var.getName());
+		}
+		
 		Set<String> unknown = new HashSet<String>();
 		for (String f : usedField)
 		{
@@ -71,6 +81,21 @@ public class MessageTemplateValidator
 		}
 		if (!unknown.isEmpty())
 			throw new IllegalVariablesException(unknown);
+		
+		if (!checkMandatory)
+			return;
+		Set<String> uman = new HashSet<String>();
+		for (String m : mandatory)
+		{
+			if (!usedField.contains(m))
+				uman.add(m);
+		}
+		if (!uman.isEmpty())
+		{
+			throw new MandatoryVariablesException(uman);
+		}
+			
+		
 	}
 	
 	public static class IllegalVariablesException extends Exception
@@ -85,6 +110,21 @@ public class MessageTemplateValidator
 		public Collection<String> getUnknown()
 		{
 			return unknown;
+		}
+	}
+	
+	public static class MandatoryVariablesException extends Exception
+	{
+		private Collection<String> mandatory;
+
+		public MandatoryVariablesException(Collection<String> mandatory)
+		{
+			this.mandatory = mandatory;
+		}
+
+		public Collection<String> getMandatory()
+		{
+			return mandatory;
 		}
 	}
 }

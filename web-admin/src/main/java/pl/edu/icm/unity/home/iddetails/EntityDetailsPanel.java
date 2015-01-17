@@ -5,16 +5,14 @@
 package pl.edu.icm.unity.home.iddetails;
 
 import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Map;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
-import pl.edu.icm.unity.types.basic.ConfirmationData;
+import pl.edu.icm.unity.types.basic.ConfirmationInfo;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
@@ -92,16 +90,13 @@ public class EntityDetailsPanel extends FormLayout
 			if (id.isLocal())
 			{
 				if (id.getType().getIdentityTypeProvider().isVerifiable()
-						&& id.getConfirmationData() != null)
+						&& id.getConfirmationInfo() != null)
 				{
-					ConfirmationData conData = id.getConfirmationData();	
+					ConfirmationInfo conData = id.getConfirmationInfo();	
 					if (conData.isConfirmed())
 					{
-						String date = "";
+						
 						Date dt = new Date(conData.getConfirmationDate());
-						date = new SimpleDateFormat(
-								Constants.AMPM_DATE_FORMAT)
-								.format(dt);
 						identities.addHtmlValueLine(
 								"IdentityDetails.identityLocalConfirmed",
 								id.getTypeId(),
@@ -109,7 +104,7 @@ public class EntityDetailsPanel extends FormLayout
 										.getIdentityTypeProvider()
 										.toPrettyStringNoPrefix(
 												id.getValue()),
-								date);
+								dt);
 
 					} else
 					{

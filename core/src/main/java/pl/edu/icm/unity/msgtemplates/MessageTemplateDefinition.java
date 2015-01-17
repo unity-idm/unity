@@ -30,5 +30,5 @@ public interface MessageTemplateDefinition
 	 * @return map of variables supported by this template consumer. The map keys are variable names. The values
 	 * are the keys in the message bundle with descriptions.  
 	 */
-	public Map<String, String> getVariables();
+	public Map<String, MessageTemplateVariable> getVariables();
 }

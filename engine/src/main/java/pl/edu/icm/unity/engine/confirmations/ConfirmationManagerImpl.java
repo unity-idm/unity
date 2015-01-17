@@ -9,7 +9,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,11 +23,9 @@ import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.ConfirmationTemplateDef;
+import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
 import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
-import pl.edu.icm.unity.confirmations.states.EntityAttribiuteState;
-import pl.edu.icm.unity.confirmations.states.EntityIdentityState;
-import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteState;
-import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityState;
+import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmationState;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.confirmation.ConfirmationConfigurationDB;
 import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
@@ -46,10 +43,6 @@ import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.registries.ConfirmationFacilitiesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.types.VerifiableElement;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 
 /**
  * Confirmation manager, send or process confirmation request
@@ -62,7 +55,6 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	private static final Logger log = Log
 			.getLogger(Log.U_SERVER, ConfirmationManagerImpl.class);
 
-	public static final String CONFIRMATION_TOKEN_TYPE = "Confirmation";
 	private TokensManagement tokensMan;
 	private NotificationProducerImpl notificationProducer;
 	private ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry;
@@ -128,7 +120,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 
 		log.debug("Send confirmation request to " + recipientAddress + " with token = "
 				+ token + " and state=" + state);
-
+		
 		notificationProducer.sendNotification(recipientAddress, channelName, templateId,
 				params);
 		facility.updateAfterSendRequest(state);
@@ -144,8 +136,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		ConfirmationConfiguration configEntry = null;
 		try
 		{
-			if (facilityId.equals(EntityAttribiuteState.FACILITY_ID)
-					|| facilityId.equals(RegistrationReqAttribiuteState.FACILITY_ID))
+			if (facilityId.equals(AttribiuteConfirmationState.FACILITY_ID)
+					|| facilityId.equals(RegistrationReqAttribiuteConfirmationState.FACILITY_ID))
 				configEntry = getConfiguration(
 						ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
 						baseState.getType());
@@ -225,110 +217,12 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		ConfirmationFacility facility = getFacility(baseState.getFacilityId());
 
 		ConfirmationStatus status = facility.confirm(rowState);
-		tokensMan.removeToken(ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token);
+		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, token);
 
 		return status;
 	}
 
-	@Override
-	public synchronized void rewriteRequestToken(RegistrationRequestState finalReguest,
-			String entityId) throws EngineException
-	{
-
-		List<Token> tks = tokensMan
-				.getAllTokens(ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE);
-		for (Token tk : tks)
-		{
-			String content = new String(tk.getContents());
-			BaseConfirmationState state = new BaseConfirmationState();
-			state.setSerializedConfiguration(content);
-			if (state.getOwner().equals(finalReguest.getRequestId()))
-			{
-				if (state.getFacilityId().equals(
-						RegistrationReqAttribiuteState.FACILITY_ID))
-				{
-					rewriteSingleAttributeToken(finalReguest, tk, entityId);
-				} else if (state.getFacilityId().equals(
-						RegistrationReqIdentityState.FACILITY_ID))
-					rewriteSingleIdentityToken(finalReguest, tk, entityId);
-
-			}
-		}
-	}
-
-	private void rewriteSingleIdentityToken(RegistrationRequestState finalReguest, Token tk,
-			String entityId) throws EngineException
-	{
-		RegistrationReqIdentityState oldState = new RegistrationReqIdentityState();
-		oldState.setSerializedConfiguration(new String(tk.getContents()));
-		boolean inRequest = false;
-		for (IdentityParam id : finalReguest.getRequest().getIdentities())
-		{
-			if (id.getTypeId().equals(oldState.getType())
-					&& id.getValue().equals(oldState.getValue()))
-			{
-				inRequest = true;
-				break;
-			}
-		}
-
-		tokensMan.removeToken(CONFIRMATION_TOKEN_TYPE, tk.getValue());
-		if (inRequest)
-		{
-			EntityIdentityState newstate = new EntityIdentityState();
-			newstate.setOwner(entityId);
-			newstate.setType(oldState.getType());
-			newstate.setValue(oldState.getValue());
-			tokensMan.addToken(CONFIRMATION_TOKEN_TYPE, tk.getValue(), newstate
-					.getSerializedConfiguration().getBytes(), tk.getCreated(),
-					tk.getExpires());
-		}
-
-	}
-
-	private void rewriteSingleAttributeToken(RegistrationRequestState finalReguest, Token tk,
-			String entityId) throws EngineException
-	{
-
-		RegistrationReqAttribiuteState oldState = new RegistrationReqAttribiuteState();
-		oldState.setSerializedConfiguration(new String(tk.getContents()));
-		boolean inRequest = false;
-		for (Attribute<?> attribute : finalReguest.getRequest().getAttributes())
-		{
-			if (attribute == null)
-				continue;
-			if (inRequest )
-				break;
-			if (attribute.getAttributeSyntax().hasValuesVerifiable()
-					&& attribute.getName().equals(oldState.getType())
-					&& attribute.getValues() != null)
-
-			{
-				for (Object o : attribute.getValues())
-				{
-					VerifiableElement val = (VerifiableElement) o;
-					if (val.getValue().equals(oldState.getValue()))
-					{
-						inRequest = true;
-						break;
-					}
-				}
-			}
-		}
-		tokensMan.removeToken(CONFIRMATION_TOKEN_TYPE, tk.getValue());
-		if (inRequest)
-		{
-			EntityAttribiuteState newstate = new EntityAttribiuteState();
-			newstate.setGroup(oldState.getGroup());
-			newstate.setOwner(entityId);
-			newstate.setType(oldState.getType());
-			newstate.setValue(oldState.getValue());
-			tokensMan.addToken(CONFIRMATION_TOKEN_TYPE, tk.getValue(), newstate
-					.getSerializedConfiguration().getBytes(), tk.getCreated(),
-					tk.getExpires());
-		}
-	}
-
+	
 	private ConfirmationFacility getFacility(String id) throws InternalException
 	{
 

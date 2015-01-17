@@ -14,7 +14,7 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.types.basic.ConfirmationData;
+import pl.edu.icm.unity.types.basic.ConfirmationInfo;
 
 /**
  * Verifiable email attribute value syntax.
@@ -69,7 +69,7 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	{
 		ObjectNode main = Constants.MAPPER.createObjectNode();
 		main.put("value",value.getValue());
-		main.put("confirmationData", value.getConfirmationData().getSerializedConfiguration());
+		main.put("confirmationData", value.getConfirmationInfo().getSerializedConfiguration());
 		try
 		{
 			return Constants.MAPPER.writeValueAsString(main).getBytes();
@@ -104,9 +104,9 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		}
 		VerifiableEmail email = new VerifiableEmail();
 		email.setValue(jsonN.get("value").asText());
-		ConfirmationData confirmationData = new ConfirmationData();
+		ConfirmationInfo confirmationData = new ConfirmationInfo();
 		confirmationData.setSerializedConfiguration(jsonN.get("confirmationData").asText());
-		email.setConfirmationData(confirmationData);
+		email.setConfirmationInfo(confirmationData);
 		return email;
 	}
 	
@@ -149,7 +149,7 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	}
 
 	@Override
-	public boolean hasValuesVerifiable()
+	public boolean isVerifiable()
 	{
 		return true;
 	}

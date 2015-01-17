@@ -70,7 +70,6 @@ public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 			if (!pattern.matcher(value).matches())
 				throw new IllegalIdentityValueException("Value must match the "
 						+ "regualr expression: " + EMAIL_REGEXP);
-
 	}
 
 	/**

@@ -10,6 +10,7 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.msgtemplates.MessageTemplateDefinition;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateVariable;
 
 /**
  * Defines template used for sending password reset confirmation code.
@@ -36,11 +37,11 @@ public class PasswordResetTemplateDef implements MessageTemplateDefinition
 	}
 
 	@Override
-	public Map<String, String> getVariables()
+	public Map<String, MessageTemplateVariable> getVariables()
 	{
-		Map<String, String> vars = new HashMap<String, String>();
-		vars.put(VAR_USER, "MessageTemplateConsumer.PasswordReset.var.user");
-		vars.put(VAR_CODE, "MessageTemplateConsumer.PasswordReset.var.code");
+		Map<String, MessageTemplateVariable> vars = new HashMap<String, MessageTemplateVariable>();
+		vars.put(VAR_USER, new MessageTemplateVariable(VAR_USER, "MessageTemplateConsumer.PasswordReset.var.user", false));
+		vars.put(VAR_CODE, new MessageTemplateVariable(VAR_CODE, "MessageTemplateConsumer.PasswordReset.var.code", false));
 		return vars;
 	}
 }

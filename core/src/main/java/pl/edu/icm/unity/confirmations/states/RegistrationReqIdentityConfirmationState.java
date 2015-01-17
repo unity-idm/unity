@@ -4,17 +4,19 @@
  */
 package pl.edu.icm.unity.confirmations.states;
 
+
 /**
- * Contains necessary informations used during the confirmation a attribute in
+ * Contains necessary informations used during the confirmation a identity in
  * registration request
  * 
  * @author P. Piernik
  * 
  */
-public class RegistrationReqAttribiuteState extends EntityAttribiuteState
+public class RegistrationReqIdentityConfirmationState extends IdentityConfirmationState
 {
-	public static final String FACILITY_ID = "RegistrationAttributeFacility";
-	
+
+	public static final String FACILITY_ID = "RegistrationReqIdentityFacility";
+
 	@Override
 	public String getFacilityId()
 	{

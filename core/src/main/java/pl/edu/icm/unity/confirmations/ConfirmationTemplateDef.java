@@ -10,6 +10,7 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.msgtemplates.MessageTemplateDefinition;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateVariable;
 
 /**
  * Message template definition for confirmation subsystem
@@ -35,11 +36,10 @@ public class ConfirmationTemplateDef implements MessageTemplateDefinition
 	}
 
 	@Override
-	public Map<String, String> getVariables()
+	public Map<String, MessageTemplateVariable> getVariables()
 	{
-		Map<String, String> vars = new HashMap<String, String>();
-		vars.put(CONFIRMATION_LINK, "MessageTemplateConsumer.Confirmation.var.confirmationLink");
+		Map<String, MessageTemplateVariable> vars = new HashMap<String, MessageTemplateVariable>();
+		vars.put(CONFIRMATION_LINK, new MessageTemplateVariable(CONFIRMATION_LINK, "MessageTemplateConsumer.Confirmation.var.confirmationLink", true));
 		return vars;
 	}
-
 }

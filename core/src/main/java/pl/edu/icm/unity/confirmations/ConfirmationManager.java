@@ -4,8 +4,10 @@
  */
 package pl.edu.icm.unity.confirmations;
 
+import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
+import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
+import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmationState;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 
 /**
  * Confirmation manager
@@ -14,9 +16,28 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
  */
 public interface ConfirmationManager
 {
+	public static final String CONFIRMATION_TOKEN_TYPE = "Confirmation";
+	
+	/**
+	 * Send confirmation request to the user with serialized confirmation state. 
+	 * Based on state manager get confirmation configuration which contain message template id compatible 
+	 * with {@link ConfirmationTemplateDef} and notification channel id. This template is fills by manger with confirmation
+	 * link and whole message is send via configured notification channel.  
+	 * 
+	 * @param state serialized to json one of : {@link AttribiuteConfirmationState},{@link RegistrationReqAttributeState}, 
+	 * {@link IdentityConfirmationState}, {@link RegistrationReqIdentityConfirmationState}  
+	 * @throws EngineException
+	 * @throws Exception 
+	 */
+	
 	public void sendConfirmationRequest(String state) throws EngineException;
-	public ConfirmationStatus proccessConfirmation(String token) throws EngineException;
-	void rewriteRequestToken(RegistrationRequestState finalReguest, String entityId)
-			throws EngineException;
+	
+	/**
+	 * Proccess confirmation based on token. 
+	 * @param tokenValue 
+	 * @return Confirmation status which contain user message key and args
+	 * @throws EngineException
+	 */
+	public ConfirmationStatus proccessConfirmation(String tokenValue) throws EngineException;
 	
 }

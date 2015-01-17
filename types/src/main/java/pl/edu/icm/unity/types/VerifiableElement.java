@@ -4,16 +4,16 @@
  */
 package pl.edu.icm.unity.types;
 
-import pl.edu.icm.unity.types.basic.ConfirmationData;
+import pl.edu.icm.unity.types.basic.ConfirmationInfo;
 
 /**
- * Represent element which can be confirmed
+ * Represent element which can be confirmed. 
  * @author P. Piernik
  *
  */
 public interface VerifiableElement
 {
-	public ConfirmationData getConfirmationData();
-	public void setConfirmationData(ConfirmationData confirmationData);
+	public ConfirmationInfo getConfirmationInfo();
+	public void setConfirmationInfo(ConfirmationInfo confirmationInfo);
 	public String getValue();
 }

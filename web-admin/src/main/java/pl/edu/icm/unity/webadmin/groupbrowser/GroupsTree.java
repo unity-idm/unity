@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
-import pl.edu.icm.unity.confirmations.states.EntityIdentityState;
+import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
@@ -455,7 +455,7 @@ public class GroupsTree extends Tree
 										msg.getMessage("Identities.cannotSendConfirmationConfigNotAvailable", newIdentity.getTypeId()));
 							}
 							
-							EntityIdentityState state = new EntityIdentityState();
+							IdentityConfirmationState state = new IdentityConfirmationState();
 							state.setOwner(newIdentity.getEntityId()
 									.toString());
 							state.setType(newIdentity.getTypeId());

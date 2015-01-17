@@ -12,7 +12,7 @@ import java.util.List;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.VerifiableElement;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.ConfirmationData;
+import pl.edu.icm.unity.types.basic.ConfirmationInfo;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
@@ -23,19 +23,19 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  */
 public abstract class BaseFacility
 {
-	protected void updateConfirmationData(VerifiableElement el, String value)
+	protected void updateConfirmationInfo(VerifiableElement el, String value)
 	{
 		if (el.getValue().equals(value))
 		{
-			if (el.getConfirmationData() != null)
+			if (el.getConfirmationInfo() != null)
 			{
-				int amount = el.getConfirmationData().getSentRequestAmount();
-				el.getConfirmationData().setSentRequestAmount(amount + 1);
-				el.getConfirmationData().setConfirmed(false);
-				el.getConfirmationData().setConfirmationDate(0);
+				int amount = el.getConfirmationInfo().getSentRequestAmount();
+				el.getConfirmationInfo().setSentRequestAmount(amount + 1);
+				el.getConfirmationInfo().setConfirmed(false);
+				el.getConfirmationInfo().setConfirmationDate(0);
 			} else
 			{
-				el.setConfirmationData(new ConfirmationData(1));
+				el.setConfirmationInfo(new ConfirmationInfo(1));
 			}
 		}
 	}
@@ -44,7 +44,7 @@ public abstract class BaseFacility
 	{
 		if (verifiable.getValue().equals(value))
 		{
-			ConfirmationData confirmationData = verifiable.getConfirmationData();
+			ConfirmationInfo confirmationData = verifiable.getConfirmationInfo();
 			confirmationData.setConfirmed(true);
 			Date today = new Date();
 			confirmationData.setConfirmationDate(today.getTime());
@@ -54,7 +54,7 @@ public abstract class BaseFacility
 		return false;
 	}
 
-	protected Collection<Attribute<?>> confirmAttribute(Collection<Attribute<?>> attrs,
+	protected Collection<Attribute<?>> confirmAttributes(Collection<Attribute<?>> attrs,
 			String attrName, String group, String value) throws EngineException
 	{
 		List<Attribute<?>> confirmed = new ArrayList<Attribute<?>>();
@@ -62,7 +62,7 @@ public abstract class BaseFacility
 		{
 			if (attr.getName().equals(attrName) && attr.getGroupPath().equals(group)
 					&& attr.getValues() != null
-					&& attr.getAttributeSyntax().hasValuesVerifiable())
+					&& attr.getAttributeSyntax().isVerifiable())
 			{
 				for (Object el : attr.getValues())
 				{

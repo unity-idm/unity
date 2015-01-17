@@ -16,11 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
-import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteState;
-import pl.edu.icm.unity.confirmations.states.EntityAttribiuteState;
+import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmationState;
+import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
 import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
-import pl.edu.icm.unity.confirmations.states.EntityIdentityState;
-import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityState;
+import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
+import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmationState;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
@@ -225,7 +225,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			{
 				AdminComment autoAcceptComment = new AdminComment(InternalRegistrationManagment.AUTO_ACCEPT_COMMENT, 0, false);
 				requestFull.getAdminComments().add(autoAcceptComment);
-				entityId = internalManagment.acceptRequest(form, requestFull, null, autoAcceptComment, sql);
+				entityId = internalManagment.acceptRequest(form, requestFull, null, autoAcceptComment, false, sql);
 			}
 			sql.commit();
 			sendAttributeConfirmationRequest(requestFull, entityId);
@@ -316,12 +316,10 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				updateRequest(form, currentRequest, publicComment, internalComment, sql);
 				break;
 			case accept:
-				Long entityId;
 				synchronized (confirmationManager)
 				{
-					entityId = internalManagment.acceptRequest(form, currentRequest, publicComment, internalComment, sql);
+					internalManagment.acceptRequest(form, currentRequest, publicComment, internalComment, true, sql);
 				}
-				confirmationManager.rewriteRequestToken(currentRequest, entityId.toString());
 				break;
 			}
 			sql.commit();
@@ -523,17 +521,17 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		for (Attribute<?> attr : requestState.getRequest().getAttributes())
 		{
 			if (attr.getValues().size() > 0
-					&& attr.getAttributeSyntax().hasValuesVerifiable())
+					&& attr.getAttributeSyntax().isVerifiable())
 			{
 				Attribute<VerifiableElement> verifiableAttr = (Attribute<VerifiableElement>) attr;
-				EntityAttribiuteState state;
+				AttribiuteConfirmationState state;
 				if (entityId == null)
 				{
-					state = new RegistrationReqAttribiuteState();
+					state = new RegistrationReqAttribiuteConfirmationState();
 					state.setOwner(requestState.getRequestId());
 				} else
 				{
-					state = new EntityAttribiuteState();
+					state = new AttribiuteConfirmationState();
 					state.setOwner(entityId.toString());
 				}
 				state.setGroup(verifiableAttr.getGroupPath());
@@ -558,11 +556,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				BaseConfirmationState state;
 				if (entityId == null)
 				{
-					state = new RegistrationReqIdentityState();
+					state = new RegistrationReqIdentityConfirmationState();
 					state.setOwner(requestState.getRequestId());
 				} else
 				{
-					state = new EntityIdentityState();
+					state = new IdentityConfirmationState();
 					state.setOwner(entityId.toString());
 				}
 				state.setType(id.getTypeId());

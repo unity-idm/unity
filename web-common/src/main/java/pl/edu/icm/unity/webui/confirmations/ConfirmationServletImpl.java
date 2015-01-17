@@ -26,7 +26,7 @@ import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.VaadinServletService;
 
 /**
- * Contains confirmation servlet implementation
+ * Contains confirmation vaadin servlet implementation
  * @author P. Piernik
  *
  */
@@ -63,22 +63,9 @@ public class ConfirmationServletImpl implements ConfirmationServlet
 				{
 					VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, ConfirmationUI.class.getSimpleName(),
 							null, null, null, null);
-					//uiProv.setCancelHandler(cancelHandler);
 					event.getSession().addUIProvider(uiProv);
-					DeploymentConfiguration depCfg = event.getService().getDeploymentConfiguration();
-					Properties properties = depCfg.getInitParameters();
-					String timeout = properties.getProperty(VaadinEndpoint.SESSION_TIMEOUT_PARAM);
-					if (timeout != null)
-						event.getSession().getSession().setMaxInactiveInterval(Integer.parseInt(timeout));
-
-					if (WebSession.getCurrent() == null)
-					{
-						WebSession webSession = new WebSession(new EventsBus());
-						WebSession.setCurrent(webSession);
-					}			
 				}
 			});
-
 			return service;
 		}
 	}

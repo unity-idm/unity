@@ -32,7 +32,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.EntityInformation;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.basic.ConfirmationData;
+import pl.edu.icm.unity.types.basic.ConfirmationInfo;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityRepresentation;
@@ -187,7 +187,7 @@ public class DBIdentities
 				toAdd.getRemoteIdp(), toAdd.getTranslationProfile(), ts, ts);
 	}
 	
-	public Identity updateIdentityConfirmationData (IdentityTaV idTav, ConfirmationData newConfirmation ,SqlSession sqlMap) throws IllegalTypeException, IllegalIdentityValueException
+	public Identity updateIdentityConfirmationInfo (IdentityTaV idTav, ConfirmationInfo newConfirmation ,SqlSession sqlMap) throws IllegalTypeException, IllegalIdentityValueException
 	{
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
 		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(idTav.getTypeId());
@@ -206,7 +206,7 @@ public class DBIdentities
 			log.error("Can't resolve an identity stored in DB", e);
 		}
 		if (resolved != null)
-			resolved.setConfirmationData(newConfirmation);
+			resolved.setConfirmationInfo(newConfirmation);
 		
 		IdentityBean idB = new IdentityBean();
 		idB.setEntityId(idBean.getEntityId());
@@ -214,7 +214,6 @@ public class DBIdentities
 		idB.setTypeId(idBean.getTypeId());
 		Date ts = new Date();
 		idB.setContents(idSerializer.toJson(resolved, resolved.getCreationTs(), ts));
-		log.debug("Update identity " + new String(idSerializer.toJson(resolved, resolved.getCreationTs(), ts)) );
 		mapper.updateIdentity(idB);
 		return resolved;
 	}

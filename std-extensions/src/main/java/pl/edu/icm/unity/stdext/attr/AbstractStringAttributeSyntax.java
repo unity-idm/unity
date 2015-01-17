@@ -57,4 +57,10 @@ public abstract class AbstractStringAttributeSyntax implements AttributeValueSyn
 	{
 		return value;
 	}
+
+	@Override
+	public boolean isVerifiable()
+	{
+		return false;
+	}
 }

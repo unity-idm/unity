@@ -18,7 +18,7 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 {
 	private String translationProfile;
 	private String remoteIdp;
-	private ConfirmationData confirmationData;
+	private ConfirmationInfo confirmationInfo;
 	
 	public IdentityParam()
 	{
@@ -27,7 +27,7 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 	public IdentityParam(String type, String value) 
 	{
 		super(type, value);
-		this.confirmationData = new ConfirmationData();
+		this.confirmationInfo = new ConfirmationInfo();
 	}
 
 	public IdentityParam(String type, String value, String remoteIdp, String translationProfile) 
@@ -63,14 +63,14 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 		this.remoteIdp = remoteIdp;
 	}
 
-	public void setConfirmationData(ConfirmationData confirmationData)
+	public void setConfirmationInfo(ConfirmationInfo confirmationData)
 	{
-		this.confirmationData = confirmationData;
+		this.confirmationInfo = confirmationData;
 	}
 
-	public ConfirmationData getConfirmationData()
+	public ConfirmationInfo getConfirmationInfo()
 	{
-		return confirmationData;
+		return confirmationInfo;
 	}
 	
 	@Override
@@ -84,7 +84,7 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 				+ ((translationProfile == null) ? 0 : translationProfile.hashCode());
 		result = prime
 				* result
-				+ ((confirmationData == null) ? 0 : confirmationData.hashCode());
+				+ ((confirmationInfo == null) ? 0 : confirmationInfo.hashCode());
 		return result;
 	}
 
@@ -110,11 +110,11 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 				return false;
 		} else if (!translationProfile.equals(other.translationProfile))
 			return false;
-		if (confirmationData == null)
+		if (confirmationInfo == null)
 		{
-			if (other.confirmationData!= null)
+			if (other.confirmationInfo!= null)
 				return false;
-		} else if (!confirmationData.equals(other.confirmationData))
+		} else if (!confirmationInfo.equals(other.confirmationInfo))
 			return false;
 		return true;
 	}

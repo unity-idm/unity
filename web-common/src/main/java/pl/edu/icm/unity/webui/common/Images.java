@@ -31,6 +31,7 @@ public enum Images
 	toAdmin32	(I.P + "32/manager.png"),
 	toProfile32	(I.P + "32/personal.png"),
 	support32	(I.P + "32/support.png"),
+	ok32		(I.P + "32/ok.png"),
 
 	
 	refresh		(I.P + "16/reload.png"),

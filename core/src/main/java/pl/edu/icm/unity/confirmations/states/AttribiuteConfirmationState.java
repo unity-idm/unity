@@ -14,9 +14,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author P. Piernik
  * 
  */
-public class EntityAttribiuteState extends BaseConfirmationState
+public class AttribiuteConfirmationState extends BaseConfirmationState
 {
-	public static final String FACILITY_ID = "EntityAttributeFacility";
+	public static final String FACILITY_ID = "AttributeFacility";
 	private String group;
 
 	@Override

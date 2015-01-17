@@ -237,9 +237,8 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 	}
 
 	@Override
-	public boolean hasValuesVerifiable()
+	public boolean isVerifiable()
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 }

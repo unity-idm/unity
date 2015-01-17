@@ -171,8 +171,8 @@
 	<bean class="pl.edu.icm.unity.engine.endpoints.EndpointDB"/>
 	<bean class="pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement"/>
 	
-	<bean class="pl.edu.icm.unity.engine.confirmations.facilities.EntityAttributeFacility" />
-	<bean class="pl.edu.icm.unity.engine.confirmations.facilities.EntityIdentityFacility" />
+	<bean class="pl.edu.icm.unity.engine.confirmations.facilities.AttributeFacility" />
+	<bean class="pl.edu.icm.unity.engine.confirmations.facilities.IdentityFacility" />
 	<bean class="pl.edu.icm.unity.engine.confirmations.facilities.RegistrationReqAttributeFacility" />
 	<bean class="pl.edu.icm.unity.engine.confirmations.facilities.RegistrationReqIdentityFacility" />
 	<bean class="pl.edu.icm.unity.engine.confirmations.ConfirmationManagerImpl" />

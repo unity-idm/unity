@@ -112,10 +112,4 @@ public class EnumAttributeSyntax extends AbstractStringAttributeSyntax
 		if (!allowed.contains(value))
 			throw new IllegalAttributeValueException("The value is not a valid enumeration element");
 	}
-
-	@Override
-	public boolean hasValuesVerifiable()
-	{
-		return false;
-	}
 }

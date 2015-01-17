@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
-import pl.edu.icm.unity.confirmations.states.EntityIdentityState;
+import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -28,13 +28,13 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  * @author P. Piernik
  */
 @Component
-public class EntityIdentityFacility extends BaseFacility implements ConfirmationFacility
+public class IdentityFacility extends BaseFacility implements ConfirmationFacility
 {
 	protected DBSessionManager db;
 	protected DBIdentities dbIdentities;
 
 	@Autowired
-	protected EntityIdentityFacility(DBSessionManager db, DBIdentities dbIdentities)
+	protected IdentityFacility(DBSessionManager db, DBIdentities dbIdentities)
 	{
 		this.db = db;
 		this.dbIdentities = dbIdentities;
@@ -43,7 +43,7 @@ public class EntityIdentityFacility extends BaseFacility implements Confirmation
 	@Override
 	public String getName()
 	{
-		return EntityIdentityState.FACILITY_ID;
+		return IdentityConfirmationState.FACILITY_ID;
 	}
 
 	@Override
@@ -57,9 +57,7 @@ public class EntityIdentityFacility extends BaseFacility implements Confirmation
 	{
 		BaseConfirmationState baseState = new BaseConfirmationState();
 		baseState.setSerializedConfiguration(state);
-
 		SqlSession sql = db.getSqlSession(false);
-		
 		EntityState entityState = null;
 		try
 		{
@@ -78,21 +76,20 @@ public class EntityIdentityFacility extends BaseFacility implements Confirmation
 		{
 			return new ConfirmationStatus(false, "ConfirmationStatus.entityInvalid");
 		}
-				
-
+			
 		return confirmElements(state);
 	}
 
-	private EntityIdentityState getState(String state)
+	private IdentityConfirmationState getState(String state)
 	{
-		EntityIdentityState idState = new EntityIdentityState();
+		IdentityConfirmationState idState = new IdentityConfirmationState();
 		idState.setSerializedConfiguration(state);
 		return idState;
 	}
 
 	protected ConfirmationStatus confirmElements(String state) throws EngineException
 	{
-		EntityIdentityState idState = getState(state);
+		IdentityConfirmationState idState = getState(state);
 		ConfirmationStatus status;
 		SqlSession sql = db.getSqlSession(true);
 		try
@@ -111,14 +108,14 @@ public class EntityIdentityFacility extends BaseFacility implements Confirmation
 					idState.getType(), idState.getValue());
 			for (IdentityParam id : confirmedList)
 			{
-				dbIdentities.updateIdentityConfirmationData(id,
-						id.getConfirmationData(), sql);
+				dbIdentities.updateIdentityConfirmationInfo(id,
+						id.getConfirmationInfo(), sql);
 			}
 			sql.commit();
 			boolean confirmed = (confirmedList.size() > 0);
 			status = new ConfirmationStatus(confirmed,
 					confirmed ? "ConfirmationStatus.successIdentity"
-							: "ConfirmationStatus.identityChanged");
+							: "ConfirmationStatus.identityChanged", idState.getType());
 
 		} finally
 		{
@@ -130,7 +127,7 @@ public class EntityIdentityFacility extends BaseFacility implements Confirmation
 	@Override
 	public void updateAfterSendRequest(String state) throws EngineException
 	{
-		EntityIdentityState idState = getState(state);
+		IdentityConfirmationState idState = getState(state);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -138,10 +135,9 @@ public class EntityIdentityFacility extends BaseFacility implements Confirmation
 					Long.parseLong(idState.getOwner()), sql);
 			for (IdentityParam id : ids)
 			{
-				updateConfirmationData(id, idState.getValue());
-				dbIdentities.updateIdentityConfirmationData(id, id.getConfirmationData(), sql);
+				updateConfirmationInfo(id, idState.getValue());
+				dbIdentities.updateIdentityConfirmationInfo(id, id.getConfirmationInfo(), sql);
 			}
-			
 			sql.commit();
 		} finally
 		{

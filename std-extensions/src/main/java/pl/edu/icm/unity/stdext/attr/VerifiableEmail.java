@@ -6,43 +6,43 @@
 package pl.edu.icm.unity.stdext.attr;
 
 import pl.edu.icm.unity.types.VerifiableElement;
-import pl.edu.icm.unity.types.basic.ConfirmationData;
+import pl.edu.icm.unity.types.basic.ConfirmationInfo;
 
 /**
- * Email with verification state and verification date
+ * Email which can be confirmed by user. 
  * 
  * @author P. Piernik
  */
 public class VerifiableEmail implements VerifiableElement
 {
 	private String value;
-	private ConfirmationData confirmationData;
+	private ConfirmationInfo confirmationInfo;
 
 	public VerifiableEmail()
 	{
-		this.confirmationData = new ConfirmationData();
+		this.confirmationInfo = new ConfirmationInfo();
 	}
 
 	public VerifiableEmail(String value)
 	{
 		this.value = value;
-		this.confirmationData = new ConfirmationData();
+		this.confirmationInfo = new ConfirmationInfo();
 	}
 
-	public VerifiableEmail(String value, ConfirmationData confirmationData)
+	public VerifiableEmail(String value, ConfirmationInfo confirmationData)
 	{
 		this.value = value;
-		this.confirmationData = confirmationData;
+		this.confirmationInfo = confirmationData;
 	}
 	@Override
-	public ConfirmationData getConfirmationData()
+	public ConfirmationInfo getConfirmationInfo()
 	{
-		return confirmationData;
+		return confirmationInfo;
 	}
 
-	public void setConfirmationData(ConfirmationData confirmationData)
+	public void setConfirmationInfo(ConfirmationInfo confirmationData)
 	{
-		this.confirmationData = confirmationData;
+		this.confirmationInfo = confirmationData;
 	}
 
 	public String getValue()
@@ -72,11 +72,11 @@ public class VerifiableEmail implements VerifiableElement
 		} else if (!value.equals(other.value))
 			return false;
 
-		if (confirmationData == null)
+		if (confirmationInfo == null)
 		{
-			if (other.getConfirmationData() != null)
+			if (other.getConfirmationInfo() != null)
 				return false;
-		} else if (!confirmationData.equals(other.getConfirmationData()))
+		} else if (!confirmationInfo.equals(other.getConfirmationInfo()))
 			return false;
 		return true;
 	}
@@ -87,7 +87,7 @@ public class VerifiableEmail implements VerifiableElement
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((value == null) ? 0 : value.hashCode());
-		result = prime * result + confirmationData.hashCode();
+		result = prime * result + confirmationInfo.hashCode();
 		return result;
 	}
 }

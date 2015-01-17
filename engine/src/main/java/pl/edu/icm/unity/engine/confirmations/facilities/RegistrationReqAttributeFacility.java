@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
-import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteState;
+import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmationState;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
@@ -58,7 +58,7 @@ public class RegistrationReqAttributeFacility extends BaseFacility implements
 	@Override
 	public String getName()
 	{
-		return RegistrationReqAttribiuteState.FACILITY_ID;
+		return RegistrationReqAttribiuteConfirmationState.FACILITY_ID;
 	}
 
 	@Override
@@ -67,9 +67,9 @@ public class RegistrationReqAttributeFacility extends BaseFacility implements
 		return "Confirms attributes from registration request with verifiable values";
 	}
 
-	private RegistrationReqAttribiuteState getState(String state)
+	private RegistrationReqAttribiuteConfirmationState getState(String state)
 	{
-		RegistrationReqAttribiuteState attrState = new RegistrationReqAttribiuteState();
+		RegistrationReqAttribiuteConfirmationState attrState = new RegistrationReqAttribiuteConfirmationState();
 		attrState.setSerializedConfiguration(state);
 		return attrState;
 	}
@@ -77,13 +77,13 @@ public class RegistrationReqAttributeFacility extends BaseFacility implements
 	protected ConfirmationStatus confirmElements(RegistrationRequest req, String state)
 			throws EngineException
 	{
-		RegistrationReqAttribiuteState attrState = getState(state);
-		Collection<Attribute<?>> confirmedList = confirmAttribute(req.getAttributes(),
+		RegistrationReqAttribiuteConfirmationState attrState = getState(state);
+		Collection<Attribute<?>> confirmedList = confirmAttributes(req.getAttributes(),
 				attrState.getType(), attrState.getGroup(), attrState.getValue());
 		boolean confirmed = (confirmedList.size() > 0);
 		return new ConfirmationStatus(confirmed,
 				confirmed ? "ConfirmationStatus.successAttribute"
-						: "ConfirmationStatus.attributeChanged");
+						: "ConfirmationStatus.attributeChanged", attrState.getType());
 
 	}
 
@@ -124,7 +124,7 @@ public class RegistrationReqAttributeFacility extends BaseFacility implements
 						0, false);
 				reqState.getAdminComments().add(internalComment);
 				internalRegistrationManagment.acceptRequest(form, reqState, null,
-						internalComment, sql);
+						internalComment, true, sql);
 			} else
 			{
 				requestDB.update(requestId, reqState, sql);
@@ -142,16 +142,19 @@ public class RegistrationReqAttributeFacility extends BaseFacility implements
 	@Override
 	public void updateAfterSendRequest(String state) throws EngineException
 	{
-		RegistrationReqAttribiuteState attrState = getState(state);
+		RegistrationReqAttribiuteConfirmationState attrState = getState(state);
 		String requestId = attrState.getOwner();
 		RegistrationRequestState reqState = internalRegistrationManagment
 				.getRequest(requestId);
 		for (Attribute<?> attr : reqState.getRequest().getAttributes())
 		{
-			for (Object val : attr.getValues())
+			if (attr.getAttributeSyntax().isVerifiable())
 			{
-				updateConfirmationData((VerifiableElement) val,
-						attrState.getValue());
+				for (Object val : attr.getValues())
+				{
+					updateConfirmationInfo((VerifiableElement) val,
+							attrState.getValue());
+				}
 			}
 		}
 		SqlSession sql = db.getSqlSession(true);
@@ -163,6 +166,5 @@ public class RegistrationReqAttributeFacility extends BaseFacility implements
 		{
 			db.releaseSqlSession(sql);
 		}
-
 	}
 }

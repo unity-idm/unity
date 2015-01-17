@@ -20,6 +20,7 @@ import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator.IllegalVariablesException;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator.MandatoryVariablesException;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 
@@ -164,6 +165,9 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 		} catch (IllegalVariablesException e)
 		{
 			throw new WrongArgumentException("The following variables are unknown: " + e.getUnknown());
+		} catch (MandatoryVariablesException e)
+		{
+			throw new WrongArgumentException("The following variables must be used: " + e.getMandatory());
 		}
 	}
 }

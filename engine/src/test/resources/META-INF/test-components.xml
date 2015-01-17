@@ -9,5 +9,6 @@
 		<bean class="pl.edu.icm.unity.engine.mock.MockEndpointFactory"/>
 		<bean class="pl.edu.icm.unity.engine.mock.MockPasswordRetrievalFactory"/>
 		<bean class="pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory"/>
+		<bean class="pl.edu.icm.unity.engine.mock.MockNotificationFacility"/>
 	</beans>
 </beans>

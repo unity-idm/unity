@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
-import pl.edu.icm.unity.confirmations.states.EntityIdentityState;
+import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsDialog;
@@ -754,7 +754,7 @@ public class IdentitiesTable extends TreeTable
 	
 	private void sendConfirmationRequest(IdentityParam id, String entityId) throws EngineException
 	{
-		EntityIdentityState state = new EntityIdentityState();
+		IdentityConfirmationState state = new IdentityConfirmationState();
 		state.setOwner(entityId);
 		state.setType(id.getTypeId());
 		state.setValue(id.getValue());
@@ -781,7 +781,6 @@ public class IdentitiesTable extends TreeTable
 		if (count > 3)
 			typesWithoutConfig.append(msg.getMessage("MessageUtils.andMore",
 					count - 3));
-
 		if (!typesWithoutConfig.toString().isEmpty())
 		{
 			ErrorPopup.showError(
@@ -797,7 +796,6 @@ public class IdentitiesTable extends TreeTable
 	
 	private void sendConfirmationRequestAfterChange(Identity newIdentity)
 	{
-
 		if (!newIdentity.getType().getIdentityTypeProvider().isVerifiable())
 			return;
 		List<String> toCheck = new ArrayList<String>();
@@ -1063,7 +1061,6 @@ public class IdentitiesTable extends TreeTable
 					filteredTypes.add(id);
 				if (count < 4)
 					infoText.append(", " + node.identity.getValue());
-	
 				filteredNodes.add(node);
 			}
 			if (count > 3)
@@ -1071,14 +1068,12 @@ public class IdentitiesTable extends TreeTable
 			String infoTextF = infoText.substring(2);
 			if (!checkAvailableConfirmationConfiguration(filteredTypes))
 				return;
-
 			for (IdentityWithEntity ide : filteredNodes)
 			{
 				try
 				{
 					sendConfirmationRequest(ide.getIdentity(), ide.getEntityWithLabel().getEntity().getId()
 							.toString());
-	
 				} catch (EngineException e)
 				{
 					ErrorPopup.showError(msg, msg.getMessage("Identities.cannotSendConfirmation"), e);
@@ -1086,9 +1081,7 @@ public class IdentitiesTable extends TreeTable
 				}
 			}
 			ErrorPopup.showNotice(msg, "", msg.getMessage("Identities.confirmationSent", infoTextF));	
-		}
-		
-		
+		}	
 	}
 	
 	private class ChangeEntityStatusHandler extends SingleActionHandler
@@ -1113,9 +1106,7 @@ public class IdentitiesTable extends TreeTable
 									.getId(), newState);
 						}
 					}).show();
-		}
-		
-		
+		}	
 	}
 	
 	private class ChangeCredentialRequirementHandler extends SingleActionHandler

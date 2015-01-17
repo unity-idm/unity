@@ -13,6 +13,8 @@ import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator.MandatoryVariablesException;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateVariable;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator.IllegalVariablesException;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -56,7 +58,8 @@ public class MessageTemplateEditor extends FormLayout
 	private boolean editMode;
 	private HorizontalLayout buttons;
 	private boolean subjectEdited;
-	private MessageValidator validator;
+	private MessageValidator bodyValidator;
+	private MessageValidator subjectValidator;
 
 	public MessageTemplateEditor(UnityMessageSource msg,
 			MessageTemplateConsumersRegistry registry, MessageTemplate toEdit)
@@ -100,9 +103,10 @@ public class MessageTemplateEditor extends FormLayout
 		body.setRows(17);
 		body.setWidth(100, Unit.PERCENTAGE);
 		body.setValidationVisible(false);
-		validator = new MessageValidator(null);
-		subject.addValidator(validator);
-		body.addValidator(validator);
+		subjectValidator = new MessageValidator(null, false);
+		bodyValidator = new MessageValidator(null, true);
+		subject.addValidator(subjectValidator);
+		body.addValidator(bodyValidator);
 		subjectEdited = true;
 		subject.addFocusListener(new FocusListener()
 		{
@@ -187,12 +191,12 @@ public class MessageTemplateEditor extends FormLayout
 	private void updateVarButtons(MessageTemplateDefinition consumer)
 	{
 		buttons.removeAllComponents();
-		for (Map.Entry<String, String> var : consumer.getVariables().entrySet())
+		for (Map.Entry<String, MessageTemplateVariable> var : consumer.getVariables().entrySet())
 		{
 			final Button b = new Button();
 			b.addStyleName(Reindeer.BUTTON_SMALL);
 			b.setCaption(var.getKey());
-			b.setDescription(msg.getMessage(var.getValue()));
+			b.setDescription(msg.getMessage(var.getValue().getDescriptionKey()));
 			b.addClickListener(new Button.ClickListener()
 			{
 				@Override
@@ -241,7 +245,10 @@ public class MessageTemplateEditor extends FormLayout
 	{
 		MessageTemplateDefinition c = getConsumer();
 		if (c != null)
-			validator.setConsumer(c);
+		{
+			subjectValidator.setConsumer(c);
+			bodyValidator.setConsumer(c);
+		}
 	}
 
 	private boolean validate()
@@ -259,10 +266,12 @@ public class MessageTemplateEditor extends FormLayout
 	private class MessageValidator implements Validator
 	{
 		private MessageTemplateDefinition c;
+		private boolean checkMandatory;
 		
-		public MessageValidator(MessageTemplateDefinition c)
+		public MessageValidator(MessageTemplateDefinition c, boolean checkMandatory)
 		{
 			this.c = c;
+			this.checkMandatory = checkMandatory;
 		}
 
 		public void setConsumer(MessageTemplateDefinition c)
@@ -275,11 +284,15 @@ public class MessageTemplateEditor extends FormLayout
 		{
 			try
 			{
-				MessageTemplateValidator.validateText(c, value.toString());
+				MessageTemplateValidator.validateText(c, value.toString(), checkMandatory);
 			} catch (IllegalVariablesException e)
 			{
-				throw new InvalidValueException(msg.getMessage("MessageTemplatesEditor.errorVars", 
+				throw new InvalidValueException(msg.getMessage("MessageTemplatesEditor.errorUnknownVars", 
 						e.getUnknown().toString()));
+			} catch (MandatoryVariablesException e)
+			{
+				throw new InvalidValueException(msg.getMessage("MessageTemplatesEditor.errorMandatoryVars", 
+						e.getMandatory().toString()));
 			}
 		}
 	}

@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
-import pl.edu.icm.unity.confirmations.states.EntityAttribiuteState;
+import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
@@ -26,12 +26,12 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
  * 
  * @author P. Piernik
  */
-public class EntityAttributeFacility extends EntityIdentityFacility implements ConfirmationFacility
+public class AttributeFacility extends IdentityFacility implements ConfirmationFacility
 {
 	private DBAttributes dbAttributes;
 
 	@Autowired
-	public EntityAttributeFacility(DBSessionManager db, DBAttributes dbAttributes,
+	public AttributeFacility(DBSessionManager db, DBAttributes dbAttributes,
 			DBIdentities dbIdentities)
 	{
 		super(db, dbIdentities);
@@ -41,7 +41,7 @@ public class EntityAttributeFacility extends EntityIdentityFacility implements C
 	@Override
 	public String getName()
 	{
-		return EntityAttribiuteState.FACILITY_ID;
+		return AttribiuteConfirmationState.FACILITY_ID;
 	}
 
 	@Override
@@ -53,17 +53,16 @@ public class EntityAttributeFacility extends EntityIdentityFacility implements C
 	@Override
 	protected ConfirmationStatus confirmElements(String state) throws EngineException
 	{
-		EntityAttribiuteState attrState = getState(state);
+		AttribiuteConfirmationState attrState = getState(state);
 		ConfirmationStatus status;
 		SqlSession sql= db.getSqlSession(true);
 		try
 		{
-
 			Collection<AttributeExt<?>> allAttrs = dbAttributes.getAllAttributes(
 					Long.parseLong(attrState.getOwner()), attrState.getGroup(),
 					false, attrState.getType(), sql);
 
-			Collection<Attribute<?>> confirmedList = confirmAttribute(
+			Collection<Attribute<?>> confirmedList = confirmAttributes(
 					getAttributesFromExt(allAttrs), attrState.getType(),
 					attrState.getGroup(), attrState.getValue());
 
@@ -76,7 +75,7 @@ public class EntityAttributeFacility extends EntityIdentityFacility implements C
 			boolean confirmed = (confirmedList.size() > 0);
 			status = new ConfirmationStatus(confirmed,
 					confirmed ? "ConfirmationStatus.successAttribute"
-							: "ConfirmationStatus.attributeChanged");
+							: "ConfirmationStatus.attributeChanged", attrState.getType());
 
 		} finally
 		{
@@ -98,9 +97,9 @@ public class EntityAttributeFacility extends EntityIdentityFacility implements C
 		return attributes;
 	}
 
-	private EntityAttribiuteState getState(String state)
+	private AttribiuteConfirmationState getState(String state)
 	{
-		EntityAttribiuteState attrState = new EntityAttribiuteState();
+		AttribiuteConfirmationState attrState = new AttribiuteConfirmationState();
 		attrState.setSerializedConfiguration(state);
 		return attrState;
 	}
@@ -108,24 +107,28 @@ public class EntityAttributeFacility extends EntityIdentityFacility implements C
 	@Override
 	public void updateAfterSendRequest(String state) throws EngineException
 	{
-		EntityAttribiuteState attrState = new EntityAttribiuteState();
+		AttribiuteConfirmationState attrState = new AttribiuteConfirmationState();
 		attrState.setSerializedConfiguration(state);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-
 			Collection<AttributeExt<?>> allAttrs = dbAttributes.getAllAttributes(
 					Long.parseLong(attrState.getOwner()), attrState.getGroup(),
 					false, attrState.getType(), sql);
 
 			for (Attribute<?> attr : allAttrs)
 			{
-				for (Object val : attr.getValues())
+				if (attr.getAttributeSyntax().isVerifiable())
 				{
-					updateConfirmationData((VerifiableElement) val, attrState.getValue());
+					for (Object val : attr.getValues())
+					{
+						updateConfirmationInfo((VerifiableElement) val,
+								attrState.getValue());
+					}
+					dbAttributes.addAttribute(
+							Long.parseLong(attrState.getOwner()), attr,
+							true, sql);
 				}
-				dbAttributes.addAttribute(Long.parseLong(attrState.getOwner()),
-						attr, true, sql);
 			}
 			sql.commit();
 
@@ -133,6 +136,5 @@ public class EntityAttributeFacility extends EntityIdentityFacility implements C
 		{
 			db.releaseSqlSession(sql);
 		}
-
 	}
 }

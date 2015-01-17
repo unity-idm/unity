@@ -75,7 +75,6 @@ public interface AttributeValueSyntax<T> extends JsonSerializable
 	/**
 	 * @return true if values can be confirmed by user
 	 */
-	
-	public boolean hasValuesVerifiable();
+	public boolean isVerifiable();
 	
 }

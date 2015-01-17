@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 /**
- * Contains common informations used during confirmation attribute and identity
+ * Contains common informations used during confirmation
  * @author P. Piernik
  *
  */

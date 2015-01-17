@@ -134,11 +134,11 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		toConfirmType.addItem(ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE);
 		toConfirmType.setItemCaption(
 				ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE,
-				msg.getMessage("ConfirmationConfigurationsComponent.identities"));
+				msg.getMessage("ConfirmationConfigurationsComponent.configurationsForidentities"));
 		toConfirmType.addItem(ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE);
 		toConfirmType.setItemCaption(
 				ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
-				msg.getMessage("ConfirmationConfigurationsComponent.attributes"));
+				msg.getMessage("ConfirmationConfigurationsComponent.configurationsForattributes"));
 		toConfirmType.setNullSelectionAllowed(false);
 		toConfirmType.select(ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE);
 		toConfirmType.addValueChangeListener(new ValueChangeListener()
@@ -195,7 +195,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 			Collection<AttributeType> allTypes = attrsMan.getAttributeTypes();
 			for (AttributeType t : allTypes)
 			{
-				if (t.getValueType().hasValuesVerifiable())
+				if (t.getValueType().isVerifiable())
 					vtypes.add(t.getName());
 			}
 			if (vtypes.size() == 0)

@@ -19,9 +19,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
-import pl.edu.icm.unity.confirmations.states.EntityAttribiuteState;
+import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -530,22 +529,8 @@ public class AttributesPanel extends HorizontalSplitPanel
 						public boolean newAttribute(Attribute<?> newAttribute)
 						{
 							boolean added = addAttribute(newAttribute);
-							if (!checkVerifiableAttribute(newAttribute))
-							{
-								return added;
-							}
-							
-							Attribute<VerifiableElement> vattr = (Attribute<VerifiableElement>) newAttribute;
-							try
-							{
-								sendConfirmationRequest(vattr);
-							} catch (Exception e)
-							{
-								ErrorPopup.showError(
-										msg,
-										msg.getMessage("Attribute.cannotSendConfirmation"),
-										e);
-							}	
+							if (added)
+								sendConfirmationRequestAfterChange(newAttribute);
 							return added;							
 						}
 					}, attributeEditor);
@@ -576,25 +561,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 						public boolean newAttribute(Attribute<?> newAttribute)
 						{
 							boolean updated = updateAttribute(newAttribute);
-						
-							if (!newAttribute.equals(attribute))
+							if (!newAttribute.equals(attribute) && updated)
 							{
-								if (!checkVerifiableAttribute(newAttribute))
-								{
-									return updated;
-								}
-								Attribute<VerifiableElement> vattr = (Attribute<VerifiableElement>) newAttribute;
-								try
-								{
-									sendConfirmationRequest(vattr);
-								} catch (Exception e)
-								{
-									ErrorPopup.showError(
-											msg,
-											msg.getMessage("Attribute.cannotSendConfirmation"),
-											e);
-								}
-
+								sendConfirmationRequestAfterChange(newAttribute);
 							}
 							return updated;
 						}
@@ -627,7 +596,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			for (Object ta : targets)
 			{
 				Attribute<?> attr = ((AttributeItem)ta).getAttribute();
-				if (!(attr.getValues().size() > 0 && attr.getAttributeSyntax().hasValuesVerifiable()))
+				if (!(attr.getValues().size() > 0 && attr.getAttributeSyntax().isVerifiable()))
 				{
 					return EMPTY;
 				}
@@ -716,7 +685,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	private void sendConfirmationRequest(Attribute<VerifiableElement> attribute) throws EngineException
 	{
-		EntityAttribiuteState state = new EntityAttribiuteState();
+		AttribiuteConfirmationState state = new AttribiuteConfirmationState();
 		state.setOwner(owner.getEntityId().toString());
 		state.setGroup(groupPath);
 		state.setType(attribute.getName());
@@ -771,14 +740,27 @@ public class AttributesPanel extends HorizontalSplitPanel
 	{
 		List<Attribute<?>> attrs = new ArrayList<Attribute<?>>();
 		attrs.add(attribute);
-		if (!checkAvailableConfirmationConfiguration(
-				ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
-				attrs)
-				&& attribute.getValues()
-						.size() > 0
-				&& attribute.getAttributeSyntax()
-						.hasValuesVerifiable())
-			return false;
-		return true;
+		return attribute.getValues().size() > 0
+				&& attribute.getAttributeSyntax().isVerifiable()
+				&& checkAvailableConfirmationConfiguration(
+						ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
+						attrs);	
 	}
+	
+	private void sendConfirmationRequestAfterChange(Attribute<?> changedAttribute)
+	{
+		if (!checkVerifiableAttribute(changedAttribute))
+		{
+			return;
+		}
+		Attribute<VerifiableElement> vattr = (Attribute<VerifiableElement>) changedAttribute;
+		try
+		{
+			sendConfirmationRequest(vattr);
+		} catch (Exception e)
+		{
+			ErrorPopup.showError(msg,
+					msg.getMessage("Attribute.cannotSendConfirmation"), e);
+		}
+	}	
 }

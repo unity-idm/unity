@@ -14,7 +14,9 @@ package pl.edu.icm.unity.confirmations;
 public class ConfirmationStatus
 {
 	private boolean success;
-
+	private String userMessageKey;
+	private String[] userMessageArgs;
+	
 	public boolean isSuccess()
 	{
 		return success;
@@ -24,13 +26,12 @@ public class ConfirmationStatus
 	{
 		this.success = success;
 	}
-
-	private String userMessageKey;
-
-	public ConfirmationStatus(boolean status, String userMessage)
+	
+	public ConfirmationStatus(boolean status, String userMessage, String...userMessageArgs)
 	{
 		this.success = status;
 		this.userMessageKey = userMessage;
+		this.userMessageArgs = userMessageArgs;
 	}
 
 	public String getUserMessageKey()
@@ -41,5 +42,15 @@ public class ConfirmationStatus
 	public void setUserMessageKey(String userMessageKey)
 	{
 		this.userMessageKey = userMessageKey;
+	}
+	
+	public String[] getUserMessageArgs()
+	{
+		return userMessageArgs;
+	}
+
+	public void setUserMessageArgs(String[] userMessageArgs)
+	{
+		this.userMessageArgs = userMessageArgs;
 	}
 }

@@ -8,10 +8,9 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.ConfirmationData;
+import pl.edu.icm.unity.types.basic.ConfirmationInfo;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -170,20 +169,27 @@ public class RequestReviewPanel extends CustomComponent
 			String representation = idParam.toString();
 			if (idParam.getRemoteIdp() != null)
 				representation = "[from: " + idParam.getRemoteIdp() + "] " + representation;
-			if (idParam.getConfirmationData() != null)
+			if (idParam.getConfirmationInfo() != null)
 			{
-				ConfirmationData cdata = idParam.getConfirmationData();
+				ConfirmationInfo cdata = idParam.getConfirmationInfo();
 				representation = representation + "    [confirmed= "
-						+ cdata.isConfirmed() + "]";
-				if (cdata.getConfirmationDate() != 0)
+						+ cdata.isConfirmed() + ";";
+				if (cdata.isConfirmed())
 				{
-					Date dt = new Date(cdata.getConfirmationDate());
-					representation = representation
-							+ "    [confirmation date= "
-							+ new SimpleDateFormat(
-									Constants.AMPM_DATE_FORMAT)
-									.format(dt) + "]";
+					if (cdata.getConfirmationDate() != 0)
+					{
+						Date dt = new Date(cdata.getConfirmationDate());
+						representation = representation
+								+ " confirmation date= "
+								+ new SimpleDateFormat("dd/MM/YY h:mm a")
+										.format(dt) + "]";
+					}
+				} else
+				{
+					representation = representation + " send request="
+							+ cdata.getSentRequestAmount() + "]";
 				}
+				
 			}
 			identities.addEntry(representation);
 		}

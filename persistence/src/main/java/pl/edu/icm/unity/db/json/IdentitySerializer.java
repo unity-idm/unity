@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.basic.ConfirmationData;
+import pl.edu.icm.unity.types.basic.ConfirmationInfo;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
@@ -50,8 +50,8 @@ public class IdentitySerializer
 			main.put("realm", src.getRealm());
 		if (src.getTarget() != null)
 			main.put("target", src.getTarget());
-		if (src.getConfirmationData() != null)
-			main.put("confirmationData", src.getConfirmationData().getSerializedConfiguration());
+		if (src.getConfirmationInfo() != null)
+			main.put("confirmationData", src.getConfirmationInfo().getSerializedConfiguration());
 		try
 		{
 			return mapper.writeValueAsBytes(main);
@@ -95,9 +95,9 @@ public class IdentitySerializer
 		if (main.has("target"))
 			target.setTarget(main.get("target").asText());
 		if (main.has("confirmationData")){
-			ConfirmationData conData = new ConfirmationData();
+			ConfirmationInfo conData = new ConfirmationInfo();
 			conData.setSerializedConfiguration(main.get("confirmationData").asText());
-			target.setConfirmationData(conData);
+			target.setConfirmationInfo(conData);
 		}
 			
 		

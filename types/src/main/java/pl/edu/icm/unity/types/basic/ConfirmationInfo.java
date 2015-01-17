@@ -13,21 +13,21 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * Contains all confirmation data
+ * Stores information about confirmation. 
  * 
  * @author P. Piernik
  * 
  */
-public class ConfirmationData implements JsonSerializable
+public class ConfirmationInfo implements JsonSerializable
 {
 	private boolean confirmed;
 	private long confirmationDate;
 	private int sentRequestAmount;
 
-	public ConfirmationData()
+	public ConfirmationInfo()
 	{	
 	}
-	public ConfirmationData(int sentRequestAmount)
+	public ConfirmationInfo(int sentRequestAmount)
 	{
 		this.sentRequestAmount = sentRequestAmount;
 	}
@@ -103,9 +103,9 @@ public class ConfirmationData implements JsonSerializable
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof ConfirmationData))
+		if (!(obj instanceof ConfirmationInfo))
 			return false;
-		ConfirmationData other = (ConfirmationData) obj;
+		ConfirmationInfo other = (ConfirmationInfo) obj;
 
 		if (confirmed != other.isConfirmed())
 			return false;

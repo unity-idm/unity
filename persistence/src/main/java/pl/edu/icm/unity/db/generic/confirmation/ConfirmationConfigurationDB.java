@@ -42,7 +42,7 @@ public class ConfirmationConfigurationDB extends GenericObjectsDB<ConfirmationCo
 				"confirmation configuration");
 		notificationManager.addListener(new AttributeTypeChangeListener());
 		notificationManager.addListener(new MessageTemplateChangeListener());
-		notificationManager.addListener(new NotificationChannelChangeLister());
+//		notificationManager.addListener(new NotificationChannelChangeLister());
 	}
 
 	private class AttributeTypeChangeListener implements
@@ -65,7 +65,7 @@ public class ConfirmationConfigurationDB extends GenericObjectsDB<ConfirmationCo
 				SqlSession sql) throws EngineException
 		{
 			if (oldObject.getValueType() == null
-					|| !oldObject.getValueType().hasValuesVerifiable())
+					|| !oldObject.getValueType().isVerifiable())
 				return;
 			preRemove(oldObject, sql);
 		}
@@ -75,7 +75,7 @@ public class ConfirmationConfigurationDB extends GenericObjectsDB<ConfirmationCo
 				throws EngineException
 		{
 			if (removedObject.getValueType() == null
-					|| !removedObject.getValueType().hasValuesVerifiable())
+					|| !removedObject.getValueType().isVerifiable())
 				return;
 			try
 			{
@@ -140,46 +140,47 @@ public class ConfirmationConfigurationDB extends GenericObjectsDB<ConfirmationCo
 
 		}
 	}
-
-	private class NotificationChannelChangeLister implements
-			DependencyChangeListener<NotificationChannel>
-	{
-
-		@Override
-		public String getDependencyObjectType()
-		{
-			return NotificationChannelHandler.NOTIFICATION_CHANNEL_ID;
-		}
-
-		@Override
-		public void preAdd(NotificationChannel newObject, SqlSession sql)
-				throws EngineException
-		{
-
-		}
-
-		@Override
-		public void preUpdate(NotificationChannel oldObject,
-				NotificationChannel updatedObject, SqlSession sql)
-				throws EngineException
-		{
-
-		}
-
-		@Override
-		public void preRemove(NotificationChannel removedObject, SqlSession sql)
-				throws EngineException
-		{
-			List<ConfirmationConfiguration> cfgs = getAll(sql);
-			for (ConfirmationConfiguration cfg : cfgs)
-			{
-				if (removedObject.getName().equals(cfg.getNotificationChannel()))
-					throw new SchemaConsistencyException(
-							"The notification channel is used by a "
-									+ cfg.getNameToConfirm()
-									+ "  confirmation configuration ");
-			}
-
-		}
-	}
+	
+//For future
+//	private class NotificationChannelChangeLister implements
+//			DependencyChangeListener<NotificationChannel>
+//	{
+//
+//		@Override
+//		public String getDependencyObjectType()
+//		{
+//			return NotificationChannelHandler.NOTIFICATION_CHANNEL_ID;
+//		}
+//
+//		@Override
+//		public void preAdd(NotificationChannel newObject, SqlSession sql)
+//				throws EngineException
+//		{
+//
+//		}
+//
+//		@Override
+//		public void preUpdate(NotificationChannel oldObject,
+//				NotificationChannel updatedObject, SqlSession sql)
+//				throws EngineException
+//		{
+//
+//		}
+//
+//		@Override
+//		public void preRemove(NotificationChannel removedObject, SqlSession sql)
+//				throws EngineException
+//		{
+//			List<ConfirmationConfiguration> cfgs = getAll(sql);
+//			for (ConfirmationConfiguration cfg : cfgs)
+//			{
+//				if (removedObject.getName().equals(cfg.getNotificationChannel()))
+//					throw new SchemaConsistencyException(
+//							"The notification channel is used by a "
+//									+ cfg.getNameToConfirm()
+//									+ "  confirmation configuration ");
+//			}
+//
+//		}
+//	}
 }

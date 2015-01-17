@@ -4,26 +4,23 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.ext;
 
-import java.sql.Date;
-import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.types.basic.ConfirmationData;
+import pl.edu.icm.unity.types.basic.ConfirmationInfo;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 
-import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Component;
@@ -66,7 +63,29 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 	public String getValueAsString(VerifiableEmail value,
 			AttributeValueSyntax<VerifiableEmail> syntax, int limited)
 	{
-		return new String(syntax.serialize(value));
+		StringBuilder rep = new StringBuilder();
+		rep.append(value.getValue());
+		ConfirmationInfo cdata = value.getConfirmationInfo();
+		rep.append(" [");
+		if (cdata != null)
+		{
+			rep.append(msg.getMessage("VerifiableEmailAttributeHandler.confirmed",
+					cdata.isConfirmed()));
+			if (cdata.isConfirmed())
+			{
+				if (cdata.getConfirmationDate() != 0)
+				{
+					rep.append("; " + msg.getMessage("VerifiableEmailAttributeHandler.confirmationDate",
+									new Date(cdata.getConfirmationDate())));
+				}
+			} else
+			{
+				rep.append("; "+ msg.getMessage("VerifiableEmailAttributeHandler.sentRequests",
+								cdata.getSentRequestAmount()));
+			}
+		}
+		rep.append("]");
+		return rep.toString();
 	}
 
 	@Override
@@ -151,7 +170,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 				syntax.validate(email);
 				field.setComponentError(null);
 				if (value != null && field.getValue().equals(value.getValue()))
-					email.setConfirmationData(value.getConfirmationData());
+					email.setConfirmationInfo(value.getConfirmationInfo());
 				return email;
 			} catch (IllegalAttributeValueException e)
 			{
@@ -179,36 +198,8 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 			pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize size)
 	{
 		FormLayout main = new FormLayout();
-		Label val = new Label(value.getValue());
-		Label confirmStatusL = new Label();
-		confirmStatusL.setCaption(msg.getMessage("VerifiableEmailAttributeHandler.verified"));
-		Label confirmationDateL = new Label();
-		confirmationDateL.setCaption(msg.getMessage("VerifiableEmailAttributeHandler.verificationDate"));
-		Label sentReqL = new Label();
-		sentReqL.setCaption(msg.getMessage("VerifiableEmailAttributeHandler.sentRequests"));
-		ConfirmationData conData = value.getConfirmationData();
+		Label val = new Label(getValueAsString(value, syntax, 80));
 		main.addComponent(val);
-		if (conData != null)
-		{
-			confirmStatusL.setValue(String.valueOf(conData.isConfirmed()));
-			sentReqL.setValue(String.valueOf(conData.getSentRequestAmount()));
-			main.addComponent(confirmStatusL);
-
-			if (conData.isConfirmed())
-			{
-				if (conData.getConfirmationDate() != 0)
-				{
-					Date dt = new Date(conData.getConfirmationDate());
-					confirmationDateL.setValue(new SimpleDateFormat(
-							Constants.AMPM_DATE_FORMAT).format(dt));
-					main.addComponent(confirmationDateL);
-				}
-			} else
-			{
-				main.addComponent(sentReqL);
-			}
-
-		}
 		return main;
 	}
 }
