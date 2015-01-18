@@ -17,9 +17,9 @@ import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.VerifiableElement;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
  * Attribute confirmation facility.
@@ -103,9 +103,12 @@ public class AttributeFacility extends IdentityFacility implements ConfirmationF
 		attrState.setSerializedConfiguration(state);
 		return attrState;
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void updateAfterSendRequest(String state) throws EngineException
+	public void processAfterSendRequest(String state) throws EngineException
 	{
 		AttribiuteConfirmationState attrState = new AttribiuteConfirmationState();
 		attrState.setSerializedConfiguration(state);

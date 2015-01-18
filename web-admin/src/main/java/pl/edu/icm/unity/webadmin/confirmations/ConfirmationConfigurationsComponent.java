@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.confirmation;
+package pl.edu.icm.unity.webadmin.confirmations;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -172,7 +172,6 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 						refresh();
 					}
 				}, AttributeTypesUpdatedEvent.class);
-
 	}
 
 	private Collection<ConfirmationConfiguration> getItems(Object target)
@@ -492,7 +491,6 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 					"ConfirmationConfigurationsComponent.confirmDelete",
 					confirmText.substring(2)), new ConfirmDialog.Callback()
 			{
-
 				@Override
 				public void onConfirm()
 				{

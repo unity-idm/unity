@@ -10,8 +10,8 @@ import java.util.ArrayList;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.ConfirmationInfo;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationForm;

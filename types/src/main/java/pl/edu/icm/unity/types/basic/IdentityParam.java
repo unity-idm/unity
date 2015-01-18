@@ -4,7 +4,8 @@
  */
 package pl.edu.icm.unity.types.basic;
 
-import pl.edu.icm.unity.types.VerifiableElement;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

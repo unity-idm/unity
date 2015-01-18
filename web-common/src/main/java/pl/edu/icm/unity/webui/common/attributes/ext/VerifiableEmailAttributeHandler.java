@@ -14,7 +14,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.types.basic.ConfirmationInfo;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;

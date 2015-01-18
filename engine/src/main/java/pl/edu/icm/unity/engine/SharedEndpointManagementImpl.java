@@ -37,7 +37,6 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 	@Autowired
 	public SharedEndpointManagementImpl(JettyServer httpServer) throws EngineException
 	{
-		//TODO CHECK
 		sharedHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		sharedHandler.setContextPath(CONTEXT_PATH);
 		httpServer.deployHandler(sharedHandler);

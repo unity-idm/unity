@@ -78,8 +78,11 @@ public class RegistrationReqIdentityFacility extends
 						: "ConfirmationStatus.identityChanged", idState.getType());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void updateAfterSendRequest(String state) throws EngineException
+	public void processAfterSendRequest(String state) throws EngineException
 	{
 		RegistrationReqIdentityConfirmationState idState = getState(state);
 		String requestId = idState.getOwner();

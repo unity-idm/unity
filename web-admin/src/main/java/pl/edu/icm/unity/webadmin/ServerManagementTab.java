@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webadmin.confirmation.ConfirmationConfigurationsComponent;
+import pl.edu.icm.unity.webadmin.confirmations.ConfirmationConfigurationsComponent;
 import pl.edu.icm.unity.webadmin.msgtemplate.MessageTemplatesComponent;
 import pl.edu.icm.unity.webadmin.serverman.AuthenticatorsComponent;
 import pl.edu.icm.unity.webadmin.serverman.EndpointsComponent;

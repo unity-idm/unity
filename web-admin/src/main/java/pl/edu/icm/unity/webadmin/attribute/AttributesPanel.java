@@ -27,7 +27,6 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.VerifiableElement;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -36,6 +35,7 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -612,6 +612,8 @@ public class AttributesPanel extends HorizontalSplitPanel
 			List<Attribute<?>> allAttrs = new ArrayList<Attribute<?>>();
 			for (AttributeItem item : items)
 			{
+				if (!item.getAttribute().getAttributeSyntax().isVerifiable())
+					continue;
 				allAttrs.add(item.getAttribute());
 			}
 
@@ -624,8 +626,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			{
 				try
 				{
-
-					Attribute<VerifiableElement> attribute = (Attribute<VerifiableElement>) attr;
+					Attribute<?> attribute = (Attribute<?>) attr;
 					sendConfirmationRequest(attribute);
 				} catch (EngineException e)
 				{
@@ -683,16 +684,16 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 	}
 	
-	private void sendConfirmationRequest(Attribute<VerifiableElement> attribute) throws EngineException
+	private void sendConfirmationRequest(Attribute<?> attribute) throws EngineException
 	{
 		AttribiuteConfirmationState state = new AttribiuteConfirmationState();
 		state.setOwner(owner.getEntityId().toString());
 		state.setGroup(groupPath);
 		state.setType(attribute.getName());
-		for (VerifiableElement val : attribute.getValues())
+		for (Object v : attribute.getValues())
 		{
+			VerifiableElement val = (VerifiableElement) v;
 			state.setValue(val.getValue());
-
 			confirmationManager.sendConfirmationRequest(state
 					.getSerializedConfiguration());
 
@@ -753,10 +754,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 		{
 			return;
 		}
-		Attribute<VerifiableElement> vattr = (Attribute<VerifiableElement>) changedAttribute;
 		try
 		{
-			sendConfirmationRequest(vattr);
+			sendConfirmationRequest(changedAttribute);
 		} catch (Exception e)
 		{
 			ErrorPopup.showError(msg,

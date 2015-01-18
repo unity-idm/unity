@@ -77,7 +77,7 @@ public class InitializerCommon
 
 		AttributesClass namingAC = new AttributesClass(NAMING_AC, 
 				"Identification attributes, should be set for everybody to enable common system features", 
-				new HashSet<String>(), 
+				new HashSet<String>(Arrays.asList(VERIFIABLE_EMAIL_ATTR)), 
 				new HashSet<String>(Arrays.asList(CN_ATTR, EMAIL_ATTR)), false, 
 				new HashSet<String>());
 		if (!allAcs.containsKey(NAMING_AC))
@@ -134,7 +134,6 @@ public class InitializerCommon
 		((StringAttributeSyntax)email.getValueType()).setMaxLength(33);
 		((StringAttributeSyntax)email.getValueType()).setMinLength(5);
 		((StringAttributeSyntax)email.getValueType()).setRegexp("[^@]+@.+\\..+");
-		//email.getMetadata().put(ContactEmailMetadataProvider.NAME, "");
 		if (!existingATs.contains(email))
 			attrMan.addAttributeType(email);
 		

@@ -30,13 +30,12 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 @Component
 public class IdentityFacility extends BaseFacility implements ConfirmationFacility
 {
-	protected DBSessionManager db;
 	protected DBIdentities dbIdentities;
 
 	@Autowired
 	protected IdentityFacility(DBSessionManager db, DBIdentities dbIdentities)
 	{
-		this.db = db;
+		super(db);
 		this.dbIdentities = dbIdentities;
 	}
 
@@ -52,8 +51,11 @@ public class IdentityFacility extends BaseFacility implements ConfirmationFacili
 		return "Confirms verifiable identity";
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public ConfirmationStatus confirm(String state) throws EngineException
+	public ConfirmationStatus processConfirmation(String state) throws EngineException
 	{
 		BaseConfirmationState baseState = new BaseConfirmationState();
 		baseState.setSerializedConfiguration(state);
@@ -124,8 +126,11 @@ public class IdentityFacility extends BaseFacility implements ConfirmationFacili
 		return status;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void updateAfterSendRequest(String state) throws EngineException
+	public void processAfterSendRequest(String state) throws EngineException
 	{
 		IdentityConfirmationState idState = getState(state);
 		SqlSession sql = db.getSqlSession(true);

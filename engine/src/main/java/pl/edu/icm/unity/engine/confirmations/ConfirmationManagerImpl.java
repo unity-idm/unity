@@ -58,11 +58,10 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	private TokensManagement tokensMan;
 	private NotificationProducerImpl notificationProducer;
 	private ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry;
-	private URL advertisedAddress;
-
 	private MessageTemplateDB mtDB;
 	private ConfirmationConfigurationDB configurationDB;
 	private DBSessionManager db;
+	private URL advertisedAddress;
 
 	@Autowired
 	public ConfirmationManagerImpl(TokensManagement tokensMan,
@@ -79,6 +78,45 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		this.mtDB = mtDB;
 		this.configurationDB = configurationDB;
 		this.db = db;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void sendConfirmationRequest(String state) throws EngineException
+	{
+		BaseConfirmationState baseState = new BaseConfirmationState();
+		baseState.setSerializedConfiguration(state);
+		String facilityId = baseState.getFacilityId();
+		ConfirmationFacility facility = getFacility(facilityId);
+		ConfirmationConfiguration configEntry = null;
+		try
+		{
+			if (facilityId.equals(AttribiuteConfirmationState.FACILITY_ID)
+					|| facilityId.equals(RegistrationReqAttribiuteConfirmationState.FACILITY_ID))
+				configEntry = getConfiguration(
+						ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
+						baseState.getType());
+			else
+				configEntry = getConfiguration(
+						ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE,
+						baseState.getType());
+
+		} catch (Exception e)
+		{
+			log.debug("Cannot get confirmation configuration for "
+					+ baseState.getType()
+					+ " skiping sendig confirmation request to "
+					+ baseState.getValue());
+			return;
+		}
+		if (configEntry == null)
+			return;
+
+		sendConfirmationRequest(baseState.getValue(), configEntry.getNotificationChannel(),
+				configEntry.getMsgTemplate(), state, facility);
+
 	}
 
 	private void sendConfirmationRequest(String recipientAddress, String channelName,
@@ -120,45 +158,45 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 
 		log.debug("Send confirmation request to " + recipientAddress + " with token = "
 				+ token + " and state=" + state);
-		
+
 		notificationProducer.sendNotification(recipientAddress, channelName, templateId,
 				params);
-		facility.updateAfterSendRequest(state);
+		facility.processAfterSendRequest(state);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void sendConfirmationRequest(String state) throws EngineException
+	public synchronized ConfirmationStatus processConfirmation(String token)
+			throws EngineException
 	{
-		BaseConfirmationState baseState = new BaseConfirmationState();
-		baseState.setSerializedConfiguration(state);
-		String facilityId = baseState.getFacilityId();
-		ConfirmationFacility facility = getFacility(facilityId);
-		ConfirmationConfiguration configEntry = null;
+		if (token == null)
+			return new ConfirmationStatus(false, "ConfirmationStatus.invalidToken");
+
+		Token tk = null;
 		try
 		{
-			if (facilityId.equals(AttribiuteConfirmationState.FACILITY_ID)
-					|| facilityId.equals(RegistrationReqAttribiuteConfirmationState.FACILITY_ID))
-				configEntry = getConfiguration(
-						ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
-						baseState.getType());
-			else
-				configEntry = getConfiguration(
-						ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE,
-						baseState.getType());
-
-		} catch (Exception e)
+			tk = tokensMan.getTokenById(
+					ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token);
+		} catch (WrongArgumentException e)
 		{
-			log.debug("Cannot get confirmation configuration for "
-					+ baseState.getType()
-					+ " skiping sendig confirmation request to "
-					+ baseState.getValue());
+			return new ConfirmationStatus(false, "ConfirmationStatus.invalidToken");
 		}
-		if (configEntry == null)
-			return;
 
-		sendConfirmationRequest(baseState.getValue(), configEntry.getNotificationChannel(),
-				configEntry.getMsgTemplate(), state, facility);
+		Date today = new Date();
+		if (tk.getExpires().compareTo(today) < 0)
+			return new ConfirmationStatus(false, "ConfirmationStatus.expiredToken");
 
+		String rowState = new String(tk.getContents());
+		BaseConfirmationState baseState = new BaseConfirmationState();
+		baseState.setSerializedConfiguration(rowState);
+		ConfirmationFacility facility = getFacility(baseState.getFacilityId());
+		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, token);
+		log.debug("Process confirmation using " + facility.getName() + " facility");
+		ConfirmationStatus status = facility.processConfirmation(rowState);
+
+		return status;
 	}
 
 	private ConfirmationConfiguration getConfiguration(String typeToConfirm,
@@ -190,42 +228,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		}
 	}
 
-	@Override
-	public synchronized ConfirmationStatus proccessConfirmation(String token)
-			throws EngineException
-	{
-		if (token == null)
-			return new ConfirmationStatus(false, "ConfirmationStatus.invalidToken");
-
-		Token tk = null;
-		try
-		{
-			tk = tokensMan.getTokenById(
-					ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token);
-		} catch (WrongArgumentException e)
-		{
-			return new ConfirmationStatus(false, "ConfirmationStatus.invalidToken");
-		}
-
-		Date today = new Date();
-		if (tk.getExpires().compareTo(today) < 0)
-			return new ConfirmationStatus(false, "ConfirmationStatus.expiredToken");
-
-		String rowState = new String(tk.getContents());
-		BaseConfirmationState baseState = new BaseConfirmationState();
-		baseState.setSerializedConfiguration(rowState);
-		ConfirmationFacility facility = getFacility(baseState.getFacilityId());
-
-		ConfirmationStatus status = facility.confirm(rowState);
-		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, token);
-
-		return status;
-	}
-
-	
 	private ConfirmationFacility getFacility(String id) throws InternalException
 	{
-
 		ConfirmationFacility facility = null;
 		try
 		{

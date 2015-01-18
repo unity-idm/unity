@@ -12,9 +12,9 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
-import pl.edu.icm.unity.types.basic.ConfirmationInfo;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.HtmlLabel;
 

@@ -32,13 +32,13 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.EntityInformation;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.basic.ConfirmationInfo;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityRepresentation;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 /**
  * Identities related DB operations

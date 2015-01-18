@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.confirmation;
+package pl.edu.icm.unity.webadmin.confirmations;
 
 import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
 import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;

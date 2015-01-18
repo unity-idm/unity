@@ -14,9 +14,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.basic.ConfirmationInfo;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 /**
  * Handles serialization of {@link IdentityParam} metadata.

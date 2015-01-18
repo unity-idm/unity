@@ -102,13 +102,13 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 	private VerticalLayout getSuccessfullStatus(String infoKey, String[] infoArgs)
 	{
 		return getStatus(Images.ok32.getResource(),
-				msg.getMessage("ConfirmationStatus.successfull"), infoKey, infoArgs);
+				msg.getMessage("ConfirmationStatus.successful"), infoKey, infoArgs);
 	}
 
 	private VerticalLayout getUnsuccessfullStatus(String infoKey, String[] infoArgs)
 	{
 		return getStatus(Images.error32.getResource(),
-				msg.getMessage("ConfirmationStatus.unsuccessfull"), infoKey, infoArgs);
+				msg.getMessage("ConfirmationStatus.unsuccessful"), infoKey, infoArgs);
 	}
 
 	private VerticalLayout getStatus(Resource icon, String title, String infoKey, Object[] infoArgs)
@@ -141,7 +141,7 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 		String token = request.getParameter(ConfirmationServlet.CONFIRMATION_TOKEN_ARG);
 		try
 		{
-			status = confirmationMan.proccessConfirmation(token);
+			status = confirmationMan.processConfirmation(token);
 
 		} catch (Exception e)
 		{

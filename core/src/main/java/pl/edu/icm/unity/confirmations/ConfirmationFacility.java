@@ -15,6 +15,19 @@ import pl.edu.icm.unity.types.DescribedObject;
  */
 public interface ConfirmationFacility extends DescribedObject
 {
-	public ConfirmationStatus confirm(String state) throws EngineException;
-	public void updateAfterSendRequest(String state) throws EngineException;
+	/**
+	 * Try to confirm verifiable element based on state. 
+	 * @param state
+	 * @return
+	 * @throws EngineException
+	 */
+	public ConfirmationStatus processConfirmation(String state) throws EngineException;
+	
+	/**
+	 * Update verifiable element set as unconfirmed and increase the value of
+	 * sent request. 
+	 * @param state
+	 * @throws EngineException
+	 */
+	public void processAfterSendRequest(String state) throws EngineException;
 }

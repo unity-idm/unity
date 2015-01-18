@@ -14,7 +14,7 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.types.basic.ConfirmationInfo;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 /**
  * Verifiable email attribute value syntax.

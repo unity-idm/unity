@@ -40,7 +40,7 @@
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.serverman.AuthenticatorsComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.tprofile.TranslationProfilesComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.msgtemplate.MessageTemplatesComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.confirmation.ConfirmationConfigurationsComponent"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.confirmations.ConfirmationConfigurationsComponent"/>
 	
 	
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormsComponent"/>

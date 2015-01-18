@@ -9,42 +9,62 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.VerifiableElement;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.ConfirmationInfo;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
- * Contains methods used in all facilities
+ * Base for all facilities
  * 
  * @author P. Piernik
  * 
  */
 public abstract class BaseFacility
 {
-	protected void updateConfirmationInfo(VerifiableElement el, String value)
+	protected DBSessionManager db;
+	
+	public BaseFacility(DBSessionManager db)
 	{
-		if (el.getValue().equals(value))
+		this.db = db;
+	}
+	
+	/**
+	 * Check if verifiable element has given value, if yes set element 
+	 * as unconfirmed and increases amount of sent request
+	 * @param verifiableElement
+	 * @param value
+	 */
+	protected void updateConfirmationInfo(VerifiableElement verifiableElement, String value)
+	{
+		if (verifiableElement.getValue().equals(value))
 		{
-			if (el.getConfirmationInfo() != null)
+			if (verifiableElement.getConfirmationInfo() != null)
 			{
-				int amount = el.getConfirmationInfo().getSentRequestAmount();
-				el.getConfirmationInfo().setSentRequestAmount(amount + 1);
-				el.getConfirmationInfo().setConfirmed(false);
-				el.getConfirmationInfo().setConfirmationDate(0);
+				int amount = verifiableElement.getConfirmationInfo().getSentRequestAmount();
+				verifiableElement.getConfirmationInfo().setSentRequestAmount(amount + 1);
+				verifiableElement.getConfirmationInfo().setConfirmed(false);
+				verifiableElement.getConfirmationInfo().setConfirmationDate(0);
 			} else
 			{
-				el.setConfirmationInfo(new ConfirmationInfo(1));
+				verifiableElement.setConfirmationInfo(new ConfirmationInfo(1));
 			}
 		}
 	}
 
-	private boolean confirmSingleElement(VerifiableElement verifiable, String value)
+	/**
+	 * Check if verifiable element has given value, if yes set element as confirmed
+	 * @param verifiableElement
+	 * @param value
+	 * @return
+	 */
+	private boolean confirmSingleElement(VerifiableElement verifiableElement, String value)
 	{
-		if (verifiable.getValue().equals(value))
+		if (verifiableElement.getValue().equals(value))
 		{
-			ConfirmationInfo confirmationData = verifiable.getConfirmationInfo();
+			ConfirmationInfo confirmationData = verifiableElement.getConfirmationInfo();
 			confirmationData.setConfirmed(true);
 			Date today = new Date();
 			confirmationData.setConfirmationDate(today.getTime());
@@ -54,6 +74,16 @@ public abstract class BaseFacility
 		return false;
 	}
 
+	/**
+	 * Check which attributes in collection has given group, name, value and is verifiable, if yes set attribute 
+	 * as confirmed
+	 * @param attrs
+	 * @param attrName
+	 * @param group
+	 * @param value
+	 * @return
+	 * @throws EngineException
+	 */
 	protected Collection<Attribute<?>> confirmAttributes(Collection<Attribute<?>> attrs,
 			String attrName, String group, String value) throws EngineException
 	{
@@ -76,6 +106,14 @@ public abstract class BaseFacility
 		return confirmed;
 	}
 
+	/**
+	 * Check which identitites in collection has given type and value and, if yes set identity as confirmed
+	 * @param identities
+	 * @param type
+	 * @param value
+	 * @return
+	 * @throws EngineException
+	 */
 	protected Collection<IdentityParam> confirmIdentity(Collection<IdentityParam> identities,
 			String type, String value) throws EngineException
 	{

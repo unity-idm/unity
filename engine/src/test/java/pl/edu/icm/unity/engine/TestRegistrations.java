@@ -349,16 +349,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
 		clearDB();
-		
-		
-//		initAndCreateForm(false, "attr[\"verifiableEmail\"].verified == false");
-//		request = getRequest();
-//		registrationsMan.submitRegistrationRequest(request, true);
-//		fromDb = registrationsMan.getRegistrationRequests().get(0);
-//		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
-//		clearDB();
-//		idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test"));
-		
+				
 		initAndCreateForm(false, "agrs[0] == true");
 		request = getRequest();
 		registrationsMan.submitRegistrationRequest(request, true);
@@ -453,7 +444,6 @@ public class TestRegistrations extends DBIntegrationTestBase
 		request.setAgreements(Collections.singletonList(new Selection(true)));
 		List<Attribute<?>> attrs = new ArrayList<Attribute<?>>();
 		attrs.add(new StringAttribute("email", "/", AttributeVisibility.full, "foo@a.b"));
-		//attrs.add(new VerifiableEmailAttribute("verifiableEmail", "/", AttributeVisibility.full, "foo@a.b"));
 		request.setAttributes(attrs);
 		request.setComments("comments");
 		CredentialParamValue cp = new CredentialParamValue();

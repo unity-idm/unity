@@ -48,10 +48,10 @@ import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.types.VerifiableElement;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
@@ -523,7 +523,6 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			if (attr.getValues().size() > 0
 					&& attr.getAttributeSyntax().isVerifiable())
 			{
-				Attribute<VerifiableElement> verifiableAttr = (Attribute<VerifiableElement>) attr;
 				AttribiuteConfirmationState state;
 				if (entityId == null)
 				{
@@ -534,10 +533,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 					state = new AttribiuteConfirmationState();
 					state.setOwner(entityId.toString());
 				}
-				state.setGroup(verifiableAttr.getGroupPath());
-				state.setType(verifiableAttr.getName());
-				for (VerifiableElement val : verifiableAttr.getValues())
+				state.setGroup(attr.getGroupPath());
+				state.setType(attr.getName());
+				for (Object v : attr.getValues())
 				{
+					VerifiableElement val = (VerifiableElement) v;
 					state.setValue(val.getValue());
 					confirmationManager.sendConfirmationRequest(state
 							.getSerializedConfiguration());

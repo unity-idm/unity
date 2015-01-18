@@ -49,15 +49,15 @@ import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.types.VerifiableElement;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.ConfirmationInfo;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
@@ -629,6 +629,7 @@ public class InternalRegistrationManagment
 			newstate.setOwner(entityId);
 			newstate.setType(oldState.getType());
 			newstate.setValue(oldState.getValue());
+			log.debug("Update confirmation token " + tk.getValue() + " change facility to " + newstate.getFacilityId());
 			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), newstate
 					.getSerializedConfiguration().getBytes(), tk.getCreated(),
 					tk.getExpires());
@@ -673,6 +674,7 @@ public class InternalRegistrationManagment
 			newstate.setOwner(entityId);
 			newstate.setType(oldState.getType());
 			newstate.setValue(oldState.getValue());
+			log.debug("Update confirmation token " + tk.getValue() + " change facility to " + newstate.getFacilityId());
 			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), newstate
 					.getSerializedConfiguration().getBytes(), tk.getCreated(),
 					tk.getExpires());

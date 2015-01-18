@@ -86,7 +86,7 @@ public class TestNotifications extends DBIntegrationTestBase
 	{
 		String emailCfg = "";
 		String emailCfg2 = "a=b";
-		assertEquals(1, notMan.getNotificationFacilities().size());
+		assertEquals(2, notMan.getNotificationFacilities().size());
 		assertTrue(notMan.getNotificationFacilities().contains(EmailFacility.NAME));
 		assertEquals(0, notMan.getNotificationChannels().size());
 		notMan.addNotificationChannel(new NotificationChannel("ch1", "", emailCfg, EmailFacility.NAME));

@@ -5,8 +5,8 @@
 
 package pl.edu.icm.unity.stdext.attr;
 
-import pl.edu.icm.unity.types.VerifiableElement;
-import pl.edu.icm.unity.types.basic.ConfirmationInfo;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
  * Email which can be confirmed by user. 
