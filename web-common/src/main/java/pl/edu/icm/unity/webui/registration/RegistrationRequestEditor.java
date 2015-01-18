@@ -594,7 +594,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<aParams.size(); i++)
 		{
 			AgreementRegistrationParam aParam = aParams.get(i);
-			HtmlSimplifiedLabel aText = new HtmlSimplifiedLabel(aParam.getText());
+			HtmlSimplifiedLabel aText = new HtmlSimplifiedLabel(aParam.getText().getValue(msg));
 			CheckBox cb = new CheckBox(msg.getMessage("RegistrationRequest.agree"));
 			agreementSelectors.add(cb);
 			layout.addComponent(aText);

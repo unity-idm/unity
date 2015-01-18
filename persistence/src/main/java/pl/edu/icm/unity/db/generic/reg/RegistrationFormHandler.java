@@ -60,7 +60,7 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 		try
 		{
 			ObjectNode root = jsonMapper.createObjectNode();
-			root.set("Agreements", jsonMapper.valueToTree(value.getAgreements()));
+			root.set("Agreements", serializeAgreements(value.getAgreements()));
 			addAttributes(root, value.getAttributeAssignments());
 			root.set("AttributeClassAssignments", jsonMapper.valueToTree(value.getAttributeClassAssignments()));
 			root.set("AttributeParams", jsonMapper.valueToTree(value.getAttributeParams()));
@@ -90,6 +90,35 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 		}
 	}
 
+	private JsonNode serializeAgreements(List<AgreementRegistrationParam> agreements)
+	{
+		ArrayNode root = jsonMapper.createArrayNode();
+		for (AgreementRegistrationParam agreement: agreements)
+		{
+			ObjectNode node = root.addObject();
+			node.set("i18nText", I18nStringJsonUtil.toJson(agreement.getText()));
+			node.put("manatory", agreement.isManatory());
+		}
+		return root;
+	}
+	
+	private List<AgreementRegistrationParam> loadAgreements(ArrayNode root)
+	{
+		List<AgreementRegistrationParam> ret = new ArrayList<AgreementRegistrationParam>();
+		
+		for (JsonNode nodeR: root)
+		{
+			ObjectNode node = (ObjectNode) nodeR;
+			AgreementRegistrationParam param = new AgreementRegistrationParam();
+			ret.add(param);
+			
+			param.setText(I18nStringJsonUtil.fromJson(node.get("i18nText"), node.get("text")));
+			param.setManatory(node.get("manatory").asBoolean());
+		}
+		
+		return ret;
+	}
+	
 	private void addAttributes(ObjectNode root, List<Attribute<?>> attributes)
 	{
 		ArrayNode jsonAttrs = root.putArray("AttributeAssignments");
@@ -118,13 +147,11 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 		{
 			ObjectNode root = (ObjectNode) jsonMapper.readTree(blob.getContents());
 			RegistrationForm ret = new RegistrationForm();
+			
 			JsonNode n = root.get("Agreements");
 			if (n != null)
 			{
-				String v = jsonMapper.writeValueAsString(n);
-				List<AgreementRegistrationParam> r = jsonMapper.readValue(v, 
-						new TypeReference<List<AgreementRegistrationParam>>(){});
-				ret.setAgreements(r);
+				ret.setAgreements(loadAgreements((ArrayNode) n));
 			}
 			
 			n = root.get("AttributeAssignments");

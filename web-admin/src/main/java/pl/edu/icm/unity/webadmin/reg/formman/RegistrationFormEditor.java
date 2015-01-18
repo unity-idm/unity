@@ -68,7 +68,6 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Slider;
 import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
@@ -488,7 +487,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		Editor<AgreementRegistrationParam>
 	{
 		private CheckBox required;
-		private TextArea text;
+		private I18nTextArea text;
 		
 		@Override
 		public Editor<AgreementRegistrationParam> getEditor()
@@ -500,8 +499,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		public ComponentsContainer getEditorComponent(AgreementRegistrationParam value, int index)
 		{
 			required = new CheckBox(msg.getMessage("RegistrationFormEditor.mandatory"));
-			text = new TextArea(msg.getMessage("RegistrationFormViewer.agreement"));
-			text.setWidth(100, Unit.PERCENTAGE);
+			text = new I18nTextArea(msg, msg.getMessage("RegistrationFormViewer.agreement"));
 			if (value != null)
 			{
 				required.setValue(value.isManatory());

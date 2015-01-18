@@ -206,12 +206,13 @@ public class RegistrationFormViewer extends VerticalLayout
 		agreements = new ListOfElements<>(msg, new ListOfElements.LabelConverter<AgreementRegistrationParam>()
 		{
 			@Override
-			public Label toLabel(AgreementRegistrationParam value)
+			public VerticalLayout toLabel(AgreementRegistrationParam value)
 			{
-				String content = getOptionalStr(!value.isManatory());
-				HtmlLabel ret = new HtmlLabel(msg);
-				ret.setHtmlValue("RegistrationFormViewer.twoLines", content, value.getText());
-				return ret;			
+				Label mandatory = new Label(getOptionalStr(!value.isManatory()));
+				I18nLabel main = new I18nLabel(msg);
+				main.setValue(value.getText());
+				
+				return new VerticalLayout(mandatory, main);
 			}
 		});
 		agreements.setMargin(true);

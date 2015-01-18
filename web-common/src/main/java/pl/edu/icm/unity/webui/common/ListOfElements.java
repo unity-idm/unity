@@ -12,6 +12,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -180,7 +181,7 @@ public class ListOfElements<T> extends VerticalLayout
 	
 	public interface LabelConverter<T>
 	{
-		public Label toLabel(T value);
+		public Component toLabel(T value);
 	}
 	
 	public interface EditHandler<T>

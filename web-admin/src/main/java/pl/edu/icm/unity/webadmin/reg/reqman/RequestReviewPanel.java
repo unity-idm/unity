@@ -178,8 +178,9 @@ public class RequestReviewPanel extends CustomComponent
 			AgreementRegistrationParam agreementText = form.getAgreements().get(i);
 			String info = (selection.isSelected()) ? msg.getMessage("RequestReviewPanel.accepted") : 
 				msg.getMessage("RequestReviewPanel.notAccepted");
-			String aText = (agreementText.getText().length() > 100) ? 
-					agreementText.getText().substring(0, 100) + "[...]" : agreementText.getText();
+			String agreementTextStr = agreementText.getText().getValue(msg);
+			String aText = (agreementTextStr.length() > 100) ? 
+					agreementTextStr.substring(0, 100) + "[...]" : agreementTextStr;
 			agreements.addEntry(info + ": " +  aText);
 		}
 		

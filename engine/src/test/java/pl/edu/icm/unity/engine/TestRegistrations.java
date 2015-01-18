@@ -373,7 +373,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		AgreementRegistrationParam agreement = new AgreementRegistrationParam();
 		agreement.setManatory(true);
-		agreement.setText("a");
+		agreement.setText(new I18nString("a"));
 		form.setAgreements(Collections.singletonList(agreement));
 		
 		Attribute<?> attr = new StringAttribute("cn", "/", AttributeVisibility.full, "val");

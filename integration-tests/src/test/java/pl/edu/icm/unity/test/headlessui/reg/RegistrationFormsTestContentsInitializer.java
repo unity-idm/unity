@@ -16,6 +16,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -79,7 +80,7 @@ public class RegistrationFormsTestContentsInitializer implements ServerInitializ
 			
 			AgreementRegistrationParam agreement = new AgreementRegistrationParam();
 			agreement.setManatory(false);
-			agreement.setText("a");
+			agreement.setText(new I18nString("a"));
 			form.setAgreements(Collections.singletonList(agreement));
 			
 			

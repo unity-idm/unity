@@ -67,6 +67,11 @@ public class I18nString
 		this.defaultValue = defaultValue;
 	}
 
+	public boolean isEmpty()
+	{
+		return (defaultValue == null || defaultValue.isEmpty()) && values.isEmpty();
+	}
+	
 	@Override
 	public String toString()
 	{
