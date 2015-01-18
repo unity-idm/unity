@@ -223,7 +223,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 				if (t.getIdentityTypeProvider().isVerifiable())
 					vtypes.add(t.getIdentityTypeProvider().getId());
 			}
-			if (vtypes.size() == 0)
+			if (vtypes.isEmpty())
 				ErrorPopup.showNotice(
 						msg,
 						"",
@@ -327,7 +327,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		{
 			Map<String, MessageTemplate> compatibleTemplates = msgMan
 					.getCompatibleTemplates(ConfirmationTemplateDef.NAME);
-			if (compatibleTemplates.size() == 0)
+			if (compatibleTemplates.isEmpty())
 			{
 				ErrorPopup.showNotice(
 						msg,
@@ -348,7 +348,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 	{
 		try
 		{
-			if (notificationsMan.getNotificationChannels().size() == 0)
+			if (notificationsMan.getNotificationChannels().isEmpty())
 			{
 				ErrorPopup.showNotice(
 						msg,
@@ -390,7 +390,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 				names = getVerifiableIdTypes();
 			}
 
-			if (names.size() == 0)
+			if (names.isEmpty())
 			   return;
 
 			try
@@ -400,7 +400,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 					if (names.contains(c.getNameToConfirm()))
 						names.remove(c.getNameToConfirm());
 				}
-				if (names.size() == 0)
+				if (names.isEmpty())
 				{
 					if (attrConfig)
 					{
@@ -421,7 +421,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 				}
 
 				editor = new ConfirmationConfigurationEditor(msg, notificationsMan,
-						attrsMan, msgMan, toConfirmType.getValue()
+						 msgMan, toConfirmType.getValue()
 								.toString(), names, null);
 			} catch (EngineException e)
 			{
@@ -524,8 +524,8 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 			try
 			{
 				editor = new ConfirmationConfigurationEditor(msg, notificationsMan,
-						attrsMan, msgMan, toConfirmType.getValue()
-								.toString(), null, item);
+						msgMan, toConfirmType.getValue().toString(), null,
+						item);
 			} catch (EngineException e)
 			{
 				ErrorPopup.showError(

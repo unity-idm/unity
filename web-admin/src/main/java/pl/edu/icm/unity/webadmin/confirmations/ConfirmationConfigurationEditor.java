@@ -10,7 +10,6 @@ import java.util.Set;
 import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
 import pl.edu.icm.unity.confirmations.ConfirmationTemplateDef;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
@@ -31,23 +30,17 @@ public class ConfirmationConfigurationEditor extends FormLayout
 {
 
 	private UnityMessageSource msg;
-
 	private NotificationsManagement notificationsMan;
-
 	private MessageTemplateManagement msgMan;
-
 	private ComboBox type;
-
 	private ComboBox msgTemplate;
-
 	private ComboBox notificationChannel;
-
 	private String forType;
 
-	protected ConfirmationConfigurationEditor(UnityMessageSource msg,
-			NotificationsManagement notificationsMan, AttributesManagement attrsMan,
-			MessageTemplateManagement msgMan, String forType, List<String> names,
-			ConfirmationConfiguration toEdit) throws EngineException
+	public ConfirmationConfigurationEditor(UnityMessageSource msg,
+			NotificationsManagement notificationsMan, MessageTemplateManagement msgMan,
+			String forType, List<String> names, ConfirmationConfiguration toEdit)
+			throws EngineException
 	{
 		this.msg = msg;
 		this.notificationsMan = notificationsMan;

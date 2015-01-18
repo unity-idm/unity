@@ -20,7 +20,7 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class ConfirmationConfigurationViewer extends VerticalLayout
 {
-	protected UnityMessageSource msg;
+	private UnityMessageSource msg;
 	private Label type;
 	private Label template;
 	private Label channel;
