@@ -57,7 +57,6 @@ public class RegistrationFormsTestContentsInitializer implements ServerInitializ
 			attrReg.setOptional(true);
 			attrReg.setRetrievalSettings(ParameterRetrievalSettings.automaticAndInteractive);
 			attrReg.setShowGroups(true);
-			attrReg.setUseDescription(true);
 			form.setAttributeParams(Collections.singletonList(attrReg));
 			
 			IdentityRegistrationParam idParam = new IdentityRegistrationParam();

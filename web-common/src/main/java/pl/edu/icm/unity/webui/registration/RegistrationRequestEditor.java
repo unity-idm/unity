@@ -349,6 +349,8 @@ public class RegistrationRequestEditor extends CustomComponent
 			}
 		}
 		
+		ret.setUserLocale(msg.getLocaleCode());
+		
 		if (hasFormException)
 			throw new FormValidationException();
 		

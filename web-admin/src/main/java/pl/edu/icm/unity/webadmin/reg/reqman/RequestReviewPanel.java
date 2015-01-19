@@ -117,6 +117,7 @@ public class RequestReviewPanel extends CustomComponent
 		ret.setFormId(orig.getFormId());
 		ret.setIdentities(orig.getIdentities());
 		ret.setRegistrationCode(orig.getRegistrationCode());
+		ret.setUserLocale(orig.getUserLocale());
 		
 		ret.setGroupSelections(new ArrayList<Selection>(orig.getGroupSelections().size()));
 		for (int i=0, j=0; i<orig.getGroupSelections().size(); i++)

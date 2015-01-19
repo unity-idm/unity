@@ -65,7 +65,7 @@ public class TestNotifications extends DBIntegrationTestBase
 		
 		try
 		{
-			notProducer.sendNotification(admin, "ch1", PasswordResetTemplateDef.NAME, params);
+			notProducer.sendNotification(admin, "ch1", PasswordResetTemplateDef.NAME, params, null);
 			fail("Managed to send email for an entity without email attribute");
 		} catch(IllegalIdentityValueException e){}
 
@@ -73,7 +73,7 @@ public class TestNotifications extends DBIntegrationTestBase
 				"/", AttributeVisibility.full, destinationAddress);
 		attrsMan.setAttribute(admin, emailA, false);
 		Future<NotificationStatus> statusFuture = notProducer.sendNotification(admin, "ch1", 
-				PasswordResetTemplateDef.NAME, params);
+				PasswordResetTemplateDef.NAME, params, null);
 		NotificationStatus status = statusFuture.get();
 		if (!status.isSuccessful())
 			status.getProblem().printStackTrace();

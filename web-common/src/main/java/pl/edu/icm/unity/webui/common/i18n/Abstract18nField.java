@@ -13,6 +13,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
+import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -56,7 +57,6 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 		for (Map.Entry<String, Locale> locE: enabledLocales.entrySet())
 			if (defaultLocaleCode.equals(locE.getValue().toString()))
 				defaultLocaleName = locE.getKey();
-		initUI();
 	}
 
 	public Abstract18nField(UnityMessageSource msg, String caption)
@@ -67,7 +67,7 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 	
 	protected abstract T makeFieldInstance();
 	
-	private void initUI()
+	protected void initUI()
 	{
 		defaultTf = makeFieldInstance();
 		defaultTf.setDescription(defaultLocaleName);
@@ -194,5 +194,13 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 	public Class<? extends I18nString> getType()
 	{
 		return I18nString.class;
+	}
+	
+	public void addFocusListener(FocusListener listener)
+	{
+		for (T tf: translationTFs.values())
+		{
+			tf.addFocusListener(listener);
+		}
 	}
 }

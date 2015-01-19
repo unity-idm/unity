@@ -21,11 +21,13 @@ public class I18nTextField extends Abstract18nField<TextField>
 	public I18nTextField(UnityMessageSource msg)
 	{
 		super(msg);
+		initUI();
 	}
 
 	public I18nTextField(UnityMessageSource msg, String caption)
 	{
 		super(msg, caption);
+		initUI();
 	}
 	
 	@Override

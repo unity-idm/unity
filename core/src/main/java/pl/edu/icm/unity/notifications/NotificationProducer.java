@@ -24,11 +24,12 @@ public interface NotificationProducer
 	 * @param channelName
 	 * @param templateId
 	 * @param params
+	 * @param locale can be null. In such case the server's default locale will be used
 	 * @return
 	 * @throws EngineException
 	 */
 	public Future<NotificationStatus> sendNotification(EntityParam recipient, String channelName, 
-			String templateId, Map<String, String> params) throws EngineException;
+			String templateId, Map<String, String> params, String locale) throws EngineException;
 
 	/**
 	 * Sends a message which is resolved from a given template with parameters.
@@ -36,11 +37,12 @@ public interface NotificationProducer
 	 * @param channelName
 	 * @param templateId
 	 * @param params
+	 * @param locale can be null. In such case the server's default locale will be used
 	 * @return
 	 * @throws EngineException
 	 */
 	public Future<NotificationStatus> sendNotification(String recipientAddress, String channelName, 
-			String templateId, Map<String, String> params) throws EngineException;
+			String templateId, Map<String, String> params, String locale) throws EngineException;
 	
 	/**
 	 * Sends a message which is resolved from a given template with parameters.
@@ -50,9 +52,10 @@ public interface NotificationProducer
 	 * @param channelName
 	 * @param templateId
 	 * @param params
+	 * @param locale can be null. In such case the server's default locale will be used
 	 * @return
 	 * @throws EngineException
 	 */
 	public void sendNotificationToGroup(String group, String channelName, 
-			String templateId, Map<String, String> params) throws EngineException;
+			String templateId, Map<String, String> params, String locale) throws EngineException;
 }

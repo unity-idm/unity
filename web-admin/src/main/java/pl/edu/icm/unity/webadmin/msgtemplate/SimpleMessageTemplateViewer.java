@@ -11,9 +11,8 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 
-import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
@@ -83,13 +82,10 @@ public class SimpleMessageTemplateViewer extends VerticalLayout
 		{
 			MessageTemplate templateC = msgTempMan.getTemplate(template);
 			
-			AbstractTextField subject = new DescriptionTextArea();
-			subject.setCaption(msg.getMessage("MessageTemplateViewer.subject"));
-			subject.setValue(templateC.getRawMessage().getSubject().trim());
-			subject.setReadOnly(true);
-			AbstractTextField body = new DescriptionTextArea();
-			body.setCaption(msg.getMessage("MessageTemplateViewer.body"));
-			body.setValue(templateC.getRawMessage().getBody().trim());
+			I18nLabel subject = new I18nLabel(msg, msg.getMessage("MessageTemplateViewer.subject"));
+			subject.setValue(templateC.getMessage().getSubject());
+			I18nLabel body = new I18nLabel(msg, msg.getMessage("MessageTemplateViewer.body"));
+			body.setValue(templateC.getMessage().getBody());
 			body.setReadOnly(true);
 			main.addComponents(subject, body);
 			messages.add(subject);
@@ -101,8 +97,6 @@ public class SimpleMessageTemplateViewer extends VerticalLayout
 			notSet.setVisible(true);
 			main.setVisible(false);
 		}
-	
-	
 	}
 
 	protected void setEmpty()
@@ -113,11 +107,5 @@ public class SimpleMessageTemplateViewer extends VerticalLayout
 			main.removeComponent(c);
 		}
 		messages.clear();
-		
 	}
-	
-	
-	
-	
-	
 }

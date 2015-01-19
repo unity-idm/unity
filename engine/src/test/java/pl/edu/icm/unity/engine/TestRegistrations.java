@@ -394,7 +394,6 @@ public class TestRegistrations extends DBIntegrationTestBase
 		attrReg.setOptional(true);
 		attrReg.setRetrievalSettings(ParameterRetrievalSettings.interactive);
 		attrReg.setShowGroups(true);
-		attrReg.setUseDescription(true);
 		form.setAttributeParams(Collections.singletonList(attrReg));
 		
 		form.setCollectComments(true);

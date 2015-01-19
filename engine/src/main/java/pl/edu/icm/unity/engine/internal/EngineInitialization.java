@@ -48,7 +48,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate.I18nMessage;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
@@ -378,10 +378,8 @@ public class EngineInitialization extends LifecycleBase
 		if (body == null || subject == null)
 			throw new WrongArgumentException("There is no template for this id");
 		
-		Map<String, Message> msgList = new HashMap<String, Message>();
-		Message tempMsg = new Message(subject, body);
-		msgList.put("", tempMsg);
-		return new MessageTemplate(id, description, msgList, consumer);
+		I18nMessage tempMsg = new I18nMessage(new I18nString(subject), new I18nString(body));
+		return new MessageTemplate(id, description, tempMsg, consumer);
 	}
 	
 	private void initializeIdentityTypes()

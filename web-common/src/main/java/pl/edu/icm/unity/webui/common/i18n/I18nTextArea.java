@@ -20,21 +20,32 @@ import com.vaadin.ui.TextArea;
  */
 public class I18nTextArea extends Abstract18nField<TextArea>
 {
+	private int rows = 2;
+	
 	public I18nTextArea(UnityMessageSource msg)
 	{
 		super(msg);
+		initUI();
 	}
 
 	public I18nTextArea(UnityMessageSource msg, String caption)
 	{
 		super(msg, caption);
+		initUI();
+	}
+	
+	public I18nTextArea(UnityMessageSource msg, String caption, int rows)
+	{
+		super(msg, caption);
+		this.rows = rows;
+		initUI();
 	}
 	
 	@Override
 	protected TextArea makeFieldInstance()
 	{
 		TextArea ret = new TextArea();
-		ret.setRows(2);
+		ret.setRows(rows);
 		ret.setWidth(100, Unit.PERCENTAGE);
 		ret.setWordwrap(true);
 		return ret;

@@ -4,22 +4,20 @@
  */
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
-import java.util.Map;
-
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 
 import com.vaadin.ui.Label;
-import com.vaadin.ui.TextArea;
 
 /**
- * Simple component allowing to view all information about message template.
+ * Component presenting a complete information about message template.
+ * FIXME - inheritance/OO is poorely implemented.
  * @author P. Piernik
  * 
  */
@@ -39,7 +37,6 @@ public class MessageTemplateViewer extends SimpleMessageTemplateViewer
 
 	protected void initUI()
 	{	
-		main.setSpacing(true);
 		main.setMargin(true);
 		description = new DescriptionTextArea();
 		description.setCaption(msg.getMessage("MessageTemplateViewer.description"));
@@ -78,38 +75,21 @@ public class MessageTemplateViewer extends SimpleMessageTemplateViewer
 			}
 			
 		}
-		for (Map.Entry<String, Message> entry : template.getAllMessages().entrySet())
-		{
-			Label subject = new Label(entry.getValue().getSubject());
-			subject.setCaption(msg.getMessage("MessageTemplateViewer.subject"));
-			TextArea body = new DescriptionTextArea();
-			body.setCaption(msg.getMessage("MessageTemplateViewer.body"));
-			body.setValue(entry.getValue().getBody());
-			body.setReadOnly(true);
-			body.setRows(entry.getValue().getBody().split("\n").length + 1);
-			String lcle = entry.getKey().toString();
-//		 	For future, full support to locale. 
-			if (!lcle.equals(""))
-			{
-				Label locale = new Label();
-				locale.setCaption(msg.getMessage("MessageTemplateViewer.locale"));
-				locale.setValue(lcle);
-				messages.add(locale);
-				main.addComponent(locale);
 
-			}
-			messages.add(subject);
-			messages.add(body);
-			main.addComponents(subject, body);
-		}
+		I18nLabel subject = new I18nLabel(msg, msg.getMessage("MessageTemplateViewer.subject"));
+		subject.setValue(template.getMessage().getSubject());
+		I18nLabel body = new I18nLabel(msg, msg.getMessage("MessageTemplateViewer.body"));
+		body.setValue(template.getMessage().getBody());
+		messages.add(subject);
+		messages.add(body);
+		main.addComponents(subject, body);
 	}
 
+	@Override
 	protected void setEmpty()
 	{
 		super.setEmpty();
 		description.setValue("");
 		consumer.setValue("");
-		
 	}
-
 }

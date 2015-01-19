@@ -38,8 +38,14 @@ public class I18nString
 
 	public String getValue(String locale, String defaultLocale)
 	{
-		return values.containsKey(locale) ? values.get(locale) : 
-			values.containsKey(defaultLocale) ? values.get(defaultLocale) : defaultValue;
+		return (locale != null && values.containsKey(locale)) ? values.get(locale) : 
+			(defaultLocale != null && values.containsKey(defaultLocale)) ? values.get(defaultLocale) : 
+			defaultValue;
+	}
+
+	public String getValueRaw(String locale)
+	{
+		return values.get(locale);
 	}
 	
 	public void addValue(String locale, String value)
