@@ -34,6 +34,7 @@ import pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -74,7 +75,8 @@ public class TestSoapETD extends DBIntegrationTestBase
 			realmsMan.addRealm(realm);
 			List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
 			authnCfg.add(new AuthenticatorSet(Collections.singleton("Acert")));
-			endpointMan.deploy(SamlUnicoreIdPSoapEndpointFactory.NAME, "endpoint1", "/saml", "desc",
+			endpointMan.deploy(SamlUnicoreIdPSoapEndpointFactory.NAME, "endpoint1", 
+					new I18nString("endpoint1"), "/saml", "desc",
 					authnCfg, SAML_ENDP_CFG, realm.getName());
 			List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 			assertEquals(1, endpoints.size());

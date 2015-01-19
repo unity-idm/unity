@@ -24,6 +24,7 @@ import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -97,7 +98,8 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 			realmsMan.addRealm(realm);
 			List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
 			authnCfg.add(new AuthenticatorSet(Collections.singleton("Apass")));
-			endpointMan.deploy(OAuthTokenEndpointFactory.NAME, "endpointIDP", "/oauth", "desc", 
+			endpointMan.deploy(OAuthTokenEndpointFactory.NAME, "endpointIDP", new I18nString("endpointIDP"),
+					"/oauth", "desc", 
 					authnCfg, OAUTH_ENDP_CFG, REALM_NAME);
 			List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 			assertEquals(1, endpoints.size());

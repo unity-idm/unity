@@ -61,7 +61,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		authnMan.createAuthenticator("auth1", authType.getId(), "6", "bbb", "credential1");
 		
 		AuthenticatorSet authSet = new AuthenticatorSet(Collections.singleton("auth1"));
-		endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "/foo", "desc", 
+		endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", new I18nString("endpoint1"), "/foo", "desc", 
 				Collections.singletonList(authSet), "", realm.getName());
 
 		//set wrong password 
@@ -129,15 +129,16 @@ public class TestAuthentication extends DBIntegrationTestBase
 		assertEquals(1, endpointTypes.size());
 		EndpointTypeDescription type = endpointTypes.get(0);
 		
-		endpointMan.deploy(type.getName(), "endpoint1", "/foo", "desc", new ArrayList<AuthenticatorSet>(), "", 
+		endpointMan.deploy(type.getName(), "endpoint1", new I18nString("endpoint1"),
+				"/foo", "desc", new ArrayList<AuthenticatorSet>(), "", 
 				realm.getName());
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 
 		//and assign the authenticator to it
 		AuthenticatorSet authSet = new AuthenticatorSet(Collections.singleton("auth1"));
-		endpointMan.updateEndpoint(endpoints.get(0).getId(), "ada", Collections.singletonList(authSet), "", 
-				realm.getName());
+		endpointMan.updateEndpoint(endpoints.get(0).getId(), new I18nString("ada"), 
+				"ada", Collections.singletonList(authSet), "", realm.getName());
 
 		//check if is returned
 		List<AuthenticatorSet> authSets = endpointMan.getEndpoints().get(0).getAuthenticatorSets();
@@ -152,7 +153,8 @@ public class TestAuthentication extends DBIntegrationTestBase
 		} catch (IllegalArgumentException e) {}
 		
 		//remove it from endpoint
-		endpointMan.updateEndpoint(endpoints.get(0).getId(), "ada", new ArrayList<AuthenticatorSet>(), "",
+		endpointMan.updateEndpoint(endpoints.get(0).getId(), new I18nString("ada"), 
+				"ada", new ArrayList<AuthenticatorSet>(), "",
 				realm.getName());
 		
 		//remove again

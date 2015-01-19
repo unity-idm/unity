@@ -31,6 +31,8 @@ import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.registries.EndpointFactoriesRegistry;
+import pl.edu.icm.unity.server.utils.I18nStringJsonUtil;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
@@ -74,6 +76,7 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 			descNode.put("contextAddress", desc.getContextAddress());
 			descNode.put("description", desc.getDescription());
 			descNode.put("id", desc.getId());
+			descNode.set("displayedName", I18nStringJsonUtil.toJson(desc.getDisplayedName()));
 			descNode.put("realmName", desc.getRealm().getName());
 			descNode.put("typeName", desc.getType().getName());
 			root.put("state", state);
@@ -115,6 +118,11 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 			if (descriptionJson.has("description"))
 				description.setDescription(descriptionJson.get("description").asText());
 			description.setId(descriptionJson.get("id").asText());
+			if (descriptionJson.has("displayedName"))
+				description.setDisplayedName(I18nStringJsonUtil.fromJson(
+						descriptionJson.get("displayedName")));
+			else
+				description.setDisplayedName(new I18nString(description.getId()));
 			
 			AuthenticationRealm realm = descriptionJson.has("realmName") ? 
 					realmsManagement.getRealm(descriptionJson.get("realmName").asText()) :
@@ -126,7 +134,8 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 			EndpointInstance instance = factory.newInstance();
 			List<Map<String, BindingAuthn>> authenticators = 
 					authnLoader.getAuthenticators(description.getAuthenticatorSets(), sql);
-			instance.initialize(blob.getName(), httpServer.getAdvertisedAddress(),
+			instance.initialize(blob.getName(), description.getDisplayedName(), 
+					httpServer.getAdvertisedAddress(),
 					description.getContextAddress(), description.getDescription(), 
 					description.getAuthenticatorSets(), authenticators, realm, state);
 			return instance;

@@ -122,7 +122,7 @@ public class OAuthAuthzUI extends UnityUIBase
 		oauthProcessor = new OAuthProcessor();
 		
 		VerticalLayout vmain = new VerticalLayout();
-		TopHeaderLight header = new TopHeaderLight(endpointDescription.getId(), msg);
+		TopHeaderLight header = new TopHeaderLight(endpointDescription.getDisplayedName().getValue(msg), msg);
 		vmain.addComponent(header);
 
 		

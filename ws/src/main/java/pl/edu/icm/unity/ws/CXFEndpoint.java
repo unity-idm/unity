@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.ws;
 
-import java.io.ByteArrayInputStream;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -57,7 +57,7 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 		properties = new Properties();
 		try
 		{
-			properties.load(new ByteArrayInputStream(cfg.getBytes()));
+			properties.load(new StringReader(cfg));
 			genericEndpointProperties = new CXFEndpointProperties(properties);
 		} catch (Exception e)
 		{

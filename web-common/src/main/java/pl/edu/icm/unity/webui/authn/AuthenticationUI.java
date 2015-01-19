@@ -139,7 +139,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 
 		VerticalLayout topLevel = new VerticalLayout();
 		headerUIComponent = new TopHeaderLight(msg.getMessage("AuthenticationUI.login", 
-				description.getId()), msg);
+				description.getDisplayedName().getValue(msg)), msg);
 		topLevel.addComponents(headerUIComponent, main);
 		topLevel.setSizeFull();
 		topLevel.setExpandRatio(main, 1.0f);

@@ -142,7 +142,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		samlResponseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor);
 		
 		VerticalLayout vmain = new VerticalLayout();
-		TopHeaderLight header = new TopHeaderLight(endpointDescription.getId(), msg);
+		TopHeaderLight header = new TopHeaderLight(endpointDescription.getDisplayedName().getValue(msg), msg);
 		vmain.addComponent(header);
 
 		

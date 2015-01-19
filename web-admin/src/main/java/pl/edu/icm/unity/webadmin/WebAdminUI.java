@@ -82,7 +82,8 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 		final VerticalLayout mainWrapper = new VerticalLayout();
 		mainWrapper.setSizeFull();
 
-		AdminTopHeader header = new AdminTopHeader(endpointDescription.getId(), authnProcessor, msg, 
+		AdminTopHeader header = new AdminTopHeader(endpointDescription.getDisplayedName().getValue(msg), 
+				authnProcessor, msg, 
 				new ViewSwitchCallback()
 				{
 					@Override

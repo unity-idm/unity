@@ -6,6 +6,7 @@ package pl.edu.icm.unity.types.endpoint;
 
 import java.util.List;
 
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 
@@ -17,6 +18,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 public class EndpointDescription
 {
 	private String id;
+	private I18nString displayedName;
 	private String contextAddress;
 	private String description;
 	private AuthenticationRealm realm;
@@ -30,6 +32,7 @@ public class EndpointDescription
 		description = endpointDesc.getDescription();
 		realm = endpointDesc.getRealm();
 		type = endpointDesc.getType();
+		displayedName = endpointDesc.getDisplayedName().clone();
 	}
 	
 	public EndpointDescription() 
@@ -83,5 +86,15 @@ public class EndpointDescription
 	public void setRealm(AuthenticationRealm realm)
 	{
 		this.realm = realm;
+	}
+
+	public I18nString getDisplayedName()
+	{
+		return displayedName;
+	}
+
+	public void setDisplayedName(I18nString displayedName)
+	{
+		this.displayedName = displayedName;
 	}
 }

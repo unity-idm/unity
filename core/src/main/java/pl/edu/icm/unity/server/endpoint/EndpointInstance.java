@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.JsonSerializable;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
@@ -36,7 +37,8 @@ public interface EndpointInstance
 	 * @param authenticators actual authenticators. the list has entries corresponding to the first argument.
 	 * the map holds mappings of each authenticator name to its implementation
 	 */
-	public void initialize(String id, URL baseAddress, String contextAddress, String description, 
+	public void initialize(String id, I18nString displayedName, URL baseAddress, String contextAddress, 
+			String description, 
 			List<AuthenticatorSet> authenticatorsInfo, List<Map<String, BindingAuthn>> authenticators,
 			AuthenticationRealm realm, String serializedConfiguration);
 

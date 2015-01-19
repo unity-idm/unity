@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.rest;
 
-import java.io.ByteArrayInputStream;
+import java.io.StringReader;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +76,7 @@ public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEnd
 		properties = new Properties();
 		try
 		{
-			properties.load(new ByteArrayInputStream(serializedState.getBytes()));
+			properties.load(new StringReader(serializedState));
 			genericEndpointProperties = new RESTEndpointProperties(properties);
 		} catch (Exception e)
 		{

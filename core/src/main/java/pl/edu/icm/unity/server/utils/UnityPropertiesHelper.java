@@ -38,18 +38,30 @@ public class UnityPropertiesHelper extends PropertiesHelper
 	 */
 	public I18nString getLocalizedString(UnityMessageSource msg, String baseKey)
 	{
+		return getLocalizedString(this, msg, baseKey);
+	}
+	
+
+	/**
+	 * @param msg
+	 * @param baseKey Property name (without the prefix).
+	 * @return localized string of the given property. Default value is set to the regular value of the property.
+	 * All sub values of the base key are used as localized values, assuming their subkey is equal to one of
+	 * supported locales.
+	 */
+	static I18nString getLocalizedString(PropertiesHelper helper, UnityMessageSource msg, String baseKey)
+	{
 		I18nString ret = new I18nString();
 		Map<String, Locale> supportedLocales = msg.getSupportedLocales();
-		String defaultVal = getValue(baseKey);
+		String defaultVal = helper.getValue(baseKey);
 		if (defaultVal != null)
 			ret.setDefaultValue(defaultVal);
 		for (Map.Entry<String, Locale> locale: supportedLocales.entrySet())
 		{
-			String v = getLocalizedValue(baseKey, locale.getValue());
+			String v = helper.getLocalizedValue(baseKey, locale.getValue());
 			if (v != null && !v.equals(defaultVal))
 				ret.addValue(locale.getKey(), v);
 		}
 		return ret;
 	}
-
 }

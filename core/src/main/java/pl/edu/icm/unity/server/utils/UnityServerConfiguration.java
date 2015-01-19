@@ -40,7 +40,7 @@ import eu.unicore.util.jetty.HttpServerProperties;
  * @author K. Benedyczak
  */
 @Component
-public class UnityServerConfiguration extends FilePropertiesHelper
+public class UnityServerConfiguration extends UnityFilePropertiesHelper
 {
 	public enum LogoutMode {internalOnly, internalAndSyncPeers, internalAndAsyncPeers}
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
@@ -67,6 +67,7 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 	public static final String ENDPOINT_CONFIGURATION = "endpointConfigurationFile";
 	public static final String ENDPOINT_ADDRESS = "contextPath";
 	public static final String ENDPOINT_NAME = "endpointName";	
+	public static final String ENDPOINT_DISPLAYED_NAME = "endpointDisplayedName";	
 	public static final String ENDPOINT_AUTHENTICATORS = "endpointAuthenticators";
 	public static final String ENDPOINT_REALM = "endpointRealm";
 	
@@ -178,8 +179,15 @@ public class UnityServerConfiguration extends FilePropertiesHelper
 				setDescription("Description of the endpoint"));
 		defaults.put(ENDPOINT_ADDRESS, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(initEndpointsCat).
 				setDescription("Context path of the endpoint"));
-		defaults.put(ENDPOINT_NAME, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(initEndpointsCat).
-				setDescription("Endpoint name"));
+		defaults.put(ENDPOINT_NAME, new PropertyMD().setStructuredListEntry(ENDPOINTS).
+				setMandatory().setCategory(initEndpointsCat).setDescription("Endpoint identifier. "
+						+ "It is used to refer to this endpoint in other parts of the system."));
+		defaults.put(ENDPOINT_DISPLAYED_NAME, new PropertyMD().setStructuredListEntry(ENDPOINTS).setCanHaveSubkeys().
+				setCategory(initEndpointsCat).setDescription("Endpoint displayed name. "
+						+ "It is used whenever endpoint's name is presented to the end-user, "
+						+ "e.g. in top bars of web UIs. Localized values can be given "
+						+ "with subkeys equal to locale name. If undefined then Unity "
+						+ "will use " + ENDPOINT_NAME));
 		defaults.put(ENDPOINT_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(initEndpointsCat).
 				setDescription("Endpoint authenticator names: each set is separated with ';' and particular authenticators in each set with ','."));
 		defaults.put(ENDPOINT_REALM, new PropertyMD().setMandatory().setStructuredListEntry(ENDPOINTS).setCategory(initEndpointsCat).

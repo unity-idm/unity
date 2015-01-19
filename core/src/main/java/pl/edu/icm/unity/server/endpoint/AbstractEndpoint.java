@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
@@ -35,11 +36,13 @@ public abstract class AbstractEndpoint implements EndpointInstance
 	}
 	
 	@Override
-	public synchronized void initialize(String id, URL baseUrl, String contextAddress, String description, 
+	public synchronized void initialize(String id, I18nString displayedName, 
+			URL baseUrl, String contextAddress, String description, 
 			List<AuthenticatorSet> authenticatorsInfo, List<Map<String, BindingAuthn>> authenticators,
 			AuthenticationRealm realm, String serializedConfiguration)
 	{
 		this.description.setId(id);
+		this.description.setDisplayedName(displayedName);
 		this.description.setDescription(description);
 		this.description.setContextAddress(contextAddress);
 		this.description.setAuthenticatorSets(authenticatorsInfo);

@@ -19,6 +19,7 @@ import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
@@ -42,7 +43,8 @@ public class TestRESTCore extends TestRESTBase
 		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
 		authnCfg.add(new AuthenticatorSet(Collections.singleton(AUTHENTICATOR_REST_PASS)));
 		endpointMan.deploy(MockRESTEndpointFactory.NAME, 
-				"endpoint1", "/mock", "desc", authnCfg, "", realm.getName());
+				"endpoint1", new I18nString("endpoint1"),
+				"/mock", "desc", authnCfg, "", realm.getName());
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 

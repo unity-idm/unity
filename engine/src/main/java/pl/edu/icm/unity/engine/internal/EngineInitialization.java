@@ -650,6 +650,11 @@ public class EngineInitialization extends LifecycleBase
 			File configFile = config.getFileValue(endpointKey+UnityServerConfiguration.ENDPOINT_CONFIGURATION, false);
 			String address = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_ADDRESS);
 			String name = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_NAME);
+			I18nString displayedName = config.getLocalizedString(msg, 
+					endpointKey+UnityServerConfiguration.ENDPOINT_DISPLAYED_NAME);
+			if (displayedName.isEmpty())
+				displayedName.setDefaultValue(name);
+			
 			String authenticatorsSpec = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
 			String realmName = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_REALM);
 			
@@ -666,7 +671,7 @@ public class EngineInitialization extends LifecycleBase
 			
 			String jsonConfiguration = FileUtils.readFileToString(configFile);
 
-			endpointManager.deploy(type, name, address, description, endpointAuthn, 
+			endpointManager.deploy(type, name, displayedName, address, description, endpointAuthn, 
 					jsonConfiguration, realmName);
 			log.info(" - " + name + ": " + type + " " + description);
 		}

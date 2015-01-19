@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.webadmin.serverman;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -20,10 +19,12 @@ import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -112,7 +113,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 
 	private boolean deployEndpoint(String id)
 	{
-		Map<String, String> data = getEndpointConfig(id);
+		EndpointConfig data = getEndpointConfig(id);
 		if (data == null)
 		{
 			return false;
@@ -120,9 +121,9 @@ public class EndpointComponent extends DeployableComponentViewBase
 		
 		try
 		{
-			this.endpoint = endpointMan.deploy(data.get("type"), id, data.get("address"), 
-					data.get("description"), getEndpointAuth(data.get("authenticatorsSpec")), 
-					data.get("jsonConfiguration"), data.get("realm"));
+			this.endpoint = endpointMan.deploy(data.type, id, data.displayedName, data.address, 
+					data.description, getEndpointAuth(data.authenticatorsSpec), 
+					data.jsonConfiguration, data.realm);
 		} catch (Exception e)
 		{
 			log.error("Cannot deploy endpoint", e);
@@ -187,7 +188,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 	
 	private boolean reloadEndpoint(String id)
 	{
-		Map<String, String> data = getEndpointConfig(id);
+		EndpointConfig data = getEndpointConfig(id);
 		if (data == null)
 		{
 			return false;		
@@ -195,9 +196,9 @@ public class EndpointComponent extends DeployableComponentViewBase
 		
 		try
 		{
-			endpointMan.updateEndpoint(id, data.get("description"),
-					getEndpointAuth(data.get("authenticatorsSpec")),
-					data.get("jsonConfiguration"), data.get("realm"));
+			endpointMan.updateEndpoint(id, data.displayedName, data.description,
+					getEndpointAuth(data.authenticatorsSpec),
+					data.jsonConfiguration, data.realm);
 				
 			
 		} catch (Exception e)
@@ -244,7 +245,10 @@ public class EndpointComponent extends DeployableComponentViewBase
 		addFieldToContent(msg.getMessage("Endpoints.typeDescription"), endpoint.getType()
 				.getDescription());
 		addFieldToContent(msg.getMessage("Endpoints.paths"), "");
-
+		I18nLabel displayedName = new I18nLabel(msg, msg.getMessage("displayedNameF"));
+		displayedName.setValue(endpoint.getDisplayedName());
+		addCustomFieldToContent(displayedName);
+		
 		HorizontalLayout hp = new HorizontalLayout();
 		FormLayout pa = new FormLayout();
 		pa.setSpacing(false);
@@ -305,7 +309,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		content.addComponent(au);
 	}
 	
-	private Map<String, String> getEndpointConfig(String name)
+	private EndpointConfig getEndpointConfig(String name)
 	{
 		String endpointKey = null;
 		Set<String> endpointsList = config.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
@@ -322,23 +326,25 @@ public class EndpointComponent extends DeployableComponentViewBase
 		{
 			return null;
 		}
+
+		EndpointConfig ret = new EndpointConfig();
 		
-		Map<String, String> ret = new HashMap<String, String>();
-		ret.put("description", config.getValue(endpointKey
-				+ UnityServerConfiguration.ENDPOINT_DESCRIPTION));
-		ret.put("authenticatorsSpec", config.getValue(endpointKey
-				+ UnityServerConfiguration.ENDPOINT_AUTHENTICATORS));
-		ret.put("type",config.getValue(endpointKey
-						+ UnityServerConfiguration.ENDPOINT_TYPE));
-		ret.put("address",config.getValue(endpointKey
-				+ UnityServerConfiguration.ENDPOINT_ADDRESS));
-		ret.put("realm",config.getValue(endpointKey
-				+ UnityServerConfiguration.ENDPOINT_REALM));
+		ret.description = config.getValue(endpointKey
+				+ UnityServerConfiguration.ENDPOINT_DESCRIPTION);
+		ret.authenticatorsSpec = config.getValue(endpointKey
+				+ UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
+		ret.type = config.getValue(endpointKey
+						+ UnityServerConfiguration.ENDPOINT_TYPE);
+		ret.address = config.getValue(endpointKey
+				+ UnityServerConfiguration.ENDPOINT_ADDRESS);
+		ret.realm = config.getValue(endpointKey
+				+ UnityServerConfiguration.ENDPOINT_REALM);
+		ret.displayedName = config.getLocalizedString(msg, endpointKey
+				+ UnityServerConfiguration.ENDPOINT_DISPLAYED_NAME);
 		try
 		{
-			String jsonConfiguration = serverMan.loadConfigurationFile(config.getValue(endpointKey
+			ret.jsonConfiguration = serverMan.loadConfigurationFile(config.getValue(endpointKey
 					                           + UnityServerConfiguration.ENDPOINT_CONFIGURATION));
-			ret.put("jsonConfiguration", jsonConfiguration);
 		} catch (Exception e)
 		{
 			log.error("Cannot read json file", e);
@@ -348,5 +354,16 @@ public class EndpointComponent extends DeployableComponentViewBase
 		}
 		return ret;
 		
+	}
+	
+	private static class EndpointConfig
+	{
+		private String description;
+		private String authenticatorsSpec;
+		private String type;
+		private String address;
+		private String realm;
+		private String jsonConfiguration;
+		private I18nString displayedName;
 	}
 }
