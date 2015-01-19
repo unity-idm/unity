@@ -107,7 +107,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		{
 			log.debug("Cannot get confirmation configuration for "
 					+ baseState.getType()
-					+ " skiping sendig confirmation request to "
+					+ ", skiping sendig confirmation request to "
 					+ baseState.getValue());
 			return;
 		}

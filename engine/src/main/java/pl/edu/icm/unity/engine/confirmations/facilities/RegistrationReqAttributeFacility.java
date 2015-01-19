@@ -110,7 +110,10 @@ public class RegistrationReqAttributeFacility extends BaseFacility implements Co
 		{
 			return new ConfirmationStatus(false, "ConfirmationStatus.requestDeleted");
 		}
-
+		
+		if (reqState.getStatus().equals(RegistrationRequestStatus.rejected))
+			return new ConfirmationStatus(false, "ConfirmationStatus.requestRejected");
+		
 		ConfirmationStatus status;
 		SqlSession sql = db.getSqlSession(true);
 		try

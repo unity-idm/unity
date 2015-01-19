@@ -102,5 +102,4 @@ public class RegistrationReqIdentityFacility extends
 			db.releaseSqlSession(sql);
 		}
 	}
-
 }
