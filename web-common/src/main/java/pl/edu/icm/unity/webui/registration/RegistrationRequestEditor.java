@@ -490,7 +490,7 @@ public class RegistrationRequestEditor extends CustomComponent
 				editorUI.setCaption(credDefinition.getDisplayedName().getValue(msg) + ":");
 			if (param.getDescription() != null)
 				editorUI.setDescription(HtmlSimplifiedLabel.escape(param.getDescription()));
-			else
+			else if (!credDefinition.getDescription().isEmpty())
 				editorUI.setDescription(HtmlSimplifiedLabel.escape(
 						credDefinition.getDescription().getValue(msg)));
 			credentialParamEditors.add(editor);
@@ -525,7 +525,8 @@ public class RegistrationRequestEditor extends CustomComponent
 				headerAdded = true;
 			}
 			AttributeType at = atTypes.get(aParam.getAttributeType());
-			String description = aParam.isUseDescription() ? null : aParam.getDescription();
+			String description = (aParam.getDescription() != null && !aParam.getDescription().isEmpty()) ? 
+					aParam.getDescription() : null;
 			String aName = isEmpty(aParam.getLabel()) ? null : aParam.getLabel();
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
 					at, aParam.isShowGroups(), aParam.getGroup(), AttributeVisibility.full, 
@@ -570,7 +571,7 @@ public class RegistrationRequestEditor extends CustomComponent
 					: gParam.getLabel());
 			if (gParam.getDescription() != null)
 				cb.setDescription(HtmlSimplifiedLabel.escape(gParam.getDescription()));
-			else
+			else if (!grp.getDescription().isEmpty())
 				cb.setDescription(HtmlSimplifiedLabel.escape(grp.getDescription().getValue(msg)));
 			
 			if (gParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive && conGroup)

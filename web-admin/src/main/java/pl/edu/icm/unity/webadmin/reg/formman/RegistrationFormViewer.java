@@ -238,13 +238,11 @@ public class RegistrationFormViewer extends VerticalLayout
 			@Override
 			public Label toLabel(AttributeRegistrationParam value)
 			{
-				String useDescription = value.isUseDescription() ? 
-						("[" + msg.getMessage("RegistrationFormViewer.useAttributeTypeDescription") +"]") : ""; 
 				String showGroup = value.isShowGroups() ? 
 						"[" + msg.getMessage("RegistrationFormViewer.showAttributeGroup")+"]" : ""; 
 				HtmlLabel ret = new HtmlLabel(msg);
 				String line1 = value.getAttributeType() + " @ " + value.getGroup() + " " +
-						useDescription + " " + showGroup;
+						showGroup;
 				ret.setHtmlValue("RegistrationFormViewer.twoLines", line1, toHTMLLabel(value));
 				return ret;
 			}

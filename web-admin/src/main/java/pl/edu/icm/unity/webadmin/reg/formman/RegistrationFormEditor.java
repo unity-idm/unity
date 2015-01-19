@@ -521,8 +521,8 @@ public class RegistrationFormEditor extends VerticalLayout
 		public void setEditedComponentPosition(int position) {}
 	}
 	
-	private class IdentityEditorAndProvider extends OptionalParameterEditor implements EditorProvider<IdentityRegistrationParam>,
-			Editor<IdentityRegistrationParam>
+	private class IdentityEditorAndProvider extends OptionalParameterEditor 
+			implements EditorProvider<IdentityRegistrationParam>, Editor<IdentityRegistrationParam>
 	{
 		private ComboBox identityType;
 
@@ -562,14 +562,13 @@ public class RegistrationFormEditor extends VerticalLayout
 		public void setEditedComponentPosition(int position) {}
 	}
 
-	private class AttributeEditorAndProvider extends OptionalParameterEditor implements EditorProvider<AttributeRegistrationParam>,
-			Editor<AttributeRegistrationParam>
+	private class AttributeEditorAndProvider extends OptionalParameterEditor 
+			implements EditorProvider<AttributeRegistrationParam>, Editor<AttributeRegistrationParam>
 	{
 		private AttributeSelectionComboBox attributeType;
 		private GroupComboBox group;
 		private CheckBox showGroups;
-		private CheckBox useDescription;
-		
+
 		@Override
 		public Editor<AttributeRegistrationParam> getEditor()
 		{
@@ -584,16 +583,14 @@ public class RegistrationFormEditor extends VerticalLayout
 			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramAttributeGroup"), groups);
 			group.setInput("/", true, true);
 			showGroups = new CheckBox(msg.getMessage("RegistrationFormViewer.paramShowGroup"));
-			useDescription = new CheckBox(msg.getMessage("RegistrationFormViewer.paramUseDescription"));
 			
-			main.add(attributeType, group, showGroups, useDescription);
+			main.add(attributeType, group, showGroups);
 			
 			if (value != null)
 			{
 				attributeType.setValue(value.getAttributeType());
 				group.setValue(value.getGroup());
 				showGroups.setValue(value.isShowGroups());
-				useDescription.setValue(value.isUseDescription());
 			}
 			initEditorComponent(value);
 			return main;
@@ -606,7 +603,6 @@ public class RegistrationFormEditor extends VerticalLayout
 			ret.setAttributeType((String) attributeType.getValue());
 			ret.setGroup((String) group.getValue());
 			ret.setShowGroups(showGroups.getValue());
-			ret.setUseDescription(useDescription.getValue());
 			fill(ret);
 			return ret;
 		}
@@ -674,15 +670,22 @@ public class RegistrationFormEditor extends VerticalLayout
 			label = new TextField(msg.getMessage("RegistrationFormViewer.paramLabel"));
 			description = new TextField(msg.getMessage("RegistrationFormViewer.paramDescription"));
 
+			ComponentsContainer ret = new ComponentsContainer(credential);
 			if (value != null)
 			{
 				credential.setValue(value.getCredentialName());
 				if (value.getLabel() != null)
+				{
 					label.setValue(value.getLabel());
+					ret.add(label);
+				}
 				if (value.getDescription() != null)
+				{
 					description.setValue(value.getDescription());
+					ret.add(description);
+				}
 			}
-			return new ComponentsContainer(credential, label, description);
+			return ret;
 		}
 
 		@Override
@@ -716,17 +719,22 @@ public class RegistrationFormEditor extends VerticalLayout
 			retrievalSettings = new EnumComboBox<ParameterRetrievalSettings>(
 					msg.getMessage("RegistrationFormViewer.paramSettings"), msg, 
 					"ParameterRetrievalSettings.", ParameterRetrievalSettings.class, 
-					ParameterRetrievalSettings.interactive);
-			main.add(label, description, retrievalSettings);
-			
+					ParameterRetrievalSettings.interactive);			
 			if (value != null)
 			{
 				if (value.getLabel() != null)
+				{
 					label.setValue(value.getLabel());
+					main.add(label);
+				}
 				if (value.getDescription() != null)
+				{
 					description.setValue(value.getDescription());
+					main.add(description);
+				}
 				retrievalSettings.setEnumValue(value.getRetrievalSettings());
 			}
+			main.add(retrievalSettings);
 		}
 		
 		protected void fill(RegistrationParam v)
