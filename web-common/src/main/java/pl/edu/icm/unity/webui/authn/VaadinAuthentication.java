@@ -12,6 +12,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
 
 /**
@@ -82,7 +83,7 @@ public interface VaadinAuthentication extends BindingAuthn
 		 * @return label for presentation in the user interface.
 		 * returns non null value.
 		 */
-		public String getLabel();
+		public I18nString getLabel();
 		
 		/**
 		 * @return image for the presentation in the user interface. Can be null.

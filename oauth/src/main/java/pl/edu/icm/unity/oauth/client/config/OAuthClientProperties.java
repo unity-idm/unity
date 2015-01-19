@@ -13,18 +13,18 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityPropertiesHelper;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
-import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 
 /**
  * Configuration of OAuth client.
  * @author K. Benedyczak
  */
-public class OAuthClientProperties extends PropertiesHelper
+public class OAuthClientProperties extends UnityPropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, OAuthClientProperties.class);
 	
@@ -45,8 +45,10 @@ public class OAuthClientProperties extends PropertiesHelper
 	
 	static 
 	{
-		META.put(DISPLAY_NAME, new PropertyMD("OAuth2 authentication").setDescription("Name of this authentication "
-				+ "option to be displayed in the web interface"));
+		META.put(DISPLAY_NAME, new PropertyMD("OAuth2 authentication").setCanHaveSubkeys().
+				setDescription("Name of this authentication option to be displayed "
+				+ "in the web interface. The property can have subkeys being "
+				+ "locale names; then the localized value is used."));
 		META.put(PROVIDERS_IN_ROW, new PropertyMD("3").setPositive().setDescription("How many providers should be displayed "
 				+ "in a single row on the provider selection screen. Relevant only if you define multiple providers."));
 		META.put(ICON_SCALE, new PropertyMD(ScaleMode.none).setDescription("Controls whether and how "

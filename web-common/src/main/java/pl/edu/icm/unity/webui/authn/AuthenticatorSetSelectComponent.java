@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -84,17 +85,17 @@ public class AuthenticatorSetSelectComponent extends VerticalLayout
 		StringBuilder sb = new StringBuilder();
 		for (; i<size-2; i++)
 		{
-			String label = authenticators.get(setIterator.next()).getLabel();
-			sb.append(label);
+			I18nString label = authenticators.get(setIterator.next()).getLabel();
+			sb.append(label.getValue(msg));
 			sb.append(msg.getMessage("comma"));
 		}
 		if (i < size-1)
 		{
-			String label = authenticators.get(setIterator.next()).getLabel();
-			sb.append(label);
+			I18nString label = authenticators.get(setIterator.next()).getLabel();
+			sb.append(label.getValue(msg));
 			sb.append(" ").append(msg.getMessage("and")).append(" ");
 		}
-		sb.append(authenticators.get(setIterator.next()).getLabel());
+		sb.append(authenticators.get(setIterator.next()).getLabel().getValue(msg));
 		return sb.toString();
 	}
 	

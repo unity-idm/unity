@@ -15,8 +15,11 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.server.utils.I18nStringJsonUtil;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.CertificateExchange;
+import pl.edu.icm.unity.types.I18nDescribedObject;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,7 +47,7 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 {
 	private CertificateExchange credentialExchange;
 	private UnityMessageSource msg;
-	private String name;
+	private I18nString name;
 	
 	public TLSRetrieval(UnityMessageSource msg)
 	{
@@ -61,7 +64,7 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 	public String getSerializedConfiguration()
 	{
 		ObjectNode root = Constants.MAPPER.createObjectNode();
-		root.put("name", name);
+		root.set("i18nName", I18nStringJsonUtil.toJson(name));
 		try
 		{
 			return Constants.MAPPER.writeValueAsString(root);
@@ -77,7 +80,10 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 		try
 		{
 			JsonNode root = Constants.MAPPER.readTree(json);
-			name = root.get("name").asText();
+			name = I18nStringJsonUtil.fromJson(root.get("i18nName"), root.get("name"));
+			if (name.isEmpty())
+				name = I18nDescribedObject.loadI18nStringFromBundle(
+						"WebTLSRetrieval.title", msg);
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("The configuration of the web-" +
@@ -168,7 +174,7 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 		 * {@inheritDoc}
 		 */
 		@Override
-		public String getLabel()
+		public I18nString getLabel()
 		{
 			return name;
 		}
@@ -189,8 +195,7 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 
 			public TLSAuthnComponent()
 			{
-				String label = name.trim().equals("") ? msg.getMessage("WebTLSRetrieval.title") : name;
-				Label title = new Label(label);
+				Label title = new Label(name.getValue(msg));
 				title.addStyleName(Reindeer.LABEL_H2);
 				addComponent(title);
 				info = new Label();

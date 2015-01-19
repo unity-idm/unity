@@ -23,6 +23,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
@@ -90,7 +91,8 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		VerticalLayout ret = new VerticalLayout();
 		ret.setSpacing(true);
 		
-		Label title = new Label(samlProperties.getValue(SAMLSPProperties.DISPLAY_NAME));
+		I18nString displayedName = getLabel();
+		Label title = new Label(displayedName.getValue(msg));
 		title.addStyleName(Reindeer.LABEL_H2);
 		ret.addComponent(title);
 
@@ -330,9 +332,10 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getLabel()
+	public I18nString getLabel()
 	{	
-		return credentialExchange.getSamlValidatorSettings().getValue(SAMLSPProperties.DISPLAY_NAME);
+		return credentialExchange.getSamlValidatorSettings().getLocalizedString(msg, 
+				SAMLSPProperties.DISPLAY_NAME);
 	}
 
 	/**

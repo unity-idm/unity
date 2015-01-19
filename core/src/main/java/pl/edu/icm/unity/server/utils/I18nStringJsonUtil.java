@@ -2,7 +2,7 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.db.json;
+package pl.edu.icm.unity.server.utils;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -56,8 +56,10 @@ public class I18nStringJsonUtil
 
 		ObjectNode root = (ObjectNode) node;
 		JsonNode defV = root.get("DefaultValue");
-		ret.setDefaultValue(defV.isNull() ? null : defV.asText());
+		ret.setDefaultValue((defV == null || defV.isNull()) ? null : defV.asText());
 		ObjectNode mapN = (ObjectNode) root.get("Map");
+		if (mapN == null)
+			return ret;
 		Iterator<String> fields = mapN.fieldNames();
 		while (fields.hasNext())
 		{
