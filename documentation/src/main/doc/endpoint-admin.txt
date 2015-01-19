@@ -10,4 +10,7 @@ By default it is accessible under the link: +pass:[https://localhost:2443/admin/
 
 The features of the Web Admin interface are covered in the <<contents-management>> section.
 
-The endpoint offers only the standard options of the Web binding.
+Currently the Admin UI endpoint offers the same options as the Home endpoint naturally including the options common 
+for all web endpoints. The Home endpoint's options 
+can usually be left unchanged as are used only to control the logged user's profile screen, which is also available 
+for administrator's convenience in the Admin UI.

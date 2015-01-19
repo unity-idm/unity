@@ -180,6 +180,7 @@
 								<argument>pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties|ref-JWTManProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.as.OAuthASProperties|ref-oauthASProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.rp.OAuthRPProperties|ref-oauthRPProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.home.HomeEndpointProperties|ref-homeEndpointProperties.txt|</argument>
 							</arguments>
 						</configuration>
 						<goals>
