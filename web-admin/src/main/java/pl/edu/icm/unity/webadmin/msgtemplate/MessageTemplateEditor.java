@@ -97,7 +97,7 @@ public class MessageTemplateEditor extends FormLayout
 		subject.setWidth(100, Unit.PERCENTAGE);
 		subject.setValidationVisible(false);
 		subject.setRequired(true);
-		body = new I18nTextArea(msg, msg.getMessage("MessageTemplatesEditor.body"), 12);
+		body = new I18nTextArea(msg, msg.getMessage("MessageTemplatesEditor.body"), 8);
 		body.setImmediate(true);
 		body.setValidationVisible(false);
 		body.setRequired(true);

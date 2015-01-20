@@ -22,6 +22,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -79,6 +80,40 @@ public class X500Identity extends AbstractStaticIdentityTypeProvider
 
 	public X500Identity()
 	{
+		EXTRACTED_NAMES.add("cn");
+		EXTRACTED.add(new AttributeType("cn", new StringAttributeSyntax(), new I18nString("cn"), null));
+
+		EXTRACTED_NAMES.add("o");
+		EXTRACTED.add(new AttributeType("o", new StringAttributeSyntax(), new I18nString("o"), null));
+		
+		EXTRACTED_NAMES.add("ou");
+		EXTRACTED.add(new AttributeType("ou", new StringAttributeSyntax(), new I18nString("ou"), null));
+
+		EXTRACTED_NAMES.add("c");
+		EXTRACTED.add(new AttributeType("c", new StringAttributeSyntax(), new I18nString("c"), null));
+
+		EXTRACTED_NAMES.add("email");
+		EXTRACTED.add(new AttributeType("email", new StringAttributeSyntax(), new I18nString("email"), null));
+
+		EXTRACTED_NAMES.add("l");
+		EXTRACTED.add(new AttributeType("l", new StringAttributeSyntax(), new I18nString("l"), null));
+
+		EXTRACTED_NAMES.add("st");
+		EXTRACTED.add(new AttributeType("st", new StringAttributeSyntax(), new I18nString("st"), null));
+		
+		EXTRACTED_NAMES.add("surname");
+		EXTRACTED.add(new AttributeType("surname", new StringAttributeSyntax(), new I18nString("surname"), null));
+		
+		EXTRACTED_NAMES.add("uid");
+		EXTRACTED.add(new AttributeType("uid", new StringAttributeSyntax(), new I18nString("uid"), null));
+		
+		EXTRACTED_NAMES.add("dc");
+		EXTRACTED.add(new AttributeType("dc", new StringAttributeSyntax(), new I18nString("dc"), null));
+
+		EXTRACTED_NAMES.add("t");
+		EXTRACTED.add(new AttributeType("t", new StringAttributeSyntax(), new I18nString("t"), null));
+		
+		EXTRACTED = Collections.unmodifiableSet(EXTRACTED);
 	}
 	
 	/**

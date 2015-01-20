@@ -59,6 +59,7 @@ public class MessageTemplateViewer extends SimpleMessageTemplateViewer
 			return;
 		}
 		main.setVisible(true);
+		main.setSpacing(true);
 		name.setValue(template.getName());
 		description.setValue(template.getDescription());
 		description.setRows(template.getDescription().split("\n").length);

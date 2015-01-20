@@ -20,7 +20,6 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -33,7 +32,7 @@ public class I18nLabel extends CustomField<I18nString>
 	
 	private String defaultLocaleCode;
 	private Map<String, Locale> enabledLocales;
-	private Label defaultTf;
+	private HtmlSimplifiedLabel defaultTf;
 	private Map<String, HPairLayout> translationTFs = new HashMap<String, HPairLayout>();
 	private VerticalLayout main;
 	
@@ -69,7 +68,7 @@ public class I18nLabel extends CustomField<I18nString>
 				continue;
 
 			HPairLayout pair = new HPairLayout();
-			Label tf = new HtmlSimplifiedLabel();
+			HtmlSimplifiedLabel tf = new HtmlSimplifiedLabel();
 			pair.addLabel(tf);
 			Resource image = Images.getFlagForLocale(localeKey);
 			if (image != null)
@@ -116,7 +115,7 @@ public class I18nLabel extends CustomField<I18nString>
 		}
 		if (!defaultTf.isVisible() && value.getDefaultValue() != null)
 		{
-			defaultTf.setValue(value.getDefaultValue());
+			defaultTf.setValue(changeNewLines(value.getDefaultValue()));
 			defaultTf.setVisible(true);
 		}
 	}
@@ -162,7 +161,7 @@ public class I18nLabel extends CustomField<I18nString>
 	
 	private class HPairLayout extends HorizontalLayout
 	{
-		private Label label;
+		private HtmlSimplifiedLabel label;
 		
 		public HPairLayout()
 		{
@@ -178,7 +177,7 @@ public class I18nLabel extends CustomField<I18nString>
 			setComponentAlignment(img, Alignment.MIDDLE_LEFT);
 		}
 		
-		public void addLabel(Label l)
+		public void addLabel(HtmlSimplifiedLabel l)
 		{
 			addComponent(l);
 			setComponentAlignment(l, Alignment.MIDDLE_LEFT);

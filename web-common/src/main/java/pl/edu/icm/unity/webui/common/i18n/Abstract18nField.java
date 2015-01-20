@@ -48,6 +48,7 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 	private String preservedDef;
 	private boolean shown = false;
 	private Component main;
+	private HorizontalLayout hl;
 	
 	public Abstract18nField(UnityMessageSource msg)
 	{
@@ -96,7 +97,7 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 			}
 		});
 
-		HorizontalLayout hl = new HorizontalLayout();
+		hl = new HorizontalLayout();
 		hl.addComponents(defaultTf, showAll);
 		hl.setComponentAlignment(showAll, Alignment.MIDDLE_CENTER);
 		hl.setSpacing(true);
@@ -201,6 +202,22 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 		for (T tf: translationTFs.values())
 		{
 			tf.addFocusListener(listener);
+		}
+		defaultTf.addFocusListener(listener);
+	}
+	
+	@Override
+	public void setWidth(float width, Unit unit)
+	{
+		super.setWidth(width, unit);
+		if (translationTFs != null)
+		{
+			hl.setWidth(width, unit);
+			defaultTf.setWidth(width, unit);
+			for (T tf: translationTFs.values())
+			{
+				tf.setWidth(width, unit);
+			}
 		}
 	}
 }
