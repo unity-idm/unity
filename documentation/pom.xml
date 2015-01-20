@@ -73,6 +73,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-web-admin</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>eu.unicore.security</groupId>
 			<artifactId>securityLibrary</artifactId>
 		</dependency>
