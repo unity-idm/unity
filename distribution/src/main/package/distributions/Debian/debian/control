@@ -1,0 +1,13 @@
+Source:  unity-idm
+Section: contrib/misc
+Priority: extra
+Maintainer: Bernd Schuller <b.schuller@fz-juelich.de>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://unity-idm.eu
+
+Package: unity-idm
+Architecture: all
+Depends: openjdk-7-jre (>= 1.7.0)
+Description: Unity is a federated identity management system 
+
