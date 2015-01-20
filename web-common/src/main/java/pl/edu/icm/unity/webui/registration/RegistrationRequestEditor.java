@@ -22,7 +22,6 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -516,7 +515,7 @@ public class RegistrationRequestEditor extends CustomComponent
 			String description = aParam.isUseDescription() ? at.getDescription() : aParam.getDescription();
 			String aName = isEmpty(aParam.getLabel()) ? (aParam.getAttributeType()+":") : aParam.getLabel();
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
-					at, aParam.isShowGroups(), aParam.getGroup(), AttributeVisibility.full, 
+					at, aParam.isShowGroups(), aParam.getGroup(), at.getVisibility(), 
 					aName, description, !aParam.isOptional(), layout);
 			if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive && rattr != null)
 			{	
