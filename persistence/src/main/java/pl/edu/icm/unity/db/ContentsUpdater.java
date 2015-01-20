@@ -75,7 +75,7 @@ public class ContentsUpdater
 		JsonGenerator jg = jsonF.createGenerator(baos);
 		identitiesIE.serialize(sql, jg);
 		jg.close();
-		String contents = baos.toString();
+		String contents = baos.toString("UTF-8");
 		IdentitiesMapper mapper = sql.getMapper(IdentitiesMapper.class);
 		mapper.deleteAllIdentities();
 		
@@ -95,7 +95,7 @@ public class ContentsUpdater
 		JsonGenerator jg = jsonF.createGenerator(baos);
 		genericsIE.serialize(sql, jg);
 		jg.close();
-		String contents = baos.toString();
+		String contents = baos.toString("UTF-8");
 		GenericMapper mapper = sql.getMapper(GenericMapper.class);
 		mapper.deleteAll();
 		

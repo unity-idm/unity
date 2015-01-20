@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -144,7 +145,7 @@ public abstract class SamlHttpServlet extends HttpServlet
 	
 	protected String extractFromPostBinding(String samlResponseEncoded, String what)
 	{
-		String samlResponse = new String(Base64.decode(samlResponseEncoded));
+		String samlResponse = new String(Base64.decode(samlResponseEncoded), StandardCharsets.UTF_8);
 		if (log.isTraceEnabled())
 			log.trace("Got SAML " + what + " using the HTTP POST binding:\n" + samlResponse);
 		else

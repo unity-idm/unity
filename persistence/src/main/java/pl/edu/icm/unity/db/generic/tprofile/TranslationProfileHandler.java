@@ -66,10 +66,10 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 		switch (pt)
 		{
 		case INPUT:
-			return new InputTranslationProfile(new String(blob.getContents()), 
+			return new InputTranslationProfile(new String(blob.getContents(), StandardCharsets.UTF_8), 
 					jsonMapper, actionsRegistry);
 		case OUTPUT:
-			return new OutputTranslationProfile(new String(blob.getContents()), 
+			return new OutputTranslationProfile(new String(blob.getContents(), StandardCharsets.UTF_8), 
 					jsonMapper, actionsRegistry);
 		}
 		throw new IllegalStateException("The stored translation profile with subtype id " + subType + 

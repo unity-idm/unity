@@ -43,7 +43,7 @@ public class MessageTemplateHandler extends DefaultEntityHandler<MessageTemplate
 	@Override
 	public MessageTemplate fromBlob(GenericObjectBean blob, SqlSession sql)
 	{
-		return new MessageTemplate(new String(blob.getContents()), 
+		return new MessageTemplate(new String(blob.getContents(), StandardCharsets.UTF_8), 
 				jsonMapper);
 	}
 }
