@@ -6,6 +6,7 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,7 +54,7 @@ public class ErrorHandler
 		response.setContentType("application/xhtml+xml; charset=utf-8");
 		PrintWriter w = response.getWriter();
 		Map<String, String> data = new HashMap<String, String>();
-		String originalUri = Base64.encodeBase64URLSafeString(requestUri.getBytes());
+		String originalUri = Base64.encodeBase64URLSafeString(requestUri.getBytes(StandardCharsets.UTF_8));
 		data.put("originalRequest", originalUri);
 		freemarker.process("holdonError.ftl", data, w);
 		throw new EopException();
