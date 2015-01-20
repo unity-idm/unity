@@ -40,7 +40,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 				null, null, realm.getName());
 		endpoints = endpointMan.getEndpoints();
 		assertEquals("ada", endpoints.get(0).getDescription());
-		assertEquals("endpoint1U", endpoints.get(0).getDisplayedName().getDefaultValue());
+		assertEquals("endpoint1I", endpoints.get(0).getDisplayedName().getDefaultValue());
 
 		endpointMan.undeploy(endpoints.get(0).getId());
 		endpoints = endpointMan.getEndpoints();

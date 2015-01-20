@@ -4,18 +4,21 @@
  */
 package pl.edu.icm.unity.engine;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.ldaputils.LDAPAttributeTypesConverter;
 import pl.edu.icm.unity.types.basic.AttributeType;
-
-import static org.junit.Assert.*;
 
 /**
  * Tests loading of LDAP attribute types
@@ -34,8 +37,11 @@ public class TestLDAPParser extends SecuredDBIntegrationTestBase
 		
 		Reader r = new InputStreamReader(is);
 		List<AttributeType> attribtues = converter.convert(r);
+		Set<String> withoutDesc = new HashSet<>();
+		withoutDesc.add("name");
 		for (AttributeType at: attribtues)
-			assertNotNull(at.getDescription());
+			if (!withoutDesc.contains(at.getName()))
+				assertNotNull(at.toString(), at.getDescription());
 		assertEquals(46, attribtues.size());
 	}
 }

@@ -116,12 +116,16 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 	{
 		return name;
 	}
+	
 	public void setName(String name)
 	{
 		if (name == null)
 			throw new IllegalArgumentException("Argument can not be null");
 		this.name = name;
+		if (displayedName == null)
+			displayedName = new I18nString(name);
 	}
+	
 	public AttributeValueSyntax<?> getValueType()
 	{
 		return valueType;

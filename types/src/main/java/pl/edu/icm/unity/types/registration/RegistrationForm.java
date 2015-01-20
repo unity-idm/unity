@@ -248,7 +248,15 @@ public class RegistrationForm extends DescribedObjectImpl
 	{
 		this.redirectAfterSubmitAndAccept = redirectAfterSubmitAndAccept;
 	}
-
+	
+	@Override
+	public void setName(String name)
+	{
+		super.setName(name);
+		if (displayedName == null)
+			displayedName = new I18nString(name);
+	}
+	
 	public boolean containsAutomaticAndMandatoryParams()
 	{
 		if (identityParams != null)

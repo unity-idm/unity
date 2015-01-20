@@ -200,7 +200,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		assertEquals(1+automaticCreds, credDefs.size());
 		credDefRet = getDescObjectByName(credDefs, "credential1");
 		assertEquals("credential1", credDefRet.getName());
-		assertEquals("d2", credDefRet.getDescription());
+		assertEquals("d2", credDefRet.getDescription().getDefaultValue());
 		assertEquals(MockPasswordVerificatorFactory.ID, credDefRet.getTypeId());
 		assertEquals("9", credDefRet.getJsonConfiguration());
 		
