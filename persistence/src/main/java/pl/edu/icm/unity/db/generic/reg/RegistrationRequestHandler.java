@@ -73,7 +73,8 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 			root.set("GroupSelections", jsonMapper.valueToTree(req.getGroupSelections()));
 			root.set("Identities", jsonMapper.valueToTree(req.getIdentities()));
 			root.set("RegistrationCode", jsonMapper.valueToTree(req.getRegistrationCode()));
-
+			root.put("UserLocale", req.getUserLocale());
+			
 			byte[] contents = jsonMapper.writeValueAsBytes(root);
 			return new GenericObjectBean(value.getRequestId(), contents, supportedType);
 		} catch (JsonProcessingException e)
@@ -195,6 +196,11 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 			n = root.get("RegistrationCode");
 			if (n != null && !n.isNull())
 				retReq.setRegistrationCode(n.asText());
+			
+			n = root.get("UserLocale");
+			if (n != null && !n.isNull())
+				retReq.setUserLocale(n.asText());
+			
 			return ret;
 		} catch (Exception e)
 		{

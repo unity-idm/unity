@@ -4,13 +4,12 @@
  */
 package pl.edu.icm.unity.engine;
 
+import static org.junit.Assert.fail;
+
 import java.util.Collection;
 import java.util.Collections;
 
 import org.junit.Before;
-
-import static org.junit.Assert.*;
-
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -35,7 +34,7 @@ import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
-import pl.edu.icm.unity.types.DescribedObject;
+import pl.edu.icm.unity.types.NamedObject;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -124,7 +123,7 @@ public abstract class SecuredDBIntegrationTestBase
 		return null;
 	}
 
-	protected <T extends DescribedObject> T getDescObjectByName(Collection<T> objs, String name)
+	protected <T extends NamedObject> T getDescObjectByName(Collection<T> objs, String name)
 	{
 		for (T a: objs)
 			if (a.getName().equals(name))
@@ -151,7 +150,7 @@ public abstract class SecuredDBIntegrationTestBase
 	protected void setupMockAuthn() throws Exception
 	{
 		CredentialDefinition credDef = new CredentialDefinition(
-				MockPasswordVerificatorFactory.ID, "credential1", "cred desc");
+				MockPasswordVerificatorFactory.ID, "credential1");
 		credDef.setJsonConfiguration("8");
 		authnMan.addCredentialDefinition(credDef);
 		

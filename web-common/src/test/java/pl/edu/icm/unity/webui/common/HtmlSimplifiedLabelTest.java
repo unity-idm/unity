@@ -7,6 +7,8 @@ package pl.edu.icm.unity.webui.common;
 import org.junit.Assert;
 import org.junit.Test;
 
+import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
+
 public class HtmlSimplifiedLabelTest
 {
 	@Test

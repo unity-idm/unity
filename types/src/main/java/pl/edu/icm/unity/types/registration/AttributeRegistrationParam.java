@@ -38,10 +38,24 @@ public class AttributeRegistrationParam extends OptionalRegistrationParam
 	{
 		this.showGroups = showGroups;
 	}
+	
+	/**
+	 * @deprecated do not use, the feature is disabled, the attribute type's description is always used, 
+	 * unless in legacy form where it is overridden with a fixed value in the form. The method is left
+	 * as it may still be used during legacy objects deserialization from JSON.
+	 * @return
+	 */
+	@Deprecated
 	public boolean isUseDescription()
 	{
 		return useDescription;
 	}
+	
+	/**
+	 * @deprecated see {@link #isUseDescription()}
+	 * @param useDescription
+	 */
+	@Deprecated
 	public void setUseDescription(boolean useDescription)
 	{
 		this.useDescription = useDescription;

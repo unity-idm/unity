@@ -29,6 +29,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -372,7 +373,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		AgreementRegistrationParam agreement = new AgreementRegistrationParam();
 		agreement.setManatory(true);
-		agreement.setText("a");
+		agreement.setText(new I18nString("a"));
 		form.setAgreements(Collections.singletonList(agreement));
 		
 		Attribute<?> attr = new StringAttribute("cn", "/", AttributeVisibility.full, "val");
@@ -393,7 +394,6 @@ public class TestRegistrations extends DBIntegrationTestBase
 		attrReg.setOptional(true);
 		attrReg.setRetrievalSettings(ParameterRetrievalSettings.interactive);
 		attrReg.setShowGroups(true);
-		attrReg.setUseDescription(true);
 		form.setAttributeParams(Collections.singletonList(attrReg));
 		
 		form.setCollectComments(true);
@@ -407,7 +407,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		form.setCredentialRequirementAssignment(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT);
 		form.setDescription("description");
-		form.setFormInformation("formInformation");
+		form.setFormInformation(new I18nString("formInformation"));
 		form.setGroupAssignments(Collections.singletonList("/A"));
 		
 		GroupRegistrationParam groupParam = new GroupRegistrationParam();

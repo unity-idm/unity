@@ -6,9 +6,9 @@ package pl.edu.icm.unity.webadmin.credentials;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
-import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
@@ -22,7 +22,8 @@ public class CredentialDefinitionViewer extends FormLayout
 	private UnityMessageSource msg;
 	
 	private Label name;
-	private DescriptionTextArea description;
+	private I18nLabel displayedName;
+	private I18nLabel description;
 	private Label type;
 	private SafePanel typeSpecific;
 	
@@ -37,17 +38,19 @@ public class CredentialDefinitionViewer extends FormLayout
 	{
 		name = new Label();
 		name.setCaption(msg.getMessage("CredentialDefinition.name"));
-		description = new DescriptionTextArea(msg.getMessage("CredentialDefinition.description"), true, "");
+		displayedName = new I18nLabel(msg, msg.getMessage("displayedNameF"));
+		description = new I18nLabel(msg, msg.getMessage("descriptionF"));
 		type = new Label();
 		type.setCaption(msg.getMessage("CredentialDefinition.type"));
 		typeSpecific = new SafePanel(msg.getMessage("CredentialDefinition.typeSettings"));
-		addComponents(name, description, type, typeSpecific);
+		addComponents(name, displayedName, description, type, typeSpecific);
 		setContentVisible(false);
 	}
 	
 	private void setContentVisible(boolean how)
 	{
 		name.setVisible(how);
+		displayedName.setVisible(how);
 		description.setVisible(how);
 		type.setVisible(how);
 		typeSpecific.setVisible(how);
@@ -63,6 +66,7 @@ public class CredentialDefinitionViewer extends FormLayout
 		setContentVisible(true);
 		
 		name.setValue(cd.getName());
+		displayedName.setValue(cd.getDisplayedName());
 		description.setValue(cd.getDescription());
 		type.setValue(cd.getTypeId());
 		

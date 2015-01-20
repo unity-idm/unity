@@ -15,10 +15,13 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.server.utils.I18nStringJsonUtil;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
+import pl.edu.icm.unity.types.I18nDescribedObject;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialReset1Dialog;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
@@ -51,7 +54,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 	private Logger log = Log.getLogger(Log.U_SERVER_WEB, PasswordRetrieval.class);
 	private UnityMessageSource msg;
 	private PasswordExchange credentialExchange;
-	private String name;
+	private I18nString name;
 	private String registrationFormForUnknown;
 	private CredentialEditorRegistry credEditorReg;
 
@@ -71,7 +74,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 	public String getSerializedConfiguration()
 	{
 		ObjectNode root = Constants.MAPPER.createObjectNode();
-		root.put("name", name);
+		root.set("i18nName", I18nStringJsonUtil.toJson(name));
 		root.put("registrationFormForUnknown", registrationFormForUnknown);
 		try
 		{
@@ -88,7 +91,10 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		try
 		{
 			JsonNode root = Constants.MAPPER.readTree(json);
-			name = root.get("name").asText();
+			name = I18nStringJsonUtil.fromJson(root.get("i18nName"), root.get("name"));
+			if (name.isEmpty())
+				name = I18nDescribedObject.loadI18nStringFromBundle(
+						"WebPasswordRetrieval.password", msg);
 			JsonNode formNode = root.get("registrationFormForUnknown");
 			if (formNode != null && !formNode.isNull())
 				registrationFormForUnknown = formNode.asText();
@@ -143,8 +149,8 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		{
 			VerticalLayout ret = new VerticalLayout();
 			ret.setSpacing(true);
-			String label = name.trim().equals("") ? msg.getMessage("WebPasswordRetrieval.password") : name;
-			passwordField = new PasswordField(label);
+			String label = name.getValue(msg);
+			passwordField = new PasswordField(label + ":");
 			passwordField.setId("WebPasswordRetrieval.password");
 			ret.addComponent(passwordField);
 
@@ -228,7 +234,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		 * {@inheritDoc}
 		 */
 		@Override
-		public String getLabel()
+		public I18nString getLabel()
 		{
 			return name;
 		}

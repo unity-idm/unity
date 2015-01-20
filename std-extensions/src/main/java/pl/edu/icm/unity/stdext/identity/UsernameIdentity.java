@@ -11,10 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -32,11 +34,17 @@ public class UsernameIdentity extends AbstractStaticIdentityTypeProvider
 	private static Set<AttributeType> EXTRACTED;
 	private static final String EXTRACTED_NAME = "uid";
 	
-	static 
+	@Autowired
+	public UsernameIdentity(UnityMessageSource msg)
 	{
-		EXTRACTED = new HashSet<AttributeType>(1);
-		EXTRACTED.add(new AttributeType(EXTRACTED_NAME, new StringAttributeSyntax(), "User identifier"));
+		EXTRACTED = new HashSet<AttributeType>();
+		EXTRACTED.add(new AttributeType(EXTRACTED_NAME, new StringAttributeSyntax(), msg));
 		EXTRACTED = Collections.unmodifiableSet(EXTRACTED);
+	}
+	
+	public UsernameIdentity()
+	{
+		
 	}
 	
 	/**

@@ -19,9 +19,9 @@ import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
-import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
@@ -117,6 +117,7 @@ public class RequestReviewPanel extends CustomComponent
 		ret.setFormId(orig.getFormId());
 		ret.setIdentities(orig.getIdentities());
 		ret.setRegistrationCode(orig.getRegistrationCode());
+		ret.setUserLocale(orig.getUserLocale());
 		
 		ret.setGroupSelections(new ArrayList<Selection>(orig.getGroupSelections().size()));
 		for (int i=0, j=0; i<orig.getGroupSelections().size(); i++)
@@ -178,8 +179,9 @@ public class RequestReviewPanel extends CustomComponent
 			AgreementRegistrationParam agreementText = form.getAgreements().get(i);
 			String info = (selection.isSelected()) ? msg.getMessage("RequestReviewPanel.accepted") : 
 				msg.getMessage("RequestReviewPanel.notAccepted");
-			String aText = (agreementText.getText().length() > 100) ? 
-					agreementText.getText().substring(0, 100) + "[...]" : agreementText.getText();
+			String agreementTextStr = agreementText.getText().getValue(msg);
+			String aText = (agreementTextStr.length() > 100) ? 
+					agreementTextStr.substring(0, 100) + "[...]" : agreementTextStr;
 			agreements.addEntry(info + ": " +  aText);
 		}
 		

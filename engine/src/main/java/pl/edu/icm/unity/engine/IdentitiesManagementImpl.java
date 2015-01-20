@@ -50,6 +50,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -396,6 +397,25 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			Set<String> allGroups = dbShared.getAllGroups(entityId, sqlMap);
 			sqlMap.commit();
 			return allGroups;
+		} finally
+		{
+			db.releaseSqlSession(sqlMap);
+		}
+	}
+
+	@Override
+	public Collection<Group> getGroupsForPresentation(EntityParam entity)
+			throws EngineException
+	{
+		entity.validateInitialization();
+		SqlSession sqlMap = db.getSqlSession(true);
+		try
+		{
+			long entityId = idResolver.getEntityId(entity, sqlMap);
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
+			Set<Group> ret = dbShared.getAllGroupsWithNames(entityId, sqlMap);
+			sqlMap.commit();
+			return ret;
 		} finally
 		{
 			db.releaseSqlSession(sqlMap);

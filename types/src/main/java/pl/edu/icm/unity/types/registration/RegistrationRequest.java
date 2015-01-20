@@ -33,6 +33,8 @@ public class RegistrationRequest
 
 	private String registrationCode;
 
+	private String userLocale;
+	
 	public String getFormId()
 	{
 		return formId;
@@ -109,6 +111,16 @@ public class RegistrationRequest
 	public void setRegistrationCode(String registrationCode)
 	{
 		this.registrationCode = registrationCode;
+	}
+
+	public String getUserLocale()
+	{
+		return userLocale;
+	}
+
+	public void setUserLocale(String userLocale)
+	{
+		this.userLocale = userLocale;
 	}
 
 	@Override

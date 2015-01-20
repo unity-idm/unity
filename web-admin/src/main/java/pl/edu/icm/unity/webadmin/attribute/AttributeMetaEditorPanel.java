@@ -11,10 +11,10 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.MapComboBox;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -34,7 +34,7 @@ public class AttributeMetaEditorPanel extends FormLayout
 	private UnityMessageSource msg;
 	
 	private Label valueType;
-	private DescriptionTextArea typeDescription;
+	private I18nLabel typeDescription;
 	
 	private String attributeName;
 	private EnumComboBox<AttributeVisibility> visibility;
@@ -65,8 +65,8 @@ public class AttributeMetaEditorPanel extends FormLayout
 		valueType.setCaption(msg.getMessage("AttributeType.type"));
 		addComponent(valueType);
 
-		typeDescription = new DescriptionTextArea(msg.getMessage("AttributeType.description"), true, 
-				attributeType.getDescription());
+		typeDescription = new I18nLabel(msg, msg.getMessage("AttributeType.description"));
+		typeDescription.setValue(attributeType.getDescription());
 		addComponent(typeDescription);
 		
 		Label group = new Label(groupPath);

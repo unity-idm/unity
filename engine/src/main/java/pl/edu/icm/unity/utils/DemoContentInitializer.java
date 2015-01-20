@@ -14,6 +14,7 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.ServerInitializer;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
@@ -45,12 +46,15 @@ public class DemoContentInitializer implements ServerInitializer
 	private IdentitiesManagement idsMan;
 	private AttributesManagement attrMan;
 	private InitializerCommon commonInitializer;
+	private UnityMessageSource msg;
 	
 	@Autowired
 	public DemoContentInitializer(@Qualifier("insecure") GroupsManagement groupsMan, 
 			@Qualifier("insecure") IdentitiesManagement idsMan,
-			@Qualifier("insecure") AttributesManagement attrMan, InitializerCommon commonInitializer)
+			@Qualifier("insecure") AttributesManagement attrMan, InitializerCommon commonInitializer,
+			UnityMessageSource msg)
 	{
+		this.msg = msg;
 		this.groupsMan = groupsMan;
 		this.idsMan = idsMan;
 		this.attrMan = attrMan;
@@ -78,27 +82,24 @@ public class DemoContentInitializer implements ServerInitializer
 			groupsMan.addGroup(new Group("/D/E"));
 			groupsMan.addGroup(new Group("/D/G"));
 			groupsMan.addGroup(new Group("/D/F"));
-			AttributeType userPicture = new AttributeType("picture", new JpegImageAttributeSyntax());
+			AttributeType userPicture = new AttributeType("picture", new JpegImageAttributeSyntax(), msg);
 			((JpegImageAttributeSyntax)userPicture.getValueType()).setMaxSize(1400000);
 			((JpegImageAttributeSyntax)userPicture.getValueType()).setMaxWidth(900);
 			((JpegImageAttributeSyntax)userPicture.getValueType()).setMaxHeight(900);
 			userPicture.setMaxElements(10);
-			userPicture.setDescription("Picture of the user");
 			attrMan.addAttributeType(userPicture);
 
-			AttributeType postalcode = new AttributeType("postalcode", new StringAttributeSyntax());
+			AttributeType postalcode = new AttributeType("postalcode", new StringAttributeSyntax(), msg);
 			postalcode.setMinElements(0);
 			postalcode.setMaxElements(Integer.MAX_VALUE);
-			postalcode.setDescription("Postal code");
 			((StringAttributeSyntax)postalcode.getValueType()).setRegexp("[0-9][0-9]-[0-9][0-9][0-9]");
 			((StringAttributeSyntax)postalcode.getValueType()).setMaxLength(6);
 			attrMan.addAttributeType(postalcode);
 			
 			
 			
-			AttributeType height = new AttributeType("height", new FloatingPointAttributeSyntax());
+			AttributeType height = new AttributeType("height", new FloatingPointAttributeSyntax(), msg);
 			height.setMinElements(1);
-			height.setDescription("He\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjh");
 			attrMan.addAttributeType(height);
 
 			IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "demo-user");

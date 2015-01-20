@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.saml.ecp;
 
-import java.io.ByteArrayInputStream;
 import java.io.CharArrayWriter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -106,7 +106,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 		properties = new Properties();
 		try
 		{
-			properties.load(new ByteArrayInputStream(serializedState.getBytes()));
+			properties.load(new StringReader(serializedState));
 			samlProperties = new SAMLECPProperties(properties, pkiManagement);
 		} catch (Exception e)
 		{

@@ -8,14 +8,16 @@ import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
-import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -37,7 +39,8 @@ public class CredentialDefinitionEditor extends FormLayout
 	private UnityMessageSource msg;
 	private CredentialEditorRegistry credentialEditorReg;
 	private AbstractTextField name;
-	private DescriptionTextArea description;
+	private I18nTextField displayedName;
+	private I18nTextArea description;
 	private EnumComboBox<LocalCredentialState> newCredState; 
 	private ComboBox credentialType;
 	private SafePanel credentialEditorPanel;
@@ -66,11 +69,12 @@ public class CredentialDefinitionEditor extends FormLayout
 		name = new RequiredTextField(msg);
 		name.setCaption(msg.getMessage("CredentialDefinition.name"));
 		addComponent(name);
+
+		displayedName = new I18nTextField(msg, msg.getMessage("displayedNameF"));
+		addComponent(displayedName);
 		
-		description = new DescriptionTextArea(msg.getMessage("CredentialDefinition.description"));
+		description = new I18nTextArea(msg, msg.getMessage("descriptionF"));
 		addComponent(description);
-		if (initial != null)
-			description.setValue(initial.getDescription());
 		
 		if (initial != null)
 		{
@@ -95,7 +99,8 @@ public class CredentialDefinitionEditor extends FormLayout
 		
 		String firstType = supportedTypes.iterator().next(); 
 		CredentialDefinition cd = initial == null ? new CredentialDefinition(
-				firstType, msg.getMessage("CredentialDefinition.defaultName"), "") : initial;
+				firstType, msg.getMessage("CredentialDefinition.defaultName"), new I18nString(), 
+				new I18nString("")) : initial;
 		formItem = new BeanItem<CredentialDefinition>(cd);
 		if (initial != null)
 		{
@@ -106,6 +111,7 @@ public class CredentialDefinitionEditor extends FormLayout
 		
 		binder = new FieldGroup(formItem);
 		binder.bind(name, "name");
+		binder.bind(displayedName, "displayedName");
 		binder.bind(description, "description");
 		binder.bind(credentialType, "typeId");
 		
@@ -140,6 +146,7 @@ public class CredentialDefinitionEditor extends FormLayout
 		}
 		CredentialDefinition ret = formItem.getBean();
 		ret.setJsonConfiguration(credConfig);
+		ret.getDisplayedName().setDefaultValue(ret.getName());
 		return ret;
 	}
 	

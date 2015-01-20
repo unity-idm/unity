@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -37,10 +38,11 @@ public class InsecureRegistrationFormLauncher extends RegistrationFormLauncher
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			@Qualifier("insecure") AttributesManagement attrsMan, 
-			@Qualifier("insecure") AuthenticationManagement authnMan)
+			@Qualifier("insecure") AuthenticationManagement authnMan,
+			@Qualifier("insecure") GroupsManagement groupsMan)
 	{
 		super(msg, registrationsManagement, identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, attrsMan, authnMan);
+				attributeHandlerRegistry, attrsMan, authnMan, groupsMan);
 	}
 
 	@Override

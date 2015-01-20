@@ -7,9 +7,12 @@ package pl.edu.icm.unity.types.basic;
 import java.util.HashMap;
 import java.util.Map;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.types.DescribedObject;
+import pl.edu.icm.unity.types.I18nDescribedObject;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.InitializationValidator;
+import pl.edu.icm.unity.types.NamedObject;
 
 /**
  * Attribute type defines rules for handling attributes. Particular values
@@ -19,7 +22,7 @@ import pl.edu.icm.unity.types.InitializationValidator;
  * <p>
  * The class is compared only using the name.
  */
-public class AttributeType implements InitializationValidator, DescribedObject
+public class AttributeType extends I18nDescribedObject implements InitializationValidator, NamedObject
 {
 	/**
 	 * The attribute type can not be changed using management API (it is created
@@ -34,7 +37,6 @@ public class AttributeType implements InitializationValidator, DescribedObject
 	 */
 	public static final int INSTANCES_IMMUTABLE_FLAG = 0x02;
 	
-	private String description = "";
 	private String name;
 	private AttributeValueSyntax<?> valueType;
 	private int minElements = 0;
@@ -54,13 +56,49 @@ public class AttributeType implements InitializationValidator, DescribedObject
 	{
 		this.name = name;
 		this.valueType = syntax;
+		this.displayedName = new I18nString(name);
 	}
 	
-	public AttributeType(String name, AttributeValueSyntax<?> syntax, String description)
+	public AttributeType(String name, AttributeValueSyntax<?> syntax, I18nString displayedName, I18nString description)
 	{
-		this.name = name;
-		this.valueType = syntax;
+		this(name, syntax);
 		this.description = description;
+		this.displayedName = displayedName;
+	}
+
+	/**
+	 * This version resolves the descriptions of the attribute from the message bundles. The key must be
+	 * AttrType.ATTR_NAME.desc.
+	 * @param name
+	 * @param syntax
+	 * @param msg
+	 */
+	public AttributeType(String name, AttributeValueSyntax<?> syntax, MessageSource msg)
+	{
+		this(name, syntax, loadNames(name, msg), loadDescriptions(name, msg));
+	}
+	
+	/**
+	 * This version resolves the descriptions of the attribute from the message bundles. The key must be
+	 * AttrType.msgKey.desc. It is possible to provide message arguments
+	 * @param name
+	 * @param syntax
+	 * @param msg
+	 */
+	public AttributeType(String name, AttributeValueSyntax<?> syntax, MessageSource msg, String msgKey, 
+			Object[] args)
+	{
+		this(name, syntax, loadNames(name, msg), loadDescriptions(msgKey, msg, args));
+	}
+	
+	private static I18nString loadDescriptions(String msgKey, MessageSource msg, Object... args)
+	{
+		return loadI18nStringFromBundle("AttrType." + msgKey + ".desc", msg, args);
+	}
+
+	private static I18nString loadNames(String msgKey, MessageSource msg, Object... args)
+	{
+		return loadI18nStringFromBundle("AttrType." + msgKey + ".displayedName", msg, args);
 	}
 	
 	public boolean isTypeImmutable()
@@ -74,27 +112,20 @@ public class AttributeType implements InitializationValidator, DescribedObject
 	}
 	
 	@Override
-	public String getDescription()
-	{
-		return description;
-	}
-	public void setDescription(String description)
-	{
-		if (description == null)
-			throw new IllegalArgumentException("Argument can not be null");
-		this.description = description;
-	}
-	@Override
 	public String getName()
 	{
 		return name;
 	}
+	
 	public void setName(String name)
 	{
 		if (name == null)
 			throw new IllegalArgumentException("Argument can not be null");
 		this.name = name;
+		if (displayedName == null)
+			displayedName = new I18nString(name);
 	}
+	
 	public AttributeValueSyntax<?> getValueType()
 	{
 		return valueType;
@@ -171,6 +202,8 @@ public class AttributeType implements InitializationValidator, DescribedObject
 			throw new IllegalAttributeTypeException("Max elements limit can not be less then min elements limit");
 		if (name == null || name.trim().equals(""))
 			throw new IllegalAttributeTypeException("Attribute type name must be set");
+		if (displayedName == null)
+			throw new IllegalAttributeTypeException("Attribute displayed name must be set");
 	}
 
 	public Map<String, String> getMetadata()

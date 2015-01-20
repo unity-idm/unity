@@ -20,6 +20,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -249,6 +250,11 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		return true;
 	}
 
+	protected void addCustomFieldToContent(Component component)
+	{
+		content.addComponent(component);
+	}
+	
 	protected void addFieldToContent(String name, String value)
 	{
 		addField(content, name, value);

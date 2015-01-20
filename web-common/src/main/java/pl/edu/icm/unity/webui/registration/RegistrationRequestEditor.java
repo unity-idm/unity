@@ -16,12 +16,15 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -37,8 +40,6 @@ import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.webui.common.CaptchaComponent;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.HtmlSimplifiedLabel;
-import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -47,6 +48,8 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.UserError;
@@ -76,6 +79,7 @@ public class RegistrationRequestEditor extends CustomComponent
 	private CredentialEditorRegistry credentialEditorRegistry;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
 	private AttributesManagement attrsMan;
+	private GroupsManagement groupsMan;
 	private AuthenticationManagement authnMan;
 	
 	private Map<String, IdentityTaV> remoteIdentitiesByType;
@@ -108,7 +112,8 @@ public class RegistrationRequestEditor extends CustomComponent
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
-			AttributesManagement attrsMan, AuthenticationManagement authnMan) throws EngineException
+			AttributesManagement attrsMan, AuthenticationManagement authnMan,
+			GroupsManagement groupsMan) throws EngineException
 	{
 		this.msg = msg;
 		this.form = form;
@@ -118,6 +123,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
 		this.attrsMan = attrsMan;
 		this.authnMan = authnMan;
+		this.groupsMan = groupsMan;
 		checkRemotelyObtainedData();
 		initUI();
 	}
@@ -342,6 +348,8 @@ public class RegistrationRequestEditor extends CustomComponent
 			}
 		}
 		
+		ret.setUserLocale(msg.getLocaleCode());
+		
 		if (hasFormException)
 			throw new FormValidationException();
 		
@@ -354,13 +362,16 @@ public class RegistrationRequestEditor extends CustomComponent
 		main.setSpacing(true);
 		main.setWidth(80, Unit.PERCENTAGE);
 		
-		Label formName = new Label(form.getName());
+		Label formName = new Label(form.getDisplayedName().getValue(msg));
 		formName.addStyleName(Reindeer.LABEL_H1);
 		main.addComponent(formName);
 		
-		String info = form.getFormInformation() == null ? "" : form.getFormInformation();
-		HtmlSimplifiedLabel formInformation = new HtmlSimplifiedLabel(info);
-		main.addComponent(formInformation);
+		String info = form.getFormInformation() == null ? null : form.getFormInformation().getValue(msg);
+		if (info != null)
+		{
+			HtmlSimplifiedLabel formInformation = new HtmlSimplifiedLabel(info);
+			main.addComponent(formInformation);
+		}
 
 		FormLayout mainFormLayout = new FormLayout();
 		main.addComponent(mainFormLayout);
@@ -477,9 +488,12 @@ public class RegistrationRequestEditor extends CustomComponent
 			if (param.getLabel() != null)
 				editorUI.setCaption(param.getLabel());
 			else
-				editorUI.setCaption(param.getCredentialName()+":");
+				editorUI.setCaption(credDefinition.getDisplayedName().getValue(msg) + ":");
 			if (param.getDescription() != null)
-				editorUI.setDescription(HtmlEscapers.htmlEscaper().escape(param.getDescription()));
+				editorUI.setDescription(HtmlSimplifiedLabel.escape(param.getDescription()));
+			else if (!credDefinition.getDescription().isEmpty())
+				editorUI.setDescription(HtmlSimplifiedLabel.escape(
+						credDefinition.getDescription().getValue(msg)));
 			credentialParamEditors.add(editor);
 			layout.addComponents(editorUI.getComponents());
 				
@@ -512,8 +526,9 @@ public class RegistrationRequestEditor extends CustomComponent
 				headerAdded = true;
 			}
 			AttributeType at = atTypes.get(aParam.getAttributeType());
-			String description = aParam.isUseDescription() ? at.getDescription() : aParam.getDescription();
-			String aName = isEmpty(aParam.getLabel()) ? (aParam.getAttributeType()+":") : aParam.getLabel();
+			String description = (aParam.getDescription() != null && !aParam.getDescription().isEmpty()) ? 
+					aParam.getDescription() : null;
+			String aName = isEmpty(aParam.getLabel()) ? null : aParam.getLabel();
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
 					at, aParam.isShowGroups(), aParam.getGroup(), at.getVisibility(), 
 					aName, description, !aParam.isOptional(), layout);
@@ -523,10 +538,10 @@ public class RegistrationRequestEditor extends CustomComponent
 			}
 			attributeEditor.add(editor);
 		}
-		createExternalAttributesUI(layout);
+		createExternalAttributesUI(layout, atTypes);
 	}
 	
-	private void createGroupsUI(Layout layout)
+	private void createGroupsUI(Layout layout) throws EngineException
 	{
 		boolean headerAdded = false;
 		
@@ -548,10 +563,17 @@ public class RegistrationRequestEditor extends CustomComponent
 				layout.addComponent(titleL);
 				headerAdded = true;
 			}
+
+			GroupContents contents = groupsMan.getContents(gParam.getGroupPath(), GroupContents.METADATA);
+			Group grp = contents.getGroup();
+
 			CheckBox cb = new CheckBox();
-			cb.setCaption(isEmpty(gParam.getLabel()) ? gParam.getGroupPath() : gParam.getLabel());
+			cb.setCaption(isEmpty(gParam.getLabel()) ? grp.getDisplayedName().getValue(msg) 
+					: gParam.getLabel());
 			if (gParam.getDescription() != null)
-				cb.setDescription(HtmlEscapers.htmlEscaper().escape(gParam.getDescription()));
+				cb.setDescription(HtmlSimplifiedLabel.escape(gParam.getDescription()));
+			else if (!grp.getDescription().isEmpty())
+				cb.setDescription(HtmlSimplifiedLabel.escape(grp.getDescription().getValue(msg)));
 			
 			if (gParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive && conGroup)
 			{
@@ -574,7 +596,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<aParams.size(); i++)
 		{
 			AgreementRegistrationParam aParam = aParams.get(i);
-			HtmlSimplifiedLabel aText = new HtmlSimplifiedLabel(aParam.getText());
+			HtmlSimplifiedLabel aText = new HtmlSimplifiedLabel(aParam.getText().getValue(msg));
 			CheckBox cb = new CheckBox(msg.getMessage("RegistrationRequest.agree"));
 			agreementSelectors.add(cb);
 			layout.addComponent(aText);
@@ -621,7 +643,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		}
 	}
 	
-	private void createExternalAttributesUI(Layout layout)
+	private void createExternalAttributesUI(Layout layout, Map<String, AttributeType> atTypes)
 	{
 		List<AttributeRegistrationParam> attributeParams = form.getAttributeParams();
 		ListOfElements<String> attributesList = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
@@ -640,7 +662,9 @@ public class RegistrationRequestEditor extends CustomComponent
 			Attribute<?> a = remoteAttributes.get(aParam.getGroup() + "//" + aParam.getAttributeType());
 			if (a == null)
 				continue;
-			String aString = attributeHandlerRegistry.getSimplifiedAttributeRepresentation(a, 120);
+			String displayedName = atTypes.get(aParam.getAttributeType()).getDisplayedName().getValue(msg);
+			String aString = attributeHandlerRegistry.getSimplifiedAttributeRepresentation(a, 120,
+					displayedName);
 			attributesList.addEntry(aString);
 		}
 		if (attributesList.size() > 0)

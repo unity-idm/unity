@@ -4,19 +4,22 @@
  */
 package pl.edu.icm.unity.msgtemplates;
 
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.DescribedObjectImpl;
+import pl.edu.icm.unity.types.I18nString;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * Wraps notification message template. It consist of text, subject may support localization.
+ * Wraps notification message template. It consist of text, subject, supports localization.
  * What is most important it handles parameter substitution.
  * <p>
  * Implementation note: this will be extended in future: based on freemarker, message metadata (as use HTML) 
@@ -29,13 +32,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class MessageTemplate extends DescribedObjectImpl
 {
-	private Map<String, Message> messagesByLocale;
+	private I18nMessage message;
 	private String consumer;
 
 	public MessageTemplate(String name, String description,
-			Map<String, Message> messagesByLocale, String consumer)
+			I18nMessage message, String consumer)
 	{
-		this.messagesByLocale = messagesByLocale;
+		this.message = message;
 		this.consumer = consumer;
 		setName(name);
 		setDescription(description);
@@ -56,14 +59,33 @@ public class MessageTemplate extends DescribedObjectImpl
 			setDescription(root.get("description").asText());
 			setConsumer(root.get("consumer").asText());
 			ArrayNode messagesA = (ArrayNode) root.get("messages");
-			messagesByLocale = new HashMap<String, MessageTemplate.Message>();
+			//note: JSON representation is legacy, that's why standard tool to serialize/deserialize 
+			//is not used. The empty string was used as an only key to store a default value. 
+			I18nString subject = new I18nString();
+			I18nString body = new I18nString();
 			for (int i=0; i<messagesA.size(); i++)
 			{
 				ObjectNode jsonMsg = (ObjectNode) messagesA.get(i);
-				Message msg = new Message(jsonMsg.get("subject").asText(), jsonMsg.get("body").asText());
-				String l = jsonMsg.get("locale").asText();
-				messagesByLocale.put(l, msg);
+				String locale = jsonMsg.get("locale").asText();
+				if (locale.equals(""))
+				{
+					JsonNode n = jsonMsg.get("subject");
+					if (n != null && !n.isNull())
+						subject.setDefaultValue(n.asText());
+					n = jsonMsg.get("body");
+					if (n != null && !n.isNull())
+						body.setDefaultValue(n.asText());
+				} else
+				{
+					JsonNode n = jsonMsg.get("subject");
+					if (n != null && !n.isNull())
+						subject.addValue(locale, n.asText());
+					n = jsonMsg.get("body");
+					if (n != null && !n.isNull())
+						body.addValue(locale, n.asText());
+				}
 			}
+			message = new I18nMessage(subject, body);
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize message template from JSON", e);
@@ -81,12 +103,23 @@ public class MessageTemplate extends DescribedObjectImpl
 			root.put("consumer", getConsumer());
 			ArrayNode jsonMessages = root.putArray("messages");
 			
-			for (Map.Entry<String, Message> msg: messagesByLocale.entrySet())
+			I18nString subject = message.getSubject();
+			I18nString body = message.getBody();
+			Set<String> allUsedLocales = new HashSet<>(body.getMap().keySet());
+			allUsedLocales.addAll(subject.getMap().keySet());
+			for (String locale: allUsedLocales)
 			{
 				ObjectNode jsonMsg = jsonMessages.addObject();
-				jsonMsg.put("locale", msg.getKey().toString());
-				jsonMsg.put("subject", msg.getValue().getSubject());
-				jsonMsg.put("body", msg.getValue().getBody());
+				jsonMsg.put("locale", locale);
+				jsonMsg.put("subject", subject.getValueRaw(locale));
+				jsonMsg.put("body", body.getValueRaw(locale));
+			}
+			if (subject.getDefaultValue() != null || body.getDefaultValue() != null)
+			{
+				ObjectNode jsonMsg = jsonMessages.addObject();
+				jsonMsg.put("locale", "");
+				jsonMsg.put("subject", subject.getDefaultValue());
+				jsonMsg.put("body", body.getDefaultValue());
 			}
 			return jsonMapper.writeValueAsString(root);
 		} catch (JsonProcessingException e)
@@ -107,43 +140,74 @@ public class MessageTemplate extends DescribedObjectImpl
 		return this.consumer;
 	}
 	
-	public Message getMessage(Map<String, String> params)
+	public Message getMessage(String locale, String defaultLocale, Map<String, String> params)
 	{
-		return getMsg(messagesByLocale,params);
-	}
-	
-	public Message getRawMessage()
-	{
-		return getMsg(messagesByLocale, new HashMap<String, String>(0));
-	}
-	
-	private Message getMsg(Map<String, Message> messagesByLocale, Map<String, String> params)
-	{
-	// 	Using empty locale!
-	//	Locale loc = UnityMessageSource.getLocale(defaultLocale);
-		Message msg = messagesByLocale.get("");
+		String subject = message.getSubject().getValue(locale, defaultLocale);
+		String body = message.getBody().getValue(locale, defaultLocale);
+		Message ret = new Message(subject, body);
 		for (Map.Entry<String, String> paramE: params.entrySet())
 		{
-			msg.setSubject(msg.getSubject().replace("${" + paramE.getKey() + "}", paramE.getValue()));
-		        msg.setBody(msg.getBody().replace("${" + paramE.getKey() + "}", paramE.getValue()));
+			ret.setSubject(ret.getSubject().replace("${" + paramE.getKey() + "}", paramE.getValue()));
+		        ret.setBody(ret.getBody().replace("${" + paramE.getKey() + "}", paramE.getValue()));
 		}
-		return msg;
+		return ret;
 	}
 	
-	public Map<String, Message> getAllMessages()
+	public I18nMessage getMessage()
 	{
-		return messagesByLocale;
+		return message;
 	}
 	
-	public void setAllMessages(Map<String, Message> messages)
+	public void setMessage(I18nMessage message)
 	{
-		this.messagesByLocale = messages;
+		this.message = message;
 	}
+	
+	/**
+	 * Objects are used to store message templates with localized strings.
+	 * @author K. Benedyczak
+	 */
+	public static class I18nMessage
+	{
+		private I18nString body;
+		private I18nString subject;
 		
+		public I18nMessage(I18nString subject, I18nString body)
+		{
+			this.subject = subject;
+			this.body = body;
+		}	
+		
+		public void setBody(I18nString body)
+		{
+			this.body = body;
+		}
+
+		public void setSubject(I18nString subject)
+		{
+			this.subject = subject;
+		}
+
+		public I18nString getBody()
+		{
+			return body;
+		}
+
+		public I18nString getSubject()
+		{
+			return subject;
+		}
+	}
+	
+	/**
+	 * Objects are used to interchange resolved messages, with substituted parameters and 
+	 * fixed locale.
+	 * @author K. Benedyczak
+	 */
 	public static class Message
 	{
-		String body;
-		String subject;
+		private String body;
+		private String subject;
 		
 		public Message(String subject, String body)
 		{

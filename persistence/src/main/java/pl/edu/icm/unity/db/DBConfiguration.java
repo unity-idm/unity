@@ -4,10 +4,13 @@
  */
 package pl.edu.icm.unity.db;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Map;
 import java.util.Properties;
 
@@ -101,7 +104,8 @@ public class DBConfiguration extends PropertiesHelper
 
 		try
 		{
-			p.load(is);
+			Reader isReader = new BufferedReader(new InputStreamReader(is, "UTF-8")); 
+			p.load(isReader);
 			is.close();
 		} catch (Exception e)
 		{

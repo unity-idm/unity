@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.ldaputils.LDAPAttributeType;
 import pl.edu.icm.unity.ldaputils.LDAPAttributeTypeConverter;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 
@@ -49,7 +50,7 @@ public class StandardLDAPConverter implements LDAPAttributeTypeConverter
 				converted.setMaxElements(256);
 			}
 			if (at.getDescription() != null)
-				converted.setDescription(at.getDescription());
+				converted.setDescription(new I18nString(at.getDescription()));
 			ret.add(converted);
 		}
 		return ret;

@@ -30,8 +30,8 @@ import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent;
 import pl.edu.icm.unity.webui.registration.RegistrationFormChooserDialog;
@@ -139,7 +139,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 
 		VerticalLayout topLevel = new VerticalLayout();
 		headerUIComponent = new TopHeaderLight(msg.getMessage("AuthenticationUI.login", 
-				description.getId()), msg);
+				description.getDisplayedName().getValue(msg)), msg);
 		topLevel.addComponents(headerUIComponent, main);
 		topLevel.setSizeFull();
 		topLevel.setExpandRatio(main, 1.0f);

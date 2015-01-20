@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.common;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;

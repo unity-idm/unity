@@ -32,6 +32,7 @@ import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.registries.EndpointFactoriesRegistry;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
@@ -92,18 +93,21 @@ public class EndpointManagementImpl implements EndpointManagement
 	 *  transaction is committed
 	 */
 	@Override
-	public EndpointDescription deploy(String typeId, String endpointName, String address, String description,
+	public EndpointDescription deploy(String typeId, String endpointName, I18nString displayedName, 
+			String address, String description,
 			List<AuthenticatorSet> authn, String jsonConfiguration, String realm) throws EngineException 
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		synchronized(internalManagement)
 		{
-			return deployInt(typeId, endpointName, address, description, authn, realm, jsonConfiguration);
+			return deployInt(typeId, endpointName, displayedName, address, description, authn, 
+					realm, jsonConfiguration);
 		}
 	}
 
-	private EndpointDescription deployInt(String typeId, String endpointName, String address, String description,
-			List<AuthenticatorSet> authenticatorsInfo, String realmName, String jsonConfiguration) throws EngineException 
+	private EndpointDescription deployInt(String typeId, String endpointName, I18nString displayedName, 
+			String address, String description, List<AuthenticatorSet> authenticatorsInfo, 
+			String realmName, String jsonConfiguration) throws EngineException 
 	{
 		EndpointFactory factory = endpointFactoriesReg.getById(typeId);
 		if (factory == null)
@@ -119,7 +123,7 @@ public class EndpointManagementImpl implements EndpointManagement
 					authenticatorsInfo, sql);
 			verifyAuthenticators(authenticators, factory.getDescription().getSupportedBindings());
 			AuthenticationRealm realm = realmDB.get(realmName, sql);
-			instance.initialize(endpointName, httpServer.getAdvertisedAddress(), 
+			instance.initialize(endpointName, displayedName, httpServer.getAdvertisedAddress(), 
 					address, description, authenticatorsInfo, authenticators, 
 					realm, jsonConfiguration);
 
@@ -189,13 +193,13 @@ public class EndpointManagementImpl implements EndpointManagement
 	}	
 	
 	@Override
-	public void updateEndpoint(String id, String description, List<AuthenticatorSet> authn,
-			String jsonConfiguration, String realm) throws EngineException
+	public void updateEndpoint(String id, I18nString displayedName, String description, 
+			List<AuthenticatorSet> authn, String jsonConfiguration, String realm) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		synchronized(internalManagement)
 		{
-			updateEndpointInt(id, description, jsonConfiguration, authn, realm);
+			updateEndpointInt(id, displayedName, description, jsonConfiguration, authn, realm);
 		}
 	}
 
@@ -211,7 +215,8 @@ public class EndpointManagementImpl implements EndpointManagement
 	 * @param authn
 	 * @throws EngineException
 	 */
-	private void updateEndpointInt(String id, String description, String jsonConfiguration, 
+	private void updateEndpointInt(String id, I18nString displayedName, String description, 
+			String jsonConfiguration, 
 			List<AuthenticatorSet> authn, String realmName) throws EngineException
 	{
 		SqlSession sql = db.getSqlSession(true);
@@ -239,7 +244,7 @@ public class EndpointManagementImpl implements EndpointManagement
 				authenticators = authnLoader.getAuthenticators(newAuthn, sql);
 			}
 			AuthenticationRealm realm = realmDB.get(realmName, sql);
-			newInstance.initialize(id, httpServer.getAdvertisedAddress(), 
+			newInstance.initialize(id, displayedName, httpServer.getAdvertisedAddress(), 
 					instance.getEndpointDescription().getContextAddress(), 
 					newDesc, newAuthn, authenticators, realm, jsonConf);
 			

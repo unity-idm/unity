@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 import com.vaadin.event.MouseEvents.ClickEvent;
 import com.vaadin.event.MouseEvents.ClickListener;

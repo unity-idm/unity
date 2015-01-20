@@ -19,7 +19,7 @@ import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
-import pl.edu.icm.unity.webui.common.SafePanel;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;

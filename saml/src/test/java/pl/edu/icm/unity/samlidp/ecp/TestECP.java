@@ -57,6 +57,7 @@ import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile.ProfileMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.stdext.tactions.in.MapIdentityActionFactory;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
@@ -90,7 +91,8 @@ public class TestECP extends AbstractTestIdpBase
 		try
 		{
 			List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
-			endpointMan.deploy(ECPEndpointFactory.NAME, "endpointECP", "/ecp", "desc", 
+			endpointMan.deploy(ECPEndpointFactory.NAME, "endpointECP", new I18nString("endpointECP"),
+					"/ecp", "desc", 
 					authnCfg, ECP_ENDP_CFG, REALM_NAME);
 			List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 			assertEquals(2, endpoints.size());

@@ -16,8 +16,8 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.server.utils.CookieHelper;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.event.FieldEvents.TextChangeEvent;

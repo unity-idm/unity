@@ -17,6 +17,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
@@ -52,14 +53,17 @@ public class InitializerCommon
 	private AttributesManagement attrMan;
 	private GroupsManagement groupsMan;
 	private UnityServerConfiguration config;
+	private UnityMessageSource msg;
 
 	@Autowired
 	public InitializerCommon(@Qualifier("insecure") AttributesManagement attrMan, 
-			@Qualifier("insecure") GroupsManagement groupsMan, UnityServerConfiguration config)
+			@Qualifier("insecure") GroupsManagement groupsMan, UnityServerConfiguration config,
+			UnityMessageSource msg)
 	{
 		this.attrMan = attrMan;
 		this.groupsMan = groupsMan;
 		this.config = config;
+		this.msg = msg;
 	}
 
 	public void initializeMainAttributeClass() throws EngineException
@@ -99,36 +103,32 @@ public class InitializerCommon
 	{
 		Set<AttributeType> existingATs = new HashSet<>(attrMan.getAttributeTypes());
 		
-		AttributeType userPicture = new AttributeType(JPEG_ATTR, new JpegImageAttributeSyntax());
+		AttributeType userPicture = new AttributeType(JPEG_ATTR, new JpegImageAttributeSyntax(), msg);
 		((JpegImageAttributeSyntax)userPicture.getValueType()).setMaxSize(2000000);
 		((JpegImageAttributeSyntax)userPicture.getValueType()).setMaxWidth(120);
 		((JpegImageAttributeSyntax)userPicture.getValueType()).setMaxHeight(120);
 		userPicture.setMinElements(1);
-		userPicture.setDescription("Small JPEG photo for user's profile");
 		if (!existingATs.contains(userPicture))
 			attrMan.addAttributeType(userPicture);
 
-		AttributeType cn = new AttributeType(CN_ATTR, new StringAttributeSyntax());
+		AttributeType cn = new AttributeType(CN_ATTR, new StringAttributeSyntax(), msg);
 		cn.setMinElements(1);
-		cn.setDescription("Common name");
 		((StringAttributeSyntax)cn.getValueType()).setMaxLength(100);
 		((StringAttributeSyntax)cn.getValueType()).setMinLength(2);
 		cn.getMetadata().put(EntityNameMetadataProvider.NAME, "");
 		if (!existingATs.contains(cn))
 			attrMan.addAttributeType(cn);
 
-		AttributeType org = new AttributeType(ORG_ATTR, new StringAttributeSyntax());
+		AttributeType org = new AttributeType(ORG_ATTR, new StringAttributeSyntax(), msg);
 		org.setMinElements(1);
 		org.setMaxElements(10);
-		org.setDescription("Organization");
 		((StringAttributeSyntax)org.getValueType()).setMaxLength(33);
 		((StringAttributeSyntax)org.getValueType()).setMinLength(2);
 		if (!existingATs.contains(org))
 			attrMan.addAttributeType(org);
 
-		AttributeType email = new AttributeType(EMAIL_ATTR, new StringAttributeSyntax());
+		AttributeType email = new AttributeType(EMAIL_ATTR, new StringAttributeSyntax(), msg);
 		email.setMinElements(1);
-		email.setDescription("E-mail");
 		((StringAttributeSyntax)email.getValueType()).setMaxLength(33);
 		((StringAttributeSyntax)email.getValueType()).setMinLength(5);
 		((StringAttributeSyntax)email.getValueType()).setRegexp("[^@]+@.+\\..+");

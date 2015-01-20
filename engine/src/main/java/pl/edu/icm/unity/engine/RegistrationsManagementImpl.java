@@ -59,6 +59,7 @@ import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -112,6 +113,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private EngineHelper engineHelper;
 	private AttributesHelper attributesHelper;
 	private NotificationProducerImpl notificationProducer;
+	private UnityMessageSource msg;
 
 	@Autowired
 	public RegistrationsManagementImpl(DBSessionManager db, RegistrationFormDB formsDB,
@@ -121,7 +123,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			GroupResolver groupsResolver, IdentityTypesRegistry identityTypesRegistry,
 			LocalCredentialsRegistry authnRegistry, AuthorizationManager authz,
 			EngineHelper engineHelper, AttributesHelper attributesHelper,
-			NotificationProducerImpl notificationProducer, MessageTemplateDB msgTplDB)
+			NotificationProducerImpl notificationProducer, MessageTemplateDB msgTplDB,
+			UnityMessageSource msg)
 	{
 		this.db = db;
 		this.formsDB = formsDB;
@@ -140,6 +143,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		this.attributesHelper = attributesHelper;
 		this.notificationProducer = notificationProducer;
 		this.msgTplDB = msgTplDB;
+		this.msg = msg;
 	}
 
 	@Override
@@ -252,7 +256,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(), 
 					notificationsCfg.getChannel(), 
 					notificationsCfg.getSubmittedTemplate(),
-					getBaseNotificationParams(form.getName(), requestFull.getRequestId()));
+					getBaseNotificationParams(form.getName(), requestFull.getRequestId()),
+					msg.getDefaultLocaleCode());
 			}
 			
 		} finally
@@ -810,10 +815,14 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (requesterAddress != null)
 		{
 			if (sendToRequester || publicComment != null)
+			{
+				String userLocale = currentRequest.getRequest().getUserLocale();
 				notificationProducer.sendNotification(requesterAddress, 
 						notificationsCfg.getChannel(), 
 						templateId,
-						notifyParams);
+						notifyParams,
+						userLocale);
+			}
 		}
 		
 		if (notificationsCfg.getAdminsNotificationGroup() != null)
@@ -823,7 +832,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(), 
 				notificationsCfg.getChannel(), 
 				templateId,
-				notifyParams);
+				notifyParams,
+				msg.getDefaultLocaleCode());
 		}
 	}
 	
