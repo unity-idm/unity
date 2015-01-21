@@ -68,4 +68,10 @@ public class MockAttributeSyntax implements AttributeValueSyntax<String> {
 	{
 		return false;
 	}
+	
+	public String convertFromString(String stringRepresentation)
+			throws IllegalAttributeValueException
+	{
+		return stringRepresentation;
+	}
 }

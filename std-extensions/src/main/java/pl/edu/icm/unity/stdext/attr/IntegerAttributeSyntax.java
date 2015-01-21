@@ -137,4 +137,18 @@ public class IntegerAttributeSyntax implements AttributeValueSyntax<Long>
 	{
 		return false;
 	}
+	
+	@Override
+	public Long convertFromString(String stringRepresentation)
+			throws IllegalAttributeValueException
+	{
+		try
+		{
+			return Long.parseLong(stringRepresentation);
+		} catch (Exception e)
+		{
+			throw new IllegalAttributeValueException("Can not convert the attribute value - "
+					+ "it is not an integer number", e);
+		}
+	}
 }

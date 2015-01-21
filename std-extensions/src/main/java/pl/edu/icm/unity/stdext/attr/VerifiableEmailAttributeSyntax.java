@@ -23,8 +23,7 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<VerifiableEmail> 
 {
 	public static final String ID = "verifiableEmail";
-	private final int MIN_LENGTH = 5;
-	private final int MAX_LENGTH = 33;
+	private final int MAX_LENGTH = 80;
 	private final String EMAIL_REGEXP = "[^@]+@.+\\..+";
 	private Pattern pattern = null;
 	
@@ -116,17 +115,13 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	@Override
 	public void validate(VerifiableEmail value) throws IllegalAttributeValueException
 	{
-		if (value == null)
+		if (value == null || value.getValue() == null)
 			throw new IllegalAttributeValueException("null value is illegal");
-		if (value.getValue().length() < MIN_LENGTH)
-			throw new IllegalAttributeValueException("Value length (" + value.getValue().length() 
-					+ ") is too small, must be at least " + MIN_LENGTH);
 		if (value.getValue().length() > MAX_LENGTH)
 			throw new IllegalAttributeValueException("Value length (" + value.getValue().length() 
 					+ ") is too big, must be not greater than " + MAX_LENGTH);
-		if (pattern != null)
-			if (!pattern.matcher(value.getValue()).matches())
-				throw new IllegalAttributeValueException("Value must match the " +
+		if (!pattern.matcher(value.getValue()).matches())
+			throw new IllegalAttributeValueException("Value must match the " +
 						"regualr expression: " + EMAIL_REGEXP);
 	}
 
@@ -154,4 +149,12 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		return true;
 	}
 
+	@Override
+	public VerifiableEmail convertFromString(String stringRepresentation)
+			throws IllegalAttributeValueException
+	{
+		VerifiableEmail ret = new VerifiableEmail(stringRepresentation);
+		validate(ret);
+		return ret;
+	}
 }

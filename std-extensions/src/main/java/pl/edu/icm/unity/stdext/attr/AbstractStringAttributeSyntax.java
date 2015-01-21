@@ -63,4 +63,10 @@ public abstract class AbstractStringAttributeSyntax implements AttributeValueSyn
 	{
 		return false;
 	}
+
+	@Override
+	public String convertFromString(String stringRepresentation)
+	{
+		return stringRepresentation;
+	}
 }

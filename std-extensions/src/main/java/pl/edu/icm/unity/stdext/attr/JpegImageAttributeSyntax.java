@@ -14,6 +14,8 @@ import java.io.OutputStream;
 
 import javax.imageio.ImageIO;
 
+import org.bouncycastle.util.encoders.Base64;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -240,6 +242,24 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 	public boolean isVerifiable()
 	{
 		return false;
+	}
+	
+	/**
+	 * it is assumed that we have a Base64 encoded JPEG
+	 */
+	@Override
+	public BufferedImage convertFromString(String stringRepresentation)
+			throws IllegalAttributeValueException
+	{
+		try
+		{
+			byte[] binary = Base64.decode(stringRepresentation);
+			return deserialize(binary);
+		} catch (Exception e)
+		{
+			throw new IllegalAttributeValueException("Can not convert the attribute value - "
+					+ "it is not a Base64 encoded image", e);
+		}
 	}
 }
 
