@@ -66,11 +66,15 @@ public class AttributeViewer
 			valueRepresentation.setCaption(captionWithNum);
 			if (description != null)
 			{
-				String descSafe = HtmlSimplifiedLabel.escape(description.getValue(msg));
-				if (valueRepresentation instanceof AbstractField<?>)
-					((AbstractField<?>)valueRepresentation).setDescription(descSafe);
-				if (valueRepresentation instanceof Image)
-					((Image)valueRepresentation).setDescription(descSafe);
+				String descriptionRaw = description.getValue(msg);
+				if (descriptionRaw != null)
+				{
+					String descSafe = HtmlSimplifiedLabel.escape(descriptionRaw);
+					if (valueRepresentation instanceof AbstractField<?>)
+						((AbstractField<?>)valueRepresentation).setDescription(descSafe);
+					if (valueRepresentation instanceof Image)
+						((Image)valueRepresentation).setDescription(descSafe);
+				}
 			}
 			
 			valueRepresentation.addStyleName("u-baseline");

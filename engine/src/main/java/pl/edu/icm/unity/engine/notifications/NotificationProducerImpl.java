@@ -115,7 +115,7 @@ public class NotificationProducerImpl implements NotificationProducer
 		AttributeExt<?> attr = attributesHelper.getAttributeByMetadata(recipient, "/", metadataId, sql);
 		if (attr == null)
 			throw new IllegalIdentityValueException("The entity does not have the email address specified");
-		return (String) attr.getValues().get(0);
+		return attr.getValues().get(0).toString();
 	}
 
 	@Override
