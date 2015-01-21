@@ -2,7 +2,7 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common;
+package pl.edu.icm.unity.webui.common.safehtml;
 
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;

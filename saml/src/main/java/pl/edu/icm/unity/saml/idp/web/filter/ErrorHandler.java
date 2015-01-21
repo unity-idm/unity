@@ -6,6 +6,7 @@ package pl.edu.icm.unity.saml.idp.web.filter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ public class ErrorHandler extends ResponseHandlerBase
 	{
 		ResponseDocument responseDoc = errorResponseProcessor.getErrorResponse(error);
 		String assertion = responseDoc.xmlText();
-		String encodedAssertion = Base64.encode(assertion.getBytes());
+		String encodedAssertion = Base64.encode(assertion.getBytes(StandardCharsets.UTF_8));
 		return encodedAssertion;
 	}
 	

@@ -10,7 +10,6 @@ import java.util.Collection;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
 import pl.edu.icm.unity.db.DBAttributes;
@@ -26,7 +25,7 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
  * 
  * @author P. Piernik
  */
-public class AttributeFacility extends IdentityFacility implements ConfirmationFacility
+public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 {
 	private DBAttributes dbAttributes;
 
@@ -51,9 +50,8 @@ public class AttributeFacility extends IdentityFacility implements ConfirmationF
 	}
 
 	@Override
-	protected ConfirmationStatus confirmElements(String state) throws EngineException
+	protected ConfirmationStatus confirmElements(AttribiuteConfirmationState attrState) throws EngineException
 	{
-		AttribiuteConfirmationState attrState = getState(state);
 		ConfirmationStatus status;
 		SqlSession sql= db.getSqlSession(true);
 		try
@@ -97,21 +95,13 @@ public class AttributeFacility extends IdentityFacility implements ConfirmationF
 		return attributes;
 	}
 
-	private AttribiuteConfirmationState getState(String state)
-	{
-		AttribiuteConfirmationState attrState = new AttribiuteConfirmationState();
-		attrState.setSerializedConfiguration(state);
-		return attrState;
-	}
-	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void processAfterSendRequest(String state) throws EngineException
 	{
-		AttribiuteConfirmationState attrState = new AttribiuteConfirmationState();
-		attrState.setSerializedConfiguration(state);
+		AttribiuteConfirmationState attrState = new AttribiuteConfirmationState(state);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -139,5 +129,11 @@ public class AttributeFacility extends IdentityFacility implements ConfirmationF
 		{
 			db.releaseSqlSession(sql);
 		}
+	}
+
+	@Override
+	protected AttribiuteConfirmationState parseState(String state)
+	{
+		return new AttribiuteConfirmationState(state);
 	}
 }

@@ -9,11 +9,11 @@ import java.util.Map;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
-import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandler;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -30,7 +30,8 @@ public class AttributeTypeViewer extends FormLayout
 	private UnityMessageSource msg;
 	
 	private Label name;
-	private DescriptionTextArea typeDescription;
+	private I18nLabel displayedName;
+	private I18nLabel typeDescription;
 	private Label cardinality;
 	private Label uniqueVals;
 	private Label selfModificable;
@@ -54,7 +55,10 @@ public class AttributeTypeViewer extends FormLayout
 		name.setCaption(msg.getMessage("AttributeType.name"));
 		addComponent(name);
 		
-		typeDescription = new DescriptionTextArea(msg.getMessage("AttributeType.description"), true, "");
+		displayedName = new I18nLabel(msg, msg.getMessage("AttributeType.displayedName"));
+		addComponent(displayedName);
+		
+		typeDescription = new I18nLabel(msg, msg.getMessage("AttributeType.description"));
 		addComponent(typeDescription);
 		
 		cardinality = new Label();
@@ -96,6 +100,7 @@ public class AttributeTypeViewer extends FormLayout
 	private void setContentsVisible(boolean how)
 	{
 		name.setVisible(how);
+		displayedName.setVisible(how);
 		typeDescription.setVisible(how);
 		cardinality.setVisible(how);
 		uniqueVals.setVisible(how);
@@ -119,6 +124,7 @@ public class AttributeTypeViewer extends FormLayout
 		
 		setContentsVisible(true);
 		name.setValue(aType.getName());
+		displayedName.setValue(aType.getDisplayedName());
 		typeDescription.setValue(aType.getDescription());
 		cardinality.setValue(AttributeTypeUtils.getBoundsDesc(msg, aType.getMinElements(), aType.getMaxElements()));
 		uniqueVals.setValue(AttributeTypeUtils.getBooleanDesc(msg, aType.isUniqueValues()));

@@ -34,6 +34,7 @@ import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webadmin.preferences.PreferencesComponent;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
@@ -180,14 +181,13 @@ public class UserAccountComponent extends VerticalLayout
 	{
 		UserDetailsPanel ret = new UserDetailsPanel(msg);
 		EntityParam param = new EntityParam(entityId);
-		Collection<String> groups;
+		Collection<Group> groups = new HashSet<Group>();
 		try
 		{
-			groups = idsMan.getGroups(param);
+			groups = idsMan.getGroupsForPresentation(param);
 		} catch (AuthorizationException e)
 		{
-			groups = new HashSet<String>();
-			groups.add(msg.getMessage("UserHomeUI.unauthzGroups"));
+			//OK, let's skip this.
 		}
 		Entity entity = idsMan.getEntity(param);
 		AttributeExt<?> nameAttr = attrMan.getAttributeByMetadata(param, "/", EntityNameMetadataProvider.NAME);

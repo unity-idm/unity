@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui;
 
-import java.io.ByteArrayInputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,9 +22,6 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 
-import com.vaadin.server.VaadinServlet;
-
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
@@ -38,6 +35,10 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
+
+import com.vaadin.server.VaadinServlet;
+
+import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Vaadin endpoint is used by all Vaadin based web endpoints. It is not a component:
@@ -81,7 +82,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		properties = new Properties();
 		try
 		{
-			properties.load(new ByteArrayInputStream(cfg.getBytes()));
+			properties.load(new StringReader(cfg));
 			genericEndpointProperties = new VaadinEndpointProperties(properties);
 		} catch (Exception e)
 		{

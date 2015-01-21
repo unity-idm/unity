@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.registrations;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,8 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
-import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
+import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmationState;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmationState;
@@ -49,6 +50,7 @@ import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -56,7 +58,6 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
@@ -93,6 +94,7 @@ public class InternalRegistrationManagment
 	private DBGroups dbGroups;
 	private TokensManagement tokensMan;
 	
+	private UnityMessageSource msg;
 	private IdentityTypesRegistry identityTypesRegistry;
 	private EngineHelper engineHelper;
 	private AttributesHelper attributesHelper;
@@ -106,7 +108,8 @@ public class InternalRegistrationManagment
 			IdentityTypesRegistry identityTypesRegistry, EngineHelper engineHelper,
 			AttributesHelper attributesHelper,
 			NotificationProducerImpl notificationProducer,
-			LocalCredentialsRegistry authnRegistry, TokensManagement tokensMan)
+			LocalCredentialsRegistry authnRegistry, TokensManagement tokensMan,
+			UnityMessageSource msg)
 	{
 		super();
 		this.db = db;
@@ -122,6 +125,7 @@ public class InternalRegistrationManagment
 		this.notificationProducer = notificationProducer;
 		this.authnRegistry = authnRegistry;
 		this.tokensMan = tokensMan;
+		this.msg = msg;
 	}
 	
 	
@@ -427,10 +431,14 @@ public class InternalRegistrationManagment
 		if (requesterAddress != null)
 		{
 			if (sendToRequester || publicComment != null)
+			{
+				String userLocale = currentRequest.getRequest().getUserLocale();
 				notificationProducer.sendNotification(requesterAddress, 
 						notificationsCfg.getChannel(), 
 						templateId,
-						notifyParams);
+						notifyParams,
+						userLocale);
+			}
 		}
 		
 		if (notificationsCfg.getAdminsNotificationGroup() != null)
@@ -440,7 +448,8 @@ public class InternalRegistrationManagment
 			notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(), 
 				notificationsCfg.getChannel(), 
 				templateId,
-				notifyParams);
+				notifyParams,
+				msg.getDefaultLocaleCode());
 		}
 	}
 	
@@ -494,28 +503,37 @@ public class InternalRegistrationManagment
 		return result.booleanValue();
 	}
 	
-	private Map<String, Object> createMvelContext(RegistrationRequest request, RegistrationForm form) throws IllegalTypeException
+	private Map<String, Object> createMvelContext(RegistrationRequest request, RegistrationForm form) 
+			throws IllegalTypeException
 	{
 		HashMap<String, Object> ctx = new HashMap<String, Object>();
 
 		List<IdentityParam> identities = request.getIdentities();	
 		Map<String, List<Object>> idsByType = new HashMap<String, List<Object>>();
-	        for (IdentityParam id: identities)
-	        {
-	            if (id == null)
-	        	    continue;
-	            if (id.getTypeId() == null || id.getValue() == null)
-	        	    continue;
-	            boolean isVerifiable = identityTypesRegistry.getByName(id.getTypeId()).isVerifiable();
-	            List<Object> vals = idsByType.get(id.getTypeId());
-	            if (vals == null)
-	            {
-	                vals = new ArrayList<Object>();
-	                idsByType.put(id.getTypeId(), vals);
-	            }
-	            vals.add( isVerifiable?new VerifiableValue(id):id.getValue());
-	        }
-	        ctx.put("idsByType", idsByType);
+		Map<String, List<Object>> idsByTypeObj = new HashMap<String, List<Object>>();
+		for (IdentityParam id: identities)
+		{
+			if (id == null)
+				continue;
+			if (id.getTypeId() == null || id.getValue() == null)
+				continue;
+			List<Object> vals = idsByType.get(id.getTypeId());
+			List<Object> valsObj = idsByTypeObj.get(id.getTypeId());
+			if (vals == null)
+			{
+				vals = new ArrayList<Object>();
+				idsByType.put(id.getTypeId(), vals);
+			}
+			if (valsObj == null)
+			{
+				valsObj = new ArrayList<Object>();
+				idsByTypeObj.put(id.getTypeId(), valsObj);
+			}
+			vals.add(id.getValue());
+			valsObj.add(id);			
+		}
+		ctx.put("idsByType", idsByType);
+		ctx.put("idsByTypeObj", idsByTypeObj);
 				
 		Map<String, Object> attr = new HashMap<String, Object>();
 		Map<String, List<?>> attrs = new HashMap<String, List<?>>();
@@ -528,28 +546,12 @@ public class InternalRegistrationManagment
 			if (atr.getValues() == null || atr.getName() == null)
 				continue;
 			Object v = atr.getValues().isEmpty() ? "" : atr.getValues().get(0);
-			if (v instanceof VerifiableElement)
-			{
-				VerifiableElement c = (VerifiableElement) v;
-				attr.put(atr.getName(), new VerifiableValue(c));
-			}
-			else
-			{
-				attr.put(atr.getName(), v);
-			}
+			attr.put(atr.getName(), v);
+
 			List<Object> ctxObj = new ArrayList<Object>();
 			for (Object val : atr.getValues())
 			{
-				if (val instanceof VerifiableElement)
-				{
-					VerifiableElement c = (VerifiableElement) val;
-					ctxObj.add(new VerifiableValue(c));
-				}
-				else
-				{
-					ctxObj.add(val);
-				}
-				
+				ctxObj.add(val);
 			}
 			attrs.put(atr.getName(), ctxObj);
 		}
@@ -585,13 +587,10 @@ public class InternalRegistrationManagment
 			String entityId) throws EngineException
 	{
 
-		List<Token> tks = tokensMan
-				.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE);
+		List<Token> tks = tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE);
 		for (Token tk : tks)
 		{
-			String content = new String(tk.getContents());
-			BaseConfirmationState state = new BaseConfirmationState();
-			state.setSerializedConfiguration(content);
+			BaseConfirmationState state = new BaseConfirmationState(tk.getContentsString());
 			if (state.getOwner().equals(finalReguest.getRequestId()))
 			{
 				if (state.getFacilityId().equals(
@@ -609,8 +608,9 @@ public class InternalRegistrationManagment
 	private void rewriteSingleIdentityToken(RegistrationRequestState finalReguest, Token tk,
 			String entityId) throws EngineException
 	{
-		RegistrationReqIdentityConfirmationState oldState = new RegistrationReqIdentityConfirmationState();
-		oldState.setSerializedConfiguration(new String(tk.getContents()));
+		RegistrationReqIdentityConfirmationState oldState = 
+				new RegistrationReqIdentityConfirmationState(new String(tk.getContents(),
+						StandardCharsets.UTF_8));
 		boolean inRequest = false;
 		for (IdentityParam id : finalReguest.getRequest().getIdentities())
 		{
@@ -625,11 +625,10 @@ public class InternalRegistrationManagment
 		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
 		if (inRequest)
 		{
-			IdentityConfirmationState newstate = new IdentityConfirmationState();
-			newstate.setOwner(entityId);
-			newstate.setType(oldState.getType());
-			newstate.setValue(oldState.getValue());
-			log.debug("Update confirmation token " + tk.getValue() + " change facility to " + newstate.getFacilityId());
+			IdentityConfirmationState newstate = new IdentityConfirmationState(
+					entityId, oldState.getType(), oldState.getValue(), oldState.getLocale());
+			log.debug("Update confirmation token " + tk.getValue() + " change facility to " + 
+					newstate.getFacilityId());
 			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), newstate
 					.getSerializedConfiguration().getBytes(), tk.getCreated(),
 					tk.getExpires());
@@ -641,8 +640,9 @@ public class InternalRegistrationManagment
 			String entityId) throws EngineException
 	{
 
-		RegistrationReqAttribiuteConfirmationState oldState = new RegistrationReqAttribiuteConfirmationState();
-		oldState.setSerializedConfiguration(new String(tk.getContents()));
+		RegistrationReqAttribiuteConfirmationState oldState = 
+				new RegistrationReqAttribiuteConfirmationState(
+						new String(tk.getContents(), StandardCharsets.UTF_8));
 		boolean inRequest = false;
 		for (Attribute<?> attribute : finalReguest.getRequest().getAttributes())
 		{
@@ -669,35 +669,14 @@ public class InternalRegistrationManagment
 		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
 		if (inRequest)
 		{
-			AttribiuteConfirmationState newstate = new AttribiuteConfirmationState();
-			newstate.setGroup(oldState.getGroup());
-			newstate.setOwner(entityId);
-			newstate.setType(oldState.getType());
-			newstate.setValue(oldState.getValue());
-			log.debug("Update confirmation token " + tk.getValue() + " change facility to " + newstate.getFacilityId());
+			AttribiuteConfirmationState newstate = new AttribiuteConfirmationState(
+					entityId, oldState.getType(), oldState.getValue(), 
+					oldState.getLocale(), oldState.getGroup());
+			log.debug("Update confirmation token " + tk.getValue() + " change facility to " + 
+					newstate.getFacilityId());
 			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), newstate
 					.getSerializedConfiguration().getBytes(), tk.getCreated(),
 					tk.getExpires());
 		}
-	}
-	
-	private class VerifiableValue
-	{
-		private ConfirmationInfo confirmationInfo;
-		private String value;
-		public VerifiableValue(VerifiableElement ctx)
-		{
-			this.value =  ctx.getValue();
-			this.confirmationInfo = ctx.getConfirmationInfo();
-		}
-		public String getValue()
-		{
-			return value;
-		}
-		public boolean getConfirmed()
-		{
-			return confirmationInfo.isConfirmed();
-		}
-		
 	}
 }

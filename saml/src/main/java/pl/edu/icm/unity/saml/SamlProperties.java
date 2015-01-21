@@ -19,9 +19,9 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
+import pl.edu.icm.unity.server.utils.UnityPropertiesHelper;
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 
@@ -30,7 +30,7 @@ import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
  * This class is a base for extension by SP and IdP specific classes.
  * @author K. Benedyczak
  */
-public abstract class SamlProperties extends PropertiesHelper
+public abstract class SamlProperties extends UnityPropertiesHelper
 {
 	public static final String P = "unity.saml.";
 	

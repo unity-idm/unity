@@ -4,18 +4,13 @@
  */
 package pl.edu.icm.unity.rest.jwt.authn;
 
-import java.io.ByteArrayInputStream;
 import java.io.CharArrayWriter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Properties;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
-
-import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
@@ -25,10 +20,16 @@ import pl.edu.icm.unity.server.authn.AbstractVerificator;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
+
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+
+import eu.emi.security.authn.x509.X509Credential;
+import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Simple JWT verificator. Token must be not expired, properly signed, belong to a current realm and issued by 
@@ -68,7 +69,7 @@ public class JWTVerificator extends AbstractVerificator implements JWTExchange
 		Properties properties = new Properties();
 		try
 		{
-			properties.load(new ByteArrayInputStream(json.getBytes()));
+			properties.load(new StringReader(json));
 			config = new JWTAuthenticationProperties(properties);
 		} catch (Exception e)
 		{

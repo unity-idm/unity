@@ -9,7 +9,7 @@ import java.util.Map;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
-import pl.edu.icm.unity.webui.common.SafePanel;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;

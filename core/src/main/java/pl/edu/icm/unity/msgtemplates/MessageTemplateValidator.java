@@ -7,13 +7,14 @@ package pl.edu.icm.unity.msgtemplates;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate.I18nMessage;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
+import pl.edu.icm.unity.types.I18nString;
 
 /**
  * Helper: checks if given message or text has only variables supported by a template consumer. 
@@ -23,21 +24,6 @@ import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
 public class MessageTemplateValidator
 {
 	/**
-	 * Validates a set of {@link Message}s
-	 * @param consumer
-	 * @param message
-	 * @return
-	 * @throws MandatoryVariablesException 
-	 * @throws WrongArgumentException 
-	 */
-	public static void validateMessages(MessageTemplateDefinition consumer, Map<String, Message> messages) 
-			throws IllegalVariablesException, MandatoryVariablesException
-	{
-		for (Message message: messages.values())
-			validateMessage(consumer, message);
-	}
-	
-	/**
 	 * Validates a single {@link Message}
 	 * @param consumer
 	 * @param message
@@ -45,14 +31,19 @@ public class MessageTemplateValidator
 	 * @throws MandatoryVariablesException 
 	 * @throws WrongArgumentException 
 	 */
-	public static void validateMessage(MessageTemplateDefinition consumer, Message message) 
+	public static void validateMessage(MessageTemplateDefinition consumer, I18nMessage message) 
 			throws IllegalVariablesException, MandatoryVariablesException
 	{
-		validateText(consumer, message.getSubject(), false);
-		validateText(consumer, message.getBody(), true);
+		I18nString subject = message.getSubject();
+		for (String subjectL: subject.getMap().values())
+			validateText(consumer, subjectL, false);
+		I18nString body = message.getBody();
+		for (String bodyL: body.getMap().values())
+			validateText(consumer, bodyL, true);
 	}
 
-	public static void validateText(MessageTemplateDefinition consumer, String text, boolean checkMandatory) throws IllegalVariablesException, MandatoryVariablesException
+	public static void validateText(MessageTemplateDefinition consumer, String text, boolean checkMandatory) 
+			throws IllegalVariablesException, MandatoryVariablesException
 	{
 		ArrayList<String> usedField = new ArrayList<String>();
 		Pattern pattern = Pattern.compile("\\$\\{[a-zA-Z0-9]*\\}");

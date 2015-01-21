@@ -17,6 +17,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -208,6 +209,17 @@ public interface IdentitiesManagement
 	 * @throws EngineException
 	 */
 	public Collection<String> getGroups(EntityParam entity) throws EngineException;
+
+	/**
+	 * Returns a collection with all groups where the entity is a member. This method 
+	 * returns resolved groups with description and displayed name, however without information 
+	 * on attribute statements and other data which might be secret.
+	 * 
+	 * @param entity
+	 * @return
+	 * @throws EngineException
+	 */
+	public Collection<Group> getGroupsForPresentation(EntityParam entity) throws EngineException;
 
 	/**
 	 * As {@link #setEntityCredential(EntityParam, String, String, String)}

@@ -66,7 +66,8 @@ public class UserHomeUI extends UnityUIBase implements UnityWebUI
 	protected void appInit(VaadinRequest request)
 	{
 		VerticalLayout contents = new VerticalLayout();
-		TopHeader header = new TopHeader(endpointDescription.getId(), authnProcessor, msg);
+		TopHeader header = new TopHeader(endpointDescription.getDisplayedName().getValue(msg), 
+				authnProcessor, msg);
 		contents.addComponent(header);
 
 		userAccount.initUI(config);

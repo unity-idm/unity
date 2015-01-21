@@ -12,7 +12,7 @@ package pl.edu.icm.unity.types.confirmation;
  */
 public interface VerifiableElement
 {
-	public ConfirmationInfo getConfirmationInfo();
-	public void setConfirmationInfo(ConfirmationInfo confirmationInfo);
-	public String getValue();
+	ConfirmationInfo getConfirmationInfo();
+	void setConfirmationInfo(ConfirmationInfo confirmationInfo);
+	String getValue();
 }

@@ -754,10 +754,9 @@ public class IdentitiesTable extends TreeTable
 	
 	private void sendConfirmationRequest(IdentityParam id, String entityId) throws EngineException
 	{
-		IdentityConfirmationState state = new IdentityConfirmationState();
-		state.setOwner(entityId);
-		state.setType(id.getTypeId());
-		state.setValue(id.getValue());
+		//TODO - should use user's preferred locale
+		IdentityConfirmationState state = new IdentityConfirmationState(entityId, id.getTypeId(), 
+				id.getValue(), msg.getDefaultLocaleCode());
 		confirmationManager.sendConfirmationRequest(state.getSerializedConfiguration());
 	}
 	

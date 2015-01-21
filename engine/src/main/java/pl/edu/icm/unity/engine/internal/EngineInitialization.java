@@ -51,7 +51,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate.I18nMessage;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
@@ -69,6 +69,7 @@ import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.FileWatcher;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.ServerInitializer;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
@@ -76,6 +77,8 @@ import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nDescribedObject;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
@@ -112,7 +115,8 @@ public class EngineInitialization extends LifecycleBase
 	public static final String DEFAULT_CREDENTIAL = "Password credential";
 	public static final String DEFAULT_CREDENTIAL_REQUIREMENT = "Password requirement";
 
-	
+	@Autowired
+	private UnityMessageSource msg;
 	@Autowired
 	private InternalEndpointManagement internalEndpointManager;
 	@Autowired
@@ -400,10 +404,8 @@ public class EngineInitialization extends LifecycleBase
 		if (body == null || subject == null)
 			throw new WrongArgumentException("There is no template for this id");
 		
-		Map<String, Message> msgList = new HashMap<String, Message>();
-		Message tempMsg = new Message(subject, body);
-		msgList.put("", tempMsg);
-		return new MessageTemplate(id, description, msgList, consumer);
+		I18nMessage tempMsg = new I18nMessage(new I18nString(subject), new I18nString(body));
+		return new MessageTemplate(id, description, tempMsg, consumer);
 	}
 	
 	private void initializeIdentityTypes()
@@ -541,8 +543,10 @@ public class EngineInitialization extends LifecycleBase
 			}
 		}
 		
+		I18nString description = I18nDescribedObject.loadI18nStringFromBundle(
+				"CredDef.standardPassword.desc", msg); 
 		CredentialDefinition credDef = new CredentialDefinition(PasswordVerificatorFactory.NAME,
-				adminCredName, "Default password credential with typical security settings.");
+				adminCredName, description, msg);
 		credDef.setJsonConfiguration("{\"minLength\": 1," +
 				"\"historySize\": 1," +
 				"\"minClassesNum\": 1," +
@@ -670,6 +674,11 @@ public class EngineInitialization extends LifecycleBase
 			File configFile = config.getFileValue(endpointKey+UnityServerConfiguration.ENDPOINT_CONFIGURATION, false);
 			String address = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_ADDRESS);
 			String name = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_NAME);
+			I18nString displayedName = config.getLocalizedString(msg, 
+					endpointKey+UnityServerConfiguration.ENDPOINT_DISPLAYED_NAME);
+			if (displayedName.isEmpty())
+				displayedName.setDefaultValue(name);
+			
 			String authenticatorsSpec = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
 			String realmName = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_REALM);
 			
@@ -686,7 +695,7 @@ public class EngineInitialization extends LifecycleBase
 			
 			String jsonConfiguration = FileUtils.readFileToString(configFile);
 
-			endpointManager.deploy(type, name, address, description, endpointAuthn, 
+			endpointManager.deploy(type, name, displayedName, address, description, endpointAuthn, 
 					jsonConfiguration, realmName);
 			log.info(" - " + name + ": " + type + " " + description);
 		}
@@ -765,7 +774,9 @@ public class EngineInitialization extends LifecycleBase
 			File configFile = config.getFileValue(credentialKey+UnityServerConfiguration.CREDENTIAL_CONFIGURATION, false);
 
 			String jsonConfiguration = FileUtils.readFileToString(configFile);
-			CredentialDefinition credentialDefinition = new CredentialDefinition(typeId, name, description);
+			CredentialDefinition credentialDefinition = new CredentialDefinition(typeId, name, 
+					new I18nString(name), 
+					new I18nString(description));
 			credentialDefinition.setJsonConfiguration(jsonConfiguration);
 			
 			if (!existing.containsKey(name))

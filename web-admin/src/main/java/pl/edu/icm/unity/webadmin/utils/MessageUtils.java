@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.DescribedObject;
+import pl.edu.icm.unity.types.NamedObject;
 
 /**
  * Messages related utilities
@@ -42,10 +42,10 @@ public class MessageUtils
 	 * @return
 	 */
 	public static String createConfirmFromNames(UnityMessageSource msg, 
-			Collection<? extends DescribedObject> objects)
+			Collection<? extends NamedObject> objects)
 	{
 		StringBuilder confirmText = new StringBuilder();
-		Iterator<? extends DescribedObject> it = objects.iterator();
+		Iterator<? extends NamedObject> it = objects.iterator();
 		final int MAX = 4;
 		for (int i=0; i<MAX && it.hasNext(); i++)
 			confirmText.append(", ").append(it.next().getName());

@@ -23,6 +23,7 @@ import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
 import pl.edu.icm.unity.rest.TestRESTBase;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,6 +41,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -142,7 +144,8 @@ public class TestQuery extends TestRESTBase
 		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
 		authnCfg.add(new AuthenticatorSet(Collections.singleton("ApassREST")));
 		endpointMan.deploy(RESTAdminEndpointFactory.NAME, 
-				"restAdmin", "/restadm", "desc", authnCfg, "", realm.getName());
+				"restAdmin", new I18nString("restAdmin"),
+				"/restadm", "desc", authnCfg, "", realm.getName());
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 

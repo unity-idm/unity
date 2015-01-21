@@ -1,3 +1,8 @@
 {
-	"name": "Certificate authentication"
+	"i18nName" : {
+		"Map": {
+			"en": "Certificate authentication",
+			"pl": "Uwierzytelnianie certyfikatem"
+		}
+	}
 }	

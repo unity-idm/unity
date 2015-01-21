@@ -1,0 +1,80 @@
+#!/bin/bash
+#
+# Unity Server
+#
+### BEGIN INIT INFO
+# Provides:          unity
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start daemon at boot time
+# Description:       Unity Server
+### END INIT INFO
+
+# Source function library.
+. /lib/lsb/init-functions
+
+# and common settings (PID file variable)
+. /etc/unity-idm/startup.properties
+
+NAME="Unity"
+
+#This must be equal to this file name
+SERVICE=unity-idm-server
+START=/usr/sbin/unity-idm-server-start
+STOP=/usr/sbin/unity-idm-server-start
+
+# source defaults file
+[ -f /etc/default/$SERVICE ] && . /etc/default/$SERVICE
+
+start() {
+        log_daemon_msg "Starting $NAME"
+        start-stop-daemon --start --exec "$START"
+        RETVAL=$?
+        log_end_msg $RETVAL
+        echo
+        return $RETVAL
+
+}
+stop() {
+         log_daemon_msg "Stopping $NAME"
+         echo
+         "$STOP"
+         log_end_msg $?
+         rm -f "/var/lock/$SERVICE"
+         echo
+}
+
+
+status(){
+         if [ -a "$PID" ]; then
+                 status_of_proc -p "$PID" "$SERVICE" "$NAME"
+         else
+                 log_failure_msg "$SERVICE is not running"
+         fi
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  status)
+	status
+	;;
+  restart)
+	stop
+	start
+	;;
+  force-reload)
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|status|restart|force-reload|help}"
+	exit 1
+esac
+
+exit $RETVAL

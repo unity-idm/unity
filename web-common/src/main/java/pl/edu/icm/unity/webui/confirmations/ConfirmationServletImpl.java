@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webui.confirmations;
 
-import java.util.Properties;
-
 import javax.servlet.Servlet;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
-import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.VaadinUIProvider;
-import pl.edu.icm.unity.webui.WebSession;
-import pl.edu.icm.unity.webui.bus.EventsBus;
 
 import com.vaadin.server.DeploymentConfiguration;
 import com.vaadin.server.ServiceException;

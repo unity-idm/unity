@@ -37,6 +37,7 @@ import pl.edu.icm.unity.notifications.NotificationStatus;
 import pl.edu.icm.unity.server.registries.NotificationFacilitiesRegistry;
 import pl.edu.icm.unity.server.utils.CacheProvider;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -58,12 +59,13 @@ public class NotificationProducerImpl implements NotificationProducer
 	private NotificationChannelDB channelDB;
 	private DBGroups dbGroups;
 	private MessageTemplateDB mtDB;
+	private UnityMessageSource msg;
 	
 	@Autowired
 	public NotificationProducerImpl(AttributesHelper attributesHelper, DBSessionManager db,
 			CacheProvider cacheProvider, 
 			NotificationFacilitiesRegistry facilitiesRegistry, NotificationChannelDB channelDB,
-			DBGroups dbGroups, MessageTemplateDB mtDB)
+			DBGroups dbGroups, MessageTemplateDB mtDB, UnityMessageSource msg)
 	{
 		this.attributesHelper = attributesHelper;
 		this.db = db;
@@ -72,6 +74,7 @@ public class NotificationProducerImpl implements NotificationProducer
 		this.facilitiesRegistry = facilitiesRegistry;
 		this.channelDB = channelDB;
 		this.mtDB = mtDB;
+		this.msg = msg;
 	}
 
 	private void initCache(CacheManager cacheManager)
@@ -117,7 +120,7 @@ public class NotificationProducerImpl implements NotificationProducer
 
 	@Override
 	public Future<NotificationStatus> sendNotification(EntityParam recipient,
-			String channelName, String templateId, Map<String, String> params)
+			String channelName, String templateId, Map<String, String> params, String locale)
 			throws EngineException
 	{
 		recipient.validateInitialization();
@@ -138,13 +141,13 @@ public class NotificationProducerImpl implements NotificationProducer
 			db.releaseSqlSession(sql);
 		}
 
-		Message templateMsg = template.getMessage(params);
+		Message templateMsg = template.getMessage(locale, msg.getDefaultLocaleCode(), params);
 		return channel.sendNotification(recipientAddress, templateMsg.getSubject(), templateMsg.getBody());
 	}
 	
 	@Override
 	public void sendNotificationToGroup(String group, String channelName,
-			String templateId, Map<String, String> params) throws EngineException
+			String templateId, Map<String, String> params, String locale) throws EngineException
 	{
 		if (templateId == null)
 			return;
@@ -152,7 +155,7 @@ public class NotificationProducerImpl implements NotificationProducer
 		try
 		{
 			MessageTemplate template = loadTemplate(templateId, sql);
-			Message templateMsg = template.getMessage(params);
+			Message templateMsg = template.getMessage(locale, msg.getDefaultLocaleCode(), params);
 			String subject = templateMsg.getSubject();
 			String body = templateMsg.getBody();
 
@@ -183,7 +186,7 @@ public class NotificationProducerImpl implements NotificationProducer
 
 	@Override
 	public Future<NotificationStatus> sendNotification(String recipientAddress,
-			String channelName, String templateId, Map<String, String> params)
+			String channelName, String templateId, Map<String, String> params, String locale)
 			throws EngineException
 	{
 		NotificationChannelInstance channel;
@@ -198,7 +201,7 @@ public class NotificationProducerImpl implements NotificationProducer
 		{
 			db.releaseSqlSession(sql);
 		}
-		Message templateMsg = template.getMessage(params);
+		Message templateMsg = template.getMessage(locale, msg.getDefaultLocaleCode(), params);
 		return channel.sendNotification(recipientAddress, templateMsg.getSubject(), templateMsg.getBody());
 	}
 

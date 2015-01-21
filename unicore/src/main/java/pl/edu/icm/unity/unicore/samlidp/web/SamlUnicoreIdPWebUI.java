@@ -37,10 +37,10 @@ import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETD
 import pl.edu.icm.unity.unicore.samlidp.saml.AuthnWithETDResponseProcessor;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.webui.common.HtmlTag;
-import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 

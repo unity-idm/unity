@@ -91,9 +91,9 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 	private void initUI(AbstractOrderedLayout parent)
 	{
 		if (caption == null)
-			caption = attributeType.getName() + ":";
+			caption = attributeType.getDisplayedName().getValue(msg) + ":";
 		if (description == null)
-			description = attributeType.getDescription();
+			description = attributeType.getDescription().getValue(msg);
 		
 		if (showGroup)
 		{

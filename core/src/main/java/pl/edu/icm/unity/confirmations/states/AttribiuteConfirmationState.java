@@ -19,10 +19,17 @@ public class AttribiuteConfirmationState extends BaseConfirmationState
 	public static final String FACILITY_ID = "AttributeFacility";
 	private String group;
 
-	@Override
-	public String getFacilityId()
+	public AttribiuteConfirmationState(String owner, String type,
+			String value, String locale, String group)
 	{
-		return FACILITY_ID;
+		super(FACILITY_ID, owner, type, value, locale);
+		this.group = group;
+	}
+
+	public AttribiuteConfirmationState(String serializedState)
+	{
+		super();
+		setSerializedConfiguration(serializedState);
 	}
 
 	public String getGroup()
@@ -30,11 +37,6 @@ public class AttribiuteConfirmationState extends BaseConfirmationState
 		return group;
 	}
 
-	public void setGroup(String group)
-	{
-		this.group = group;
-	}
-	
 	@Override
 	protected ObjectNode createState()
 	{
@@ -43,14 +45,13 @@ public class AttribiuteConfirmationState extends BaseConfirmationState
 		return state;
 	}
 	
-	@Override
-	public void setSerializedConfiguration(String json) throws InternalException
+	protected void setSerializedConfiguration(String json) throws InternalException
 	{
-		super.setSerializedConfiguration(json);
 		try
 		{
 			ObjectNode main = mapper.readValue(json, ObjectNode.class);
-			setGroup(main.get("group").asText());	
+			super.setSerializedConfiguration(main);
+			group = main.get("group").asText();	
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't perform JSON deserialization", e);

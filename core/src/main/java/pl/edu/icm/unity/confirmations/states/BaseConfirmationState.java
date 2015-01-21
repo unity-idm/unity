@@ -6,7 +6,6 @@ package pl.edu.icm.unity.confirmations.states;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.JsonSerializable;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +15,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author P. Piernik
  *
  */
-public class BaseConfirmationState implements JsonSerializable
+public class BaseConfirmationState
 {
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	
@@ -24,7 +23,26 @@ public class BaseConfirmationState implements JsonSerializable
 	protected String owner;
 	protected String type;
 	protected String value;
+	protected String locale;
 	
+	public BaseConfirmationState(String facilityId, String owner, String type, String value, String locale)
+	{
+		this.owner = owner;
+		this.type = type;
+		this.value = value;
+		this.locale = locale;
+		this.facilityId = facilityId;
+	}
+
+	public BaseConfirmationState(String serializedState)
+	{
+		setSerializedConfiguration(serializedState);
+	}
+
+	protected BaseConfirmationState()
+	{
+	}
+
 	public String getFacilityId()
 	{
 		return facilityId;
@@ -41,24 +59,11 @@ public class BaseConfirmationState implements JsonSerializable
 	{
 		return value;
 	}
-	private void setFacilityId(String facilityId)
+	public String getLocale()
 	{
-		this.facilityId = facilityId;
-	}
-	public void setOwner(String owner)
-	{
-		this.owner = owner;
-	}
-	public void setType(String type)
-	{
-		this.type = type;
-	}
-	public void setValue(String value)
-	{
-		this.value = value;
+		return locale;
 	}
 	
-	@Override
 	public String getSerializedConfiguration() throws InternalException
 	{
 		try
@@ -78,26 +83,35 @@ public class BaseConfirmationState implements JsonSerializable
 		state.put("value", getValue());
 		state.put("type", getType());
 		state.put("facilityId", getFacilityId());
+		state.put("locale", getLocale());
 		return state;
 	}
 	
-	@Override
-	public void setSerializedConfiguration(String json) throws InternalException
+	protected void setSerializedConfiguration(String json) throws InternalException
 	{
 		try
 		{
 			ObjectNode main = mapper.readValue(json, ObjectNode.class);
-			setOwner(main.get("owner").asText());
-			setType(main.get("type").asText());
-			setValue(main.get("value").asText());
-			setFacilityId(main.get("facilityId").asText());
+			setSerializedConfiguration(main);
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't perform JSON deserialization", e);
+		}
+	}
+	
+	protected void setSerializedConfiguration(ObjectNode main) throws InternalException
+	{
+		try
+		{
+			owner = main.get("owner").asText();
+			type = main.get("type").asText();
+			value = main.get("value").asText();
+			facilityId = main.get("facilityId").asText();
+			locale = main.get("locale").asText();
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't perform JSON deserialization", e);
 		}
 
 	}
-
-
-
 }

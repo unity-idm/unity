@@ -15,6 +15,7 @@ import pl.edu.icm.unity.db.generic.ac.AttributeClassUtil;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.attributes.SystemAttributesProvider;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -34,13 +35,15 @@ public class SystemAttributeTypes implements SystemAttributesProvider
 	public static final String PREFERENCES = "sys:Preferences";
 	
 	private AuthorizationManager authz;
+	private UnityMessageSource msg;
 	
 	private List<AttributeType> systemAttributes = new ArrayList<AttributeType>();
 	
 	@Autowired
-	public SystemAttributeTypes(AuthorizationManager authz)
+	public SystemAttributeTypes(AuthorizationManager authz, UnityMessageSource msg)
 	{
 		this.authz = authz;
+		this.msg = msg;
 		systemAttributes.add(getCredentialRequirementsAT());
 		systemAttributes.add(getAuthozationRoleAT());
 		systemAttributes.add(getPreferenceAT());
@@ -50,11 +53,10 @@ public class SystemAttributeTypes implements SystemAttributesProvider
 	private AttributeType getCredentialRequirementsAT()
 	{
 		AttributeType credentialRequiremetsAt = new AttributeType(CREDENTIAL_REQUIREMENTS, 
-				new StringAttributeSyntax());
+				new StringAttributeSyntax(), msg);
 		credentialRequiremetsAt.setMaxElements(1);
 		credentialRequiremetsAt.setMinElements(1);
 		credentialRequiremetsAt.setVisibility(AttributeVisibility.local);
-		credentialRequiremetsAt.setDescription("Defines which credential requirements are set for the owner");
 		credentialRequiremetsAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.INSTANCES_IMMUTABLE_FLAG);
 		return credentialRequiremetsAt;
 	}
@@ -62,12 +64,9 @@ public class SystemAttributeTypes implements SystemAttributesProvider
 	private AttributeType getAuthozationRoleAT()
 	{
 		Set<String> vals = authz.getRoleNames();
-		AttributeType authorizationAt = new AttributeType(AUTHORIZATION_ROLE, new EnumAttributeSyntax(vals));
+		AttributeType authorizationAt = new AttributeType(AUTHORIZATION_ROLE, new EnumAttributeSyntax(vals),
+				msg, AUTHORIZATION_ROLE, new Object[] {authz.getRolesDescription()});
 		authorizationAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
-		authorizationAt.setDescription("Defines what operations are allowed for the bearer. "
-				+ "The attribute of this type defines the access in the group where it is defined and "
-				+ "in all subgroups. In subgroup it can be redefined to grant more access."
-				+ " Roles:\n" + authz.getRolesDescription());
 		authorizationAt.setMinElements(1);
 		authorizationAt.setMaxElements(10);
 		authorizationAt.setUniqueValues(true);
@@ -77,9 +76,8 @@ public class SystemAttributeTypes implements SystemAttributesProvider
 	
 	private AttributeType getPreferenceAT()
 	{
-		AttributeType preferenceAt = new AttributeType(PREFERENCES, new StringAttributeSyntax());
+		AttributeType preferenceAt = new AttributeType(PREFERENCES, new StringAttributeSyntax(), msg);
 		preferenceAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.INSTANCES_IMMUTABLE_FLAG);
-		preferenceAt.setDescription("Preferences of the user.");
 		preferenceAt.setMinElements(1);
 		preferenceAt.setMaxElements(1);
 		preferenceAt.setUniqueValues(false);
@@ -89,9 +87,8 @@ public class SystemAttributeTypes implements SystemAttributesProvider
 
 	private AttributeType getAttributeClassesAT()
 	{
-		AttributeType preferenceAt = new AttributeType(ATTRIBUTE_CLASSES, new StringAttributeSyntax());
+		AttributeType preferenceAt = new AttributeType(ATTRIBUTE_CLASSES, new StringAttributeSyntax(), msg);
 		preferenceAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.INSTANCES_IMMUTABLE_FLAG);
-		preferenceAt.setDescription("Attribute classes of the user.");
 		preferenceAt.setMinElements(0);
 		preferenceAt.setMaxElements(AttributeClassHelper.MAX_CLASSES_PER_ENTITY);
 		preferenceAt.setUniqueValues(true);

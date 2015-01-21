@@ -55,6 +55,11 @@ public class VerifiableEmail implements VerifiableElement
 		this.value = value;
 	}
 
+	public boolean isValid()
+	{
+		return confirmationInfo.isConfirmed();
+	}
+	
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -89,5 +94,11 @@ public class VerifiableEmail implements VerifiableElement
 		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		result = prime * result + confirmationInfo.hashCode();
 		return result;
+	}
+
+	@Override
+	public String toString()
+	{
+		return value;
 	}
 }

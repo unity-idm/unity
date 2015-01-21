@@ -17,6 +17,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -51,7 +52,8 @@ public class RegistrationFormLauncher
 	protected AttributeHandlerRegistry attributeHandlerRegistry;
 	protected AttributesManagement attrsMan;
 	protected AuthenticationManagement authnMan;
-
+	protected GroupsManagement groupsMan;
+	
 	protected boolean addAutoAccept;
 	protected EventsBus bus;
 	
@@ -61,7 +63,8 @@ public class RegistrationFormLauncher
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
-			AttributesManagement attrsMan, AuthenticationManagement authnMan)
+			AttributesManagement attrsMan, AuthenticationManagement authnMan,
+			GroupsManagement groupsMan)
 	{
 		super();
 		this.msg = msg;
@@ -71,6 +74,7 @@ public class RegistrationFormLauncher
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
 		this.attrsMan = attrsMan;
 		this.authnMan = authnMan;
+		this.groupsMan = groupsMan;
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
@@ -167,7 +171,7 @@ public class RegistrationFormLauncher
 			RegistrationRequestEditor editor = new RegistrationRequestEditor(msg, form, 
 					remoteContext, identityEditorRegistry, 
 					credentialEditorRegistry, 
-					attributeHandlerRegistry, attrsMan, authnMan);
+					attributeHandlerRegistry, attrsMan, authnMan, groupsMan);
 			RegistrationRequestEditorDialog dialog = new RegistrationRequestEditorDialog(msg, 
 					msg.getMessage("RegistrationFormsChooserComponent.dialogCaption"), 
 					editor, addAutoAccept, new RegistrationRequestEditorDialog.Callback()

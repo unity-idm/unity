@@ -15,6 +15,18 @@ public class RegistrationReqAttribiuteConfirmationState extends AttribiuteConfir
 {
 	public static final String FACILITY_ID = "RegistrationReqAttributeFacility";
 	
+	public RegistrationReqAttribiuteConfirmationState(String serializedState)
+	{
+		super(serializedState);
+	}
+
+	public RegistrationReqAttribiuteConfirmationState(String owner,
+			String type, String value, String locale, String group)
+	{
+		super(owner, type, value, locale, group);
+	}
+
+
 	@Override
 	public String getFacilityId()
 	{

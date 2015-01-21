@@ -24,6 +24,7 @@ import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -47,16 +48,17 @@ import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
-import pl.edu.icm.unity.webui.common.URLValidator;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.URLValidator;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.attributes.SelectableAttributeEditor;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
-import com.google.common.html.HtmlEscapers;
 import com.vaadin.data.validator.AbstractStringValidator;
 import com.vaadin.data.validator.AbstractValidator;
 import com.vaadin.ui.AbstractTextField;
@@ -66,7 +68,6 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Slider;
 import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
@@ -110,7 +111,8 @@ public class RegistrationFormEditor extends VerticalLayout
 	private AbstractTextField redirectAfterSubmitAndAccept;
 	private AbstractTextField autoAcceptCondition;
 	
-	private TextArea formInformation;
+	private I18nTextField displayedName;
+	private I18nTextArea formInformation;
 	private TextField registrationCode;
 	private CheckBox collectComments;
 	private ListOfEmbeddedElements<AgreementRegistrationParam> agreements;	
@@ -204,7 +206,10 @@ public class RegistrationFormEditor extends VerticalLayout
 		ret.setCollectComments(collectComments.getValue());
 		ret.setCredentialParams(credentialParams.getElements());
 		ret.setCredentialRequirementAssignment((String) credentialRequirementAssignment.getValue());
-		ret.setDescription(HtmlEscapers.htmlEscaper().escape(description.getValue()));
+		ret.setDescription(description.getValue());
+		I18nString displayedNameStr = displayedName.getValue();
+		displayedNameStr.setDefaultValue(name.getValue());
+		ret.setDisplayedName(displayedNameStr);
 		ret.setFormInformation(formInformation.getValue());
 		ret.setGroupAssignments(groupAssignments.getElements());
 		ret.setGroupParams(groupParams.getElements());
@@ -400,9 +405,8 @@ public class RegistrationFormEditor extends VerticalLayout
 		wrapper.setMargin(true);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
 		
-		formInformation = new TextArea(msg.getMessage("RegistrationFormViewer.formInformation"));
-		formInformation.setWordwrap(true);
-		formInformation.setWidth(100, Unit.PERCENTAGE);
+		displayedName = new I18nTextField(msg, msg.getMessage("RegistrationFormViewer.displayedName"));
+		formInformation = new I18nTextArea(msg, msg.getMessage("RegistrationFormViewer.formInformation"));
 		registrationCode = new TextField(msg.getMessage("RegistrationFormViewer.registrationCode"));
 		collectComments = new CheckBox(msg.getMessage("RegistrationFormEditor.collectComments"));
 		
@@ -419,11 +423,12 @@ public class RegistrationFormEditor extends VerticalLayout
 				msg, new GroupEditorAndProvider(), 0, 20, true);
 		credentialParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.credentialParams"),
 				msg, new CredentialEditorAndProvider(), 0, 20, true);
-		main.addComponents(formInformation, registrationCode, collectComments, tabOfLists);
+		main.addComponents(displayedName, formInformation, registrationCode, collectComments, tabOfLists);
 		tabOfLists.addComponents(agreements, identityParams, attributeParams, groupParams, credentialParams);
 		
 		if (toEdit != null)
 		{
+			displayedName.setValue(toEdit.getDisplayedName());
 			formInformation.setValue(toEdit.getFormInformation());
 			if (toEdit.getRegistrationCode() != null)
 				registrationCode.setValue(toEdit.getRegistrationCode());
@@ -482,7 +487,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		Editor<AgreementRegistrationParam>
 	{
 		private CheckBox required;
-		private TextArea text;
+		private I18nTextArea text;
 		
 		@Override
 		public Editor<AgreementRegistrationParam> getEditor()
@@ -494,8 +499,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		public ComponentsContainer getEditorComponent(AgreementRegistrationParam value, int index)
 		{
 			required = new CheckBox(msg.getMessage("RegistrationFormEditor.mandatory"));
-			text = new TextArea(msg.getMessage("RegistrationFormViewer.agreement"));
-			text.setWidth(100, Unit.PERCENTAGE);
+			text = new I18nTextArea(msg, msg.getMessage("RegistrationFormViewer.agreement"));
 			if (value != null)
 			{
 				required.setValue(value.isManatory());
@@ -517,8 +521,8 @@ public class RegistrationFormEditor extends VerticalLayout
 		public void setEditedComponentPosition(int position) {}
 	}
 	
-	private class IdentityEditorAndProvider extends OptionalParameterEditor implements EditorProvider<IdentityRegistrationParam>,
-			Editor<IdentityRegistrationParam>
+	private class IdentityEditorAndProvider extends OptionalParameterEditor 
+			implements EditorProvider<IdentityRegistrationParam>, Editor<IdentityRegistrationParam>
 	{
 		private ComboBox identityType;
 
@@ -558,14 +562,13 @@ public class RegistrationFormEditor extends VerticalLayout
 		public void setEditedComponentPosition(int position) {}
 	}
 
-	private class AttributeEditorAndProvider extends OptionalParameterEditor implements EditorProvider<AttributeRegistrationParam>,
-			Editor<AttributeRegistrationParam>
+	private class AttributeEditorAndProvider extends OptionalParameterEditor 
+			implements EditorProvider<AttributeRegistrationParam>, Editor<AttributeRegistrationParam>
 	{
 		private AttributeSelectionComboBox attributeType;
 		private GroupComboBox group;
 		private CheckBox showGroups;
-		private CheckBox useDescription;
-		
+
 		@Override
 		public Editor<AttributeRegistrationParam> getEditor()
 		{
@@ -580,16 +583,14 @@ public class RegistrationFormEditor extends VerticalLayout
 			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramAttributeGroup"), groups);
 			group.setInput("/", true, true);
 			showGroups = new CheckBox(msg.getMessage("RegistrationFormViewer.paramShowGroup"));
-			useDescription = new CheckBox(msg.getMessage("RegistrationFormViewer.paramUseDescription"));
 			
-			main.add(attributeType, group, showGroups, useDescription);
+			main.add(attributeType, group, showGroups);
 			
 			if (value != null)
 			{
 				attributeType.setValue(value.getAttributeType());
 				group.setValue(value.getGroup());
 				showGroups.setValue(value.isShowGroups());
-				useDescription.setValue(value.isUseDescription());
 			}
 			initEditorComponent(value);
 			return main;
@@ -602,7 +603,6 @@ public class RegistrationFormEditor extends VerticalLayout
 			ret.setAttributeType((String) attributeType.getValue());
 			ret.setGroup((String) group.getValue());
 			ret.setShowGroups(showGroups.getValue());
-			ret.setUseDescription(useDescription.getValue());
 			fill(ret);
 			return ret;
 		}
@@ -670,15 +670,22 @@ public class RegistrationFormEditor extends VerticalLayout
 			label = new TextField(msg.getMessage("RegistrationFormViewer.paramLabel"));
 			description = new TextField(msg.getMessage("RegistrationFormViewer.paramDescription"));
 
+			ComponentsContainer ret = new ComponentsContainer(credential);
 			if (value != null)
 			{
 				credential.setValue(value.getCredentialName());
 				if (value.getLabel() != null)
+				{
 					label.setValue(value.getLabel());
+					ret.add(label);
+				}
 				if (value.getDescription() != null)
+				{
 					description.setValue(value.getDescription());
+					ret.add(description);
+				}
 			}
-			return new ComponentsContainer(credential, label, description);
+			return ret;
 		}
 
 		@Override
@@ -689,7 +696,7 @@ public class RegistrationFormEditor extends VerticalLayout
 			if (!label.getValue().isEmpty())
 				ret.setLabel(label.getValue());
 			if (!description.getValue().isEmpty())
-				ret.setDescription(HtmlEscapers.htmlEscaper().escape(description.getValue()));
+				ret.setDescription(description.getValue());
 			return ret;
 		}
 
@@ -712,23 +719,28 @@ public class RegistrationFormEditor extends VerticalLayout
 			retrievalSettings = new EnumComboBox<ParameterRetrievalSettings>(
 					msg.getMessage("RegistrationFormViewer.paramSettings"), msg, 
 					"ParameterRetrievalSettings.", ParameterRetrievalSettings.class, 
-					ParameterRetrievalSettings.interactive);
-			main.add(label, description, retrievalSettings);
-			
+					ParameterRetrievalSettings.interactive);			
 			if (value != null)
 			{
 				if (value.getLabel() != null)
+				{
 					label.setValue(value.getLabel());
+					main.add(label);
+				}
 				if (value.getDescription() != null)
+				{
 					description.setValue(value.getDescription());
+					main.add(description);
+				}
 				retrievalSettings.setEnumValue(value.getRetrievalSettings());
 			}
+			main.add(retrievalSettings);
 		}
 		
 		protected void fill(RegistrationParam v)
 		{
 			if (!description.getValue().isEmpty())
-				v.setDescription(HtmlEscapers.htmlEscaper().escape(description.getValue()));
+				v.setDescription(description.getValue());
 			if (!label.getValue().isEmpty())
 				v.setLabel(label.getValue());
 			v.setRetrievalSettings(retrievalSettings.getSelectedValue());

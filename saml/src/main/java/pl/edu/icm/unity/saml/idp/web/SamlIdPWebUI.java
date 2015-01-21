@@ -46,8 +46,6 @@ import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.webui.common.HtmlTag;
-import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.provider.ExposedAttributesComponent;
@@ -55,6 +53,8 @@ import pl.edu.icm.unity.webui.common.provider.IdPButtonsBar;
 import pl.edu.icm.unity.webui.common.provider.IdPButtonsBar.Action;
 import pl.edu.icm.unity.webui.common.provider.IdentitySelectorComponent;
 import pl.edu.icm.unity.webui.common.provider.SPInfoComponent;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
@@ -142,7 +142,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		samlResponseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor);
 		
 		VerticalLayout vmain = new VerticalLayout();
-		TopHeaderLight header = new TopHeaderLight(endpointDescription.getId(), msg);
+		TopHeaderLight header = new TopHeaderLight(endpointDescription.getDisplayedName().getValue(msg), msg);
 		vmain.addComponent(header);
 
 		

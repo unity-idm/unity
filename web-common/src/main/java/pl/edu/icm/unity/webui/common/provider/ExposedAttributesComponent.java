@@ -15,13 +15,13 @@ import java.util.Set;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
-import pl.edu.icm.unity.webui.common.HtmlLabel;
-import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;

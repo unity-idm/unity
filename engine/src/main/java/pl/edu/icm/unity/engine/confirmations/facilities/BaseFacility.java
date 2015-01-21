@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import pl.edu.icm.unity.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -22,7 +23,7 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
  * @author P. Piernik
  * 
  */
-public abstract class BaseFacility
+public abstract class BaseFacility implements ConfirmationFacility
 {
 	protected DBSessionManager db;
 	
@@ -75,7 +76,7 @@ public abstract class BaseFacility
 	}
 
 	/**
-	 * Check which attributes in collection has given group, name, value and is verifiable, if yes set attribute 
+	 * Check which attributes in collection have given group, name, value and is verifiable, if yes set attribute 
 	 * as confirmed
 	 * @param attrs
 	 * @param attrName
@@ -107,7 +108,7 @@ public abstract class BaseFacility
 	}
 
 	/**
-	 * Check which identitites in collection has given type and value and, if yes set identity as confirmed
+	 * Check which identities in collection have given type and value and, if yes set identity as confirmed
 	 * @param identities
 	 * @param type
 	 * @param value

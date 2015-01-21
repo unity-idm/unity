@@ -2,7 +2,7 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common;
+package pl.edu.icm.unity.webui.common.safehtml;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -91,13 +91,13 @@ public class HtmlSimplifiedLabel extends Label
 		super.setValue(escape(value));
 	}
 	
-	private String escape(String semiSafeHtml)
+	public static String escape(String semiSafeHtml)
 	{
 		StringBuilder escaped = new StringBuilder();
 		char[] input = semiSafeHtml.toCharArray();
 		for (int i=0; i<input.length; i++)
 		{
-			if (ESCAPES.containsKey(input[i]))
+			if (ESCAPES.containsKey(Character.valueOf(input[i])))
 			{
 				int readAheadMax = Math.min(MAX_TOKEN_LEN, input.length - i);
 				Set<String> aheadTokens = new HashSet<>();

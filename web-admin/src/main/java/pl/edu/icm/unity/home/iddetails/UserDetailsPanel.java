@@ -12,9 +12,10 @@ import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.HtmlLabel;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Label;
@@ -61,7 +62,7 @@ public class UserDetailsPanel
 		layout.addComponents(id, scheduledAction, identities, credStatus, groups);
 	}
 	
-	public void setInput(EntityWithLabel entityWithLabel, Collection<String> groups)
+	public void setInput(EntityWithLabel entityWithLabel, Collection<Group> groups)
 	{
 		id.setValue(entityWithLabel.toString());
 		Entity entity = entityWithLabel.getEntity();
@@ -96,9 +97,10 @@ public class UserDetailsPanel
 		}
 		
 		this.groups.resetValue();
-		for (String group: groups)
+		for (Group group: groups)
 		{
-			this.groups.addHtmlValueLine("IdentityDetails.groupLine", group);
+			this.groups.addHtmlValueLine("IdentityDetails.groupLine", 
+					group.getDisplayedName().getValue(msg));
 		}
 	}
 }

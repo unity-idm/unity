@@ -32,7 +32,6 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.html.HtmlEscapers;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
@@ -169,7 +168,7 @@ public class EndpointsComponent extends VerticalLayout
 					+ UnityServerConfiguration.ENDPOINT_DESCRIPTION);
 			EndpointDescription en = new EndpointDescription();
 			en.setId(name);
-			en.setDescription(HtmlEscapers.htmlEscaper().escape(description));
+			en.setDescription(description);
 			endpointComponents.put(en.getId(), new EndpointComponent(endpointMan, serverMan,
 					networkServer, en, config, msg,
 					DeployableComponentViewBase.Status.undeployed.toString()));

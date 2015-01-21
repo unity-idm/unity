@@ -43,6 +43,7 @@ public enum Styles
 	grayBackground("u-gray-bg"),
 	redBackground("u-red-bg"),
 	smallMargin("u-smallMargin"),
+	smallSpacing("u-smallSpacing"),
 	negativeMargin5("u-negativeMargin5"),
 	captionBold("bold");
 	
@@ -57,5 +58,17 @@ public enum Styles
 	public String toString()
 	{
 		return value;
+	}
+	
+	public static String getFlagBgStyleForLocale(String localeCode)
+	{
+		switch (localeCode)
+		{
+		case "en":
+		case "pl":
+		case "de":
+			return "u-flag-bg-" + localeCode;
+		}
+		return null;
 	}
 }

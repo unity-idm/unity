@@ -86,8 +86,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	@Override
 	public void sendConfirmationRequest(String state) throws EngineException
 	{
-		BaseConfirmationState baseState = new BaseConfirmationState();
-		baseState.setSerializedConfiguration(state);
+		BaseConfirmationState baseState = new BaseConfirmationState(state);
 		String facilityId = baseState.getFacilityId();
 		ConfirmationFacility facility = getFacility(facilityId);
 		ConfirmationConfiguration configEntry = null;
@@ -115,12 +114,12 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			return;
 
 		sendConfirmationRequest(baseState.getValue(), configEntry.getNotificationChannel(),
-				configEntry.getMsgTemplate(), state, facility);
+				configEntry.getMsgTemplate(), state, facility, baseState.getLocale());
 
 	}
 
 	private void sendConfirmationRequest(String recipientAddress, String channelName,
-			String templateId, String state, ConfirmationFacility facility)
+			String templateId, String state, ConfirmationFacility facility, String locale)
 			throws EngineException
 	{
 		Date createDate = new Date();
@@ -160,7 +159,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 				+ token + " and state=" + state);
 
 		notificationProducer.sendNotification(recipientAddress, channelName, templateId,
-				params);
+				params, locale);
 		facility.processAfterSendRequest(state);
 	}
 
@@ -188,13 +187,12 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		if (tk.getExpires().compareTo(today) < 0)
 			return new ConfirmationStatus(false, "ConfirmationStatus.expiredToken");
 
-		String rowState = new String(tk.getContents());
-		BaseConfirmationState baseState = new BaseConfirmationState();
-		baseState.setSerializedConfiguration(rowState);
+		String rawState = tk.getContentsString();
+		BaseConfirmationState baseState = new BaseConfirmationState(rawState);
 		ConfirmationFacility facility = getFacility(baseState.getFacilityId());
 		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, token);
 		log.debug("Process confirmation using " + facility.getName() + " facility");
-		ConfirmationStatus status = facility.processConfirmation(rowState);
+		ConfirmationStatus status = facility.processConfirmation(rawState);
 
 		return status;
 	}

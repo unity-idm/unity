@@ -13,6 +13,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.home.HomeEndpointProperties;
 import pl.edu.icm.unity.home.UserAccountComponent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
@@ -50,6 +51,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 	
 	private MainTabPanel tabPanel;
 	private EndpointDescription endpointDescription;
+	private HomeEndpointProperties config;
 	
 	@Autowired
 	public WebAdminUI(UnityMessageSource msg, ContentsManagementTab contentsManagement,
@@ -72,6 +74,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
 	{
 		this.endpointDescription = description;
+		this.config = new HomeEndpointProperties(endpointProperties);
 	}
 	
 	@Override
@@ -82,7 +85,8 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 		final VerticalLayout mainWrapper = new VerticalLayout();
 		mainWrapper.setSizeFull();
 
-		AdminTopHeader header = new AdminTopHeader(endpointDescription.getId(), authnProcessor, msg, 
+		AdminTopHeader header = new AdminTopHeader(endpointDescription.getDisplayedName().getValue(msg), 
+				authnProcessor, msg, 
 				new ViewSwitchCallback()
 				{
 					@Override
@@ -94,6 +98,8 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 
 		
 		createMainTabPanel();
+		
+		userAccount.initUI(config);
 		userAccount.setWidth(80, Unit.PERCENTAGE);
 
 		contents.addComponent(header);

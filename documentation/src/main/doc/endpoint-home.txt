@@ -13,4 +13,8 @@ By default it is accessible under the link: +pass:[https://localhost:2443/home/h
 Note that the Web Admin endpoint incorporates all the features of the of the Home endpoint (accessible
 after switching the view with the _profile_ button).
 
-The endpoint offers only the standard options of the Web binding. 
+The endpoint offers couple of options, which can be used to fine tune the information presented in its
+interface. All options common to all web endpoints are naturally also supported. The remaining options
+are provided below: 
+
+include::ref-homeEndpointProperties.txt[]

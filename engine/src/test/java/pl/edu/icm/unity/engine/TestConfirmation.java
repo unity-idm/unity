@@ -6,10 +6,10 @@ package pl.edu.icm.unity.engine;
 
 import static org.junit.Assert.fail;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Assert;
@@ -28,19 +28,19 @@ import pl.edu.icm.unity.engine.confirmations.ConfirmationManagerImpl;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate.I18nMessage;
 import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -53,7 +53,6 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
-import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
@@ -97,17 +96,15 @@ public class TestConfirmation extends DBIntegrationTestBase
 		groupsMan.addMemberFromParent("/test", entity);
 
 		// Attribute
-		attrsMan.addAttributeType(new AttributeType(VerifiableEmailAttributeSyntax.ID,
+		attrsMan.addAttributeType(new AttributeType(InitializerCommon.EMAIL_ATTR,
 				new VerifiableEmailAttributeSyntax()));
 		VerifiableEmailAttribute at1 = new VerifiableEmailAttribute(
-				VerifiableEmailAttributeSyntax.ID, "/test",
+				InitializerCommon.EMAIL_ATTR, "/test",
 				AttributeVisibility.full, "example2@ex.com");
 		attrsMan.setAttribute(entity, at1, false);
-		AttribiuteConfirmationState attrState = new AttribiuteConfirmationState();
-		attrState.setGroup("/test");
-		attrState.setOwner(entity.getEntityId().toString());
-		attrState.setType(VerifiableEmailAttributeSyntax.ID);
-		attrState.setValue("example2@ex.com");
+		AttribiuteConfirmationState attrState = new AttribiuteConfirmationState(
+				entity.getEntityId().toString(), InitializerCommon.EMAIL_ATTR, 
+				"example2@ex.com", "pl", "/test");
 		try
 		{
 			confirmationMan.sendConfirmationRequest(attrState
@@ -126,7 +123,7 @@ public class TestConfirmation extends DBIntegrationTestBase
 		{
 			configurationMan.addConfiguration(new ConfirmationConfiguration(
 					ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
-					VerifiableEmailAttributeSyntax.ID, "demoChannel",
+					InitializerCommon.EMAIL_ATTR, "demoChannel",
 					"demoTemplate"));
 		} catch (Exception e)
 		{
@@ -171,10 +168,8 @@ public class TestConfirmation extends DBIntegrationTestBase
 
 		// Identity
 
-		IdentityConfirmationState idState = new IdentityConfirmationState();
-		idState.setOwner(entity.getEntityId().toString());
-		idState.setType(EmailIdentity.ID);
-		idState.setValue("example1@ex.com");
+		IdentityConfirmationState idState = new IdentityConfirmationState(
+				entity.getEntityId().toString(), EmailIdentity.ID, "example1@ex.com", "en");
 		VerifiableElement identity = getIdentityFromEntity(entity);
 		Assert.assertTrue(!identity.getConfirmationInfo().isConfirmed());
 		Assert.assertEquals(0, identity.getConfirmationInfo().getSentRequestAmount());
@@ -231,7 +226,7 @@ public class TestConfirmation extends DBIntegrationTestBase
 		{
 			configurationMan.removeConfiguration(
 					ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
-					VerifiableEmailAttributeSyntax.ID);
+					InitializerCommon.EMAIL_ATTR);
 
 			configurationMan.removeConfiguration(
 					ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE,
@@ -255,7 +250,7 @@ public class TestConfirmation extends DBIntegrationTestBase
 			throws EngineException
 	{
 		Collection<AttributeExt<?>> allAttributes = attrsMan.getAllAttributes(entity,
-				false, group, VerifiableEmailAttributeSyntax.ID, false);
+				false, group, InitializerCommon.EMAIL_ATTR, false);
 		AttributeExt<?> attribute = allAttributes.iterator().next();
 		VerifiableElement vemail = (VerifiableElement) attribute.getValues().get(0);
 		return vemail;
@@ -274,31 +269,19 @@ public class TestConfirmation extends DBIntegrationTestBase
 
 		AgreementRegistrationParam agreement = new AgreementRegistrationParam();
 		agreement.setManatory(false);
-		agreement.setText("a");
+		agreement.setText(new I18nString("a"));
 		form.setAgreements(Collections.singletonList(agreement));
 
-		Attribute<?> attr1 = new StringAttribute("cn", "/", AttributeVisibility.full, "val");
-		Attribute<?> attr2 = new StringAttribute("email", "/", AttributeVisibility.full,
-				"val@ex.com");
-		List<Attribute<?>> attrs = new ArrayList<>();
-		attrs.add(attr1);
-		attrs.add(attr2);
-		form.setAttributeAssignments(attrs);
-
-		AttributeClassAssignment acA = new AttributeClassAssignment();
-		acA.setAcName(InitializerCommon.NAMING_AC);
-		acA.setGroup("/");
-		form.setAttributeClassAssignments(Collections.singletonList(acA));
-
+		form.setAttributeAssignments(new ArrayList<Attribute<?>>());
+		
 		AttributeRegistrationParam attrReg = new AttributeRegistrationParam();
-		attrReg.setAttributeType(VerifiableEmailAttributeSyntax.ID);
+		attrReg.setAttributeType(InitializerCommon.EMAIL_ATTR);
 		attrReg.setDescription("description");
 		attrReg.setGroup("/");
 		attrReg.setLabel("label");
 		attrReg.setOptional(true);
 		attrReg.setRetrievalSettings(ParameterRetrievalSettings.interactive);
 		attrReg.setShowGroups(true);
-		attrReg.setUseDescription(true);
 		form.setAttributeParams(Collections.singletonList(attrReg));
 
 		form.setCollectComments(true);
@@ -311,7 +294,7 @@ public class TestConfirmation extends DBIntegrationTestBase
 
 		form.setCredentialRequirementAssignment(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT);
 		form.setDescription("description");
-		form.setFormInformation("formInformation");
+		form.setFormInformation(new I18nString("formInformation"));
 		form.setGroupAssignments(Collections.singletonList("/A"));
 
 		GroupRegistrationParam groupParam = new GroupRegistrationParam();
@@ -342,7 +325,7 @@ public class TestConfirmation extends DBIntegrationTestBase
 
 		request.setAgreements(Collections.singletonList(new Selection(true)));
 		List<Attribute<?>> attrs = new ArrayList<Attribute<?>>();
-		attrs.add(new VerifiableEmailAttribute(VerifiableEmailAttributeSyntax.ID, "/",
+		attrs.add(new VerifiableEmailAttribute(InitializerCommon.EMAIL_ATTR, "/",
 				AttributeVisibility.full, "foo@a.b"));
 		request.setAttributes(attrs);
 		request.setComments("comments");
@@ -360,10 +343,9 @@ public class TestConfirmation extends DBIntegrationTestBase
 
 	private void addTemplate() throws EngineException
 	{
-		HashMap<String, MessageTemplate.Message> params = new HashMap<String, MessageTemplate.Message>();
-		params.put("", new Message("test", "test ${"
-				+ ConfirmationTemplateDef.CONFIRMATION_LINK + "}"));
-		templateMan.addTemplate(new MessageTemplate("demoTemplate", "demo", params,
+		I18nMessage message = new I18nMessage(new I18nString("test"), 
+				new I18nString("test ${"+ ConfirmationTemplateDef.CONFIRMATION_LINK + "}"));
+		templateMan.addTemplate(new MessageTemplate("demoTemplate", "demo", message,
 				ConfirmationTemplateDef.NAME));
 	}
 
@@ -395,7 +377,7 @@ public class TestConfirmation extends DBIntegrationTestBase
 		{
 			configurationMan.addConfiguration(new ConfirmationConfiguration(
 					ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
-					VerifiableEmailAttributeSyntax.ID, "demoChannel",
+					InitializerCommon.EMAIL_ATTR, "demoChannel",
 					"demoTemplate"));
 			configurationMan.addConfiguration(new ConfirmationConfiguration(
 					ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE,
@@ -409,14 +391,11 @@ public class TestConfirmation extends DBIntegrationTestBase
 		RegistrationRequest request = getRequest();
 		String requestId = registrationsMan.submitRegistrationRequest(request, true);
 
-		Assert.assertEquals(2,
-				tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE)
-						.size());
+		Assert.assertEquals(2, tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE).size());
 
 		try
 		{
-			for (Token tk : tokensMan
-					.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE))
+			for (Token tk : tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE))
 			{
 				confirmationMan.processConfirmation(tk.getValue());
 			}
@@ -437,16 +416,11 @@ public class TestConfirmation extends DBIntegrationTestBase
 		Assert.assertEquals(0, videntity.getConfirmationInfo().getSentRequestAmount());
 		Assert.assertNotEquals(0, videntity.getConfirmationInfo().getConfirmationDate());
 
-		RegistrationReqAttribiuteConfirmationState attrState = new RegistrationReqAttribiuteConfirmationState();
-		attrState.setOwner(requestId);
-		attrState.setGroup("/");
-		attrState.setType(VerifiableEmailAttributeSyntax.ID);
-		attrState.setValue("foo@a.b");
+		RegistrationReqAttribiuteConfirmationState attrState = new RegistrationReqAttribiuteConfirmationState(
+				requestId, InitializerCommon.EMAIL_ATTR, "foo@a.b", "pl", "/");
 
-		RegistrationReqIdentityConfirmationState idState = new RegistrationReqIdentityConfirmationState();
-		idState.setOwner(requestId);
-		idState.setType(EmailIdentity.ID);
-		idState.setValue("example@ex.com");
+		RegistrationReqIdentityConfirmationState idState = new RegistrationReqIdentityConfirmationState(
+				requestId, EmailIdentity.ID, "example@ex.com", "pl");
 
 		try
 		{
@@ -462,24 +436,21 @@ public class TestConfirmation extends DBIntegrationTestBase
 		}
 
 		vemail = getAttributeValueFromRegistration();
-		Assert.assertTrue(!vemail.getConfirmationInfo().isConfirmed());
+		Assert.assertFalse(vemail.toString(), vemail.getConfirmationInfo().isConfirmed());
 		Assert.assertEquals(1, vemail.getConfirmationInfo().getSentRequestAmount());
 
 		videntity = getIdentityFromRegistration();
-		Assert.assertTrue(!videntity.getConfirmationInfo().isConfirmed());
+		Assert.assertFalse(videntity.getConfirmationInfo().isConfirmed());
 		Assert.assertEquals(1, videntity.getConfirmationInfo().getSentRequestAmount());
 
 		Assert.assertEquals(2,
-				tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE)
-						.size());
+				tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE).size());
 		try
 		{
-			for (Token tk : tokensMan
-					.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE))
+			for (Token tk : tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE))
 			{
 				confirmationMan.processConfirmation(tk.getValue());
 			}
-
 		} catch (Exception e)
 		{
 			e.printStackTrace();
@@ -497,8 +468,7 @@ public class TestConfirmation extends DBIntegrationTestBase
 		Assert.assertNotEquals(0, videntity.getConfirmationInfo().getConfirmationDate());
 
 		Assert.assertEquals(0,
-				tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE)
-						.size());
+				tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE).size());
 
 	}
 
@@ -510,7 +480,7 @@ public class TestConfirmation extends DBIntegrationTestBase
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addGroup(new Group("/B"));
 		RegistrationForm form = getForm();
-		form.setAutoAcceptCondition("attr[\"verifiableEmail\"].confirmed ==  true ");
+		form.setAutoAcceptCondition("attr[\"email\"].valid ==  true ");
 		registrationsMan.addForm(form);
 
 		addTemplate();
@@ -519,7 +489,7 @@ public class TestConfirmation extends DBIntegrationTestBase
 		{
 			configurationMan.addConfiguration(new ConfirmationConfiguration(
 					ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
-					VerifiableEmailAttributeSyntax.ID, "demoChannel",
+					InitializerCommon.EMAIL_ATTR, "demoChannel",
 					"demoTemplate"));
 			configurationMan.addConfiguration(new ConfirmationConfiguration(
 					ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE,
@@ -536,17 +506,13 @@ public class TestConfirmation extends DBIntegrationTestBase
 		Assert.assertEquals(RegistrationRequestStatus.pending, registrationsMan
 				.getRegistrationRequests().get(0).getStatus());
 
-		Assert.assertEquals(2,
-				tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE)
-						.size());
+		Assert.assertEquals(2, tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE).size());
 		try
 		{
 			boolean proccess = false;
-			for (Token tk : tokensMan
-					.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE))
+			for (Token tk : tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE))
 			{
-				BaseConfirmationState state = new BaseConfirmationState();
-				state.setSerializedConfiguration(new String(tk.getContents()));
+				BaseConfirmationState state = new BaseConfirmationState(tk.getContentsString());
 				if (state.getFacilityId()
 						.equals(RegistrationReqAttribiuteConfirmationState.FACILITY_ID))
 				{
@@ -567,14 +533,11 @@ public class TestConfirmation extends DBIntegrationTestBase
 		Assert.assertEquals(RegistrationRequestStatus.accepted, registrationsMan
 				.getRegistrationRequests().get(0).getStatus());
 
-		Assert.assertEquals(1,
-				tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE)
-						.size());
+		Assert.assertEquals(1, tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE).size());
 
-		BaseConfirmationState state = new BaseConfirmationState();
-		state.setSerializedConfiguration(new String(tokensMan
+		BaseConfirmationState state = new BaseConfirmationState(new String(tokensMan
 				.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE).get(0)
-				.getContents()));
+				.getContents(), StandardCharsets.UTF_8));
 		String entity = state.getOwner();
 		VerifiableElement vattr = getAttributeValueFromEntity(
 				new EntityParam(Long.parseLong(entity)), "/");
@@ -582,17 +545,12 @@ public class TestConfirmation extends DBIntegrationTestBase
 		VerifiableElement id = getIdentityFromEntity(new EntityParam(Long.parseLong(entity)));
 		Assert.assertFalse(id.getConfirmationInfo().isConfirmed());
 
-		Assert.assertEquals(1,
-				tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE)
-						.size());
+		Assert.assertEquals(1, tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE).size());
 		try
 		{
-			for (Token tk : tokensMan
-					.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE))
+			for (Token tk : tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE))
 			{
-
 				confirmationMan.processConfirmation(tk.getValue());
-
 			}
 		} catch (Exception e)
 		{

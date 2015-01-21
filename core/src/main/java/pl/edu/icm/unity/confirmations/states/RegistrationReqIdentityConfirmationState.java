@@ -14,12 +14,16 @@ package pl.edu.icm.unity.confirmations.states;
  */
 public class RegistrationReqIdentityConfirmationState extends IdentityConfirmationState
 {
-
 	public static final String FACILITY_ID = "RegistrationReqIdentityFacility";
 
-	@Override
-	public String getFacilityId()
+	public RegistrationReqIdentityConfirmationState(String serializedState)
 	{
-		return FACILITY_ID;
+		super(serializedState);
+	}
+
+	public RegistrationReqIdentityConfirmationState(String owner, String type,
+			String value, String locale)
+	{
+		super(FACILITY_ID, owner, type, value, locale);
 	}
 }

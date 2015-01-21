@@ -10,7 +10,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmationState;
 import pl.edu.icm.unity.db.DBSessionManager;
@@ -29,8 +28,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
  * @author P. Piernik
  */
 @Component
-public class RegistrationReqIdentityFacility extends
-		RegistrationReqAttributeFacility implements ConfirmationFacility
+public class RegistrationReqIdentityFacility extends RegistrationFacility<RegistrationReqIdentityConfirmationState>
 {
 	private IdentityTypesRegistry identityTypesRegistry;
 
@@ -56,18 +54,10 @@ public class RegistrationReqIdentityFacility extends
 		return "Confirms verifiable identity from registration request";
 	}
 
-	private RegistrationReqIdentityConfirmationState getState(String state)
-	{
-		RegistrationReqIdentityConfirmationState idState = new RegistrationReqIdentityConfirmationState();
-		idState.setSerializedConfiguration(state);
-		return idState;
-	}
-
 	@Override
-	protected ConfirmationStatus confirmElements(RegistrationRequest req, String state)
-			throws EngineException
+	protected ConfirmationStatus confirmElements(RegistrationRequest req,
+			RegistrationReqIdentityConfirmationState idState) throws EngineException
 	{
-		RegistrationReqIdentityConfirmationState idState = getState(state);
 		if (!(identityTypesRegistry.getByName(idState.getType()).isVerifiable()))
 			return new ConfirmationStatus(false, "ConfirmationStatus.identityChanged", idState.getType());
 		Collection<IdentityParam> confirmedList = confirmIdentity(req.getIdentities(),
@@ -84,7 +74,7 @@ public class RegistrationReqIdentityFacility extends
 	@Override
 	public void processAfterSendRequest(String state) throws EngineException
 	{
-		RegistrationReqIdentityConfirmationState idState = getState(state);
+		RegistrationReqIdentityConfirmationState idState = new RegistrationReqIdentityConfirmationState(state);
 		String requestId = idState.getOwner();
 		RegistrationRequestState reqState = internalRegistrationManagment
 				.getRequest(requestId);
@@ -101,5 +91,11 @@ public class RegistrationReqIdentityFacility extends
 		{
 			db.releaseSqlSession(sql);
 		}
+	}
+
+	@Override
+	protected RegistrationReqIdentityConfirmationState parseState(String state)
+	{
+		return new RegistrationReqIdentityConfirmationState(state);
 	}
 }

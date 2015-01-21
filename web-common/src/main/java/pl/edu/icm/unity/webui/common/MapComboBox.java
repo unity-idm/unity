@@ -18,6 +18,8 @@ import com.vaadin.ui.ComboBox;
  */
 public class MapComboBox<T> extends ComboBox
 {
+	private LabelResolver<T> resolver = null;
+	
 	public MapComboBox(Map<String, T> values, String initialValue)
 	{
 		init(values, initialValue);
@@ -26,6 +28,13 @@ public class MapComboBox<T> extends ComboBox
 	public MapComboBox(String caption, Map<String, T> values, String initialValue)
 	{
 		super(caption);
+		init(values, initialValue);
+	}
+
+	public MapComboBox(String caption, Map<String, T> values, String initialValue, LabelResolver<T> resolver)
+	{
+		super(caption);
+		this.resolver = resolver;
 		init(values, initialValue);
 	}
 
@@ -44,8 +53,11 @@ public class MapComboBox<T> extends ComboBox
 		setContainerDataSource(container);
 		for (Map.Entry<String, T> constant: values.entrySet())
 		{
-			HolderBean bean = new HolderBean(constant.getKey(), constant.getValue()); 
-			container.addItem(constant.getKey(), bean);
+			String key = constant.getKey();
+			String label = resolver != null ? resolver.getDisplayedName(key, constant.getValue()) : key;
+			HolderBean bean = new HolderBean(label, constant.getValue()); 
+			container.addItem(key, bean);
+			setItemCaption(key, label);
 		}
 		if (initialValue != null)
 			setValue(initialValue);
@@ -72,7 +84,7 @@ public class MapComboBox<T> extends ComboBox
 		return bean.getBean().toString();
 	}
 	
-	private class HolderBean
+	public class HolderBean
 	{
 		private T wrapped;
 		private String label;
@@ -130,5 +142,10 @@ public class MapComboBox<T> extends ComboBox
 		{
 			return MapComboBox.this;
 		}
+	}
+	
+	public interface LabelResolver<T>
+	{
+		String getDisplayedName(String key, T value);
 	}
 }

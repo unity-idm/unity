@@ -4,20 +4,22 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import pl.edu.icm.unity.types.I18nString;
+
 /**
  * Defines an agreement to be shown.
  * @author K. Benedyczak
  */
 public class AgreementRegistrationParam
 {
-	private String text;
+	private I18nString text;
 	private boolean manatory;
 
-	public String getText()
+	public I18nString getText()
 	{
 		return text;
 	}
-	public void setText(String text)
+	public void setText(I18nString text)
 	{
 		this.text = text;
 	}

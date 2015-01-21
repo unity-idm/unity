@@ -161,7 +161,7 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 		MessageTemplateDefinition con = registry.getByName(toValidate.getConsumer());
 		try
 		{
-			MessageTemplateValidator.validateMessages(con, toValidate.getAllMessages());
+			MessageTemplateValidator.validateMessage(con, toValidate.getMessage());
 		} catch (IllegalVariablesException e)
 		{
 			throw new WrongArgumentException("The following variables are unknown: " + e.getUnknown());

@@ -11,14 +11,11 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
-import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
@@ -28,15 +25,12 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  * @author P. Piernik
  */
 @Component
-public class IdentityFacility extends BaseFacility implements ConfirmationFacility
+public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 {
-	protected DBIdentities dbIdentities;
-
 	@Autowired
 	protected IdentityFacility(DBSessionManager db, DBIdentities dbIdentities)
 	{
-		super(db);
-		this.dbIdentities = dbIdentities;
+		super(db, dbIdentities);
 	}
 
 	@Override
@@ -51,47 +45,9 @@ public class IdentityFacility extends BaseFacility implements ConfirmationFacili
 		return "Confirms verifiable identity";
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public ConfirmationStatus processConfirmation(String state) throws EngineException
+	protected ConfirmationStatus confirmElements(IdentityConfirmationState idState) throws EngineException
 	{
-		BaseConfirmationState baseState = new BaseConfirmationState();
-		baseState.setSerializedConfiguration(state);
-		SqlSession sql = db.getSqlSession(false);
-		EntityState entityState = null;
-		try
-		{
-			entityState = dbIdentities.getEntityStatus(
-					Long.parseLong(baseState.getOwner()), sql);
-
-		} catch (Exception e)
-		{
-			return new ConfirmationStatus(false, "ConfirmationStatus.entityRemoved");
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
-
-		if (!entityState.equals(EntityState.valid))
-		{
-			return new ConfirmationStatus(false, "ConfirmationStatus.entityInvalid");
-		}
-			
-		return confirmElements(state);
-	}
-
-	private IdentityConfirmationState getState(String state)
-	{
-		IdentityConfirmationState idState = new IdentityConfirmationState();
-		idState.setSerializedConfiguration(state);
-		return idState;
-	}
-
-	protected ConfirmationStatus confirmElements(String state) throws EngineException
-	{
-		IdentityConfirmationState idState = getState(state);
 		ConfirmationStatus status;
 		SqlSession sql = db.getSqlSession(true);
 		try
@@ -132,7 +88,7 @@ public class IdentityFacility extends BaseFacility implements ConfirmationFacili
 	@Override
 	public void processAfterSendRequest(String state) throws EngineException
 	{
-		IdentityConfirmationState idState = getState(state);
+		IdentityConfirmationState idState = new IdentityConfirmationState(state);
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -150,4 +106,9 @@ public class IdentityFacility extends BaseFacility implements ConfirmationFacili
 		}
 	}
 
+	@Override
+	protected IdentityConfirmationState parseState(String state)
+	{
+		return new IdentityConfirmationState(state);
+	}
 }

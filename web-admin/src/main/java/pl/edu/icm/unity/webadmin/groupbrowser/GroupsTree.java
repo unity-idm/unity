@@ -439,39 +439,40 @@ public class GroupsTree extends Tree
 						@Override
 						public void onCreated(Identity newIdentity)
 						{
-							if (node.equals(getValue()))
-								bus.fireEvent(new GroupChangedEvent(node.getPath()));
-							
-							if (!newIdentity.getType().getIdentityTypeProvider().isVerifiable())
-								return;
-							try
-							{
-								confirmationCfgMan.getConfiguration(ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE, newIdentity.getTypeId());
-							} catch (Exception e)
-							{
-								ErrorPopup.showError(
-										msg,
-										" ",
-										msg.getMessage("Identities.cannotSendConfirmationConfigNotAvailable", newIdentity.getTypeId()));
-							}
-							
-							IdentityConfirmationState state = new IdentityConfirmationState();
-							state.setOwner(newIdentity.getEntityId()
-									.toString());
-							state.setType(newIdentity.getTypeId());
-							state.setValue(newIdentity.getValue());
-							try
-							{
-								confirmationManager
-										.sendConfirmationRequest(state
-												.getSerializedConfiguration());
-							} catch (Exception e)
-							{
-								ErrorPopup.showError(msg,
-										msg.getMessage("Identities.cannotSendConfirmation"), e);
-							}
+							onCreatedIdentity(node, newIdentity);
 						}
 					}).show();
+		}
+	}
+	
+	private void onCreatedIdentity(TreeNode node, Identity newIdentity)
+	{
+		if (node.equals(getValue()))
+			bus.fireEvent(new GroupChangedEvent(node.getPath()));
+
+		if (!newIdentity.getType().getIdentityTypeProvider().isVerifiable())
+			return;
+		try
+		{
+			confirmationCfgMan.getConfiguration(ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE, 
+					newIdentity.getTypeId());
+		} catch (Exception e)
+		{
+			ErrorPopup.showError(msg, " ", 
+					msg.getMessage("Identities.cannotSendConfirmationConfigNotAvailable", 
+					newIdentity.getTypeId()));
+		}
+		//TODO - should use user's preferred locale
+		IdentityConfirmationState state = new IdentityConfirmationState(
+				newIdentity.getEntityId().toString(), 
+				newIdentity.getTypeId(), 
+				newIdentity.getValue(), msg.getDefaultLocaleCode());
+		try
+		{
+			confirmationManager.sendConfirmationRequest(state.getSerializedConfiguration());
+		} catch (Exception e)
+		{
+			ErrorPopup.showError(msg, msg.getMessage("Identities.cannotSendConfirmation"), e);
 		}
 	}
 	

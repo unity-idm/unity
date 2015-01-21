@@ -27,6 +27,7 @@ import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -185,7 +186,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	{
 		AttributeType at = new AttributeType();
 		at.setValueType(new StringAttributeSyntax());
-		at.setDescription("desc");
+		at.setDescription(new I18nString("desc"));
 		at.setFlags(0);
 		at.setMaxElements(5);
 		at.setMinElements(1);
@@ -272,7 +273,7 @@ public class TestAttributes extends DBIntegrationTestBase
 		//add and update
 		at = createSimpleAT("some");
 		attrsMan.addAttributeType(at);
-		at.setDescription("updated");
+		at.setDescription(new I18nString("updated"));
 		at.setMaxElements(100);
 		attrsMan.updateAttributeType(at);
 		

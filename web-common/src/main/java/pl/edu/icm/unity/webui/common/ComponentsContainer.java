@@ -7,7 +7,6 @@ package pl.edu.icm.unity.webui.common;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.html.HtmlEscapers;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
@@ -43,8 +42,7 @@ public class ComponentsContainer
 	public void setDescription(String description)
 	{
 		if (components.get(0) instanceof AbstractComponent)
-			((AbstractComponent)components.get(0)).setDescription(HtmlEscapers.htmlEscaper().
-					escape(description));
+			((AbstractComponent)components.get(0)).setDescription(description);
 	}
 	
 	public void setCaption(String caption)

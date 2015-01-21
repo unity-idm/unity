@@ -12,19 +12,19 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.FormValidator;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
-import pl.edu.icm.unity.webui.common.SafePanel;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
 import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
-import com.google.common.html.HtmlEscapers;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.converter.StringToIntegerConverter;
@@ -50,7 +50,8 @@ public class AttributeTypeEditor extends FormLayout
 	private AttributeMetadataHandlerRegistry attrMetaHandlerReg;
 	
 	private AbstractTextField name;
-	private DescriptionTextArea typeDescription;
+	private I18nTextField displayedName;
+	private I18nTextArea typeDescription;
 	private TextField min;
 	private IntegerBoundEditor max;
 	private CheckBox uniqueVals;
@@ -93,7 +94,10 @@ public class AttributeTypeEditor extends FormLayout
 		name.setCaption(msg.getMessage("AttributeType.name"));
 		addComponent(name);
 		
-		typeDescription = new DescriptionTextArea(msg.getMessage("AttributeType.description"));
+		displayedName = new I18nTextField(msg, msg.getMessage("AttributeType.displayedName"));
+		addComponent(displayedName);
+		
+		typeDescription = new I18nTextArea(msg, msg.getMessage("AttributeType.description"));
 		addComponent(typeDescription);
 		
 		min = new RequiredTextField(msg);
@@ -183,6 +187,7 @@ public class AttributeTypeEditor extends FormLayout
 		syntaxPanel.removeAllComponents();
 		syntaxPanel.addComponent(editor.getEditor());
 		metaEditor.setInput(aType.getMetadata());
+		displayedName.setValue(aType.getDisplayedName());
 	}
 	
 	public AttributeType getAttributeType() throws IllegalAttributeTypeException
@@ -197,7 +202,7 @@ public class AttributeTypeEditor extends FormLayout
 		
 		AttributeValueSyntax<?> syntax = editor.getCurrentValue();
 		AttributeType ret = new AttributeType();
-		ret.setDescription(HtmlEscapers.htmlEscaper().escape(typeDescription.getValue()));
+		ret.setDescription(typeDescription.getValue());
 		ret.setName(name.getValue());
 		ret.setMaxElements(max.getValue());
 		ret.setMinElements((Integer)min.getConvertedValue());
@@ -206,6 +211,7 @@ public class AttributeTypeEditor extends FormLayout
 		ret.setValueType(syntax);
 		ret.setVisibility(visibility.getSelectedValue());
 		ret.setMetadata(metaEditor.getValue());
+		ret.setDisplayedName(displayedName.getValue());
 		return ret;
 	}
 }

@@ -16,7 +16,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.HtmlLabel;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;

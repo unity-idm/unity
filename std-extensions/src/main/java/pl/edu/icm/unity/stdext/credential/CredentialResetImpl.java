@@ -7,6 +7,7 @@ package pl.edu.icm.unity.stdext.credential;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -25,6 +26,7 @@ import pl.edu.icm.unity.server.authn.CredentialResetSettings;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.stdext.utils.CryptoUtils;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -171,8 +173,10 @@ public class CredentialResetImpl implements CredentialReset
 		params.put(PasswordResetTemplateDef.VAR_CODE, codeSent);
 		params.put(PasswordResetTemplateDef.VAR_USER, subject.getIdentity().getValue());
 		String msgTemplate = settings.getSecurityCodeMsgTemplate();
+		Locale currentLocale = UnityMessageSource.getLocale(null);
+		String locale = currentLocale == null ? null : currentLocale.toString();
 		notificationProducer.sendNotification(subject, UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL, 
-					msgTemplate, params);
+					msgTemplate, params, locale);
 	}
 
 

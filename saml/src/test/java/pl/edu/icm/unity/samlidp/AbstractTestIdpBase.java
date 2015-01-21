@@ -45,6 +45,7 @@ import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.stdext.tactions.out.CreateAttributeActionFactory;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorSet;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -92,7 +93,8 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 			List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
 			authnCfg.add(new AuthenticatorSet(Collections.singleton("Apass")));
 			authnCfg.add(new AuthenticatorSet(Collections.singleton("Acert")));
-			endpointMan.deploy(SamlIdPSoapEndpointFactory.NAME, "endpointIDP", "/saml", "desc", 
+			endpointMan.deploy(SamlIdPSoapEndpointFactory.NAME, "endpointIDP", 
+					new I18nString("endpointIDP"), "/saml", "desc", 
 					authnCfg, SAML_ENDP_CFG, REALM_NAME);
 			List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 			assertEquals(1, endpoints.size());
@@ -183,7 +185,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 	protected void setupMockAuthn() throws Exception
 	{
 		CredentialDefinition credDef = new CredentialDefinition(
-				PasswordVerificatorFactory.NAME, "credential1", "");
+				PasswordVerificatorFactory.NAME, "credential1");
 		credDef.setJsonConfiguration("{\"minLength\": 4, " +
 				"\"historySize\": 5," +
 				"\"minClassesNum\": 1," +
@@ -191,7 +193,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 				"\"maxAge\": 30758400}");
 		authnMan.addCredentialDefinition(credDef);
 		CredentialDefinition credDef2 = new CredentialDefinition(
-				CertificateVerificatorFactory.NAME, "credential2", "");
+				CertificateVerificatorFactory.NAME, "credential2");
 		credDef2.setJsonConfiguration("");
 		authnMan.addCredentialDefinition(credDef2);
 		

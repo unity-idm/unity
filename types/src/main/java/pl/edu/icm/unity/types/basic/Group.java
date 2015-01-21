@@ -13,6 +13,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import pl.edu.icm.unity.types.I18nDescribedObject;
+import pl.edu.icm.unity.types.I18nString;
+
 /**
  * Group holds set of other elements: other groups and identities. This class only denotes group, 
  * it doesn't hold group's content.
@@ -25,12 +28,12 @@ import java.util.Set;
  * 
  * @author K. Benedyczak
  */
-public class Group implements Serializable
+public class Group extends I18nDescribedObject implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 	
 	private String[] path;
-	private String description = "";
+	
 	private AttributeStatement[] attributeStatements = new AttributeStatement[0];
 	private Set<String> attributesClasses = new HashSet<String>();
 
@@ -43,6 +46,8 @@ public class Group implements Serializable
 		for (int i=0; i<parentP.length; i++)
 			path[i] = parentP[i];
 		path[path.length-1] = name;
+		displayedName = new I18nString(toString());
+		description = new I18nString();
 	}
 
 	public Group(String path)
@@ -59,18 +64,10 @@ public class Group implements Serializable
 		this.path = path.split("/");
 		if (this.path.length == 1 && this.path[0].equals(""))
 			this.path = new String[0];
+		displayedName = new I18nString(toString());
+		description = new I18nString();
 	}
 
-	public String getDescription()
-	{
-		return description;
-	}
-	
-	public void setDescription(String description)
-	{
-		this.description = description;
-	}
-	
 	public boolean isChild(Group test)
 	{
 		String []tPath = test.getPath();

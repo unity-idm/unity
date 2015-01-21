@@ -157,7 +157,8 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		StringBuilder ret = new StringBuilder();
 		for (AuthzRole role: roles.values())
 		{
-			ret.append(role.getName()).append(" - ").append(role.getDescription()).append("\n");
+			ret.append("<b>").append(role.getName()).append("</b> - ").
+				append(role.getDescription()).append("\n");
 		}
 		return ret.toString();
 	}

@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.db.generic.tprofile;
 
+import java.nio.charset.StandardCharsets;
+
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +52,7 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 	public GenericObjectBean toBlob(TranslationProfile value, SqlSession sql)
 	{
 		String json = value.toJson(jsonMapper);
-		return new GenericObjectBean(value.getName(), json.getBytes(), supportedType, 
+		return new GenericObjectBean(value.getName(), json.getBytes(StandardCharsets.UTF_8), supportedType, 
 				value.getProfileType().toString());
 	}
 
@@ -64,10 +66,10 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 		switch (pt)
 		{
 		case INPUT:
-			return new InputTranslationProfile(new String(blob.getContents()), 
+			return new InputTranslationProfile(new String(blob.getContents(), StandardCharsets.UTF_8), 
 					jsonMapper, actionsRegistry);
 		case OUTPUT:
-			return new OutputTranslationProfile(new String(blob.getContents()), 
+			return new OutputTranslationProfile(new String(blob.getContents(), StandardCharsets.UTF_8), 
 					jsonMapper, actionsRegistry);
 		}
 		throw new IllegalStateException("The stored translation profile with subtype id " + subType + 

@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.webui.common.provider;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.HtmlTag;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;

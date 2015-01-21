@@ -5,11 +5,13 @@
 package pl.edu.icm.unity.webui.common.attributes;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.AbstractOrderedLayout;
@@ -43,8 +45,8 @@ public class AttributeViewer
 
 	public void addToLayout(AbstractOrderedLayout parent)
 	{
-		String caption = attributeType.getName();
-		String description = attributeType.getDescription();
+		String caption = attributeType.getDisplayedName().getValue(msg);
+		I18nString description = attributeType.getDescription();
 		
 		if (showGroup)
 		{
@@ -64,10 +66,11 @@ public class AttributeViewer
 			valueRepresentation.setCaption(captionWithNum);
 			if (description != null)
 			{
+				String descSafe = HtmlSimplifiedLabel.escape(description.getValue(msg));
 				if (valueRepresentation instanceof AbstractField<?>)
-					((AbstractField<?>)valueRepresentation).setDescription(description);
+					((AbstractField<?>)valueRepresentation).setDescription(descSafe);
 				if (valueRepresentation instanceof Image)
-					((Image)valueRepresentation).setDescription(description);
+					((Image)valueRepresentation).setDescription(descSafe);
 			}
 			
 			valueRepresentation.addStyleName("u-baseline");

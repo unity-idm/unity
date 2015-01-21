@@ -24,11 +24,14 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -288,7 +291,9 @@ public class TestRegistrations extends DBIntegrationTestBase
 		assertEquals("val", attrs.iterator().next().getValues().get(0));
 		attrs = attrsMan.getAttributes(addedP, "/", "email");
 		assertEquals(1, attrs.size());
-		assertEquals("foo@a.b", attrs.iterator().next().getValues().get(0));
+		VerifiableEmail email = (VerifiableEmail) attrs.iterator().next().getValues().get(0);
+		assertEquals("foo@a.b", email.getValue());
+		assertEquals(false, email.getConfirmationInfo().isConfirmed());
 		
 		
 		// accept with updates -> check if results are fine
@@ -335,7 +340,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		clearDB();
 		idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test"));
 		
-		initAndCreateForm(false, "attrs[\"email\"][0] == \"foo@a.b\"");
+		initAndCreateForm(false, "attr[\"email\"].toString() == \"foo@a.b\"");
 		request = getRequest();
 		registrationsMan.submitRegistrationRequest(request, true);
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
@@ -372,7 +377,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		AgreementRegistrationParam agreement = new AgreementRegistrationParam();
 		agreement.setManatory(true);
-		agreement.setText("a");
+		agreement.setText(new I18nString("a"));
 		form.setAgreements(Collections.singletonList(agreement));
 		
 		Attribute<?> attr = new StringAttribute("cn", "/", AttributeVisibility.full, "val");
@@ -386,14 +391,13 @@ public class TestRegistrations extends DBIntegrationTestBase
 		form.setAttributeClassAssignments(Collections.singletonList(acA));
 		
 		AttributeRegistrationParam attrReg = new AttributeRegistrationParam();
-		attrReg.setAttributeType("email");
+		attrReg.setAttributeType(InitializerCommon.EMAIL_ATTR);
 		attrReg.setDescription("description");
 		attrReg.setGroup("/");
 		attrReg.setLabel("label");
 		attrReg.setOptional(true);
 		attrReg.setRetrievalSettings(ParameterRetrievalSettings.interactive);
 		attrReg.setShowGroups(true);
-		attrReg.setUseDescription(true);
 		form.setAttributeParams(Collections.singletonList(attrReg));
 		
 		form.setCollectComments(true);
@@ -407,7 +411,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		form.setCredentialRequirementAssignment(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT);
 		form.setDescription("description");
-		form.setFormInformation("formInformation");
+		form.setFormInformation(new I18nString("formInformation"));
 		form.setGroupAssignments(Collections.singletonList("/A"));
 		
 		GroupRegistrationParam groupParam = new GroupRegistrationParam();
@@ -443,7 +447,8 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		request.setAgreements(Collections.singletonList(new Selection(true)));
 		List<Attribute<?>> attrs = new ArrayList<Attribute<?>>();
-		attrs.add(new StringAttribute("email", "/", AttributeVisibility.full, "foo@a.b"));
+		attrs.add(new VerifiableEmailAttribute(InitializerCommon.EMAIL_ATTR, "/", 
+				AttributeVisibility.full, "foo@a.b"));
 		request.setAttributes(attrs);
 		request.setComments("comments");
 		CredentialParamValue cp = new CredentialParamValue();

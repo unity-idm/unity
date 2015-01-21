@@ -18,13 +18,11 @@ import pl.edu.icm.unity.db.generic.DependencyChangeListener;
 import pl.edu.icm.unity.db.generic.DependencyNotificationManager;
 import pl.edu.icm.unity.db.generic.GenericObjectsDB;
 import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateHandler;
-import pl.edu.icm.unity.db.generic.notify.NotificationChannelHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.NotificationChannel;
 
 /**
  * Easy to use interface to {@link ConfirmationConfiguration} storage.
@@ -42,7 +40,6 @@ public class ConfirmationConfigurationDB extends GenericObjectsDB<ConfirmationCo
 				"confirmation configuration");
 		notificationManager.addListener(new AttributeTypeChangeListener());
 		notificationManager.addListener(new MessageTemplateChangeListener());
-//		notificationManager.addListener(new NotificationChannelChangeLister());
 	}
 
 	private class AttributeTypeChangeListener implements

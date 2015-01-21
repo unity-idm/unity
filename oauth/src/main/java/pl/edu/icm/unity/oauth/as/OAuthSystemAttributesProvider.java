@@ -9,10 +9,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.attributes.SystemAttributesProvider;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -36,9 +38,12 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	
 	public enum GrantFlow {authorizationCode, implicit, openidHybrid};
 	
+	private UnityMessageSource msg;
 	
-	public OAuthSystemAttributesProvider()
+	@Autowired
+	public OAuthSystemAttributesProvider(UnityMessageSource msg)
 	{
+		this.msg = msg;
 		oauthAttributes.add(getAllowedGrantFlowsAT());
 		oauthAttributes.add(getAllowedURIsAT());
 		oauthAttributes.add(getLogoAT());
@@ -51,10 +56,8 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		Set<String> allowed = new HashSet<>();
 		for (GrantFlow gf: GrantFlow.values())
 			allowed.add(gf.toString());
-		AttributeType allowedGrantsAt = new AttributeType(ALLOWED_FLOWS, new EnumAttributeSyntax(allowed));
+		AttributeType allowedGrantsAt = new AttributeType(ALLOWED_FLOWS, new EnumAttributeSyntax(allowed), msg);
 		allowedGrantsAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
-		allowedGrantsAt.setDescription("OAuth Client specific attribute. Defines which grants are allowed "
-				+ "for the client. If undefined then only the Authorization Code grant is allowed.");
 		allowedGrantsAt.setMinElements(1);
 		allowedGrantsAt.setMaxElements(5);
 		allowedGrantsAt.setUniqueValues(true);
@@ -64,13 +67,8 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	
 	private AttributeType getAllowedURIsAT()
 	{
-		AttributeType authorizationAt = new AttributeType(ALLOWED_RETURN_URI, new StringAttributeSyntax());
+		AttributeType authorizationAt = new AttributeType(ALLOWED_RETURN_URI, new StringAttributeSyntax(), msg);
 		authorizationAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
-		authorizationAt.setDescription("OAuth Client specific attribute. Defines which return redirect URIs"
-				+ " are allowed for the client. This is important security measure for the "
-				+ "authorization code and implicit grants."
-				+ "If undefined then no URI is allowed and both implicit and authorization code grants"
-				+ " will be effectively disabled for the client.");
 		authorizationAt.setMinElements(1);
 		authorizationAt.setMaxElements(5);
 		authorizationAt.setUniqueValues(false);
@@ -90,10 +88,8 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		{
 			throw new IllegalArgumentException(e);
 		}
-		AttributeType logoAt = new AttributeType(CLIENT_LOGO, syntax);
+		AttributeType logoAt = new AttributeType(CLIENT_LOGO, syntax, msg);
 		logoAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
-		logoAt.setDescription("OAuth Client specific attribute. Defines a logo which is "
-				+ "displayed for the client.");
 		logoAt.setMinElements(1);
 		logoAt.setMaxElements(1);
 		logoAt.setUniqueValues(false);
@@ -103,9 +99,8 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 
 	private AttributeType getNameAT()
 	{
-		AttributeType nameAt = new AttributeType(CLIENT_NAME, new StringAttributeSyntax());
+		AttributeType nameAt = new AttributeType(CLIENT_NAME, new StringAttributeSyntax(), msg);
 		nameAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
-		nameAt.setDescription("OAuth Client specific attribute. Defines human readable name of the client.");
 		nameAt.setMinElements(1);
 		nameAt.setMaxElements(1);
 		nameAt.setUniqueValues(false);
@@ -115,11 +110,8 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 
 	private AttributeType getPerClientGroupAT()
 	{
-		AttributeType nameAt = new AttributeType(PER_CLIENT_GROUP, new StringAttributeSyntax());
+		AttributeType nameAt = new AttributeType(PER_CLIENT_GROUP, new StringAttributeSyntax(), msg);
 		nameAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
-		nameAt.setDescription("OAuth Client specific attribute. Defines a group path, "
-				+ "where users of this client should be present and where their attributes are resolved."
-				+ " This attribute overrides the default group configured per endpoint.");
 		nameAt.setMinElements(1);
 		nameAt.setMaxElements(1);
 		nameAt.setUniqueValues(false);

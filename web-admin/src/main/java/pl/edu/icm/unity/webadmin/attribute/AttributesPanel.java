@@ -104,7 +104,8 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	@Autowired
 	public AttributesPanel(UnityMessageSource msg, AttributeHandlerRegistry registry, 
-			AttributesManagement attributesManagement, GroupsManagement groupsManagement, ConfirmationManager confirmationManager, ConfirmationConfigurationManagement confirmationCfgMan)
+			AttributesManagement attributesManagement, GroupsManagement groupsManagement, 
+			ConfirmationManager confirmationManager, ConfirmationConfigurationManagement confirmationCfgMan)
 	{
 		this.msg = msg;
 		this.registry = registry;
@@ -146,7 +147,8 @@ public class AttributesPanel extends HorizontalSplitPanel
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(attributesTable, toolbar);
 		tableWithToolbar.setSizeFull();
 		SingleActionHandler[] handlers = new SingleActionHandler[] {new AddAttributeActionHandler(), 
-				new EditAttributeActionHandler(), new RemoveAttributeActionHandler(), new ConfirmAttributeActionHandler()};
+				new EditAttributeActionHandler(), new RemoveAttributeActionHandler(), 
+				new ConfirmAttributeActionHandler()};
 		for (SingleActionHandler handler: handlers)
 			attributesTable.addActionHandler(handler);
 		toolbar.addActionHandlers(handlers);
@@ -686,17 +688,15 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	private void sendConfirmationRequest(Attribute<?> attribute) throws EngineException
 	{
-		AttribiuteConfirmationState state = new AttribiuteConfirmationState();
-		state.setOwner(owner.getEntityId().toString());
-		state.setGroup(groupPath);
-		state.setType(attribute.getName());
 		for (Object v : attribute.getValues())
 		{
 			VerifiableElement val = (VerifiableElement) v;
-			state.setValue(val.getValue());
+			//TODO - should use user's preferred locale
+			AttribiuteConfirmationState state = new AttribiuteConfirmationState(
+					owner.getEntityId().toString(), 
+					attribute.getName(), val.getValue(), msg.getDefaultLocaleCode(), groupPath);
 			confirmationManager.sendConfirmationRequest(state
 					.getSerializedConfiguration());
-
 		}
 	}
 	

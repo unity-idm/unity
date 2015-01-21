@@ -35,6 +35,7 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
@@ -65,6 +66,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	private AuthenticatorLoader authenticatorLoader;
 	private DBAttributes dbAttributes;
 	private AuthorizationManager authz;
+	private UnityMessageSource msg;
 	
 	@Autowired
 	public AuthenticationManagementImpl(AuthenticatorsRegistry authReg, DBSessionManager db,
@@ -72,7 +74,8 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			CredentialDB credentialDB, CredentialRequirementDB credentialRequirementDB,
 			IdentityResolver identityResolver, EngineHelper engineHelper,
 			EndpointsUpdater endpointsUpdater, AuthenticatorLoader authenticatorLoader,
-			DBAttributes dbAttributes, AuthorizationManager authz, LocalCredentialsRegistry localCredReg)
+			DBAttributes dbAttributes, AuthorizationManager authz, LocalCredentialsRegistry localCredReg,
+			UnityMessageSource msg)
 	{
 		this.authReg = authReg;
 		this.localCredReg = localCredReg;
@@ -86,6 +89,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 		this.authenticatorLoader = authenticatorLoader;
 		this.dbAttributes = dbAttributes;
 		this.authz = authz;
+		this.msg = msg;
 	}
 
 
@@ -404,11 +408,11 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	private AttributeType getCredentialAT(String name)
 	{
 		AttributeType credentialAt = new AttributeType(SystemAttributeTypes.CREDENTIAL_PREFIX+name, 
-				new StringAttributeSyntax());
+				new StringAttributeSyntax(), msg, SystemAttributeTypes.CREDENTIAL_PREFIX,
+				new Object[] {name});
 		credentialAt.setMaxElements(1);
 		credentialAt.setMinElements(1);
 		credentialAt.setVisibility(AttributeVisibility.local);
-		credentialAt.setDescription("Credential of " + name);
 		credentialAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.INSTANCES_IMMUTABLE_FLAG);
 		return credentialAt;
 	}

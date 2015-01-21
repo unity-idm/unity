@@ -7,10 +7,10 @@ package pl.edu.icm.unity.webui.authn;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.HtmlTag;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.UIBgThread;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Alignment;

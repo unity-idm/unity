@@ -16,10 +16,20 @@ public class IdentityConfirmationState extends BaseConfirmationState
 {
 	public static final String FACILITY_ID = "IdentityFacility";
 	
-	@Override
-	public String getFacilityId()
+	
+	public IdentityConfirmationState(String serializedState)
 	{
-		return FACILITY_ID;
+		super();
+		setSerializedConfiguration(serializedState);
+	}
+
+	public IdentityConfirmationState(String owner, String type, String value, String locale)
+	{
+		super(FACILITY_ID, owner, type, value, locale);
 	}
 	
+	protected IdentityConfirmationState(String facilityId, String owner, String type, String value, String locale)
+	{
+		super(facilityId, owner, type, value, locale);
+	}
 }

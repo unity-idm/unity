@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.db.generic.msgtemplate;
 
+import java.nio.charset.StandardCharsets;
+
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,13 +37,13 @@ public class MessageTemplateHandler extends DefaultEntityHandler<MessageTemplate
 	public GenericObjectBean toBlob(MessageTemplate value, SqlSession sql)
 	{
 		String json = value.toJson(jsonMapper);
-		return new GenericObjectBean(value.getName(), json.getBytes(), supportedType);
+		return new GenericObjectBean(value.getName(), json.getBytes(StandardCharsets.UTF_8), supportedType);
 	}
 
 	@Override
 	public MessageTemplate fromBlob(GenericObjectBean blob, SqlSession sql)
 	{
-		return new MessageTemplate(new String(blob.getContents()), 
+		return new MessageTemplate(new String(blob.getContents(), StandardCharsets.UTF_8), 
 				jsonMapper);
 	}
 }

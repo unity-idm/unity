@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.server.api.internal;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 /**
@@ -70,6 +71,10 @@ public class Token
 	public byte[] getContents()
 	{
 		return contents;
+	}
+	public String getContentsString()
+	{
+		return new String(contents, StandardCharsets.UTF_8);
 	}
 	public void setContents(byte[] contents)
 	{

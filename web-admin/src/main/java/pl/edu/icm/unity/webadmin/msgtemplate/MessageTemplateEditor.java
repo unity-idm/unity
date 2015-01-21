@@ -5,12 +5,11 @@
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
+import pl.edu.icm.unity.msgtemplates.MessageTemplate.I18nMessage;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator.MandatoryVariablesException;
@@ -21,8 +20,9 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.RequiredComboBox;
-import pl.edu.icm.unity.webui.common.RequiredTextArea;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -33,6 +33,7 @@ import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -51,15 +52,15 @@ public class MessageTemplateEditor extends FormLayout
 	private MessageTemplateConsumersRegistry registry;
 	private AbstractTextField name;
 	private TextArea description;
-	private RequiredTextField subject;
-	private TextArea body;
+	private I18nTextField subject;
+	private I18nTextArea body;
 	private ComboBox consumer;
 	private Label consumerDescription;
 	private boolean editMode;
 	private HorizontalLayout buttons;
-	private boolean subjectEdited;
 	private MessageValidator bodyValidator;
 	private MessageValidator subjectValidator;
+	private AbstractTextField focussedField;
 
 	public MessageTemplateEditor(UnityMessageSource msg,
 			MessageTemplateConsumersRegistry registry, MessageTemplate toEdit)
@@ -94,36 +95,35 @@ public class MessageTemplateEditor extends FormLayout
 		}
 		consumerDescription = new Label();
 		consumerDescription.setReadOnly(true);
-		subject = new RequiredTextField(msg.getMessage("MessageTemplatesEditor.subject"), msg);
+		subject = new I18nTextField(msg, msg.getMessage("MessageTemplatesEditor.subject"));
 		subject.setImmediate(true);
 		subject.setWidth(100, Unit.PERCENTAGE);
 		subject.setValidationVisible(false);
-		body = new RequiredTextArea(msg.getMessage("MessageTemplatesEditor.body"), msg);
+		subject.setRequired(true);
+		body = new I18nTextArea(msg, msg.getMessage("MessageTemplatesEditor.body"), 8);
 		body.setImmediate(true);
-		body.setRows(17);
-		body.setWidth(100, Unit.PERCENTAGE);
 		body.setValidationVisible(false);
+
 		subjectValidator = new MessageValidator(null, false);
 		bodyValidator = new MessageValidator(null, true);
 		subject.addValidator(subjectValidator);
 		body.addValidator(bodyValidator);
-		subjectEdited = true;
-		subject.addFocusListener(new FocusListener()
+		body.setRequired(true);
+
+		focussedField = null;
+		FocusListener focusListener = new FocusListener()
 		{
 			@Override
 			public void focus(FocusEvent event)
 			{
-				subjectEdited = true;
+				Component c = event.getComponent();
+				if (c instanceof AbstractTextField)
+					focussedField = (AbstractTextField) c;
 			}
-		});
-		body.addFocusListener(new FocusListener()
-		{
-			@Override
-			public void focus(FocusEvent event)
-			{
-				subjectEdited = false;
-			}
-		});
+		}; 
+		subject.addFocusListener(focusListener);
+		body.addFocusListener(focusListener);
+		
 		consumer.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
@@ -144,7 +144,7 @@ public class MessageTemplateEditor extends FormLayout
 			consumer.setValue(toEdit.getConsumer());
 			description.setValue(toEdit.getDescription());
 			// Using empty locale!
-			Message ms = toEdit.getAllMessages().get("");
+			I18nMessage ms = toEdit.getMessage();
 			if (ms != null)
 			{
 				subject.setValue(ms.getSubject());
@@ -172,11 +172,8 @@ public class MessageTemplateEditor extends FormLayout
 		String n = name.getValue();
 		String desc = description.getValue();
 		String cons = getConsumer().getName();
-		Map<String, Message> m = new HashMap<String, Message>();
-		Message ms = new Message(subject.getValue(), body.getValue());
-		// Using empty locale!
-		m.put("", ms);
-		return new MessageTemplate(n, desc, m, cons);
+		I18nMessage ms = new I18nMessage(subject.getValue(), body.getValue());
+		return new MessageTemplate(n, desc, ms, cons);
 	}
 
 	private void setMessageConsumerDesc()
@@ -202,13 +199,8 @@ public class MessageTemplateEditor extends FormLayout
 				@Override
 				public void buttonClick(ClickEvent event)
 				{
-					if (subjectEdited)
-					{
-						addVar(subject, b.getCaption());
-					} else
-					{
-						addVar(body, b.getCaption());
-					}
+					if (focussedField != null)
+						addVar(focussedField, b.getCaption());
 				}
 			});
 			buttons.addComponent(b);

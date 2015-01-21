@@ -48,7 +48,12 @@ public class AttributeHandlerRegistry
 	{
 		return new HashSet<>(factoriesByType.keySet());
 	}
-
+	
+	public String getSimplifiedAttributeRepresentation(Attribute<?> attribute, int maxValuesLen)
+	{
+		return getSimplifiedAttributeRepresentation(attribute, maxValuesLen, attribute.getName());
+	}
+	
 	/**
 	 * Returns a string representing the attribute. The returned format contains the attribute name
 	 * and the values. If the values can not be put in the remaining text len, then are shortened.
@@ -56,10 +61,11 @@ public class AttributeHandlerRegistry
 	 * @param maxValuesLen max values length, not less then 16
 	 * @return
 	 */
-	public String getSimplifiedAttributeRepresentation(Attribute<?> attribute, int maxValuesLen)
+	public String getSimplifiedAttributeRepresentation(Attribute<?> attribute, int maxValuesLen, 
+			String displayedName)
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append(attribute.getName());
+		sb.append(displayedName);
 		List<?> values = attribute.getValues();
 		if (values.size() > 0)
 		{

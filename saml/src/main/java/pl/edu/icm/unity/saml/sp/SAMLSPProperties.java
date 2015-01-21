@@ -167,8 +167,10 @@ public class SAMLSPProperties extends SamlProperties
 				"Default setting of request signing. Used for those IdPs, for which the setting is not set explicitly."));
 		META.put(DEF_REQUESTED_NAME_FORMAT, new PropertyMD().setCategory(common).setDescription(
 				"Default setting of requested identity format. Used for those IdPs, for which the setting is not set explicitly."));	
-		META.put(DISPLAY_NAME, new PropertyMD("SAML authentication").setCategory(webRetrieval).setDescription(
-				"Name of the SAML authentication GUI component"));
+		META.put(DISPLAY_NAME, new PropertyMD("SAML authentication").setCanHaveSubkeys().
+				setCategory(webRetrieval).setDescription(
+				"Name of the SAML authentication GUI component. The property can have subkeys being "
+				+ "locale names; then the localized value is used."));
 		META.put(PROVIDERS_IN_ROW, new PropertyMD("2").setPositive().setCategory(webRetrieval).setDescription(
 				"How many IdPs should be displayed in a single row on the IdP selection screen. Relevant only if you define multiple providers."));
 		META.put(ICON_SCALE, new PropertyMD(ScaleMode.height100).setDescription("Controls whether and how "
@@ -413,6 +415,10 @@ public class SAMLSPProperties extends SamlProperties
 		return ret != null ? ret : getName(idpKey);
 	}
 	
+	/**
+	 * @param idpKey
+	 * @return idp name if set, otherwise its id which is mandatory.
+	 */
 	public String getName(String idpKey)
 	{
 		String key = idpKey + IDP_NAME;

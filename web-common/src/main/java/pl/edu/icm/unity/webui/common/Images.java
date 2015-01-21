@@ -75,7 +75,11 @@ public enum Images
 	pause		(I.P + "16/pause.png"),
 	cross		(I.P + "16/cross.png"),
 	help       	(I.P + "16/help.png"),
-	confirmation   	(I.P + "16/confirmation.png");
+	confirmation   	(I.P + "16/confirmation.png"),
+	plFlag		(I.P + "16-flags/pl.png"),
+	enFlag		(I.P + "16-flags/en.png"),
+	deFlag		(I.P + "16-flags/de.png"),
+	;
 	
 	
 	private final String classpath;
@@ -90,6 +94,20 @@ public enum Images
 		return new ClassResource(classpath);
 	}
 
+	public static Resource getFlagForLocale(String localeCode)
+	{
+		switch (localeCode)
+		{
+		case "en":
+			return enFlag.getResource();
+		case "pl":
+			return plFlag.getResource();
+		case "de":
+			return deFlag.getResource();
+		}
+		return null;
+	}
+	
 	/**
 	 * Trick - otherwise we won't be able to use P in enum constructor arguments
 	 * @author K. Benedyczak

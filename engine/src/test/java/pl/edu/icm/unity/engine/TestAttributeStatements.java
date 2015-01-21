@@ -19,6 +19,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
@@ -681,7 +682,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	{
 		AttributeType at = new AttributeType();
 		at.setValueType(new StringAttributeSyntax());
-		at.setDescription("desc");
+		at.setDescription(new I18nString("desc"));
 		at.setFlags(0);
 		at.setMaxElements(5);
 		at.setMinElements(1);

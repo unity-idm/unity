@@ -24,7 +24,6 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -38,7 +37,6 @@ import com.vaadin.ui.VerticalLayout;
 public class VerifiableEmailAttributeHandler implements WebAttributeHandler<VerifiableEmail>,
 		WebAttributeHandlerFactory
 {
-
 	private UnityMessageSource msg;
 
 	@Autowired
@@ -197,9 +195,6 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 			AttributeValueSyntax<VerifiableEmail> syntax,
 			pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize size)
 	{
-		FormLayout main = new FormLayout();
-		Label val = new Label(getValueAsString(value, syntax, 80));
-		main.addComponent(val);
-		return main;
+		return new Label(getValueAsString(value, syntax, 80));
 	}
 }

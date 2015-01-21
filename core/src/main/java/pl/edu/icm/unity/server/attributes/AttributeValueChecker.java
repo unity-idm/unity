@@ -32,8 +32,9 @@ public class AttributeValueChecker
 		AttributeValueSyntax<T> valueSyntax = attribute.getAttributeSyntax();
 		if (!valueSyntax.getClass().equals(at.getValueType().getClass()))
 			throw new IllegalAttributeTypeException(
-					"Attribute being checked has value syntax object set of class " + 
-					valueSyntax.getClass() + " while its type requires " + at.getValueType());
+					"Attribute being checked has value syntax object of " + 
+					valueSyntax.getClass() + " while its type requires " + 
+					at.getValueType().getClass());
 		if (attribute.getVisibility() == AttributeVisibility.full &&
 				at.getVisibility() == AttributeVisibility.local)
 			throw new IllegalAttributeTypeException(

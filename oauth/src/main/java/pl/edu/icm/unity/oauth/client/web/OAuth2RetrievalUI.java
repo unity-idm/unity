@@ -23,15 +23,16 @@ import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
-import pl.edu.icm.unity.webui.common.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.idpselector.IdPsSpecification;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
@@ -88,7 +89,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		VerticalLayout ret = new VerticalLayout();
 		ret.setSpacing(true);
 		
-		Label title = new Label(clientProperties.getValue(OAuthClientProperties.DISPLAY_NAME));
+		Label title = new Label(getLabel().getValue(msg));
 		title.addStyleName(Reindeer.LABEL_H2);
 		ret.addComponent(title);
 		
@@ -159,9 +160,9 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	}
 
 	@Override
-	public String getLabel()
+	public I18nString getLabel()
 	{
-		return credentialExchange.getSettings().getValue(OAuthClientProperties.DISPLAY_NAME);
+		return credentialExchange.getSettings().getLocalizedString(msg, OAuthClientProperties.DISPLAY_NAME);
 	}
 
 	@Override

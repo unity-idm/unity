@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.rest.authn.ext;
 
+import java.nio.charset.StandardCharsets;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.cxf.message.Message;
@@ -94,7 +96,8 @@ public abstract class HttpBasicRetrievalBase implements CredentialRetrieval, CXF
 			return null;
 		
 		String encoded = aa.substring(6);
-		String decoded = new String(Base64.decode(encoded.getBytes()));
+		String decoded = new String(Base64.decode(encoded.getBytes(StandardCharsets.US_ASCII)),
+				StandardCharsets.US_ASCII);
 		String []split = decoded.split(":");
 		if (split.length > 2)
 		{
