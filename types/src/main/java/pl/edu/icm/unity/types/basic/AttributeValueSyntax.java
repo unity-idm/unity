@@ -29,45 +29,54 @@ public interface AttributeValueSyntax<T> extends JsonSerializable
 	/**
 	 * @return attribute value syntax ID
 	 */
-	public String getValueSyntaxId();
+	String getValueSyntaxId();
 
 	/**
 	 * Validates the value
 	 * @param value
 	 */
-	public void validate(T value) throws IllegalAttributeValueException;
+	void validate(T value) throws IllegalAttributeValueException;
 	
 	/**
 	 * @param value
 	 * @param another
 	 * @return true only if the two values are the same.
 	 */
-	public boolean areEqual(T value, Object another);
+	boolean areEqual(T value, Object another);
 
 	/**
 	 * @param value, must be of T type, otherwise the standard hash should be returned.
 	 * @return java hashcode of the value
 	 */
-	public int hashCode(Object value);
+	int hashCode(Object value);
 	
 	/**
 	 * @param domain object
 	 * @return value in the byte array form
 	 * @throws InternalException 
 	 */
-	public byte[] serialize(T value) throws InternalException;
+	byte[] serialize(T value) throws InternalException;
 
 	/**
 	 * @param domain object
 	 * @return value in the form of a simple Java type. Can return any type which is directly serializable to JSON.
 	 * @throws InternalException 
 	 */
-	public Object serializeSimple(T value) throws InternalException;
+	Object serializeSimple(T value) throws InternalException;
 	
 	/**
 	 * @param raw data
 	 * @return domain object
 	 * @throws InternalException 
 	 */
-	public T deserialize(byte []raw) throws InternalException;
+	T deserialize(byte []raw) throws InternalException;
+	
+	/**
+	 * Many attributes are passed in a string form, especially when obtained externally. Whenever it is possible
+	 * this method should convert the string representation to the domain object. 
+	 * @param stringRepresentation
+	 * @return
+	 * @throws IllegalAttributeValueException if the conversion can not be performed.
+	 */
+	T convertFromString(String stringRepresentation) throws IllegalAttributeValueException;
 }

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.stdext.tactions.in;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
@@ -23,6 +25,7 @@ import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 /**
@@ -54,7 +57,7 @@ public class MapAttributeAction extends AbstractInputTranslationAction
 	
 	@Override
 	protected MappingResult invokeWrapped(RemotelyAuthenticatedInput input, Object mvelCtx, 
-			String currentProfile) throws EngineException
+			String currentProfile)
 	{
 		MappingResult ret = new MappingResult();
 		Object value = MVEL.executeExpression(expressionCompiled, mvelCtx);
@@ -63,17 +66,40 @@ public class MapAttributeAction extends AbstractInputTranslationAction
 			log.debug("Attribute value evaluated to null, skipping");
 			return ret;
 		}
-		List<?> aValues = value instanceof List ? (List<?>)value : Collections.singletonList(value.toString());
+		
+		List<?> aValues = value instanceof List ? (List<?>)value : Collections.singletonList(value);
+		List<Object> typedValues;
+		try
+		{
+			typedValues = convertValues(aValues, at.getValueType());
+		} catch (IllegalAttributeValueException e)
+		{
+			log.debug("Can't convert attribute values returned by the action's expression "
+					+ "to the type of attribute " + unityAttribute + " , skipping it", e);
+			return ret;
+		}
 		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Attribute<?> attribute = new Attribute(unityAttribute, at.getValueType(), group, 
-				visibility, aValues, input.getIdpName(), currentProfile);
+				visibility, typedValues, input.getIdpName(), currentProfile);
 		MappedAttribute ma = new MappedAttribute(mode, attribute);
 		log.debug("Mapped attribute: " + attribute);
 		ret.addAttribute(ma);
 		return ret;
 	}
 
+	private List<Object> convertValues(List<?> aValues, AttributeValueSyntax<?> syntax) 
+			throws IllegalAttributeValueException
+	{
+		List<Object> ret = new ArrayList<Object>(aValues.size());
+		for (Object o: aValues)
+		{
+			Object converted = syntax.convertFromString(o.toString());
+			ret.add(converted);
+		}
+		return ret;
+	}
+	
 	private void setParameters(String[] parameters)
 	{
 		if (parameters.length != 5)

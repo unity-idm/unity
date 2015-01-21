@@ -132,4 +132,18 @@ public class FloatingPointAttributeSyntax implements AttributeValueSyntax<Double
 	{
 		return value;
 	}
+	
+
+	@Override
+	public Double convertFromString(String stringRepresentation) throws IllegalAttributeValueException
+	{
+		try
+		{
+			return Double.parseDouble(stringRepresentation);
+		} catch (Exception e)
+		{
+			throw new IllegalAttributeValueException("Can not convert the attribute value - "
+					+ "it is not a floating point number", e);
+		}
+	}
 }

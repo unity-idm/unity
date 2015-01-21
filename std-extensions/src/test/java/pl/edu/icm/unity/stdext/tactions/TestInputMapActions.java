@@ -29,6 +29,8 @@ import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.MappedGroup;
 import pl.edu.icm.unity.server.translation.in.MappedIdentity;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
+import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.tactions.in.EntityChangeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapAttributeActionFactory;
@@ -68,6 +70,65 @@ public class TestInputMapActions
 		assertEquals("stringA", a.getName());
 		assertEquals("a1-a2-idd", a.getValues().get(0));
 	}
+
+	@Test
+	public void intAttributeMappingWorks() throws EngineException
+	{
+		AttributesManagement attrsMan = mock(AttributesManagement.class);
+		
+		Map<String, AttributeType> mockAts = new HashMap<String, AttributeType>();
+		AttributeType iA = new AttributeType("intA", new IntegerAttributeSyntax());
+		mockAts.put(iA.getName(), iA);
+		when(attrsMan.getAttributeTypesAsMap()).thenReturn(mockAts);
+		
+		MapAttributeActionFactory factory = new MapAttributeActionFactory(attrsMan);
+		
+		InputTranslationAction intMapAction = factory.getInstance("intA", "/A/B", 
+				"123", 
+				AttributeVisibility.full.toString(), 
+				AttributeEffectMode.CREATE_OR_UPDATE.toString());
+				
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
+		input.addIdentity(new RemoteIdentity("idd", "i1"));
+		
+		MappingResult result = intMapAction.invoke(input, 
+				InputTranslationProfile.createMvelContext(input), "testProf");
+		
+		Attribute<?> a = result.getAttributes().get(0).getAttribute();
+		assertEquals("intA", a.getName());
+		((IntegerAttributeSyntax)a.getAttributeSyntax()).validate((Long) a.getValues().get(0));
+		assertEquals(123l, a.getValues().get(0));
+	}
+
+	@Test
+	public void doubleAttributeMappingWorks() throws EngineException
+	{
+		AttributesManagement attrsMan = mock(AttributesManagement.class);
+		
+		Map<String, AttributeType> mockAts = new HashMap<String, AttributeType>();
+		AttributeType doubleA = new AttributeType("doubleA", new FloatingPointAttributeSyntax());
+		mockAts.put(doubleA.getName(), doubleA);
+		when(attrsMan.getAttributeTypesAsMap()).thenReturn(mockAts);
+		
+		MapAttributeActionFactory factory = new MapAttributeActionFactory(attrsMan);
+		
+		InputTranslationAction doubleMapAction = factory.getInstance("doubleA", "/A/B", 
+				"1234.44", 
+				AttributeVisibility.full.toString(), 
+				AttributeEffectMode.CREATE_OR_UPDATE.toString());
+				
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
+		input.addIdentity(new RemoteIdentity("idd", "i1"));
+		
+		MappingResult result = doubleMapAction.invoke(input, 
+				InputTranslationProfile.createMvelContext(input), "testProf");
+		
+		Attribute<?> a = result.getAttributes().get(0).getAttribute();
+		assertEquals("doubleA", a.getName());
+		((FloatingPointAttributeSyntax)a.getAttributeSyntax()).validate((Double) a.getValues().get(0));
+		assertEquals(1234.44, a.getValues().get(0));
+	}
+
 
 	@Test
 	public void testMapGroup() throws EngineException

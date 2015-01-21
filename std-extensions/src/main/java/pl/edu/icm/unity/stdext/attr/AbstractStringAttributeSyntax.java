@@ -57,4 +57,9 @@ public abstract class AbstractStringAttributeSyntax implements AttributeValueSyn
 	{
 		return value;
 	}
+	
+	public String convertFromString(String stringRepresentation)
+	{
+		return stringRepresentation;
+	}
 }
