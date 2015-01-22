@@ -74,7 +74,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 				});
 		table.setMultiSelect(true);
 		table.setWidth(90, Unit.PERCENTAGE);
-		viewer = new MessageTemplateViewer(null, msg, msgTempMan, consumersRegistry);
+		viewer = new MessageTemplateViewer(msg, consumersRegistry);
 		viewer.setTemplateInput(null);
 		table.addValueChangeListener(new ValueChangeListener()
 		{

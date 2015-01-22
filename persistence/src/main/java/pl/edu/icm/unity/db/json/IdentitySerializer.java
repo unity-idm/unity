@@ -51,7 +51,7 @@ public class IdentitySerializer
 		if (src.getTarget() != null)
 			main.put("target", src.getTarget());
 		if (src.getConfirmationInfo() != null)
-			main.put("confirmationData", src.getConfirmationInfo().getSerializedConfiguration());
+			main.put("confirmationInfo", src.getConfirmationInfo().getSerializedConfiguration());
 		try
 		{
 			return mapper.writeValueAsBytes(main);
@@ -94,9 +94,9 @@ public class IdentitySerializer
 			target.setRealm(main.get("realm").asText());
 		if (main.has("target"))
 			target.setTarget(main.get("target").asText());
-		if (main.has("confirmationData")){
+		if (main.has("confirmationInfo")){
 			ConfirmationInfo conData = new ConfirmationInfo();
-			conData.setSerializedConfiguration(main.get("confirmationData").asText());
+			conData.setSerializedConfiguration(main.get("confirmationInfo").asText());
 			target.setConfirmationInfo(conData);
 		}
 			
