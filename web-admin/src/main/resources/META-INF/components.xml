@@ -11,6 +11,9 @@
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
 		<property name="bundle" value="pl/edu/icm/unity/webadmin/messages/messages"/>
 	</bean>
+	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
+		<property name="bundle" value="pl/edu/icm/unity/webadmin/messages/home-messages"/>
+	</bean>
 
 	<bean scope="prototype" id="UserHomeUI" class="pl.edu.icm.unity.home.UserHomeUI"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.home.UserAccountComponent"/>
