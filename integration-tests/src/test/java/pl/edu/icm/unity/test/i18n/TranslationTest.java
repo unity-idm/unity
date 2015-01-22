@@ -38,8 +38,11 @@ public class TranslationTest
 		new DuplicateException("NumericAttributeHandler.min", "pl"),
 		new DuplicateException("NumericAttributeHandler.minE", "pl"),
 		new DuplicateException("RegistrationRequest.status", "pl"),
+		new DuplicateException("IdentityDetails.credStatusValue", "pl"),
+		new DuplicateException("IdentityDetails.groupLine", "pl"),
+		new DuplicateException("IdentityDetails.identityLocal", "pl"),
+		new DuplicateException("IdentityDetails.status", "pl"),
 		new DuplicateException("SPInfoComponent.requesterName", "pl")
-		
 	);
 	
 	private int notTranslated = 0;
