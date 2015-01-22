@@ -55,6 +55,8 @@ public class Group extends I18nDescribedObject implements Serializable
 		if (path.equals("/"))
 		{
 			this.path = new String[0];
+			this.displayedName = new I18nString(toString());
+			this.description = new I18nString();
 			return;
 		}
 		if (path.startsWith("/"))
