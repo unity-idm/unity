@@ -466,7 +466,7 @@ public class GroupsTree extends Tree
 		IdentityConfirmationState state = new IdentityConfirmationState(
 				newIdentity.getEntityId().toString(), 
 				newIdentity.getTypeId(), 
-				newIdentity.getValue(), msg.getDefaultLocaleCode(), null, null);
+				newIdentity.getValue(), msg.getDefaultLocaleCode());
 		try
 		{
 			confirmationManager.sendConfirmationRequest(state.getSerializedConfiguration());

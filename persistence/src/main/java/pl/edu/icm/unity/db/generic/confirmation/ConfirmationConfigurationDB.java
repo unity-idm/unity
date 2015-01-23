@@ -64,6 +64,10 @@ public class ConfirmationConfigurationDB extends GenericObjectsDB<ConfirmationCo
 			if (oldObject.getValueType() == null
 					|| !oldObject.getValueType().isVerifiable())
 				return;
+
+			if (updatedObject.getValueType() != null
+					&& updatedObject.getValueType().isVerifiable())
+				return;
 			preRemove(oldObject, sql);
 		}
 

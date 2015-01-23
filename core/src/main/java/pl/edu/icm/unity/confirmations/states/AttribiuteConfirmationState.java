@@ -19,6 +19,15 @@ public class AttribiuteConfirmationState extends BaseConfirmationState
 	public static final String FACILITY_ID = "AttributeFacility";
 	private String group;
 
+	
+	public AttribiuteConfirmationState(String owner, String type,
+			String value, String locale, String group)
+	{
+		super(FACILITY_ID, owner, type, value, locale);
+		this.group = group;
+	}
+	
+	
 	public AttribiuteConfirmationState(String owner, String type,
 			String value, String locale, String group, String successUrl, String errorUrl)
 	{

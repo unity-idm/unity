@@ -25,6 +25,12 @@ public class RegistrationReqAttribiuteConfirmationState extends AttribiuteConfir
 	{
 		super(owner, type, value, locale, group, successUrl, errorUrl);
 	}
+	
+	public RegistrationReqAttribiuteConfirmationState(String owner,
+			String type, String value, String locale, String group)
+	{
+		super(owner, type, value, locale, group);
+	}
 
 
 	@Override

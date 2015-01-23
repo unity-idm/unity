@@ -606,20 +606,23 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private String getSuccessUrl(RegistrationForm form)
 	{
 		String url = null;
-		if (InvocationContext.getCurrent().getCurrentURLUsed() != null)
+		if (InvocationContext.getCurrent().getCurrentURLUsed() != null
+				&& InvocationContext.getCurrent().getLoginSession() == null)
 			url = InvocationContext.getCurrent().getCurrentURLUsed();
-		if (form.getRedirectAfterSubmit() != null && !form.getRedirectAfterSubmit().equals("") )
+		if (form.getRedirectAfterSubmit() != null
+				&& !form.getRedirectAfterSubmit().equals(""))
 			url = form.getRedirectAfterSubmit();
-		if (form.getRedirectAfterSubmitAndAccept() != null && !form.getRedirectAfterSubmitAndAccept().equals("") )
+		if (form.getRedirectAfterSubmitAndAccept() != null
+				&& !form.getRedirectAfterSubmitAndAccept().equals(""))
 			url = form.getRedirectAfterSubmitAndAccept();
-		
 		return url;
 	}
-	
+
 	private String getErrorUrl(RegistrationForm form)
 	{
 		String url = null;
-		if (InvocationContext.getCurrent().getCurrentURLUsed() != null)
+		if (InvocationContext.getCurrent().getCurrentURLUsed() != null
+				&& InvocationContext.getCurrent().getLoginSession() == null)
 			url = InvocationContext.getCurrent().getCurrentURLUsed();
 		return url;
 	}

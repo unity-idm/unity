@@ -26,4 +26,10 @@ public class RegistrationReqIdentityConfirmationState extends IdentityConfirmati
 	{
 		super(FACILITY_ID, owner, type, value, locale, successUrl, errorUrl);
 	}
+	
+	public RegistrationReqIdentityConfirmationState(String owner, String type,
+			String value, String locale)
+	{
+		super(FACILITY_ID, owner, type, value, locale);
+	}
 }

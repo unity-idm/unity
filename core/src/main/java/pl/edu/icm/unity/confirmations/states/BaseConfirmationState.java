@@ -27,15 +27,20 @@ public class BaseConfirmationState
 	protected String successUrl;
 	protected String errorUrl;
 	
+	public BaseConfirmationState(String facilityId, String owner, String type, String value,
+			String locale)
+	{
+		this.owner = owner;
+		this.type = type;
+		this.value = value;
+		this.locale = locale;
+		this.facilityId = facilityId;
+	}
 	
 	public BaseConfirmationState(String facilityId, String owner, String type, String value,
 			String locale, String successUrl, String errorUrl)
 	{
-		this.owner = owner;
-	this.type = type;
-		this.value = value;
-		this.locale = locale;
-		this.facilityId = facilityId;
+		this(facilityId, owner, type, value, locale);
 		this.errorUrl = errorUrl;
 		this.successUrl = successUrl;
 	}

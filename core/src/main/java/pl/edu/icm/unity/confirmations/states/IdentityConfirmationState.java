@@ -29,9 +29,22 @@ public class IdentityConfirmationState extends BaseConfirmationState
 		super(FACILITY_ID, owner, type, value, locale, successUrl, errorUrl);
 	}
 	
+	public IdentityConfirmationState(String owner, String type, String value, String locale)
+	{
+		super(FACILITY_ID, owner, type, value, locale);
+	}
+		
 	protected IdentityConfirmationState(String facilityId, String owner, String type,
 			String value, String locale, String successUrl, String errorUrl)
 	{
 		super(facilityId, owner, type, value, locale, successUrl, errorUrl);
 	}
+	
+	protected IdentityConfirmationState(String facilityId, String owner, String type,
+			String value, String locale)
+	{
+		super(facilityId, owner, type, value, locale);
+	}
+	
+	
 }

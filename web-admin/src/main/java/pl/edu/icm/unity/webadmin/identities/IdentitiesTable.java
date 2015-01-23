@@ -756,7 +756,7 @@ public class IdentitiesTable extends TreeTable
 	{
 		//TODO - should use user's preferred locale
 		IdentityConfirmationState state = new IdentityConfirmationState(entityId, id.getTypeId(), 
-				id.getValue(), msg.getDefaultLocaleCode(), null, null);
+				id.getValue(), msg.getDefaultLocaleCode());
 		confirmationManager.sendConfirmationRequest(state.getSerializedConfiguration());
 	}
 	
