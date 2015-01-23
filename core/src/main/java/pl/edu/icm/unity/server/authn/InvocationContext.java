@@ -34,6 +34,7 @@ public class InvocationContext implements Serializable
 	private IdentityTaV tlsIdentity; 
 	private Set<String> authenticatedIdentities = new LinkedHashSet<>();
 	private AuthenticationRealm realm;
+	private String currentURLUsed;
 
 	/**
 	 * @param tlsIdentity TLS client-authenticated identity (of X500 type) or null if there is no TLS 
@@ -127,5 +128,21 @@ public class InvocationContext implements Serializable
 	public void addAuthenticatedIdentities(Collection<String> identity)
 	{
 		this.authenticatedIdentities.addAll(identity);
+	}
+
+	/**
+	 * 
+	 * @return the current URL which was used to trigger the current processing. Can be null. This is 
+	 * set on best effort basis and is not suitable for authorization or other sensitive operations. Always
+	 * check if not null.
+	 */
+	public String getCurrentURLUsed()
+	{
+		return currentURLUsed;
+	}
+
+	public void setCurrentURLUsed(String currentURLUsed)
+	{
+		this.currentURLUsed = currentURLUsed;
 	}
 }

@@ -43,13 +43,20 @@ public class InvocationContextSetupFilter implements Filter
 	
 	private UnityServerConfiguration config;
 	private AuthenticationRealm realm;
+	private String baseAddress;
 	
-	
+	/**
+	 * 
+	 * @param config
+	 * @param realm
+	 * @param baseAddress public address of the server with scheme and port, with empty path.
+	 */
 	public InvocationContextSetupFilter(UnityServerConfiguration config, 
-			AuthenticationRealm realm)
+			AuthenticationRealm realm, String baseAddress)
 	{
 		this.realm = realm;
 		this.config = config;
+		this.baseAddress = baseAddress;
 	}
 
 	@Override
@@ -88,6 +95,7 @@ public class InvocationContextSetupFilter implements Filter
 				clientCert[0].getSubjectX500Principal().getName());
 		InvocationContext context = new InvocationContext(tlsId, realm);
 		InvocationContext.setCurrent(context);
+		context.setCurrentURLUsed(baseAddress + request.getRequestURI());
 		log.trace("A new invocation context was set");
 		return context;
 	}
