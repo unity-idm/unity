@@ -60,7 +60,8 @@ public class RegistrationReqAttributeFacility extends RegistrationFacility<Regis
 		Collection<Attribute<?>> confirmedList = confirmAttributes(req.getAttributes(),
 				attrState.getType(), attrState.getGroup(), attrState.getValue());
 		boolean confirmed = (confirmedList.size() > 0);
-		return new ConfirmationStatus(confirmed,
+		return new ConfirmationStatus(confirmed, confirmed ? attrState.getSuccessUrl()
+				: attrState.getErrorUrl(),
 				confirmed ? "ConfirmationStatus.successAttribute"
 						: "ConfirmationStatus.attributeChanged",
 				attrState.getType());

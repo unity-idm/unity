@@ -238,10 +238,10 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			}
 			sql.commit();
 			if (entityId == null)
-				sendFormAttributeConfirmationRequest(requestFull);
+				sendFormAttributeConfirmationRequest(requestFull, form);
 			else
-				sendAttributeConfirmationRequest(requestFull, entityId);
-			sendIdentityConfirmationRequest(requestFull, entityId);	
+				sendAttributeConfirmationRequest(requestFull, entityId, form);
+			sendIdentityConfirmationRequest(requestFull, entityId, form);	
 			
 		} finally
 		{
@@ -528,7 +528,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	}
 	
 	private void sendAttributeConfirmationRequest(RegistrationRequestState requestState,
-			Long entityId) throws InternalException, EngineException
+			Long entityId, RegistrationForm form) throws InternalException, EngineException
 	{
 		for (Attribute<?> attr : requestState.getRequest().getAttributes())
 		{
@@ -542,7 +542,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 							attr.getName(), 
 							val.getValue(), 
 							requestState.getRequest().getUserLocale(), 
-							attr.getGroupPath());
+							attr.getGroupPath(), getSuccessUrl(form), getErrorUrl(form));
 					confirmationManager.sendConfirmationRequest(state
 							.getSerializedConfiguration());
 				}
@@ -550,7 +550,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		}
 	}
 
-	private void sendFormAttributeConfirmationRequest(RegistrationRequestState requestState) 
+	private void sendFormAttributeConfirmationRequest(RegistrationRequestState requestState, RegistrationForm form) 
 			throws InternalException, EngineException
 	{
 		for (Attribute<?> attr : requestState.getRequest().getAttributes())
@@ -566,7 +566,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 							attr.getName(), 
 							val.getValue(), 
 							requestState.getRequest().getUserLocale(),
-							attr.getGroupPath());
+							attr.getGroupPath(), getSuccessUrl(form), getErrorUrl(form));
 					confirmationManager.sendConfirmationRequest(state
 							.getSerializedConfiguration());
 				}
@@ -575,7 +575,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	}
 	
 	private void sendIdentityConfirmationRequest(RegistrationRequestState requestState,
-			Long entityId) throws InternalException, EngineException
+			Long entityId, RegistrationForm form) throws InternalException, EngineException
 	{
 		for (IdentityParam id : requestState.getRequest().getIdentities())
 		{
@@ -584,18 +584,43 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				BaseConfirmationState state;
 				if (entityId == null)
 				{
-					state = new RegistrationReqIdentityConfirmationState(requestState.getRequestId(), 
-							id.getTypeId(), id.getValue(), 
-							requestState.getRequest().getUserLocale());
+					state = new RegistrationReqIdentityConfirmationState(
+							requestState.getRequestId(),
+							id.getTypeId(), id.getValue(), requestState
+									.getRequest()
+									.getUserLocale(),
+							getSuccessUrl(form), getErrorUrl(form));
 				} else
 				{
 					state = new IdentityConfirmationState(entityId.toString(), 
 							id.getTypeId(), id.getValue(), 
-							requestState.getRequest().getUserLocale());
+							requestState.getRequest().getUserLocale(),
+							getSuccessUrl(form), getErrorUrl(form));
 				}
 				confirmationManager.sendConfirmationRequest(state
 						.getSerializedConfiguration());
 			}
 		}
+	}
+	
+	private String getSuccessUrl(RegistrationForm form)
+	{
+		String url = null;
+		if (InvocationContext.getCurrent().getCurrentURLUsed() != null)
+			url = InvocationContext.getCurrent().getCurrentURLUsed();
+		if (form.getRedirectAfterSubmit() != null && !form.getRedirectAfterSubmit().equals("") )
+			url = form.getRedirectAfterSubmit();
+		if (form.getRedirectAfterSubmitAndAccept() != null && !form.getRedirectAfterSubmitAndAccept().equals("") )
+			url = form.getRedirectAfterSubmitAndAccept();
+		
+		return url;
+	}
+	
+	private String getErrorUrl(RegistrationForm form)
+	{
+		String url = null;
+		if (InvocationContext.getCurrent().getCurrentURLUsed() != null)
+			url = InvocationContext.getCurrent().getCurrentURLUsed();
+		return url;
 	}
 }

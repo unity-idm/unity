@@ -24,14 +24,20 @@ public class BaseConfirmationState
 	protected String type;
 	protected String value;
 	protected String locale;
+	protected String successUrl;
+	protected String errorUrl;
 	
-	public BaseConfirmationState(String facilityId, String owner, String type, String value, String locale)
+	
+	public BaseConfirmationState(String facilityId, String owner, String type, String value,
+			String locale, String successUrl, String errorUrl)
 	{
 		this.owner = owner;
-		this.type = type;
+	this.type = type;
 		this.value = value;
 		this.locale = locale;
 		this.facilityId = facilityId;
+		this.errorUrl = errorUrl;
+		this.successUrl = successUrl;
 	}
 
 	public BaseConfirmationState(String serializedState)
@@ -63,6 +69,14 @@ public class BaseConfirmationState
 	{
 		return locale;
 	}
+	public String getSuccessUrl()
+	{
+		return successUrl;
+	}
+	public String getErrorUrl()
+	{
+		return errorUrl;
+	}
 	
 	public String getSerializedConfiguration() throws InternalException
 	{
@@ -84,6 +98,10 @@ public class BaseConfirmationState
 		state.put("type", getType());
 		state.put("facilityId", getFacilityId());
 		state.put("locale", getLocale());
+		if (getSuccessUrl() != null)
+			state.put("successUrl", getSuccessUrl());
+		if (getErrorUrl() != null)
+			state.put("errorUrl", getErrorUrl());
 		return state;
 	}
 	
@@ -108,6 +126,10 @@ public class BaseConfirmationState
 			value = main.get("value").asText();
 			facilityId = main.get("facilityId").asText();
 			locale = main.get("locale").asText();
+			if (main.has("successUrl"))
+				successUrl = main.get("successUrl").asText();
+			if (main.has("errorUrl"))
+				errorUrl = main.get("errorUrl").asText();
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't perform JSON deserialization", e);

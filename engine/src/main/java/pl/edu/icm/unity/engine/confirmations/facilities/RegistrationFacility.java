@@ -64,11 +64,11 @@ public abstract class RegistrationFacility <T extends BaseConfirmationState> ext
 
 		} catch (EngineException e)
 		{
-			return new ConfirmationStatus(false, "ConfirmationStatus.requestDeleted");
+			return new ConfirmationStatus(false, state.getErrorUrl() , "ConfirmationStatus.requestDeleted");
 		}
 		
 		if (reqState.getStatus().equals(RegistrationRequestStatus.rejected))
-			return new ConfirmationStatus(false, "ConfirmationStatus.requestRejected");
+			return new ConfirmationStatus(false, state.getErrorUrl(), "ConfirmationStatus.requestRejected");
 		
 		ConfirmationStatus status;
 		SqlSession sql = db.getSqlSession(true);

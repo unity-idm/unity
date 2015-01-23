@@ -626,7 +626,7 @@ public class InternalRegistrationManagment
 		if (inRequest)
 		{
 			IdentityConfirmationState newstate = new IdentityConfirmationState(
-					entityId, oldState.getType(), oldState.getValue(), oldState.getLocale());
+					entityId, oldState.getType(), oldState.getValue(), oldState.getLocale(), null, null);
 			log.debug("Update confirmation token " + tk.getValue() + " change facility to " + 
 					newstate.getFacilityId());
 			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), newstate
@@ -671,7 +671,7 @@ public class InternalRegistrationManagment
 		{
 			AttribiuteConfirmationState newstate = new AttribiuteConfirmationState(
 					entityId, oldState.getType(), oldState.getValue(), 
-					oldState.getLocale(), oldState.getGroup());
+					oldState.getLocale(), oldState.getGroup(), null, null);
 			log.debug("Update confirmation token " + tk.getValue() + " change facility to " + 
 					newstate.getFacilityId());
 			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), newstate

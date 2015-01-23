@@ -171,7 +171,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			throws EngineException
 	{
 		if (token == null)
-			return new ConfirmationStatus(false, "ConfirmationStatus.invalidToken");
+			return new ConfirmationStatus(false, null, "ConfirmationStatus.invalidToken");
 
 		Token tk = null;
 		try
@@ -180,12 +180,12 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 					ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token);
 		} catch (WrongArgumentException e)
 		{
-			return new ConfirmationStatus(false, "ConfirmationStatus.invalidToken");
+			return new ConfirmationStatus(false, null, "ConfirmationStatus.invalidToken");
 		}
 
 		Date today = new Date();
 		if (tk.getExpires().compareTo(today) < 0)
-			return new ConfirmationStatus(false, "ConfirmationStatus.expiredToken");
+			return new ConfirmationStatus(false, null, "ConfirmationStatus.expiredToken");
 
 		String rawState = tk.getContentsString();
 		BaseConfirmationState baseState = new BaseConfirmationState(rawState);

@@ -104,7 +104,7 @@ public class TestConfirmation extends DBIntegrationTestBase
 		attrsMan.setAttribute(entity, at1, false);
 		AttribiuteConfirmationState attrState = new AttribiuteConfirmationState(
 				entity.getEntityId().toString(), InitializerCommon.EMAIL_ATTR, 
-				"example2@ex.com", "pl", "/test");
+				"example2@ex.com", "pl", "/test", "", "");
 		try
 		{
 			confirmationMan.sendConfirmationRequest(attrState
@@ -169,7 +169,7 @@ public class TestConfirmation extends DBIntegrationTestBase
 		// Identity
 
 		IdentityConfirmationState idState = new IdentityConfirmationState(
-				entity.getEntityId().toString(), EmailIdentity.ID, "example1@ex.com", "en");
+				entity.getEntityId().toString(), EmailIdentity.ID, "example1@ex.com", "en", "", "");
 		VerifiableElement identity = getIdentityFromEntity(entity);
 		Assert.assertTrue(!identity.getConfirmationInfo().isConfirmed());
 		Assert.assertEquals(0, identity.getConfirmationInfo().getSentRequestAmount());
@@ -417,10 +417,10 @@ public class TestConfirmation extends DBIntegrationTestBase
 		Assert.assertNotEquals(0, videntity.getConfirmationInfo().getConfirmationDate());
 
 		RegistrationReqAttribiuteConfirmationState attrState = new RegistrationReqAttribiuteConfirmationState(
-				requestId, InitializerCommon.EMAIL_ATTR, "foo@a.b", "pl", "/");
+				requestId, InitializerCommon.EMAIL_ATTR, "foo@a.b", "pl", "/", "", "");
 
 		RegistrationReqIdentityConfirmationState idState = new RegistrationReqIdentityConfirmationState(
-				requestId, EmailIdentity.ID, "example@ex.com", "pl");
+				requestId, EmailIdentity.ID, "example@ex.com", "pl", "", "");
 
 		try
 		{

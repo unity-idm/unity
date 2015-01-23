@@ -72,8 +72,11 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 			sql.commit();
 			boolean confirmed = (confirmedList.size() > 0);
 			status = new ConfirmationStatus(confirmed,
+					confirmed ? attrState.getSuccessUrl() : attrState
+							.getErrorUrl(),
 					confirmed ? "ConfirmationStatus.successAttribute"
-							: "ConfirmationStatus.attributeChanged", attrState.getType());
+							: "ConfirmationStatus.attributeChanged",
+					attrState.getType());
 
 		} finally
 		{

@@ -48,7 +48,7 @@ public abstract class UserFacility <T extends BaseConfirmationState> extends Bas
 
 		} catch (Exception e)
 		{
-			return new ConfirmationStatus(false, "ConfirmationStatus.entityRemoved");
+			return new ConfirmationStatus(false, idState.getErrorUrl(), "ConfirmationStatus.entityRemoved");
 		} finally
 		{
 			db.releaseSqlSession(sql);
@@ -56,7 +56,7 @@ public abstract class UserFacility <T extends BaseConfirmationState> extends Bas
 
 		if (!entityState.equals(EntityState.valid))
 		{
-			return new ConfirmationStatus(false, "ConfirmationStatus.entityInvalid");
+			return new ConfirmationStatus(false, idState.getErrorUrl(), "ConfirmationStatus.entityInvalid");
 		}
 			
 		return confirmElements(idState);

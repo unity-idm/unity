@@ -686,7 +686,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			//TODO - should use user's preferred locale
 			AttribiuteConfirmationState state = new AttribiuteConfirmationState(
 					owner.getEntityId().toString(), 
-					attribute.getName(), val.getValue(), msg.getDefaultLocaleCode(), groupPath);
+					attribute.getName(), val.getValue(), msg.getDefaultLocaleCode(), groupPath, null, null);
 			confirmationManager.sendConfirmationRequest(state
 					.getSerializedConfiguration());
 		}

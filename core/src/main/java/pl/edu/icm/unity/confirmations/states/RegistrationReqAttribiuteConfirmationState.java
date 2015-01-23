@@ -21,9 +21,9 @@ public class RegistrationReqAttribiuteConfirmationState extends AttribiuteConfir
 	}
 
 	public RegistrationReqAttribiuteConfirmationState(String owner,
-			String type, String value, String locale, String group)
+			String type, String value, String locale, String group, String successUrl, String errorUrl)
 	{
-		super(owner, type, value, locale, group);
+		super(owner, type, value, locale, group, successUrl, errorUrl);
 	}
 
 

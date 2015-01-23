@@ -63,9 +63,11 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 		Collection<IdentityParam> confirmedList = confirmIdentity(req.getIdentities(),
 				idState.getType(), idState.getValue());
 		boolean confirmed = (confirmedList.size() > 0);
-		return new ConfirmationStatus(confirmed,
+		return new ConfirmationStatus(confirmed, confirmed ? idState.getSuccessUrl()
+				: idState.getErrorUrl(),
 				confirmed ? "ConfirmationStatus.successIdentity"
-						: "ConfirmationStatus.identityChanged", idState.getType());
+						: "ConfirmationStatus.identityChanged",
+				idState.getType());
 	}
 
 	/**

@@ -20,9 +20,9 @@ public class AttribiuteConfirmationState extends BaseConfirmationState
 	private String group;
 
 	public AttribiuteConfirmationState(String owner, String type,
-			String value, String locale, String group)
+			String value, String locale, String group, String successUrl, String errorUrl)
 	{
-		super(FACILITY_ID, owner, type, value, locale);
+		super(FACILITY_ID, owner, type, value, locale, successUrl, errorUrl);
 		this.group = group;
 	}
 

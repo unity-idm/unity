@@ -30,13 +30,18 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 
 import com.vaadin.annotations.Theme;
+import com.vaadin.server.Page;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.themes.BaseTheme;
 
 /**
  * Shows confirmation status
@@ -80,17 +85,43 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 		infoWrapper.setWidth(50, Unit.PERCENTAGE);
 		String infoKey = status.getUserMessageKey();
 		String[] infoArgs = status.getUserMessageArgs();
+		final String returnUrl = status.getReturnUrl();
 		infoWrapper.addComponent(status.isSuccess() == true ? getSuccessfullStatus(infoKey, infoArgs)
 				: getUnsuccessfullStatus(infoKey, infoArgs));
 		Label spacerB = new Label();
 		Label spacerU = new Label();
+		
 		mainWrapper.addComponent(spacerU);
 		mainWrapper.addComponent(infoWrapper);
 		mainWrapper.setComponentAlignment(infoWrapper, Alignment.TOP_CENTER);
+	
+		if (returnUrl != null && !returnUrl.equals(""))
+		{	
+			Button returnUrlButton =  new Button(msg.getMessage("ConfirmationUI.returnUrl"));
+			//returnUrlButton.addStyleName(BaseTheme.BUTTON_LINK);
+			returnUrlButton.addClickListener(new ClickListener()
+			{
+				
+				@Override
+				public void buttonClick(ClickEvent event)
+				{
+					Page.getCurrent().open(returnUrl, null);
+					
+				}
+			});
+			Label spacerR = new Label();
+			mainWrapper.addComponent(spacerR);
+			mainWrapper.addComponent(returnUrlButton);
+			mainWrapper.setComponentAlignment(returnUrlButton, Alignment.TOP_CENTER);
+			mainWrapper.setExpandRatio(returnUrlButton, 0);
+			mainWrapper.setExpandRatio(spacerR, 0.1f);
+		}
+		
+		
 		mainWrapper.addComponent(spacerB);
 		mainWrapper.setExpandRatio(spacerU, 0.2f);
 		mainWrapper.setExpandRatio(infoWrapper, 0);
-		mainWrapper.setExpandRatio(spacerB, 0.8f);
+		mainWrapper.setExpandRatio(spacerB, 0.7f);
 
 		contents.addComponent(mainWrapper);
 		contents.setExpandRatio(mainWrapper, 1.0f);
@@ -146,7 +177,7 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 		} catch (Exception e)
 		{
 			log.error("Internal unity problem with confirmation", e);
-			status = new ConfirmationStatus(false, "ConfirmationStatus.internalError");
+			status = new ConfirmationStatus(false,"", "ConfirmationStatus.internalError");
 		}
 		initUI(status);
 	}

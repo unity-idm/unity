@@ -43,6 +43,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.attributes.AttributeMetadataProvider;
 import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.AttributeMetadataProvidersRegistry;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -524,12 +525,17 @@ public class AttributesManagementImpl implements AttributesManagement
 		{
 			for (VerifiableElement val : verifiableValues)
 			{
+				String url = null;
+				if (authz.isSelf(entity.getEntityId()) && InvocationContext.getCurrent().getCurrentURLUsed() != null)
+				{
+					url = InvocationContext.getCurrent().getCurrentURLUsed();
+				}
 				// TODO - should use user's preferred locale
 				AttribiuteConfirmationState state = new AttribiuteConfirmationState(
 						entity.getEntityId().toString(),
 						attribute.getName(), val.getValue(),
 						msg.getDefaultLocaleCode(),
-						attribute.getGroupPath());
+						attribute.getGroupPath(), url, url);
 				confirmationManager.sendConfirmationRequest(state
 						.getSerializedConfiguration());
 			}
