@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,9 +15,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
+import org.eclipse.jetty.util.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.confirmations.ConfirmationManager;
+import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
@@ -41,6 +45,7 @@ import pl.edu.icm.unity.server.attributes.AttributeMetadataProvider;
 import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.server.registries.AttributeMetadataProvidersRegistry;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -49,6 +54,8 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
  * Implements attributes operations.
@@ -67,6 +74,8 @@ public class AttributesManagementImpl implements AttributesManagement
 	private AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
 	private AuthorizationManager authz;
 	private AttributesHelper attributesHelper;
+	private ConfirmationManager confirmationManager;
+	private UnityMessageSource msg;
 	
 	@Autowired
 	public AttributesManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
@@ -74,7 +83,8 @@ public class AttributesManagementImpl implements AttributesManagement
 			DBAttributes dbAttributes, DBIdentities dbIdentities, DBGroups dbGroups,
 			IdentitiesResolver idResolver,
 			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
-			AuthorizationManager authz, AttributesHelper attributesHelper)
+			AuthorizationManager authz, AttributesHelper attributesHelper,
+			ConfirmationManager confirmationManager, UnityMessageSource msg)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
 		this.db = db;
@@ -86,6 +96,8 @@ public class AttributesManagementImpl implements AttributesManagement
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
 		this.authz = authz;
 		this.attributesHelper = attributesHelper;
+		this.confirmationManager = confirmationManager;
+		this.msg = msg;
 	}
 
 	/**
@@ -471,7 +483,11 @@ public class AttributesManagementImpl implements AttributesManagement
 			throws EngineException
 	{
 		attribute.validateInitialization();
-		entity.validateInitialization();
+		entity.validateInitialization(); 
+		boolean verifiable = false;
+		if (attribute.getAttributeSyntax() != null)
+			verifiable = attribute.getAttributeSyntax().isVerifiable();
+		List<VerifiableElement> verifiableValues = new ArrayList<VerifiableElement>(); 
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -487,12 +503,39 @@ public class AttributesManagementImpl implements AttributesManagement
 					attribute.getGroupPath(), AuthzCapability.attributeModify);
 
 			checkIfAllowed(entityId, attribute.getGroupPath(), attribute.getName(), sql);
+			if (verifiable)
+				for (Object v : attribute.getValues())
+				{
+					VerifiableElement val = (VerifiableElement) v;
+					val.setConfirmationInfo(new ConfirmationInfo(0));
+					verifiableValues.add(val);
+				}
 			
 			dbAttributes.addAttribute(entityId, attribute, update, sql);
 			sql.commit();
 		} finally
 		{
 			db.releaseSqlSession(sql);
+		}
+		
+		if (!verifiable)
+			return;
+		try
+		{
+			for (VerifiableElement val : verifiableValues)
+			{
+				// TODO - should use user's preferred locale
+				AttribiuteConfirmationState state = new AttribiuteConfirmationState(
+						entity.getEntityId().toString(),
+						attribute.getName(), val.getValue(),
+						msg.getDefaultLocaleCode(),
+						attribute.getGroupPath());
+				confirmationManager.sendConfirmationRequest(state
+						.getSerializedConfiguration());
+			}
+		} catch (Exception e)
+		{
+			//OK
 		}
 	}
 	

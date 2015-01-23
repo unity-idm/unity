@@ -530,10 +530,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 						@Override
 						public boolean newAttribute(Attribute<?> newAttribute)
 						{
-							boolean added = addAttribute(newAttribute);
-							if (added)
-								sendConfirmationRequestAfterChange(newAttribute);
-							return added;							
+							return addAttribute(newAttribute);							
 						}
 					}, attributeEditor);
 			dialog.show();
@@ -562,12 +559,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 						@Override
 						public boolean newAttribute(Attribute<?> newAttribute)
 						{
-							boolean updated = updateAttribute(newAttribute);
-							if (!newAttribute.equals(attribute) && updated)
-							{
-								sendConfirmationRequestAfterChange(newAttribute);
-							}
-							return updated;
+							return updateAttribute(newAttribute);
 						}
 					}, attributeEditor);
 			dialog.show();
@@ -736,31 +728,4 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 		return true;
 	}
-	
-	private boolean checkVerifiableAttribute(Attribute<?> attribute)
-	{
-		List<Attribute<?>> attrs = new ArrayList<Attribute<?>>();
-		attrs.add(attribute);
-		return attribute.getValues().size() > 0
-				&& attribute.getAttributeSyntax().isVerifiable()
-				&& checkAvailableConfirmationConfiguration(
-						ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
-						attrs);	
-	}
-	
-	private void sendConfirmationRequestAfterChange(Attribute<?> changedAttribute)
-	{
-		if (!checkVerifiableAttribute(changedAttribute))
-		{
-			return;
-		}
-		try
-		{
-			sendConfirmationRequest(changedAttribute);
-		} catch (Exception e)
-		{
-			ErrorPopup.showError(msg,
-					msg.getMessage("Attribute.cannotSendConfirmation"), e);
-		}
-	}	
 }
