@@ -564,6 +564,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	{
 		List<IdentityParam> requestedIds = request.getIdentities();
 		validateParamsBase(form.getIdentityParams(), requestedIds, "identities");
+		boolean identitiesFound = false;
 		for (int i=0; i<requestedIds.size(); i++)
 		{
 			IdentityParam idParam = requestedIds.get(i);
@@ -575,7 +576,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				throw new WrongArgumentException("Identity nr " + i + " must be of " 
 						+ idParam.getTypeId() + " type");
 			identityTypesRegistry.getByName(idParam.getTypeId()).validate(idParam.getValue());
+			identitiesFound = true;
 		}
+		if (!identitiesFound)
+			throw new WrongArgumentException("At least one identity must be defined in the "
+					+ "registration request.");
 	}
 
 	private void validateRequestCredentials(RegistrationForm form, RegistrationRequest request, 
@@ -730,7 +735,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			}
 		}
 
-		boolean hasMandatoryIdentity = false;
+		boolean hasIdentity = false;
 		if (form.getIdentityParams() != null)
 		{
 			Set<String> usedRemote = new HashSet<>();
@@ -746,12 +751,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 								"then one of type " + id.getIdentityType());
 					usedRemote.add(id.getIdentityType());
 				}
-				if (!id.isOptional())
-					hasMandatoryIdentity = true;
+				hasIdentity = true;
 			}
 		}
-		if (!hasMandatoryIdentity)
-			throw new WrongArgumentException("Registration form must collect at least one mandatory identity.");
+		if (!hasIdentity)
+			throw new WrongArgumentException("Registration form must collect at least one identity.");
 		
 		if (form.getInitialEntityState() == null)
 			throw new WrongArgumentException("Initial entity state must be set in the form.");
