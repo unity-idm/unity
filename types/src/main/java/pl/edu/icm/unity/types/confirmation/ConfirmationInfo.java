@@ -31,6 +31,12 @@ public class ConfirmationInfo implements JsonSerializable
 	{
 		this.sentRequestAmount = sentRequestAmount;
 	}
+	public ConfirmationInfo(boolean confirmed)
+	{
+		this.confirmed = confirmed;
+		if (confirmed)
+			this.confirmationDate = System.currentTimeMillis();
+	}
 	
 	public boolean isConfirmed()
 	{

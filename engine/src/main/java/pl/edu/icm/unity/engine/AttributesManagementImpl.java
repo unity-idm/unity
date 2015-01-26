@@ -37,6 +37,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
@@ -551,7 +552,14 @@ public class AttributesManagementImpl implements AttributesManagement
 	private <T> void sendVerification(EntityParam entity, Attribute<T> attribute,
 			List<VerifiableElement> verifiableValues)
 	{
-		String url = InvocationContext.getCurrent().getCurrentURLUsed();
+		String url = null;
+		try
+		{
+			url = InvocationContext.getCurrent().getCurrentURLUsed();
+		} catch (InternalException e)
+		{
+			//OK - no context -> no URL.
+		}
 		
 		try
 		{
