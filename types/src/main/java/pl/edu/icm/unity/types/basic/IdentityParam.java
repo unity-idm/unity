@@ -64,11 +64,17 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 		this.remoteIdp = remoteIdp;
 	}
 
+	/**
+	 * Sets confirmation status of the identity. For identity types which does not support confirmations
+	 * this setting is ignored. For other the confirmation status is handled automatically in the most cases. 
+	 */
+	@Override
 	public void setConfirmationInfo(ConfirmationInfo confirmationData)
 	{
 		this.confirmationInfo = confirmationData;
 	}
 
+	@Override
 	public ConfirmationInfo getConfirmationInfo()
 	{
 		return confirmationInfo;

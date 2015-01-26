@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -45,6 +46,7 @@ import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.AttributeMetadataProvidersRegistry;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -64,6 +66,7 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 @Component
 public class AttributesManagementImpl implements AttributesManagement
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, AttributesManagementImpl.class);
 	private AttributeSyntaxFactoriesRegistry attrValueTypesReg;
 	private DBSessionManager db;
 	private AttributeClassDB acDB;
@@ -484,9 +487,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	{
 		attribute.validateInitialization();
 		entity.validateInitialization(); 
-		boolean verifiable = false;
-		if (attribute.getAttributeSyntax() != null)
-			verifiable = attribute.getAttributeSyntax().isVerifiable();
+		boolean verifiable = attribute.getAttributeSyntax().isVerifiable();
 		List<VerifiableElement> verifiableValues = new ArrayList<VerifiableElement>(); 
 		SqlSession sql = db.getSqlSession(true);
 		try
@@ -499,17 +500,21 @@ public class AttributesManagementImpl implements AttributesManagement
 				throw new SchemaConsistencyException("The attribute with name " + at.getName() + 
 						" can not be manually modified");
 			
-			authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId), 
-					attribute.getGroupPath(), AuthzCapability.attributeModify);
-
+			boolean fullAuthz = checkSetAttributeAuthz(entityId, at, attribute);
+			
 			checkIfAllowed(entityId, attribute.getGroupPath(), attribute.getName(), sql);
-			if (verifiable)
+			
+			if (verifiable && !fullAuthz)
+			{
+				//we must force verification status to false, as only real admin can set attributes in 
+				//the confirmed state
 				for (Object v : attribute.getValues())
 				{
 					VerifiableElement val = (VerifiableElement) v;
 					val.setConfirmationInfo(new ConfirmationInfo(0));
 					verifiableValues.add(val);
 				}
+			}
 			
 			dbAttributes.addAttribute(entityId, attribute, update, sql);
 			sql.commit();
@@ -518,29 +523,56 @@ public class AttributesManagementImpl implements AttributesManagement
 			db.releaseSqlSession(sql);
 		}
 		
-		if (!verifiable)
-			return;
+		if (verifiable)
+			sendVerification(entity, attribute, verifiableValues);
+	}
+	
+	private <T> boolean checkSetAttributeAuthz(long entityId, AttributeType at, Attribute<T> attribute) 
+			throws AuthorizationException
+	{
+		Set<AuthzCapability> nonSelfCapabilities = authz.getCapabilities(false, 
+				attribute.getGroupPath());
+		boolean fullAuthz = nonSelfCapabilities.contains(AuthzCapability.attributeModify);
+		
+		if (!fullAuthz)
+		{
+			authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId), 
+				attribute.getGroupPath(), AuthzCapability.attributeModify);
+		}
+		return fullAuthz;
+	}
+	
+	/**
+	 * Sends confirmation messages for the values which requires so. Only for unconfirmed attributes.
+	 * @param entity
+	 * @param attribute
+	 * @param verifiableValues
+	 */
+	private <T> void sendVerification(EntityParam entity, Attribute<T> attribute,
+			List<VerifiableElement> verifiableValues)
+	{
+		String url = InvocationContext.getCurrent().getCurrentURLUsed();
+		
 		try
 		{
 			for (VerifiableElement val : verifiableValues)
 			{
-				String url = null;
-				if (authz.isSelf(entity.getEntityId()) && InvocationContext.getCurrent().getCurrentURLUsed() != null)
+				if (!val.getConfirmationInfo().isConfirmed())
 				{
-					url = InvocationContext.getCurrent().getCurrentURLUsed();
+					// TODO - should use user's preferred locale
+					AttribiuteConfirmationState state = new AttribiuteConfirmationState(
+							entity.getEntityId().toString(),
+							attribute.getName(), val.getValue(),
+							msg.getDefaultLocaleCode(),
+							attribute.getGroupPath(), url, url);
+					confirmationManager.sendConfirmationRequest(state
+							.getSerializedConfiguration());
 				}
-				// TODO - should use user's preferred locale
-				AttribiuteConfirmationState state = new AttribiuteConfirmationState(
-						entity.getEntityId().toString(),
-						attribute.getName(), val.getValue(),
-						msg.getDefaultLocaleCode(),
-						attribute.getGroupPath(), url, url);
-				confirmationManager.sendConfirmationRequest(state
-						.getSerializedConfiguration());
 			}
 		} catch (Exception e)
 		{
-			//OK
+			log.warn("Can not send a confirmation for the verificable attribute being added " + 
+					attribute.getName(), e);
 		}
 	}
 	

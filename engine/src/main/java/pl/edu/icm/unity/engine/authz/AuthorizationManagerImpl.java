@@ -186,14 +186,35 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	{
 		checkAuthorizationInternal(getCallerMethodName(2), selfAccess, groupPath, requiredCapabilities);
 	}
+
+	@Override
+	public Set<AuthzCapability> getCapabilities(boolean selfAccess, String group) throws AuthorizationException
+	{
+		LoginSession client = getVerifiedClient(new AuthzCapability[] {});
+		return getCapabilities(getCallerMethodName(2), selfAccess, group, client);
+	}
 	
-	private void checkAuthorizationInternal(String callerMethod, boolean selfAccess, String groupPath, 
-			AuthzCapability... requiredCapabilities) throws AuthorizationException
+	private Set<AuthzCapability> getCapabilities(String callerMethod, boolean selfAccess, String groupPath,
+			LoginSession client) throws AuthorizationException
 	{
 		Group group = groupPath == null ? new Group("/") : new Group(groupPath);
+
+		Set<AuthzRole> roles;
+		try
+		{
+			roles = establishRoles(client.getEntityId(), group);
+		} catch (EngineException e)
+		{
+			throw new InternalException("Can't establish caller's roles", e);
+		}
+		return getRoleCapabilities(roles, selfAccess);
+	}
+	
+	private LoginSession getVerifiedClient(AuthzCapability... requiredCapabilities) throws AuthorizationException
+	{
 		InvocationContext authnCtx = InvocationContext.getCurrent();
 		LoginSession client = authnCtx.getLoginSession();
-
+		
 		if (client == null)
 			throw new AuthorizationException("Access is denied. The client is not authenticated.");
 		
@@ -208,16 +229,15 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 				throw new AuthorizationException("Access is denied. The client's credential " +
 						"is outdated and the only allowed operation is the credential update");
 		}
+		return client;
+	}
+	
+	private void checkAuthorizationInternal(String callerMethod, boolean selfAccess, String groupPath, 
+			AuthzCapability... requiredCapabilities) throws AuthorizationException
+	{
+		LoginSession client = getVerifiedClient(requiredCapabilities);
 		
-		Set<AuthzRole> roles;
-		try
-		{
-			roles = establishRoles(client.getEntityId(), group);
-		} catch (EngineException e)
-		{
-			throw new InternalException("Can't establish caller's roles", e);
-		}
-		Set<AuthzCapability> capabilities = getRoleCapabilities(roles, selfAccess);
+		Set<AuthzCapability> capabilities = getCapabilities(callerMethod, selfAccess, groupPath, client);
 		
 		for (AuthzCapability requiredCapability: requiredCapabilities)
 			if (!capabilities.contains(requiredCapability))
@@ -303,4 +323,5 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 			return "UNKNOWN";
 		return stackTrace[backwards+1].getMethodName();
 	}
+
 }

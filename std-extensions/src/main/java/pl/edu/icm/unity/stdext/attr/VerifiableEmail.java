@@ -34,17 +34,20 @@ public class VerifiableEmail implements VerifiableElement
 		this.value = value;
 		this.confirmationInfo = confirmationData;
 	}
+
 	@Override
 	public ConfirmationInfo getConfirmationInfo()
 	{
 		return confirmationInfo;
 	}
 
+	@Override
 	public void setConfirmationInfo(ConfirmationInfo confirmationData)
 	{
 		this.confirmationInfo = confirmationData;
 	}
 
+	@Override
 	public String getValue()
 	{
 		return value;

@@ -63,6 +63,14 @@ public interface AuthorizationManager
 	public void checkAuthorization(boolean selfAccess, String group, AuthzCapability... requiredCapabilities) throws AuthorizationException;
 	
 	/**
+	 * Establishes capabilities of the caller in a specified group.
+	 * @param selfAccess if this operation is invoked on the the caller itself
+	 * @param group
+	 * @throws AuthorizationException thrown only if the caller is not *authenticated*.
+	 */
+	public Set<AuthzCapability> getCapabilities(boolean selfAccess, String group) throws AuthorizationException;
+	
+	/**
 	 * Returns true only if the argument is the same entity as the current caller.
 	 * @param subject
 	 * @return

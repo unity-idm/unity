@@ -5,10 +5,13 @@
 package pl.edu.icm.unity.engine.authz;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 
 
 /**
@@ -56,5 +59,14 @@ public class InternalNoAuthzImpl implements AuthorizationManager
 	public String getRolesDescription()
 	{
 		return "";
+	}
+
+	@Override
+	public Set<AuthzCapability> getCapabilities(boolean selfAccess, String group)
+			throws AuthorizationException
+	{
+		Set<AuthzCapability> ret = new HashSet<AuthzCapability>();
+		Collections.addAll(ret, AuthzCapability.values());
+		return ret;
 	}
 }

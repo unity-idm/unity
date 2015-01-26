@@ -95,7 +95,7 @@ public class InvocationContextSetupFilter implements Filter
 				clientCert[0].getSubjectX500Principal().getName());
 		InvocationContext context = new InvocationContext(tlsId, realm);
 		InvocationContext.setCurrent(context);
-		context.setCurrentURLUsed(baseAddress + request.getRequestURI());
+		context.setCurrentURLUsed(baseAddress + request.getServletPath());
 		log.trace("A new invocation context was set");
 		return context;
 	}
