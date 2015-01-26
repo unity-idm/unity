@@ -24,6 +24,7 @@ import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmationState;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmationState;
+import pl.edu.icm.unity.confirmations.states.UserConfirmationState;
 import pl.edu.icm.unity.engine.confirmations.ConfirmationManagerImpl;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -103,12 +104,11 @@ public class TestConfirmation extends DBIntegrationTestBase
 				AttributeVisibility.full, "example2@ex.com");
 		attrsMan.setAttribute(entity, at1, false);
 		AttribiuteConfirmationState attrState = new AttribiuteConfirmationState(
-				entity.getEntityId().toString(), InitializerCommon.EMAIL_ATTR, 
+				entity.getEntityId(), InitializerCommon.EMAIL_ATTR, 
 				"example2@ex.com", "pl", "/test", "", "");
 		try
 		{
-			confirmationMan.sendConfirmationRequest(attrState
-					.getSerializedConfiguration());
+			confirmationMan.sendConfirmationRequest(attrState);
 		} catch (Exception e)
 		{
 			e.printStackTrace();
@@ -135,8 +135,7 @@ public class TestConfirmation extends DBIntegrationTestBase
 						.size());
 		try
 		{
-			confirmationMan.sendConfirmationRequest(attrState
-					.getSerializedConfiguration());
+			confirmationMan.sendConfirmationRequest(attrState);
 		} catch (Exception e)
 		{
 			e.printStackTrace();
@@ -169,11 +168,11 @@ public class TestConfirmation extends DBIntegrationTestBase
 		// Identity
 
 		IdentityConfirmationState idState = new IdentityConfirmationState(
-				entity.getEntityId().toString(), EmailIdentity.ID, "example1@ex.com", "en", "", "");
+				entity.getEntityId(), EmailIdentity.ID, "example1@ex.com", "en", "", "");
 		VerifiableElement identity = getIdentityFromEntity(entity);
 		Assert.assertTrue(!identity.getConfirmationInfo().isConfirmed());
 		Assert.assertEquals(0, identity.getConfirmationInfo().getSentRequestAmount());
-		confirmationMan.sendConfirmationRequest(idState.getSerializedConfiguration());
+		confirmationMan.sendConfirmationRequest(idState);
 		identity = getIdentityFromEntity(entity);
 		Assert.assertTrue(!identity.getConfirmationInfo().isConfirmed());
 		Assert.assertEquals(0, identity.getConfirmationInfo().getSentRequestAmount());
@@ -192,8 +191,7 @@ public class TestConfirmation extends DBIntegrationTestBase
 		}
 		try
 		{
-			confirmationMan.sendConfirmationRequest(idState
-					.getSerializedConfiguration());
+			confirmationMan.sendConfirmationRequest(idState);
 		} catch (Exception e)
 		{
 			e.printStackTrace();
@@ -424,11 +422,9 @@ public class TestConfirmation extends DBIntegrationTestBase
 
 		try
 		{
-			confirmationMan.sendConfirmationRequest(attrState
-					.getSerializedConfiguration());
+			confirmationMan.sendConfirmationRequest(attrState);
 
-			confirmationMan.sendConfirmationRequest(idState
-					.getSerializedConfiguration());
+			confirmationMan.sendConfirmationRequest(idState);
 		} catch (Exception e)
 		{
 			e.printStackTrace();
@@ -535,14 +531,13 @@ public class TestConfirmation extends DBIntegrationTestBase
 
 		Assert.assertEquals(1, tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE).size());
 
-		BaseConfirmationState state = new BaseConfirmationState(new String(tokensMan
+		UserConfirmationState state = new UserConfirmationState(new String(tokensMan
 				.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE).get(0)
 				.getContents(), StandardCharsets.UTF_8));
-		String entity = state.getOwner();
-		VerifiableElement vattr = getAttributeValueFromEntity(
-				new EntityParam(Long.parseLong(entity)), "/");
+		EntityParam entity = new EntityParam(state.getOwnerEntityId());
+		VerifiableElement vattr = getAttributeValueFromEntity(entity, "/");
 		Assert.assertTrue(vattr.getConfirmationInfo().isConfirmed());
-		VerifiableElement id = getIdentityFromEntity(new EntityParam(Long.parseLong(entity)));
+		VerifiableElement id = getIdentityFromEntity(entity);
 		Assert.assertFalse(id.getConfirmationInfo().isConfirmed());
 
 		Assert.assertEquals(1, tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE).size());
@@ -558,7 +553,7 @@ public class TestConfirmation extends DBIntegrationTestBase
 			fail();
 
 		}
-		id = getIdentityFromEntity(new EntityParam(Long.parseLong(entity)));
+		id = getIdentityFromEntity(entity);
 		Assert.assertTrue(id.getConfirmationInfo().isConfirmed());
 
 	}

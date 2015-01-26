@@ -21,8 +21,8 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
-import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
+import pl.edu.icm.unity.confirmations.states.RegistrationConfirmationState;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmationState;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmationState;
 import pl.edu.icm.unity.db.DBAttributes;
@@ -230,7 +230,7 @@ public class InternalRegistrationManagment
 				currentRequest, currentRequest.getRequestId(), form.getName(), true,
 				publicComment, internalComment,	notificationsCfg, sql);
 		if (rewriteConfirmationToken)
-			rewriteRequestToken(currentRequest, initial.getEntityId().toString());
+			rewriteRequestToken(currentRequest, initial.getEntityId());
 		
 		return initial.getEntityId();
 	}
@@ -584,14 +584,14 @@ public class InternalRegistrationManagment
 	}
 	
 	public void rewriteRequestToken(RegistrationRequestState finalReguest,
-			String entityId) throws EngineException
+			long entityId) throws EngineException
 	{
 
 		List<Token> tks = tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE);
 		for (Token tk : tks)
 		{
-			BaseConfirmationState state = new BaseConfirmationState(tk.getContentsString());
-			if (state.getOwner().equals(finalReguest.getRequestId()))
+			RegistrationConfirmationState state = new RegistrationConfirmationState(tk.getContentsString());
+			if (state.getRequestId().equals(finalReguest.getRequestId()))
 			{
 				if (state.getFacilityId().equals(
 						RegistrationReqAttribiuteConfirmationState.FACILITY_ID))
@@ -606,7 +606,7 @@ public class InternalRegistrationManagment
 	}
 
 	private void rewriteSingleIdentityToken(RegistrationRequestState finalReguest, Token tk,
-			String entityId) throws EngineException
+			long entityId) throws EngineException
 	{
 		RegistrationReqIdentityConfirmationState oldState = 
 				new RegistrationReqIdentityConfirmationState(new String(tk.getContents(),
@@ -639,7 +639,7 @@ public class InternalRegistrationManagment
 	}
 
 	private void rewriteSingleAttributeToken(RegistrationRequestState finalReguest, Token tk,
-			String entityId) throws EngineException
+			long entityId) throws EngineException
 	{
 
 		RegistrationReqAttribiuteConfirmationState oldState = 

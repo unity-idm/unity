@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.confirmations;
 
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -26,10 +27,12 @@ import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.ConfirmationTemplateDef;
 import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
 import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
+import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmationState;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.confirmation.ConfirmationConfigurationDB;
 import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
+import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.SharedEndpointManagementImpl;
 import pl.edu.icm.unity.engine.notifications.NotificationProducerImpl;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -48,6 +51,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
@@ -68,6 +72,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	private DBSessionManager db;
 	private URL advertisedAddress;
 	private UnityMessageSource msg;
+	private IdentitiesResolver idResolver;
 
 	@Autowired
 	public ConfirmationManagerImpl(TokensManagement tokensMan,
@@ -76,11 +81,13 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry,
 			JettyServer httpServer, MessageTemplateDB mtDB,
 			ConfirmationConfigurationDB configurationDB, DBSessionManager db,
+			IdentitiesResolver idResolver,
 			UnityMessageSource msg)
 	{
 		this.tokensMan = tokensMan;
 		this.notificationProducer = notificationProducer;
 		this.confirmationFacilitiesRegistry = confirmationFacilitiesRegistry;
+		this.idResolver = idResolver;
 		this.advertisedAddress = httpServer.getAdvertisedAddress();
 		this.mtDB = mtDB;
 		this.configurationDB = configurationDB;
@@ -92,9 +99,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void sendConfirmationRequest(String state) throws EngineException
+	public void sendConfirmationRequest(BaseConfirmationState baseState) throws EngineException
 	{
-		BaseConfirmationState baseState = new BaseConfirmationState(state);
 		String facilityId = baseState.getFacilityId();
 		ConfirmationFacility facility = getFacility(facilityId);
 		ConfirmationConfiguration configEntry = null;
@@ -122,8 +128,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			return;
 
 		sendConfirmationRequest(baseState.getValue(), configEntry.getNotificationChannel(),
-				configEntry.getMsgTemplate(), state, facility, baseState.getLocale());
-
+				configEntry.getMsgTemplate(), baseState.getSerializedConfiguration(), 
+				facility, baseState.getLocale());
 	}
 
 	private void sendConfirmationRequest(String recipientAddress, String channelName,
@@ -138,7 +144,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		String token = UUID.randomUUID().toString();
 		try
 		{
-			tokensMan.addToken(CONFIRMATION_TOKEN_TYPE, token, state.getBytes(),
+			tokensMan.addToken(CONFIRMATION_TOKEN_TYPE, token, 
+					state.getBytes(StandardCharsets.UTF_8),
 					createDate, expires);
 		} catch (Exception e)
 		{
@@ -207,48 +214,101 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 
 	
 	@Override
-	public <T> void sendVerification(EntityParam entity, Attribute<T> attribute)
+	public <T> void sendVerification(EntityParam entity, Attribute<T> attribute) throws EngineException
 	{
 		if (!attribute.getAttributeSyntax().isVerifiable())
 			return;
-		
-		String url = null;
-		try
+		String url = getCurrentURL();
+		for (T valA : attribute.getValues())
 		{
-			url = InvocationContext.getCurrent().getCurrentURLUsed();
-		} catch (InternalException e)
-		{
-			//OK - no context -> no URL.
-		}
-		
-		try
-		{
-			for (T valA : attribute.getValues())
+			VerifiableElement val = (VerifiableElement) valA;
+			if (!val.getConfirmationInfo().isConfirmed())
 			{
-				VerifiableElement val = (VerifiableElement) valA;
-				if (!val.getConfirmationInfo().isConfirmed())
-				{
-					// TODO - should use user's preferred locale
-					AttribiuteConfirmationState state = new AttribiuteConfirmationState(
-							entity.getEntityId().toString(),
-							attribute.getName(), val.getValue(),
-							msg.getDefaultLocaleCode(),
-							attribute.getGroupPath(), url, url);
-					sendConfirmationRequest(state.getSerializedConfiguration());
-				}
+				// TODO - should use user's preferred locale
+				long entityId = resolveEntityId(entity);
+				AttribiuteConfirmationState state = new AttribiuteConfirmationState(
+						entityId,
+						attribute.getName(), val.getValue(),
+						msg.getDefaultLocaleCode(),
+						attribute.getGroupPath(), url, url);
+				sendConfirmationRequest(state);
 			}
+		}
+	}
+
+	private long resolveEntityId(EntityParam entity) throws EngineException
+	{
+		if (entity.getEntityId() != null)
+			return entity.getEntityId();
+		SqlSession sqlMap = db.getSqlSession(false);
+		try
+		{
+			return idResolver.getEntityId(entity, sqlMap);
+		} finally
+		{
+			db.releaseSqlSession(sqlMap);
+		}
+	}
+	
+	@Override
+	public <T> void sendVerificationQuiet(EntityParam entity, Attribute<T> attribute)
+	{
+		try
+		{
+			sendVerification(entity, attribute);
 		} catch (Exception e)
 		{
 			log.warn("Can not send a confirmation for the verificable attribute being added " + 
 					attribute.getName(), e);
 		}
 	}
+	
 
 	@Override
-	public void sendVerifications(EntityParam entity, List<Attribute<?>> attributes)
+	public void sendVerificationsQuiet(EntityParam entity, List<Attribute<?>> attributes)
 	{
 		for (Attribute<?> attribute: attributes)
-			sendVerification(entity, attribute);
+			sendVerificationQuiet(entity, attribute);
+	}
+
+	@Override
+	public void sendVerification(EntityParam entity, Identity identity) throws EngineException
+	{
+		if (!identity.getType().getIdentityTypeProvider().isVerifiable())
+			return;
+		String url = getCurrentURL();
+		//TODO - should use user's preferred locale
+		IdentityConfirmationState state = new IdentityConfirmationState(
+				identity.getEntityId(), identity.getTypeId(),  
+				identity.getValue(), msg.getDefaultLocaleCode(),
+				url, url);
+		sendConfirmationRequest(state);
+	}
+
+
+	@Override
+	public void sendVerificationQuiet(EntityParam entity, Identity identity)
+	{
+		try
+		{
+			sendVerification(entity, identity);
+		} catch (EngineException e)
+		{
+			log.warn("Can not send a confirmation for the verificable identity being added " + 
+					identity.getValue(), e);
+		}
+	}
+	
+	private String getCurrentURL()
+	{
+		try
+		{
+			return InvocationContext.getCurrent().getCurrentURLUsed();
+		} catch (InternalException e)
+		{
+			//OK - no context -> no URL.
+			return null;
+		}
 	}
 	
 	private ConfirmationConfiguration getConfiguration(String typeToConfirm,
@@ -292,4 +352,5 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		}
 		return facility;
 	}
+
 }

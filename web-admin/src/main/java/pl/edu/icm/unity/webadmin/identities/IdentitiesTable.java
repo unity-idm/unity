@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
-import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsDialog;
@@ -45,7 +44,6 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webadmin.identities.CredentialRequirementDialog.Callback;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
@@ -606,7 +604,7 @@ public class IdentitiesTable extends TreeTable
 			newItem.getItemProperty(BaseColumnId.profile.toString()).setValue(prof);
 			newItem.getItemProperty(BaseColumnId.target.toString()).setValue(id.getTarget());
 			newItem.getItemProperty(BaseColumnId.realm.toString()).setValue(id.getRealm());
-	} else
+		} else
 		{
 			newItem.getItemProperty(BaseColumnId.type.toString()).setValue("");
 			newItem.getItemProperty(BaseColumnId.identity.toString()).setValue("");
@@ -752,14 +750,6 @@ public class IdentitiesTable extends TreeTable
 		}
 	}
 	
-	private void sendConfirmationRequest(IdentityParam id, String entityId) throws EngineException
-	{
-		//TODO - should use user's preferred locale
-		IdentityConfirmationState state = new IdentityConfirmationState(entityId, id.getTypeId(), 
-				id.getValue(), msg.getDefaultLocaleCode());
-		confirmationManager.sendConfirmationRequest(state.getSerializedConfiguration());
-	}
-	
 	private boolean checkAvailableConfirmationConfiguration(List<String> filteredTypes)	
 	{
 		StringBuilder typesWithoutConfig = new StringBuilder();
@@ -793,25 +783,6 @@ public class IdentitiesTable extends TreeTable
 		return true;
 	}
 	
-	private void sendConfirmationRequestAfterChange(Identity newIdentity)
-	{
-		if (!newIdentity.getType().getIdentityTypeProvider().isVerifiable())
-			return;
-		List<String> toCheck = new ArrayList<String>();
-		toCheck.add(newIdentity.getTypeId());
-		if (!checkAvailableConfirmationConfiguration(toCheck))
-			return;
-		try
-		{
-			sendConfirmationRequest(newIdentity, newIdentity.getEntityId().toString());
-		} catch (Exception e)
-		{
-			ErrorPopup.showError(msg,
-					msg.getMessage("Identities.cannotSendConfirmation"), e);
-		}
-
-	}
-
 	private class RemoveFromGroupHandler extends SingleActionHandler
 	{
 		public RemoveFromGroupHandler()
@@ -869,7 +840,6 @@ public class IdentitiesTable extends TreeTable
 						public void onCreated(Identity newIdentity)
 						{
 							bus.fireEvent(new GroupChangedEvent(group));
-							sendConfirmationRequestAfterChange(newIdentity);		
 						}
 					}).show();
 		}
@@ -902,7 +872,6 @@ public class IdentitiesTable extends TreeTable
 						public void onCreated(Identity newIdentity)
 						{
 							bus.fireEvent(new GroupChangedEvent(group));
-							sendConfirmationRequestAfterChange(newIdentity);
 						}
 					}).show();
 		}
@@ -1071,8 +1040,9 @@ public class IdentitiesTable extends TreeTable
 			{
 				try
 				{
-					sendConfirmationRequest(ide.getIdentity(), ide.getEntityWithLabel().getEntity().getId()
-							.toString());
+					confirmationManager.sendVerification(
+							new EntityParam(ide.getEntityWithLabel().getEntity().getId()), 
+							ide.getIdentity());
 				} catch (EngineException e)
 				{
 					ErrorPopup.showError(msg, msg.getMessage("Identities.cannotSendConfirmation"), e);

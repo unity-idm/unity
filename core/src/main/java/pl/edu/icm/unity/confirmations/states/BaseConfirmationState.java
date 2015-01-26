@@ -10,6 +10,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
 /**
  * Contains common informations used during confirmation
  * @author P. Piernik
@@ -20,27 +21,24 @@ public class BaseConfirmationState
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	
 	protected String facilityId;
-	protected String owner;
 	protected String type;
 	protected String value;
 	protected String locale;
 	protected String successUrl;
 	protected String errorUrl;
 	
-	public BaseConfirmationState(String facilityId, String owner, String type, String value,
-			String locale)
+	public BaseConfirmationState(String facilityId, String type, String value, String locale)
 	{
-		this.owner = owner;
 		this.type = type;
 		this.value = value;
 		this.locale = locale;
 		this.facilityId = facilityId;
 	}
 	
-	public BaseConfirmationState(String facilityId, String owner, String type, String value,
+	public BaseConfirmationState(String facilityId, String type, String value,
 			String locale, String successUrl, String errorUrl)
 	{
-		this(facilityId, owner, type, value, locale);
+		this(facilityId, type, value, locale);
 		this.errorUrl = errorUrl;
 		this.successUrl = successUrl;
 	}
@@ -57,10 +55,6 @@ public class BaseConfirmationState
 	public String getFacilityId()
 	{
 		return facilityId;
-	}
-	public String getOwner()
-	{
-		return owner;
 	}
 	public String getType()
 	{
@@ -98,7 +92,6 @@ public class BaseConfirmationState
 	{
 		ObjectNode state = mapper.createObjectNode();
 		state.with("confirmationState");
-		state.put("owner", getOwner());
 		state.put("value", getValue());
 		state.put("type", getType());
 		state.put("facilityId", getFacilityId());
@@ -126,7 +119,6 @@ public class BaseConfirmationState
 	{
 		try
 		{
-			owner = main.get("owner").asText();
 			type = main.get("type").asText();
 			value = main.get("value").asText();
 			facilityId = main.get("facilityId").asText();

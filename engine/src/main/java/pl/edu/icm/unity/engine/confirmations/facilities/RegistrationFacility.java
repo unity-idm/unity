@@ -8,7 +8,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
-import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
+import pl.edu.icm.unity.confirmations.states.RegistrationConfirmationState;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
@@ -27,7 +27,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
  * 
  * @author K. Benedyczak
  */
-public abstract class RegistrationFacility <T extends BaseConfirmationState> extends BaseFacility
+public abstract class RegistrationFacility <T extends RegistrationConfirmationState> extends BaseFacility
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, RegistrationFacility.class);
 	
@@ -55,7 +55,7 @@ public abstract class RegistrationFacility <T extends BaseConfirmationState> ext
 	public ConfirmationStatus processConfirmation(String rawState) throws EngineException
 	{
 		T state = parseState(rawState);
-		String requestId = state.getOwner();
+		String requestId = state.getRequestId();
 
 		RegistrationRequestState reqState = null;
 		try
@@ -90,7 +90,7 @@ public abstract class RegistrationFacility <T extends BaseConfirmationState> ext
 						InternalRegistrationManagment.AUTO_ACCEPT_COMMENT,
 						0, false);
 				reqState.getAdminComments().add(internalComment);
-				log.debug("Accept registration request " + state.getOwner()
+				log.debug("Accept registration request " + state.getRequestId()
 						+ " after confirmation [" + state.getType()
 						+ "]" + state.getValue() + " by "
 						+ state.getFacilityId());

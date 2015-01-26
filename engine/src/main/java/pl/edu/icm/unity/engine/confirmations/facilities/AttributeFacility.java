@@ -57,7 +57,7 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 		try
 		{
 			Collection<AttributeExt<?>> allAttrs = dbAttributes.getAllAttributes(
-					Long.parseLong(attrState.getOwner()), attrState.getGroup(),
+					attrState.getOwnerEntityId(), attrState.getGroup(),
 					false, attrState.getType(), sql);
 
 			Collection<Attribute<?>> confirmedList = confirmAttributes(
@@ -66,8 +66,7 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 
 			for (Attribute<?> attr : confirmedList)
 			{
-				dbAttributes.addAttribute(Long.parseLong(attrState.getOwner()),
-						attr, true, sql);
+				dbAttributes.addAttribute(attrState.getOwnerEntityId(), attr, true, sql);
 			}
 			sql.commit();
 			boolean confirmed = (confirmedList.size() > 0);
@@ -109,7 +108,7 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 		try
 		{
 			Collection<AttributeExt<?>> allAttrs = dbAttributes.getAllAttributes(
-					Long.parseLong(attrState.getOwner()), attrState.getGroup(),
+					attrState.getOwnerEntityId(), attrState.getGroup(),
 					false, attrState.getType(), sql);
 
 			for (Attribute<?> attr : allAttrs)
@@ -121,9 +120,7 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 						updateConfirmationInfo((VerifiableElement) val,
 								attrState.getValue());
 					}
-					dbAttributes.addAttribute(
-							Long.parseLong(attrState.getOwner()), attr,
-							true, sql);
+					dbAttributes.addAttribute(attrState.getOwnerEntityId(), attr, true, sql);
 				}
 			}
 			sql.commit();

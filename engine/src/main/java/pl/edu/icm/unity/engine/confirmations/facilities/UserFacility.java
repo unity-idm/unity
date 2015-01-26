@@ -7,7 +7,7 @@ package pl.edu.icm.unity.engine.confirmations.facilities;
 import org.apache.ibatis.session.SqlSession;
 
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
-import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
+import pl.edu.icm.unity.confirmations.states.UserConfirmationState;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.EntityState;
  * 
  * @author K. Benedyczak
  */
-public abstract class UserFacility <T extends BaseConfirmationState> extends BaseFacility
+public abstract class UserFacility <T extends UserConfirmationState> extends BaseFacility
 {
 	protected DBIdentities dbIdentities;
 
@@ -43,9 +43,7 @@ public abstract class UserFacility <T extends BaseConfirmationState> extends Bas
 		EntityState entityState = null;
 		try
 		{
-			entityState = dbIdentities.getEntityStatus(
-					Long.parseLong(idState.getOwner()), sql);
-
+			entityState = dbIdentities.getEntityStatus(idState.getOwnerEntityId(), sql);
 		} catch (Exception e)
 		{
 			return new ConfirmationStatus(false, idState.getErrorUrl(), "ConfirmationStatus.entityRemoved");

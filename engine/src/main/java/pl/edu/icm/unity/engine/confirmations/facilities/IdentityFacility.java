@@ -53,7 +53,7 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 		try
 		{
 			Identity[] ids = dbIdentities.getIdentitiesForEntityNoContext(
-					Long.parseLong(idState.getOwner()), sql);
+					idState.getOwnerEntityId(), sql);
 
 			ArrayList<IdentityParam> idsA = new ArrayList<IdentityParam>();
 			for (Identity id : ids)
@@ -95,7 +95,7 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 		try
 		{
 			Identity[] ids = dbIdentities.getIdentitiesForEntityNoContext(
-					Long.parseLong(idState.getOwner()), sql);
+					idState.getOwnerEntityId(), sql);
 			for (IdentityParam id : ids)
 			{
 				updateConfirmationInfo(id, idState.getValue());

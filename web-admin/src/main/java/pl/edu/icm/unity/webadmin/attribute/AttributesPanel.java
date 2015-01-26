@@ -19,7 +19,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
-import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
@@ -35,7 +34,6 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -621,7 +619,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 				try
 				{
 					Attribute<?> attribute = (Attribute<?>) attr;
-					sendConfirmationRequest(attribute);
+					confirmationManager.sendVerification(owner, attribute);
 				} catch (EngineException e)
 				{
 					ErrorPopup.showError(
@@ -675,20 +673,6 @@ public class AttributesPanel extends HorizontalSplitPanel
 		public boolean appliesToProperty(Object propertyId)
 		{
 			return true;
-		}
-	}
-	
-	private void sendConfirmationRequest(Attribute<?> attribute) throws EngineException
-	{
-		for (Object v : attribute.getValues())
-		{
-			VerifiableElement val = (VerifiableElement) v;
-			//TODO - should use user's preferred locale
-			AttribiuteConfirmationState state = new AttribiuteConfirmationState(
-					owner.getEntityId().toString(), 
-					attribute.getName(), val.getValue(), msg.getDefaultLocaleCode(), groupPath);
-			confirmationManager.sendConfirmationRequest(state
-					.getSerializedConfiguration());
 		}
 	}
 	

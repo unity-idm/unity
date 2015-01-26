@@ -58,6 +58,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 /**
  * Implementation of identities management. Responsible for top level transaction handling,
@@ -179,7 +180,9 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			sqlMap.commit();
 			
 			//careful - must be after the transaction is committed
-			confirmationManager.sendVerifications(new EntityParam(ret.getEntityId()), attributes);
+			EntityParam added = new EntityParam(ret.getEntityId());
+			confirmationManager.sendVerificationsQuiet(added, attributes);
+			confirmationManager.sendVerificationQuiet(added, ret);
 			return ret;
 		} finally
 		{
@@ -200,11 +203,12 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(parentEntity, sqlMap);
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
+			authorizeAddIdentity(entityId, toAdd);
 			Identity ret = dbIdentities.insertIdentity(toAdd, entityId, false, sqlMap);
 			if (extractAttributes)
 				engineHelper.extractAttributes(ret, sqlMap);
 			sqlMap.commit();
+			confirmationManager.sendVerification(new EntityParam(entityId), ret);
 			return ret;
 		} finally
 		{
@@ -212,6 +216,20 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		}
 	}
 
+	/**
+	 * Checks if identityModify capability is granted. If it is only in self access context the
+	 * confirmation status is forced to be unconfirmed.
+	 * @throws AuthorizationException 
+	 */
+	private void authorizeAddIdentity(long entityId, IdentityParam toAdd) throws AuthorizationException
+	{
+		boolean fullAuthz = authz.getCapabilities(false, "/").contains(AuthzCapability.identityModify);
+		if (!fullAuthz)
+		{
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
+			toAdd.setConfirmationInfo(new ConfirmationInfo());
+		}		
+	}
 	
 	/**
 	 * {@inheritDoc}

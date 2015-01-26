@@ -12,7 +12,7 @@ package pl.edu.icm.unity.confirmations.states;
  * @author P. Piernik
  * 
  */
-public class IdentityConfirmationState extends BaseConfirmationState
+public class IdentityConfirmationState extends UserConfirmationState
 {
 	public static final String FACILITY_ID = "IdentityFacility";
 	
@@ -23,28 +23,14 @@ public class IdentityConfirmationState extends BaseConfirmationState
 		setSerializedConfiguration(serializedState);
 	}
 
-	public IdentityConfirmationState(String owner, String type, String value, String locale,
+	public IdentityConfirmationState(long owner, String type, String value, String locale,
 			String successUrl, String errorUrl)
 	{
-		super(FACILITY_ID, owner, type, value, locale, successUrl, errorUrl);
+		super(FACILITY_ID, type, value, locale, successUrl, errorUrl, owner);
 	}
 	
-	public IdentityConfirmationState(String owner, String type, String value, String locale)
+	public IdentityConfirmationState(long owner, String type, String value, String locale)
 	{
-		super(FACILITY_ID, owner, type, value, locale);
+		super(FACILITY_ID, type, value, locale, owner);
 	}
-		
-	protected IdentityConfirmationState(String facilityId, String owner, String type,
-			String value, String locale, String successUrl, String errorUrl)
-	{
-		super(facilityId, owner, type, value, locale, successUrl, errorUrl);
-	}
-	
-	protected IdentityConfirmationState(String facilityId, String owner, String type,
-			String value, String locale)
-	{
-		super(facilityId, owner, type, value, locale);
-	}
-	
-	
 }

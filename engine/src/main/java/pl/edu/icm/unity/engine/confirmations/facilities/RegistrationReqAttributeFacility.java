@@ -75,7 +75,7 @@ public class RegistrationReqAttributeFacility extends RegistrationFacility<Regis
 	{
 		RegistrationReqAttribiuteConfirmationState attrState = 
 				new RegistrationReqAttribiuteConfirmationState(state);
-		String requestId = attrState.getOwner();
+		String requestId = attrState.getRequestId();
 		RegistrationRequestState reqState = internalRegistrationManagment
 				.getRequest(requestId);
 		for (Attribute<?> attr : reqState.getRequest().getAttributes())

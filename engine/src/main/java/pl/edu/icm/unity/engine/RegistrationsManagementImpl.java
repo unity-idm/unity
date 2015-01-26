@@ -538,13 +538,12 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				{
 					VerifiableElement val = (VerifiableElement) v;
 					AttribiuteConfirmationState state = new AttribiuteConfirmationState(
-							entityId.toString(), 
+							entityId, 
 							attr.getName(), 
 							val.getValue(), 
 							requestState.getRequest().getUserLocale(), 
 							attr.getGroupPath(), getSuccessUrl(form), getErrorUrl(form));
-					confirmationManager.sendConfirmationRequest(state
-							.getSerializedConfiguration());
+					confirmationManager.sendConfirmationRequest(state);
 				}
 			}
 		}
@@ -567,8 +566,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 							val.getValue(), 
 							requestState.getRequest().getUserLocale(),
 							attr.getGroupPath(), getSuccessUrl(form), getErrorUrl(form));
-					confirmationManager.sendConfirmationRequest(state
-							.getSerializedConfiguration());
+					confirmationManager.sendConfirmationRequest(state);
 				}
 			}
 		}
@@ -586,19 +584,17 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				{
 					state = new RegistrationReqIdentityConfirmationState(
 							requestState.getRequestId(),
-							id.getTypeId(), id.getValue(), requestState
-									.getRequest()
-									.getUserLocale(),
+							id.getTypeId(), id.getValue(), 
+							requestState.getRequest().getUserLocale(),
 							getSuccessUrl(form), getErrorUrl(form));
 				} else
 				{
-					state = new IdentityConfirmationState(entityId.toString(), 
+					state = new IdentityConfirmationState(entityId, 
 							id.getTypeId(), id.getValue(), 
 							requestState.getRequest().getUserLocale(),
 							getSuccessUrl(form), getErrorUrl(form));
 				}
-				confirmationManager.sendConfirmationRequest(state
-						.getSerializedConfiguration());
+				confirmationManager.sendConfirmationRequest(state);
 			}
 		}
 	}

@@ -14,24 +14,24 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author P. Piernik
  * 
  */
-public class AttribiuteConfirmationState extends BaseConfirmationState
+public class AttribiuteConfirmationState extends UserConfirmationState
 {
 	public static final String FACILITY_ID = "AttributeFacility";
 	private String group;
 
 	
-	public AttribiuteConfirmationState(String owner, String type,
+	public AttribiuteConfirmationState(long owner, String type,
 			String value, String locale, String group)
 	{
-		super(FACILITY_ID, owner, type, value, locale);
+		super(FACILITY_ID, type, value, locale, owner);
 		this.group = group;
 	}
 	
 	
-	public AttribiuteConfirmationState(String owner, String type,
+	public AttribiuteConfirmationState(long owner, String type,
 			String value, String locale, String group, String successUrl, String errorUrl)
 	{
-		super(FACILITY_ID, owner, type, value, locale, successUrl, errorUrl);
+		super(FACILITY_ID, type, value, locale, successUrl, errorUrl, owner);
 		this.group = group;
 	}
 

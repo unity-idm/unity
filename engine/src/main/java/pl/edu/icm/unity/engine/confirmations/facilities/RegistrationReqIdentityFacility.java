@@ -77,7 +77,7 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 	public void processAfterSendRequest(String state) throws EngineException
 	{
 		RegistrationReqIdentityConfirmationState idState = new RegistrationReqIdentityConfirmationState(state);
-		String requestId = idState.getOwner();
+		String requestId = idState.getRequestId();
 		RegistrationRequestState reqState = internalRegistrationManagment
 				.getRequest(requestId);
 		for (IdentityParam id : reqState.getRequest().getIdentities())
