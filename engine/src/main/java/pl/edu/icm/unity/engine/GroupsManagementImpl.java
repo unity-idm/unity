@@ -14,6 +14,7 @@ import java.util.Set;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBSessionManager;
@@ -23,7 +24,7 @@ import pl.edu.icm.unity.db.generic.ac.AttributeClassUtil;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
-import pl.edu.icm.unity.engine.internal.EngineHelper;
+import pl.edu.icm.unity.engine.internal.AttributesHelper;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -55,15 +56,15 @@ public class GroupsManagementImpl implements GroupsManagement
 	private DBAttributes dbAttributes;
 	private AttributeClassDB acDB;
 	private AuthorizationManager authz;
-	private EngineHelper engineHelper;
+	private AttributesHelper attributesHelper;
 	private IdentitiesResolver idResolver;
-	
+	private ConfirmationManager confirmationManager;
 	
 	@Autowired
 	public GroupsManagementImpl(DBSessionManager db, DBGroups dbGroups, DBShared dbShared,
 			DBAttributes dbAttributes, AttributeClassDB acDB,
-			AuthorizationManager authz, EngineHelper engineHelper,
-			IdentitiesResolver idResolver)
+			AuthorizationManager authz, AttributesHelper attributesHelper,
+			IdentitiesResolver idResolver, ConfirmationManager confirmationsManager)
 	{
 		this.db = db;
 		this.dbGroups = dbGroups;
@@ -71,8 +72,9 @@ public class GroupsManagementImpl implements GroupsManagement
 		this.dbAttributes = dbAttributes;
 		this.acDB = acDB;
 		this.authz = authz;
-		this.engineHelper = engineHelper;
+		this.attributesHelper = attributesHelper;
 		this.idResolver = idResolver;
+		this.confirmationManager = confirmationsManager;
 	}
 
 	@Override
@@ -145,12 +147,14 @@ public class GroupsManagementImpl implements GroupsManagement
 			long entityId = idResolver.getEntityId(entity, sql);
 			authz.checkAuthorization(authz.isSelf(entityId), path, AuthzCapability.groupModify);
 			
-			engineHelper.checkGroupAttributeClassesConsistency(attributes, path, sql);
+			attributesHelper.checkGroupAttributeClassesConsistency(attributes, path, sql);
 			
 			dbGroups.addMemberFromParent(path, entity, sql);
 
-			engineHelper.addAttributesList(attributes, entityId, sql);
+			attributesHelper.addAttributesList(attributes, entityId, true, sql);
 			sql.commit();
+			//careful - must be after the transaction is committed
+			confirmationManager.sendVerifications(entity, attributes);
 		} finally
 		{
 			db.releaseSqlSession(sql);

@@ -171,7 +171,7 @@ public class InternalRegistrationManagment
 		List<IdentityParam> identities = req.getIdentities();
 		
 		Identity initial = engineHelper.addEntity(identities.get(0), form.getCredentialRequirementAssignment(), 
-				form.getInitialEntityState(), false, rootAttributes, sql);
+				form.getInitialEntityState(), false, rootAttributes, false, sql);
 
 		for (int i=1; i<identities.size(); i++)
 		{
@@ -202,9 +202,9 @@ public class InternalRegistrationManagment
 			List<Attribute<?>> attributes = remainingAttributesByGroup.get(group);
 			if (attributes == null)
 				attributes = Collections.emptyList();
-			engineHelper.checkGroupAttributeClassesConsistency(attributes, group, sql);
+			attributesHelper.checkGroupAttributeClassesConsistency(attributes, group, sql);
 			dbGroups.addMemberFromParent(group, entity, sql);
-			engineHelper.addAttributesList(attributes, initial.getEntityId(), sql);
+			attributesHelper.addAttributesList(attributes, initial.getEntityId(), false, sql);
 		}
 		
 		if (form.getAttributeClassAssignments() != null)

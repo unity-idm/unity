@@ -16,6 +16,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
@@ -24,6 +25,7 @@ import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authn.CredentialRequirementsHolder;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.internal.AttributesHelper;
 import pl.edu.icm.unity.engine.internal.EngineHelper;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -73,12 +75,14 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	private EngineHelper engineHelper;
 	private AuthorizationManager authz;
 	private IdentityTypesRegistry idTypesRegistry;
-
+	private ConfirmationManager confirmationManager;
+	
 	@Autowired
 	public IdentitiesManagementImpl(DBSessionManager db, DBIdentities dbIdentities,
 			DBAttributes dbAttributes, DBShared dbShared,
-			IdentitiesResolver idResolver, EngineHelper engineHelper,
-			AuthorizationManager authz, IdentityTypesRegistry idTypesRegistry)
+			IdentitiesResolver idResolver, EngineHelper engineHelper, AttributesHelper attributesHelper,
+			AuthorizationManager authz, IdentityTypesRegistry idTypesRegistry,
+			ConfirmationManager confirmationsManager)
 	{
 		this.db = db;
 		this.dbIdentities = dbIdentities;
@@ -88,6 +92,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		this.engineHelper = engineHelper;
 		this.authz = authz;
 		this.idTypesRegistry = idTypesRegistry;
+		this.confirmationManager = confirmationsManager;
 	}
 
 	/**
@@ -170,8 +175,11 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			Identity ret = engineHelper.addEntity(toAdd, credReqId, initialState, 
-					extractAttributes, attributes, sqlMap);
+					extractAttributes, attributes, true, sqlMap);
 			sqlMap.commit();
+			
+			//careful - must be after the transaction is committed
+			confirmationManager.sendVerifications(new EntityParam(ret.getEntityId()), attributes);
 			return ret;
 		} finally
 		{

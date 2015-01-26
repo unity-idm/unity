@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -41,8 +42,13 @@ import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.ConfirmationFacilitiesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
  * Confirmation manager, send or process confirmation request
@@ -52,8 +58,7 @@ import pl.edu.icm.unity.server.utils.Log;
 @Component
 public class ConfirmationManagerImpl implements ConfirmationManager
 {
-	private static final Logger log = Log
-			.getLogger(Log.U_SERVER, ConfirmationManagerImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER, ConfirmationManagerImpl.class);
 
 	private TokensManagement tokensMan;
 	private NotificationProducerImpl notificationProducer;
@@ -62,6 +67,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	private ConfirmationConfigurationDB configurationDB;
 	private DBSessionManager db;
 	private URL advertisedAddress;
+	private UnityMessageSource msg;
 
 	@Autowired
 	public ConfirmationManagerImpl(TokensManagement tokensMan,
@@ -69,7 +75,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			NotificationProducerImpl notificationProducer,
 			ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry,
 			JettyServer httpServer, MessageTemplateDB mtDB,
-			ConfirmationConfigurationDB configurationDB, DBSessionManager db)
+			ConfirmationConfigurationDB configurationDB, DBSessionManager db,
+			UnityMessageSource msg)
 	{
 		this.tokensMan = tokensMan;
 		this.notificationProducer = notificationProducer;
@@ -78,6 +85,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		this.mtDB = mtDB;
 		this.configurationDB = configurationDB;
 		this.db = db;
+		this.msg = msg;
 	}
 
 	/**
@@ -197,6 +205,52 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		return status;
 	}
 
+	
+	@Override
+	public <T> void sendVerification(EntityParam entity, Attribute<T> attribute)
+	{
+		if (!attribute.getAttributeSyntax().isVerifiable())
+			return;
+		
+		String url = null;
+		try
+		{
+			url = InvocationContext.getCurrent().getCurrentURLUsed();
+		} catch (InternalException e)
+		{
+			//OK - no context -> no URL.
+		}
+		
+		try
+		{
+			for (T valA : attribute.getValues())
+			{
+				VerifiableElement val = (VerifiableElement) valA;
+				if (!val.getConfirmationInfo().isConfirmed())
+				{
+					// TODO - should use user's preferred locale
+					AttribiuteConfirmationState state = new AttribiuteConfirmationState(
+							entity.getEntityId().toString(),
+							attribute.getName(), val.getValue(),
+							msg.getDefaultLocaleCode(),
+							attribute.getGroupPath(), url, url);
+					sendConfirmationRequest(state.getSerializedConfiguration());
+				}
+			}
+		} catch (Exception e)
+		{
+			log.warn("Can not send a confirmation for the verificable attribute being added " + 
+					attribute.getName(), e);
+		}
+	}
+
+	@Override
+	public void sendVerifications(EntityParam entity, List<Attribute<?>> attributes)
+	{
+		for (Attribute<?> attribute: attributes)
+			sendVerification(entity, attribute);
+	}
+	
 	private ConfirmationConfiguration getConfiguration(String typeToConfirm,
 			String nameToConfirm) throws EngineException
 	{

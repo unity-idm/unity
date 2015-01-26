@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.engine;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,12 +14,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
-import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
@@ -37,18 +34,14 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.attributes.AttributeMetadataProvider;
 import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
-import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.AttributeMetadataProvidersRegistry;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -57,8 +50,6 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityType;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
  * Implements attributes operations.
@@ -67,7 +58,6 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 @Component
 public class AttributesManagementImpl implements AttributesManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AttributesManagementImpl.class);
 	private AttributeSyntaxFactoriesRegistry attrValueTypesReg;
 	private DBSessionManager db;
 	private AttributeClassDB acDB;
@@ -79,7 +69,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	private AuthorizationManager authz;
 	private AttributesHelper attributesHelper;
 	private ConfirmationManager confirmationManager;
-	private UnityMessageSource msg;
+
 	
 	@Autowired
 	public AttributesManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
@@ -88,7 +78,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			IdentitiesResolver idResolver,
 			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
 			AuthorizationManager authz, AttributesHelper attributesHelper,
-			ConfirmationManager confirmationManager, UnityMessageSource msg)
+			ConfirmationManager confirmationManager)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
 		this.db = db;
@@ -101,7 +91,6 @@ public class AttributesManagementImpl implements AttributesManagement
 		this.authz = authz;
 		this.attributesHelper = attributesHelper;
 		this.confirmationManager = confirmationManager;
-		this.msg = msg;
 	}
 
 	/**
@@ -488,8 +477,6 @@ public class AttributesManagementImpl implements AttributesManagement
 	{
 		attribute.validateInitialization();
 		entity.validateInitialization(); 
-		boolean verifiable = attribute.getAttributeSyntax().isVerifiable();
-		List<VerifiableElement> verifiableValues = new ArrayList<VerifiableElement>(); 
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -497,35 +484,18 @@ public class AttributesManagementImpl implements AttributesManagement
 			//  when changing this method, verify if those needs an update too.
 			long entityId = idResolver.getEntityId(entity, sql);
 			AttributeType at = dbAttributes.getAttributeType(attribute.getName(), sql);
-			if (at.isInstanceImmutable())
-				throw new SchemaConsistencyException("The attribute with name " + at.getName() + 
-						" can not be manually modified");
-			
 			boolean fullAuthz = checkSetAttributeAuthz(entityId, at, attribute);
-			
 			checkIfAllowed(entityId, attribute.getGroupPath(), attribute.getName(), sql);
+
+			attributesHelper.addAttribute(sql, entityId, update, at, fullAuthz, attribute);
 			
-			if (verifiable && !fullAuthz)
-			{
-				//we must force verification status to false, as only real admin can set attributes in 
-				//the confirmed state
-				for (Object v : attribute.getValues())
-				{
-					VerifiableElement val = (VerifiableElement) v;
-					val.setConfirmationInfo(new ConfirmationInfo(0));
-					verifiableValues.add(val);
-				}
-			}
-			
-			dbAttributes.addAttribute(entityId, attribute, update, sql);
 			sql.commit();
 		} finally
 		{
 			db.releaseSqlSession(sql);
 		}
 		
-		if (verifiable)
-			sendVerification(entity, attribute, verifiableValues);
+		confirmationManager.sendVerification(entity, attribute);
 	}
 	
 	private <T> boolean checkSetAttributeAuthz(long entityId, AttributeType at, Attribute<T> attribute) 
@@ -543,46 +513,6 @@ public class AttributesManagementImpl implements AttributesManagement
 		return fullAuthz;
 	}
 	
-	/**
-	 * Sends confirmation messages for the values which requires so. Only for unconfirmed attributes.
-	 * @param entity
-	 * @param attribute
-	 * @param verifiableValues
-	 */
-	private <T> void sendVerification(EntityParam entity, Attribute<T> attribute,
-			List<VerifiableElement> verifiableValues)
-	{
-		String url = null;
-		try
-		{
-			url = InvocationContext.getCurrent().getCurrentURLUsed();
-		} catch (InternalException e)
-		{
-			//OK - no context -> no URL.
-		}
-		
-		try
-		{
-			for (VerifiableElement val : verifiableValues)
-			{
-				if (!val.getConfirmationInfo().isConfirmed())
-				{
-					// TODO - should use user's preferred locale
-					AttribiuteConfirmationState state = new AttribiuteConfirmationState(
-							entity.getEntityId().toString(),
-							attribute.getName(), val.getValue(),
-							msg.getDefaultLocaleCode(),
-							attribute.getGroupPath(), url, url);
-					confirmationManager.sendConfirmationRequest(state
-							.getSerializedConfiguration());
-				}
-			}
-		} catch (Exception e)
-		{
-			log.warn("Can not send a confirmation for the verificable attribute being added " + 
-					attribute.getName(), e);
-		}
-	}
 	
 	/**
 	 * {@inheritDoc}

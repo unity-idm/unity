@@ -6,6 +6,8 @@ package pl.edu.icm.unity.engine.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,6 +25,7 @@ import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.attributes.AttributeMetadataProvider;
@@ -30,10 +33,13 @@ import pl.edu.icm.unity.server.registries.AttributeMetadataProvidersRegistry;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
  * Attributes and ACs related operations, intended for reuse between other classes.
@@ -138,5 +144,74 @@ public class AttributesHelper
 		Collection<AttributeExt<?>> ret = dbAttributes.getAllAttributes(entityId, groupPath, effective,
 				attributeTypeName, sql);
 		return ret;
+	}
+	
+	/**
+	 * Adds an attribute. This method performs engine level checks: whether the attribute type is not immutable,
+	 * and properly sets unverified state if attribute is added by ordinary user (not an admin).
+	 * @param sql
+	 * @param entityId
+	 * @param update
+	 * @param at
+	 * @param honorInitialConfirmation if true then operation is run by privileged user, otherwise it is modification of self 
+	 * possessed attribute and verification status must be set to unverified.
+	 * @param attribute
+	 * @throws EngineException
+	 */
+	public <T> void addAttribute(SqlSession sql, long entityId, boolean update,
+			AttributeType at, boolean honorInitialConfirmation, Attribute<T> attribute) throws EngineException
+	{
+		if (at.isInstanceImmutable())
+			throw new SchemaConsistencyException("The attribute with name " + at.getName() + 
+					" can not be manually modified");
+		
+		if (attribute.getAttributeSyntax().isVerifiable() && !honorInitialConfirmation)
+		{
+			//we must force verification status to false, as only real admin can set attributes in 
+			//the confirmed state
+			for (Object v : attribute.getValues())
+			{
+				VerifiableElement val = (VerifiableElement) v;
+				val.setConfirmationInfo(new ConfirmationInfo(0));
+			}
+		}
+		
+		dbAttributes.addAttribute(entityId, attribute, update, sql);
+	}
+
+	/**
+	 * Checks if the given set of attributes fulfills rules of ACs of a specified group 
+	 * @throws EngineException 
+	 */
+	public void checkGroupAttributeClassesConsistency(List<Attribute<?>> attributes, String path, SqlSession sql) 
+			throws EngineException
+	{
+		AttributeClassHelper helper = AttributeClassUtil.getACHelper(path, 
+				new ArrayList<String>(0), acDB, dbGroups, sql);
+		Set<String> attributeNames = new HashSet<>(attributes.size());
+		for (Attribute<?> a: attributes)
+			attributeNames.add(a.getName());
+		helper.checkAttribtues(attributeNames, null);
+	}
+
+	/**
+	 * Same as {@link #addAttribute(SqlSession, long, boolean, AttributeType, boolean, Attribute)}
+	 * but for a whole list of attributes. It is assumed that attributes are always created. 
+	 * Attribute type is automatically resolved.
+	 *   
+	 * @param attributes
+	 * @param entityId
+	 * @param honorInitialConfirmation
+	 * @param sqlMap
+	 * @throws EngineException
+	 */
+	public void addAttributesList(List<Attribute<?>> attributes, long entityId, boolean honorInitialConfirmation, 
+			SqlSession sqlMap) throws EngineException
+	{
+		for (Attribute<?> a: attributes)
+		{
+			AttributeType at = dbAttributes.getAttributeType(a.getName(), sqlMap);
+			addAttribute(sqlMap, entityId, false, at, honorInitialConfirmation, a);
+		}
 	}
 }
