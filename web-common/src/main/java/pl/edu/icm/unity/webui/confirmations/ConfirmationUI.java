@@ -30,18 +30,15 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 
 import com.vaadin.annotations.Theme;
-import com.vaadin.server.Page;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Shows confirmation status
@@ -97,24 +94,13 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 	
 		if (returnUrl != null && !returnUrl.equals(""))
 		{	
-			Button returnUrlButton =  new Button(msg.getMessage("ConfirmationUI.returnUrl"));
-			returnUrlButton.addStyleName(Styles.textCenter.toString());
-			returnUrlButton.addStyleName(Styles.bold.toString());	
-			returnUrlButton.addStyleName(Reindeer.LABEL_H2.toString());
-			returnUrlButton.addClickListener(new ClickListener()
-			{
-				
-				@Override
-				public void buttonClick(ClickEvent event)
-				{
-					Page.getCurrent().open(returnUrl, null);
-					
-				}
-			});
+			Link returnUrlLink =  new Link(msg.getMessage("ConfirmationUI.returnUrl"),
+					new ExternalResource(returnUrl));
+			returnUrlLink.addStyleName(Styles.textLarge.toString());
 			Label spacerR = new Label();
 			mainWrapper.addComponent(spacerR);
-			mainWrapper.addComponent(returnUrlButton);
-			mainWrapper.setComponentAlignment(returnUrlButton, Alignment.TOP_CENTER);
+			mainWrapper.addComponent(returnUrlLink);
+			mainWrapper.setComponentAlignment(returnUrlLink, Alignment.TOP_CENTER);
 			mainWrapper.setExpandRatio(spacerR, 0.1f);
 		}
 		
