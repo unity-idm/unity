@@ -725,6 +725,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			}
 		}
 
+		boolean hasMandatoryIdentity = false;
 		if (form.getIdentityParams() != null)
 		{
 			Set<String> usedRemote = new HashSet<>();
@@ -740,8 +741,12 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 								"then one of type " + id.getIdentityType());
 					usedRemote.add(id.getIdentityType());
 				}
+				if (!id.isOptional())
+					hasMandatoryIdentity = true;
 			}
 		}
+		if (!hasMandatoryIdentity)
+			throw new WrongArgumentException("Registration form must collect at least one mandatory identity.");
 		
 		if (form.getInitialEntityState() == null)
 			throw new WrongArgumentException("Initial entity state must be set in the form.");
