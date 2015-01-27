@@ -20,7 +20,7 @@ import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 
 /**
- * Warning: this test works really only after mvn clean. Otherwise it barely test anything
+ * Warning: this test works really only after mvn clean. Otherwise it barely tests anything
  * @author P. Piernik
  */
 @RunWith(SpringJUnit4ClassRunner.class)

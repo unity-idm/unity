@@ -15,4 +15,9 @@ public interface VerifiableElement
 	ConfirmationInfo getConfirmationInfo();
 	void setConfirmationInfo(ConfirmationInfo confirmationInfo);
 	String getValue();
+	/**
+	 * Shorter version of getConfirmationInfo().isConfirmed(), also checking if the CI is not null.
+	 * @return true if element is properly verified
+	 */
+	boolean isConfirmed();
 }

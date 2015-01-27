@@ -79,6 +79,13 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 	{
 		return confirmationInfo;
 	}
+
+	@JsonIgnore
+	@Override
+	public boolean isConfirmed()
+	{
+		return confirmationInfo != null && confirmationInfo.isConfirmed();
+	}
 	
 	@Override
 	public int hashCode()

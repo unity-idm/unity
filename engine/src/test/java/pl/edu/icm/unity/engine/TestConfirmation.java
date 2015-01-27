@@ -114,8 +114,8 @@ public class TestConfirmation extends DBIntegrationTestBase
 		
 		AttributeExt<?> returned = attrsMan.getAttributes(entity, "/", 
 				InitializerCommon.EMAIL_ATTR).iterator().next();		
-		Assert.assertTrue(((VerifiableEmail)returned.getValues().get(0)).isValid());
-		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(1)).isValid());
+		Assert.assertTrue(((VerifiableEmail)returned.getValues().get(0)).isConfirmed());
+		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(1)).isConfirmed());
 		
 		VerifiableEmail e1P = new VerifiableEmail("a@example.com", new ConfirmationInfo(false));
 		VerifiableEmail e2P = new VerifiableEmail("b@example.com", new ConfirmationInfo(true));
@@ -127,9 +127,9 @@ public class TestConfirmation extends DBIntegrationTestBase
 
 		AttributeExt<?> returnedP = attrsMan.getAttributes(entity, "/", 
 				InitializerCommon.EMAIL_ATTR).iterator().next();		
-		Assert.assertFalse(((VerifiableEmail)returnedP.getValues().get(0)).isValid()); 
-		Assert.assertTrue(((VerifiableEmail)returnedP.getValues().get(1)).isValid()); 
-		Assert.assertTrue(((VerifiableEmail)returnedP.getValues().get(2)).isValid()); 
+		Assert.assertFalse(((VerifiableEmail)returnedP.getValues().get(0)).isConfirmed()); 
+		Assert.assertTrue(((VerifiableEmail)returnedP.getValues().get(1)).isConfirmed()); 
+		Assert.assertTrue(((VerifiableEmail)returnedP.getValues().get(2)).isConfirmed()); 
 	}
 
 	/**
@@ -161,8 +161,8 @@ public class TestConfirmation extends DBIntegrationTestBase
 		
 		AttributeExt<?> returned = attrsMan.getAttributes(entity, "/", 
 				InitializerCommon.EMAIL_ATTR).iterator().next();
-		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(0)).isValid());
-		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(1)).isValid());
+		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(0)).isConfirmed());
+		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(1)).isConfirmed());
 		
 		setupAdmin();
 		e1 = new VerifiableEmail("a@example.com", new ConfirmationInfo(true));
@@ -174,8 +174,8 @@ public class TestConfirmation extends DBIntegrationTestBase
 
 		returned = attrsMan.getAttributes(entity, "/", 
 				InitializerCommon.EMAIL_ATTR).iterator().next();
-		Assert.assertTrue(((VerifiableEmail)returned.getValues().get(0)).isValid());
-		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(1)).isValid());
+		Assert.assertTrue(((VerifiableEmail)returned.getValues().get(0)).isConfirmed());
+		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(1)).isConfirmed());
 
 		setupUserContext("user1", false);
 
@@ -189,9 +189,9 @@ public class TestConfirmation extends DBIntegrationTestBase
 
 		returned = attrsMan.getAttributes(entity, "/", 
 				InitializerCommon.EMAIL_ATTR).iterator().next();
-		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(0)).isValid()); //reset
-		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(1)).isValid()); //preserved old, reset
-		Assert.assertTrue(((VerifiableEmail)returned.getValues().get(2)).isValid()); //preserved old, set
+		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(0)).isConfirmed()); //reset
+		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(1)).isConfirmed()); //preserved old, reset
+		Assert.assertTrue(((VerifiableEmail)returned.getValues().get(2)).isConfirmed()); //preserved old, set
 		
 		e1 = new VerifiableEmail("c@example.com", new ConfirmationInfo(false));
 		e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(false));
@@ -599,7 +599,7 @@ public class TestConfirmation extends DBIntegrationTestBase
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addGroup(new Group("/B"));
 		RegistrationForm form = getForm();
-		form.setAutoAcceptCondition("attr[\"email\"].valid ==  true ");
+		form.setAutoAcceptCondition("attr[\"email\"].confirmed ==  true ");
 		registrationsMan.addForm(form);
 
 		addTemplate();

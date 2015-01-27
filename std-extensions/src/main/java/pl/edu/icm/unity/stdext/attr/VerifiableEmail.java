@@ -58,7 +58,8 @@ public class VerifiableEmail implements VerifiableElement
 		this.value = value;
 	}
 
-	public boolean isValid()
+	@Override
+	public boolean isConfirmed()
 	{
 		return confirmationInfo.isConfirmed();
 	}
