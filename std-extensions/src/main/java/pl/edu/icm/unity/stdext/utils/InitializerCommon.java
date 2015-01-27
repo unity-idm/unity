@@ -131,6 +131,7 @@ public class InitializerCommon
 		AttributeType verifiableEmail = new AttributeType(EMAIL_ATTR, 
 				new VerifiableEmailAttributeSyntax(), msg);
 		verifiableEmail.setMinElements(1);
+		verifiableEmail.setMaxElements(5);
 		verifiableEmail.getMetadata().put(ContactEmailMetadataProvider.NAME, "");
 		
 		if (!existingATs.contains(verifiableEmail))

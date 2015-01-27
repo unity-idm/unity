@@ -41,9 +41,9 @@ public class ContactEmailMetadataProvider implements AttributeMetadataProvider
 				VerifiableEmailAttributeSyntax.ID.equals(at.getValueType().getValueSyntaxId())))
 			throw new IllegalAttributeTypeException("The " + NAME + " designator can be applied only " +
 					"to string or verifiableEmail type attribute types.");
-		if (at.getMaxElements() != 1 || at.getMinElements() != 1)
+		if (at.getMinElements() == 0)
 			throw new IllegalAttributeTypeException("The " + NAME + " designator can be applied only " +
-					"to attribute types with exactly one value.");
+					"to attribute types with at least one mandatory value.");
 		if (!"".equals(metadata))
 			throw new IllegalAttributeTypeException("The " + NAME + " designator must have an empty value");
 	}
