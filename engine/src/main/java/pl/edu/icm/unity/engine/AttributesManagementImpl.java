@@ -508,12 +508,10 @@ public class AttributesManagementImpl implements AttributesManagement
 		Set<AuthzCapability> nonSelfCapabilities = authz.getCapabilities(false, 
 				attribute.getGroupPath());
 		boolean fullAuthz = nonSelfCapabilities.contains(AuthzCapability.attributeModify);
-		
-		if (!fullAuthz)
-		{
-			authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId), 
+
+		//even if we have fullAuthz we need to check authZ (e.g. to get outdated credential error)
+		authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId), 
 				attribute.getGroupPath(), AuthzCapability.attributeModify);
-		}
 		return fullAuthz;
 	}
 	

@@ -223,9 +223,10 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		if (client.isUsedOutdatedCredential())
 		{
 			if (requiredCapabilities.length > 1 || 
-					(requiredCapabilities[0] != AuthzCapability.credentialModify &&
-					requiredCapabilities[0] != AuthzCapability.readInfo && 
-					requiredCapabilities[0] != AuthzCapability.read))
+				(requiredCapabilities.length == 1 && 
+						(requiredCapabilities[0] != AuthzCapability.credentialModify &&
+						requiredCapabilities[0] != AuthzCapability.readInfo && 
+						requiredCapabilities[0] != AuthzCapability.read)))
 				throw new AuthorizationException("Access is denied. The client's credential " +
 						"is outdated and the only allowed operation is the credential update");
 		}
