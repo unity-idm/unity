@@ -43,6 +43,8 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
  * Internal (shouldn't be exposed directly to end-users) subsystem for sending notifications.
@@ -109,12 +111,31 @@ public class NotificationProducerImpl implements NotificationProducer
 		NotificationFacility facility = facilitiesRegistry.getByName(channelDesc.getFacilityId());
 		return facility.getChannel(channelDesc.getConfiguration());
 	}
-	
+
+	/**
+	 * Returns the first confirmed value or the first if the attribute is not verifiable or if there is
+	 * no verified value. 
+	 * @param recipient
+	 * @param metadataId
+	 * @param sql
+	 * @return
+	 * @throws EngineException
+	 */
 	private String getAddressForEntity(EntityParam recipient, String metadataId, SqlSession sql) throws EngineException
 	{
 		AttributeExt<?> attr = attributesHelper.getAttributeByMetadata(recipient, "/", metadataId, sql);
 		if (attr == null)
 			throw new IllegalIdentityValueException("The entity does not have the email address specified");
+		if (attr.getAttributeSyntax().isVerifiable())
+		{
+			for (Object value: attr.getValues())
+			{
+				ConfirmationInfo ci = ((VerifiableElement)value).getConfirmationInfo();
+				if (ci != null && ci.isConfirmed())
+					return value.toString();
+			}
+		}
+			
 		return attr.getValues().get(0).toString();
 	}
 
