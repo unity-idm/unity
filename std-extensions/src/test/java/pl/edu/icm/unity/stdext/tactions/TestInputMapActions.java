@@ -20,6 +20,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.translation.in.AttributeEffectMode;
 import pl.edu.icm.unity.server.translation.in.EntityChange;
 import pl.edu.icm.unity.server.translation.in.GroupEffectMode;
@@ -32,6 +33,7 @@ import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.tactions.in.EntityChangeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapAttributeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapGroupActionFactory;
@@ -150,7 +152,10 @@ public class TestInputMapActions
 	@Test
 	public void testMapIdentity() throws EngineException
 	{
-		MapIdentityActionFactory factory = new MapIdentityActionFactory();
+		IdentityTypesRegistry idTypesReg = mock(IdentityTypesRegistry.class);
+		when(idTypesReg.getByName("userName")).thenReturn(new UsernameIdentity());
+		
+		MapIdentityActionFactory factory = new MapIdentityActionFactory(idTypesReg);
 		InputTranslationAction mapAction = factory.getInstance("userName", 
 				"attr['attribute:colon'] + '-' + attr['other'] + '-' + id", 
 				"CR", IdentityEffectMode.REQUIRE_MATCH.toString());

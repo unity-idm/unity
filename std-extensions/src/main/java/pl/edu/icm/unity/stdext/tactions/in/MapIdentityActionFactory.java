@@ -4,9 +4,11 @@
  */
 package pl.edu.icm.unity.stdext.tactions.in;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
 import pl.edu.icm.unity.server.translation.ProfileType;
@@ -24,6 +26,14 @@ public class MapIdentityActionFactory implements TranslationActionFactory
 {
 	public static final String NAME = "mapIdentity";
 	
+	private IdentityTypesRegistry idsRegistry;
+	
+	@Autowired
+	public MapIdentityActionFactory(IdentityTypesRegistry idsRegistry)
+	{
+		this.idsRegistry = idsRegistry;
+	}
+
 	@Override
 	public String getName()
 	{
@@ -61,7 +71,7 @@ public class MapIdentityActionFactory implements TranslationActionFactory
 	@Override
 	public InputTranslationAction getInstance(String... parameters) throws EngineException
 	{
-		return new MapIdentityAction(parameters, this);
+		return new MapIdentityAction(parameters, this, idsRegistry);
 	}
 
 	@Override

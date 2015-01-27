@@ -12,7 +12,9 @@ import org.apache.log4j.Logger;
 import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.translation.in.AbstractInputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
@@ -20,6 +22,7 @@ import pl.edu.icm.unity.server.translation.in.MappedIdentity;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 
 /**
  * Defines Unity identity from a given expression. The engine can either match by or create the defined identity. 
@@ -33,11 +36,14 @@ public class MapIdentityAction extends AbstractInputTranslationAction
 	private String credentialRequirement;
 	private Serializable expressionCompiled;
 	private IdentityEffectMode mode;
+	private IdentityTypeDefinition idTypeResolved;
 
-	public MapIdentityAction(String[] params, TranslationActionDescription desc)
+	public MapIdentityAction(String[] params, TranslationActionDescription desc, IdentityTypesRegistry idsRegistry) 
+			throws IllegalTypeException
 	{
 		super(desc, params);
 		setParameters(params);
+		idTypeResolved = idsRegistry.getByName(unityType);
 	}
 	
 	@Override
@@ -55,7 +61,7 @@ public class MapIdentityAction extends AbstractInputTranslationAction
 		
 		for (Object i: iValues)
 		{
-			IdentityParam idParam = new IdentityParam(unityType, i.toString(), input.getIdpName(),
+			IdentityParam idParam = idTypeResolved.convertFromString(i.toString(), input.getIdpName(),
 					currentProfile);
 			MappedIdentity mi = new MappedIdentity(mode, idParam, credentialRequirement);
 			log.debug("Mapped identity: " + idParam);

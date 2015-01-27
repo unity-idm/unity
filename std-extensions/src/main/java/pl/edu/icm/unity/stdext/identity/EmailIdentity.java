@@ -7,12 +7,16 @@ package pl.edu.icm.unity.stdext.identity;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
+
 import org.springframework.stereotype.Component;
+
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
+import pl.edu.icm.unity.stdext.utils.EmailUtils;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
  * Email identity type definition
@@ -23,9 +27,6 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 {
 	public static final String ID = "email";
-	private final int MIN_LENGTH = 5;
-	private final int MAX_LENGTH = 33;
-	private final String EMAIL_REGEXP = "[^@]+@.+\\..+";
 
 	/**
 	 * {@inheritDoc}
@@ -57,19 +58,20 @@ public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 	@Override
 	public void validate(String value) throws IllegalIdentityValueException
 	{
-		Pattern pattern = Pattern.compile(EMAIL_REGEXP);
-		if (value == null)
-			throw new IllegalIdentityValueException("null value is illegal");
-		if (value.length() < MIN_LENGTH)
-			throw new IllegalIdentityValueException("Value length (" + value.length()
-					+ ") is too small, must be at least " + MIN_LENGTH);
-		if (value.length() > MAX_LENGTH)
-			throw new IllegalIdentityValueException("Value length (" + value.length()
-					+ ") is too big, must be not greater than " + MAX_LENGTH);
-		if (pattern != null)
-			if (!pattern.matcher(value).matches())
-				throw new IllegalIdentityValueException("Value must match the "
-						+ "regualr expression: " + EMAIL_REGEXP);
+		String error = EmailUtils.validate(value);
+		if (error != null)
+			throw new IllegalIdentityValueException(error);
+	}
+	
+	@Override
+	public IdentityParam convertFromString(String stringRepresentation, String remoteIdp, 
+			String translationProfile) throws IllegalIdentityValueException
+	{
+		VerifiableEmail converted = EmailUtils.convertFromString(stringRepresentation);
+		validate(converted.getValue());
+		IdentityParam ret = new IdentityParam(getId(), converted.getValue(), remoteIdp, translationProfile);
+		ret.setConfirmationInfo(converted.getConfirmationInfo());
+		return ret;
 	}
 
 	/**

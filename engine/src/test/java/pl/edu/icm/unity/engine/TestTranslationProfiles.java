@@ -4,9 +4,7 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,6 +39,8 @@ import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
 import pl.edu.icm.unity.server.translation.out.TranslationInput;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -64,6 +64,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
  * Integration and engine related part tests of the subsystem mapping the remote data to the unity's representation. 
@@ -228,6 +229,84 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		assertTrue(groups.contains("/A/newGr"));
 	}
 
+	@Test
+	public void testConfirmationStateSettingFromProfile() throws Exception
+	{
+		AttributeType oType = new AttributeType("email", new VerifiableEmailAttributeSyntax());
+		oType.setMaxElements(10);
+		attrsMan.addAttributeType(oType);
+		
+		List<InputTranslationRule> rules = new ArrayList<>();
+		InputTranslationAction action1 = (InputTranslationAction) tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				EmailIdentity.ID, 
+				"'id1@example.com[CONFIRMED]'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.CREATE_OR_MATCH.toString());
+		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
+		InputTranslationAction action2 =  (InputTranslationAction) tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				EmailIdentity.ID, 
+				"'id2@example.com[UNCONFIRMED]'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.CREATE_OR_MATCH.toString()); 
+		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
+		InputTranslationAction action3 =  (InputTranslationAction) tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				EmailIdentity.ID, 
+				"'id3@example.com'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.CREATE_OR_MATCH.toString()); 
+		rules.add(new InputTranslationRule(action3, new TranslationCondition()));
+		InputTranslationAction action4 = (InputTranslationAction) tactionReg.getByName(MapAttributeActionFactory.NAME).getInstance(
+				"email", "/", "['id4@example.com[CONFIRMED]', 'id5@example.com[UNCONFIRMED]', 'id6@example.com']",
+				AttributeVisibility.full.toString(), AttributeEffectMode.CREATE_OR_UPDATE.toString()); 
+		rules.add(new InputTranslationRule(action4, new TranslationCondition()));
+		
+		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules, ProfileMode.UPDATE_ONLY);
+		
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
+		
+		MappingResult result = tp1.translate(input);
+		inputTrEngine.process(result);
+		
+		EntityParam ep = new EntityParam(new IdentityTaV(EmailIdentity.ID, "id1@example.com"));
+		Entity entity = idsMan.getEntity(ep);
+		int num = 0;
+		for (Identity id: entity.getIdentities())
+		{
+			if (id.getTypeId().equals(EmailIdentity.ID))
+			{
+				if ("id1@example.com".equals(id.getValue()))
+				{
+					assertTrue(id.isConfirmed());
+					num ++;
+				} else if ("id2@example.com".equals(id.getValue()))
+				{
+					assertFalse(id.isConfirmed());
+					num ++;
+					
+				} else if ("id3@example.com".equals(id.getValue()))
+				{
+					assertFalse(id.isConfirmed());
+					num ++;
+				}
+				
+			}
+		}
+		assertEquals(3, num);
+		
+		
+		Collection<AttributeExt<?>> atrs = attrsMan.getAttributes(ep, "/", "email");
+		assertEquals(1, atrs.size());
+		AttributeExt<?> at = atrs.iterator().next();
+		assertEquals(3, at.getValues().size());
+		assertEquals("id4@example.com", at.getValues().get(0).toString());
+		assertTrue(((VerifiableElement)at.getValues().get(0)).isConfirmed());
+		assertEquals("id5@example.com", at.getValues().get(1).toString());
+		assertFalse(((VerifiableElement)at.getValues().get(1)).isConfirmed());
+		assertEquals("id6@example.com", at.getValues().get(2).toString());
+		assertFalse(((VerifiableElement)at.getValues().get(2)).isConfirmed());
+	}
+
+	
 	
 	@Test
 	public void testIntegratedInputWithReg() throws Exception

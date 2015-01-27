@@ -5,17 +5,17 @@
 package pl.edu.icm.unity.stdext.attr;
 
 import java.nio.charset.StandardCharsets;
-import java.util.regex.Pattern;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.stdext.utils.EmailUtils;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Verifiable email attribute value syntax.
@@ -24,10 +24,6 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<VerifiableEmail> 
 {
 	public static final String ID = "verifiableEmail";
-	private final int MAX_LENGTH = 80;
-	private static final String EMAIL_REGEXP = "[^@]+@.+\\..+";
-	private static final Pattern PATTERN = Pattern.compile(EMAIL_REGEXP);
-	
 	
 	/**
 	 * {@inheritDoc}
@@ -111,14 +107,11 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	@Override
 	public void validate(VerifiableEmail value) throws IllegalAttributeValueException
 	{
-		if (value == null || value.getValue() == null)
+		if (value == null)
 			throw new IllegalAttributeValueException("null value is illegal");
-		if (value.getValue().length() > MAX_LENGTH)
-			throw new IllegalAttributeValueException("Value length (" + value.getValue().length() 
-					+ ") is too big, must be not greater than " + MAX_LENGTH);
-		if (!PATTERN.matcher(value.getValue()).matches())
-			throw new IllegalAttributeValueException("Value must match the " +
-						"regualr expression: " + EMAIL_REGEXP);
+		String error = EmailUtils.validate(value.getValue());
+		if (error != null)
+			throw new IllegalAttributeValueException(error);
 	}
 
 	/**
@@ -149,7 +142,7 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	public VerifiableEmail convertFromString(String stringRepresentation)
 			throws IllegalAttributeValueException
 	{
-		VerifiableEmail ret = new VerifiableEmail(stringRepresentation);
+		VerifiableEmail ret = EmailUtils.convertFromString(stringRepresentation);
 		validate(ret);
 		return ret;
 	}

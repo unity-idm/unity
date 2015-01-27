@@ -5,6 +5,8 @@
 package pl.edu.icm.unity.stdext.identity;
 
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 
 /**
@@ -51,6 +53,13 @@ public abstract class AbstractIdentityTypeProvider implements IdentityTypeDefini
 	public boolean isRemovable()
 	{
 		return true;
+	}
+	
+	@Override
+	public IdentityParam convertFromString(String stringRepresentation, String remoteIdp, 
+			String translationProfile) throws IllegalIdentityValueException
+	{
+		return new IdentityParam(getId(), stringRepresentation, remoteIdp, translationProfile);
 	}
 	
 	/**

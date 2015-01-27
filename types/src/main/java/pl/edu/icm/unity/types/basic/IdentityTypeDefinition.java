@@ -158,5 +158,18 @@ public interface IdentityTypeDefinition
 	 * @return if true then identities of this type can be confirmed. 
 	 */
 	public boolean isVerifiable();
+	
+	/**
+	 * Creates an IdentityParam from a string representation. Typically the method is simplistic (i.e. 
+	 * the {@link IdentityParam#getValue()}, remoteIdp and profile is set to the arguments 
+	 * and type to {@link #getId()}), but it can also perform additional parsing to set 
+	 * for instance the confirmation information. 
+	 * 
+	 * @param stringRepresentation
+	 * @return 
+	 * @throws IllegalIdentityValueException 
+	 */
+	public IdentityParam convertFromString(String stringRepresentation, 
+			String remoteIdp, String translationProfile) throws IllegalIdentityValueException;
 }
 

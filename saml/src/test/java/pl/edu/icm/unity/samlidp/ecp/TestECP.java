@@ -51,6 +51,7 @@ import pl.edu.icm.unity.saml.xmlbeans.soap.Header;
 import pl.edu.icm.unity.samlidp.AbstractTestIdpBase;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
@@ -83,6 +84,8 @@ public class TestECP extends AbstractTestIdpBase
 	private TranslationProfileManagement profilesMan;
 	@Autowired
 	private PKIManagement pkiMan;
+	@Autowired
+	private IdentityTypesRegistry idTypesReg;
 	
 	@Before
 	public void setup()
@@ -98,7 +101,7 @@ public class TestECP extends AbstractTestIdpBase
 			assertEquals(2, endpoints.size());
 			
 			List<InputTranslationRule> rules = new ArrayList<InputTranslationRule>();
-			MapIdentityActionFactory factory = new MapIdentityActionFactory();
+			MapIdentityActionFactory factory = new MapIdentityActionFactory(idTypesReg);
 			
 			InputTranslationRule mapId = new InputTranslationRule(
 					factory.getInstance("userName", "attr['unity:identity:userName']", 

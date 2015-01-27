@@ -274,6 +274,15 @@ To control an attribute or identity confirmation state in a translation profile,
 be followed with the special suffix +[CONFIRMED]+ or +[UNCONFIRMED]+ (case sensitive, without spaces between
 the last character of email address). The default value is unconfirmed.
 
+For instance assuming that the remote IdP provided an attribute +emailAddress+ and we assume that this address
+should be treated as already confirmed the following expression will produce a proper value for the +mapAttribute+
+action:
+
+----
+attr["emailAddress"] + "[CONFIRMED]"
+----
+
+
 ==== User control of e-mail address
 
 If the email attribute type is set as self modifiable, the user can edit its value on its own. To enable it
