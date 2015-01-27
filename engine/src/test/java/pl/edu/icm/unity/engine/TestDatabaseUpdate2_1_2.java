@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import org.junit.Test;
@@ -43,6 +44,7 @@ public class TestDatabaseUpdate2_1_2
 	public void test() throws Exception
 	{
 		DBIntegrationTestBase.setupUserContext(sessionMan, identityResolver, "admin", false);
-		tokensMan.addToken("TYPE", "1", (new String("xx")).getBytes() , new Date(), new Date());	
+		tokensMan.addToken("TYPE", "1", (new String("xx")).getBytes(StandardCharsets.UTF_8) , 
+				new Date(), new Date());	
 	}
 }

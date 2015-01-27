@@ -630,7 +630,7 @@ public class InternalRegistrationManagment
 			log.debug("Update confirmation token " + tk.getValue() + " change facility to " + 
 					newstate.getFacilityId());
 			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), newstate
-					.getSerializedConfiguration().getBytes(), tk.getCreated(),
+					.getSerializedConfiguration().getBytes(StandardCharsets.UTF_8), tk.getCreated(),
 					tk.getExpires());
 		}
 
@@ -676,7 +676,7 @@ public class InternalRegistrationManagment
 			log.debug("Update confirmation token " + tk.getValue()
 					+ " change facility to " + newstate.getFacilityId());
 			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), newstate
-					.getSerializedConfiguration().getBytes(), tk.getCreated(),
+					.getSerializedConfiguration().getBytes(StandardCharsets.UTF_8), tk.getCreated(),
 					tk.getExpires());
 		}
 	}

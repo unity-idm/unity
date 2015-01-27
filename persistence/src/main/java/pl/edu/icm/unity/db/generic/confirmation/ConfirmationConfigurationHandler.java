@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.db.generic.confirmation;
 
+import java.nio.charset.StandardCharsets;
+
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -37,7 +39,7 @@ public class ConfirmationConfigurationHandler extends
 	{
 		String json = value.toJson(jsonMapper);
 		return new GenericObjectBean(value.getTypeToConfirm() + value.getNameToConfirm(),
-				json.getBytes(), supportedType);
+				json.getBytes(StandardCharsets.UTF_8), supportedType);
 	}
 
 	@Override

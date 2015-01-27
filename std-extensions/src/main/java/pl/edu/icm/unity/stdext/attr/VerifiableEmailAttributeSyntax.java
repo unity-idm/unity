@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -66,7 +67,7 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		main.put("confirmationData", value.getConfirmationInfo().getSerializedConfiguration());
 		try
 		{
-			return Constants.MAPPER.writeValueAsString(main).getBytes();
+			return Constants.MAPPER.writeValueAsString(main).getBytes(StandardCharsets.UTF_8);
 		} catch (JsonProcessingException e)
 		{
 			throw new InternalException("Can't serialize VerifiableEmail to JSON", e);

@@ -531,9 +531,10 @@ public class TestConfirmation extends DBIntegrationTestBase
 
 		Assert.assertEquals(1, tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE).size());
 
-		UserConfirmationState state = new UserConfirmationState(new String(tokensMan
-				.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE).get(0)
-				.getContents(), StandardCharsets.UTF_8));
+		byte[] tokenContents = tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE).get(0)
+				.getContents();
+		UserConfirmationState state = new UserConfirmationState(new String(tokenContents, 
+				StandardCharsets.UTF_8));
 		EntityParam entity = new EntityParam(state.getOwnerEntityId());
 		VerifiableElement vattr = getAttributeValueFromEntity(entity, "/");
 		Assert.assertTrue(vattr.getConfirmationInfo().isConfirmed());
