@@ -23,6 +23,7 @@ import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassUtil;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
@@ -179,6 +180,10 @@ public class AttributesHelper
 	 * - otherwise it is assumed that ordinary user is the caller, and all values are set as unconfirmed,
 	 * unless the operation is updating an existing attribute - then values which are equal to already existing
 	 * preserve their confirmation state. 
+	 * <p>
+	 * What is more it is checked in case of attribute update, when there is no-admin mode if the attribute 
+	 * being updated had at least one confirmed value. If yes, also at least one confirmed value must be preserved. 
+	 * 
 	 * @throws EngineException 
 	 */
 	private <T> void enforceCorrectConfirmationState(SqlSession sql, long entityId, boolean update,
@@ -204,6 +209,7 @@ public class AttributesHelper
 		
 		AttributeExt<?> updated = attrs.iterator().next();
 		Set<Integer> preservedStateIndices = new HashSet<Integer>();
+		boolean oneConfirmedValuePreserved = false;
 		//first we find matching values where confirmation state should be preserved
 		for (int i=0; i<attribute.getValues().size(); i++)
 		{
@@ -216,6 +222,8 @@ public class AttributesHelper
 					VerifiableElement newValueCasted = (VerifiableElement) newValue;
 					VerifiableElement existingValueCasted = (VerifiableElement) existingValue;
 					newValueCasted.setConfirmationInfo(existingValueCasted.getConfirmationInfo());
+					if (existingValueCasted.getConfirmationInfo().isConfirmed())
+						oneConfirmedValuePreserved = true;
 				}
 			}
 		}
@@ -226,6 +234,17 @@ public class AttributesHelper
 			{
 				VerifiableElement val = (VerifiableElement) attribute.getValues().get(i);
 				val.setConfirmationInfo(new ConfirmationInfo(0));
+			}
+		}
+		
+		if (!oneConfirmedValuePreserved)
+		{
+			for (Object existingValue: updated.getValues())
+			{
+				VerifiableElement existingValueCasted = (VerifiableElement) existingValue;
+				if (existingValueCasted.getConfirmationInfo().isConfirmed())
+					throw new IllegalAttributeValueException("At least " + 
+							"one confirmed value must be preserved");
 			}
 		}
 	}

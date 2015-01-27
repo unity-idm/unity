@@ -29,6 +29,7 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.confirmations.ConfirmationManagerImpl;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate.I18nMessage;
 import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
@@ -191,6 +192,21 @@ public class TestConfirmation extends DBIntegrationTestBase
 		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(0)).isValid()); //reset
 		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(1)).isValid()); //preserved old, reset
 		Assert.assertTrue(((VerifiableEmail)returned.getValues().get(2)).isValid()); //preserved old, set
+		
+		e1 = new VerifiableEmail("c@example.com", new ConfirmationInfo(false));
+		e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(false));
+		at1 = new VerifiableEmailAttribute(
+				InitializerCommon.EMAIL_ATTR, "/",
+				AttributeVisibility.full, e1, e2);
+		try
+		{
+			attrsMan.setAttribute(entity, at1, true);
+			fail("Ordinary user managed to remove the last confirmed attribute value");
+		} catch (IllegalAttributeValueException e)
+		{
+			//OK
+		}
+
 	}
 	
 	@Test
