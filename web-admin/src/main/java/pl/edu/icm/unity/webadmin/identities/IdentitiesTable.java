@@ -1042,7 +1042,7 @@ public class IdentitiesTable extends TreeTable
 				{
 					confirmationManager.sendVerification(
 							new EntityParam(ide.getEntityWithLabel().getEntity().getId()), 
-							ide.getIdentity());
+							ide.getIdentity(), false);
 				} catch (EngineException e)
 				{
 					ErrorPopup.showError(msg, msg.getMessage("Identities.cannotSendConfirmation"), e);

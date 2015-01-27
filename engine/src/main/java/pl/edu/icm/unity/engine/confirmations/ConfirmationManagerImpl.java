@@ -214,11 +214,12 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 
 	
 	@Override
-	public <T> void sendVerification(EntityParam entity, Attribute<T> attribute) throws EngineException
+	public <T> void sendVerification(EntityParam entity, Attribute<T> attribute, boolean useCurrentReturnUrl) 
+			throws EngineException
 	{
 		if (!attribute.getAttributeSyntax().isVerifiable())
 			return;
-		String url = getCurrentURL();
+		String url = getCurrentURL(useCurrentReturnUrl);
 		for (T valA : attribute.getValues())
 		{
 			VerifiableElement val = (VerifiableElement) valA;
@@ -251,11 +252,11 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	}
 	
 	@Override
-	public <T> void sendVerificationQuiet(EntityParam entity, Attribute<T> attribute)
+	public <T> void sendVerificationQuiet(EntityParam entity, Attribute<T> attribute, boolean useCurrentReturnUrl)
 	{
 		try
 		{
-			sendVerification(entity, attribute);
+			sendVerification(entity, attribute, useCurrentReturnUrl);
 		} catch (Exception e)
 		{
 			log.warn("Can not send a confirmation for the verificable attribute being added " + 
@@ -265,18 +266,20 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	
 
 	@Override
-	public void sendVerificationsQuiet(EntityParam entity, List<Attribute<?>> attributes)
+	public void sendVerificationsQuiet(EntityParam entity, List<Attribute<?>> attributes, 
+			boolean useCurrentReturnUrl)
 	{
 		for (Attribute<?> attribute: attributes)
-			sendVerificationQuiet(entity, attribute);
+			sendVerificationQuiet(entity, attribute, useCurrentReturnUrl);
 	}
 
 	@Override
-	public void sendVerification(EntityParam entity, Identity identity) throws EngineException
+	public void sendVerification(EntityParam entity, Identity identity, boolean useCurrentReturnUrl) 
+			throws EngineException
 	{
 		if (!identity.getType().getIdentityTypeProvider().isVerifiable())
 			return;
-		String url = getCurrentURL();
+		String url = getCurrentURL(useCurrentReturnUrl);
 		//TODO - should use user's preferred locale
 		IdentityConfirmationState state = new IdentityConfirmationState(
 				identity.getEntityId(), identity.getTypeId(),  
@@ -287,11 +290,11 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 
 
 	@Override
-	public void sendVerificationQuiet(EntityParam entity, Identity identity)
+	public void sendVerificationQuiet(EntityParam entity, Identity identity, boolean useCurrentReturnUrl)
 	{
 		try
 		{
-			sendVerification(entity, identity);
+			sendVerification(entity, identity, useCurrentReturnUrl);
 		} catch (EngineException e)
 		{
 			log.warn("Can not send a confirmation for the verificable identity being added " + 
@@ -299,8 +302,10 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		}
 	}
 	
-	private String getCurrentURL()
+	private String getCurrentURL(boolean useCurrentReturnUrl)
 	{
+		if (!useCurrentReturnUrl)
+			return null;
 		try
 		{
 			return InvocationContext.getCurrent().getCurrentURLUsed();

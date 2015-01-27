@@ -478,13 +478,14 @@ public class AttributesManagementImpl implements AttributesManagement
 		attribute.validateInitialization();
 		entity.validateInitialization(); 
 		SqlSession sql = db.getSqlSession(true);
+		boolean fullAuthz;
 		try
 		{
 			//Important - attributes can be also set as a result of addMember and addEntity.
 			//  when changing this method, verify if those needs an update too.
 			long entityId = idResolver.getEntityId(entity, sql);
 			AttributeType at = dbAttributes.getAttributeType(attribute.getName(), sql);
-			boolean fullAuthz = checkSetAttributeAuthz(entityId, at, attribute);
+			fullAuthz = checkSetAttributeAuthz(entityId, at, attribute);
 			checkIfAllowed(entityId, attribute.getGroupPath(), attribute.getName(), sql);
 
 			attributesHelper.addAttribute(sql, entityId, update, at, fullAuthz, attribute);
@@ -495,7 +496,10 @@ public class AttributesManagementImpl implements AttributesManagement
 			db.releaseSqlSession(sql);
 		}
 		
-		confirmationManager.sendVerificationQuiet(entity, attribute);
+		//trick: if we don't have full authorization, then there is a very high chance 
+		//that we are from admin UI and confirmation messages shouldn't return to the current URL 
+		//even if it is available. 
+		confirmationManager.sendVerificationQuiet(entity, attribute, !fullAuthz);
 	}
 	
 	private <T> boolean checkSetAttributeAuthz(long entityId, AttributeType at, Attribute<T> attribute) 
