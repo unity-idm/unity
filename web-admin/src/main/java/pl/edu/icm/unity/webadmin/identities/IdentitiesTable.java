@@ -20,14 +20,12 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsDialog;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsPanel;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
@@ -101,15 +99,13 @@ public class IdentitiesTable extends TreeTable
 	private List<Filter> containerFilters;
 	private String entityNameAttribute = null;
 	private List<SingleActionHandler> actionHandlers;
-	private ConfirmationManager confirmationManager;
-	private ConfirmationConfigurationManagement confirmationCfgMan;
 	
 	@Autowired
 	public IdentitiesTable(IdentitiesManagement identitiesMan, GroupsManagement groupsMan, 
 			AuthenticationManagement authnMan, AttributesManagement attrMan,PreferencesManagement preferencesMan,
 			AttributesInternalProcessing attrProcessor,
 			IdentityEditorRegistry identityEditorReg, CredentialEditorRegistry credEditorsRegistry,
-			AttributeHandlerRegistry attrHandlerReg, ConfirmationManager confirmationManager, ConfirmationConfigurationManagement confirmationCfgMan, UnityMessageSource msg)
+			AttributeHandlerRegistry attrHandlerReg, UnityMessageSource msg)
 	{
 		this.preferencesMan = preferencesMan;
 		this.identitiesMan = identitiesMan;
@@ -124,8 +120,6 @@ public class IdentitiesTable extends TreeTable
 		this.containerFilters = new ArrayList<Container.Filter>();
 		this.credEditorsRegistry = credEditorsRegistry;
 		this.actionHandlers = new ArrayList<>();
-		this.confirmationManager = confirmationManager;
-		this.confirmationCfgMan = confirmationCfgMan;
 		
 		addContainerProperty(BaseColumnId.entity.toString(), String.class, null);
 		addContainerProperty(BaseColumnId.type.toString(), String.class, "");
@@ -193,7 +187,6 @@ public class IdentitiesTable extends TreeTable
 		addActionHandler(new ChangeCredentialHandler());
 		addActionHandler(new ChangeCredentialRequirementHandler());
 		addActionHandler(new EntityAttributesClassesHandler());
-		addActionHandler(new SendConfirmationReqIdentityHandler());
 		setDragMode(TableDragMode.ROW);
 
 		setImmediate(true);
@@ -750,39 +743,6 @@ public class IdentitiesTable extends TreeTable
 		}
 	}
 	
-	private boolean checkAvailableConfirmationConfiguration(List<String> filteredTypes)	
-	{
-		StringBuilder typesWithoutConfig = new StringBuilder();
-		int count = 0;
-		for (String id : filteredTypes)
-		{
-			try
-			{
-				confirmationCfgMan.getConfiguration(ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE, id);
-			} catch (Exception e)
-			{
-				if (count < 4)
-				{
-					typesWithoutConfig.append(", " + id);
-				}
-			}
-		}
-		if (count > 3)
-			typesWithoutConfig.append(msg.getMessage("MessageUtils.andMore",
-					count - 3));
-		if (!typesWithoutConfig.toString().isEmpty())
-		{
-			ErrorPopup.showError(
-					msg,
-					" ",
-					msg.getMessage("Identities.cannotSendConfirmationConfigNotAvailable",
-							typesWithoutConfig.toString()
-									.substring(2)));
-			return false;
-		}
-		return true;
-	}
-	
 	private class RemoveFromGroupHandler extends SingleActionHandler
 	{
 		public RemoveFromGroupHandler()
@@ -980,77 +940,6 @@ public class IdentitiesTable extends TreeTable
 				}
 			}).show();
 		}
-	}
-	
-	private class SendConfirmationReqIdentityHandler extends SingleActionHandler
-	{
-		public SendConfirmationReqIdentityHandler()
-		{
-			super(msg.getMessage("Identities.sendConfirmationReqIdentityAction"),
-					Images.confirmation.getResource());
-			setMultiTarget(true);
-		}
-
-		@Override
-		public Action[] getActions(Object target, Object sender)
-		{
-			if (target == null)
-				return EMPTY;
-			
-			if (!(target instanceof Collection<?>))
-				target = Collections.singleton(target);	
-			
-			Collection<?> targets = (Collection<?>) target;
-			for (Object ta : targets)
-			{
-				if (ta != null && !(ta instanceof IdentityWithEntity))
-					return EMPTY;
-				IdentityWithEntity ide = (IdentityWithEntity) ta;
-				if (!ide.getIdentity().getType().getIdentityTypeProvider().isVerifiable())
-					return EMPTY;
-			}
-			return super.getActions(target, sender);
-		}
-
-		@Override
-		public void handleAction(Object sender, Object target)
-		{
-			Collection<?> nodes = (Collection<?>) target;
-			final List<IdentityWithEntity> filteredNodes = new ArrayList<>();
-			final List<String> filteredTypes = new ArrayList<>();
-			
-			StringBuilder infoText = new StringBuilder();
-			int count = 0;
-			for (Object o : nodes)
-			{
-				IdentityWithEntity node = (IdentityWithEntity) o;
-				String id = node.identity.getType().getIdentityTypeProvider().getId();
-				if (!filteredTypes.contains(id))
-					filteredTypes.add(id);
-				if (count < 4)
-					infoText.append(", " + node.identity.getValue());
-				filteredNodes.add(node);
-			}
-			if (count > 3)
-				infoText.append(msg.getMessage("MessageUtils.andMore", count-3));
-			String infoTextF = infoText.substring(2);
-			if (!checkAvailableConfirmationConfiguration(filteredTypes))
-				return;
-			for (IdentityWithEntity ide : filteredNodes)
-			{
-				try
-				{
-					confirmationManager.sendVerification(
-							new EntityParam(ide.getEntityWithLabel().getEntity().getId()), 
-							ide.getIdentity(), false);
-				} catch (EngineException e)
-				{
-					ErrorPopup.showError(msg, msg.getMessage("Identities.cannotSendConfirmation"), e);
-					return;
-				}
-			}
-			ErrorPopup.showNotice(msg, "", msg.getMessage("Identities.confirmationSent", infoTextF));	
-		}	
 	}
 	
 	private class ChangeEntityStatusHandler extends SingleActionHandler

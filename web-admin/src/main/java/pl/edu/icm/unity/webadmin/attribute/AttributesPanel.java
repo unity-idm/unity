@@ -6,7 +6,6 @@ package pl.edu.icm.unity.webadmin.attribute;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,10 +17,8 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.utils.Log;
@@ -82,8 +79,6 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private AttributeHandlerRegistry registry;
 	private AttributesManagement attributesManagement;
 	private GroupsManagement groupsManagement;
-	private ConfirmationManager confirmationManager;
-	private ConfirmationConfigurationManagement confirmationCfgMan;
 	
 	private VerticalLayout left;
 	private CheckBox showEffective;
@@ -102,15 +97,12 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	@Autowired
 	public AttributesPanel(UnityMessageSource msg, AttributeHandlerRegistry registry, 
-			AttributesManagement attributesManagement, GroupsManagement groupsManagement, 
-			ConfirmationManager confirmationManager, ConfirmationConfigurationManagement confirmationCfgMan)
+			AttributesManagement attributesManagement, GroupsManagement groupsManagement)
 	{
 		this.msg = msg;
 		this.registry = registry;
 		this.attributesManagement = attributesManagement;
 		this.groupsManagement = groupsManagement;
-		this.confirmationManager = confirmationManager;
-		this.confirmationCfgMan = confirmationCfgMan;
 		this.bus = WebSession.getCurrent().getEventBus();
 		setStyleName(Reindeer.SPLITPANEL_SMALL);
 		attributesTable = new Table();
@@ -145,8 +137,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(attributesTable, toolbar);
 		tableWithToolbar.setSizeFull();
 		SingleActionHandler[] handlers = new SingleActionHandler[] {new AddAttributeActionHandler(), 
-				new EditAttributeActionHandler(), new RemoveAttributeActionHandler(), 
-				new ConfirmAttributeActionHandler()};
+				new EditAttributeActionHandler(), new RemoveAttributeActionHandler()};
 		for (SingleActionHandler handler: handlers)
 			attributesTable.addActionHandler(handler);
 		toolbar.addActionHandlers(handlers);
@@ -564,78 +555,6 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 	}
 	
-	private class ConfirmAttributeActionHandler extends AbstractAttributeActionHandler
-	{	
-		public ConfirmAttributeActionHandler()
-		{
-			super(msg.getMessage("Attribute.sendConfirmationReq"), 
-					Images.confirmation.getResource());
-			setMultiTarget(true);
-		}
-	
-		@Override
-		public Action[] getActions(Object target, Object sender)
-		{
-			if (target == null)
-			{
-				return EMPTY;
-			}			
-			
-			if (!(target instanceof Collection<?>))
-				target = Collections.singleton(target);
-			
-			Collection<?> targets = (Collection<?>) target;
-			for (Object ta : targets)
-			{
-				Attribute<?> attr = ((AttributeItem)ta).getAttribute();
-				if (!(attr.getValues().size() > 0 && attr.getAttributeSyntax().isVerifiable()))
-				{
-					return EMPTY;
-				}
-			}	
-			return super.getActions(target, sender);
-		}
-		
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			final Collection<AttributeItem> items = getItems(target);
-			String confirmText = MessageUtils.createConfirmFromStrings(msg, items);
-			List<Attribute<?>> allAttrs = new ArrayList<Attribute<?>>();
-			for (AttributeItem item : items)
-			{
-				if (!item.getAttribute().getAttributeSyntax().isVerifiable())
-					continue;
-				allAttrs.add(item.getAttribute());
-			}
-
-			if (!checkAvailableConfirmationConfiguration(
-					ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
-					allAttrs))
-				return;
-
-			for (Attribute<?> attr : allAttrs)
-			{
-				try
-				{
-					Attribute<?> attribute = (Attribute<?>) attr;
-					confirmationManager.sendVerification(owner, attribute, false, true);
-				} catch (EngineException e)
-				{
-					ErrorPopup.showError(
-							msg,
-							msg.getMessage("Attribute.cannotSendConfirmation"),
-							e);
-					return;
-				}
-
-			}
-			ErrorPopup.showNotice(msg, "",
-					msg.getMessage("Attribute.confirmationSent", confirmText));
-
-		}		
-	}
-	
 	private static class EffectiveAttributesFilter implements Container.Filter
 	{
 		@Override
@@ -674,42 +593,5 @@ public class AttributesPanel extends HorizontalSplitPanel
 		{
 			return true;
 		}
-	}
-	
-	private boolean checkAvailableConfirmationConfiguration(String type,
-			Collection<Attribute<?>> items)
-	{
-		StringBuilder typesWithoutConfig = new StringBuilder();
-		int count = 0;
-		for (Attribute<?> id : items)
-		{
-			try
-			{
-				confirmationCfgMan.getConfiguration(type, id.
-						getName());
-			} catch (Exception e)
-			{
-				if (count < 4)
-				{
-					typesWithoutConfig.append(", "
-							+ id.getName());
-				}
-			}
-		}
-		if (count > 3)
-			typesWithoutConfig.append(msg.getMessage("MessageUtils.andMore",
-					count - 3));
-
-		if (!typesWithoutConfig.toString().isEmpty())
-		{
-			ErrorPopup.showError(
-					msg,
-					" ",
-					msg.getMessage("Attribute.cannotSendConfirmationConfigNotAvailable",
-							typesWithoutConfig.toString()
-									.substring(2)));
-			return false;
-		}
-		return true;
 	}
 }
