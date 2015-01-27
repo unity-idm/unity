@@ -52,6 +52,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
@@ -214,8 +215,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 
 	
 	@Override
-	public <T> void sendVerification(EntityParam entity, Attribute<T> attribute, boolean useCurrentReturnUrl) 
-			throws EngineException
+	public <T> void sendVerification(EntityParam entity, Attribute<T> attribute, boolean useCurrentReturnUrl,
+			boolean forceResend) throws EngineException
 	{
 		if (!attribute.getAttributeSyntax().isVerifiable())
 			return;
@@ -223,7 +224,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		for (T valA : attribute.getValues())
 		{
 			VerifiableElement val = (VerifiableElement) valA;
-			if (!val.getConfirmationInfo().isConfirmed())
+			ConfirmationInfo ci = val.getConfirmationInfo();
+			if (forceResend || (!ci.isConfirmed() && ci.getSentRequestAmount() == 0))
 			{
 				// TODO - should use user's preferred locale
 				long entityId = resolveEntityId(entity);
@@ -256,7 +258,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	{
 		try
 		{
-			sendVerification(entity, attribute, useCurrentReturnUrl);
+			sendVerification(entity, attribute, useCurrentReturnUrl, false);
 		} catch (Exception e)
 		{
 			log.warn("Can not send a confirmation for the verificable attribute being added " + 

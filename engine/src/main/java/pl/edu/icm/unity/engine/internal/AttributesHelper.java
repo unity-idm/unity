@@ -36,6 +36,7 @@ import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
@@ -149,6 +150,8 @@ public class AttributesHelper
 	/**
 	 * Adds an attribute. This method performs engine level checks: whether the attribute type is not immutable,
 	 * and properly sets unverified state if attribute is added by ordinary user (not an admin).
+	 * <p>
+	 * 
 	 * @param sql
 	 * @param entityId
 	 * @param update
@@ -164,21 +167,78 @@ public class AttributesHelper
 		if (at.isInstanceImmutable())
 			throw new SchemaConsistencyException("The attribute with name " + at.getName() + 
 					" can not be manually modified");
-		
-		if (attribute.getAttributeSyntax().isVerifiable() && !honorInitialConfirmation)
-		{
-			//we must force verification status to false, as only real admin can set attributes in 
-			//the confirmed state
-			for (Object v : attribute.getValues())
-			{
-				VerifiableElement val = (VerifiableElement) v;
-				val.setConfirmationInfo(new ConfirmationInfo(0));
-			}
-		}
+		enforceCorrectConfirmationState(sql, entityId, update, attribute, honorInitialConfirmation);
 		
 		dbAttributes.addAttribute(entityId, attribute, update, sql);
 	}
 
+	/**
+	 * Makes sure that the initial confirmation state is correctly set. This works as follows:
+	 * - if honorInitialConfirmation is true then we assume that admin is performing the modification
+	 * and everything is left as originally requested.
+	 * - otherwise it is assumed that ordinary user is the caller, and all values are set as unconfirmed,
+	 * unless the operation is updating an existing attribute - then values which are equal to already existing
+	 * preserve their confirmation state. 
+	 * @throws EngineException 
+	 */
+	private <T> void enforceCorrectConfirmationState(SqlSession sql, long entityId, boolean update,
+			Attribute<T> attribute, boolean honorInitialConfirmation) throws EngineException
+	{
+		AttributeValueSyntax<T> syntax = attribute.getAttributeSyntax();
+		if (!syntax.isVerifiable() || honorInitialConfirmation)
+			return;
+		
+		if (!update)
+		{
+			setUnconfirmed(attribute);
+			return;
+		}
+		
+		Collection<AttributeExt<?>> attrs = dbAttributes.getAllAttributes(
+				entityId, attribute.getGroupPath(), false, attribute.getName(), sql);
+		if (attrs.isEmpty())
+		{
+			setUnconfirmed(attribute);
+			return;
+		}
+		
+		AttributeExt<?> updated = attrs.iterator().next();
+		Set<Integer> preservedStateIndices = new HashSet<Integer>();
+		//first we find matching values where confirmation state should be preserved
+		for (int i=0; i<attribute.getValues().size(); i++)
+		{
+			T newValue = attribute.getValues().get(i);
+			for (Object existingValue: updated.getValues())
+			{
+				if (syntax.areEqual(newValue, existingValue))
+				{
+					preservedStateIndices.add(i);
+					VerifiableElement newValueCasted = (VerifiableElement) newValue;
+					VerifiableElement existingValueCasted = (VerifiableElement) existingValue;
+					newValueCasted.setConfirmationInfo(existingValueCasted.getConfirmationInfo());
+				}
+			}
+		}
+		//and we reset remaining
+		for (int i=0; i<attribute.getValues().size(); i++)
+		{
+			if (!preservedStateIndices.contains(i))
+			{
+				VerifiableElement val = (VerifiableElement) attribute.getValues().get(i);
+				val.setConfirmationInfo(new ConfirmationInfo(0));
+			}
+		}
+	}
+	
+	private void setUnconfirmed(Attribute<?> attribute)
+	{
+		for (Object v : attribute.getValues())
+		{
+			VerifiableElement val = (VerifiableElement) v;
+			val.setConfirmationInfo(new ConfirmationInfo(0));
+		}
+	}
+	
 	/**
 	 * Checks if the given set of attributes fulfills rules of ACs of a specified group 
 	 * @throws EngineException 

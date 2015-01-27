@@ -25,6 +25,7 @@ import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmationState;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmationState;
 import pl.edu.icm.unity.confirmations.states.UserConfirmationState;
+import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.confirmations.ConfirmationManagerImpl;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -35,6 +36,7 @@ import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
@@ -52,6 +54,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
@@ -86,6 +89,110 @@ public class TestConfirmation extends DBIntegrationTestBase
 	@Autowired
 	private InitializerCommon commonInitializer;
 
+	@Test
+	public void attributeConfirmationStatePreservedForAdmin() throws Exception
+	{
+		setupMockAuthn();
+		setupAdmin();
+		
+		Identity id = idsMan.addEntity(new IdentityParam(EmailIdentity.ID,
+				"example1@ex.com"), "crMock", EntityState.valid, false);
+		EntityParam entity = new EntityParam(id.getEntityId());
+		AttributeType atT = new AttributeType(InitializerCommon.EMAIL_ATTR,
+				new VerifiableEmailAttributeSyntax());
+		atT.setMaxElements(5);
+		atT.setSelfModificable(true);
+		attrsMan.addAttributeType(atT);
+		
+		VerifiableEmail e1 = new VerifiableEmail("a@example.com", new ConfirmationInfo(true));
+		VerifiableEmail e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(false));
+		VerifiableEmailAttribute at1 = new VerifiableEmailAttribute(
+				InitializerCommon.EMAIL_ATTR, "/",
+				AttributeVisibility.full, e1, e2);
+		attrsMan.setAttribute(entity, at1, false);
+		
+		AttributeExt<?> returned = attrsMan.getAttributes(entity, "/", 
+				InitializerCommon.EMAIL_ATTR).iterator().next();		
+		Assert.assertTrue(((VerifiableEmail)returned.getValues().get(0)).isValid());
+		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(1)).isValid());
+		
+		VerifiableEmail e1P = new VerifiableEmail("a@example.com", new ConfirmationInfo(false));
+		VerifiableEmail e2P = new VerifiableEmail("b@example.com", new ConfirmationInfo(true));
+		VerifiableEmail e3P = new VerifiableEmail("c@example.com", new ConfirmationInfo(true));
+		VerifiableEmailAttribute at1P = new VerifiableEmailAttribute(
+				InitializerCommon.EMAIL_ATTR, "/",
+				AttributeVisibility.full, e1P, e2P, e3P);
+		attrsMan.setAttribute(entity, at1P, true);
+
+		AttributeExt<?> returnedP = attrsMan.getAttributes(entity, "/", 
+				InitializerCommon.EMAIL_ATTR).iterator().next();		
+		Assert.assertFalse(((VerifiableEmail)returnedP.getValues().get(0)).isValid()); 
+		Assert.assertTrue(((VerifiableEmail)returnedP.getValues().get(1)).isValid()); 
+		Assert.assertTrue(((VerifiableEmail)returnedP.getValues().get(2)).isValid()); 
+	}
+
+	/**
+	 * Here we ensure that on added attribute state is forced to unconfirmed and that the state is preserved 
+	 * on update.
+	 *  
+	 * @throws Exception
+	 */
+	@Test
+	public void attributeConfirmationStatePreservedForUser() throws Exception
+	{
+		setupPasswordAuthn();
+		Identity id = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		EntityParam entity = new EntityParam(id.getEntityId());
+		AttributeType atT = new AttributeType(InitializerCommon.EMAIL_ATTR,
+				new VerifiableEmailAttributeSyntax());
+		atT.setMaxElements(5);
+		atT.setSelfModificable(true);
+		attrsMan.addAttributeType(atT);
+		
+		setupUserContext("user1", false);
+		
+		VerifiableEmail e1 = new VerifiableEmail("a@example.com", new ConfirmationInfo(true));
+		VerifiableEmail e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(false));
+		VerifiableEmailAttribute at1 = new VerifiableEmailAttribute(
+				InitializerCommon.EMAIL_ATTR, "/",
+				AttributeVisibility.full, e1, e2);
+		attrsMan.setAttribute(entity, at1, false);
+		
+		AttributeExt<?> returned = attrsMan.getAttributes(entity, "/", 
+				InitializerCommon.EMAIL_ATTR).iterator().next();
+		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(0)).isValid());
+		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(1)).isValid());
+		
+		setupAdmin();
+		e1 = new VerifiableEmail("a@example.com", new ConfirmationInfo(true));
+		e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(false));
+		at1 = new VerifiableEmailAttribute(
+				InitializerCommon.EMAIL_ATTR, "/",
+				AttributeVisibility.full, e1, e2);
+		attrsMan.setAttribute(entity, at1, true);
+
+		returned = attrsMan.getAttributes(entity, "/", 
+				InitializerCommon.EMAIL_ATTR).iterator().next();
+		Assert.assertTrue(((VerifiableEmail)returned.getValues().get(0)).isValid());
+		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(1)).isValid());
+
+		setupUserContext("user1", false);
+
+		e1 = new VerifiableEmail("a@example.com", new ConfirmationInfo(false));
+		e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(true));
+		VerifiableEmail e3 = new VerifiableEmail("c@example.com", new ConfirmationInfo(true));
+		at1 = new VerifiableEmailAttribute(
+				InitializerCommon.EMAIL_ATTR, "/",
+				AttributeVisibility.full, e3, e2, e1);
+		attrsMan.setAttribute(entity, at1, true);
+
+		returned = attrsMan.getAttributes(entity, "/", 
+				InitializerCommon.EMAIL_ATTR).iterator().next();
+		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(0)).isValid()); //reset
+		Assert.assertFalse(((VerifiableEmail)returned.getValues().get(1)).isValid()); //preserved old, reset
+		Assert.assertTrue(((VerifiableEmail)returned.getValues().get(2)).isValid()); //preserved old, set
+	}
+	
 	@Test
 	public void testConfirmationFromEntity() throws Exception
 	{

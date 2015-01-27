@@ -619,7 +619,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 				try
 				{
 					Attribute<?> attribute = (Attribute<?>) attr;
-					confirmationManager.sendVerification(owner, attribute, false);
+					confirmationManager.sendVerification(owner, attribute, false, true);
 				} catch (EngineException e)
 				{
 					ErrorPopup.showError(

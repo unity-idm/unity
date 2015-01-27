@@ -42,7 +42,8 @@ public interface ConfirmationManager
 
 	/**
 	 * Sends confirmation messages for the values of an attribute which are verifiable, 
-	 * only for unconfirmed attributes. In case of error only log entry is printed, no exception is thrown.
+	 * only for unconfirmed attributes for which a confirmation was not yet sent. 
+	 * In case of error only log entry is printed, no exception is thrown.
 	 * @param entity
 	 * @param attribute
 	 * @param verifiableValues
@@ -57,8 +58,8 @@ public interface ConfirmationManager
 	 * @param attribute
 	 * @throws EngineException
 	 */
-	<T> void sendVerification(EntityParam entity, Attribute<T> attribute, boolean useCurrentReturnUrl) 
-			throws EngineException;
+	<T> void sendVerification(EntityParam entity, Attribute<T> attribute, boolean useCurrentReturnUrl,
+			boolean forceResend) throws EngineException;
 
 	/**
 	 * Sends confirmation messages for the identity if it requires so. Only for unconfirmed identities.
