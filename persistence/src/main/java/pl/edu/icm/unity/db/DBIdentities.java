@@ -279,6 +279,19 @@ public class DBIdentities
 		}
 	}
 	
+	public boolean isIdentityConfirmed(SqlSession sqlMap, IdentityTaV tav) 
+			throws IllegalTypeException, IllegalIdentityValueException
+	{
+		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(tav.getTypeId());
+		if (!idTypeDef.isVerifiable())
+			return true;
+		String cmpVal = IdentitiesResolver.getComparableIdentityValue(tav, idTypeDef);
+		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
+		IdentityBean idBean = mapper.getIdentityByName(cmpVal);
+		Identity resolved = idResolver.resolveIdentityBeanNoExternalize(idBean, mapper);
+		return resolved.getConfirmationInfo().isConfirmed();
+	}
+	
 	/**
 	 * Creates dynamic identities which are currently absent for the entity.
 	 */

@@ -154,7 +154,8 @@
 	<bean class="pl.edu.icm.unity.engine.internal.SessionManagementImpl"/>
 	<bean class="pl.edu.icm.unity.engine.internal.AuthenticatorsManagementImpl"/>
 	<bean class="pl.edu.icm.unity.engine.internal.EntitiesScheduledUpdater"/>
-	
+	<bean class="pl.edu.icm.unity.engine.internal.InternalRegistrationManagment"/>
+
 	<bean primary="true" class="pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl"/>
 	<bean primary="false" name="noauthz" class="pl.edu.icm.unity.engine.authz.InternalNoAuthzImpl"/>
 
@@ -178,6 +179,4 @@
 	<bean class="pl.edu.icm.unity.engine.confirmations.facilities.RegistrationReqIdentityFacility" />
 	<bean class="pl.edu.icm.unity.engine.confirmations.ConfirmationManagerImpl" />
 	
-	<bean class="pl.edu.icm.unity.engine.registrations.InternalRegistrationManagment"/>
-
 </beans>

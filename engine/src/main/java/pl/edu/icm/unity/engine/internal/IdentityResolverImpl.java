@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.internal;
 import java.util.Collection;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -34,6 +36,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 @Component
 public class IdentityResolverImpl implements IdentityResolver
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, IdentityResolverImpl.class);
 	private DBSessionManager db;
 	private DBAttributes dbAttributes;
 	private DBIdentities dbIdentities;
@@ -122,11 +125,20 @@ public class IdentityResolverImpl implements IdentityResolver
 	{
 		for (String identityType: identityTypes)
 		{
-			EntityParam entityParam = new EntityParam(new IdentityTaV(identityType, identity, 
-					target, realm));
+			IdentityTaV tav = new IdentityTaV(identityType, identity, target, realm);
+			EntityParam entityParam = new EntityParam(tav);
 			try
 			{
-				return dbResolver.getEntityId(entityParam, sqlMap);
+				long ret = dbResolver.getEntityId(entityParam, sqlMap);
+				if (dbIdentities.isIdentityConfirmed(sqlMap, tav))
+				{
+					return ret;
+				}
+				else
+				{
+					log.debug("Identity " + identity + " was found but is not confirmed, "
+							+ "not returning it for loggin in");
+				}
 			} catch (EngineException e)
 			{
 				//ignored

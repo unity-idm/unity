@@ -15,7 +15,7 @@ import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmation
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
-import pl.edu.icm.unity.engine.registrations.InternalRegistrationManagment;
+import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.types.basic.IdentityParam;

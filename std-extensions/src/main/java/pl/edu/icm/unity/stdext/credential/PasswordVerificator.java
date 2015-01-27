@@ -31,6 +31,7 @@ import pl.edu.icm.unity.server.authn.CredentialHelper;
 import pl.edu.icm.unity.server.authn.CredentialReset;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.CryptoUtils;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
@@ -69,7 +70,7 @@ import edu.vt.middleware.password.UppercaseCharacterRule;
  */
 public class PasswordVerificator extends AbstractLocalVerificator implements PasswordExchange
 { 	
-	static final String[] IDENTITY_TYPES = {UsernameIdentity.ID};
+	static final String[] IDENTITY_TYPES = {UsernameIdentity.ID, EmailIdentity.ID};
 
 	private NotificationProducer notificationProducer;
 	private CredentialHelper credentialHelper;
