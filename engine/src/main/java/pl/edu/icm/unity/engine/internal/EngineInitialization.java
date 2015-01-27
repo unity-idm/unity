@@ -28,6 +28,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -335,9 +336,13 @@ public class EngineInitialization extends LifecycleBase
 		
 		log.info("Deploing confirmation servlet");
 		ServletHolder holder = new ServletHolder(confirmationServlet.getServiceServlet());
+		FilterHolder filterHolder = new FilterHolder(confirmationServlet.getServiceFilter());
 		try
 		{
-			sharedEndpointManagement.deployInternalEndpointServlet(ConfirmationServlet.SERVLET_PATH, holder, true);	
+			sharedEndpointManagement.deployInternalEndpointServlet(ConfirmationServlet.SERVLET_PATH, 
+					holder, true);
+			sharedEndpointManagement.deployInternalEndpointFilter(ConfirmationServlet.SERVLET_PATH, 
+					filterHolder);
 		} catch (EngineException e)
 		{
 			throw new InternalException("Cannot deploy internal confirmation servlet", e);

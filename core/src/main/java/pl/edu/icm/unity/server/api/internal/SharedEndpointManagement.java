@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.server.api.internal;
 
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -40,4 +41,13 @@ public interface SharedEndpointManagement
 	 * the servlet's address. 
 	 */
 	String getServletUrl(String servletPath);
+
+	/**
+	 * Deploys the given filter in the internal, shared endpoint.
+	 * @param contextPath
+	 * @param filter
+	 * @throws EngineException
+	 */
+	void deployInternalEndpointFilter(String contextPath, FilterHolder filter)
+			throws EngineException;
 }

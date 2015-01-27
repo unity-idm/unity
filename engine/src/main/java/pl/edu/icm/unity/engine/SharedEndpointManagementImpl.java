@@ -5,10 +5,14 @@
 package pl.edu.icm.unity.engine;
 
 import java.net.URL;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.servlet.DispatcherType;
+
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +58,15 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 		if (mapVaadinResource)
 			sharedHandler.addServlet(servlet, "/VAADIN/*");
 		log.debug("Deployed internal servlet " + servlet.getClassName() + " at: " +
+				CONTEXT_PATH + contextPath);
+	}
+
+	@Override
+	public void deployInternalEndpointFilter(String contextPath, FilterHolder filter)
+			throws EngineException
+	{
+		sharedHandler.addFilter(filter, contextPath + "/*", EnumSet.of(DispatcherType.REQUEST));
+		log.debug("Deployed internal servlet filter" + filter.getClassName() + " at: " +
 				CONTEXT_PATH + contextPath);
 	}
 	

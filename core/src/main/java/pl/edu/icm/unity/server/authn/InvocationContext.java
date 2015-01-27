@@ -67,7 +67,8 @@ public class InvocationContext implements Serializable
 		try
 		{
 			InvocationContext context = InvocationContext.getCurrent();
-			return context.getRealm().getName();
+			AuthenticationRealm realm = context.getRealm();
+			return realm != null ? realm.getName() : null;
 		} catch (InternalException e)
 		{
 			//OK

@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.confirmations;
 
+import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
 /**
@@ -17,5 +18,6 @@ public interface ConfirmationServlet
 	public static final String SERVLET_PATH = "/confirmation";
 	public static final String CONFIRMATION_TOKEN_ARG ="token";
 	
-	public Servlet getServiceServlet();
+	Servlet getServiceServlet();
+	Filter getServiceFilter();
 }

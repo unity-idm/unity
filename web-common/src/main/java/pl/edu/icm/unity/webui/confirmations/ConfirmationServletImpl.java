@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.confirmations;
 
+import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.VaadinUIProvider;
+import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 
 import com.vaadin.server.DeploymentConfiguration;
 import com.vaadin.server.ServiceException;
@@ -29,11 +32,13 @@ import com.vaadin.server.VaadinServletService;
 public class ConfirmationServletImpl implements ConfirmationServlet
 {
 	private ApplicationContext applicationContext;
+	private UnityServerConfiguration config;
 
 	@Autowired
-	public ConfirmationServletImpl(ApplicationContext applicationContext)
+	public ConfirmationServletImpl(ApplicationContext applicationContext, UnityServerConfiguration config)
 	{
 		this.applicationContext = applicationContext;
+		this.config = config;
 	}
 	
 	@Override
@@ -42,6 +47,12 @@ public class ConfirmationServletImpl implements ConfirmationServlet
 		return new ConfirmationVaadinServlet();
 	}
 	
+	@Override
+	public Filter getServiceFilter()
+	{
+		return new InvocationContextSetupFilter(config, null, null);
+	}
+
 	private class ConfirmationVaadinServlet extends VaadinServlet
 	{
 				
@@ -64,5 +75,4 @@ public class ConfirmationServletImpl implements ConfirmationServlet
 			return service;
 		}
 	}
-
 }
