@@ -62,7 +62,7 @@ public class IdentityResolverImpl implements IdentityResolver
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			long entityId = getEntity(identity, identityTypes, null, null, sql);
+			long entityId = getEntity(identity, identityTypes, null, null, true, sql);
 			EntityState entityState = dbIdentities.getEntityStatus(entityId, sql);
 			if (entityState == EntityState.authenticationDisabled || entityState == EntityState.disabled)
 				throw new IllegalIdentityValueException("Authentication is disabled for this entity");
@@ -111,7 +111,7 @@ public class IdentityResolverImpl implements IdentityResolver
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			long entityId = getEntity(identity, identityTypes, target, realm, sql);
+			long entityId = getEntity(identity, identityTypes, target, realm, false, sql);
 			sql.commit();
 			return entityId;
 		} finally
@@ -120,7 +120,8 @@ public class IdentityResolverImpl implements IdentityResolver
 		}
 	}
 	
-	private long getEntity(String identity, String[] identityTypes, String target, String realm, SqlSession sqlMap) 
+	private long getEntity(String identity, String[] identityTypes, String target, String realm, 
+			boolean requireConfirmed, SqlSession sqlMap) 
 			throws IllegalIdentityValueException
 	{
 		for (String identityType: identityTypes)
@@ -130,7 +131,7 @@ public class IdentityResolverImpl implements IdentityResolver
 			try
 			{
 				long ret = dbResolver.getEntityId(entityParam, sqlMap);
-				if (dbIdentities.isIdentityConfirmed(sqlMap, tav))
+				if (!requireConfirmed || dbIdentities.isIdentityConfirmed(sqlMap, tav))
 				{
 					return ret;
 				}
