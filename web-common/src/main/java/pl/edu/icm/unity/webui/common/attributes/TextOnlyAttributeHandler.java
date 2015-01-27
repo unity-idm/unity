@@ -89,7 +89,7 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 		}
 
 		@Override
-		public ComponentsContainer getEditor(boolean required)
+		public ComponentsContainer getEditor(boolean required, boolean adminMode)
 		{
 			this.required = required;
 			boolean large = false;

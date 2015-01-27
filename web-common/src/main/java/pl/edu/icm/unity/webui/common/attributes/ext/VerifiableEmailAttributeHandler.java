@@ -24,6 +24,7 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractTextField;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
@@ -63,7 +64,16 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 			AttributeValueSyntax<VerifiableEmail> syntax, int limited)
 	{
 		StringBuilder rep = new StringBuilder(value.getValue());
-		ConfirmationInfo cdata = value.getConfirmationInfo();
+		rep.append(getConfirmationStatusString(value.getConfirmationInfo()));
+		//if we exceeded limit, don't add extra info
+		if (rep.length() > limited)
+			rep = new StringBuilder(value.getValue());
+		return TextOnlyAttributeHandler.trimString(rep.toString(), limited);
+	}
+
+	private String getConfirmationStatusString(ConfirmationInfo cdata)
+	{
+		StringBuilder rep = new StringBuilder();
 		if (cdata != null)
 		{
 			rep.append(" ");
@@ -80,12 +90,9 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 							cdata.getSentRequestAmount()));
 			}
 		}
-		//if we exceeded limit, don't add extra info
-		if (rep.length() > limited)
-			rep = new StringBuilder(value.getValue());
-		return TextOnlyAttributeHandler.trimString(rep.toString(), limited);
+		return rep.toString();
 	}
-
+	
 	@Override
 	public AttributeValueEditor<VerifiableEmail> getEditorComponent(
 			VerifiableEmail initialValue, String label,
@@ -133,8 +140,10 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 		private VerifiableEmail value;
 		private String label;
 		private AbstractTextField field;
+		private CheckBox confirmed;
 		private AttributeValueSyntax<VerifiableEmail> syntax;
 		private boolean required;
+		private boolean adminMode;
 
 		public VerifiableEmailValueEditor(VerifiableEmail value, String label,
 				AttributeValueSyntax<VerifiableEmail> syntax)
@@ -145,17 +154,31 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 		}
 
 		@Override
-		public ComponentsContainer getEditor(boolean required)
+		public ComponentsContainer getEditor(boolean required, boolean adminMode)
 		{
 			this.required = required;
+			this.adminMode = adminMode;
 			field = new TextField();
 			field.setCaption(label);
 			if (label != null)
 				field.setId("EmailValueEditor."+label);
 			if (value != null)
 				field.setValue(value.getValue());
-			return new ComponentsContainer(field);
-
+			ComponentsContainer ret = new ComponentsContainer(field);
+			if (adminMode)
+			{
+				confirmed = new CheckBox(msg.getMessage(
+						"VerifiableEmailAttributeHandler.confirmedCheckbox"));
+				ret.add(confirmed);
+				if (value != null)
+					confirmed.setValue(value.isConfirmed());
+			} else
+			{
+				if (value != null && value.getConfirmationInfo() != null && 
+						value.getConfirmationInfo().isConfirmed())
+					ret.add(new Label(getConfirmationStatusString(value.getConfirmationInfo())));
+			}
+			return ret;
 		}
 
 		@Override
@@ -167,10 +190,10 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 			{
 				VerifiableEmail email = new VerifiableEmail();
 				email.setValue(field.getValue());
+				if (adminMode)
+					email.setConfirmationInfo(new ConfirmationInfo(confirmed.getValue()));
 				syntax.validate(email);
 				field.setComponentError(null);
-				if (value != null && field.getValue().equals(value.getValue()))
-					email.setConfirmationInfo(value.getConfirmationInfo());
 				return email;
 			} catch (IllegalAttributeValueException e)
 			{

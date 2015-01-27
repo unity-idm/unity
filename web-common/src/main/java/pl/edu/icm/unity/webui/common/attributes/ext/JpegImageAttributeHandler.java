@@ -180,7 +180,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		}
 
 		@Override
-		public ComponentsContainer getEditor(boolean required)
+		public ComponentsContainer getEditor(boolean required, boolean adminMode)
 		{
 			error = new Label();
 			error.setStyleName(Styles.error.toString());

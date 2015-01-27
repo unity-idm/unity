@@ -100,9 +100,9 @@ public class UserAttributesPanel
 			});
 			parent.addComponent(save);
 
-			Button reset = new Button(msg.getMessage("reset"));
-			reset.setIcon(Images.trashBin.getResource());
-			reset.addClickListener(new ClickListener()
+			Button refresh = new Button(msg.getMessage("refresh"));
+			refresh.setIcon(Images.refresh.getResource());
+			refresh.addClickListener(new ClickListener()
 			{
 				@Override
 				public void buttonClick(ClickEvent event)
@@ -110,7 +110,7 @@ public class UserAttributesPanel
 					refreshEditable();
 				}
 			});
-			buttons.addComponents(save, reset);
+			buttons.addComponents(save, refresh);
 			
 			parent.addComponent(buttons);
 		}
@@ -131,7 +131,7 @@ public class UserAttributesPanel
 		{
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
 				at, showGroup, group, AttributeVisibility.full, 
-				null, null, false, parent);
+				null, null, false, false, parent);
 			if (attribute != null)
 				editor.setAttributeValues(attribute.getValues());
 			attributeEditors.add(editor);

@@ -105,11 +105,13 @@ public class ListOfEmbeddedElementsStub<T>
 		} else
 		{
 			int i = components.indexOf(after);
+			int start = 0;
+			for (int j=0; j<=i; j++)
+				start += components.get(j).getContents().getComponents().length;
 			entry = new Entry(value, i+1);
 			components.add(i+1, entry);
 			
 			Component[] uiComponents = entry.getContents().getComponents();
-			int start = (i+1)*uiComponents.length;
 			for (int j=0; j<uiComponents.length; j++)
 				parent.addComponent(uiComponents[j], start+j+parentOffset);
 		}

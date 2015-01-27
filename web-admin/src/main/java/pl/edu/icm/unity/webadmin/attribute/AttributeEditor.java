@@ -48,8 +48,8 @@ public class AttributeEditor extends HorizontalLayout
 		AttributeType initial = attrTypePanel.getAttributeType();
 		attrValuesContainer = new FormLayout();
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, initial, 
-				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, required,
-				attrValuesContainer);
+				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, 
+				required, true, attrValuesContainer);
 
 		attrTypePanel.setCallback(new TypeChangeCallback()
 		{
@@ -59,7 +59,7 @@ public class AttributeEditor extends HorizontalLayout
 				attrValuesContainer.removeAllComponents();
 				valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newType, 
 						false, AttributeEditor.this.groupPath, AttributeVisibility.full, 
-						null, null, required, attrValuesContainer);
+						null, null, required, true, attrValuesContainer);
 			}
 		});
 		initCommon();
@@ -90,7 +90,7 @@ public class AttributeEditor extends HorizontalLayout
 		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg, attribute.getVisibility());
 		attrValuesContainer = new FormLayout();
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, 
-				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, true,
+				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, true, true, 
 				attrValuesContainer);
 		valuesPanel.setAttributeValues(attribute.getValues());
 		initCommon();
@@ -110,7 +110,7 @@ public class AttributeEditor extends HorizontalLayout
 		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg, attributeType.getVisibility());
 		attrValuesContainer = new FormLayout();
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, 
-				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, true,
+				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, true, true, 
 				attrValuesContainer);
 		typeFixed = true;
 		initCommon();

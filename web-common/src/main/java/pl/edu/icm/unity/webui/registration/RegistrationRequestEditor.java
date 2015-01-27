@@ -531,7 +531,7 @@ public class RegistrationRequestEditor extends CustomComponent
 			String aName = isEmpty(aParam.getLabel()) ? null : aParam.getLabel();
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
 					at, aParam.isShowGroups(), aParam.getGroup(), at.getVisibility(), 
-					aName, description, !aParam.isOptional(), layout);
+					aName, description, !aParam.isOptional(), false, layout);
 			if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive && rattr != null)
 			{	
 				editor.setAttributeValues(rattr.getValues());

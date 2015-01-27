@@ -37,10 +37,12 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 	private ListOfEmbeddedElementsStub<LabelledValue> valuesComponent;
 	private AttributeVisibility visibility;
 	private boolean required;
+	private boolean adminMode;
 
 	public FixedAttributeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, 
 			AttributeType attributeType, boolean showGroup, String group, AttributeVisibility visibility,
-			String caption, String description, boolean required, AbstractOrderedLayout parent)
+			String caption, String description, boolean required, boolean adminMode, 
+			AbstractOrderedLayout parent)
 	{
 		super(msg, registry);
 		this.attributeType = attributeType;
@@ -50,6 +52,7 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 		this.caption = caption;
 		this.description = description;
 		this.required = required;
+		this.adminMode = adminMode;
 		initUI(parent);
 	}
 	
@@ -102,6 +105,6 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 			parent.addComponent(groupLabel);
 		}
 
-		valuesComponent = getValuesPart(attributeType, caption, required, parent);
+		valuesComponent = getValuesPart(attributeType, caption, required, adminMode, parent);
 	}
 }

@@ -13,8 +13,13 @@ import pl.edu.icm.unity.webui.common.ComponentsContainer;
  */
 public interface AttributeValueEditor<T>
 {
-	
-	public ComponentsContainer getEditor(boolean required);
+	/**
+	 * @param required if true the editor should be set in required mode
+	 * @param adminMode if true then the editor should allow to set value settings which are intended for
+	 * admins only (as confirmation status). In the most cases can be ignored.
+	 * @return
+	 */
+	public ComponentsContainer getEditor(boolean required, boolean adminMode);
 	
 	/**
 	 * @return the edited value 

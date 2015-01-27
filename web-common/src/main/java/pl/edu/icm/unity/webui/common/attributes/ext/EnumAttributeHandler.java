@@ -87,7 +87,7 @@ public class EnumAttributeHandler implements WebAttributeHandler<String>, WebAtt
 		}
 
 		@Override
-		public ComponentsContainer getEditor(boolean required)
+		public ComponentsContainer getEditor(boolean required, boolean adminMode)
 		{
 			this.required = required;
 			field = new ComboBox(label);

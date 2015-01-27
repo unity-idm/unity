@@ -36,11 +36,11 @@ public abstract class AbstractAttributeEditor
 		this.registry = registry;
 	}
 	
-	protected ListOfEmbeddedElementsStub<LabelledValue> getValuesPart(AttributeType at, String label, boolean required,
-			AbstractOrderedLayout layout)
+	protected ListOfEmbeddedElementsStub<LabelledValue> getValuesPart(AttributeType at, String label, 
+			boolean required, boolean adminMode, AbstractOrderedLayout layout)
 	{
 		ListOfEmbeddedElementsStub<LabelledValue> ret = new ListOfEmbeddedElementsStub<LabelledValue>(msg, 
-				new AttributeValueEditorAndProvider(at, label, required), 
+				new AttributeValueEditorAndProvider(at, label, required, adminMode), 
 				at.getMinElements(), at.getMaxElements(), false, layout);
 		ret.setLonelyLabel(label);
 		return ret;
@@ -54,18 +54,21 @@ public abstract class AbstractAttributeEditor
 		private LabelledValue editedValue;
 		private String baseLabel;
 		private boolean required;
+		private boolean adminMode;
 		
-		public AttributeValueEditorAndProvider(AttributeType at, String label, boolean required)
+		public AttributeValueEditorAndProvider(AttributeType at, String label, boolean required, 
+				boolean adminMode)
 		{
 			this.at = at;
 			this.baseLabel = label;
 			this.required = required;
+			this.adminMode = adminMode;
 		}
 
 		@Override
 		public Editor<LabelledValue> getEditor()
 		{
-			return new AttributeValueEditorAndProvider(at, baseLabel, required);
+			return new AttributeValueEditorAndProvider(at, baseLabel, required, adminMode);
 		}
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -78,7 +81,7 @@ public abstract class AbstractAttributeEditor
 			WebAttributeHandler handler = registry.getHandler(at.getValueType().getValueSyntaxId());
 			editor = handler.getEditorComponent(value.getValue(), value.getLabel(), at.getValueType());
 			editedValue = value;
-			ComponentsContainer ret = editor.getEditor(required);
+			ComponentsContainer ret = editor.getEditor(required, adminMode);
 			String description = at.getDescription().getValue(msg);
 			if (description != null && !description.equals(""))
 				ret.setDescription(HtmlSimplifiedLabel.escape(description));

@@ -139,7 +139,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 		AttributeType selected = attributeSel.getSelectedValue();
 		FormLayout ct = new FormLayout();
 		ct.setMargin(true);
-		valuesComponent = getValuesPart(selected, selected.getName(), true, ct);
+		valuesComponent = getValuesPart(selected, selected.getName(), true, true, ct);
 		valuesPanel.setContent(ct);
 	}
 	
