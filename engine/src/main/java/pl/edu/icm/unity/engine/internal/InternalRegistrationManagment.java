@@ -79,26 +79,40 @@ import pl.edu.icm.unity.types.registration.Selection;
  */
 @Component
 public class InternalRegistrationManagment
-{	
-	private static final Logger log = Log.getLogger(Log.U_SERVER, InternalRegistrationManagment.class);
+{
+	private static final Logger log = Log.getLogger(Log.U_SERVER,
+			InternalRegistrationManagment.class);
+
 	public static final String AUTO_ACCEPT_COMMENT = "System";
 
 	private DBSessionManager db;
+
 	private RegistrationFormDB formsDB;
+
 	private RegistrationRequestDB requestDB;
+
 	private CredentialDB credentialDB;
+
 	private DBAttributes dbAttributes;
+
 	private DBIdentities dbIdentities;
+
 	private DBGroups dbGroups;
+
 	private TokensManagement tokensMan;
-	
+
 	private UnityMessageSource msg;
+
 	private IdentityTypesRegistry identityTypesRegistry;
+
 	private EngineHelper engineHelper;
+
 	private AttributesHelper attributesHelper;
+
 	private NotificationProducerImpl notificationProducer;
+
 	private LocalCredentialsRegistry authnRegistry;
-	
+
 	@Autowired
 	public InternalRegistrationManagment(DBSessionManager db, RegistrationFormDB formsDB,
 			RegistrationRequestDB requestDB, CredentialDB credentialDB,
@@ -125,8 +139,7 @@ public class InternalRegistrationManagment
 		this.tokensMan = tokensMan;
 		this.msg = msg;
 	}
-	
-	
+
 	public List<RegistrationForm> getForms() throws EngineException
 	{
 		SqlSession sql = db.getSqlSession(true);
@@ -140,26 +153,24 @@ public class InternalRegistrationManagment
 			db.releaseSqlSession(sql);
 		}
 	}
-	
-	
 
-	public Long acceptRequest(RegistrationForm form, RegistrationRequestState currentRequest, 
-			AdminComment publicComment, AdminComment internalComment, boolean rewriteConfirmationToken, SqlSession sql) 
-			throws EngineException
+	public Long acceptRequest(RegistrationForm form, RegistrationRequestState currentRequest,
+			AdminComment publicComment, AdminComment internalComment,
+			boolean rewriteConfirmationToken, SqlSession sql) throws EngineException
 	{
 		currentRequest.setStatus(RegistrationRequestStatus.accepted);
 
 		validateRequestContents(form, currentRequest.getRequest(), false, sql);
 		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
-		
+
 		RegistrationRequest req = currentRequest.getRequest();
 
-		List<Attribute<?>> rootAttributes = new ArrayList<>(req.getAttributes().size() + 
-				form.getAttributeAssignments().size());
+		List<Attribute<?>> rootAttributes = new ArrayList<>(req.getAttributes().size()
+				+ form.getAttributeAssignments().size());
 		Map<String, List<Attribute<?>>> remainingAttributesByGroup = new HashMap<String, List<Attribute<?>>>();
-		for (Attribute<?> a: form.getAttributeAssignments())
+		for (Attribute<?> a : form.getAttributeAssignments())
 			addAttr(a, rootAttributes, remainingAttributesByGroup);
-		for (Attribute<?> ap: req.getAttributes())
+		for (Attribute<?> ap : req.getAttributes())
 		{
 			if (ap == null)
 				continue;
@@ -167,11 +178,12 @@ public class InternalRegistrationManagment
 		}
 
 		List<IdentityParam> identities = req.getIdentities();
-		
-		Identity initial = engineHelper.addEntity(identities.get(0), form.getCredentialRequirementAssignment(), 
-				form.getInitialEntityState(), false, rootAttributes, false, sql);
 
-		for (int i=1; i<identities.size(); i++)
+		Identity initial = engineHelper.addEntity(identities.get(0),
+				form.getCredentialRequirementAssignment(),
+				form.getInitialEntityState(), false, rootAttributes, true, sql);
+
+		for (int i = 1; i < identities.size(); i++)
 		{
 			IdentityParam idParam = identities.get(i);
 			if (idParam == null)
@@ -193,18 +205,19 @@ public class InternalRegistrationManagment
 					sortedGroups.add(form.getGroupParams().get(i)
 							.getGroupPath());
 			}
-		}	
+		}
 		EntityParam entity = new EntityParam(initial.getEntityId());
-		for (String group: sortedGroups)
+		for (String group : sortedGroups)
 		{
 			List<Attribute<?>> attributes = remainingAttributesByGroup.get(group);
 			if (attributes == null)
 				attributes = Collections.emptyList();
 			attributesHelper.checkGroupAttributeClassesConsistency(attributes, group, sql);
 			dbGroups.addMemberFromParent(group, entity, sql);
-			attributesHelper.addAttributesList(attributes, initial.getEntityId(), false, sql);
+			attributesHelper.addAttributesList(attributes, initial.getEntityId(),
+					true, sql);
 		}
-		
+
 		if (form.getAttributeClassAssignments() != null)
 		{
 			for (AttributeClassAssignment aca : form.getAttributeClassAssignments())
@@ -223,17 +236,18 @@ public class InternalRegistrationManagment
 						c.getCredentialId(), sql);
 			}
 		}
-		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-		sendProcessingNotification(notificationsCfg.getAcceptedTemplate(),
-				currentRequest, currentRequest.getRequestId(), form.getName(), true,
-				publicComment, internalComment,	notificationsCfg, sql);
+		RegistrationFormNotifications notificationsCfg = form
+				.getNotificationsConfiguration();
+		sendProcessingNotification(notificationsCfg.getAcceptedTemplate(), currentRequest,
+				currentRequest.getRequestId(), form.getName(), true, publicComment,
+				internalComment, notificationsCfg, sql);
 		if (rewriteConfirmationToken)
 			rewriteRequestToken(currentRequest, initial.getEntityId());
-		
+
 		return initial.getEntityId();
 	}
 
-	private void addAttr(Attribute<?> a, List<Attribute<?>> rootAttributes, 
+	private void addAttr(Attribute<?> a, List<Attribute<?>> rootAttributes,
 			Map<String, List<Attribute<?>>> remainingAttributesByGroup)
 	{
 		String path = a.getGroupPath();
@@ -250,7 +264,7 @@ public class InternalRegistrationManagment
 			attrs.add(a);
 		}
 	}
-	
+
 	public RegistrationRequestState getRequest(String requestId) throws EngineException
 	{
 		SqlSession sql = db.getSqlSession(true);
@@ -264,9 +278,9 @@ public class InternalRegistrationManagment
 			db.releaseSqlSession(sql);
 		}
 	}
-	
-	public void validateRequestContents(RegistrationForm form, RegistrationRequest request, boolean doCredentialCheckAndUpdate,
-			SqlSession sql) throws EngineException
+
+	public void validateRequestContents(RegistrationForm form, RegistrationRequest request,
+			boolean doCredentialCheckAndUpdate, SqlSession sql) throws EngineException
 	{
 		validateRequestAgreements(form, request);
 		validateRequestAttributes(form, request, sql);
@@ -275,97 +289,103 @@ public class InternalRegistrationManagment
 		validateRequestIdentities(form, request);
 
 		if (!form.isCollectComments() && request.getComments() != null)
-			throw new WrongArgumentException("This registration " +
-					"form doesn't allow for passing comments.");
+			throw new WrongArgumentException("This registration "
+					+ "form doesn't allow for passing comments.");
 
 		if (form.getGroupParams() == null)
 			return;
 		if (request.getGroupSelections().size() != form.getGroupParams().size())
-			throw new WrongArgumentException("Wrong amount of group selections, should be: " + 
-					form.getGroupParams().size());
+			throw new WrongArgumentException(
+					"Wrong amount of group selections, should be: "
+							+ form.getGroupParams().size());
 	}
 
-	private void validateRequestAgreements(RegistrationForm form, RegistrationRequest request) 
+	private void validateRequestAgreements(RegistrationForm form, RegistrationRequest request)
 			throws WrongArgumentException
 	{
 		if (form.getAgreements() == null)
-			return;	
+			return;
 		if (form.getAgreements().size() != request.getAgreements().size())
-			throw new WrongArgumentException("Number of agreements in the" +
-					" request does not match the form agreements.");
-		for (int i=0; i<form.getAgreements().size(); i++)
+			throw new WrongArgumentException("Number of agreements in the"
+					+ " request does not match the form agreements.");
+		for (int i = 0; i < form.getAgreements().size(); i++)
 		{
-			if (form.getAgreements().get(i).isManatory() && 
-					!request.getAgreements().get(i).isSelected())
-				throw new WrongArgumentException("Mandatory agreement is not accepted.");
+			if (form.getAgreements().get(i).isManatory()
+					&& !request.getAgreements().get(i).isSelected())
+				throw new WrongArgumentException(
+						"Mandatory agreement is not accepted.");
 		}
 	}
 
-	private void validateRequestAttributes(RegistrationForm form, RegistrationRequest request, SqlSession sql) 
-			throws WrongArgumentException, IllegalAttributeValueException, IllegalAttributeTypeException
+	private void validateRequestAttributes(RegistrationForm form, RegistrationRequest request,
+			SqlSession sql) throws WrongArgumentException,
+			IllegalAttributeValueException, IllegalAttributeTypeException
 	{
 		validateParamsBase(form.getAttributeParams(), request.getAttributes(), "attributes");
 		Map<String, AttributeType> atMap = dbAttributes.getAttributeTypes(sql);
-		for (int i=0; i<request.getAttributes().size(); i++)
+		for (int i = 0; i < request.getAttributes().size(); i++)
 		{
 			Attribute<?> attr = request.getAttributes().get(i);
 			if (attr == null)
 				continue;
 			AttributeRegistrationParam regParam = form.getAttributeParams().get(i);
 			if (!regParam.getAttributeType().equals(attr.getName()))
-				throw new WrongArgumentException("Attribute " + 
-						attr.getName() + " in group " + attr.getGroupPath() + 
-						" is not allowed for this form");
+				throw new WrongArgumentException("Attribute " + attr.getName()
+						+ " in group " + attr.getGroupPath()
+						+ " is not allowed for this form");
 			if (!regParam.getGroup().equals(attr.getGroupPath()))
-				throw new WrongArgumentException("Attribute " + 
-						attr.getName() + " in group " + attr.getGroupPath() + 
-						" is not allowed for this form");
+				throw new WrongArgumentException("Attribute " + attr.getName()
+						+ " in group " + attr.getGroupPath()
+						+ " is not allowed for this form");
 			AttributeType at = atMap.get(attr.getName());
 			if (at == null)
-				throw new WrongArgumentException("Attribute of the form " + attr.getName() + 
-						" does not exist anymore");
+				throw new WrongArgumentException("Attribute of the form "
+						+ attr.getName() + " does not exist anymore");
 			AttributeValueChecker.validate(attr, at);
 		}
 	}
 
-	private void validateRequestIdentities(RegistrationForm form, RegistrationRequest request) 
-			throws WrongArgumentException, IllegalIdentityValueException, IllegalTypeException
+	private void validateRequestIdentities(RegistrationForm form, RegistrationRequest request)
+			throws WrongArgumentException, IllegalIdentityValueException,
+			IllegalTypeException
 	{
 		List<IdentityParam> requestedIds = request.getIdentities();
 		validateParamsBase(form.getIdentityParams(), requestedIds, "identities");
-		for (int i=0; i<requestedIds.size(); i++)
+		for (int i = 0; i < requestedIds.size(); i++)
 		{
 			IdentityParam idParam = requestedIds.get(i);
 			if (idParam == null)
 				continue;
 			if (idParam.getTypeId() == null || idParam.getValue() == null)
-				throw new WrongArgumentException("Identity nr " + i + " contains null values");
-			if (!form.getIdentityParams().get(i).getIdentityType().equals(idParam.getTypeId()))
-				throw new WrongArgumentException("Identity nr " + i + " must be of " 
-						+ idParam.getTypeId() + " type");
-			identityTypesRegistry.getByName(idParam.getTypeId()).validate(idParam.getValue());
+				throw new WrongArgumentException("Identity nr " + i
+						+ " contains null values");
+			if (!form.getIdentityParams().get(i).getIdentityType()
+					.equals(idParam.getTypeId()))
+				throw new WrongArgumentException("Identity nr " + i
+						+ " must be of " + idParam.getTypeId() + " type");
+			identityTypesRegistry.getByName(idParam.getTypeId()).validate(
+					idParam.getValue());
 		}
 	}
 
-	private void validateRequestCredentials(RegistrationForm form, RegistrationRequest request, 
-			boolean doCredentialCheckAndUpdate, SqlSession sql) 
-			throws EngineException
+	private void validateRequestCredentials(RegistrationForm form, RegistrationRequest request,
+			boolean doCredentialCheckAndUpdate, SqlSession sql) throws EngineException
 	{
 		List<CredentialParamValue> requestedCreds = request.getCredentials();
 		List<CredentialRegistrationParam> formCreds = form.getCredentialParams();
 		if (formCreds == null)
 			return;
 		if (formCreds.size() != requestedCreds.size())
-			throw new WrongArgumentException("There should be " + formCreds.size() + 
-					" credential parameters");
-		for (int i=0; i<formCreds.size(); i++)
+			throw new WrongArgumentException("There should be " + formCreds.size()
+					+ " credential parameters");
+		for (int i = 0; i < formCreds.size(); i++)
 		{
 			String credential = formCreds.get(i).getCredentialName();
 			CredentialDefinition credDef = credentialDB.get(credential, sql);
 			if (doCredentialCheckAndUpdate)
 			{
-				LocalCredentialVerificator credVerificator = 
-					authnRegistry.createLocalCredentialVerificator(credDef);
+				LocalCredentialVerificator credVerificator = authnRegistry
+						.createLocalCredentialVerificator(credDef);
 				String updatedSecrets = credVerificator.prepareCredential(
 						requestedCreds.get(i).getSecrets(), "");
 				requestedCreds.get(i).setSecrets(updatedSecrets);
@@ -373,32 +393,33 @@ public class InternalRegistrationManagment
 		}
 	}
 
-	private void validateRequestCode(RegistrationForm form, RegistrationRequest request) throws WrongArgumentException
+	private void validateRequestCode(RegistrationForm form, RegistrationRequest request)
+			throws WrongArgumentException
 	{
 		String formCode = form.getRegistrationCode();
 		String code = request.getRegistrationCode();
 		if (formCode == null && code != null)
-			throw new WrongArgumentException("This registration " +
-					"form doesn't allow for passing registration code.");
+			throw new WrongArgumentException("This registration "
+					+ "form doesn't allow for passing registration code.");
 		if (formCode != null && code == null)
-			throw new WrongArgumentException("This registration " +
-					"form require a registration code.");
+			throw new WrongArgumentException("This registration "
+					+ "form require a registration code.");
 		if (formCode != null && code != null && !formCode.equals(code))
 			throw new WrongArgumentException("The registration code is invalid.");
 	}
 
-	private void validateParamsBase(List<? extends OptionalRegistrationParam> paramDefinitions, List<?> params, 
-			String info) throws WrongArgumentException
+	private void validateParamsBase(List<? extends OptionalRegistrationParam> paramDefinitions,
+			List<?> params, String info) throws WrongArgumentException
 	{
 		if (paramDefinitions.size() != params.size())
-			throw new WrongArgumentException("There should be " + paramDefinitions.size() + " " + 
-					info + " parameters");
-		for (int i=0; i<paramDefinitions.size(); i++)
+			throw new WrongArgumentException("There should be "
+					+ paramDefinitions.size() + " " + info + " parameters");
+		for (int i = 0; i < paramDefinitions.size(); i++)
 			if (!paramDefinitions.get(i).isOptional() && params.get(i) == null)
-				throw new WrongArgumentException("The parameter nr " + (i+1) + " of " + 
-						info + " is required");
+				throw new WrongArgumentException("The parameter nr " + (i + 1)
+						+ " of " + info + " is required");
 	}
-	
+
 	public Map<String, String> getBaseNotificationParams(String formId, String requestId)
 	{
 		Map<String, String> ret = new HashMap<>();
@@ -406,23 +427,29 @@ public class InternalRegistrationManagment
 		ret.put(BaseRegistrationTemplateDef.REQUEST_ID, requestId);
 		return ret;
 	}
-	
+
 	/**
-	 * Creates and sends notifications to the requester and admins in effect of request processing.
-	 * @param sendToRequester if true then the notification is sent to requester if only we have its address.
-	 * If false, then notification is sent to requester only if we have its address and 
-	 * if a public comment was given.
-	 * @throws EngineException 
+	 * Creates and sends notifications to the requester and admins in effect
+	 * of request processing.
+	 * 
+	 * @param sendToRequester
+	 *                if true then the notification is sent to requester if
+	 *                only we have its address. If false, then notification
+	 *                is sent to requester only if we have its address and
+	 *                if a public comment was given.
+	 * @throws EngineException
 	 */
-	public void sendProcessingNotification(String templateId, RegistrationRequestState currentRequest, 
-			String requestId, String formId, boolean sendToRequester,
-			AdminComment publicComment, AdminComment internalComment,
-			RegistrationFormNotifications notificationsCfg, SqlSession sql) throws EngineException
+	public void sendProcessingNotification(String templateId,
+			RegistrationRequestState currentRequest, String requestId, String formId,
+			boolean sendToRequester, AdminComment publicComment,
+			AdminComment internalComment,
+			RegistrationFormNotifications notificationsCfg, SqlSession sql)
+			throws EngineException
 	{
 		if (notificationsCfg.getChannel() == null || templateId == null)
 			return;
 		Map<String, String> notifyParams = getBaseNotificationParams(formId, requestId);
-		notifyParams.put(RegistrationWithCommentsTemplateDef.PUBLIC_COMMENT, 
+		notifyParams.put(RegistrationWithCommentsTemplateDef.PUBLIC_COMMENT,
 				publicComment == null ? "" : publicComment.getContents());
 		notifyParams.put(RegistrationWithCommentsTemplateDef.INTERNAL_COMMENT, "");
 		String requesterAddress = getRequesterAddress(currentRequest, notificationsCfg, sql);
@@ -431,39 +458,39 @@ public class InternalRegistrationManagment
 			if (sendToRequester || publicComment != null)
 			{
 				String userLocale = currentRequest.getRequest().getUserLocale();
-				notificationProducer.sendNotification(requesterAddress, 
-						notificationsCfg.getChannel(), 
-						templateId,
-						notifyParams,
-						userLocale);
+				notificationProducer.sendNotification(requesterAddress,
+						notificationsCfg.getChannel(), templateId,
+						notifyParams, userLocale);
 			}
 		}
-		
+
 		if (notificationsCfg.getAdminsNotificationGroup() != null)
 		{
-			notifyParams.put(RegistrationWithCommentsTemplateDef.INTERNAL_COMMENT, 
-					internalComment == null ? "" : internalComment.getContents());
-			notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(), 
-				notificationsCfg.getChannel(), 
-				templateId,
-				notifyParams,
-				msg.getDefaultLocaleCode());
+			notifyParams.put(
+					RegistrationWithCommentsTemplateDef.INTERNAL_COMMENT,
+					internalComment == null ? "" : internalComment
+							.getContents());
+			notificationProducer.sendNotificationToGroup(
+					notificationsCfg.getAdminsNotificationGroup(),
+					notificationsCfg.getChannel(), templateId, notifyParams,
+					msg.getDefaultLocaleCode());
 		}
 	}
-	
-	private String getRequesterAddress(RegistrationRequestState currentRequest, 
-			RegistrationFormNotifications notificationsCfg, SqlSession sql) throws EngineException
+
+	private String getRequesterAddress(RegistrationRequestState currentRequest,
+			RegistrationFormNotifications notificationsCfg, SqlSession sql)
+			throws EngineException
 	{
 		List<Attribute<?>> attrs = currentRequest.getRequest().getAttributes();
 		AttributeType addrAttribute = notificationProducer.getChannelAddressAttribute(
 				notificationsCfg.getChannel(), sql);
 		String requesterAddress = null;
-		for (Attribute<?> ap: attrs)
+		for (Attribute<?> ap : attrs)
 		{
 			if (ap == null)
 				continue;
-			if (ap.getName().equals(addrAttribute.getName()) &&
-					ap.getGroupPath().equals("/"))
+			if (ap.getName().equals(addrAttribute.getName())
+					&& ap.getGroupPath().equals("/"))
 			{
 				requesterAddress = (String) ap.getValues().get(0);
 				break;
@@ -471,7 +498,7 @@ public class InternalRegistrationManagment
 		}
 		return requesterAddress;
 	}
-	
+
 	public boolean checkAutoAcceptCondition(RegistrationRequest request) throws EngineException
 	{
 		RegistrationForm form = null;
@@ -484,10 +511,10 @@ public class InternalRegistrationManagment
 				break;
 			}
 		}
-		
+
 		if (form == null)
 			return false;
-		
+
 		Boolean result = new Boolean(false);
 		try
 		{
@@ -500,16 +527,16 @@ public class InternalRegistrationManagment
 		}
 		return result.booleanValue();
 	}
-	
-	private Map<String, Object> createMvelContext(RegistrationRequest request, RegistrationForm form) 
-			throws IllegalTypeException
+
+	private Map<String, Object> createMvelContext(RegistrationRequest request,
+			RegistrationForm form) throws IllegalTypeException
 	{
 		HashMap<String, Object> ctx = new HashMap<String, Object>();
 
-		List<IdentityParam> identities = request.getIdentities();	
+		List<IdentityParam> identities = request.getIdentities();
 		Map<String, List<Object>> idsByType = new HashMap<String, List<Object>>();
 		Map<String, List<Object>> idsByTypeObj = new HashMap<String, List<Object>>();
-		for (IdentityParam id: identities)
+		for (IdentityParam id : identities)
 		{
 			if (id == null)
 				continue;
@@ -528,11 +555,11 @@ public class InternalRegistrationManagment
 				idsByTypeObj.put(id.getTypeId(), valsObj);
 			}
 			vals.add(id.getValue());
-			valsObj.add(id);			
+			valsObj.add(id);
 		}
 		ctx.put("idsByType", idsByType);
 		ctx.put("idsByTypeObj", idsByTypeObj);
-				
+
 		Map<String, Object> attr = new HashMap<String, Object>();
 		Map<String, List<?>> attrs = new HashMap<String, List<?>>();
 
@@ -555,7 +582,7 @@ public class InternalRegistrationManagment
 		}
 		ctx.put("attr", attr);
 		ctx.put("attrs", attrs);
-		
+
 		List<Selection> groupSelections = request.getGroupSelections();
 		Map<String, Group> groups = new HashMap<String, Group>();
 		if (form.getGroupParams() != null)
@@ -570,25 +597,26 @@ public class InternalRegistrationManagment
 			}
 		}
 		ctx.put("groups", new ArrayList<String>(groups.keySet()));
-		
+
 		ArrayList<String> agr = new ArrayList<String>();
-		for (Selection a: request.getAgreements())
+		for (Selection a : request.getAgreements())
 		{
 			agr.add(Boolean.toString(a.isSelected()));
 		}
 		ctx.put("agrs", agr);
-		
+
 		return ctx;
 	}
-	
-	public void rewriteRequestToken(RegistrationRequestState finalReguest,
-			long entityId) throws EngineException
+
+	public void rewriteRequestToken(RegistrationRequestState finalReguest, long entityId)
+			throws EngineException
 	{
 
 		List<Token> tks = tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE);
 		for (Token tk : tks)
 		{
-			RegistrationConfirmationState state = new RegistrationConfirmationState(tk.getContentsString());
+			RegistrationConfirmationState state = new RegistrationConfirmationState(
+					tk.getContentsString());
 			if (state.getRequestId().equals(finalReguest.getRequestId()))
 			{
 				if (state.getFacilityId().equals(
@@ -597,18 +625,19 @@ public class InternalRegistrationManagment
 					rewriteSingleAttributeToken(finalReguest, tk, entityId);
 				} else if (state.getFacilityId().equals(
 						RegistrationReqIdentityConfirmationState.FACILITY_ID))
+				{
 					rewriteSingleIdentityToken(finalReguest, tk, entityId);
-
+				}
 			}
 		}
 	}
 
+	//FIXME transactions (and next method too)
 	private void rewriteSingleIdentityToken(RegistrationRequestState finalReguest, Token tk,
 			long entityId) throws EngineException
 	{
-		RegistrationReqIdentityConfirmationState oldState = 
-				new RegistrationReqIdentityConfirmationState(new String(tk.getContents(),
-						StandardCharsets.UTF_8));
+		RegistrationReqIdentityConfirmationState oldState = new RegistrationReqIdentityConfirmationState(
+				new String(tk.getContents(), StandardCharsets.UTF_8));
 		boolean inRequest = false;
 		for (IdentityParam id : finalReguest.getRequest().getIdentities())
 		{
@@ -619,7 +648,7 @@ public class InternalRegistrationManagment
 				break;
 			}
 		}
-	
+
 		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
 		if (inRequest)
 		{
@@ -627,11 +656,12 @@ public class InternalRegistrationManagment
 					entityId, oldState.getType(), oldState.getValue(),
 					oldState.getLocale(), oldState.getSuccessUrl(),
 					oldState.getErrorUrl());
-			log.debug("Update confirmation token " + tk.getValue() + " change facility to " + 
-					newstate.getFacilityId());
-			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), newstate
-					.getSerializedConfiguration().getBytes(StandardCharsets.UTF_8), tk.getCreated(),
-					tk.getExpires());
+			log.debug("Update confirmation token " + tk.getValue()
+					+ " change facility to " + newstate.getFacilityId());
+			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk
+					.getValue(), newstate.getSerializedConfiguration()
+					.getBytes(StandardCharsets.UTF_8), tk.getCreated(), tk
+					.getExpires());
 		}
 
 	}
@@ -640,15 +670,14 @@ public class InternalRegistrationManagment
 			long entityId) throws EngineException
 	{
 
-		RegistrationReqAttribiuteConfirmationState oldState = 
-				new RegistrationReqAttribiuteConfirmationState(
-						new String(tk.getContents(), StandardCharsets.UTF_8));
+		RegistrationReqAttribiuteConfirmationState oldState = new RegistrationReqAttribiuteConfirmationState(
+				new String(tk.getContents(), StandardCharsets.UTF_8));
 		boolean inRequest = false;
 		for (Attribute<?> attribute : finalReguest.getRequest().getAttributes())
 		{
 			if (attribute == null)
 				continue;
-			if (inRequest )
+			if (inRequest)
 				break;
 			if (attribute.getAttributeSyntax().isVerifiable()
 					&& attribute.getName().equals(oldState.getType())
@@ -670,14 +699,15 @@ public class InternalRegistrationManagment
 		if (inRequest)
 		{
 			AttribiuteConfirmationState newstate = new AttribiuteConfirmationState(
-					entityId, oldState.getType(), oldState.getValue(), 
+					entityId, oldState.getType(), oldState.getValue(),
 					oldState.getLocale(), oldState.getGroup(),
 					oldState.getSuccessUrl(), oldState.getErrorUrl());
 			log.debug("Update confirmation token " + tk.getValue()
 					+ " change facility to " + newstate.getFacilityId());
-			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), newstate
-					.getSerializedConfiguration().getBytes(StandardCharsets.UTF_8), tk.getCreated(),
-					tk.getExpires());
+			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk
+					.getValue(), newstate.getSerializedConfiguration()
+					.getBytes(StandardCharsets.UTF_8), tk.getCreated(), tk
+					.getExpires());
 		}
 	}
 }
