@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
-import java.util.Collections;
+import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -17,9 +17,9 @@ public class VerifiableEmailAttribute extends Attribute<VerifiableEmail>
 {
 
 	public VerifiableEmailAttribute(String name, String groupPath, AttributeVisibility visibility,
-			VerifiableEmail value)
+			VerifiableEmail... values)
 	{
-		super(name, new VerifiableEmailAttributeSyntax(), groupPath, visibility, Collections.singletonList(value));
+		super(name, new VerifiableEmailAttributeSyntax(), groupPath, visibility, Lists.newArrayList(values));
 	}
 	
 	public VerifiableEmailAttribute(String name, String groupPath, AttributeVisibility visibility,
