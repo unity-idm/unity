@@ -34,6 +34,7 @@ import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.HorizontalLayout;
 
 /**
  * Shows (optionally in edit mode) all configured attributes.
@@ -84,6 +85,9 @@ public class UserAttributesPanel
 		
 		if (attributeEditors.size() > 0)
 		{
+			HorizontalLayout buttons = new HorizontalLayout();
+			buttons.setSpacing(true);
+			
 			Button save = new Button(msg.getMessage("save"));
 			save.setIcon(Images.save.getResource());
 			save.addClickListener(new ClickListener()
@@ -95,6 +99,20 @@ public class UserAttributesPanel
 				}
 			});
 			parent.addComponent(save);
+
+			Button reset = new Button(msg.getMessage("reset"));
+			reset.setIcon(Images.trashBin.getResource());
+			reset.addClickListener(new ClickListener()
+			{
+				@Override
+				public void buttonClick(ClickEvent event)
+				{
+					refreshEditable();
+				}
+			});
+			buttons.addComponents(save, reset);
+			
+			parent.addComponent(buttons);
 		}
 	}
 	
@@ -126,6 +144,17 @@ public class UserAttributesPanel
 					attribute, showGroup);
 			viewer.addToLayout(parent);
 		}
+	}
+	
+	private void refreshEditable()
+	{
+		for (FixedAttributeEditor editor: attributeEditors)
+		{
+			AttributeExt<?> attribute = getAttribute(editor.getAttributeType().getName(), 
+					editor.getGroup());			
+			editor.setAttributeValues(attribute.getValues());
+		}
+
 	}
 	
 	private AttributeExt<?> getAttribute(String attributeName, String group)
@@ -170,8 +199,8 @@ public class UserAttributesPanel
 			attributesMan.setAttribute(new EntityParam(entityId), a, true);
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("UserAttributesPanel.errorSaving",
-					a.getName()), e);
+			ErrorPopup.showError(msg, 
+					msg.getMessage("UserAttributesPanel.errorSaving", a.getName()), e);
 		}
 		
 	}
