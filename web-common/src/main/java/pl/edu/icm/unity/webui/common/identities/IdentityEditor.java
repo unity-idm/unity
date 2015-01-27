@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.common.identities;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 
 /**
@@ -17,13 +18,13 @@ public interface IdentityEditor
 	/**
 	 * @return the editor component
 	 */
-	public ComponentsContainer getEditor(boolean required);
+	public ComponentsContainer getEditor(boolean required, boolean adminMode);
 	
 	/**
 	 * @return the current identity value
 	 * @throws IllegalIdentityValueException if the entered data is incomplete or invalid.
 	 */
-	public String getValue() throws IllegalIdentityValueException;
+	public IdentityParam getValue() throws IllegalIdentityValueException;
 	
 	/**
 	 * @param value 

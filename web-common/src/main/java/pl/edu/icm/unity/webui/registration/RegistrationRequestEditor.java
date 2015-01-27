@@ -200,7 +200,6 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<form.getIdentityParams().size(); i++)
 		{
 			IdentityRegistrationParam regParam = form.getIdentityParams().get(i);
-			String id;
 			IdentityTaV rid = remoteIdentitiesByType.get(regParam.getIdentityType());
 			if (regParam.getRetrievalSettings() == ParameterRetrievalSettings.interactive
 					|| regParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive
@@ -209,16 +208,15 @@ public class RegistrationRequestEditor extends CustomComponent
 				IdentityEditor editor = identityParamEditors.get(j++);
 				try
 				{
-					id = editor.getValue();
+					ip = editor.getValue();
 				} catch (IllegalIdentityValueException e)
 				{
 					hasFormException = true;
 					continue;
 				}
-				ip = id == null ? null : new IdentityParam(regParam.getIdentityType(), id);
 			} else
 			{
-				id = rid == null ? null : rid.getValue();
+				String id = rid == null ? null : rid.getValue();
 				ip = id == null ? null : new IdentityParam(regParam.getIdentityType(), id, 
 						remotelyAuthenticated.getRemoteIdPName(), 
 						remotelyAuthenticated.getInputTranslationProfile());
@@ -450,7 +448,7 @@ public class RegistrationRequestEditor extends CustomComponent
 			
 			IdentityEditor editor = identityEditorRegistry.getEditor(idParam.getIdentityType());
 			identityParamEditors.add(editor);
-			ComponentsContainer editorUI = editor.getEditor(!idParam.isOptional());
+			ComponentsContainer editorUI = editor.getEditor(!idParam.isOptional(), false);
 			layout.addComponents(editorUI.getComponents());
 			
 			if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive && rid != null)

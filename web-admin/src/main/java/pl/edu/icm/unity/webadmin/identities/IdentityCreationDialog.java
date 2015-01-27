@@ -81,7 +81,7 @@ public class IdentityCreationDialog extends AbstractDialog
 				String type = (String) identityType.getValue();
 				IdentityEditor editor = identityEditorReg.getEditor(type);
 				idLayout.removeAllComponents();
-				idLayout.addComponents(editor.getEditor(true).getComponents());
+				idLayout.addComponents(editor.getEditor(true, true).getComponents());
 				IdentityCreationDialog.this.identityEditor = editor;
 			}
 		});
@@ -98,16 +98,14 @@ public class IdentityCreationDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		String value;
+		IdentityParam toAdd;
 		try
 		{
-			value = identityEditor.getValue();
+			toAdd = identityEditor.getValue();
 		} catch (IllegalIdentityValueException e)
 		{
 			return;
 		}
-		String type = (String) identityType.getValue();
-		IdentityParam toAdd = new IdentityParam(type, value);
 		Identity added = null;
 		try
 		{

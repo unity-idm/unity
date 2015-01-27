@@ -10,6 +10,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 /**
  * Represents an identity with full information as returned from the engine.
@@ -35,7 +36,7 @@ public class Identity extends IdentityParam
 	}
 	
 	public Identity(IdentityType type, String value, Long entityId, String realm, String target, String remoteIdp,
-			String translationProfile, Date creationTs, Date updateTs) throws IllegalIdentityValueException
+			String translationProfile, Date creationTs, Date updateTs, ConfirmationInfo ci) throws IllegalIdentityValueException
 	{
 		super(type.getIdentityTypeProvider().getId(), value);
 		this.entityId = entityId;
@@ -49,6 +50,7 @@ public class Identity extends IdentityParam
 		setTranslationProfile(translationProfile);
 		setCreationTs(creationTs);
 		setUpdateTs(updateTs);
+		setConfirmationInfo(ci);
 	}
 	
 	public Long getEntityId()

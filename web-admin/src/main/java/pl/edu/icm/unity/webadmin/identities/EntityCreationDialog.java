@@ -130,16 +130,14 @@ public class EntityCreationDialog extends IdentityCreationDialog
 	@Override
 	protected void onConfirm()
 	{
-		String value;
+		final IdentityParam toAdd;
 		try
 		{
-			value = identityEditor.getValue();
+			toAdd = identityEditor.getValue();
 		} catch (IllegalIdentityValueException e)
 		{
 			return;
 		}
-		String type = (String) identityType.getValue();
-		final IdentityParam toAdd = new IdentityParam(type, value);
 		
 		Map<String, AttributesClass> allACs;
 		Set<String> required;

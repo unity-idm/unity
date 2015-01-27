@@ -184,7 +184,7 @@ public class DBIdentities
 		
 		IdentityType idType = idResolver.resolveIdentityType(identityTypeB);
 		return new Identity(idType, toAdd.getValue(), entityId, toAdd.getRealm(), toAdd.getTarget(),
-				toAdd.getRemoteIdp(), toAdd.getTranslationProfile(), ts, ts);
+				toAdd.getRemoteIdp(), toAdd.getTranslationProfile(), ts, ts, toAdd.getConfirmationInfo());
 	}
 	
 	public Identity updateIdentityConfirmationInfo (IdentityTaV idTav, ConfirmationInfo newConfirmation ,SqlSession sqlMap) throws IllegalTypeException, IllegalIdentityValueException

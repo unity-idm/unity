@@ -281,6 +281,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	{
 		if (!identity.getType().getIdentityTypeProvider().isVerifiable())
 			return;
+		if (identity.isConfirmed())
+			return;
 		String url = getCurrentURL(useCurrentReturnUrl);
 		//TODO - should use user's preferred locale
 		IdentityConfirmationState state = new IdentityConfirmationState(

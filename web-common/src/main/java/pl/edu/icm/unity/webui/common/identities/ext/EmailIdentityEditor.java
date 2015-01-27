@@ -7,10 +7,13 @@ package pl.edu.icm.unity.webui.common.identities.ext;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 
 import com.vaadin.server.UserError;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.TextField;
 
 /**
@@ -21,7 +24,9 @@ public class EmailIdentityEditor implements IdentityEditor
 {
 	private UnityMessageSource msg;
 	private TextField field;
+	private CheckBox confirmed;
 	private boolean required;
+	private boolean adminMode;
 	
 	public EmailIdentityEditor(UnityMessageSource msg)
 	{
@@ -29,20 +34,29 @@ public class EmailIdentityEditor implements IdentityEditor
 	}
 
 	@Override
-	public ComponentsContainer getEditor(boolean required)
+	public ComponentsContainer getEditor(boolean required, boolean adminMode)
 	{
 		field = new TextField(msg.getMessage("EmailIdentityEditor.email"));
 		field.setRequired(required);
-		field.setId("EmailIdentityEditor.email");
 		this.required = required;
-		return new ComponentsContainer(field);
+		this.adminMode = adminMode;
+
+		ComponentsContainer ret = new ComponentsContainer(field);
+		if (adminMode)
+		{
+			confirmed = new CheckBox(msg.getMessage(
+					"VerifiableEmailAttributeHandler.confirmedCheckbox"));
+			ret.add(confirmed);
+		}
+		return ret;
+
 	}
 
 	@Override
-	public String getValue() throws IllegalIdentityValueException
+	public IdentityParam getValue() throws IllegalIdentityValueException
 	{
-		String username = field.getValue();
-		if (username.trim().equals(""))
+		String emailVal = field.getValue();
+		if (emailVal.trim().equals(""))
 		{
 			if (!required)
 				return null;
@@ -50,8 +64,14 @@ public class EmailIdentityEditor implements IdentityEditor
 			field.setComponentError(new UserError(err));
 			throw new IllegalIdentityValueException(err);
 		}
-		field.setComponentError(null);		
-		return username;
+		field.setComponentError(null);
+		
+		IdentityParam ret = new IdentityParam(EmailIdentity.ID, emailVal); 
+		if (adminMode)
+		{
+			ret.setConfirmationInfo(new ConfirmationInfo(confirmed.getValue()));
+		}
+		return ret;
 	}
 
 	@Override

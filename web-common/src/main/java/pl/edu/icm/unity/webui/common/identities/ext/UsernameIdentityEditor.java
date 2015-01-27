@@ -10,6 +10,7 @@ import com.vaadin.ui.TextField;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 
@@ -29,7 +30,7 @@ public class UsernameIdentityEditor implements IdentityEditor
 	}
 
 	@Override
-	public ComponentsContainer getEditor(boolean required)
+	public ComponentsContainer getEditor(boolean required, boolean adminMode)
 	{
 		field = new TextField(msg.getMessage("UsernameIdentityEditor.username"));
 		field.setRequired(required);
@@ -39,7 +40,7 @@ public class UsernameIdentityEditor implements IdentityEditor
 	}
 
 	@Override
-	public String getValue() throws IllegalIdentityValueException
+	public IdentityParam getValue() throws IllegalIdentityValueException
 	{
 		String username = field.getValue();
 		if (username.trim().equals(""))
@@ -51,7 +52,7 @@ public class UsernameIdentityEditor implements IdentityEditor
 			throw new IllegalIdentityValueException(err);
 		}
 		field.setComponentError(null);		
-		return username;
+		return new IdentityParam(UsernameIdentity.ID, username);
 	}
 
 	@Override

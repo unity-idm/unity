@@ -24,6 +24,7 @@ import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
@@ -45,7 +46,7 @@ public class X500IdentityEditor implements IdentityEditor
 	}
 
 	@Override
-	public ComponentsContainer getEditor(boolean required)
+	public ComponentsContainer getEditor(boolean required, boolean adminMode)
 	{
 		this.required = required;
 		field = new TextField();
@@ -64,7 +65,7 @@ public class X500IdentityEditor implements IdentityEditor
 	}
 
 	@Override
-	public String getValue() throws IllegalIdentityValueException
+	public IdentityParam getValue() throws IllegalIdentityValueException
 	{
 		String dn = field.getValue();
 		if (dn.trim().equals(""))
@@ -85,7 +86,7 @@ public class X500IdentityEditor implements IdentityEditor
 					e.getMessage())));
 			throw new IllegalIdentityValueException(e.getMessage());
 		}
-		return dn;
+		return new IdentityParam(X500Identity.ID, dn);
 	}
 
 	private class CertUploader implements Receiver, SucceededListener {
