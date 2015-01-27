@@ -64,6 +64,7 @@ public class UserConfirmationState extends BaseConfirmationState
 		return state;
 	}
 	
+	@Override
 	protected void setSerializedConfiguration(ObjectNode main) throws InternalException
 	{
 		try
@@ -77,7 +78,6 @@ public class UserConfirmationState extends BaseConfirmationState
 
 	}
 
-	
 	@Override
 	protected void setSerializedConfiguration(String json) throws InternalException
 	{

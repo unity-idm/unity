@@ -65,13 +65,28 @@ public class RegistrationConfirmationState extends BaseConfirmationState
 		return state;
 	}
 	
+	
+	@Override
+	protected void setSerializedConfiguration(ObjectNode main) throws InternalException
+	{
+		try
+		{
+			super.setSerializedConfiguration(main);
+			requestId = main.get("requestId").asText();
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't perform JSON deserialization", e);
+		}
+
+	}
+	
+	@Override
 	protected void setSerializedConfiguration(String json) throws InternalException
 	{
 		try
 		{
 			ObjectNode main = mapper.readValue(json, ObjectNode.class);
-			super.setSerializedConfiguration(main);
-			requestId = main.get("requestId").asText();	
+			setSerializedConfiguration(main);
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't perform JSON deserialization", e);
