@@ -184,11 +184,110 @@ The following table describes all available identity types:
 [cols="m,n,n" options="header"]
 |=== 
 |UNITY identity type	| Category	| Description  
-|userName				| regular	| User name, compared with simple string equality. This type of identity is used for all password-alike authentications in Unity. 
-|identifier				| regular	| Generic identifier, compared with string equality. It is useful to represent remotely assigned user identifiers and to match against them during subsequent authentications. 
+|userName				| regular	| User name, compared with simple string equality. This type of identity can be used for all password-alike authentications in Unity. 
+|identifier				| regular	| Generic identifier, compared with string equality. It is useful to represent remotely assigned user identifiers and to match against them during subsequent authentications. It is not possible to directly login with this identity type. 
 |x500Name				| regular	| X.500 name or a Distinguished Name (DN). Used in case of TLS/SSL authentication. The equality is tested on canonical form of DN.
+|email					| regular	| Email address identity, compared with simple string equality. This type of identity can be used for all password-alike authentications in Unity. The value of this identity is subject of confirmation process.
 |persistent				| automatic	| An automatically assigned anonymous identifier. Should be constant for each entity for its lifetime (and is unless manually removed).
 |targetedPersistent		| automatic	| An automatically assigned anonymous identifier. It is different from the persistent type as for each of Unity clients (targets) a different identifier is maintained. 
 |transient				| automatic	| An automatically assigned anonymous identifier. It is very similar to targetedPersistent, the only difference is that the identifier is regenerated for each login session. 
 |===
+ 
+
+=== E-mail confirmations
+
+Unity provides a powerful support for verifications of e-mail addresses. Both e-mail identities and e-mail attributes
+can be verified. In case of e-mail attribute each value is confirmed separately.  
+
+As this functionality touches many different areas of Unity functionality we group all
+the related information here.
+
+==== Confirmations setup
+
+To enable confirmations the following basic elements needs to be configured:
+
+. The E-mail notification channel must be configured.
+. There must be a message template (or templates) suitable for use with confirmation facility. See <<notifications>>.
+. To confirm attributes at least one attribute type must be defined which will use the +verifiableEmail+ syntax. 
+What's more each such attribute type must have confirmations enabled and configured by selecting a proper 
+message template (see below).
+. To confirm email identities, identity confirmations must be enabled and configured by selecting a proper 
+message template (see below).
+
+The configuration of confirmations (for identities and for each email attribute type) is performed in the 
+Server management -> Confirmations configuration tab of the Admin UI. It is rather simplistic as the only 
+really variable property is the template to be used.
+
+Note that Unity contains a convenient content initializer which can be enabled in the +unityServer.conf+ to load 
+default confirmation configurations on startup:
+
+----
+unityServer.core.initializers.3=confirmationsInitializer
+----
+
+Later in this section we assume that the confirmations were set up as was described above.
+
+==== When confirmations are sent?
+
+Whenever an email attribute or identity is created or changed manually in Unity interface 
+the confirmation message is sent. The sole exception is a change of an attribute by administrator via the Admin UI: 
+it is possible to control whether the attribute value should be added as confirmed or not.
+
+Confirmations are also sent whenever a registration request is submitted, with an e-mail attribute or identity which
+was collected from the user filling the form. The attributes and identities collected from remote IdPs can be assumed  
+be verified (depending on the input translation profile, see below).
+
+The confirmations are not sent when an attribute is updated and some of the values are preserved.
+Also already sent confirmations are not repeated during attribute update. E.g. if there is an attribute with 
+two email values +a@example.com+ (confirmed) and +b@example.com+ (unconfirmed, with confirmation request already sent),
+and a user changes the attribute by adding a new attribute +c@example.com+ only one confirmation request will be sent
+(for +c@example.com+), and the confirmed status of +a@example.com+ will be preserved.
+
+Unity also takes care not to send confirmations more then 3 times. What is more confirmations are not resent if 
+the same e-mail address was used for both identity and attribute (or multiple attributes). Then only a single
+confirmation is sent and confirms all elements. 
+
+It is also possible to enforce sending a confirmation request from the admin UI by setting the unconfirmed state.  
+
+==== Registration forms and confirmations
+
+Registration form including e-mail identities and/or attributes will have the confirmations automatically sent on 
+submit. If the request is accepted before the user confirms its e-mail(s) then the confirmations are applied to 
+e-mail/attribute of the already created entity. Otherwise are only recorded in the request. Administrator
+can always check confirmation status on the request review panel.
+
+It is also possible to use email or identity confirmation status as auto accept condition. This means that the 
+auto-accept condition is evaluated not only after request submission, but also after the request is updated 
+in confirmation effect. The auto acceptance rules for email attribute and identity (respectively) are as follows:
+
+----
+attr["email"].confirmed == true
+----
+
+----
+idsByTypeObj["email"][0].confirmed == true
+----
+
+==== Input translation profile and confirmations
+
+To control an attribute or identity confirmation state in a translation profile, the regular e-mail value must 
+be followed with the special suffix +[CONFIRMED]+ or +[UNCONFIRMED]+ (case sensitive, without spaces between
+the last character of email address). The default value is unconfirmed.
+
+==== User control of e-mail address
+
+If the email attribute type is set as self modifiable, the user can edit its value on its own. To enable it
+also the Home UI must be configured to allow for this.
+
+There is one special rule regarding edit of the  e-mail attribute by an ordinary user: if the attribute has 
+at least one confirmed value, then after changing the values also at least one confirmed value must be present.
+
+Currently this rule is hardcoded, but in future we may enable its configuration in attribute type.
+   
+==== Authentication with e-mail identity
+
+Authentication with e-mail identity can be used in the very same way as authentication with a plain username identity.
+Both identity types works out of the box with the password credential.
+
+The only difference is that a user can not authenticate with e-mail identity if it was not confirmed.
  
