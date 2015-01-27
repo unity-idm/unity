@@ -24,15 +24,10 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 {
 	public static final String ID = "verifiableEmail";
 	private final int MAX_LENGTH = 80;
-	private final String EMAIL_REGEXP = "[^@]+@.+\\..+";
-	private Pattern pattern = null;
+	private static final String EMAIL_REGEXP = "[^@]+@.+\\..+";
+	private static final Pattern PATTERN = Pattern.compile(EMAIL_REGEXP);
 	
 	
-	public VerifiableEmailAttributeSyntax()
-	{
-		pattern = Pattern.compile(EMAIL_REGEXP);
-	}
-		
 	/**
 	 * {@inheritDoc}
 	 */
@@ -120,7 +115,7 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		if (value.getValue().length() > MAX_LENGTH)
 			throw new IllegalAttributeValueException("Value length (" + value.getValue().length() 
 					+ ") is too big, must be not greater than " + MAX_LENGTH);
-		if (!pattern.matcher(value.getValue()).matches())
+		if (!PATTERN.matcher(value.getValue()).matches())
 			throw new IllegalAttributeValueException("Value must match the " +
 						"regualr expression: " + EMAIL_REGEXP);
 	}

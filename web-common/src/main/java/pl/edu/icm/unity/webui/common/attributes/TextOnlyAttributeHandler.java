@@ -26,8 +26,8 @@ import com.vaadin.ui.VerticalLayout;
  */
 public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler<T>
 {
-	private static final int LARGE_STRING = 200;
-	private static final int SMALL_STRING = 30;
+	public static final int LARGE_STRING = 200;
+	public static final int SMALL_STRING = 30;
 	
 	public static String trimString(String full, int limited)
 	{
@@ -39,6 +39,21 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 		
 	}
 
+	public static int toLengthLimit(RepresentationSize size)
+	{
+		switch (size)
+		{
+		case ORIGINAL:
+			return Integer.MAX_VALUE;
+		case MEDIUM:
+			return LARGE_STRING;
+		case LINE:
+			return SMALL_STRING;
+		default:
+			return LARGE_STRING;
+		}
+	}
+	
 	@Override
 	public String getValueAsString(T value, AttributeValueSyntax<T> syntax, int limited)
 	{
@@ -48,20 +63,7 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 	@Override
 	public Component getRepresentation(T value, AttributeValueSyntax<T> syntax, RepresentationSize size)
 	{
-		String trimmed = "";
-		switch (size)
-		{
-		case ORIGINAL:
-			trimmed = value.toString();
-			break;
-		case MEDIUM:
-			trimmed = trimString(value.toString(), LARGE_STRING);
-			break;
-		case LINE:
-			trimmed = trimString(value.toString(), SMALL_STRING);			
-			break;
-		}
-		return new Label(trimmed);
+		return new Label(trimString(value.toString(), toLengthLimit(size)));
 	}
 	
 	@Override

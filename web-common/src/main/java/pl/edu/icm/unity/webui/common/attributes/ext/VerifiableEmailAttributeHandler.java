@@ -18,6 +18,7 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
+import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 
@@ -61,29 +62,28 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 	public String getValueAsString(VerifiableEmail value,
 			AttributeValueSyntax<VerifiableEmail> syntax, int limited)
 	{
-		StringBuilder rep = new StringBuilder();
-		rep.append(value.getValue());
+		StringBuilder rep = new StringBuilder(value.getValue());
 		ConfirmationInfo cdata = value.getConfirmationInfo();
-		rep.append(" [");
 		if (cdata != null)
 		{
-			rep.append(msg.getMessage("VerifiableEmailAttributeHandler.confirmed",
-					cdata.isConfirmed()));
+			rep.append(" ");
 			if (cdata.isConfirmed())
 			{
-				if (cdata.getConfirmationDate() != 0)
-				{
-					rep.append("; " + msg.getMessage("VerifiableEmailAttributeHandler.confirmationDate",
-									new Date(cdata.getConfirmationDate())));
-				}
+				rep.append(msg.getMessage("VerifiableEmailAttributeHandler.confirmed",
+						new Date(cdata.getConfirmationDate())));
 			} else
 			{
-				rep.append("; "+ msg.getMessage("VerifiableEmailAttributeHandler.sentRequests",
-								cdata.getSentRequestAmount()));
+				if (cdata.getSentRequestAmount() == 0)
+					rep.append(msg.getMessage("VerifiableEmailAttributeHandler.unconfirmed"));
+				else
+					rep.append(msg.getMessage("VerifiableEmailAttributeHandler.unconfirmedWithRequests",
+							cdata.getSentRequestAmount()));
 			}
 		}
-		rep.append("]");
-		return rep.toString();
+		//if we exceeded limit, don't add extra info
+		if (rep.length() > limited)
+			rep = new StringBuilder(value.getValue());
+		return TextOnlyAttributeHandler.trimString(rep.toString(), limited);
 	}
 
 	@Override
@@ -197,6 +197,6 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 			AttributeValueSyntax<VerifiableEmail> syntax,
 			pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize size)
 	{
-		return new Label(getValueAsString(value, syntax, 80));
+		return new Label(getValueAsString(value, syntax, TextOnlyAttributeHandler.toLengthLimit(size)));
 	}
 }
