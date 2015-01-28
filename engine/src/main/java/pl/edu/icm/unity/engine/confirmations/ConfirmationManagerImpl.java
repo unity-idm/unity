@@ -111,21 +111,24 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			return;
 		String serializedState = baseState.getSerializedConfiguration();
 		
-
+		boolean hasDuplicate;
+		String token;
 		Object transaction = tokensMan.startTokenTransaction();
 		try
 		{
-			boolean hasDuplicate = !getDuplicateTokens(facility, serializedState, transaction).isEmpty();
-			String token = insertConfirmationToken(serializedState, transaction);
-			if (!hasDuplicate)
-				sendConfirmationRequest(baseState.getValue(), configEntry.getNotificationChannel(),
-						configEntry.getMsgTemplate(), 
-						facility, baseState.getLocale(), token);
-			facility.processAfterSendRequest(serializedState);
+			hasDuplicate = !getDuplicateTokens(facility, serializedState, transaction).isEmpty();
+			token = insertConfirmationToken(serializedState, transaction);
+			tokensMan.commitTokenTransaction(transaction);
 		} finally
 		{
-			tokensMan.commitTokenTransaction(transaction);
+			tokensMan.closeTokenTransaction(transaction);
 		}
+		
+		if (!hasDuplicate)
+			sendConfirmationRequest(baseState.getValue(), configEntry.getNotificationChannel(),
+					configEntry.getMsgTemplate(), 
+					facility, baseState.getLocale(), token);
+		facility.processAfterSendRequest(serializedState);
 	}
 
 	private String insertConfirmationToken(String state, Object transaction) throws EngineException
@@ -200,10 +203,12 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 				return new ConfirmationStatus(false, null, "ConfirmationStatus.invalidToken");
 			}
 
-			return processConfirmationIntenral(tk, true, transaction);
+			ConfirmationStatus ret = processConfirmationIntenral(tk, true, transaction);
+			tokensMan.commitTokenTransaction(transaction);
+			return ret;
 		} finally 
 		{
-			tokensMan.commitTokenTransaction(transaction);
+			tokensMan.closeTokenTransaction(transaction);
 		}
 	}
 

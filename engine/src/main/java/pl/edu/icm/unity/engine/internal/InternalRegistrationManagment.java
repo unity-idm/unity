@@ -615,9 +615,10 @@ public class InternalRegistrationManagment
 		try
 		{
 			rewriteRequestTokenInternal(finalReguest, entityId, transaction);
+			tokensMan.commitTokenTransaction(transaction);
 		} finally
 		{
-			tokensMan.commitTokenTransaction(transaction);
+			tokensMan.closeTokenTransaction(transaction);
 		}
 	}
 	
