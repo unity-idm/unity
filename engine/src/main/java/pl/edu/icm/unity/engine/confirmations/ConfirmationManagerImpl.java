@@ -214,9 +214,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	}
 
 	
-	@Override
-	public <T> void sendVerification(EntityParam entity, Attribute<T> attribute, boolean useCurrentReturnUrl,
-			boolean forceResend) throws EngineException
+	private <T> void sendVerification(EntityParam entity, Attribute<T> attribute, boolean useCurrentReturnUrl) 
+			throws EngineException
 	{
 		if (!attribute.getAttributeSyntax().isVerifiable())
 			return;
@@ -225,7 +224,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		{
 			VerifiableElement val = (VerifiableElement) valA;
 			ConfirmationInfo ci = val.getConfirmationInfo();
-			if (forceResend || (!ci.isConfirmed() && ci.getSentRequestAmount() == 0))
+			if (!ci.isConfirmed() && ci.getSentRequestAmount() == 0)
 			{
 				// TODO - should use user's preferred locale
 				long entityId = resolveEntityId(entity);
@@ -258,7 +257,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	{
 		try
 		{
-			sendVerification(entity, attribute, useCurrentReturnUrl, false);
+			sendVerification(entity, attribute, useCurrentReturnUrl);
 		} catch (Exception e)
 		{
 			log.warn("Can not send a confirmation for the verificable attribute being added " + 

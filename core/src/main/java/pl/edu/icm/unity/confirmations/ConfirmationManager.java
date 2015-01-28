@@ -52,16 +52,6 @@ public interface ConfirmationManager
 			boolean useCurrentReturnUrl);
 
 	/**
-	 * see {@link #sendVerificationQuiet(EntityParam, Attribute)}, the only difference is that this
-	 * method throws exception.
-	 * @param entity
-	 * @param attribute
-	 * @throws EngineException
-	 */
-	<T> void sendVerification(EntityParam entity, Attribute<T> attribute, boolean useCurrentReturnUrl,
-			boolean forceResend) throws EngineException;
-
-	/**
 	 * Sends confirmation messages for the identity if it requires so. Only for unconfirmed identities.
 	 * In case of error only log entry is printed, no exception is thrown.
 	 * @param entity
