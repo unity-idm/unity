@@ -9,9 +9,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import pl.edu.icm.unity.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.engine.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;

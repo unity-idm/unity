@@ -2,14 +2,14 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.server.registries;
+package pl.edu.icm.unity.engine.confirmations;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.confirmations.ConfirmationFacility;
+import pl.edu.icm.unity.server.registries.TypesRegistryBase;
 
 /**
  * Maintains a simple registry of available {@link ConfirmationFacility}ies.

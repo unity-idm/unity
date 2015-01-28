@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
-import pl.edu.icm.unity.confirmations.ConfirmationFacility;
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
@@ -48,7 +47,6 @@ import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.registries.ConfirmationFacilitiesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -225,7 +223,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		ConfirmationFacility<?> facility = getFacility(baseState.getFacilityId());
 		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), transaction);
 		log.debug("Process confirmation using " + facility.getName() + " facility");
-		ConfirmationStatus status = facility.processConfirmation(rawState);
+		ConfirmationStatus status = facility.processConfirmation(rawState, (SqlSession) transaction);
 
 		if (withDuplicates)
 		{

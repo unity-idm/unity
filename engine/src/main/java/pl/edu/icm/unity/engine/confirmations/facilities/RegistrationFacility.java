@@ -68,7 +68,7 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ConfirmationStatus processConfirmation(String rawState) throws EngineException
+	public ConfirmationStatus processConfirmation(String rawState, SqlSession sql) throws EngineException
 	{
 		T state = parseState(rawState);
 		String requestId = state.getRequestId();
@@ -76,7 +76,7 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 		RegistrationRequestState reqState = null;
 		try
 		{
-			reqState = internalRegistrationManagment.getRequest(requestId);
+			reqState = internalRegistrationManagment.getRequest(requestId, sql);
 
 		} catch (EngineException e)
 		{
@@ -86,41 +86,29 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 		if (reqState.getStatus().equals(RegistrationRequestStatus.rejected))
 			return new ConfirmationStatus(false, state.getErrorUrl(), "ConfirmationStatus.requestRejected");
 		
-		ConfirmationStatus status;
-		SqlSession sql = db.getSqlSession(true);
-		try
+		RegistrationRequest req = reqState.getRequest();
+		ConfirmationStatus status = confirmElements(req, state);
+		requestDB.update(requestId, reqState, sql);
+
+		if (status.isSuccess()
+				&& reqState.getStatus().equals(RegistrationRequestStatus.pending)
+				&& internalRegistrationManagment.checkAutoAcceptCondition(req, sql))
+
 		{
-			RegistrationRequest req = reqState.getRequest();
-			status = confirmElements(req, state);
+			RegistrationForm form = formsDB.get(req.getFormId(), sql);
+			AdminComment internalComment = new AdminComment(
+					InternalRegistrationManagment.AUTO_ACCEPT_COMMENT,
+					0, false);
+			reqState.getAdminComments().add(internalComment);
+			log.debug("Accept registration request " + state.getRequestId()
+					+ " after confirmation [" + state.getType()
+					+ "]" + state.getValue() + " by "
+					+ state.getFacilityId());
+			internalRegistrationManagment.acceptRequest(form, reqState, null,
+					internalComment, true, sql);
+		} else
+		{
 			requestDB.update(requestId, reqState, sql);
-			sql.commit();
-
-			if (status.isSuccess()
-					&& reqState.getStatus().equals(RegistrationRequestStatus.pending)
-					&& internalRegistrationManagment
-							.checkAutoAcceptCondition(req))
-
-			{
-				RegistrationForm form = formsDB.get(req.getFormId(), sql);
-				AdminComment internalComment = new AdminComment(
-						InternalRegistrationManagment.AUTO_ACCEPT_COMMENT,
-						0, false);
-				reqState.getAdminComments().add(internalComment);
-				log.debug("Accept registration request " + state.getRequestId()
-						+ " after confirmation [" + state.getType()
-						+ "]" + state.getValue() + " by "
-						+ state.getFacilityId());
-				internalRegistrationManagment.acceptRequest(form, reqState, null,
-						internalComment, true, sql);
-			} else
-			{
-				requestDB.update(requestId, reqState, sql);
-			}
-			sql.commit();
-
-		} finally
-		{
-			db.releaseSqlSession(sql);
 		}
 
 		return status;

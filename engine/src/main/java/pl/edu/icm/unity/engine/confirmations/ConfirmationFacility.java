@@ -2,8 +2,11 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.confirmations;
+package pl.edu.icm.unity.engine.confirmations;
 
+import org.apache.ibatis.session.SqlSession;
+
+import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -23,7 +26,7 @@ public interface ConfirmationFacility<T extends BaseConfirmationState> extends D
 	 * @return
 	 * @throws EngineException
 	 */
-	ConfirmationStatus processConfirmation(String state) throws EngineException;
+	ConfirmationStatus processConfirmation(String state, SqlSession transaction) throws EngineException;
 	
 	/**
 	 * Update verifiable element set as unconfirmed and increase the value of

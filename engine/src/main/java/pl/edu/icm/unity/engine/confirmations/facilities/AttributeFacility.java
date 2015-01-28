@@ -51,37 +51,29 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 	}
 
 	@Override
-	protected ConfirmationStatus confirmElements(AttribiuteConfirmationState attrState) throws EngineException
+	protected ConfirmationStatus confirmElements(AttribiuteConfirmationState attrState, SqlSession sql) 
+			throws EngineException
 	{
 		ConfirmationStatus status;
-		SqlSession sql= db.getSqlSession(true);
-		try
+		Collection<AttributeExt<?>> allAttrs = dbAttributes.getAllAttributes(
+				attrState.getOwnerEntityId(), attrState.getGroup(),
+				false, attrState.getType(), sql);
+
+		Collection<Attribute<?>> confirmedList = confirmAttributes(
+				getAttributesFromExt(allAttrs), attrState.getType(),
+				attrState.getGroup(), attrState.getValue());
+
+		for (Attribute<?> attr : confirmedList)
 		{
-			Collection<AttributeExt<?>> allAttrs = dbAttributes.getAllAttributes(
-					attrState.getOwnerEntityId(), attrState.getGroup(),
-					false, attrState.getType(), sql);
-
-			Collection<Attribute<?>> confirmedList = confirmAttributes(
-					getAttributesFromExt(allAttrs), attrState.getType(),
-					attrState.getGroup(), attrState.getValue());
-
-			for (Attribute<?> attr : confirmedList)
-			{
-				dbAttributes.addAttribute(attrState.getOwnerEntityId(), attr, true, sql);
-			}
-			sql.commit();
-			boolean confirmed = (confirmedList.size() > 0);
-			status = new ConfirmationStatus(confirmed,
-					confirmed ? attrState.getSuccessUrl() : attrState
-							.getErrorUrl(),
-					confirmed ? "ConfirmationStatus.successAttribute"
-							: "ConfirmationStatus.attributeChanged",
-					attrState.getType());
-
-		} finally
-		{
-			db.releaseSqlSession(sql);
+			dbAttributes.addAttribute(attrState.getOwnerEntityId(), attr, true, sql);
 		}
+		boolean confirmed = (confirmedList.size() > 0);
+		status = new ConfirmationStatus(confirmed,
+				confirmed ? attrState.getSuccessUrl() : attrState
+						.getErrorUrl(),
+						confirmed ? "ConfirmationStatus.successAttribute"
+								: "ConfirmationStatus.attributeChanged",
+								attrState.getType());
 		return status;
 	}
 

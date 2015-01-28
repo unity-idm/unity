@@ -47,41 +47,34 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 	}
 
 	@Override
-	protected ConfirmationStatus confirmElements(IdentityConfirmationState idState) throws EngineException
+	protected ConfirmationStatus confirmElements(IdentityConfirmationState idState, SqlSession sql) 
+			throws EngineException
 	{
 		ConfirmationStatus status;
-		SqlSession sql = db.getSqlSession(true);
-		try
+		Identity[] ids = dbIdentities.getIdentitiesForEntityNoContext(
+				idState.getOwnerEntityId(), sql);
+
+		ArrayList<IdentityParam> idsA = new ArrayList<IdentityParam>();
+		for (Identity id : ids)
 		{
-			Identity[] ids = dbIdentities.getIdentitiesForEntityNoContext(
-					idState.getOwnerEntityId(), sql);
-
-			ArrayList<IdentityParam> idsA = new ArrayList<IdentityParam>();
-			for (Identity id : ids)
-			{
-				if (id.getType().getIdentityTypeProvider().isVerifiable())
-					idsA.add(id);
-			}
-
-			Collection<IdentityParam> confirmedList = confirmIdentity(idsA,
-					idState.getType(), idState.getValue());
-			for (IdentityParam id : confirmedList)
-			{
-				dbIdentities.updateIdentityConfirmationInfo(id,
-						id.getConfirmationInfo(), sql);
-			}
-			sql.commit();
-			boolean confirmed = (confirmedList.size() > 0);
-			status = new ConfirmationStatus(confirmed, confirmed ? idState
-					.getSuccessUrl() : idState.getErrorUrl(),
-					confirmed ? "ConfirmationStatus.successIdentity"
-							: "ConfirmationStatus.identityChanged",
-					idState.getType());
-
-		} finally
-		{
-			db.releaseSqlSession(sql);
+			if (id.getType().getIdentityTypeProvider().isVerifiable())
+				idsA.add(id);
 		}
+
+		Collection<IdentityParam> confirmedList = confirmIdentity(idsA,
+				idState.getType(), idState.getValue());
+		for (IdentityParam id : confirmedList)
+		{
+			dbIdentities.updateIdentityConfirmationInfo(id,
+					id.getConfirmationInfo(), sql);
+		}
+		sql.commit();
+		boolean confirmed = (confirmedList.size() > 0);
+		status = new ConfirmationStatus(confirmed, confirmed ? idState
+				.getSuccessUrl() : idState.getErrorUrl(),
+				confirmed ? "ConfirmationStatus.successIdentity"
+						: "ConfirmationStatus.identityChanged",
+						idState.getType());
 		return status;
 	}
 

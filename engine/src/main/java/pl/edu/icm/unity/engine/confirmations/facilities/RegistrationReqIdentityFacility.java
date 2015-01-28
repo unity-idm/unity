@@ -79,15 +79,15 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 	{
 		RegistrationReqIdentityConfirmationState idState = new RegistrationReqIdentityConfirmationState(state);
 		String requestId = idState.getRequestId();
-		RegistrationRequestState reqState = internalRegistrationManagment
-				.getRequest(requestId);
-		for (IdentityParam id : reqState.getRequest().getIdentities())
-		{
-			updateConfirmationInfo(id, id.getValue());
-		}
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
+			RegistrationRequestState reqState = internalRegistrationManagment
+					.getRequest(requestId, sql);
+			for (IdentityParam id : reqState.getRequest().getIdentities())
+			{
+				updateConfirmationInfo(id, id.getValue());
+			}
 			requestDB.update(requestId, reqState, sql);
 			sql.commit();
 		} finally

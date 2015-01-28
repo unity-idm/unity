@@ -77,22 +77,21 @@ public class RegistrationReqAttributeFacility extends RegistrationFacility<Regis
 		RegistrationReqAttribiuteConfirmationState attrState = 
 				new RegistrationReqAttribiuteConfirmationState(state);
 		String requestId = attrState.getRequestId();
-		RegistrationRequestState reqState = internalRegistrationManagment
-				.getRequest(requestId);
-		for (Attribute<?> attr : reqState.getRequest().getAttributes())
-		{
-			if (attr.getAttributeSyntax().isVerifiable())
-			{
-				for (Object val : attr.getValues())
-				{
-					updateConfirmationInfo((VerifiableElement) val,
-							attrState.getValue());
-				}
-			}
-		}
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
+			RegistrationRequestState reqState = internalRegistrationManagment.getRequest(requestId, sql);
+			for (Attribute<?> attr : reqState.getRequest().getAttributes())
+			{
+				if (attr.getAttributeSyntax().isVerifiable())
+				{
+					for (Object val : attr.getValues())
+					{
+						updateConfirmationInfo((VerifiableElement) val,
+								attrState.getValue());
+					}
+				}
+			}
 			requestDB.update(requestId, reqState, sql);
 			sql.commit();
 		} finally

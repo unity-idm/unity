@@ -35,7 +35,7 @@ public abstract class UserFacility <T extends UserConfirmationState> extends Bas
 		this.dbIdentities = dbIdentities;
 	}
 
-	protected abstract ConfirmationStatus confirmElements(T state) throws EngineException;
+	protected abstract ConfirmationStatus confirmElements(T state, SqlSession sql) throws EngineException;
 	
 	@Override
 	public boolean isDuplicate(T base, String candidate)
@@ -59,10 +59,9 @@ public abstract class UserFacility <T extends UserConfirmationState> extends Bas
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ConfirmationStatus processConfirmation(String state) throws EngineException
+	public ConfirmationStatus processConfirmation(String state, SqlSession sql) throws EngineException
 	{
 		T idState = parseState(state);
-		SqlSession sql = db.getSqlSession(false);
 		EntityState entityState = null;
 		try
 		{
@@ -70,9 +69,6 @@ public abstract class UserFacility <T extends UserConfirmationState> extends Bas
 		} catch (Exception e)
 		{
 			return new ConfirmationStatus(false, idState.getErrorUrl(), "ConfirmationStatus.entityRemoved");
-		} finally
-		{
-			db.releaseSqlSession(sql);
 		}
 
 		if (!entityState.equals(EntityState.valid))
@@ -80,7 +76,7 @@ public abstract class UserFacility <T extends UserConfirmationState> extends Bas
 			return new ConfirmationStatus(false, idState.getErrorUrl(), "ConfirmationStatus.entityInvalid");
 		}
 			
-		return confirmElements(idState);
+		return confirmElements(idState, sql);
 	}
 	
 }

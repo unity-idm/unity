@@ -28,7 +28,6 @@ import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmation
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.cred.CredentialDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
@@ -85,8 +84,6 @@ public class InternalRegistrationManagment
 
 	public static final String AUTO_ACCEPT_COMMENT = "System";
 
-	private DBSessionManager db;
-
 	private RegistrationFormDB formsDB;
 
 	private RegistrationRequestDB requestDB;
@@ -114,7 +111,7 @@ public class InternalRegistrationManagment
 	private LocalCredentialsRegistry authnRegistry;
 
 	@Autowired
-	public InternalRegistrationManagment(DBSessionManager db, RegistrationFormDB formsDB,
+	public InternalRegistrationManagment(RegistrationFormDB formsDB,
 			RegistrationRequestDB requestDB, CredentialDB credentialDB,
 			DBAttributes dbAttributes, DBIdentities dbIdentities, DBGroups dbGroups,
 			IdentityTypesRegistry identityTypesRegistry, EngineHelper engineHelper,
@@ -124,7 +121,6 @@ public class InternalRegistrationManagment
 			UnityMessageSource msg)
 	{
 		super();
-		this.db = db;
 		this.formsDB = formsDB;
 		this.requestDB = requestDB;
 		this.credentialDB = credentialDB;
@@ -140,18 +136,9 @@ public class InternalRegistrationManagment
 		this.msg = msg;
 	}
 
-	public List<RegistrationForm> getForms() throws EngineException
+	public List<RegistrationForm> getForms(SqlSession sql) throws EngineException
 	{
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			List<RegistrationForm> ret = formsDB.getAll(sql);
-			sql.commit();
-			return ret;
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		return formsDB.getAll(sql);
 	}
 
 	public Long acceptRequest(RegistrationForm form, RegistrationRequestState currentRequest,
@@ -242,7 +229,7 @@ public class InternalRegistrationManagment
 				currentRequest.getRequestId(), form.getName(), true, publicComment,
 				internalComment, notificationsCfg, sql);
 		if (rewriteConfirmationToken)
-			rewriteRequestToken(currentRequest, initial.getEntityId());
+			rewriteRequestTokenInternal(currentRequest, initial.getEntityId(), sql);
 
 		return initial.getEntityId();
 	}
@@ -265,18 +252,9 @@ public class InternalRegistrationManagment
 		}
 	}
 
-	public RegistrationRequestState getRequest(String requestId) throws EngineException
+	public RegistrationRequestState getRequest(String requestId, SqlSession sql) throws EngineException
 	{
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			RegistrationRequestState ret = requestDB.get(requestId, sql);
-			sql.commit();
-			return ret;
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		return requestDB.get(requestId, sql);
 	}
 
 	public void validateRequestContents(RegistrationForm form, RegistrationRequest request,
@@ -500,11 +478,11 @@ public class InternalRegistrationManagment
 		return requesterAddress;
 	}
 
-	public boolean checkAutoAcceptCondition(RegistrationRequest request) throws EngineException
+	public boolean checkAutoAcceptCondition(RegistrationRequest request, SqlSession sql) throws EngineException
 	{
 		RegistrationForm form = null;
 
-		for (RegistrationForm f : getForms())
+		for (RegistrationForm f : getForms(sql))
 		{
 			if (f.getName().equals(request.getFormId()))
 			{
@@ -609,21 +587,6 @@ public class InternalRegistrationManagment
 		return ctx;
 	}
 
-	private void rewriteRequestToken(RegistrationRequestState finalReguest, long entityId)
-			throws EngineException
-	{
-		Object transaction = tokensMan.startTokenTransaction();
-		try
-		{
-			rewriteRequestTokenInternal(finalReguest, entityId, transaction);
-			tokensMan.commitTokenTransaction(transaction);
-		} finally
-		{
-			tokensMan.closeTokenTransaction(transaction);
-		}
-	}
-	
-	
 	private void rewriteRequestTokenInternal(RegistrationRequestState finalReguest, long entityId, 
 			Object transaction) throws EngineException
 	{

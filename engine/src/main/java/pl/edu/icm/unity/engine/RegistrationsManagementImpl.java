@@ -195,17 +195,26 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	public List<RegistrationForm> getForms() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
-		return internalManagment.getForms();
+		SqlSession sql = db.getSqlSession(false);
+		try
+		{
+			return internalManagment.getForms(sql);
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
 	}
 
 	@Override
 	public String submitRegistrationRequest(RegistrationRequest request, boolean tryAutoAccept) throws EngineException
 	{
 		RegistrationRequestState requestFull = null;
+		Long entityId = null;
+		RegistrationForm form;
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			RegistrationForm form = formsDB.get(request.getFormId(), sql);
+			form = formsDB.get(request.getFormId(), sql);
 			internalManagment.validateRequestContents(form, request, true, sql);
 			requestFull = new RegistrationRequestState();
 			requestFull.setStatus(RegistrationRequestStatus.pending);
@@ -227,8 +236,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 						params,
 						msg.getDefaultLocaleCode());
 			}	
-			Long entityId = null;
-			if (tryAutoAccept && internalManagment.checkAutoAcceptCondition(requestFull.getRequest()))
+			if (tryAutoAccept && internalManagment.checkAutoAcceptCondition(requestFull.getRequest(), sql))
 			{
 				AdminComment autoAcceptComment = new AdminComment(
 						InternalRegistrationManagment.AUTO_ACCEPT_COMMENT, 0, false);
@@ -237,16 +245,16 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 						autoAcceptComment, false, sql);
 			}
 			sql.commit();
-			if (entityId == null)
-				sendFormAttributeConfirmationRequest(requestFull, form);
-			else
-				sendAttributeConfirmationRequest(requestFull, entityId, form);
-			sendIdentityConfirmationRequest(requestFull, entityId, form);	
-			
 		} finally
 		{
 			db.releaseSqlSession(sql);
 		}
+		if (entityId == null)
+			sendFormAttributeConfirmationRequest(requestFull, form);
+		else
+			sendAttributeConfirmationRequest(requestFull, entityId, form);
+		sendIdentityConfirmationRequest(requestFull, entityId, form);	
+		
 		
 		return requestFull.getRequestId();
 	}
