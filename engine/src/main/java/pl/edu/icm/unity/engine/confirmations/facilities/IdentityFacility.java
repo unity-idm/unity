@@ -16,6 +16,7 @@ import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
@@ -109,7 +110,7 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 	}
 
 	@Override
-	protected IdentityConfirmationState parseState(String state)
+	public IdentityConfirmationState parseState(String state) throws WrongArgumentException
 	{
 		return new IdentityConfirmationState(state);
 	}

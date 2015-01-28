@@ -296,7 +296,13 @@ public class TokensManagementImpl implements TokensManagement
 	@Override
 	public List<Token> getAllTokens(String type)
 	{
-		SqlSession sql = db.getSqlSession(true);
+		return getAllTokens(type, null);
+	}
+
+	@Override
+	public List<Token> getAllTokens(String type, Object transaction)
+	{
+		SqlSession sql = transaction == null ? db.getSqlSession(true) : (SqlSession)transaction;
 		List<Token> ret;
 		try
 		{
@@ -307,10 +313,12 @@ public class TokensManagementImpl implements TokensManagement
 				Token tt = convert(t);
 				ret.add(tt);
 			}
-			sql.commit();
+			if (transaction == null)
+				sql.commit();
 		} finally
 		{
-			db.releaseSqlSession(sql);
+			if (transaction == null)
+				db.releaseSqlSession(sql);
 		}
 		return ret;
 	}

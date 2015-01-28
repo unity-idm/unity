@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 import pl.edu.icm.unity.confirmations.ConfirmationFacility;
+import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -23,7 +24,7 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
  * @author P. Piernik
  * 
  */
-public abstract class BaseFacility implements ConfirmationFacility
+public abstract class BaseFacility<T extends BaseConfirmationState> implements ConfirmationFacility<T>
 {
 	protected DBSessionManager db;
 	

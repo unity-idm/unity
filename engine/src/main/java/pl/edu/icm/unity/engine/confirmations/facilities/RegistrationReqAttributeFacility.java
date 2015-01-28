@@ -17,6 +17,7 @@ import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
@@ -101,7 +102,7 @@ public class RegistrationReqAttributeFacility extends RegistrationFacility<Regis
 	}
 
 	@Override
-	protected RegistrationReqAttribiuteConfirmationState parseState(String state)
+	public RegistrationReqAttribiuteConfirmationState parseState(String state) throws WrongArgumentException
 	{
 		return new RegistrationReqAttribiuteConfirmationState(state);
 	}

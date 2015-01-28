@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.confirmations.states;
 
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+
 
 
 /**
@@ -17,7 +19,7 @@ public class IdentityConfirmationState extends UserConfirmationState
 	public static final String FACILITY_ID = "IdentityFacility";
 	
 	
-	public IdentityConfirmationState(String serializedState)
+	public IdentityConfirmationState(String serializedState) throws WrongArgumentException
 	{
 		super();
 		setSerializedConfiguration(serializedState);

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.confirmations.states;
 
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -34,9 +34,9 @@ public class UserConfirmationState extends BaseConfirmationState
 	}
 
 
-	public UserConfirmationState(String serializedState)
+	public UserConfirmationState(String serializedState) throws WrongArgumentException
 	{
-		super(serializedState);
+		super();
 		setSerializedConfiguration(serializedState);
 	}
 
@@ -65,29 +65,16 @@ public class UserConfirmationState extends BaseConfirmationState
 	}
 	
 	@Override
-	protected void setSerializedConfiguration(ObjectNode main) throws InternalException
+	protected void setSerializedConfiguration(ObjectNode main) throws WrongArgumentException
 	{
+		super.setSerializedConfiguration(main);
 		try
 		{
-			super.setSerializedConfiguration(main);
 			ownerEntityId = main.get("ownerEntityId").asLong();	
 		} catch (Exception e)
 		{
-			throw new InternalException("Can't perform JSON deserialization", e);
+			throw new WrongArgumentException("Can't perform JSON deserialization", e);
 		}
 
-	}
-
-	@Override
-	protected void setSerializedConfiguration(String json) throws InternalException
-	{
-		try
-		{
-			ObjectNode main = mapper.readValue(json, ObjectNode.class);
-			setSerializedConfiguration(main);
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't perform JSON deserialization", e);
-		}
 	}
 }

@@ -7,6 +7,10 @@ package pl.edu.icm.unity.engine.confirmations.facilities;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.RegistrationConfirmationState;
 import pl.edu.icm.unity.db.DBSessionManager;
@@ -14,6 +18,7 @@ import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -27,9 +32,10 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
  * 
  * @author K. Benedyczak
  */
-public abstract class RegistrationFacility <T extends RegistrationConfirmationState> extends BaseFacility
+public abstract class RegistrationFacility <T extends RegistrationConfirmationState> extends BaseFacility<T>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, RegistrationFacility.class);
+	protected final ObjectMapper mapper = Constants.MAPPER;
 	
 	protected RegistrationRequestDB requestDB;
 	protected RegistrationFormDB formsDB;
@@ -45,7 +51,24 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 		this.internalRegistrationManagment = internalRegistrationManagment;
 	}
 
-	protected abstract T parseState(String state);
+	@Override
+	public boolean isDuplicate(T base, String candidate)
+	{
+		ObjectNode main;
+		try
+		{
+			main = mapper.readValue(candidate, ObjectNode.class);
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't perform JSON deserialization", e);
+		}
+		if (!main.has("requestId"))
+			return false;
+		String requestId = main.get("requestId").asText();
+		String value = main.get("value").asText();
+		return base.getRequestId() == requestId && base.getValue().equals(value);
+	}
+	
 	protected abstract ConfirmationStatus confirmElements(RegistrationRequest req, T state) throws EngineException;
 	
 	/**

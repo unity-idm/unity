@@ -16,6 +16,7 @@ import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
@@ -132,7 +133,7 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 	}
 
 	@Override
-	protected AttribiuteConfirmationState parseState(String state)
+	public AttribiuteConfirmationState parseState(String state) throws WrongArgumentException
 	{
 		return new AttribiuteConfirmationState(state);
 	}

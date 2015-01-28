@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.confirmations.states;
 
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+
 
 /**
  * Contains necessary informations used during the confirmation a identity in
@@ -16,7 +18,7 @@ public class RegistrationReqIdentityConfirmationState extends RegistrationConfir
 {
 	public static final String FACILITY_ID = "RegistrationReqIdentityFacility";
 
-	public RegistrationReqIdentityConfirmationState(String serializedState)
+	public RegistrationReqIdentityConfirmationState(String serializedState) throws WrongArgumentException
 	{
 		super(serializedState);
 	}

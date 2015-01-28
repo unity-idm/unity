@@ -6,8 +6,9 @@ package pl.edu.icm.unity.confirmations.states;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.utils.JsonUtil;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -43,7 +44,7 @@ public class BaseConfirmationState
 		this.successUrl = successUrl;
 	}
 
-	public BaseConfirmationState(String serializedState)
+	public BaseConfirmationState(String serializedState) throws WrongArgumentException
 	{
 		setSerializedConfiguration(serializedState);
 	}
@@ -79,13 +80,7 @@ public class BaseConfirmationState
 	
 	public String getSerializedConfiguration() throws InternalException
 	{
-		try
-		{
-			return mapper.writeValueAsString(createState());
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't perform JSON serialization", e);
-		}
+		return JsonUtil.serialize(createState());
 	}
 	
 	protected ObjectNode createState()
@@ -103,19 +98,12 @@ public class BaseConfirmationState
 		return state;
 	}
 	
-	protected void setSerializedConfiguration(String json) throws InternalException
+	protected void setSerializedConfiguration(String json) throws WrongArgumentException
 	{
-		try
-		{
-			ObjectNode main = mapper.readValue(json, ObjectNode.class);
-			setSerializedConfiguration(main);
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't perform JSON deserialization", e);
-		}
+		setSerializedConfiguration(JsonUtil.parse(json));
 	}
 	
-	protected void setSerializedConfiguration(ObjectNode main) throws InternalException
+	protected void setSerializedConfiguration(ObjectNode main) throws WrongArgumentException
 	{
 		try
 		{
@@ -129,7 +117,7 @@ public class BaseConfirmationState
 				errorUrl = main.get("errorUrl").asText();
 		} catch (Exception e)
 		{
-			throw new InternalException("Can't perform JSON deserialization", e);
+			throw new WrongArgumentException("Can't perform JSON deserialization", e);
 		}
 
 	}

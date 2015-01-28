@@ -148,4 +148,10 @@ public class MockTokensMan implements TokensManagement
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public List<Token> getAllTokens(String type, Object transaction)
+	{
+		return getAllTokens(type, null);
+	}
 }

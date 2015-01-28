@@ -4,7 +4,8 @@
  */
 package pl.edu.icm.unity.confirmations.states;
 
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.utils.JsonUtil;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -21,7 +22,7 @@ public class RegistrationReqAttribiuteConfirmationState extends RegistrationConf
 	
 	private String group;
 	
-	public RegistrationReqAttribiuteConfirmationState(String serializedState)
+	public RegistrationReqAttribiuteConfirmationState(String serializedState) throws WrongArgumentException
 	{
 		super();
 		setSerializedConfiguration(serializedState);
@@ -60,16 +61,16 @@ public class RegistrationReqAttribiuteConfirmationState extends RegistrationConf
 		return state;
 	}
 	
-	protected void setSerializedConfiguration(String json) throws InternalException
+	protected void setSerializedConfiguration(String json) throws WrongArgumentException
 	{
+		ObjectNode main = JsonUtil.parse(json);
+		super.setSerializedConfiguration(main);
 		try
 		{
-			ObjectNode main = mapper.readValue(json, ObjectNode.class);
-			super.setSerializedConfiguration(main);
 			group = main.get("group").asText();	
 		} catch (Exception e)
 		{
-			throw new InternalException("Can't perform JSON deserialization", e);
+			throw new WrongArgumentException("Can't perform JSON deserialization", e);
 		}
 	}
 }

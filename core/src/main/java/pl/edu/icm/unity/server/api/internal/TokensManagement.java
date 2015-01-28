@@ -177,6 +177,12 @@ public interface TokensManagement
 	 * @return all tokens of a given type
 	 */
 	List<Token> getAllTokens(String type); 
+
+	/**
+	 * @param type
+	 * @return all tokens of a given type
+	 */
+	List<Token> getAllTokens(String type, Object transaction);
 	
 	/**
 	 * Adds a new listenr which is notified about expired tokens of a specified type 

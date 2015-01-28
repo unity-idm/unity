@@ -10,8 +10,10 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.ibatis.session.SqlSession;
@@ -103,39 +105,30 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	public void sendConfirmationRequest(BaseConfirmationState baseState) throws EngineException
 	{
 		String facilityId = baseState.getFacilityId();
-		ConfirmationFacility facility = getFacility(facilityId);
-		ConfirmationConfiguration configEntry = null;
-		try
-		{
-			if (facilityId.equals(AttribiuteConfirmationState.FACILITY_ID)
-					|| facilityId.equals(RegistrationReqAttribiuteConfirmationState.FACILITY_ID))
-				configEntry = getConfiguration(
-						ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
-						baseState.getType());
-			else
-				configEntry = getConfiguration(
-						ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE,
-						baseState.getType());
-
-		} catch (Exception e)
-		{
-			log.debug("Cannot get confirmation configuration for "
-					+ baseState.getType()
-					+ ", skiping sendig confirmation request to "
-					+ baseState.getValue());
-			return;
-		}
+		ConfirmationFacility<?> facility = getFacility(facilityId);
+		ConfirmationConfiguration configEntry = getConfiguration(baseState);
 		if (configEntry == null)
 			return;
+		String serializedState = baseState.getSerializedConfiguration();
+		
 
-		sendConfirmationRequest(baseState.getValue(), configEntry.getNotificationChannel(),
-				configEntry.getMsgTemplate(), baseState.getSerializedConfiguration(), 
-				facility, baseState.getLocale());
+		Object transaction = tokensMan.startTokenTransaction();
+		try
+		{
+			boolean hasDuplicate = !getDuplicateTokens(facility, serializedState, transaction).isEmpty();
+			String token = insertConfirmationToken(serializedState, transaction);
+			if (!hasDuplicate)
+				sendConfirmationRequest(baseState.getValue(), configEntry.getNotificationChannel(),
+						configEntry.getMsgTemplate(), 
+						facility, baseState.getLocale(), token);
+			facility.processAfterSendRequest(serializedState);
+		} finally
+		{
+			tokensMan.commitTokenTransaction(transaction);
+		}
 	}
 
-	private void sendConfirmationRequest(String recipientAddress, String channelName,
-			String templateId, String state, ConfirmationFacility facility, String locale)
-			throws EngineException
+	private String insertConfirmationToken(String state, Object transaction) throws EngineException
 	{
 		Date createDate = new Date();
 		Calendar cl = Calendar.getInstance();
@@ -147,13 +140,19 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		{
 			tokensMan.addToken(CONFIRMATION_TOKEN_TYPE, token, 
 					state.getBytes(StandardCharsets.UTF_8),
-					createDate, expires);
+					createDate, expires, transaction);
 		} catch (Exception e)
 		{
 			log.error("Cannot add token to db", e);
 			throw e;
 		}
-
+		return token;
+	}
+	
+	private void sendConfirmationRequest(String recipientAddress, String channelName,
+			String templateId, ConfirmationFacility<?> facility, String locale, String token)
+			throws EngineException
+	{
 		MessageTemplate template = null;
 		for (MessageTemplate tpl : getAllTemplatesFromDB())
 		{
@@ -172,32 +171,45 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 				+ ConfirmationServlet.CONFIRMATION_TOKEN_ARG + "=" + token);
 
 		log.debug("Send confirmation request to " + recipientAddress + " with token = "
-				+ token + " and state=" + state);
+				+ token);
 
 		notificationProducer.sendNotification(recipientAddress, channelName, templateId,
 				params, locale);
-		facility.processAfterSendRequest(state);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public synchronized ConfirmationStatus processConfirmation(String token)
+	public ConfirmationStatus processConfirmation(String token)
 			throws EngineException
 	{
 		if (token == null)
 			return new ConfirmationStatus(false, null, "ConfirmationStatus.invalidToken");
 
-		Token tk = null;
+		Object transaction = tokensMan.startTokenTransaction(); 
 		try
 		{
-			tk = tokensMan.getTokenById(
-					ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token);
-		} catch (WrongArgumentException e)
+			Token tk = null;
+			try
+			{
+				tk = tokensMan.getTokenById(ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token,
+						transaction);
+			} catch (WrongArgumentException e)
+			{
+				return new ConfirmationStatus(false, null, "ConfirmationStatus.invalidToken");
+			}
+
+			return processConfirmationIntenral(tk, true, transaction);
+		} finally 
 		{
-			return new ConfirmationStatus(false, null, "ConfirmationStatus.invalidToken");
+			tokensMan.commitTokenTransaction(transaction);
 		}
+	}
+
+	private ConfirmationStatus processConfirmationIntenral(Token tk, boolean withDuplicates, Object transaction)
+			throws EngineException
+	{
 
 		Date today = new Date();
 		if (tk.getExpires().compareTo(today) < 0)
@@ -205,14 +217,55 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 
 		String rawState = tk.getContentsString();
 		BaseConfirmationState baseState = new BaseConfirmationState(rawState);
-		ConfirmationFacility facility = getFacility(baseState.getFacilityId());
-		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, token);
+		ConfirmationFacility<?> facility = getFacility(baseState.getFacilityId());
+		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), transaction);
 		log.debug("Process confirmation using " + facility.getName() + " facility");
 		ConfirmationStatus status = facility.processConfirmation(rawState);
 
+		if (withDuplicates)
+		{
+			Collection<Token> duplicateTokens = getDuplicateTokens(facility, rawState, transaction);
+			for (Token duplicate: duplicateTokens)
+			{
+				log.debug("Found duplicte confirmation token " + duplicate.getValue() + 
+						" confirming it too");
+				processConfirmationIntenral(duplicate, false, transaction);
+			}
+		}
+		
 		return status;
 	}
 
+	/**
+	 * Searches the available confirmations for other which are for the same user/registration request
+	 * as the base token and have the same email value. 
+	 * @param base
+	 * @return
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private Collection<Token> getDuplicateTokens(ConfirmationFacility facility, String baseState, 
+			Object transaction)
+	{
+		BaseConfirmationState state;
+		try
+		{
+			state = facility.parseState(baseState);
+		} catch (WrongArgumentException e)
+		{
+			throw new InternalException("Bug: token can not be parsed by its own facility", e);
+		}
+		
+		Set<Token> ret = new HashSet<>();
+		List<Token> tks = tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, transaction);
+		for (Token tk : tks)
+		{
+			if (facility.isDuplicate(state, tk.getContentsString()))
+				ret.add(tk);
+		}
+		return ret;
+	}
+	
+	
 	
 	private <T> void sendVerification(EntityParam entity, Attribute<T> attribute, boolean useCurrentReturnUrl) 
 			throws EngineException
@@ -319,6 +372,31 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		}
 	}
 	
+	private ConfirmationConfiguration getConfiguration(BaseConfirmationState baseState)
+	{
+		String facilityId = baseState.getFacilityId();
+		try
+		{
+			if (facilityId.equals(AttribiuteConfirmationState.FACILITY_ID)
+					|| facilityId.equals(RegistrationReqAttribiuteConfirmationState.FACILITY_ID))
+				return getConfiguration(
+						ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
+						baseState.getType());
+			else
+				return getConfiguration(
+						ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE,
+						baseState.getType());
+
+		} catch (Exception e)
+		{
+			log.debug("Cannot get confirmation configuration for "
+					+ baseState.getType()
+					+ ", skiping sendig confirmation request to "
+					+ baseState.getValue());
+			return null;
+		}
+	}
+	
 	private ConfirmationConfiguration getConfiguration(String typeToConfirm,
 			String nameToConfirm) throws EngineException
 	{
@@ -348,9 +426,9 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		}
 	}
 
-	private ConfirmationFacility getFacility(String id) throws InternalException
+	private ConfirmationFacility<?> getFacility(String id) throws InternalException
 	{
-		ConfirmationFacility facility = null;
+		ConfirmationFacility<?> facility = null;
 		try
 		{
 			facility = confirmationFacilitiesRegistry.getByName(id);

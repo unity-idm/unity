@@ -17,17 +17,17 @@ import pl.edu.icm.unity.confirmations.ConfirmationFacility;
  * @author P. Piernik
  */
 @Component
-public class ConfirmationFacilitiesRegistry extends TypesRegistryBase<ConfirmationFacility>
+public class ConfirmationFacilitiesRegistry extends TypesRegistryBase<ConfirmationFacility<?>>
 {
 	
 	@Autowired
-	public ConfirmationFacilitiesRegistry(List<ConfirmationFacility> typeElements)
+	public ConfirmationFacilitiesRegistry(List<ConfirmationFacility<?>> typeElements)
 	{
 		super(typeElements);
 	}
 
 	@Override
-	protected String getId(ConfirmationFacility from)
+	protected String getId(ConfirmationFacility<?> from)
 	{
 		return from.getName();
 	}
