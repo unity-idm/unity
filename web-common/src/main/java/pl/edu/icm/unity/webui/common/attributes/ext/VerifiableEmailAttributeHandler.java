@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.ext;
 
-import java.util.Date;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -21,6 +19,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
+import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
 
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractTextField;
@@ -64,34 +63,13 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 			AttributeValueSyntax<VerifiableEmail> syntax, int limited)
 	{
 		StringBuilder rep = new StringBuilder(value.getValue());
-		rep.append(getConfirmationStatusString(value.getConfirmationInfo()));
+		rep.append(IdentityFormatter.getConfirmationStatusString(msg, value.getConfirmationInfo()));
 		//if we exceeded limit, don't add extra info
 		if (rep.length() > limited)
 			rep = new StringBuilder(value.getValue());
 		return TextOnlyAttributeHandler.trimString(rep.toString(), limited);
 	}
 
-	private String getConfirmationStatusString(ConfirmationInfo cdata)
-	{
-		StringBuilder rep = new StringBuilder();
-		if (cdata != null)
-		{
-			rep.append(" ");
-			if (cdata.isConfirmed())
-			{
-				rep.append(msg.getMessage("VerifiableEmailAttributeHandler.confirmed",
-						new Date(cdata.getConfirmationDate())));
-			} else
-			{
-				if (cdata.getSentRequestAmount() == 0)
-					rep.append(msg.getMessage("VerifiableEmailAttributeHandler.unconfirmed"));
-				else
-					rep.append(msg.getMessage("VerifiableEmailAttributeHandler.unconfirmedWithRequests",
-							cdata.getSentRequestAmount()));
-			}
-		}
-		return rep.toString();
-	}
 	
 	@Override
 	public AttributeValueEditor<VerifiableEmail> getEditorComponent(
@@ -176,7 +154,8 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 			{
 				if (value != null && value.getConfirmationInfo() != null && 
 						value.getConfirmationInfo().isConfirmed())
-					ret.add(new Label(getConfirmationStatusString(value.getConfirmationInfo())));
+					ret.add(new Label(IdentityFormatter.getConfirmationStatusString(
+							msg, value.getConfirmationInfo())));
 			}
 			return ret;
 		}

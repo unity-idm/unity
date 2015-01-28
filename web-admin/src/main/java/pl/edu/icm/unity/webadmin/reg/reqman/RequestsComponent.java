@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.webadmin.reg.reqman.RequestsTable.RequestSelectionListener;
@@ -38,12 +39,15 @@ public class RequestsComponent extends CustomComponent
 	private UnityMessageSource msg;
 	
 	private RequestsTable requestsTable;
+	private IdentityTypesRegistry idTypesRegistry;
 	
 	@Autowired
 	public RequestsComponent(RegistrationsManagement registrationsManagement, 
-			AttributeHandlerRegistry handlersRegistry, UnityMessageSource msg)
+			AttributeHandlerRegistry handlersRegistry,
+			IdentityTypesRegistry idTypesRegistry, UnityMessageSource msg)
 	{
 		this.registrationsManagement = registrationsManagement;
+		this.idTypesRegistry = idTypesRegistry;
 		this.msg = msg;
 		this.handlersRegistry = handlersRegistry;
 		initUI();
@@ -62,7 +66,7 @@ public class RequestsComponent extends CustomComponent
 	{
 		requestsTable = new RequestsTable(registrationsManagement, msg);
 		final RequestProcessingPanel requestPanel = new RequestProcessingPanel(msg, registrationsManagement,
-				handlersRegistry);
+				handlersRegistry, idTypesRegistry);
 		requestsTable.addValueChangeListener(new RequestSelectionListener()
 		{
 			@Override

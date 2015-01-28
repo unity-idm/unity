@@ -21,6 +21,7 @@ import com.vaadin.ui.themes.Reindeer;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
@@ -55,13 +56,15 @@ public class RequestProcessingPanel extends CustomComponent
 	private Label requestId;
 	private Label requestStatus;
 	private Label requestDate;
+	private IdentityTypesRegistry idTypesRegistry;
 	
 	public RequestProcessingPanel(UnityMessageSource msg, RegistrationsManagement regMan,
-			AttributeHandlerRegistry handlersRegistry)
+			AttributeHandlerRegistry handlersRegistry, IdentityTypesRegistry idTypesRegistry)
 	{
 		this.msg = msg;
 		this.regMan = regMan;
 		this.handlersRegistry = handlersRegistry;
+		this.idTypesRegistry = idTypesRegistry;
 		this.bus = WebSession.getCurrent().getEventBus();
 		initUI();
 	}
@@ -85,7 +88,7 @@ public class RequestProcessingPanel extends CustomComponent
 		commentPanel = new RequestCommentPanel(msg, regMan);
 		commentPanel.setCaption(msg.getMessage("RequestProcessingPanel.comments"));
 		
-		requestReviewPanel = new RequestReviewPanel(msg, handlersRegistry);
+		requestReviewPanel = new RequestReviewPanel(msg, handlersRegistry, idTypesRegistry);
 		requestReviewPanel.setCaption(msg.getMessage("RequestProcessingPanel.requested"));
 		
 		tabs.addComponent(requestReviewPanel);

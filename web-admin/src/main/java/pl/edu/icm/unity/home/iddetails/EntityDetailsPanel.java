@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.home.iddetails;
 
-import java.sql.Date;
 import java.util.Collection;
 import java.util.Map;
 
@@ -14,9 +13,11 @@ import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
+import pl.edu.icm.unity.webui.common.ListOfElements;
+import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
@@ -32,7 +33,7 @@ public class EntityDetailsPanel extends FormLayout
 	private Label id;
 	private Label status;
 	private Label scheduledAction;
-	private HtmlLabel identities;
+	private ListOfElements<String> identities;
 	private Label credReq;
 	private HtmlLabel credStatus;
 	private HtmlLabel groups;
@@ -50,7 +51,15 @@ public class EntityDetailsPanel extends FormLayout
 		scheduledAction = new Label();
 		scheduledAction.setCaption(msg.getMessage("IdentityDetails.expiration"));
 		
-		identities = new HtmlLabel(msg);
+		identities = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
+		{
+			@Override
+			public Label toLabel(String value)
+			{
+				return new HtmlSimplifiedLabel(value);
+			}
+		});
+		identities.setAddSeparatorLine(false);
 		identities.setCaption(msg.getMessage("IdentityDetails.identities"));
 
 		credReq = new Label();
@@ -84,25 +93,9 @@ public class EntityDetailsPanel extends FormLayout
 			scheduledAction.setVisible(false);
 		}
 		
-		identities.resetValue();
+		identities.clearContents();
 		for (Identity id: entity.getIdentities())
-		{
-			if (id.isLocal())
-			{
-				addLocalIdentityInfo(id);
-			} else
-			{
-				String trProfile = id.getTranslationProfile() == null ? 
-						"-" : id.getTranslationProfile(); 
-				String idValue = id.getType().getIdentityTypeProvider().
-						toPrettyStringNoPrefix(id.getValue());
-				identities.addHtmlValueLine("IdentityDetails.identityRemote", id.getTypeId(), 
-						id.getRemoteIdp(), 
-						trProfile, 
-						idValue,
-						id.getCreationTs(), id.getUpdateTs());
-			}
-		}
+			identities.addEntry(IdentityFormatter.toString(msg, id));
 		
 		CredentialInfo credInf = entity.getCredentialInfo();
 		credReq.setValue(credInf.getCredentialRequirementId());
@@ -119,42 +112,6 @@ public class EntityDetailsPanel extends FormLayout
 		for (String group: groups)
 		{
 			this.groups.addHtmlValueLine("IdentityDetails.groupLine", group);
-		}
-	}
-	
-	private void addLocalIdentityInfo(Identity id)
-	{
-		String coreIdentity = id.getType().getIdentityTypeProvider().toPrettyStringNoPrefix(id.getValue());
-		if (id.getType().getIdentityTypeProvider().isVerifiable() && id.getConfirmationInfo() != null)
-		{
-			ConfirmationInfo conData = id.getConfirmationInfo();
-			if (conData.isConfirmed())
-			{
-
-				Date dt = new Date(conData.getConfirmationDate());
-				identities.addHtmlValueLine("IdentityDetails.identityLocalConfirmed",
-						id.getTypeId(),
-						coreIdentity, dt);
-			} else
-			{
-				if (conData.getSentRequestAmount() > 0)
-				{
-					identities.addHtmlValueLine("IdentityDetails.identityLocalNotConfirmedWithRequest",
-						id.getTypeId(),
-						coreIdentity,
-						conData.getSentRequestAmount());
-				} else
-				{
-					identities.addHtmlValueLine("IdentityDetails.identityLocalNotConfirmed",
-							id.getTypeId(),
-							coreIdentity,
-							conData.getSentRequestAmount());
-				}
-			}
-		} else
-		{
-			identities.addHtmlValueLine("IdentityDetails.identityLocal",
-					id.getTypeId(), coreIdentity);
 		}
 	}
 }

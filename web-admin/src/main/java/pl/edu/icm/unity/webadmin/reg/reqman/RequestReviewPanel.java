@@ -4,14 +4,13 @@
  */
 package pl.edu.icm.unity.webadmin.reg.reqman;
 
-import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -24,6 +23,8 @@ import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.ui.CustomComponent;
@@ -42,6 +43,7 @@ public class RequestReviewPanel extends CustomComponent
 	private UnityMessageSource msg;
 	private AttributeHandlerRegistry handlersRegistry;
 	private RegistrationRequestState requestState;
+	private IdentityTypesRegistry idTypesRegistry;
 	
 	private ListOfSelectableElements attributes;
 	private ListOfSelectableElements groups;
@@ -50,10 +52,12 @@ public class RequestReviewPanel extends CustomComponent
 	private DescriptionTextArea comment;
 	private Label code;
 	
-	public RequestReviewPanel(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry)
+	public RequestReviewPanel(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
+			IdentityTypesRegistry idTypesRegistry)
 	{
 		this.msg = msg;
 		this.handlersRegistry = handlersRegistry;
+		this.idTypesRegistry = idTypesRegistry;
 		initUI();
 	}
 	
@@ -68,7 +72,7 @@ public class RequestReviewPanel extends CustomComponent
 			@Override
 			public Label toLabel(String value)
 			{
-				return new Label(value);
+				return new HtmlSimplifiedLabel(value);
 			}
 		});
 		identities.setAddSeparatorLine(false);
@@ -167,32 +171,14 @@ public class RequestReviewPanel extends CustomComponent
 		{
 			if (idParam == null)
 				continue;
-			String representation = idParam.toString();
-			if (idParam.getRemoteIdp() != null)
-				representation = "[from: " + idParam.getRemoteIdp() + "] " + representation;
-			if (idParam.getConfirmationInfo() != null)
+			try
 			{
-				ConfirmationInfo cdata = idParam.getConfirmationInfo();
-				representation = representation + "    [confirmed= "
-						+ cdata.isConfirmed() + ";";
-				if (cdata.isConfirmed())
-				{
-					if (cdata.getConfirmationDate() != 0)
-					{
-						Date dt = new Date(cdata.getConfirmationDate());
-						representation = representation
-								+ " confirmation date= "
-								+ new SimpleDateFormat("dd/MM/YY h:mm a")
-										.format(dt) + "]";
-					}
-				} else
-				{
-					representation = representation + " send request="
-							+ cdata.getSentRequestAmount() + "]";
-				}
-				
+				identities.addEntry(IdentityFormatter.toString(msg, idParam, 
+						idTypesRegistry.getByName(idParam.getTypeId())));
+			} catch (IllegalTypeException e)
+			{
+				throw new IllegalStateException("Ups, have request in DB with unsupported id type.", e);
 			}
-			identities.addEntry(representation);
 		}
 		
 		agreements.clearContents();

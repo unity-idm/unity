@@ -82,7 +82,7 @@ public class UserDetailsPanel
 		identities.resetValue();
 		for (Identity id: entity.getIdentities())
 		{
-			identities.addHtmlValueLine("IdentityDetails.identityLocal", id.getTypeId(), 
+			identities.addHtmlValueLine("IdentityFormatter.identityCore", id.getTypeId(), 
 					id.getType().getIdentityTypeProvider().toPrettyStringNoPrefix(id.getValue()));
 		}
 		
