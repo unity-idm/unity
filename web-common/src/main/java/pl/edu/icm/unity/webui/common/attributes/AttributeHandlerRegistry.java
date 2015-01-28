@@ -13,8 +13,14 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
 
 /**
  * Gives access to web attribute handlers for given syntax types.
@@ -26,12 +32,14 @@ import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 @Component
 public class AttributeHandlerRegistry
 {
+	private UnityMessageSource msg;
 	private Map<String, WebAttributeHandlerFactory> factoriesByType = new HashMap<String, WebAttributeHandlerFactory>();
 	public static final int DEFAULT_MAX_LEN = 16;
 	
 	@Autowired
-	public AttributeHandlerRegistry(List<WebAttributeHandlerFactory> factories)
+	public AttributeHandlerRegistry(List<WebAttributeHandlerFactory> factories, UnityMessageSource msg)
 	{
+		this.msg = msg;
 		for (WebAttributeHandlerFactory factory: factories)
 			factoriesByType.put(factory.getSupportedSyntaxId(), factory);
 	}
@@ -42,6 +50,26 @@ public class AttributeHandlerRegistry
 		if (factory == null)
 			throw new IllegalArgumentException("SyntaxId " + syntaxId + " has no handler factory registered");
 		return factory.createInstance();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public com.vaadin.ui.Component getRepresentation(Attribute<?> attribute, RepresentationSize size)
+	{
+		VerticalLayout vl = new VerticalLayout();
+		vl.addStyleName(Styles.smallSpacing.toString());
+		AttributeValueSyntax<?> syntax = attribute.getAttributeSyntax();
+		if (attribute.getRemoteIdp() != null)
+		{
+			String idpInfo = msg.getMessage("IdentityFormatter.remoteInfo", attribute.getRemoteIdp()); 
+			vl.addComponent(new Label("[" + idpInfo + "]"));
+		}
+		@SuppressWarnings("rawtypes")
+		WebAttributeHandler handler = getHandler(syntax.getValueSyntaxId());
+		for (Object value: attribute.getValues())
+		{
+			vl.addComponent(handler.getRepresentation(value, syntax, size));
+		}
+		return vl;
 	}
 	
 	public Set<String> getSupportedSyntaxes()

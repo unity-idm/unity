@@ -23,10 +23,12 @@ import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
 import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
+import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -201,12 +203,8 @@ public class RequestReviewPanel extends CustomComponent
 		{
 			if (ap == null)
 				continue;
-			Label attrInfo = new Label();
-			String representation = handlersRegistry.getSimplifiedAttributeRepresentation(ap, 80);
-			if (ap.getRemoteIdp() != null)
-				representation = "[from: " + ap.getRemoteIdp() + "] " + representation;
-			attrInfo.setValue(representation);
-			attributes.addEntry(attrInfo, false);
+			Component rep = handlersRegistry.getRepresentation(ap, RepresentationSize.LINE);
+			attributes.addEntry(rep, false);
 		}
 		
 		groups.clearEntries();
