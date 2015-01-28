@@ -156,11 +156,9 @@ public class EndpointsComponent extends VerticalLayout
 			existing.add(endpointDesc.getId());
 		}
 
-		Set<String> endpointsList = config
-				.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
+		Set<String> endpointsList = config.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
 		for (String endpointKey : endpointsList)
-		{	String name = config.getValue(endpointKey
-				+ UnityServerConfiguration.ENDPOINT_NAME);
+		{	String name = config.getValue(endpointKey + UnityServerConfiguration.ENDPOINT_NAME);
 			if (existing.contains(name))
 				continue;
 			
