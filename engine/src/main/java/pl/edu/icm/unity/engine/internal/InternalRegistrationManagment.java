@@ -345,27 +345,28 @@ public class InternalRegistrationManagment
 		}
 	}
 
-	private void validateRequestIdentities(RegistrationForm form, RegistrationRequest request)
-			throws WrongArgumentException, IllegalIdentityValueException,
-			IllegalTypeException
+	private void validateRequestIdentities(RegistrationForm form, RegistrationRequest request) 
+			throws WrongArgumentException, IllegalIdentityValueException, IllegalTypeException
 	{
 		List<IdentityParam> requestedIds = request.getIdentities();
 		validateParamsBase(form.getIdentityParams(), requestedIds, "identities");
-		for (int i = 0; i < requestedIds.size(); i++)
+		boolean identitiesFound = false;
+		for (int i=0; i<requestedIds.size(); i++)
 		{
 			IdentityParam idParam = requestedIds.get(i);
 			if (idParam == null)
 				continue;
 			if (idParam.getTypeId() == null || idParam.getValue() == null)
-				throw new WrongArgumentException("Identity nr " + i
-						+ " contains null values");
-			if (!form.getIdentityParams().get(i).getIdentityType()
-					.equals(idParam.getTypeId()))
-				throw new WrongArgumentException("Identity nr " + i
-						+ " must be of " + idParam.getTypeId() + " type");
-			identityTypesRegistry.getByName(idParam.getTypeId()).validate(
-					idParam.getValue());
+				throw new WrongArgumentException("Identity nr " + i + " contains null values");
+			if (!form.getIdentityParams().get(i).getIdentityType().equals(idParam.getTypeId()))
+				throw new WrongArgumentException("Identity nr " + i + " must be of " 
+						+ idParam.getTypeId() + " type");
+			identityTypesRegistry.getByName(idParam.getTypeId()).validate(idParam.getValue());
+			identitiesFound = true;
 		}
+		if (!identitiesFound)
+			throw new WrongArgumentException("At least one identity must be defined in the "
+					+ "registration request.");
 	}
 
 	private void validateRequestCredentials(RegistrationForm form, RegistrationRequest request,
@@ -608,7 +609,7 @@ public class InternalRegistrationManagment
 		return ctx;
 	}
 
-	public void rewriteRequestToken(RegistrationRequestState finalReguest, long entityId)
+	private void rewriteRequestToken(RegistrationRequestState finalReguest, long entityId)
 			throws EngineException
 	{
 		Object transaction = tokensMan.startTokenTransaction();

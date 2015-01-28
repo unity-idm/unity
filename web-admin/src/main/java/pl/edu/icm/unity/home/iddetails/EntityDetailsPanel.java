@@ -89,46 +89,7 @@ public class EntityDetailsPanel extends FormLayout
 		{
 			if (id.isLocal())
 			{
-				if (id.getType().getIdentityTypeProvider().isVerifiable()
-						&& id.getConfirmationInfo() != null)
-				{
-					ConfirmationInfo conData = id.getConfirmationInfo();	
-					if (conData.isConfirmed())
-					{
-						
-						Date dt = new Date(conData.getConfirmationDate());
-						identities.addHtmlValueLine(
-								"IdentityDetails.identityLocalConfirmed",
-								id.getTypeId(),
-								id.getType()
-										.getIdentityTypeProvider()
-										.toPrettyStringNoPrefix(
-												id.getValue()),
-								dt);
-
-					} else
-					{
-						identities.addHtmlValueLine(
-								"IdentityDetails.identityLocalNotConfirmed",
-								id.getTypeId(),
-								id.getType()
-										.getIdentityTypeProvider()
-										.toPrettyStringNoPrefix(
-												id.getValue()),
-								conData.getSentRequestAmount());
-					}
-				}
-				
-				else
-				{
-					identities.addHtmlValueLine(
-							"IdentityDetails.identityLocal",
-							id.getTypeId(),
-							id.getType()
-									.getIdentityTypeProvider()
-									.toPrettyStringNoPrefix(
-											id.getValue()));
-				}
+				addLocalIdentityInfo(id);
 			} else
 			{
 				String trProfile = id.getTranslationProfile() == null ? 
@@ -158,6 +119,42 @@ public class EntityDetailsPanel extends FormLayout
 		for (String group: groups)
 		{
 			this.groups.addHtmlValueLine("IdentityDetails.groupLine", group);
+		}
+	}
+	
+	private void addLocalIdentityInfo(Identity id)
+	{
+		String coreIdentity = id.getType().getIdentityTypeProvider().toPrettyStringNoPrefix(id.getValue());
+		if (id.getType().getIdentityTypeProvider().isVerifiable() && id.getConfirmationInfo() != null)
+		{
+			ConfirmationInfo conData = id.getConfirmationInfo();
+			if (conData.isConfirmed())
+			{
+
+				Date dt = new Date(conData.getConfirmationDate());
+				identities.addHtmlValueLine("IdentityDetails.identityLocalConfirmed",
+						id.getTypeId(),
+						coreIdentity, dt);
+			} else
+			{
+				if (conData.getSentRequestAmount() > 0)
+				{
+					identities.addHtmlValueLine("IdentityDetails.identityLocalNotConfirmedWithRequest",
+						id.getTypeId(),
+						coreIdentity,
+						conData.getSentRequestAmount());
+				} else
+				{
+					identities.addHtmlValueLine("IdentityDetails.identityLocalNotConfirmed",
+							id.getTypeId(),
+							coreIdentity,
+							conData.getSentRequestAmount());
+				}
+			}
+		} else
+		{
+			identities.addHtmlValueLine("IdentityDetails.identityLocal",
+					id.getTypeId(), coreIdentity);
 		}
 	}
 }

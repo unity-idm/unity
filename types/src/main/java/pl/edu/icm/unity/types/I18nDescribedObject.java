@@ -37,6 +37,8 @@ public class I18nDescribedObject
 	
 	public void setDisplayedName(I18nString displayedName)
 	{
+		if (displayedName == null)
+			throw new IllegalArgumentException("displayed name must not be null");
 		this.displayedName = displayedName;
 	}
 	

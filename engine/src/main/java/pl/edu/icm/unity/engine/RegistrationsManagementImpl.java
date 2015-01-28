@@ -202,12 +202,10 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	public String submitRegistrationRequest(RegistrationRequest request, boolean tryAutoAccept) throws EngineException
 	{
 		RegistrationRequestState requestFull = null;
-		RegistrationForm form;
-		Long entityId = null;
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			form = formsDB.get(request.getFormId(), sql);
+			RegistrationForm form = formsDB.get(request.getFormId(), sql);
 			internalManagment.validateRequestContents(form, request, true, sql);
 			requestFull = new RegistrationRequestState();
 			requestFull.setStatus(RegistrationRequestStatus.pending);
@@ -229,6 +227,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 						params,
 						msg.getDefaultLocaleCode());
 			}	
+			Long entityId = null;
 			if (tryAutoAccept && internalManagment.checkAutoAcceptCondition(requestFull.getRequest()))
 			{
 				AdminComment autoAcceptComment = new AdminComment(
@@ -238,16 +237,16 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 						autoAcceptComment, false, sql);
 			}
 			sql.commit();
+			if (entityId == null)
+				sendFormAttributeConfirmationRequest(requestFull, form);
+			else
+				sendAttributeConfirmationRequest(requestFull, entityId, form);
+			sendIdentityConfirmationRequest(requestFull, entityId, form);	
+			
 		} finally
 		{
 			db.releaseSqlSession(sql);
 		}
-		
-		if (entityId == null)
-			sendFormAttributeConfirmationRequest(requestFull, form);
-		else
-			sendAttributeConfirmationRequest(requestFull, entityId, form);
-		sendIdentityConfirmationRequest(requestFull, entityId, form);	
 		
 		return requestFull.getRequestId();
 	}
@@ -329,10 +328,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				updateRequest(form, currentRequest, publicComment, internalComment, sql);
 				break;
 			case accept:
-				synchronized (confirmationManager)
-				{
-					internalManagment.acceptRequest(form, currentRequest, publicComment, internalComment, true, sql);
-				}
+				internalManagment.acceptRequest(form, currentRequest, publicComment, 
+						internalComment, true, sql);
 				break;
 			}
 			sql.commit();
@@ -473,6 +470,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			}
 		}
 
+		boolean hasIdentity = false;
 		if (form.getIdentityParams() != null)
 		{
 			Set<String> usedRemote = new HashSet<>();
@@ -488,8 +486,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 								"then one of type " + id.getIdentityType());
 					usedRemote.add(id.getIdentityType());
 				}
+				hasIdentity = true;
 			}
 		}
+		if (!hasIdentity)
+			throw new WrongArgumentException("Registration form must collect at least one identity.");
 		
 		if (form.getInitialEntityState() == null)
 			throw new WrongArgumentException("Initial entity state must be set in the form.");

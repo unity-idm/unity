@@ -64,13 +64,13 @@ public class OAuthPreferencesEditor implements PreferencesEditor
 	{
 		main = new HorizontalLayout();
 		
-		table = new GenericElementsTable<String>(msg.getMessage("SAMLPreferences.spSettings"), String.class,
+		table = new GenericElementsTable<String>(msg.getMessage("OAuthPreferences.spSettings"), String.class,
 				new GenericElementsTable.NameProvider<String>()
 				{
 					public Object toRepresentation(String element)
 					{
 						return element.equals("") ? 
-								msg.getMessage("SAMLPreferences.defaultSP") : element;
+								msg.getMessage("OAuthPreferences.defaultSP") : element;
 					}
 				});
 		table.setWidth(90, Unit.PERCENTAGE);
@@ -199,7 +199,7 @@ public class OAuthPreferencesEditor implements PreferencesEditor
 	{
 		public DeleteActionHandler()
 		{
-			super(msg.getMessage("SAMLPreferences.deleteAction"), 
+			super(msg.getMessage("OAuthPreferences.deleteAction"), 
 					Images.delete.getResource());
 		}
 		

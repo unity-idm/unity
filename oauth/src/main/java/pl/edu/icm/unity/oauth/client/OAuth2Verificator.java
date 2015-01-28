@@ -342,7 +342,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	private ClientAuthnMode establishOpenIDAuthnMode(OIDCProviderMetadata providerMeta,
 			CustomProviderProperties providerCfg) throws AuthenticationException
 	{
-		ClientAuthnMode selectedMethod = null;
+		ClientAuthnMode selectedMethod = ClientAuthnMode.secretBasic;
 		if (providerCfg.isSet(CustomProviderProperties.CLIENT_AUTHN_MODE))
 		{
 			selectedMethod = providerCfg.getEnumValue(CustomProviderProperties.CLIENT_AUTHN_MODE, 
@@ -352,6 +352,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			List<ClientAuthenticationMethod> supportedMethods = providerMeta.getTokenEndpointAuthMethods();
 			if (supportedMethods != null)
 			{
+				selectedMethod = null;
 				for (ClientAuthenticationMethod sm: supportedMethods)
 				{
 					if (ClientAuthenticationMethod.CLIENT_SECRET_POST.equals(sm))
@@ -364,11 +365,11 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 						break;
 					}
 				}
+				if (selectedMethod == null)
+					throw new AuthenticationException("Client authentication metods supported by"
+							+ " the provider (" + supportedMethods + ") do not include "
+							+ "any of methods supported by Unity.");
 			}
-			if (selectedMethod == null)
-				throw new AuthenticationException("Client authentication metods supported by"
-						+ " the provider (" + supportedMethods + ") do not include "
-						+ "any of methods supported by Unity.");
 		}
 		return selectedMethod;
 	}
