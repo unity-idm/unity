@@ -18,3 +18,15 @@ interface. All options common to all web endpoints are naturally also supported.
 are provided below: 
 
 include::ref-homeEndpointProperties.txt[]
+
+For instance the following configuration snippet will enable display of the +email+ attribute of the root group
+in the profile page. What's more the user will be allowed to edit the email attribute if only the attribute type
+is marked as self modifiable.
+ 
+----
+unity.userhome.attributes.2.attribute=email
+unity.userhome.attributes.2.group=/
+unity.userhome.attributes.2.showGroup=false
+unity.userhome.attributes.2.editable=true
+----
+
