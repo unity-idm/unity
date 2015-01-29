@@ -51,6 +51,9 @@ provides a self-contained Unity server.
 #
 %attr(755, root, root) "/usr/sbin/unity-idm-server-*"
 
+%attr(755, root, root) %dir "/usr/share/doc/unity-idm"
+%attr(644, root, root) "/usr/share/doc/unity-idm/*"
+
 #
 #var
 #
