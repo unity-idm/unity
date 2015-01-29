@@ -198,8 +198,9 @@ public class DBIdentities
 		IdentityBean idBean = mapper.getIdentityByName(cmpVal);
 		if (idBean == null)
 			throw new IllegalIdentityValueException("The identity with this value is not available in db");
-		Identity resolved = idResolver.resolveIdentityBeanNoExternalize(idBean, mapper);
 		
+		Identity resolved = idResolver.resolveIdentityBeanNoExternalize(idBean, mapper);
+		resolved.setConfirmationInfo(newConfirmation);
 		IdentityBean idB = new IdentityBean();
 		idB.setEntityId(idBean.getEntityId());
 		idB.setName(cmpVal);
