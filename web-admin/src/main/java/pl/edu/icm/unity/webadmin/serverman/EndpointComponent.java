@@ -244,10 +244,10 @@ public class EndpointComponent extends DeployableComponentViewBase
 		addFieldToContent(msg.getMessage("Endpoints.type"), endpoint.getType().getName());
 		addFieldToContent(msg.getMessage("Endpoints.typeDescription"), endpoint.getType()
 				.getDescription());
-		addFieldToContent(msg.getMessage("Endpoints.paths"), "");
 		I18nLabel displayedName = new I18nLabel(msg, msg.getMessage("displayedNameF"));
 		displayedName.setValue(endpoint.getDisplayedName());
 		addCustomFieldToContent(displayedName);
+		addFieldToContent(msg.getMessage("Endpoints.paths"), "");
 		
 		HorizontalLayout hp = new HorizontalLayout();
 		FormLayout pa = new FormLayout();
@@ -341,6 +341,8 @@ public class EndpointComponent extends DeployableComponentViewBase
 				+ UnityServerConfiguration.ENDPOINT_REALM);
 		ret.displayedName = config.getLocalizedString(msg, endpointKey
 				+ UnityServerConfiguration.ENDPOINT_DISPLAYED_NAME);
+		if (ret.displayedName.isEmpty())
+			ret.displayedName.setDefaultValue(name);
 		try
 		{
 			ret.jsonConfiguration = serverMan.loadConfigurationFile(config.getValue(endpointKey

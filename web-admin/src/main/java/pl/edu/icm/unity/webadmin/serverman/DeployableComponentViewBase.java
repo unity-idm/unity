@@ -252,6 +252,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 
 	protected void addCustomFieldToContent(Component component)
 	{
+		component.addStyleName(Styles.captionBold.toString());
 		content.addComponent(component);
 	}
 	
