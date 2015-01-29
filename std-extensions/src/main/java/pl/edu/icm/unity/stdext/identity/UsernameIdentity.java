@@ -31,7 +31,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 public class UsernameIdentity extends AbstractStaticIdentityTypeProvider
 {
 	public static final String ID = "userName";
-	private static Set<AttributeType> EXTRACTED;
+	private Set<AttributeType> EXTRACTED;
 	private static final String EXTRACTED_NAME = "uid";
 	
 	@Autowired

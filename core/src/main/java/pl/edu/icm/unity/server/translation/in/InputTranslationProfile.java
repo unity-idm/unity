@@ -187,10 +187,10 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 			{
 				@SuppressWarnings("unchecked")
 				HashMap<String, Object> value = (HashMap<String, Object>) contextValue;
-				for (String key : value.keySet())
+				for (Map.Entry<String, Object> entry : value.entrySet())
 				{
-					exprValMap.put(String.format("%s['%s']", contextKey, key), 
-							value.get(key).toString());
+					exprValMap.put(String.format("%s['%s']", contextKey, entry.getKey()), 
+							entry.getValue().toString());
 				}
 			} else if (contextValue instanceof List)
 			{

@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -133,7 +134,8 @@ public class OAuthParseServlet extends HttpServlet
 			String queryString;
 			if (requestFromHoldOn != null)
 			{
-				queryString = new String(Base64.decodeBase64(requestFromHoldOn));
+				queryString = new String(Base64.decodeBase64(requestFromHoldOn), 
+						StandardCharsets.UTF_8);
 			} else
 				queryString = request.getQueryString();
 			authzRequest = AuthorizationRequest.parse(queryString);

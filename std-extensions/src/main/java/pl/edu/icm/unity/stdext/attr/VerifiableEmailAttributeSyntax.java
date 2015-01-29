@@ -88,7 +88,7 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		JsonNode jsonN;
 		try
 		{
-			jsonN = Constants.MAPPER.readTree(new String(raw));
+			jsonN = Constants.MAPPER.readTree(new String(raw, StandardCharsets.UTF_8));
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize VerifiableEmail from JSON", e);

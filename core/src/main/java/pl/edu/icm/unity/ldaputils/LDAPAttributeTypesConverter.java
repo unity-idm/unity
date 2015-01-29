@@ -7,6 +7,7 @@ package pl.edu.icm.unity.ldaputils;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Component;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
-
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
@@ -37,7 +37,8 @@ public class LDAPAttributeTypesConverter
 				"pl/edu/icm/unity/server/core/ldapschema/core.schema");
 		try
 		{
-			STANDARD_TYPES = LDAPAttributeTypesLoader.loadWithInheritance(new InputStreamReader(is), null);
+			STANDARD_TYPES = LDAPAttributeTypesLoader.loadWithInheritance(new InputStreamReader(is,
+					StandardCharsets.US_ASCII), null);
 		} catch (Exception e)
 		{
 			STANDARD_TYPES = Collections.emptyList();

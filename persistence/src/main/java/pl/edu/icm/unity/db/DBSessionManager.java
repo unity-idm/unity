@@ -14,8 +14,8 @@ import java.io.Reader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.Configuration;
@@ -27,10 +27,9 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import eu.unicore.util.db.DBPropertiesHelper;
-
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.utils.Log;
+import eu.unicore.util.db.DBPropertiesHelper;
 
 
 /**

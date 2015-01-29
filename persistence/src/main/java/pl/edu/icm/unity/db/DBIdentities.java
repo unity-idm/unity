@@ -187,7 +187,8 @@ public class DBIdentities
 				toAdd.getRemoteIdp(), toAdd.getTranslationProfile(), ts, ts, toAdd.getConfirmationInfo());
 	}
 	
-	public Identity updateIdentityConfirmationInfo (IdentityTaV idTav, ConfirmationInfo newConfirmation ,SqlSession sqlMap) throws IllegalTypeException, IllegalIdentityValueException
+	public Identity updateIdentityConfirmationInfo(IdentityTaV idTav, ConfirmationInfo newConfirmation,
+			SqlSession sqlMap) throws IllegalTypeException, IllegalIdentityValueException
 	{
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
 		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(idTav.getTypeId());
@@ -197,16 +198,7 @@ public class DBIdentities
 		IdentityBean idBean = mapper.getIdentityByName(cmpVal);
 		if (idBean == null)
 			throw new IllegalIdentityValueException("The identity with this value is not available in db");
-		Identity resolved = null;
-		try
-		{
-			resolved = idResolver.resolveIdentityBeanNoExternalize(idBean, mapper);
-		} catch (IllegalTypeException e)
-		{
-			log.error("Can't resolve an identity stored in DB", e);
-		}
-		if (resolved != null)
-			resolved.setConfirmationInfo(newConfirmation);
+		Identity resolved = idResolver.resolveIdentityBeanNoExternalize(idBean, mapper);
 		
 		IdentityBean idB = new IdentityBean();
 		idB.setEntityId(idBean.getEntityId());

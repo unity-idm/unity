@@ -45,7 +45,7 @@ public class ConfirmationConfigurationHandler extends
 	@Override
 	public ConfirmationConfiguration fromBlob(GenericObjectBean blob, SqlSession sql)
 	{
-		return new ConfirmationConfiguration(new String(blob.getContents()), jsonMapper);
+		return new ConfirmationConfiguration(new String(blob.getContents(), StandardCharsets.UTF_8), jsonMapper);
 	}
 
 }
