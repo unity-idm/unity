@@ -14,6 +14,8 @@ import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 
 import com.nimbusds.jose.util.Base64;
@@ -32,6 +34,7 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 	{
 		ValueToJsonConverter[] converters = new ValueToJsonConverter[] {
 				new SimpleValueConverter(),
+				new EmailValueConverter(),
 				new JpegValueConverter()
 		};
 
@@ -115,7 +118,20 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 		}
 	}
 
-	
+	private static class EmailValueConverter implements ValueToJsonConverter
+	{
+		@Override
+		public String convertValueToJson(Object value)
+		{
+			return ((VerifiableEmail) value).getValue();
+		}
+
+		@Override
+		public String[] getSupportedSyntaxes()
+		{
+			return new String[] {VerifiableEmailAttributeSyntax.ID};
+		}
+	}
 	
 	private interface ValueToJsonConverter
 	{
