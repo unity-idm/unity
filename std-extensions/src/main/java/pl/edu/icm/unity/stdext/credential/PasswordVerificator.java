@@ -116,13 +116,8 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		{
 			PasswordToken checkedToken = PasswordToken.loadFromJson(previousCredential);
 			PasswordInfo current = currentPasswords.getFirst();
-			try
-			{
-				checkPasswordInternal(checkedToken.getPassword(), current);
-			} catch (AuthenticationException e)
-			{
-				throw new IllegalPreviousCredentialException("The current credential is incorrect", e);
-			}
+			if (!checkPasswordInternal(checkedToken.getPassword(), current))
+				throw new IllegalPreviousCredentialException("The current credential is incorrect");
 		}
 		
 		verifyNewPassword(pToken.getExistingPassword(), pToken.getPassword(), currentPasswords);
@@ -232,18 +227,17 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		if (credentials.isEmpty())
 			throw new AuthenticationException("The entity has no password set");
 		PasswordInfo current = credentials.getFirst();
-		checkPasswordInternal(password, current);
+		if (!checkPasswordInternal(password, current))
+			return new AuthenticationResult(Status.deny, null);
 		boolean isOutdated = isCurrentPasswordOutdated(password, credState, resolved);
 		AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), username, isOutdated);
 		return new AuthenticationResult(Status.success, ae);
 	}
 
-	private void checkPasswordInternal(String password, PasswordInfo current) 
-			throws AuthenticationException
+	private boolean checkPasswordInternal(String password, PasswordInfo current) 
 	{
 		byte[] testedHash = CryptoUtils.hash(password, current.getSalt());
-		if (!Arrays.areEqual(testedHash, current.getHash()))
-			throw new AuthenticationException("The password is incorrect");
+		return Arrays.areEqual(testedHash, current.getHash());
 	}
 	
 	
