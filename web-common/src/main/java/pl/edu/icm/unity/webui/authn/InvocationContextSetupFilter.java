@@ -96,7 +96,7 @@ public class InvocationContextSetupFilter implements Filter
 		InvocationContext context = new InvocationContext(tlsId, realm);
 		InvocationContext.setCurrent(context);
 		if (baseAddress != null)
-			context.setCurrentURLUsed(baseAddress + request.getServletPath());
+			context.setCurrentURLUsed(baseAddress);
 		log.trace("A new invocation context was set");
 		return context;
 	}

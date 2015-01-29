@@ -113,7 +113,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		contextSetupFilter = new InvocationContextSetupFilter(config, description.getRealm(),
-				getServletUrl(""));
+				getServletUrl(uiServletPath));
 		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
