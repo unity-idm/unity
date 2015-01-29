@@ -471,17 +471,10 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
-			boolean fullAuthz = false;
-			try
-			{
-				authz.checkAuthorization(AuthzCapability.credentialModify);
-				fullAuthz = true;
-			} catch (AuthorizationException e)
-			{
-				//OK
-			}
+			long entityId = idResolver.getEntityId(entity, sqlMap);
+			boolean ret = authorizeCredentialChange(entityId, credentialId, sqlMap);
 			sqlMap.commit();
-			return !fullAuthz;
+			return ret;
 		} finally
 		{
 			db.releaseSqlSession(sqlMap);
@@ -507,21 +500,16 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
-			boolean fullAuthz = false;
-			try
+			boolean requireCurrent = authorizeCredentialChange(entityId, credentialId, sqlMap);
+
+			if (requireCurrent && currentRawCredential == null)
 			{
-				authz.checkAuthorization(AuthzCapability.credentialModify);
-				fullAuthz = true;
-			} catch (AuthorizationException e)
-			{
-				authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.credentialModify);
-			}
-			
-			if (!fullAuthz && currentRawCredential == null)
 				throw new IllegalPreviousCredentialException(
 						"The current credential must be provided");
+			}
+			
 			//we don't check it 
-			if (fullAuthz)
+			if (!requireCurrent)
 				currentRawCredential = null;
 			
 			engineHelper.setEntityCredentialInternal(entityId, credentialId, rawCredential, 
@@ -533,6 +521,39 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		}
 	}
 
+	/**
+	 * Performs authorization of attribute change. The method also returns whether a current credential is 
+	 * required to change the previous one, what is needed if the current credential is set and the caller 
+	 * doesn't have the credentialModify capability set globally.
+	 * @param entityId
+	 * @param credentialId
+	 * @return
+	 * @throws EngineException 
+	 */
+	private boolean authorizeCredentialChange(long entityId, String credentialId, SqlSession sqlMap) 
+			throws EngineException
+	{
+		try
+		{
+			authz.checkAuthorization(AuthzCapability.credentialModify);
+			return false;
+		} catch (AuthorizationException e)
+		{
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.credentialModify);
+		}
+		
+		//possible OPTIMIZATION: can get the status of selected credential only 
+		CredentialInfo credsInfo = getCredentialInfo(entityId, sqlMap);
+		CredentialPublicInformation credInfo = credsInfo.getCredentialsState().get(credentialId);
+		if (credInfo == null)
+			throw new IllegalCredentialException("The credential " + credentialId + 
+					" is not allowed for the entity");
+		
+		if (credInfo.getState() == LocalCredentialState.notSet)
+			return false;
+		return true;
+	}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void setEntityCredentialStatus(EntityParam entity, String credentialId,

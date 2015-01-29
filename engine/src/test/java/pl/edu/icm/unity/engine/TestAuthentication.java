@@ -4,6 +4,11 @@
  */
 package pl.edu.icm.unity.engine;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,13 +18,12 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.mock.MockEndpoint;
 import pl.edu.icm.unity.engine.mock.MockEndpointFactory;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -321,42 +325,46 @@ public class TestAuthentication extends DBIntegrationTestBase
 				get("credential1").getState());
 	}
 	
+	@Test
 	public void isAdminAllowedToChangeCredential() throws Exception
 	{
+		setupAdmin();
 		setupPasswordAuthn();
 		createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user1")); 
-		assertTrue(idsMan.isCurrentCredentialRequiredForChange(user, "credential1"));
-		idsMan.setEntityCredential(user, "credential1", new PasswordToken("qwerty").toJson());
+		assertFalse(idsMan.isCurrentCredentialRequiredForChange(user, "credential1"));
+		idsMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty").toJson());
 	}
 	
+	@Test
 	public void isUserRequiredToProvideCurrentCredentialUponChange() throws Exception
 	{
 		setupPasswordAuthn();
-		createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
-		setupUserContext("user1", false);
+		setupPasswordAndCertAuthn();
+		createCertUserNoPassword(AuthorizationManagerImpl.USER_ROLE); //Has no password set, but password is allowed
+		setupUserContext("user2", false);
 		
-		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user1")); 
+		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user2")); 
 		assertFalse(idsMan.isCurrentCredentialRequiredForChange(user, "credential1"));
-		idsMan.setEntityCredential(user, "credential1", new PasswordToken("qwerty").toJson());
+		idsMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty").toJson());
 		try
 		{
-			idsMan.setEntityCredential(user, "credential1", new PasswordToken("qwerty").toJson());
+			idsMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
 			fail("Managed to change the password without giving the old one");
-		} catch (AuthorizationException e)
+		} catch (IllegalPreviousCredentialException e)
 		{
 			//OK - expected
 		}
 		try
 		{
-			idsMan.setEntityCredential(user, "credential1", new PasswordToken("qwerty").toJson(),
+			idsMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson(),
 					new PasswordToken("INVALID").toJson());
 			fail("Managed to change the password with invalid old one");
-		} catch (AuthorizationException e)
+		} catch (IllegalPreviousCredentialException e)
 		{
 			//OK - expected
 		}
-		idsMan.setEntityCredential(user, "credential1", new PasswordToken("qwerty").toJson(),
-				new PasswordToken("mockpassword2").toJson());
+		idsMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson(),
+				new PasswordToken("qw!Erty").toJson());
 	}
 }

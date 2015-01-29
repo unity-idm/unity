@@ -27,6 +27,7 @@ import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.MapComboBox;
@@ -213,19 +214,12 @@ public class CredentialsPanel extends VerticalLayout
 		credEditor = credEditorReg.getEditor(chosen.getTypeId());
 		FormLayout credLayout = new FormLayout();
 		credLayout.setMargin(true);
-		EntityParam entityP = new EntityParam(entity.getId());
-		try
-		{
-			askAboutCurrent = idsMan.isCurrentCredentialRequiredForChange(entityP, 
-					chosen.getTypeId());
-		} catch (EngineException e)
-		{
-			log.debug("Got exception when asking about possibility to "
-					+ "change the credential without providing the existing one."
-					+ " Most probably the subsequent credential change will also fail.", e);
-			askAboutCurrent = true;
-		}
-		credLayout.addComponents(credEditor.getEditor(askAboutCurrent, chosen.getJsonConfiguration(), true).getComponents());
+		
+		askAboutCurrent = isCurrentCredentialVerificationRequired(chosen);
+		
+		ComponentsContainer credEditorComp = credEditor.getEditor(askAboutCurrent, 
+				chosen.getJsonConfiguration(), true); 
+		credLayout.addComponents(credEditorComp.getComponents());
 		editor.setContent(credLayout);
 		Component viewer = credEditor.getViewer(credPublicInfo.getExtraInformation());
 		if (viewer == null)
@@ -248,6 +242,21 @@ public class CredentialsPanel extends VerticalLayout
 		{
 			clear.setEnabled(true);
 			invalidate.setEnabled(true);
+		}
+	}
+	
+	private boolean isCurrentCredentialVerificationRequired(CredentialDefinition chosen)
+	{
+		EntityParam entityP = new EntityParam(entity.getId());
+		try
+		{
+			return idsMan.isCurrentCredentialRequiredForChange(entityP, chosen.getName());
+		} catch (EngineException e)
+		{
+			log.debug("Got exception when asking about possibility to "
+					+ "change the credential without providing the existing one."
+					+ " Most probably the subsequent credential change will also fail.", e);
+			return true;
 		}
 	}
 	

@@ -183,6 +183,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 	@Override
 	public void setPreviousCredentialError(String message)
 	{
-		passwordCurrent.setComponentError(message == null ? null : new UserError(message));
+		if (passwordCurrent != null)
+			passwordCurrent.setComponentError(message == null ? null : new UserError(message));
 	}
 }

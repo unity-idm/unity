@@ -102,12 +102,24 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	
 	protected void createCertUser() throws EngineException
 	{
+		Identity added2 = createCertUserNoPassword(null);
+		idsMan.setEntityCredential(new EntityParam(added2), "credential1", 
+				new PasswordToken("mockPassword2").toJson());
+	}
+
+	protected Identity createCertUserNoPassword(String role) throws EngineException
+	{
 		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user2"), 
 				"cr-certpass", EntityState.valid, false);
 		idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=Test UVOS,O=UNICORE,C=EU"), 
 				new EntityParam(added2), false);
-		idsMan.setEntityCredential(new EntityParam(added2), "credential1", 
-				new PasswordToken("mockPassword2").toJson());
+		if (role != null)
+		{
+			EnumAttribute sa = new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE, 
+				"/", AttributeVisibility.local, role);
+			attrsMan.setAttribute(new EntityParam(added2), sa, false);
+		}
+		return added2;
 	}
 		
 	protected void setupPasswordAuthn() throws EngineException
