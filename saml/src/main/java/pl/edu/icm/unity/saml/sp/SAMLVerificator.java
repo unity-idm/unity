@@ -183,7 +183,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		
 		if (sloPath == null || sloRealm == null)
 		{
-			log.warn("Single Logout functionality will be disabled for SAML authenticator "
+			log.debug("Single Logout functionality will be disabled for SAML authenticator "
 					+ getName() + " as its path and/or realm are/is undefined.");
 			return;
 		}
