@@ -136,6 +136,7 @@ public class TestOutputCreateActions
 		IdentityTypeDefinition mockIdType = mock(IdentityTypeDefinition.class);
 		when(mockIdType.isDynamic()).thenReturn(false);
 		when(mockIdType.getId()).thenReturn("i1");
+		when(mockIdType.convertFromString("v1", null, "prof1")).thenReturn(new IdentityParam("i1", "v1"));
 		when(idReg.getByName("i1")).thenReturn(mockIdType);
 		
 		CreatePersistentIdentityActionFactory factory = new CreatePersistentIdentityActionFactory(idReg);
