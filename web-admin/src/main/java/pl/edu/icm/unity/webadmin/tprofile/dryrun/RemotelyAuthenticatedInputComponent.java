@@ -101,7 +101,6 @@ public class RemotelyAuthenticatedInputComponent extends CustomComponent
 
 	public void displayAuthnInput(RemotelyAuthenticatedInput input)
 	{
-		titleLabel.setHtmlValue("DryRun.RemotelyAuthenticatedContextComponent.title", input.getIdpName());
 		if (input == null 
 				|| (input.getIdentities().isEmpty()
 					&& input.getAttributes().isEmpty()
@@ -113,6 +112,8 @@ public class RemotelyAuthenticatedInputComponent extends CustomComponent
 			noneLabel.setVisible(true);
 		} else
 		{
+			titleLabel.setHtmlValue("DryRun.RemotelyAuthenticatedContextComponent.title", 
+					input.getIdpName());
 			displayItsTables(input.getIdentities().values());
 			displayAttrsTable(input.getAttributes().values());
 			displayGroups(input.getGroups().values());

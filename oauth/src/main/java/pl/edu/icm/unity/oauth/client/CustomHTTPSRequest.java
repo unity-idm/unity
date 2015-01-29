@@ -11,8 +11,10 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import javax.mail.internet.MimeUtility;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
@@ -110,11 +112,17 @@ public class CustomHTTPSRequest extends HTTPRequest
 
 			conn.setDoOutput(true);
 
+			String javaCharset = StandardCharsets.ISO_8859_1.name();
 			if (wrapped.getContentType() != null)
+			{
+				String charset = wrapped.getContentType().getParameter("charset");
+				if (charset != null)
+					javaCharset = MimeUtility.javaCharset(charset);
 				conn.setRequestProperty("Content-Type", wrapped.getContentType().toString());
+			}
 
 			if (query != null) {
-				OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
+				OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream(), javaCharset);
 				writer.write(query);
 				writer.close();
 			}
@@ -134,7 +142,8 @@ public class CustomHTTPSRequest extends HTTPRequest
 
 		try {
 			// Open a connection, then send method and headers
-			reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), 
+					StandardCharsets.UTF_8));
 
 			// The next step is to get the status
 			statusCode = conn.getResponseCode();

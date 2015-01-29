@@ -107,9 +107,9 @@ public class ProfileStepComponent extends CustomComponent
 		Collection<DragDropBean> items = new ArrayList<DragDropBean>();
 		Map<String, String> exprValMap = InputTranslationProfile.createExpresionValueMap(input);
 		
-		for (String expr : exprValMap.keySet())
+		for (Map.Entry<String, String> exprE : exprValMap.entrySet())
 		{
-			items.add(new DragDropBean(expr, exprValMap.get(expr)));
+			items.add(new DragDropBean(exprE.getKey(), exprE.getValue()));
 		}
 		
 		return items;
