@@ -334,6 +334,8 @@ public class RuleComponent extends VerticalLayout
 			return new ExtensionActionParameterComponent(param, msg);
 		case DAYS:
 			return new DaysActionParameterComponent(param, msg);
+		case LARGE_TEXT:
+			return new TextAreaActionParameterComponent(param, msg);
 		default: 
 			return new DefaultActionParameterComponent(param, msg);
 		}

@@ -38,6 +38,7 @@
 	<bean class="pl.edu.icm.unity.stdext.tactions.in.MapIdentityActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.in.MapGroupActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.in.MapAttributeActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.tactions.in.MultiMapAttributeActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.in.EntityChangeActionFactory"/>
 	
 	<bean class="pl.edu.icm.unity.stdext.tactions.out.CreateAttributeActionFactory"/>

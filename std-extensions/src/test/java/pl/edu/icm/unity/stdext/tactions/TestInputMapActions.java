@@ -38,6 +38,7 @@ import pl.edu.icm.unity.stdext.tactions.in.EntityChangeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapAttributeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapGroupActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapIdentityActionFactory;
+import pl.edu.icm.unity.stdext.tactions.in.MultiMapAttributeActionFactory;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -73,6 +74,42 @@ public class TestInputMapActions
 		assertEquals("a1-a2-idd", a.getValues().get(0));
 	}
 
+	@Test
+	public void testMultiMapAttribute() throws EngineException
+	{
+		AttributesManagement attrsMan = mock(AttributesManagement.class);
+		
+		Map<String, AttributeType> mockAts = new HashMap<String, AttributeType>();
+		AttributeType sA = new AttributeType("stringA", new StringAttributeSyntax());
+		mockAts.put(sA.getName(), sA);
+		when(attrsMan.getAttributeTypesAsMap()).thenReturn(mockAts);
+		
+		MultiMapAttributeActionFactory factory = new MultiMapAttributeActionFactory(attrsMan);
+		
+		InputTranslationAction mapAction = factory.getInstance("attribute stringA /A/B\n"
+				+ "other stringA /A\n"
+				+ "missing stringA /A", 
+				AttributeVisibility.full.toString(), AttributeEffectMode.CREATE_OR_UPDATE.toString());
+				
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
+		input.addIdentity(new RemoteIdentity("idd", "i1"));
+		input.addAttribute(new RemoteAttribute("attribute", "a1", "a2"));
+		input.addAttribute(new RemoteAttribute("other", "a2"));
+		
+		MappingResult result = mapAction.invoke(input, 
+				InputTranslationProfile.createMvelContext(input), "testProf");
+		
+		Attribute<?> a = result.getAttributes().get(0).getAttribute();
+		assertEquals("stringA", a.getName());
+		assertEquals("a1", a.getValues().get(0));
+		assertEquals("a2", a.getValues().get(1));
+
+		Attribute<?> b = result.getAttributes().get(1).getAttribute();
+		assertEquals("stringA", b.getName());
+		assertEquals("a2", b.getValues().get(0));
+	}
+
+	
 	@Test
 	public void intAttributeMappingWorks() throws EngineException
 	{

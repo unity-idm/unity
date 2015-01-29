@@ -130,6 +130,6 @@ public class TranslationProfileViewer extends VerticalLayout
 	{
 		if (value == null)
 			return "";
-		return value;
+		return value.replace("\n", " | ");
 	}
 }
