@@ -27,7 +27,7 @@ import com.vaadin.ui.VerticalLayout;
 public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler<T>
 {
 	public static final int LARGE_STRING = 200;
-	public static final int SMALL_STRING = 40;
+	public static final int SMALL_STRING = 50;
 	
 	public static String trimString(String full, int limited)
 	{

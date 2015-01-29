@@ -203,7 +203,7 @@ public class RequestReviewPanel extends CustomComponent
 		{
 			if (ap == null)
 				continue;
-			Component rep = handlersRegistry.getRepresentation(ap, RepresentationSize.LINE);
+			Component rep = handlersRegistry.getRepresentation(ap, RepresentationSize.MEDIUM);
 			attributes.addEntry(rep, false);
 		}
 		
