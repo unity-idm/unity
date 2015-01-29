@@ -112,17 +112,16 @@ public class CustomHTTPSRequest extends HTTPRequest
 
 			conn.setDoOutput(true);
 
-			String javaCharset = StandardCharsets.ISO_8859_1.name();
 			if (wrapped.getContentType() != null)
 			{
-				String charset = wrapped.getContentType().getParameter("charset");
-				if (charset != null)
-					javaCharset = MimeUtility.javaCharset(charset);
+				wrapped.getContentType().setParameter("charset", 
+						MimeUtility.mimeCharset(StandardCharsets.UTF_8.name()));
 				conn.setRequestProperty("Content-Type", wrapped.getContentType().toString());
 			}
 
 			if (query != null) {
-				OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream(), javaCharset);
+				OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream(), 
+						StandardCharsets.UTF_8);
 				writer.write(query);
 				writer.close();
 			}
@@ -163,7 +162,8 @@ public class CustomHTTPSRequest extends HTTPRequest
 				// HTTP status code indicates the response got
 				// through, read the content but using error
 				// stream
-				reader = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+				reader = new BufferedReader(new InputStreamReader(conn.getErrorStream(),
+						StandardCharsets.UTF_8));
 			}
 		}
 
