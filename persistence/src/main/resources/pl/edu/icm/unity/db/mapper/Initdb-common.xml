@@ -131,6 +131,8 @@ UPDATE UVOS_FLAG SET VAL='2_1_1';
 	</update>
 	<update id="updateSchema-020102-01">
 ALTER TABLE TOKENS MODIFY ENTITY_ID INTEGER NULL;
+	</update>
+	<update id="updateSchema-020102-02">
 UPDATE UVOS_FLAG SET VAL='2_1_2';
 	</update>
 	
