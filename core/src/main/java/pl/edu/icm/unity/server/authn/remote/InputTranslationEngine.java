@@ -7,8 +7,10 @@ package pl.edu.icm.unity.server.authn.remote;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -158,7 +160,7 @@ public class InputTranslationEngine
 		MappedIdentity first = mappedMissingIdentities.remove(0);
 		
 		Identity added;
-		List<Attribute<?>> attributes = getRootGroupAttributes(result);
+		List<Attribute<?>> attributes = getAttributesInGroup("/", result);
 		log.info("Adding entity " + first.getIdentity() + " to the local DB");
 		added = idsMan.addEntity(first.getIdentity(), first.getCredentialRequirement(), 
 				EntityState.valid, false, attributes);
@@ -167,12 +169,26 @@ public class InputTranslationEngine
 		return added;
 	}
 
-	private List<Attribute<?>> getRootGroupAttributes(MappingResult result) throws EngineException
+	private Map<String, List<Attribute<?>>> getAttributesByGroup(MappingResult result) throws EngineException
+	{
+		Map<String, List<Attribute<?>>> ret = new HashMap<String, List<Attribute<?>>>();
+		
+		ret.put("/", getAttributesInGroup("/", result));
+		for (MappedGroup mg: result.getGroups())
+		{
+			if ("/".equals(mg.getGroup()))
+				continue;
+			ret.put(mg.getGroup(), getAttributesInGroup(mg.getGroup(), result));
+		}
+		return ret;
+	}
+
+	private List<Attribute<?>> getAttributesInGroup(String group, MappingResult result) throws EngineException
 	{
 		List<Attribute<?>> ret = new ArrayList<>();
 		for (MappedAttribute mappedAttr: result.getAttributes())
 		{
-			if (mappedAttr.getAttribute().getGroupPath().equals("/"))
+			if (mappedAttr.getAttribute().getGroupPath().equals(group))
 				ret.add(mappedAttr.getAttribute());
 		}
 		return ret;
@@ -180,6 +196,7 @@ public class InputTranslationEngine
 	
 	private void processGroups(MappingResult result, Identity principal) throws EngineException
 	{
+		Map<String, List<Attribute<?>>> attributesByGroup = getAttributesByGroup(result);
 		EntityParam entity = new EntityParam(principal);
 		Set<String> currentGroups = new HashSet<String>(idsMan.getGroups(entity));
 		for (MappedGroup gm: result.getGroups())
@@ -188,7 +205,8 @@ public class InputTranslationEngine
 			{
 				Deque<String> missingGroups = GroupUtils.getMissingGroups(gm.getGroup(), currentGroups);
 				log.info("Adding to group " + gm);
-				addToGroupRecursive(entity, missingGroups, currentGroups, gm.getCreateIfMissing());
+				addToGroupRecursive(entity, missingGroups, currentGroups, gm.getCreateIfMissing(),
+						attributesByGroup);
 			} else
 			{
 				log.debug("Entity already in the group " + gm + ", skipping");
@@ -197,12 +215,16 @@ public class InputTranslationEngine
 	}
 	
 	private void addToGroupRecursive(EntityParam who, Deque<String> missingGroups, Set<String> currentGroups,
-			GroupEffectMode createMissingGroups) throws EngineException
+			GroupEffectMode createMissingGroups, Map<String, List<Attribute<?>>> attributesByGroup) 
+					throws EngineException
 	{
 		String group = missingGroups.pollLast();
+		List<Attribute<?>> attributes = attributesByGroup.get(group);
+		if (attributes == null)
+			attributes = new ArrayList<Attribute<?>>();
 		try
 		{
-			groupsMan.addMemberFromParent(group, who);
+			groupsMan.addMemberFromParent(group, who, attributes);
 		} catch (IllegalGroupValueException missingGroup)
 		{
 			if (createMissingGroups == GroupEffectMode.CREATE_GROUP_IF_MISSING)
@@ -210,7 +232,7 @@ public class InputTranslationEngine
 				log.info("Group " + group + " doesn't exist, "
 						+ "will be created to fullfil translation profile rule");
 				groupsMan.addGroup(new Group(group));
-				groupsMan.addMemberFromParent(group, who);
+				groupsMan.addMemberFromParent(group, who, attributes);
 			} else if (createMissingGroups == GroupEffectMode.REQUIRE_EXISTING_GROUP)
 			{
 				log.debug("Entity should be added to a group " + group + " which is missing, failing.");
@@ -225,7 +247,7 @@ public class InputTranslationEngine
 		currentGroups.add(group);
 		if (!missingGroups.isEmpty())
 		{
-			addToGroupRecursive(who, missingGroups, currentGroups, createMissingGroups);
+			addToGroupRecursive(who, missingGroups, currentGroups, createMissingGroups, attributesByGroup);
 		}
 	}
 	
