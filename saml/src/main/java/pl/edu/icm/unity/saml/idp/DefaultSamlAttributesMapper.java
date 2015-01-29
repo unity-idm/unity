@@ -20,6 +20,8 @@ import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 
@@ -38,6 +40,7 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 	static {
 		ValueToSamlConverter[] converters = new ValueToSamlConverter[] {
 				new StringValueToSamlConverter(),
+				new EmailValueToSamlConverter(),
 				new IntegerValueToSamlConverter(),
 				new FloatingValueToSamlConverter(),
 				new JpegValueToSamlConverter()
@@ -67,6 +70,10 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 		ret.setName(unityAttribute.getName());
 		String syntax = unityAttribute.getAttributeSyntax().getValueSyntaxId();
 		ValueToSamlConverter converter = VALUE_TO_SAML.get(syntax);
+		if (converter == null)
+		{
+			throw new IllegalStateException("There is no attribute type converter for " + syntax);
+		}
 		List<?> unityValues = unityAttribute.getValues();
 		XmlObject[] xmlValues = new XmlObject[unityValues.size()];
 		for (int i=0; i<xmlValues.length; i++)
@@ -96,6 +103,23 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 		public String[] getSupportedSyntaxes()
 		{
 			return new String[] {StringAttributeSyntax.ID, EnumAttributeSyntax.ID};
+		}
+	}
+
+	private static class EmailValueToSamlConverter implements ValueToSamlConverter
+	{
+		@Override
+		public XmlObject convertValueToSaml(Object value)
+		{
+			XmlString v = XmlString.Factory.newInstance();
+			v.setStringValue(((VerifiableEmail) value).getValue());
+			return v;
+		}
+
+		@Override
+		public String[] getSupportedSyntaxes()
+		{
+			return new String[] {VerifiableEmailAttributeSyntax.ID};
 		}
 	}
 

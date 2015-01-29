@@ -5,22 +5,25 @@
 package pl.edu.icm.unity.stdext.tactions.out;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.translation.out.AbstractOutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.TranslationInput;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.stdext.tactions.in.MapAttributeAction;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
  * Creates new outgoing attributes.
@@ -60,15 +63,29 @@ public class CreatePersistentAttributeAction extends AbstractOutputTranslationAc
 				return;
 			}
 		}
-		List<?> values;		
-		if (value instanceof List)
-			values = (List<?>) value;
-		else
-			values = Collections.singletonList(value.toString());
-		
+
+		List<Object> typedValues;
+		try
+		{
+			typedValues = MapAttributeAction.convertValues(value, attributeType.getValueType());
+		} catch (IllegalAttributeValueException e)
+		{
+			log.debug("Can't convert attribute values returned by the action's expression "
+					+ "to the type of attribute " + attrNameString + " , skipping it", e);
+			return;
+		}
+		//for output profile we can't confirm - not yet implemented and rather not needed.
+		for (Object val: typedValues)
+		{
+			if (val instanceof VerifiableElement)
+			{
+				((VerifiableElement) val).setConfirmationInfo(new ConfirmationInfo(true));
+			}
+		}
+
 		@SuppressWarnings({ "unchecked", "rawtypes"})
 		Attribute<?> newAttr = new Attribute(attrNameString, attributeType.getValueType(), group, 
-				AttributeVisibility.full, values, null, currentProfile);
+				AttributeVisibility.full, typedValues, null, currentProfile);
 		result.getAttributes().add(newAttr);
 		result.getAttributesToPersist().add(newAttr);
 		log.debug("Created a new persisted attribute: " + newAttr);

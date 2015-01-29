@@ -67,11 +67,10 @@ public class MapAttributeAction extends AbstractInputTranslationAction
 			return ret;
 		}
 		
-		List<?> aValues = value instanceof List ? (List<?>)value : Collections.singletonList(value);
 		List<Object> typedValues;
 		try
 		{
-			typedValues = convertValues(aValues, at.getValueType());
+			typedValues = convertValues(value, at.getValueType());
 		} catch (IllegalAttributeValueException e)
 		{
 			log.debug("Can't convert attribute values returned by the action's expression "
@@ -88,9 +87,10 @@ public class MapAttributeAction extends AbstractInputTranslationAction
 		return ret;
 	}
 
-	private List<Object> convertValues(List<?> aValues, AttributeValueSyntax<?> syntax) 
+	public static List<Object> convertValues(Object value, AttributeValueSyntax<?> syntax) 
 			throws IllegalAttributeValueException
 	{
+		List<?> aValues = value instanceof List ? (List<?>)value : Collections.singletonList(value);
 		List<Object> ret = new ArrayList<Object>(aValues.size());
 		for (Object o: aValues)
 		{

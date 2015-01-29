@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.stdext.tactions.out;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -26,7 +27,7 @@ public class CreatePersistentAttributeActionFactory implements TranslationAction
 	private AttributesManagement attrsMan;
 	
 	@Autowired
-	public CreatePersistentAttributeActionFactory(AttributesManagement attrsMan)
+	public CreatePersistentAttributeActionFactory(@Qualifier("insecure") AttributesManagement attrsMan)
 	{
 		super();
 		this.attrsMan = attrsMan;

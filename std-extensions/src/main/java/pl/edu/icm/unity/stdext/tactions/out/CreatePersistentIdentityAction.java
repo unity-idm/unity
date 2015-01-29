@@ -19,6 +19,7 @@ import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 /**
  * Creates new outgoing identities.
@@ -49,7 +50,12 @@ public class CreatePersistentIdentityAction extends AbstractOutputTranslationAct
 			return;
 		}
 		String value = valueO.toString();
-		IdentityParam newId = new IdentityParam(idType.getId(), value, null, currentProfile);
+		
+		IdentityParam newId = idType.convertFromString(value, null, currentProfile);
+		//for output profile we can't confirm - not yet implemented and rather not needed.
+		if (idType.isVerifiable())
+			newId.setConfirmationInfo(new ConfirmationInfo(true));
+		
 		String cmpValue = idType.getComparableValue(value, null, null);
 		for (IdentityParam existing: result.getIdentities())
 		{
