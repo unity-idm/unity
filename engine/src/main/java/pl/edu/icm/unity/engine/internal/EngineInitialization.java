@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -738,8 +739,10 @@ public class EngineInitialization extends LifecycleBase
 			String credential = config.getValue(authenticatorKey+UnityServerConfiguration.AUTHENTICATOR_CREDENTIAL);
 
 			
-			String vJsonConfiguration = vConfigFile == null ? null : FileUtils.readFileToString(vConfigFile);
-			String rJsonConfiguration = rConfigFile == null ? null : FileUtils.readFileToString(rConfigFile);
+			String vJsonConfiguration = vConfigFile == null ? null : FileUtils.readFileToString(vConfigFile,
+					StandardCharsets.UTF_8);
+			String rJsonConfiguration = rConfigFile == null ? null : FileUtils.readFileToString(rConfigFile,
+					StandardCharsets.UTF_8);
 			
 			if (!existing.containsKey(name))
 			{
