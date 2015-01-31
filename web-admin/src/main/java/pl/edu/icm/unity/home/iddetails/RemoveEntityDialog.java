@@ -28,7 +28,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Dialog allowing to either immediately or with grace period schedule the entity removal.
@@ -78,7 +78,7 @@ public class RemoveEntityDialog extends AbstractDialog
 		daysHL.setComponentAlignment(daysL, Alignment.BOTTOM_LEFT);
 		
 		final Label schedInfo = new Label(msg.getMessage("RemoveEntityDialog.scheduleInfo"));
-		schedInfo.addStyleName(Reindeer.LABEL_SMALL);
+		schedInfo.addStyleName(Styles.vLabelSmall.toString());
 
 		nowOrLater.addValueChangeListener(new ValueChangeListener()
 		{

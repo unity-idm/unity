@@ -27,7 +27,6 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Component showing all attributes that are going to be sent to the requesting service. 
@@ -117,7 +116,7 @@ public class ExposedAttributesComponent extends CustomComponent
 		
 		HtmlLabel credInfo = new HtmlLabel(msg);
 		credInfo.setHtmlValue("ExposedAttributesComponent.credInfo");
-		credInfo.addStyleName(Reindeer.LABEL_SMALL);
+		credInfo.addStyleName(Styles.vLabelSmall.toString());
 		
 		contents.addComponent(attributesL);
 		contents.addComponent(showDetails);
@@ -127,7 +126,7 @@ public class ExposedAttributesComponent extends CustomComponent
 		if (allowHiding)
 		{
 			HtmlLabel attributesInfo = new HtmlLabel(msg, "ExposedAttributesComponent.attributesInfo");
-			attributesInfo.addStyleName(Reindeer.LABEL_SMALL);
+			attributesInfo.addStyleName(Styles.vLabelSmall.toString());
 			details.addComponent(attributesInfo);
 			
 			Label hideL = new Label(msg.getMessage("ExposedAttributesComponent.hide"));
@@ -143,7 +142,7 @@ public class ExposedAttributesComponent extends CustomComponent
 		} else
 		{
 			Label spacer = HtmlTag.br();
-			spacer.setStyleName(Reindeer.LABEL_SMALL);
+			spacer.setStyleName(Styles.vLabelSmall.toString());
 			details.addComponent(spacer);
 			
 			ListOfElements<String> attributesList = new ListOfElements<String>(msg);

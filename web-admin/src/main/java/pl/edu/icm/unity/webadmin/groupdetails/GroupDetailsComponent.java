@@ -34,7 +34,7 @@ import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Component providing Group details. The most complicated part is attribute statements handling which
@@ -95,7 +95,7 @@ public class GroupDetailsComponent extends SafePanel
 		
 		setSizeFull();
 		setContent(main);
-		setStyleName(Reindeer.PANEL_LIGHT);
+		setStyleName(Styles.vPanelLight.toString());
 
 		EventsBus bus = WebSession.getCurrent().getEventBus();
 		bus.addListener(new EventListener<GroupChangedEvent>()

@@ -29,7 +29,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Editing of multiple metadata entries.
@@ -127,7 +127,7 @@ public class MetadataEditor extends VerticalLayout
 			Button edit = new Button();
 			edit.setDescription(msg.getMessage("MetadataEditor.editButton"));
 			edit.setIcon(Images.edit.getResource());
-			edit.setStyleName(Reindeer.BUTTON_SMALL);
+			edit.setStyleName(Styles.vButtonSmall.toString());
 			edit.addClickListener(new Button.ClickListener()
 			{
 				@Override
@@ -144,7 +144,7 @@ public class MetadataEditor extends VerticalLayout
 			Button remove = new Button();
 			remove.setDescription(msg.getMessage("MetadataEditor.removeButton"));
 			remove.setIcon(Images.delete.getResource());
-			remove.setStyleName(Reindeer.BUTTON_SMALL);
+			remove.setStyleName(Styles.vButtonSmall.toString());
 			remove.addClickListener(new Button.ClickListener()
 			{
 				@Override
@@ -197,7 +197,7 @@ public class MetadataEditor extends VerticalLayout
 		{
 			FormLayout main = new FormLayout();
 			editorPanel = new SafePanel();
-			editorPanel.setStyleName(Reindeer.PANEL_LIGHT);
+			editorPanel.setStyleName(Styles.vPanelLight.toString());
 			if (initialKey != null)
 			{
 				Label info = new Label(initialKey);

@@ -33,7 +33,6 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Displays list of authenticator component 
@@ -79,7 +78,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 
 		Button refreshViewButton = new Button();
 		refreshViewButton.setIcon(Images.refresh.getResource());
-		refreshViewButton.addStyleName(Reindeer.BUTTON_LINK);
+		refreshViewButton.addStyleName(Styles.vButtonLink.toString());
 		refreshViewButton.addStyleName(Styles.toolbarButton.toString());
 		refreshViewButton.addClickListener(new Button.ClickListener()
 		{
@@ -94,7 +93,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		
 		Button reloadAllButton = new Button();
 		reloadAllButton.setIcon(Images.transfer.getResource());
-		reloadAllButton.addStyleName(Reindeer.BUTTON_LINK);
+		reloadAllButton.addStyleName(Styles.vButtonLink.toString());
 		reloadAllButton.addStyleName(Styles.toolbarButton.toString());
 		reloadAllButton.addClickListener(new Button.ClickListener()
 		{

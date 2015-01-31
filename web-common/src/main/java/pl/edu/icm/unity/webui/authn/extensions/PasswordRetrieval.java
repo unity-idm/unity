@@ -40,7 +40,7 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import eu.unicore.util.configuration.ConfigurationException;
 
@@ -157,7 +157,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 			if (credentialExchange.getCredentialResetBackend().getSettings().isEnabled())
 			{
 				Button reset = new Button(msg.getMessage("WebPasswordRetrieval.forgottenPassword"));
-				reset.setStyleName(Reindeer.BUTTON_LINK);
+				reset.setStyleName(Styles.vButtonLink.toString());
 				ret.addComponent(reset);
 				ret.setComponentAlignment(reset, Alignment.TOP_RIGHT);
 				reset.addClickListener(new ClickListener()

@@ -42,7 +42,6 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Generic component to edit or add translation profile of any type
@@ -133,7 +132,7 @@ public abstract class TranslationProfileEditor extends VerticalLayout
 		Button addRule = new Button();
 		addRule.setDescription(msg.getMessage("TranslationProfileEditor.newRule"));
 		addRule.setIcon(Images.add.getResource());
-		addRule.addStyleName(Reindeer.BUTTON_LINK);
+		addRule.addStyleName(Styles.vButtonLink.toString());
 		addRule.addStyleName(Styles.toolbarButton.toString());
 		addRule.addClickListener(new ClickListener()
 		{

@@ -12,7 +12,6 @@ import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.util.ReflectTools;
 
 /**
@@ -28,7 +27,7 @@ public class StartStopButton extends Button
 	{
 		super();
 		setIcon();
-		addStyleName(Reindeer.BUTTON_LINK);
+		addStyleName(Styles.vButtonLink.toString());
 		addStyleName(Styles.toolbarButton.toString());
 		addClickListener(new ClickListener() 
 		{

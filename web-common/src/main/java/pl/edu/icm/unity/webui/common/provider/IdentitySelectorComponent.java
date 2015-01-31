@@ -24,7 +24,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Either shows an identity which will be sent to the SP or allows to choose an identity out from 
@@ -137,7 +136,7 @@ public class IdentitySelectorComponent extends CustomComponent
 			Label identitiesL = new Label(msg.getMessage("IdentitySelectorComponent.identities")); 
 			identitiesL.setStyleName(Styles.bold.toString());
 			Label infoManyIds = new Label(msg.getMessage("IdentitySelectorComponent.infoManyIds"));
-			infoManyIds.setStyleName(Reindeer.LABEL_SMALL);
+			infoManyIds.setStyleName(Styles.vLabelSmall.toString());
 			identitiesCB = new ComboBox();
 			for (IdentityParam id: validIdentities)
 				identitiesCB.addItem(id);
@@ -172,7 +171,7 @@ public class IdentitySelectorComponent extends CustomComponent
 						"IdentitySelectorComponent.fullValue", identity.getValue())));
 			}
 			Label typeDesc = new Label(idTypeDef.getHumanFriendlyDescription(msg));
-			typeDesc.addStyleName(Reindeer.LABEL_SMALL);
+			typeDesc.addStyleName(Styles.vLabelSmall.toString());
 			ret.addComponent(typeDesc);
 			return ret;
 		} catch (IllegalTypeException e)

@@ -9,7 +9,7 @@ import java.util.List;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -101,7 +101,7 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 		if (showGroup)
 		{
 			groupLabel = new Label(msg.getMessage("Attributes.groupOfAttribute", group));
-			groupLabel.addStyleName(Reindeer.LABEL_SMALL);
+			groupLabel.addStyleName(Styles.vLabelSmall.toString());
 			parent.addComponent(groupLabel);
 		}
 

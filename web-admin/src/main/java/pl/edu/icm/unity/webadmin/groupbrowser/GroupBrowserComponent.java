@@ -19,7 +19,7 @@ import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Component showing a groups browser.
@@ -53,7 +53,7 @@ public class GroupBrowserComponent extends SafePanel
 		treeWithToolbar.setWidth(100, Unit.PERCENTAGE);
 		
 		setContent(treeWithToolbar);
-		setStyleName(Reindeer.PANEL_LIGHT);
+		setStyleName(Styles.vPanelLight.toString());
 		setSizeFull();
 		EventsBus bus = WebSession.getCurrent().getEventBus();
 		bus.addListener(new EventListener<RefreshEvent>()

@@ -64,7 +64,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
@@ -179,7 +179,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 					samlCtx.getRequest().getIssuer());
 
 		Label info1 = new Label(msg.getMessage("SamlIdPWebUI.info1"));
-		info1.addStyleName(Reindeer.LABEL_H1);
+		info1.addStyleName(Styles.vLabelH1.toString());
 		SPInfoComponent spInfo = new SPInfoComponent(msg, null, samlRequester, returnAddress);
 		Label spc1 = HtmlTag.br();
 		Label info2 = new Label(msg.getMessage("SamlIdPWebUI.info2"));

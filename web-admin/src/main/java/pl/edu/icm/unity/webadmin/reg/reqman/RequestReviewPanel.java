@@ -33,7 +33,6 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Shows request contents and provides a possibility to edit it.
@@ -79,7 +78,7 @@ public class RequestReviewPanel extends CustomComponent
 		});
 		identities.setAddSeparatorLine(false);
 		Panel identitiesP = new SafePanel(msg.getMessage("RequestReviewPanel.requestedIdentities"), identities);
-		identitiesP.addStyleName(Reindeer.PANEL_LIGHT);
+		identitiesP.addStyleName(Styles.vPanelLight.toString());
 		
 		Label aLabel = new Label(msg.getMessage("RequestReviewPanel.requestedAttributes"));
 		aLabel.addStyleName(Styles.bold.toString());
@@ -101,12 +100,12 @@ public class RequestReviewPanel extends CustomComponent
 		});
 		agreements.setAddSeparatorLine(false);
 		Panel agreementsP = new SafePanel(msg.getMessage("RequestReviewPanel.agreements"), agreements);
-		agreementsP.addStyleName(Reindeer.PANEL_LIGHT);
+		agreementsP.addStyleName(Styles.vPanelLight.toString());
 		
 		
 		comment = new DescriptionTextArea(true, "");
 		Panel commentP = new SafePanel(msg.getMessage("RequestReviewPanel.comment"), comment);
-		commentP.addStyleName(Reindeer.PANEL_LIGHT);
+		commentP.addStyleName(Styles.vPanelLight.toString());
 		
 		code = new Label(msg.getMessage("RequestReviewPanel.codeValid"));
 		code.addStyleName(Styles.bold.toString());

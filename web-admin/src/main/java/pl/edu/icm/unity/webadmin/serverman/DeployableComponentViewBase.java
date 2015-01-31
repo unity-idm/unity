@@ -28,7 +28,6 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Represent base view of server deployable component.
@@ -108,7 +107,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 
 		reloadButton = new Button();
 		reloadButton.setIcon(Images.transfer.getResource());
-		reloadButton.addStyleName(Reindeer.BUTTON_LINK);
+		reloadButton.addStyleName(Styles.vButtonLink.toString());
 		reloadButton.addStyleName(Styles.toolbarButton.toString());
 		reloadButton.setDescription(msg.getMessage("DeployableComponentBase.reload"));
 		reloadButton.addClickListener(new ClickListener()
@@ -122,7 +121,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 
 		undeplyButton = new Button();
 		undeplyButton.setIcon(Images.delete.getResource());
-		undeplyButton.addStyleName(Reindeer.BUTTON_LINK);
+		undeplyButton.addStyleName(Styles.vButtonLink.toString());
 		undeplyButton.addStyleName(Styles.toolbarButton.toString());
 		undeplyButton.setDescription(msg.getMessage("DeployableComponentBase.undeploy"));
 		undeplyButton.addClickListener(new ClickListener()
@@ -144,7 +143,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 
 		deployButton = new Button();
 		deployButton.setIcon(Images.add.getResource());
-		deployButton.addStyleName(Reindeer.BUTTON_LINK);
+		deployButton.addStyleName(Styles.vButtonLink.toString());
 		deployButton.addStyleName(Styles.toolbarButton.toString());
 		deployButton.setDescription(msg.getMessage("DeployableComponentBase.deploy"));
 		deployButton.addClickListener(new ClickListener()

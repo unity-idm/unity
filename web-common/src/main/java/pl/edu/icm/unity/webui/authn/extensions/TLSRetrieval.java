@@ -32,7 +32,7 @@ import com.vaadin.server.VaadinServletService;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.util.configuration.ConfigurationException;
@@ -196,7 +196,7 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 			public TLSAuthnComponent()
 			{
 				Label title = new Label(name.getValue(msg));
-				title.addStyleName(Reindeer.LABEL_H2);
+				title.addStyleName(Styles.vLabelH2.toString());
 				addComponent(title);
 				info = new Label();
 				addComponent(info);

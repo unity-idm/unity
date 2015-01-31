@@ -36,7 +36,7 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Vaadin captcha component. Allows for changing the captcha. Can be added as a standalone component,
@@ -91,7 +91,7 @@ public class CaptchaComponent
 		challenge.setSource(src.getResource());
 		answer = new TextField(msg.getMessage("CaptchaComponent.answer"));
 		resetChallenge = new Button();
-		resetChallenge.setStyleName(Reindeer.BUTTON_SMALL);
+		resetChallenge.setStyleName(Styles.vButtonSmall.toString());
 		resetChallenge.setDescription(msg.getMessage("CaptchaComponent.resetDesc"));
 		resetChallenge.setIcon(Images.refresh.getResource());
 		resetChallenge.addClickListener(new ClickListener()

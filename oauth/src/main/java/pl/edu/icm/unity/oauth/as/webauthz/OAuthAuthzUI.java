@@ -63,7 +63,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * UI of the authorization endpoint, responsible for getting consent after resource owner login.
@@ -166,7 +166,7 @@ public class OAuthAuthzUI extends UnityUIBase
 					logoAttr.getAttributeSyntax(), "jpg").getResource();
 		
 		Label info1 = new Label(msg.getMessage("OAuthAuthzUI.info1"));
-		info1.addStyleName(Reindeer.LABEL_H1);
+		info1.addStyleName(Styles.vLabelH1.toString());
 		
 		SPInfoComponent spInfo = new SPInfoComponent(msg, clientLogo, oauthRequester, returnAddress);
 		
@@ -190,11 +190,11 @@ public class OAuthAuthzUI extends UnityUIBase
 			{
 				Label scope = new Label(si.getName());
 				Label scopeDesc = new Label(si.getDescription());
-				scopeDesc.addStyleName(Reindeer.LABEL_SMALL);
+				scopeDesc.addStyleName(Styles.vLabelSmall.toString());
 				eiLayout.addComponents(scope, scopeDesc);
 			}
 			Label spacer = HtmlTag.br();
-			spacer.addStyleName(Reindeer.LABEL_SMALL);
+			spacer.addStyleName(Styles.vLabelSmall.toString());
 			eiLayout.addComponent(spacer);
 			
 			TranslationResult translationResult = getUserInfo(ctx);

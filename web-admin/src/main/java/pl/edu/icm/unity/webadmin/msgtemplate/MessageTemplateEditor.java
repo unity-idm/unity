@@ -38,7 +38,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Component to edit or add message template
@@ -191,7 +191,7 @@ public class MessageTemplateEditor extends FormLayout
 		for (Map.Entry<String, MessageTemplateVariable> var : consumer.getVariables().entrySet())
 		{
 			final Button b = new Button();
-			b.addStyleName(Reindeer.BUTTON_SMALL);
+			b.addStyleName(Styles.vButtonSmall.toString());
 			b.setCaption(var.getKey());
 			b.setDescription(msg.getMessage(var.getValue().getDescriptionKey()));
 			b.addClickListener(new Button.ClickListener()

@@ -16,7 +16,7 @@ import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionsComponent;
 import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementsComponent;
 
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Tab containing management views for the data schema definition as attribute types, attribute classes
@@ -39,7 +39,7 @@ public class SchemaManagementTab  extends VerticalLayout
 		super();
 		this.msg = msg;
 		this.tabs = new MainTabPanel(attributeTypes, acComponent, cdComponent, crComponent);
-		this.tabs.setStyleName(Reindeer.TABSHEET_MINIMAL);
+		this.tabs.setStyleName(Styles.vTabsheetMinimal.toString());
 		initUI();
 	}
 

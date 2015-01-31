@@ -56,7 +56,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Component wrapping {@link IdentitiesTable}. Allows to configure its mode, 
@@ -270,7 +270,7 @@ public class IdentitiesComponent extends SafePanel
 		
 		setSizeFull();
 		setContent(main);
-		setStyleName(Reindeer.PANEL_LIGHT);
+		setStyleName(Styles.vPanelLight.toString());
 		setCaption(msg.getMessage("Identities.caption"));
 
 		EventsBus bus = WebSession.getCurrent().getEventBus();
@@ -385,7 +385,7 @@ public class IdentitiesComponent extends SafePanel
 		{
 			Label info = new Label(description);
 			Button remove = new Button();
-			remove.setStyleName(Reindeer.BUTTON_SMALL);
+			remove.setStyleName(Styles.vButtonSmall.toString());
 			remove.setIcon(Images.delete.getResource());
 			remove.addClickListener(new ClickListener()
 			{

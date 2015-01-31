@@ -9,7 +9,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Top bar with header. Only show informational text, and optional sub title.
@@ -27,7 +27,7 @@ public class TopHeaderLight extends HorizontalLayout
 		setHeight(80, Unit.PIXELS);
 		
 		titleL = new Label(title);
-		titleL.setStyleName(Reindeer.LABEL_H1);
+		titleL.setStyleName(Styles.vLabelH1.toString());
 		addComponent(titleL);
 		setComponentAlignment(titleL, Alignment.MIDDLE_LEFT);
 		titleL.setSizeUndefined();
