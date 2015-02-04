@@ -626,6 +626,9 @@ public class InternalRegistrationManagment
 		boolean inRequest = false;
 		for (IdentityParam id : finalReguest.getRequest().getIdentities())
 		{
+			if (id == null || id.getTypeId() == null)
+				continue;
+			
 			if (id.getTypeId().equals(oldState.getType())
 					&& id.getValue().equals(oldState.getValue()))
 			{
@@ -660,10 +663,11 @@ public class InternalRegistrationManagment
 		boolean inRequest = false;
 		for (Attribute<?> attribute : finalReguest.getRequest().getAttributes())
 		{
-			if (attribute == null)
+			if (attribute == null || attribute.getAttributeSyntax() == null)
 				continue;
 			if (inRequest)
 				break;
+			
 			if (attribute.getAttributeSyntax().isVerifiable()
 					&& attribute.getName().equals(oldState.getType())
 					&& attribute.getValues() != null)
