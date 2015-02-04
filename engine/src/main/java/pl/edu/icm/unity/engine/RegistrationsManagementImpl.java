@@ -215,7 +215,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		try
 		{
 			form = formsDB.get(request.getFormId(), sql);
-			internalManagment.validateRequestContents(form, request, true, sql);
+			internalManagment.validateRequestContents(form, request, true, true, sql);
 			requestFull = new RegistrationRequestState();
 			requestFull.setStatus(RegistrationRequestStatus.pending);
 			requestFull.setRequest(request);
@@ -368,7 +368,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			AdminComment publicComment, AdminComment internalComment, SqlSession sql) 
 			throws EngineException
 	{
-		internalManagment.validateRequestContents(form, currentRequest.getRequest(), false, sql);
+		internalManagment.validateRequestContents(form, currentRequest.getRequest(), false, true, sql);
 		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		internalManagment.sendProcessingNotification(notificationsCfg.getUpdatedTemplate(),
