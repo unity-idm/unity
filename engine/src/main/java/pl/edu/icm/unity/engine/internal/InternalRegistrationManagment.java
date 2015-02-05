@@ -376,12 +376,12 @@ public class InternalRegistrationManagment
 	}
 
 	private void validateParamsBase(List<? extends OptionalRegistrationParam> paramDefinitions,
-			List<?> params, boolean doCheckMandatoryAttr, String info) throws WrongArgumentException
+			List<?> params, boolean doCheckRequiredParam, String info) throws WrongArgumentException
 	{
 		if (paramDefinitions.size() != params.size())
 			throw new WrongArgumentException("There should be "
 					+ paramDefinitions.size() + " " + info + " parameters");
-		if (!doCheckMandatoryAttr)
+		if (!doCheckRequiredParam)
 			return;
 		for (int i = 0; i < paramDefinitions.size(); i++)
 			if (!paramDefinitions.get(i).isOptional() && params.get(i) == null)
