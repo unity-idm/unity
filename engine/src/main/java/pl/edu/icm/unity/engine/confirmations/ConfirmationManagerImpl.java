@@ -59,6 +59,7 @@ import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.CacheProvider;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -75,7 +76,6 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, ConfirmationManagerImpl.class);
 	private static final String CACHE_ID = "ConfirmationCache";
-	private static final int DEFAULT_REQUEST_LIMIT = 3;
 	
 	private TokensManagement tokensMan;
 	private NotificationProducerImpl notificationProducer;
@@ -87,6 +87,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	private UnityMessageSource msg;
 	private IdentitiesResolver idResolver;
 	private Ehcache confirmationReqCache;
+	private int requestLimit;
 
 	@Autowired
 	public ConfirmationManagerImpl(TokensManagement tokensMan,
@@ -95,8 +96,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry,
 			JettyServer httpServer, MessageTemplateDB mtDB,
 			ConfirmationConfigurationDB configurationDB, DBSessionManager db,
-			IdentitiesResolver idResolver,
-			UnityMessageSource msg, CacheProvider cacheProvider)
+			IdentitiesResolver idResolver, UnityMessageSource msg,
+			CacheProvider cacheProvider, UnityServerConfiguration mainConf)
 	{
 		this.tokensMan = tokensMan;
 		this.notificationProducer = notificationProducer;
@@ -119,6 +120,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		persistCfg.setStrategy("none");
 		cacheConfig.persistence(persistCfg);		
 		confirmationReqCache = cacheProvider.getManager().addCacheIfAbsent(new Cache(cacheConfig));
+		requestLimit = mainConf.getIntValue(UnityServerConfiguration.CONFIRMATION_REQUEST_LIMIT);	
 	}
 
 	/**
@@ -163,9 +165,9 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	{
 		confirmationReqCache.evictExpiredElements();
 		Results results = confirmationReqCache.createQuery().includeValues().addCriteria(Query.VALUE.ilike(address)).execute();
-		if (results.size() >= DEFAULT_REQUEST_LIMIT)
+		if (results.size() >= requestLimit)
 		{
-			throw new InternalException("Limit of sent requests to " + address + " was reached.( Limit=" +DEFAULT_REQUEST_LIMIT + "/24H)");		
+			throw new InternalException("Limit of sent requests to " + address + " was reached.( Limit=" +requestLimit + "/24H)");		
 		}	
 	}
 	
