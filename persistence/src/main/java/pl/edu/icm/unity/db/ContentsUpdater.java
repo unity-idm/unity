@@ -48,26 +48,23 @@ public class ContentsUpdater
 
 	public void update(long oldDbVersion, SqlSession sql) throws IOException, EngineException
 	{
+		if (oldDbVersion < InitDB.dbVersion2Long("2_1_3"))
+			updateIdentitites(sql, headerForVersion(oldDbVersion));
 		if (oldDbVersion < InitDB.dbVersion2Long("2_1_1"))
-			updateContents2_1_0To2_1_1(sql);
-	}
-	
-	/**
-	 * updates dynamic identities
-	 * @throws IOException 
-	 * @throws EngineException 
-	 */
-	private void updateContents2_1_0To2_1_1(SqlSession sql) throws IOException, EngineException
-	{
-		log.info("Updating DB contents to 2_1_1 format");
-
-		updateIdentitites(sql);
-		updateGeneric(sql);
+			updateGeneric(sql);
 		
-		log.info("Update to 2_1_1 format finished");
 	}
 	
-	private void updateIdentitites(SqlSession sql) throws IOException, EngineException
+	private DumpHeader headerForVersion(long version)
+	{
+		DumpHeader fakeHeader = new DumpHeader();
+		
+		fakeHeader.setVersionMajor((int)((version/100)%100));
+		fakeHeader.setVersionMinor((int)(version%100));
+		return fakeHeader;
+	}
+	
+	private void updateIdentitites(SqlSession sql, DumpHeader fakeHeader) throws IOException, EngineException
 	{
 		log.info(" - Identities are recreated");
 		JsonFactory jsonF = new JsonFactory();
@@ -81,9 +78,6 @@ public class ContentsUpdater
 		
 		JsonParser jp = jsonF.createParser(contents);
 		jp.nextToken();
-		DumpHeader fakeHeader = new DumpHeader();
-		fakeHeader.setVersionMajor(1);
-		fakeHeader.setVersionMinor(0);
 		identitiesIE.deserialize(sql, jp, fakeHeader);
 	}
 	

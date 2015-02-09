@@ -117,7 +117,7 @@ CREATE TABLE UVOS_FLAG(
 	</update>
 
 	<insert id="initVersion">
-INSERT INTO UVOS_FLAG (VAL) VALUES ('2_1_2');
+INSERT INTO UVOS_FLAG (VAL) VALUES ('2_1_3');
 	</insert>
 	
 	<update id="updateSchema-020100-01">
@@ -134,6 +134,9 @@ ALTER TABLE TOKENS MODIFY ENTITY_ID INTEGER NULL;
 	</update>
 	<update id="updateSchema-020102-02">
 UPDATE UVOS_FLAG SET VAL='2_1_2';
+	</update>
+	<update id="updateSchema-020103-01">
+UPDATE UVOS_FLAG SET VAL='2_1_3';
 	</update>
 	
 </mapper>

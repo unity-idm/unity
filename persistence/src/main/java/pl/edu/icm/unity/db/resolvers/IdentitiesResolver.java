@@ -7,6 +7,7 @@ package pl.edu.icm.unity.db.resolvers;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.xml.security.utils.Base64;
 import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -70,7 +71,12 @@ public class IdentitiesResolver
 		return hashIdentity(typeName + "::" + comparableTypeSpecificValue);
 	}
 	
-	private static String hashIdentity(String identity)
+	/**
+	 * Hashes identity with SHA512 and returns Base64 encoded string
+	 * @param identity
+	 * @return
+	 */
+	public static String hashIdentity(String identity)
 	{
 		SHA512Digest digest = new SHA512Digest();
 		int size = digest.getDigestSize();
@@ -78,7 +84,7 @@ public class IdentitiesResolver
 		digest.update(asBytes, 0, asBytes.length);
 		byte[] hashed = new byte[size];
 		digest.doFinal(hashed, 0);
-		return new String(hashed, StandardCharsets.UTF_8);
+		return Base64.encode(hashed, 0);
 	}
 	
 	public static String getComparableIdentityValue(IdentityTaV id, IdentityTypeDefinition idType)
