@@ -31,17 +31,17 @@ public class TestTransientIdentity
 		ctx.setLoginSession(ls);
 		
 		IdentityRepresentation inDb = tested.createNewIdentity("r1", "t1", null);
-		tested.toExternalForm("r1", "t1", inDb.getContents(), inDb.getComparableValue());
+		tested.toExternalForm("r1", "t1", inDb.getContents());
 		try
 		{
-			tested.toExternalForm("r2", "t1", inDb.getContents(), inDb.getComparableValue());
+			tested.toExternalForm("r2", "t1", inDb.getContents());
 		} catch (IllegalIdentityValueException e)
 		{
 			//OK
 		}
 		try
 		{
-			tested.toExternalForm("r1", "t2", inDb.getContents(), inDb.getComparableValue());
+			tested.toExternalForm("r1", "t2", inDb.getContents());
 		} catch (IllegalIdentityValueException e)
 		{
 			//OK
@@ -49,7 +49,7 @@ public class TestTransientIdentity
 		
 		IdentityRepresentation inDb2 = tested.createNewIdentity("r1", "t1", "test");
 		Assert.assertEquals("test",
-				tested.toExternalForm("r1", "t1", inDb2.getContents(), inDb2.getComparableValue()));
+				tested.toExternalForm("r1", "t1", inDb2.getContents()));
 		
 		LoginSession ls2 = new LoginSession("2", new Date(), 30, 1, "r1");
 		ctx.setLoginSession(ls2);

@@ -19,23 +19,22 @@ public class TestTargetedPersistentIdentity
 		TargetedPersistentIdentity tested = new TargetedPersistentIdentity();
 		
 		IdentityRepresentation inDb = tested.createNewIdentity("r1", "t1", null);
-		Assert.assertNotNull(tested.toExternalForm("r1", "t1", inDb.getContents(), inDb.getComparableValue()));
+		Assert.assertNotNull(tested.toExternalForm("r1", "t1", inDb.getContents()));
 		try
 		{
-			tested.toExternalForm("r2", "t1", inDb.getContents(), inDb.getComparableValue());
+			tested.toExternalForm("r2", "t1", inDb.getContents());
 		} catch (IllegalIdentityValueException e)
 		{
 			//OK
 		}
 		try
 		{
-			tested.toExternalForm("r1", "t2", inDb.getContents(), inDb.getComparableValue());
+			tested.toExternalForm("r1", "t2", inDb.getContents());
 		} catch (IllegalIdentityValueException e)
 		{
 			//OK
 		}
 		
-		Assert.assertEquals(inDb.getContents(), 
-				tested.toExternalForm("r1", "t1", inDb.getContents(), inDb.getComparableValue()));
+		Assert.assertEquals(inDb.getContents(), tested.toExternalForm("r1", "t1", inDb.getContents()));
 	}
 }

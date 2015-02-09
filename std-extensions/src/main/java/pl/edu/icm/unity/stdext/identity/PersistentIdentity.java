@@ -99,7 +99,7 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	}
 	
 	@Override
-	public String toExternalForm(String realm, String target, String inDbValue, String comparableValue)
+	public String toExternalForm(String realm, String target, String inDbValue)
 	{
 		return inDbValue;
 	}
@@ -118,7 +118,7 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	}
 
 	@Override
-	public String toExternalFormNoContext(String inDbValue, String comparableValue)
+	public String toExternalFormNoContext(String inDbValue)
 	{
 		return inDbValue;
 	}

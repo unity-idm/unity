@@ -148,6 +148,24 @@ public class TestIdentities extends DBIntegrationTestBase
 		Entity entity = idsMan.getEntity(ep1);
 		assertEquals(EntityState.valid, entity.getState());
 	}
+
+
+	@Test
+	public void longIdentityIsSupported() throws Exception
+	{
+		setupPasswordAuthn();
+		
+		StringBuilder id = new StringBuilder();
+		for (int i=0; i<300; i++)
+			id.append(i%10);
+		
+		Identity added = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, id.toString()), 
+				"cr-pass", EntityState.valid, false);
+		
+		Entity full = idsMan.getEntity(new EntityParam(added), null, true, null);
+		assertEquals(2, full.getIdentities().length);
+	}
+	
 	
 	@Test
 	public void testSyntaxes() throws Exception
