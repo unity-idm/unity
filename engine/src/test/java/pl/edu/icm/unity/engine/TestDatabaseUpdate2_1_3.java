@@ -16,7 +16,6 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.TransientIdentity;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -30,7 +29,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
  * @author K. Benedyczak
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"classpath*:META-INF/components.xml", "classpath:dbUpdate/to2_1_1/test-components.xml"})
+@ContextConfiguration(locations={"classpath*:META-INF/components.xml", "classpath:dbUpdate/to2_1_3/test-components.xml"})
 @ActiveProfiles("test")
 public class TestDatabaseUpdate2_1_3
 {
@@ -56,18 +55,14 @@ public class TestDatabaseUpdate2_1_3
 			EntityParam entityP = new EntityParam(mem);
 			Entity entity = idsMan.getEntityNoContext(entityP, "/");
 			Identity[] ids = entity.getIdentities();
-			boolean perFound = false;
 			for (Identity id: ids)
 			{
-				if (id.getTypeId().equals(TargetedPersistentIdentity.ID))
-					perFound = true;
 				if (id.getTypeId().equals(TransientIdentity.ID))
 					Assert.fail("Transient not removed");
 			}
-			if (!perFound)
-				Assert.fail("Persistent not preserved");
 		}
-		idsMan.getEntity(new EntityParam(new IdentityTaV(PersistentIdentity.ID, 
-				"d112a078-a0b4-4ae5-8aa9-7e6744ededc5")));
+		idsMan.getEntity(new EntityParam(new IdentityTaV(TargetedPersistentIdentity.ID, 
+				"18de4328-786d-43b9-9b56-249f489b79bf", "http://unity/as/sp", "main")), 
+				"http://unity/as/sp", false, "/");
 	}
 }
