@@ -1,4 +1,4 @@
-@import "../reindeer/reindeer.scss";
+@import "../valo/valo.scss";
 
 @mixin flag-bg-template($flagpath) {
 	background-image: $flagpath;
@@ -10,7 +10,7 @@
 @mixin unityTheme {
 
 	/* Include all the styles from the reindeer theme */
-	@include reindeer;
+	@include valo;
 	
 	$leadingDark : #44698b;
 	$green : LightGreen;
