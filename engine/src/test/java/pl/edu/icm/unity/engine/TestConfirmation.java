@@ -9,8 +9,6 @@ import static org.junit.Assert.fail;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,6 +24,9 @@ import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmati
 import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmationState;
 import pl.edu.icm.unity.confirmations.states.UserConfirmationState;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.builders.NotificationChannelBuilder;
+import pl.edu.icm.unity.engine.builders.RegistrationFormBuilder;
+import pl.edu.icm.unity.engine.builders.RegistrationRequestBuilder;
 import pl.edu.icm.unity.engine.confirmations.ConfirmationManagerImpl;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -54,21 +55,13 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.basic.NotificationChannel;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
-import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
-import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
-import pl.edu.icm.unity.types.registration.CredentialParamValue;
-import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.types.registration.Selection;
 
 /**
  * 
@@ -362,9 +355,9 @@ public class TestConfirmation extends DBIntegrationTestBase
 
 	private void addNotificationChannel() throws EngineException
 	{
-		notificationsMan.addNotificationChannel(new NotificationChannel("demoChannel",
-				"test", "test", "test"));
-
+		notMan.addNotificationChannel(NotificationChannelBuilder.notificationChannel()
+				.withName("demoChannel").withConfiguration("test")
+				.withDescription("test").withFacilityId("test").build());
 	}
 
 	private VerifiableElement getAttributeValueFromEntity(EntityParam entity, String group)
@@ -386,86 +379,88 @@ public class TestConfirmation extends DBIntegrationTestBase
 
 	private RegistrationForm getForm()
 	{
-		RegistrationForm form = new RegistrationForm();
+		return RegistrationFormBuilder.registrationForm().withName("f1").withDescription("description")
+				.withCredentialRequirementAssignment(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
+				.withAddedGroupAssignment("/A")
+				.withPubliclyAvailable(true)
+				.withInitialEntityState(EntityState.valid)
+				.withRegistrationCode("123")
+				.withAutoAcceptCondition("false")
+				.withCollectComments(true)
+				.withFormInformation().withDefaultValue("formInformation").endFormInformation()
+				.withAttributeAssignments(new ArrayList<Attribute<?>>())
+				
+				.withAddedCredentialParam()
+				.withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
+				.withDescription("description")
+				.withLabel("label")
+				.endCredentialParam()
+				
+				.withAddedAgreement()
+				.withManatory(false)
+				.withText().withDefaultValue("a").endText()
+				.endAgreement()
 
-		AgreementRegistrationParam agreement = new AgreementRegistrationParam();
-		agreement.setManatory(false);
-		agreement.setText(new I18nString("a"));
-		form.setAgreements(Collections.singletonList(agreement));
-
-		form.setAttributeAssignments(new ArrayList<Attribute<?>>());
-		
-		AttributeRegistrationParam attrReg = new AttributeRegistrationParam();
-		attrReg.setAttributeType(InitializerCommon.EMAIL_ATTR);
-		attrReg.setDescription("description");
-		attrReg.setGroup("/");
-		attrReg.setLabel("label");
-		attrReg.setOptional(true);
-		attrReg.setRetrievalSettings(ParameterRetrievalSettings.interactive);
-		attrReg.setShowGroups(true);
-		form.setAttributeParams(Collections.singletonList(attrReg));
-
-		form.setCollectComments(true);
-
-		CredentialRegistrationParam credParam = new CredentialRegistrationParam();
-		credParam.setCredentialName(EngineInitialization.DEFAULT_CREDENTIAL);
-		credParam.setDescription("description");
-		credParam.setLabel("label");
-		form.setCredentialParams(Collections.singletonList(credParam));
-
-		form.setCredentialRequirementAssignment(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT);
-		form.setDescription("description");
-		form.setFormInformation(new I18nString("formInformation"));
-		form.setGroupAssignments(Collections.singletonList("/A"));
-
-		GroupRegistrationParam groupParam = new GroupRegistrationParam();
-		groupParam.setDescription("description");
-		groupParam.setGroupPath("/B");
-		groupParam.setLabel("label");
-		groupParam.setRetrievalSettings(ParameterRetrievalSettings.automatic);
-		form.setGroupParams(Collections.singletonList(groupParam));
-
-		IdentityRegistrationParam idParam = new IdentityRegistrationParam();
-		idParam.setDescription("description");
-		idParam.setIdentityType(EmailIdentity.ID);
-		idParam.setLabel("label");
-		idParam.setOptional(true);
-		idParam.setRetrievalSettings(ParameterRetrievalSettings.automaticHidden);
-		form.setIdentityParams(Collections.singletonList(idParam));
-		form.setName("f1");
-		form.setPubliclyAvailable(true);
-		form.setInitialEntityState(EntityState.valid);
-		form.setRegistrationCode("123");
-		form.setAutoAcceptCondition("false");
-		return form;
+				.withAddedIdentityParam().withDescription("description")
+				.withIdentityType(EmailIdentity.ID).withLabel("label")
+				.withOptional(true)
+				.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
+				.endIdentityParam()
+				
+				.withAddedAttributeParam()
+				.withAttributeType(InitializerCommon.EMAIL_ATTR)
+				.withGroup("/")
+				.withDescription("description")
+				.withLabel("label")
+				.withOptional(true)
+				.withRetrievalSettings(ParameterRetrievalSettings.interactive)
+				.withShowGroups(true)
+				.endAttributeParam()
+				
+				.withAddedGroupParam()
+				.withDescription("description")
+				.withGroupPath("/B")
+				.withLabel("label")
+				.withRetrievalSettings(ParameterRetrievalSettings.automatic)
+				.endGroupParam()
+				.build();	
 	}
 
 	private RegistrationRequest getRequest()
 	{
-		RegistrationRequest request = new RegistrationRequest();
-
-		request.setAgreements(Collections.singletonList(new Selection(true)));
-		List<Attribute<?>> attrs = new ArrayList<Attribute<?>>();
-		attrs.add(new VerifiableEmailAttribute(InitializerCommon.EMAIL_ATTR, "/",
-				AttributeVisibility.full, "foo@a.b"));
-		request.setAttributes(attrs);
-		request.setComments("comments");
-		CredentialParamValue cp = new CredentialParamValue();
-		cp.setCredentialId(EngineInitialization.DEFAULT_CREDENTIAL);
-		cp.setSecrets(new PasswordToken("abc").toJson());
-		request.setCredentials(Collections.singletonList(cp));
-		request.setFormId("f1");
-		request.setGroupSelections(Collections.singletonList(new Selection(true)));
-		IdentityParam ip = new IdentityParam(EmailIdentity.ID, "example@ex.com");
-		request.setIdentities(Collections.singletonList(ip));
-		request.setRegistrationCode("123");
-		return request;
+		return RegistrationRequestBuilder.registrationRequest().withFormId("f1")
+				.withComments("comments")
+				.withRegistrationCode("123")
+				
+				.withAddedAgreement()
+				.withSelected(true)
+				.endAgreement()
+				
+				.withAddedAttribute(
+						new VerifiableEmailAttribute(
+								InitializerCommon.EMAIL_ATTR, "/",
+								AttributeVisibility.full, "foo@a.b"))
+				.withAddedCredential()
+				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
+				.withSecrets(new PasswordToken("abs").toJson())
+				.endCredential()
+				
+				.withAddedGroupSelection()
+				.withSelected(true)
+				.endGroupSelection()
+				
+				.withAddedIdentity()
+				.withTypeId(EmailIdentity.ID)
+				.withValue("example@ex.com")
+				.endIdentity()
+					
+				.build();
 	}
 
 	private void addTemplate() throws EngineException
 	{
 		I18nMessage message = new I18nMessage(new I18nString("test"), 
-				new I18nString("test ${"+ ConfirmationTemplateDef.CONFIRMATION_LINK + "}"));
+				new I18nString("test ${"+ ConfirmationTemplateDef.CONFIRMATION_LINK + "}"));		
 		templateMan.addTemplate(new MessageTemplate("demoTemplate", "demo", message,
 				ConfirmationTemplateDef.NAME));
 	}
