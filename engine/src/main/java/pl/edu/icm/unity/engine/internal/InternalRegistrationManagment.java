@@ -85,29 +85,17 @@ public class InternalRegistrationManagment
 	public static final String AUTO_ACCEPT_COMMENT = "System";
 
 	private RegistrationFormDB formsDB;
-
 	private RegistrationRequestDB requestDB;
-
 	private CredentialDB credentialDB;
-
 	private DBAttributes dbAttributes;
-
 	private DBIdentities dbIdentities;
-
 	private DBGroups dbGroups;
-
 	private TokensManagement tokensMan;
-
 	private UnityMessageSource msg;
-
 	private IdentityTypesRegistry identityTypesRegistry;
-
 	private EngineHelper engineHelper;
-
 	private AttributesHelper attributesHelper;
-
 	private NotificationProducerImpl notificationProducer;
-
 	private LocalCredentialsRegistry authnRegistry;
 
 	@Autowired
@@ -147,7 +135,7 @@ public class InternalRegistrationManagment
 	{
 		currentRequest.setStatus(RegistrationRequestStatus.accepted);
 
-		validateRequestContents(form, currentRequest.getRequest(), false, sql);
+		validateRequestContents(form, currentRequest.getRequest(), false, false, sql);
 		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
 
 		RegistrationRequest req = currentRequest.getRequest();
@@ -258,10 +246,10 @@ public class InternalRegistrationManagment
 	}
 
 	public void validateRequestContents(RegistrationForm form, RegistrationRequest request,
-			boolean doCredentialCheckAndUpdate, SqlSession sql) throws EngineException
+			boolean doCredentialCheckAndUpdate, boolean doCheckMandatoryAttr, SqlSession sql) throws EngineException
 	{
 		validateRequestAgreements(form, request);
-		validateRequestAttributes(form, request, sql);
+		validateRequestAttributes(form, request, doCheckMandatoryAttr, sql);
 		validateRequestCode(form, request);
 		validateRequestCredentials(form, request, doCredentialCheckAndUpdate, sql);
 		validateRequestIdentities(form, request);
@@ -295,11 +283,11 @@ public class InternalRegistrationManagment
 		}
 	}
 
-	private void validateRequestAttributes(RegistrationForm form, RegistrationRequest request,
+	private void validateRequestAttributes(RegistrationForm form, RegistrationRequest request,boolean doCheckMandatoryAttr,
 			SqlSession sql) throws WrongArgumentException,
 			IllegalAttributeValueException, IllegalAttributeTypeException
 	{
-		validateParamsBase(form.getAttributeParams(), request.getAttributes(), "attributes");
+		validateParamsBase(form.getAttributeParams(), request.getAttributes(), doCheckMandatoryAttr, "attributes");
 		Map<String, AttributeType> atMap = dbAttributes.getAttributeTypes(sql);
 		for (int i = 0; i < request.getAttributes().size(); i++)
 		{
@@ -327,7 +315,7 @@ public class InternalRegistrationManagment
 			throws WrongArgumentException, IllegalIdentityValueException, IllegalTypeException
 	{
 		List<IdentityParam> requestedIds = request.getIdentities();
-		validateParamsBase(form.getIdentityParams(), requestedIds, "identities");
+		validateParamsBase(form.getIdentityParams(), requestedIds, true, "identities");
 		boolean identitiesFound = false;
 		for (int i=0; i<requestedIds.size(); i++)
 		{
@@ -388,11 +376,13 @@ public class InternalRegistrationManagment
 	}
 
 	private void validateParamsBase(List<? extends OptionalRegistrationParam> paramDefinitions,
-			List<?> params, String info) throws WrongArgumentException
+			List<?> params, boolean doCheckRequiredParam, String info) throws WrongArgumentException
 	{
 		if (paramDefinitions.size() != params.size())
 			throw new WrongArgumentException("There should be "
 					+ paramDefinitions.size() + " " + info + " parameters");
+		if (!doCheckRequiredParam)
+			return;
 		for (int i = 0; i < paramDefinitions.size(); i++)
 			if (!paramDefinitions.get(i).isOptional() && params.get(i) == null)
 				throw new WrongArgumentException("The parameter nr " + (i + 1)
