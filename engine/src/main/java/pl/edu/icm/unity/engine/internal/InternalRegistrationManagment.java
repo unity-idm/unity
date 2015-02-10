@@ -519,8 +519,6 @@ public class InternalRegistrationManagment
 		{
 			if (id == null)
 				continue;
-			if (id.getTypeId() == null || id.getValue() == null)
-				continue;
 			List<Object> vals = idsByType.get(id.getTypeId());
 			List<Object> valsObj = idsByTypeObj.get(id.getTypeId());
 			if (vals == null)
@@ -626,7 +624,7 @@ public class InternalRegistrationManagment
 		boolean inRequest = false;
 		for (IdentityParam id : finalReguest.getRequest().getIdentities())
 		{
-			if (id == null || id.getTypeId() == null)
+			if (id == null)
 				continue;
 			
 			if (id.getTypeId().equals(oldState.getType())

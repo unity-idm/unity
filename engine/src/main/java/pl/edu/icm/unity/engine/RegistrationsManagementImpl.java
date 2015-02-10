@@ -542,7 +542,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	{
 		for (Attribute<?> attr : requestState.getRequest().getAttributes())
 		{
-			if (attr == null || attr.getAttributeSyntax() == null)
+			if (attr == null)
 				continue;
 			
 			if (attr.getAttributeSyntax().isVerifiable())
@@ -567,7 +567,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	{
 		for (Attribute<?> attr : requestState.getRequest().getAttributes())
 		{
-			if (attr == null || attr.getAttributeSyntax() == null)
+			if (attr == null)
 				continue;
 			
 			if (attr.getAttributeSyntax().isVerifiable())
@@ -593,7 +593,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	{
 		for (IdentityParam id : requestState.getRequest().getIdentities())
 		{
-			if (id == null || id.getTypeId() == null)
+			if (id == null)
 				continue;
 			
 			if (identityTypesRegistry.getByName(id.getTypeId()).isVerifiable())
