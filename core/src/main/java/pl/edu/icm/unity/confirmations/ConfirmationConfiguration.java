@@ -23,6 +23,11 @@ public class ConfirmationConfiguration
 	private String notificationChannel;
 	private String msgTemplate;
 		
+	public ConfirmationConfiguration()
+	{
+		
+	}
+	
 	public ConfirmationConfiguration(String typeToConfirm, String nameToConfirm,
 			String notificationChannel, String msgTemplate)
 	{
