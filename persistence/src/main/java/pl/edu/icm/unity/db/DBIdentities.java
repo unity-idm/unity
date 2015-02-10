@@ -282,7 +282,7 @@ public class DBIdentities
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
 		IdentityBean idBean = mapper.getIdentityByName(cmpVal);
 		Identity resolved = idResolver.resolveIdentityBeanNoExternalize(idBean, mapper);
-		return resolved.getConfirmationInfo().isConfirmed();
+		return resolved.isConfirmed();
 	}
 	
 	/**
