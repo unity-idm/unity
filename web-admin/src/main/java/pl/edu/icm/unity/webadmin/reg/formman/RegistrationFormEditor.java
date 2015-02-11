@@ -70,7 +70,7 @@ import com.vaadin.ui.Slider;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Allows to edit a registration form. Can be configured to edit an existing form (name is fixed)
@@ -411,7 +411,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		collectComments = new CheckBox(msg.getMessage("RegistrationFormEditor.collectComments"));
 		
 		TabSheet tabOfLists = new TabSheet();
-		tabOfLists.setStyleName(Reindeer.TABSHEET_MINIMAL);
+		tabOfLists.setStyleName(Styles.vTabsheetMinimal.toString());
 		
 		agreements = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.agreements"), 
 				msg, new AgreementEditorAndProvider(), 0, 20, true);
@@ -462,7 +462,7 @@ public class RegistrationFormEditor extends VerticalLayout
 				msg, "EntityState.", EntityState.class, EntityState.valid);
 		
 		TabSheet tabOfLists = new TabSheet();
-		tabOfLists.setStyleName(Reindeer.TABSHEET_MINIMAL);
+		tabOfLists.setStyleName(Styles.vTabsheetMinimal.toString());
 		attributeAssignments = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.attributeAssignments"),
 				msg, new AttributeAssignmentEditorAndProvider(), 0, 20, true);
 		groupAssignments = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.groupAssignments"),

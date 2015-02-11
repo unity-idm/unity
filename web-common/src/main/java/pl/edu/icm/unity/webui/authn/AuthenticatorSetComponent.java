@@ -38,7 +38,7 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Displays authenticators set.
@@ -98,7 +98,7 @@ public class AuthenticatorSetComponent extends VerticalLayout implements Activat
 		progress.setIndeterminate(true);
 		progress.setCaption(msg.getMessage("AuthenticationUI.authnInProgress"));
 		cancelButton = new Button(msg.getMessage("cancel"));
-		cancelButton.addStyleName(Reindeer.BUTTON_SMALL);
+		cancelButton.addStyleName(Styles.vButtonSmall.toString());
 		cancelButton.addClickListener(new Button.ClickListener()
 		{
 			@Override

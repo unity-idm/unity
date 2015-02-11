@@ -62,7 +62,6 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Generates a UI based on a given registration form. User can fill the form and a request is returned.
@@ -361,7 +360,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		main.setWidth(80, Unit.PERCENTAGE);
 		
 		Label formName = new Label(form.getDisplayedName().getValue(msg));
-		formName.addStyleName(Reindeer.LABEL_H1);
+		formName.addStyleName(Styles.vLabelH1.toString());
 		main.addComponent(formName);
 		
 		String info = form.getFormInformation() == null ? null : form.getFormInformation().getValue(msg);

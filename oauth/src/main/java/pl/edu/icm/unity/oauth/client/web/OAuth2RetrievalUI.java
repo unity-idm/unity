@@ -43,7 +43,6 @@ import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * UI part of OAuth retrieval. Shows available providers, redirects to the chosen one.
@@ -90,7 +89,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		ret.setSpacing(true);
 		
 		Label title = new Label(getLabel().getValue(msg));
-		title.addStyleName(Reindeer.LABEL_H2);
+		title.addStyleName(Styles.vLabelH2.toString());
 		ret.addComponent(title);
 		
 		Label subtitle = new Label(msg.getMessage("OAuth2Retrieval.selectProvider"));

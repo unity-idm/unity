@@ -37,7 +37,6 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Displays list of endpoint component 
@@ -84,7 +83,7 @@ public class EndpointsComponent extends VerticalLayout
 		
 		Button refreshViewButton = new Button();
 		refreshViewButton.setIcon(Images.refresh.getResource());
-		refreshViewButton.addStyleName(Reindeer.BUTTON_LINK);
+		refreshViewButton.addStyleName(Styles.vButtonLink.toString());
 		refreshViewButton.addStyleName(Styles.toolbarButton.toString());
 		refreshViewButton.addClickListener(new Button.ClickListener()
 		{

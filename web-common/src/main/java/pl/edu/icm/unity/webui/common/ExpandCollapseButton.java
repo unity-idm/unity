@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webui.common;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Button which allows to show or hide component(s). 
@@ -24,7 +24,7 @@ public class ExpandCollapseButton extends Button
 		this.components = components;
 		
 		updateState();
-		addStyleName(Reindeer.BUTTON_LINK);
+		addStyleName(Styles.vButtonLink.toString());
 		addClickListener(new ClickListener()
 		{
 			@Override

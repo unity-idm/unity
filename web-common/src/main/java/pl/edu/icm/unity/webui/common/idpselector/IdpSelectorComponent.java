@@ -41,7 +41,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * IDP selector component.
@@ -110,7 +109,7 @@ public class IdpSelectorComponent extends CustomComponent
 		{
 			FormLayout wrapper = new FormLayout();
 			TextField search = new TextField(msg.getMessage("IdpSelectorComponent.search"));
-			search.addStyleName(Reindeer.TEXTFIELD_SMALL);
+			search.addStyleName(Styles.vTextfieldSmall.toString());
 			search.setImmediate(true);
 			wrapper.addComponent(search);
 			main.addComponent(wrapper);
@@ -200,7 +199,7 @@ public class IdpSelectorComponent extends CustomComponent
 		String name = idps.getIdPName(idpKey, locale);
 		Button providerB = new Button();
 		providerB.setImmediate(true);
-		providerB.setStyleName(Reindeer.BUTTON_LINK);
+		providerB.setStyleName(Styles.vButtonLink.toString());
 		providerB.addStyleName(Styles.verticalMargins6.toString());
 		providerB.addStyleName(Styles.horizontalMargins6.toString());
 		providerB.setId("IdpSelector." + idpKey);
@@ -216,15 +215,19 @@ public class IdpSelectorComponent extends CustomComponent
 			{
 			case width100:
 				providerB.addStyleName(Styles.width100.toString());
+				providerB.setWidth(102, Unit.PIXELS);
 				break;
 			case height100:
 				providerB.addStyleName(Styles.height100.toString());
+				providerB.setHeight(102, Unit.PIXELS);
 				break;
 			case width50:
 				providerB.addStyleName(Styles.width50.toString());
+				providerB.setWidth(52, Unit.PIXELS);
 				break;
 			case height50:
 				providerB.addStyleName(Styles.height50.toString());
+				providerB.setHeight(52, Unit.PIXELS);
 				break;
 			case none:
 			}

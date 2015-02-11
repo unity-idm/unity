@@ -16,7 +16,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -83,7 +83,7 @@ public class RequestProcessingPanel extends CustomComponent
 		FormLayout topInfo = new FormLayout(requestForm, requestStatus, requestDate, requestId);
 		
 		TabSheet tabs = new TabSheet();
-		tabs.addStyleName(Reindeer.TABSHEET_MINIMAL);
+		tabs.addStyleName(Styles.vTabsheetMinimal.toString());
 		
 		commentPanel = new RequestCommentPanel(msg, regMan);
 		commentPanel.setCaption(msg.getMessage("RequestProcessingPanel.comments"));

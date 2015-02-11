@@ -19,7 +19,7 @@ import pl.edu.icm.unity.webadmin.serverman.ImportExportComponent;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfilesComponent;
 
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Tab containing server management views.
@@ -44,7 +44,7 @@ public class ServerManagementTab  extends VerticalLayout
 		this.msg = msg;
 		this.tComponent = tComponent;
 		this.tabs = new MainTabPanel(eComponent, aComponent, tComponent, msgComponent, ieComponent, confirmCfgComponent);
-		this.tabs.setStyleName(Reindeer.TABSHEET_MINIMAL);
+		this.tabs.setStyleName(Styles.vTabsheetMinimal.toString());
 		initUI();
 	}
 

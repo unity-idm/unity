@@ -15,7 +15,7 @@ import pl.edu.icm.unity.webadmin.reg.reqman.RequestsComponent;
 import pl.edu.icm.unity.webui.registration.RegistrationFormsChooserComponent;
 
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Tab containing management views for the management of registrations: forms, requests and form filling.
@@ -39,7 +39,7 @@ public class RegistrationsManagementTab  extends VerticalLayout
 		reqFillComponent.setAddAutoAccept(true);
 		reqFillComponent.initUI();
 		this.tabs = new MainTabPanel(requestsComponent, reqFillComponent, regComponent);
-		this.tabs.setStyleName(Reindeer.TABSHEET_MINIMAL);
+		this.tabs.setStyleName(Styles.vTabsheetMinimal.toString());
 		initUI();
 	}
 

@@ -19,7 +19,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Allows to inspect a single attribute type
@@ -86,7 +86,7 @@ public class AttributeTypeViewer extends FormLayout
 		addComponent(syntax);
 		
 		syntaxPanel = new SafePanel();
-		syntaxPanel.setStyleName(Reindeer.PANEL_LIGHT);
+		syntaxPanel.setStyleName(Styles.vPanelLight.toString());
 		addComponent(syntaxPanel);
 		
 		metaPanel = new VerticalLayout();

@@ -18,7 +18,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Component stub showing a list of elements with add and remove capabilities.
@@ -55,7 +55,7 @@ public class ListOfEmbeddedElementsStub<T>
 		Button lonelyAdd = new Button();
 		lonelyAdd.setIcon(Images.add.getResource());
 		lonelyAdd.setDescription(msg.getMessage("add"));
-		lonelyAdd.setStyleName(Reindeer.BUTTON_SMALL);
+		lonelyAdd.setStyleName(Styles.vButtonSmall.toString());
 		lonelyAdd.addClickListener(new Button.ClickListener()
 		{
 			@Override
@@ -201,7 +201,7 @@ public class ListOfEmbeddedElementsStub<T>
 			add = new Button();
 			add.setIcon(Images.add.getResource());
 			add.setDescription(msg.getMessage("add"));
-			add.setStyleName(Reindeer.BUTTON_SMALL);
+			add.setStyleName(Styles.vButtonSmall.toString());
 			add.addClickListener(new Button.ClickListener()
 			{
 				@Override
@@ -213,7 +213,7 @@ public class ListOfEmbeddedElementsStub<T>
 			remove = new Button();
 			remove.setIcon(Images.delete.getResource());
 			remove.setDescription(msg.getMessage("remove"));
-			remove.setStyleName(Reindeer.BUTTON_SMALL);
+			remove.setStyleName(Styles.vButtonSmall.toString());
 			remove.addClickListener(new Button.ClickListener()
 			{
 				@Override

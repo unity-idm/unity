@@ -49,7 +49,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 
 
@@ -172,7 +172,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			return null;
 		
 		Button register = new Button(msg.getMessage("RegistrationFormChooserDialog.register"));
-		register.addStyleName(Reindeer.BUTTON_LINK);
+		register.addStyleName(Styles.vButtonLink.toString());
 		
 		final AbstractDialog dialog;
 		if (formsChooser.getDisplayedForms().size() == 1)

@@ -14,7 +14,7 @@ import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
@@ -154,7 +154,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		
 		Panel contentsPanel = new SafePanel();
 		if (lightweightWrapperPanel)
-			contentsPanel.addStyleName(Reindeer.PANEL_LIGHT);
+			contentsPanel.addStyleName(Styles.vPanelLight.toString());
 		VerticalLayout internal = new VerticalLayout();
 		contentsComponent = getContents();
 		internal.addComponent(contentsComponent);

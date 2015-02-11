@@ -62,7 +62,6 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Displays attributes and their values. 
@@ -104,7 +103,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		this.attributesManagement = attributesManagement;
 		this.groupsManagement = groupsManagement;
 		this.bus = WebSession.getCurrent().getEventBus();
-		setStyleName(Reindeer.SPLITPANEL_SMALL);
+		setStyleName(Styles.vSplitPanelSmall.toString());
 		attributesTable = new Table();
 		attributesTable.setNullSelectionAllowed(false);
 		attributesTable.setImmediate(true);
@@ -279,9 +278,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 			if (!attribute.isDirect())
 				style.append(Styles.italic.toString());
 			if (attributeType.isInstanceImmutable())
-				style.append(" " + Styles.gray);
+				style.append(" " + Styles.gray.toString());
 			if (acHelper.isMandatory(attribute.getName()))
-				style.append(" " + Styles.bold);
+				style.append(" " + Styles.bold.toString());
 			String styleS = style.toString().trim(); 
 			if (styleS.length() > 0)
 				l.setStyleName(styleS);

@@ -21,7 +21,7 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Renders attribute values panel.
@@ -79,7 +79,7 @@ public class ValuesRendererPanel extends VerticalLayout
 		if (!created.equals(""))
 			contents.addComponent(infoDate);
 		SafePanel infoPanel = new SafePanel(msg.getMessage("Attribute.info"));
-		infoPanel.addStyleName(Reindeer.PANEL_LIGHT);
+		infoPanel.addStyleName(Styles.vPanelLight.toString());
 		infoPanel.setContent(contents);
 		addComponent(infoPanel);
 	}
@@ -107,7 +107,7 @@ public class ValuesRendererPanel extends VerticalLayout
 				c.setSizeUndefined();
 				
 				SafePanel valuePanel = new SafePanel(msg.getMessage("Attribute.selectedValue"));
-				valuePanel.addStyleName(Reindeer.PANEL_LIGHT);
+				valuePanel.addStyleName(Styles.vPanelLight.toString());
 				valuePanel.setContent(c);
 				valuePanel.setSizeFull();
 				main.setSecondComponent(valuePanel);
@@ -126,7 +126,7 @@ public class ValuesRendererPanel extends VerticalLayout
 		Component c = handler.getRepresentation(value, syntax, RepresentationSize.ORIGINAL);
 		c.setSizeUndefined();
 		SafePanel valuePanel = new SafePanel(msg.getMessage("Attribute.value"));
-		valuePanel.addStyleName(Reindeer.PANEL_LIGHT);
+		valuePanel.addStyleName(Styles.vPanelLight.toString());
 		valuePanel.setSizeFull();
 		valuePanel.setContent(c);
 		addComponent(valuePanel);

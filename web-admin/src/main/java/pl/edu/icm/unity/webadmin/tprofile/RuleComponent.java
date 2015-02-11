@@ -51,7 +51,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Responsible for editing of a single TranslationRule
@@ -103,7 +102,7 @@ public class RuleComponent extends VerticalLayout
 		up = new Button();
 		up.setDescription(msg.getMessage("TranslationProfileEditor.moveUp"));
 		up.setIcon(Images.upArrow.getResource());
-		up.addStyleName(Reindeer.BUTTON_LINK);
+		up.addStyleName(Styles.vButtonLink.toString());
 		up.addStyleName(Styles.toolbarButton.toString());
 		up.addClickListener(new Button.ClickListener()
 		{
@@ -119,7 +118,7 @@ public class RuleComponent extends VerticalLayout
 		top = new Button();
 		top.setDescription(msg.getMessage("TranslationProfileEditor.moveTop"));
 		top.setIcon(Images.topArrow.getResource());
-		top.addStyleName(Reindeer.BUTTON_LINK);
+		top.addStyleName(Styles.vButtonLink.toString());
 		top.addStyleName(Styles.toolbarButton.toString());
 		top.addClickListener(new Button.ClickListener()
 		{
@@ -135,7 +134,7 @@ public class RuleComponent extends VerticalLayout
 		down = new Button();
 		down.setDescription(msg.getMessage("TranslationProfileEditor.moveDown"));
 		down.setIcon(Images.downArrow.getResource());
-		down.addStyleName(Reindeer.BUTTON_LINK);
+		down.addStyleName(Styles.vButtonLink.toString());
 		down.addStyleName(Styles.toolbarButton.toString());
 		down.addClickListener(new Button.ClickListener()
 		{
@@ -149,7 +148,7 @@ public class RuleComponent extends VerticalLayout
 		bottom = new Button();
 		bottom.setDescription(msg.getMessage("TranslationProfileEditor.moveBottom"));
 		bottom.setIcon(Images.bottomArrow.getResource());
-		bottom.addStyleName(Reindeer.BUTTON_LINK);
+		bottom.addStyleName(Styles.vButtonLink.toString());
 		bottom.addStyleName(Styles.toolbarButton.toString());
 		bottom.addClickListener(new Button.ClickListener()
 		{
@@ -165,7 +164,7 @@ public class RuleComponent extends VerticalLayout
 		Button remove = new Button();
 		remove.setDescription(msg.getMessage("TranslationProfileEditor.remove"));
 		remove.setIcon(Images.delete.getResource());
-		remove.addStyleName(Reindeer.BUTTON_LINK);
+		remove.addStyleName(Styles.vButtonLink.toString());
 		remove.addStyleName(Styles.toolbarButton.toString());
 		remove.addClickListener(new Button.ClickListener()
 		{

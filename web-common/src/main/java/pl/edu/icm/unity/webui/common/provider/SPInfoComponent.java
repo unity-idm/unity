@@ -13,7 +13,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Presents an information about a service provider which is asking for a favor.
@@ -61,18 +61,18 @@ public class SPInfoComponent extends CustomComponent
 			main.setComponentAlignment(logoI, Alignment.TOP_CENTER);
 
 			Label spacer = HtmlTag.br();
-			spacer.addStyleName(Reindeer.LABEL_SMALL);
+			spacer.addStyleName(Styles.vLabelSmall.toString());
 			main.addComponent(spacer);
 		}
 		
 		Label info1Id = new Label(msg.getMessage("SPInfoComponent.requesterName", name));
-		info1Id.addStyleName(Reindeer.LABEL_H2);
+		info1Id.addStyleName(Styles.vLabelH2.toString());
 		main.addComponent(info1Id);
 		
 		if (url != null)
 		{
 			Label info1Addr = new Label(msg.getMessage("SPInfoComponent.requesterAddress", url));
-			info1Addr.addStyleName(Reindeer.LABEL_SMALL);
+			info1Addr.addStyleName(Styles.vLabelSmall.toString());
 			main.addComponent(info1Addr);
 		}
 

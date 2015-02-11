@@ -18,7 +18,6 @@ import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Shows an attribute values in read only mode. The look and feel is similar to the {@link FixedAttributeEditor}
@@ -52,7 +51,7 @@ public class AttributeViewer
 		{
 			Label groupLabel = new Label(msg.getMessage("Attributes.groupOfAttribute", 
 					attribute.getGroupPath()));
-			groupLabel.addStyleName(Reindeer.LABEL_SMALL);
+			groupLabel.addStyleName(Styles.vLabelSmall.toString());
 			groupLabel.addStyleName(Styles.negativeMargin5.toString());
 			parent.addComponent(groupLabel);
 		}

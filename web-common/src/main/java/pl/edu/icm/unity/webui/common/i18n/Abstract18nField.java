@@ -25,7 +25,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Base class for implementations of custom fields allowing for editing an {@link I18nString}, 
@@ -76,7 +75,7 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 		if (defStyle != null)
 			defaultTf.addStyleName(defStyle);
 		final Button showAll = new Button(Images.zoomin.getResource());
-		showAll.addStyleName(Reindeer.BUTTON_LINK);
+		showAll.addStyleName(Styles.vButtonLink.toString());
 		showAll.setDescription(msg.getMessage("I18TextField.showLanguages"));
 		showAll.addClickListener(new ClickListener()
 		{

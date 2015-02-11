@@ -32,7 +32,7 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 
 
@@ -126,7 +126,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 			if (!showWithAutomaticParams && form.containsAutomaticAndMandatoryParams())
 				continue;	
 			Button button = new Button(form.getName());
-			button.setStyleName(Reindeer.BUTTON_LINK);
+			button.setStyleName(Styles.vButtonLink.toString());
 			button.addClickListener(new ButtonListener(form));
 			main.addComponent(button);
 			displayedForms.add(form);

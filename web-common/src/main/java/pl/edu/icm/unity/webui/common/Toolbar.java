@@ -23,7 +23,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Component with a horizontal list of small buttons. Buttons are bound to {@link Action}s via 
@@ -135,7 +135,7 @@ public class Toolbar extends CustomComponent
 	 */
 	public void addButton(Button button)
 	{
-		button.addStyleName(Reindeer.BUTTON_LINK);
+		button.addStyleName(Styles.vButtonLink.toString());
 		button.addStyleName(Styles.toolbarButton.toString());
 		buttons.add(button);
 		main.addComponent(button);
@@ -152,7 +152,7 @@ public class Toolbar extends CustomComponent
 			button.setCaption(action.getCaption());
 		if (action.getCaption() != null)
 			button.setDescription(HtmlEscapers.htmlEscaper().escape(action.getCaption()));
-		button.addStyleName(Reindeer.BUTTON_LINK);
+		button.addStyleName(Styles.vButtonLink.toString());
 		button.addStyleName(Styles.toolbarButton.toString());
 		button.addClickListener(new Button.ClickListener()
 		{

@@ -43,7 +43,6 @@ import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * The UI part of the remote SAML authn. Shows widget allowing to choose IdP (if more then one is configured)
@@ -93,7 +92,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		
 		I18nString displayedName = getLabel();
 		Label title = new Label(displayedName.getValue(msg));
-		title.addStyleName(Reindeer.LABEL_H2);
+		title.addStyleName(Styles.vLabelH2.toString());
 		ret.addComponent(title);
 
 		Label subtitle = new Label(msg.getMessage("WebSAMLRetrieval.selectIdp"));

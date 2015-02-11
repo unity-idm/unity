@@ -51,7 +51,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.SucceededEvent;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Jpeg image attribute handler for the web
@@ -318,7 +317,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 				+ "  " + 
 				msg.getMessage("JpegAttributeHandler.maxDim", syntax.getMaxWidth(), 
 						syntax.getMaxHeight()));
-		ret.addStyleName(Reindeer.LABEL_SMALL);
+		ret.addStyleName(Styles.vLabelSmall.toString());
 		return ret;
 	}
 	

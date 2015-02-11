@@ -28,7 +28,7 @@ import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 
 /**
@@ -54,7 +54,7 @@ public class AttributesComponent extends SafePanel
 		this.main = main;
 		this.attributesManagement = attributesManagement;
 
-		setStyleName(Reindeer.PANEL_LIGHT);
+		setStyleName(Styles.vPanelLight.toString());
 		setSizeFull();
 		
 		EventsBus bus = WebSession.getCurrent().getEventBus();

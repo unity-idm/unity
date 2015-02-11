@@ -9,7 +9,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Link;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
@@ -60,7 +60,7 @@ public class AdminTopHeader extends TopHeader
 	protected Button createSwitchButton()
 	{
 		switchView = new Button();
-		switchView.setStyleName(Reindeer.BUTTON_LINK);
+		switchView.setStyleName(Styles.vButtonLink.toString());
 		switchView.addClickListener(new Button.ClickListener()
 		{
 			@Override

@@ -6,12 +6,9 @@ package pl.edu.icm.unity.webui.common;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
-import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.themes.Reindeer;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Top bar with header. Only show informational text, and optional sub title.
@@ -24,12 +21,15 @@ public class TopHeaderLight extends HorizontalLayout
 	public TopHeaderLight(String title, UnityMessageSource msg)
 	{
 		addStyleName(Styles.header.toString());
-		setMargin(new MarginInfo(false, true, false, true));
+		addStyleName(Styles.padding10.toString());
+		setMargin(true);
 		setWidth(100, Unit.PERCENTAGE);
 		setHeight(80, Unit.PIXELS);
 		
 		titleL = new Label(title);
-		titleL.addStyleName(ValoTheme.LABEL_H1);
+		titleL.addStyleName(Styles.textHeading.toString());
+		//titleL.addStyleName(Styles.vLabelH2.toString());
+		
 		addComponent(titleL);
 		setComponentAlignment(titleL, Alignment.MIDDLE_LEFT);
 		titleL.setSizeUndefined();

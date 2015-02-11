@@ -14,7 +14,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Top bar with header. Allows to logout.
@@ -35,7 +35,7 @@ public class TopHeader extends TopHeaderLight
 		loggedPanel.setSizeUndefined();
 		loggedPanel.setSpacing(true);
 		addComponent(loggedPanel);
-		setComponentAlignment(loggedPanel, Alignment.BOTTOM_RIGHT);
+		setComponentAlignment(loggedPanel, Alignment.MIDDLE_RIGHT);
 		
 		addLoggedInfo(loggedPanel);
 		addButtons(loggedPanel);
@@ -49,7 +49,7 @@ public class TopHeader extends TopHeaderLight
 				msg.getMessage("MainHeader.loggedAs", label) :
 				msg.getMessage("MainHeader.loggedAsWithId", entity.getEntityId()));
 		loggedEntity.setId("MainHeader.loggedAs");
-		loggedEntity.setStyleName(Reindeer.LABEL_H2);
+		loggedEntity.setStyleName(Styles.vLabelH2.toString());
 		loggedPanel.addComponent(loggedEntity);
 		loggedPanel.setComponentAlignment(loggedEntity, Alignment.MIDDLE_RIGHT);
 	}
@@ -66,7 +66,7 @@ public class TopHeader extends TopHeaderLight
 		logout.setIcon(Images.exit32.getResource());
 		logout.setDescription(msg.getMessage("MainHeader.logout"));
 		logout.setId("MainHeader.logout");
-		logout.setStyleName(Reindeer.BUTTON_LINK);
+		logout.setStyleName(Styles.vButtonLink.toString());
 		logout.addClickListener(new Button.ClickListener()
 		{
 			@Override

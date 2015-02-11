@@ -17,7 +17,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Component maintaining a list of values. The values are displayed as labels. Additionally it is possible 
@@ -117,7 +117,7 @@ public class ListOfElements<T> extends VerticalLayout
 				edit = new Button();
 				edit.setIcon(Images.edit.getResource());
 				edit.setDescription(msg.getMessage("edit"));
-				edit.setStyleName(Reindeer.BUTTON_SMALL);
+				edit.setStyleName(Styles.vButtonSmall.toString());
 				edit.addClickListener(new Button.ClickListener()
 				{
 					@Override
@@ -135,7 +135,7 @@ public class ListOfElements<T> extends VerticalLayout
 				remove = new Button();
 				remove.setIcon(Images.delete.getResource());
 				remove.setDescription(msg.getMessage("remove"));
-				remove.setStyleName(Reindeer.BUTTON_SMALL);
+				remove.setStyleName(Styles.vButtonSmall.toString());
 				remove.addClickListener(new Button.ClickListener()
 				{
 					@Override

@@ -14,7 +14,7 @@ import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.themes.Reindeer;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Field Component composed of a TextField with a Button.
@@ -46,7 +46,7 @@ public class TextFieldWithButton extends CustomField<String>
 		ret.addComponent(editor);
 		
 		Button b = new Button();
-		b.addStyleName(Reindeer.BUTTON_SMALL);
+		b.addStyleName(Styles.vButtonSmall.toString());
 		b.setIcon(buttonIcon);
 		b.setDescription(HtmlEscapers.htmlEscaper().escape(buttonDescription));
 		b.addClickListener(new ClickListener()
