@@ -60,7 +60,7 @@ import com.vaadin.ui.themes.Reindeer;
  */
 @org.springframework.stereotype.Component("AuthenticationUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@Theme("unityTheme")
+@Theme("unityThemeValo")
 @PreserveOnRefresh
 public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 {

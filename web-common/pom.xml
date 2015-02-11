@@ -76,7 +76,7 @@
 				<version>${vaadin.version}</version>
 				<configuration>
 					<warSourceDirectory>${project.build.directory}/classes</warSourceDirectory>
-					<theme>unityTheme</theme>
+					<!-- <theme>unityTheme</theme> -->
 				</configuration>
 				<executions>
 					<execution>
