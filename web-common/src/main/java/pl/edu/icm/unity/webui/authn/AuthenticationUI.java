@@ -134,7 +134,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		main.setComponentAlignment(all, Alignment.TOP_CENTER);
 		main.setExpandRatio(all, 5.0f);
 		main.setSpacing(true);
-		main.setMargin(true);
+		main.addStyleName(Styles.horizontalMargins10.toString());
+		main.addStyleName(Styles.verticalMargins10.toString());
 		main.setSizeFull();
 
 		VerticalLayout topLevel = new VerticalLayout();

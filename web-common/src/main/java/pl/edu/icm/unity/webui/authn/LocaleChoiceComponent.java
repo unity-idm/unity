@@ -88,5 +88,6 @@ public class LocaleChoiceComponent extends FormLayout
 			setComponentAlignment(chooser, Alignment.TOP_RIGHT);
 		}
 		setSizeUndefined();
+		setMargin(false);
 	}
 }
