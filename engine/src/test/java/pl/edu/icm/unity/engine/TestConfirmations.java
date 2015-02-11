@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
+import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.ConfirmationTemplateDef;
 import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
 import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
@@ -291,7 +292,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void checkAttributeFromEntityConfirmationProcess() throws Exception
+	public void checkAttributeConfirmationProcess() throws Exception
 	{
 		setupMockAuthn();
 		groupsMan.addGroup(new Group("/test"));
@@ -348,7 +349,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void checkIdentityFromEntityConfirmationProcess() throws Exception
+	public void checkIdentityConfirmationProcess() throws Exception
 	{
 		setupMockAuthn();
 		groupsMan.addGroup(new Group("/test"));
@@ -416,31 +417,26 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withAddedGroupAssignment("/A").withPubliclyAvailable(true)
 				.withInitialEntityState(EntityState.valid)
 				.withRegistrationCode("123").withAutoAcceptCondition("false")
-				.withCollectComments(true).withFormInformation()
-				.withDefaultValue("formInformation").endFormInformation()
+				.withCollectComments(true)
+				.withFormInformation().withDefaultValue("formInformation").endFormInformation()
 				.withAttributeAssignments(new ArrayList<Attribute<?>>())
-
 				.withAddedCredentialParam()
 				.withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withDescription("description").withLabel("label")
 				.endCredentialParam()
-
 				.withAddedAgreement().withManatory(false).withText()
 				.withDefaultValue("a").endText().endAgreement()
-
 				.withAddedIdentityParam().withDescription("description")
 				.withIdentityType(UsernameIdentity.ID).withLabel("label")
 				.withOptional(true)
 				.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
 				.endIdentityParam()
-
 				.withAddedAttributeParam()
 				.withAttributeType(InitializerCommon.EMAIL_ATTR).withGroup("/")
 				.withDescription("description").withLabel("label")
 				.withOptional(true)
 				.withRetrievalSettings(ParameterRetrievalSettings.interactive)
 				.withShowGroups(true).endAttributeParam()
-
 				.withAddedGroupParam().withDescription("description")
 				.withGroupPath("/B").withLabel("label")
 				.withRetrievalSettings(ParameterRetrievalSettings.automatic)
@@ -457,11 +453,9 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withFormId("f1")
 				.withComments("comments")
 				.withRegistrationCode("123")
-
 				.withAddedAgreement()
 				.withSelected(true)
 				.endAgreement()
-
 				.withAddedAttribute(
 						new VerifiableEmailAttribute(
 								InitializerCommon.EMAIL_ATTR, "/",
@@ -469,9 +463,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withAddedCredential()
 				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withSecrets(new PasswordToken("abs").toJson()).endCredential()
-
 				.withAddedGroupSelection().withSelected(true).endGroupSelection()
-
 				.withAddedIdentity().withTypeId(UsernameIdentity.ID)
 				.withValue("username").endIdentity()
 
@@ -519,28 +511,23 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withCollectComments(true).withFormInformation()
 				.withDefaultValue("formInformation").endFormInformation()
 				.withAttributeAssignments(new ArrayList<Attribute<?>>())
-
 				.withAddedCredentialParam()
 				.withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withDescription("description").withLabel("label")
 				.endCredentialParam()
-
 				.withAddedAgreement().withManatory(false).withText()
 				.withDefaultValue("a").endText().endAgreement()
-
 				.withAddedIdentityParam().withDescription("description")
 				.withIdentityType(EmailIdentity.ID).withLabel("label")
 				.withOptional(true)
 				.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
 				.endIdentityParam()
-
 				.withAddedAttributeParam()
 				.withAttributeType(InitializerCommon.CN_ATTR).withGroup("/")
 				.withDescription("description").withLabel("label")
 				.withOptional(true)
 				.withRetrievalSettings(ParameterRetrievalSettings.interactive)
 				.withShowGroups(true).endAttributeParam()
-
 				.withAddedGroupParam().withDescription("description")
 				.withGroupPath("/B").withLabel("label")
 				.withRetrievalSettings(ParameterRetrievalSettings.automatic)
@@ -557,23 +544,18 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withFormId("f1")
 				.withComments("comments")
 				.withRegistrationCode("123")
-
 				.withAddedAgreement()
 				.withSelected(true)
 				.endAgreement()
-
 				.withAddedAttribute(
 						new StringAttribute(InitializerCommon.CN_ATTR, "/",
 								AttributeVisibility.full, "cn"))
 				.withAddedCredential()
 				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withSecrets(new PasswordToken("abs").toJson()).endCredential()
-
 				.withAddedGroupSelection().withSelected(true).endGroupSelection()
-
 				.withAddedIdentity().withTypeId(EmailIdentity.ID)
 				.withValue("example@example.com").endIdentity()
-
 				.build();
 
 		registrationsMan.submitRegistrationRequest(request, true);
@@ -623,28 +605,23 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withCollectComments(true).withFormInformation()
 				.withDefaultValue("formInformation").endFormInformation()
 				.withAttributeAssignments(new ArrayList<Attribute<?>>())
-
 				.withAddedCredentialParam()
 				.withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withDescription("description").withLabel("label")
 				.endCredentialParam()
-
 				.withAddedAgreement().withManatory(false).withText()
 				.withDefaultValue("a").endText().endAgreement()
-
 				.withAddedIdentityParam().withDescription("description")
 				.withIdentityType(UsernameIdentity.ID).withLabel("label")
 				.withOptional(true)
 				.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
 				.endIdentityParam()
-
 				.withAddedAttributeParam()
 				.withAttributeType(InitializerCommon.EMAIL_ATTR).withGroup("/")
 				.withDescription("description").withLabel("label")
 				.withOptional(true)
 				.withRetrievalSettings(ParameterRetrievalSettings.interactive)
 				.withShowGroups(true).endAttributeParam()
-
 				.withAddedGroupParam().withDescription("description")
 				.withGroupPath("/B").withLabel("label")
 				.withRetrievalSettings(ParameterRetrievalSettings.automatic)
@@ -661,24 +638,19 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withFormId("f1")
 				.withComments("comments")
 				.withRegistrationCode("123")
-
 				.withAddedAgreement()
 				.withSelected(true)
 				.endAgreement()
-
 				.withAddedAttribute(
 						new VerifiableEmailAttribute(
 								InitializerCommon.EMAIL_ATTR, "/",
-								AttributeVisibility.full, "foo@a.b"))
+								AttributeVisibility.full, "fooxyz@a.b"))
 				.withAddedCredential()
 				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withSecrets(new PasswordToken("abs").toJson()).endCredential()
-
 				.withAddedGroupSelection().withSelected(true).endGroupSelection()
-
 				.withAddedIdentity().withTypeId(UsernameIdentity.ID)
 				.withValue("username").endIdentity()
-
 				.build();
 
 		registrationsMan.submitRegistrationRequest(request, true);
@@ -724,28 +696,23 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withCollectComments(true).withFormInformation()
 				.withDefaultValue("formInformation").endFormInformation()
 				.withAttributeAssignments(new ArrayList<Attribute<?>>())
-
 				.withAddedCredentialParam()
 				.withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withDescription("description").withLabel("label")
 				.endCredentialParam()
-
 				.withAddedAgreement().withManatory(false).withText()
 				.withDefaultValue("a").endText().endAgreement()
-
 				.withAddedIdentityParam().withDescription("description")
 				.withIdentityType(EmailIdentity.ID).withLabel("label")
 				.withOptional(true)
 				.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
 				.endIdentityParam()
-
 				.withAddedAttributeParam()
 				.withAttributeType(InitializerCommon.EMAIL_ATTR).withGroup("/")
 				.withDescription("description").withLabel("label")
 				.withOptional(true)
 				.withRetrievalSettings(ParameterRetrievalSettings.interactive)
 				.withShowGroups(true).endAttributeParam()
-
 				.withAddedGroupParam().withDescription("description")
 				.withGroupPath("/B").withLabel("label")
 				.withRetrievalSettings(ParameterRetrievalSettings.automatic)
@@ -766,24 +733,19 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withFormId("f1")
 				.withComments("comments")
 				.withRegistrationCode("123")
-
 				.withAddedAgreement()
 				.withSelected(true)
 				.endAgreement()
-
 				.withAddedAttribute(
 						new VerifiableEmailAttribute(
 								InitializerCommon.EMAIL_ATTR, "/",
-								AttributeVisibility.full, "foo@a.b"))
+								AttributeVisibility.full, "fooqwe@a.b"))
 				.withAddedCredential()
 				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withSecrets(new PasswordToken("abs").toJson()).endCredential()
-
 				.withAddedGroupSelection().withSelected(true).endGroupSelection()
-
 				.withAddedIdentity().withTypeId(EmailIdentity.ID)
 				.withValue("foo@c.d").endIdentity()
-
 				.build();
 
 		String requestId = registrationsMan.submitRegistrationRequest(request, true);
@@ -825,7 +787,144 @@ public class TestConfirmations extends DBIntegrationTestBase
 			}
 		}
 	}
+	
+	@Test
+	public void shouldSkipProcessRejectedRequest() throws EngineException
+	{
+		commonInitializer.initializeCommonAttributeTypes();
+		commonInitializer.initializeMainAttributeClass();
+		groupsMan.addGroup(new Group("/A"));
+		groupsMan.addGroup(new Group("/B"));
 
+		RegistrationForm form = RegistrationFormBuilder
+				.registrationForm()
+				.withName("f1")
+				.withDescription("description")
+				.withCredentialRequirementAssignment(
+						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
+				.withAddedGroupAssignment("/A").withPubliclyAvailable(true)
+				.withInitialEntityState(EntityState.valid)
+				.withRegistrationCode("123")
+				.withAutoAcceptCondition("attr[\"email\"].confirmed ==  true ")
+				.withCollectComments(true).withFormInformation()
+				.withDefaultValue("formInformation").endFormInformation()
+				.withAttributeAssignments(new ArrayList<Attribute<?>>())
+				.withAddedCredentialParam()
+				.withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
+				.withDescription("description").withLabel("label")
+				.endCredentialParam()
+				.withAddedAgreement().withManatory(false).withText()
+				.withDefaultValue("a").endText().endAgreement()
+				.withAddedIdentityParam().withDescription("description")
+				.withIdentityType(UsernameIdentity.ID).withLabel("label")
+				.withOptional(true)
+				.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
+				.endIdentityParam()
+				.withAddedAttributeParam()
+				.withAttributeType(InitializerCommon.EMAIL_ATTR).withGroup("/")
+				.withDescription("description").withLabel("label")
+				.withOptional(true)
+				.withRetrievalSettings(ParameterRetrievalSettings.interactive)
+				.withShowGroups(true).endAttributeParam()
+				.withAddedGroupParam().withDescription("description")
+				.withGroupPath("/B").withLabel("label")
+				.withRetrievalSettings(ParameterRetrievalSettings.automatic)
+				.endGroupParam().build();
+
+		registrationsMan.addForm(form);
+
+		addSimpleConfirmationConfiguration(
+				ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
+				InitializerCommon.EMAIL_ATTR, "demoTemplate", "demoChannel");
+
+		RegistrationRequest request = RegistrationRequestBuilder
+				.registrationRequest()
+				.withFormId("f1")
+				.withComments("comments")
+				.withRegistrationCode("123")
+				.withAddedAgreement()
+				.withSelected(true)
+				.endAgreement()
+				.withAddedAttribute(
+						new VerifiableEmailAttribute(
+								InitializerCommon.EMAIL_ATTR, "/",
+								AttributeVisibility.full, "xd@a.b"))
+				.withAddedCredential()
+				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
+				.withSecrets(new PasswordToken("abs").toJson()).endCredential()
+				.withAddedGroupSelection().withSelected(true).endGroupSelection()
+				.withAddedIdentity().withTypeId(UsernameIdentity.ID)
+				.withValue("username").endIdentity()
+				.build();
+
+		String requestId = registrationsMan.submitRegistrationRequest(request, true);
+		
+		Assert.assertEquals(RegistrationRequestStatus.pending, registrationsMan
+				.getRegistrationRequests().get(0).getStatus());
+
+		Assert.assertEquals(1,
+				tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE)
+						.size());
+		String token = tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE)
+				.get(0).getValue();
+		RegistrationRequestState requestState = registrationsMan.getRegistrationRequests()
+				.get(0);
+		registrationsMan.processRegistrationRequest(requestId, requestState.getRequest(),
+				RegistrationRequestAction.reject, "", "");
+		
+		ConfirmationStatus status = null; 
+		try
+		{
+			 status = confirmationMan.processConfirmation(token);
+		} catch (Exception e)
+		{
+			fail("Cannot proccess confirmation");
+		}
+		
+		Assert.assertFalse(status.isSuccess());
+	}
+	
+	@Test
+	public void shouldNotSendConfirmationRequestIfLimitExceeded() throws Exception
+	{
+		setupPasswordAuthn();
+		
+		Identity id = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		EntityParam entity = new EntityParam(id.getEntityId());
+		AttributeType atT = new AttributeType(InitializerCommon.EMAIL_ATTR,
+				new VerifiableEmailAttributeSyntax());
+		atT.setMaxElements(5);
+		atT.setSelfModificable(true);
+		attrsMan.addAttributeType(atT);
+		groupsMan.addGroup(new Group("/test"));
+		groupsMan.addMemberFromParent("/test", entity);
+		
+		VerifiableEmailAttribute at1 = new VerifiableEmailAttribute(
+				InitializerCommon.EMAIL_ATTR, "/test", AttributeVisibility.full,"example2Excced@ex.com");
+		addSimpleConfirmationConfiguration(
+				ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
+				InitializerCommon.EMAIL_ATTR, "demoTemplate", "demoChannel");	
+		setupAdmin();
+		for (int i = 0; i < 4; i++)
+		{
+			at1.getValues().get(0).setConfirmationInfo(new ConfirmationInfo(false));
+			attrsMan.setAttribute(entity, at1, true);
+			String token = tokensMan
+					.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE)
+					.get(0).getValue();
+			try
+			{
+				confirmationMan.processConfirmation(token);
+			} catch (Exception e)
+			{
+				fail("Cannot proccess confirmation");
+			}
+			
+		}	
+		attrsMan.setAttribute(entity, at1, true);
+		Assert.assertTrue(tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE).isEmpty());	
+	}
+	
 	private void addSimpleConfirmationConfiguration(String type, String name,
 			String templateName, String channelName) throws EngineException
 	{
@@ -848,7 +947,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withMsgTemplate(templateName)
 				.withNotificationChannel(channelName).build());
 	}
-
+	
 	private VerifiableElement getFirstEmailIdentityFromEntity(EntityParam entity)
 			throws EngineException
 	{
@@ -878,5 +977,4 @@ public class TestConfirmations extends DBIntegrationTestBase
 		RegistrationRequestState state = registrationsMan.getRegistrationRequests().get(0);
 		return (VerifiableElement) state.getRequest().getIdentities().get(0);
 	}
-
 }

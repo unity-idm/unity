@@ -136,7 +136,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			return;
 		String serializedState = baseState.getSerializedConfiguration();
 		
-		checkSendingLimit(baseState.getValue());
+		if (!checkSendingLimit(baseState.getValue()))
+			return;
 			
 		boolean hasDuplicate;
 		String token;
@@ -161,14 +162,16 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		facility.processAfterSendRequest(serializedState);
 	}
 
-	private void checkSendingLimit(String address) throws InternalException
+	private boolean checkSendingLimit(String address)
 	{
 		confirmationReqCache.evictExpiredElements();
 		Results results = confirmationReqCache.createQuery().includeValues().addCriteria(Query.VALUE.ilike(address)).execute();
 		if (results.size() >= requestLimit)
-		{
-			throw new InternalException("Limit of sent requests to " + address + " was reached.( Limit=" +requestLimit + "/24H)");		
-		}	
+		{		
+			log.warn("Limit of sent confirmation requests to " + address + " was reached.( Limit=" +requestLimit + "/24H)");
+			return false;
+		}
+		return true;
 	}
 	
 	private String insertConfirmationToken(String state, Object transaction) throws EngineException
@@ -360,12 +363,11 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			sendVerification(entity, attribute, useCurrentReturnUrl);
 		} catch (Exception e)
 		{
-			log.warn("Can not send a confirmation for the verificable attribute being added " + 
-					attribute.getName(), e);
+			log.warn("Can not send a confirmation for the verificable attribute being added "
+					+ attribute.getName(), e);
 		}
 	}
 	
-
 	@Override
 	public void sendVerificationsQuiet(EntityParam entity, List<Attribute<?>> attributes, 
 			boolean useCurrentReturnUrl)
@@ -398,10 +400,10 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		try
 		{
 			sendVerification(entity, identity, useCurrentReturnUrl);
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
-			log.warn("Can not send a confirmation for the verificable identity being added " + 
-					identity.getValue(), e);
+			log.warn("Can not send a confirmation for the verificable identity being added "
+					+ identity.getValue(), e);
 		}
 	}
 	
