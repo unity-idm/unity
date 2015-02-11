@@ -17,6 +17,8 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.engine.builders.RegistrationFormBuilder;
+import pl.edu.icm.unity.engine.builders.RegistrationRequestBuilder;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
@@ -31,7 +33,6 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -43,10 +44,8 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
-import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
@@ -56,7 +55,6 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.types.registration.Selection;
 
 public class TestRegistrations extends DBIntegrationTestBase
 {
@@ -373,94 +371,67 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 	private RegistrationForm getForm(boolean nullCode, String autoAcceptCondition)
 	{
-		RegistrationForm form = new RegistrationForm();
-		
-		AgreementRegistrationParam agreement = new AgreementRegistrationParam();
-		agreement.setManatory(true);
-		agreement.setText(new I18nString("a"));
-		form.setAgreements(Collections.singletonList(agreement));
-		
-		Attribute<?> attr = new StringAttribute("cn", "/", AttributeVisibility.full, "val");
-		List<Attribute<?>> attrs = new ArrayList<>();
-		attrs.add(attr);
-		form.setAttributeAssignments(attrs);
-		
-		AttributeClassAssignment acA = new AttributeClassAssignment();
-		acA.setAcName(InitializerCommon.NAMING_AC);
-		acA.setGroup("/");
-		form.setAttributeClassAssignments(Collections.singletonList(acA));
-		
-		AttributeRegistrationParam attrReg = new AttributeRegistrationParam();
-		attrReg.setAttributeType(InitializerCommon.EMAIL_ATTR);
-		attrReg.setDescription("description");
-		attrReg.setGroup("/");
-		attrReg.setLabel("label");
-		attrReg.setOptional(true);
-		attrReg.setRetrievalSettings(ParameterRetrievalSettings.interactive);
-		attrReg.setShowGroups(true);
-		form.setAttributeParams(Collections.singletonList(attrReg));
-		
-		form.setCollectComments(true);
-		
-		CredentialRegistrationParam credParam = new CredentialRegistrationParam();
-		credParam.setCredentialName(EngineInitialization.DEFAULT_CREDENTIAL);
-		credParam.setDescription("description");
-		credParam.setLabel("label");
-		form.setCredentialParams(Collections.singletonList(credParam));
-		
-		
-		form.setCredentialRequirementAssignment(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT);
-		form.setDescription("description");
-		form.setFormInformation(new I18nString("formInformation"));
-		form.setGroupAssignments(Collections.singletonList("/A"));
-		
-		GroupRegistrationParam groupParam = new GroupRegistrationParam();
-		groupParam.setDescription("description");
-		groupParam.setGroupPath("/B");
-		groupParam.setLabel("label");
-		groupParam.setRetrievalSettings(ParameterRetrievalSettings.automatic);
-		form.setGroupParams(Collections.singletonList(groupParam));
-		
-		IdentityRegistrationParam idParam = new IdentityRegistrationParam();
-		idParam.setDescription("description");
-		idParam.setIdentityType(X500Identity.ID);
-		idParam.setLabel("label");
-		idParam.setOptional(true);
-		idParam.setRetrievalSettings(ParameterRetrievalSettings.automaticHidden);
-		form.setIdentityParams(Collections.singletonList(idParam));
-		form.setName("f1");
-		form.setPubliclyAvailable(true);
-		if (!nullCode)
-			form.setRegistrationCode("123");
-		form.setInitialEntityState(EntityState.valid);
-		
-		if (autoAcceptCondition != null)
-			form.setAutoAcceptCondition(autoAcceptCondition);
-		else
-			form.setAutoAcceptCondition("false");
-		return form;
+		return RegistrationFormBuilder
+				.registrationForm()
+				.withName("f1")
+				.withDescription("desc")
+				.withCredentialRequirementAssignment(
+						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
+				.withAddedGroupAssignment("/A").withPubliclyAvailable(true)
+				.withInitialEntityState(EntityState.valid)
+				.withAutoAcceptCondition(
+						autoAcceptCondition == null ? "false"
+								: autoAcceptCondition)
+				.withCollectComments(true).withFormInformation()
+				.withDefaultValue("formInformation").endFormInformation()
+				.withAddedAttributeAssignment(new StringAttribute("cn", "/", AttributeVisibility.full, "val"))
+				.withAddedCredentialParam()
+				.withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
+				.endCredentialParam()
+				.withAddedAgreement().withManatory(false).withText()
+				.withDefaultValue("a").endText().endAgreement()
+				.withAddedIdentityParam()
+				.withIdentityType(X500Identity.ID)
+				.withOptional(true)
+				.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
+				.endIdentityParam()
+				.withAddedAttributeParam()
+				.withAttributeType(InitializerCommon.EMAIL_ATTR).withGroup("/")
+				.withOptional(true)
+				.withRetrievalSettings(ParameterRetrievalSettings.interactive)
+				.withShowGroups(true).endAttributeParam()
+				.withAddedGroupParam()
+				.withGroupPath("/B")
+				.withRetrievalSettings(ParameterRetrievalSettings.automatic)
+				.endGroupParam()
+				.withAddedAttributeClassAssignment().withAcName(InitializerCommon.NAMING_AC)
+				.withGroup("/").endAttributeClassAssignment()
+				.withRegistrationCode(nullCode ? null : "123")
+				.build();
+
 	}
 	
 	private RegistrationRequest getRequest()
 	{
-		RegistrationRequest request = new RegistrationRequest();
-		
-		request.setAgreements(Collections.singletonList(new Selection(true)));
-		List<Attribute<?>> attrs = new ArrayList<Attribute<?>>();
-		attrs.add(new VerifiableEmailAttribute(InitializerCommon.EMAIL_ATTR, "/", 
-				AttributeVisibility.full, "foo@a.b"));
-		request.setAttributes(attrs);
-		request.setComments("comments");
-		CredentialParamValue cp = new CredentialParamValue();
-		cp.setCredentialId(EngineInitialization.DEFAULT_CREDENTIAL);
-		cp.setSecrets(new PasswordToken("abc").toJson());
-		request.setCredentials(Collections.singletonList(cp));
-		request.setFormId("f1");
-		request.setGroupSelections(Collections.singletonList(new Selection(true)));
-		IdentityParam ip = new IdentityParam(X500Identity.ID, "CN=registration test");
-		request.setIdentities(Collections.singletonList(ip));
-		request.setRegistrationCode("123");
-		return request;
+		return RegistrationRequestBuilder
+				.registrationRequest()
+				.withFormId("f1")
+				.withComments("comments")
+				.withRegistrationCode("123")
+				.withAddedAgreement()
+				.withSelected(true)
+				.endAgreement()
+				.withAddedAttribute(
+						new VerifiableEmailAttribute(
+								InitializerCommon.EMAIL_ATTR, "/",
+								AttributeVisibility.full, "foo@a.b"))
+				.withAddedCredential()
+				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
+				.withSecrets(new PasswordToken("abc").toJson()).endCredential()
+				.withAddedGroupSelection().withSelected(true).endGroupSelection()
+				.withAddedIdentity().withTypeId(X500Identity.ID)
+				.withValue("CN=registration test").endIdentity()
+				.build();
 	}
 	
 	private void checkUpdateOrAdd(RegistrationForm form, String msg, Class<?> exception) throws EngineException

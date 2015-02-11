@@ -14,6 +14,7 @@ import java.util.concurrent.Future;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.engine.builders.NotificationChannelBuilder;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
 import pl.edu.icm.unity.engine.notifications.NotificationProducerImpl;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -55,7 +56,11 @@ public class TestNotifications extends DBIntegrationTestBase
 				"mailx.smtp.trustAll=true";
 		String destinationAddress = "...";
 		
-		notMan.addNotificationChannel(new NotificationChannel("ch1", "", emailCfg, EmailFacility.NAME));
+		notMan.addNotificationChannel(NotificationChannelBuilder.notificationChannel()
+				.withName("ch1")
+				.withDescription("")
+				.withConfiguration(emailCfg)
+				.withFacilityId(EmailFacility.NAME).build());
 		EntityParam admin = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "admin"));
 		initCommon.initializeCommonAttributeTypes();
 
@@ -89,7 +94,11 @@ public class TestNotifications extends DBIntegrationTestBase
 		assertEquals(2, notMan.getNotificationFacilities().size());
 		assertTrue(notMan.getNotificationFacilities().contains(EmailFacility.NAME));
 		assertEquals(0, notMan.getNotificationChannels().size());
-		notMan.addNotificationChannel(new NotificationChannel("ch1", "", emailCfg, EmailFacility.NAME));
+		notMan.addNotificationChannel(NotificationChannelBuilder.notificationChannel()
+				.withName("ch1")
+				.withDescription("")
+				.withConfiguration(emailCfg)
+				.withFacilityId(EmailFacility.NAME).build());
 		Map<String, NotificationChannel> channels = notMan.getNotificationChannels();
 		assertEquals(1, channels.size());
 		assertTrue(channels.containsKey("ch1"));
@@ -118,7 +127,11 @@ public class TestNotifications extends DBIntegrationTestBase
 		notMan.removeNotificationChannel("ch1");
 		assertEquals(0, notMan.getNotificationChannels().size());
 
-		notMan.addNotificationChannel(new NotificationChannel("ch1", "", emailCfg, EmailFacility.NAME));
+		notMan.addNotificationChannel(NotificationChannelBuilder.notificationChannel()
+				.withName("ch1")
+				.withDescription("")
+				.withConfiguration(emailCfg)
+				.withFacilityId(EmailFacility.NAME).build());
 		channels = notMan.getNotificationChannels();
 		assertEquals(1, channels.size());
 		assertTrue(channels.containsKey("ch1"));
