@@ -29,7 +29,8 @@ public class SessionIdentityModel
 			entry = new PerSessionEntry(
 					entryVal.get("absoluteTTL").asLong(), 
 					entryVal.get("relativeTTL").asLong(),
-					entryVal.get("lastUsage").asLong());
+					entryVal.get("lastUsage").asLong(),
+					entryVal.get("idValue").asText());
 		} catch (Exception e)
 		{
 			TargetedPersistentIdentity.log.error("Can't deserialize state from JSON", e);
@@ -43,7 +44,8 @@ public class SessionIdentityModel
 		entry = new PerSessionEntry(
 				session.getExpires() == null ? -1 : session.getExpires().getTime(), 
 				session.getMaxInactivity()*10, 
-				System.currentTimeMillis());
+				System.currentTimeMillis(), 
+				identity);
 		long msInHour = 3600000;
 		if (entry.relativeTTL < 24*msInHour)
 			entry.relativeTTL = 24*msInHour;
@@ -55,6 +57,7 @@ public class SessionIdentityModel
 		eN.put("absoluteTTL", entry.absoluteTTL);
 		eN.put("relativeTTL", entry.relativeTTL);
 		eN.put("lastUsage", entry.lastUsage);
+		eN.put("idValue", entry.idValue);
 		try
 		{
 			return mapper.writeValueAsString(eN);
@@ -75,18 +78,25 @@ public class SessionIdentityModel
 		private long absoluteTTL;
 		private long relativeTTL;
 		private long lastUsage;
+		private String idValue;
 
-		public PerSessionEntry(long absoluteTTL, long relativeTTL, long lastUsage)
+		public PerSessionEntry(long absoluteTTL, long relativeTTL, long lastUsage, String idValue)
 		{
 			this.absoluteTTL = absoluteTTL;
 			this.relativeTTL = relativeTTL;
 			this.lastUsage = lastUsage;
+			this.idValue = idValue;
 		}
 		
 		public boolean isExpired()
 		{
 			long now = System.currentTimeMillis();
 			return absoluteTTL < now || relativeTTL < now-lastUsage;
+		}
+		
+		public String getValue()
+		{
+			return idValue;
 		}
 	}
 }

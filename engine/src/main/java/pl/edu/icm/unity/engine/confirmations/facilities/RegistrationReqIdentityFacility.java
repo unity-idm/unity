@@ -86,7 +86,10 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 					.getRequest(requestId, sql);
 			for (IdentityParam id : reqState.getRequest().getIdentities())
 			{
-				updateConfirmationInfo(id, id.getValue());
+				if (id == null)
+					continue;
+				if (identityTypesRegistry.getByName(id.getTypeId()).isVerifiable())
+					updateConfirmationInfo(id, id.getValue());
 			}
 			requestDB.update(requestId, reqState, sql);
 			sql.commit();

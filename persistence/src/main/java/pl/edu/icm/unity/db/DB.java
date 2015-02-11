@@ -31,7 +31,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 @Component
 public class DB
 {
-	public static final String DB_VERSION = "2_1_2";
+	public static final String DB_VERSION = "2_1_3";
 	
 	private DBLimits limits;
 	private DBLimits localLimits;

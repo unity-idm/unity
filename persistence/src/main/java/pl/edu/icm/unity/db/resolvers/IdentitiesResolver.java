@@ -4,7 +4,11 @@
  */
 package pl.edu.icm.unity.db.resolvers;
 
+import java.nio.charset.StandardCharsets;
+
 import org.apache.ibatis.session.SqlSession;
+import org.apache.xml.security.utils.Base64;
+import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -64,7 +68,23 @@ public class IdentitiesResolver
 	
 	private static String toInDBIdentityValue(String typeName, String comparableTypeSpecificValue)
 	{
-		return typeName + "::" + comparableTypeSpecificValue;
+		return hashIdentity(typeName + "::" + comparableTypeSpecificValue);
+	}
+	
+	/**
+	 * Hashes identity with SHA512 and returns Base64 encoded string
+	 * @param identity
+	 * @return
+	 */
+	public static String hashIdentity(String identity)
+	{
+		SHA512Digest digest = new SHA512Digest();
+		int size = digest.getDigestSize();
+		byte[] asBytes = identity.getBytes(StandardCharsets.UTF_8);
+		digest.update(asBytes, 0, asBytes.length);
+		byte[] hashed = new byte[size];
+		digest.doFinal(hashed, 0);
+		return Base64.encode(hashed, 0);
 	}
 	
 	public static String getComparableIdentityValue(IdentityTaV id, IdentityTypeDefinition idType)
@@ -168,7 +188,7 @@ public class IdentitiesResolver
 		Identity ret = resolveIdentityBeanNoExternalize(idB, mapper);
 		IdentityTypeDefinition idTypeImpl = ret.getType().getIdentityTypeProvider();
 		
-		String externalizedValue = idTypeImpl.toExternalFormNoContext(ret.getValue(), idB.getName());
+		String externalizedValue = idTypeImpl.toExternalFormNoContext(ret.getValue());
 		if (externalizedValue != null)
 		{
 			ret.setValue(externalizedValue);
@@ -204,8 +224,7 @@ public class IdentitiesResolver
 			newIdBean.setContents(idSerializer.toJson(idParam, null, null));
 			mapper.insertIdentity(newIdBean);
 			
-			String externalizedValue = idTypeImpl.toExternalForm(realm, target, newId.getContents(), 
-					newIdBean.getName());
+			String externalizedValue = idTypeImpl.toExternalForm(realm, target, newId.getContents());
 			Identity ret = resolveIdentityBeanNoExternalize(newIdBean, mapper);
 			ret.setValue(externalizedValue);
 			return ret;

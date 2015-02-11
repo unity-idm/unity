@@ -100,7 +100,17 @@ documentation.
 It can be noted that the maximum memory limit previously set to 256MB in +startup.properties+ should be increased to 
 +512MB+.
  
- ==== From 1.4.0 to 1.5.0
+==== From 1.4.0 to 1.5.0
+ 
+There were small database schema changes in this release. The database should be updated automatically at 
+when a new instance is started, however make sure to make a full back up after stopping the old version
+and before starting the new one.
+
+==== From 1.5.0 to 1.6.0
+
+Starting from the version 1.6.0 not only the libraries directory (as configured in +startup.properties+)
+is scanned for loading jar files, also all its subdirectories are. This feature can be used to load additional 
+plugins, placed in a separate folders. 
  
 There were small database schema changes in this release. The database should be updated automatically at 
 when a new instance is started, however make sure to make a full back up after stopping the old version

@@ -80,7 +80,7 @@ and can be dragged into expressions of the profile being created. After the prof
 and can be assigned to the authenticator.
 
 Besides the wizard it is also possible to perform a detailed testing of an already existing translation profile. 
-This *gry run* feature is available from the same menu as the wizard and begins in the same way: with a sandboxed 
+This *dry run* feature is available from the same menu as the wizard and begins in the same way: with a sandboxed 
 authentication. However, the last step is different: instead of an editor a detailed information on the profile's 
 application to the data provided by remote IdP is presented, including even the relevant server's log.   
 

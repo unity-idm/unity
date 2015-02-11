@@ -95,13 +95,12 @@ public class TargetedPersistentIdentity extends AbstractIdentityTypeProvider
 	}
 	
 	@Override
-	public String toExternalForm(String realm, String target, String inDbValue, String comparableValue) 
+	public String toExternalForm(String realm, String target, String inDbValue) 
 			throws IllegalIdentityValueException
 	{
 		if (realm == null || target == null || inDbValue == null)
 			throw new IllegalIdentityValueException("Insufficient arguments");
-		String[] decoded = Escaper.decode(comparableValue);
-		return decoded[2];
+		return inDbValue;
 	}
 
 	@Override
@@ -130,7 +129,7 @@ public class TargetedPersistentIdentity extends AbstractIdentityTypeProvider
 	}
 
 	@Override
-	public String toExternalFormNoContext(String inDbValue, String comparableValue)
+	public String toExternalFormNoContext(String inDbValue)
 	{
 		return inDbValue;
 	}

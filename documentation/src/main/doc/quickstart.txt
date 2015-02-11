@@ -134,7 +134,7 @@ unityServer.core.authenticators.3.retrievalConfigurationFile=conf/authenticators
 So lets define a new one, called +certWS+:
 
 ----
-unityServer.core.authenticators.4.authenticatorName=pwdWS
+unityServer.core.authenticators.4.authenticatorName=certWS
 unityServer.core.authenticators.4.authenticatorType=certificate with cxf-certificate
 unityServer.core.authenticators.4.localCredential=Certificate credential
 unityServer.core.authenticators.4.retrievalConfigurationFile=conf/authenticators/empty.json

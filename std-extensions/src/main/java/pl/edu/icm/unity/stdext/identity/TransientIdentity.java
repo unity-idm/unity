@@ -140,7 +140,7 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	}
 	
 	@Override
-	public String toExternalForm(String realm, String target, String inDbValue, String comparableValue) 
+	public String toExternalForm(String realm, String target, String inDbValue) 
 			throws IllegalIdentityValueException
 	{
 		if (realm == null || target == null || inDbValue == null)
@@ -157,8 +157,7 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 			throw new IllegalIdentityValueException("Error getting invocation context", e);
 		}
 
-		String[] parsed = Escaper.decode(comparableValue);
-		return parsed[3];
+		return toExternalFormNoContext(inDbValue);
 	}
 
 	@Override
@@ -203,10 +202,10 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	}
 
 	@Override
-	public String toExternalFormNoContext(String inDbValue, String comparableValue)
+	public String toExternalFormNoContext(String inDbValue)
 	{
-		String[] split = Escaper.decode(comparableValue);
-		return split[3];
+		SessionIdentityModel model = new SessionIdentityModel(mapper, inDbValue);
+		return model.getEntry().getValue();
 	}
 	
 

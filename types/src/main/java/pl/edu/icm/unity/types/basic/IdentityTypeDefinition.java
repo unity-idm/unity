@@ -125,7 +125,7 @@ public interface IdentityTypeDefinition
 	 * @return 
 	 * @throws IllegalIdentityValueException 
 	 */
-	public String toExternalForm(String realm, String target, String inDbValue, String comparableValue) 
+	public String toExternalForm(String realm, String target, String inDbValue) 
 			throws IllegalIdentityValueException;
 
 	/**
@@ -134,7 +134,7 @@ public interface IdentityTypeDefinition
 	 * @param inDbValue the in-db representation
 	 * @return identity value in external form
 	 */
-	public String toExternalFormNoContext(String inDbValue, String comparableValue);
+	public String toExternalFormNoContext(String inDbValue);
 	
 	/**
 	 * Tries to create a new identity. 

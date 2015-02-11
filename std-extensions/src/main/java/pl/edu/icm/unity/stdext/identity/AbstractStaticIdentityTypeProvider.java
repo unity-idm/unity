@@ -14,13 +14,13 @@ import pl.edu.icm.unity.types.basic.IdentityRepresentation;
 public abstract class AbstractStaticIdentityTypeProvider extends AbstractIdentityTypeProvider
 {
 	@Override
-	public String toExternalForm(String realm, String target, String inDbValue, String comparableValue)
+	public String toExternalForm(String realm, String target, String inDbValue)
 	{
 		return inDbValue;
 	}
 	
 	@Override
-	public String toExternalFormNoContext(String inDbValue, String comparableValue)
+	public String toExternalFormNoContext(String inDbValue)
 	{
 		return inDbValue;
 	}

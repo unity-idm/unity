@@ -83,6 +83,9 @@ public class RegistrationReqAttributeFacility extends RegistrationFacility<Regis
 			RegistrationRequestState reqState = internalRegistrationManagment.getRequest(requestId, sql);
 			for (Attribute<?> attr : reqState.getRequest().getAttributes())
 			{
+				if (attr == null)
+					continue;
+				
 				if (attr.getAttributeSyntax().isVerifiable())
 				{
 					for (Object val : attr.getValues())
