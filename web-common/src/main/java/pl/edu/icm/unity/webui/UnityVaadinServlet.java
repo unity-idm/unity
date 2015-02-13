@@ -16,8 +16,8 @@ import javax.servlet.ServletException;
 import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
@@ -51,7 +51,7 @@ public class UnityVaadinServlet extends VaadinServlet
 	private transient ApplicationContext applicationContext;
 	private transient String uiBeanName;
 	private transient EndpointDescription description;
-	private transient List<Map<String, BindingAuthn>> authenticators;
+	private transient List<AuthenticationOption> authenticators;
 	private transient CancelHandler cancelHandler;
 	private transient SandboxAuthnRouter sandboxRouter;
 	private transient EndpointRegistrationConfiguration registrationConfiguration;
@@ -59,7 +59,7 @@ public class UnityVaadinServlet extends VaadinServlet
 	
 	public UnityVaadinServlet(ApplicationContext applicationContext, String uiBeanName,
 			EndpointDescription description,
-			List<Map<String, BindingAuthn>> authenticators,
+			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties endpointProperties)
 	{
@@ -146,12 +146,12 @@ public class UnityVaadinServlet extends VaadinServlet
 			CurrentInstance.set(VaadinResponse.class, response);
 	}
 	
-	public synchronized void updateAuthenticators(List<Map<String, BindingAuthn>> authenticators)
+	public synchronized void updateAuthenticators(List<AuthenticationOption> authenticators)
 	{
 		this.authenticators = new ArrayList<>(authenticators);
 	}
 	
-	protected synchronized List<Map<String, BindingAuthn>> getAuthenticators()
+	protected synchronized List<AuthenticationOption> getAuthenticators()
 	{
 		return this.authenticators;
 	}

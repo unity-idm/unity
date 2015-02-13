@@ -34,6 +34,7 @@ import pl.edu.icm.unity.rest.exception.InternalExceptionMapper;
 import pl.edu.icm.unity.rest.exception.JSONExceptionMapper;
 import pl.edu.icm.unity.rest.exception.NPEExceptionMapper;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
@@ -134,7 +135,7 @@ public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEnd
 	}
 	
 	@Override
-	public void updateAuthenticators(List<Map<String, BindingAuthn>> authenticators)
+	public void updateAuthenticationOptions(List<AuthenticationOption> authenticators)
 			throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
@@ -149,13 +150,14 @@ public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEnd
 		installAuthnInterceptors(authenticators, inInterceptors);
 	}
 
-	public static void installAuthnInterceptors(List<Map<String, BindingAuthn>> authenticators,
+	public static void installAuthnInterceptors(List<AuthenticationOption> authenticators,
 			List<Interceptor<? extends Message>> interceptors)
 	{
 		Set<String> added = new HashSet<String>();
-		for (Map<String, BindingAuthn> authenticatorSet: authenticators)
+		for (AuthenticationOption authenticatorSet: authenticators)
 		{
-			for (Map.Entry<String, BindingAuthn> authenticator: authenticatorSet.entrySet())
+			for (Map.Entry<String, BindingAuthn> authenticator: 
+				authenticatorSet.getAuthenticators().entrySet())
 			{
 				if (!added.contains(authenticator.getKey()))
 				{

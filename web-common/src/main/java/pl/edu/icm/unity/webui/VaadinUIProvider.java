@@ -5,13 +5,12 @@
 package pl.edu.icm.unity.webui;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
-import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 
@@ -31,14 +30,14 @@ public class VaadinUIProvider extends UIProvider
 	private transient ApplicationContext applicationContext;
 	private transient String uiBeanName;
 	private transient EndpointDescription description;
-	private transient List<Map<String, BindingAuthn>> authenticators;
+	private transient List<AuthenticationOption> authenticators;
 	private transient CancelHandler cancelHandler;
 	private transient SandboxAuthnRouter sandboxRouter;
 	private transient EndpointRegistrationConfiguration registrationConfiguraiton;
 	private transient Properties endpointProperties;
 
 	public VaadinUIProvider(ApplicationContext applicationContext, String uiBeanName,
-			EndpointDescription description, List<Map<String, BindingAuthn>> authenticators,
+			EndpointDescription description, List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguraiton,
 			Properties properties)
 	{

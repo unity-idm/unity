@@ -9,12 +9,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
@@ -25,7 +25,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 public abstract class AbstractEndpoint implements EndpointInstance
 {
 	protected EndpointDescription description;
-	protected List<Map<String, BindingAuthn>> authenticators;
+	protected List<AuthenticationOption> authenticators;
 	protected URL baseUrl;
 	protected Properties properties;
 	
@@ -38,7 +38,8 @@ public abstract class AbstractEndpoint implements EndpointInstance
 	@Override
 	public synchronized void initialize(String id, I18nString displayedName, 
 			URL baseUrl, String contextAddress, String description, 
-			List<AuthenticationOptionDescription> authenticatorsInfo, List<Map<String, BindingAuthn>> authenticators,
+			List<AuthenticationOptionDescription> authenticatorsInfo, 
+			List<AuthenticationOption> authenticators,
 			AuthenticationRealm realm, String serializedConfiguration)
 	{
 		this.description.setId(id);
@@ -80,12 +81,12 @@ public abstract class AbstractEndpoint implements EndpointInstance
 	}
 	
 	@Override
-	public synchronized List<Map<String, BindingAuthn>> getAuthenticators()
+	public synchronized List<AuthenticationOption> getAuthenticationOptions()
 	{
 		return authenticators;
 	}
 
-	protected synchronized void setAuthenticators(List<Map<String, BindingAuthn>> authenticators)
+	protected synchronized void setAuthenticators(List<AuthenticationOption> authenticators)
 	{
 		this.authenticators = new ArrayList<>(authenticators);
 	}

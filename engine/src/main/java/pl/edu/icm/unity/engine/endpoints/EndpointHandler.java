@@ -6,18 +6,11 @@ package pl.edu.icm.unity.engine.endpoints;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.db.generic.DefaultEntityHandler;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
@@ -27,15 +20,21 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.RealmsManagement;
-import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.registries.EndpointFactoriesRegistry;
 import pl.edu.icm.unity.server.utils.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Handler for {@link EndpointInstance}
@@ -132,7 +131,7 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 			description.setType(factory.getDescription());
 
 			EndpointInstance instance = factory.newInstance();
-			List<Map<String, BindingAuthn>> authenticators = 
+			List<AuthenticationOption> authenticators = 
 					authnLoader.getAuthenticators(description.getAuthenticatorSets(), sql);
 			instance.initialize(blob.getName(), description.getDisplayedName(), 
 					httpServer.getAdvertisedAddress(),

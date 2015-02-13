@@ -18,6 +18,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.CookieHelper;
@@ -100,7 +101,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 
 	@Override
 	public void configure(EndpointDescription description,
-			List<Map<String, BindingAuthn>> authenticators,
+			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties genericEndpointConfiguration)
 	{
@@ -110,8 +111,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		for (int i=0; i<authenticators.size(); i++)
 		{
 			Map<String, VaadinAuthentication> map = new HashMap<String, VaadinAuthentication>();
-			Map<String, BindingAuthn> origMap = authenticators.get(i);
-			for (Map.Entry<String, BindingAuthn> el: origMap.entrySet())
+			AuthenticationOption origMap = authenticators.get(i);
+			for (Map.Entry<String, BindingAuthn> el: origMap.getAuthenticators().entrySet())
 				map.put(el.getKey(), ((VaadinAuthentication)el.getValue()));
 			this.authenticators.add(map);
 		}

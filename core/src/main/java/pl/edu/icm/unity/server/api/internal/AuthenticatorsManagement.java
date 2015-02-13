@@ -5,10 +5,9 @@
 package pl.edu.icm.unity.server.api.internal;
 
 import java.util.List;
-import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 
 /**
@@ -24,5 +23,5 @@ public interface AuthenticatorsManagement
 	 * @return
 	 * @throws EngineException 
 	 */
-	List<Map<String, BindingAuthn>> getAuthenticatorUIs(List<AuthenticationOptionDescription> authnList) throws EngineException;
+	List<AuthenticationOption> getAuthenticatorUIs(List<AuthenticationOptionDescription> authnList) throws EngineException;
 }

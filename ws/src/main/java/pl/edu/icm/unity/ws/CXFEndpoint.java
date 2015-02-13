@@ -21,8 +21,8 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
-import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -107,7 +107,7 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 	
 
 	@Override
-	public void updateAuthenticators(List<Map<String, BindingAuthn>> authenticators)
+	public void updateAuthenticationOptions(List<AuthenticationOption> authenticators)
 	{
 		throw new UnsupportedOperationException();
 	}

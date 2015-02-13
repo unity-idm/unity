@@ -5,11 +5,10 @@
 package pl.edu.icm.unity.webui;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
-import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 
@@ -21,7 +20,7 @@ import pl.edu.icm.unity.webui.authn.CancelHandler;
 public interface UnityWebUI
 {
 	public void configure(EndpointDescription description, 
-			List<Map<String, BindingAuthn>> authenticators,
+			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties genericEndpointConfiguration);
 	

@@ -18,6 +18,7 @@ import pl.edu.icm.unity.db.generic.authn.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.db.generic.cred.CredentialDB;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
@@ -77,10 +78,10 @@ public class AuthenticatorLoader
 				authnInstance.getId(), authnInstance);
 	}
 	
-	public List<Map<String, BindingAuthn>> getAuthenticators(List<AuthenticationOptionDescription> authn, SqlSession sql) 
+	public List<AuthenticationOption> getAuthenticators(List<AuthenticationOptionDescription> authn, SqlSession sql) 
 			throws EngineException
 	{
-		List<Map<String, BindingAuthn>> ret = new ArrayList<Map<String, BindingAuthn>>(authn.size());
+		List<AuthenticationOption> ret = new ArrayList<>(authn.size());
 		for (AuthenticationOptionDescription aSet: authn)
 		{
 			Set<String> authenticators = aSet.getAuthenticators();
@@ -90,7 +91,7 @@ public class AuthenticatorLoader
 				AuthenticatorImpl authImpl = getAuthenticator(authenticator, sql);
 				aImpls.put(authenticator, authImpl.getRetrieval());
 			}
-			ret.add(aImpls);
+			ret.add(new AuthenticationOption(aImpls));
 		}
 		return ret;
 	}

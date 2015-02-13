@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.engine.internal;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.engine.authn.AuthenticatorLoader;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.internal.AuthenticatorsManagement;
-import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 
 /**
@@ -39,11 +38,11 @@ public class AuthenticatorsManagementImpl implements AuthenticatorsManagement
 
 
 	@Override
-	public List<Map<String, BindingAuthn>> getAuthenticatorUIs(List<AuthenticationOptionDescription> authnList) 
+	public List<AuthenticationOption> getAuthenticatorUIs(List<AuthenticationOptionDescription> authnList) 
 			throws EngineException
 	{
 		SqlSession sql = db.getSqlSession(false);
-		List<Map<String, BindingAuthn>> authenticators;
+		List<AuthenticationOption> authenticators;
 		try 
 		{
 			authenticators = authnLoader.getAuthenticators(authnList, sql);

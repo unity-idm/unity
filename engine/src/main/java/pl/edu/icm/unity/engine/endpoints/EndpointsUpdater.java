@@ -157,7 +157,7 @@ public class EndpointsUpdater
 		WebAppEndpointInstance toUpdate = endpointsDeployed.get(name);
 		try
 		{
-			toUpdate.updateAuthenticators(instance.getAuthenticators());
+			toUpdate.updateAuthenticationOptions(instance.getAuthenticationOptions());
 		} catch (UnsupportedOperationException e)
 		{
 			log.info("Endpoint " + name + " doesn't support authenticators update so will be redeployed");

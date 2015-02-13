@@ -18,16 +18,16 @@ import org.springframework.context.annotation.Scope;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.internal.AuthenticatorsManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnContext;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
@@ -92,7 +92,7 @@ public class SandboxUI extends AuthenticationUI
 	
 	@Override
 	public void configure(EndpointDescription description,
-			List<Map<String, BindingAuthn>> authenticators,
+			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration regCfg, Properties endpointProperties) 
 	{
 		registrationConfiguration = new EndpointRegistrationConfiguration(false);
@@ -197,7 +197,7 @@ public class SandboxUI extends AuthenticationUI
 	private List<Map<String, VaadinAuthenticationUI>> getAuthenticatorUIs(
 			List<AuthenticationOptionDescription> authnList, AuthenticatorsManagement authenticatorsMan) 
 	{
-		List<Map<String, BindingAuthn>> authenticators;
+		List<AuthenticationOption> authenticators;
 		try
 		{
 			authenticators = authenticatorsMan.getAuthenticatorUIs(authnList);

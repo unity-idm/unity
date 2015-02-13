@@ -6,7 +6,6 @@ package pl.edu.icm.unity.engine;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
@@ -27,14 +26,15 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.EndpointManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.registries.EndpointFactoriesRegistry;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
@@ -119,7 +119,7 @@ public class EndpointManagementImpl implements EndpointManagement
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			List<Map<String, BindingAuthn>> authenticators = authnLoader.getAuthenticators(
+			List<AuthenticationOption> authenticators = authnLoader.getAuthenticators(
 					authenticatorsInfo, sql);
 			verifyAuthenticators(authenticators, factory.getDescription().getSupportedBindings());
 			AuthenticationRealm realm = realmDB.get(realmName, sql);
@@ -141,12 +141,12 @@ public class EndpointManagementImpl implements EndpointManagement
 		return instance.getEndpointDescription();
 	}
 	
-	private void verifyAuthenticators(List<Map<String, BindingAuthn>> authenticators, 
+	private void verifyAuthenticators(List<AuthenticationOption> authenticators, 
 			Set<String> supported) throws WrongArgumentException
 	{
-		for (Map<String, BindingAuthn> auths: authenticators)
+		for (AuthenticationOption auths: authenticators)
 		{
-			for (BindingAuthn bindingAuthn: auths.values())
+			for (BindingAuthn bindingAuthn: auths.getAuthenticators().values())
 				if (!supported.contains(bindingAuthn.getBindingName()))
 					throw new WrongArgumentException("The authenticator of type " + 
 							bindingAuthn.getBindingName() + " is not supported by the binding. " +
@@ -232,7 +232,7 @@ public class EndpointManagementImpl implements EndpointManagement
 			String newDesc = (description != null) ? description : 
 				instance.getEndpointDescription().getDescription();
 			
-			List<Map<String, BindingAuthn>> authenticators;
+			List<AuthenticationOption> authenticators;
 			List<AuthenticationOptionDescription> newAuthn;
 			if (authn != null)
 			{

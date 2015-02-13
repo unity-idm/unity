@@ -27,6 +27,7 @@ import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessorUtil;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.InvocationContext;
@@ -47,13 +48,13 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, AuthenticationInterceptor.class);
 	private UnityMessageSource msg;
-	protected List<Map<String, BindingAuthn>> authenticators;
+	protected List<AuthenticationOption> authenticators;
 	protected UnsuccessfulAuthenticationCounter unsuccessfulAuthenticationCounter;
 	protected SessionManagement sessionMan;
 	protected AuthenticationRealm realm;
 	protected Set<String> notProtectedPaths = new HashSet<String>();
 	
-	public AuthenticationInterceptor(UnityMessageSource msg, List<Map<String, BindingAuthn>> authenticators,
+	public AuthenticationInterceptor(UnityMessageSource msg, List<AuthenticationOption> authenticators,
 			AuthenticationRealm realm, SessionManagement sessionManagement, Set<String> notProtectedPaths)
 	{
 		super(Phase.PRE_INVOKE);
@@ -88,7 +89,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		if (isToNotProtected(message))
 			return;
 		
-		for (Map<String, BindingAuthn> authenticatorSet: authenticators)
+		for (AuthenticationOption authenticatorSet: authenticators)
 		{
 			try
 			{
@@ -148,10 +149,10 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	}
 	
 	private AuthenticatedEntity processAuthnSet(Map<String, AuthenticationResult> authnCache,
-			Map<String, BindingAuthn> authenticatorSet) throws AuthenticationException
+			AuthenticationOption authenticatorSet) throws AuthenticationException
 	{
 		List<AuthenticationResult> setResult = new ArrayList<AuthenticationResult>();
-		for (Map.Entry<String, BindingAuthn> authenticator: authenticatorSet.entrySet())
+		for (Map.Entry<String, BindingAuthn> authenticator: authenticatorSet.getAuthenticators().entrySet())
 		{
 			AuthenticationResult result = authnCache.get(authenticator.getKey());
 			if (result == null)

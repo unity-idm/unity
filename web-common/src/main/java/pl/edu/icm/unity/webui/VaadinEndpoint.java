@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.DispatcherType;
@@ -23,9 +22,9 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
-import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.HiddenResourcesFilter;
@@ -193,7 +192,7 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	}
 	
 	@Override
-	public synchronized void updateAuthenticators(List<Map<String, BindingAuthn>> authenticators)
+	public synchronized void updateAuthenticationOptions(List<AuthenticationOption> authenticators)
 	{
 		setAuthenticators(authenticators);
 		if (authenticationServlet != null)

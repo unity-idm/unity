@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.webadmin;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
 import pl.edu.icm.unity.home.UserAccountComponent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
-import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webadmin.AdminTopHeader.ViewSwitchCallback;
@@ -70,7 +69,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 	
 	@Override
 	public void configure(EndpointDescription description,
-			List<Map<String, BindingAuthn>> authenticators,
+			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
 	{
 		this.endpointDescription = description;

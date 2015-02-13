@@ -30,9 +30,9 @@ import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
-import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -175,7 +175,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 	}
 	
 	@Override
-	public void updateAuthenticators(List<Map<String, BindingAuthn>> authenticators)
+	public void updateAuthenticationOptions(List<AuthenticationOption> authenticators)
 			throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
