@@ -395,8 +395,6 @@ unity.saml.requester.requesterEntityId=https://unity.example.com/unitygw/saml-sp
 unity.saml.requester.metadataPath=metadata1
 
 unity.saml.requester.displayName=Remote SAML authentication
-https://simplesamlphp-sp.example.com:8080/\
-simplesaml/module.php/saml/sp/metadata.php/default-sp
 
 unity.saml.requester.remoteIdp.1.name=Simple SAMLPHP based IdP
 unity.saml.requester.remoteIdp.1.address=https://simplesamlphp-idp.example.com:8080/\
