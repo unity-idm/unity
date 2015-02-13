@@ -16,7 +16,7 @@ import pl.edu.icm.unity.engine.authn.AuthenticatorLoader;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.internal.AuthenticatorsManagement;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 
 /**
  * Implementation of {@link AuthenticatorsManagement}
@@ -39,7 +39,7 @@ public class AuthenticatorsManagementImpl implements AuthenticatorsManagement
 
 
 	@Override
-	public List<Map<String, BindingAuthn>> getAuthenticatorUIs(List<AuthenticatorSet> authnList) 
+	public List<Map<String, BindingAuthn>> getAuthenticatorUIs(List<AuthenticationOptionDescription> authnList) 
 			throws EngineException
 	{
 		SqlSession sql = db.getSqlSession(false);

@@ -31,7 +31,7 @@ import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -64,7 +64,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
 		authnMan.createAuthenticator("auth1", authType.getId(), "6", "bbb", "credential1");
 		
-		AuthenticatorSet authSet = new AuthenticatorSet(Collections.singleton("auth1"));
+		AuthenticationOptionDescription authSet = new AuthenticationOptionDescription(Collections.singleton("auth1"));
 		endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", new I18nString("endpoint1"), "/foo", "desc", 
 				Collections.singletonList(authSet), "", realm.getName());
 
@@ -134,18 +134,18 @@ public class TestAuthentication extends DBIntegrationTestBase
 		EndpointTypeDescription type = endpointTypes.get(0);
 		
 		endpointMan.deploy(type.getName(), "endpoint1", new I18nString("endpoint1"),
-				"/foo", "desc", new ArrayList<AuthenticatorSet>(), "", 
+				"/foo", "desc", new ArrayList<AuthenticationOptionDescription>(), "", 
 				realm.getName());
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 
 		//and assign the authenticator to it
-		AuthenticatorSet authSet = new AuthenticatorSet(Collections.singleton("auth1"));
+		AuthenticationOptionDescription authSet = new AuthenticationOptionDescription(Collections.singleton("auth1"));
 		endpointMan.updateEndpoint(endpoints.get(0).getId(), new I18nString("ada"), 
 				"ada", Collections.singletonList(authSet), "", realm.getName());
 
 		//check if is returned
-		List<AuthenticatorSet> authSets = endpointMan.getEndpoints().get(0).getAuthenticatorSets();
+		List<AuthenticationOptionDescription> authSets = endpointMan.getEndpoints().get(0).getAuthenticatorSets();
 		assertEquals(1, authSets.size());
 		assertEquals(1, authSets.get(0).getAuthenticators().size());
 		
@@ -158,7 +158,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		
 		//remove it from endpoint
 		endpointMan.updateEndpoint(endpoints.get(0).getId(), new I18nString("ada"), 
-				"ada", new ArrayList<AuthenticatorSet>(), "",
+				"ada", new ArrayList<AuthenticationOptionDescription>(), "",
 				realm.getName());
 		
 		//remove again

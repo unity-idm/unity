@@ -23,7 +23,7 @@ import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.ws.mock.MockWSEndpointFactory;
 import pl.edu.icm.unity.ws.mock.MockWSSEI;
@@ -44,8 +44,8 @@ public class TestWSCore extends DBIntegrationTestBase
 				5, 1, -1, 600);
 		realmsMan.addRealm(realm);
 		
-		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
-		authnCfg.add(new AuthenticatorSet(Collections.singleton(AUTHENTICATOR_WS_PASS)));
+		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
+		authnCfg.add(new AuthenticationOptionDescription(Collections.singleton(AUTHENTICATOR_WS_PASS)));
 		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", new I18nString("endpoint1"), 
 				"/mock", "desc", authnCfg, "", realm.getName());
 
@@ -126,9 +126,9 @@ public class TestWSCore extends DBIntegrationTestBase
 		realmsMan.addRealm(realm);
 		
 		
-		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
-		authnCfg.add(new AuthenticatorSet(Collections.singleton(AUTHENTICATOR_WS_PASS)));
-		authnCfg.add(new AuthenticatorSet(Collections.singleton(AUTHENTICATOR_WS_CERT)));
+		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
+		authnCfg.add(new AuthenticationOptionDescription(Collections.singleton(AUTHENTICATOR_WS_PASS)));
+		authnCfg.add(new AuthenticationOptionDescription(Collections.singleton(AUTHENTICATOR_WS_CERT)));
 		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", new I18nString("endpoint1"), 
 				"/mock", "desc", authnCfg, "", realm.getName());
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
@@ -194,11 +194,11 @@ public class TestWSCore extends DBIntegrationTestBase
 		assertEquals("[user1]", ret.getNameID().getStringValue());
 		
 
-		List<AuthenticatorSet> authnCfg2 = new ArrayList<AuthenticatorSet>();
+		List<AuthenticationOptionDescription> authnCfg2 = new ArrayList<AuthenticationOptionDescription>();
 		Set<String> setC = new HashSet<String>();
 		setC.add(AUTHENTICATOR_WS_PASS);
 		setC.add(AUTHENTICATOR_WS_CERT);
-		authnCfg2.add(new AuthenticatorSet(setC));
+		authnCfg2.add(new AuthenticationOptionDescription(setC));
 		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint2", new I18nString("endpoint2"),
 				"/mock2", "desc", authnCfg2, "", realm.getName());
 		

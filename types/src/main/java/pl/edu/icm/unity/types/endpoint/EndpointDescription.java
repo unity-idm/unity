@@ -8,7 +8,7 @@ import java.util.List;
 
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 
 /**
  * Defines a common data required to be provided by each endpoint.
@@ -23,7 +23,7 @@ public class EndpointDescription
 	private String description;
 	private AuthenticationRealm realm;
 	private EndpointTypeDescription type;
-	private List<AuthenticatorSet> authenticatorSets;
+	private List<AuthenticationOptionDescription> authenticatorSets;
 
 	public EndpointDescription(EndpointDescription endpointDesc) 
 	{
@@ -51,7 +51,7 @@ public class EndpointDescription
 	{
 		return type;
 	}
-	public List<AuthenticatorSet> getAuthenticatorSets()
+	public List<AuthenticationOptionDescription> getAuthenticatorSets()
 	{
 		return authenticatorSets;
 	}
@@ -67,7 +67,7 @@ public class EndpointDescription
 	{
 		this.type = type;
 	}
-	public void setAuthenticatorSets(List<AuthenticatorSet> authenticatorSets)
+	public void setAuthenticatorSets(List<AuthenticationOptionDescription> authenticatorSets)
 	{
 		this.authenticatorSets = authenticatorSets;
 	}

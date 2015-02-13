@@ -59,7 +59,7 @@ import pl.edu.icm.unity.server.translation.in.InputTranslationProfile.ProfileMod
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.stdext.tactions.in.MapIdentityActionFactory;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
@@ -93,7 +93,7 @@ public class TestECP extends AbstractTestIdpBase
 		super.setup();
 		try
 		{
-			List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
+			List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
 			endpointMan.deploy(ECPEndpointFactory.NAME, "endpointECP", new I18nString("endpointECP"),
 					"/ecp", "desc", 
 					authnCfg, ECP_ENDP_CFG, REALM_NAME);

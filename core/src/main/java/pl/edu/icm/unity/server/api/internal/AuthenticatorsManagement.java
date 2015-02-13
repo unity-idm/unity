@@ -9,7 +9,7 @@ import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 
 /**
  * Provides access to authenticators. Low level, rarely useful. Needed e.g. by sandbox UI.
@@ -19,10 +19,10 @@ public interface AuthenticatorsManagement
 {
 	/**
 	 * Resolves binding specific authenticator authN implementations for a given 
-	 * list of {@link AuthenticatorSet}. 
+	 * list of {@link AuthenticationOptionDescription}. 
 	 * @param authnList
 	 * @return
 	 * @throws EngineException 
 	 */
-	List<Map<String, BindingAuthn>> getAuthenticatorUIs(List<AuthenticatorSet> authnList) throws EngineException;
+	List<Map<String, BindingAuthn>> getAuthenticatorUIs(List<AuthenticationOptionDescription> authnList) throws EngineException;
 }

@@ -47,7 +47,7 @@ import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -90,9 +90,9 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 			AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
 					10, 100, -1, 600);
 			realmsMan.addRealm(realm);
-			List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
-			authnCfg.add(new AuthenticatorSet(Collections.singleton("Apass")));
-			authnCfg.add(new AuthenticatorSet(Collections.singleton("Acert")));
+			List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
+			authnCfg.add(new AuthenticationOptionDescription(Collections.singleton("Apass")));
+			authnCfg.add(new AuthenticationOptionDescription(Collections.singleton("Acert")));
 			endpointMan.deploy(SamlIdPSoapEndpointFactory.NAME, "endpointIDP", 
 					new I18nString("endpointIDP"), "/saml", "desc", 
 					authnCfg, SAML_ENDP_CFG, REALM_NAME);

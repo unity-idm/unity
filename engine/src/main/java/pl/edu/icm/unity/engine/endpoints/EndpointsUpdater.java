@@ -23,7 +23,7 @@ import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 
 
 /**
@@ -191,8 +191,8 @@ public class EndpointsUpdater
 	 */
 	private boolean hasChangedAuthenticator(Set<String> changedAuthenticators, EndpointInstance instance)
 	{
-		List<AuthenticatorSet> auths = instance.getEndpointDescription().getAuthenticatorSets();
-		for (AuthenticatorSet as: auths)
+		List<AuthenticationOptionDescription> auths = instance.getEndpointDescription().getAuthenticatorSets();
+		for (AuthenticationOptionDescription as: auths)
 		{
 			Set<String> authenticators = as.getAuthenticators();
 			for (String a: authenticators)

@@ -83,7 +83,7 @@ import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -689,14 +689,14 @@ public class EngineInitialization extends LifecycleBase
 			String realmName = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_REALM);
 			
 			String[] authenticatorSets = authenticatorsSpec.split(";");
-			List<AuthenticatorSet> endpointAuthn = new ArrayList<AuthenticatorSet>();
+			List<AuthenticationOptionDescription> endpointAuthn = new ArrayList<AuthenticationOptionDescription>();
 			for (String authenticatorSet: authenticatorSets)
 			{
 				Set<String> endpointAuthnSet = new HashSet<String>();
 				String[] authenticators = authenticatorSet.split(",");
 				for (String a: authenticators)
 					endpointAuthnSet.add(a.trim());
-				endpointAuthn.add(new AuthenticatorSet(endpointAuthnSet));
+				endpointAuthn.add(new AuthenticationOptionDescription(endpointAuthnSet));
 			}
 			
 			String jsonConfiguration = FileUtils.readFileToString(configFile);

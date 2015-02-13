@@ -23,7 +23,7 @@ import org.junit.Test;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpointFactory;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 /**
@@ -46,9 +46,9 @@ public class TestJWTAuthentication extends TestRESTBase
 		
 		authnMan.createAuthenticator("Ajwt", "jwt with rest-jwt", JWT_CONFIG, null, null);
 		
-		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
-		authnCfg.add(new AuthenticatorSet(Collections.singleton(AUTHENTICATOR_REST_PASS)));
-		authnCfg.add(new AuthenticatorSet(Collections.singleton("Ajwt")));
+		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
+		authnCfg.add(new AuthenticationOptionDescription(Collections.singleton(AUTHENTICATOR_REST_PASS)));
+		authnCfg.add(new AuthenticationOptionDescription(Collections.singleton("Ajwt")));
 		endpointMan.deploy(JWTManagementEndpointFactory.NAME, 
 				"jwtMan", new I18nString("jwtMan"), "/jwt", "desc", authnCfg, 
 				JWT_CONFIG, realm.getName());

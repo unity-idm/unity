@@ -13,16 +13,16 @@ import java.util.Set;
  * then each of them must be used by a principal to have an overall authentication successful.
  * @author K. Benedyczak
  */
-public class AuthenticatorSet
+public class AuthenticationOptionDescription
 {
 	private Set<String> authenticators;
 	
-	public AuthenticatorSet()
+	public AuthenticationOptionDescription()
 	{
 		authenticators = Collections.emptySet();
 	}
 	
-	public AuthenticatorSet(Set<String> authenticators)
+	public AuthenticationOptionDescription(Set<String> authenticators)
 	{
 		this.authenticators = authenticators;
 	}

@@ -11,7 +11,7 @@ import java.util.Map;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.JsonSerializable;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 /**
@@ -39,7 +39,7 @@ public interface EndpointInstance
 	 */
 	public void initialize(String id, I18nString displayedName, URL baseAddress, String contextAddress, 
 			String description, 
-			List<AuthenticatorSet> authenticatorsInfo, List<Map<String, BindingAuthn>> authenticators,
+			List<AuthenticationOptionDescription> authenticatorsInfo, List<Map<String, BindingAuthn>> authenticators,
 			AuthenticationRealm realm, String serializedConfiguration);
 
 	public EndpointDescription getEndpointDescription();

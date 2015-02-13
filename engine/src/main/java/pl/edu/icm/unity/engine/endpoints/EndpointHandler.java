@@ -34,7 +34,7 @@ import pl.edu.icm.unity.server.registries.EndpointFactoriesRegistry;
 import pl.edu.icm.unity.server.utils.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 /**
@@ -110,9 +110,9 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 			String state = root.get("state").asText();
 			EndpointDescription description = new EndpointDescription();
 			
-			List<AuthenticatorSet> aSet = jsonMapper.readValue(
+			List<AuthenticationOptionDescription> aSet = jsonMapper.readValue(
 					descriptionJson.get("authenticatorSets").asText(), 
-					new TypeReference<List<AuthenticatorSet>>() {});
+					new TypeReference<List<AuthenticationOptionDescription>>() {});
 			description.setAuthenticatorSets(aSet);
 			description.setContextAddress(descriptionJson.get("contextAddress").asText());
 			if (descriptionJson.has("description"))

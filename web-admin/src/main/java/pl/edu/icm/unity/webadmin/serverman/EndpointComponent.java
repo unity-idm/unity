@@ -20,7 +20,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
@@ -171,17 +171,17 @@ public class EndpointComponent extends DeployableComponentViewBase
 		
 	}
 	
-	private List<AuthenticatorSet> getEndpointAuth(String spec)
+	private List<AuthenticationOptionDescription> getEndpointAuth(String spec)
 	{
 		String[] authenticatorSets = spec.split(";");
-		List<AuthenticatorSet> endpointAuthn = new ArrayList<AuthenticatorSet>();
+		List<AuthenticationOptionDescription> endpointAuthn = new ArrayList<AuthenticationOptionDescription>();
 		for (String authenticatorSet : authenticatorSets)
 		{
 			Set<String> endpointAuthnSet = new HashSet<String>();
 			String[] authenticators = authenticatorSet.split(",");
 			for (String a : authenticators)
 				endpointAuthnSet.add(a.trim());
-			endpointAuthn.add(new AuthenticatorSet(endpointAuthnSet));
+			endpointAuthn.add(new AuthenticationOptionDescription(endpointAuthnSet));
 		}
 		return endpointAuthn;
 	}
@@ -294,7 +294,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		au.setSpacing(false);
 		au.setMargin(false);
 		i = 0;
-		for (AuthenticatorSet s : endpoint.getAuthenticatorSets())
+		for (AuthenticationOptionDescription s : endpoint.getAuthenticatorSets())
 		{
 			i++;
 			StringBuilder auth = new StringBuilder();

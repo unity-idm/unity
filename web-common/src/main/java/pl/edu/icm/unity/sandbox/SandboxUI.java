@@ -27,7 +27,7 @@ import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
@@ -60,7 +60,7 @@ public class SandboxUI extends AuthenticationUI
 	private static final String DEBUG_ID = "sbox";
 	public static final String PROFILE_VALIDATION = "validate";
 
-	private List<AuthenticatorSet> authnList;
+	private List<AuthenticationOptionDescription> authnList;
 	private boolean debug;
 	private boolean validationMode;
 
@@ -165,10 +165,10 @@ public class SandboxUI extends AuthenticationUI
 //		}			
 	}
 
-	private List<AuthenticatorSet> getAllVaadinAuthenticators(AuthenticationManagement authnManagement, 
+	private List<AuthenticationOptionDescription> getAllVaadinAuthenticators(AuthenticationManagement authnManagement, 
 			AuthenticatorsRegistry authnRegistry) 
 	{
-		ArrayList<AuthenticatorSet> vaadinAuthenticators = new ArrayList<AuthenticatorSet>();
+		ArrayList<AuthenticationOptionDescription> vaadinAuthenticators = new ArrayList<AuthenticationOptionDescription>();
 		
 		try 
 		{
@@ -180,7 +180,7 @@ public class SandboxUI extends AuthenticationUI
 						instance.getTypeDescription().getVerificationMethod());
 				if (!(factory instanceof LocalCredentialVerificatorFactory)) 
 				{
-					AuthenticatorSet authnSet = new AuthenticatorSet(
+					AuthenticationOptionDescription authnSet = new AuthenticationOptionDescription(
 							Collections.singleton(instance.getId()));
 					vaadinAuthenticators.add(authnSet);
 				}
@@ -195,7 +195,7 @@ public class SandboxUI extends AuthenticationUI
 	}
 	
 	private List<Map<String, VaadinAuthenticationUI>> getAuthenticatorUIs(
-			List<AuthenticatorSet> authnList, AuthenticatorsManagement authenticatorsMan) 
+			List<AuthenticationOptionDescription> authnList, AuthenticatorsManagement authenticatorsMan) 
 	{
 		List<Map<String, BindingAuthn>> authenticators;
 		try

@@ -34,7 +34,7 @@ import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.registries.EndpointFactoriesRegistry;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
@@ -95,7 +95,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	@Override
 	public EndpointDescription deploy(String typeId, String endpointName, I18nString displayedName, 
 			String address, String description,
-			List<AuthenticatorSet> authn, String jsonConfiguration, String realm) throws EngineException 
+			List<AuthenticationOptionDescription> authn, String jsonConfiguration, String realm) throws EngineException 
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		synchronized(internalManagement)
@@ -106,7 +106,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	}
 
 	private EndpointDescription deployInt(String typeId, String endpointName, I18nString displayedName, 
-			String address, String description, List<AuthenticatorSet> authenticatorsInfo, 
+			String address, String description, List<AuthenticationOptionDescription> authenticatorsInfo, 
 			String realmName, String jsonConfiguration) throws EngineException 
 	{
 		EndpointFactory factory = endpointFactoriesReg.getById(typeId);
@@ -194,7 +194,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	
 	@Override
 	public void updateEndpoint(String id, I18nString displayedName, String description, 
-			List<AuthenticatorSet> authn, String jsonConfiguration, String realm) throws EngineException
+			List<AuthenticationOptionDescription> authn, String jsonConfiguration, String realm) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		synchronized(internalManagement)
@@ -217,7 +217,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	 */
 	private void updateEndpointInt(String id, I18nString displayedName, String description, 
 			String jsonConfiguration, 
-			List<AuthenticatorSet> authn, String realmName) throws EngineException
+			List<AuthenticationOptionDescription> authn, String realmName) throws EngineException
 	{
 		SqlSession sql = db.getSqlSession(true);
 		try
@@ -233,7 +233,7 @@ public class EndpointManagementImpl implements EndpointManagement
 				instance.getEndpointDescription().getDescription();
 			
 			List<Map<String, BindingAuthn>> authenticators;
-			List<AuthenticatorSet> newAuthn;
+			List<AuthenticationOptionDescription> newAuthn;
 			if (authn != null)
 			{
 				newAuthn = authn;

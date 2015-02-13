@@ -8,7 +8,7 @@ import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
@@ -40,7 +40,7 @@ public interface EndpointManagement
 	 */
 	public EndpointDescription deploy(String typeId, String endpointName, I18nString displayedName, 
 			String address, String description,
-			List<AuthenticatorSet> authn, String configuration, String realm) throws EngineException;
+			List<AuthenticationOptionDescription> authn, String configuration, String realm) throws EngineException;
 
 
 	/**
@@ -59,5 +59,5 @@ public interface EndpointManagement
 	 * @param configuration new json configuration, can be null to be unchanged.
 	 */
 	public void updateEndpoint(String id, I18nString displayedName, String description, 
-			List<AuthenticatorSet> authn, String configuration, String realm) throws EngineException;
+			List<AuthenticationOptionDescription> authn, String configuration, String realm) throws EngineException;
 }

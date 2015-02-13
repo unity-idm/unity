@@ -20,7 +20,7 @@ import org.junit.Test;
 import pl.edu.icm.unity.rest.MockRESTEndpointFactory;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 /**
  * Test user login performance
@@ -44,8 +44,8 @@ public class TstPerfLogin extends PerformanceTestBase
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 10, 100, -1, 600);
 		realmsMan.addRealm(realm);
 
-		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
-		authnCfg.add(new AuthenticatorSet(Collections.singleton(AUTHENTICATOR_REST_PASS)));
+		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
+		authnCfg.add(new AuthenticationOptionDescription(Collections.singleton(AUTHENTICATOR_REST_PASS)));
 		endpointMan.deploy(MockRESTEndpointFactory.NAME, "endpoint1", new I18nString("endpoint1"), "/mock", "desc",
 				authnCfg, "", realm.getName());
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();

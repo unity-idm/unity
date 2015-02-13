@@ -33,7 +33,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
@@ -155,26 +155,26 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
 					10, 100, -1, 600);
 			realmsMan.addRealm(realm);
-			List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
-			authnCfg.add(new AuthenticatorSet(Collections.singleton("Apass")));
+			List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
+			authnCfg.add(new AuthenticationOptionDescription(Collections.singleton("Apass")));
 			endpointMan.deploy(OAuthTokenEndpointFactory.NAME, "endpointIDP", 
 					new I18nString("endpointIDP"), "/oauth", "desc", 
 					authnCfg, OAUTH_ENDP_CFG, REALM_NAME);
 			
-			List<AuthenticatorSet> authnCfg2 = new ArrayList<AuthenticatorSet>();
-			authnCfg2.add(new AuthenticatorSet(Collections.singleton("a-rp")));
+			List<AuthenticationOptionDescription> authnCfg2 = new ArrayList<AuthenticationOptionDescription>();
+			authnCfg2.add(new AuthenticationOptionDescription(Collections.singleton("a-rp")));
 			endpointMan.deploy(JWTManagementEndpointFactory.NAME, "endpointJWT", 
 					new I18nString("endpointJWT"), "/jwt", "desc", 
 					authnCfg2, JWT_ENDP_CFG, REALM_NAME);
 
-			List<AuthenticatorSet> authnCfg3 = new ArrayList<AuthenticatorSet>();
-			authnCfg3.add(new AuthenticatorSet(Collections.singleton("a-rp-int")));
+			List<AuthenticationOptionDescription> authnCfg3 = new ArrayList<AuthenticationOptionDescription>();
+			authnCfg3.add(new AuthenticationOptionDescription(Collections.singleton("a-rp-int")));
 			endpointMan.deploy(JWTManagementEndpointFactory.NAME, "endpointJWT-int", 
 					new I18nString("endpointJWT-int"), "/jwt-int", "desc", 
 					authnCfg3, JWT_ENDP_CFG, REALM_NAME);
 
-			List<AuthenticatorSet> authnCfg4 = new ArrayList<AuthenticatorSet>();
-			authnCfg4.add(new AuthenticatorSet(Collections.singleton("a-rp-mitre")));
+			List<AuthenticationOptionDescription> authnCfg4 = new ArrayList<AuthenticationOptionDescription>();
+			authnCfg4.add(new AuthenticationOptionDescription(Collections.singleton("a-rp-mitre")));
 			endpointMan.deploy(JWTManagementEndpointFactory.NAME, "endpointJWT-mitre", 
 					new I18nString("endpointJWT-mitre"), "/jwt-mitre", "desc", 
 					authnCfg4, JWT_ENDP_CFG, REALM_NAME);

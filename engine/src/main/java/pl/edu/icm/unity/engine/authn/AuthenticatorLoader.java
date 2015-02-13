@@ -22,7 +22,7 @@ import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 /**
@@ -77,11 +77,11 @@ public class AuthenticatorLoader
 				authnInstance.getId(), authnInstance);
 	}
 	
-	public List<Map<String, BindingAuthn>> getAuthenticators(List<AuthenticatorSet> authn, SqlSession sql) 
+	public List<Map<String, BindingAuthn>> getAuthenticators(List<AuthenticationOptionDescription> authn, SqlSession sql) 
 			throws EngineException
 	{
 		List<Map<String, BindingAuthn>> ret = new ArrayList<Map<String, BindingAuthn>>(authn.size());
-		for (AuthenticatorSet aSet: authn)
+		for (AuthenticationOptionDescription aSet: authn)
 		{
 			Set<String> authenticators = aSet.getAuthenticators();
 			Map<String, BindingAuthn> aImpls = new HashMap<String, BindingAuthn>();

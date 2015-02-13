@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
@@ -31,7 +31,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 		EndpointTypeDescription type = endpointTypes.get(0);
 		
 		endpointMan.deploy(type.getName(), "endpoint1", new I18nString("endpoint1"), 
-				"/foo", "desc", new ArrayList<AuthenticatorSet>(), "",
+				"/foo", "desc", new ArrayList<AuthenticationOptionDescription>(), "",
 				realm.getName());
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
@@ -50,9 +50,9 @@ public class TestEndpoints extends DBIntegrationTestBase
 		//test initial loading from DB: create, remove from the server, load
 		
 		endpointMan.deploy(type.getName(), "endpoint1", new I18nString("endpoint1"), 
-				"/foo", "desc", new ArrayList<AuthenticatorSet>(), "", realm.getName());
+				"/foo", "desc", new ArrayList<AuthenticationOptionDescription>(), "", realm.getName());
 		endpointMan.deploy(type.getName(), "endpoint2", new I18nString("endpoint2"), 
-				"/foo2", "desc", new ArrayList<AuthenticatorSet>(), "", realm.getName());
+				"/foo2", "desc", new ArrayList<AuthenticationOptionDescription>(), "", realm.getName());
 		endpoints = endpointMan.getEndpoints();
 		assertEquals(2, endpoints.size());
 		endpointMan.updateEndpoint(endpoints.get(0).getId(), new I18nString("endp1"), 

@@ -43,7 +43,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -141,8 +141,8 @@ public class TestQuery extends TestRESTBase
 				10, 100, -1, 600);
 		realmsMan.addRealm(realm);
 		
-		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
-		authnCfg.add(new AuthenticatorSet(Collections.singleton("ApassREST")));
+		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
+		authnCfg.add(new AuthenticationOptionDescription(Collections.singleton("ApassREST")));
 		endpointMan.deploy(RESTAdminEndpointFactory.NAME, 
 				"restAdmin", new I18nString("restAdmin"),
 				"/restadm", "desc", authnCfg, "", realm.getName());

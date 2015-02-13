@@ -20,7 +20,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
-import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 
 /**
  * Boilerplate: easy access to {@link EndpointInstance} storage.
@@ -70,8 +70,8 @@ public class EndpointDB extends GenericObjectsDB<EndpointInstance>
 			List<EndpointInstance> endpoints = getAll(sql);
 			for (EndpointInstance instance: endpoints)
 			{
-				List<AuthenticatorSet> used = instance.getEndpointDescription().getAuthenticatorSets();
-				for (AuthenticatorSet set: used)
+				List<AuthenticationOptionDescription> used = instance.getEndpointDescription().getAuthenticatorSets();
+				for (AuthenticationOptionDescription set: used)
 					if (set.getAuthenticators().contains(removedObject.getId()))
 						throw new IllegalArgumentException("The authenticator " + 
 								removedObject.getId() + 
