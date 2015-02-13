@@ -13,10 +13,9 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.CredentialExchange;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.I18nStringJsonUtil;
 import pl.edu.icm.unity.server.utils.Log;
@@ -54,25 +53,19 @@ import eu.unicore.util.configuration.ConfigurationException;
  * 
  * @author K. Benedyczak
  */
-public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthentication
+public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExchange> implements VaadinAuthentication
 {
 	private Logger log = Log.getLogger(Log.U_SERVER_WEB, PasswordRetrieval.class);
 	private UnityMessageSource msg;
-	private PasswordExchange credentialExchange;
 	private I18nString name;
 	private String registrationFormForUnknown;
 	private CredentialEditorRegistry credEditorReg;
 
 	public PasswordRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg)
 	{
+		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.credEditorReg = credEditorReg;
-	}
-
-	@Override
-	public String getBindingName()
-	{
-		return VaadinAuthentication.NAME;
 	}
 
 	@Override
@@ -109,13 +102,6 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 					"based password retrieval can not be parsed", e);
 		}
 	}
-
-	@Override
-	public void setCredentialExchange(CredentialExchange e)
-	{
-		this.credentialExchange = (PasswordExchange) e;
-	}
-
 
 	@Override
 	public Collection<VaadinAuthenticationUI> createUIInstance()

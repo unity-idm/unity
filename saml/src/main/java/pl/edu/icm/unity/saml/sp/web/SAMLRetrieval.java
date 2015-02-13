@@ -15,8 +15,7 @@ import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
-import pl.edu.icm.unity.server.authn.CredentialExchange;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
+import pl.edu.icm.unity.server.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
@@ -26,26 +25,20 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
  * 
  * @author K. Benedyczak
  */
-public class SAMLRetrieval implements CredentialRetrieval, VaadinAuthentication
+public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange> implements VaadinAuthentication
 {
 	public static final String REMOTE_AUTHN_CONTEXT = SAMLRetrieval.class.getName() + ".REMOTE_AUTHN_CONTEXT";
 	
 	private UnityMessageSource msg;
-	private SAMLExchange credentialExchange;
 	private SamlContextManagement samlContextManagement;
 	
 	public SAMLRetrieval(UnityMessageSource msg, NetworkServer jettyServer, 
 			SharedEndpointManagement sharedEndpointMan,
 			SamlContextManagement samlContextManagement)
 	{
+		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.samlContextManagement = samlContextManagement;
-	}
-
-	@Override
-	public String getBindingName()
-	{
-		return VaadinAuthentication.NAME;
 	}
 
 	@Override
@@ -58,13 +51,6 @@ public class SAMLRetrieval implements CredentialRetrieval, VaadinAuthentication
 	public void setSerializedConfiguration(String source)
 	{
 	}
-
-	@Override
-	public void setCredentialExchange(CredentialExchange e)
-	{
-		this.credentialExchange = (SAMLExchange) e;
-	}
-
 
 	@Override
 	public Collection<VaadinAuthenticationUI> createUIInstance()

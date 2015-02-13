@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.oauth.rp.retrieval;
 
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 
 /**
  * Credential retrieval using OAuth access token as provided with the Bearer Authorization header (RFC 6750).
@@ -13,11 +12,10 @@ import pl.edu.icm.unity.server.authn.CredentialRetrieval;
  * Real implementation is in {@link BearerRetrievalBase}, here only binding is reported.
  * @author K. Benedyczak
  */
-public class RESTBearerTokenRetrieval extends BearerRetrievalBase implements CredentialRetrieval, JAXRSAuthentication
+public class RESTBearerTokenRetrieval extends BearerRetrievalBase implements JAXRSAuthentication
 {
-	@Override
-	public String getBindingName()
+	public RESTBearerTokenRetrieval()
 	{
-		return JAXRSAuthentication.NAME;
+		super(JAXRSAuthentication.NAME);
 	}
 }

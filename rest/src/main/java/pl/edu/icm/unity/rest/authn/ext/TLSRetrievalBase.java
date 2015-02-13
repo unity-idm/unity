@@ -15,9 +15,8 @@ import org.apache.cxf.transport.http.AbstractHTTPDestination;
 
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
+import pl.edu.icm.unity.server.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.CredentialExchange;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.stdext.credential.CertificateExchange;
 
@@ -25,10 +24,13 @@ import pl.edu.icm.unity.stdext.credential.CertificateExchange;
  * Retrieves certificate from the TLS
  * @author K. Benedyczak
  */
-public abstract class TLSRetrievalBase implements CredentialRetrieval, CXFAuthentication
+public abstract class TLSRetrievalBase extends AbstractCredentialRetrieval<CertificateExchange> implements CXFAuthentication
 {
-	private CertificateExchange credentialExchange;
-	
+	public TLSRetrievalBase(String bindingName)
+	{
+		super(bindingName);
+	}
+
 	@Override
 	public String getSerializedConfiguration() throws InternalException
 	{
@@ -63,12 +65,6 @@ public abstract class TLSRetrievalBase implements CredentialRetrieval, CXFAuthen
 		}
 	}
 
-	@Override
-	public void setCredentialExchange(CredentialExchange e)
-	{
-		this.credentialExchange = (CertificateExchange) e;
-	}
-	
 	/**
 	 * @return null if not available, authenticated certificates otherwise.
 	 */

@@ -15,9 +15,8 @@ import pl.edu.icm.unity.server.authn.CredentialRetrieval;
  */
 public class HttpBasicRetrieval extends HttpBasicRetrievalBase implements CredentialRetrieval, JAXRSAuthentication
 {
-	@Override
-	public String getBindingName()
+	public HttpBasicRetrieval()
 	{
-		return JAXRSAuthentication.NAME;
+		super(JAXRSAuthentication.NAME);
 	}
 }

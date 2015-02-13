@@ -16,9 +16,8 @@ import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
  */
 public class SOAPBearerTokenRetrieval extends BearerRetrievalBase implements CredentialRetrieval, JAXRSAuthentication
 {
-	@Override
-	public String getBindingName()
+	public SOAPBearerTokenRetrieval()
 	{
-		return WebServiceAuthentication.NAME;
+		super(WebServiceAuthentication.NAME);
 	}
 }

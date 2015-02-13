@@ -12,10 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.CredentialExchange;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.I18nStringJsonUtil;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -44,7 +43,7 @@ import eu.unicore.util.configuration.ConfigurationException;
  * 
  * @author K. Benedyczak
  */
-public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
+public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchange> implements VaadinAuthentication
 {
 	private CertificateExchange credentialExchange;
 	private UnityMessageSource msg;
@@ -52,15 +51,10 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 	
 	public TLSRetrieval(UnityMessageSource msg)
 	{
+		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 	}
 	
-	@Override
-	public String getBindingName()
-	{
-		return VaadinAuthentication.NAME;
-	}
-
 	@Override
 	public String getSerializedConfiguration()
 	{
@@ -90,12 +84,6 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 			throw new ConfigurationException("The configuration of the web-" +
 					"based TLS retrieval can not be parsed", e);
 		}
-	}
-
-	@Override
-	public void setCredentialExchange(CredentialExchange e)
-	{
-		this.credentialExchange = (CertificateExchange) e;
 	}
 
 	@Override

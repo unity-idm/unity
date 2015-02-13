@@ -17,10 +17,10 @@ import org.apache.xmlbeans.impl.util.Base64;
 
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
+import pl.edu.icm.unity.server.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.CredentialExchange;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 import eu.unicore.security.HTTPAuthNTokens;
@@ -30,11 +30,16 @@ import eu.unicore.security.HTTPAuthNTokens;
  * 
  * @author K. Benedyczak
  */
-public abstract class HttpBasicRetrievalBase implements CredentialRetrieval, CXFAuthentication
+public abstract class HttpBasicRetrievalBase extends AbstractCredentialRetrieval<PasswordExchange> 
+		implements CredentialRetrieval, CXFAuthentication
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, HttpBasicRetrievalBase.class);
-	protected PasswordExchange credentialExchange;
 	
+	public HttpBasicRetrievalBase(String bindingName)
+	{
+		super(bindingName);
+	}
+
 	@Override
 	public String getSerializedConfiguration() throws InternalException
 	{
@@ -44,13 +49,6 @@ public abstract class HttpBasicRetrievalBase implements CredentialRetrieval, CXF
 	@Override
 	public void setSerializedConfiguration(String json) throws InternalException
 	{
-	}
-	
-
-	@Override
-	public void setCredentialExchange(CredentialExchange e)
-	{
-		this.credentialExchange = (PasswordExchange) e;
 	}
 	
 	@Override

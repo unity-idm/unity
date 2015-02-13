@@ -14,9 +14,8 @@ import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
  */
 public class JWTRetrieval extends JWTRetrievalBase implements JAXRSAuthentication
 {
-	@Override
-	public String getBindingName()
+	public JWTRetrieval()
 	{
-		return WebServiceAuthentication.NAME;
+		super(WebServiceAuthentication.NAME);
 	}
 }

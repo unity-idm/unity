@@ -6,26 +6,23 @@ package pl.edu.icm.unity.engine.mock;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 
-public class MockPasswordRetrieval implements CredentialRetrieval, MockBinding
+public class MockPasswordRetrieval extends AbstractCredentialRetrieval<MockExchange> implements MockBinding
 {
-	private MockExchange exchange;
-	
-	@Override
-	public String getBindingName()
+	public MockPasswordRetrieval()
 	{
-		return "web";
+		super("web");
 	}
 
 	@Override
-	public void setCredentialExchange(CredentialExchange e)
+	public void setCredentialExchange(CredentialExchange e, String id)
 	{
+		super.setCredentialExchange(e, id);
 		if (!(e instanceof MockExchange))
 			throw new InternalException("Got unsupported exchange: " + 
 					e.getClass() + " while only MockExchange is supported");
-		this.exchange = (MockExchange) e;
 	}
 
 	@Override
@@ -42,6 +39,6 @@ public class MockPasswordRetrieval implements CredentialRetrieval, MockBinding
 	@Override
 	public Long authenticate() throws EngineException
 	{
-		return exchange.checkPassword("CN=foo", "PPPbar");
+		return credentialExchange.checkPassword("CN=foo", "PPPbar");
 	}
 }

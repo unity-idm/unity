@@ -130,7 +130,7 @@ public class AuthenticatorImpl
 		verificator.setIdentityResolver(identitiesResolver);
 		verificator.setInstanceName(instanceDescription.getId());
 		retrieval = retrievalFact.newInstance();
-		retrieval.setCredentialExchange(verificator);
+		retrieval.setCredentialExchange(verificator, instanceDescription.getId());
 		updateConfiguration(rConfiguration, vConfiguration, localCredential);
 		instanceDescription.setTypeDescription(authDesc);
 	}

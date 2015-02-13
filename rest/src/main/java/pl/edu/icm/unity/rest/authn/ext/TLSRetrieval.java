@@ -12,9 +12,8 @@ import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
  */
 public class TLSRetrieval extends TLSRetrievalBase implements JAXRSAuthentication
 {
-	@Override
-	public String getBindingName()
+	public TLSRetrieval()
 	{
-		return JAXRSAuthentication.NAME;
+		super(JAXRSAuthentication.NAME);
 	}
 }

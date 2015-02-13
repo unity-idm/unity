@@ -15,10 +15,9 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.rp.AccessTokenExchange;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
+import pl.edu.icm.unity.server.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.CredentialExchange;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.utils.Log;
 
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -29,11 +28,16 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
  * 
  * @author K. Benedyczak
  */
-public abstract class BearerRetrievalBase implements CredentialRetrieval, CXFAuthentication
+public abstract class BearerRetrievalBase extends AbstractCredentialRetrieval<AccessTokenExchange> implements CXFAuthentication
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, BearerRetrievalBase.class);
 	protected AccessTokenExchange credentialExchange;
 	
+	public BearerRetrievalBase(String bindingName)
+	{
+		super(bindingName);
+	}
+
 	@Override
 	public String getSerializedConfiguration() throws InternalException
 	{
@@ -43,13 +47,6 @@ public abstract class BearerRetrievalBase implements CredentialRetrieval, CXFAut
 	@Override
 	public void setSerializedConfiguration(String json) throws InternalException
 	{
-	}
-	
-
-	@Override
-	public void setCredentialExchange(CredentialExchange e)
-	{
-		this.credentialExchange = (AccessTokenExchange) e;
 	}
 	
 	@Override

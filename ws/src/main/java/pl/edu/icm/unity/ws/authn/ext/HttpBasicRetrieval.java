@@ -15,9 +15,8 @@ import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
  */
 public class HttpBasicRetrieval extends HttpBasicRetrievalBase implements CredentialRetrieval, WebServiceAuthentication
 {
-	@Override
-	public String getBindingName()
+	public HttpBasicRetrieval()
 	{
-		return WebServiceAuthentication.NAME;
+		super(WebServiceAuthentication.NAME);
 	}
 }

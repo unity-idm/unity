@@ -16,5 +16,12 @@ import pl.edu.icm.unity.types.JsonSerializable;
  */
 public interface CredentialRetrieval extends BindingAuthn, JsonSerializable
 {
-	public void setCredentialExchange(CredentialExchange e);
+	/**
+	 * Sets initial state, given by the framework (the retrieval's own, implementation specific configuration
+	 * is set via {@link #setSerializedConfiguration(String)}): the credential verificator and the configured id.
+	 * @param e
+	 * @param id
+	 */
+	public void setCredentialExchange(CredentialExchange e, String id);
+	public String getBindingName();
 }

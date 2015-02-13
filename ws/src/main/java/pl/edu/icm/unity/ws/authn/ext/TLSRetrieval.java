@@ -13,9 +13,8 @@ import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
  */
 public class TLSRetrieval extends TLSRetrievalBase implements WebServiceAuthentication
 {
-	@Override
-	public String getBindingName()
+	public TLSRetrieval()
 	{
-		return WebServiceAuthentication.NAME;
+		super(WebServiceAuthentication.NAME);
 	}
 }

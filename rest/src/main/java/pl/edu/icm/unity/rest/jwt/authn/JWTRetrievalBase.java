@@ -14,9 +14,8 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
+import pl.edu.icm.unity.server.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.CredentialExchange;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.utils.Log;
 
@@ -25,11 +24,15 @@ import pl.edu.icm.unity.server.utils.Log;
  * 
  * @author K. Benedyczak
  */
-public abstract class JWTRetrievalBase implements CredentialRetrieval, CXFAuthentication
+public abstract class JWTRetrievalBase extends AbstractCredentialRetrieval<JWTExchange> implements CXFAuthentication
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, JWTRetrievalBase.class);
-	private JWTExchange credentialExchange;
 	
+	public JWTRetrievalBase(String bindingName)
+	{
+		super(bindingName);
+	}
+
 	@Override
 	public String getSerializedConfiguration() throws InternalException
 	{
@@ -86,11 +89,5 @@ public abstract class JWTRetrievalBase implements CredentialRetrieval, CXFAuthen
 		if (aa.indexOf('.', secDot+1) != -1)
 			return null;
 		return aa.substring(7);
-	}
-	
-	@Override
-	public void setCredentialExchange(CredentialExchange e)
-	{
-		this.credentialExchange = (JWTExchange) e;
 	}
 }
