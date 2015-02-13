@@ -6,12 +6,12 @@ package pl.edu.icm.unity.webui.authn;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
@@ -65,7 +65,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	private AuthenticationListener authNListener;
 	
 	private VerticalLayout authenticatorsContainer;
-	private Map<String, VaadinAuthentication> selectedAuthnOption;
+	private AuthenticationOption selectedAuthnOption;
 	private VaadinAuthenticationUI primaryAuthnUI;
 	private String authnId;
 	
@@ -150,8 +150,8 @@ public class SelectedAuthNPanel extends CustomComponent
 	/**
 	 * @param primaryUI
 	 */
-	public void setAuthenticator(VaadinAuthenticationUI primaryAuthnUI, 
-			Map<String, VaadinAuthentication> authnOption, String id)
+	public void setAuthenticator(VaadinAuthenticationUI primaryAuthnUI, AuthenticationOption authnOption, 
+			String id)
 	{
 		this.selectedAuthnOption = authnOption;
 		this.primaryAuthnUI = primaryAuthnUI;
@@ -242,7 +242,7 @@ public class SelectedAuthNPanel extends CustomComponent
 		{
 			log.trace("Received authentication result nr " + (results.size() + 1));
 			results.add(result);
-			if (results.size() == selectedAuthnOption.size())
+			if (results.size() == selectedAuthnOption.getAuthenticators().values().size())
 			{
 				authnDone();
 			}

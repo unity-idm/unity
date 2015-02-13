@@ -7,7 +7,6 @@ package pl.edu.icm.unity.rest;
 import java.io.StringReader;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -156,16 +155,15 @@ public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEnd
 		Set<String> added = new HashSet<String>();
 		for (AuthenticationOption authenticatorSet: authenticators)
 		{
-			for (Map.Entry<String, BindingAuthn> authenticator: 
-				authenticatorSet.getAuthenticators().entrySet())
+			for (BindingAuthn authenticator: authenticatorSet.getAuthenticators().values())
 			{
-				if (!added.contains(authenticator.getKey()))
+				if (!added.contains(authenticator.getAuthenticatorId()))
 				{
-					CXFAuthentication a = (CXFAuthentication) authenticator.getValue();
+					CXFAuthentication a = (CXFAuthentication) authenticator;
 					Interceptor<? extends Message> in = a.getInterceptor();
 					if (in != null)
 						interceptors.add(in);
-					added.add(authenticator.getKey());
+					added.add(authenticator.getAuthenticatorId());
 				}
 			}
 		}

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.idpselector.IdPComponent;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
@@ -29,14 +30,14 @@ import com.vaadin.ui.Panel;
  */
 public class AuthNTile extends CustomComponent
 {
-	private List<Map<String, VaadinAuthentication>> authenticators;
+	private List<AuthenticationOption> authenticators;
 	private ScaleMode scaleMode;
 	private int perRow;
 	private SelectionChangedListener listener;
-	private Map<String, Map<String, VaadinAuthentication>> authNOptionsById = new HashMap<>();
+	private Map<String, AuthenticationOption> authNOptionsById = new HashMap<>();
 	private Map<String, VaadinAuthenticationUI> authenticatorById = new HashMap<>();
 	
-	public AuthNTile(List<Map<String, VaadinAuthentication>> authenticators,
+	public AuthNTile(List<AuthenticationOption> authenticators,
 			ScaleMode scaleMode, int perRow, SelectionChangedListener listener)
 	{
 		this.authenticators = authenticators;
@@ -63,13 +64,13 @@ public class AuthNTile extends CustomComponent
 		GridLayout providersChoice = new GridLayout(perRow, 1);
 		providersChoice.setSpacing(true);
 		
-		for (final Map<String, VaadinAuthentication> set: authenticators)
+		for (final AuthenticationOption set: authenticators)
 		{
-			Map.Entry<String, VaadinAuthentication> firstAuthenticator = 
-					set.entrySet().iterator().next();
+			VaadinAuthentication firstAuthenticator = 
+					(VaadinAuthentication) set.getAuthenticators().values().iterator().next();
 			
 			Collection<VaadinAuthenticationUI> uiInstances = 
-					firstAuthenticator.getValue().createUIInstance();
+					firstAuthenticator.createUIInstance();
 			for (final VaadinAuthenticationUI vaadinAuthenticationUI : uiInstances)
 			{
 				String name = vaadinAuthenticationUI.getLabel();
@@ -77,7 +78,7 @@ public class AuthNTile extends CustomComponent
 					continue;
 				String logoUrl = vaadinAuthenticationUI.getImageURL();
 				String id = vaadinAuthenticationUI.getId();
-				final String globalId = firstAuthenticator.getKey() + "_" + id;
+				final String globalId = firstAuthenticator.getAuthenticatorId() + "_" + id;
 				IdPComponent entry = new IdPComponent(globalId, logoUrl, name, scaleMode);
 				providersChoice.addComponent(entry);
 				providersChoice.setComponentAlignment(entry, Alignment.MIDDLE_LEFT);
@@ -99,7 +100,7 @@ public class AuthNTile extends CustomComponent
 		setCompositionRoot(tilePanel);
 	}
 
-	public Map<String, VaadinAuthentication> getAuthenticationOptionById(String id)
+	public AuthenticationOption getAuthenticationOptionById(String id)
 	{
 		return authNOptionsById.get(id);
 	}
@@ -112,6 +113,6 @@ public class AuthNTile extends CustomComponent
 	public interface SelectionChangedListener
 	{
 		void selectionChanged(VaadinAuthenticationUI selectedAuthnUI, 
-				Map<String, VaadinAuthentication> selectedOption, String optionKey);
+				AuthenticationOption selectedOption, String optionKey);
 	}
 }

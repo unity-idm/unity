@@ -152,19 +152,20 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 			AuthenticationOption authenticatorSet) throws AuthenticationException
 	{
 		List<AuthenticationResult> setResult = new ArrayList<AuthenticationResult>();
-		for (Map.Entry<String, BindingAuthn> authenticator: authenticatorSet.getAuthenticators().entrySet())
+		for (BindingAuthn authenticator: authenticatorSet.getAuthenticators().values())
 		{
-			AuthenticationResult result = authnCache.get(authenticator.getKey());
+			AuthenticationResult result = authnCache.get(authenticator.getAuthenticatorId());
 			if (result == null)
 			{
-				log.trace("Processing authenticator " + authenticator.getKey());
-				CXFAuthentication myAuth = (CXFAuthentication) authenticator.getValue();
+				log.trace("Processing authenticator " + authenticator.getAuthenticatorId());
+				CXFAuthentication myAuth = (CXFAuthentication) authenticator;
 				result = myAuth.getAuthenticationResult();
-				authnCache.put(authenticator.getKey(), result);
-				log.trace("Authenticator " + authenticator.getKey() + " returned " + result);
+				authnCache.put(authenticator.getAuthenticatorId(), result);
+				log.trace("Authenticator " + authenticator.getAuthenticatorId() + " returned " + result);
 			} else
 			{
-				log.trace("Using cached result of " + authenticator.getKey() + ": " + result);
+				log.trace("Using cached result of " + authenticator.getAuthenticatorId() + 
+						": " + result);
 			}
 			setResult.add(result);
 		}

@@ -5,9 +5,7 @@
 package pl.edu.icm.unity.webui.authn;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.http.Cookie;
@@ -20,7 +18,6 @@ import org.springframework.context.annotation.Scope;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.CookieHelper;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
@@ -79,7 +76,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	protected TopHeaderLight headerUIComponent;
 	protected SelectedAuthNPanel authenticationPanel;
 	protected AuthNTile selectorPanel;
-	protected List<Map<String, VaadinAuthentication>> authenticators;
+	protected List<AuthenticationOption> authenticators;
 	protected EndpointDescription description;
 	protected EndpointRegistrationConfiguration registrationConfiguration;
 	
@@ -106,16 +103,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			Properties genericEndpointConfiguration)
 	{
 		this.description = description;
-		this.authenticators = new ArrayList<Map<String,VaadinAuthentication>>();
+		this.authenticators = new ArrayList<>(authenticators);
 		this.registrationConfiguration = registrationConfiguration;
-		for (int i=0; i<authenticators.size(); i++)
-		{
-			Map<String, VaadinAuthentication> map = new HashMap<String, VaadinAuthentication>();
-			AuthenticationOption origMap = authenticators.get(i);
-			for (Map.Entry<String, BindingAuthn> el: origMap.getAuthenticators().entrySet())
-				map.put(el.getKey(), ((VaadinAuthentication)el.getValue()));
-			this.authenticators.add(map);
-		}
 	}
 
 	@Override
@@ -137,7 +126,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		{
 			@Override
 			public void selectionChanged(VaadinAuthenticationUI selectedAuthn,
-					Map<String, VaadinAuthentication> selectedOption, String globalId)
+					AuthenticationOption selectedOption, String globalId)
 			{
 				authenticationPanel.setAuthenticator(selectedAuthn, selectedOption, globalId);
 				authenticationPanel.setVisible(true);
@@ -147,8 +136,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		String lastIdp = getLastIdpFromCookie();
 		if (lastIdp != null)
 		{
-			Map<String, VaadinAuthentication> lastAuthnOption = 
-					selectorPanel.getAuthenticationOptionById(lastIdp);
+			AuthenticationOption lastAuthnOption = selectorPanel.getAuthenticationOptionById(lastIdp);
 			if (lastAuthnOption != null)
 			{
 				authenticationPanel.setAuthenticator(selectorPanel.getAuthenticatorById(lastIdp), 
