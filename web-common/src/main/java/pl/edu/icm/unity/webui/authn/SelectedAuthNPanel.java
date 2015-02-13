@@ -5,7 +5,10 @@
 package pl.edu.icm.unity.webui.authn;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -61,8 +64,10 @@ public class SelectedAuthNPanel extends CustomComponent
 	private ExecutorsService execService;
 	private String clientIp;
 	private AuthenticationRealm realm;
+	private AuthenticationListener authNListener;
 	
 	private VerticalLayout authenticatorsContainer;
+	private Map<String, VaadinAuthentication> selectedAuthnOption;
 	private VaadinAuthenticationUI primaryAuthnUI;
 	private String authnId;
 	
@@ -98,6 +103,8 @@ public class SelectedAuthNPanel extends CustomComponent
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
+				if (authNListener != null)
+					authNListener.authenticationStateChanged(false);
 				authnResultCallback.authenticationCancelled(true);
 			}
 		});
@@ -143,16 +150,17 @@ public class SelectedAuthNPanel extends CustomComponent
 	}
 
 	/**
-	 * TODO - should also pass and handle the whole authenticator set with all the settings.
 	 * @param primaryUI
 	 */
-	public void setAuthenticator(VaadinAuthenticationUI primaryUI, String id)
+	public void setAuthenticator(VaadinAuthenticationUI primaryAuthnUI, 
+			Map<String, VaadinAuthentication> authnOption, String id)
 	{
-		this.primaryAuthnUI = primaryUI;
+		this.selectedAuthnOption = authnOption;
+		this.primaryAuthnUI = primaryAuthnUI;
 		this.authnId = id;
 		primaryAuthnUI.setAuthenticationResultCallback(authnResultCallback);
 		authenticatorsContainer.removeAllComponents();
-		Component retrievalComponent = primaryUI.getComponent();
+		Component retrievalComponent = primaryAuthnUI.getComponent();
 		authenticatorsContainer.addComponent(retrievalComponent);
 		if (retrievalComponent instanceof Focusable)
 			((Focusable)retrievalComponent).focus();
@@ -201,6 +209,9 @@ public class SelectedAuthNPanel extends CustomComponent
 				return;
 			}
 			
+			if (authNListener != null)
+				authNListener.authenticationStateChanged(true);
+
 			AuthenticationUI.setLastIdpCookie(authnId);
 
 			
@@ -226,21 +237,28 @@ public class SelectedAuthNPanel extends CustomComponent
 	protected class AuthenticationResultCallbackImpl implements AuthenticationResultProcessor
 	{
 		private List<AuthenticationResult> results = new ArrayList<AuthenticationResult>();
-		private final int numberOfAuthenticators;
 		private boolean authnDone = false;
 		
-		public AuthenticationResultCallbackImpl()
-		{
-			numberOfAuthenticators = 1;
-		}
-
 		@Override
 		public void setAuthenticationResult(AuthenticationResult result)
 		{
 			log.trace("Received authentication result nr " + (results.size() + 1));
 			results.add(result);
-			if (results.size() == numberOfAuthenticators)
+			if (results.size() == selectedAuthnOption.size())
+			{
 				authnDone();
+			}
+			/* TODO MFA
+			else
+			{
+				Iterator<VaadinAuthentication> it = selectedAuthnOption.values().iterator();
+				it.next();
+				VaadinAuthentication secondFactor = it.next();
+				Collection<VaadinAuthenticationUI> secondFactorUis = secondFactor.createUIInstance();
+				VaadinAuthenticationUI secondFactorUi = secondFactorUis.iterator().next();
+				authenticatorsContainer.addComponent(secondFactorUi.getComponent());
+				authenticateButton.setEnabled(true);
+			}*/
 		}
 
 		@Override
@@ -338,6 +356,20 @@ public class SelectedAuthNPanel extends CustomComponent
 	{
 		if (primaryAuthnUI != null)
 			primaryAuthnUI.refresh(request);
+	}
+	
+	/**
+	 * listener to be registered to the authentication button.
+	 * @param listener
+	 */
+	public void setAuthenticationListener(AuthenticationListener listener)
+	{
+		this.authNListener = listener;
+	}
+	
+	public interface AuthenticationListener
+	{
+		void authenticationStateChanged(boolean started);
 	}
 	
 	/**

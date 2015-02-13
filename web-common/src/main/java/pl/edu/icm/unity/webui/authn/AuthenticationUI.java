@@ -30,6 +30,7 @@ import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthNTile.SelectionChangedListener;
+import pl.edu.icm.unity.webui.authn.SelectedAuthNPanel.AuthenticationListener;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -122,14 +123,22 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		authenticationPanel = new SelectedAuthNPanel(msg, authnProcessor, formLauncher, 
 				execService, cancelHandler, description.getRealm());
 		authenticationPanel.setVisible(false);
-		
+		authenticationPanel.setAuthenticationListener(new AuthenticationListener()
+		{
+			@Override
+			public void authenticationStateChanged(boolean started)
+			{
+				selectorPanel.setEnabled(!started);
+			}
+		});
 		
 		selectorPanel = new AuthNTile(authenticators, ScaleMode.height50, 3, new SelectionChangedListener()
 		{
 			@Override
-			public void selectionChanged(VaadinAuthenticationUI selectedOption, String globalId)
+			public void selectionChanged(VaadinAuthenticationUI selectedAuthn,
+					Map<String, VaadinAuthentication> selectedOption, String globalId)
 			{
-				authenticationPanel.setAuthenticator(selectedOption, globalId);
+				authenticationPanel.setAuthenticator(selectedAuthn, selectedOption, globalId);
 				authenticationPanel.setVisible(true);
 			}
 		});
@@ -137,10 +146,12 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		String lastIdp = getLastIdpFromCookie();
 		if (lastIdp != null)
 		{
-			VaadinAuthenticationUI lastUI = selectorPanel.getById(lastIdp);
-			if (lastUI != null)
+			Map<String, VaadinAuthentication> lastAuthnOption = 
+					selectorPanel.getAuthenticationOptionById(lastIdp);
+			if (lastAuthnOption != null)
 			{
-				authenticationPanel.setAuthenticator(lastUI, lastIdp);
+				authenticationPanel.setAuthenticator(selectorPanel.getAuthenticatorById(lastIdp), 
+						lastAuthnOption, lastIdp);
 				authenticationPanel.setVisible(true);
 			}
 		}

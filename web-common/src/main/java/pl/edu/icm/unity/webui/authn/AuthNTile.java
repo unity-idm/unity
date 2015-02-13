@@ -33,7 +33,8 @@ public class AuthNTile extends CustomComponent
 	private ScaleMode scaleMode;
 	private int perRow;
 	private SelectionChangedListener listener;
-	private Map<String, VaadinAuthenticationUI> authNOptionsById = new HashMap<>();
+	private Map<String, Map<String, VaadinAuthentication>> authNOptionsById = new HashMap<>();
+	private Map<String, VaadinAuthenticationUI> authenticatorById = new HashMap<>();
 	
 	public AuthNTile(List<Map<String, VaadinAuthentication>> authenticators,
 			ScaleMode scaleMode, int perRow, SelectionChangedListener listener)
@@ -62,7 +63,7 @@ public class AuthNTile extends CustomComponent
 		GridLayout providersChoice = new GridLayout(perRow, 1);
 		providersChoice.setSpacing(true);
 		
-		for (Map<String, VaadinAuthentication> set: authenticators)
+		for (final Map<String, VaadinAuthentication> set: authenticators)
 		{
 			Map.Entry<String, VaadinAuthentication> firstAuthenticator = 
 					set.entrySet().iterator().next();
@@ -80,14 +81,15 @@ public class AuthNTile extends CustomComponent
 				IdPComponent entry = new IdPComponent(globalId, logoUrl, name, scaleMode);
 				providersChoice.addComponent(entry);
 				providersChoice.setComponentAlignment(entry, Alignment.MIDDLE_LEFT);
-				authNOptionsById.put(globalId, vaadinAuthenticationUI);
+				authNOptionsById.put(globalId, set);
+				authenticatorById.put(globalId, vaadinAuthenticationUI);
 
 				entry.addClickListener(new ClickListener()
 				{
 					@Override
 					public void buttonClick(ClickEvent event)
 					{
-						listener.selectionChanged(vaadinAuthenticationUI, globalId);
+						listener.selectionChanged(vaadinAuthenticationUI, set, globalId);
 					}
 				});
 			}
@@ -97,13 +99,19 @@ public class AuthNTile extends CustomComponent
 		setCompositionRoot(tilePanel);
 	}
 
-	public VaadinAuthenticationUI getById(String id)
+	public Map<String, VaadinAuthentication> getAuthenticationOptionById(String id)
 	{
 		return authNOptionsById.get(id);
 	}
 
+	public VaadinAuthenticationUI getAuthenticatorById(String id)
+	{
+		return authenticatorById.get(id);
+	}
+
 	public interface SelectionChangedListener
 	{
-		void selectionChanged(VaadinAuthenticationUI selectedOption, String optionKey);
+		void selectionChanged(VaadinAuthenticationUI selectedAuthnUI, 
+				Map<String, VaadinAuthentication> selectedOption, String optionKey);
 	}
 }
