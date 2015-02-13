@@ -25,12 +25,15 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.RegistrationRequestEditorDialog;
 
+import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.ProgressBar;
@@ -110,6 +113,7 @@ public class SelectedAuthNPanel extends CustomComponent
 				realm.getAllowForRememberMeDays()));
 
 		authenticateButton.addClickListener(new LoginButtonListener());
+		authenticateButton.setClickShortcut(KeyCode.ENTER);
 		main.addComponent(authenticatorsContainer);
 		
 		HorizontalLayout buttons = new HorizontalLayout();
@@ -148,7 +152,12 @@ public class SelectedAuthNPanel extends CustomComponent
 		this.authnId = id;
 		primaryAuthnUI.setAuthenticationResultCallback(authnResultCallback);
 		authenticatorsContainer.removeAllComponents();
-		authenticatorsContainer.addComponent(primaryUI.getComponent());
+		Component retrievalComponent = primaryUI.getComponent();
+		authenticatorsContainer.addComponent(retrievalComponent);
+		if (retrievalComponent instanceof Focusable)
+			((Focusable)retrievalComponent).focus();
+		else
+			authenticateButton.focus();
 	}
 	
 	
@@ -325,22 +334,11 @@ public class SelectedAuthNPanel extends CustomComponent
 		}
 	}
 	
-	/*
-	 * TODO
-	@Override
-	public void stateChanged(boolean enabled)
+	public void refresh(VaadinRequest request)
 	{
-		if (enabled)
-		{
-			authenticateButton.setClickShortcut(KeyCode.ENTER);
-			if (usernameComponent != null)
-				usernameComponent.setFocus();
-		} else
-		{
-			authenticateButton.removeClickShortcut();
-		}
+		if (primaryAuthnUI != null)
+			primaryAuthnUI.refresh(request);
 	}
-	*/
 	
 	/**
 	 * Extends {@link AuthenticationResultCallback} with internal operations needed by the 

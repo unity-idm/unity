@@ -14,6 +14,7 @@ import pl.edu.icm.unity.webui.VaadinEndpoint;
 
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Component.Focusable;
 
 /**
  * Defines a contract which must be implemented by {@link CredentialRetrieval}s in order to be used 
@@ -34,7 +35,8 @@ public interface VaadinAuthentication extends BindingAuthn
 	public interface VaadinAuthenticationUI
 	{
 		/**
-		 * @return UI component associated with this retrieval
+		 * @return UI component associated with this retrieval. If the returned component implements 
+		 * the {@link Focusable} interface it will be focused after showing
 		 */
 		public Component getComponent();
 		

@@ -22,7 +22,7 @@
 		<jetty.version>8.1.16.v20140903</jetty.version>
 		<slf4j.version>1.7.10</slf4j.version>
 		<spring.version>4.1.4.RELEASE</spring.version>
-		<vaadin.version>7.3.9</vaadin.version>
+		<vaadin.version>7.3.10</vaadin.version>
 		<cxf.version>2.7.13</cxf.version>
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>

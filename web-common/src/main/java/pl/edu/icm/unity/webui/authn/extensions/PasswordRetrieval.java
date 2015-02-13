@@ -25,7 +25,6 @@ import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.webui.authn.UsernameComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialReset1Dialog;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -42,7 +41,10 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Component.Focusable;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.PasswordField;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -123,33 +125,30 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 	}
 
 
-	private class PasswordRetrievalUI implements VaadinAuthenticationUI
+	private class PasswordRetrievalComponent extends CustomComponent implements Focusable
 	{
-		private UsernameComponent usernameComponent;
-		private PasswordField passwordField;
 		private CredentialEditor credEditor;
 		private AuthenticationResultCallback callback;
 		private SandboxAuthnResultCallback sandboxCallback;
+		
+		private TextField usernameField;
+		private PasswordField passwordField;
+		private int tabIndex;
 
-		public PasswordRetrievalUI(CredentialEditor credEditor)
+		public PasswordRetrievalComponent(CredentialEditor credEditor)
 		{
 			this.credEditor = credEditor;
+			initUI();
 		}
 
-		@Override
-		public void setAuthenticationResultCallback(AuthenticationResultCallback callback)
-		{
-			this.callback = callback;
-		}
-
-		@Override
-		public Component getComponent()
+		private void initUI()
 		{
 			VerticalLayout ret = new VerticalLayout();
 			ret.setSpacing(true);
 			
-			usernameComponent = new UsernameComponent(msg);
-			ret.addComponent(usernameComponent);
+			usernameField = new TextField(msg.getMessage("AuthenticationUI.username"));
+			usernameField.setId("AuthenticationUI.username");
+			ret.addComponent(usernameField);
 			
 			String label = name.getValue(msg);
 			passwordField = new PasswordField(label + ":");
@@ -171,21 +170,23 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 					}
 				});
 			}
-
-			return ret;
+			setCompositionRoot(ret);
 		}
 
-		@Override
 		public void triggerAuthentication()
 		{
-			String username = usernameComponent.getUsername();
+			String username = usernameField.getValue();
 			String password = passwordField.getValue();
-			if (username.equals("") && password.equals(""))
+			if (password.equals(""))
 			{
 				passwordField.setComponentError(new UserError(
 						msg.getMessage("WebPasswordRetrieval.noPassword")));
 			}
-			
+			if (username.equals(""))
+			{
+				usernameField.setComponentError(new UserError(
+						msg.getMessage("WebPasswordRetrieval.noUser")));
+			}			
 			callback.setAuthenticationResult(getAuthenticationResult(username, password));
 		}
 		
@@ -206,12 +207,11 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 						registrationFormForUnknown != null) 
 				{
 					authenticationResult.setFormForUnknownPrincipal(registrationFormForUnknown);
+					usernameField.setValue("");
 					passwordField.setValue("");
 				} else
 				{
-					passwordField.setComponentError(new UserError(
-							msg.getMessage("WebPasswordRetrieval.wrongPassword")));
-					passwordField.setValue("");
+					setError();
 				}
 				return authenticationResult;
 			} catch (Exception e)
@@ -219,12 +219,90 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 				if (!(e instanceof IllegalCredentialException) && 
 						!(e instanceof IllegalIdentityValueException))
 					log.warn("Password verificator has thrown an exception", e);
-				passwordField.setComponentError(new UserError(
-						msg.getMessage("WebPasswordRetrieval.wrongPassword")));
-				passwordField.setValue("");
+				setError();
 				return new AuthenticationResult(Status.deny, null);
 			}
 		}
+		
+		private void setError()
+		{
+			String msgErr = msg.getMessage("WebPasswordRetrieval.wrongPassword");
+			passwordField.setComponentError(new UserError(msgErr));
+			passwordField.setValue("");
+			usernameField.setComponentError(new UserError(msgErr));
+			usernameField.setValue("");
+		}
+		
+		private void showResetDialog()
+		{
+			CredentialReset1Dialog dialog = new CredentialReset1Dialog(msg, 
+					credentialExchange.getCredentialResetBackend(), credEditor);
+			dialog.show();
+		}
+
+		@Override
+		public void focus()
+		{
+			usernameField.focus();
+		}
+		
+		@Override
+		public int getTabIndex()
+		{
+			return tabIndex;
+		}
+
+		@Override
+		public void setTabIndex(int tabIndex)
+		{
+			this.tabIndex = tabIndex;
+		}
+
+		public void setCallback(AuthenticationResultCallback callback)
+		{
+			this.callback = callback;
+		}
+
+		public void setSandboxCallback(SandboxAuthnResultCallback sandboxCallback)
+		{
+			this.sandboxCallback = sandboxCallback;
+		}
+		
+		public void clear()
+		{
+			passwordField.setValue("");
+			usernameField.setValue("");
+		}
+	}
+	
+	private class PasswordRetrievalUI implements VaadinAuthenticationUI
+	{
+		private PasswordRetrievalComponent theComponent;
+
+
+		public PasswordRetrievalUI(CredentialEditor credEditor)
+		{
+			this.theComponent = new PasswordRetrievalComponent(credEditor);
+		}
+
+		@Override
+		public void setAuthenticationResultCallback(AuthenticationResultCallback callback)
+		{
+			theComponent.setCallback(callback);
+		}
+
+		@Override
+		public Component getComponent()
+		{
+			return theComponent;
+		}
+
+		@Override
+		public void triggerAuthentication()
+		{
+			theComponent.triggerAuthentication();
+		}
+		
 
 		/**
 		 * {@inheritDoc}
@@ -244,13 +322,6 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 			return null;
 		}
 
-		private void showResetDialog()
-		{
-			CredentialReset1Dialog dialog = new CredentialReset1Dialog(msg, 
-					credentialExchange.getCredentialResetBackend(), credEditor);
-			dialog.show();
-		}
-
 		@Override
 		public void cancelAuthentication()
 		{
@@ -260,7 +331,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		@Override
 		public void clear()
 		{
-			passwordField.setValue("");
+			theComponent.clear();
 		}
 
 		@Override
@@ -272,7 +343,7 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		@Override
 		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
 		{
-			sandboxCallback = callback;
+			theComponent.setSandboxCallback(callback);
 		}
 
 		/**

@@ -96,14 +96,16 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		this.execService = execService;
 	}
 
+
 	@Override
 	public void configure(EndpointDescription description,
 			List<Map<String, BindingAuthn>> authenticators,
-			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
+			EndpointRegistrationConfiguration registrationConfiguration,
+			Properties genericEndpointConfiguration)
 	{
 		this.description = description;
 		this.authenticators = new ArrayList<Map<String,VaadinAuthentication>>();
-		this.registrationConfiguration = regCfg;
+		this.registrationConfiguration = registrationConfiguration;
 		for (int i=0; i<authenticators.size(); i++)
 		{
 			Map<String, VaadinAuthentication> map = new HashMap<String, VaadinAuthentication>();
@@ -120,6 +122,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		authenticationPanel = new SelectedAuthNPanel(msg, authnProcessor, formLauncher, 
 				execService, cancelHandler, description.getRealm());
 		authenticationPanel.setVisible(false);
+		
+		
 		selectorPanel = new AuthNTile(authenticators, ScaleMode.height50, 3, new SelectionChangedListener()
 		{
 			@Override
@@ -134,8 +138,11 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		if (lastIdp != null)
 		{
 			VaadinAuthenticationUI lastUI = selectorPanel.getById(lastIdp);
-			authenticationPanel.setAuthenticator(lastUI, lastIdp);
-			authenticationPanel.setVisible(true);
+			if (lastUI != null)
+			{
+				authenticationPanel.setAuthenticator(lastUI, lastIdp);
+				authenticationPanel.setVisible(true);
+			}
 		}
 		
 		//TODO add multiple tiles component with search
@@ -157,29 +164,42 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		main.setSpacing(true);
 		main.addStyleName(Styles.verticalMargins10.toString());
 		main.setMargin(new MarginInfo(false, true, false, true));
-		main.setSizeFull();
+		main.setWidth(100, Unit.PERCENTAGE);
+		main.setHeightUndefined();
 
 		main.addComponent(authenticationPanel);
 		main.setComponentAlignment(authenticationPanel, Alignment.TOP_CENTER);
 
-		main.addComponent(selectorPanel);
-		main.setComponentAlignment(selectorPanel, Alignment.TOP_CENTER);
-		main.setExpandRatio(selectorPanel, 1.0f);
+		
+		
+		
+		
+		HorizontalLayout tiles = new HorizontalLayout();
+		tiles.addComponent(selectorPanel);
+		
+		main.addComponent(tiles);
+		main.setComponentAlignment(tiles, Alignment.TOP_CENTER);
+		main.setExpandRatio(tiles, 1.0f);
+		
+		
+		
+		
 		
 		VerticalLayout topLevel = new VerticalLayout();
 		headerUIComponent = new TopHeaderLight(msg.getMessage("AuthenticationUI.login", 
 				description.getDisplayedName().getValue(msg)), msg);
 		topLevel.addComponents(headerUIComponent, main);
-		topLevel.setSizeFull();
+		topLevel.setHeightUndefined();
+		topLevel.setWidth(100, Unit.PERCENTAGE);
 		topLevel.setExpandRatio(main, 1.0f);
 		
 		setContent(topLevel);
 		setSizeFull();
-		
+
 		//Extra safety - it can happen that we entered the UI in pipeline of authentication,
 		// if this UI expired in the meantime. Shouldn't happen often as heart of authentication UI
 		// is beating very slowly but in case of very slow user we may still need to refresh.
-		refresh(VaadinService.getCurrentRequest()); 
+		refresh(VaadinService.getCurrentRequest());
 	}
 	
 	public static void setLastIdpCookie(String idpKey)
@@ -251,17 +271,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	@Override
 	protected void refresh(VaadinRequest request) 
 	{
-		if (authenticators != null) 
-		{
-			for (Map<String, VaadinAuthentication> auth : authenticators)
-			{
-				for (VaadinAuthentication authUI : auth.values())
-				{
-					//FIXME
-					//authUI.refresh(request);
-				}
-			}
-		}
+		authenticationPanel.refresh(request);
 	}
 	
 	protected void setHeaderTitle(String title) 
@@ -271,4 +281,5 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			headerUIComponent.setHeaderTitle(title);
 		}
 	}
+
 }

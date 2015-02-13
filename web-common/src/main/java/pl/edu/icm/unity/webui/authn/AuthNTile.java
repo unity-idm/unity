@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.idpselector.IdPComponent;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
 
@@ -19,6 +18,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.Panel;
 
 /**
  * Component showing a group of {@link VaadinAuthenticationUI}s. All of them are presented by means of small 
@@ -56,10 +56,11 @@ public class AuthNTile extends CustomComponent
 			filter = null;
 		if (filter != null)
 			filter = filter.toLowerCase();
+		Panel tilePanel = new Panel();
+		tilePanel.setSizeUndefined();
 		
 		GridLayout providersChoice = new GridLayout(perRow, 1);
 		providersChoice.setSpacing(true);
-		providersChoice.addStyleName(Styles.maxHeight300.toString());
 		
 		for (Map<String, VaadinAuthentication> set: authenticators)
 		{
@@ -92,7 +93,8 @@ public class AuthNTile extends CustomComponent
 			}
 		}
 		
-		setCompositionRoot(providersChoice);
+		tilePanel.setContent(providersChoice);
+		setCompositionRoot(tilePanel);
 	}
 
 	public VaadinAuthenticationUI getById(String id)
