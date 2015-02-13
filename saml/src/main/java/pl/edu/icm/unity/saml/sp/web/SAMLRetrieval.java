@@ -4,7 +4,14 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
@@ -60,9 +67,23 @@ public class SAMLRetrieval implements CredentialRetrieval, VaadinAuthentication
 
 
 	@Override
-	public VaadinAuthenticationUI createUIInstance()
+	public Collection<VaadinAuthenticationUI> createUIInstance()
 	{
-		return new SAMLRetrievalUI(msg, credentialExchange, samlContextManagement);
+		List<VaadinAuthenticationUI> ret = new ArrayList<>();
+		SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
+		Set<String> allIdps = samlProperties.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
+		for (String key: allIdps)
+			if (samlProperties.isIdPDefinitioncomplete(key))
+			{
+				Binding binding = samlProperties.getEnumValue(key + 
+						SAMLSPProperties.IDP_BINDING, Binding.class);
+				if (binding == Binding.HTTP_POST || binding == Binding.HTTP_REDIRECT)
+				{
+					ret.add(new SAMLRetrievalUI(msg, credentialExchange, 
+							samlContextManagement, key));
+				}
+			}
+		return ret;
 	}
 }
 

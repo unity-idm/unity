@@ -6,8 +6,6 @@ package pl.edu.icm.unity.oauth.client.web;
 
 import java.net.URI;
 import java.util.Collection;
-import java.util.Locale;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -23,20 +21,16 @@ import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.idpselector.IdPsSpecification;
-import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent;
+import pl.edu.icm.unity.webui.common.idpselector.IdPComponent;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
-import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
@@ -45,38 +39,32 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 /**
- * UI part of OAuth retrieval. Shows available providers, redirects to the chosen one.
+ * UI part of OAuth retrieval. Shows a single provider, redirects to it if requested.
  * @author K. Benedyczak
  */
 public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuth2RetrievalUI.class);
-	public static final String CHOSEN_IDP_COOKIE = "lastOAuthIdP";
 	
 	private UnityMessageSource msg;
 	private OAuthExchange credentialExchange;
 	private OAuthContextsManagement contextManagement;
+	private String idpKey;
 	
 	private AuthenticationResultCallback callback;
 	private SandboxAuthnResultCallback sandboxCallback;
 	private String redirectParam;
 
-	private IdpSelectorComponent idpSelector;
 	private Label messageLabel;
 	private HtmlSimplifiedLabel errorDetailLabel;
 	
 	public OAuth2RetrievalUI(UnityMessageSource msg, OAuthExchange credentialExchange,
-			OAuthContextsManagement contextManagement, ExecutorsService executorsService)
+			OAuthContextsManagement contextManagement, ExecutorsService executorsService, String idpKey)
 	{
 		this.msg = msg;
 		this.credentialExchange = credentialExchange;
 		this.contextManagement = contextManagement;
-	}
-
-	@Override
-	public boolean needsCommonUsernameComponent()
-	{
-		return false;
+		this.idpKey = idpKey;
 	}
 
 	@Override
@@ -84,45 +72,18 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	{
 		redirectParam = installRequestHandler();
 
-		final OAuthClientProperties clientProperties = credentialExchange.getSettings();
+		OAuthClientProperties clientProperties = credentialExchange.getSettings();
 		VerticalLayout ret = new VerticalLayout();
 		ret.setSpacing(true);
-		
-		Label title = new Label(getLabel().getValue(msg));
-		title.addStyleName(Styles.vLabelH2.toString());
-		ret.addComponent(title);
-		
-		Label subtitle = new Label(msg.getMessage("OAuth2Retrieval.selectProvider"));
-		ret.addComponent(subtitle);
-		
-		final Set<String> idps = clientProperties.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
-		int perRow = clientProperties.getIntValue(OAuthClientProperties.PROVIDERS_IN_ROW);
+
 		ScaleMode scaleMode = clientProperties.getEnumValue(OAuthClientProperties.ICON_SCALE, ScaleMode.class); 
-		idpSelector = new IdpSelectorComponent(msg, perRow, scaleMode, CHOSEN_IDP_COOKIE, new IdPsSpecification()
-		{
-			@Override
-			public Collection<String> getIdpKeys()
-			{
-				return idps;
-			}
-			
-			@Override
-			public String getIdPName(String key, Locale locale)
-			{
-				CustomProviderProperties providerProps = clientProperties.getProvider(key);
-				return providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, 
-						locale);
-			}
-			
-			@Override
-			public String getIdPLogoUri(String key, Locale locale)
-			{
-				CustomProviderProperties providerProps = clientProperties.getProvider(key);
-				return providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
-						locale);
-			}
-		});
-		ret.addComponent(idpSelector);
+		CustomProviderProperties providerProps = clientProperties.getProvider(idpKey);
+		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
+		String logoUrl = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
+				msg.getLocale());
+		IdPComponent idpComponent = new IdPComponent(idpKey, logoUrl, name, scaleMode);
+		
+		ret.addComponent(idpComponent);
 		
 		messageLabel = new Label();
 		messageLabel.addStyleName(Styles.error.toString());
@@ -135,12 +96,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	}
 
 	@Override
-	public void setUsernameCallback(UsernameProvider usernameCallback)
-	{
-		//nop
-	}
-
-	@Override
 	public void setAuthenticationResultCallback(AuthenticationResultCallback callback)
 	{
 		this.callback = callback;
@@ -149,7 +104,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public void triggerAuthentication()
 	{
-		startLogin(idpSelector.getSelectedProvider());
+		startLogin();
 	}
 
 	@Override
@@ -159,15 +114,20 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	}
 
 	@Override
-	public I18nString getLabel()
+	public String getLabel()
 	{
-		return credentialExchange.getSettings().getLocalizedString(msg, OAuthClientProperties.DISPLAY_NAME);
+		OAuthClientProperties clientProperties = credentialExchange.getSettings();
+		CustomProviderProperties providerProps = clientProperties.getProvider(idpKey);
+		return providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 	}
 
 	@Override
-	public Resource getImage()
+	public String getImageURL()
 	{
-		return null;
+		OAuthClientProperties clientProperties = credentialExchange.getSettings();
+		CustomProviderProperties providerProps = clientProperties.getProvider(idpKey);
+		return providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
+				msg.getLocale());
 	}
 
 	@Override
@@ -230,7 +190,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			this.callback.cancelAuthentication();
 	}
 	
-	private void startLogin(String providerKey)
+	private void startLogin()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
 		OAuthContext context = (OAuthContext) session.getAttribute(
@@ -247,7 +207,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		String currentRelativeURI = servletPath + query;
 		try
 		{
-			context = credentialExchange.createRequest(providerKey);
+			context = credentialExchange.createRequest(idpKey);
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			context.setSandboxCallback(sandboxCallback);
@@ -258,7 +218,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			breakLogin(true);
 			return;
 		}
-		IdpSelectorComponent.setLastIdpCookie(CHOSEN_IDP_COOKIE, context.getProviderConfigKey());
 		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
 	}
 
@@ -344,6 +303,12 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
 	{
 		this.sandboxCallback = callback;
+	}
+
+	@Override
+	public String getId()
+	{
+		return idpKey;
 	}
 
 }

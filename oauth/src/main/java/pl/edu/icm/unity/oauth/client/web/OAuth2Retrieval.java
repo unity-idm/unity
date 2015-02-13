@@ -4,9 +4,15 @@
  */
 package pl.edu.icm.unity.oauth.client.web;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.OAuthContextsManagement;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
+import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
@@ -59,8 +65,16 @@ public class OAuth2Retrieval implements CredentialRetrieval, VaadinAuthenticatio
 	}
 
 	@Override
-	public VaadinAuthenticationUI createUIInstance()
+	public Collection<VaadinAuthenticationUI> createUIInstance()
 	{
-		return new OAuth2RetrievalUI(msg, credentialExchange, contextManagement, executorsService);
+		List<VaadinAuthenticationUI> ret = new ArrayList<>();
+		OAuthClientProperties clientProperties = credentialExchange.getSettings();
+		Set<String> keys = clientProperties.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
+		for (String key: keys)
+		{
+			ret.add(new OAuth2RetrievalUI(msg, credentialExchange, contextManagement, 
+					executorsService, key));
+		}
+		return ret;
 	}
 }

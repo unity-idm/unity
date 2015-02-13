@@ -51,6 +51,7 @@ public class SAMLSPProperties extends SamlProperties
 	public static final String REQUESTER_ID = "requesterEntityId";
 	public static final String CREDENTIAL = "requesterCredential";
 	public static final String ACCEPTED_NAME_FORMATS = "acceptedNameFormats.";
+	//TODO remove
 	public static final String DISPLAY_NAME = "displayName";
 	public static final String PROVIDERS_IN_ROW = "idpsInRow";
 	public static final String ICON_SCALE = "iconScale";

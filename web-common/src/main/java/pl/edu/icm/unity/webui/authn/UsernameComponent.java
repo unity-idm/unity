@@ -5,13 +5,12 @@
 package pl.edu.icm.unity.webui.authn;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 
 import com.vaadin.server.UserError;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 
-public class UsernameComponent extends HorizontalLayout implements UsernameProvider
+public class UsernameComponent extends HorizontalLayout
 {
 	private static final long serialVersionUID = 1L;
 	private TextField username;
@@ -23,7 +22,6 @@ public class UsernameComponent extends HorizontalLayout implements UsernameProvi
 		addComponent(username);
 	}
 
-	@Override
 	public String getUsername()
 	{
 		return username.getValue();

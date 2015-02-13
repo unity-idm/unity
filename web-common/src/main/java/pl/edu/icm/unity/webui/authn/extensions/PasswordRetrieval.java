@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.webui.authn.extensions;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.Constants;
@@ -22,15 +25,16 @@ import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.webui.authn.UsernameComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialReset1Dialog;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
@@ -40,7 +44,6 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.VerticalLayout;
-import pl.edu.icm.unity.webui.common.Styles;
 
 import eu.unicore.util.configuration.ConfigurationException;
 
@@ -113,15 +116,16 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 
 
 	@Override
-	public VaadinAuthenticationUI createUIInstance()
+	public Collection<VaadinAuthenticationUI> createUIInstance()
 	{
-		return new PasswordRetrievalUI(credEditorReg.getEditor(PasswordVerificatorFactory.NAME));
+		return Collections.<VaadinAuthenticationUI>singleton(
+				new PasswordRetrievalUI(credEditorReg.getEditor(PasswordVerificatorFactory.NAME)));
 	}
 
 
 	private class PasswordRetrievalUI implements VaadinAuthenticationUI
 	{
-		private UsernameProvider usernameProvider;
+		private UsernameComponent usernameComponent;
 		private PasswordField passwordField;
 		private CredentialEditor credEditor;
 		private AuthenticationResultCallback callback;
@@ -130,12 +134,6 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		public PasswordRetrievalUI(CredentialEditor credEditor)
 		{
 			this.credEditor = credEditor;
-		}
-
-		@Override
-		public boolean needsCommonUsernameComponent()
-		{
-			return true;
 		}
 
 		@Override
@@ -149,6 +147,10 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		{
 			VerticalLayout ret = new VerticalLayout();
 			ret.setSpacing(true);
+			
+			usernameComponent = new UsernameComponent(msg);
+			ret.addComponent(usernameComponent);
+			
 			String label = name.getValue(msg);
 			passwordField = new PasswordField(label + ":");
 			passwordField.setId("WebPasswordRetrieval.password");
@@ -174,15 +176,9 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		}
 
 		@Override
-		public void setUsernameCallback(UsernameProvider usernameCallback)
-		{
-			this.usernameProvider = usernameCallback;
-		}
-
-		@Override
 		public void triggerAuthentication()
 		{
-			String username = usernameProvider.getUsername();
+			String username = usernameComponent.getUsername();
 			String password = passwordField.getValue();
 			if (username.equals("") && password.equals(""))
 			{
@@ -234,16 +230,16 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		 * {@inheritDoc}
 		 */
 		@Override
-		public I18nString getLabel()
+		public String getLabel()
 		{
-			return name;
+			return name.getValue(msg);
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Resource getImage()
+		public String getImageURL()
 		{
 			return null;
 		}
@@ -277,6 +273,15 @@ public class PasswordRetrieval implements CredentialRetrieval, VaadinAuthenticat
 		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
 		{
 			sandboxCallback = callback;
+		}
+
+		/**
+		 * Simple: there is only one authN option in this authenticator so we can return any constant id. 
+		 */
+		@Override
+		public String getId()
+		{
+			return "password";
 		}
 	}
 }

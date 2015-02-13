@@ -6,13 +6,9 @@ package pl.edu.icm.unity.saml.sp.web;
 
 import java.net.URI;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
@@ -23,20 +19,16 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.UsernameProvider;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.idpselector.IdPsSpecification;
-import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent;
+import pl.edu.icm.unity.webui.common.idpselector.IdPComponent;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
-import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
@@ -45,40 +37,34 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 /**
- * The UI part of the remote SAML authn. Shows widget allowing to choose IdP (if more then one is configured)
- * starts the authN and awaits for answer in the context. When it is there, the validator is contacted for verification.
+ * The UI part of the remote SAML authn. Shows widget with a single, chosen IdP, implements 
+ * authN start and awaits for answer in the context. When it is there, the validator is contacted for verification.
  * It is also possible to cancel the authentication which is in progress.
  * @author K. Benedyczak
  */
 public class SAMLRetrievalUI implements VaadinAuthenticationUI
 {	
 	private Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLRetrievalUI.class);
-	public static final String CHOSEN_IDP_COOKIE = "lastSAMLIdP";
-	
+
 	private UnityMessageSource msg;
 	private SAMLExchange credentialExchange;
 	private AuthenticationResultCallback callback;
 	private SandboxAuthnResultCallback sandboxCallback;
 	private String redirectParam;
 	
-	private IdpSelectorComponent idpSelector;
+	private String idpKey;
 	private Label messageLabel;
 	private HtmlSimplifiedLabel errorDetailLabel;
 	private SamlContextManagement samlContextManagement;
 	
 	
 	public SAMLRetrievalUI(UnityMessageSource msg, SAMLExchange credentialExchange, 
-			SamlContextManagement samlContextManagement)
+			SamlContextManagement samlContextManagement, String idpKey)
 	{
 		this.msg = msg;
 		this.credentialExchange = credentialExchange;
 		this.samlContextManagement = samlContextManagement;
-	}
-
-	@Override
-	public boolean needsCommonUsernameComponent()
-	{
-		return false;
+		this.idpKey = idpKey;
 	}
 
 	@Override
@@ -88,61 +74,30 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		
 		final SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
 		VerticalLayout ret = new VerticalLayout();
-		ret.setSpacing(true);
-		
-		I18nString displayedName = getLabel();
-		Label title = new Label(displayedName.getValue(msg));
-		title.addStyleName(Styles.vLabelH2.toString());
-		ret.addComponent(title);
 
-		Label subtitle = new Label(msg.getMessage("WebSAMLRetrieval.selectIdp"));
-		ret.addComponent(subtitle);
-		Set<String> allIdps = samlProperties.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
-		final Set<String> idps = new HashSet<String>(allIdps.size()); 
-		for (String key: allIdps)
-			if (samlProperties.isIdPDefinitioncomplete(key))
-			{
-				Binding binding = samlProperties.getEnumValue(key + 
-						SAMLSPProperties.IDP_BINDING, Binding.class);
-				if (binding == Binding.HTTP_POST || binding == Binding.HTTP_REDIRECT)
-					idps.add(key);
-			}
-		
-		int perRow = samlProperties.getIntValue(SAMLSPProperties.PROVIDERS_IN_ROW);
 		ScaleMode scaleMode = samlProperties.getEnumValue(SAMLSPProperties.ICON_SCALE, ScaleMode.class); 
-		idpSelector = new IdpSelectorComponent(msg, perRow, scaleMode, CHOSEN_IDP_COOKIE, new IdPsSpecification()
-		{
-			@Override
-			public Collection<String> getIdpKeys()
-			{
-				return idps;
-			}
-			
-			@Override
-			public String getIdPName(String key, Locale locale)
-			{
-				return samlProperties.getLocalizedName(key, msg.getLocale());
-			}
-			
-			@Override
-			public String getIdPLogoUri(String key, Locale locale)
-			{
-				return samlProperties.getLocalizedValue(key + SAMLSPProperties.IDP_LOGO, 
-						msg.getLocale());
-			}
-		});
-		ret.addComponent(idpSelector);
-		
+		String name = getName(samlProperties);
+		String logoUrl = samlProperties.getLocalizedValue(idpKey + SAMLSPProperties.IDP_LOGO, msg.getLocale());
+		IdPComponent idpComponent = new IdPComponent(idpKey, logoUrl, name, scaleMode);
+
 		messageLabel = new Label();
 		messageLabel.addStyleName(Styles.error.toString());
 		errorDetailLabel = new HtmlSimplifiedLabel();
 		errorDetailLabel.addStyleName(Styles.italic.toString());
 		errorDetailLabel.setVisible(false);
-		ret.addComponents(messageLabel, errorDetailLabel);
+		ret.addComponents(idpComponent, messageLabel, errorDetailLabel);
 
 		return ret;
 	}
 
+	private String getName(SAMLSPProperties samlProperties)
+	{
+		String name = samlProperties.getLocalizedName(idpKey + SAMLSPProperties.IDP_NAME, msg.getLocale());
+		if (name == null)
+			return samlProperties.getValue(idpKey + SAMLSPProperties.IDP_ID);
+		return name;
+	}
+	
 	private String installRequestHandler()
 	{
 		VaadinSession session = VaadinSession.getCurrent();
@@ -197,7 +152,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		errorDetailLabel.setValue(msg.getMessage(message, args));
 	}
 	
-	private void startLogin(String idpKey)
+	private void startLogin()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
 		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
@@ -225,8 +180,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		}		
 		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
 		samlContextManagement.addAuthnContext(context);
-		
-		IdpSelectorComponent.setLastIdpCookie(CHOSEN_IDP_COOKIE, context.getContextIdpKey());
 		
 		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
 	}
@@ -284,11 +237,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	}
 	
 	@Override
-	public void setUsernameCallback(UsernameProvider usernameCallback)
-	{
-	}
-
-	@Override
 	public void setAuthenticationResultCallback(AuthenticationResultCallback callback)
 	{
 		this.callback = callback;
@@ -297,7 +245,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public void triggerAuthentication()
 	{
-		startLogin(idpSelector.getSelectedProvider());
+		startLogin();
 	}
 
 	@Override
@@ -331,19 +279,19 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	 * {@inheritDoc}
 	 */
 	@Override
-	public I18nString getLabel()
+	public String getLabel()
 	{	
-		return credentialExchange.getSamlValidatorSettings().getLocalizedString(msg, 
-				SAMLSPProperties.DISPLAY_NAME);
+		return getName(credentialExchange.getSamlValidatorSettings());
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Resource getImage()
+	public String getImageURL()
 	{
-		return null;
+		final SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
+		return samlProperties.getLocalizedValue(idpKey + SAMLSPProperties.IDP_LOGO, msg.getLocale());
 	}
 
 	@Override
@@ -356,5 +304,11 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
 	{
 		sandboxCallback = callback;
+	}
+
+	@Override
+	public String getId()
+	{
+		return idpKey;
 	}
 }

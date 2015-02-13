@@ -4,16 +4,16 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
-import com.vaadin.server.Resource;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.Component;
+import java.util.Collection;
 
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
-import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
+
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.ui.Component;
 
 /**
  * Defines a contract which must be implemented by {@link CredentialRetrieval}s in order to be used 
@@ -25,29 +25,18 @@ public interface VaadinAuthentication extends BindingAuthn
 	public static final String NAME = "web-vaadin7";
 	
 	/**
-	 * @return a new instance of the credential retrieval UI
+	 * @return a new instance of the credential retrieval UIs. The collection is returned as one authenticator 
+	 * may provide many authN options (e.g. many remote IdPs). 
 	 */
-	public VaadinAuthenticationUI createUIInstance();
+	public Collection<VaadinAuthenticationUI> createUIInstance();
 	
 	
 	public interface VaadinAuthenticationUI
 	{
 		/**
-		 * @return true if the retrieval requires username to be provided. Username is provided 
-		 * from a component shared by all authenticators in a set. 
-		 */
-		public boolean needsCommonUsernameComponent();
-		
-		/**
 		 * @return UI component associated with this retrieval
 		 */
 		public Component getComponent();
-		
-		/**
-		 * Invoked only when {@link #needsCommonUsernameComponent()} returns true. 
-		 * @param usernameCallback
-		 */
-		public void setUsernameCallback(UsernameProvider usernameCallback);
 		
 		/**
 		 * Sets a callback object which is used to communicate the authentication result back to the 
@@ -83,12 +72,12 @@ public interface VaadinAuthentication extends BindingAuthn
 		 * @return label for presentation in the user interface.
 		 * returns non null value.
 		 */
-		public I18nString getLabel();
+		public String getLabel();
 		
 		/**
-		 * @return image for the presentation in the user interface. Can be null.
+		 * @return image URL for the presentation in the user interface. Can be null.
 		 */
-		public Resource getImage();
+		public String getImageURL();
 		
 		/**
 		 * Called after login was cancelled or finished, so the component can clear its state. 
@@ -100,16 +89,14 @@ public interface VaadinAuthentication extends BindingAuthn
 		 * @param request that caused UI to be reloaded 
 		 */
 		public void refresh(VaadinRequest request);
+
+		/**
+		 * @return unique identifier of this authentication option. The id must be unique among  
+		 * ids returned by all {@link VaadinAuthenticationUI} of the {@link VaadinAuthentication}
+		 */
+		public String getId();
 	}
-		
-	/**
-	 * Can be used by retriever to get the username which is actually entered.
-	 * @author K. Benedyczak
-	 */
-	public interface UsernameProvider
-	{
-		public String getUsername();
-	}
+
 	
 	/**
 	 * Retrieval must provide an authentication result via this callback ASAP, after it is triggered.

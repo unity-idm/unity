@@ -5,6 +5,8 @@
 package pl.edu.icm.unity.webui.authn.extensions;
 
 import java.security.cert.X509Certificate;
+import java.util.Collection;
+import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -21,18 +23,17 @@ import pl.edu.icm.unity.stdext.credential.CertificateExchange;
 import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServletService;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import pl.edu.icm.unity.webui.common.Styles;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.util.configuration.ConfigurationException;
@@ -98,9 +99,9 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 	}
 
 	@Override
-	public VaadinAuthenticationUI createUIInstance()
+	public Collection<VaadinAuthenticationUI> createUIInstance()
 	{
-		return new TLSRetrievalUI();
+		return Collections.<VaadinAuthenticationUI>singleton(new TLSRetrievalUI());
 	}
 
 	
@@ -120,21 +121,10 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 		private SandboxAuthnResultCallback sandboxCallback;
 		
 		@Override
-		public boolean needsCommonUsernameComponent()
-		{
-			return false;
-		}
-
-		@Override
 		public Component getComponent()
 		{
 			component = new TLSAuthnComponent();
 			return component;
-		}
-
-		@Override
-		public void setUsernameCallback(UsernameProvider usernameCallback)
-		{
 		}
 
 		@Override
@@ -174,16 +164,16 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 		 * {@inheritDoc}
 		 */
 		@Override
-		public I18nString getLabel()
+		public String getLabel()
 		{
-			return name;
+			return name.getValue(msg);
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Resource getImage()
+		public String getImageURL()
 		{
 			return null;
 		}
@@ -240,6 +230,15 @@ public class TLSRetrieval implements CredentialRetrieval, VaadinAuthentication
 		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
 		{
 			sandboxCallback = callback;
+		}
+
+		/**
+		 * Simple: there is only one authN option in this authenticator so we can return any constant id. 
+		 */
+		@Override
+		public String getId()
+		{
+			return "certificate";
 		}
 	}	
 }

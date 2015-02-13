@@ -15,11 +15,11 @@ import pl.edu.icm.unity.oauth.client.UserProfileFetcher.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityPropertiesHelper;
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
-import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 
@@ -27,7 +27,7 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
  * Configuration of OAuth client for custom provider.
  * @author K. Benedyczak
  */
-public class CustomProviderProperties extends PropertiesHelper
+public class CustomProviderProperties extends UnityPropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, CustomProviderProperties.class);
 	
