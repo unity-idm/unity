@@ -70,7 +70,8 @@ public class EndpointDB extends GenericObjectsDB<EndpointInstance>
 			List<EndpointInstance> endpoints = getAll(sql);
 			for (EndpointInstance instance: endpoints)
 			{
-				List<AuthenticationOptionDescription> used = instance.getEndpointDescription().getAuthenticatorSets();
+				List<AuthenticationOptionDescription> used = instance.getEndpointDescription().
+						getAuthenticatorSets();
 				for (AuthenticationOptionDescription set: used)
 					if (set.getAuthenticators().contains(removedObject.getId()))
 						throw new IllegalArgumentException("The authenticator " + 

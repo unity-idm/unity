@@ -689,7 +689,7 @@ public class EngineInitialization extends LifecycleBase
 			String realmName = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_REALM);
 			
 			String[] authenticatorSets = authenticatorsSpec.split(";");
-			List<AuthenticationOptionDescription> endpointAuthn = new ArrayList<AuthenticationOptionDescription>();
+			List<AuthenticationOptionDescription> endpointAuthn = new ArrayList<>();
 			for (String authenticatorSet: authenticatorSets)
 			{
 				Set<String> endpointAuthnSet = new HashSet<String>();

@@ -96,7 +96,7 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 			AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
 					10, 100, -1, 600);
 			realmsMan.addRealm(realm);
-			List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
+			List<AuthenticationOptionDescription> authnCfg = new ArrayList<>();
 			authnCfg.add(new AuthenticationOptionDescription(Collections.singleton("Apass")));
 			endpointMan.deploy(OAuthTokenEndpointFactory.NAME, "endpointIDP", new I18nString("endpointIDP"),
 					"/oauth", "desc", 
