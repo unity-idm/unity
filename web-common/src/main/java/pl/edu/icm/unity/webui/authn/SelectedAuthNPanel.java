@@ -242,7 +242,7 @@ public class SelectedAuthNPanel extends CustomComponent
 		{
 			log.trace("Received authentication result nr " + (results.size() + 1));
 			results.add(result);
-			if (results.size() == selectedAuthnOption.getAuthenticators().values().size())
+			if (selectedAuthnOption.getMandatory2ndAuthenticator() == null)
 			{
 				authnDone();
 			}

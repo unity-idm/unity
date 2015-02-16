@@ -4,8 +4,9 @@
  */
 package pl.edu.icm.unity.server.authn;
 
-import java.util.Map;
+import java.util.Set;
 
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 
@@ -15,20 +16,53 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
  * MFA or RBA.
  * <p>
  * This class is a working instance of what can be described by the {@link AuthenticationOptionDescription}.
- * 
+ * <p>
+ * Implementation note: as RBA is unimplemented yet and MFA is simplistic this class doesn't hold much. In future
+ * it will be extended.
+ *  
  * @author K. Benedyczak
  */
 public class AuthenticationOption
 {
-	private Map<String, BindingAuthn> authenticators;
+	private BindingAuthn primaryAuthenticator;
+	private BindingAuthn mandatory2ndAuthenticator;
 
-	public AuthenticationOption(Map<String, BindingAuthn> authenticators)
+	public AuthenticationOption(BindingAuthn primaryAuthenticator, BindingAuthn mandatory2ndAuthenticator)
 	{
-		this.authenticators = authenticators;
+		this.primaryAuthenticator = primaryAuthenticator;
 	}
 
-	public Map<String, BindingAuthn> getAuthenticators()
+	public BindingAuthn getPrimaryAuthenticator()
 	{
-		return authenticators;
+		return primaryAuthenticator;
+	}
+
+	/**
+	 * @return 2ndary (typically 2nd factor) authenticator. Can be null if not defined.
+	 */
+	public BindingAuthn getMandatory2ndAuthenticator()
+	{
+		return mandatory2ndAuthenticator;
+	}
+	
+	/**
+	 * @throws WrongArgumentException 
+	 * 
+	 */
+	public void checkIfAuthenticatorsAreAmongSupported(Set<String> supportedBindings) throws WrongArgumentException
+	{
+		checkIfAuthenticatorIsAmongSupported(primaryAuthenticator, supportedBindings);
+		if (mandatory2ndAuthenticator != null)
+			checkIfAuthenticatorIsAmongSupported(mandatory2ndAuthenticator, supportedBindings);
+	}
+
+	private void checkIfAuthenticatorIsAmongSupported(BindingAuthn authenticator, 
+			Set<String> supportedBindings) throws WrongArgumentException
+	{
+		if (!supportedBindings.contains(authenticator.getBindingName()))
+				throw new WrongArgumentException("The authenticator of type " + 
+						authenticator.getBindingName() + 
+						" is not supported by the binding. Supported are: " + 
+						supportedBindings); 
 	}
 }

@@ -43,8 +43,7 @@ public class MockEndpoint extends AbstractEndpoint implements WebAppEndpointInst
 	
 	public Long authenticate() throws EngineException
 	{
-		MockBinding authenticator = (MockBinding)authenticators.get(0).getAuthenticators().
-				values().iterator().next();
+		MockBinding authenticator = (MockBinding)authenticators.get(0).getPrimaryAuthenticator();
 		return authenticator.authenticate();
 	}
 

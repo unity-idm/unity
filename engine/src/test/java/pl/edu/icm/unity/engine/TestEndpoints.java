@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,13 +12,13 @@ import java.util.List;
 import org.junit.Test;
 
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 public class TestEndpoints extends DBIntegrationTestBase
-{	
+{		
 	@Test
 	public void testEndpoints() throws Exception
 	{

@@ -5,10 +5,7 @@
 package pl.edu.icm.unity.engine.authn;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +16,11 @@ import pl.edu.icm.unity.db.generic.cred.CredentialDB;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 /**
@@ -84,14 +81,11 @@ public class AuthenticatorLoader
 		List<AuthenticationOption> ret = new ArrayList<>(authn.size());
 		for (AuthenticationOptionDescription aSet: authn)
 		{
-			Set<String> authenticators = aSet.getAuthenticators();
-			Map<String, BindingAuthn> aImpls = new HashMap<String, BindingAuthn>();
-			for (String authenticator: authenticators)
-			{
-				AuthenticatorImpl authImpl = getAuthenticator(authenticator, sql);
-				aImpls.put(authenticator, authImpl.getRetrieval());
-			}
-			ret.add(new AuthenticationOption(aImpls));
+			CredentialRetrieval primaryAuthImpl = getAuthenticator(aSet.getPrimaryAuthenticator(), sql).
+					getRetrieval();
+			CredentialRetrieval secondaryAuthImpl = aSet.getMandatory2ndAuthenticator() == null ?
+					null : getAuthenticator(aSet.getMandatory2ndAuthenticator(), sql).getRetrieval();
+			ret.add(new AuthenticationOption(primaryAuthImpl, secondaryAuthImpl));
 		}
 		return ret;
 	}

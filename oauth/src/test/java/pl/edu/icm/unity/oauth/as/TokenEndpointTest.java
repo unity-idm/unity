@@ -8,7 +8,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
@@ -25,8 +24,8 @@ import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
@@ -97,7 +96,7 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 					10, 100, -1, 600);
 			realmsMan.addRealm(realm);
 			List<AuthenticationOptionDescription> authnCfg = new ArrayList<>();
-			authnCfg.add(new AuthenticationOptionDescription(Collections.singleton("Apass")));
+			authnCfg.add(new AuthenticationOptionDescription("Apass"));
 			endpointMan.deploy(OAuthTokenEndpointFactory.NAME, "endpointIDP", new I18nString("endpointIDP"),
 					"/oauth", "desc", 
 					authnCfg, OAUTH_ENDP_CFG, REALM_NAME);

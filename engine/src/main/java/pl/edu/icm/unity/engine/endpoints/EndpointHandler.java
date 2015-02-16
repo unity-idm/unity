@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.endpoints;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
@@ -31,9 +32,9 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -70,8 +71,10 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 			String state = endpoint.getSerializedConfiguration();
 			ObjectNode root = jsonMapper.createObjectNode();
 			ObjectNode descNode = root.putObject("description");
-			String authenticators = jsonMapper.writeValueAsString(desc.getAuthenticatorSets());
-			descNode.put("authenticatorSets", authenticators);
+			List<AuthenticationOptionDescription> authenticationOptions = desc.getAuthenticatorSets();
+			ArrayNode authns = descNode.withArray("authenticationOptions");
+			for (AuthenticationOptionDescription authenticationOption: authenticationOptions)
+				authns.add(authenticationOption.toJson());
 			descNode.put("contextAddress", desc.getContextAddress());
 			descNode.put("description", desc.getDescription());
 			descNode.put("id", desc.getId());
@@ -96,6 +99,18 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 				5, 10, -1, 30*60);
 	}
 
+
+
+	private List<AuthenticationOptionDescription> parseAuthenticationOptions(JsonNode authnSetsNode) 
+			throws IOException
+	{
+		ArrayNode authns = (ArrayNode) authnSetsNode;
+		List<AuthenticationOptionDescription> aDescs = new ArrayList<>(authns.size());
+		for (JsonNode node: authns)
+			aDescs.add(new AuthenticationOptionDescription((ObjectNode) node));
+		return aDescs;
+	}
+	
 	@Override
 	public EndpointInstance fromBlob(GenericObjectBean blob, SqlSession sql)
 	{
@@ -103,16 +118,21 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 		{
 			EndpointFactory factory = endpointFactoriesReg.getById(blob.getSubType());
 			if (factory == null)
-				throw new IllegalArgumentException("Endpoint type " + blob.getSubType() + " is unknown");
+				throw new IllegalArgumentException("Endpoint type " + blob.getSubType() + 
+						" is unknown");
 			JsonNode root = jsonMapper.readTree(blob.getContents());
 			ObjectNode descriptionJson = (ObjectNode) root.get("description");
 			String state = root.get("state").asText();
 			EndpointDescription description = new EndpointDescription();
 			
-			List<AuthenticationOptionDescription> aSet = jsonMapper.readValue(
-					descriptionJson.get("authenticatorSets").asText(), 
-					new TypeReference<List<AuthenticationOptionDescription>>() {});
-			description.setAuthenticatorSets(aSet);
+			if (descriptionJson.has("authenticationOptions"))
+				description.setAuthenticatorSets(parseAuthenticationOptions(
+						descriptionJson.get("authenticationOptions")));
+			else
+				description.setAuthenticatorSets(
+						AuthenticationOptionDescription.parseLegacyAuthenticatorSets(
+						descriptionJson.get("authenticatorSets")));
+			
 			description.setContextAddress(descriptionJson.get("contextAddress").asText());
 			if (descriptionJson.has("description"))
 				description.setDescription(descriptionJson.get("description").asText());

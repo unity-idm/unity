@@ -91,8 +91,8 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 					10, 100, -1, 600);
 			realmsMan.addRealm(realm);
 			List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-			authnCfg.add(new AuthenticationOptionDescription(Collections.singleton("Apass")));
-			authnCfg.add(new AuthenticationOptionDescription(Collections.singleton("Acert")));
+			authnCfg.add(new AuthenticationOptionDescription("Apass"));
+			authnCfg.add(new AuthenticationOptionDescription("Acert"));
 			endpointMan.deploy(SamlIdPSoapEndpointFactory.NAME, "endpointIDP", 
 					new I18nString("endpointIDP"), "/saml", "desc", 
 					authnCfg, SAML_ENDP_CFG, REALM_NAME);

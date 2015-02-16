@@ -64,7 +64,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
 		authnMan.createAuthenticator("auth1", authType.getId(), "6", "bbb", "credential1");
 		
-		AuthenticationOptionDescription authSet = new AuthenticationOptionDescription(Collections.singleton("auth1"));
+		AuthenticationOptionDescription authSet = new AuthenticationOptionDescription("auth1");
 		endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", new I18nString("endpoint1"), "/foo", "desc", 
 				Collections.singletonList(authSet), "", realm.getName());
 
@@ -140,14 +140,14 @@ public class TestAuthentication extends DBIntegrationTestBase
 		assertEquals(1, endpoints.size());
 
 		//and assign the authenticator to it
-		AuthenticationOptionDescription authSet = new AuthenticationOptionDescription(Collections.singleton("auth1"));
+		AuthenticationOptionDescription authSet = new AuthenticationOptionDescription("auth1");
 		endpointMan.updateEndpoint(endpoints.get(0).getId(), new I18nString("ada"), 
 				"ada", Collections.singletonList(authSet), "", realm.getName());
 
 		//check if is returned
 		List<AuthenticationOptionDescription> authSets = endpointMan.getEndpoints().get(0).getAuthenticatorSets();
 		assertEquals(1, authSets.size());
-		assertEquals(1, authSets.get(0).getAuthenticators().size());
+		assertEquals("auth1", authSets.get(0).getPrimaryAuthenticator());
 		
 		//remove a used authenticator
 		try

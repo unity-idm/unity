@@ -192,12 +192,13 @@ public class EndpointsUpdater
 	private boolean hasChangedAuthenticator(Set<String> changedAuthenticators, EndpointInstance instance)
 	{
 		List<AuthenticationOptionDescription> auths = instance.getEndpointDescription().getAuthenticatorSets();
-		for (AuthenticationOptionDescription as: auths)
+		for (String changed: changedAuthenticators)
 		{
-			Set<String> authenticators = as.getAuthenticators();
-			for (String a: authenticators)
-				if (changedAuthenticators.contains(a))
+			for (AuthenticationOptionDescription as: auths)
+			{
+				if (as.contains(changed))
 					return true;
+			}
 		}
 		return false;
 	}

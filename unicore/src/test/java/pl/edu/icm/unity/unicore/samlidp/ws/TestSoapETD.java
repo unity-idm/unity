@@ -74,7 +74,7 @@ public class TestSoapETD extends DBIntegrationTestBase
 					10, 100, -1, 600);
 			realmsMan.addRealm(realm);
 			List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-			authnCfg.add(new AuthenticationOptionDescription(Collections.singleton("Acert")));
+			authnCfg.add(new AuthenticationOptionDescription("Acert"));
 			endpointMan.deploy(SamlUnicoreIdPSoapEndpointFactory.NAME, "endpoint1", 
 					new I18nString("endpoint1"), "/saml", "desc",
 					authnCfg, SAML_ENDP_CFG, realm.getName());

@@ -66,8 +66,7 @@ public class AuthNTile extends CustomComponent
 		
 		for (final AuthenticationOption set: authenticators)
 		{
-			VaadinAuthentication firstAuthenticator = 
-					(VaadinAuthentication) set.getAuthenticators().values().iterator().next();
+			VaadinAuthentication firstAuthenticator = (VaadinAuthentication) set.getPrimaryAuthenticator();
 			
 			Collection<VaadinAuthenticationUI> uiInstances = 
 					firstAuthenticator.createUIInstance();

@@ -7,7 +7,6 @@ package pl.edu.icm.unity.test.performance;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.http.HttpHost;
@@ -19,8 +18,8 @@ import org.junit.Test;
 
 import pl.edu.icm.unity.rest.MockRESTEndpointFactory;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 /**
  * Test user login performance
@@ -45,7 +44,7 @@ public class TstPerfLogin extends PerformanceTestBase
 		realmsMan.addRealm(realm);
 
 		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-		authnCfg.add(new AuthenticationOptionDescription(Collections.singleton(AUTHENTICATOR_REST_PASS)));
+		authnCfg.add(new AuthenticationOptionDescription(AUTHENTICATOR_REST_PASS));
 		endpointMan.deploy(MockRESTEndpointFactory.NAME, "endpoint1", new I18nString("endpoint1"), "/mock", "desc",
 				authnCfg, "", realm.getName());
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();

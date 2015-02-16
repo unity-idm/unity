@@ -27,6 +27,7 @@ import org.springframework.core.env.CommandLinePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -392,6 +393,24 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public UnityPKIConfiguration getPKIConfiguration()
 	{
 		return pkiConf;
+	}
+	
+	public List<AuthenticationOptionDescription> getEndpointAuth(String endpointKey)
+	{
+		String spec = getValue(endpointKey+UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
+		String[] authenticatorSets = spec.split(";");		
+		List<AuthenticationOptionDescription> endpointAuthn = new ArrayList<AuthenticationOptionDescription>();
+		for (String authenticatorSet : authenticatorSets)
+		{
+			String[] authenticators = authenticatorSet.split(",");
+			if (authenticators.length > 2)
+				throw new ConfigurationException("Invalid configuration of "
+						+ "authenticators of the endpoint with id " + endpointKey +
+						". In one authentication set maximum of 2 authenticators is allowed.");
+			String secondary = authenticators.length == 2 ? authenticators[1] : null;
+			endpointAuthn.add(new AuthenticationOptionDescription(authenticators[0], secondary));
+		}
+		return endpointAuthn;
 	}
 	
 	public Properties getProperties()

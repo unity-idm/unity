@@ -7,7 +7,6 @@ package pl.edu.icm.unity.rest;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.http.HttpHost;
@@ -22,8 +21,8 @@ import org.junit.Test;
 
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpointFactory;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 /**
@@ -47,8 +46,8 @@ public class TestJWTAuthentication extends TestRESTBase
 		authnMan.createAuthenticator("Ajwt", "jwt with rest-jwt", JWT_CONFIG, null, null);
 		
 		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-		authnCfg.add(new AuthenticationOptionDescription(Collections.singleton(AUTHENTICATOR_REST_PASS)));
-		authnCfg.add(new AuthenticationOptionDescription(Collections.singleton("Ajwt")));
+		authnCfg.add(new AuthenticationOptionDescription(AUTHENTICATOR_REST_PASS));
+		authnCfg.add(new AuthenticationOptionDescription("Ajwt"));
 		endpointMan.deploy(JWTManagementEndpointFactory.NAME, 
 				"jwtMan", new I18nString("jwtMan"), "/jwt", "desc", authnCfg, 
 				JWT_CONFIG, realm.getName());

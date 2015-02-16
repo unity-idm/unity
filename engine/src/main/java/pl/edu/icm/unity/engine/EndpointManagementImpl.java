@@ -27,7 +27,6 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
@@ -145,13 +144,7 @@ public class EndpointManagementImpl implements EndpointManagement
 			Set<String> supported) throws WrongArgumentException
 	{
 		for (AuthenticationOption auths: authenticators)
-		{
-			for (BindingAuthn bindingAuthn: auths.getAuthenticators().values())
-				if (!supported.contains(bindingAuthn.getBindingName()))
-					throw new WrongArgumentException("The authenticator of type " + 
-							bindingAuthn.getBindingName() + " is not supported by the binding. " +
-									"Supported are: " + supported); 
-		}
+			auths.checkIfAuthenticatorsAreAmongSupported(supported);
 	}
 	
 	@Override

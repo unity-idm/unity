@@ -32,7 +32,6 @@ import pl.edu.icm.unity.server.authn.AuthenticationProcessorUtil;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -152,24 +151,36 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 			AuthenticationOption authenticatorSet) throws AuthenticationException
 	{
 		List<AuthenticationResult> setResult = new ArrayList<AuthenticationResult>();
-		for (BindingAuthn authenticator: authenticatorSet.getAuthenticators().values())
+		AuthenticationResult result = processAuthenticator(authnCache, 
+					(CXFAuthentication) authenticatorSet.getPrimaryAuthenticator()); 
+		setResult.add(result);
+		
+		if (authenticatorSet.getMandatory2ndAuthenticator() != null)
 		{
-			AuthenticationResult result = authnCache.get(authenticator.getAuthenticatorId());
-			if (result == null)
-			{
-				log.trace("Processing authenticator " + authenticator.getAuthenticatorId());
-				CXFAuthentication myAuth = (CXFAuthentication) authenticator;
-				result = myAuth.getAuthenticationResult();
-				authnCache.put(authenticator.getAuthenticatorId(), result);
-				log.trace("Authenticator " + authenticator.getAuthenticatorId() + " returned " + result);
-			} else
-			{
-				log.trace("Using cached result of " + authenticator.getAuthenticatorId() + 
-						": " + result);
-			}
-			setResult.add(result);
+			AuthenticationResult result2 = processAuthenticator(authnCache, 
+					(CXFAuthentication) authenticatorSet.getMandatory2ndAuthenticator()); 
+			setResult.add(result2);
 		}
+		
 		return AuthenticationProcessorUtil.processResults(setResult);
+	}
+
+	private AuthenticationResult processAuthenticator(Map<String, AuthenticationResult> authnCache,
+			CXFAuthentication myAuth) throws AuthenticationException
+	{
+		String authId = myAuth.getAuthenticatorId();
+		AuthenticationResult result = authnCache.get(authId);
+		if (result == null)
+		{
+			log.trace("Processing authenticator " + authId);
+			result = myAuth.getAuthenticationResult();
+			authnCache.put(authId, result);
+			log.trace("Authenticator " + authId + " returned " + result);
+		} else
+		{
+			log.trace("Using cached result of " + authId + ": " + result);
+		}
+		return result;
 	}
 	
 	private String getClientIP()

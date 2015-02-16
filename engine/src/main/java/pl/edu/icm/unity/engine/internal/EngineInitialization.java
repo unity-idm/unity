@@ -12,7 +12,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -81,9 +80,9 @@ import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -684,21 +683,9 @@ public class EngineInitialization extends LifecycleBase
 					endpointKey+UnityServerConfiguration.ENDPOINT_DISPLAYED_NAME);
 			if (displayedName.isEmpty())
 				displayedName.setDefaultValue(name);
-			
-			String authenticatorsSpec = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
 			String realmName = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_REALM);
 			
-			String[] authenticatorSets = authenticatorsSpec.split(";");
-			List<AuthenticationOptionDescription> endpointAuthn = new ArrayList<>();
-			for (String authenticatorSet: authenticatorSets)
-			{
-				Set<String> endpointAuthnSet = new HashSet<String>();
-				String[] authenticators = authenticatorSet.split(",");
-				for (String a: authenticators)
-					endpointAuthnSet.add(a.trim());
-				endpointAuthn.add(new AuthenticationOptionDescription(endpointAuthnSet));
-			}
-			
+			List<AuthenticationOptionDescription> endpointAuthn = config.getEndpointAuth(endpointKey);
 			String jsonConfiguration = FileUtils.readFileToString(configFile);
 
 			endpointManager.deploy(type, name, displayedName, address, description, endpointAuthn, 

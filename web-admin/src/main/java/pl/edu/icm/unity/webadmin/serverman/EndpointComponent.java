@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.serverman;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -122,7 +120,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		try
 		{
 			this.endpoint = endpointMan.deploy(data.type, id, data.displayedName, data.address, 
-					data.description, getEndpointAuth(data.authenticatorsSpec), 
+					data.description, data.authenticators, 
 					data.jsonConfiguration, data.realm);
 		} catch (Exception e)
 		{
@@ -171,21 +169,6 @@ public class EndpointComponent extends DeployableComponentViewBase
 		
 	}
 	
-	private List<AuthenticationOptionDescription> getEndpointAuth(String spec)
-	{
-		String[] authenticatorSets = spec.split(";");
-		List<AuthenticationOptionDescription> endpointAuthn = new ArrayList<AuthenticationOptionDescription>();
-		for (String authenticatorSet : authenticatorSets)
-		{
-			Set<String> endpointAuthnSet = new HashSet<String>();
-			String[] authenticators = authenticatorSet.split(",");
-			for (String a : authenticators)
-				endpointAuthnSet.add(a.trim());
-			endpointAuthn.add(new AuthenticationOptionDescription(endpointAuthnSet));
-		}
-		return endpointAuthn;
-	}
-	
 	private boolean reloadEndpoint(String id)
 	{
 		EndpointConfig data = getEndpointConfig(id);
@@ -197,8 +180,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		try
 		{
 			endpointMan.updateEndpoint(id, data.displayedName, data.description,
-					getEndpointAuth(data.authenticatorsSpec),
-					data.jsonConfiguration, data.realm);
+					data.authenticators, data.jsonConfiguration, data.realm);
 				
 			
 		} catch (Exception e)
@@ -297,14 +279,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		for (AuthenticationOptionDescription s : endpoint.getAuthenticatorSets())
 		{
 			i++;
-			StringBuilder auth = new StringBuilder();
-			for (String a : s.getAuthenticators())
-			{
-				if (auth.length() > 0)
-					auth.append(",");
-				auth.append(a);
-			}
-			addField(au, String.valueOf(i), auth.toString());
+			addField(au, String.valueOf(i), s.toString());
 		}
 		content.addComponent(au);
 	}
@@ -331,8 +306,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		
 		ret.description = config.getValue(endpointKey
 				+ UnityServerConfiguration.ENDPOINT_DESCRIPTION);
-		ret.authenticatorsSpec = config.getValue(endpointKey
-				+ UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
+		ret.authenticators = config.getEndpointAuth(endpointKey);
 		ret.type = config.getValue(endpointKey
 						+ UnityServerConfiguration.ENDPOINT_TYPE);
 		ret.address = config.getValue(endpointKey
@@ -361,7 +335,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 	private static class EndpointConfig
 	{
 		private String description;
-		private String authenticatorsSpec;
+		private List<AuthenticationOptionDescription> authenticators;
 		private String type;
 		private String address;
 		private String realm;

@@ -6,7 +6,6 @@ package pl.edu.icm.unity.sandbox;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -181,7 +180,7 @@ public class SandboxUI extends AuthenticationUI
 				if (!(factory instanceof LocalCredentialVerificatorFactory)) 
 				{
 					AuthenticationOptionDescription authnSet = new AuthenticationOptionDescription(
-							Collections.singleton(instance.getId()));
+							instance.getId(), null);
 					vaadinAuthenticators.add(authnSet);
 				}
 			}

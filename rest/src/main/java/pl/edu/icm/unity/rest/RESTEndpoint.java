@@ -155,17 +155,24 @@ public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEnd
 		Set<String> added = new HashSet<String>();
 		for (AuthenticationOption authenticatorSet: authenticators)
 		{
-			for (BindingAuthn authenticator: authenticatorSet.getAuthenticators().values())
-			{
-				if (!added.contains(authenticator.getAuthenticatorId()))
-				{
-					CXFAuthentication a = (CXFAuthentication) authenticator;
-					Interceptor<? extends Message> in = a.getInterceptor();
-					if (in != null)
-						interceptors.add(in);
-					added.add(authenticator.getAuthenticatorId());
-				}
-			}
+			BindingAuthn authenticator = authenticatorSet.getPrimaryAuthenticator();
+			installAuthnInterceptor(authenticator, interceptors, added);
+			BindingAuthn authenticator2 = authenticatorSet.getMandatory2ndAuthenticator();
+			if (authenticator2 != null)
+				installAuthnInterceptor(authenticator2, interceptors, added);
+		}
+	}
+
+	private static void installAuthnInterceptor(BindingAuthn authenticator, 
+			List<Interceptor<? extends Message>> interceptors, Set<String> added)
+	{
+		if (!added.contains(authenticator.getAuthenticatorId()))
+		{
+			CXFAuthentication a = (CXFAuthentication) authenticator;
+			Interceptor<? extends Message> in = a.getInterceptor();
+			if (in != null)
+				interceptors.add(in);
+			added.add(authenticator.getAuthenticatorId());
 		}
 	}
 	

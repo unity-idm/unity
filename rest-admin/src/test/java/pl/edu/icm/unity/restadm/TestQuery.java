@@ -9,7 +9,6 @@ import static org.junit.Assert.assertEquals;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
@@ -23,12 +22,6 @@ import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
 import pl.edu.icm.unity.rest.TestRESTBase;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
@@ -42,8 +35,8 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -51,6 +44,11 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 
 public class TestQuery extends TestRESTBase
@@ -142,7 +140,7 @@ public class TestQuery extends TestRESTBase
 		realmsMan.addRealm(realm);
 		
 		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-		authnCfg.add(new AuthenticationOptionDescription(Collections.singleton("ApassREST")));
+		authnCfg.add(new AuthenticationOptionDescription("ApassREST"));
 		endpointMan.deploy(RESTAdminEndpointFactory.NAME, 
 				"restAdmin", new I18nString("restAdmin"),
 				"/restadm", "desc", authnCfg, "", realm.getName());

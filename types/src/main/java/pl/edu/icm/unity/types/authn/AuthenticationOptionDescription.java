@@ -4,8 +4,17 @@
  */
 package pl.edu.icm.unity.types.authn;
 
-import java.util.Collections;
-import java.util.Set;
+import java.io.IOException;
+import java.net.Authenticator;
+import java.util.ArrayList;
+import java.util.List;
+
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.InternalException;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Set of {@link Authenticator}s. The purpose of this set is to allow for
@@ -15,25 +24,89 @@ import java.util.Set;
  */
 public class AuthenticationOptionDescription
 {
-	private Set<String> authenticators;
+	private String primaryAuthenticator;
+	private String mandatory2ndAuthenticator;
 	
-	public AuthenticationOptionDescription()
+	public AuthenticationOptionDescription(ObjectNode json)
 	{
-		authenticators = Collections.emptySet();
+		fromJson(json);
 	}
 	
-	public AuthenticationOptionDescription(Set<String> authenticators)
+	public AuthenticationOptionDescription(String primaryAuthenticator)
 	{
-		this.authenticators = authenticators;
+		this.primaryAuthenticator = primaryAuthenticator;
 	}
 
-	public Set<String> getAuthenticators()
+	public AuthenticationOptionDescription(String primaryAuthenticator,
+			String mandatory2ndAuthenticator)
 	{
-		return authenticators;
+		this.primaryAuthenticator = primaryAuthenticator;
+		this.mandatory2ndAuthenticator = mandatory2ndAuthenticator;
 	}
 
-	public void setAuthenticators(Set<String> authenticators)
+	
+	
+	public boolean contains(String id)
 	{
-		this.authenticators = authenticators;
+		return primaryAuthenticator.equals(id) || id.equals(mandatory2ndAuthenticator);
+	}
+	
+	public String getPrimaryAuthenticator()
+	{
+		return primaryAuthenticator;
+	}
+
+	public String getMandatory2ndAuthenticator()
+	{
+		return mandatory2ndAuthenticator;
+	}
+
+	public ObjectNode toJson()
+	{
+		ObjectNode ret = Constants.MAPPER.createObjectNode();
+		ret.put("primaryAuthenticator", primaryAuthenticator);
+		if (mandatory2ndAuthenticator != null)
+			ret.put("mandatory2ndAuthenticator", mandatory2ndAuthenticator);
+		return ret;
+	}
+	
+	private void fromJson(ObjectNode json)
+	{
+		this.primaryAuthenticator = json.get("primaryAuthenticator").asText();
+		if (json.has("mandatory2ndAuthenticator"))
+			this.mandatory2ndAuthenticator = json.get("mandatory2ndAuthenticator").asText();
+	}
+	
+	public static List<AuthenticationOptionDescription> parseLegacyAuthenticatorSets(JsonNode authnSetsNode) 
+			throws IOException
+	{
+		String rawValue = authnSetsNode.asText();
+		ArrayNode root = (ArrayNode) Constants.MAPPER.readTree(rawValue);
+		List<AuthenticationOptionDescription> aDescs = new ArrayList<>(root.size());
+		for (JsonNode set: root)
+		{
+			ObjectNode setO = (ObjectNode) set;
+			ArrayNode setContents = (ArrayNode) setO.get("authenticators");
+			if (setContents.size() == 1)
+			{
+				aDescs.add(new AuthenticationOptionDescription(setContents.get(0).asText()));
+			} else if (setContents.size() > 1)
+			{
+				aDescs.add(new AuthenticationOptionDescription(setContents.get(0).asText(),
+					setContents.get(1).asText()));
+			} else
+			{
+				throw new InternalException("Can't deserialize JSON endpoint state: "
+						+ "the authenticators sepcification is invalid");
+			}
+		}
+		return aDescs;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return mandatory2ndAuthenticator == null ? primaryAuthenticator : 
+			primaryAuthenticator + "," + mandatory2ndAuthenticator;
 	}
 }
