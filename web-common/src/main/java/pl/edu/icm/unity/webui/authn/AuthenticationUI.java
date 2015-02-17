@@ -12,10 +12,12 @@ import javax.servlet.http.Cookie;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.CookieHelper;
@@ -79,13 +81,14 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	protected List<AuthenticationOption> authenticators;
 	protected EndpointDescription description;
 	protected EndpointRegistrationConfiguration registrationConfiguration;
+	private IdentitiesManagement idsMan;
 	
 	@Autowired
 	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,
 			WebAuthenticationProcessor authnProcessor,
 			InsecureRegistrationFormsChooserComponent formsChooser,
 			InsecureRegistrationFormLauncher formLauncher,
-			ExecutorsService execService)
+			ExecutorsService execService, @Qualifier("insecure") IdentitiesManagement idsMan)
 	{
 		super(msg);
 		this.localeChoice = localeChoice;
@@ -93,6 +96,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		this.formsChooser = formsChooser;
 		this.formLauncher = formLauncher;
 		this.execService = execService;
+		this.idsMan = idsMan;
 	}
 
 
@@ -110,7 +114,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	@Override
 	protected void appInit(final VaadinRequest request)
 	{
-		authenticationPanel = new SelectedAuthNPanel(msg, authnProcessor, formLauncher, 
+		authenticationPanel = new SelectedAuthNPanel(msg, authnProcessor, idsMan, formLauncher, 
 				execService, cancelHandler, description.getRealm());
 		authenticationPanel.setVisible(false);
 		authenticationPanel.setAuthenticationListener(new AuthenticationListener()

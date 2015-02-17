@@ -19,6 +19,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
@@ -316,5 +317,10 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	public String getId()
 	{
 		return idpKey;
+	}
+
+	@Override
+	public void presetEntity(Entity authenticatedEntity)
+	{
 	}
 }

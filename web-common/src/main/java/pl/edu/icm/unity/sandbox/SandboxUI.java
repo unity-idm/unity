@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Scope;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.internal.AuthenticatorsManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
@@ -72,9 +73,10 @@ public class SandboxUI extends AuthenticationUI
 			ExecutorsService execService,
 			AuthenticationManagement authnManagement,
 			AuthenticatorsManagement authenticatorsManagement,
-			AuthenticatorsRegistry authnRegistry)
+			AuthenticatorsRegistry authnRegistry,
+			IdentitiesManagement idsMan)
 	{
-		super(msg, localeChoice, authnProcessor, formsChooser, formLauncher, execService);
+		super(msg, localeChoice, authnProcessor, formsChooser, formLauncher, execService, idsMan);
 		
 		authnList      = getAllVaadinAuthenticators(authnManagement, authnRegistry);
 //		authenticators = getAuthenticatorUIs(authnList, authenticatorsManagement);

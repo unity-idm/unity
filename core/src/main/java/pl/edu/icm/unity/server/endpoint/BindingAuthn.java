@@ -30,10 +30,10 @@ public interface BindingAuthn
 	/**
 	 * @return implementation id
 	 */
-	public String getBindingName();
+	String getBindingName();
 	
 	/**
 	 * @return name of the configured authenticator instance.
 	 */
-	public String getAuthenticatorId();
+	String getAuthenticatorId();
 }

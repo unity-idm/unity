@@ -20,8 +20,11 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialReset1Dialog;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -114,6 +117,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		private CredentialEditor credEditor;
 		private AuthenticationResultCallback callback;
 		private SandboxAuthnResultCallback sandboxCallback;
+		private String presetAuthenticatedIdentity;
 		
 		private TextField usernameField;
 		private PasswordField passwordField;
@@ -159,7 +163,8 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 
 		public void triggerAuthentication()
 		{
-			String username = usernameField.getValue();
+			String username = presetAuthenticatedIdentity == null ? usernameField.getValue() : 
+				presetAuthenticatedIdentity;
 			String password = passwordField.getValue();
 			if (password.equals(""))
 			{
@@ -175,6 +180,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		}
 		
 
+		
 		private AuthenticationResult getAuthenticationResult(String username, String password)
 		{
 			if (username.equals("") && password.equals(""))
@@ -226,7 +232,10 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		@Override
 		public void focus()
 		{
-			usernameField.focus();
+			if (presetAuthenticatedIdentity == null)
+				usernameField.focus();
+			else
+				passwordField.focus();
 		}
 		
 		@Override
@@ -251,6 +260,12 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			this.sandboxCallback = sandboxCallback;
 		}
 		
+		public void setAuthenticatedIdentity(String authenticatedIdentity)
+		{
+			this.presetAuthenticatedIdentity = authenticatedIdentity;
+			usernameField.setVisible(false);
+		}
+
 		public void clear()
 		{
 			passwordField.setValue("");
@@ -338,6 +353,18 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		public String getId()
 		{
 			return "password";
+		}
+
+		@Override
+		public void presetEntity(Entity authenticatedEntity)
+		{
+			Identity[] ids = authenticatedEntity.getIdentities();
+			for (Identity id: ids)
+				if (id.getTypeId().equals(UsernameIdentity.ID))
+				{
+					theComponent.setAuthenticatedIdentity(id.getValue());
+					return;
+				}
 		}
 	}
 }

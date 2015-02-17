@@ -9,6 +9,8 @@ import java.util.Collection;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor.PartialAuthnState;
@@ -19,6 +21,8 @@ import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
@@ -51,6 +55,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	private static final long serialVersionUID = 1L;
 	private UnityMessageSource msg;
 	private WebAuthenticationProcessor authnProcessor;
+	private IdentitiesManagement idsMan;
 	private AuthenticationHandler currentAuthnResultCallback;
 	private Button authenticateButton;
 	private Button cancelOngoingAuthnButton;
@@ -70,11 +75,13 @@ public class SelectedAuthNPanel extends CustomComponent
 	
 	
 	public SelectedAuthNPanel(UnityMessageSource msg, WebAuthenticationProcessor authnProcessor,
+			IdentitiesManagement idsMan,
 			InsecureRegistrationFormLauncher formLauncher, ExecutorsService execService,
 			final CancelHandler cancelHandler, AuthenticationRealm realm)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
+		this.idsMan = idsMan;
 		this.formLauncher = formLauncher;
 		this.execService = execService;
 		this.realm = realm;
@@ -215,12 +222,33 @@ public class SelectedAuthNPanel extends CustomComponent
 		VaadinAuthentication secondaryAuthn = (VaadinAuthentication) 
 				partialState.getSecondaryAuthenticator();
 		Collection<VaadinAuthenticationUI> secondaryAuthnUIs = secondaryAuthn.createUIInstance();
-		if (secondaryAuthnUIs.size() != 1)
-			throw new IllegalStateException("Bug: secondary authenticator returns more then one UI");
+		if (secondaryAuthnUIs.size() > 1)
+		{
+			log.warn("Configuration error: the authenticator configured as the second "
+					+ "factor " + secondaryAuthn.getAuthenticatorId() + 
+					" provides multiple authentication possibilities. "
+					+ "This is unsupported currently, "
+					+ "use this authenticator as the first factor only. "
+					+ "The first possibility will be used, "
+					+ "but in most cases it is not what you want.");
+		}
 		VaadinAuthenticationUI secondaryUI = secondaryAuthnUIs.iterator().next(); 
 		AuthenticationHandler secondaryAuthnResultCallback = 
 				createSecondaryAuthnResultCallback(secondaryUI, partialState);
 		addRetrieval(secondaryUI, secondaryAuthnResultCallback);
+		try
+		{
+			secondaryUI.presetEntity(resolveEntity(partialState.getPrimaryResult()));
+		} catch (EngineException e)
+		{
+			log.error("Can't resolve the first authenticated entity", e);
+		}
+	}
+	
+	private Entity resolveEntity(AuthenticationResult unresolved) throws EngineException
+	{
+		AuthenticatedEntity ae = unresolved.getAuthenticatedEntity();
+		return idsMan.getEntity(new EntityParam(ae.getEntityId()));
 	}
 	
 	private void updateFocus(Component retrievalComponent)

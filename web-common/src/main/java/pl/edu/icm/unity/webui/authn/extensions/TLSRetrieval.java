@@ -22,6 +22,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.CertificateExchange;
 import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -226,6 +227,11 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		public String getId()
 		{
 			return "certificate";
+		}
+
+		@Override
+		public void presetEntity(Entity authenticatedEntity)
+		{
 		}
 	}	
 }

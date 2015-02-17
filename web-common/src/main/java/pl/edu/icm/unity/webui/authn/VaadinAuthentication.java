@@ -10,6 +10,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
 
 import com.vaadin.server.VaadinRequest;
@@ -29,7 +30,7 @@ public interface VaadinAuthentication extends BindingAuthn
 	 * @return a new instance of the credential retrieval UIs. The collection is returned as one authenticator 
 	 * may provide many authN options (e.g. many remote IdPs). 
 	 */
-	public Collection<VaadinAuthenticationUI> createUIInstance();
+	Collection<VaadinAuthenticationUI> createUIInstance();
 	
 	
 	public interface VaadinAuthenticationUI
@@ -41,21 +42,23 @@ public interface VaadinAuthentication extends BindingAuthn
 		 * The instance creation must be performed when the {@link VaadinAuthentication#createUIInstance()}
 		 * is called.
 		 */
-		public Component getComponent();
+		Component getComponent();
 		
 		/**
 		 * Sets a callback object which is used to communicate the authentication result back to the 
 		 * main authentication framework. 
 		 * @param callback
 		 */
-		public void setAuthenticationResultCallback(AuthenticationResultCallback callback);
+		void setAuthenticationResultCallback(AuthenticationResultCallback callback);
+	
+		
 		
 		/**
 		 * Sets a callback object which is used to indicate sandbox authentication. The result of 
 		 * authn is returned back to the sandbox servlet. 
 		 * @param callback
 		 */
-		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback);
+		void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback);
 		
 		/**
 		 * Should trigger the actual authentication (if was not triggered manually via the component).
@@ -65,41 +68,51 @@ public interface VaadinAuthentication extends BindingAuthn
 		 * initiate a long-running process with browser redirections after this method is called. Those must
 		 * set the authentication result ASAP after it is available. 
 		 */
-		public void triggerAuthentication();
+		void triggerAuthentication();
 		
 		/**
 		 * If called the authenticator should cancel the ongoing authentication if any. It can be called only
 		 * after the {@link #triggerAuthentication()} was called and before the authenticator invoked callback.
 		 */
-		public void cancelAuthentication();
+		void cancelAuthentication();
 		
 		/**
 		 * @return label for presentation in the user interface.
 		 * returns non null value.
 		 */
-		public String getLabel();
+		String getLabel();
 		
 		/**
 		 * @return image URL for the presentation in the user interface. Can be null.
 		 */
-		public String getImageURL();
+		String getImageURL();
 		
 		/**
 		 * Called after login was cancelled or finished, so the component can clear its state. 
 		 */
-		public void clear();
+		void clear();
 
 		/**
 		 * Invoked when browser refreshes.
 		 * @param request that caused UI to be reloaded 
 		 */
-		public void refresh(VaadinRequest request);
+		void refresh(VaadinRequest request);
 
 		/**
 		 * @return unique identifier of this authentication option. The id must be unique among  
 		 * ids returned by all {@link VaadinAuthenticationUI} of the {@link VaadinAuthentication}
 		 */
-		public String getId();
+		String getId();
+		
+		/**
+		 * Used only if this authenticator is being used as a second authenticator during 2 way authentication.
+		 * This method provides an entity which was authenticated by the primary authenticator. 
+		 * The implementation may ignore this information, or use it to simplify the authentication 
+		 * component. It is not needed to anyhow check if the provided entity with this method is equal to
+		 * the one returned after authentication from this authenticator; this is verified by the framework.
+		 * @param authenticatedEntity
+		 */
+		void presetEntity(Entity authenticatedEntity);
 	}
 
 	
