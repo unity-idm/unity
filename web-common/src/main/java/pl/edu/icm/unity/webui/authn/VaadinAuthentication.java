@@ -36,7 +36,10 @@ public interface VaadinAuthentication extends BindingAuthn
 	{
 		/**
 		 * @return UI component associated with this retrieval. If the returned component implements 
-		 * the {@link Focusable} interface it will be focused after showing
+		 * the {@link Focusable} interface it will be focused after showing. 
+		 * Important: this method must return the same instance of the {@link Component} for its lifetime. 
+		 * The instance creation must be performed when the {@link VaadinAuthentication#createUIInstance()}
+		 * is called.
 		 */
 		public Component getComponent();
 		

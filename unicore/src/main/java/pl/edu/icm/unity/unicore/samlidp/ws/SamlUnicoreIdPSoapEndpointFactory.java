@@ -21,6 +21,7 @@ import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
@@ -50,13 +51,14 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
+	private AuthenticationProcessor authnProcessor;
 	
 	@Autowired
 	public SamlUnicoreIdPSoapEndpointFactory(UnityMessageSource msg, IdPEngine idpEngine,
 			PreferencesManagement preferencesMan, PKIManagement pkiManagement,
 			ExecutorsService executorsService, SessionManagement sessionMan,
 			MetaDownloadManager dowloadManager, UnityServerConfiguration mainConfig,
-			SAMLLogoutProcessorFactory logoutProcessorFactory)
+			SAMLLogoutProcessorFactory logoutProcessorFactory, AuthenticationProcessor authnProcessor)
 	{
 		super();
 		this.msg = msg;
@@ -65,6 +67,7 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 		this.pkiManagement = pkiManagement;
 		this.executorsService = executorsService;
 		this.sessionMan = sessionMan;
+		this.authnProcessor = authnProcessor;
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
 		this.downloadManager = dowloadManager;
 		this.mainConfig = mainConfig;
@@ -92,6 +95,7 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 		return new SamlUnicoreSoapEndpoint(msg, getDescription(), SERVLET_PATH,
 				SamlIdPSoapEndpointFactory.METADATA_SERVLET_PATH, idpEngine,
 				preferencesMan, pkiManagement, executorsService, sessionMan,
-				remoteMetadataManagers, downloadManager, mainConfig, logoutProcessorFactory);
+				remoteMetadataManagers, downloadManager, mainConfig, logoutProcessorFactory,
+				authnProcessor);
 	}
 }

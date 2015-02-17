@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -31,6 +32,9 @@ public class MockRESTEndpointFactory implements EndpointFactory
 	@Autowired
 	private SessionManagement sessionMan;
 	
+	@Autowired
+	private AuthenticationProcessor authnProcessor;
+	
 	@Override
 	public EndpointTypeDescription getDescription()
 	{
@@ -40,7 +44,7 @@ public class MockRESTEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new MockRESTEndpoint(msg, sessionMan, TYPE, SERVLET_PATH);
+		return new MockRESTEndpoint(msg, sessionMan, authnProcessor, TYPE, SERVLET_PATH);
 	}
 
 }

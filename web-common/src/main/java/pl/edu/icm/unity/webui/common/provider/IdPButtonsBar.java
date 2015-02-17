@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.webui.common.provider;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -23,10 +23,10 @@ public class IdPButtonsBar extends CustomComponent
 	public enum Action {ACCEPT, DENY, LOGIN_AS_ANOTHER};
 
 	private UnityMessageSource msg;
-	private AuthenticationProcessor authnProcessor;
+	private WebAuthenticationProcessor authnProcessor;
 	private ActionListener listener;
 	
-	public IdPButtonsBar(UnityMessageSource msg, AuthenticationProcessor authnProcessor,
+	public IdPButtonsBar(UnityMessageSource msg, WebAuthenticationProcessor authnProcessor,
 			ActionListener listener)
 	{
 		super();

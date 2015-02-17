@@ -30,6 +30,7 @@ public class AuthenticationOption
 	public AuthenticationOption(BindingAuthn primaryAuthenticator, BindingAuthn mandatory2ndAuthenticator)
 	{
 		this.primaryAuthenticator = primaryAuthenticator;
+		this.mandatory2ndAuthenticator = mandatory2ndAuthenticator;
 	}
 
 	public BindingAuthn getPrimaryAuthenticator()

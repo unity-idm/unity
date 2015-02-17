@@ -34,7 +34,9 @@
 
 	<bean class="pl.edu.icm.unity.confirmations.ConfirmationTemplateDef"/>
 
+	<bean class="pl.edu.icm.unity.server.authn.AuthenticationProcessor"/>
 	<bean class="pl.edu.icm.unity.server.authn.remote.InputTranslationEngine"/>
+	
 	<bean class="pl.edu.icm.unity.server.translation.out.OutputTranslationEngine"/>
 
 	<bean class="pl.edu.icm.unity.server.api.internal.IdPEngine"/>

@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.common;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -23,9 +23,9 @@ import pl.edu.icm.unity.webui.common.Styles;
 public class TopHeader extends TopHeaderLight
 {
 	protected UnityMessageSource msg;
-	protected AuthenticationProcessor authnProcessor;
+	protected WebAuthenticationProcessor authnProcessor;
 	
-	public TopHeader(String title, AuthenticationProcessor authnProcessor, UnityMessageSource msg)
+	public TopHeader(String title, WebAuthenticationProcessor authnProcessor, UnityMessageSource msg)
 	{
 		super(title, msg);
 		this.msg = msg;

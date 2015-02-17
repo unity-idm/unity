@@ -44,7 +44,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
-import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -88,7 +88,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	protected AttributeHandlerRegistry handlersRegistry;
 	protected IdentityTypesRegistry identityTypesRegistry;
 	protected PreferencesManagement preferencesMan;
-	protected AuthenticationProcessor authnProcessor;
+	protected WebAuthenticationProcessor authnProcessor;
 	protected SessionManagement sessionMan;
 	protected IdentitySelectorComponent idSelector;
 	protected ExposedAttributesComponent attrsPresenter;
@@ -100,7 +100,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	@Autowired
 	public SamlIdPWebUI(UnityMessageSource msg, FreemarkerHandler freemarkerHandler,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
-			AuthenticationProcessor authnProcessor, IdPEngine idpEngine,
+			WebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
 			IdentityTypesRegistry identityTypesRegistry, SessionManagement sessionMan)
 	{
 		super(msg);

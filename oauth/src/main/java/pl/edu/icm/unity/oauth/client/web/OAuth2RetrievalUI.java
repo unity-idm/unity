@@ -58,6 +58,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private Label messageLabel;
 	private HtmlSimplifiedLabel errorDetailLabel;
 	
+	private Component main;
+	
 	public OAuth2RetrievalUI(UnityMessageSource msg, OAuthExchange credentialExchange,
 			OAuthContextsManagement contextManagement, ExecutorsService executorsService, String idpKey)
 	{
@@ -65,10 +67,16 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		this.credentialExchange = credentialExchange;
 		this.contextManagement = contextManagement;
 		this.idpKey = idpKey;
+		initUI();
 	}
 
 	@Override
 	public Component getComponent()
+	{
+		return main;
+	}
+	
+	private void initUI()
 	{
 		redirectParam = installRequestHandler();
 
@@ -92,7 +100,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		errorDetailLabel.setVisible(false);
 		ret.addComponents(messageLabel, errorDetailLabel);
 
-		return ret;
+		main = ret;
 	}
 
 	@Override

@@ -14,6 +14,7 @@ import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -43,6 +44,8 @@ public class OAuthTokenEndpointFactory implements EndpointFactory
 	private PKIManagement pkiMan;
 	@Autowired
 	private OAuthEndpointsCoordinator coordinator;
+	@Autowired
+	private AuthenticationProcessor authnProcessor;
 	
 	@Override
 	public EndpointTypeDescription getDescription()
@@ -53,7 +56,8 @@ public class OAuthTokenEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new OAuthTokenEndpoint(msg, sessionMan, TYPE, PATH, tokensMan, pkiMan, coordinator);
+		return new OAuthTokenEndpoint(msg, sessionMan, TYPE, PATH, tokensMan, pkiMan, coordinator, 
+				authnProcessor);
 	}
 
 }

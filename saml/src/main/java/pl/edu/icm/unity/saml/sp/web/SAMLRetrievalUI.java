@@ -57,6 +57,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private HtmlSimplifiedLabel errorDetailLabel;
 	private SamlContextManagement samlContextManagement;
 	
+	private Component main;
 	
 	public SAMLRetrievalUI(UnityMessageSource msg, SAMLExchange credentialExchange, 
 			SamlContextManagement samlContextManagement, String idpKey)
@@ -65,10 +66,16 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		this.credentialExchange = credentialExchange;
 		this.samlContextManagement = samlContextManagement;
 		this.idpKey = idpKey;
+		initUI();
 	}
 
 	@Override
 	public Component getComponent()
+	{
+		return main;
+	}
+	
+	private void initUI()
 	{
 		redirectParam = installRequestHandler();
 		
@@ -86,8 +93,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		errorDetailLabel.addStyleName(Styles.italic.toString());
 		errorDetailLabel.setVisible(false);
 		ret.addComponents(idpComponent, messageLabel, errorDetailLabel);
-
-		return ret;
+		this.main = ret;
 	}
 
 	private String getName(SAMLSPProperties samlProperties)

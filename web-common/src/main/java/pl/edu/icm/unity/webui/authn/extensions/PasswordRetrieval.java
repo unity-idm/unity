@@ -10,8 +10,6 @@ import java.util.Collections;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
@@ -188,13 +186,14 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 				AuthenticationResult authenticationResult = credentialExchange.checkPassword(
 						username, password, sandboxCallback);
 				if (authenticationResult.getStatus() == Status.success)
+				{
 					passwordField.setComponentError(null);
-				else if (authenticationResult.getStatus() == Status.unknownRemotePrincipal && 
+					usernameField.setComponentError(null);
+				} else if (authenticationResult.getStatus() == Status.unknownRemotePrincipal && 
 						registrationFormForUnknown != null) 
 				{
 					authenticationResult.setFormForUnknownPrincipal(registrationFormForUnknown);
-					usernameField.setValue("");
-					passwordField.setValue("");
+					clear();
 				} else
 				{
 					setError();
@@ -202,9 +201,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 				return authenticationResult;
 			} catch (Exception e)
 			{
-				if (!(e instanceof IllegalCredentialException) && 
-						!(e instanceof IllegalIdentityValueException))
-					log.warn("Password verificator has thrown an exception", e);
+				log.debug("Password verificator has thrown an exception", e);
 				setError();
 				return new AuthenticationResult(Status.deny, null);
 			}
@@ -258,6 +255,8 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		{
 			passwordField.setValue("");
 			usernameField.setValue("");
+			passwordField.setComponentError(null);
+			usernameField.setComponentError(null);
 		}
 	}
 	

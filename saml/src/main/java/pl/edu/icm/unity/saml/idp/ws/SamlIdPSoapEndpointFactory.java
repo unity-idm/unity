@@ -20,6 +20,7 @@ import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
@@ -50,13 +51,15 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
+	private AuthenticationProcessor authnProcessor;
 	
 	@Autowired
 	public SamlIdPSoapEndpointFactory(UnityMessageSource msg,
 			PreferencesManagement preferencesMan, IdPEngine idpEngine,
 			PKIManagement pkiManagement, ExecutorsService executorsService,
 			SessionManagement sessionMan, MetaDownloadManager downloadManager,
-			UnityServerConfiguration mainConfig, SAMLLogoutProcessorFactory logoutProcessorFactory)
+			UnityServerConfiguration mainConfig, SAMLLogoutProcessorFactory logoutProcessorFactory,
+			AuthenticationProcessor authnProcessor)
 	{
 		super();
 		this.msg = msg;
@@ -65,6 +68,7 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 		this.executorsService = executorsService;
 		this.sessionMan = sessionMan;
 		this.preferencesMan = preferencesMan;
+		this.authnProcessor = authnProcessor;
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
 		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
@@ -91,7 +95,7 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 		return new SamlSoapEndpoint(msg, getDescription(), SERVLET_PATH,
 				METADATA_SERVLET_PATH, idpEngine, preferencesMan, pkiManagement,
 				executorsService, sessionMan, remoteMetadataManagers, downloadManager, mainConfig,
-				logoutProcessorFactory);
+				logoutProcessorFactory, authnProcessor);
 	}
 
 }

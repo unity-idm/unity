@@ -15,15 +15,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
 
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 public class MockRESTEndpoint extends RESTEndpoint
 {
 	public MockRESTEndpoint(UnityMessageSource msg, SessionManagement sessionMan, 
+			AuthenticationProcessor authnProcessor,
 			EndpointTypeDescription type, String servletPath)
 	{
-		super(msg, sessionMan, type, servletPath);
+		super(msg, sessionMan, authnProcessor, type, servletPath);
 	}
 
 

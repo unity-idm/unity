@@ -22,6 +22,7 @@ import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -40,12 +41,14 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 	private Map<Class<?>, Object> services; 
 	protected CXFEndpointProperties genericEndpointProperties;
 	protected SessionManagement sessionMan;
+	private AuthenticationProcessor authnProcessor;
 	
-	public CXFEndpoint(UnityMessageSource msg, SessionManagement sessionMan, 
+	public CXFEndpoint(UnityMessageSource msg, SessionManagement sessionMan, AuthenticationProcessor authnProcessor,
 			EndpointTypeDescription type, String servletPath)
 	{
 		super(type);
 		this.msg = msg;
+		this.authnProcessor = authnProcessor;
 		this.servletPath = servletPath;
 		this.sessionMan = sessionMan;
 		services = new HashMap<Class<?>, Object>();
@@ -82,7 +85,7 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 	{
 		outInterceptors.add(new XmlBeansNsHackOutHandler());
 		AuthenticationRealm realm = description.getRealm();
-		inInterceptors.add(new AuthenticationInterceptor(msg, authenticators, realm, sessionMan, 
+		inInterceptors.add(new AuthenticationInterceptor(msg, authnProcessor, authenticators, realm, sessionMan, 
 				new HashSet<String>()));
 		RESTEndpoint.installAuthnInterceptors(authenticators, inInterceptors);
 	}

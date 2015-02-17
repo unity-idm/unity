@@ -69,7 +69,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private static final String LAST_AUTHN_COOKIE = "lastAuthenticationUsed";
 	
 	protected LocaleChoiceComponent localeChoice;
-	protected AuthenticationProcessor authnProcessor;
+	protected WebAuthenticationProcessor authnProcessor;
 	protected InsecureRegistrationFormsChooserComponent formsChooser;
 	protected InsecureRegistrationFormLauncher formLauncher;
 	protected ExecutorsService execService;
@@ -82,7 +82,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	
 	@Autowired
 	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,
-			AuthenticationProcessor authnProcessor,
+			WebAuthenticationProcessor authnProcessor,
 			InsecureRegistrationFormsChooserComponent formsChooser,
 			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService)

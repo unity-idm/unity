@@ -16,6 +16,7 @@ import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
@@ -38,9 +39,10 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	
 	public OAuthTokenEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
 			EndpointTypeDescription type, String servletPath, TokensManagement tokensMan,
-			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator)
+			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator, 
+			AuthenticationProcessor authnProcessor)
 	{
-		super(msg, sessionMan, type, servletPath);
+		super(msg, sessionMan, authnProcessor, type, servletPath);
 		this.tokensManagement = tokensMan;
 		this.pkiManagement = pkiManagement;
 		this.coordinator = coordinator;

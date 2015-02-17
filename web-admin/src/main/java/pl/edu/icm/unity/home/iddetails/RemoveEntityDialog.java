@@ -10,7 +10,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
@@ -40,13 +40,13 @@ public class RemoveEntityDialog extends AbstractDialog
 	private final static String SCHEDULE = "sched";
 			
 	private long entity;
-	private AuthenticationProcessor authnProcessor;
+	private WebAuthenticationProcessor authnProcessor;
 	private IdentitiesManagement identitiesMan;
 	private OptionGroup nowOrLater;
 	private TextField days;
 	
 	public RemoveEntityDialog(UnityMessageSource msg, long entityId, 
-			IdentitiesManagement identitiesManagement, AuthenticationProcessor authnProcessor)
+			IdentitiesManagement identitiesManagement, WebAuthenticationProcessor authnProcessor)
 	{
 		super(msg, msg.getMessage("RemoveEntityDialog.caption"));
 		this.entity = entityId;

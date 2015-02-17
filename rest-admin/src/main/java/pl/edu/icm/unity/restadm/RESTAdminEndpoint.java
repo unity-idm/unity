@@ -15,6 +15,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
@@ -31,9 +32,10 @@ public class RESTAdminEndpoint extends RESTEndpoint
 	
 	public RESTAdminEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
 			EndpointTypeDescription type, String servletPath, IdentitiesManagement identitiesMan,
-			GroupsManagement groupsMan, AttributesManagement attributesMan)
+			GroupsManagement groupsMan, AttributesManagement attributesMan, 
+			AuthenticationProcessor authnProcessor)
 	{
-		super(msg, sessionMan, type, servletPath);
+		super(msg, sessionMan, authnProcessor, type, servletPath);
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
 		this.attributesMan = attributesMan;

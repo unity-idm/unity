@@ -34,6 +34,7 @@ import pl.edu.icm.unity.rest.exception.JSONExceptionMapper;
 import pl.edu.icm.unity.rest.exception.NPEExceptionMapper;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
@@ -54,6 +55,7 @@ import eu.unicore.util.configuration.ConfigurationException;
  */
 public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEndpointInstance
 {
+	private AuthenticationProcessor authenticationProcessor;
 	protected RESTEndpointProperties genericEndpointProperties;
 	protected String servletPath;
 	protected SessionManagement sessionMan;
@@ -62,9 +64,11 @@ public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEnd
 	protected Set<String> notProtectedPaths = new HashSet<String>();
 	
 	public RESTEndpoint(UnityMessageSource msg, SessionManagement sessionMan, 
+			AuthenticationProcessor authenticationProcessor,
 			EndpointTypeDescription type, String servletPath)
 	{
 		super(type);
+		this.authenticationProcessor = authenticationProcessor;
 		this.servletPath = servletPath;
 		this.msg = msg;
 		this.sessionMan = sessionMan;
@@ -144,8 +148,8 @@ public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEnd
 			List<Interceptor<? extends Message>> outInterceptors)
 	{
 		AuthenticationRealm realm = description.getRealm();
-		inInterceptors.add(new AuthenticationInterceptor(msg, authenticators, realm, sessionMan, 
-				notProtectedPaths));
+		inInterceptors.add(new AuthenticationInterceptor(msg, authenticationProcessor, 
+				authenticators, realm, sessionMan, notProtectedPaths));
 		installAuthnInterceptors(authenticators, inInterceptors);
 	}
 

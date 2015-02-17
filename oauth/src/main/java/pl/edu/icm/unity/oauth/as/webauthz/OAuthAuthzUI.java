@@ -39,7 +39,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
-import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -80,7 +80,7 @@ public class OAuthAuthzUI extends UnityUIBase
 	private IdPEngine idpEngine;
 	private AttributeHandlerRegistry handlersRegistry;
 	private PreferencesManagement preferencesMan;
-	private AuthenticationProcessor authnProcessor;
+	private WebAuthenticationProcessor authnProcessor;
 	private IdentityTypesRegistry identityTypesRegistry;
 	
 	private IdentitySelectorComponent idSelector;
@@ -92,7 +92,7 @@ public class OAuthAuthzUI extends UnityUIBase
 	@Autowired
 	public OAuthAuthzUI(UnityMessageSource msg, TokensManagement tokensMan,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
-			AuthenticationProcessor authnProcessor, IdPEngine idpEngine,
+			WebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
 			IdentityTypesRegistry identityTypesRegistry)
 	{
 		super(msg);

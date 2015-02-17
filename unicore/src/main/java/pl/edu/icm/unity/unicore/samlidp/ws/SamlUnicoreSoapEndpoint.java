@@ -16,6 +16,7 @@ import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -38,11 +39,11 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 			PKIManagement pkiManagement, ExecutorsService executorsService, SessionManagement sessionMan,
 			Map<String, RemoteMetaManager> remoteMetadataManagers, MetaDownloadManager downloadManager, 
 			UnityServerConfiguration mainConfig,
-			SAMLLogoutProcessorFactory logoutProcessorFactory)
+			SAMLLogoutProcessorFactory logoutProcessorFactory, AuthenticationProcessor authnProcessor)
 	{
 		super(msg, type, servletPath, metadataServletPath, idpEngine, preferencesMan,
 				pkiManagement, executorsService, sessionMan, remoteMetadataManagers, downloadManager, 
-				mainConfig, logoutProcessorFactory);
+				mainConfig, logoutProcessorFactory, authnProcessor);
 	}
 
 

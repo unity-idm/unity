@@ -67,7 +67,7 @@ public class AccessBlockedDialog extends Window
 		info.addStyleName(Styles.bold.toString());
 		ProgressBar progress = new ProgressBar(0);
 		String ip = VaadinService.getCurrentRequest().getRemoteAddr();		
-		UnsuccessfulAuthenticationCounter counter = AuthenticationProcessor.getLoginCounter();
+		UnsuccessfulAuthenticationCounter counter = WebAuthenticationProcessor.getLoginCounter();
 		int initial = getRemainingBlockedTime(counter, ip);
 		progress.setCaption(msg.getMessage("AccessBlockedDialog.remaining", initial));
 		progress.setWidth(300, Unit.PIXELS);

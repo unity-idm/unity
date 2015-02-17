@@ -18,6 +18,7 @@ import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
@@ -35,10 +36,11 @@ public class JWTManagementEndpoint extends RESTEndpoint
 	private JWTAuthenticationProperties config;
 	
 	public JWTManagementEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
+			AuthenticationProcessor authenticationProcessor,
 			EndpointTypeDescription type, String servletPath, TokensManagement tokensMan,
 			PKIManagement pkiManagement, NetworkServer networkServer, IdentitiesManagement identitiesMan)
 	{
-		super(msg, sessionMan, type, servletPath);
+		super(msg, sessionMan, authenticationProcessor, type, servletPath);
 		this.tokensMan = tokensMan;
 		this.pkiManagement = pkiManagement;
 		this.networkServer = networkServer;

@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor.PartialAuthnState;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
@@ -43,8 +43,6 @@ import com.vaadin.ui.VerticalLayout;
 /**
  * The actual login component. Shows only the selected authenticator. 
  * 
- * TODO: for 2factor authN the second authentication option should be presented after the first one is triggered.
- * 
  * @author K. Benedyczak
  */
 public class SelectedAuthNPanel extends CustomComponent
@@ -52,10 +50,11 @@ public class SelectedAuthNPanel extends CustomComponent
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SelectedAuthNPanel.class);
 	private static final long serialVersionUID = 1L;
 	private UnityMessageSource msg;
-	private AuthenticationProcessor authnProcessor;
-	private AuthenticationResultProcessor authnResultCallback;
+	private WebAuthenticationProcessor authnProcessor;
+	private AuthenticationHandler currentAuthnResultCallback;
 	private Button authenticateButton;
-	private Button cancelButton;
+	private Button cancelOngoingAuthnButton;
+	private Button resetMfaButton;
 	private ProgressBar progress;
 	private CheckBox rememberMe;
 	private InsecureRegistrationFormLauncher formLauncher;
@@ -70,7 +69,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	private String authnId;
 	
 	
-	public SelectedAuthNPanel(UnityMessageSource msg, AuthenticationProcessor authnProcessor,
+	public SelectedAuthNPanel(UnityMessageSource msg, WebAuthenticationProcessor authnProcessor,
 			InsecureRegistrationFormLauncher formLauncher, ExecutorsService execService,
 			final CancelHandler cancelHandler, AuthenticationRealm realm)
 	{
@@ -94,22 +93,18 @@ public class SelectedAuthNPanel extends CustomComponent
 		progress = new ProgressBar();
 		progress.setIndeterminate(true);
 		progress.setCaption(msg.getMessage("AuthenticationUI.authnInProgress"));
-		cancelButton = new Button(msg.getMessage("cancel"));
-		cancelButton.addStyleName(Styles.vButtonSmall.toString());
-		cancelButton.addClickListener(new Button.ClickListener()
+		cancelOngoingAuthnButton = new Button(msg.getMessage("cancel")); //cancellation of the ongoing (async) authentication
+		cancelOngoingAuthnButton.addStyleName(Styles.vButtonSmall.toString());
+		cancelOngoingAuthnButton.addClickListener(new Button.ClickListener()
 		{
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				if (authNListener != null)
-					authNListener.authenticationStateChanged(false);
-				authnResultCallback.authenticationCancelled(true);
+				currentAuthnResultCallback.authenticationCancelled(true);
 			}
 		});
-		authnProgressHL.addComponents(progress, cancelButton);
+		authnProgressHL.addComponents(progress, cancelOngoingAuthnButton);
 		showAuthnProgress(false);
-		
-		authnResultCallback = createAuthnResultCallback();
 		
 		authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
 		authenticateButton.setId("AuthenticationUI.authnenticateButton");
@@ -119,20 +114,34 @@ public class SelectedAuthNPanel extends CustomComponent
 
 		authenticateButton.addClickListener(new LoginButtonListener());
 		authenticateButton.setClickShortcut(KeyCode.ENTER);
+		
+		resetMfaButton = new Button(msg.getMessage("AuthenticationUI.resetMfaButton"));
+		resetMfaButton.setDescription(msg.getMessage("AuthenticationUI.resetMfaButtonDesc"));
+		resetMfaButton.setVisible(false);
+		resetMfaButton.addClickListener(new Button.ClickListener()
+		{
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				setNotAuthenticating();
+				switchToPrimaryAuthentication();
+			}
+		});
+		
 		main.addComponent(authenticatorsContainer);
 		
 		HorizontalLayout buttons = new HorizontalLayout();
 		buttons.setSpacing(true);
-		buttons.addComponent(authenticateButton);
+		buttons.addComponents(authenticateButton, resetMfaButton);
 		if (cancelHandler != null)
 		{
-			Button cancel = new Button(msg.getMessage("cancel"));
+			Button cancel = new Button(msg.getMessage("cancel")); //cancellation of the whole authN process
 			cancel.addClickListener(new Button.ClickListener()
 			{
 				@Override
 				public void buttonClick(ClickEvent event)
 				{
-					clearAuthenticators();
+					currentAuthnResultCallback.authenticationCancelled(true);
 					cancelHandler.onCancel();
 				}
 			});
@@ -156,32 +165,98 @@ public class SelectedAuthNPanel extends CustomComponent
 		this.selectedAuthnOption = authnOption;
 		this.primaryAuthnUI = primaryAuthnUI;
 		this.authnId = id;
-		primaryAuthnUI.setAuthenticationResultCallback(authnResultCallback);
+		primaryAuthnUI.clear();
+		AuthenticationHandler primaryAuthnResultCallback = createPrimaryAuthnResultCallback(primaryAuthnUI);
 		authenticatorsContainer.removeAllComponents();
-		Component retrievalComponent = primaryAuthnUI.getComponent();
-		authenticatorsContainer.addComponent(retrievalComponent);
+		addRetrieval(primaryAuthnUI, primaryAuthnResultCallback);
+		resetMfaButton.setVisible(false);
+	}
+	
+	
+	protected void showAuthnProgress(boolean inProgress)
+	{
+		progress.setVisible(inProgress);
+		cancelOngoingAuthnButton.setVisible(inProgress);
+	}
+	
+	protected void handleError(String error)
+	{
+		setNotAuthenticating();
+		ErrorPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), error);
+	}
+	
+	/**
+	 * Clears the UI so a new authentication can be started.
+	 */
+	protected void setNotAuthenticating()
+	{
+		authenticateButton.setEnabled(true);
+		showAuthnProgress(false);
+		if (authNListener != null)
+			authNListener.authenticationStateChanged(false);
+	}
+	
+	/**
+	 * Resets the authentication UI to the initial state
+	 */
+	private void switchToPrimaryAuthentication()
+	{
+		setAuthenticator(primaryAuthnUI, selectedAuthnOption, authnId);
+	}
+
+	
+	private void switchToSecondaryAuthentication(PartialAuthnState partialState)
+	{
+		primaryAuthnUI.getComponent().setEnabled(false);
+		showAuthnProgress(false);
+		authenticateButton.setEnabled(true);
+		resetMfaButton.setVisible(true);
+		
+		VaadinAuthentication secondaryAuthn = (VaadinAuthentication) 
+				partialState.getSecondaryAuthenticator();
+		Collection<VaadinAuthenticationUI> secondaryAuthnUIs = secondaryAuthn.createUIInstance();
+		if (secondaryAuthnUIs.size() != 1)
+			throw new IllegalStateException("Bug: secondary authenticator returns more then one UI");
+		VaadinAuthenticationUI secondaryUI = secondaryAuthnUIs.iterator().next(); 
+		AuthenticationHandler secondaryAuthnResultCallback = 
+				createSecondaryAuthnResultCallback(secondaryUI, partialState);
+		addRetrieval(secondaryUI, secondaryAuthnResultCallback);
+	}
+	
+	private void updateFocus(Component retrievalComponent)
+	{
 		if (retrievalComponent instanceof Focusable)
 			((Focusable)retrievalComponent).focus();
 		else
 			authenticateButton.focus();
 	}
 	
-	
-	protected void showAuthnProgress(boolean inProgress)
+	private void addRetrieval(VaadinAuthenticationUI authnUI, AuthenticationHandler handler)
 	{
-		log.trace("Authn progress visible: " + inProgress);
-		progress.setVisible(inProgress);
-		cancelButton.setVisible(inProgress);
+		Component retrievalComponent = authnUI.getComponent();
+		authenticatorsContainer.addComponent(retrievalComponent);
+		updateFocus(retrievalComponent);
+		authnUI.setAuthenticationResultCallback(handler);
+		currentAuthnResultCallback = handler;
 	}
 	
-	protected void clearAuthenticators()
+	/**
+	 * The method is separated as can be overridden in sandbox authn. 
+	 * @return primary authentication result callback.
+	 */
+	protected AuthenticationHandler createPrimaryAuthnResultCallback(VaadinAuthenticationUI primaryAuthnUI)
 	{
-		primaryAuthnUI.clear();
+		return new PrimaryAuthenticationResultCallbackImpl(primaryAuthnUI);
 	}
-	
-	protected AuthenticationResultProcessor createAuthnResultCallback()
+
+	/**
+	 * The method is separated as can be overridden in sandbox authn. 
+	 * @return secondary authentication result callback.
+	 */
+	protected AuthenticationHandler createSecondaryAuthnResultCallback(VaadinAuthenticationUI secondaryUI,
+			PartialAuthnState partialState)
 	{
-		return new AuthenticationResultCallbackImpl();
+		return new SecondaryAuthenticationResultCallbackImpl(secondaryUI, partialState);
 	}
 	
 	private class LoginButtonListener implements ClickListener
@@ -199,7 +274,7 @@ public class SelectedAuthNPanel extends CustomComponent
 				return;
 			
 			clientIp = VaadinService.getCurrentRequest().getRemoteAddr();
-			UnsuccessfulAuthenticationCounter counter = AuthenticationProcessor.getLoginCounter();
+			UnsuccessfulAuthenticationCounter counter = WebAuthenticationProcessor.getLoginCounter();
 			if (counter.getRemainingBlockedTime(clientIp) > 0)
 			{
 				AccessBlockedDialog dialog = new AccessBlockedDialog(msg, execService);
@@ -212,97 +287,55 @@ public class SelectedAuthNPanel extends CustomComponent
 
 			AuthenticationUI.setLastIdpCookie(authnId);
 
-			
 			authenticateButton.setEnabled(false);
-			authnResultCallback.resetAuthnDone();
+
+			//we copy the reference as current might be modified during the authentication even before 
+			//the method return
+			AuthenticationHandler savedHandler = currentAuthnResultCallback;
+			savedHandler.triggerAuthentication();
 			
-			primaryAuthnUI.triggerAuthentication();
-			
-			//if all authenticators immediately returned the result authentication is already done now, 
-			// after all triggers. Then showing cancel button&progress is unnecessary.
-			if (!authnResultCallback.isAuthnDone())
+			//if authenticator immediately returned the result, the authentication is already done now. 
+			//Then showing cancel button&progress is unnecessary.
+			if (!savedHandler.isAuthnDone())
 				showAuthnProgress(true);
 		}
 	}
 
+
 	/**
-	 * Collects authN results from all authenticators of this set. When all required results are
-	 * there, the final authentication result processing is launched. Also cancellation handling is 
-	 * implemented here.
+	 * Collects authN result from the first authenticator of the selected {@link AuthenticationOption} 
+	 * and process it: manages state of the rest of the UI (cancel button, notifications, registration) 
+	 * and if needed proceeds to 2nd authenticator. 
 	 * 
 	 * @author K. Benedyczak
 	 */
-	protected class AuthenticationResultCallbackImpl implements AuthenticationResultProcessor
+	protected class PrimaryAuthenticationResultCallbackImpl implements AuthenticationHandler
 	{
-		private List<AuthenticationResult> results = new ArrayList<AuthenticationResult>();
-		private boolean authnDone = false;
+		protected VaadinAuthenticationUI authnUI;
+		protected boolean authnDone = false;
 		
-		@Override
-		public void setAuthenticationResult(AuthenticationResult result)
+		public PrimaryAuthenticationResultCallbackImpl(VaadinAuthenticationUI authnUI)
 		{
-			log.trace("Received authentication result nr " + (results.size() + 1));
-			results.add(result);
-			if (selectedAuthnOption.getMandatory2ndAuthenticator() == null)
-			{
-				authnDone();
-			}
-			/* TODO MFA
-			else
-			{
-				Iterator<VaadinAuthentication> it = selectedAuthnOption.values().iterator();
-				it.next();
-				VaadinAuthentication secondFactor = it.next();
-				Collection<VaadinAuthenticationUI> secondFactorUis = secondFactor.createUIInstance();
-				VaadinAuthenticationUI secondFactorUi = secondFactorUis.iterator().next();
-				authenticatorsContainer.addComponent(secondFactorUi.getComponent());
-				authenticateButton.setEnabled(true);
-			}*/
+			this.authnUI = authnUI;
 		}
 
 		@Override
-		public void cancelAuthentication()
+		public void setAuthenticationResult(AuthenticationResult result)
 		{
-			authenticationCancelled(false);
-		}
-		
-		public void authenticationCancelled(boolean signalAuthenticators)
-		{
-			results.clear();
-			authenticateButton.setEnabled(true);
-			showAuthnProgress(false);
+			log.trace("Received authentication result of the primary authenticator " + result);
 			authnDone = true;
-			if (signalAuthenticators)
-			{
-				primaryAuthnUI.cancelAuthentication();
-			}
-		}
-		
-		public void resetAuthnDone()
-		{
-			authnDone = false;
-		}
-		
-		public boolean isAuthnDone()
-		{
-			return authnDone;
-		}
-		
-		protected void cleanAuthentication()
-		{
-			this.results.clear();
-			authenticateButton.setEnabled(true);
-			authnDone = true;
-			clearAuthenticators();
-		}
-		
-		protected void authnDone()
-		{
-			log.trace("Authentication completed, starting processing.");
-			List<AuthenticationResult> results = new ArrayList<>(this.results);
-			cleanAuthentication();
 			try
 			{
-				authnProcessor.processResults(results, clientIp, realm, rememberMe.getValue());
+				PartialAuthnState partialState = authnProcessor.processPrimaryAuthnResult(
+						result, clientIp, realm, 
+						selectedAuthnOption, rememberMe.getValue());
+				if (partialState == null)
+				{
+					setNotAuthenticating();
+				} else
+				{
+					switchToSecondaryAuthentication(partialState);
+				}
 			} catch (UnknownRemoteUserException e)
 			{
 				if (e.getFormForUser() != null)
@@ -321,39 +354,108 @@ public class SelectedAuthNPanel extends CustomComponent
 				log.trace("Authentication failed ", e);
 				handleError(msg.getMessage(e.getMessage()));
 			}
-			showAuthnProgress(false);
 		}
 		
-		protected void showRegistration(UnknownRemoteUserException ee)
+		@Override
+		public void cancelAuthentication()
 		{
-			RegistrationRequestEditorDialog dialog;
-			try
+			authenticationCancelled(false);
+		}
+		
+		@Override
+		public void authenticationCancelled(boolean signalAuthenticators)
+		{
+			setNotAuthenticating();
+			authnDone = true;
+			if (signalAuthenticators)
 			{
-				dialog = formLauncher.getDialog(ee.getFormForUser(), ee.getRemoteContext());
-				dialog.show();
-			} catch (AuthenticationException e)
-			{
-				log.debug("Can't show a registration form for the remotely authenticated user - "
-						+ "user does not meet form requirements.", e);
-				handleError(msg.getMessage("AuthenticationUI.infufficientRegistrationInput"));
-			} catch (EngineException e)
-			{
-				log.error("Can't show a registration form for the remotely authenticated user as configured. " +
-						"Probably the form name is wrong.", e);
-				handleError(msg.getMessage("AuthenticationUI.problemWithRegistration"));
+				authnUI.cancelAuthentication();
+				authnUI.clear();
 			}
 		}
 		
-		protected void handleError(String error)
+		@Override
+		public boolean isAuthnDone()
 		{
-			ErrorPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), error);
+			return authnDone;
+		}
+
+		@Override
+		public void triggerAuthentication()
+		{
+			authnDone = false;
+			authnUI.triggerAuthentication();
+		}
+		
+		@Override
+		public void refresh(VaadinRequest request)
+		{
+			authnUI.refresh(request);
 		}
 	}
+
+	/**
+	 * Collects authN results from the 2nd authenticator. Afterwards, the final authentication result 
+	 * processing is launched.
+	 * 
+	 * @author K. Benedyczak
+	 */
+	protected class SecondaryAuthenticationResultCallbackImpl extends PrimaryAuthenticationResultCallbackImpl
+	{
+		private PartialAuthnState partialState;
+		
+		public SecondaryAuthenticationResultCallbackImpl(VaadinAuthenticationUI authnUI,
+				PartialAuthnState partialState)
+		{
+			super(authnUI);
+			this.partialState = partialState;
+		}
+
+		@Override
+		public void setAuthenticationResult(AuthenticationResult result)
+		{
+			log.trace("Received authentication result of the 2nd authenticator" + result);
+			authnDone = true;
+			try
+			{
+				authnProcessor.processSecondaryAuthnResult(partialState, result, clientIp, realm, 
+						selectedAuthnOption, rememberMe.getValue());
+				setNotAuthenticating();
+			} catch (AuthenticationException e)
+			{
+				log.trace("Secondary authentication failed ", e);
+				handleError(msg.getMessage(e.getMessage()));
+				switchToPrimaryAuthentication();
+			}
+		}
+	}
+
+
+	protected void showRegistration(UnknownRemoteUserException ee)
+	{
+		setNotAuthenticating();
+		RegistrationRequestEditorDialog dialog;
+		try
+		{
+			dialog = formLauncher.getDialog(ee.getFormForUser(), ee.getRemoteContext());
+			dialog.show();
+		} catch (AuthenticationException e)
+		{
+			log.debug("Can't show a registration form for the remotely authenticated user - "
+					+ "user does not meet form requirements.", e);
+			handleError(msg.getMessage("AuthenticationUI.infufficientRegistrationInput"));
+		} catch (EngineException e)
+		{
+			log.error("Can't show a registration form for the remotely authenticated user as configured. " +
+					"Probably the form name is wrong.", e);
+			handleError(msg.getMessage("AuthenticationUI.problemWithRegistration"));
+		}
+	}	
 	
 	public void refresh(VaadinRequest request)
 	{
-		if (primaryAuthnUI != null)
-			primaryAuthnUI.refresh(request);
+		if (currentAuthnResultCallback != null)
+			currentAuthnResultCallback.refresh(request);
 	}
 	
 	/**
@@ -371,17 +473,19 @@ public class SelectedAuthNPanel extends CustomComponent
 	}
 	
 	/**
-	 * Extends {@link AuthenticationResultCallback} with internal operations needed by the 
-	 * {@link AuthenticatorSetComponent}: handling of authentication finish.
+	 * Extends {@link AuthenticationResultCallback} with internal operations which are used to pass actions
+	 * to the selected {@link VaadinAuthenticationUI}
 	 * @author K. Benedyczak
 	 */
-	public interface AuthenticationResultProcessor extends AuthenticationResultCallback
+	private interface AuthenticationHandler extends AuthenticationResultCallback
 	{
+		void triggerAuthentication();
+		
 		void authenticationCancelled(boolean signalAuthenticators);
 		
-		void resetAuthnDone();
-		
 		boolean isAuthnDone();
+		
+		void refresh(VaadinRequest request);
 	}
 
 }

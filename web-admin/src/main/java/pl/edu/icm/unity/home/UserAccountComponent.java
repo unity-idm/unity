@@ -36,7 +36,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webadmin.preferences.PreferencesComponent;
-import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
@@ -67,7 +67,7 @@ public class UserAccountComponent extends VerticalLayout
 	private PreferencesManagement prefMan;
 	private EndpointManagement endpMan; 
 	private AttributesInternalProcessing attrMan;
-	private AuthenticationProcessor authnProcessor;
+	private WebAuthenticationProcessor authnProcessor;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
 	private AttributesManagement attributesMan;
 	
@@ -76,7 +76,7 @@ public class UserAccountComponent extends VerticalLayout
 			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg,
 			PreferencesHandlerRegistry registry, PreferencesManagement prefMan,
 			EndpointManagement endpMan, AttributesInternalProcessing attrMan,
-			AuthenticationProcessor authnProcessor,
+			WebAuthenticationProcessor authnProcessor,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributesManagement attributesMan)
 	{

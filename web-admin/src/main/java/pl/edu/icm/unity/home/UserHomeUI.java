@@ -18,7 +18,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
-import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.TopHeader;
 
 import com.vaadin.annotations.Theme;
@@ -40,12 +40,12 @@ public class UserHomeUI extends UnityUIBase implements UnityWebUI
 
 	private UserAccountComponent userAccount;
 	private EndpointDescription endpointDescription;
-	private AuthenticationProcessor authnProcessor;
+	private WebAuthenticationProcessor authnProcessor;
 	private HomeEndpointProperties config;
 
 	@Autowired
 	public UserHomeUI(UnityMessageSource msg, UserAccountComponent userAccountComponent,
-			AuthenticationProcessor authnProcessor)
+			WebAuthenticationProcessor authnProcessor)
 	{
 		super(msg);
 		this.userAccount = userAccountComponent;

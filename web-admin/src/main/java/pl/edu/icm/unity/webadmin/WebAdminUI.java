@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webadmin.AdminTopHeader.ViewSwitchCallback;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
-import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
@@ -46,7 +46,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 	private SchemaManagementTab schemaManagement;
 	private ServerManagementTab serverManagement;
 	private UserAccountComponent userAccount;
-	private AuthenticationProcessor authnProcessor;
+	private WebAuthenticationProcessor authnProcessor;
 	
 	private MainTabPanel tabPanel;
 	private EndpointDescription endpointDescription;
@@ -56,7 +56,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 	public WebAdminUI(UnityMessageSource msg, ContentsManagementTab contentsManagement,
 			SchemaManagementTab schemaManagement, RegistrationsManagementTab registrationsManagement,
 			UserAccountComponent userAccount, ServerManagementTab serverManagement,
-			AuthenticationProcessor authnProcessor)
+			WebAuthenticationProcessor authnProcessor)
 	{
 		super(msg);
 		this.contentsManagement = contentsManagement;

@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.rest.authn;
 
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -28,7 +27,8 @@ import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.server.authn.AuthenticationProcessorUtil;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor.PartialAuthnState;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
@@ -47,17 +47,20 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, AuthenticationInterceptor.class);
 	private UnityMessageSource msg;
+	private AuthenticationProcessor authenticationProcessor;
 	protected List<AuthenticationOption> authenticators;
 	protected UnsuccessfulAuthenticationCounter unsuccessfulAuthenticationCounter;
 	protected SessionManagement sessionMan;
 	protected AuthenticationRealm realm;
 	protected Set<String> notProtectedPaths = new HashSet<String>();
 	
-	public AuthenticationInterceptor(UnityMessageSource msg, List<AuthenticationOption> authenticators,
+	public AuthenticationInterceptor(UnityMessageSource msg, AuthenticationProcessor authenticationProcessor, 
+			List<AuthenticationOption> authenticators,
 			AuthenticationRealm realm, SessionManagement sessionManagement, Set<String> notProtectedPaths)
 	{
 		super(Phase.PRE_INVOKE);
 		this.msg = msg;
+		this.authenticationProcessor = authenticationProcessor;
 		this.realm = realm;
 		this.authenticators = authenticators;
 		this.unsuccessfulAuthenticationCounter = new UnsuccessfulAuthenticationCounter(
@@ -148,21 +151,22 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	}
 	
 	private AuthenticatedEntity processAuthnSet(Map<String, AuthenticationResult> authnCache,
-			AuthenticationOption authenticatorSet) throws AuthenticationException
+			AuthenticationOption authenticationOption) throws AuthenticationException
 	{
-		List<AuthenticationResult> setResult = new ArrayList<AuthenticationResult>();
 		AuthenticationResult result = processAuthenticator(authnCache, 
-					(CXFAuthentication) authenticatorSet.getPrimaryAuthenticator()); 
-		setResult.add(result);
+					(CXFAuthentication) authenticationOption.getPrimaryAuthenticator());
 		
-		if (authenticatorSet.getMandatory2ndAuthenticator() != null)
+		PartialAuthnState state = authenticationProcessor.processPrimaryAuthnResult(result, 
+				authenticationOption);
+		if (state.isSecondaryAuthenticationRequired())
 		{
 			AuthenticationResult result2 = processAuthenticator(authnCache, 
-					(CXFAuthentication) authenticatorSet.getMandatory2ndAuthenticator()); 
-			setResult.add(result2);
+					(CXFAuthentication) state.getSecondaryAuthenticator()); 
+			return authenticationProcessor.finalizeAfterSecondaryAuthentication(state, result2);
+		} else
+		{
+			return authenticationProcessor.finalizeAfterPrimaryAuthentication(state);
 		}
-		
-		return AuthenticationProcessorUtil.processResults(setResult);
 	}
 
 	private AuthenticationResult processAuthenticator(Map<String, AuthenticationResult> authnCache,

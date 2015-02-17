@@ -11,6 +11,7 @@ import java.util.Collections;
 import javax.servlet.http.HttpServletRequest;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
@@ -45,7 +46,6 @@ import eu.unicore.util.configuration.ConfigurationException;
  */
 public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchange> implements VaadinAuthentication
 {
-	private CertificateExchange credentialExchange;
 	private UnityMessageSource msg;
 	private I18nString name;
 	
@@ -104,14 +104,13 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	
 	private class TLSRetrievalUI implements VaadinAuthenticationUI
 	{
-		private TLSAuthnComponent component;
+		private TLSAuthnComponent component = new TLSAuthnComponent();
 		private AuthenticationResultCallback callback;
 		private SandboxAuthnResultCallback sandboxCallback;
 		
 		@Override
 		public Component getComponent()
 		{
-			component = new TLSAuthnComponent();
 			return component;
 		}
 
@@ -141,7 +140,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 						clientCert, sandboxCallback);
 				component.setError(authenticationResult.getStatus() != Status.success);
 				return authenticationResult;
-			} catch (Exception e)
+			} catch (EngineException e)
 			{
 				component.setError(true);
 				return new AuthenticationResult(Status.deny, null);

@@ -15,6 +15,7 @@ import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -47,6 +48,8 @@ public class JWTManagementEndpointFactory implements EndpointFactory
 	private NetworkServer server;
 	@Autowired
 	private IdentitiesManagement identitiesMan;
+	@Autowired
+	private AuthenticationProcessor authenticationProcessor;
 	
 	@Override
 	public EndpointTypeDescription getDescription()
@@ -57,8 +60,8 @@ public class JWTManagementEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new JWTManagementEndpoint(msg, sessionMan, TYPE, "", tokensMan, pkiManagement, server,
-				identitiesMan);
+		return new JWTManagementEndpoint(msg, sessionMan, authenticationProcessor, 
+				TYPE, "", tokensMan, pkiManagement, server, identitiesMan);
 	}
 
 }

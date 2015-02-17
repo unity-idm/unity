@@ -30,11 +30,11 @@ public class OutdatedCredentialDialog extends AbstractDialog
 	private AuthenticationManagement authnMan;
 	private IdentitiesManagement idsMan;
 	private CredentialEditorRegistry credEditorReg;
-	private AuthenticationProcessor authnProcessor;
+	private WebAuthenticationProcessor authnProcessor;
 	
 	public OutdatedCredentialDialog(UnityMessageSource msg, AuthenticationManagement authnMan,
 			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg,
-			AuthenticationProcessor authnProcessor)
+			WebAuthenticationProcessor authnProcessor)
 	{
 		super(msg, msg.getMessage("OutdatedCredentialDialog.caption"), 
 				msg.getMessage("OutdatedCredentialDialog.accept"), 

@@ -29,13 +29,15 @@ import pl.edu.icm.unity.server.api.internal.SessionParticipant;
 import pl.edu.icm.unity.server.api.internal.SessionParticipants;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.authn.AuthenticationProcessorUtil;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.authn.LogoutProcessor;
 import pl.edu.icm.unity.server.authn.LogoutProcessorFactory;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor.PartialAuthnState;
 import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
@@ -61,18 +63,16 @@ import com.vaadin.ui.UI;
 /**
  * Handles results of authentication and if it is all right, redirects to the source application.
  * 
- * TODO - we should support fragments here.
- * 
  * @author K. Benedyczak
  */
 @Component
-public class AuthenticationProcessor
+public class WebAuthenticationProcessor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationProcessor.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, WebAuthenticationProcessor.class);
 	public static final String UNITY_SESSION_COOKIE_PFX = "USESSIONID_";
-	private static final String LOGOUT_REDIRECT_TRIGGERING = AuthenticationProcessor.class.getName() + 
+	private static final String LOGOUT_REDIRECT_TRIGGERING = WebAuthenticationProcessor.class.getName() + 
 			".invokeLogout";
-	private static final String LOGOUT_REDIRECT_RET_URI = AuthenticationProcessor.class.getName() + 
+	private static final String LOGOUT_REDIRECT_RET_URI = WebAuthenticationProcessor.class.getName() + 
 			".returnUri";
 	
 	private UnityMessageSource msg;
@@ -85,15 +85,18 @@ public class AuthenticationProcessor
 	private SessionManagement sessionMan;
 	private LoginToHttpSessionBinder sessionBinder;
 	private LogoutProcessor logoutProcessor;
+	private AuthenticationProcessor authnProcessor;
 	
 	@Autowired
-	public AuthenticationProcessor(UnityMessageSource msg, AuthenticationManagement authnMan,
+	public WebAuthenticationProcessor(UnityMessageSource msg, AuthenticationProcessor authnProcessor,
+			AuthenticationManagement authnMan,
 			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder,
 			IdentitiesManagement idsMan, AttributesInternalProcessing attrMan,
 			CredentialEditorRegistry credEditorReg, LogoutProcessorFactory logoutProcessorFactory,
 			UnityServerConfiguration config, SessionParticipantTypesRegistry participantTypesRegistry)
 	{
 		this.msg = msg;
+		this.authnProcessor = authnProcessor;
 		this.authnMan = authnMan;
 		this.idsMan = idsMan;
 		this.attrProcessor = attrMan;
@@ -105,22 +108,68 @@ public class AuthenticationProcessor
 		this.logoutProcessor = logoutProcessorFactory.getInstance();
 	}
 
-	public void processResults(List<AuthenticationResult> results, String clientIp, AuthenticationRealm realm,
-			boolean rememberMe) throws AuthenticationException
+	/**
+	 * Return partial authn result if additional authentication is required or null, if authentication is 
+	 * finished. In the latter case a proper redirection is triggered. If outdated credential was used
+	 * then the credential update dialog is shown instead of the redirection to origin. 
+	 * @param result
+	 * @param clientIp
+	 * @param realm
+	 * @param authenticationOption
+	 * @param rememberMe
+	 * @return
+	 * @throws AuthenticationException
+	 */
+	public PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, String clientIp, 
+			AuthenticationRealm realm,
+			AuthenticationOption authenticationOption, boolean rememberMe) throws AuthenticationException
 	{
 		UnsuccessfulAuthenticationCounter counter = getLoginCounter();
-		AuthenticatedEntity logInfo;
+		PartialAuthnState authnState;
 		try
 		{
-			logInfo = AuthenticationProcessorUtil.processResults(results);
+			authnState = authnProcessor.processPrimaryAuthnResult(result, authenticationOption);
 		} catch (AuthenticationException e)
 		{
 			if (!(e instanceof UnknownRemoteUserException))
 				counter.unsuccessfulAttempt(clientIp);
 			throw e;
 		}
+
+		if (authnState.isSecondaryAuthenticationRequired())
+			return authnState;
 		
-		logged(logInfo, realm, rememberMe, AuthenticationProcessorUtil.extractParticipants(results));
+		AuthenticatedEntity logInfo = authnProcessor.finalizeAfterPrimaryAuthentication(authnState);
+		
+		logged(logInfo, realm, rememberMe, AuthenticationProcessor.extractParticipants(result));
+
+		if (logInfo.isUsedOutdatedCredential())
+		{
+			showCredentialUpdate();
+			return null;
+		}
+		gotoOrigin();
+		return null;
+	}
+
+	public void processSecondaryAuthnResult(PartialAuthnState state, AuthenticationResult result2, String clientIp, 
+			AuthenticationRealm realm,
+			AuthenticationOption authenticationOption, boolean rememberMe) throws AuthenticationException
+	{
+		UnsuccessfulAuthenticationCounter counter = getLoginCounter();
+		AuthenticatedEntity logInfo;
+		try
+		{
+			logInfo = authnProcessor.finalizeAfterSecondaryAuthentication(state, result2);
+		} catch (AuthenticationException e)
+		{
+			if (!(e instanceof UnknownRemoteUserException))
+				counter.unsuccessfulAttempt(clientIp);
+			throw e;
+		}
+
+		logged(logInfo, realm, rememberMe, 
+				AuthenticationProcessor.extractParticipants(state.getPrimaryResult(), result2));
 
 		if (logInfo.isUsedOutdatedCredential())
 		{
@@ -129,7 +178,8 @@ public class AuthenticationProcessor
 		}
 		gotoOrigin();
 	}
-
+	
+	
 	private String getLabel(long entityId)
 	{
 		try

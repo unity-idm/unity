@@ -29,7 +29,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
-import pl.edu.icm.unity.webui.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
@@ -66,7 +66,7 @@ public class SandboxUI extends AuthenticationUI
 	@Autowired
 	public SandboxUI(UnityMessageSource msg,
 			LocaleChoiceComponent localeChoice,
-			AuthenticationProcessor authnProcessor,
+			WebAuthenticationProcessor authnProcessor,
 			InsecureRegistrationFormsChooserComponent formsChooser,
 			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService,
