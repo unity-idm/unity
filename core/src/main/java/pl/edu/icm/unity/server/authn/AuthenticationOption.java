@@ -33,6 +33,13 @@ public class AuthenticationOption
 		this.mandatory2ndAuthenticator = mandatory2ndAuthenticator;
 	}
 
+	public String getId()
+	{
+		String primaryId = primaryAuthenticator.getAuthenticatorId();
+		return mandatory2ndAuthenticator == null ?  primaryId : primaryId + "_" + 
+				mandatory2ndAuthenticator.getAuthenticatorId();
+	}
+	
 	public BindingAuthn getPrimaryAuthenticator()
 	{
 		return primaryAuthenticator;

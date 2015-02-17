@@ -77,7 +77,7 @@ public class AuthNTile extends CustomComponent
 					continue;
 				String logoUrl = vaadinAuthenticationUI.getImageURL();
 				String id = vaadinAuthenticationUI.getId();
-				final String globalId = firstAuthenticator.getAuthenticatorId() + "_" + id;
+				final String globalId = set.getId() + "_" + id;
 				IdPComponent entry = new IdPComponent(globalId, logoUrl, name, scaleMode);
 				providersChoice.addComponent(entry);
 				providersChoice.setComponentAlignment(entry, Alignment.MIDDLE_LEFT);
