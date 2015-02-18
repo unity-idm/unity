@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.common;
 
 import com.vaadin.ui.themes.Reindeer;
+import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * General purpose styles defined for VAADIN components
@@ -32,7 +33,7 @@ public enum Styles
 	horizontalLine("u-horizontalLine"),
 	header("u-header"),
 	selectedButton("u-selectedButton"),
-	padding10("u-padding10"),
+	verticalPadding10("u-verticalPadding10"),
 	horizontalMargins10("u-horizontalMargins10"),
 	verticalMargins10("u-verticalMargins10"),
 	horizontalMargins6("u-horizontalMargins6"),
@@ -57,7 +58,7 @@ public enum Styles
 	vTabsheetMinimal(Reindeer.TABSHEET_MINIMAL),
 	vLabelSmall(Reindeer.LABEL_SMALL),
 	vLabelH2(Reindeer.LABEL_H2),
-	vLabelH1(Reindeer.LABEL_H1),
+	vLabelH1(ValoTheme.LABEL_H1),
 	vButtonLink(Reindeer.BUTTON_LINK),
 	vSplitPanelSmall(Reindeer.SPLITPANEL_SMALL),
 	vTextfieldSmall(Reindeer.TEXTFIELD_SMALL);

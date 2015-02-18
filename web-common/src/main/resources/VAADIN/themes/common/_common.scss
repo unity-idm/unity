@@ -10,7 +10,7 @@
 	$leadingDark : #44698b;
 	$green : LightGreen;
 	$gray : LightGray;
-	$font : Helvetica, Arial, "Lucida Grande", Geneva, Tahoma, Verdana, sans-serif;
+	$font : "Open Sans", sans-serif, Helvetica, Arial, "Lucida Grande", Geneva, Tahoma, Verdana;
 	$shadow : #888;
 	$red :  LightCoral;
   
@@ -81,8 +81,10 @@
 	
 	.u-textHeading {
 		font-family: $font;
+		letter-spacing: -1px;
 		font-size: 32px;
 		line-height: 1.1;
+		font-weight: 300;
 		color: #464646;
 	}
 		
@@ -159,10 +161,8 @@
 		margin-bottom: 6px;
 	}
 	
-	.u-padding10.v-margin-left   {padding-left:   10px;}
-	.u-padding10.v-margin-right  {padding-right:  10px;}
-	.u-padding10.v-margin-top    {padding-top:    10px;}
-	.u-padding10.v-margin-bottom {padding-bottom: 10px;}
+	.u-verticalPadding10.v-margin-top    {padding-top:    10px;}
+	.u-verticalPadding10.v-margin-bottom {padding-bottom: 10px;}
 	
 	.u-maxHeight300 {
 		max-height: 300px;

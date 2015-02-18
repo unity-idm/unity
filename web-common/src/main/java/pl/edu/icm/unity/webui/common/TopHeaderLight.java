@@ -21,14 +21,13 @@ public class TopHeaderLight extends HorizontalLayout
 	public TopHeaderLight(String title, UnityMessageSource msg)
 	{
 		addStyleName(Styles.header.toString());
-		addStyleName(Styles.padding10.toString());
+		addStyleName(Styles.verticalPadding10.toString());
 		setMargin(true);
 		setWidth(100, Unit.PERCENTAGE);
 		setHeight(80, Unit.PIXELS);
 		
 		titleL = new Label(title);
 		titleL.addStyleName(Styles.textHeading.toString());
-		//titleL.addStyleName(Styles.vLabelH2.toString());
 		
 		addComponent(titleL);
 		setComponentAlignment(titleL, Alignment.MIDDLE_LEFT);
