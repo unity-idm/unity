@@ -55,7 +55,7 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 				setStructuredListEntry(PROVIDERS));
 		
 		META.put(PROVIDERS_IN_ROW, new PropertyMD().setDeprecated());
-		META.put(DISPLAY_NAME, new PropertyMD().setDeprecated());
+		META.put(DISPLAY_NAME, new PropertyMD().setCanHaveSubkeys().setDeprecated());
 	}
 	
 	private Map<String, CustomProviderProperties> providers = new HashMap<String, CustomProviderProperties>();

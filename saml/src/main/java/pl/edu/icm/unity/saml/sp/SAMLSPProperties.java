@@ -200,7 +200,7 @@ public class SAMLSPProperties extends SamlProperties
 				+ "the remote trusted SAML IdPs however not providing all their details but only "
 				+ "their metadata."));
 		
-		META.put(DISPLAY_NAME, new PropertyMD().setDeprecated());
+		META.put(DISPLAY_NAME, new PropertyMD().setCanHaveSubkeys().setDeprecated());
 		META.put(PROVIDERS_IN_ROW, new PropertyMD().setDeprecated());
 	}
 	
