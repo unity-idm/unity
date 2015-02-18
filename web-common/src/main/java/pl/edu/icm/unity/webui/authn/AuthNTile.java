@@ -13,6 +13,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.idpselector.IdPComponent;
 import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button.ClickEvent;
@@ -34,8 +35,9 @@ public class AuthNTile extends CustomComponent
 	private ScaleMode scaleMode;
 	private int perRow;
 	private SelectionChangedListener listener;
-	private Map<String, AuthenticationOption> authNOptionsById = new HashMap<>();
-	private Map<String, VaadinAuthenticationUI> authenticatorById = new HashMap<>();
+	private Map<String, AuthenticationOption> authNOptionsById;
+	private Map<String, VaadinAuthenticationUI> authenticatorById;
+	private GridLayout providersChoice;
 	
 	public AuthNTile(List<AuthenticationOption> authenticators,
 			ScaleMode scaleMode, int perRow, SelectionChangedListener listener)
@@ -58,11 +60,23 @@ public class AuthNTile extends CustomComponent
 			filter = null;
 		if (filter != null)
 			filter = filter.toLowerCase();
-		Panel tilePanel = new Panel();
+		Panel tilePanel = new SafePanel();
 		tilePanel.setSizeUndefined();
 		
-		GridLayout providersChoice = new GridLayout(perRow, 1);
+		providersChoice = new GridLayout(perRow, 1);
 		providersChoice.setSpacing(true);
+		
+		reloadContents(filter);
+		
+		tilePanel.setContent(providersChoice);
+		setCompositionRoot(tilePanel);
+	}
+
+	private void reloadContents(String filter)
+	{
+		providersChoice.removeAllComponents();
+		authNOptionsById = new HashMap<>();
+		authenticatorById = new HashMap<>();
 		
 		for (final AuthenticationOption set: authenticators)
 		{
@@ -95,10 +109,9 @@ public class AuthNTile extends CustomComponent
 			}
 		}
 		
-		tilePanel.setContent(providersChoice);
-		setCompositionRoot(tilePanel);
+		setVisible(size() != 0);
 	}
-
+	
 	public AuthenticationOption getAuthenticationOptionById(String id)
 	{
 		return authNOptionsById.get(id);
@@ -109,9 +122,25 @@ public class AuthNTile extends CustomComponent
 		return authenticatorById.get(id);
 	}
 
+	public int size()
+	{
+		return authenticatorById.size();
+	}
+	
 	public interface SelectionChangedListener
 	{
 		void selectionChanged(VaadinAuthenticationUI selectedAuthnUI, 
 				AuthenticationOption selectedOption, String optionKey);
+	}
+
+	public void filter(String filter)
+	{
+		if (filter != null && filter.trim().equals(""))
+			filter = null;
+		if (filter != null)
+			filter = filter.toLowerCase();
+		
+		reloadContents(filter);
+		
 	}
 }

@@ -11,6 +11,7 @@ import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.google.common.collect.Sets;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -52,7 +53,7 @@ public class ChangeEntityStateDialog extends AbstractDialog
 				"EntityState.", EntityState.class, entity.getEntity().getState(),
 				Sets.newHashSet(EntityState.onlyLoginPermitted));
 		
-		final Panel schedulePanel = new Panel();
+		final Panel schedulePanel = new SafePanel();
 		FormLayout schedLay = new FormLayout();
 		scheduleEnable = new CheckBox(msg.getMessage("ChangeEntityStateDialog.enableScheduled"));
 		scheduleEnable.setImmediate(true);
