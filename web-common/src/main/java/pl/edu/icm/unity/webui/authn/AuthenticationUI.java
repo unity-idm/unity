@@ -225,6 +225,9 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			if (perRow == null)
 				perRow = defPerRow;
 			
+			String displayedName = config.getLocalizedValue(tileKey + 
+					VaadinEndpointProperties.AUTHN_TILE_DISPLAY_NAME, msg.getLocale());
+			
 			String spec = config.getValue(tileKey + VaadinEndpointProperties.AUTHN_TILE_CONTENTS);
 			String[] specSplit = spec.split("[ ]+");
 			List<AuthenticationOption> authNs = new ArrayList<>();
@@ -241,14 +244,15 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 					}
 				}
 			}
-			AuthNTile tile = new AuthNTile(authNs, scaleMode, perRow, selectionChangedListener);
+			AuthNTile tile = new AuthNTile(authNs, scaleMode, perRow, selectionChangedListener, 
+					displayedName);
 			ret.add(tile);
 		}
 		
 		if (!authNCopy.isEmpty())
 		{
 			AuthNTile defaultTile = new AuthNTile(authNCopy, defScaleMode, defPerRow, 
-					selectionChangedListener);
+					selectionChangedListener, null);
 			ret.add(defaultTile);
 		}
 		

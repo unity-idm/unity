@@ -36,6 +36,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	public static final String AUTHN_TILE_CONTENTS = "tileContents";
 	public static final String AUTHN_TILE_PER_LINE = "tileAuthnsPerLine";
 	public static final String AUTHN_TILE_ICON_SIZE = "tileIconSize";
+	public static final String AUTHN_TILE_DISPLAY_NAME = "tileName";
 	public static final String DEFAULT_PER_LINE = "authnsPerLine";
 	public static final String DEFAULT_AUTHN_ICON_SIZE = "authnIconSize";
 	
@@ -76,6 +77,10 @@ public class VaadinEndpointProperties extends PropertiesHelper
 		META.put(AUTHN_TILE_ICON_SIZE, new PropertyMD().setEnum(ScaleMode.height50).setStructuredListEntry(AUTHN_TILES_PFX).
 				setDescription("Defines how to scale authenticator icons in a tile. "
 						+ "Overrides the default setting."));
+		META.put(AUTHN_TILE_DISPLAY_NAME, new PropertyMD().setCanHaveSubkeys().setStructuredListEntry(AUTHN_TILES_PFX).
+				setDescription("Defines the displayed name of the tile. "
+						+ "Can have language specific versions. "
+						+ "If undefined then tile has no name."));
 		
 	}
 	
