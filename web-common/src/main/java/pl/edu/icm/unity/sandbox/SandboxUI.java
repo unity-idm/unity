@@ -7,7 +7,6 @@ package pl.edu.icm.unity.sandbox;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +29,14 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import pl.edu.icm.unity.webui.authn.AuthNTile;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
+import pl.edu.icm.unity.webui.authn.SelectedAuthNPanel;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
+import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent;
 
@@ -79,17 +81,15 @@ public class SandboxUI extends AuthenticationUI
 		super(msg, localeChoice, authnProcessor, formsChooser, formLauncher, execService, idsMan);
 		
 		authnList      = getAllVaadinAuthenticators(authnManagement, authnRegistry);
-//		authenticators = getAuthenticatorUIs(authnList, authenticatorsManagement);
+		authenticators = getAuthenticatorUIs(authnList, authenticatorsManagement);
 	}
 
-//	@Override
-//	protected AuthenticatorSetComponent buildAuthenticatorSetComponent(EndpointDescription description,
-//			Map<String, VaadinAuthenticationUI> authenticator, AuthenticatorSet authenticatorSet)
-//	{
-//		return new SandboxAuthenticatorSetComponent(authenticator, 
-//				authenticatorSet, msg, authnProcessor, 
-//				formLauncher, execService, cancelHandler, description.getRealm());
-//	}
+	@Override
+	protected SelectedAuthNPanel createSelectedAuthNPanel()
+	{
+		return new SandboxSelectedAuthNPanel(msg, authnProcessor, idsMan, formLauncher, 
+				execService, cancelHandler, description.getRealm());
+	}
 	
 	@Override
 	public void configure(EndpointDescription description,
@@ -99,28 +99,30 @@ public class SandboxUI extends AuthenticationUI
 		registrationConfiguration = new EndpointRegistrationConfiguration(false);
 		this.description          = new EndpointDescription(description);
 		this.description.setAuthenticatorSets(authnList);
+		config = new VaadinEndpointProperties(new Properties());
 	}
 	
 	@Override
 	protected void appInit(VaadinRequest request) 
 	{
-		setSandboxCallbackForAuthenticators();
-		
 		super.appInit(request);
+		
+		setSandboxCallbackForAuthenticators();
 		
 		setHeaderTitle(msg.getMessage("SandboxUI.headerTitle"));
 		
 		VaadinRequest vaadinRequest = VaadinService.getCurrentRequest();
 		validationMode = vaadinRequest.getParameter(PROFILE_VALIDATION) != null;
 		debug = vaadinRequest.getParameter(DEBUG_ID) == null;
-//		
-//		if (isProfileValidation())
-//		{
-//			setSelectionTitle(msg.getMessage("SandboxUI.selectionTitle.profileValidation"));
-//		} else
-//		{
-//			setSelectionTitle(msg.getMessage("SandboxUI.selectionTitle.profileCreation"));
-//		}
+		
+		AuthNTile firstTile = selectorPanel.getTiles().get(0);
+		if (isProfileValidation())
+		{
+			firstTile.setCaption(msg.getMessage("SandboxUI.selectionTitle.profileValidation"));
+		} else
+		{
+			firstTile.setCaption(msg.getMessage("SandboxUI.selectionTitle.profileCreation"));
+		}
 		
 	}
 	
@@ -140,36 +142,30 @@ public class SandboxUI extends AuthenticationUI
 	
 	private void setSandboxCallbackForAuthenticators() 
 	{
-//		if (authenticators == null)
-//			return;
-//
-//		for (Map<String, VaadinAuthenticationUI> auth : authenticators)
-//		{
-//			for (VaadinAuthenticationUI authUI : auth.values())
-//			{
-//				authUI.setSandboxAuthnResultCallback(new SandboxAuthnResultCallbackImpl());
-//			}
-//		}
+		if (authenticators == null)
+			return;
+		AuthNTile firstTile = selectorPanel.getTiles().get(0);
+		Collection<VaadinAuthenticationUI> authnUIs = firstTile.getAuthenticators().values();
+		for (VaadinAuthenticationUI authUI : authnUIs)
+		{
+			authUI.setSandboxAuthnResultCallback(new SandboxAuthnResultCallbackImpl());
+		}
 	}
 
 	private void cancelAuthentication() 
 	{
-//		if (authenticators != null) 
-//		{
-//			for (Map<String, VaadinAuthenticationUI> auth : authenticators)
-//			{
-//				for (VaadinAuthenticationUI authUI : auth.values())
-//				{
-//					authUI.cancelAuthentication();
-//				}
-//			}
-//		}			
+		AuthNTile firstTile = selectorPanel.getTiles().get(0);
+		Collection<VaadinAuthenticationUI> authnUIs = firstTile.getAuthenticators().values();
+		for (VaadinAuthenticationUI authUI : authnUIs)
+		{
+			authUI.cancelAuthentication();
+		}
 	}
 
 	private List<AuthenticationOptionDescription> getAllVaadinAuthenticators(AuthenticationManagement authnManagement, 
 			AuthenticatorsRegistry authnRegistry) 
 	{
-		ArrayList<AuthenticationOptionDescription> vaadinAuthenticators = new ArrayList<AuthenticationOptionDescription>();
+		ArrayList<AuthenticationOptionDescription> vaadinAuthenticators = new ArrayList<>();
 		
 		try 
 		{
@@ -195,32 +191,16 @@ public class SandboxUI extends AuthenticationUI
 		return vaadinAuthenticators;
 	}
 	
-	private List<Map<String, VaadinAuthenticationUI>> getAuthenticatorUIs(
+	private List<AuthenticationOption> getAuthenticatorUIs(
 			List<AuthenticationOptionDescription> authnList, AuthenticatorsManagement authenticatorsMan) 
 	{
-		List<AuthenticationOption> authenticators;
 		try
 		{
-			authenticators = authenticatorsMan.getAuthenticatorUIs(authnList);
+			return authenticatorsMan.getAuthenticatorUIs(authnList);
 		} catch (EngineException e)
 		{
 			throw new IllegalStateException("Can not initialize sandbox UI", e);
 		}
-
-		List<Map<String, VaadinAuthenticationUI>> authenticatorUIs = 
-				new ArrayList<Map<String, VaadinAuthenticationUI>>();
-		//TODO
-/*
-		for (int i=0; i<authenticators.size(); i++)
-		{
-			Map<String, VaadinAuthenticationUI> map = new HashMap<String, VaadinAuthenticationUI>();
-			Map<String, BindingAuthn> origMap = authenticators.get(i);
-			for (Map.Entry<String, BindingAuthn> el: origMap.entrySet())
-				map.put(el.getKey(), ((VaadinAuthentication)el.getValue()).createUIInstance());
-			authenticatorUIs.add(map);
-		}
-*/
-		return authenticatorUIs;
 	}
 	
 	/**

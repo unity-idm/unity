@@ -84,8 +84,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	protected List<AuthenticationOption> authenticators;
 	protected EndpointDescription description;
 	protected EndpointRegistrationConfiguration registrationConfiguration;
-	private IdentitiesManagement idsMan;
-	private VaadinEndpointProperties config;
+	protected IdentitiesManagement idsMan;
+	protected VaadinEndpointProperties config;
 	
 	@Autowired
 	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,
@@ -119,8 +119,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	@Override
 	protected void appInit(final VaadinRequest request)
 	{
-		authenticationPanel = new SelectedAuthNPanel(msg, authnProcessor, idsMan, formLauncher, 
-				execService, cancelHandler, description.getRealm());
+		authenticationPanel = createSelectedAuthNPanel();
 		authenticationPanel.setVisible(false);
 		authenticationPanel.setAuthenticationListener(new AuthenticationListener()
 		{
@@ -192,6 +191,16 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		// if this UI expired in the meantime. Shouldn't happen often as heart of authentication UI
 		// is beating very slowly but in case of very slow user we may still need to refresh.
 		refresh(VaadinService.getCurrentRequest());
+	}
+	
+	/**
+	 * Overridden in sandboxed version
+	 * @return
+	 */
+	protected SelectedAuthNPanel createSelectedAuthNPanel()
+	{
+		return new SelectedAuthNPanel(msg, authnProcessor, idsMan, formLauncher, 
+				execService, cancelHandler, description.getRealm());
 	}
 	
 	private List<AuthNTile> prepareTiles(List<AuthenticationOption> authenticators)

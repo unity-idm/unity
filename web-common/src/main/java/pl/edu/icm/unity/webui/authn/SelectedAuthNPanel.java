@@ -505,7 +505,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	 * to the selected {@link VaadinAuthenticationUI}
 	 * @author K. Benedyczak
 	 */
-	private interface AuthenticationHandler extends AuthenticationResultCallback
+	public interface AuthenticationHandler extends AuthenticationResultCallback
 	{
 		void triggerAuthentication();
 		

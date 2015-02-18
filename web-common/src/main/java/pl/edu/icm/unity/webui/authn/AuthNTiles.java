@@ -76,6 +76,11 @@ public class AuthNTiles extends CustomComponent
 		setCompositionRoot(main);
 	}
 
+	public List<AuthNTile> getTiles()
+	{
+		return tiles;
+	}
+	
 	public AuthenticationOption getAuthenticationOptionById(String lastIdp)
 	{
 		for (AuthNTile tile: tiles)

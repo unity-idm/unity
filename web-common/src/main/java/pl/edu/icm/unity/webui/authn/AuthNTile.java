@@ -38,6 +38,7 @@ public class AuthNTile extends CustomComponent
 	private Map<String, VaadinAuthenticationUI> authenticatorById;
 	private GridLayout providersChoice;
 	private String name;
+	private Panel tilePanel;
 	
 	public AuthNTile(List<AuthenticationOption> authenticators,
 			ScaleMode scaleMode, int perRow, SelectionChangedListener listener, String name)
@@ -61,7 +62,7 @@ public class AuthNTile extends CustomComponent
 			filter = null;
 		if (filter != null)
 			filter = filter.toLowerCase();
-		Panel tilePanel = new SafePanel();
+		tilePanel = new SafePanel();
 		tilePanel.setSizeUndefined();
 		if (name != null)
 			tilePanel.setCaption(name);
@@ -75,6 +76,12 @@ public class AuthNTile extends CustomComponent
 		setCompositionRoot(tilePanel);
 	}
 
+	@Override
+	public void setCaption(String caption)
+	{
+		tilePanel.setCaption(caption);
+	}
+	
 	private void reloadContents(String filter)
 	{
 		providersChoice.removeAllComponents();
@@ -130,6 +137,11 @@ public class AuthNTile extends CustomComponent
 		return authenticatorById.size();
 	}
 	
+	public Map<String, VaadinAuthenticationUI> getAuthenticators()
+	{
+		return authenticatorById;
+	}
+
 	public interface SelectionChangedListener
 	{
 		void selectionChanged(VaadinAuthenticationUI selectedAuthnUI, 
