@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityPropertiesHelper;
-import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -45,20 +45,17 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 	
 	static 
 	{
-		META.put(DISPLAY_NAME, new PropertyMD("OAuth2 authentication").setCanHaveSubkeys().
-				setDescription("Name of this authentication option to be displayed "
-				+ "in the web interface. The property can have subkeys being "
-				+ "locale names; then the localized value is used."));
-		META.put(PROVIDERS_IN_ROW, new PropertyMD("3").setPositive().setDescription("How many providers should be displayed "
-				+ "in a single row on the provider selection screen. Relevant only if you define multiple providers."));
-		META.put(ICON_SCALE, new PropertyMD(ScaleMode.none).setDescription("Controls whether and how "
-				+ "the icons of providers should be scalled."));
-		
 		META.put(PROVIDERS, new PropertyMD().setStructuredList(false).setCanHaveSubkeys().setMandatory().
 				setDescription("Prefix, under which the available oauth providers are defined."));
+		META.put(ICON_SCALE, new PropertyMD(ScaleMode.none).setDescription("Controls whether and how "
+				+ "the icon of a provider should be scalled. Note that this setting"
+				+ " controls only the size of the icon of the currently selected provider."));
 
 		META.put(CustomProviderProperties.PROVIDER_TYPE, new PropertyMD(Providers.custom).setHidden().
 				setStructuredListEntry(PROVIDERS));
+		
+		META.put(PROVIDERS_IN_ROW, new PropertyMD().setDeprecated());
+		META.put(DISPLAY_NAME, new PropertyMD().setDeprecated());
 	}
 	
 	private Map<String, CustomProviderProperties> providers = new HashMap<String, CustomProviderProperties>();

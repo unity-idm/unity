@@ -11,7 +11,6 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -25,6 +24,8 @@ import eu.unicore.util.configuration.PropertyMD;
 public class VaadinEndpointProperties extends PropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, VaadinEndpointProperties.class);
+	public enum ScaleMode {none, height100, width100, height50, width50}
+	
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.endpoint.web.";
 	

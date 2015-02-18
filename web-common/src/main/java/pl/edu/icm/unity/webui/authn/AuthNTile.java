@@ -10,9 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.common.idpselector.IdPComponent;
-import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.ui.Alignment;

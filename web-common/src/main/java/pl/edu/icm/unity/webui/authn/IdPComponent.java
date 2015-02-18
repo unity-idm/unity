@@ -2,16 +2,16 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common.idpselector;
+package pl.edu.icm.unity.webui.authn;
 
 import java.net.MalformedURLException;
 
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
 
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.Resource;

@@ -18,7 +18,7 @@ import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.ecp.SAMLECPProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.webui.common.idpselector.IdpSelectorComponent.ScaleMode;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
@@ -51,7 +51,6 @@ public class SAMLSPProperties extends SamlProperties
 	public static final String REQUESTER_ID = "requesterEntityId";
 	public static final String CREDENTIAL = "requesterCredential";
 	public static final String ACCEPTED_NAME_FORMATS = "acceptedNameFormats.";
-	//TODO remove
 	public static final String DISPLAY_NAME = "displayName";
 	public static final String PROVIDERS_IN_ROW = "idpsInRow";
 	public static final String ICON_SCALE = "iconScale";
@@ -168,14 +167,10 @@ public class SAMLSPProperties extends SamlProperties
 				"Default setting of request signing. Used for those IdPs, for which the setting is not set explicitly."));
 		META.put(DEF_REQUESTED_NAME_FORMAT, new PropertyMD().setCategory(common).setDescription(
 				"Default setting of requested identity format. Used for those IdPs, for which the setting is not set explicitly."));	
-		META.put(DISPLAY_NAME, new PropertyMD("SAML authentication").setCanHaveSubkeys().
-				setCategory(webRetrieval).setDescription(
-				"Name of the SAML authentication GUI component. The property can have subkeys being "
-				+ "locale names; then the localized value is used."));
-		META.put(PROVIDERS_IN_ROW, new PropertyMD("2").setPositive().setCategory(webRetrieval).setDescription(
-				"How many IdPs should be displayed in a single row on the IdP selection screen. Relevant only if you define multiple providers."));
-		META.put(ICON_SCALE, new PropertyMD(ScaleMode.height100).setDescription("Controls whether and how "
-				+ "the icons of providers should be scalled."));
+		META.put(ICON_SCALE, new PropertyMD(ScaleMode.none).setCategory(webRetrieval).
+				setDescription("Controls whether and how "
+				+ "the icon of a provider should be scalled. Note that this setting affects only the "
+				+ "icon of a currently selected provider."));
 		META.put(SAMLECPProperties.JWT_P, new PropertyMD().setCanHaveSubkeys().setHidden());	
 			
 		META.put(IDPMETA_TRANSLATION_PROFILE, new PropertyMD().setCategory(remoteMeta).
@@ -204,6 +199,9 @@ public class SAMLSPProperties extends SamlProperties
 		META.putAll(SamlProperties.getDefaults(IDPMETA_PREFIX, "Under this prefix you can configure "
 				+ "the remote trusted SAML IdPs however not providing all their details but only "
 				+ "their metadata."));
+		
+		META.put(DISPLAY_NAME, new PropertyMD().setDeprecated());
+		META.put(PROVIDERS_IN_ROW, new PropertyMD().setDeprecated());
 	}
 	
 	private PKIManagement pkiManagement;
