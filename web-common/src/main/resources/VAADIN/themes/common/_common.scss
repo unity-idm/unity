@@ -14,23 +14,15 @@
 	$shadow : #888;
 	$red :  LightCoral;
   
-	.v-select-optiongroup-authnSetSelect {
-	    font-family: $font;
-		font-size: 18px;
-		line-height: 35px;
-		color: $leadingDark;
-		letter-spacing: -0.01em;
+  //Overriding the default layout		
+	.v-caption-bold {
+	  font-weight: bold;
+	}
+	.v-button-link {
+		height: inherit;
 	}
 	
-	.v-caption-authnSetSelect {
-	    font-family: $font;
-		font-size: 22px;
-		line-height: 38px;
-		font-weight: bold;
-		color: $leadingDark;
-		letter-spacing: -0.02em;
-		text-shadow: #fff 0 -1px 1px;
-	}
+  //Custom styles
 	
 	.u-messageBox {
 		background-color:#EEEEEE;
@@ -87,6 +79,15 @@
 		font-weight: 300;
 		color: #464646;
 	}
+
+	.u-textHeading2 {
+		font-family: $font;
+		letter-spacing: -1px;
+		font-size: 26px;
+		line-height: 1.1;
+		font-weight: 300;
+		color: #464646;
+	}
 		
 	.u-bigTab {
 	/*	
@@ -132,11 +133,7 @@
 		color: gray;
 		margin: 8px 0px;
 	}
-	
-	.v-caption-bold {
-	  font-weight: bold;
-	}
-	
+
 	.u-selectedButton {
 		box-shadow: 0px 0px 9px $shadow;
 	}
@@ -164,8 +161,8 @@
 	.u-verticalPadding10.v-margin-top    {padding-top:    10px;}
 	.u-verticalPadding10.v-margin-bottom {padding-bottom: 10px;}
 	
-	.u-maxHeight300 {
-		max-height: 300px;
+	.u-minHeight300 {
+		min-height: 300px;
 	}
 	
 	.v-panel-content-u-padRight20 {
@@ -186,6 +183,18 @@
 	
 	.u-height50 .v-button-wrap .v-icon {
 		height: 50px;
+	}
+
+	.u-maxHeight200 .v-button-wrap .v-icon {
+		max-height: 200px;
+	}
+	
+	.u-maxHeight100 .v-button-wrap .v-icon {
+		max-height: 100px;
+	}
+	
+	.u-maxHeight50 .v-button-wrap .v-icon {
+		max-height: 50px;
 	}
 	
 	.u-smallMargin.v-margin-top {

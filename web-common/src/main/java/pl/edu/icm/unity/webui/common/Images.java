@@ -14,7 +14,9 @@ import com.vaadin.server.Resource;
 public enum Images
 {
 	logo		(I.PB + "logo.png"),
-	loader        (I.PB + "loader.gif"),
+	loader		(I.PB + "loader.gif"),
+	password	(I.PB + "password.png"),
+	certificate	(I.PB + "certificate.png"),
 	 
 	info64		(I.PH + "64/bullet_info.png"),
 	key64		(I.PH + "64/key.png"),

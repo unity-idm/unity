@@ -14,6 +14,7 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
+import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -39,6 +40,7 @@ public class AuthNTile extends CustomComponent
 	private GridLayout providersChoice;
 	private String name;
 	private Panel tilePanel;
+	private String firstOptionId;
 	
 	public AuthNTile(List<AuthenticationOption> authenticators,
 			ScaleMode scaleMode, int perRow, SelectionChangedListener listener, String name)
@@ -87,6 +89,7 @@ public class AuthNTile extends CustomComponent
 		providersChoice.removeAllComponents();
 		authNOptionsById = new HashMap<>();
 		authenticatorById = new HashMap<>();
+		firstOptionId = null;
 		
 		for (final AuthenticationOption set: authenticators)
 		{
@@ -99,10 +102,12 @@ public class AuthNTile extends CustomComponent
 				String name = vaadinAuthenticationUI.getLabel();
 				if (filter != null && !name.toLowerCase().contains(filter))
 					continue;
-				String logoUrl = vaadinAuthenticationUI.getImageURL();
+				Resource logo = vaadinAuthenticationUI.getImage();
 				String id = vaadinAuthenticationUI.getId();
 				final String globalId = set.getId() + "_" + id;
-				IdPComponent entry = new IdPComponent(globalId, logoUrl, name, scaleMode);
+				if (firstOptionId == null)
+					firstOptionId = globalId;
+				IdPComponent entry = new IdPComponent(globalId, logo, name, scaleMode);
 				providersChoice.addComponent(entry);
 				providersChoice.setComponentAlignment(entry, Alignment.MIDDLE_LEFT);
 				authNOptionsById.put(globalId, set);
@@ -146,6 +151,11 @@ public class AuthNTile extends CustomComponent
 	{
 		void selectionChanged(VaadinAuthenticationUI selectedAuthnUI, 
 				AuthenticationOption selectedOption, String optionKey);
+	}
+
+	public String getFirstOptionId()
+	{
+		return firstOptionId;
 	}
 
 	public void filter(String filter)

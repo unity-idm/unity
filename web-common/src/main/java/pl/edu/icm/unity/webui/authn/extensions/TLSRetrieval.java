@@ -4,11 +4,14 @@
  */
 package pl.edu.icm.unity.webui.authn.extensions;
 
+import java.net.MalformedURLException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -18,17 +21,21 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.I18nStringJsonUtil;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.CertificateExchange;
 import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServletService;
@@ -47,8 +54,10 @@ import eu.unicore.util.configuration.ConfigurationException;
  */
 public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchange> implements VaadinAuthentication
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, TLSRetrieval.class);
 	private UnityMessageSource msg;
 	private I18nString name;
+	private String logoURL;
 	
 	public TLSRetrieval(UnityMessageSource msg)
 	{
@@ -61,6 +70,8 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	{
 		ObjectNode root = Constants.MAPPER.createObjectNode();
 		root.set("i18nName", I18nStringJsonUtil.toJson(name));
+		if (logoURL != null)
+			root.put("logoURL", logoURL);
 		try
 		{
 			return Constants.MAPPER.writeValueAsString(root);
@@ -80,6 +91,11 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 			if (name.isEmpty())
 				name = I18nDescribedObject.loadI18nStringFromBundle(
 						"WebTLSRetrieval.title", msg);
+			JsonNode logoNode = root.get("logoURL");
+			if (logoNode != null && !logoNode.isNull())
+				logoURL = logoNode.asText();
+			if (logoURL != null && !logoURL.isEmpty())
+				ImageUtils.getLogoResource(logoURL);
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("The configuration of the web-" +
@@ -161,9 +177,24 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		 * {@inheritDoc}
 		 */
 		@Override
-		public String getImageURL()
+		public Resource getImage()
 		{
-			return null;
+			if (logoURL == null)
+				return null;
+			if ("".equals(logoURL))
+				return Images.certificate.getResource();
+			else
+			{
+				try
+				{
+					return ImageUtils.getLogoResource(logoURL);
+				} catch (MalformedURLException e)
+				{
+					log.error("Can't load logo", e);
+					return null;
+				}
+			}
+
 		}
 
 		@SuppressWarnings("serial")

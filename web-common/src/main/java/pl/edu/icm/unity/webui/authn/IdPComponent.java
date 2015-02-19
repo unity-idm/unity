@@ -30,52 +30,19 @@ public class IdPComponent extends CustomComponent
 	
 	private Button providerB;
 
-	public IdPComponent(String id, String logoUrl, String name, ScaleMode scaleMode)
+	public IdPComponent(String id, Resource logo, String name, ScaleMode scaleMode)
 	{
 		providerB = new Button();
 		providerB.setImmediate(true);
-		providerB.setStyleName(Styles.vButtonLink.toString());
+		providerB.setStyleName(Styles.vButtonLinkV.toString());
 		providerB.addStyleName(Styles.verticalMargins6.toString());
 		providerB.addStyleName(Styles.horizontalMargins6.toString());
 		providerB.setId("IdpSelector." + id);
 		
-		Resource logo = null;
-		try
-		{
-			if (logoUrl != null)
-				logo = ImageUtils.getLogoResource(logoUrl);
-		} catch (MalformedURLException e)
-		{
-			log.warn("Can not load logo image of the IdP with key " + id, e);
-		}
-
-		if (logo == null && name == null)
-		{
-			throw new IllegalArgumentException("Neither logo nor name of IdP was given");
-		}
 		if (logo != null)
 		{
 			providerB.setIcon(logo);
-			switch (scaleMode)
-			{
-			case width100:
-				providerB.addStyleName(Styles.width100.toString());
-				providerB.setWidth(102, Unit.PIXELS);
-				break;
-			case height100:
-				providerB.addStyleName(Styles.height100.toString());
-				providerB.setHeight(102, Unit.PIXELS);
-				break;
-			case width50:
-				providerB.addStyleName(Styles.width50.toString());
-				providerB.setWidth(52, Unit.PIXELS);
-				break;
-			case height50:
-				providerB.addStyleName(Styles.height50.toString());
-				providerB.setHeight(52, Unit.PIXELS);
-				break;
-			case none:
-			}
+			ImageUtils.setScaleStyling(scaleMode, providerB);
 			providerB.setDescription(HtmlEscapers.htmlEscaper().escape(name));
 		} else
 		{
@@ -83,6 +50,25 @@ public class IdPComponent extends CustomComponent
 		}
 		providerB.setData(id);
 		setCompositionRoot(providerB);
+	}
+	
+	public static Resource getLogo(String logoUrl, String name)
+	{
+		Resource logo = null;
+		try
+		{
+			if (logoUrl != null)
+				logo = ImageUtils.getLogoResource(logoUrl);
+		} catch (MalformedURLException e)
+		{
+			log.warn("Can not load logo image of the IdP with url " + logoUrl, e);
+		}
+
+		if (logo == null && name == null)
+		{
+			throw new IllegalArgumentException("Neither logo nor name of IdP was given");
+		}
+		return logo;
 	}
 	
 	public void addClickListener(ClickListener listener)

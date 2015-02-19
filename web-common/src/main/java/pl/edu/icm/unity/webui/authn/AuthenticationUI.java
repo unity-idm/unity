@@ -120,30 +120,29 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	protected void appInit(final VaadinRequest request)
 	{
 		authenticationPanel = createSelectedAuthNPanel();
-		authenticationPanel.setVisible(false);
-		authenticationPanel.setAuthenticationListener(new AuthenticationListener()
-		{
-			@Override
-			public void authenticationStateChanged(boolean started)
-			{
-				selectorPanel.setEnabled(!started);
-			}
-		});
+		authenticationPanel.addStyleName(Styles.minHeight300.toString());
+
 		
 		List<AuthNTile> tiles = prepareTiles(authenticators);
-		
 		selectorPanel = new AuthNTiles(msg, tiles);
 		
 		String lastIdp = getLastIdpFromCookie();
+		String initialOption = null;
 		if (lastIdp != null)
 		{
 			AuthenticationOption lastAuthnOption = selectorPanel.getAuthenticationOptionById(lastIdp);
 			if (lastAuthnOption != null)
-			{
-				authenticationPanel.setAuthenticator(selectorPanel.getAuthenticatorById(lastIdp), 
-						lastAuthnOption, lastIdp);
-				authenticationPanel.setVisible(true);
-			}
+				initialOption = lastIdp;
+		}
+		if (initialOption == null)
+			initialOption = tiles.get(0).getFirstOptionId();
+
+		if (initialOption != null)
+		{
+			AuthenticationOption initAuthnOption = selectorPanel.getAuthenticationOptionById(initialOption);
+			authenticationPanel.setAuthenticator(selectorPanel.getAuthenticatorById(initialOption), 
+					initAuthnOption, initialOption);
+			authenticationPanel.setVisible(true);
 		}
 		
 		//language choice and registration
@@ -169,12 +168,23 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		main.addComponent(authenticationPanel);
 		main.setComponentAlignment(authenticationPanel, Alignment.TOP_CENTER);
 		
-		HorizontalLayout tilesWrapper = new HorizontalLayout();
-		tilesWrapper.addComponent(selectorPanel);
-		
-		main.addComponent(tilesWrapper);
-		main.setComponentAlignment(tilesWrapper, Alignment.TOP_CENTER);
-		main.setExpandRatio(tilesWrapper, 1.0f);
+		if (tiles.size() > 1 || tiles.get(0).size() > 1)
+		{
+			authenticationPanel.setAuthenticationListener(new AuthenticationListener()
+			{
+				@Override
+				public void authenticationStateChanged(boolean started)
+				{
+					selectorPanel.setEnabled(!started);
+				}
+			});
+			
+			HorizontalLayout tilesWrapper = new HorizontalLayout();
+			tilesWrapper.addComponent(selectorPanel);
+			main.addComponent(tilesWrapper);
+			main.setComponentAlignment(tilesWrapper, Alignment.TOP_CENTER);
+			main.setExpandRatio(tilesWrapper, 1.0f);
+		}
 		
 		VerticalLayout topLevel = new VerticalLayout();
 		headerUIComponent = new TopHeaderLight(msg.getMessage("AuthenticationUI.login", 

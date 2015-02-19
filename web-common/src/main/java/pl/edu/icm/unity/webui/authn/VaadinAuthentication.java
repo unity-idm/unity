@@ -13,6 +13,7 @@ import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
 
+import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
@@ -83,9 +84,9 @@ public interface VaadinAuthentication extends BindingAuthn
 		String getLabel();
 		
 		/**
-		 * @return image URL for the presentation in the user interface. Can be null.
+		 * @return image {@link Resource} for the presentation in the user interface. Can be null.
 		 */
-		String getImageURL();
+		Resource getImage();
 		
 		/**
 		 * Called after login was cancelled or finished, so the component can clear its state. 

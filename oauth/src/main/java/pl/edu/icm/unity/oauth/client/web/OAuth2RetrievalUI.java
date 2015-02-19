@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.client.web;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collection;
 
@@ -23,18 +24,21 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
-import pl.edu.icm.unity.webui.authn.IdPComponent;
+import pl.edu.icm.unity.webui.authn.IdPROComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
+import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -90,9 +94,10 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 		String logoUrl = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
 				msg.getLocale());
-		IdPComponent idpComponent = new IdPComponent(idpKey, logoUrl, name, scaleMode);
+		IdPROComponent idpComponent = new IdPROComponent(logoUrl, name, scaleMode);
 		
 		ret.addComponent(idpComponent);
+		ret.setComponentAlignment(idpComponent, Alignment.TOP_CENTER);
 		
 		messageLabel = new Label();
 		messageLabel.addStyleName(Styles.error.toString());
@@ -131,12 +136,23 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	}
 
 	@Override
-	public String getImageURL()
+	public Resource getImage()
 	{
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
 		CustomProviderProperties providerProps = clientProperties.getProvider(idpKey);
-		return providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
+		String url = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
 				msg.getLocale());
+		if (url == null)
+			return null;
+
+		try
+		{
+			return ImageUtils.getLogoResource(url);
+		} catch (MalformedURLException e)
+		{
+			log.error("Invalid logo URL " + url, e);
+			return null;
+		}
 	}
 
 	@Override
@@ -274,10 +290,10 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		} else
 		{
 			if (savedException != null)
-				log.warn("OAuth2 authorization code verification or processing failed", 
+				log.debug("OAuth2 authorization code verification or processing failed", 
 						savedException);
 			else
-				log.warn("OAuth2 authorization code verification or processing failed");
+				log.debug("OAuth2 authorization code verification or processing failed");
 			if (reason != null)
 				showErrorDetail("OAuth2Retrieval.authnFailedDetailInfo", reason);
 			showError(msg.getMessage("OAuth2Retrieval.authnFailedError"));

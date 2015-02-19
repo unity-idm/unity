@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collection;
 
@@ -21,18 +22,21 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
-import pl.edu.icm.unity.webui.authn.IdPComponent;
+import pl.edu.icm.unity.webui.authn.IdPROComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
+import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -86,7 +90,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		ScaleMode scaleMode = samlProperties.getEnumValue(SAMLSPProperties.ICON_SCALE, ScaleMode.class); 
 		String name = getName(samlProperties);
 		String logoUrl = samlProperties.getLocalizedValue(idpKey + SAMLSPProperties.IDP_LOGO, msg.getLocale());
-		IdPComponent idpComponent = new IdPComponent(idpKey, logoUrl, name, scaleMode);
+		IdPROComponent idpComponent = new IdPROComponent(logoUrl, name, scaleMode);
 
 		messageLabel = new Label();
 		messageLabel.addStyleName(Styles.error.toString());
@@ -94,15 +98,13 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		errorDetailLabel.addStyleName(Styles.italic.toString());
 		errorDetailLabel.setVisible(false);
 		ret.addComponents(idpComponent, messageLabel, errorDetailLabel);
+		ret.setComponentAlignment(idpComponent, Alignment.TOP_CENTER);
 		this.main = ret;
 	}
 
 	private String getName(SAMLSPProperties samlProperties)
 	{
-		String name = samlProperties.getLocalizedName(idpKey + SAMLSPProperties.IDP_NAME, msg.getLocale());
-		if (name == null)
-			return samlProperties.getValue(idpKey + SAMLSPProperties.IDP_ID);
-		return name;
+		return samlProperties.getLocalizedName(idpKey, msg.getLocale());
 	}
 	
 	private String installRequestHandler()
@@ -295,10 +297,20 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getImageURL()
+	public Resource getImage()
 	{
 		final SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
-		return samlProperties.getLocalizedValue(idpKey + SAMLSPProperties.IDP_LOGO, msg.getLocale());
+		String url = samlProperties.getLocalizedValue(idpKey + SAMLSPProperties.IDP_LOGO, msg.getLocale());
+		if (url == null)
+			return null;
+		try
+		{
+			return ImageUtils.getLogoResource(url);
+		} catch (MalformedURLException e)
+		{
+			log.error("Invalid logo URL " + url, e);
+			return null;
+		}
 	}
 
 	@Override

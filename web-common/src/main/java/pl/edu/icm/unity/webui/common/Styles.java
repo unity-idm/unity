@@ -13,7 +13,6 @@ import com.vaadin.ui.themes.ValoTheme;
  */
 public enum Styles
 {
-	authnSetSelect("authnSetSelect"),
 	bigTabs("u-bigTabs"),
 	bigTab("u-bigTab"),
 	bigTabSelected("u-bigTabSelected"),
@@ -28,6 +27,7 @@ public enum Styles
 	textLarge("u-textLarge"),
 	textXLarge("u-textXLarge"),
 	textHeading("u-textHeading"),
+	textSubHeading("u-textHeading2"),
 	toolbarButton("u-toolbarButton"),
 	verticalLine("u-verticalLine"),
 	horizontalLine("u-horizontalLine"),
@@ -38,12 +38,15 @@ public enum Styles
 	verticalMargins10("u-verticalMargins10"),
 	horizontalMargins6("u-horizontalMargins6"),
 	verticalMargins6("u-verticalMargins6"),
-	maxHeight300("u-maxHeight300"),
+	minHeight300("u-minHeight300"),
 	contentPadRight20("u-padRight20"), //pads the *contents* of the container 20px on right
 	width100("u-width100"),
 	width50("u-width50"),
 	height100("u-height100"),
 	height50("u-height50"),
+	maxHeight200("u-maxHeight200"),
+	maxHeight100("u-maxHeight100"),
+	maxHeight50("u-maxHeight50"),
 	greenBackground("u-green-bg"),
 	grayBackground("u-gray-bg"),
 	redBackground("u-red-bg"),
@@ -60,6 +63,7 @@ public enum Styles
 	vLabelH2(Reindeer.LABEL_H2),
 	vLabelH1(ValoTheme.LABEL_H1),
 	vButtonLink(Reindeer.BUTTON_LINK),
+	vButtonLinkV(ValoTheme.BUTTON_LINK),
 	vSplitPanelSmall(Reindeer.SPLITPANEL_SMALL),
 	vTextfieldSmall(Reindeer.TEXTFIELD_SMALL);
 	

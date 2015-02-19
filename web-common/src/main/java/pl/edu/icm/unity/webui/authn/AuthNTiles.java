@@ -10,12 +10,15 @@ import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -26,6 +29,7 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class AuthNTiles extends CustomComponent
 {
+	private static final int SHOW_SEARCH_FROM = 8;
 	private UnityMessageSource msg;
 	private List<AuthNTile> tiles;
 
@@ -41,6 +45,11 @@ public class AuthNTiles extends CustomComponent
 		VerticalLayout main = new VerticalLayout();
 		setCompositionRoot(main);
 		
+		Label title = new Label(msg.getMessage("AuthenticationUI.selectMethod"));
+		title.addStyleName(Styles.textSubHeading.toString());
+		main.addComponent(title);
+		main.setComponentAlignment(title, Alignment.MIDDLE_LEFT);
+		
 		HorizontalLayout tilesL = new HorizontalLayout();
 		tilesL.setSpacing(true);
 		
@@ -51,15 +60,21 @@ public class AuthNTiles extends CustomComponent
 			tilesL.addComponent(tile);
 		}
 		
-		if (optionsNum > 8)
+		if (optionsNum >= SHOW_SEARCH_FROM)
 		{
-			FormLayout wrapper = new FormLayout();
-			wrapper.setMargin(false);
-			TextField search = new TextField(msg.getMessage("IdpSelectorComponent.search"));
+			HorizontalLayout wrapper = new HorizontalLayout();
+			wrapper.setMargin(new MarginInfo(false, false, true, false));
+			wrapper.addStyleName(Styles.verticalPadding10.toString());
+			Label info = new Label(msg.getMessage("IdpSelectorComponent.search"));
+			TextField search = new TextField();
 			search.addStyleName(Styles.vTextfieldSmall.toString());
 			search.setImmediate(true);
-			wrapper.addComponent(search);
+			wrapper.addComponents(info, search);
+			wrapper.setComponentAlignment(info, Alignment.MIDDLE_RIGHT);
+			wrapper.setComponentAlignment(search, Alignment.MIDDLE_LEFT);
+			wrapper.setSpacing(true);
 			main.addComponent(wrapper);
+			main.setComponentAlignment(wrapper, Alignment.MIDDLE_RIGHT);
 			search.addTextChangeListener(new TextChangeListener()
 			{
 				@Override
@@ -69,6 +84,9 @@ public class AuthNTiles extends CustomComponent
 						tile.filter(event.getText());
 				}
 			});
+		} else
+		{
+			main.addComponent(HtmlTag.br());
 		}
 		
 		main.addComponent(tilesL);

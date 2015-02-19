@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.authn.extensions;
 
+import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -27,6 +28,8 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialReset1Dialog;
+import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
@@ -34,6 +37,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
@@ -59,6 +63,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 	private Logger log = Log.getLogger(Log.U_SERVER_WEB, PasswordRetrieval.class);
 	private UnityMessageSource msg;
 	private I18nString name;
+	private String logoURL;
 	private String registrationFormForUnknown;
 	private CredentialEditorRegistry credEditorReg;
 
@@ -75,6 +80,8 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		ObjectNode root = Constants.MAPPER.createObjectNode();
 		root.set("i18nName", I18nStringJsonUtil.toJson(name));
 		root.put("registrationFormForUnknown", registrationFormForUnknown);
+		if (logoURL != null)
+			root.put("logoURL", logoURL);			
 		try
 		{
 			return Constants.MAPPER.writeValueAsString(root);
@@ -97,10 +104,16 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			JsonNode formNode = root.get("registrationFormForUnknown");
 			if (formNode != null && !formNode.isNull())
 				registrationFormForUnknown = formNode.asText();
+			
+			JsonNode logoNode = root.get("logoURL");
+			if (logoNode != null && !logoNode.isNull())
+				logoURL = logoNode.asText();
+			if (logoURL != null && !logoURL.isEmpty())
+				ImageUtils.getLogoResource(logoURL);
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("The configuration of the web-" +
-					"based password retrieval can not be parsed", e);
+					"based password retrieval can not be parsed or is invalid", e);
 		}
 	}
 
@@ -317,9 +330,23 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		 * {@inheritDoc}
 		 */
 		@Override
-		public String getImageURL()
+		public Resource getImage()
 		{
-			return null;
+			if (logoURL == null)
+				return null;
+			if ("".equals(logoURL))
+				return Images.password.getResource();
+			else
+			{
+				try
+				{
+					return ImageUtils.getLogoResource(logoURL);
+				} catch (MalformedURLException e)
+				{
+					log.error("Can't load logo", e);
+					return null;
+				}
+			}
 		}
 
 		@Override

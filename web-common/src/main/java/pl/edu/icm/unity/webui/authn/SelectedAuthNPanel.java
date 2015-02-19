@@ -58,9 +58,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	private IdentitiesManagement idsMan;
 	private AuthenticationHandler currentAuthnResultCallback;
 	private Button authenticateButton;
-	private Button cancelOngoingAuthnButton;
 	private Button resetMfaButton;
-	private ProgressBar progress;
 	private CheckBox rememberMe;
 	private InsecureRegistrationFormLauncher formLauncher;
 	private ExecutorsService execService;
@@ -72,6 +70,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	private AuthenticationOption selectedAuthnOption;
 	private VaadinAuthenticationUI primaryAuthnUI;
 	private String authnId;
+	private HorizontalLayout authnProgressHL;
 	
 	
 	public SelectedAuthNPanel(UnityMessageSource msg, WebAuthenticationProcessor authnProcessor,
@@ -94,13 +93,14 @@ public class SelectedAuthNPanel extends CustomComponent
 		authenticatorsContainer = new VerticalLayout();		
 		authenticatorsContainer.setHeight(100, Unit.PERCENTAGE);
 		
-		HorizontalLayout authnProgressHL = new HorizontalLayout();
+		authnProgressHL = new HorizontalLayout();
 		authnProgressHL.setSpacing(true);
 		
-		progress = new ProgressBar();
+		ProgressBar progress = new ProgressBar();
 		progress.setIndeterminate(true);
 		progress.setCaption(msg.getMessage("AuthenticationUI.authnInProgress"));
-		cancelOngoingAuthnButton = new Button(msg.getMessage("cancel")); //cancellation of the ongoing (async) authentication
+		//cancellation of the ongoing (async) authentication
+		Button cancelOngoingAuthnButton = new Button(msg.getMessage("cancel")); 
 		cancelOngoingAuthnButton.addStyleName(Styles.vButtonSmall.toString());
 		cancelOngoingAuthnButton.addClickListener(new Button.ClickListener()
 		{
@@ -115,6 +115,7 @@ public class SelectedAuthNPanel extends CustomComponent
 		
 		authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
 		authenticateButton.setId("AuthenticationUI.authnenticateButton");
+		authenticateButton.setVisible(false);
 		
 		rememberMe = new CheckBox(msg.getMessage("AuthenticationUI.rememberMe", 
 				realm.getAllowForRememberMeDays()));
@@ -136,6 +137,7 @@ public class SelectedAuthNPanel extends CustomComponent
 		});
 		
 		main.addComponent(authenticatorsContainer);
+		main.setComponentAlignment(authenticatorsContainer, Alignment.MIDDLE_CENTER);
 		
 		HorizontalLayout buttons = new HorizontalLayout();
 		buttons.setSpacing(true);
@@ -177,13 +179,13 @@ public class SelectedAuthNPanel extends CustomComponent
 		authenticatorsContainer.removeAllComponents();
 		addRetrieval(primaryAuthnUI, primaryAuthnResultCallback);
 		resetMfaButton.setVisible(false);
+		authenticateButton.setVisible(true);
 	}
 	
 	
 	protected void showAuthnProgress(boolean inProgress)
 	{
-		progress.setVisible(inProgress);
-		cancelOngoingAuthnButton.setVisible(inProgress);
+		authnProgressHL.setVisible(inProgress);
 	}
 	
 	protected void handleError(String error)
