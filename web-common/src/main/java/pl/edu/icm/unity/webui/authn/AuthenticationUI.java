@@ -38,7 +38,6 @@ import pl.edu.icm.unity.webui.authn.SelectedAuthNPanel.AuthenticationListener;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent;
 import pl.edu.icm.unity.webui.registration.RegistrationFormChooserDialog;
@@ -78,7 +77,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	protected InsecureRegistrationFormsChooserComponent formsChooser;
 	protected InsecureRegistrationFormLauncher formLauncher;
 	protected ExecutorsService execService;
-	protected TopHeaderLight headerUIComponent;
+	protected AuthenticationTopHeader headerUIComponent;
 	protected SelectedAuthNPanel authenticationPanel;
 	protected AuthNTiles selectorPanel;
 	protected List<AuthenticationOption> authenticators;
@@ -148,8 +147,6 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		//language choice and registration
 		HorizontalLayout topBar = new HorizontalLayout();
 		topBar.setWidth(100, Unit.PERCENTAGE);
-		topBar.addComponent(localeChoice);
-		topBar.setComponentAlignment(localeChoice, Alignment.TOP_LEFT);
 		Button registrationButton = buildRegistrationButton();
 		if (registrationButton != null)
 		{
@@ -187,8 +184,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		}
 		
 		VerticalLayout topLevel = new VerticalLayout();
-		headerUIComponent = new TopHeaderLight(msg.getMessage("AuthenticationUI.login", 
-				description.getDisplayedName().getValue(msg)), msg);
+		headerUIComponent = new AuthenticationTopHeader(msg.getMessage("AuthenticationUI.login", 
+				description.getDisplayedName().getValue(msg)), localeChoice, msg);
 		topLevel.addComponents(headerUIComponent, main);
 		topLevel.setHeightUndefined();
 		topLevel.setWidth(100, Unit.PERCENTAGE);
