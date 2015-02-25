@@ -36,7 +36,7 @@ public class BigTabs extends VerticalLayout
 		Label spacer = new Label();
 		addComponent(spacer);
 		setExpandRatio(spacer, 1.0f);
-		setStyleName(Styles.bigTabs.toString());
+		addStyleName(Styles.bigTabs.toString());
 	}
 	
 	public int getTabsCount()

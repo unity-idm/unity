@@ -17,7 +17,7 @@ import com.vaadin.ui.VerticalLayout;
 
 /**
  * Component providing a modern tab pane: tabs are vertical on the left side. Each is a large
- * retangular area, with a picture and label. When a tab is selected it is highlighted.
+ * rectangular area, with a picture and label. When a tab is selected it is highlighted.
  * @author K. Benedyczak
  */
 public class BigTabPanel extends HorizontalLayout

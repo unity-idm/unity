@@ -21,6 +21,7 @@ import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor.ModificationListener;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandler;
 
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
@@ -177,8 +178,8 @@ public class PreferenceViewTab extends VerticalLayout
 		topBar.addComponents(saveInfo, toolbar);
 		
 		viewerPanel = new VerticalLayout();
-		viewerPanel.setMargin(true);
 		viewerPanel.setSizeFull();
+		viewerPanel.setMargin(new MarginInfo(false, false, true, true));
 		setCaption(preferenceHandler.getPreferenceLabel());
 		
 		try

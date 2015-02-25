@@ -58,6 +58,7 @@ public class TopHeader extends TopHeaderLight
 	{
 		Button logout = createLogoutButton();
 		loggedPanel.addComponent(logout);
+		loggedPanel.setComponentAlignment(logout, Alignment.MIDDLE_RIGHT);
 	}
 	
 	protected Button createLogoutButton()

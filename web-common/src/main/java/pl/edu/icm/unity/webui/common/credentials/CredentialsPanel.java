@@ -178,9 +178,7 @@ public class CredentialsPanel extends VerticalLayout
 		fl.setMargin(true);
 		credentialPanel.setContent(fl);
 
-		Label spacer = new Label();
-		spacer.setHeight(2, Unit.EM);
-		addComponents(statuses, spacer);
+		addComponents(statuses);
 		
 		if (credentials.size() > 1)
 		{

@@ -34,6 +34,8 @@ public enum Styles
 	header("u-header"),
 	selectedButton("u-selectedButton"),
 	verticalPadding10("u-verticalPadding10"),
+	horizontalPadding10("u-horizontalPadding10"),
+	verticalPadding16("u-verticalPadding16"),
 	horizontalMargins10("u-horizontalMargins10"),
 	verticalMargins10("u-verticalMargins10"),
 	horizontalMargins6("u-horizontalMargins6"),

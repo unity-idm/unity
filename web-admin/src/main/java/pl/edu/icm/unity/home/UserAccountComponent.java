@@ -98,7 +98,7 @@ public class UserAccountComponent extends VerticalLayout
 		Label spacer = new Label();
 		spacer.setHeight(20, Unit.PIXELS);
 		addComponent(spacer);
-		BigTabPanel tabPanel = new BigTabPanel(100, Unit.PIXELS, msg);
+		BigTabPanel tabPanel = new BigTabPanel(130, Unit.PIXELS, msg);
 		tabPanel.setSizeFull();
 		addComponent(tabPanel);
 		setExpandRatio(tabPanel, 1.0f);
