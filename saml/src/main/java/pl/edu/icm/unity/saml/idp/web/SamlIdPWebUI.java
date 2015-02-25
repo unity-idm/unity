@@ -77,7 +77,7 @@ import eu.unicore.samly2.exceptions.SAMLRequesterException;
  */
 @Component("SamlIdPWebUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@Theme("unityTheme")
+@Theme("unityThemeValo")
 public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebUI.class);

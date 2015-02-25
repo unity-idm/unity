@@ -33,7 +33,7 @@ import com.vaadin.ui.VerticalLayout;
  */
 @Component("UserHomeUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@Theme("unityTheme")
+@Theme("unityThemeValo")
 public class UserHomeUI extends UnityUIBase implements UnityWebUI
 {
 	private static final long serialVersionUID = 1L;

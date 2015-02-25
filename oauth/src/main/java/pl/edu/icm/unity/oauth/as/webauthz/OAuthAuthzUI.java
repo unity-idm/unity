@@ -70,7 +70,7 @@ import com.vaadin.ui.VerticalLayout;
  */
 @Component("OAuthAuthzUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@Theme("unityTheme")
+@Theme("unityThemeValo")
 public class OAuthAuthzUI extends UnityUIBase 
 {
 	private static Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthAuthzUI.class);
