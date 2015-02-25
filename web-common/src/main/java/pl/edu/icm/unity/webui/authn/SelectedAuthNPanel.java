@@ -27,6 +27,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCal
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.RegistrationRequestEditorDialog;
 
@@ -41,6 +42,7 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.VerticalLayout;
 
@@ -237,6 +239,9 @@ public class SelectedAuthNPanel extends CustomComponent
 		VaadinAuthenticationUI secondaryUI = secondaryAuthnUIs.iterator().next(); 
 		AuthenticationHandler secondaryAuthnResultCallback = 
 				createSecondaryAuthnResultCallback(secondaryUI, partialState);
+		Label mfaInfo = new Label(msg.getMessage("AuthenticationUI.mfaRequired"));
+		mfaInfo.addStyleName(Styles.error.toString());
+		authenticatorsContainer.addComponents(HtmlTag.br(), mfaInfo);
 		addRetrieval(secondaryUI, secondaryAuthnResultCallback);
 		try
 		{
