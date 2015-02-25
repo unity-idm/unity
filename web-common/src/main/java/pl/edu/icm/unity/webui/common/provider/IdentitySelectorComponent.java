@@ -22,7 +22,6 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -125,12 +124,10 @@ public class IdentitySelectorComponent extends CustomComponent
 			
 			header.addComponents(identityL);
 			
-			TextField identityTF = new TextField();
-			identityTF.setValue(getIdentityVisualValue(selectedIdentity));
-			identityTF.setReadOnly(true);
-			identityTF.setWidth(100, Unit.PERCENTAGE);
+			Label identityValue = new Label(getIdentityVisualValue(selectedIdentity));
+			identityValue.addStyleName(Styles.italic.toString());
 			
-			contents.addComponents(header, identityTF, expander, help);
+			contents.addComponents(header, identityValue, expander, help);
 		} else
 		{
 			Label identitiesL = new Label(msg.getMessage("IdentitySelectorComponent.identities")); 
