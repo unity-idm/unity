@@ -212,6 +212,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	 */
 	private void switchToPrimaryAuthentication()
 	{
+		primaryAuthnUI.getComponent().setEnabled(true);
 		setAuthenticator(primaryAuthnUI, selectedAuthnOption, authnId);
 	}
 
