@@ -266,6 +266,10 @@
 		}	
 	}
 	
+	.u-hidden {
+		visibility: hidden;
+	}
+	
 	.u-flag-bg-en {
 		@include flag-bg-template(url(../common/img/flag/en.png));
 	}

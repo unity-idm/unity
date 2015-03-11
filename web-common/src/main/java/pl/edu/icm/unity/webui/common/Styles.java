@@ -56,6 +56,7 @@ public enum Styles
 	smallSpacing("u-smallSpacing"),
 	negativeMargin5("u-negativeMargin5"),
 	captionBold("bold"),
+	hidden("u-hidden"),
 	
 	//reindeer
 	vPanelLight(Reindeer.PANEL_LIGHT),

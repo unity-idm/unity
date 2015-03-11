@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Map;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.server.Resource;
@@ -84,6 +86,12 @@ public class AuthNTile extends CustomComponent
 		tilePanel.setCaption(caption);
 	}
 	
+	/**
+	 * Shows all authN UIs of all enabled authN options. The options not matching the given filter are 
+	 * added too, but at the end and are hidden. This trick guarantees that the containing box 
+	 * stays with a fixed size, while the user only sees the matching options at the top.
+	 * @param filter
+	 */
 	private void reloadContents(String filter)
 	{
 		providersChoice.removeAllComponents();
@@ -91,6 +99,7 @@ public class AuthNTile extends CustomComponent
 		authenticatorById = new HashMap<>();
 		firstOptionId = null;
 		
+		List<IdPComponent> filteredOut = new ArrayList<>();
 		for (final AuthenticationOption set: authenticators)
 		{
 			VaadinAuthentication firstAuthenticator = (VaadinAuthentication) set.getPrimaryAuthenticator();
@@ -100,30 +109,38 @@ public class AuthNTile extends CustomComponent
 			for (final VaadinAuthenticationUI vaadinAuthenticationUI : uiInstances)
 			{
 				String name = vaadinAuthenticationUI.getLabel();
-				if (filter != null && !name.toLowerCase().contains(filter))
-					continue;
 				Resource logo = vaadinAuthenticationUI.getImage();
 				String id = vaadinAuthenticationUI.getId();
 				final String globalId = set.getId() + "_" + id;
 				if (firstOptionId == null)
 					firstOptionId = globalId;
 				IdPComponent entry = new IdPComponent(globalId, logo, name, scaleMode);
-				providersChoice.addComponent(entry);
-				providersChoice.setComponentAlignment(entry, Alignment.MIDDLE_LEFT);
 				authNOptionsById.put(globalId, set);
 				authenticatorById.put(globalId, vaadinAuthenticationUI);
-
-				entry.addClickListener(new ClickListener()
+				if (filter != null && !name.toLowerCase().contains(filter))
 				{
-					@Override
-					public void buttonClick(ClickEvent event)
+					entry.addStyleName(Styles.hidden.toString());
+					filteredOut.add(entry);
+				} else
+				{
+					providersChoice.addComponent(entry);
+					providersChoice.setComponentAlignment(entry, Alignment.MIDDLE_LEFT);
+					entry.addClickListener(new ClickListener()
 					{
-						listener.selectionChanged(vaadinAuthenticationUI, set, globalId);
-					}
-				});
+						@Override
+						public void buttonClick(ClickEvent event)
+						{
+							listener.selectionChanged(vaadinAuthenticationUI, set, globalId);
+						}
+					});
+				}
 			}
 		}
 		
+		for (IdPComponent hidden: filteredOut)
+		{
+			providersChoice.addComponent(hidden);			
+		}
 		setVisible(size() != 0);
 	}
 	
