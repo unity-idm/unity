@@ -67,7 +67,9 @@ public enum Styles
 	vButtonLink(Reindeer.BUTTON_LINK),
 	vButtonLinkV(ValoTheme.BUTTON_LINK),
 	vSplitPanelSmall(Reindeer.SPLITPANEL_SMALL),
-	vTextfieldSmall(Reindeer.TEXTFIELD_SMALL);
+	vTextfieldSmall(Reindeer.TEXTFIELD_SMALL),
+	vTextfieldSmallValo(ValoTheme.TEXTFIELD_SMALL),
+	vComboSmall(ValoTheme.COMBOBOX_SMALL);
 	
 	
 	private String value;

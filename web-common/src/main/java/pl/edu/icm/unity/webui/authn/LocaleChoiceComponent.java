@@ -17,10 +17,13 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.server.Page;
+import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
@@ -53,17 +56,21 @@ public class LocaleChoiceComponent extends FormLayout
 			chooser = new ComboBox(msg.getMessage("LanguageChoiceComponent.language"));
 			String selected = null;
 			Locale selectedLocale = InvocationContext.getCurrent().getLocale();
-			for (String locale: selectableLocales.keySet())
+			for (Map.Entry<String, Locale> locale: selectableLocales.entrySet())
 			{
-				chooser.addItem(locale);
-				if (selectableLocales.get(locale).equals(selectedLocale))
-					selected = locale;
+				chooser.addItem(locale.getKey());
+				Resource flag = Images.getFlagForLocale(locale.getValue().toString());
+				if (flag != null)
+					chooser.setItemIcon(locale.getKey(), flag);
+				if (locale.getValue().equals(selectedLocale))
+					selected = locale.getKey();
 			}
 			if (selected != null)
 				chooser.select(selected);
 			chooser.setTextInputAllowed(false);
 			chooser.setNullSelectionAllowed(false);
 			chooser.setImmediate(true);
+			chooser.addStyleName(Styles.vComboSmall.toString());
 			chooser.addValueChangeListener(new Property.ValueChangeListener()
 			{
 				@Override
