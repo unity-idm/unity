@@ -212,7 +212,6 @@ public class OAuthAuthzUI extends UnityUIBase
 					OAuth2Error.SERVER_ERROR, ctx.getRequest().getResponseType(), 
 					ctx.getRequest().getState());
 			oauthResponseHandler.returnOauthResponse(oauthResponse, true);
-			return;
 		}
 		
 		rememberCB = new CheckBox(msg.getMessage("OAuthAuthzUI.rememberSettings"));
@@ -297,7 +296,6 @@ public class OAuthAuthzUI extends UnityUIBase
 					OAuth2Error.SERVER_ERROR, ctx.getRequest().getResponseType(), 
 					ctx.getRequest().getState());
 			oauthResponseHandler.returnOauthResponse(oauthResponse, true);
-			return;
 		}
 	}
 	

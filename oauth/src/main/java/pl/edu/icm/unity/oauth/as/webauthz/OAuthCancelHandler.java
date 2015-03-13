@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
@@ -25,6 +26,13 @@ public class OAuthCancelHandler implements CancelHandler
 		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
 				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getResponseType(), 
 				ctx.getRequest().getState());
-		responseH.returnOauthResponse(oauthResponse, false);
+		try
+		{
+			responseH.returnOauthResponse(oauthResponse, false);
+		} catch (EopException e)
+		{
+			//OK - nothing to do.
+			return;
+		}
 	}
 }
