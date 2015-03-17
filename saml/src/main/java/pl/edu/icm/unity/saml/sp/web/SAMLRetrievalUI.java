@@ -58,6 +58,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private String redirectParam;
 	
 	private String idpKey;
+	private SAMLSPProperties samlProperties;
 	private Label messageLabel;
 	private HtmlSimplifiedLabel errorDetailLabel;
 	private SamlContextManagement samlContextManagement;
@@ -65,12 +66,14 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private Component main;
 	
 	public SAMLRetrievalUI(UnityMessageSource msg, SAMLExchange credentialExchange, 
-			SamlContextManagement samlContextManagement, String idpKey)
+			SamlContextManagement samlContextManagement, String idpKey, 
+			SAMLSPProperties configurationSnapshot)
 	{
 		this.msg = msg;
 		this.credentialExchange = credentialExchange;
 		this.samlContextManagement = samlContextManagement;
 		this.idpKey = idpKey;
+		this.samlProperties = configurationSnapshot;
 		initUI();
 	}
 
@@ -84,11 +87,10 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	{
 		redirectParam = installRequestHandler();
 		
-		final SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
 		VerticalLayout ret = new VerticalLayout();
 
 		ScaleMode scaleMode = samlProperties.getEnumValue(SAMLSPProperties.ICON_SCALE, ScaleMode.class); 
-		String name = getName(samlProperties);
+		String name = getName();
 		String logoUrl = samlProperties.getLocalizedValue(idpKey + SAMLSPProperties.IDP_LOGO, msg.getLocale());
 		IdPROComponent idpComponent = new IdPROComponent(logoUrl, name, scaleMode);
 
@@ -102,7 +104,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		this.main = ret;
 	}
 
-	private String getName(SAMLSPProperties samlProperties)
+	private String getName()
 	{
 		return samlProperties.getLocalizedName(idpKey, msg.getLocale());
 	}
@@ -290,7 +292,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public String getLabel()
 	{	
-		return getName(credentialExchange.getSamlValidatorSettings());
+		return getName();
 	}
 
 	/**
@@ -299,7 +301,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public Resource getImage()
 	{
-		final SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
 		String url = samlProperties.getLocalizedValue(idpKey + SAMLSPProperties.IDP_LOGO, msg.getLocale());
 		if (url == null)
 			return null;

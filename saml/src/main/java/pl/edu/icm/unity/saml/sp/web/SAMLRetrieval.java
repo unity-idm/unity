@@ -66,7 +66,7 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange> imp
 				if (binding == Binding.HTTP_POST || binding == Binding.HTTP_REDIRECT)
 				{
 					ret.add(new SAMLRetrievalUI(msg, credentialExchange, 
-							samlContextManagement, key));
+							samlContextManagement, key, samlProperties));
 				}
 			}
 		return ret;
