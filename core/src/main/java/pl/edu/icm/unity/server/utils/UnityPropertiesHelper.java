@@ -30,6 +30,15 @@ public class UnityPropertiesHelper extends PropertiesHelper
 	}
 	
 	/**
+	 * For cloning
+	 * @param cloned
+	 */
+	protected UnityPropertiesHelper(UnityPropertiesHelper cloned)
+	{
+		super(cloned);
+	}
+	
+	/**
 	 * @param msg
 	 * @param baseKey Property name (without the prefix).
 	 * @return localized string of the given property. Default value is set to the regular value of the property.

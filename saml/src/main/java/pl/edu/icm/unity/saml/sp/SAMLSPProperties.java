@@ -38,8 +38,6 @@ public class SAMLSPProperties extends SamlProperties
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, SAMLSPProperties.class);
 	
-
-	
 	public enum MetadataSignatureValidation {require, ignore};
 	
 	@DocumentationReferencePrefix
@@ -210,6 +208,18 @@ public class SAMLSPProperties extends SamlProperties
 	public SAMLSPProperties(Properties properties, PKIManagement pkiMan) throws ConfigurationException
 	{
 		this(properties, META, pkiMan);
+	}
+
+	/**
+	 * For cloning only.
+	 * @param pkiMan
+	 * @throws ConfigurationException
+	 */
+	protected SAMLSPProperties(SAMLSPProperties cloned) throws ConfigurationException
+	{
+		super(cloned);
+		this.pkiManagement = cloned.pkiManagement;
+		this.sourceProperties = new Properties(cloned.sourceProperties);
 	}
 	
 	protected SAMLSPProperties(Properties properties, Map<String, PropertyMD> meta, 
@@ -424,9 +434,10 @@ public class SAMLSPProperties extends SamlProperties
 		return isSet(key) ? getValue(key) : getValue(idpKey + IDP_ID);
 	}
 	
+	@Override
 	public SAMLSPProperties clone()
 	{
-		return new SAMLSPProperties(getProperties(), pkiManagement);
+		return new SAMLSPProperties(this);
 	}
 	
 	

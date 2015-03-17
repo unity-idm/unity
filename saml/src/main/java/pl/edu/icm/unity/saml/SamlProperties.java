@@ -117,6 +117,11 @@ public abstract class SamlProperties extends UnityPropertiesHelper
 		super(prefix, properties, propertiesMD, log);
 	}
 
+	protected SamlProperties(SamlProperties cloned)
+	{
+		super(cloned);
+	}
+
 	public synchronized Properties getProperties()
 	{
 		Properties copy = new Properties();
@@ -124,6 +129,7 @@ public abstract class SamlProperties extends UnityPropertiesHelper
 		return copy;
 	}
 	
+	@Override
 	public abstract SamlProperties clone();	
 	
 	public abstract Properties getSourceProperties();
