@@ -30,6 +30,11 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	public static final String PREFIX = "unity.endpoint.web.";
 	
 	public static final String PRODUCTION_MODE = "productionMode";
+	public static final String WEB_CONTENT_PATH = "webContentDirectory";
+	public static final String DEF_THEME = "defaultTheme";
+	public static final String THEME = "mainTheme";
+	public static final String AUTHN_THEME = "authnTheme";
+	
 	public static final String ENABLE_REGISTRATION = "enableRegistration";
 	public static final String ENABLED_REGISTRATION_FORMS = "enabledRegistrationForms.";
 	public static final String AUTHN_TILES_PFX = "authenticationTiles.";
@@ -40,6 +45,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	public static final String DEFAULT_PER_LINE = "authnsPerLine";
 	public static final String DEFAULT_AUTHN_ICON_SIZE = "authnIconSize";
 	
+	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
 	
@@ -47,6 +53,18 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	{
 		META.put(PRODUCTION_MODE, new PropertyMD("true").setHidden().
 				setDescription("Controls wether Vaadin should work in production mode or in debug mode (false)."));
+		META.put(WEB_CONTENT_PATH, new PropertyMD().setPath().setDescription(
+				"Defines a folder from which the endpoint will serve static content, "
+				+ "configured locally. If undefined the default value from the server's main configration is used."));
+		META.put(DEF_THEME, new PropertyMD().setHidden().setDescription(
+				"Placeholder, filled automatically with the copy of the main server's "
+				+ "configuration setting, so the endpoints need not to access the main config for this single default value."));
+		META.put(THEME, new PropertyMD().setDescription(
+				"Overrides the default theme name as used for rendering the endpoint contents."));
+		META.put(AUTHN_THEME, new PropertyMD().setDescription(
+				"Overrides the default theme name as used for rendering the endpoint's "
+				+ "authentication screen contents. If undefined the same setting as for the "
+				+ "main endpoint UI is used."));
 		META.put(ENABLE_REGISTRATION, new PropertyMD("false").
 				setDescription("Controls if registration option should be allowed for an endpoint."));
 		META.put(ENABLED_REGISTRATION_FORMS, new PropertyMD().setList(false).

@@ -61,6 +61,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String THREAD_POOL_SIZE = "threadPoolSize";
 	public static final String RECREATE_ENDPOINTS_ON_STARTUP = "recreateEndpointsOnStartup";
 	public static final String LOGOUT_MODE = "logoutMode";
+	public static final String DEFAULT_WEB_CONTENT_PATH = "defaultWebContentDirectory";
+	public static final String THEME = "defaultTheme";
 	
 	public static final String ENDPOINTS = "endpoints.";
 	public static final String ENDPOINT_DESCRIPTION = "endpointDescription";
@@ -157,6 +159,12 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				"Defines the interval of background update tasks in seconds. Those tasks are used to update runtime state of the server (for instance the deployed endpoints) with the data which is stored in database."));
 		defaults.put(WORKSPACE_DIRECTORY, new PropertyMD("data/workspace").setPath().setCategory(mainCat).setDescription(
 				"Defines a folder where the server will write its internal files."));
+		defaults.put(DEFAULT_WEB_CONTENT_PATH, new PropertyMD("webContent").setPath().setCategory(mainCat).setDescription(
+				"Defines a default folder from which the web endpoints will serve static content, configured locally. "
+				+ "Also used for the shared endpoint under /unitygw path."));
+		defaults.put(THEME, new PropertyMD().setDescription(
+				"Overrides the default theme name as used for rendering the web endpoints. "
+				+ "This setting can be overriden per-endpoint. Applicable only for the web endpoints."));
 		defaults.put(INITIAL_ADMIN_USER, new PropertyMD().setCategory(mainCat).
 				setDescription("Username of the administrator to be installed to the database upon startup. Remove the property if no admin should be added."));
 		defaults.put(INITIAL_ADMIN_PASSWORD, new PropertyMD("admin").setCategory(mainCat).

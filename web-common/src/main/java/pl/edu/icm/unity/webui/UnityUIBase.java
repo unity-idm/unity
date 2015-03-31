@@ -4,14 +4,18 @@
  */
 package pl.edu.icm.unity.webui;
 
-import java.util.Stack;
+import java.util.List;
+import java.util.Properties;
 import java.util.Queue;
+import java.util.Stack;
 
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 
@@ -40,6 +44,8 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	protected UnityMessageSource msg;
 	protected CancelHandler cancelHandler;
 	protected SandboxAuthnRouter sandboxRouter;
+	protected VaadinEndpointProperties config;
+	protected EndpointDescription endpointDescription;
 	
 	private Stack<Integer> pollings = new Stack<>();
 	
@@ -49,9 +55,25 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 		this.msg = msg;
 	}
 
+	/**
+	 * Default implementation saves the endpoint's description and initializes {@link VaadinEndpointProperties}
+	 * in {@link #config}. Typically it is a good choice to call this super method when overriding.
+	 */
+	@Override
+	public void configure(EndpointDescription description,
+			List<AuthenticationOption> authenticators,
+			EndpointRegistrationConfiguration registrationConfiguration,
+			Properties genericEndpointConfiguration)
+	{
+		this.endpointDescription = description;
+		config = new VaadinEndpointProperties(genericEndpointConfiguration);
+	}
+
+	
 	@Override
 	protected final void init(VaadinRequest request)
 	{
+		configureTheme(config, getThemeConfigKey());
 		setErrorHandler(new ErrorHandlerImpl());
 		appInit(request);
 	}
@@ -105,6 +127,14 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	 * @param request
 	 */
 	protected abstract void appInit(VaadinRequest request);
+
+	/**
+	 * @return the configuration key under which UI's theme can be explicitly set.  
+	 */
+	protected String getThemeConfigKey()
+	{
+		return VaadinEndpointProperties.THEME;
+	}
 	
 	private class ErrorHandlerImpl extends DefaultErrorHandler 
 	{
@@ -117,5 +147,19 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 			ErrorPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("UnityUIBase.unhandledError"));
 		} 
+	}
+	
+	/**
+	 * Sets theme to the one defined with the given key. If not set then the default theme from the configuration
+	 * is set. If this is also undefined nothing is changed.
+	 * @param properties
+	 * @param mainKey
+	 */
+	protected void configureTheme(VaadinEndpointProperties properties, String mainKey)
+	{
+		if (properties.isSet(mainKey))
+			setTheme(properties.getValue(mainKey));
+		else if (properties.isSet(VaadinEndpointProperties.DEF_THEME))
+			setTheme(properties.getValue(VaadinEndpointProperties.DEF_THEME));
 	}
 }

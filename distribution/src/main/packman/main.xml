@@ -4,9 +4,10 @@
 	<description>Builds binary Linux bundles</description>
 	<property name="main.dir" value="${basedir}" />
 	<property name="libs" value="${main.dir}/target/libs" />
+	<property name="webContents" value="${main.dir}/target/webContents" />
 	<property name="packman.libs" value="${main.dir}/src/main/packman/tools" />
 	<!-- These properties can be only overwritten from command line -->
-	<property name="maven.version" value="3.0.4" />
+	<property name="maven.version" value="3.1.1" />
 	<property name="maven.repo.local" value="${user.home}/.m2/repository" />
 	<property name="maven.repo.url" value="http://unicore-dev.zam.kfa-juelich.de/maven" />
 	<property name="package.config.dir" value="src/main/package" />
@@ -40,7 +41,7 @@
 		<echo message="# ||        ||    ||  ||    || ||  ||  ||      ||  ||    ||  ||   |||| #" />
 		<echo message="# ||        ||    ||    ||||   ||   || ||      ||  ||    ||  ||     || #" />
 		<echo message="#                                                                      #" />
-		<echo message="# Packaging Manager v.1.2.0-unity                                      #" />
+		<echo message="# Packaging Manager v.1.2.1-unity                                      #" />
 		<echo message="########################################################################" />
 		<echo message=" " />
 	</target>
@@ -77,12 +78,12 @@
 	<!-- DO NOT CHANGE DEPENDS ORDER IN THIS TARGET-->
 	<target name="all-rpm" depends="rpm,rpm.tar.gz,src.tar.gz,src.rpm" />
 	<target name="all-deb" depends="deb,deb.tar.gz,src.deb,src.tar.gz" />
-	<target name="rpm" depends="set-distribution-rpm,clean,init,set-distribution-dir,prepare-distribution-structure,copy-jars,copyset,rpm-bin-build" />
-	<target name="prep.src.rpm" depends="set-distribution-rpm,clean,init,set-distribution-dir,prepare-distribution-structure,copy-jars,copyset" />
+	<target name="rpm" depends="set-distribution-rpm,clean,init,set-distribution-dir,prepare-distribution-structure,copy-jars,copy-webContents,copyset,rpm-bin-build" />
+	<target name="prep.src.rpm" depends="set-distribution-rpm,clean,init,set-distribution-dir,prepare-distribution-structure,copy-jars,copy-webContents,copyset" />
 	<target name="src.rpm" depends="set-distribution-rpm,clean,init,set-distribution-dir,set-spec-additions,rpm-src-build" />
-	<target name="deb" depends="set-distribution-deb,clean,init,set-distribution-bin-builddir-deb,set-distribution-dir,set-rules-additions,prepare-bin-deb-structure,copy-jars,copyset,deb-bin-build" />
+	<target name="deb" depends="set-distribution-deb,clean,init,set-distribution-bin-builddir-deb,set-distribution-dir,set-rules-additions,prepare-bin-deb-structure,copy-jars,copy-webContents,copyset,deb-bin-build" />
 	<target name="src.deb" depends="set-distribution-deb,clean,init,set-distribution-src-builddir-deb,set-distribution-dir,set-src-rules-additions,prepare-src-deb-structure,deb-src-build" />
-	<target name="prep.src.deb" depends="set-distribution-deb,clean,init,set-distribution-src-builddir-deb,set-distribution-dir,prepare-distribution-structure,copy-jars,copyset" />
+	<target name="prep.src.deb" depends="set-distribution-deb,clean,init,set-distribution-src-builddir-deb,set-distribution-dir,prepare-distribution-structure,copy-jars,copy-webContents,copyset" />
 
 	<!-- common target -->
 
@@ -195,6 +196,7 @@
 		<property name="dependency.type" value="jar" />
 		<property name="package.prefix" value="" />
 		<property name="libraries.base" value="/usr/share/" />
+		<property name="var.base" value="/var/lib/" />
 		<property name="src.tar.gz.main.dir" value="" />
 		<property name="package.suffix" value="" />
 		<property name="exclude.dependency" value="" />
@@ -233,7 +235,9 @@
 		<property name="src.distribution.selected" value="${main.dir}/${package.config.dir}/distributions/${distribution}/src" />
 		<property name="distribution.base" value="${main.dir}/target/${distribution}${distribution.builddir}" />
 		<property name="libs.target" value="${libraries.base}${component.package.name}/lib" />
+		<property name="webContents.target" value="${var.base}${component.package.name}" />
 		<property name="distribution.libs" value="${distribution.base}${libs.target}" />
+		<property name="distribution.webContents" value="${distribution.base}${webContents.target}" />
 	</target>
 
 	<target name="prepare-distribution-structure">
@@ -304,6 +308,15 @@
 		</copy>
 	</target>
 
+	<target name="copy-webContents" depends="update-webContents" unless="skip.copy.jars">
+		<echo message="-- copy web resources to rpm lib dir" />
+		<copy todir="${distribution.webContents}">
+			<fileset dir="${webContents}">
+				<include name="**" />
+			</fileset>
+		</copy>
+	</target>
+
 	<target name="copy-main-artifact" depends="set-default-artifact-name" unless="pomPackaging">
 		<echo message="-- copy main artifact" />
 		<copy file="${main.dir}/target/${maven.component.finalName}" todir="${libs}" />
@@ -334,6 +347,20 @@
 		</mvn:mvn>
 	</target>
 
+	<target name="update-webContents" unless="skip.copy.jars">
+		<!-- not as dependencies, as we want to skip them if skip.copy.jars is set -->
+		<mkdir dir="${webContents}" />
+		<echo message="Updating web contents, download from maven repo" />
+		<mvn:remoteRepository id="vsgc-public" url="${maven.repo.url}" />
+		<mvn:localRepository id="local.repo" path="${maven.repo.local}" />
+		<mvn:mvn pom="${main.dir}/pom.xml" fork="true" mavenVersion="${maven.version}">
+			<localRepository refid="local.repo" />
+			<arg value="dependency:unpack" />
+			<arg value="-Dartifact=pl.edu.icm.unity:unity-server-web-common:${mypom.version}:zip:webResources" />
+			<arg value="-DoutputDirectory=${webContents}" />
+		</mvn:mvn>
+	</target>
+
 	<target name="index-jars" if="indexJars" unless="skip.copy.jars">
 		<echo message="Index jar files" />
 		<!--	<apply executable="jar" output="${main.dir}/target/index-jars.out" verbose="true" append="true"> -->
@@ -348,12 +375,12 @@
 	</target>
 
 	<!-- tar target -->
-	<target name="rpm.tar.gz" depends="init,set-distribution-rpm,set-distribution-dir,prepare-distribution-structure,copyset,copy-jars">
+	<target name="rpm.tar.gz" depends="init,set-distribution-rpm,set-distribution-dir,prepare-distribution-structure,copyset,copy-jars,copy-webContents">
 		<echo message="Create binary tar.gz" />
 		<tar destfile="${main.dir}/target/${package.prefix}${component.package.name}${package.suffix}-${package.version}-${package.release}${os.disttag}.${os.architecture}.tar.gz" compression="gzip" basedir="${distribution.base}" />
 	</target>
 
-	<target name="deb.tar.gz" depends="init,set-distribution-deb,set-distribution-bin-builddir-deb,set-distribution-dir,prepare-bin-deb-structure,copyset,copy-jars">
+	<target name="deb.tar.gz" depends="init,set-distribution-deb,set-distribution-bin-builddir-deb,set-distribution-dir,prepare-bin-deb-structure,copyset,copy-jars,copy-webContents">
 		<echo message="Create binary tar.gz" />
 		<tar destfile="${main.dir}/target/${package.prefix}${component.package.name}${package.suffix}_${package.version}-${package.release}${os.disttag}_${os.architecture}.tar.gz" compression="gzip" basedir="${distribution.base}" />
 	</target>

@@ -1,0 +1,10 @@
+//This is the root theme file. The name 'styles.scss' must be always preserved
+// If you want to create a new theme copy this file and change the imported file, theme name
+// and include: basically 'customTheme' -> 'yourName'
+
+@import "customTheme.scss";
+
+.customTheme {
+
+ 	@include customTheme;
+}

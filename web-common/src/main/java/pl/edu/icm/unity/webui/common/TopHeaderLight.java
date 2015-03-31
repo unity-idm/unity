@@ -28,6 +28,7 @@ public class TopHeaderLight extends HorizontalLayout
 		
 		titleL = new Label(title);
 		titleL.addStyleName(Styles.textHeading.toString());
+		titleL.setId("uid-headerCaption");
 		
 		addComponent(titleL);
 		setComponentAlignment(titleL, Alignment.MIDDLE_LEFT);

@@ -62,6 +62,8 @@ provides a self-contained Unity server.
 %attr(750, unity-idm, unity-idm) %dir  "/var/lib/unity-idm"
 %attr(750, unity-idm, unity-idm) %dir  "/var/lib/unity-idm/data"
 %attr(750, unity-idm, unity-idm) %dir  "/var/lib/unity-idm/workspace"
+%attr(750, unity-idm, unity-idm) %dir  "/var/lib/unity-idm/webContents"
+%attr(644, unity-idm, unity-idm) "/var/lib/unity-idm/webContents/*"
 
 #
 # jar files

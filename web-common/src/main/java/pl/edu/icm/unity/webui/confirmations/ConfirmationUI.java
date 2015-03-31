@@ -4,9 +4,6 @@
  */
 package pl.edu.icm.unity.webui.confirmations;
 
-import java.util.List;
-import java.util.Properties;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -17,11 +14,8 @@ import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.common.Images;
@@ -47,7 +41,7 @@ import com.vaadin.ui.VerticalLayout;
  */
 @Component("ConfirmationUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@Theme("unityTheme")
+@Theme("unityThemeValo")
 public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ConfirmationUI.class);
@@ -60,14 +54,6 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 	{
 		super(msg);
 		this.confirmationMan = confirmationMan;
-	}
-
-	@Override
-	public void configure(EndpointDescription description,
-			List<AuthenticationOption> authenticators,
-			EndpointRegistrationConfiguration registrationConfiguration,
-			Properties genericEndpointConfiguration)
-	{
 	}
 
 	public void initUI(ConfirmationStatus status)

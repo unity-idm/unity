@@ -1,0 +1,18 @@
+<assembly>
+	<id>webResources</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	
+	<includeBaseDirectory>false</includeBaseDirectory>
+	
+	<fileSets>
+		<fileSet>
+			<directory>src/main/resources</directory>
+			<includes>
+				<include>VAADIN/**</include>
+			</includes>
+			<outputDirectory>/webContents/</outputDirectory>
+		</fileSet>
+	</fileSets>
+</assembly>

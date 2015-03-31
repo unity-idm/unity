@@ -49,7 +49,6 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 	private WebAuthenticationProcessor authnProcessor;
 	
 	private MainTabPanel tabPanel;
-	private EndpointDescription endpointDescription;
 	private HomeEndpointProperties config;
 	
 	@Autowired
@@ -72,7 +71,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
 	{
-		this.endpointDescription = description;
+		super.configure(description, authenticators, regCfg, endpointProperties);
 		this.config = new HomeEndpointProperties(endpointProperties);
 	}
 	

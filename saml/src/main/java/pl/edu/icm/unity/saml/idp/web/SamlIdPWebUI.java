@@ -7,7 +7,6 @@ package pl.edu.icm.unity.saml.idp.web;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -31,7 +30,6 @@ import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
@@ -40,8 +38,6 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
@@ -82,7 +78,6 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebUI.class);
 	protected UnityMessageSource msg;
-	protected EndpointDescription endpointDescription;
 	protected IdPEngine idpEngine;
 	protected FreemarkerHandler freemarkerHandler;
 	protected AttributeHandlerRegistry handlersRegistry;
@@ -114,14 +109,6 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		this.sessionMan = sessionMan;
 	}
 
-	@Override
-	public void configure(EndpointDescription description,
-			List<AuthenticationOption> authenticators,
-			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
-	{
-		this.endpointDescription = description;
-	}
-	
 	protected TranslationResult getUserInfo(SAMLAuthnContext samlCtx, AuthnResponseProcessor processor) 
 			throws EngineException
 	{

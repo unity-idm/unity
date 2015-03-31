@@ -1,0 +1,37 @@
+//We base our theme on Vaadin Valo theme
+@import "../valo/valo.scss";
+
+//And reuse the defualt Unity's theme definitions
+@import "../common/common.scss";
+
+//here goes actual contents of our theme, in the main mixin
+@mixin customTheme {
+	
+	//we include Valo
+	@include valo;
+	
+	//let's override one of the variables used by Unity's default theme (imported below)
+	$headerBackgroundImage: 	none;
+	
+	//include the default Unity theme
+	@include unityCommon;
+
+	//the actual changes follow
+	
+	//in the header caption we hide the default text and instead show a Unity logo
+	#uid-headerCaption {
+		text-indent: 100%;
+  		white-space: nowrap;
+  		overflow: hidden;
+  		background-image: url("../common/img/logo.png");
+  		background-repeat: no-repeat;
+  		height: 130px;
+	}
+	
+	//also the height of the top bar is enforced to be slightly larger
+	.u-header {
+		height: 130px !important;
+	}
+	
+	
+}

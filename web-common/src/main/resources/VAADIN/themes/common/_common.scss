@@ -1,3 +1,5 @@
+@import "configuration.scss";
+	
 @mixin flag-bg-template($flagpath) {
 	background-image: $flagpath;
 	background-repeat: no-repeat;
@@ -6,14 +8,8 @@
 }
 
 @mixin unityCommon {
+	
 
-	$leadingDark : #44698b;
-	$green : LightGreen;
-	$gray : LightGray;
-	$font : "Open Sans", sans-serif, Helvetica, Arial, "Lucida Grande", Geneva, Tahoma, Verdana;
-	$shadow : #888;
-	$red :  LightCoral;
-  
   //Overriding the default layout		
 	.v-caption-bold {
 	  font-weight: bold;
@@ -58,11 +54,11 @@
 	}
 	
 	.u-success {
-		color: green;
+		color: $textSuccessColor;
 	}
 	
 	.u-header {
-		background: url("../common/img/top-bar-bg.jpg");
+		background: $headerBackgroundImage;
 	}
 	
 	.u-textLarge {
@@ -93,26 +89,21 @@
 	}
 		
 	.u-bigTab {
-	/*	
-	    background: url("../common/img/bg-dark.jpg");
-	    color: #cccccc;
-	*/
-		/*background-color: gray;*/
 	}
 	
 	.u-toolbarButton:hover {
-		box-shadow: 0px 1px 3px 0px $shadow;
+		box-shadow: 0px 1px 3px 0px $shadowColor;
 	}
 	
 	.u-bigTab:hover {
-	    background: url("../common/img/bigTab-bg2-gray.jpg");
-	    box-shadow: 6px 6px 3px $shadow;
+	    background: $bigTabHoverBgImage;
+	    box-shadow: 6px 6px 3px $shadowColor;
 	}
 	
 	.u-bigTabSelected {
-		background: url("../common/img/bigTab-bg2-blue.jpg");
+		background: $bigTabSelectedBgImage;
 		color: black;
-		box-shadow: 6px 6px 3px $shadow;
+		box-shadow: 6px 6px 3px $shadowColor;
 	}
 	
 	.u-textCenter {
@@ -138,7 +129,7 @@
 	}
 
 	.u-selectedButton {
-		box-shadow: 0px 0px 9px $shadow;
+		box-shadow: 0px 0px 9px $shadowColor;
 	}
 	
 	.u-horizontalMargins10 {
@@ -216,46 +207,46 @@
 	
 	/* green background for translation profile test */
 	.v-textfield-u-green-bg.v-readonly {
-		background: $green;
+		background: $bgSuccessColor;
 	}
 	
 	.v-filterselect-u-green-bg.v-readonly {
-		background: $green;
+		background: $bgSuccessColor;
 	}
 
 	.v-ddwrapper-u-green-bg {
 		.v-textfield {
-			background: $green;
+			background: $bgSuccessColor;
 		}
 	}
 	
 	/* gray background for translation profile test */
 	.v-textfield-u-gray-bg.v-readonly {
-		background: $gray;
+		background: $bgDisabledColor;
 	}
 	
 	.v-filterselect-u-gray-bg.v-readonly {
-		background: $gray;
+		background: $bgDisabledColor;
 	}
 	
 	.v-ddwrapper-u-gray-bg {
 		.v-textfield {
-			background: $gray;
+			background: $bgDisabledColor;
 		}
 	}
 	
 	/* red background for translation profile test */
 	.v-textfield-u-red-bg.v-readonly  {
-		background: $red;
+		background: $bgErrorColor;
 	}
 	
 	.v-filterselect-u-red-bg.v-readonly {
-		background: $red;
+		background: $bgErrorColor;
 	}
 	
 	.v-ddwrapper-u-red-bg {
 		.v-textfield {
-			background: $red;
+			background: $bgErrorColor;
 		}
 	}
 	
@@ -271,14 +262,14 @@
 	}
 	
 	.u-flag-bg-en {
-		@include flag-bg-template(url(../common/img/flag/en.png));
+		@include flag-bg-template($flagImageEn);
 	}
 
 	.u-flag-bg-pl {
-		@include flag-bg-template(url(../common/img/flag/pl.png));
+		@include flag-bg-template($flagImagePl);
 	}
 
 	.u-flag-bg-de {
-		@include flag-bg-template(url(../common/img/flag/de.png));
+		@include flag-bg-template($flagImageDe);
 	}
 }

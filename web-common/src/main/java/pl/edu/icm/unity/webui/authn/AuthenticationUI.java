@@ -81,10 +81,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	protected SelectedAuthNPanel authenticationPanel;
 	protected AuthNTiles selectorPanel;
 	protected List<AuthenticationOption> authenticators;
-	protected EndpointDescription description;
 	protected EndpointRegistrationConfiguration registrationConfiguration;
 	protected IdentitiesManagement idsMan;
-	protected VaadinEndpointProperties config;
 	
 	@Autowired
 	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,
@@ -109,12 +107,17 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties genericEndpointConfiguration)
 	{
-		this.description = description;
+		super.configure(description, authenticators, registrationConfiguration, genericEndpointConfiguration);
 		this.authenticators = new ArrayList<>(authenticators);
 		this.registrationConfiguration = registrationConfiguration;
-		config = new VaadinEndpointProperties(genericEndpointConfiguration);
 	}
 
+	@Override
+	protected String getThemeConfigKey()
+	{
+		return VaadinEndpointProperties.AUTHN_THEME;
+	}
+	
 	@Override
 	protected void appInit(final VaadinRequest request)
 	{
@@ -185,7 +188,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		
 		VerticalLayout topLevel = new VerticalLayout();
 		headerUIComponent = new AuthenticationTopHeader(msg.getMessage("AuthenticationUI.login", 
-				description.getDisplayedName().getValue(msg)), localeChoice, msg);
+				endpointDescription.getDisplayedName().getValue(msg)), localeChoice, msg);
 		topLevel.addComponents(headerUIComponent, main);
 		topLevel.setHeightUndefined();
 		topLevel.setWidth(100, Unit.PERCENTAGE);
@@ -207,7 +210,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	protected SelectedAuthNPanel createSelectedAuthNPanel()
 	{
 		return new SelectedAuthNPanel(msg, authnProcessor, idsMan, formLauncher, 
-				execService, cancelHandler, description.getRealm());
+				execService, cancelHandler, endpointDescription.getRealm());
 	}
 	
 	private List<AuthNTile> prepareTiles(List<AuthenticationOption> authenticators)

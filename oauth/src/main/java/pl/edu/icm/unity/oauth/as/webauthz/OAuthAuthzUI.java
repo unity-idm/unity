@@ -6,8 +6,6 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.awt.image.BufferedImage;
 import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +24,6 @@ import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
@@ -36,8 +33,6 @@ import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -75,7 +70,6 @@ public class OAuthAuthzUI extends UnityUIBase
 {
 	private static Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthAuthzUI.class);
 	private UnityMessageSource msg;
-	private EndpointDescription endpointDescription;
 	private TokensManagement tokensMan;
 	private IdPEngine idpEngine;
 	private AttributeHandlerRegistry handlersRegistry;
@@ -103,14 +97,6 @@ public class OAuthAuthzUI extends UnityUIBase
 		this.idpEngine = idpEngine;
 		this.tokensMan = tokensMan;
 		this.identityTypesRegistry = identityTypesRegistry;
-	}
-
-	@Override
-	public void configure(EndpointDescription description,
-			List<AuthenticationOption> authenticators,
-			EndpointRegistrationConfiguration registrationConfiguration, Properties endpointProperties)
-	{
-		this.endpointDescription = description;
 	}
 
 	@Override

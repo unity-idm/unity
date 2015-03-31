@@ -39,7 +39,6 @@ public class UserHomeUI extends UnityUIBase implements UnityWebUI
 	private static final long serialVersionUID = 1L;
 
 	private UserAccountComponent userAccount;
-	private EndpointDescription endpointDescription;
 	private WebAuthenticationProcessor authnProcessor;
 	private HomeEndpointProperties config;
 
@@ -57,7 +56,7 @@ public class UserHomeUI extends UnityUIBase implements UnityWebUI
 			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
 	{
-		this.endpointDescription = description;
+		super.configure(description, authenticators, regCfg, endpointProperties);
 		this.config = new HomeEndpointProperties(endpointProperties);
 	}
 

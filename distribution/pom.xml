@@ -33,6 +33,14 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-web-common</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+			<classifier>webResources</classifier>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-saml</artifactId>
 			<version>${project.version}</version>
 		</dependency>

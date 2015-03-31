@@ -118,6 +118,11 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
 
+		//a copy is set to endpoint's configuration so that the default is easily accessible
+		if (config.isSet(UnityServerConfiguration.THEME))
+			properties.setProperty(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.DEF_THEME, 
+				config.getValue(UnityServerConfiguration.THEME));
+		
 		authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticators, 
 				registrationConfiguration, properties);
@@ -130,9 +135,22 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 				description, authenticators, registrationConfiguration, properties);
 		context.addServlet(createVaadinServletHolder(theServlet, false), uiServletPath + "/*");
 
+		String webContentDir = getWebContentsDir(config);
+		if (webContentDir != null)
+			context.setResourceBase(webContentDir);
+		
 		return context;
 	}
 
+	protected String getWebContentsDir(UnityServerConfiguration config)
+	{
+		if (genericEndpointProperties.isSet(VaadinEndpointProperties.WEB_CONTENT_PATH))
+			return genericEndpointProperties.getValue(VaadinEndpointProperties.WEB_CONTENT_PATH);
+		if (config.isSet(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH))
+			return config.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH);
+		return null;
+	}
+	
 	protected int getHeartbeatInterval(int sessionTimeout)
 	{
 		if (sessionTimeout >= 2*DEFAULT_HEARTBEAT) 

@@ -88,7 +88,7 @@ public class SandboxUI extends AuthenticationUI
 	protected SelectedAuthNPanel createSelectedAuthNPanel()
 	{
 		return new SandboxSelectedAuthNPanel(msg, authnProcessor, idsMan, formLauncher, 
-				execService, cancelHandler, description.getRealm());
+				execService, cancelHandler, endpointDescription.getRealm());
 	}
 	
 	@Override
@@ -97,8 +97,8 @@ public class SandboxUI extends AuthenticationUI
 			EndpointRegistrationConfiguration regCfg, Properties endpointProperties) 
 	{
 		registrationConfiguration = new EndpointRegistrationConfiguration(false);
-		this.description          = new EndpointDescription(description);
-		this.description.setAuthenticatorSets(authnList);
+		this.endpointDescription          = new EndpointDescription(description);
+		this.endpointDescription.setAuthenticatorSets(authnList);
 		config = new VaadinEndpointProperties(new Properties());
 	}
 	
