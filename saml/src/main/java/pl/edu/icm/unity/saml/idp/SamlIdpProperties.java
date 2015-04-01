@@ -297,6 +297,12 @@ public class SamlIdpProperties extends SamlProperties
 					throw new ConfigurationException("Invalid specification of allowed Service " +
 						"Provider " + allowedKey + ", return address is not set.");
 				
+				if (isSet(allowedKey + ALLOWED_SP_ENTITY) && isSet(allowedKey + ALLOWED_SP_DN))
+					throw new ConfigurationException("The allowed SP entry " + allowedKey + 
+							" has both the DN and SAML entity id defined. "
+							+ "Please use only one, which is actually used by "
+							+ "the SP to identify itself." );
+				
 				String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
 				if (name != null)
 					authnTrustChecker.addTrustedIssuer(name, returnAddress);	
