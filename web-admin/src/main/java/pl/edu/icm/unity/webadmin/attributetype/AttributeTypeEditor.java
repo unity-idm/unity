@@ -9,6 +9,7 @@ import java.util.TreeSet;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -211,7 +212,9 @@ public class AttributeTypeEditor extends FormLayout
 		ret.setValueType(syntax);
 		ret.setVisibility(visibility.getSelectedValue());
 		ret.setMetadata(metaEditor.getValue());
-		ret.setDisplayedName(displayedName.getValue());
+		I18nString displayedNameS = displayedName.getValue();
+		displayedNameS.setDefaultValue(ret.getName());
+		ret.setDisplayedName(displayedNameS);
 		return ret;
 	}
 }
