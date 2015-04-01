@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import com.vaadin.server.ClassResource;
 import com.vaadin.server.Resource;
+import com.vaadin.server.ThemeResource;
 
 /**
  * Allows to easily get image resources.
@@ -92,7 +92,7 @@ public enum Images
 	
 	public Resource getResource()
 	{
-		return new ClassResource(classpath);
+		return new ThemeResource(classpath);
 	}
 
 	public static Resource getFlagForLocale(String localeCode)
@@ -115,8 +115,8 @@ public enum Images
 	 */
 	private static interface I
 	{
-		public static final String P = "/pl/edu/icm/unity/webui/img/standard/";
-		public static final String PB = "/pl/edu/icm/unity/webui/img/other/";
-		public static final String PH = "/pl/edu/icm/unity/webui/img/hand/";
+		public static final String P = "../common/img/standard/";
+		public static final String PB = "../common/img/other/";
+		public static final String PH = "../common/img/hand/";
 	}
 }
