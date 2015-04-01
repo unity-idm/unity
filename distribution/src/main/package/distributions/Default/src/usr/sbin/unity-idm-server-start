@@ -15,7 +15,7 @@ fi
 
 cd /
 
-CP=.$(find "$LIB" -type d -exec printf ":{}/*" \;)
+CP=.$(find "$LIB" -L -type d -exec printf ":{}/*" \;)
 
 export CLASSPATH=$CP
 
