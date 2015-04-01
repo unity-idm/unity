@@ -376,6 +376,9 @@ public class OAuthAuthzUI extends UnityUIBase
 			
 			
 			oauthResponseHandler.returnOauthResponse(oauthResponse, false);
+		} catch (EopException eop)
+		{
+			throw eop;
 		} catch (Exception e)
 		{
 			log.error("Error during OAuth processing", e);
