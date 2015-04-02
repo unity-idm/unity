@@ -36,7 +36,7 @@ import com.vaadin.ui.VerticalLayout;
  */
 @Component("WebAdminUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@Theme("unityTheme")
+@Theme("unityThemeValo")
 public class WebAdminUI extends UnityUIBase implements UnityWebUI
 {
 	private static final long serialVersionUID = 1L;

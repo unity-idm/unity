@@ -103,7 +103,6 @@ public class AttributesPanel extends HorizontalSplitPanel
 		this.attributesManagement = attributesManagement;
 		this.groupsManagement = groupsManagement;
 		this.bus = WebSession.getCurrent().getEventBus();
-		setStyleName(Styles.vSplitPanelSmall.toString());
 		attributesTable = new Table();
 		attributesTable.setNullSelectionAllowed(false);
 		attributesTable.setImmediate(true);

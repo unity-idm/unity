@@ -20,7 +20,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Displays a tree with attribute classes (children are roots, parents are sub nodes).
@@ -85,7 +84,6 @@ public class EffectiveAttrClassViewer extends HorizontalSplitPanel
 		setSecondComponent(right);
 		setSplitPosition(30, Unit.PERCENTAGE);
 		setHeight(27, Unit.EM);
-		setStyleName(Styles.vSplitPanelSmall.toString());
 	}
 	
 	public void setInput(String rootClass, Map<String, AttributesClass> allClasses)

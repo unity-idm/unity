@@ -67,7 +67,7 @@ public class TopHeader extends TopHeaderLight
 		logout.setIcon(Images.exit32.getResource());
 		logout.setDescription(msg.getMessage("MainHeader.logout"));
 		logout.setId("MainHeader.logout");
-		logout.setStyleName(Styles.vButtonLink.toString());
+		logout.addStyleName(Styles.vButtonLink.toString());
 		logout.addClickListener(new Button.ClickListener()
 		{
 			@Override

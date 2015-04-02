@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -58,17 +57,17 @@ public enum Styles
 	captionBold("bold"),
 	hidden("u-hidden"),
 	
-	//reindeer
-	vPanelLight(Reindeer.PANEL_LIGHT),
-	vButtonSmall(Reindeer.BUTTON_SMALL),
-	vTabsheetMinimal(Reindeer.TABSHEET_MINIMAL),
-	vLabelSmall(Reindeer.LABEL_SMALL),
-	vLabelH2(Reindeer.LABEL_H2),
+	//Valo
+	//vTableSmall(ValoTheme.TABLE_SMALL),
+	vPanelLight(ValoTheme.PANEL_BORDERLESS),
+	vButtonSmall(ValoTheme.BUTTON_SMALL),
+	vTabsheetMinimal(ValoTheme.TABSHEET_COMPACT_TABBAR),
+	vLabelSmall(ValoTheme.LABEL_SMALL),
+	vLabelH2(ValoTheme.LABEL_H2),
 	vLabelH1(ValoTheme.LABEL_H1),
-	vButtonLink(Reindeer.BUTTON_LINK),
+	vButtonLink(ValoTheme.BUTTON_LINK),
 	vButtonLinkV(ValoTheme.BUTTON_LINK),
-	vSplitPanelSmall(Reindeer.SPLITPANEL_SMALL),
-	vTextfieldSmall(Reindeer.TEXTFIELD_SMALL),
+	vTextfieldSmall(ValoTheme.TEXTFIELD_SMALL),
 	vTextfieldSmallValo(ValoTheme.TEXTFIELD_SMALL),
 	vComboSmall(ValoTheme.COMBOBOX_SMALL);
 	
