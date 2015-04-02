@@ -66,7 +66,7 @@ public class SPInfoComponent extends CustomComponent
 		}
 		
 		Label info1Id = new Label(msg.getMessage("SPInfoComponent.requesterName", name));
-		info1Id.addStyleName(Styles.vLabelH2.toString());
+		info1Id.addStyleName(Styles.vLabelLarge.toString());
 		main.addComponent(info1Id);
 		
 		if (url != null)

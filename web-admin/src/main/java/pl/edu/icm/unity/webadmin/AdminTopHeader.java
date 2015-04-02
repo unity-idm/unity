@@ -52,13 +52,6 @@ public class AdminTopHeader extends TopHeader
 
 	protected Button createSupportButton()
 	{
-//		Link support = new Link();
-//		support.setResource(new ExternalResource("http://unity-idm.eu/site/support"));
-//		support.setTargetName("_blank");
-//		support.setDescription(msg.getMessage("AdminTopHeader.toSupport"));
-//		support.setIcon(Images.support32.getResource());
-//		return support;
-
 		Button support = new Button();
 		support.addStyleName(Styles.vButtonLink.toString());
 		support.addClickListener(new Button.ClickListener()

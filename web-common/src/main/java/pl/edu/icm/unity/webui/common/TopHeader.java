@@ -49,7 +49,6 @@ public class TopHeader extends TopHeaderLight
 				msg.getMessage("MainHeader.loggedAs", label) :
 				msg.getMessage("MainHeader.loggedAsWithId", entity.getEntityId()));
 		loggedEntity.setId("MainHeader.loggedAs");
-		loggedEntity.setStyleName(Styles.vLabelH2.toString());
 		loggedPanel.addComponent(loggedEntity);
 		loggedPanel.setComponentAlignment(loggedEntity, Alignment.MIDDLE_RIGHT);
 	}

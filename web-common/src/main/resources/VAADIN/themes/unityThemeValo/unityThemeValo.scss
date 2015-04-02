@@ -3,6 +3,11 @@
 
 @mixin unityThemeValo {
 
+	$v-layout-margin-left: round($v-unit-size/2);
+	$v-layout-margin-right: round($v-unit-size/2);
+	$v-layout-margin-top:  round($v-unit-size/2);
+	$v-layout-margin-bottom: round($v-unit-size/2);
+
 	@include valo;
 	
 	@include unityCommon;
