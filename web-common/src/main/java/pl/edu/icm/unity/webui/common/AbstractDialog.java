@@ -153,6 +153,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		vl.setMargin(true);
 		
 		Panel contentsPanel = new SafePanel();
+		contentsPanel.setSizeFull();
 		if (lightweightWrapperPanel)
 			contentsPanel.addStyleName(Styles.vPanelLight.toString());
 		VerticalLayout internal = new VerticalLayout();
@@ -161,7 +162,6 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		internal.setComponentAlignment(contentsComponent, Alignment.MIDDLE_CENTER);
 		internal.setExpandRatio(contentsComponent, 1.0f);
 		internal.setMargin(true);
-		
 		contentsPanel.setContent(internal);
 		vl.addComponent(contentsPanel);
 		
@@ -170,8 +170,9 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		vl.setComponentAlignment(hl, Alignment.BOTTOM_RIGHT);
 		
 		vl.setExpandRatio(contentsPanel, 4.0f);
+		vl.setSizeFull();
 		setContent(vl);
-		
+		setSizeFull();
 		enterButton = getDefaultOKButton();
 		if (enterButton != null)
 			enterButton.setClickShortcut(KeyCode.ENTER);
