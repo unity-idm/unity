@@ -4,20 +4,20 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog.Callback;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+
+import com.vaadin.server.VaadinSession;
+import com.vaadin.server.WrappedSession;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
 
 /**
  * Simple dialog wrapping {@link CredentialsChangeDialog}. It is invoked for users logged with outdated
@@ -84,6 +84,10 @@ public class OutdatedCredentialDialog extends AbstractDialog
 		new AbstractDialog(msg,	msg.getMessage("OutdatedCredentialDialog.finalCaption"), 
 				msg.getMessage("ok"))
 		{
+			{
+				setSizeMode(SizeMode.SMALL);	
+			}
+			
 			@Override
 			protected void onConfirm()
 			{

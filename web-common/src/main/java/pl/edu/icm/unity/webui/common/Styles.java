@@ -59,6 +59,7 @@ public enum Styles
 	captionBold("bold"),
 	hidden("u-hidden"),
 	largeTabsheet("u-bigTabsheet"),
+	centeredPanel("u-centeredPanel"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

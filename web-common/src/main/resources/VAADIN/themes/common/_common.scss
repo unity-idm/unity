@@ -211,6 +211,12 @@
 	.u-negativeMargin5 {
 		margin-bottom: -5px;
 	}
+
+	.v-panel-content-u-centeredPanel > div {
+		//text-align: center;
+		display: block;
+		margin: auto;
+	}
 	
 	/* green background for translation profile test */
 	.v-textfield-u-green-bg.v-readonly {

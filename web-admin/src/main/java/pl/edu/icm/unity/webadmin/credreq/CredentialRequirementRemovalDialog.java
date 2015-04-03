@@ -44,6 +44,7 @@ public class CredentialRequirementRemovalDialog extends AbstractDialog
 		this.allCRs = allCRs;
 		this.removedCr = removedCr;
 		this.callback = callback;
+		setSizeMode(SizeMode.SMALL);
 	}
 
 	public interface Callback 

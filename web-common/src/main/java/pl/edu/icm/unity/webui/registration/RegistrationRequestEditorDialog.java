@@ -38,8 +38,7 @@ public class RegistrationRequestEditorDialog extends AbstractDialog
 		this.editor = editor;
 		this.callback = callback;
 		this.addAutoAccept = addAutoAccept;
-		setWidth(80, Unit.PERCENTAGE);
-		setHeight(85, Unit.PERCENTAGE);
+		setSize(80, 90);
 	}
 
 	@Override

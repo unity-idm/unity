@@ -57,7 +57,6 @@ public class AttributeStatementEditDialog extends AbstractDialog
 		this.attrsMan = attrsMan;
 		this.group = group;
 		this.callback = callback;
-		setWidth(50, Unit.PERCENTAGE);
 	}
 
 	@Override

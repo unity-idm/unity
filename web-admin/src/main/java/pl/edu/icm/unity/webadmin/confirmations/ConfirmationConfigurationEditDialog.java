@@ -28,7 +28,6 @@ public class ConfirmationConfigurationEditDialog extends AbstractDialog
 		super(msg, caption);
 		this.editor = editor;
 		this.callback = callback;
-		setWidth(50, Unit.PERCENTAGE);
 	}
 
 	@Override

@@ -38,6 +38,8 @@ import com.vaadin.ui.Window;
  */
 public abstract class AbstractDialog extends Window implements Button.ClickListener 
 {
+	public enum SizeMode {LARGE, SMALL}
+	
 	private static final long serialVersionUID = 1L;
 	private Button confirm;
 	private Button cancel;
@@ -46,7 +48,9 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	protected Component contentsComponent;
 	protected UnityMessageSource msg;
 	protected boolean lightweightWrapperPanel = false;
-	
+	private int width = 50;
+	private int height = 50;
+	private SizeMode sizeMode = SizeMode.LARGE; 
 	
 	/**
 	 * With only one, confirm button, which usually should be labelled as 'close'. 
@@ -84,6 +88,29 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	
 	protected abstract Component getContents() throws Exception;
 	protected abstract void onConfirm();
+	
+	protected void setSize(int widthPercentage, int heightPercentage)
+	{
+		this.width = widthPercentage;
+		this.height = heightPercentage;
+	}
+	
+	/**
+	 * @param sizeMode if LARGE (what is default) then the dialog size is set to 80x90%, both scrollbars are 
+	 * provided if the content is too big to fit the viewport. If false, then the size is set to 50%x60%
+	 *  only vertical scrollbar will be displayed, and the contents is centered horizontally (assuming it has
+	 *  no 100% width by itself. In any case the initial sizes can be further changed with 
+	 *  {@link #setSize(int, int)}.
+	 *  
+	 */
+	protected void setSizeMode(SizeMode sizeMode)
+	{
+		this.sizeMode = sizeMode;
+		if (sizeMode == SizeMode.LARGE)
+			setSize(80, 90);
+		else
+			setSize(50, 60);
+	}
 	
 	/**
 	 * Element returned by this method gets an initial focus.
@@ -151,6 +178,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		VerticalLayout vl = new VerticalLayout();
 		vl.setSpacing(true);
 		vl.setMargin(true);
+		vl.setSizeFull();
 		
 		Panel contentsPanel = new SafePanel();
 		contentsPanel.setSizeFull();
@@ -160,9 +188,11 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		contentsComponent = getContents();
 		internal.addComponent(contentsComponent);
 		internal.setComponentAlignment(contentsComponent, Alignment.MIDDLE_CENTER);
-		internal.setExpandRatio(contentsComponent, 1.0f);
 		internal.setMargin(true);
+		internal.setSizeUndefined();
 		contentsPanel.setContent(internal);
+		if (sizeMode == SizeMode.SMALL)
+			contentsPanel.addStyleName(Styles.centeredPanel.toString());
 		vl.addComponent(contentsPanel);
 		
 		Layout hl = getButtonsBar();
@@ -170,9 +200,9 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		vl.setComponentAlignment(hl, Alignment.BOTTOM_RIGHT);
 		
 		vl.setExpandRatio(contentsPanel, 4.0f);
-		vl.setSizeFull();
 		setContent(vl);
-		setSizeFull();
+		setWidth(width, Unit.PERCENTAGE);
+		setHeight(height, Unit.PERCENTAGE);
 		enterButton = getDefaultOKButton();
 		if (enterButton != null)
 			enterButton.setClickShortcut(KeyCode.ENTER);

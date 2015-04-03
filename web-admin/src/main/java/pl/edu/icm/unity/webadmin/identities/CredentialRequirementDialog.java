@@ -43,6 +43,7 @@ public class CredentialRequirementDialog extends AbstractDialog
 		this.authnMan = authnMan;
 		this.callback = callback;
 		this.initialCR = initialCR;
+		setSizeMode(SizeMode.SMALL);
 	}
 
 	@Override
@@ -75,7 +76,6 @@ public class CredentialRequirementDialog extends AbstractDialog
 		
 		FormLayout main = new CompactFormLayout();
 		main.addComponents(info, credentialRequirement);
-		main.setSizeFull();
 		return main;
 	}
 

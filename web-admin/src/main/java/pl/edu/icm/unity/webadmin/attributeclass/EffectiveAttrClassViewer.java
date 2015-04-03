@@ -86,6 +86,7 @@ public class EffectiveAttrClassViewer extends HorizontalSplitPanel
 		setSecondComponent(right);
 		setSplitPosition(30, Unit.PERCENTAGE);
 		setHeight(27, Unit.EM);
+		setWidth(100, Unit.PERCENTAGE);
 	}
 	
 	public void setInput(String rootClass, Map<String, AttributesClass> allClasses)

@@ -31,8 +31,7 @@ public class RegistrationFormEditDialog extends AbstractDialog
 		super(msg, caption);
 		this.editor = attributeEditor;
 		this.callback = callback;
-		setWidth(80, Unit.PERCENTAGE);
-		setHeight(85, Unit.PERCENTAGE);
+		setSize(80, 90);
 	}
 
 	@Override

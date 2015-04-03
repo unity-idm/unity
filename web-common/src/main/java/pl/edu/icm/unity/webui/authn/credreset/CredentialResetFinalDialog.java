@@ -36,6 +36,7 @@ public class CredentialResetFinalDialog extends AbstractDialog
 		this.msg = msg;
 		this.backend = backend;
 		this.credEditor = credEditor;
+		setSizeMode(SizeMode.SMALL);
 	}
 
 	@Override

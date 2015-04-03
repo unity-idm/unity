@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.webui.registration;
 
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
+
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
-
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
 
 /**
  * Dialog allowing to choose a registration form. It takes an {@link RegistrationFormsChooserComponent} as an argument.
@@ -24,6 +24,7 @@ public class RegistrationFormChooserDialog extends AbstractDialog
 	{
 		super(msg, caption, msg.getMessage("close"));
 		this.editor = editor;
+		setSizeMode(SizeMode.SMALL);
 	}
 
 	@Override

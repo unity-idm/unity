@@ -63,6 +63,7 @@ public class GroupAttributesClassesDialog extends AbstractAttributesClassesDialo
 		});
 		
 		Panel extraInfo = new SafePanel(msg.getMessage("EntityAttributesClasses.infoPanel"));
+		extraInfo.addStyleName(Styles.vBorderLess.toString());
 		FormLayout extra = new CompactFormLayout();
 		extraInfo.setContent(extra);
 		

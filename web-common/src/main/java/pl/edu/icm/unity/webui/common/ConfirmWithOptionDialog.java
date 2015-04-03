@@ -37,6 +37,7 @@ public class ConfirmWithOptionDialog extends AbstractDialog
 		this.question = question;
 		this.callback = callback;
 		this.option = option;
+		setSizeMode(SizeMode.SMALL);
 	}
 
 	public interface Callback 

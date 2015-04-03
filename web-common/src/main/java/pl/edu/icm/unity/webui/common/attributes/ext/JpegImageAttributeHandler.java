@@ -436,8 +436,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 					JpegImageAttributeHandler.this.msg.getMessage("close"));
 			this.syntax = syntax;
 			this.image = image;
-			setWidth(90, Unit.PERCENTAGE);
-			setHeight(90, Unit.PERCENTAGE);
+			setSize(90, 90);
 		}
 
 		@Override

@@ -45,8 +45,7 @@ public abstract class AbstractAttributesClassesDialog extends AbstractDialog
 		this.attrMan = attrMan;
 		this.groupsMan = groupsMan;
 		this.groupPath = group;
-		setWidth(60, Unit.PERCENTAGE);
-		setHeight(90, Unit.PERCENTAGE);
+		setSize(50, 90);
 	}
 
 	protected void loadACsData() throws EngineException

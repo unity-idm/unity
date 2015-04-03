@@ -32,6 +32,7 @@ import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.MapComboBox;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
@@ -112,7 +113,8 @@ public class CredentialsPanel extends VerticalLayout
 		}
 		
 		statuses = new SafePanel(msg.getMessage("CredentialChangeDialog.statusAll"));
-
+		statuses.addStyleName(Styles.vBorderLess.toString());
+		
 		Panel credentialPanel = new SafePanel();
 
 		String selected = credentials.keySet().iterator().next();
@@ -184,11 +186,6 @@ public class CredentialsPanel extends VerticalLayout
 		if (credentials.size() > 1)
 		{
 			addComponent(credential);
-		} else
-		{
-			CredentialDefinition credDef = credentials.values().iterator().next();
-			addComponent(new Label(msg.getMessage("CredentialChangeDialog.credentialSingle", 
-					credDef.getDisplayedName().getValue(msg))));
 		}
 		addComponent(credentialPanel);
 		setSpacing(true);

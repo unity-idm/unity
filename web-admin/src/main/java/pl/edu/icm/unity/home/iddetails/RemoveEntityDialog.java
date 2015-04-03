@@ -52,6 +52,7 @@ public class RemoveEntityDialog extends AbstractDialog
 		this.entity = entityId;
 		this.identitiesMan = identitiesManagement;
 		this.authnProcessor = authnProcessor;
+		setSizeMode(SizeMode.SMALL);
 	}
 
 	@Override

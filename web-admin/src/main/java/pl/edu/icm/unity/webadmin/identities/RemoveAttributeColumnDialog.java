@@ -39,6 +39,7 @@ public class RemoveAttributeColumnDialog extends AbstractDialog
 		this.alreadyUsedInRoot = alreadyUsedInRoot;
 		this.callback = callback;
 		this.currentGroup = currentGroup;
+		setSizeMode(SizeMode.SMALL);
 	}
 
 	@Override

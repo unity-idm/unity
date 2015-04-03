@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.webui.common.credentials;
 
-import com.vaadin.ui.Component;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+
+import com.vaadin.ui.Component;
 
 
 /**
@@ -40,6 +40,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 		this.credEditorReg = credEditorReg;
 		this.callback = callback;
 		this.simpleMode = simpleMode;
+		setSize(50, 80);
 	}
 
 	@Override
