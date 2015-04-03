@@ -44,7 +44,7 @@ public class ServerManagementTab  extends VerticalLayout
 		this.msg = msg;
 		this.tComponent = tComponent;
 		this.tabs = new MainTabPanel(eComponent, aComponent, tComponent, msgComponent, ieComponent, confirmCfgComponent);
-		this.tabs.setStyleName(Styles.vTabsheetMinimal.toString());
+		this.tabs.addStyleName(Styles.vTabsheetMinimal.toString());
 		initUI();
 	}
 

@@ -15,6 +15,7 @@ import com.vaadin.event.Action;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.AbstractSelect;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
@@ -23,10 +24,11 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
+
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
- * Component with a horizontal list of small buttons. Buttons are bound to {@link Action}s via 
+ * Component with a list of small buttons. Buttons are bound to {@link Action}s via 
  * {@link SingleActionHandler}. The wrapped Action must have at least caption or image set.
  * 
  * Additionally toolbar's buttons have their state enabled or disabled depending whether the toolbar's target is set 
@@ -51,6 +53,7 @@ public class Toolbar extends CustomComponent
 		source.addValueChangeListener(getValueChangeListener());
 		buttons = new ArrayList<>();
 		main.setSpacing(true);
+		main.addStyleName(Styles.smallSpacing.toString());
 		setCompositionRoot(main);
 		setSizeUndefined();
 	}
@@ -127,6 +130,7 @@ public class Toolbar extends CustomComponent
 			Styles.horizontalLine.toString();
 		sep.addStyleName(style);
 		main.addComponent(sep);
+		main.setComponentAlignment(sep, Alignment.MIDDLE_CENTER);
 	}
 	
 	/**

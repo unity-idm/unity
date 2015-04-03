@@ -32,10 +32,11 @@ import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Toolbar;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.Filter;
@@ -47,6 +48,7 @@ import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -56,7 +58,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Component wrapping {@link IdentitiesTable}. Allows to configure its mode, 
@@ -91,10 +92,12 @@ public class IdentitiesComponent extends SafePanel
 		final CheckBox mode = new CheckBox(msg.getMessage("Identities.mode"));
 		mode.setImmediate(true);
 		mode.setValue(IdentitiesComponent.this.identitiesTable.isGroupByEntity());
+		mode.addStyleName(Styles.vSmall.toString());
 		
 		final CheckBox showTargeted = new CheckBox(msg.getMessage("Identities.showTargeted"));
 		showTargeted.setImmediate(true);
 		showTargeted.setValue(IdentitiesComponent.this.identitiesTable.isShowTargeted());
+		showTargeted.addStyleName(Styles.vSmall.toString());
 		
 		Toolbar toolbar = new Toolbar(identitiesTable, Orientation.HORIZONTAL);
 		
@@ -194,6 +197,7 @@ public class IdentitiesComponent extends SafePanel
 		
 		final TextField searchText = new TextField(
 				msg.getMessage("Identities.searchCaption"));
+		searchText.addStyleName(Styles.vSmall.toString());
 		searchToolbar.addComponent(searchText);
 		searchWrapper.addComponent(searchToolbar);
 		
@@ -234,6 +238,11 @@ public class IdentitiesComponent extends SafePanel
 		toolbar.addSeparator();
 		toolbar.addButtons(addFilter, addAttributes, removeAttributes, savePreferences);
 		topBar.addComponents(mode, showTargeted, spacer, searchWrapper, toolbar);
+		topBar.setComponentAlignment(mode, Alignment.MIDDLE_LEFT);
+		topBar.setComponentAlignment(showTargeted, Alignment.MIDDLE_LEFT);
+		topBar.setComponentAlignment(spacer, Alignment.MIDDLE_LEFT);
+		topBar.setComponentAlignment(searchWrapper, Alignment.MIDDLE_RIGHT);
+		topBar.setComponentAlignment(toolbar, Alignment.MIDDLE_RIGHT);
 		topBar.setExpandRatio(spacer, 2f);
 		topBar.setWidth(100, Unit.PERCENTAGE);
 		

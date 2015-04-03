@@ -167,6 +167,8 @@ public class AttributesPanel extends HorizontalSplitPanel
 		Label required = new Label(msg.getMessage("Attribute.requiredBold"));
 		required.setStyleName(Styles.bold.toString());
 		filtersBar = new HorizontalLayout(showEffective, showInternal, required);
+		filtersBar.setComponentAlignment(showEffective, Alignment.MIDDLE_LEFT);
+		filtersBar.setComponentAlignment(showInternal, Alignment.MIDDLE_LEFT);
 		filtersBar.setComponentAlignment(required, Alignment.MIDDLE_RIGHT);
 		filtersBar.setSpacing(true);
 		filtersBar.setSizeUndefined();

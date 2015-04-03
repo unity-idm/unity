@@ -10,7 +10,8 @@
 @mixin unityCommon {
 	
 
-  //Overriding the default layout		
+    //Overriding the default layout
+    		
 	.v-caption-bold {
 	  font-weight: bold;
 	}
@@ -26,7 +27,12 @@
 		padding: 0px 2px;
 	}
 	
-  //Custom styles
+   
+    //Custom styles
+	
+	.v-tabsheet-tabs-u-bigTabsheet .v-caption {
+		font-size: ceil($v-font-size * 1.1);
+	}
 	
 	.u-messageBox {
 		background-color:#EEEEEE;
@@ -116,7 +122,6 @@
 	.u-verticalLine {
 		width: 0px;
 		height: 16px;
-		float: left; 
 		border: 1px inset;
 		color: gray;
 		margin: 0px 8px;
@@ -125,7 +130,6 @@
 	.u-horizontalLine {
 		width: 16px;
 		height: 0px;
-		float: left; 
 		border: 1px inset;
 		color: gray;
 		margin: 8px 0px;
@@ -255,8 +259,8 @@
 	
 	.u-smallSpacing {
 		.v-spacing {
-			height: 2px;
-			width: 2px;
+			height: round($v-unit-size/6);
+			width: round($v-unit-size/6);
 		}	
 	}
 	

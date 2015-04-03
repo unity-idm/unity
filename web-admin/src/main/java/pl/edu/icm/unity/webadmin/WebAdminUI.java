@@ -23,9 +23,11 @@ import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.VerticalLayout;
 
@@ -82,6 +84,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 
 		final VerticalLayout mainWrapper = new VerticalLayout();
 		mainWrapper.setSizeFull();
+		mainWrapper.setMargin(new MarginInfo(true, true, false, true));
 
 		AdminTopHeader header = new AdminTopHeader(endpointDescription.getDisplayedName().getValue(msg), 
 				authnProcessor, msg, 
@@ -113,12 +116,9 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 
 	private void createMainTabPanel()
 	{
-		tabPanel = new MainTabPanel();		
-		tabPanel.addTab(contentsManagement);
-		tabPanel.addTab(registrationsManagement);
-		tabPanel.addTab(schemaManagement);
-		tabPanel.addTab(serverManagement);
-		tabPanel.setSizeFull();
+		tabPanel = new MainTabPanel(contentsManagement, registrationsManagement, schemaManagement,
+				serverManagement);
+		tabPanel.addStyleName(Styles.largeTabsheet.toString());
 	}
 	
 	private void switchView(VerticalLayout contents, com.vaadin.ui.Component component)

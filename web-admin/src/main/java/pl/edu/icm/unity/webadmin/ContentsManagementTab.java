@@ -16,6 +16,7 @@ import pl.edu.icm.unity.webadmin.groupdetails.GroupDetailsComponent;
 import pl.edu.icm.unity.webadmin.identities.IdentitiesComponent;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -56,7 +57,8 @@ public class ContentsManagementTab extends VerticalLayout
 		CompositeSplitPanel leftPanel = new CompositeSplitPanel(true, false, 
 				groupBrowser, groupDetails, 50);
 
-		CompositeSplitPanel main = new CompositeSplitPanel(false, true, leftPanel, rightPanel, 30);
+		CompositeSplitPanel main = new CompositeSplitPanel(false, false, leftPanel, rightPanel, 30);
+		main.setMargin(new MarginInfo(true, false, false, false));
 
 		addComponent(main);
 		setSizeFull();

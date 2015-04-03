@@ -39,7 +39,7 @@ public class SchemaManagementTab  extends VerticalLayout
 		super();
 		this.msg = msg;
 		this.tabs = new MainTabPanel(attributeTypes, acComponent, cdComponent, crComponent);
-		this.tabs.setStyleName(Styles.vTabsheetMinimal.toString());
+		this.tabs.addStyleName(Styles.vTabsheetMinimal.toString());
 		initUI();
 	}
 

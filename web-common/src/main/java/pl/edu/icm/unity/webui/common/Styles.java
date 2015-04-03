@@ -56,19 +56,21 @@ public enum Styles
 	negativeMargin5("u-negativeMargin5"),
 	captionBold("bold"),
 	hidden("u-hidden"),
+	largeTabsheet("u-bigTabsheet"),
 	
 	//Valo
 	//vTableSmall(ValoTheme.TABLE_SMALL),
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),
 	vButtonSmall(ValoTheme.BUTTON_SMALL),
 	vTabsheetMinimal(ValoTheme.TABSHEET_COMPACT_TABBAR),
+	vTabsheetFramed(ValoTheme.TABSHEET_FRAMED),
 	vLabelSmall(ValoTheme.LABEL_SMALL),
 	vLabelLarge(ValoTheme.LABEL_LARGE),
 	vLabelH1(ValoTheme.LABEL_H1),
 	vButtonLink(ValoTheme.BUTTON_LINK),
 	vButtonLinkV(ValoTheme.BUTTON_LINK),
-	vTextfieldSmall(ValoTheme.TEXTFIELD_SMALL),
-	vTextfieldSmallValo(ValoTheme.TEXTFIELD_SMALL),
+	vSmall(ValoTheme.TEXTFIELD_SMALL),
+	vTiny(ValoTheme.TEXTFIELD_TINY),
 	vComboSmall(ValoTheme.COMBOBOX_SMALL);
 	
 	
