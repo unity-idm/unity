@@ -12,6 +12,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.webadmin.attribute.AttributeMetaEditorPanel.TypeChangeCallback;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
@@ -46,7 +47,7 @@ public class AttributeEditor extends HorizontalLayout
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeMetaEditorPanel(attributeTypes, groupPath, msg);
 		AttributeType initial = attrTypePanel.getAttributeType();
-		attrValuesContainer = new FormLayout();
+		attrValuesContainer = new CompactFormLayout();
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, initial, 
 				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, 
 				required, true, attrValuesContainer);
@@ -88,7 +89,7 @@ public class AttributeEditor extends HorizontalLayout
 	{
 		this.groupPath = attribute.getGroupPath();
 		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg, attribute.getVisibility());
-		attrValuesContainer = new FormLayout();
+		attrValuesContainer = new CompactFormLayout();
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, 
 				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, true, true, 
 				attrValuesContainer);
@@ -108,7 +109,7 @@ public class AttributeEditor extends HorizontalLayout
 	{
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg, attributeType.getVisibility());
-		attrValuesContainer = new FormLayout();
+		attrValuesContainer = new CompactFormLayout();
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, 
 				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, true, true, 
 				attrValuesContainer);

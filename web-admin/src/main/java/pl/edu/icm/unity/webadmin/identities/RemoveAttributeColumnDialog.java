@@ -8,12 +8,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
+
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
 
 /**
  * Allows to choose an attribute type to be removed from identities table columns.
@@ -64,7 +65,7 @@ public class RemoveAttributeColumnDialog extends AbstractDialog
 			attributeType.select(alreadyUsedInCurrent.iterator().next() + "@" + currentGroup);
 
 		attributeType.setNullSelectionAllowed(false);
-		FormLayout main = new FormLayout();
+		FormLayout main = new CompactFormLayout();
 		main.addComponents(info, attributeType);
 		main.setSizeFull();
 		return main;

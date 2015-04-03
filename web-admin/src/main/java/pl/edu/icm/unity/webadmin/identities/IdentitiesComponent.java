@@ -30,6 +30,7 @@ import pl.edu.icm.unity.webadmin.identities.AddAttributeColumnDialog.Callback;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 import pl.edu.icm.unity.webui.common.Images;
@@ -191,13 +192,14 @@ public class IdentitiesComponent extends SafePanel
 		searchWrapper.setSpacing(false);
 		searchWrapper.setMargin(false);
 		
-		FormLayout searchToolbar = new FormLayout();
+		FormLayout searchToolbar = new CompactFormLayout();
 		searchToolbar.setSpacing(false);
 		searchToolbar.setMargin(false);
 		
 		final TextField searchText = new TextField(
 				msg.getMessage("Identities.searchCaption"));
 		searchText.addStyleName(Styles.vSmall.toString());
+		searchText.setColumns(8);
 		searchToolbar.addComponent(searchText);
 		searchWrapper.addComponent(searchToolbar);
 		

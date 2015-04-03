@@ -11,6 +11,8 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.SmallTable;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -54,21 +56,21 @@ public class EffectiveAttrClassViewer extends HorizontalSplitPanel
 		
 		allAllowed = new Label(msg.getMessage("AttributesClass.allAllowed"));
 		
-		allowed = new Table();
+		allowed = new SmallTable();
 		allowed.setWidth(90, Unit.PERCENTAGE);
 		allowed.setHeight(9, Unit.EM);
 		allowed.addContainerProperty(msg.getMessage("AttributesClass.allowed"), 
 				String.class, null);
 		allowed.setSortContainerPropertyId(msg.getMessage("AttributesClass.allowed"));
 		
-		mandatory = new Table();
+		mandatory = new SmallTable();
 		mandatory.setWidth(90, Unit.PERCENTAGE);
 		mandatory.setHeight(9, Unit.EM);
 		mandatory.addContainerProperty(msg.getMessage("AttributesClass.mandatory"), 
 				String.class, null);
 		mandatory.setSortContainerPropertyId(msg.getMessage("AttributesClass.mandatory"));
 		
-		FormLayout rightC = new FormLayout();
+		FormLayout rightC = new CompactFormLayout();
 		rightC.addComponents(allAllowed, allowed, mandatory);
 		rightC.setSizeFull();
 		rightC.setCaption(msg.getMessage("AttributesClass.effectiveClass"));

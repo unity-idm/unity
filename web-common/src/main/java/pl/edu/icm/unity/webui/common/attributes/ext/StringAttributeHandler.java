@@ -18,6 +18,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
@@ -100,7 +101,7 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler<String> imp
 		@Override
 		public Component getEditor()
 		{
-			FormLayout fl = new FormLayout();
+			FormLayout fl = new CompactFormLayout();
 			min = new RequiredTextField(msg);
 			min.setCaption(msg.getMessage("StringAttributeHandler.minLenE"));
 			min.addValidator(new IntegerRangeValidator(msg.getMessage("StringAttributeHandler.wrongMin"), 

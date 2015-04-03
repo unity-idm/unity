@@ -10,15 +10,13 @@ import java.util.List;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
 
-import com.vaadin.ui.FormLayout;
-
 /**
  * Wrapper of the {@link ListOfEmbeddedElementsStub} as a standalone component.
  * Internally this is a simple proxy of the underlying {@link ListOfEmbeddedElementsStub} implementation.
  *  
  * @author K. Benedyczak
  */
-public class ListOfEmbeddedElements<T> extends FormLayout
+public class ListOfEmbeddedElements<T> extends CompactFormLayout
 {
 	private ListOfEmbeddedElementsStub<T> stub;
 	

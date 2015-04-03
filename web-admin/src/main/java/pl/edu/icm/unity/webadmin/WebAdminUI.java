@@ -27,7 +27,6 @@ import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.VerticalLayout;
 
@@ -84,7 +83,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 
 		final VerticalLayout mainWrapper = new VerticalLayout();
 		mainWrapper.setSizeFull();
-		mainWrapper.setMargin(new MarginInfo(true, true, false, true));
+		mainWrapper.setMargin(true);
 
 		AdminTopHeader header = new AdminTopHeader(endpointDescription.getDisplayedName().getValue(msg), 
 				authnProcessor, msg, 

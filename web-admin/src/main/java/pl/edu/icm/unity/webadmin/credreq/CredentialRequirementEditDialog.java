@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.webadmin.credreq;
 
-import com.vaadin.ui.Component;
-
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+
+import com.vaadin.ui.Component;
 
 /**
  * Dialog allowing to edit a credential requirement. It takes an editor component 

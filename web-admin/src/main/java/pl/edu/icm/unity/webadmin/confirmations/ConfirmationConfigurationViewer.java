@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webadmin.confirmations;
 import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
 import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
@@ -34,7 +35,7 @@ public class ConfirmationConfigurationViewer extends VerticalLayout
 
 	private void initUI()
 	{
-		main = new FormLayout();
+		main = new CompactFormLayout();
 		type = new Label();
 		template = new Label();
 		template.setCaption(msg.getMessage("ConfirmationConfigurationViewer.msgTemplate"));

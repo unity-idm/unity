@@ -14,6 +14,7 @@ import pl.edu.icm.unity.types.basic.attrstmnt.EverybodyStatement;
 import pl.edu.icm.unity.webadmin.attrstmt.AttributeStatementWebHandlerFactory.AttributeStatementComponent;
 import pl.edu.icm.unity.webadmin.attrstmt.StatementHandlersRegistry;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -92,7 +93,7 @@ public class AttributeStatementEditDialog extends AbstractDialog
 				"AttributeStatement.conflictResolution.", AttributeStatement.ConflictResolution.class, 
 				AttributeStatement.ConflictResolution.skip);
 				
-		FormLayout ret = new FormLayout();
+		FormLayout ret = new CompactFormLayout();
 		ret.addComponents(statementComponents, statementPanel, conflictResolution);
 		
 		statementChanged();

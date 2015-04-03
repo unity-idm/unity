@@ -52,6 +52,7 @@ import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
@@ -224,6 +225,9 @@ public class IdentitiesTable extends TreeTable
 			}
 		});
 
+		addStyleName(Styles.vTableNoHorizontalLines.toString());
+		addStyleName(Styles.vSmall.toString());
+		
 //		addColumnResizeListener(new ColumnResizeListener()
 //		{
 //			@Override

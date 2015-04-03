@@ -9,6 +9,8 @@ import java.util.Map;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandler;
@@ -16,16 +18,14 @@ import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Allows to inspect a single attribute type
  * @author K. Benedyczak
  */
-public class AttributeTypeViewer extends FormLayout
+public class AttributeTypeViewer extends CompactFormLayout
 {
 	private UnityMessageSource msg;
 	

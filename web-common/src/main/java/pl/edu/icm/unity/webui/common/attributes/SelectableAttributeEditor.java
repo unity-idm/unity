@@ -13,6 +13,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupComboBox;
@@ -102,7 +103,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 	private void initUI()
 	{
 		main.setSpacing(true);
-		FormLayout top = new FormLayout();
+		FormLayout top = new CompactFormLayout();
 		attributeSel = new AttributeSelectionComboBox(msg.getMessage("Attributes.attribute"), attributeTypes);
 		attributeSel.addValueChangeListener(new ValueChangeListener()
 		{
@@ -137,7 +138,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 	private void setNewValuesUI()
 	{
 		AttributeType selected = attributeSel.getSelectedValue();
-		FormLayout ct = new FormLayout();
+		FormLayout ct = new CompactFormLayout();
 		ct.setMargin(true);
 		valuesComponent = getValuesPart(selected, selected.getName(), true, true, ct);
 		valuesPanel.setContent(ct);

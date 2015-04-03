@@ -17,6 +17,7 @@ import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SmallTable;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
@@ -143,7 +144,7 @@ public class EnumAttributeHandler implements WebAttributeHandler<String>, WebAtt
 	@Override
 	public Component getSyntaxViewer(AttributeValueSyntax<String> syntaxR)
 	{
-		Table allowedTable = new Table();
+		Table allowedTable = new SmallTable();
 		allowedTable.setHeight(12, Unit.EM);
 		allowedTable.addContainerProperty(msg.getMessage("EnumAttributeHandler.allowed"), 
 				String.class, null);
@@ -205,7 +206,7 @@ public class EnumAttributeHandler implements WebAttributeHandler<String>, WebAtt
 			
 			vl.addComponent(hl);
 			
-			current = new Table();
+			current = new SmallTable();
 			current.addContainerProperty(msg.getMessage("EnumAttributeHandler.allowed"), 
 					String.class, null);
 			current.setHeight(12, Unit.EM);

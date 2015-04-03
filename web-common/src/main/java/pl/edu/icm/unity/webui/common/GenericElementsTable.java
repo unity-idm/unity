@@ -12,7 +12,6 @@ import java.util.List;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Table;
 
 /**
  * 1-column table with arbitrary objects. 
@@ -21,7 +20,7 @@ import com.vaadin.ui.Table;
  * of {@link NameProvider}.
  * @author K. Benedyczak
  */
-public class GenericElementsTable<T> extends Table
+public class GenericElementsTable<T> extends SmallTable
 {
 	private NameProvider<T> nameProvider;
 	private List<SingleActionHandler> actionHandlers;

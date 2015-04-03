@@ -53,7 +53,7 @@ public class Toolbar extends CustomComponent
 		source.addValueChangeListener(getValueChangeListener());
 		buttons = new ArrayList<>();
 		main.setSpacing(true);
-		main.addStyleName(Styles.smallSpacing.toString());
+		main.addStyleName(Styles.tinySpacing.toString());
 		setCompositionRoot(main);
 		setSizeUndefined();
 	}

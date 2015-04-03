@@ -12,15 +12,17 @@ import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate.I18nMessage;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator;
+import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator.IllegalVariablesException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator.MandatoryVariablesException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateVariable;
-import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator.IllegalVariablesException;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.RequiredComboBox;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
@@ -34,11 +36,9 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Component to edit or add message template
@@ -46,7 +46,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  * @author P. Piernik
  * 
  */
-public class MessageTemplateEditor extends FormLayout
+public class MessageTemplateEditor extends CompactFormLayout
 {
 	private UnityMessageSource msg;
 	private MessageTemplateConsumersRegistry registry;

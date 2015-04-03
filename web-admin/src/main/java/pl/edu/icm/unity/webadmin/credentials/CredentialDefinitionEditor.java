@@ -11,6 +11,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
@@ -26,7 +27,6 @@ import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.FormLayout;
 
 /**
  * Allows to edit a credential definition. Can be configured to edit an existing definition (name and is fixed,
@@ -34,7 +34,7 @@ import com.vaadin.ui.FormLayout;
  * 
  * @author K. Benedyczak
  */
-public class CredentialDefinitionEditor extends FormLayout
+public class CredentialDefinitionEditor extends CompactFormLayout
 {
 	private UnityMessageSource msg;
 	private CredentialEditorRegistry credentialEditorReg;

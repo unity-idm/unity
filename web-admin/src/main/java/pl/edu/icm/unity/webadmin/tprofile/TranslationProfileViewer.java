@@ -11,6 +11,7 @@ import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
@@ -44,13 +45,13 @@ public class TranslationProfileViewer extends VerticalLayout
 
 	protected void initUI()
 	{	
-		main = new FormLayout();
+		main = new CompactFormLayout();
 		name = new Label();
 		name.setCaption(msg.getMessage("TranslationProfileViewer.name"));
 		description = new DescriptionTextArea();
 		description.setReadOnly(true);
 		description.setCaption(msg.getMessage("TranslationProfileViewer.description"));
-		rules = new FormLayout();
+		rules = new CompactFormLayout();
 		rules.setMargin(false);
 		rules.setSpacing(false);
 		Label rulesLabel = new Label();

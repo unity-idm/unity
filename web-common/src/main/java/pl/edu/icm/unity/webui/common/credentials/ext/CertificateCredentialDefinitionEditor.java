@@ -11,6 +11,7 @@ import com.vaadin.ui.Label;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.CertificateVerificator;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
 
@@ -31,7 +32,7 @@ public class CertificateCredentialDefinitionEditor implements CredentialDefiniti
 	public Component getEditor(String credentialDefinitionConfiguration)
 	{
 		Label label = new Label(msg.getMessage("CertificateCredentialDefinitionEditor.info"));
-		FormLayout ret = new FormLayout(label);
+		FormLayout ret = new CompactFormLayout(label);
 		ret.setSpacing(true);
 		ret.setMargin(true);
 		return ret;

@@ -8,10 +8,11 @@ import java.util.Map;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.SmallTable;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 
@@ -19,7 +20,7 @@ import com.vaadin.ui.Table;
  * Displays a single {@link AttributesClass}: its settings and parents hierarchy.
  * @author K. Benedyczak
  */
-public class AttributesClassViewer extends FormLayout
+public class AttributesClassViewer extends CompactFormLayout
 {
 	private UnityMessageSource msg;
 	
@@ -49,14 +50,14 @@ public class AttributesClassViewer extends FormLayout
 		
 		allAllowed = new Label(msg.getMessage("AttributesClass.allAllowed"));
 		
-		allowed = new Table();
+		allowed = new SmallTable();
 		allowed.addContainerProperty(msg.getMessage("AttributesClass.allowed"), 
 				String.class, null);
 		allowed.setWidth(90, Unit.PERCENTAGE);
 		allowed.setHeight(12, Unit.EM);
 		allowed.setSortContainerPropertyId(msg.getMessage("AttributesClass.allowed"));
 		
-		mandatory = new Table();
+		mandatory = new SmallTable();
 		mandatory.addContainerProperty(msg.getMessage("AttributesClass.mandatory"), 
 				String.class, null);
 		mandatory.setWidth(90, Unit.PERCENTAGE);

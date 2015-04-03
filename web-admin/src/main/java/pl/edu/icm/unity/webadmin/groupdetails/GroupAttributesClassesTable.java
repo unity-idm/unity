@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.groupdetails;
 
-import com.vaadin.ui.Table;
-
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -14,12 +12,13 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webadmin.groupdetails.GroupAttributesClassesDialog.Callback;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SmallTable;
 
 /**
  * Table with group {@link AttributesClass}es with possibility to active edit dialog.
  * @author K. Benedyczak
  */
-public class GroupAttributesClassesTable extends Table
+public class GroupAttributesClassesTable extends SmallTable
 {
 	private UnityMessageSource msg;
 	private GroupsManagement groupsManagement;

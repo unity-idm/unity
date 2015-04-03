@@ -9,6 +9,7 @@ import java.util.List;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.webui.common.SmallTable;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
 
@@ -17,13 +18,12 @@ import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Table;
 
 /**
  * Table with attribute values.
  * @author K. Benedyczak
  */
-public class ValuesTable extends Table
+public class ValuesTable extends SmallTable
 {
 	private AttributeValueSyntax<?> syntax;
 	@SuppressWarnings("rawtypes")

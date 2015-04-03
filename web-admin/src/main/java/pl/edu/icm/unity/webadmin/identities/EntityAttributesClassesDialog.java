@@ -19,6 +19,7 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webadmin.attributeclass.ACTwinColSelect;
 import pl.edu.icm.unity.webadmin.attributeclass.AbstractAttributesClassesDialog;
 import pl.edu.icm.unity.webadmin.attributeclass.EffectiveAttrClassViewer;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -72,7 +73,7 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 		});
 		
 		Panel extraInfo = new SafePanel(msg.getMessage("EntityAttributesClasses.infoPanel"));
-		FormLayout extra = new FormLayout();
+		FormLayout extra = new CompactFormLayout();
 		extraInfo.setContent(extra);
 		
 		groupAcs = new Table();
@@ -93,7 +94,7 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 		}
 		extra.addComponents(groupAcs, effective);
 		
-		FormLayout main = new FormLayout(info, acs, new Label(""), extraInfo);
+		FormLayout main = new CompactFormLayout(info, acs, new Label(""), extraInfo);
 		return main;
 	}
 

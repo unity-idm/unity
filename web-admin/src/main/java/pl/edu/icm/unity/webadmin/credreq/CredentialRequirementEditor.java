@@ -11,6 +11,7 @@ import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 
@@ -18,7 +19,6 @@ import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.AbstractTextField;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TwinColSelect;
 
 /**
@@ -27,7 +27,7 @@ import com.vaadin.ui.TwinColSelect;
  * 
  * @author K. Benedyczak
  */
-public class CredentialRequirementEditor extends FormLayout
+public class CredentialRequirementEditor extends CompactFormLayout
 {
 	private UnityMessageSource msg;
 

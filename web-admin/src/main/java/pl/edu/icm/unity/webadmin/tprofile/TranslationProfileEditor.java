@@ -28,6 +28,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webadmin.tprofile.RuleComponent.Callback;
 import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStartEvent;
 import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStopEvent;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.Images;
@@ -100,7 +101,7 @@ public abstract class TranslationProfileEditor extends VerticalLayout
 	
 	private void initUI(TranslationProfile toEdit)
 	{
-		rulesLayout = new FormLayout();
+		rulesLayout = new CompactFormLayout();
 		rulesLayout.setImmediate(true);
 		rulesLayout.setSpacing(false);
 		rulesLayout.setMargin(false);
@@ -164,7 +165,7 @@ public abstract class TranslationProfileEditor extends VerticalLayout
 		Label t = new Label(msg.getMessage("TranslationProfileEditor.rules"));
 		hl.addComponents(t, addRule, testProfileButton);
 
-		FormLayout main = new FormLayout();
+		FormLayout main = new CompactFormLayout();
 		main.addComponents(name, description);
 		main.setSizeFull();
 

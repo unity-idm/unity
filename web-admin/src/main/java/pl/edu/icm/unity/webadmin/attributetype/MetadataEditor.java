@@ -11,9 +11,11 @@ import java.util.Set;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataEditor;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandler;
@@ -29,7 +31,6 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Editing of multiple metadata entries.
@@ -195,7 +196,7 @@ public class MetadataEditor extends VerticalLayout
 		@Override
 		protected Component getContents() throws Exception
 		{
-			FormLayout main = new FormLayout();
+			FormLayout main = new CompactFormLayout();
 			editorPanel = new SafePanel();
 			editorPanel.setStyleName(Styles.vPanelLight.toString());
 			if (initialKey != null)

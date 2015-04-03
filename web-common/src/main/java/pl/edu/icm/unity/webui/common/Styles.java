@@ -53,14 +53,16 @@ public enum Styles
 	redBackground("u-red-bg"),
 	smallMargin("u-smallMargin"),
 	smallSpacing("u-smallSpacing"),
+	tinySpacing("u-tinySpacing"),
+	smallFormSpacing("u-smallFormSpacing"),
 	negativeMargin5("u-negativeMargin5"),
 	captionBold("bold"),
 	hidden("u-hidden"),
 	largeTabsheet("u-bigTabsheet"),
 	
 	//Valo
-	//vTableSmall(ValoTheme.TABLE_SMALL),
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),
+	vBorderLess(ValoTheme.TEXTAREA_BORDERLESS),
 	vButtonSmall(ValoTheme.BUTTON_SMALL),
 	vTabsheetMinimal(ValoTheme.TABSHEET_COMPACT_TABBAR),
 	vTabsheetFramed(ValoTheme.TABSHEET_FRAMED),
@@ -71,6 +73,7 @@ public enum Styles
 	vButtonLinkV(ValoTheme.BUTTON_LINK),
 	vSmall(ValoTheme.TEXTFIELD_SMALL),
 	vTiny(ValoTheme.TEXTFIELD_TINY),
+	vTableNoHorizontalLines(ValoTheme.TABLE_NO_HORIZONTAL_LINES),
 	vComboSmall(ValoTheme.COMBOBOX_SMALL);
 	
 	

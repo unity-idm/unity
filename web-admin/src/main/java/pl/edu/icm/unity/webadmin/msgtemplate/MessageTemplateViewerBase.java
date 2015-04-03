@@ -9,6 +9,7 @@ import java.util.List;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 
 import com.vaadin.ui.Component;
@@ -37,7 +38,7 @@ public abstract class MessageTemplateViewerBase extends VerticalLayout
 	protected void initUIBase()
 	{
 		messages = new ArrayList<Component>();
-		main = new FormLayout();
+		main = new CompactFormLayout();
 		name = new Label();
 		name.setCaption(msg.getMessage("MessageTemplateViewer.name"));
 		main.addComponent(name);

@@ -6,20 +6,21 @@ package pl.edu.icm.unity.webadmin.attrstmt;
 
 import java.util.Collection;
 
-import com.vaadin.server.UserError;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-
 import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webadmin.attribute.AttributeFieldWithEdit;
 import pl.edu.icm.unity.webadmin.attrstmt.AttributeStatementWebHandlerFactory.AttributeStatementComponent;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+
+import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.server.UserError;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
 
 /**
  * Common code for attribute statement handler components.
@@ -52,7 +53,7 @@ public abstract class AbstractAttributeStatementComponent implements AttributeSt
 	
 	private FormLayout getMainLayout(String description)
 	{
-		FormLayout ret = new FormLayout();
+		FormLayout ret = new CompactFormLayout();
 		ret.setMargin(true);
 		ret.setSizeFull();
 		

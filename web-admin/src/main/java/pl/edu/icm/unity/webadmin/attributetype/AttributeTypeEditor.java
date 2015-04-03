@@ -12,6 +12,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.FormValidator;
@@ -32,7 +33,6 @@ import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -43,7 +43,7 @@ import com.vaadin.ui.VerticalLayout;
  * 
  * @author K. Benedyczak
  */
-public class AttributeTypeEditor extends FormLayout
+public class AttributeTypeEditor extends CompactFormLayout
 {
 	private UnityMessageSource msg;
 	private AttributeHandlerRegistry registry;

@@ -6,18 +6,19 @@ package pl.edu.icm.unity.webadmin.identities;
 
 import java.util.Collection;
 
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
 
 /**
  * Allows to change credential requirement for an entity
@@ -72,7 +73,7 @@ public class CredentialRequirementDialog extends AbstractDialog
 		credentialRequirement.select(initialCR);
 		credentialRequirement.setNullSelectionAllowed(false);
 		
-		FormLayout main = new FormLayout();
+		FormLayout main = new CompactFormLayout();
 		main.addComponents(info, credentialRequirement);
 		main.setSizeFull();
 		return main;

@@ -20,6 +20,7 @@ import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
@@ -232,11 +233,11 @@ public class EndpointComponent extends DeployableComponentViewBase
 		addFieldToContent(msg.getMessage("Endpoints.paths"), "");
 		
 		HorizontalLayout hp = new HorizontalLayout();
-		FormLayout pa = new FormLayout();
+		FormLayout pa = new CompactFormLayout();
 		pa.setSpacing(false);
 		pa.setMargin(false);
 
-		FormLayout pad = new FormLayout();
+		FormLayout pad = new CompactFormLayout();
 		pad.setSpacing(false);
 		pad.setMargin(false);
 		int i = 0;
@@ -272,7 +273,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 				endpoint.getContextAddress());
 
 		addFieldToContent(msg.getMessage("Endpoints.authenticatorsSet"), "");
-		FormLayout au = new FormLayout();
+		FormLayout au = new CompactFormLayout();
 		au.setSpacing(false);
 		au.setMargin(false);
 		i = 0;

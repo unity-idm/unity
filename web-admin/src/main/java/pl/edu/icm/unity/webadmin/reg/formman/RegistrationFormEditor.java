@@ -41,6 +41,7 @@ import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
@@ -52,6 +53,7 @@ import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.URLValidator;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
@@ -70,7 +72,6 @@ import com.vaadin.ui.Slider;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Allows to edit a registration form. Can be configured to edit an existing form (name is fixed)
@@ -249,7 +250,7 @@ public class RegistrationFormEditor extends VerticalLayout
 	
 	private void initMainTab(RegistrationForm toEdit) throws EngineException
 	{
-		FormLayout main = new FormLayout();
+		FormLayout main = new CompactFormLayout();
 		VerticalLayout wrapper = new VerticalLayout(main);
 		wrapper.setMargin(true);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.mainTab"));
@@ -400,7 +401,7 @@ public class RegistrationFormEditor extends VerticalLayout
 	
 	private void initCollectedTab(RegistrationForm toEdit)
 	{
-		FormLayout main = new FormLayout();
+		FormLayout main = new CompactFormLayout();
 		VerticalLayout wrapper = new VerticalLayout(main);
 		wrapper.setMargin(true);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
@@ -446,7 +447,7 @@ public class RegistrationFormEditor extends VerticalLayout
 	
 	private void initAssignedTab(RegistrationForm toEdit) throws EngineException
 	{
-		FormLayout main = new FormLayout();
+		FormLayout main = new CompactFormLayout();
 		VerticalLayout wrapper = new VerticalLayout(main);
 		wrapper.setMargin(true);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.assignedTab"));

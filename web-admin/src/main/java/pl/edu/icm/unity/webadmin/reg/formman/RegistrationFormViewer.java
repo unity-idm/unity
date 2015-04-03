@@ -19,6 +19,7 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.webadmin.msgtemplate.SimpleMessageTemplateViewer;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -189,7 +190,7 @@ public class RegistrationFormViewer extends VerticalLayout
 	
 	private void initCollectedTab()
 	{
-		FormLayout main = new FormLayout();
+		FormLayout main = new CompactFormLayout();
 		VerticalLayout wrapper = new VerticalLayout(main);
 		wrapper.setMargin(true);
 		wrapper.setSpacing(true);
@@ -288,7 +289,7 @@ public class RegistrationFormViewer extends VerticalLayout
 	
 	private void initAssignedTab()
 	{
-		FormLayout main = new FormLayout();
+		FormLayout main = new CompactFormLayout();
 		VerticalLayout wrapper = new VerticalLayout(main);
 		wrapper.setMargin(true);
 		wrapper.setSpacing(true);
@@ -343,7 +344,7 @@ public class RegistrationFormViewer extends VerticalLayout
 	
 	private void initMainTab()
 	{
-		FormLayout main = new FormLayout();
+		FormLayout main = new CompactFormLayout();
 		VerticalLayout wrapper = new VerticalLayout(main);
 		wrapper.setMargin(true);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.mainTab"));

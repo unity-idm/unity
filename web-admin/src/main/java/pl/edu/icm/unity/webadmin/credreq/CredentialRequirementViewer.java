@@ -4,20 +4,21 @@
  */
 package pl.edu.icm.unity.webadmin.credreq;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Table;
-
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.SmallTable;
+
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Table;
 
 /**
  * Allows to inspect a single {@link CredentialRequirements}
  * @author K. Benedyczak
  */
-public class CredentialRequirementViewer extends FormLayout
+public class CredentialRequirementViewer extends CompactFormLayout
 {
 	private UnityMessageSource msg;
 	
@@ -42,7 +43,7 @@ public class CredentialRequirementViewer extends FormLayout
 		description = new DescriptionTextArea(msg.getMessage("CredentialRequirements.description"), true, "");
 		addComponent(description);
 		
-		credentials = new Table(msg.getMessage("CredentialRequirements.credentials"));
+		credentials = new SmallTable(msg.getMessage("CredentialRequirements.credentials"));
 		credentials.setHeight(12, Unit.EM);
 		credentials.setWidth(90, Unit.PERCENTAGE);
 		credentials.addContainerProperty(msg.getMessage("CredentialRequirements.credentialsHeader"), 

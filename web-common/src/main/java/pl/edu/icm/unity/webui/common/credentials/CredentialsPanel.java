@@ -27,6 +27,7 @@ import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
@@ -174,7 +175,7 @@ public class CredentialsPanel extends VerticalLayout
 		});
 		buttonsBar.addComponent(update);
 
-		FormLayout fl = new FormLayout(description, status, credentialStateInfo, editor, buttonsBar);
+		FormLayout fl = new CompactFormLayout(description, status, credentialStateInfo, editor, buttonsBar);
 		fl.setMargin(true);
 		credentialPanel.setContent(fl);
 
@@ -210,7 +211,7 @@ public class CredentialsPanel extends VerticalLayout
 		status.setValue(msg.getMessage("CredentialStatus."+credPublicInfo.getState().toString()));
 		status.setReadOnly(true);
 		credEditor = credEditorReg.getEditor(chosen.getTypeId());
-		FormLayout credLayout = new FormLayout();
+		FormLayout credLayout = new CompactFormLayout();
 		credLayout.setMargin(true);
 		
 		askAboutCurrent = isCurrentCredentialVerificationRequired(chosen);
@@ -331,7 +332,7 @@ public class CredentialsPanel extends VerticalLayout
 	
 	private void updateStatus()
 	{
-		FormLayout contents = new FormLayout();
+		FormLayout contents = new CompactFormLayout();
 		contents.setMargin(true);
 		contents.setSpacing(true);
 		

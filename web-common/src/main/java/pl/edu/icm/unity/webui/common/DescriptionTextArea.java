@@ -31,10 +31,7 @@ public class DescriptionTextArea extends TextArea
 	 */
 	public DescriptionTextArea(boolean readOnly, String initialValue)
 	{
-		setWordwrap(true);
-		setWidth(100, Unit.PERCENTAGE);
-		setValue(initialValue);
-		setReadOnly(readOnly);
+		init(readOnly, initialValue);
 	}
 	
 	/**
@@ -55,10 +52,16 @@ public class DescriptionTextArea extends TextArea
 	public DescriptionTextArea(String caption, boolean readOnly, String initialValue)
 	{
 		super(caption);
+		init(readOnly, initialValue);
+	}
+	
+	protected void init(boolean readOnly, String initialValue)
+	{
 		setWordwrap(true);
 		setWidth(100, Unit.PERCENTAGE);
 		setValue(initialValue);
 		setReadOnly(readOnly);
+		addStyleName(Styles.vBorderLess.toString());
 	}
 	
 	@Override

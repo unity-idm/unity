@@ -11,6 +11,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.MapComboBox;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
@@ -18,7 +19,6 @@ import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
 /**
@@ -29,7 +29,7 @@ import com.vaadin.ui.Label;
  * Otherwise the selection is disabled and attribute type is fixed to the single one provided.
  * @author K. Benedyczak
  */
-public class AttributeMetaEditorPanel extends FormLayout
+public class AttributeMetaEditorPanel extends CompactFormLayout
 {
 	private UnityMessageSource msg;
 	

@@ -8,6 +8,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
@@ -48,7 +49,7 @@ public class GroupEditDialog extends AbstractDialog
 	@Override
 	protected Component getContents()
 	{
-		FormLayout fl = new FormLayout();
+		FormLayout fl = new CompactFormLayout();
 		fl.setMargin(true);
 		fl.setSpacing(true);
 		

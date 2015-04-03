@@ -24,6 +24,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
 
@@ -72,9 +73,8 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		CredentialResetSettingsEditor viewer = new CredentialResetSettingsEditor(msg, msgTplMan,
 				helper.getPasswordResetSettings());
 		
-		FormLayout form = new FormLayout(minLength, minClasses, denySequences, historySize, maxAge);
+		FormLayout form = new CompactFormLayout(minLength, minClasses, denySequences, historySize, maxAge);
 		viewer.addViewerToLayout(form);
-		form.setSpacing(true);
 		form.setMargin(true);
 		
 		minLength.setValue(String.valueOf(helper.getMinLength()));
@@ -120,7 +120,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		maxAge.setValue(24d);
 
 
-		FormLayout form = new FormLayout(minLength, minClasses, denySequences, historySize, limitMaxAge,
+		FormLayout form = new CompactFormLayout(minLength, minClasses, denySequences, historySize, limitMaxAge,
 				maxAge);
 		form.setSpacing(true);
 		form.setMargin(true);

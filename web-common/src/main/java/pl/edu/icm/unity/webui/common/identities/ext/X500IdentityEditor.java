@@ -25,6 +25,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
@@ -57,7 +58,7 @@ public class X500IdentityEditor implements IdentityEditor
 		upload.setReceiver(uploader);
 		upload.addSucceededListener(uploader);
 		
-		FormLayout wrapper = new FormLayout(upload);
+		FormLayout wrapper = new CompactFormLayout(upload);
 		wrapper.setMargin(false);
 		field.setCaption(msg.getMessage("X500IdentityEditor.dn"));
 		field.setRequired(required);

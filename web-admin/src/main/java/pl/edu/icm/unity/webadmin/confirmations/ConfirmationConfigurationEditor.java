@@ -14,11 +14,11 @@ import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.webui.common.RequiredComboBox;
 
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.FormLayout;
 
 /**
  * Component to edit or add confirmation configuration
@@ -26,7 +26,7 @@ import com.vaadin.ui.FormLayout;
  * @author P. Piernik
  * 
  */
-public class ConfirmationConfigurationEditor extends FormLayout
+public class ConfirmationConfigurationEditor extends CompactFormLayout
 {
 
 	private UnityMessageSource msg;

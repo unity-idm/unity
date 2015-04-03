@@ -15,6 +15,7 @@ import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
@@ -24,7 +25,6 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TwinColSelect;
 
@@ -32,7 +32,7 @@ import com.vaadin.ui.TwinColSelect;
  * Editing component of an {@link AttributesClass} instance. Currently allows for editing a new AC only.
  * @author K. Benedyczak
  */
-public class AttributesClassEditor extends FormLayout
+public class AttributesClassEditor extends CompactFormLayout
 {
 	private UnityMessageSource msg;
 	private Map<String, AttributesClass> allClasses;

@@ -14,6 +14,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
@@ -69,7 +70,7 @@ public class IdentityCreationDialog extends AbstractDialog
 		identityType.setImmediate(true);
 
 		Panel identityPanel = new SafePanel(msg.getMessage("IdentityCreation.idValue"));
-		final FormLayout idLayout = new FormLayout();
+		final FormLayout idLayout = new CompactFormLayout();
 		idLayout.setMargin(true);
 		identityPanel.setContent(idLayout);
 		
@@ -89,7 +90,7 @@ public class IdentityCreationDialog extends AbstractDialog
 
 		extractAttributes = new CheckBox(msg.getMessage("IdentityCreation.extractAttrs"), true);
 
-		FormLayout main = new FormLayout();
+		FormLayout main = new CompactFormLayout();
 		main.addComponents(identityType, identityPanel, extractAttributes);
 		main.setSizeFull();
 		return main;

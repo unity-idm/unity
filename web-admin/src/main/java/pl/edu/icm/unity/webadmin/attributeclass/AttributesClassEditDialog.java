@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.webadmin.attributeclass;
 
-import com.vaadin.ui.Component;
-
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+
+import com.vaadin.ui.Component;
 
 /**
  * Dialog allowing to edit {@link AttributesClass}. It takes an editor component 

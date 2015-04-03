@@ -263,7 +263,18 @@
 			width: round($v-unit-size/6);
 		}	
 	}
-	
+
+	.u-smallFormSpacing > table > tbody > [class*="row"] > td {
+	    padding-top: round($v-unit-size/6);
+	}
+
+	.u-tinySpacing {
+		.v-spacing {
+			height: round($v-unit-size/18);
+			width: round($v-unit-size/18);
+		}	
+	}
+
 	.u-hidden {
 		visibility: hidden;
 	}

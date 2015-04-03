@@ -24,6 +24,7 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SmallTable;
 
 import com.vaadin.data.Container;
 import com.vaadin.event.Action;
@@ -32,13 +33,12 @@ import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.event.dd.acceptcriteria.Not;
 import com.vaadin.shared.ui.dd.VerticalDropLocation;
-import com.vaadin.ui.Table;
 
 /**
  * Table with attribute statements. Allows for management operations.
  * @author K. Benedyczak
  */
-public class AttributeStatementsTable extends Table
+public class AttributeStatementsTable extends SmallTable
 {
 	private static final String MAIN_COL = "main";
 	private UnityMessageSource msg;

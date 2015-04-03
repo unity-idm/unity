@@ -7,17 +7,6 @@ package pl.edu.icm.unity.webadmin.reg.reqman;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-import pl.edu.icm.unity.webui.common.Styles;
-
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
@@ -30,9 +19,21 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.registration.RegistrationRequestChangedEvent;
+
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Responsible for displaying a submitted request ({@link RegistrationRequestState}), its editing and processing.
@@ -80,7 +81,7 @@ public class RequestProcessingPanel extends CustomComponent
 		requestDate = new Label();
 		requestDate.setCaption(msg.getMessage("RegistrationRequest.submitTime")+":");
 		
-		FormLayout topInfo = new FormLayout(requestForm, requestStatus, requestDate, requestId);
+		FormLayout topInfo = new CompactFormLayout(requestForm, requestStatus, requestDate, requestId);
 		
 		TabSheet tabs = new TabSheet();
 		tabs.addStyleName(Styles.vTabsheetMinimal.toString());

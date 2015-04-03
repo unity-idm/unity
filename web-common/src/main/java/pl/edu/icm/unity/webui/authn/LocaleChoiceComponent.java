@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -29,7 +30,6 @@ import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.FormLayout;
 
 
 /**
@@ -39,7 +39,7 @@ import com.vaadin.ui.FormLayout;
 @SuppressWarnings("serial")
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class LocaleChoiceComponent extends FormLayout
+public class LocaleChoiceComponent extends CompactFormLayout
 {
 	private ComboBox chooser;
 	private Map<String, Locale> selectableLocales;
@@ -95,6 +95,5 @@ public class LocaleChoiceComponent extends FormLayout
 			setComponentAlignment(chooser, Alignment.TOP_RIGHT);
 		}
 		setSizeUndefined();
-		setMargin(false);
 	}
 }

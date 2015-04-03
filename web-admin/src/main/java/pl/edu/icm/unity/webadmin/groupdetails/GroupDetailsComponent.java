@@ -22,6 +22,7 @@ import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
@@ -34,6 +35,7 @@ import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -69,7 +71,7 @@ public class GroupDetailsComponent extends SafePanel
 		main.setSpacing(true);
 		main.setSizeFull();
 	
-		FormLayout topLayout = new FormLayout();
+		FormLayout topLayout = new CompactFormLayout();
 		displayedName = new Label();
 		displayedName.setCaption(msg.getMessage("displayedNameF"));
 		description = new DescriptionTextArea(msg.getMessage("GroupDetails.description"), true, "");

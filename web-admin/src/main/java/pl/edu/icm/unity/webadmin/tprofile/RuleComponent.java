@@ -30,6 +30,7 @@ import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.RequiredComboBox;
@@ -190,7 +191,7 @@ public class RuleComponent extends VerticalLayout
 		toolbar.setExpandRatio(buttonWrapper, 1);
 		toolbar.setWidth(100, Unit.PERCENTAGE);
 
-		paramsList = new FormLayout();
+		paramsList = new CompactFormLayout();
 		paramsList.setSpacing(true);
 
 		condition = new RequiredTextField(msg);
@@ -240,7 +241,7 @@ public class RuleComponent extends VerticalLayout
 		Label separator = new Label();
 		separator.addStyleName(Styles.horizontalLine.toString());
 
-		FormLayout help = new FormLayout();
+		FormLayout help = new CompactFormLayout();
 		helpAction = new Image("", Images.help.getResource());
 		helpAction.setDescription(msg.getMessage("TranslationProfileEditor.helpEmptyAction"));
 		Image helpCondition = new Image("", Images.help.getResource());
@@ -255,7 +256,7 @@ public class RuleComponent extends VerticalLayout
 		wrapper.setMargin(false);
 		actionParams = new Label();
 		actionParams.setCaption(msg.getMessage("TranslationProfileEditor.actionParameters"));
-		FormLayout main = new FormLayout();
+		FormLayout main = new CompactFormLayout();
 		main.setSpacing(true);
 		main.setMargin(false);
 		main.addComponents(condition, actions, actionParams);

@@ -10,6 +10,7 @@ import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
@@ -80,7 +81,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		separator.addStyleName(Styles.horizontalLine.toString());
 		main.addComponent(separator);
 
-		content = new FormLayout();
+		content = new CompactFormLayout();
 		content.setVisible(false);
 		content.setSpacing(false);
 		main.addComponent(content);

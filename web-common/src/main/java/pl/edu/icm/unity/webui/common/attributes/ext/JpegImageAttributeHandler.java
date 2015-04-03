@@ -26,6 +26,7 @@ import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.Images;
@@ -356,7 +357,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 	@Override
 	public Component getSyntaxViewer(AttributeValueSyntax<BufferedImage> syntax)
 	{
-		return new FormLayout(getHints((JpegImageAttributeSyntax)syntax));
+		return new CompactFormLayout(getHints((JpegImageAttributeSyntax)syntax));
 	}
 
 	@Override
@@ -380,7 +381,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		@Override
 		public Component getEditor()
 		{
-			FormLayout fl = new FormLayout();
+			FormLayout fl = new CompactFormLayout();
 			maxWidth = new IntegerBoundEditor(msg, msg.getMessage("JpegAttributeHandler.maxWidthUnlimited"), 
 					msg.getMessage("JpegAttributeHandler.maxWidthE"), Integer.MAX_VALUE);
 			maxWidth.setMin(1);

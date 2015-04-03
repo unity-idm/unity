@@ -16,6 +16,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
@@ -95,7 +96,7 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler<Doub
 		@Override
 		public Component getEditor()
 		{
-			FormLayout fl = new FormLayout();
+			FormLayout fl = new CompactFormLayout();
 			min = new DoubleBoundEditor(msg, msg.getMessage("NumericAttributeHandler.minUndef"), 
 					msg.getMessage("NumericAttributeHandler.minE"), Double.MIN_VALUE);
 			max = new DoubleBoundEditor(msg, msg.getMessage("NumericAttributeHandler.maxUndef"), 

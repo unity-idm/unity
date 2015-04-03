@@ -9,6 +9,7 @@ import pl.edu.icm.unity.types.EntityInformation;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -54,7 +55,7 @@ public class ChangeEntityStateDialog extends AbstractDialog
 				Sets.newHashSet(EntityState.onlyLoginPermitted));
 		
 		final Panel schedulePanel = new SafePanel();
-		FormLayout schedLay = new FormLayout();
+		FormLayout schedLay = new CompactFormLayout();
 		scheduleEnable = new CheckBox(msg.getMessage("ChangeEntityStateDialog.enableScheduled"));
 		scheduleEnable.setImmediate(true);
 		scheduleEnable.addValueChangeListener(new ValueChangeListener()
@@ -90,7 +91,7 @@ public class ChangeEntityStateDialog extends AbstractDialog
 		schedLay.addComponents(entityScheduledChange, changeTime);
 		schedLay.setMargin(true);
 		
-		FormLayout main = new FormLayout();
+		FormLayout main = new CompactFormLayout();
 		main.addComponents(info, entityState, scheduleEnable, schedulePanel);
 		main.setSizeFull();
 		return main;

@@ -6,18 +6,18 @@ package pl.edu.icm.unity.webadmin.credentials;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
 /**
  * Shows a single {@link CredentialDefinition}
  * @author K. Benedyczak
  */
-public class CredentialDefinitionViewer extends FormLayout
+public class CredentialDefinitionViewer extends CompactFormLayout
 {
 	private UnityMessageSource msg;
 	

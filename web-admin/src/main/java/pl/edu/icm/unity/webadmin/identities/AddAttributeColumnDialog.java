@@ -8,17 +8,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ErrorPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
+
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
 
 /**
  * Allows to choose an attribute type to be added as identities table column.
@@ -69,7 +70,7 @@ public class AddAttributeColumnDialog extends AbstractDialog
 		useRootGroup = new CheckBox(msg.getMessage("AddAttributeColumnDialog.useRootGroup"), true);
 		useRootGroup.setDescription(msg.getMessage("AddAttributeColumnDialog.useRootGroupTooltip"));
 		
-		FormLayout main = new FormLayout();
+		FormLayout main = new CompactFormLayout();
 		main.addComponents(info, info2, attributeType, useRootGroup);
 		main.setSizeFull();
 		return main;
