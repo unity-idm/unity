@@ -146,6 +146,7 @@ public class EnumAttributeHandler implements WebAttributeHandler<String>, WebAtt
 	{
 		Table allowedTable = new SmallTable();
 		allowedTable.setHeight(12, Unit.EM);
+		allowedTable.setWidth(26, Unit.EM);
 		allowedTable.addContainerProperty(msg.getMessage("EnumAttributeHandler.allowed"), 
 				String.class, null);
 		EnumAttributeSyntax syntax = (EnumAttributeSyntax) syntaxR;
@@ -210,6 +211,7 @@ public class EnumAttributeHandler implements WebAttributeHandler<String>, WebAtt
 			current.addContainerProperty(msg.getMessage("EnumAttributeHandler.allowed"), 
 					String.class, null);
 			current.setHeight(12, Unit.EM);
+			current.setWidth(26, Unit.EM);
 			current.addActionHandler(new RemoveActionHandler());
 			vl.addComponent(current);
 			

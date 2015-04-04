@@ -5,9 +5,11 @@
 package pl.edu.icm.unity.webui.common.boundededitors;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.data.util.converter.Converter;
 import com.vaadin.server.UserError;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
@@ -112,6 +114,10 @@ public abstract class AbstractBoundEditor<T extends Number> extends CustomField<
 	{
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.addComponents(limit, unlimited);
+		hl.setComponentAlignment(limit, Alignment.MIDDLE_LEFT);
+		hl.setComponentAlignment(unlimited, Alignment.MIDDLE_LEFT);
+		hl.addStyleName(Styles.smallSpacing.toString());
+		hl.setSpacing(true);
 		return hl;
 	}
 
