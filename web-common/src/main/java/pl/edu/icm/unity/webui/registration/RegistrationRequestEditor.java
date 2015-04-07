@@ -601,7 +601,7 @@ public class RegistrationRequestEditor extends CustomComponent
 			if (aParam.isManatory())
 			{
 				Label mandatory = new Label(msg.getMessage("RegistrationRequest.mandatoryAgreement"));
-				mandatory.addStyleName(Styles.italic.toString());
+				mandatory.addStyleName(Styles.emphasized.toString());
 				layout.addComponent(mandatory);
 			}
 			if (i < aParams.size() - 1)
@@ -634,7 +634,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		if (identitiesList.size() > 0)
 		{
 			Label titleL = new Label(msg.getMessage("RegistrationRequest.externalIdentities"));
-			titleL.addStyleName(Styles.italic.toString());
+			titleL.addStyleName(Styles.emphasized.toString());
 			layout.addComponent(titleL);
 			layout.addComponent(identitiesList);
 		}
@@ -667,7 +667,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		if (attributesList.size() > 0)
 		{
 			Label titleL = new Label(msg.getMessage("RegistrationRequest.externalAttributes"));
-			titleL.addStyleName(Styles.italic.toString());
+			titleL.addStyleName(Styles.emphasized.toString());
 			layout.addComponent(titleL);
 			layout.addComponent(attributesList);
 		}
@@ -695,7 +695,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		if (groupsList.size() > 0)
 		{
 			Label titleL = new Label(msg.getMessage("RegistrationRequest.externalGroups"));
-			titleL.addStyleName(Styles.italic.toString());
+			titleL.addStyleName(Styles.emphasized.toString());
 			layout.addComponent(titleL);
 			layout.addComponent(groupsList);
 		}

@@ -122,7 +122,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	protected void appInit(final VaadinRequest request)
 	{
 		authenticationPanel = createSelectedAuthNPanel();
-		authenticationPanel.addStyleName(Styles.minHeight300.toString());
+		authenticationPanel.addStyleName(Styles.minHeightAuthn.toString());
 
 		
 		List<AuthNTile> tiles = prepareTiles(authenticators);
@@ -160,7 +160,6 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(topBar);
 		main.setSpacing(true);
-		main.addStyleName(Styles.verticalMargins10.toString());
 		main.setMargin(new MarginInfo(false, true, false, true));
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setHeightUndefined();
@@ -218,8 +217,6 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		List<AuthNTile> ret = new ArrayList<>();
 		List<AuthenticationOption> authNCopy = new ArrayList<>(authenticators);
 		Set<String> tileKeys = config.getStructuredListKeys(VaadinEndpointProperties.AUTHN_TILES_PFX);
-		ScaleMode defScaleMode = config.getEnumValue(VaadinEndpointProperties.DEFAULT_AUTHN_ICON_SIZE, 
-				ScaleMode.class);
 		int defPerRow = config.getIntValue(VaadinEndpointProperties.DEFAULT_PER_LINE);
 		
 		SelectionChangedListener selectionChangedListener = new SelectionChangedListener()
@@ -235,10 +232,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		
 		for (String tileKey: tileKeys)
 		{
-			ScaleMode scaleMode = config.getEnumValue(tileKey + VaadinEndpointProperties.AUTHN_TILE_ICON_SIZE, 
-					ScaleMode.class);
-			if (scaleMode == null)
-				scaleMode = defScaleMode;
+			ScaleMode scaleMode = config.getScaleMode(tileKey);
 			
 			Integer perRow = config.getIntValue(tileKey + VaadinEndpointProperties.AUTHN_TILE_PER_LINE);
 			if (perRow == null)
@@ -270,7 +264,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		
 		if (!authNCopy.isEmpty())
 		{
-			AuthNTile defaultTile = new AuthNTile(authNCopy, defScaleMode, defPerRow, 
+			AuthNTile defaultTile = new AuthNTile(authNCopy, config.getDefaultScaleMode(), defPerRow, 
 					selectionChangedListener, null);
 			ret.add(defaultTile);
 		}

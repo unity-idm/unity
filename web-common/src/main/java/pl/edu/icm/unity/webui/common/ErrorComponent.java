@@ -64,7 +64,7 @@ public class ErrorComponent extends FormLayout
 	public void setWarning(String warning)
 	{
 		HtmlSimplifiedLabel errorL = new HtmlSimplifiedLabel();
-		errorL.addStyleName(Styles.italic.toString());
+		errorL.addStyleName(Styles.emphasized.toString());
 		errorL.setIcon(Images.warn32.getResource());
 		errorL.setValue(warning);
 		addCommon(errorL);

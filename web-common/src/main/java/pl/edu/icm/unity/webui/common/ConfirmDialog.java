@@ -32,7 +32,9 @@ public class ConfirmDialog extends AbstractDialog
 		super(msg, caption);
 		this.question = question;
 		this.callback = callback;
+		this.lightweightWrapperPanel = true;
 		setSizeMode(SizeMode.SMALL);
+		setSize(50, 30);
 	}
 
 	public void setHTMLContent(boolean how)

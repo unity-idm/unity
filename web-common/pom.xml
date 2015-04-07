@@ -60,6 +60,10 @@
 			<artifactId>vaadin-client-compiled</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.vaadin.addon.responsive</groupId>
+			<artifactId>responsive</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>nl.simplecaptcha</groupId>
 			<artifactId>simplecaptcha</artifactId>
 		</dependency>

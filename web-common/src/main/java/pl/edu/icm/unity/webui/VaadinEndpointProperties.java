@@ -24,7 +24,37 @@ import eu.unicore.util.configuration.PropertyMD;
 public class VaadinEndpointProperties extends PropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, VaadinEndpointProperties.class);
-	public enum ScaleMode {none, height100, width100, height50, width50, maxHeight50, maxHeight100, maxHeight200}
+	private enum ScaleModeOld {
+		none(ScaleMode.none), 
+		height100(ScaleMode.heightSmall), 
+		width100(ScaleMode.widthSmall), 
+		height50(ScaleMode.heightTiny),
+		width50(ScaleMode.widthTiny), 
+		maxHeight50(ScaleMode.maxHeightTiny), 
+		maxHeight100(ScaleMode.maxHeightSmall), 
+		maxHeight200(ScaleMode.maxHeightMedium);
+		
+		private ScaleMode translated;
+		ScaleModeOld(ScaleMode translated)
+		{
+			this.translated = translated;
+		}
+		
+		public ScaleMode toScaleMode()
+		{
+			return translated;
+		}
+	}
+	
+	public enum ScaleMode {
+		none, 
+		heightSmall, 
+		widthSmall, 
+		heightTiny, 
+		widthTiny, 
+		maxHeightTiny, 
+		maxHeightSmall, 
+		maxHeightMedium}
 	
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.endpoint.web.";
@@ -40,10 +70,12 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	public static final String AUTHN_TILES_PFX = "authenticationTiles.";
 	public static final String AUTHN_TILE_CONTENTS = "tileContents";
 	public static final String AUTHN_TILE_PER_LINE = "tileAuthnsPerLine";
-	public static final String AUTHN_TILE_ICON_SIZE = "tileIconSize";
+	private static final String AUTHN_TILE_ICON_SIZE = "tileIconSize";
+	public static final String AUTHN_TILE_ICON_SCALE = "tileIconScale";
 	public static final String AUTHN_TILE_DISPLAY_NAME = "tileName";
 	public static final String DEFAULT_PER_LINE = "authnsPerLine";
-	public static final String DEFAULT_AUTHN_ICON_SIZE = "authnIconSize";
+	private static final String DEFAULT_AUTHN_ICON_SIZE = "authnIconSize";
+	public static final String DEFAULT_AUTHN_ICON_SCALE = "authnIconScale";
 	
 	
 	@DocumentationReferenceMeta
@@ -76,8 +108,10 @@ public class VaadinEndpointProperties extends PropertiesHelper
 		META.put(DEFAULT_PER_LINE, new PropertyMD("3").setBounds(1, 10).
 				setDescription("Defines how many authenticators should be presented in a single "
 						+ "line of an authentication tile."));
-		META.put(DEFAULT_AUTHN_ICON_SIZE, new PropertyMD(ScaleMode.height50).
-				setDescription("Defines how to scale authenticator icons in a tile."));
+		META.put(DEFAULT_AUTHN_ICON_SIZE, new PropertyMD().setEnum(ScaleModeOld.height50).setDeprecated().
+				setDescription("Deprecated, please use " + DEFAULT_AUTHN_ICON_SCALE));
+		META.put(DEFAULT_AUTHN_ICON_SCALE, new PropertyMD(ScaleMode.heightTiny).
+				setDescription("Defines how to scale authenticator icons. Can be overriden per tile."));
 		META.put(AUTHN_TILES_PFX, new PropertyMD().setStructuredList(true).
 				setDescription("Under this prefix authentication tiles can be defined. "
 						+ "Authentication tile is a purely visual grouping of authentication options. "
@@ -92,7 +126,10 @@ public class VaadinEndpointProperties extends PropertiesHelper
 		META.put(AUTHN_TILE_PER_LINE, new PropertyMD().setInt().setBounds(1, 10).setStructuredListEntry(AUTHN_TILES_PFX).
 				setDescription("Defines how many authenticators should be presented in a single line of a tile. "
 						+ "Overrides the default setting."));
-		META.put(AUTHN_TILE_ICON_SIZE, new PropertyMD().setEnum(ScaleMode.height50).setStructuredListEntry(AUTHN_TILES_PFX).
+		META.put(AUTHN_TILE_ICON_SIZE, new PropertyMD().setStructuredListEntry(AUTHN_TILES_PFX).
+				setEnum(ScaleModeOld.height50).setDeprecated().
+				setDescription("Deprecated, please use " + AUTHN_TILE_ICON_SCALE));
+		META.put(AUTHN_TILE_ICON_SCALE, new PropertyMD().setEnum(ScaleMode.heightTiny).setStructuredListEntry(AUTHN_TILES_PFX).
 				setDescription("Defines how to scale authenticator icons in a tile. "
 						+ "Overrides the default setting."));
 		META.put(AUTHN_TILE_DISPLAY_NAME, new PropertyMD().setCanHaveSubkeys().setStructuredListEntry(AUTHN_TILES_PFX).
@@ -102,10 +139,37 @@ public class VaadinEndpointProperties extends PropertiesHelper
 		
 	}
 	
+	private ScaleMode defaultScaleMode;
+	
 	public VaadinEndpointProperties(Properties properties)
 			throws ConfigurationException
 	{
 		super(PREFIX, properties, META, log);
+		defaultScaleMode = getScaleModeInternal(DEFAULT_AUTHN_ICON_SCALE, DEFAULT_AUTHN_ICON_SIZE);
 	}
 
+	public ScaleMode getScaleMode(String tileKey)
+	{
+		ScaleMode ret = getScaleModeInternal(tileKey + VaadinEndpointProperties.AUTHN_TILE_ICON_SCALE, 
+				tileKey + VaadinEndpointProperties.AUTHN_TILE_ICON_SIZE);
+		return ret == null ? defaultScaleMode : ret;
+	}
+
+	public ScaleMode getDefaultScaleMode()
+	{
+		return defaultScaleMode;
+	}
+
+	private ScaleMode getScaleModeInternal(String key, String legacyKey)
+	{
+		ScaleMode ret = getEnumValue(key, ScaleMode.class);
+		if (ret == null)
+		{
+			ScaleModeOld legacy = getEnumValue(legacyKey, ScaleModeOld.class);
+			if (legacy != null)
+				ret = legacy.toScaleMode();
+		}
+		return ret;
+	}
+	
 }

@@ -25,8 +25,8 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.authn.IdPROComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
@@ -89,7 +89,8 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		
 		VerticalLayout ret = new VerticalLayout();
 
-		ScaleMode scaleMode = samlProperties.getEnumValue(SAMLSPProperties.ICON_SCALE, ScaleMode.class); 
+		ScaleMode scaleMode = samlProperties.getEnumValue(SAMLSPProperties.SELECTED_PROVDER_ICON_SCALE, 
+				ScaleMode.class); 
 		String name = getName();
 		String logoUrl = samlProperties.getLocalizedValue(idpKey + SAMLSPProperties.IDP_LOGO, msg.getLocale());
 		IdPROComponent idpComponent = new IdPROComponent(logoUrl, name, scaleMode);
@@ -97,7 +98,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		messageLabel = new Label();
 		messageLabel.addStyleName(Styles.error.toString());
 		errorDetailLabel = new HtmlSimplifiedLabel();
-		errorDetailLabel.addStyleName(Styles.italic.toString());
+		errorDetailLabel.addStyleName(Styles.emphasized.toString());
 		errorDetailLabel.setVisible(false);
 		ret.addComponents(idpComponent, messageLabel, errorDetailLabel);
 		ret.setComponentAlignment(idpComponent, Alignment.TOP_CENTER);

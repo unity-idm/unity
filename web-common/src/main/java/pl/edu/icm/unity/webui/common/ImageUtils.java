@@ -43,30 +43,30 @@ public class ImageUtils
 	{
 		switch (scaleMode)
 		{
-		case width100:
-			component.addStyleName(Styles.width100.toString());
+		case widthSmall:
+			component.addStyleName(Styles.imageWidthSmall.toString());
 			break;
-		case height100:
-			component.addStyleName(Styles.height100.toString());
+		case heightSmall:
+			component.addStyleName(Styles.imageHeightSmall.toString());
 			component.setHeight(102, Unit.PIXELS);
 			break;
-		case width50:
-			component.addStyleName(Styles.width50.toString());
+		case widthTiny:
+			component.addStyleName(Styles.imageWidthTiny.toString());
 			break;
-		case height50:
-			component.addStyleName(Styles.height50.toString());
+		case heightTiny:
+			component.addStyleName(Styles.imageHeightTiny.toString());
 			component.setHeight(52, Unit.PIXELS);
 			break;
 		case none:
 			component.setHeight(100, Unit.PERCENTAGE);
-		case maxHeight100:
-			component.addStyleName(Styles.maxHeight100.toString());
+		case maxHeightSmall:
+			component.addStyleName(Styles.maxHeightSmall.toString());
 			break;
-		case maxHeight200:
-			component.addStyleName(Styles.maxHeight200.toString());
+		case maxHeightMedium:
+			component.addStyleName(Styles.maxHeightMedium.toString());
 			break;
-		case maxHeight50:
-			component.addStyleName(Styles.maxHeight50.toString());
+		case maxHeightTiny:
+			component.addStyleName(Styles.maxHeightTiny.toString());
 			break;
 		default:
 			break;

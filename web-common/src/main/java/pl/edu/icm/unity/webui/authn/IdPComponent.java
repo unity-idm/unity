@@ -35,8 +35,7 @@ public class IdPComponent extends CustomComponent
 		providerB = new Button();
 		providerB.setImmediate(true);
 		providerB.setStyleName(Styles.vButtonLinkV.toString());
-		providerB.addStyleName(Styles.verticalMargins6.toString());
-		providerB.addStyleName(Styles.horizontalMargins6.toString());
+		providerB.addStyleName(Styles.smallMargins.toString());
 		providerB.setId("IdpSelector." + id);
 		
 		if (logo != null)

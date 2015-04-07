@@ -27,8 +27,8 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.authn.IdPROComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
@@ -89,7 +89,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		VerticalLayout ret = new VerticalLayout();
 		ret.setSpacing(true);
 
-		ScaleMode scaleMode = clientProperties.getEnumValue(OAuthClientProperties.ICON_SCALE, ScaleMode.class); 
+		ScaleMode scaleMode = clientProperties.getEnumValue(OAuthClientProperties.SELECTED_ICON_SCALE, 
+				ScaleMode.class); 
 		CustomProviderProperties providerProps = clientProperties.getProvider(idpKey);
 		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 		String logoUrl = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
@@ -102,7 +103,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		messageLabel = new Label();
 		messageLabel.addStyleName(Styles.error.toString());
 		errorDetailLabel = new HtmlSimplifiedLabel();
-		errorDetailLabel.addStyleName(Styles.italic.toString());
+		errorDetailLabel.addStyleName(Styles.emphasized.toString());
 		errorDetailLabel.setVisible(false);
 		ret.addComponents(messageLabel, errorDetailLabel);
 

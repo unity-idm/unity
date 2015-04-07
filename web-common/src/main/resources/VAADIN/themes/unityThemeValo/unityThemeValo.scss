@@ -3,6 +3,13 @@
 
 @mixin unityThemeValo {
 
+
+	$v-font-size: 15px;
+	$v-unit-size: round(2.3 * $v-font-size);
+	
+
+
+
 	$v-layout-margin-left: round($v-unit-size/2);
 	$v-layout-margin-right: round($v-unit-size/2);
 	$v-layout-margin-top:  round($v-unit-size/2);

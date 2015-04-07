@@ -35,7 +35,8 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 
 	public static final String DISPLAY_NAME = "displayName";
 	public static final String PROVIDERS_IN_ROW = "providersInRow";
-	public static final String ICON_SCALE = "iconScale";
+	private static final String ICON_SCALE = "iconScale";
+	public static final String SELECTED_ICON_SCALE = "selectedProviderIconScale";
 	
 	public static final String PROVIDERS = "providers.";
 
@@ -47,7 +48,9 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 	{
 		META.put(PROVIDERS, new PropertyMD().setStructuredList(false).setCanHaveSubkeys().setMandatory().
 				setDescription("Prefix, under which the available oauth providers are defined."));
-		META.put(ICON_SCALE, new PropertyMD(ScaleMode.none).setDescription("Controls whether and how "
+		META.put(ICON_SCALE, new PropertyMD().setDescription("Deprecated, please use authentication UI "
+				+ "icon settings or the " + SELECTED_ICON_SCALE));
+		META.put(SELECTED_ICON_SCALE, new PropertyMD(ScaleMode.none).setDescription("Controls whether and how "
 				+ "the icon of a provider should be scalled. Note that this setting"
 				+ " controls only the size of the icon of the currently selected provider."));
 

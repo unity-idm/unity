@@ -125,7 +125,7 @@ public class IdentitySelectorComponent extends CustomComponent
 			header.addComponents(identityL);
 			
 			Label identityValue = new Label(getIdentityVisualValue(selectedIdentity));
-			identityValue.addStyleName(Styles.italic.toString());
+			identityValue.addStyleName(Styles.emphasized.toString());
 			
 			contents.addComponents(header, identityValue, expander, help);
 		} else

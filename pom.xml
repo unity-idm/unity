@@ -324,6 +324,11 @@
 				<version>1.1.0</version>
 			</dependency>
 			<dependency>
+				<groupId>com.vaadin.addon.responsive</groupId>
+				<artifactId>responsive</artifactId>
+				<version>1.0.0.alpha4</version>
+			</dependency>
+			<dependency>
 				<groupId>edu.vt.middleware</groupId>
 				<artifactId>vt-password</artifactId>
 				<version>3.1.2</version>

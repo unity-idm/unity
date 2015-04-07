@@ -54,7 +54,6 @@ public class BigTab extends VerticalLayout
 			}
 		});
 		setMargin(new MarginInfo(true, false, true, false));
-		addStyleName(Styles.verticalPadding16.toString());
 	}
 	
 	public void deselect()

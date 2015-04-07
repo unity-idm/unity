@@ -494,10 +494,10 @@ public class RuleComponent extends VerticalLayout
 		removeRuleComponentEvaluationStyle();
 		if (conditionResult)
 		{
-			setColorForInputComponents(Styles.greenBackground.toString());
+			setColorForInputComponents(Styles.trueConditionBackground.toString());
 		} else
 		{
-			setColorForInputComponents(Styles.grayBackground.toString());
+			setColorForInputComponents(Styles.falseConditionBackground.toString());
 		}
 	}
 	
@@ -509,7 +509,7 @@ public class RuleComponent extends VerticalLayout
 	
 	private void indicateConditionError(Exception e) 
 	{
-		condition.setStyleName(Styles.redBackground.toString());
+		condition.setStyleName(Styles.errorBackground.toString());
 		condition.setComponentError(new UserError(NotificationPopup.getHumanMessage(e)));
 		condition.setValidationVisible(true);
 	}
@@ -523,7 +523,7 @@ public class RuleComponent extends VerticalLayout
 			if (c instanceof ExtensionActionParameterComponent)
 			{
 				ExtensionActionParameterComponent extension = (ExtensionActionParameterComponent) c;
-				extension.setStyleName(Styles.redBackground.toString());
+				extension.setStyleName(Styles.errorBackground.toString());
 				extension.setComponentError(new UserError(NotificationPopup.getHumanMessage(e)));
 				extension.setValidationVisible(true);
 				break;
@@ -557,22 +557,22 @@ public class RuleComponent extends VerticalLayout
 	
 	private void removeRuleComponentEvaluationStyle()
 	{
-		condition.removeStyleName(Styles.greenBackground.toString());
-		condition.removeStyleName(Styles.redBackground.toString());
-		condition.removeStyleName(Styles.grayBackground.toString());
+		condition.removeStyleName(Styles.trueConditionBackground.toString());
+		condition.removeStyleName(Styles.errorBackground.toString());
+		condition.removeStyleName(Styles.falseConditionBackground.toString());
 		condition.setComponentError(null);
 		condition.setValidationVisible(false);
 		
-		actions.removeStyleName(Styles.grayBackground.toString());
-		actions.removeStyleName(Styles.greenBackground.toString());
+		actions.removeStyleName(Styles.falseConditionBackground.toString());
+		actions.removeStyleName(Styles.trueConditionBackground.toString());
 		
 		Iterator<Component> iter = paramsList.iterator();
 		while (iter.hasNext())
 		{
 			Component c = iter.next();
-			c.removeStyleName(Styles.grayBackground.toString());
-			c.removeStyleName(Styles.greenBackground.toString());
-			c.removeStyleName(Styles.redBackground.toString());
+			c.removeStyleName(Styles.falseConditionBackground.toString());
+			c.removeStyleName(Styles.trueConditionBackground.toString());
+			c.removeStyleName(Styles.errorBackground.toString());
 			if (c instanceof ExtensionActionParameterComponent)
 			{
 				ExtensionActionParameterComponent extension = (ExtensionActionParameterComponent) c;

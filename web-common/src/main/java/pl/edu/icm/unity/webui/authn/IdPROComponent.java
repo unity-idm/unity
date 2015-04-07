@@ -27,8 +27,7 @@ public class IdPROComponent extends CustomComponent
 		if (logo != null)
 		{
 			Image provider = new Image();
-			provider.addStyleName(Styles.verticalMargins6.toString());
-			provider.addStyleName(Styles.horizontalMargins6.toString());
+			provider.addStyleName(Styles.smallMargins.toString());
 			provider.setSource(logo);
 			ImageUtils.setScaleStyling(scaleMode, provider);
 			provider.setDescription(HtmlEscapers.htmlEscaper().escape(name));

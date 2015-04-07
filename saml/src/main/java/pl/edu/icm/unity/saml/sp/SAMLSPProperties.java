@@ -51,7 +51,8 @@ public class SAMLSPProperties extends SamlProperties
 	public static final String ACCEPTED_NAME_FORMATS = "acceptedNameFormats.";
 	public static final String DISPLAY_NAME = "displayName";
 	public static final String PROVIDERS_IN_ROW = "idpsInRow";
-	public static final String ICON_SCALE = "iconScale";
+	private static final String ICON_SCALE = "iconScale";
+	public static final String SELECTED_PROVDER_ICON_SCALE = "selectedProviderIconScale";
 	public static final String METADATA_PATH = "metadataPath";
 	public static final String SLO_PATH = "sloPath";
 	public static final String SLO_REALM = "sloRealm";
@@ -165,9 +166,12 @@ public class SAMLSPProperties extends SamlProperties
 				"Default setting of request signing. Used for those IdPs, for which the setting is not set explicitly."));
 		META.put(DEF_REQUESTED_NAME_FORMAT, new PropertyMD().setCategory(common).setDescription(
 				"Default setting of requested identity format. Used for those IdPs, for which the setting is not set explicitly."));	
-		META.put(ICON_SCALE, new PropertyMD(ScaleMode.none).setCategory(webRetrieval).
+		META.put(ICON_SCALE, new PropertyMD().setCategory(webRetrieval).setDeprecated().
+				setDescription("Deprecated, use either authentication UI icon scalling or "
+						+ "the " + SELECTED_PROVDER_ICON_SCALE));
+		META.put(SELECTED_PROVDER_ICON_SCALE, new PropertyMD(ScaleMode.none).setCategory(webRetrieval).
 				setDescription("Controls whether and how "
-				+ "the icon of a provider should be scalled. Note that this setting affects only the "
+				+ "the icon of a selected provider should be scalled. Note that this setting affects only the "
 				+ "icon of a currently selected provider."));
 		META.put(SAMLECPProperties.JWT_P, new PropertyMD().setCanHaveSubkeys().setHidden());	
 			

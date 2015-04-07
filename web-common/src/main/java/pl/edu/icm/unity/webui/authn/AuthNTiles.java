@@ -64,7 +64,7 @@ public class AuthNTiles extends CustomComponent
 		{
 			HorizontalLayout wrapper = new HorizontalLayout();
 			wrapper.setMargin(new MarginInfo(false, false, true, false));
-			wrapper.addStyleName(Styles.verticalPadding10.toString());
+			wrapper.addStyleName(Styles.verticalPaddingSmall.toString());
 			Label info = new Label(msg.getMessage("IdpSelectorComponent.search"));
 			TextField search = new TextField();
 			search.addStyleName(Styles.vSmall.toString());

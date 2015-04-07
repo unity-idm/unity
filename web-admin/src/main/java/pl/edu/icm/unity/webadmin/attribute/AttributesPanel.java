@@ -145,7 +145,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		effectiveAttrsFilter = new EffectiveAttributesFilter();
 		showEffective = new CheckBox(msg.getMessage("Attribute.showEffective"), true);
 		showEffective.setImmediate(true);
-		showEffective.addStyleName(Styles.italic.toString());
+		showEffective.addStyleName(Styles.emphasized.toString());
 		showEffective.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
@@ -156,7 +156,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		});
 		showInternal = new CheckBox(msg.getMessage("Attribute.showInternal"), false);
 		showInternal.setImmediate(true);
-		showInternal.addStyleName(Styles.gray.toString());
+		showInternal.addStyleName(Styles.immutableAttribute.toString());
 		showInternal.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
@@ -278,9 +278,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 			AttributeType attributeType = attributeTypes.get(attribute.getName());
 			StringBuilder style = new StringBuilder();
 			if (!attribute.isDirect())
-				style.append(Styles.italic.toString());
+				style.append(Styles.emphasized.toString());
 			if (attributeType.isInstanceImmutable())
-				style.append(" " + Styles.gray.toString());
+				style.append(" " + Styles.immutableAttribute.toString());
 			if (acHelper.isMandatory(attribute.getName()))
 				style.append(" " + Styles.bold.toString());
 			String styleS = style.toString().trim(); 

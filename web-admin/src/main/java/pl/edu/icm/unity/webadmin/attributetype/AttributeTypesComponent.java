@@ -83,7 +83,7 @@ public class AttributeTypesComponent extends VerticalLayout
 					{
 						Label ret = new Label(element.getName());
 						if (element.isTypeImmutable())
-							ret.addStyleName(Styles.gray.toString());
+							ret.addStyleName(Styles.immutableAttribute.toString());
 						return ret;
 					}
 				});
