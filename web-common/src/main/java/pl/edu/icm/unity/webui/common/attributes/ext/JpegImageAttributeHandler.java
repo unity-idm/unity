@@ -28,7 +28,7 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -283,7 +283,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 				
 				if (fos.isOverflow())
 				{
-					ErrorPopup.showError(msg, msg.getMessage("JpegAttributeHandler.uploadFailed"),
+					NotificationPopup.showError(msg, msg.getMessage("JpegAttributeHandler.uploadFailed"),
 							msg.getMessage("JpegAttributeHandler.imageSizeTooBig"));
 					fos = null;
 					return;
@@ -298,7 +298,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 					image.setSource(new SimpleImageSource(scalledPreview, syntax, "jpg").getResource());
 				} catch (Exception e)
 				{
-					ErrorPopup.showError(msg, msg.getMessage("JpegAttributeHandler.uploadInvalid"),
+					NotificationPopup.showError(msg, msg.getMessage("JpegAttributeHandler.uploadInvalid"),
 							"");
 					fos = null;
 				}

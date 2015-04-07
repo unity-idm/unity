@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.authn.IdPROComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
@@ -222,7 +222,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 				OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
 		if (context != null)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"), 
+			NotificationPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("OAuth2Retrieval.loginInProgressError"));
 			return;
 		}
@@ -238,7 +238,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			context.setSandboxCallback(sandboxCallback);
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("OAuth2Retrieval.configurationError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("OAuth2Retrieval.configurationError"), e);
 			log.error("Can not create OAuth2 request", e);
 			breakLogin(true);
 			return;
@@ -265,7 +265,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		} catch (AuthenticationException e)
 		{
 			savedException = e;
-			reason = ErrorPopup.getHumanMessage(e, "<br>");
+			reason = NotificationPopup.getHumanMessage(e, "<br>");
 			authnResult = e.getResult();
 		} catch (Exception e)
 		{

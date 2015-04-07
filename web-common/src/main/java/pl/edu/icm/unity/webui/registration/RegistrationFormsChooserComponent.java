@@ -24,7 +24,7 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Images;
 
 import com.vaadin.ui.Button;
@@ -159,7 +159,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 						refresh();
 					} catch (EngineException e)
 					{
-						ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsChooserComponent.errorRefresh"), e);
+						NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsChooserComponent.errorRefresh"), e);
 					}
 				}
 			});
@@ -195,7 +195,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 				dialog.show();
 			} catch (EngineException e)
 			{
-				ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsChooserComponent.errorShowFormEdit"), e);
+				NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsChooserComponent.errorShowFormEdit"), e);
 			}
 		}
 	}

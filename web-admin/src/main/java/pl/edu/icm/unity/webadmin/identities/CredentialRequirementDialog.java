@@ -14,7 +14,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
@@ -57,13 +57,13 @@ public class CredentialRequirementDialog extends AbstractDialog
 			credReqs = authnMan.getCredentialRequirements();
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("EntityCreation.cantGetcredReq"));
 			throw new IllegalStateException();
 		}
 		if (credReqs.isEmpty())
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("EntityCreation.credReqMissing"));
 			throw new IllegalStateException();
 		}
@@ -89,7 +89,7 @@ public class CredentialRequirementDialog extends AbstractDialog
 					(String)credentialRequirement.getValue());
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialRequirementDialog.changeError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("CredentialRequirementDialog.changeError"), e);
 			return;
 		}
 		

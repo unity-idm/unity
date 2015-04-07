@@ -16,7 +16,7 @@ import pl.edu.icm.unity.webadmin.attrstmt.StatementHandlersRegistry;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.MapComboBox;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -68,7 +68,7 @@ public class AttributeStatementEditDialog extends AbstractDialog
 			attributeTypes = attrsMan.getAttributeTypes();
 		} catch(Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("AttributeStatementEditDialog.cantReadAttributeTypes"), e);
+			NotificationPopup.showError(msg, msg.getMessage("AttributeStatementEditDialog.cantReadAttributeTypes"), e);
 			throw e;
 		}
 
@@ -125,7 +125,7 @@ public class AttributeStatementEditDialog extends AbstractDialog
 			ret = component.getStatementFromComponent();
 		} catch (FormValidationException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("AttributeStatementEditDialog.invalidFormSettings"), 
+			NotificationPopup.showError(msg, msg.getMessage("AttributeStatementEditDialog.invalidFormSettings"), 
 					e.getMessage());
 			return;
 		}

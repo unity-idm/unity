@@ -22,7 +22,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 
 import com.vaadin.ui.FormLayout;
@@ -72,7 +72,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		} catch (Exception e)
 		{
 			log.error("Cannot undeploy endpoint", e);
-			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotUndeploy", id), e);
+			NotificationPopup.showError(msg, msg.getMessage("Endpoints.cannotUndeploy", id), e);
 			return;
 		}
 
@@ -97,7 +97,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		log.info("Deploy " + id + " endpoint");
 		if (!deployEndpoint(id))
 		{
-			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotDeploy",
+			NotificationPopup.showError(msg, msg.getMessage("Endpoints.cannotDeploy",
 					endpoint.getId()), msg.getMessage(
 					"Endpoints.cannotDeployRemovedConfig", id));
 			setVisible(false);
@@ -126,7 +126,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		} catch (Exception e)
 		{
 			log.error("Cannot deploy endpoint", e);
-			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotDeploy", id), e);
+			NotificationPopup.showError(msg, msg.getMessage("Endpoints.cannotDeploy", id), e);
 			return false;
 		}
 
@@ -160,7 +160,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 			setStatus(Status.deployed.toString());
 			if (showSuccess)
 			{
-				ErrorPopup.showNotice(msg, "", msg.getMessage(
+				NotificationPopup.showSuccess(msg, "", msg.getMessage(
 						"Endpoints.reloadSuccess", id));
 			}
 			
@@ -187,7 +187,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		} catch (Exception e)
 		{
 			log.error("Cannot update endpoint", e);
-			ErrorPopup.showError(msg,
+			NotificationPopup.showError(msg,
 					msg.getMessage("Endpoints.cannotUpdate", id),
 					e);
 			return false;
@@ -205,7 +205,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		} catch (Exception e)
 		{
 			log.error("Cannot load endpoints", e);
-			ErrorPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("Endpoints.cannotLoadList"));
 			return false;
 		}
@@ -325,7 +325,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		} catch (Exception e)
 		{
 			log.error("Cannot read json file", e);
-			ErrorPopup.showError(msg, msg.getMessage("Endpoints.cannotReadJsonConfig"),
+			NotificationPopup.showError(msg, msg.getMessage("Endpoints.cannotReadJsonConfig"),
 					e);
 			return null;
 		}

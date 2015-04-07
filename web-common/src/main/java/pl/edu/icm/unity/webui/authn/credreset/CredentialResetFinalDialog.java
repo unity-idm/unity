@@ -13,7 +13,7 @@ import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.authn.CredentialReset;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 
 /**
@@ -44,7 +44,7 @@ public class CredentialResetFinalDialog extends AbstractDialog
 	{
 		if (CredentialResetStateVariable.get() != 3)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("CredentialReset.illegalAppState"));
 			throw new Exception();
 		}
@@ -84,11 +84,11 @@ public class CredentialResetFinalDialog extends AbstractDialog
 			backend.updateCredential(updatedValue);
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialReset.credentialInvalid"), e);
+			NotificationPopup.showError(msg, msg.getMessage("CredentialReset.credentialInvalid"), e);
 			return;
 		}
 		
-		ErrorPopup.showNotice(msg, msg.getMessage("notice"), msg.getMessage("CredentialReset.success"));
+		NotificationPopup.showSuccess(msg, msg.getMessage("notice"), msg.getMessage("CredentialReset.success"));
 		close();
 		CredentialResetStateVariable.reset();
 	}

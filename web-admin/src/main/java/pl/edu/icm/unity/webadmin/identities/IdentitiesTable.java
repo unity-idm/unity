@@ -49,7 +49,7 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -284,7 +284,7 @@ public class IdentitiesTable extends TreeTable
 			IdentitiesTablePreferences.savePreferences(preferencesMan, preferences);
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("Identities.cannotSavePrefernces"));
 			return;
 
@@ -682,7 +682,7 @@ public class IdentitiesTable extends TreeTable
 
 		if (entityId == entity.getEntityId())
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"), msg.getMessage("Identities.notRemovingLoggedUser"));
+			NotificationPopup.showError(msg, msg.getMessage("error"), msg.getMessage("Identities.notRemovingLoggedUser"));
 			return;
 		}
 		try
@@ -691,7 +691,7 @@ public class IdentitiesTable extends TreeTable
 			refresh();
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("Identities.removeEntityError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("Identities.removeEntityError"), e);
 		}
 	}
 
@@ -702,7 +702,7 @@ public class IdentitiesTable extends TreeTable
 			identitiesMan.removeIdentity(identity);
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("Identities.removeIdentityError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("Identities.removeIdentityError"), e);
 		}
 	}
 
@@ -714,7 +714,7 @@ public class IdentitiesTable extends TreeTable
 					identity.getRealm(), identity.getTarget());
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("Identities.removeIdentityError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("Identities.removeIdentityError"), e);
 		}
 	}
 
@@ -730,7 +730,7 @@ public class IdentitiesTable extends TreeTable
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("Identities.changeEntityStatusError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("Identities.changeEntityStatusError"), e);
 			return false;
 		}
 	}
@@ -743,7 +743,7 @@ public class IdentitiesTable extends TreeTable
 			refresh();
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("Identities.removeFromGroupError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("Identities.removeFromGroupError"), e);
 		}
 	}
 	
@@ -1048,7 +1048,7 @@ public class IdentitiesTable extends TreeTable
 			groups = identitiesMan.getGroups(new EntityParam(entity.getEntity().getId()));
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"), e);
+			NotificationPopup.showError(msg, msg.getMessage("error"), e);
 			return;
 		}
 		identityDetailsPanel.setInput(entity, groups);

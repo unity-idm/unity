@@ -18,7 +18,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.shared.ui.label.ContentMode;
@@ -122,7 +122,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		} catch (Exception e)
 		{
 			log.error("Cannot remove authenticator", e);
-			ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotUndeploy", id), e);
+			NotificationPopup.showError(msg, msg.getMessage("Authenticators.cannotUndeploy", id), e);
 			return;
 
 		}
@@ -147,7 +147,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		log.info("Add " + id + "authenticator");
 		if (!addAuthenticator(id))
 		{
-			ErrorPopup.showError(msg,
+			NotificationPopup.showError(msg,
 					msg.getMessage("Authenticators.cannotDeploy", id),
 					msg.getMessage("Authenticators.cannotDeployRemovedConfig", id));
 			setVisible(false);
@@ -173,7 +173,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		} catch (Exception e)
 		{
 			log.error("Cannot add authenticator", e);
-			ErrorPopup.showError(msg, msg.getMessage("Authenticators.cannotDeploy",
+			NotificationPopup.showError(msg, msg.getMessage("Authenticators.cannotDeploy",
 					name), e);
 			return false;
 		}
@@ -206,7 +206,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 			setStatus(Status.deployed.toString());
 			if (showSuccess)
 			{
-				ErrorPopup.showNotice(msg, "", msg.getMessage(
+				NotificationPopup.showSuccess(msg, "", msg.getMessage(
 						"Authenticators.reloadSuccess", id));
 			}
 		}
@@ -227,7 +227,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		} catch (Exception e)
 		{
 			log.error("Cannot update authenticator", e);
-			ErrorPopup.showError(msg, msg.getMessage(
+			NotificationPopup.showError(msg, msg.getMessage(
 					"Authenticators.cannotDeploy",
 					name), e);
 			return false;
@@ -245,7 +245,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		} catch (Exception e)
 		{
 			log.error("Cannot load authenticators", e);
-			ErrorPopup.showError(msg,msg.getMessage("error"),
+			NotificationPopup.showError(msg,msg.getMessage("error"),
 					msg.getMessage("Authenticators.cannotLoadList"));
 			return false;
 		}
@@ -290,7 +290,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		} catch (Exception e)
 		{
 			log.error("Cannot read json file", e);
-			ErrorPopup.showError(msg,
+			NotificationPopup.showError(msg,
 					msg.getMessage("Authenticators.cannotReadJsonConfig"), e);
 			return null;
 		}	

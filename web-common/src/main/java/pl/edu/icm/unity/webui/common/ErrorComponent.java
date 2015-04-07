@@ -35,7 +35,7 @@ public class ErrorComponent extends FormLayout
 		HtmlSimplifiedLabel errorL = new HtmlSimplifiedLabel();
 		errorL.addStyleName(Styles.error.toString());
 		errorL.setIcon(Images.error32.getResource());
-		errorL.setValue(description + ": " + ErrorPopup.getHumanMessage(error));
+		errorL.setValue(description + ": " + NotificationPopup.getHumanMessage(error));
 		if (error instanceof AuthorizationException)
 			log.debug("Error component initialized with the authZ error: " + description);
 		else

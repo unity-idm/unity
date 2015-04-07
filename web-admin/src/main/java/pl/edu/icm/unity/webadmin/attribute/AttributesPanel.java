@@ -37,7 +37,7 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallTable;
@@ -311,7 +311,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			bus.fireEvent(new AttributeChangedEvent(toRemove.getGroupPath(), toRemove.getName()));
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("Attribute.removeAttributeError", toRemove.getName()), e);
+			NotificationPopup.showError(msg, msg.getMessage("Attribute.removeAttributeError", toRemove.getName()), e);
 		}
 	}
 	
@@ -326,7 +326,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("Attribute.addAttributeError", attribute.getName()), e);
+			NotificationPopup.showError(msg, msg.getMessage("Attribute.addAttributeError", attribute.getName()), e);
 			return false;
 		}
 	}
@@ -351,7 +351,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("Attribute.addAttributeError", attribute.getName()), e);
+			NotificationPopup.showError(msg, msg.getMessage("Attribute.addAttributeError", attribute.getName()), e);
 			return false;
 		}
 	}
@@ -506,7 +506,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			
 			if (allowed.isEmpty())
 			{
-				ErrorPopup.showNotice(msg, msg.getMessage("notice"),
+				NotificationPopup.showNotice(msg, msg.getMessage("notice"),
 						msg.getMessage("Attribute.noAvailableAttributes"));
 				return;
 			}

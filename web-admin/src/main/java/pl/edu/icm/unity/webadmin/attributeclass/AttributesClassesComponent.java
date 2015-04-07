@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
@@ -139,7 +139,7 @@ public class AttributesClassesComponent  extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("AttributesClass.errorAdd"), e);
+			NotificationPopup.showError(msg, msg.getMessage("AttributesClass.errorAdd"), e);
 			return false;
 		}
 	}
@@ -153,7 +153,7 @@ public class AttributesClassesComponent  extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("AttributesClass.errorRemove"), e);
+			NotificationPopup.showError(msg, msg.getMessage("AttributesClass.errorRemove"), e);
 			return false;
 		}
 	}
@@ -202,7 +202,7 @@ public class AttributesClassesComponent  extends VerticalLayout
 				allTypes = attrMan.getAttributeTypes();
 			} catch (EngineException e)
 			{
-				ErrorPopup.showError(msg, msg.getMessage("AttributesClass.errorGetAttributeTypes"), e);
+				NotificationPopup.showError(msg, msg.getMessage("AttributesClass.errorGetAttributeTypes"), e);
 				return;
 			}
 			AttributesClassEditor editor = new AttributesClassEditor(msg, allACs, allTypes);

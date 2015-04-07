@@ -18,7 +18,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CaptchaComponent;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 
 /**
@@ -48,7 +48,7 @@ public class CredentialReset1Dialog extends AbstractDialog
 	{
 		if (CredentialResetStateVariable.get() != 0)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("CredentialReset.illegalAppState"));
 			throw new Exception();
 		}

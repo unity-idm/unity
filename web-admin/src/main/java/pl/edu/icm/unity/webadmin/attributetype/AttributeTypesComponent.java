@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
@@ -158,7 +158,7 @@ public class AttributeTypesComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("AttributeTypes.errorUpdate"), e);
+			NotificationPopup.showError(msg, msg.getMessage("AttributeTypes.errorUpdate"), e);
 			return false;
 		}
 	}
@@ -172,7 +172,7 @@ public class AttributeTypesComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("AttributeTypes.errorAdd"), e);
+			NotificationPopup.showError(msg, msg.getMessage("AttributeTypes.errorAdd"), e);
 			return false;
 		}
 	}
@@ -186,7 +186,7 @@ public class AttributeTypesComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("AttributeTypes.errorRemove"), e);
+			NotificationPopup.showError(msg, msg.getMessage("AttributeTypes.errorRemove"), e);
 			return false;
 		}
 	}

@@ -33,7 +33,7 @@ import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
@@ -198,7 +198,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 					vtypes.add(t.getName());
 			}
 			if (vtypes.size() == 0)
-				ErrorPopup.showNotice(
+				NotificationPopup.showNotice(
 						msg,
 						"",
 						msg.getMessage("ConfirmationConfigurationsComponent.firstAddAttribute"));
@@ -224,7 +224,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 					vtypes.add(t.getIdentityTypeProvider().getId());
 			}
 			if (vtypes.isEmpty())
-				ErrorPopup.showNotice(
+				NotificationPopup.showNotice(
 						msg,
 						"",
 						msg.getMessage("ConfirmationConfigurationsComponent.firstAddIdentity"));
@@ -279,7 +279,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(
+			NotificationPopup.showError(
 					msg,
 					msg.getMessage("ConfirmationConfigurationsComponent.errorAdd"),
 					e);
@@ -296,7 +296,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(
+			NotificationPopup.showError(
 					msg,
 					msg.getMessage("ConfirmationConfigurationsComponent.errorUpdate"),
 					e);
@@ -313,7 +313,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(
+			NotificationPopup.showError(
 					msg,
 					msg.getMessage("ConfirmationConfigurationsComponent.errorRemove"),
 					e);
@@ -329,7 +329,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 					.getCompatibleTemplates(ConfirmationTemplateDef.NAME);
 			if (compatibleTemplates.isEmpty())
 			{
-				ErrorPopup.showNotice(
+				NotificationPopup.showNotice(
 						msg,
 						"",
 						msg.getMessage("ConfirmationConfigurationsComponent.firstAddMsqTemplate",
@@ -350,7 +350,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		{
 			if (notificationsMan.getNotificationChannels().isEmpty())
 			{
-				ErrorPopup.showNotice(
+				NotificationPopup.showNotice(
 						msg,
 						"",
 						msg.getMessage("ConfirmationConfigurationsComponent.firstAddNotificationChannel"));
@@ -404,14 +404,14 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 				{
 					if (attrConfig)
 					{
-						ErrorPopup.showNotice(
+						NotificationPopup.showNotice(
 								msg,
 								"",
 								msg.getMessage("ConfirmationConfigurationsComponent.attributesConfigured"));
 
 					} else
 					{
-						ErrorPopup.showNotice(
+						NotificationPopup.showNotice(
 								msg,
 								"",
 								msg.getMessage("ConfirmationConfigurationsComponent.identitiesConfigured"));
@@ -425,7 +425,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 								.toString(), names, null);
 			} catch (EngineException e)
 			{
-				ErrorPopup.showError(
+				NotificationPopup.showError(
 						msg,
 						msg.getMessage("ConfirmationConfigurationsComponent.errorInFormEdit"),
 						e);
@@ -528,7 +528,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 						item);
 			} catch (EngineException e)
 			{
-				ErrorPopup.showError(
+				NotificationPopup.showError(
 						msg,
 						msg.getMessage("ConfirmationConfigurationsComponent.errorInFormEdit"),
 						e);

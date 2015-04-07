@@ -23,7 +23,7 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webadmin.attributeclass.RequiredAttributesDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
@@ -63,7 +63,7 @@ public class GroupManagementHelper
 			allTypes = attrMan.getAttributeTypes();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("GroupsTree.addToGroupInitError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("GroupsTree.addToGroupInitError"), e);
 			return;
 		}
 
@@ -133,7 +133,7 @@ public class GroupManagementHelper
 			return attrMan.getAttributeClasses();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("GroupsTree.addToGroupInitError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("GroupsTree.addToGroupInitError"), e);
 			throw e;
 		}
 	}
@@ -150,7 +150,7 @@ public class GroupManagementHelper
 			acHelper = new AttributeClassHelper(allACsMap, groupAcs);
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("GroupsTree.addToGroupInitError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("GroupsTree.addToGroupInitError"), e);
 			throw e;
 		}
 		
@@ -171,7 +171,7 @@ public class GroupManagementHelper
 		} catch (Exception e)
 		{
 			showSummary(notMember, added, currentGroup);
-			ErrorPopup.showError(msg, msg.getMessage("GroupsTree.addToGroupError", 
+			NotificationPopup.showError(msg, msg.getMessage("GroupsTree.addToGroupError", 
 					entityParam.getEntityId(), currentGroup), e);
 		}
 	}
@@ -183,10 +183,10 @@ public class GroupManagementHelper
 		if (notMember.isEmpty())
 			return;
 		if (added.isEmpty())
-			ErrorPopup.showNotice(msg, msg.getMessage("GroupsTree.addMembershipSummary"), 
+			NotificationPopup.showNotice(msg, msg.getMessage("GroupsTree.addMembershipSummary"), 
 					msg.getMessage("GroupsTree.notAdded", notMember));
 		else
-			ErrorPopup.showNotice(msg, msg.getMessage("GroupsTree.addMembershipSummary"), 
+			NotificationPopup.showSuccess(msg, msg.getMessage("GroupsTree.addMembershipSummary"), 
 					msg.getMessage("GroupsTree.partiallyAdded", added, notMember));
 	}
 	

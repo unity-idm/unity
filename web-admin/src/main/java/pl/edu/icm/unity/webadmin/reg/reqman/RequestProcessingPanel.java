@@ -20,7 +20,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.registration.RegistrationRequestChangedEvent;
@@ -151,7 +151,7 @@ public class RequestProcessingPanel extends CustomComponent
 			forms = regMan.getForms();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("RequestsTable.errorGetRequests"), e);
+			NotificationPopup.showError(msg, msg.getMessage("RequestsTable.errorGetRequests"), e);
 			return;
 		}
 		RegistrationForm form = null;
@@ -182,7 +182,7 @@ public class RequestProcessingPanel extends CustomComponent
 			bus.fireEvent(new RegistrationRequestChangedEvent(requestState.getRequestId()));
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("RequestProcessingPanel.errorRequestProccess"), e);
+			NotificationPopup.showError(msg, msg.getMessage("RequestProcessingPanel.errorRequestProccess"), e);
 		}
 	}
 }

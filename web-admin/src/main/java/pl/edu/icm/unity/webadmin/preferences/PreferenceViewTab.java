@@ -13,7 +13,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -67,7 +67,7 @@ public class PreferenceViewTab extends VerticalLayout
 			refresh();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("Preferences.errorReset"), e);
+			NotificationPopup.showError(msg, msg.getMessage("Preferences.errorReset"), e);
 		}
 	}
 	
@@ -79,7 +79,7 @@ public class PreferenceViewTab extends VerticalLayout
 			value = editor.getValue();
 		} catch (FormValidationException e)
 		{
-			ErrorPopup.showFormError(msg);
+			NotificationPopup.showFormError(msg);
 			return;
 		}
 		try
@@ -88,7 +88,7 @@ public class PreferenceViewTab extends VerticalLayout
 			refresh();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("Preferences.errorUpdate"), e);
+			NotificationPopup.showError(msg, msg.getMessage("Preferences.errorUpdate"), e);
 		}
 	}
 	
@@ -168,7 +168,7 @@ public class PreferenceViewTab extends VerticalLayout
 					refresh();
 				} catch (EngineException e)
 				{
-					ErrorPopup.showError(msg, msg.getMessage("Preferences.errorRefresh"), e);
+					NotificationPopup.showError(msg, msg.getMessage("Preferences.errorRefresh"), e);
 				}
 			}
 		});

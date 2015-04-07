@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webadmin.attribute;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 import com.vaadin.ui.Component;
@@ -47,7 +47,7 @@ public class AttributeEditDialog extends AbstractDialog
 				close();
 		} catch (FormValidationException e)
 		{
-			ErrorPopup.showFormError(msg);
+			NotificationPopup.showFormError(msg);
 		}
 	}
 	

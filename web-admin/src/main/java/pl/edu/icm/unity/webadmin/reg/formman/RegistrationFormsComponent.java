@@ -30,7 +30,7 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
@@ -171,7 +171,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorUpdate"), e);
+			NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorUpdate"), e);
 			return false;
 		}
 	}
@@ -186,7 +186,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorAdd"), e);
+			NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorAdd"), e);
 			return false;
 		}
 	}
@@ -201,7 +201,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorRemove"), e);
+			NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorRemove"), e);
 			return false;
 		}
 	}
@@ -252,7 +252,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 						attrHandlerRegistry);
 			} catch (EngineException e)
 			{
-				ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
+				NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
 				return;
 			}
 			RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, 
@@ -289,7 +289,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 						attrHandlerRegistry, item, false);
 			} catch (EngineException e)
 			{
-				ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
+				NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
 				return;
 			}
 			RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, 
@@ -326,7 +326,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 						attrHandlerRegistry, form, true);
 			} catch (Exception e)
 			{
-				ErrorPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
+				NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
 				return;
 			}
 			RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, 

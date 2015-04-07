@@ -16,7 +16,7 @@ import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -68,7 +68,7 @@ public class CredentialRequirementRemovalDialog extends AbstractDialog
 		Collections.sort(crs);
 		if (crs.size() == 0)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialRequirements.removalError"), 
+			NotificationPopup.showError(msg, msg.getMessage("CredentialRequirements.removalError"), 
 					msg.getMessage("CredentialRequirements.cantRemoveLast"));
 			throw new WrongArgumentException("");
 		}

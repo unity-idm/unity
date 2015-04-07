@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
@@ -138,7 +138,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			return authenticationMan.getCredentialRequirements();
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialRequirements.errorGetCredentialRequirements"), e);
+			NotificationPopup.showError(msg, msg.getMessage("CredentialRequirements.errorGetCredentialRequirements"), e);
 			return null;
 		}
 	}
@@ -150,7 +150,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			return authenticationMan.getCredentialDefinitions();
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialRequirements.errorGetCredentials"), e);
+			NotificationPopup.showError(msg, msg.getMessage("CredentialRequirements.errorGetCredentials"), e);
 			return null;
 		}
 		
@@ -166,7 +166,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialRequirements.errorUpdate"), e);
+			NotificationPopup.showError(msg, msg.getMessage("CredentialRequirements.errorUpdate"), e);
 			return false;
 		}
 	}
@@ -181,7 +181,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialRequirements.errorAdd"), e);
+			NotificationPopup.showError(msg, msg.getMessage("CredentialRequirements.errorAdd"), e);
 			return false;
 		}
 	}
@@ -196,7 +196,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialRequirements.errorRemove"), e);
+			NotificationPopup.showError(msg, msg.getMessage("CredentialRequirements.errorRemove"), e);
 			return false;
 		}
 	}

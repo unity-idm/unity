@@ -17,7 +17,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 import com.vaadin.annotations.Push;
 import com.vaadin.server.DefaultErrorHandler;
@@ -144,7 +144,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 			log.error("UI code got an unchecked and not handled properly exception: " 
 					+ event.getThrowable(), event.getThrowable());
 			
-			ErrorPopup.showError(msg, msg.getMessage("error"), 
+			NotificationPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("UnityUIBase.unhandledError"));
 		} 
 	}

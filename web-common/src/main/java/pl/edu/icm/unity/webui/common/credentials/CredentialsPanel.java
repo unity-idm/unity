@@ -29,7 +29,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.MapComboBox;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -278,19 +278,19 @@ public class CredentialsPanel extends VerticalLayout
 				idsMan.setEntityCredential(entityP, credDef.getName(), secrets);
 		} catch (IllegalPreviousCredentialException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
 			credEditor.setCredentialError(null);
 			credEditor.setPreviousCredentialError(e.getMessage());
 			return;
 		}  catch (IllegalCredentialException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
 			credEditor.setPreviousCredentialError(null);
 			credEditor.setCredentialError(e.getMessage());
 			return;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
 			return;
 		}
 		changed = true;
@@ -307,7 +307,7 @@ public class CredentialsPanel extends VerticalLayout
 			idsMan.setEntityCredentialStatus(entityP, credDef.getName(), desiredState);
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
 			return;
 		}
 		changed = true;
@@ -323,7 +323,7 @@ public class CredentialsPanel extends VerticalLayout
 			entity = idsMan.getEntity(entityP);
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialChangeDialog.entityRefreshError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.entityRefreshError"), e);
 		}
 	}
 	

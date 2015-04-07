@@ -12,7 +12,7 @@ import java.util.Set;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -215,7 +215,7 @@ public class MetadataEditor extends VerticalLayout
 				supported.removeAll(entries.keySet());
 				if (supported.isEmpty())
 				{
-					ErrorPopup.showNotice(msg, msg.getMessage("notice"), 
+					NotificationPopup.showNotice(msg, msg.getMessage("notice"), 
 							msg.getMessage("MetadataEditor.noMoreMetadataAvailable"));
 					throw new FormValidationException();
 				}
@@ -250,7 +250,7 @@ public class MetadataEditor extends VerticalLayout
 				close();
 			} catch (FormValidationException e)
 			{
-				ErrorPopup.showFormError(msg);
+				NotificationPopup.showFormError(msg);
 			}
 		}
 

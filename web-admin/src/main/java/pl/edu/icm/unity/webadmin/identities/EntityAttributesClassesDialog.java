@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webadmin.attributeclass.AbstractAttributesClassesDialog;
 import pl.edu.icm.unity.webadmin.attributeclass.EffectiveAttrClassViewer;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
@@ -90,7 +90,7 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 			loadData();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("EntityAttributesClasses.errorloadingData"), e);
+			NotificationPopup.showError(msg, msg.getMessage("EntityAttributesClasses.errorloadingData"), e);
 			throw e;
 		}
 		extra.addComponents(groupAcs, effective);
@@ -129,7 +129,7 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 			close();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("EntityAttributesClasses.errorUpdatingACs"), e);
+			NotificationPopup.showError(msg, msg.getMessage("EntityAttributesClasses.errorUpdatingACs"), e);
 		}
 	}
 	

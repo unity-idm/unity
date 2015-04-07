@@ -16,7 +16,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
@@ -258,7 +258,7 @@ public class SPSettingsEditor extends FormLayout
 				selection.select(selContainer.getIdByIndex(0));
 			} else
 			{
-				ErrorPopup.showNotice(msg, msg.getMessage("notice"), msg.getMessage("SAMLPreferences.allSelected"));
+				NotificationPopup.showNotice(msg, msg.getMessage("notice"), msg.getMessage("SAMLPreferences.allSelected"));
 				throw new FormValidationException();
 			}
 			return selection;

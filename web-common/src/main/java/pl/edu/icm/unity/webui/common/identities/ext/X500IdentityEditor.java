@@ -27,7 +27,7 @@ import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 
@@ -103,7 +103,7 @@ public class X500IdentityEditor implements IdentityEditor
 		{
 			if (fos.isOverflow())
 			{
-				ErrorPopup.showError(msg, msg.getMessage("X500IdentityEditor.uploadFailed"),
+				NotificationPopup.showError(msg, msg.getMessage("X500IdentityEditor.uploadFailed"),
 						msg.getMessage("X500IdentityEditor.certSizeTooBig"));
 				fos = null;
 				return;
@@ -116,7 +116,7 @@ public class X500IdentityEditor implements IdentityEditor
 				field.setValue(X500NameUtils.getReadableForm(loaded.getSubjectX500Principal()));
 			} catch (Exception e)
 			{
-				ErrorPopup.showError(msg, msg.getMessage("X500IdentityEditor.uploadInvalid"),
+				NotificationPopup.showError(msg, msg.getMessage("X500IdentityEditor.uploadInvalid"),
 						e);
 				fos = null;
 			}

@@ -15,7 +15,7 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -137,7 +137,7 @@ public class RemoveEntityDialog extends AbstractDialog
 			authnProcessor.logout();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("RemoveEntityDialog.scheduleFailed"), e);
+			NotificationPopup.showError(msg, msg.getMessage("RemoveEntityDialog.scheduleFailed"), e);
 		}
 	}
 }

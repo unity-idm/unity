@@ -42,7 +42,7 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -209,7 +209,7 @@ public class GroupsTree extends Tree
 			refreshNode(parent);
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("GroupsTree.removeGroupError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("GroupsTree.removeGroupError"), e);
 		}
 	}
 	
@@ -220,7 +220,7 @@ public class GroupsTree extends Tree
 			groupsMan.addGroup(toBeCreated);
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("GroupsTree.addGroupError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("GroupsTree.addGroupError"), e);
 		}
 	}
 
@@ -231,7 +231,7 @@ public class GroupsTree extends Tree
 			groupsMan.updateGroup(path, group);
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("GroupsTree.updateGroupError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("GroupsTree.updateGroupError"), e);
 		}
 	}
 
@@ -244,14 +244,14 @@ public class GroupsTree extends Tree
 			existingGroups = identitiesMan.getGroups(entityParam);
 		} catch (EngineException e1)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("GroupsTree.getMembershipError", entity), e1);
+			NotificationPopup.showError(msg, msg.getMessage("GroupsTree.getMembershipError", entity), e1);
 			return;
 		}
 		final Deque<String> notMember = GroupUtils.getMissingGroups(finalGroup, existingGroups);
 		
 		if (notMember.size() == 0)
 		{
-			ErrorPopup.showNotice(msg, msg.getMessage("GroupsTree.alreadyMember", entity, 
+			NotificationPopup.showNotice(msg, msg.getMessage("GroupsTree.alreadyMember", entity, 
 					finalGroup), "");
 			return;
 		}
@@ -392,7 +392,7 @@ public class GroupsTree extends Tree
 				group = groupsMan.getContents(node.getPath(), GroupContents.METADATA).getGroup();
 			} catch (Exception e)
 			{
-				ErrorPopup.showError(msg, msg.getMessage("GroupsTree.resolveGroupError"), e);
+				NotificationPopup.showError(msg, msg.getMessage("GroupsTree.resolveGroupError"), e);
 				return;
 			}
 			

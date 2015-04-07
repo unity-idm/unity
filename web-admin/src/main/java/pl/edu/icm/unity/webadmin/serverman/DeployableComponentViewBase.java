@@ -12,7 +12,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -244,7 +244,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		} catch (Exception e)
 		{
 			log.error("Cannot reload configuration", e);
-			ErrorPopup.showError(msg, msg.getMessage("Configuration.cannotReloadConfig"), e);
+			NotificationPopup.showError(msg, msg.getMessage("Configuration.cannotReloadConfig"), e);
 			return false;
 		}
 		return true;

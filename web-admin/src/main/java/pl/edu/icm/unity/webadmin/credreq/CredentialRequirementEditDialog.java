@@ -8,7 +8,7 @@ import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 import com.vaadin.ui.Component;
 
@@ -46,7 +46,7 @@ public class CredentialRequirementEditDialog extends AbstractDialog
 				close();
 		} catch (IllegalCredentialException e) 
 		{
-			ErrorPopup.showError(msg, msg.getMessage("Generic.formError"), 
+			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), 
 						msg.getMessage("Generic.formErrorHint"));
 			return;
 		}

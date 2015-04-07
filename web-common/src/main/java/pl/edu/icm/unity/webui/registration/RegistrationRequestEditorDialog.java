@@ -14,7 +14,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 /**
@@ -81,10 +81,10 @@ public class RegistrationRequestEditorDialog extends AbstractDialog
 		} catch (FormValidationException e) 
 		{
 			if (e.getMessage() == null || e.getMessage().equals(""))
-				ErrorPopup.showError(msg, msg.getMessage("Generic.formError"), 
+				NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), 
 						msg.getMessage("Generic.formErrorHint"));
 			else
-				ErrorPopup.showError(msg, msg.getMessage("Generic.formError"), e);
+				NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
 			return;
 		}
 	}

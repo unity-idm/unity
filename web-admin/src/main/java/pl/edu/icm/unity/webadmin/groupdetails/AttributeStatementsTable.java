@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webadmin.groupdetails.AttributeStatementEditDialog.Callb
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallTable;
@@ -98,7 +98,7 @@ public class AttributeStatementsTable extends SmallTable
 			bus.fireEvent(new GroupChangedEvent(group.toString()));
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("AttributeStatements.cantUpdateGroup"), e);
+			NotificationPopup.showError(msg, msg.getMessage("AttributeStatements.cantUpdateGroup"), e);
 		}
 	}
 	

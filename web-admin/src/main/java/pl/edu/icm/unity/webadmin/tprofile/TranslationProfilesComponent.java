@@ -35,7 +35,7 @@ import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
@@ -243,7 +243,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorUpdate"), e);
+			NotificationPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorUpdate"), e);
 			return false;
 		}
 	}
@@ -257,7 +257,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorAdd"), e);
+			NotificationPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorAdd"), e);
 			return false;
 		}
 	}
@@ -271,7 +271,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorRemove"), e);
+			NotificationPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorRemove"), e);
 			return false;
 		}
 	}
@@ -335,7 +335,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 				editor = getProfileEditor(null);				
 			} catch (EngineException e)
 			{
-				ErrorPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorReadData"),
+				NotificationPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorReadData"),
 						e);
 				return;
 			}
@@ -373,7 +373,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 				editor = getProfileEditor(item.getElement());
 			} catch (EngineException e)
 			{
-				ErrorPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorReadData"),
+				NotificationPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorReadData"),
 						e);
 				return;
 			}
@@ -457,7 +457,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 				editor = getProfileEditor(null);				
 			} catch (EngineException e)
 			{
-				ErrorPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorReadData"),
+				NotificationPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorReadData"),
 						e);
 				return;
 			}

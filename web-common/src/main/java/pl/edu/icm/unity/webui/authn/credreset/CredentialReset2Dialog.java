@@ -15,7 +15,7 @@ import pl.edu.icm.unity.exceptions.TooManyAttempts;
 import pl.edu.icm.unity.server.authn.CredentialReset;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 
 /**
@@ -56,7 +56,7 @@ public class CredentialReset2Dialog extends AbstractDialog
 	{
 		if (CredentialResetStateVariable.get() != 1)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("CredentialReset.illegalAppState"));
 			throw new Exception();
 		}
@@ -101,14 +101,14 @@ public class CredentialReset2Dialog extends AbstractDialog
 			backend.verifyStaticData(a);
 		} catch (TooManyAttempts e) 
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"), 
+			NotificationPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("CredentialReset.usernameOrAnswerInvalid"));
 			onCancel();
 			return;
 		} catch (Exception e)
 		{
 			answer.setValue("");
-			ErrorPopup.showError(msg, msg.getMessage("error"), 
+			NotificationPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("CredentialReset.usernameOrAnswerInvalid"));
 			return;
 		}

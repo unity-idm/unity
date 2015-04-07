@@ -16,7 +16,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.registration.RegistrationRequestChangedEvent;
 
@@ -102,7 +102,7 @@ public class RequestCommentPanel extends CustomComponent
 			bus.fireEvent(new RegistrationRequestChangedEvent(requestState.getRequestId()));
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("RequestProcessingPanel.errorRequestProcess"), e);
+			NotificationPopup.showError(msg, msg.getMessage("RequestProcessingPanel.errorRequestProcess"), e);
 		}
 	}
 

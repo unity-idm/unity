@@ -23,7 +23,7 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -199,7 +199,7 @@ public class UserAttributesPanel
 			attributesMan.setAttribute(new EntityParam(entityId), a, true);
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, 
+			NotificationPopup.showError(msg, 
 					msg.getMessage("UserAttributesPanel.errorSaving", a.getName()), e);
 		}
 		
@@ -216,7 +216,7 @@ public class UserAttributesPanel
 			//OK - attribute already doesn't exist
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("UserAttributesPanel.errorSaving",
+			NotificationPopup.showError(msg, msg.getMessage("UserAttributesPanel.errorSaving",
 					ae.getAttributeType().getName()), e);
 		}
 	}

@@ -28,7 +28,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
@@ -92,7 +92,7 @@ public class RegistrationFormLauncher
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg,
+			NotificationPopup.showError(msg,
 					msg.getMessage("RegistrationFormsChooserComponent.errorRequestSubmit"), e);
 			return false;
 		}
@@ -105,7 +105,7 @@ public class RegistrationFormLauncher
 						RegistrationRequestAction.accept, null, 
 						msg.getMessage("RegistrationFormsChooserComponent.autoAccept"));
 				bus.fireEvent(new RegistrationRequestChangedEvent(id));
-				ErrorPopup.showNotice(msg, msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"), 
+				NotificationPopup.showSuccess(msg, msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"), 
 						msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoWithAccept"));
 			} else
 			{
@@ -121,7 +121,7 @@ public class RegistrationFormLauncher
 							Page.getCurrent().open(redirect, null);
 						} else
 						{
-							ErrorPopup.showNotice(msg,
+							NotificationPopup.showNotice(msg,
 								msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"),
 								msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoWithAccept"));
 						}
@@ -134,7 +134,7 @@ public class RegistrationFormLauncher
 					Page.getCurrent().open(redirect, null);
 				} else
 				{
-					ErrorPopup.showNotice(msg, msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"),
+					NotificationPopup.showNotice(msg, msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"),
 						msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoNoAccept"));
 				}
 			}	
@@ -142,7 +142,7 @@ public class RegistrationFormLauncher
 			return true;
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage(
+			NotificationPopup.showError(msg, msg.getMessage(
 					"RegistrationFormsChooserComponent.errorRequestAutoAccept"), e);
 			return true;
 		}

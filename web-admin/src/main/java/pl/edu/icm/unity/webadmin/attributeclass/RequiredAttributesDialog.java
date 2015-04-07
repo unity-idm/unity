@@ -20,7 +20,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webadmin.attribute.AttributeFieldWithEdit;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -101,7 +101,7 @@ public class RequiredAttributesDialog extends AbstractDialog
 				a = aEdit.getAttribute();
 			} catch (FormValidationException e)
 			{
-				ErrorPopup.showError(msg, msg.getMessage("Generic.formError"),
+				NotificationPopup.showError(msg, msg.getMessage("Generic.formError"),
 						msg.getMessage("RequiredAttributesDialog.someAttributesUnset"));
 				return;
 			}

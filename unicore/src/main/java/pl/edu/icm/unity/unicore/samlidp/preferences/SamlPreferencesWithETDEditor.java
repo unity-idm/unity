@@ -15,7 +15,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 
@@ -81,7 +81,7 @@ public class SamlPreferencesWithETDEditor extends SamlPreferencesEditor
 				initStateData();
 			} catch (EngineException e)
 			{
-				ErrorPopup.showError(msg, msg.getMessage("SAMLPreferences.errorLoadindSystemInfo"), e);
+				NotificationPopup.showError(msg, msg.getMessage("SAMLPreferences.errorLoadindSystemInfo"), e);
 				return;
 			}
 			SPSettingsWithETDEditor editor = new SPSettingsWithETDEditor(msg, identities, 
@@ -111,7 +111,7 @@ public class SamlPreferencesWithETDEditor extends SamlPreferencesEditor
 				initStateData();
 			} catch (EngineException e)
 			{
-				ErrorPopup.showError(msg, msg.getMessage("SAMLPreferences.errorLoadindSystemInfo"), e);
+				NotificationPopup.showError(msg, msg.getMessage("SAMLPreferences.errorLoadindSystemInfo"), e);
 				return;
 			}
 			@SuppressWarnings("unchecked")

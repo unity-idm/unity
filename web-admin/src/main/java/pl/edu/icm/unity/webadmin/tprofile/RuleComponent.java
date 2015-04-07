@@ -31,7 +31,7 @@ import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.RequiredComboBox;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
@@ -364,7 +364,7 @@ public class RuleComponent extends VerticalLayout
 
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg,
+			NotificationPopup.showError(msg,
 					msg.getMessage("TranslationProfileEditor.errorGetAction"), e);
 		}
 		TranslationCondition cnd = new TranslationCondition();
@@ -390,7 +390,7 @@ public class RuleComponent extends VerticalLayout
 
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg,
+			NotificationPopup.showError(msg,
 					msg.getMessage("TranslationProfileEditor.errorGetActions"),
 					e);
 		}
@@ -510,7 +510,7 @@ public class RuleComponent extends VerticalLayout
 	private void indicateConditionError(Exception e) 
 	{
 		condition.setStyleName(Styles.redBackground.toString());
-		condition.setComponentError(new UserError(ErrorPopup.getHumanMessage(e)));
+		condition.setComponentError(new UserError(NotificationPopup.getHumanMessage(e)));
 		condition.setValidationVisible(true);
 	}
 	
@@ -524,7 +524,7 @@ public class RuleComponent extends VerticalLayout
 			{
 				ExtensionActionParameterComponent extension = (ExtensionActionParameterComponent) c;
 				extension.setStyleName(Styles.redBackground.toString());
-				extension.setComponentError(new UserError(ErrorPopup.getHumanMessage(e)));
+				extension.setComponentError(new UserError(NotificationPopup.getHumanMessage(e)));
 				extension.setValidationVisible(true);
 				break;
 			}

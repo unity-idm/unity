@@ -9,7 +9,7 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 import com.vaadin.ui.Component;
 
@@ -51,7 +51,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 			ui = new CredentialsPanel(msg, entityId, authnMan, idsMan, credEditorReg, simpleMode);
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"), e);
+			NotificationPopup.showError(msg, msg.getMessage("error"), e);
 			throw e;
 		}
 		

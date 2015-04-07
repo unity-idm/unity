@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webadmin.utils.GroupManagementHelper;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
@@ -84,7 +84,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 			allTypes = groupHelper.getAttrMan().getAttributeTypes();
 		} catch (EngineException e1)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("EntityCreation.cantGetAttrTypes"));
 			throw e1;
 		}
@@ -101,13 +101,13 @@ public class EntityCreationDialog extends IdentityCreationDialog
 			credReqs = authnMan.getCredentialRequirements();
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("EntityCreation.cantGetcredReq"));
 			throw e;
 		}
 		if (credReqs.isEmpty())
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("EntityCreation.credReqMissing"));
 			throw new IllegalCredentialException(msg.getMessage("EntityCreation.credReqMissing"));
 		}
@@ -186,7 +186,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 					attributes);
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("EntityCreation.entityCreateError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("EntityCreation.entityCreateError"), e);
 			return;
 		}
 		

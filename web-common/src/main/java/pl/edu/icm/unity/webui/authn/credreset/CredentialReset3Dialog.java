@@ -21,7 +21,7 @@ import pl.edu.icm.unity.server.authn.CredentialReset;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 
 /**
@@ -59,7 +59,7 @@ public class CredentialReset3Dialog extends AbstractDialog
 	{
 		if (CredentialResetStateVariable.get() != 2)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("CredentialReset.illegalAppState"));
 			throw new Exception();
 		}
@@ -69,7 +69,7 @@ public class CredentialReset3Dialog extends AbstractDialog
 			backend.sendCode();
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("CredentialReset.resetNotPossible"));
 			CredentialResetStateVariable.reset();
 			log.debug("Credential reset e-mail notification failed", e);
@@ -94,7 +94,7 @@ public class CredentialReset3Dialog extends AbstractDialog
 				} catch (Exception e)
 				{
 					log.debug("Credential reset e-mail notification failed", e);
-					ErrorPopup.showError(msg, msg.getMessage("error"),
+					NotificationPopup.showError(msg, msg.getMessage("error"),
 							msg.getMessage("CredentialReset.resetNotPossible"));
 					onCancel();
 				}
@@ -135,14 +135,14 @@ public class CredentialReset3Dialog extends AbstractDialog
 			backend.verifyDynamicData(a);
 		} catch (TooManyAttempts e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"), 
+			NotificationPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("CredentialReset.codeInvalidOrExpired"));
 			onCancel();
 			return;
 		} catch (Exception e)
 		{
 			answer.setValue("");
-			ErrorPopup.showError(msg, msg.getMessage("error"), 
+			NotificationPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("CredentialReset.codeInvalid"));
 			return;
 		}

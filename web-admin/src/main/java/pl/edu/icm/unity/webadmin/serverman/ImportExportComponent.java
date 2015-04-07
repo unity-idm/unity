@@ -26,7 +26,7 @@ import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 
 import com.vaadin.server.DownloadStream;
@@ -108,7 +108,7 @@ public class ImportExportComponent extends VerticalLayout
 				Exception e = dumpResource.getError();
 				if (e != null)
 				{
-					ErrorPopup.showError(msg, msg.getMessage("ImportExport.exportFailed"), e);
+					NotificationPopup.showError(msg, msg.getMessage("ImportExport.exportFailed"), e);
 					dumpResource.clearError();
 				}
 			}
@@ -151,13 +151,13 @@ public class ImportExportComponent extends VerticalLayout
 	{
 		if (uploader.isOverflow())
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("ImportExport.uploadFileTooBig"));
 			return;
 		}
 		if (uploader.isUploading())
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("ImportExport.uploadInProgress"));
 			return;
 		}
@@ -165,7 +165,7 @@ public class ImportExportComponent extends VerticalLayout
 		final File f = uploader.getFile();
 		if (f == null)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("ImportExport.uploadFileFirst"));
 			return;
 		}
@@ -192,7 +192,7 @@ public class ImportExportComponent extends VerticalLayout
 		} catch (Exception e)
 		{
 			uploader.unblock();
-			ErrorPopup.showError(msg, msg.getMessage("ImportExport.importFailed"), e);
+			NotificationPopup.showError(msg, msg.getMessage("ImportExport.importFailed"), e);
 		}
 	}
 

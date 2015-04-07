@@ -23,7 +23,7 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
@@ -151,12 +151,12 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 			refresh();
 			bus.fireEvent(new CredentialDefinitionChangedEvent(true, cd.getName()));
 			if (desiredCredState == LocalCredentialState.outdated)
-				ErrorPopup.showNotice(msg, msg.getMessage("notice"), 
+				NotificationPopup.showNotice(msg, msg.getMessage("notice"), 
 						msg.getMessage("CredentialDefinitions.outdatedUpdateInfo"));
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialDefinitions.errorUpdate"), e);
+			NotificationPopup.showError(msg, msg.getMessage("CredentialDefinitions.errorUpdate"), e);
 			return false;
 		}
 	}
@@ -171,7 +171,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialDefinitions.errorAdd"), e);
+			NotificationPopup.showError(msg, msg.getMessage("CredentialDefinitions.errorAdd"), e);
 			return false;
 		}
 	}
@@ -186,7 +186,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("CredentialDefinitions.errorRemove"), e);
+			NotificationPopup.showError(msg, msg.getMessage("CredentialDefinitions.errorRemove"), e);
 			return false;
 		}
 	}

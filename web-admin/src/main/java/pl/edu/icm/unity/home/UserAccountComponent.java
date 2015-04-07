@@ -39,7 +39,7 @@ import pl.edu.icm.unity.webadmin.preferences.PreferencesComponent;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.bigtab.BigTabPanel;
@@ -141,7 +141,7 @@ public class UserAccountComponent extends VerticalLayout
 		{
 			log.error("Error when creating user information view", e);
 			ErrorComponent errorC = new ErrorComponent();
-			errorC.setError(msg.getMessage("error") + ": " + ErrorPopup.getHumanMessage(e));
+			errorC.setError(msg.getMessage("error") + ": " + NotificationPopup.getHumanMessage(e));
 			tabPanel.addTab("UserHomeUI.accountInfoLabel", "UserHomeUI.accountInfoDesc", 
 					Images.info64.getResource(), errorC);
 		}
@@ -162,7 +162,7 @@ public class UserAccountComponent extends VerticalLayout
 			{
 				log.error("Error when creating credentials view", e);
 				ErrorComponent errorC = new ErrorComponent();
-				errorC.setError(msg.getMessage("error") + ": " + ErrorPopup.getHumanMessage(e));
+				errorC.setError(msg.getMessage("error") + ": " + NotificationPopup.getHumanMessage(e));
 				tabPanel.addTab("UserHomeUI.credentialsLabel", "UserHomeUI.credentialsDesc", 
 					Images.key64.getResource(), errorC);
 			}

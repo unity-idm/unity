@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
@@ -141,7 +141,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("MessageTemplatesComponent.errorUpdate"), e);
+			NotificationPopup.showError(msg, msg.getMessage("MessageTemplatesComponent.errorUpdate"), e);
 			return false;
 		}
 	}
@@ -155,7 +155,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("MessageTemplatesComponent.errorAdd"), e);
+			NotificationPopup.showError(msg, msg.getMessage("MessageTemplatesComponent.errorAdd"), e);
 			return false;
 		}
 	}
@@ -169,7 +169,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("MessageTemplatesComponent.errorRemove"), e);
+			NotificationPopup.showError(msg, msg.getMessage("MessageTemplatesComponent.errorRemove"), e);
 			return false;
 		}
 	}

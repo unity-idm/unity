@@ -17,7 +17,7 @@ import pl.edu.icm.unity.webadmin.attributeclass.ACTwinColSelect;
 import pl.edu.icm.unity.webadmin.attributeclass.AbstractAttributesClassesDialog;
 import pl.edu.icm.unity.webadmin.attributeclass.EffectiveAttrClassViewer;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
@@ -74,7 +74,7 @@ public class GroupAttributesClassesDialog extends AbstractAttributesClassesDialo
 			loadData();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("EntityAttributesClasses.errorloadingData"), e);
+			NotificationPopup.showError(msg, msg.getMessage("EntityAttributesClasses.errorloadingData"), e);
 			throw e;
 		}
 		extra.addComponents(effective);
@@ -106,7 +106,7 @@ public class GroupAttributesClassesDialog extends AbstractAttributesClassesDialo
 			close();
 		} catch (EngineException e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("GroupAttributesClasses.errorUpdatingACs"), e);
+			NotificationPopup.showError(msg, msg.getMessage("GroupAttributesClasses.errorUpdatingACs"), e);
 		}
 	}
 

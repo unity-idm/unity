@@ -13,7 +13,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 
 import com.vaadin.ui.CheckBox;
@@ -54,7 +54,7 @@ public class AddAttributeColumnDialog extends AbstractDialog
 			attrTypes = attrsMan.getAttributeTypes();
 		} catch (Exception e)
 		{
-			ErrorPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("AddAttributeColumnDialog.cantGetAttrTypes"));
 			throw new IllegalStateException();
 		}

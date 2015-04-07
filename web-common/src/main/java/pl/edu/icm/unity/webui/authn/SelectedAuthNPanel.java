@@ -25,7 +25,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.common.ErrorPopup;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
@@ -193,7 +193,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	protected void handleError(String error)
 	{
 		setNotAuthenticating();
-		ErrorPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), error);
+		NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), error);
 	}
 	
 	/**
