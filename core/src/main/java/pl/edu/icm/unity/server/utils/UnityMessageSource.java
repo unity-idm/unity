@@ -40,6 +40,7 @@ public class UnityMessageSource extends ResourceBundleMessageSource implements M
 		setBasenames(allBundles.toArray(new String[allBundles.size()]));
 		setFallbackToSystemLocale(false);
 		setDefaultEncoding("UTF-8");
+		setAlwaysUseMessageFormat(true);
 	}
 	
 	@Override
