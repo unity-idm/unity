@@ -146,8 +146,10 @@ public class AttributesManagementImpl implements AttributesManagement
 		{
 			AttributeType atExisting = dbAttributes.getAttributeType(at.getName(), sql);
 			if ((atExisting.getFlags() & AttributeType.TYPE_IMMUTABLE_FLAG) != 0)
-				throw new IllegalAttributeTypeException("The attribute type with name " + at.getName() + 
-						" can not be manually updated");
+			{
+				updateImmutableAttributeType(sql, at, atExisting);
+				return;
+			}
 			Collection<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql).values();
 			verifyATMetadata(at, existingAts);
 			
@@ -161,6 +163,21 @@ public class AttributesManagementImpl implements AttributesManagement
 		}
 	}
 
+	/**
+	 * Attribute types marked as immutable can have only displayed name and description modified.
+	 * Also metadata is not set on them.
+	 * @param at
+	 * @throws EngineException 
+	 */
+	private void updateImmutableAttributeType(SqlSession sql, AttributeType at, AttributeType existing) 
+			throws EngineException
+	{
+		existing.setDisplayedName(at.getDisplayedName());
+		existing.setDescription(at.getDescription());
+		dbAttributes.updateAttributeType(existing, sql);
+		sql.commit();
+	}
+	
 	private void verifyATMetadata(AttributeType at, Collection<AttributeType> existingAts) 
 			throws IllegalAttributeTypeException
 	{

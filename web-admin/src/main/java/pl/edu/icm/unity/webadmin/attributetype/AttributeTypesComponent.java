@@ -217,7 +217,7 @@ public class AttributeTypesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			AttributeTypeEditor editor = new AttributeTypeEditor(msg, attrHandlerRegistry, 
+			RegularAttributeTypeEditor editor = new RegularAttributeTypeEditor(msg, attrHandlerRegistry, 
 					attrMetaHandlerRegistry);
 			AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
 					msg.getMessage("AttributeTypes.addAction"), new Callback()
@@ -283,7 +283,7 @@ public class AttributeTypesComponent extends VerticalLayout
 	}
 
 	
-	private class EditActionHandler extends AbstractAttributeTypeActionHandler
+	private class EditActionHandler extends SingleActionHandler
 	{
 		public EditActionHandler()
 		{
@@ -296,8 +296,9 @@ public class AttributeTypesComponent extends VerticalLayout
 			
 			GenericItem<?> item = (GenericItem<?>) target;	
 			AttributeType at = (AttributeType) item.getElement();
-			AttributeTypeEditor editor = new AttributeTypeEditor(msg, attrHandlerRegistry, at,
-					attrMetaHandlerRegistry);
+			AttributeTypeEditor editor = at.isTypeImmutable() ? 
+					new ImmutableAttributeTypeEditor(msg, at) : 
+					new RegularAttributeTypeEditor(msg, attrHandlerRegistry, at, attrMetaHandlerRegistry);
 			AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
 					msg.getMessage("AttributeTypes.editAction"), new Callback()
 					{
