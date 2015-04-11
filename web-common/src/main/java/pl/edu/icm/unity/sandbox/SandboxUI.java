@@ -21,6 +21,7 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.internal.AuthenticatorsManagement;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnContext;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
@@ -37,6 +38,7 @@ import pl.edu.icm.unity.webui.authn.AuthenticatorSetComponent;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent;
 
@@ -44,7 +46,12 @@ import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.JavaScript;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Vaadin UI of the sandbox application. This servlet is based on AuthenticationUI 
@@ -105,6 +112,12 @@ public class SandboxUI extends AuthenticationUI
 	@Override
 	protected void appInit(VaadinRequest request) 
 	{
+		if (authenticators.size() == 0)
+		{
+			noRemoteAuthnUI();
+			return;
+		}
+		
 		setSandboxCallbackForAuthenticators();
 		
 		super.appInit(request);
@@ -125,6 +138,31 @@ public class SandboxUI extends AuthenticationUI
 		
 	}
 	
+	private void noRemoteAuthnUI()
+	{
+		VerticalLayout main = new VerticalLayout();
+		Label errorLabel = new Label(msg.getMessage("SandboxUI.noRemoteAuthNTitle"));
+		Label errorDescLabel = new Label(msg.getMessage("SandboxUI.noRemoteAuthNDesc"));
+		errorLabel.addStyleName(Styles.error.toString());
+		errorLabel.addStyleName(Styles.textXLarge.toString());
+
+		Button close = new Button(msg.getMessage("close"));
+		close.addClickListener(new ClickListener()
+		{
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				Exception errorE = new Exception(msg.getMessage("SandboxUI.noRemoteAuthNTitle"));
+				RemotelyAuthenticatedInput dummy = new RemotelyAuthenticatedInput("no-idp");
+				SandboxAuthnContext error = new SandboxAuthnContext(errorE, "", dummy);
+				sandboxRouter.fireEvent(new SandboxAuthnEvent(error));
+				JavaScript.getCurrent().execute("window.close();");
+			}
+		});
+		main.addComponents(errorLabel, errorDescLabel, close);
+		setContent(main);
+	}
+	
 	private class SandboxAuthnResultCallbackImpl implements SandboxAuthnResultCallback
 	{
 		@Override
@@ -141,9 +179,6 @@ public class SandboxUI extends AuthenticationUI
 	
 	private void setSandboxCallbackForAuthenticators() 
 	{
-		if (authenticators == null)
-			return;
-
 		for (Map<String, VaadinAuthenticationUI> auth : authenticators)
 		{
 			for (VaadinAuthenticationUI authUI : auth.values())
@@ -155,16 +190,13 @@ public class SandboxUI extends AuthenticationUI
 
 	private void cancelAuthentication() 
 	{
-		if (authenticators != null) 
+		for (Map<String, VaadinAuthenticationUI> auth : authenticators)
 		{
-			for (Map<String, VaadinAuthenticationUI> auth : authenticators)
+			for (VaadinAuthenticationUI authUI : auth.values())
 			{
-				for (VaadinAuthenticationUI authUI : auth.values())
-				{
-					authUI.cancelAuthentication();
-				}
+				authUI.cancelAuthentication();
 			}
-		}			
+		}
 	}
 
 	private List<AuthenticatorSet> getAllVaadinAuthenticators(AuthenticationManagement authnManagement, 
