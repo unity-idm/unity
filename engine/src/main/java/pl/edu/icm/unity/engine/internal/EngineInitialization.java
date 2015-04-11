@@ -482,6 +482,10 @@ public class EngineInitialization extends LifecycleBase
 			try
 			{
 				idManagement.getEntity(new EntityParam(admin));
+				log.info("There is a user " + adminU + 
+						" in the database, admin account will not be created. It is a good idea to remove or comment the "
+						+ UnityServerConfiguration.INITIAL_ADMIN_USER + " setting from the main configuration file to "
+						+ "disable this message and use it only to add a default user in case of locked access.");
 			} catch (IllegalIdentityValueException e)
 			{
 				log.info("Database contains no admin user, adding the admin user and the " +
@@ -502,9 +506,14 @@ public class EngineInitialization extends LifecycleBase
 						"/", AttributeVisibility.local, 
 						AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE);
 				attrManagement.setAttribute(adminEntity, roleAt, false);
-				log.warn("IMPORTANT: database was initialized with a default admin user and password." +
+				log.warn("IMPORTANT:\n"
+						+ "Database was initialized with a default admin user and password." +
 						" Log in and change the admin's password immediatelly! U: " + 
-						adminU + " P: " + adminP);
+						adminU + " P: " + adminP + "\n"
+						+ "A credential created for this user is named: '" + credDef.getName() + 
+						"' make sure that this credential is configured for the admin UI endpoint "
+						+ "(if not add a new authenticator definition using thiscredential and add the authenticator to the endpoint)\n"
+						+ "A new credential requirement was also created for the new admin user: " + crDef.getName());
 			}
 		} catch (EngineException e)
 		{
