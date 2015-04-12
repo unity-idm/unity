@@ -15,7 +15,7 @@ import org.springframework.core.env.SimpleCommandLinePropertySource;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.util.LoggerFactory;
-
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityLoggerFactory;
 import pl.edu.icm.unity.utils.LifecycleBase;
@@ -34,7 +34,8 @@ public class UnityApplication
 	private static final Logger log = Log.getLogger(Log.U_SERVER, UnityApplication.class);
 
 	private AbstractApplicationContext container;
-	
+	//10:23 sobota
+	//22:27
 	public void run(String[] args)
 	{
 		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.LONG);
@@ -47,11 +48,30 @@ public class UnityApplication
 		propertySources.addFirst(clps);
 		container.getEnvironment().setActiveProfiles("production");
 		
-		container.refresh();
+		try
+		{
+			container.refresh();
+		} catch (Exception e)
+		{
+			Throwable cause = getRootCause(e);
+			if (cause instanceof ConfigurationException)
+			{
+				throw (ConfigurationException)cause;  
+			}
+		}
+		
 		container.registerShutdownHook();
 		container.start();
 	}
 
+	private Throwable getRootCause(Throwable e)
+	{
+		Throwable cause = e;
+		while (cause.getCause() != null)
+			cause = cause.getCause();
+		return cause;
+	}
+	
 	public static void main(String[] args)
 	{
 		UnityApplication theServer = new UnityApplication();
