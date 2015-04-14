@@ -16,6 +16,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration;
+import net.sf.ehcache.config.Searchable;
+import net.sf.ehcache.search.Query;
+import net.sf.ehcache.search.Results;
+
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,8 +56,10 @@ import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.utils.CacheProvider;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -64,7 +75,8 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 public class ConfirmationManagerImpl implements ConfirmationManager
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, ConfirmationManagerImpl.class);
-
+	private static final String CACHE_ID = "ConfirmationCache";
+	
 	private TokensManagement tokensMan;
 	private NotificationProducerImpl notificationProducer;
 	private ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry;
@@ -74,6 +86,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	private URL advertisedAddress;
 	private UnityMessageSource msg;
 	private IdentitiesResolver idResolver;
+	private Ehcache confirmationReqCache;
+	private int requestLimit;
 
 	@Autowired
 	public ConfirmationManagerImpl(TokensManagement tokensMan,
@@ -82,8 +96,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry,
 			JettyServer httpServer, MessageTemplateDB mtDB,
 			ConfirmationConfigurationDB configurationDB, DBSessionManager db,
-			IdentitiesResolver idResolver,
-			UnityMessageSource msg)
+			IdentitiesResolver idResolver, UnityMessageSource msg,
+			CacheProvider cacheProvider, UnityServerConfiguration mainConf)
 	{
 		this.tokensMan = tokensMan;
 		this.notificationProducer = notificationProducer;
@@ -94,6 +108,19 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		this.configurationDB = configurationDB;
 		this.db = db;
 		this.msg = msg;
+		
+		CacheConfiguration cacheConfig = new CacheConfiguration(CACHE_ID, 0);
+		Searchable searchable = new Searchable();
+		searchable.values(true);
+		cacheConfig.addSearchable(searchable);		
+		cacheConfig.setTimeToIdleSeconds(24 * 3600);
+		cacheConfig.setTimeToLiveSeconds(24 * 3600);
+		cacheConfig.setEternal(false);
+		PersistenceConfiguration persistCfg = new PersistenceConfiguration();
+		persistCfg.setStrategy("none");
+		cacheConfig.persistence(persistCfg);		
+		confirmationReqCache = cacheProvider.getManager().addCacheIfAbsent(new Cache(cacheConfig));
+		requestLimit = mainConf.getIntValue(UnityServerConfiguration.CONFIRMATION_REQUEST_LIMIT);	
 	}
 
 	/**
@@ -109,6 +136,9 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			return;
 		String serializedState = baseState.getSerializedConfiguration();
 		
+		if (!checkSendingLimit(baseState.getValue()))
+			return;
+			
 		boolean hasDuplicate;
 		String token;
 		Object transaction = tokensMan.startTokenTransaction();
@@ -123,12 +153,27 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		}
 		
 		if (!hasDuplicate)
+		{
 			sendConfirmationRequest(baseState.getValue(), configEntry.getNotificationChannel(),
 					configEntry.getMsgTemplate(), 
 					facility, baseState.getLocale(), token);
+			
+		}
 		facility.processAfterSendRequest(serializedState);
 	}
 
+	private boolean checkSendingLimit(String address)
+	{
+		confirmationReqCache.evictExpiredElements();
+		Results results = confirmationReqCache.createQuery().includeValues().addCriteria(Query.VALUE.ilike(address)).execute();
+		if (results.size() >= requestLimit)
+		{		
+			log.warn("Limit of sent confirmation requests to " + address + " was reached.( Limit=" +requestLimit + "/24H)");
+			return false;
+		}
+		return true;
+	}
+	
 	private String insertConfirmationToken(String state, Object transaction) throws EngineException
 	{
 		Date createDate = new Date();
@@ -174,6 +219,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		log.debug("Send confirmation request to " + recipientAddress + " with token = "
 				+ token);
 
+		confirmationReqCache.put(new Element(token, recipientAddress));
+		
 		notificationProducer.sendNotification(recipientAddress, channelName, templateId,
 				params, locale);
 	}
@@ -201,7 +248,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 				return new ConfirmationStatus(false, null, "ConfirmationStatus.invalidToken");
 			}
 
-			ConfirmationStatus ret = processConfirmationIntenral(tk, true, transaction);
+			ConfirmationStatus ret = processConfirmationInternal(tk, true, transaction);
 			tokensMan.commitTokenTransaction(transaction);
 			return ret;
 		} finally 
@@ -210,7 +257,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		}
 	}
 
-	private ConfirmationStatus processConfirmationIntenral(Token tk, boolean withDuplicates, Object transaction)
+	private ConfirmationStatus processConfirmationInternal(Token tk, boolean withDuplicates, Object transaction)
 			throws EngineException
 	{
 
@@ -232,7 +279,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			{
 				log.debug("Found duplicte confirmation token " + duplicate.getValue() + 
 						" confirming it too");
-				processConfirmationIntenral(duplicate, false, transaction);
+				processConfirmationInternal(duplicate, false, transaction);
 			}
 		}
 		
@@ -316,12 +363,11 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			sendVerification(entity, attribute, useCurrentReturnUrl);
 		} catch (Exception e)
 		{
-			log.warn("Can not send a confirmation for the verificable attribute being added " + 
-					attribute.getName(), e);
+			log.warn("Can not send a confirmation for the verificable attribute being added "
+					+ attribute.getName(), e);
 		}
 	}
 	
-
 	@Override
 	public void sendVerificationsQuiet(EntityParam entity, List<Attribute<?>> attributes, 
 			boolean useCurrentReturnUrl)
@@ -354,10 +400,10 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		try
 		{
 			sendVerification(entity, identity, useCurrentReturnUrl);
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
-			log.warn("Can not send a confirmation for the verificable identity being added " + 
-					identity.getValue(), e);
+			log.warn("Can not send a confirmation for the verificable identity being added "
+					+ identity.getValue(), e);
 		}
 	}
 	

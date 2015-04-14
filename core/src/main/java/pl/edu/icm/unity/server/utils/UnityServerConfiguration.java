@@ -111,6 +111,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String TRANSLATION_PROFILES = "translationProfiles.";
 	
 	public static final String WIPE_DB_AT_STARTUP = "wipeDbAtStartup";
+	
+	public static final String CONFIRMATION_REQUEST_LIMIT = "confirmationRequestLimit";
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -259,6 +261,9 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		
 		defaults.put(WIPE_DB_AT_STARTUP, new PropertyMD("false").setHidden().
 				setDescription("For testing: if set to true then DB will be fully cleared at server startup"));
+		
+		defaults.put(CONFIRMATION_REQUEST_LIMIT, new PropertyMD("3").setCategory(mainCat).
+				setDescription("Defines number of confirmation request that can be send to particular address in day"));
 		
 		defaults.put(MAIN_TRUSTSTORE, new PropertyMD().setMandatory().setCategory(mainCat).
 				setDescription("Name of the truststore to be used by the server."));
