@@ -1,3 +1,17 @@
+//Redefinitions of the Valo defaults
+
+$v-font-size: 15px;
+$v-unit-size: round(2.3 * $v-font-size);
+
+$v-layout-margin-left: round($v-unit-size/2);
+$v-layout-margin-right: round($v-unit-size/2);
+$v-layout-margin-top:  round($v-unit-size/2);
+$v-layout-margin-bottom: round($v-unit-size/2);
+	
+$v-default-field-width: $v-unit-size * 8;
+
+//Custom variables used in common.scss
+
 $textSuccessColor: 		green;
 $bgSuccessColor: 		LightGreen;
 $bgDisabledColor: 		LightGray;
@@ -13,3 +27,4 @@ $bigTabSelectedBgImage:		url(../common/img/bigTab-bg2-blue.jpg);
 $flagImageEn: 				url(../common/img/flag/en.png);
 $flagImagePl: 				url(../common/img/flag/pl.png);
 $flagImageDe: 				url(../common/img/flag/de.png);
+
