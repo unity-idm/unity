@@ -63,6 +63,7 @@ import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.RealmsManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.api.internal.AuthenticatorsManagement;
 import pl.edu.icm.unity.server.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
@@ -148,6 +149,8 @@ public class EngineInitialization extends LifecycleBase
 	@Qualifier("insecure")
 	private AuthenticationManagement authnManagement;
 	@Autowired
+	private AuthenticatorsManagement authenticatorsManagement;
+	@Autowired
 	@Qualifier("insecure")
 	private AttributesManagement attrManagement;
 	@Autowired
@@ -198,7 +201,13 @@ public class EngineInitialization extends LifecycleBase
 		if (config.getBooleanValue(UnityServerConfiguration.WIPE_DB_AT_STARTUP))
 			initDB.resetDatabase();
 		
-		initializeDatabaseContents();
+		boolean skipLoading = config.getBooleanValue(
+				UnityServerConfiguration.IGNORE_CONFIGURED_CONTENTS_SETTING);
+		if (!skipLoading)
+			initializeDatabaseContents();
+		else
+			log.info("Unity is configured to SKIP DATABASE LOADING FROM CONFIGURATION");
+		startLogConfigurationMonitoring();
 		initializeBackgroundTasks();
 		deployConfirmationServlet();
 		super.start();
@@ -322,9 +331,11 @@ public class EngineInitialization extends LifecycleBase
 		initializeNotifications();
 		runInitializers();
 		initializeTranslationProfiles();
+		
+		removeERA();
 		initializeAuthenticators();
+		initializeRealms();
 		initializeEndpoints();
-		startLogConfigurationMonitoring();
 	}
 	
 	private void deployConfirmationServlet()
@@ -482,6 +493,10 @@ public class EngineInitialization extends LifecycleBase
 			try
 			{
 				idManagement.getEntity(new EntityParam(admin));
+				log.info("There is a user " + adminU + 
+						" in the database, admin account will not be created. It is a good idea to remove or comment the "
+						+ UnityServerConfiguration.INITIAL_ADMIN_USER + " setting from the main configuration file to "
+						+ "disable this message and use it only to add a default user in case of locked access.");
 			} catch (IllegalIdentityValueException e)
 			{
 				log.info("Database contains no admin user, adding the admin user and the " +
@@ -502,9 +517,14 @@ public class EngineInitialization extends LifecycleBase
 						"/", AttributeVisibility.local, 
 						AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE);
 				attrManagement.setAttribute(adminEntity, roleAt, false);
-				log.warn("IMPORTANT: database was initialized with a default admin user and password." +
+				log.warn("IMPORTANT:\n"
+						+ "Database was initialized with a default admin user and password." +
 						" Log in and change the admin's password immediatelly! U: " + 
-						adminU + " P: " + adminP);
+						adminU + " P: " + adminP + "\n"
+						+ "A credential created for this user is named: '" + credDef.getName() + 
+						"' make sure that this credential is configured for the admin UI endpoint "
+						+ "(if not add a new authenticator definition using thiscredential and add the authenticator to the endpoint)\n"
+						+ "A new credential requirement was also created for the new admin user: " + crDef.getName());
 			}
 		} catch (EngineException e)
 		{
@@ -587,7 +607,11 @@ public class EngineInitialization extends LifecycleBase
 		return crDef;
 	}
 	
-	private void initializeEndpoints()
+	
+	/**
+	 * Removes all database endpoints, realms and authenticators
+	 */
+	private void removeERA()
 	{
 		try
 		{
@@ -611,6 +635,21 @@ public class EngineInitialization extends LifecycleBase
 			throw new InternalException("Can't remove realms which are stored in database", e);
 		}
 		
+		try
+		{
+			log.info("Removing all persisted authenticators");
+			authenticatorsManagement.removeAllPersistedAuthenticators();
+		} catch (EngineException e)
+		{
+			log.fatal("Can't remove authenticators which are stored in database", e);
+			throw new InternalException("Can't remove authenticators which are stored in database", e);
+		}
+		
+		
+	}
+	
+	private void initializeRealms()
+	{
 		try
 		{
 			log.info("Loading configured realms");
@@ -640,7 +679,10 @@ public class EngineInitialization extends LifecycleBase
 			log.fatal("Can't add realms which are defined in configuration", e);
 			throw new InternalException("Can't add realms which are defined in configuration", e);
 		}
-		
+	}
+	
+	private void initializeEndpoints()
+	{
 		try
 		{
 			loadEndpointsFromConfiguration();
@@ -701,9 +743,9 @@ public class EngineInitialization extends LifecycleBase
 			
 			String jsonConfiguration = FileUtils.readFileToString(configFile);
 
+			log.info(" - " + name + ": " + type + " " + description);
 			endpointManager.deploy(type, name, displayedName, address, description, endpointAuthn, 
 					jsonConfiguration, realmName);
-			log.info(" - " + name + ": " + type + " " + description);
 		}
 	}
 

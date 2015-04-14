@@ -35,7 +35,7 @@ public class AttributeTypeEditDialog extends AbstractDialog
 	@Override
 	protected Component getContents()
 	{
-		return editor;
+		return editor.getComponent();
 	}
 
 	@Override

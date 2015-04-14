@@ -25,4 +25,10 @@ public interface AuthenticatorsManagement
 	 * @throws EngineException 
 	 */
 	List<Map<String, BindingAuthn>> getAuthenticatorUIs(List<AuthenticatorSet> authnList) throws EngineException;
+
+	/**
+	 * Removes all authenticators from DB
+	 * @throws EngineException
+	 */
+	void removeAllPersistedAuthenticators() throws EngineException;
 }
