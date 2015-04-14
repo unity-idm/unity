@@ -134,6 +134,12 @@ public class FloatingPointAttributeSyntax implements AttributeValueSyntax<Double
 	}
 
 	@Override
+	public Double deserializeSimple(Object value) throws InternalException
+	{
+		return value instanceof Double ? (Double) value : Double.parseDouble(value.toString()); 
+	}
+
+	@Override
 	public boolean isVerifiable()
 	{
 		return false;

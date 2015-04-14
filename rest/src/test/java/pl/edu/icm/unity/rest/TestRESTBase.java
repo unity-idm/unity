@@ -4,6 +4,12 @@
  */
 package pl.edu.icm.unity.rest;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -16,11 +22,15 @@ import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.AuthenticatorSet;
+import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpUtils;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 public abstract class TestRESTBase extends DBIntegrationTestBase
 {
@@ -70,5 +80,23 @@ public abstract class TestRESTBase extends DBIntegrationTestBase
 		super.setupPasswordAuthn();
 		authnMan.createAuthenticator(AUTHENTICATOR_REST_PASS, "password with rest-httpbasic", 
 				null, "", "credential1");
+	}
+	
+	
+	protected void deployEndpoint(String endpointTypeName, String name, String context) throws Exception
+	{
+		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
+				10, 100, -1, 600);
+		realmsMan.addRealm(realm);
+		
+		List<AuthenticatorSet> authnCfg = new ArrayList<AuthenticatorSet>();
+		authnCfg.add(new AuthenticatorSet(Collections.singleton("ApassREST")));
+		endpointMan.deploy(endpointTypeName, 
+				name, new I18nString(name),
+				context, "desc", authnCfg, "", realm.getName());
+		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
+		assertEquals(1, endpoints.size());
+
+		httpServer.start();
 	}
 }

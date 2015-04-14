@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.stdext.attr;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -58,9 +59,7 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	@Override
 	public byte[] serialize(VerifiableEmail value) throws InternalException
 	{
-		ObjectNode main = Constants.MAPPER.createObjectNode();
-		main.put("value",value.getValue());
-		main.put("confirmationData", value.getConfirmationInfo().getSerializedConfiguration());
+		JsonNode main = serialize2Json(value);
 		try
 		{
 			return Constants.MAPPER.writeValueAsString(main).getBytes(StandardCharsets.UTF_8);
@@ -70,14 +69,35 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		}
 	}
 
+	private JsonNode serialize2Json(VerifiableEmail value)
+	{
+		ObjectNode main = Constants.MAPPER.createObjectNode();
+		main.put("value",value.getValue());
+		main.put("confirmationData", value.getConfirmationInfo().getSerializedConfiguration());
+		return main;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Object serializeSimple(VerifiableEmail value) throws InternalException
 	{
-		return serialize(value);
+		return serialize2Json(value);
 	}
+
+	@Override
+	public VerifiableEmail deserializeSimple(Object value) throws InternalException
+	{
+		if (value instanceof Map)
+		{
+			JsonNode node = Constants.MAPPER.convertValue(value, JsonNode.class);
+			return deserializeFromJson(node);
+		}
+		throw new InternalException("Value must be json encoded and is " + value.getClass() + 
+				"\n" + value);
+	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -93,6 +113,16 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		{
 			throw new InternalException("Can't deserialize VerifiableEmail from JSON", e);
 		}
+		VerifiableEmail email = new VerifiableEmail();
+		email.setValue(jsonN.get("value").asText());
+		ConfirmationInfo confirmationData = new ConfirmationInfo();
+		confirmationData.setSerializedConfiguration(jsonN.get("confirmationData").asText());
+		email.setConfirmationInfo(confirmationData);
+		return email;
+	}
+
+	private VerifiableEmail deserializeFromJson(JsonNode jsonN) throws InternalException
+	{
 		VerifiableEmail email = new VerifiableEmail();
 		email.setValue(jsonN.get("value").asText());
 		ConfirmationInfo confirmationData = new ConfirmationInfo();

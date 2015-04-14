@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.server.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
@@ -58,7 +60,7 @@ public class MockAttributeSyntax implements AttributeValueSyntax<String> {
 	}
 
 	@Override
-	public Object serializeSimple(String value) throws InternalException
+	public JsonNode serializeSimple(String value) throws InternalException
 	{
 		return null;
 	}
@@ -73,5 +75,11 @@ public class MockAttributeSyntax implements AttributeValueSyntax<String> {
 			throws IllegalAttributeValueException
 	{
 		return stringRepresentation;
+	}
+
+	@Override
+	public String deserializeSimple(Object value) throws InternalException
+	{
+		return null;
 	}
 }

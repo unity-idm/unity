@@ -59,10 +59,17 @@ public interface AttributeValueSyntax<T> extends JsonSerializable
 
 	/**
 	 * @param domain object
-	 * @return value in the form of a simple Java type. Can return any type which is directly serializable to JSON.
+	 * @return value in the form of an object directly serializable to Json (either simple object, map or JsonNode).
 	 * @throws InternalException 
 	 */
 	Object serializeSimple(T value) throws InternalException;
+
+	/**
+	 * @param value to deserialize
+	 * @return domain object
+	 * @throws InternalException 
+	 */
+	T deserializeSimple(Object value) throws InternalException;
 	
 	/**
 	 * @param raw data
