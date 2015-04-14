@@ -62,7 +62,7 @@ import eu.unicore.security.etd.DelegationRestrictions;
  */
 @Component("SamlUnicoreIdPWebUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@Theme("unityTheme")
+@Theme("unityThemeValo")
 public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 {
 	private static Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlUnicoreIdPWebUI.class);

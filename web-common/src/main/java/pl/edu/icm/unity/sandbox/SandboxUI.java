@@ -54,7 +54,7 @@ import com.vaadin.ui.JavaScript;
  */
 @org.springframework.stereotype.Component("SandboxUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@Theme("unityTheme")
+@Theme("unityThemeValo")
 @PreserveOnRefresh
 public class SandboxUI extends AuthenticationUI 
 {

@@ -1,8 +1,0 @@
-@import "../reindeer/reindeer.scss";
-@import "../common/common.scss";
-
-@mixin unityTheme {
-	@include reindeer;
-	
-	@include unityCommon;
-}
