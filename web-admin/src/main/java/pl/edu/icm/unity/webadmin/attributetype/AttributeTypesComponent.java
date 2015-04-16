@@ -74,6 +74,7 @@ public class AttributeTypesComponent extends VerticalLayout
 		this.bus = WebSession.getCurrent().getEventBus();
 		HorizontalLayout hl = new HorizontalLayout();
 		
+		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("AttributeTypes.caption"));
 		table = new GenericElementsTable<AttributeType>(msg.getMessage("AttributeTypes.types"), 
 				AttributeType.class, new GenericElementsTable.NameProvider<AttributeType>()

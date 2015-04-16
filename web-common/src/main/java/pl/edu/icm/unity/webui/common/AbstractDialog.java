@@ -33,12 +33,16 @@ import com.vaadin.ui.Window;
  * Usage pattern: extend, provide onConfirm() logic and custom contents in getContents(). Then call show();
  * Note: the returned contents component is available in the field.
  * Note: the initialization of the GUI is done in the show() call, not in the constructor.
- * 
+ * <p>
+ * The contents will be displayed differently depending whether the returned component has width undefined/fixed 
+ * or set as percentage. In the first case the component will be centered horizontally and scrollbar 
+ * will be shown if it overflows. In the latter the component will be left aligned with the scrollbar shown when needed.
+ * However in the latter case the long labels etc. will not be wrapped, as they are in the first case.  
  * @author K. Benedyczak
  */
 public abstract class AbstractDialog extends Window implements Button.ClickListener 
 {
-	public enum SizeMode {LARGE, SMALL}
+	public enum SizeMode {LARGE, MEDIUM, SMALL}
 	
 	private static final long serialVersionUID = 1L;
 	private Button confirm;
@@ -50,7 +54,6 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	protected boolean lightweightWrapperPanel = false;
 	private int width = 50;
 	private int height = 50;
-	private SizeMode sizeMode = SizeMode.LARGE; 
 	
 	/**
 	 * With only one, confirm button, which usually should be labelled as 'close'. 
@@ -96,20 +99,27 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	}
 	
 	/**
-	 * @param sizeMode if LARGE (what is default) then the dialog size is set to 80x90%, both scrollbars are 
-	 * provided if the content is too big to fit the viewport. If false, then the size is set to 50%x60%
-	 *  only vertical scrollbar will be displayed, and the contents is centered horizontally (assuming it has
-	 *  no 100% width by itself. In any case the initial sizes can be further changed with 
-	 *  {@link #setSize(int, int)}.
+	 * Quickly set typical sizes of the dialog window.
+	 * @param sizeMode 
 	 *  
 	 */
 	protected void setSizeMode(SizeMode sizeMode)
 	{
-		this.sizeMode = sizeMode;
-		if (sizeMode == SizeMode.LARGE)
+		switch (sizeMode)
+		{
+		case LARGE:
 			setSize(80, 90);
-		else
+			break;
+		case MEDIUM:
 			setSize(50, 60);
+			break;
+		case SMALL:
+			setSize(35, 30);
+			break;
+		default:
+			break;
+		
+		}
 	}
 	
 	/**
@@ -189,10 +199,9 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		internal.addComponent(contentsComponent);
 		internal.setComponentAlignment(contentsComponent, Alignment.MIDDLE_CENTER);
 		internal.setMargin(true);
-		internal.setSizeUndefined();
+		internal.addStyleName(Styles.visibleScroll.toString());
 		contentsPanel.setContent(internal);
-		if (sizeMode == SizeMode.SMALL)
-			contentsPanel.addStyleName(Styles.centeredPanel.toString());
+		contentsPanel.addStyleName(Styles.centeredPanel.toString());
 		vl.addComponent(contentsPanel);
 		
 		Layout hl = getButtonsBar();

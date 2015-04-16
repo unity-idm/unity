@@ -44,7 +44,7 @@ public class GroupEditDialog extends AbstractDialog
 		this.originalDesc = edit ? group.getDescription() : new I18nString();
 		this.originalDispName = edit ? group.getDisplayedName() : new I18nString();
 		this.callback = callback;
-		setSizeMode(SizeMode.SMALL);
+		setSizeMode(SizeMode.MEDIUM);
 	}
 
 	@Override

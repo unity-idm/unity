@@ -40,6 +40,7 @@ import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -122,6 +123,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 	
 	private void buildUI()
 	{
+		addStyleName(Styles.visibleScroll.toString());
 		HorizontalLayout hl = new HorizontalLayout();
 		table = new GenericElementsTable<TranslationProfile>(msg.getMessage("TranslationProfilesComponent.profilesTable"),
 				TranslationProfile.class, new GenericElementsTable.NameProvider<TranslationProfile>()

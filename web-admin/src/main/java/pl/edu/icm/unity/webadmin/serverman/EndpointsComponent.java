@@ -74,6 +74,7 @@ public class EndpointsComponent extends VerticalLayout
 	private void initUI()
 	{
 		setCaption(msg.getMessage("Endpoints.caption"));
+		addStyleName(Styles.visibleScroll.toString());
 		
 		HorizontalLayout h = new HorizontalLayout();
 		Label listCaption = new Label(msg.getMessage("Endpoints.listCaption"));

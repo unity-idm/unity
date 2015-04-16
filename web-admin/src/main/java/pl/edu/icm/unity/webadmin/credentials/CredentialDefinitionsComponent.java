@@ -25,6 +25,7 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
@@ -70,6 +71,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 	
 	private void init()
 	{
+		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("CredentialDefinitions.caption"));
 		viewer = new CredentialDefinitionViewer(msg);
 		table =  new GenericElementsTable<CredentialDefinition>(

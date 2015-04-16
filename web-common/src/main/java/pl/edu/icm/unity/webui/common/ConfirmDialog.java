@@ -34,7 +34,6 @@ public class ConfirmDialog extends AbstractDialog
 		this.callback = callback;
 		this.lightweightWrapperPanel = true;
 		setSizeMode(SizeMode.SMALL);
-		setSize(50, 30);
 	}
 
 	public void setHTMLContent(boolean how)

@@ -7,7 +7,6 @@ package pl.edu.icm.unity.webadmin.credreq;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.SmallTable;
 
 import com.vaadin.ui.Alignment;
@@ -23,7 +22,7 @@ public class CredentialRequirementViewer extends CompactFormLayout
 	private UnityMessageSource msg;
 	
 	private Label name;
-	private DescriptionTextArea description;
+	private Label description;
 	private Table credentials;
 	
 	public CredentialRequirementViewer(UnityMessageSource msg)
@@ -40,7 +39,8 @@ public class CredentialRequirementViewer extends CompactFormLayout
 		name.setCaption(msg.getMessage("CredentialRequirements.name"));
 		addComponent(name);
 		
-		description = new DescriptionTextArea(msg.getMessage("CredentialRequirements.description"), true, "");
+		description = new Label();
+		description.setCaption(msg.getMessage("CredentialRequirements.description"));
 		addComponent(description);
 		
 		credentials = new SmallTable(msg.getMessage("CredentialRequirements.credentials"));

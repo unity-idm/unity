@@ -9,7 +9,6 @@ import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 
 import com.vaadin.ui.Label;
 
@@ -20,7 +19,7 @@ import com.vaadin.ui.Label;
  */
 public class MessageTemplateViewer extends MessageTemplateViewerBase
 {	
-	private DescriptionTextArea description;
+	private Label description;
 	private Label consumer;
 	private MessageTemplateConsumersRegistry registry;
 
@@ -34,7 +33,7 @@ public class MessageTemplateViewer extends MessageTemplateViewerBase
 	{	
 		main.setMargin(true);
 		main.setSpacing(true);
-		description = new DescriptionTextArea();
+		description = new Label();
 		description.setCaption(msg.getMessage("MessageTemplateViewer.description"));
 		description.setReadOnly(true);
 		consumer = new Label();
@@ -57,7 +56,6 @@ public class MessageTemplateViewer extends MessageTemplateViewerBase
 		}
 		setInput(template.getName(), template.getMessage().getSubject(), template.getMessage().getBody());	
 		description.setValue(template.getDescription());
-		description.setRows(template.getDescription().split("\n").length);
 		String cons = template.getConsumer();
 		if (cons != null)
 		{

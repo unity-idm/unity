@@ -31,6 +31,10 @@
    
     //Custom styles
 	
+	.u-visiblescroll {
+		overflow: visible;
+	}
+	
 	.v-tabsheet-tabs-u-bigTabsheet .v-caption {
 		font-size: ceil($v-font-size * 1.1);
 	}

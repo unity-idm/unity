@@ -4,15 +4,15 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.VerticalLayout;
-
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Dialog allowing to edit a registration form. It takes an editor component as argument, so can be easily used to display 
@@ -31,7 +31,7 @@ public class RegistrationFormEditDialog extends AbstractDialog
 		super(msg, caption);
 		this.editor = attributeEditor;
 		this.callback = callback;
-		setSize(80, 90);
+		setSizeMode(SizeMode.LARGE);
 	}
 
 	@Override

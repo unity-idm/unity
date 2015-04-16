@@ -23,6 +23,7 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
@@ -60,7 +61,8 @@ public class MessageTemplatesComponent extends VerticalLayout
 		this.msg = msg;
 		this.msgTempMan = msgTempMan;
 		this.consumersRegistry = consumersRegistry;
-		
+
+		addStyleName(Styles.visibleScroll.toString());
 		HorizontalLayout hl = new HorizontalLayout();
 		setCaption(msg.getMessage("MessageTemplatesComponent.capion"));
 		table = new GenericElementsTable<MessageTemplate>(msg.getMessage("MessageTemplatesComponent.templatesTable"),

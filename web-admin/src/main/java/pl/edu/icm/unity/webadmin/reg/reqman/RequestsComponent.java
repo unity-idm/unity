@@ -17,6 +17,7 @@ import pl.edu.icm.unity.webadmin.reg.reqman.RequestsTable.RequestSelectionListen
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.registration.RegistrationRequestChangedEvent;
 
@@ -64,6 +65,7 @@ public class RequestsComponent extends CustomComponent
 
 	private void initUI()
 	{
+		addStyleName(Styles.visibleScroll.toString());
 		requestsTable = new RequestsTable(registrationsManagement, msg);
 		final RequestProcessingPanel requestPanel = new RequestProcessingPanel(msg, registrationsManagement,
 				handlersRegistry, idTypesRegistry);

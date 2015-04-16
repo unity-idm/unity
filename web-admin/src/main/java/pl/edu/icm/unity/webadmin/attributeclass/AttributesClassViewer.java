@@ -9,7 +9,6 @@ import java.util.Map;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.SmallTable;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
@@ -25,7 +24,7 @@ public class AttributesClassViewer extends CompactFormLayout
 	private UnityMessageSource msg;
 	
 	private Label name;
-	private DescriptionTextArea typeDescription;
+	private Label typeDescription;
 	private Label allAllowed;
 	private Table allowed;
 	private Table mandatory;
@@ -46,7 +45,8 @@ public class AttributesClassViewer extends CompactFormLayout
 		name = new Label();
 		name.setCaption(msg.getMessage("AttributesClass.name"));
 		
-		typeDescription = new DescriptionTextArea(msg.getMessage("AttributesClass.description"), true, "");
+		typeDescription = new Label();
+		typeDescription.setCaption(msg.getMessage("AttributesClass.description"));
 		
 		allAllowed = new Label(msg.getMessage("AttributesClass.allAllowed"));
 		

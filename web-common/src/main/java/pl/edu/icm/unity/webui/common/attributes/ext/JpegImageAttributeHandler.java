@@ -28,9 +28,9 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
@@ -436,7 +436,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 					JpegImageAttributeHandler.this.msg.getMessage("close"));
 			this.syntax = syntax;
 			this.image = image;
-			setSize(90, 90);
+			setSizeMode(SizeMode.LARGE);
 		}
 
 		@Override

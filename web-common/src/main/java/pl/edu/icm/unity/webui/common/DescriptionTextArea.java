@@ -8,8 +8,6 @@ import com.vaadin.ui.TextArea;
 
 /**
  * {@link TextArea} specialization with settings common for description areas.
- * If it has an empty string set as a value, and the component is read only, 
- * the component becomes automatically invisible.
  * @author K. Benedyczak
  */
 public class DescriptionTextArea extends TextArea
@@ -20,27 +18,16 @@ public class DescriptionTextArea extends TextArea
 	 */
 	public DescriptionTextArea()
 	{
-		this(false, "");
+		this("", "");
 	}
 
-	/**
-	 * Allows to set whether is read only and the initial value, no caption
-	 * @param caption
-	 * @param readOnly
-	 * @param initialValue
-	 */
-	public DescriptionTextArea(boolean readOnly, String initialValue)
-	{
-		init(readOnly, initialValue);
-	}
-	
 	/**
 	 * Editable, without a value
 	 * @param caption
 	 */
 	public DescriptionTextArea(String caption)
 	{
-		this(caption, false, "");
+		this(caption, "");
 	}
 
 	/**
@@ -49,27 +36,23 @@ public class DescriptionTextArea extends TextArea
 	 * @param readOnly
 	 * @param initialValue
 	 */
-	public DescriptionTextArea(String caption, boolean readOnly, String initialValue)
+	public DescriptionTextArea(String caption, String initialValue)
 	{
 		super(caption);
-		init(readOnly, initialValue);
+		init(initialValue);
 	}
 	
-	protected void init(boolean readOnly, String initialValue)
+	protected void init(String initialValue)
 	{
 		setWordwrap(true);
 		setWidth(100, Unit.PERCENTAGE);
 		setValue(initialValue);
-		setReadOnly(readOnly);
 		addStyleName(Styles.vBorderLess.toString());
 	}
 	
 	@Override
 	public void setValue(String value)
 	{
-		boolean ro = isReadOnly();
-		if (ro)
-			setReadOnly(false);
 		super.setValue(value);
 		int len = value.length();
 		if (len < 40)
@@ -80,11 +63,5 @@ public class DescriptionTextArea extends TextArea
 			setRows(3);
 		else
 			setRows(4);
-		if (ro)
-			setReadOnly(true);
-		if (value.equals("") && ro)
-			setVisible(false);
-		else
-			setVisible(true);
 	}
 }

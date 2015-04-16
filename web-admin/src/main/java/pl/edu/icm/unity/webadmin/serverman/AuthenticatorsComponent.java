@@ -69,6 +69,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 	private void initUI()
 	{
 		setCaption(msg.getMessage("Authenticators.caption"));
+		addStyleName(Styles.visibleScroll.toString());
 
 		HorizontalLayout h = new HorizontalLayout();
 		Label listCaption = new Label(msg.getMessage("Authenticators.listCaption"));

@@ -139,6 +139,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	
 	public void initUI()
 	{
+		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("RegistrationFormsChooserComponent.caption"));
 		try
 		{

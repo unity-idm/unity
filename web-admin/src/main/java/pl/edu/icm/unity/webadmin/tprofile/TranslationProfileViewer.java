@@ -12,12 +12,10 @@ import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -30,7 +28,7 @@ public class TranslationProfileViewer extends VerticalLayout
 	private UnityMessageSource msg;
 	private TranslationActionsRegistry registry;
 	private Label name;
-	private TextArea description;
+	private Label description;
 	private FormLayout rules;
 	private FormLayout main;
 	
@@ -48,7 +46,7 @@ public class TranslationProfileViewer extends VerticalLayout
 		main = new CompactFormLayout();
 		name = new Label();
 		name.setCaption(msg.getMessage("TranslationProfileViewer.name"));
-		description = new DescriptionTextArea();
+		description = new Label();
 		description.setReadOnly(true);
 		description.setCaption(msg.getMessage("TranslationProfileViewer.description"));
 		rules = new CompactFormLayout();
@@ -73,7 +71,6 @@ public class TranslationProfileViewer extends VerticalLayout
 		
 		name.setValue(profile.getName());
 		description.setValue(profile.getDescription());
-		description.setRows(profile.getDescription().split("\n").length);
 		int i=0;
 		for (AbstractTranslationRule<?> rule : profile.getRules())
 		{

@@ -55,6 +55,7 @@ public enum Styles
 	hidden("u-hidden"),
 	largeTabsheet("u-bigTabsheet"),
 	centeredPanel("u-centeredPanel"),
+	visibleScroll("u-visiblescroll"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

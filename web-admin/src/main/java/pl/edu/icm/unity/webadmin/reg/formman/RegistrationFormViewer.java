@@ -20,7 +20,6 @@ import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.webadmin.msgtemplate.SimpleMessageTemplateViewer;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
@@ -47,7 +46,7 @@ public class RegistrationFormViewer extends VerticalLayout
 	private TabSheet tabs;
 	
 	private Label name;
-	private DescriptionTextArea description;
+	private Label description;
 	private Label publiclyAvailable;
 	private SimpleMessageTemplateViewer submittedTemplate;
 	private SimpleMessageTemplateViewer updatedTemplate;
@@ -352,7 +351,8 @@ public class RegistrationFormViewer extends VerticalLayout
 		name = new Label();
 		name.setCaption(msg.getMessage("RegistrationFormViewer.name"));
 		
-		description = new DescriptionTextArea(msg.getMessage("RegistrationFormViewer.description"), true, "");
+		description = new Label();
+		description.setCaption(msg.getMessage("RegistrationFormViewer.description"));
 		
 		autoAcceptCondition = new Label();
 		autoAcceptCondition.setCaption(msg.getMessage("RegistrationFormViewer.autoAcceptCondition"));

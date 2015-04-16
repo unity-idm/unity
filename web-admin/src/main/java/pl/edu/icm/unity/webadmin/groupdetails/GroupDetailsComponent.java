@@ -24,9 +24,9 @@ import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -35,8 +35,6 @@ import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Component providing Group details. The most complicated part is attribute statements handling which
@@ -55,7 +53,7 @@ public class GroupDetailsComponent extends SafePanel
 	
 	private VerticalLayout main;
 	private Label displayedName;
-	private DescriptionTextArea description;
+	private Label description;
 	private GroupAttributesClassesTable acPanel;
 	private AttributeStatementsTable attrStatements;
 	
@@ -74,7 +72,9 @@ public class GroupDetailsComponent extends SafePanel
 		FormLayout topLayout = new CompactFormLayout();
 		displayedName = new Label();
 		displayedName.setCaption(msg.getMessage("displayedNameF"));
-		description = new DescriptionTextArea(msg.getMessage("GroupDetails.description"), true, "");
+		//description = new DescriptionTextArea(msg.getMessage("GroupDetails.description"), true, "");
+		description = new Label();
+		description.setCaption(msg.getMessage("GroupDetails.description"));
 		topLayout.addComponents(displayedName, description);
 		
 		acPanel = new GroupAttributesClassesTable(msg, groupsManagement, attrsMan);
@@ -128,6 +128,7 @@ public class GroupDetailsComponent extends SafePanel
 			displayedName.setValue(rGroup.getDisplayedName().getValue(msg));
 			String desc = rGroup.getDescription().getValue(msg);
 			description.setValue(desc == null ? "" : desc);
+			description.setVisible(desc != null && !desc.isEmpty());
 			attrStatements.setInput(rGroup);
 			acPanel.setInput(rGroup);
 			setContent(main);

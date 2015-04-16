@@ -4,18 +4,18 @@
  */
 package pl.edu.icm.unity.webui.registration;
 
-import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+
+import com.vaadin.ui.AbstractOrderedLayout;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Dialog allowing to fill a registration form. It takes an editor component as argument.
@@ -38,7 +38,7 @@ public class RegistrationRequestEditorDialog extends AbstractDialog
 		this.editor = editor;
 		this.callback = callback;
 		this.addAutoAccept = addAutoAccept;
-		setSize(80, 90);
+		setSizeMode(SizeMode.LARGE);
 	}
 
 	@Override

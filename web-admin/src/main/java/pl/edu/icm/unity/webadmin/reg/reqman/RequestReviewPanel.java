@@ -17,7 +17,6 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.Selection;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
@@ -50,7 +49,7 @@ public class RequestReviewPanel extends CustomComponent
 	private ListOfSelectableElements groups;
 	private ListOfElements<String> identities;
 	private ListOfElements<String> agreements;
-	private DescriptionTextArea comment;
+	private Label comment;
 	private Label code;
 	
 	public RequestReviewPanel(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
@@ -103,7 +102,7 @@ public class RequestReviewPanel extends CustomComponent
 		agreementsP.addStyleName(Styles.vPanelLight.toString());
 		
 		
-		comment = new DescriptionTextArea(true, "");
+		comment = new Label();
 		Panel commentP = new SafePanel(msg.getMessage("RequestReviewPanel.comment"), comment);
 		commentP.addStyleName(Styles.vPanelLight.toString());
 		

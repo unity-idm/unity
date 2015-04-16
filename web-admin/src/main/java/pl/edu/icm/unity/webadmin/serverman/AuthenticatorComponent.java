@@ -98,8 +98,6 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		{
 			addFieldToContent(capion, "");
 			Panel p = new SafePanel();
-			p.setWidth(500, Unit.PIXELS);
-			p.setHeight(150, Unit.PIXELS);
 			Label valL = new Label(val, ContentMode.PREFORMATTED);
 			valL.setSizeUndefined();
 			p.setContent(valL);

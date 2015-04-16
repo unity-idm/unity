@@ -40,7 +40,7 @@ public class AddAttributeColumnDialog extends AbstractDialog
 		super(msg, msg.getMessage("AddAttributeColumnDialog.caption"));
 		this.attrsMan = attrsMan;
 		this.callback = callback;
-		setSizeMode(SizeMode.SMALL);
+		setSizeMode(SizeMode.MEDIUM);
 	}
 
 	@Override
