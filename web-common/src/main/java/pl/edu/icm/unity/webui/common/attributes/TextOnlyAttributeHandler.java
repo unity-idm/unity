@@ -101,6 +101,8 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 			}
 			
 			field = large ? new TextArea() : new TextField();
+			if (large)
+				field.setColumns(40);
 			if (value != null)
 				field.setValue(value.toString());
 			field.setCaption(label);

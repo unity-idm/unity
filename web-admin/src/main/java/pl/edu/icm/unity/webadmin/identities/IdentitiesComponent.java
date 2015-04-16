@@ -30,7 +30,6 @@ import pl.edu.icm.unity.webadmin.identities.AddAttributeColumnDialog.Callback;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 import pl.edu.icm.unity.webui.common.Images;
@@ -54,7 +53,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
@@ -87,21 +86,28 @@ public class IdentitiesComponent extends SafePanel
 		this.identitiesTable = identitiesTable;
 
 		main = new VerticalLayout();
+		main.addStyleName(Styles.visibleScroll.toString());
 		
-		HorizontalLayout topBar = new HorizontalLayout();
-		topBar.setSpacing(true);
+		CssLayout topBar = new CssLayout();
 		final CheckBox mode = new CheckBox(msg.getMessage("Identities.mode"));
 		mode.setImmediate(true);
 		mode.setValue(IdentitiesComponent.this.identitiesTable.isGroupByEntity());
 		mode.addStyleName(Styles.vSmall.toString());
+		mode.addStyleName(Styles.verticalAlignmentMiddle.toString());
+		mode.addStyleName(Styles.horizontalMarginSmall.toString());
 		
 		final CheckBox showTargeted = new CheckBox(msg.getMessage("Identities.showTargeted"));
 		showTargeted.setImmediate(true);
 		showTargeted.setValue(IdentitiesComponent.this.identitiesTable.isShowTargeted());
 		showTargeted.addStyleName(Styles.vSmall.toString());
+		showTargeted.addStyleName(Styles.verticalAlignmentMiddle.toString());
+		showTargeted.addStyleName(Styles.horizontalMarginSmall.toString());
 		
 		Toolbar toolbar = new Toolbar(identitiesTable, Orientation.HORIZONTAL);
-		
+		toolbar.addStyleName(Styles.floatRight.toString());
+		toolbar.addStyleName(Styles.verticalAlignmentMiddle.toString());
+		toolbar.addStyleName(Styles.horizontalMarginSmall.toString());
+
 		filtersBar = new HorizontalLayout();
 		filtersBar.addComponent(new Label(msg.getMessage("Identities.filters")));
 		filtersBar.setVisible(false);
@@ -189,19 +195,20 @@ public class IdentitiesComponent extends SafePanel
 			}
 		});
 		HorizontalLayout searchWrapper = new HorizontalLayout();
-		searchWrapper.setSpacing(false);
+		searchWrapper.setSpacing(true);
 		searchWrapper.setMargin(false);
-		
-		FormLayout searchToolbar = new CompactFormLayout();
-		searchToolbar.setSpacing(false);
-		searchToolbar.setMargin(false);
-		
-		final TextField searchText = new TextField(
-				msg.getMessage("Identities.searchCaption"));
+		searchWrapper.addStyleName(Styles.verticalAlignmentMiddle.toString());
+		searchWrapper.addStyleName(Styles.horizontalMarginSmall.toString());
+
+		Label searchL = new Label(msg.getMessage("Identities.searchCaption"));
+		Label spacer = new Label();
+		spacer.setWidth(4, Unit.EM);
+		final TextField searchText = new TextField();
 		searchText.addStyleName(Styles.vSmall.toString());
 		searchText.setColumns(8);
-		searchToolbar.addComponent(searchText);
-		searchWrapper.addComponent(searchToolbar);
+		searchWrapper.addComponents(spacer, searchL, searchText);
+		searchWrapper.setComponentAlignment(searchL, Alignment.MIDDLE_RIGHT);
+		searchWrapper.setComponentAlignment(searchText, Alignment.MIDDLE_LEFT);
 		
 		searchText.setImmediate(true);
 		searchText.addTextChangeListener(new TextChangeListener()
@@ -233,19 +240,10 @@ public class IdentitiesComponent extends SafePanel
 			}
 		});
 
-		Label spacer = new Label();
-		spacer.setSizeFull();
-		toolbar.addSeparator();
 		toolbar.addActionHandlers(identitiesTable.getActionHandlers());
 		toolbar.addSeparator();
 		toolbar.addButtons(addFilter, addAttributes, removeAttributes, savePreferences);
-		topBar.addComponents(mode, showTargeted, spacer, searchWrapper, toolbar);
-		topBar.setComponentAlignment(mode, Alignment.MIDDLE_LEFT);
-		topBar.setComponentAlignment(showTargeted, Alignment.MIDDLE_LEFT);
-		topBar.setComponentAlignment(spacer, Alignment.MIDDLE_LEFT);
-		topBar.setComponentAlignment(searchWrapper, Alignment.MIDDLE_RIGHT);
-		topBar.setComponentAlignment(toolbar, Alignment.MIDDLE_RIGHT);
-		topBar.setExpandRatio(spacer, 2f);
+		topBar.addComponents(mode, showTargeted, searchWrapper, toolbar);
 		topBar.setWidth(100, Unit.PERCENTAGE);
 		
 		mode.addValueChangeListener(new ValueChangeListener()
@@ -396,7 +394,7 @@ public class IdentitiesComponent extends SafePanel
 		{
 			Label info = new Label(description);
 			Button remove = new Button();
-			remove.setStyleName(Styles.vButtonSmall.toString());
+			remove.addStyleName(Styles.vButtonLink.toString());
 			remove.setIcon(Images.delete.getResource());
 			remove.addClickListener(new ClickListener()
 			{

@@ -47,21 +47,6 @@ public class DescriptionTextArea extends TextArea
 		setWordwrap(true);
 		setWidth(100, Unit.PERCENTAGE);
 		setValue(initialValue);
-		addStyleName(Styles.vBorderLess.toString());
-	}
-	
-	@Override
-	public void setValue(String value)
-	{
-		super.setValue(value);
-		int len = value.length();
-		if (len < 40)
-			setRows(1);
-		else if (len < 80)
-			setRows(2);
-		else if (len < 300)
-			setRows(3);
-		else
-			setRows(4);
+		setRows(3);
 	}
 }

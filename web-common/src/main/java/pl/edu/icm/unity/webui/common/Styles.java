@@ -56,6 +56,9 @@ public enum Styles
 	largeTabsheet("u-bigTabsheet"),
 	centeredPanel("u-centeredPanel"),
 	visibleScroll("u-visiblescroll"),
+	verticalAlignmentMiddle("u-vAlignMiddle"),
+	floatRight("u-floatRight"),
+	horizontalMarginSmall("u-hMarginSmall"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

@@ -72,7 +72,6 @@ public class GroupDetailsComponent extends SafePanel
 		FormLayout topLayout = new CompactFormLayout();
 		displayedName = new Label();
 		displayedName.setCaption(msg.getMessage("displayedNameF"));
-		//description = new DescriptionTextArea(msg.getMessage("GroupDetails.description"), true, "");
 		description = new Label();
 		description.setCaption(msg.getMessage("GroupDetails.description"));
 		topLayout.addComponents(displayedName, description);

@@ -266,6 +266,19 @@
 		visibility: hidden;
 	}
 	
+	.u-floatRight {
+		float: right;
+	}
+
+	.u-vAlignMiddle {
+		vertical-align: middle;
+	}
+	
+	.u-hMarginSmall {
+		margin-left: round($v-unit-size/6);
+		margin-right: round($v-unit-size/6);
+	}	
+	
 	.u-flag-bg-en {
 		@include flag-bg-template($flagImageEn);
 	}
