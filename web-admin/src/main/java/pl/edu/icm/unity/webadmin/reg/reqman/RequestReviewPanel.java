@@ -76,18 +76,21 @@ public class RequestReviewPanel extends CustomComponent
 			}
 		});
 		identities.setAddSeparatorLine(false);
+		identities.setMargin(true);
 		Panel identitiesP = new SafePanel(msg.getMessage("RequestReviewPanel.requestedIdentities"), identities);
-		identitiesP.addStyleName(Styles.vPanelLight.toString());
 		
-		Label aLabel = new Label(msg.getMessage("RequestReviewPanel.requestedAttributes"));
-		aLabel.addStyleName(Styles.bold.toString());
-		attributes = new ListOfSelectableElements(aLabel,
-				new Label(msg.getMessage("RequestReviewPanel.requestedAttributeIgnore")), DisableMode.WHEN_SELECTED);
+		attributes = new ListOfSelectableElements(null,
+				new Label(msg.getMessage("RequestReviewPanel.requestedAttributeIgnore")), 
+				DisableMode.WHEN_SELECTED);
+		attributes.addStyleName(Styles.margin.toString());
+		Panel attributesPanel = new SafePanel(msg.getMessage("RequestReviewPanel.requestedAttributes"), 
+				attributes);
 		
-		Label gLabel = new Label(msg.getMessage("RequestReviewPanel.requestedGroups"));
-		gLabel.addStyleName(Styles.bold.toString());
-		groups = new ListOfSelectableElements(gLabel,
-				new Label(msg.getMessage("RequestReviewPanel.requestedGroupsIgnore")), DisableMode.WHEN_SELECTED);
+		groups = new ListOfSelectableElements(null,
+				new Label(msg.getMessage("RequestReviewPanel.requestedGroupsIgnore")), 
+				DisableMode.WHEN_SELECTED);
+		groups.addStyleName(Styles.margin.toString());
+		Panel groupsPanel = new SafePanel(msg.getMessage("RequestReviewPanel.requestedGroups"), groups);
 		
 		agreements = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
 		{
@@ -98,19 +101,18 @@ public class RequestReviewPanel extends CustomComponent
 			}
 		});
 		agreements.setAddSeparatorLine(false);
+		agreements.setMargin(true);
 		Panel agreementsP = new SafePanel(msg.getMessage("RequestReviewPanel.agreements"), agreements);
-		agreementsP.addStyleName(Styles.vPanelLight.toString());
-		
 		
 		comment = new Label();
+		comment.addStyleName(Styles.margin.toString());
 		Panel commentP = new SafePanel(msg.getMessage("RequestReviewPanel.comment"), comment);
-		commentP.addStyleName(Styles.vPanelLight.toString());
 		
 		code = new Label(msg.getMessage("RequestReviewPanel.codeValid"));
 		code.addStyleName(Styles.bold.toString());
 		
 		
-		main.addComponents(code, identitiesP, attributes, groups, commentP, agreementsP);
+		main.addComponents(code, identitiesP, attributesPanel, groupsPanel, commentP, agreementsP);
 		setCompositionRoot(main);
 	}
 	

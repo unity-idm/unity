@@ -80,7 +80,6 @@ public class RequestsComponent extends CustomComponent
 		
 		CompositeSplitPanel hl = new CompositeSplitPanel(false, true, requestsTable, requestPanel, 40);
 		setCompositionRoot(hl);
-		setSizeFull();
 		setCaption(msg.getMessage("RequestsComponent.caption"));
 	}
 }

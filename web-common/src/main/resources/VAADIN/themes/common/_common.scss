@@ -278,6 +278,13 @@
 		margin-left: round($v-unit-size/6);
 		margin-right: round($v-unit-size/6);
 	}	
+
+	.u-margin {
+		margin-left: $v-layout-margin-left;
+		margin-right: $v-layout-margin-right;
+		margin-top: $v-layout-margin-top;
+		margin-bottom: $v-layout-margin-bottom;
+	}	
 	
 	.u-flag-bg-en {
 		@include flag-bg-template($flagImageEn);

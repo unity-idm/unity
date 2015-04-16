@@ -59,6 +59,7 @@ public enum Styles
 	verticalAlignmentMiddle("u-vAlignMiddle"),
 	floatRight("u-floatRight"),
 	horizontalMarginSmall("u-hMarginSmall"),
+	margin("u-margin"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),
