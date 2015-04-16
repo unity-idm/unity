@@ -15,7 +15,7 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.MapComboBox;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
-import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -34,7 +34,7 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 	private UnityMessageSource msg;
 	
 	private Label valueType;
-	private I18nLabel typeDescription;
+	private Label typeDescription;
 	
 	private String attributeName;
 	private EnumComboBox<AttributeVisibility> visibility;
@@ -65,8 +65,8 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 		valueType.setCaption(msg.getMessage("AttributeType.type"));
 		addComponent(valueType);
 
-		typeDescription = new I18nLabel(msg, msg.getMessage("AttributeType.description"));
-		typeDescription.setValue(attributeType.getDescription());
+		typeDescription = new HtmlSimplifiedLabel(attributeType.getDescription().getValue(msg));
+		typeDescription.setCaption(msg.getMessage("AttributeType.description"));
 		addComponent(typeDescription);
 		
 		Label group = new Label(groupPath);
@@ -150,7 +150,7 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 	{
 		valueType.setValue(type.getValueType().getValueSyntaxId());
 		
-		typeDescription.setValue(type.getDescription());
+		typeDescription.setValue(type.getDescription().getValue(msg));
 		
 		visibility.setEnumValue(type.getVisibility());
 		cardinality.setValue(AttributeTypeUtils.getBoundsDesc(msg, type.getMinElements(), 

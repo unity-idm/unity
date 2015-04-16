@@ -14,19 +14,20 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.webadmin.attribute.AttributeMetaEditorPanel.TypeChangeCallback;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
 
 import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.Alignment;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
 
 /**
  * Allows for editing an attribute or for creating a new one.
  * @author K. Benedyczak
  */
-public class AttributeEditor extends HorizontalLayout
+public class AttributeEditor extends CustomComponent
 {
 	private FixedAttributeEditor valuesPanel;
 	private FormLayout attrValuesContainer;
@@ -119,16 +120,11 @@ public class AttributeEditor extends HorizontalLayout
 	
 	private void initCommon()
 	{
-		setSpacing(true);
+		HorizontalSplitPanel split = new HorizontalSplitPanel(attrTypePanel, attrValuesContainer);
 		attrValuesContainer.setMargin(new MarginInfo(true, true, true, true));
 		attrValuesContainer.setSizeUndefined();
-		attrTypePanel.setSizeUndefined();
-		addComponent(attrTypePanel);
-		setComponentAlignment(attrTypePanel, Alignment.TOP_RIGHT);
-		addComponent(attrValuesContainer);
-		setComponentAlignment(attrValuesContainer, Alignment.TOP_LEFT);
-		setExpandRatio(attrTypePanel, 1.0f);
-		setExpandRatio(attrValuesContainer, 1.5f);
+		setCompositionRoot(split);
+		split.addStyleName(Styles.visibleScroll.toString());
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })

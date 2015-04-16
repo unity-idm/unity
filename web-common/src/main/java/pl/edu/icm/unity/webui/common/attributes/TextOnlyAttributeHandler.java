@@ -93,25 +93,16 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 		{
 			this.required = required;
 			boolean large = false;
-			Integer limitedWidth = null;
 			if (syntax instanceof StringAttributeSyntax)
 			{
 				StringAttributeSyntax sas = (StringAttributeSyntax) syntax;
 				if (sas.getMaxLength() > LARGE_STRING)
 					large = true;
-				else if (sas.getMaxLength() < SMALL_STRING)
-					limitedWidth = sas.getMaxLength();
-				else
-					limitedWidth = SMALL_STRING;
 			}
 			
 			field = large ? new TextArea() : new TextField();
 			if (value != null)
 				field.setValue(value.toString());
-			if (limitedWidth != null)
-				field.setColumns(limitedWidth);
-			else
-				field.setSizeFull();
 			field.setCaption(label);
 			field.setRequired(required);
 			

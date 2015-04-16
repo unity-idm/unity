@@ -94,6 +94,8 @@ public class HtmlSimplifiedLabel extends Label
 	public static String escape(String semiSafeHtml)
 	{
 		StringBuilder escaped = new StringBuilder();
+		if (semiSafeHtml == null)
+			return "";
 		char[] input = semiSafeHtml.toCharArray();
 		for (int i=0; i<input.length; i++)
 		{
