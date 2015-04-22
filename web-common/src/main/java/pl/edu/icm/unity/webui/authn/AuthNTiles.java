@@ -16,6 +16,8 @@ import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -44,20 +46,25 @@ public class AuthNTiles extends CustomComponent
 	{
 		VerticalLayout main = new VerticalLayout();
 		setCompositionRoot(main);
-		
 		Label title = new Label(msg.getMessage("AuthenticationUI.selectMethod"));
 		title.addStyleName(Styles.textSubHeading.toString());
 		main.addComponent(title);
 		main.setComponentAlignment(title, Alignment.MIDDLE_LEFT);
 		
-		HorizontalLayout tilesL = new HorizontalLayout();
-		tilesL.setSpacing(true);
+		CssLayout tilesL = new CssLayout();
+		tilesL.setWidth(100, Unit.PERCENTAGE);
 		
 		int optionsNum = 0;
-		for (AuthNTile tile: tiles)
+		for (int i=0; i<tiles.size(); i++)
 		{
+			AuthNTile tile = tiles.get(i);
+			Component tileComponent = tile.getComponent();
 			optionsNum += tile.size();
-			tilesL.addComponent(tile);
+			tileComponent.addStyleName(Styles.bottomMargin.toString());
+			tileComponent.addStyleName("u-authNtile-" + (i+1));
+			if (i < tiles.size() - 1)
+				tileComponent.addStyleName(Styles.rightMargin.toString());
+			tilesL.addComponent(tileComponent);
 		}
 		
 		if (optionsNum >= SHOW_SEARCH_FROM)

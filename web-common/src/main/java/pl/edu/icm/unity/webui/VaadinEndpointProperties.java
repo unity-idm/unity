@@ -56,6 +56,11 @@ public class VaadinEndpointProperties extends PropertiesHelper
 		maxHeightSmall, 
 		maxHeightMedium}
 	
+	public enum TileMode {
+		table,
+		simple
+	}
+	
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.endpoint.web.";
 	
@@ -72,6 +77,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	public static final String AUTHN_TILE_PER_LINE = "tileAuthnsPerLine";
 	private static final String AUTHN_TILE_ICON_SIZE = "tileIconSize";
 	public static final String AUTHN_TILE_ICON_SCALE = "tileIconScale";
+	public static final String AUTHN_TILE_TYPE = "tileMode";
 	public static final String AUTHN_TILE_DISPLAY_NAME = "tileName";
 	public static final String DEFAULT_PER_LINE = "authnsPerLine";
 	private static final String DEFAULT_AUTHN_ICON_SIZE = "authnIconSize";
@@ -107,11 +113,12 @@ public class VaadinEndpointProperties extends PropertiesHelper
 						+ "forms are made available."));
 		META.put(DEFAULT_PER_LINE, new PropertyMD("3").setBounds(1, 10).
 				setDescription("Defines how many authenticators should be presented in a single "
-						+ "line of an authentication tile."));
+						+ "line of an authentication tile in simple mode."));
 		META.put(DEFAULT_AUTHN_ICON_SIZE, new PropertyMD().setEnum(ScaleModeOld.height50).setDeprecated().
 				setDescription("Deprecated, please use " + DEFAULT_AUTHN_ICON_SCALE));
 		META.put(DEFAULT_AUTHN_ICON_SCALE, new PropertyMD(ScaleMode.heightTiny).
-				setDescription("Defines how to scale authenticator icons. Can be overriden per tile."));
+				setDescription("Defines how to scale authenticator icons in the simple mode. "
+						+ "Can be overriden per tile."));
 		META.put(AUTHN_TILES_PFX, new PropertyMD().setStructuredList(true).
 				setDescription("Under this prefix authentication tiles can be defined. "
 						+ "Authentication tile is a purely visual grouping of authentication options. "
@@ -123,14 +130,24 @@ public class VaadinEndpointProperties extends PropertiesHelper
 						+ "Authentication option whose (primary) authenticator "
 						+ "name starts with one of the prefixes will be assigned to this tile. "
 						+ "The unassigned authentication options will be assigned to additional tile."));
+		META.put(AUTHN_TILE_TYPE, new PropertyMD(TileMode.table).setStructuredListEntry(AUTHN_TILES_PFX).
+				setDescription("Defines how the tile should present authentication options assigned to it. "
+						+ "In the +simple+ mode all logos (or names if logo is undefined) "
+						+ "of authentication options are displayed,"
+						+ "and it is configurable how many per row and how to scale them. "
+						+ "The +table+ mode presents authentication options in rows one by one "
+						+ "with logo in the first column. The table is much better choice when "
+						+ "many authenticators are present as those are lazy loaded. In case "
+						+ "when there is more then ca 30 authentication options the "
+						+ "simple mode should not be used."));
 		META.put(AUTHN_TILE_PER_LINE, new PropertyMD().setInt().setBounds(1, 10).setStructuredListEntry(AUTHN_TILES_PFX).
-				setDescription("Defines how many authenticators should be presented in a single line of a tile. "
-						+ "Overrides the default setting."));
+				setDescription("Defines how many authenticators should be presented in a single "
+						+ "line of a tile in the simple mode. Overrides the default setting."));
 		META.put(AUTHN_TILE_ICON_SIZE, new PropertyMD().setStructuredListEntry(AUTHN_TILES_PFX).
 				setEnum(ScaleModeOld.height50).setDeprecated().
 				setDescription("Deprecated, please use " + AUTHN_TILE_ICON_SCALE));
 		META.put(AUTHN_TILE_ICON_SCALE, new PropertyMD().setEnum(ScaleMode.heightTiny).setStructuredListEntry(AUTHN_TILES_PFX).
-				setDescription("Defines how to scale authenticator icons in a tile. "
+				setDescription("Defines how to scale authenticator icons in a tile in the simple mode. "
 						+ "Overrides the default setting."));
 		META.put(AUTHN_TILE_DISPLAY_NAME, new PropertyMD().setCanHaveSubkeys().setStructuredListEntry(AUTHN_TILES_PFX).
 				setDescription("Defines the displayed name of the tile. "

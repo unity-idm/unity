@@ -17,6 +17,7 @@ public enum Images
 	loader		(I.PB + "loader.gif"),
 	password	(I.PB + "password.png"),
 	certificate	(I.PB + "certificate.png"),
+	empty		(I.PB + "empty.png"),
 	 
 	info64		(I.PH + "64/bullet_info.png"),
 	key64		(I.PH + "64/key.png"),

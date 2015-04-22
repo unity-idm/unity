@@ -33,6 +33,7 @@ import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties.TileMode;
 import pl.edu.icm.unity.webui.authn.AuthNTile.SelectionChangedListener;
 import pl.edu.icm.unity.webui.authn.SelectedAuthNPanel.AuthenticationListener;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
@@ -232,12 +233,15 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		
 		for (String tileKey: tileKeys)
 		{
+			
 			ScaleMode scaleMode = config.getScaleMode(tileKey);
 			
 			Integer perRow = config.getIntValue(tileKey + VaadinEndpointProperties.AUTHN_TILE_PER_LINE);
 			if (perRow == null)
 				perRow = defPerRow;
 			
+			TileMode tileMode = config.getEnumValue(tileKey + VaadinEndpointProperties.AUTHN_TILE_TYPE,
+					TileMode.class);
 			String displayedName = config.getLocalizedValue(tileKey + 
 					VaadinEndpointProperties.AUTHN_TILE_DISPLAY_NAME, msg.getLocale());
 			
@@ -257,15 +261,15 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 					}
 				}
 			}
-			AuthNTile tile = new AuthNTile(authNs, scaleMode, perRow, selectionChangedListener, 
-					displayedName);
+			AuthNTile tile = tileMode == TileMode.simple ? 
+				new AuthNTileSimple(authNs, scaleMode, perRow, selectionChangedListener, displayedName) : 
+				new AuthNTileGrid(authNs, selectionChangedListener, displayedName);
 			ret.add(tile);
 		}
 		
 		if (!authNCopy.isEmpty())
 		{
-			AuthNTile defaultTile = new AuthNTile(authNCopy, config.getDefaultScaleMode(), defPerRow, 
-					selectionChangedListener, null);
+			AuthNTileGrid defaultTile = new AuthNTileGrid(authNCopy, selectionChangedListener, null);
 			ret.add(defaultTile);
 		}
 		

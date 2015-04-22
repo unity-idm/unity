@@ -329,7 +329,7 @@ public class ImportExportComponent extends VerticalLayout
 		
 		public DBDumpResource()
 		{
-			super(null);
+			super(new File("somefilesss"));
 			filename = "somefilesss";
 		}
 

@@ -3,12 +3,17 @@
 $v-font-size: 15px;
 $v-unit-size: round(2.3 * $v-font-size);
 
-$v-layout-margin-left: round($v-unit-size/2);
+$v-layout-margin-left: 	round($v-unit-size/2);
 $v-layout-margin-right: round($v-unit-size/2);
-$v-layout-margin-top:  round($v-unit-size/2);
+$v-layout-margin-top:  	round($v-unit-size/2);
 $v-layout-margin-bottom: round($v-unit-size/2);
 	
 $v-default-field-width: $v-unit-size * 6;
+
+$u-idp-row-height:		$v-unit-size;
+
+$u-small-margin: 		round($v-unit-size/6);
+$u-tiny-margin:			round($v-unit-size/18);
 
 //Custom variables used in common.scss
 

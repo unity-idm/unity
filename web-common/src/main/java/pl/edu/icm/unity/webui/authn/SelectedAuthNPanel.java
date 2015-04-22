@@ -87,8 +87,8 @@ public class SelectedAuthNPanel extends CustomComponent
 		this.execService = execService;
 		this.realm = realm;
 
-		
 		VerticalLayout main = new VerticalLayout();
+		main.addStyleName("u-selectedAuthn");
 		main.setSpacing(true);
 		main.setMargin(true);
 		setSizeUndefined();
@@ -109,6 +109,7 @@ public class SelectedAuthNPanel extends CustomComponent
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
+				setNotAuthenticating();
 				currentAuthnResultCallback.authenticationCancelled(true);
 			}
 		});

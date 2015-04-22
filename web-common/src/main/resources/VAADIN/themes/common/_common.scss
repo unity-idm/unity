@@ -246,19 +246,19 @@
 	
 	.u-smallSpacing {
 		.v-spacing {
-			height: round($v-unit-size/6);
-			width: round($v-unit-size/6);
+			height: $u-small-margin;
+			width: $u-small-margin;
 		}	
 	}
 
 	.u-smallFormSpacing > table > tbody > [class*="row"] > td {
-	    padding-top: round($v-unit-size/6);
+	    padding-top: $u-small-margin;
 	}
 
 	.u-tinySpacing {
 		.v-spacing {
-			height: round($v-unit-size/18);
-			width: round($v-unit-size/18);
+			height: $u-tiny-margin;
+			width: $u-tiny-margin;
 		}	
 	}
 
@@ -275,8 +275,16 @@
 	}
 	
 	.u-hMarginSmall {
-		margin-left: round($v-unit-size/6);
-		margin-right: round($v-unit-size/6);
+		margin-left: $u-small-margin;
+		margin-right: $u-small-margin;
+	}	
+
+	.u-rightMargin {
+		margin-right: $v-layout-margin-right;
+	}	
+
+	.u-bottomMargin {
+		margin-bottom: $v-layout-margin-right;
 	}	
 
 	.u-margin {
@@ -285,6 +293,26 @@
 		margin-top: $v-layout-margin-top;
 		margin-bottom: $v-layout-margin-bottom;
 	}	
+	
+	.u-idptile .v-grid-row > td {
+		border-left: none;
+		border-bottom: none;
+		
+	}
+
+	.u-idptile .v-grid-row > td:first-child {
+		width: $u-small-margin * 2 + $u-idp-row-height * 2;
+		text-align: center;
+	}
+	
+	.u-idptile td > img {
+		max-height: $u-idp-row-height - round($v-unit-size/18);
+		max-width: $u-idp-row-height * 2;
+	}
+	
+	.u-idptile .v-grid-tablewrapper {
+    	border: none;
+	}
 	
 	.u-flag-bg-en {
 		@include flag-bg-template($flagImageEn);

@@ -4,22 +4,22 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 
 import com.vaadin.server.ExternalResource;
-import com.vaadin.server.FileResource;
 import com.vaadin.server.Resource;
 import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Component;
 
 public class ImageUtils
 {
 	/**
 	 * Converts URI to Vaadin resource. Supports http(s), data and file schemes.
+	 * In the case of file scheme the URL must be relative and is resolved against the theme directory.
 	 * @param uri
 	 * @return
 	 * @throws MalformedURLException
@@ -34,7 +34,10 @@ public class ImageUtils
 		{
 			URL url = new URL(uri);
 			String path = url.getPath();
-			return new FileResource(new File(path));
+			if (path.startsWith("/"))
+				throw new MalformedURLException("Image file:// URI must use a "
+						+ "relative path to an image in the used theme: " + uri);				
+			return new ThemeResource(path);
 		}
 		throw new MalformedURLException("Unsupported logo URI scheme: " + uri);
 	}
