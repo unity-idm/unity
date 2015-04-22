@@ -134,6 +134,14 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/SOAP", 
 				ret.getValue(pfx + SOAP_LOGOUT_URL));
 
+		Set<String> keys = ret.getStructuredListKeys(ALLOWED_SP_PREFIX);
+		for (String key: keys)
+		{
+			if ("http://shibboleth.metapress.com/shibboleth-sp-hidden".
+					equals(ret.getValue(key+ALLOWED_SP_ENTITY)))
+				fail("Hidden service is available");
+		}
+
 	}
 	
 	private String getPrefixOf(String entity, SamlIdpProperties cfg)

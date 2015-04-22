@@ -24,6 +24,7 @@ import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.IDPSSODescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.KeyDescriptorType;
+import xmlbeans.org.oasis.saml2.metadata.extattribute.EntityAttributesType;
 import xmlbeans.org.oasis.saml2.metadata.extui.LogoType;
 import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoType;
 import eu.unicore.samly2.SAMLConstants;
@@ -73,6 +74,13 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			if (!supportsSaml2(idpDef))
 			{
 				log.trace("IDP of entity " + entityId +	" doesn't support SAML2 - ignoring.");
+				continue;
+			}
+			
+			EntityAttributesType entityAttributes = parseMDAttributes(meta.getExtensions(), entityId);
+			if (isDisabled(entityAttributes))
+			{
+				log.trace("IDP of entity " + entityId +	" is hidden from discovery - ignoring.");
 				continue;
 			}
 			

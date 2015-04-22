@@ -104,4 +104,36 @@ ZO4eKkKd2NI2Sm3qkNxfiLv6
       <EmailAddress>mailto:support@metapress.com</EmailAddress>
     </ContactPerson>
   </EntityDescriptor>
+  
+  <EntityDescriptor entityID="http://shibboleth.metapress.com/shibboleth-sp-hidden">
+    <Extensions>
+      <mdrpi:RegistrationInfo registrationAuthority="https://www.aai.dfn.de" registrationInstant="2009-05-26T08:35:32Z">
+        <mdrpi:RegistrationPolicy xml:lang="en">https://www.aai.dfn.de/en/join/</mdrpi:RegistrationPolicy>
+        <mdrpi:RegistrationPolicy xml:lang="de">https://www.aai.dfn.de/teilnahme/</mdrpi:RegistrationPolicy>
+      </mdrpi:RegistrationInfo>
+      <mdattr:EntityAttributes xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+		<saml:Attribute Name="http://macedir.org/entity-category" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+			<saml:AttributeValue>http://refeds.org/category/hide-from-discovery</saml:AttributeValue>
+		</saml:Attribute>
+	  </mdattr:EntityAttributes>
+    </Extensions>
+    <SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol urn:oasis:names:tc:SAML:2.0:protocol">
+      <Extensions>
+        <mdui:UIInfo>
+          <mdui:DisplayName xml:lang="en">MetaPress hidden</mdui:DisplayName>
+        </mdui:UIInfo>
+      </Extensions>
+      <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://shibboleth.metapress.com/Shibboleth.sso/SLO/POST"/>
+      <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://shibboleth.metapress.com/Shibboleth.sso/SAML2/POST" index="1"/>
+    </SPSSODescriptor>
+    <Organization>
+      <OrganizationName xml:lang="de">e76</OrganizationName>
+      <OrganizationName xml:lang="en">e76</OrganizationName>
+      <OrganizationDisplayName xml:lang="de">Metapress</OrganizationDisplayName>
+      <OrganizationDisplayName xml:lang="en">Metapress</OrganizationDisplayName>
+      <OrganizationURL xml:lang="de">http://www.metapress.com</OrganizationURL>
+      <OrganizationURL xml:lang="en">http://www.metapress.com</OrganizationURL>
+    </Organization>
+  </EntityDescriptor>
+  
 </EntitiesDescriptor>
