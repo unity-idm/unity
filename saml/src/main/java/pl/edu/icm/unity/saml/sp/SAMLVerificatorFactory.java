@@ -27,6 +27,7 @@ import pl.edu.icm.unity.server.authn.CredentialVerificator;
 import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 
@@ -54,6 +55,7 @@ public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 	private MetaDownloadManager downloadManager;
 	private SLOSPManager sloManager;
 	private SLOReplyInstaller sloReplyInstaller;
+	private UnityMessageSource msg;
 	
 	@Autowired
 	public SAMLVerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement,
@@ -62,7 +64,7 @@ public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 			SharedEndpointManagement sharedEndpointManagement, SamlContextManagement contextManagement,
 			NetworkServer jettyServer, ExecutorsService executorsService, MetaDownloadManager downloadManager,
 			UnityServerConfiguration mainConfig, SLOSPManager sloManager, 
-			SLOReplyInstaller sloReplyInstaller) 
+			SLOReplyInstaller sloReplyInstaller, UnityMessageSource msg) 
 					throws EngineException
 	{
 		this.profileManagement = profileManagement;
@@ -70,6 +72,7 @@ public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 		this.pkiMan = pkiMan;
 		this.replayAttackChecker = replayAttackChecker;
 		this.executorsService = executorsService;
+		this.msg = msg;
 		this.baseAddress = jettyServer.getAdvertisedAddress();
 		this.baseContext = sharedEndpointManagement.getBaseContextPath();
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
@@ -104,6 +107,6 @@ public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 		return new SAMLVerificator(NAME, getDescription(), profileManagement, trEngine, pkiMan, 
 				replayAttackChecker, executorsService, metadataServlet,
 				baseAddress, baseContext, remoteMetadataManagers, downloadManager, mainConfig,
-				sloManager, sloReplyInstaller);
+				sloManager, sloReplyInstaller, msg);
 	}
 }

@@ -19,6 +19,7 @@ import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
@@ -41,9 +42,9 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MetaToIDPConfigConverter.class);
 	private static final String IDP_META_CERT = "_IDP_METADATA_CERT_";
 	
-	public MetaToIDPConfigConverter(PKIManagement pkiManagement)
+	public MetaToIDPConfigConverter(PKIManagement pkiManagement, UnityMessageSource msg)
 	{
-		this.pkiManagement = pkiManagement;
+		super(pkiManagement, msg);
 	}
 	
 	/**
@@ -114,7 +115,7 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 					SAMLConstants.BINDING_SOAP);
 		
 			UIInfoType uiInfo = parseMDUIInfo(spDef.getExtensions(), entityId);
-			Map<String, String> names = getLocalizedNames(uiInfo, spDef);
+			Map<String, String> names = getLocalizedNames(uiInfo, spDef, meta);
 			Map<String, LogoType> logos = getLocalizedLogos(uiInfo);
 				
 			addEntryToProperties(entityId, aserServ, soapSLOEndpoint, postSLOEndpoint, redirectSLOEndpoint,

@@ -18,6 +18,7 @@ import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
@@ -39,9 +40,9 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MetaToSPConfigConverter.class);
 	private static final String SP_META_CERT = "_SP_METADATA_CERT_";
 	
-	public MetaToSPConfigConverter(PKIManagement pkiManagement)
+	public MetaToSPConfigConverter(PKIManagement pkiManagement, UnityMessageSource msg)
 	{
-		this.pkiManagement = pkiManagement;
+		super(pkiManagement, msg);
 	}
 
 	/**
@@ -106,7 +107,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 				continue;
 			}
 			UIInfoType uiInfo = parseMDUIInfo(idpDef.getExtensions(), entityId);
-			Map<String, String> names = getLocalizedNames(uiInfo, idpDef);
+			Map<String, String> names = getLocalizedNames(uiInfo, idpDef, meta);
 			Map<String, LogoType> logos = getLocalizedLogos(uiInfo);
 			
 			if (webEndpoint != null)
@@ -173,17 +174,15 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 		}
 		for (Map.Entry<String, String> name: names.entrySet())
 		{
-			if (noPerIdpConfig || !properties.containsKey(configKey + 
-					SAMLSPProperties.IDP_NAME + name.getKey()))
-				properties.setProperty(configKey + SAMLSPProperties.IDP_NAME + name.getKey(), 
-						name.getValue());
+			String key = configKey + SAMLSPProperties.IDP_NAME + name.getKey();
+			if (noPerIdpConfig || !properties.containsKey(key))
+				properties.setProperty(key, name.getValue());
 		}
 		for (Map.Entry<String, LogoType> logo: logos.entrySet())
 		{
-			if (noPerIdpConfig || !properties.containsKey(configKey + 
-					SAMLSPProperties.IDP_LOGO + logo.getKey()))
-				properties.setProperty(configKey + SAMLSPProperties.IDP_LOGO + logo.getKey(), 
-						logo.getValue().getStringValue());
+			String key = configKey + SAMLSPProperties.IDP_LOGO + logo.getKey();
+			if (noPerIdpConfig || !properties.containsKey(key))
+				properties.setProperty(key, logo.getValue().getStringValue());
 		}
 
 		if (noPerIdpConfig || !properties.containsKey(configKey + SAMLSPProperties.IDP_SIGN_REQUEST))

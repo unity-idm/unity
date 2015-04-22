@@ -26,6 +26,7 @@ import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorType;
@@ -55,7 +56,14 @@ public abstract class AbstractMetaToConfigConverter
 	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, AbstractMetaToConfigConverter.class);
 	protected PKIManagement pkiManagement;
+	protected UnityMessageSource msg;
 	
+	public AbstractMetaToConfigConverter(PKIManagement pkiManagement, UnityMessageSource msg)
+	{
+		this.pkiManagement = pkiManagement;
+		this.msg = msg;
+	}
+
 	/**
 	 * Inserts metadata to the configuration in properties. All entries which are present in 
 	 * realConfig are preserved. 
@@ -169,9 +177,16 @@ public abstract class AbstractMetaToConfigConverter
 		return key;
 	}
 
-	protected Map<String, String> getLocalizedNames(UIInfoType uiInfo, SSODescriptorType idpDesc)
+	protected Map<String, String> getLocalizedNames(UIInfoType uiInfo, SSODescriptorType idpDesc, 
+			EntityDescriptorType mainDescriptor)
 	{
 		Map<String, String> ret = new HashMap<String, String>();
+		OrganizationType mainOrg = mainDescriptor.getOrganization();
+		if (mainOrg != null)
+		{
+			addLocalizedNames(mainOrg.getOrganizationNameArray(), ret);
+			addLocalizedNames(mainOrg.getOrganizationDisplayNameArray(), ret);
+		}
 		OrganizationType org = idpDesc.getOrganization();
 		if (org != null)
 		{
@@ -210,16 +225,37 @@ public abstract class AbstractMetaToConfigConverter
 		return ret;
 	}
 	
+	/**
+	 * Converts SAML names to a language key->value map. All language keys are prefixed with dot.
+	 * The empty key is used to provide a default value, for the default system locale. If such default 
+	 * was not found in the SAML names, then the 'en' locale is tried. Not fully correct, but this is 
+	 * de facto standard default locale for international federations.
+	 *  
+	 * @param names
+	 * @param ret
+	 */
 	protected void addLocalizedNames(LocalizedNameType[] names, Map<String, String> ret)
 	{
 		if (names == null)
 			return;
+		String enName = null;
 		for (LocalizedNameType name: names)
 		{
 			String lang = name.getLang();
 			if (lang != null)
+			{
 				ret.put("." + lang, name.getStringValue());
+				if (lang.equals(msg.getDefaultLocaleCode()))
+					ret.put("", name.getStringValue());
+				if (lang.equals("en"))
+					enName = name.getStringValue();
+			} else
+			{
+				ret.put("", name.getStringValue());
+			}
 		}
+		if (enName != null && !ret.containsKey(""))
+			ret.put("", enName);
 	}
 	
 	protected UIInfoType parseMDUIInfo(ExtensionsType extensions, String entityId)

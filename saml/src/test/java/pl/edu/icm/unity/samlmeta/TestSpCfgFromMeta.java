@@ -24,6 +24,7 @@ import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 
 public class TestSpCfgFromMeta extends DBIntegrationTestBase
@@ -39,6 +40,9 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 	
 	@Autowired
 	private MetaDownloadManager downloadManager;
+	
+	@Autowired
+	private UnityMessageSource msg;
 	
 	@Test
 	public void testConfigureSPFromMetadata() throws Exception
@@ -74,7 +78,9 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 
 		SAMLSPProperties configuration = new SAMLSPProperties(p, pkiManagement);
 		RemoteMetaManager manager = new RemoteMetaManager(configuration, 
-				mainConfig, executorsService, pkiManagement, new MetaToSPConfigConverter(pkiManagement), downloadManager, SAMLSPProperties.IDPMETA_PREFIX);
+				mainConfig, executorsService, pkiManagement, 
+				new MetaToSPConfigConverter(pkiManagement, msg), 
+				downloadManager, SAMLSPProperties.IDPMETA_PREFIX);
 		manager.reloadAll();
 		
 		SAMLSPProperties ret = (SAMLSPProperties) manager.getVirtualConfiguration();

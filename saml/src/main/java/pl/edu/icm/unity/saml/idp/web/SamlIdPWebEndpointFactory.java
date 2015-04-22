@@ -24,6 +24,7 @@ import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
@@ -48,18 +49,22 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	private SLOReplyInstaller sloReplyInstaller;
 	private IdpConsentDeciderServletFactory dispatcherServletFactory;
+
+	private UnityMessageSource msg;
 	
 	@Autowired
 	public SamlIdPWebEndpointFactory(ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
 			PKIManagement pkiManagement, MetaDownloadManager downloadManager, 
 			ExecutorsService executorsService, UnityServerConfiguration mainConfig,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
-			IdpConsentDeciderServletFactory dispatcherServletFactory)
+			IdpConsentDeciderServletFactory dispatcherServletFactory,
+			UnityMessageSource msg)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;
 		this.pkiManagement = pkiManagement;
 		this.executorsService = executorsService;
+		this.msg = msg;
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
 		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
@@ -94,7 +99,7 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 		return new SamlAuthVaadinEndpoint(getDescription(), applicationContext, freemarkerHandler,
 				SamlIdPWebUI.class, pkiManagement, executorsService, mainConfig,
 				dispatcherServletFactory, remoteMetadataManagers, downloadManager,  
-				logoutProcessorFactory, sloReplyInstaller);
+				logoutProcessorFactory, sloReplyInstaller, msg);
 	}
 
 }

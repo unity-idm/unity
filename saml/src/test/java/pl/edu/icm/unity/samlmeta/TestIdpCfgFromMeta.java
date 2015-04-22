@@ -24,6 +24,7 @@ import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
@@ -41,6 +42,9 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 	
 	@Autowired
 	private MetaDownloadManager downloadManager;
+	
+	@Autowired
+	private UnityMessageSource msg;
 	
 	@Test
 	public void testConfigureIdpFromMetadata() throws Exception
@@ -73,7 +77,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 		
 		RemoteMetaManager manager = new RemoteMetaManager(configuration, 
 				mainConfig, executorsService, pkiManagement, 
-				new MetaToIDPConfigConverter(pkiManagement), 
+				new MetaToIDPConfigConverter(pkiManagement, msg), 
 					downloadManager, SamlIdpProperties.SPMETA_PREFIX);
 		manager.reloadAll();
 		
@@ -114,7 +118,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 		
 		RemoteMetaManager manager = new RemoteMetaManager(configuration, 
 				mainConfig, executorsService, pkiManagement, 
-				new MetaToIDPConfigConverter(pkiManagement), 
+				new MetaToIDPConfigConverter(pkiManagement, msg), 
 					downloadManager, SamlIdpProperties.SPMETA_PREFIX);
 		manager.reloadAll();
 		

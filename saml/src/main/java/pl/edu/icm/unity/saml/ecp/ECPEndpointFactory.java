@@ -32,6 +32,7 @@ import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
@@ -65,6 +66,7 @@ public class ECPEndpointFactory implements EndpointFactory
 	private ExecutorsService executorsService;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private MetaDownloadManager downloadManager;
+	private UnityMessageSource msg;
 	
 	@Autowired
 	public ECPEndpointFactory(PKIManagement pkiManagement, NetworkServer jettyServer,
@@ -75,10 +77,12 @@ public class ECPEndpointFactory implements EndpointFactory
 			InputTranslationEngine trEngine, TokensManagement tokensMan,
 			IdentitiesManagement identitiesMan, SessionManagement sessionMan,
 			UnityServerConfiguration mainCfg, MetaDownloadManager downloadManager,
-			ExecutorsService executorsService, SharedEndpointManagement sharedEndpointManagement) 
+			ExecutorsService executorsService, SharedEndpointManagement sharedEndpointManagement,
+			UnityMessageSource msg) 
 					throws EngineException
 	{
 		this.pkiManagement = pkiManagement;
+		this.msg = msg;
 		this.baseAddress = jettyServer.getAdvertisedAddress();
 		this.samlContextManagement = samlContextManagement;
 		this.replayAttackChecker = replayAttackChecker;
@@ -117,7 +121,7 @@ public class ECPEndpointFactory implements EndpointFactory
 		return new ECPEndpoint(description, SERVLET_PATH, pkiManagement, samlContextManagement, baseAddress,
 				baseContext, replayAttackChecker, identityResolver, profileManagement, trEngine, 
 				tokensMan, identitiesMan, sessionMan, remoteMetadataManagers, 
-				mainCfg, downloadManager, executorsService, metadataServlet);
+				mainCfg, downloadManager, executorsService, metadataServlet, msg);
 	}
 
 }

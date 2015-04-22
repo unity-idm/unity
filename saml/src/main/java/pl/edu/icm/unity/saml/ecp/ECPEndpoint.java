@@ -35,6 +35,7 @@ import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
@@ -68,6 +69,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 	private ExecutorsService executorsService;
 	private String responseConsumerAddress;
 	private MultiMetadataServlet metadataServlet;
+	private UnityMessageSource msg;
 	
 	public ECPEndpoint(EndpointTypeDescription type, String servletPath,
 			PKIManagement pkiManagement, ECPContextManagement samlContextManagement,
@@ -78,7 +80,8 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 			IdentitiesManagement identitiesMan, SessionManagement sessionMan,
 			Map<String, RemoteMetaManager> remoteMetadataManagers,
 			UnityServerConfiguration mainCfg, MetaDownloadManager downloadManager,
-			ExecutorsService executorsService, MultiMetadataServlet metadataServlet)
+			ExecutorsService executorsService, MultiMetadataServlet metadataServlet,
+			UnityMessageSource msg)
 	{
 		super(type);
 		this.pkiManagement = pkiManagement;
@@ -96,6 +99,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 		this.downloadManager = downloadManager;
 		this.mainCfg = mainCfg;
 		this.executorsService = executorsService;
+		this.msg = msg;
 		this.responseConsumerAddress = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
 		this.metadataServlet = metadataServlet;
 	}
@@ -120,7 +124,9 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 		if (!remoteMetadataManagers.containsKey(myId))
 		{
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
-					mainCfg, executorsService, pkiManagement, new MetaToSPConfigConverter(pkiManagement), downloadManager, SAMLECPProperties.IDPMETA_PREFIX);
+					mainCfg, executorsService, pkiManagement, 
+					new MetaToSPConfigConverter(pkiManagement, msg), 
+					downloadManager, SAMLECPProperties.IDPMETA_PREFIX);
 			remoteMetadataManagers.put(myId, myMetadataManager);
 			myMetadataManager.start();
 		} else

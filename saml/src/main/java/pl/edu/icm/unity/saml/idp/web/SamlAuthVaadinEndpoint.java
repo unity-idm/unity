@@ -48,6 +48,7 @@ import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.server.utils.RoutingServlet;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
@@ -92,6 +93,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	private UnityServerConfiguration mainConfig;
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	private SLOReplyInstaller sloReplyInstaller;
+	private UnityMessageSource msg;
 	
 	public SamlAuthVaadinEndpoint(EndpointTypeDescription type,
 			ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
@@ -100,11 +102,13 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			IdpConsentDeciderServletFactory dispatcherServletFactory,
 			Map<String, RemoteMetaManager> remoteMetadataManagers,
 			MetaDownloadManager downloadManager, 
-			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller)
+			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
+			UnityMessageSource msg)
 	{
 		this(SAML_CONSUMER_SERVLET_PATH, type, applicationContext, freemarkerHandler, uiClass, 
 				pkiManagement, executorsService, mainConfig, dispatcherServletFactory, 
-				remoteMetadataManagers, downloadManager, logoutProcessorFactory, sloReplyInstaller);
+				remoteMetadataManagers, downloadManager, logoutProcessorFactory, sloReplyInstaller,
+				msg);
 	}
 	
 	protected SamlAuthVaadinEndpoint(String publicEntryServletPath, EndpointTypeDescription type,
@@ -114,7 +118,8 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			IdpConsentDeciderServletFactory dispatcherServletFactory,
 			Map<String, RemoteMetaManager> remoteMetadataManagers,
 			MetaDownloadManager downloadManager, 
-			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller)
+			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
+			UnityMessageSource msg)
 	{
 		super(type, applicationContext, uiClass.getSimpleName(), SAML_UI_SERVLET_PATH);
 		this.publicEntryPointPath = publicEntryServletPath;
@@ -127,6 +132,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		this.mainConfig = mainConfig;
 		this.logoutProcessorFactory = logoutProcessorFactory;
 		this.sloReplyInstaller = sloReplyInstaller;
+		this.msg = msg;
 	}
 	
 	@Override
@@ -146,7 +152,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		{
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
 					mainConfig, executorsService, pkiManagement, 
-					new MetaToIDPConfigConverter(pkiManagement), downloadManager, 
+					new MetaToIDPConfigConverter(pkiManagement, msg), downloadManager, 
 					SamlIdpProperties.SPMETA_PREFIX);
 			remoteMetadataManagers.put(id, myMetadataManager);
 			myMetadataManager.start();

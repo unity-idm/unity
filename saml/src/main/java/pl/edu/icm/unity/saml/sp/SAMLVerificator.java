@@ -39,6 +39,7 @@ import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
@@ -72,6 +73,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	private ReplayAttackChecker replayAttackChecker;
 	private SLOSPManager sloManager;
 	private SLOReplyInstaller sloReplyInstaller;
+
+	private UnityMessageSource msg;
 	
 	public SAMLVerificator(String name, String description,
 			TranslationProfileManagement profileManagement,
@@ -80,7 +83,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			MultiMetadataServlet metadataServlet, URL baseAddress, String baseContext,
 			Map<String, RemoteMetaManager> remoteMetadataManagers,
 			MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig, 
-			SLOSPManager sloManager, SLOReplyInstaller sloReplyInstaller)
+			SLOSPManager sloManager, SLOReplyInstaller sloReplyInstaller,
+			UnityMessageSource msg)
 	{
 		super(name, description, SAMLExchange.ID, profileManagement, trEngine);
 		this.remoteMetadataManagers = remoteMetadataManagers;
@@ -89,6 +93,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		this.mainConfig = mainConfig;
 		this.metadataServlet = metadataServlet;
 		this.executorsService = executorsService;
+		this.msg = msg;
 		this.responseConsumerAddress = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
 		this.replayAttackChecker = replayAttackChecker;
 		this.sloManager = sloManager;
@@ -136,7 +141,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		{
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
 					mainConfig, executorsService, pkiMan, 
-					new MetaToSPConfigConverter(pkiMan), downloadManager, 
+					new MetaToSPConfigConverter(pkiMan, msg), downloadManager, 
 						SAMLSPProperties.IDPMETA_PREFIX);
 			remoteMetadataManagers.put(instanceName, myMetadataManager);
 			myMetadataManager.start();

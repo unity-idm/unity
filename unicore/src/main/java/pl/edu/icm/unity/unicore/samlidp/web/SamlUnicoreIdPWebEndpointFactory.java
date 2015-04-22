@@ -25,6 +25,7 @@ import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
@@ -49,18 +50,22 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	private SLOReplyInstaller sloReplyInstaller;
 	private IdpConsentDeciderServletFactory dispatcherServletFactory;
+
+	private UnityMessageSource msg;
 	
 	@Autowired
 	public SamlUnicoreIdPWebEndpointFactory(ApplicationContext applicationContext, 
 			FreemarkerHandler freemarkerHandler, PKIManagement pkiManagement, 
 			ExecutorsService executorsService, MetaDownloadManager downloadManager, 
 			UnityServerConfiguration mainConfig, IdpConsentDeciderServletFactory dispatcherServletFactory,
-			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller)
+			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
+			UnityMessageSource msg)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;
 		this.pkiManagement = pkiManagement;
 		this.executorsService = executorsService;
+		this.msg = msg;
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
 		this.mainConfig = mainConfig;
 		this.downloadManager = downloadManager;
@@ -96,6 +101,6 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 				freemarkerHandler, 
 				pkiManagement, executorsService, 
 				remoteMetadataManagers, downloadManager, mainConfig,  
-				logoutProcessorFactory, sloReplyInstaller, dispatcherServletFactory);
+				logoutProcessorFactory, sloReplyInstaller, dispatcherServletFactory, msg);
 	}
 }
