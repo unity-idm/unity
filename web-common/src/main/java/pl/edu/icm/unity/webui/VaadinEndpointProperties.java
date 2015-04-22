@@ -116,7 +116,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 						+ "line of an authentication tile in simple mode."));
 		META.put(DEFAULT_AUTHN_ICON_SIZE, new PropertyMD().setEnum(ScaleModeOld.height50).setDeprecated().
 				setDescription("Deprecated, please use " + DEFAULT_AUTHN_ICON_SCALE));
-		META.put(DEFAULT_AUTHN_ICON_SCALE, new PropertyMD(ScaleMode.heightTiny).
+		META.put(DEFAULT_AUTHN_ICON_SCALE, new PropertyMD(ScaleMode.maxHeightTiny).
 				setDescription("Defines how to scale authenticator icons in the simple mode. "
 						+ "Can be overriden per tile."));
 		META.put(AUTHN_TILES_PFX, new PropertyMD().setStructuredList(true).
@@ -130,7 +130,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 						+ "Authentication option whose (primary) authenticator "
 						+ "name starts with one of the prefixes will be assigned to this tile. "
 						+ "The unassigned authentication options will be assigned to additional tile."));
-		META.put(AUTHN_TILE_TYPE, new PropertyMD(TileMode.table).setStructuredListEntry(AUTHN_TILES_PFX).
+		META.put(AUTHN_TILE_TYPE, new PropertyMD(TileMode.simple).setStructuredListEntry(AUTHN_TILES_PFX).
 				setDescription("Defines how the tile should present authentication options assigned to it. "
 						+ "In the +simple+ mode all logos (or names if logo is undefined) "
 						+ "of authentication options are displayed,"
@@ -146,7 +146,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 		META.put(AUTHN_TILE_ICON_SIZE, new PropertyMD().setStructuredListEntry(AUTHN_TILES_PFX).
 				setEnum(ScaleModeOld.height50).setDeprecated().
 				setDescription("Deprecated, please use " + AUTHN_TILE_ICON_SCALE));
-		META.put(AUTHN_TILE_ICON_SCALE, new PropertyMD().setEnum(ScaleMode.heightTiny).setStructuredListEntry(AUTHN_TILES_PFX).
+		META.put(AUTHN_TILE_ICON_SCALE, new PropertyMD().setEnum(ScaleMode.maxHeightTiny).setStructuredListEntry(AUTHN_TILES_PFX).
 				setDescription("Defines how to scale authenticator icons in a tile in the simple mode. "
 						+ "Overrides the default setting."));
 		META.put(AUTHN_TILE_DISPLAY_NAME, new PropertyMD().setCanHaveSubkeys().setStructuredListEntry(AUTHN_TILES_PFX).

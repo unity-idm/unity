@@ -269,7 +269,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		
 		if (!authNCopy.isEmpty())
 		{
-			AuthNTileGrid defaultTile = new AuthNTileGrid(authNCopy, selectionChangedListener, null);
+			AuthNTile defaultTile = new AuthNTileSimple(authNCopy, config.getDefaultScaleMode(), 
+					defPerRow, selectionChangedListener, null);
 			ret.add(defaultTile);
 		}
 		

@@ -29,9 +29,9 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.MapComboBox;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -46,7 +46,6 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -70,7 +69,7 @@ public class CredentialsPanel extends VerticalLayout
 	
 	private SafePanel statuses;
 	private MapComboBox<CredentialDefinition> credential;
-	private TextField status;
+	private Label status;
 	private Label description;
 	private SafePanel credentialStateInfo;
 	private SafePanel editor;
@@ -116,7 +115,8 @@ public class CredentialsPanel extends VerticalLayout
 		statuses.addStyleName(Styles.vBorderLess.toString());
 		
 		Panel credentialPanel = new SafePanel();
-
+		credentialPanel.addStyleName(Styles.vBorderLess.toString());
+		
 		String selected = credentials.keySet().iterator().next();
 		credential = new MapComboBox<CredentialDefinition>(msg.getMessage("CredentialChangeDialog.credential"),
 				credentials, selected, new MapComboBox.LabelResolver<CredentialDefinition>()
@@ -138,10 +138,11 @@ public class CredentialsPanel extends VerticalLayout
 		});
 		description = new Label();
 		description.setCaption(msg.getMessage("CredentialChangeDialog.description"));
-		status = new TextField(msg.getMessage("CredentialChangeDialog.status"));
+		status = new Label();
+		status.setCaption(msg.getMessage("CredentialChangeDialog.status"));
 		credentialStateInfo = new SafePanel(msg.getMessage("CredentialChangeDialog.credentialStateInfo"));
 		editor = new SafePanel(msg.getMessage("CredentialChangeDialog.value"));
-
+		
 		HorizontalLayout buttonsBar = new HorizontalLayout();
 		buttonsBar.setSpacing(true);
 		clear = new Button(msg.getMessage("CredentialChangeDialog.clear"));
@@ -202,11 +203,9 @@ public class CredentialsPanel extends VerticalLayout
 	{
 		CredentialDefinition chosen = credential.getSelectedValue();
 		description.setValue(chosen.getDescription().getValue(msg));
-		status.setReadOnly(false);
 		Map<String, CredentialPublicInformation> s = entity.getCredentialInfo().getCredentialsState();
 		CredentialPublicInformation credPublicInfo = s.get(chosen.getName());
 		status.setValue(msg.getMessage("CredentialStatus."+credPublicInfo.getState().toString()));
-		status.setReadOnly(true);
 		credEditor = credEditorReg.getEditor(chosen.getTypeId());
 		FormLayout credLayout = new CompactFormLayout();
 		credLayout.setMargin(true);

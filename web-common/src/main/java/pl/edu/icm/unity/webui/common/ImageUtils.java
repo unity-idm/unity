@@ -51,14 +51,12 @@ public class ImageUtils
 			break;
 		case heightSmall:
 			component.addStyleName(Styles.imageHeightSmall.toString());
-			component.setHeight(102, Unit.PIXELS);
 			break;
 		case widthTiny:
 			component.addStyleName(Styles.imageWidthTiny.toString());
 			break;
 		case heightTiny:
 			component.addStyleName(Styles.imageHeightTiny.toString());
-			component.setHeight(52, Unit.PIXELS);
 			break;
 		case none:
 			component.setHeight(100, Unit.PERCENTAGE);
