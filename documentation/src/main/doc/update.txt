@@ -116,4 +116,17 @@ There were small database schema changes in this release. The database should be
 when a new instance is started, however make sure to make a full back up after stopping the old version
 and before starting the new one.
 
+The 1.6.0 version introduces significant changes in user interface. Especially the authentication screen layout 
+is changed and facilitates the new tiles feature, allowing for flexible arrangement of authentication options.
+The following changes in configuration are necessary:
+
+ - *All files served by the server (as images of 3rd party identity providers), set with the file:// URL 
+ are resolved against the theme directory used by endpoint.* I.e. by default the files should be placed in 
+ the web contents directory (e.g. +conf/webContents+) and paths should be given 
+ relative to its +VAADIN/themes/unityThemeValo+ directory. For instance if a file is stored in 
+ +conf/webContents/VAADIN/themes/common/img/mypic.jpg+ it must be configured as 
+ +file://../common/img/mypic.jpg+.
+ - Icon sizes configuration parameters found in SAML and OAuth authenticators (as +width50+) are now ignored. Instead
+ scaling mode can be configured per endpoint in its authentication configuration. Scaling is no more fixed, it is using 
+ CSS class names (small, tiny, ...) which are controlled by theme and can be customized.
   

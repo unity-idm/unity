@@ -257,9 +257,19 @@ all Unity subsystems with the simple name +SOME-SERVICE-CERT+.
 Credential types and credential requirements can be configured in the Web Admin UI, so we skip 
 a description of their configuration in the configuration files.
 
+Authenticators define different ways of authentication offered to end users. 
+Each authenticator uses a fixed authentication technology as local password verification or 
+remote OAuth authentication. Authenticator can provide one or more authentication options. This latter situation
+holds when authenticator allows a user to select among different identity providers. For instance OAuth authenticator
+can allow for selection of user's identity provider as Google or Facebook. Sometimes more complex deployments 
+may facilitate several authenticators of a single technology, when different Unity endpoints require different
+authentication settings (e.g. consumer-oriented endpoint may use SAML authentication in public SAML federation while
+admin-oriented endpoint may use SAML authentication in corporate federation).    
 
 Authenticators and endpoints as of now can be configured only in the configuration file. Endpoints 
-are covered in a separate section <<endpoints>>.
+are covered in a separate section <<endpoints>>. This section covers also how to configure authentication screen,
+i.e. the visual composition of authenticators. This section is covering only functional definitions of
+authenticators, which can be used with many endpoints in various configurations. 
 
 Authenticator is a pair of two configured elements: _credential verificator_ and _credential retrieval_.
 The credential retrieval collects a credential in a binding specific way, for instance it may

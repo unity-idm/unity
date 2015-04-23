@@ -17,7 +17,7 @@ unityServer.core.endpoints.1.endpointType=WebAdminUI
 unityServer.core.endpoints.1.endpointName=UNITY administration interface
 unityServer.core.endpoints.1.contextPath=/admin
 unityServer.core.endpoints.1.endpointConfigurationFile=conf/webadmin.json
-unityServer.core.endpoints.1.endpointAuthenticators=secPwdWeb;simplePwdWeb,certWeb
+unityServer.core.endpoints.1.endpointAuthenticators=oauthWeb;simplePwdWeb,certWeb
 ----
 
 The endpoint instance configuration must specify the endpoint type (in the example it is +WebAdminUI+), one 
@@ -33,10 +33,11 @@ binding specific settings.
 
 The final configuration element of all endpoints is the configuration of authenticators. Endpoint
 can have many _alternative_ authenticators enabled. Names of those authenticators must be separated with semicolon. 
-Additionally an endpoint may require simultaneous authentication using more then one authenticator. In such
-case the required authenticators must be enumerated with a comma as a separator. In the above example
-the endpoint allows for choosing between two authentication methods: one will use a single authenticator 
-+simplePwdWeb+ and another alternative will require simultaneous authentication using +certWeb+ and +simplePwdWeb+.
+Additionally an endpoint may require simultaneous authentication using two authenticators 
+(MFA - multi-factor authentication). In such case the two required authenticators must be enumerated with 
+a comma as a separator. In the above example the endpoint allows for choosing between 
+two authentication methods: one will use a single authenticator +oauthWeb+ and another alternative 
+will require simultaneous authentication using +certWeb+ and +simplePwdWeb+.
  
 As it was mentioned there are options which are common for all endpoints with the same binding.
 Those options are presented here, the endpoint sections later on do not contain them.  
@@ -45,8 +46,53 @@ For the Web Service (CXF) binding the common options are:
 include::ref-cxfEndpointProperties.txt[]
 
 
-Options for all Web (Vaadin) endpoints are:
+=== Configuration of web authentication screen 
+
+Web endpoints (besides settings relevant for the particular type of the endpoint, what is covered below) share a
+number of common settings. Those settings control:
+
+ - what (if any) registration possibilities are enabled for the endpoint
+ - custom theme and web resources location for the endpoint (see <<branding>> for details)
+ - how to arrange authentication options on the authentication screen
+
+The last point constitutes the majority of the configuration options. In principle the authentication options
+(provided by authenticators configured for the endpoint) can be arranged in one or more *authentication tiles*. 
+Authentication tile is a visual grouping of authentication options. Each tile can be configured differently.
+The following screenshot shows an authentication screen with two tiles:
+
+image::./figures/authntiles.png[alt="Authentication tiles",align="center",scaledwidth="50%"]
+
+
+The first tile is using the default +simple+ mode where icons (or names if icons are not defined) of authentication
+options are arranged in configurable number of columns. The second tile is using the +table+ mode. The table mode
+provides a more compact (and less flexible) presentation of authentication options but is perfect in cases when 
+the number of options is high. On the screenshot part of the EduGain federation is presented with ca 1000 IdPs.  
+
+More advanced customization of the authentication screen look can be performed with custom theming, see <<branding>>. 
+
+Configuration of the above example follows:
+
+----
+unity.endpoint.web.authnsPerLine=2
+unity.endpoint.web.authnIconScale=maxHeightSmall
+unity.endpoint.web.authenticationTiles.1.tileContents=pwd cert ldap
+unity.endpoint.web.authenticationTiles.1.tileMode=simple
+unity.endpoint.web.authenticationTiles.1.tileName.pl=Lokalne metody
+unity.endpoint.web.authenticationTiles.1.tileName.en=Local authentication
+unity.endpoint.web.authenticationTiles.1.tileIconSize=maxHeight50
+
+unity.endpoint.web.authenticationTiles.2.tileContents=saml oauth
+unity.endpoint.web.authenticationTiles.2.tileMode=table
+unity.endpoint.web.authenticationTiles.2.tileName.pl=Zdalne logowanie
+unity.endpoint.web.authenticationTiles.2.tileName.en=Remote methods
+----
+
+Options reference for all Web (Vaadin) endpoints are as follows:
+
 include::ref-vaadinEndpointProperties.txt[]
+
+
+
 
 
 

@@ -1,0 +1,76 @@
+[[branding]]
+== Web interface branding
+
+Unity interface appearance can be customized to match the owning organization preferences.
+
+Customization is based on SASS http://sass-lang.com/ (a superset of CSS), using its preferred SCSS syntax. 
+Theoretically it is possible to prepare the theme purely in CSS but due to complex requirements in practice 
+SASS usage is mandatory.
+
+Unity themes are placed in a configured directory. Each theme is named and the server is configured with a selected
+theme as follows (in +unityServer.conf+):
+
+----
+unityServer.core.defaultWebContentDirectory=conf/webContents
+unityServer.core.defaultTheme=unityThemeValo
+----
+
+What is more the theme can be changed per endpoint in endpoint's configuration. Actually two themes can be set:
+one for the main user interface and one for the endpoint's authentication screen. Endpoint
+can also use a separate directory with theme files and other web resources. For instance: 
+
+----
+unity.endpoint.web.mainTheme=customTheme
+unity.endpoint.web.authnTheme=customAuthnTheme
+unity.endpoint.web.webContentDirectory=conf/webContents-homeEndpoint
+----
+
+Note that all files (e.g. images) served by Unity must be present in the web content directory used for the 
+endpoint in question.
+
+
+=== Preparing a custom theme
+
+Each theme is placed in a separate subdirectory of the +VAADIN/themes+ folder (placed in the web contents directory
+as described above). Subdirectory must be named as the style. Unity uses the +styles.css+ file in the theme directory
+as the web interface style. If the +styles.css+ is not found but there is a +styless.scss+ file then it is 
+compiled on the fly to CSS and used. This later scenario is not suggested for production, see below how to compile the
+theme. 
+
+Distribution contains one production theme called +unityThemeValo+ which is based on the Vaadin's Valo theme (Vaadin
+is underlying technology of the Unity's web interface). Usage of the Valo theme as the base is not mandatory,
+but highly preferred and easiest choice. Valo theme is highly configurable and can be customized to a large degree.
+Valo theme is documented here is: https://vaadin.com/valo and API is documented https://vaadin.com/api/valo/ .
+
+There is also one example theme called +customTheme+.
+Both of them are based on SASS partial placed in the +common+ directory. +unityThemeValo+ is simply reusing the 
+whole partial as-is. +customTheme+ is introducing several small changes as disabling the 
+blue background of the top bar and displaying a Unity logo there. 
+
+
+Strongly suggested structure of a theme is using two SCSS files: +styles.scss+ (this name is mandatory) 
+and +STYLE-NAME.scss+. The first file should merely include the definitions from the second file allowing to 
+store the style in properly named file.  
+
+Typically the custom theme should be created basing on the +customTheme+ example:
+
+ - create a theme folder under +VAADIN/themes+ e.g. +myTheme+
+ - create +myTheme/styles.scss+, +myTheme/favicon.ico+ and +myTheme/myTheme.scss+ basing on the 
+ custom theme as template.
+ - introduce changes in the +myTheme/myTheme.scss+
+ 
+The +exampleTheme+ contains a lot of comments which should help to understand the structure. In case when large changes
+are introduced it might be easier to copy the common partial and modify it directly.
+
+=== Compiling SASS theme
+
+Manual compilation of a theme is a suggested approach as it improves server performance and allow to detect 
+syntax errors early.
+
+Unity provides a simple command line utility that compiles a given theme.
+
+----
+$> unity-idm-scss-compile conf/VAADIN/themes/myTheme
+----
+
+The sole argument to the utility is a directory with the source +styles.scss+ file.
