@@ -9,6 +9,7 @@ import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -78,8 +79,8 @@ public class PasswordToken
 	{
 		this.answer = answer;
 	}
-	
-	public String toJson()
+
+	public JsonNode toJsonNode()
 	{
 		ObjectNode root = Constants.MAPPER.createObjectNode();
 
@@ -91,9 +92,14 @@ public class PasswordToken
 			root.put("answer", answer);
 			root.put("question", question);
 		}
-		
+		return root;
+	}
+	
+	public String toJson()
+	{
 		try
 		{
+			JsonNode root = toJsonNode();
 			return Constants.MAPPER.writeValueAsString(root);
 		} catch (JsonProcessingException e)
 		{

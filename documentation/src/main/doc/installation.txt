@@ -72,7 +72,7 @@ When configuring the system some precautions must be made:
 
 . In general only a single instance should be responsible for loading the initial state of the system (endpoints, 
 authenticators etc). Otherwise the servers might have problems during startup and it is hard to keep multiple 
-configurations the same. It is good to set +unityServer.core.recreateEndpointsOnStartup=false+ on the 'slave' nodes.
+configurations the same. It is good to set +unityServer.core.ignoreContentsReloadingFromConfiguration=true+ on the 'slave' nodes.
 . All instances should use the same +unityServer.core.httpServer.advertisedHost+ value. At the same time DNS 
 entry of the value should be switched when a primary service is detected to be down.
 

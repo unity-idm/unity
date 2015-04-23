@@ -59,7 +59,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String TEMPLATES_CONF = "templatesFile";
 	public static final String PKI_CONF = "pkiConfigFile";
 	public static final String THREAD_POOL_SIZE = "threadPoolSize";
-	public static final String RECREATE_ENDPOINTS_ON_STARTUP = "recreateEndpointsOnStartup";
+	public static final String IGNORE_CONFIGURED_CONTENTS_SETTING = "ignoreContentsReloadingFromConfiguration";
+	private static final String RECREATE_ENDPOINTS_ON_STARTUP = "recreateEndpointsOnStartup";
 	public static final String LOGOUT_MODE = "logoutMode";
 	public static final String DEFAULT_WEB_CONTENT_PATH = "defaultWebContentDirectory";
 	public static final String THEME = "defaultTheme";
@@ -113,6 +114,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String TRANSLATION_PROFILES = "translationProfiles.";
 	
 	public static final String WIPE_DB_AT_STARTUP = "wipeDbAtStartup";
+	
+	public static final String CONFIRMATION_REQUEST_LIMIT = "confirmationRequestLimit";
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -141,9 +144,14 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				setDescription("A file with the initial message templates. You can have this file empty and manage the templates via the Admin UI."));
 		defaults.put(PKI_CONF, new PropertyMD("conf/pki.properties").setPath().setCategory(mainCat).
 				setDescription("A file with the configuration of the PKI: credentials and truststores."));
-		defaults.put(RECREATE_ENDPOINTS_ON_STARTUP, new PropertyMD("true").setCategory(mainCat).
-				setDescription("If this options is true then all endpoints are initialized from configuration at each startup." +
-				" If it is false then the previously persisted endpoints are loaded."));
+		defaults.put(RECREATE_ENDPOINTS_ON_STARTUP, new PropertyMD("true").setCategory(mainCat).setDeprecated().
+				setDescription("This setting is ignored. By default all endpoints, realms and authenticators are reloaded at startup."
+						+ "As a more admin-friendly counterpart of this setting use ."));
+		defaults.put(IGNORE_CONFIGURED_CONTENTS_SETTING, new PropertyMD("false").setCategory(mainCat).
+				setDescription("If set to true then all configuration settings related to loading of "
+						+ "database contents (endpoints, authenticators, credentials, ...) "
+						+ "are ignored. This is useful in the case of redundant Unity instance,"
+						+ " which should use the database contents configured at the master serevr."));
 		defaults.put(LOGOUT_MODE, new PropertyMD(LogoutMode.internalAndSyncPeers).setCategory(mainCat).
 				setDescription("Controls the way how the logout operation is performed. "
 				+ "+internalOnly+ will perform only a local logout. +internalAndSyncPeers+ will also logout"
@@ -263,6 +271,9 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(WIPE_DB_AT_STARTUP, new PropertyMD("false").setHidden().
 				setDescription("For testing: if set to true then DB will be fully cleared at server startup"));
 		
+		defaults.put(CONFIRMATION_REQUEST_LIMIT, new PropertyMD("3").setCategory(mainCat).
+				setDescription("Defines number of confirmation request that can be send to particular address in day"));
+		
 		defaults.put(MAIN_TRUSTSTORE, new PropertyMD().setMandatory().setCategory(mainCat).
 				setDescription("Name of the truststore to be used by the server."));
 		defaults.put(MAIN_CREDENTIAL, new PropertyMD().setMandatory().setCategory(mainCat).
@@ -298,6 +309,13 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		File workspace = new File(getValue(WORKSPACE_DIRECTORY));
 		if (!workspace.exists())
 			workspace.mkdirs();
+		
+		if (getBooleanValue(IGNORE_CONFIGURED_CONTENTS_SETTING) && 
+				getBooleanValue(WIPE_DB_AT_STARTUP))
+			throw new ConfigurationException("Using " + WIPE_DB_AT_STARTUP + " and " + 
+				IGNORE_CONFIGURED_CONTENTS_SETTING + " settings together makes really no sense: "
+						+ "database will be cleaned and not populated with any contents "
+						+ "so it won't be possible to anyhow log in.");
 	}
 	
 	private void checkRealmNames()

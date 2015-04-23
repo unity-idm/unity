@@ -6,6 +6,8 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.io.IOException;
 
+import pl.edu.icm.unity.idpcommon.EopException;
+
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.SerializeException;
 import com.vaadin.server.Page;
@@ -23,12 +25,13 @@ import com.vaadin.server.WrappedSession;
  */
 public class OAuthResponseHandler
 {
-	public void returnOauthResponse(AuthorizationResponse oauthResponse, boolean destroySession)
+	public void returnOauthResponse(AuthorizationResponse oauthResponse, boolean destroySession) throws EopException
 	{
 		VaadinSession session = VaadinSession.getCurrent(); 
 		session.addRequestHandler(new SendResponseRequestHandler(destroySession));
 		session.setAttribute(AuthorizationResponse.class, oauthResponse);
 		Page.getCurrent().reload();
+		throw new EopException();
 	}
 	
 	public class SendResponseRequestHandler extends SynchronizedRequestHandler

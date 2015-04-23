@@ -205,7 +205,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock2"+
 				MockWSEndpointFactory.SERVLET_PATH);
 		ret = wsProxy.getAuthenticatedUser();
-		assertEquals("[user2, CN=Test UVOS,O=UNICORE,C=EU]", ret.getNameID().getStringValue());
+		assertEquals("[CN=Test UVOS,O=UNICORE,C=EU, user2]", ret.getNameID().getStringValue());
 
 		try
 		{

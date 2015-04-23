@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.db.generic.authn.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.engine.authn.AuthenticatorLoader;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.internal.AuthenticatorsManagement;
@@ -27,13 +28,16 @@ public class AuthenticatorsManagementImpl implements AuthenticatorsManagement
 {
 	private DBSessionManager db;
 	private AuthenticatorLoader authnLoader;
+	private AuthenticatorInstanceDB authenticatorDB;
 	
 	@Autowired
-	public AuthenticatorsManagementImpl(DBSessionManager db, AuthenticatorLoader authnLoader)
+	public AuthenticatorsManagementImpl(DBSessionManager db, AuthenticatorLoader authnLoader,
+			AuthenticatorInstanceDB authenticatorDB)
 	{
 		super();
 		this.db = db;
 		this.authnLoader = authnLoader;
+		this.authenticatorDB = authenticatorDB;
 	}
 
 
@@ -52,5 +56,19 @@ public class AuthenticatorsManagementImpl implements AuthenticatorsManagement
 			db.releaseSqlSession(sql);
 		}
 		return authenticators;
+	}
+	
+	@Override
+	public void removeAllPersistedAuthenticators() throws EngineException
+	{
+		SqlSession sql = db.getSqlSession(false);
+		try 
+		{
+			authenticatorDB.removeAllNoCheck(sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
 	}
 }

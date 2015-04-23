@@ -31,7 +31,6 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 public abstract class BearerRetrievalBase extends AbstractCredentialRetrieval<AccessTokenExchange> implements CXFAuthentication
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, BearerRetrievalBase.class);
-	protected AccessTokenExchange credentialExchange;
 	
 	public BearerRetrievalBase(String bindingName)
 	{

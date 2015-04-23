@@ -24,4 +24,10 @@ public interface AuthenticatorsManagement
 	 * @throws EngineException 
 	 */
 	List<AuthenticationOption> getAuthenticatorUIs(List<AuthenticationOptionDescription> authnList) throws EngineException;
+
+	/**
+	 * Removes all authenticators from DB
+	 * @throws EngineException
+	 */
+	void removeAllPersistedAuthenticators() throws EngineException;
 }

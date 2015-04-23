@@ -78,6 +78,8 @@ public class AttributeTypeSerializer
 		target.setVisibility(AttributeVisibility.valueOf(main.get("visibility").asText()));
 		target.getValueType().setSerializedConfiguration(main.get("syntaxState").asText());
 		target.setDisplayedName(I18nStringJsonUtil.fromJson(main.get("displayedName")));
+		if (target.getDisplayedName().getDefaultValue() == null)
+			target.getDisplayedName().setDefaultValue(target.getName());
 		target.setDescription(I18nStringJsonUtil.fromJson(main.get("i18nDescription"), 
 				main.get("description")));
 		if (main.has("metadata"))

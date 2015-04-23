@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import javax.imageio.ImageIO;
 
 import org.bouncycastle.util.encoders.Base64;
+import org.bouncycastle.util.encoders.DecoderException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -238,6 +239,23 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 		return serialize(value);
 	}
 
+	@Override
+	public BufferedImage deserializeSimple(Object value) throws InternalException
+	{
+		if (value instanceof String)
+		{
+			try
+			{
+				byte[] deserializeBytes = Base64.decode((String)value);
+				return deserialize(deserializeBytes);
+			} catch (DecoderException e)
+			{
+				throw new InternalException("Argument is incorrectly Base 64 encoded", e);
+			}
+		}
+		throw new InternalException("Argument must be Base64 string, was " + value.getClass());
+	}
+	
 	@Override
 	public boolean isVerifiable()
 	{

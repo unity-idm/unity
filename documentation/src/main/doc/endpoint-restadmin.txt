@@ -155,3 +155,123 @@ Example output:
   "members" : [ 3 ]
 }
 ----
+
+'''
+
++@Path("/entity/identity/{type}/{value}")+ +
++@QueryParam("credentialRequirement")+ +
++@POST+ +	
+
+Creates a new entity, with the given initial identity and credential requirement. The new entity is 
+in valid state. New entity id is returned.
+
+Example output: 
+----
+{"entityId":3}
+----
+
+'''
+
++@Path("/entity/{entityId}/identity/{type}/{value}")+ +
++@POST+ +
+
+Creates a new identity for the given entity. No content is returned.
+
+'''
+
++@Path("/entity/{entityId}")+ +
++@DELETE+ +
+
+Removes the given entity. No content is returned.
+
+'''
+
++@Path("/entity/identity/{type}/{value}")+ +
++@DELETE+ +
+
+Removes the given identity. No content is returned.
+
+'''
+
++@Path("/group/{groupPath}/entity/{entityId}")+ +
++@POST+ +
+
+Adds the given entity as a member to a group. Note that group must be URL encoded, the +/+ character should be 
+given as +%2F+. No content is returned. 
+
+'''
+
++@Path("/group/{groupPath}/entity/{entityId}")+ +
++@DELETE+ +
+
+Removes a given entity from a group. Note that group must be URL encoded, the +/+ character should be 
+given as +%2F+. No content is returned.
+
+'''
+
++@Path("/entity/{entityId}/attribute")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Sets (creates or updates) an attribute for the given entity. The body of the PUT request describes the attribute:
+its name, values and group. Its syntax is the same as returned by the GET attributes operation, however the +syntax+ 
+and +direct+ shall not be used. No content is returned. Example attribute encoded (email with two values):
+
+----
+{
+  "values" : [ {
+    "value" : "some@example.com",
+    "confirmationData" : "{\"confirmed\":false,\"confirmationDate\":0,\"sentRequestAmount\":0}"
+  }, {
+    "value" : "some2@example.com",
+    "confirmationData" : "{\"confirmed\":true,\"confirmationDate\":1429006209143,\"sentRequestAmount\":0}"
+  } ],
+  "name" : "emailA",
+  "groupPath" : "/",
+  "visibility" : "full"
+}
+----
+
+'''
+
++@Path("/entity/{entityId}/attribute/{attributeName}")+ +
++@QueryParam("group")+ +
++@DELETE+ +
+
+Removes the given attribute of an entity. No content is returned. 
+
+'''
+
++@Path("/entity/{entityId}/credential-adm/{credential}")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Sets a new credential secret for the given entity. The caller must have administrative privileges. 
+Credential name is given as the path parameter, while the secret 
+is carried in the JSON body. No content is returned. For the password credential the complete value could be
+(with a selected security question and its answer):  
+
+----
+{"password":"newpass","answer":"Some answer","question":1}
+----
+
+'''
+
++@Path("/entity/{entityId}/credential/{credential}")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Sets a new credential secret for the given entity. The caller is assumed to change his/her own credential and 
+must provide its current value (assuming the credential was already set).  
+Credential name is given as the path parameter, while the new and current secrets are carried in the JSON body. 
+No content is returned. The body must be a JSON array with one (only when the credential was not yet set) 
+or (typically) two elements. IMPORTANT: the values of the array must be JSON strings, not JSON objects.  
+
+For the password credential the complete value could be (with a selected security question and its answer):  
+
+----
+[ 
+  "{\"password\":\"newpass\",\"answer\":\"Some answer2\",\"question\":0}", 
+  "{\"password\":\"currentpass\",\"answer\":\"Some answer\",\"question\":1}" 
+]
+----

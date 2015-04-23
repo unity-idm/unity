@@ -4,20 +4,31 @@
  */
 package pl.edu.icm.unity.restadm;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -25,10 +36,15 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
@@ -76,6 +92,49 @@ public class RESTAdmin
 		return mapper.writeValueAsString(entity);
 	}
 	
+	@Path("/entity/{entityId}")
+	@DELETE
+	public void removeEntity(@PathParam("entityId") long entityId) throws EngineException, JsonProcessingException
+	{
+		log.debug("removeEntity of " + entityId);
+		identitiesMan.removeEntity(new EntityParam(entityId));
+	}
+
+	@Path("/entity/identity/{type}/{value}")
+	@POST
+	public String addEntity(@PathParam("type") String type, @PathParam("value") String value, 
+			@QueryParam("credentialRequirement") String credReqIdId) 
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("addEntity " + value + " type: " + type);
+		Identity identity = identitiesMan.addEntity(new IdentityParam(type, value), 
+				credReqIdId, EntityState.valid, false);
+		ObjectNode ret = mapper.createObjectNode();
+		ret.put("entityId", identity.getEntityId());
+		return mapper.writeValueAsString(ret);
+	}
+
+	
+	@Path("/entity/{entityId}/identity/{type}/{value}")
+	@POST
+	public void addIdentity(@PathParam("type") String type, @PathParam("value") String value, 
+			@PathParam("entityId") long entityId) 
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("addIdentity of " + value + " type: " + type + " for entity: " + entityId);
+		identitiesMan.addIdentity(new IdentityParam(type, value), new EntityParam(entityId), false);
+	}
+
+	@Path("/entity/identity/{type}/{value}")
+	@DELETE
+	public void removeIdentity(@PathParam("type") String type, @PathParam("value") String value,
+			@QueryParam("target") String target, @QueryParam("realm") String realm) 
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("removeIdentity of " + value + " type: " + type + " target: " + target + " realm: " + realm);
+		identitiesMan.removeIdentity(new IdentityTaV(type, value, target, realm));
+	}
+	
 	@Path("/entity/{entityId}/groups")
 	@GET
 	public String getGroups(@PathParam("entityId") long entityId) throws EngineException, JsonProcessingException
@@ -103,6 +162,84 @@ public class RESTAdmin
 		return mapper.writeValueAsString(wrapped);
 	}
 
+	@Path("/entity/{entityId}/attribute/{attributeName}")
+	@DELETE
+	public void removeAttribute(@PathParam("entityId") long entityId, @PathParam("attributeName") String attribute,
+			@QueryParam("group") String group) throws EngineException, JsonProcessingException
+	{
+		if (group == null)
+			group = "/";
+		log.debug("removeAttribute " + attribute + " of " + entityId + " in " + group);
+		attributesMan.removeAttribute(new EntityParam(entityId), group, attribute);
+	}
+	
+	@Path("/entity/{entityId}/attribute")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void setAttribute(@PathParam("entityId") long entityId, String attribute) 
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("setAttribute for " + entityId);
+		AttributeParamRepresentation attributeParam;
+		try
+		{
+			attributeParam = mapper.readValue(attribute, 
+					AttributeParamRepresentation.class);
+		} catch (IOException e)
+		{
+			throw new JsonParseException("Can't parse the attribute input", null, e);
+		}
+		log.debug("setAttribute: " + attributeParam.getName() + " in " + attributeParam.getGroupPath());
+		Map<String, AttributeType> attributeTypesAsMap = attributesMan.getAttributeTypesAsMap();
+		AttributeType aType = attributeTypesAsMap.get(attributeParam.getName());
+		Attribute<?> apiAttribute = attributeParam.toAPIAttribute(aType.getValueType());
+		attributesMan.setAttribute(new EntityParam(entityId), apiAttribute, true);
+	}
+	
+	@Path("/entity/{entityId}/credential-adm/{credential}")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void setCredentialByAdmin(@PathParam("entityId") long entityId, @PathParam("credential") String credential,
+			String secrets) 
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("setCredentialByAdmin for " + entityId);
+		identitiesMan.setEntityCredential(new EntityParam(entityId), credential, secrets);
+	}
+	
+	@Path("/entity/{entityId}/credential/{credential}")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void setCredentialByUser(@PathParam("entityId") long entityId, @PathParam("credential") String credential,
+			String secretsArray) 
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("setCredentialByUser for " + entityId);
+		JsonNode main;
+		try
+		{
+			main = mapper.readTree(secretsArray);
+		} catch (IOException e)
+		{
+			throw new JsonParseException("Request body can not be parsed as JSON", null, e);
+		}
+		
+		if (main instanceof ArrayNode)
+		{
+			ArrayNode mainA = (ArrayNode) main;
+			if (mainA.size() < 1)
+				throw new  JsonParseException("Request body JSON array must have at least one element", null);
+			String newSecrets = mainA.get(0).asText();
+			String oldSecrets = mainA.size() > 1 ? mainA.get(1).asText() : null;
+			identitiesMan.setEntityCredential(new EntityParam(entityId), credential, 
+					newSecrets, oldSecrets);
+		} else
+		{
+			throw new JsonParseException("Request body must be a JSON array", null);
+		}
+	}
+
+	
 	@Path("/group/{groupPath}")
 	@GET
 	public String getGroupContents(@PathParam("groupPath") String group) throws EngineException, JsonProcessingException
@@ -110,5 +247,23 @@ public class RESTAdmin
 		log.debug("getGroupContents query for " + group);
 		GroupContents contents = groupsMan.getContents(group, GroupContents.GROUPS | GroupContents.MEMBERS);
 		return mapper.writeValueAsString(new GroupContentsRepresentation(contents));
+	}
+	
+	@Path("/group/{groupPath}/entity/{entityId}")
+	@DELETE
+	public void removeMember(@PathParam("groupPath") String group, @PathParam("entityId") long entityId) 
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("removeMember " + entityId + " from " + group);
+		groupsMan.removeMember(group, new EntityParam(entityId));
+	}
+	
+	@Path("/group/{groupPath}/entity/{entityId}")
+	@POST
+	public void addMember(@PathParam("groupPath") String group, @PathParam("entityId") long entityId) 
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("addMember " + entityId + " to " + group);
+		groupsMan.addMemberFromParent(group, new EntityParam(entityId));
 	}
 }

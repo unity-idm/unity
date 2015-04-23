@@ -53,11 +53,17 @@ public abstract class AbstractStringAttributeSyntax implements AttributeValueSyn
 	
 
 	@Override
-	public Object serializeSimple(String value) throws InternalException
+	public String serializeSimple(String value) throws InternalException
 	{
 		return value;
 	}
 
+	@Override
+	public String deserializeSimple(Object value) throws InternalException
+	{
+		return value.toString();
+	}
+	
 	@Override
 	public boolean isVerifiable()
 	{

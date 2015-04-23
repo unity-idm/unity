@@ -133,6 +133,12 @@ public class IntegerAttributeSyntax implements AttributeValueSyntax<Long>
 	}
 
 	@Override
+	public Long deserializeSimple(Object value) throws InternalException
+	{
+		return value instanceof Long ? (Long) value : Long.parseLong(value.toString()); 
+	}
+
+	@Override
 	public boolean isVerifiable()
 	{
 		return false;

@@ -20,7 +20,7 @@ if [ -e "$PID" ]
    fi
 fi
 
-CP=.$(find "$LIB" -type d -exec printf ":{}/*" \;) 
+CP=.$(find -L "$LIB" -type d -exec printf ":{}/*" \;) 
 
 export CLASSPATH=$CP
 

@@ -42,7 +42,8 @@ public class TranslationTest
 		new DuplicateException("IdentityDetails.groupLine", "pl"),
 		new DuplicateException("IdentityDetails.identityLocal", "pl"),
 		new DuplicateException("IdentityDetails.status", "pl"),
-		new DuplicateException("SPInfoComponent.requesterName", "pl")
+		new DuplicateException("SPInfoComponent.requesterName", "pl"),
+		new DuplicateException("IdentityFormatter.identityCore", "pl")
 	);
 	
 	private int notTranslated = 0;
