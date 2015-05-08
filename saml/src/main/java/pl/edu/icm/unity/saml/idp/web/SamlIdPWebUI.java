@@ -44,7 +44,7 @@ import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.provider.ExposedAttributesComponent;
+import pl.edu.icm.unity.webui.common.provider.ExposedSelectableAttributesComponent;
 import pl.edu.icm.unity.webui.common.provider.IdPButtonsBar;
 import pl.edu.icm.unity.webui.common.provider.IdPButtonsBar.Action;
 import pl.edu.icm.unity.webui.common.provider.IdentitySelectorComponent;
@@ -86,7 +86,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	protected WebAuthenticationProcessor authnProcessor;
 	protected SessionManagement sessionMan;
 	protected IdentitySelectorComponent idSelector;
-	protected ExposedAttributesComponent attrsPresenter;
+	protected ExposedSelectableAttributesComponent attrsPresenter;
 	
 	protected AuthnResponseProcessor samlProcessor;
 	protected SamlResponseHandler samlResponseHandler;
@@ -216,8 +216,8 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	
 	protected void createAttributesPart(TranslationResult translationResult, VerticalLayout contents) throws EngineException
 	{
-		attrsPresenter = new ExposedAttributesComponent(msg, handlersRegistry, 
-				translationResult.getAttributes(), true);
+		attrsPresenter = new ExposedSelectableAttributesComponent(msg, handlersRegistry, 
+				translationResult.getAttributes());
 		contents.addComponent(attrsPresenter);
 	}
 	
