@@ -83,7 +83,8 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 		{
 			SelectableAttributeWithValues<?> selectableAttributeWithValues = 
 					attributesHiding.get(entry.getKey());
-			selectableAttributeWithValues.setHiddenValues(entry.getValue());
+			if (selectableAttributeWithValues != null)
+				selectableAttributeWithValues.setHiddenValues(entry.getValue());
 		}
 	}
 	

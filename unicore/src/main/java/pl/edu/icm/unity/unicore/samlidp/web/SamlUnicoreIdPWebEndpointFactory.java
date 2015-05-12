@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
-import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServletFactory;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
@@ -49,7 +48,7 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	private UnityServerConfiguration mainConfig;
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	private SLOReplyInstaller sloReplyInstaller;
-	private IdpConsentDeciderServletFactory dispatcherServletFactory;
+	private UnicoreIdpConsentDeciderServletFactory dispatcherServletFactory;
 
 	private UnityMessageSource msg;
 	
@@ -57,7 +56,7 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	public SamlUnicoreIdPWebEndpointFactory(ApplicationContext applicationContext, 
 			FreemarkerHandler freemarkerHandler, PKIManagement pkiManagement, 
 			ExecutorsService executorsService, MetaDownloadManager downloadManager, 
-			UnityServerConfiguration mainConfig, IdpConsentDeciderServletFactory dispatcherServletFactory,
+			UnityServerConfiguration mainConfig, UnicoreIdpConsentDeciderServletFactory dispatcherServletFactory,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
 			UnityMessageSource msg)
 	{

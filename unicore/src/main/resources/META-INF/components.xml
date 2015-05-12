@@ -13,7 +13,9 @@
 	<bean class="pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETDHandler"/>
 	
 	<bean class="pl.edu.icm.unity.unicore.samlidp.web.SamlUnicoreIdPWebEndpointFactory"/>
-	
+
+	<bean class="pl.edu.icm.unity.unicore.samlidp.web.UnicoreIdpConsentDeciderServletFactory"/>
+
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
 		<property name="bundle" value="pl/edu/icm/unity/unicore/messages/messages"/>
 	</bean>

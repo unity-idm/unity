@@ -23,15 +23,12 @@ import pl.edu.icm.unity.saml.idp.web.SamlResponseHandler;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
 import pl.edu.icm.unity.unicore.samlidp.saml.AuthnWithETDResponseProcessor;
@@ -89,16 +86,6 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		super.appInit(request);
 	}
 	
-	private SamlPreferencesWithETD getPreferencesWithETD() throws EngineException
-	{
-		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		EntityParam entity = new EntityParam(ae.getEntityId());
-		String raw = preferencesMan.getPreference(entity, SamlPreferencesWithETD.ID);
-		SamlPreferencesWithETD ret = new SamlPreferencesWithETD(attributeSyntaxFactoriesRegistry);
-		ret.setSerializedConfiguration(raw);
-		return ret;
-	}
-	
 	@Override
 	protected void createExposedDataPart(SAMLAuthnContext samlCtx, VerticalLayout contents) throws EopException
 	{
@@ -148,7 +135,8 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	{
 		try
 		{
-			SamlPreferencesWithETD preferences = getPreferencesWithETD();
+			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan, 
+					attributeSyntaxFactoriesRegistry);
 			NameIDType samlRequester = samlCtx.getRequest().getIssuer();
 			SPSettings baseSettings = preferences.getSPSettings(samlRequester);
 			SPETDSettings settings = preferences.getSPETDSettings(samlRequester);
@@ -196,7 +184,8 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		try
 		{
 			SAMLAuthnContext samlCtx = SamlResponseHandler.getContext();
-			SamlPreferencesWithETD preferences = getPreferencesWithETD();
+			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan, 
+					attributeSyntaxFactoriesRegistry);
 			updatePreferencesFromUI(preferences, samlCtx, defaultAccept);
 			SamlPreferencesWithETD.savePreferences(preferencesMan, preferences);
 		} catch (EngineException e)
