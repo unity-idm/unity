@@ -86,6 +86,13 @@ public class ExtensionActionParameterComponent extends CustomField<String> imple
 	}
 	
 	@Override
+	public void setComponentError(com.vaadin.server.ErrorMessage componentError) 
+	{
+		super.setComponentError(componentError);
+		parameter.setComponentError(componentError);
+	};
+	
+	@Override
 	protected Component initContent() 
 	{
 		DragAndDropWrapper wrapper = new DragAndDropWrapper(parameter);

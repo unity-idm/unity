@@ -56,7 +56,7 @@ public class TranslationCondition
 			log.debug("Condition evaluated to null value, assuming false");
 			return false;
 		}
-        return result.booleanValue();
+		return result.booleanValue();
 	}
 	
 	public String getCondition()

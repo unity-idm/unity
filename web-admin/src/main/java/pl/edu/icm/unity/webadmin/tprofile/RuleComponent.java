@@ -41,6 +41,7 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.validator.AbstractStringValidator;
 import com.vaadin.server.UserError;
+import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -341,34 +342,16 @@ public class RuleComponent extends VerticalLayout
 		}
 	}
 	
-	public AbstractTranslationRule<?> getRule()
+	public AbstractTranslationRule<?> getRule() throws Exception
 	{
 		String ac = (String) actions.getValue();
 		if (ac == null)
 			return null;
 
 		TranslationActionFactory factory = getActionFactory(ac);	
-		ArrayList<String> params = new ArrayList<String>();
-		for (int i = 0; i < paramsList.getComponentCount(); i++)
-		{
-			ActionParameterComponent tc = (ActionParameterComponent) paramsList.getComponent(i);
-			String val = tc.getActionValue();
-			params.add(val);
-		}
-		String[] wrapper = new String[params.size()];
-		params.toArray(wrapper);
-		TranslationAction action = null;
-		try
-		{			
-			action = factory.getInstance(wrapper);
-
-		} catch (EngineException e)
-		{
-			NotificationPopup.showError(msg,
-					msg.getMessage("TranslationProfileEditor.errorGetAction"), e);
-		}
+		TranslationAction action = factory.getInstance(getActionParams());
 		TranslationCondition cnd = new TranslationCondition();
-		cnd.setCondition(condition.getValue());
+		cnd.setCondition(condition.getValue());			
 		
 		switch (profileType)
 		{
@@ -379,6 +362,20 @@ public class RuleComponent extends VerticalLayout
 		
 		}
 		throw new IllegalStateException("Not implemented");
+	}
+	
+	private String[] getActionParams()
+	{
+		ArrayList<String> params = new ArrayList<String>();
+		for (int i = 0; i < paramsList.getComponentCount(); i++)
+		{
+			ActionParameterComponent tc = (ActionParameterComponent) paramsList.getComponent(i);
+			((AbstractComponent)tc).setComponentError(null);
+			String val = tc.getActionValue();
+			params.add(val);
+		}
+		String[] wrapper = new String[params.size()];
+		return params.toArray(wrapper);
 	}
 	
 	private TranslationActionFactory getActionFactory(String action)
@@ -426,32 +423,37 @@ public class RuleComponent extends VerticalLayout
 
 	public boolean validateRule()
 	{
-		int nval = 0;
-		for (int i = 0; i < paramsList.getComponentCount(); i++)
+		String ac = (String) actions.getValue();
+		if (ac == null)
+			return false;
+		boolean ok = true;
+		
+		TranslationActionFactory factory = getActionFactory(ac);	
+		try
 		{
-			ActionParameterComponent tc = (ActionParameterComponent) paramsList.getComponent(i);
-			tc.setValidationVisible(true);
-			if (!tc.isValid())
-			{
-				nval++;
-			}
-
-		}
-
-		condition.setValidationVisible(true);
-		if (!condition.isValid())
+			factory.getInstance(getActionParams());
+		} catch (Exception e)
 		{
-			nval++;
+			UserError ue = new UserError(
+					msg.getMessage("TranslationProfileEditor.parametersError", e.getMessage()));
+			for (int i = 0; i < paramsList.getComponentCount(); i++)
+				((AbstractComponent)paramsList.getComponent(i)).setComponentError(ue);
+			ok = false;
 		}
-
-		actions.setValidationVisible(true);
-		if (!actions.isValid())
+		
+		condition.setComponentError(null);
+		try 
 		{
-			nval++;
+			TranslationCondition cnd = new TranslationCondition();
+			cnd.setCondition(condition.getValue());			
+		} catch (Exception e)
+		{
+			condition.setComponentError(new UserError(msg.getMessage(
+					"TranslationProfileEditor.conditionError", e.getMessage())));
+			ok = false;
 		}
-
-		return nval == 0;
-
+		
+		return ok;
 	}
 
 	public void test(RemotelyAuthenticatedInput remoteAuthnInput) 

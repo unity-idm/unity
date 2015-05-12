@@ -55,9 +55,12 @@ public class ProfileStep implements WizardStep
 	@Override
 	public boolean onAdvance() 
 	{
-		TranslationProfile translationProfile = editor.getProfile();
-		if (translationProfile == null)
-		{ 
+		TranslationProfile translationProfile;
+		try
+		{
+			translationProfile = editor.getProfile();
+		} catch (Exception e)
+		{
 			return false;
 		}
 		return addCallback.handleProfile(translationProfile);

@@ -305,7 +305,7 @@ public abstract class TranslationProfileEditor extends VerticalLayout
 		this.testProfileButton.setVisible(true);
 	}
 
-	public abstract TranslationProfile getProfile();
+	public abstract TranslationProfile getProfile() throws Exception;
 	
 	protected abstract ProfileType getProfileType();
 }

@@ -19,6 +19,7 @@ import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 
 /**
  * Component to edit or add input translation profile
@@ -36,7 +37,7 @@ public class OutputTranslationProfileEditor extends TranslationProfileEditor
 		super(msg, registry, toEdit, attrsMan, idMan, authnMan, groupsMan);
 	}
 
-	public OutputTranslationProfile getProfile()
+	public OutputTranslationProfile getProfile() throws Exception
 	{
 		int nvalidr= 0;
 		for (RuleComponent cr : rules)
@@ -48,9 +49,7 @@ public class OutputTranslationProfileEditor extends TranslationProfileEditor
 		}	
 		name.setValidationVisible(true);
 		if (!(name.isValid() && nvalidr == 0))
-		{
-			return null;
-		}
+			throw new FormValidationException();
 		String n = name.getValue();
 		String desc = description.getValue();
 		List<OutputTranslationRule> trules = new ArrayList<OutputTranslationRule>();

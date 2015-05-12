@@ -45,9 +45,14 @@ public class TranslationProfileEditDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		TranslationProfile profile = editor.getProfile();
-		if(profile == null)
+		TranslationProfile profile;
+		try
+		{
+			profile = editor.getProfile();
+		} catch (Exception e)
+		{
 			return;
+		}
 			
 		if (callback.handleProfile(profile))
 			close();
